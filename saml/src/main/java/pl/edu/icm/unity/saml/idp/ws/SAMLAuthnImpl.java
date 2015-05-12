@@ -21,6 +21,7 @@ import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -46,15 +47,18 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 	protected String endpointAddress;
 	protected IdPEngine idpEngine;
 	protected PreferencesManagement preferencesMan;
+	protected AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
 	
 
 	public SAMLAuthnImpl(SamlIdpProperties samlProperties, String endpointAddress,
-			IdPEngine idpEngine, PreferencesManagement preferencesMan)
+			IdPEngine idpEngine, PreferencesManagement preferencesMan,
+			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry)
 	{
 		this.samlProperties = samlProperties;
 		this.endpointAddress = endpointAddress;
 		this.idpEngine = idpEngine;
 		this.preferencesMan = preferencesMan;
+		this.attributeSyntaxFactoriesRegistry = attributeSyntaxFactoriesRegistry;
 	}
 
 	@Override
@@ -77,7 +81,8 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 		ResponseDocument respDoc;
 		try
 		{
-			SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan);
+			SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan,
+					attributeSyntaxFactoriesRegistry);
 			SPSettings spPreferences = preferences.getSPSettings(samlRequester);
 
 			TranslationResult userInfo = getUserInfo(samlProcessor);

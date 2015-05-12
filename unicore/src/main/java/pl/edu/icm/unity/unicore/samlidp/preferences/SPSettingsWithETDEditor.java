@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.Set;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
-
 import pl.edu.icm.unity.saml.idp.preferences.SPSettingsEditor;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -16,6 +15,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETDSettings;
 import pl.edu.icm.unity.unicore.samlidp.web.ETDSettingsEditor;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 /**
  * Allows to edit settings for a single UNICORE SAML service provider.
@@ -27,18 +27,20 @@ public class SPSettingsWithETDEditor extends SPSettingsEditor
 {
 	private ETDSettingsEditor editor;
 	
-	public SPSettingsWithETDEditor(UnityMessageSource msg, Identity[] identities, 
+	public SPSettingsWithETDEditor(UnityMessageSource msg, AttributeHandlerRegistry attributeHandlerRegistries,
+			Identity[] identities, 
 			Collection<AttributeType> atTypes, String sp, SPSettings initial, SPETDSettings initialETD)
 	{
-		super(msg, identities, atTypes, sp, initial);
+		super(msg, attributeHandlerRegistries, identities, atTypes, sp, initial);
 		editor = new ETDSettingsEditor(msg, this);
 		editor.setValues(initialETD);
 	}
 
-	public SPSettingsWithETDEditor(UnityMessageSource msg, Identity[] identities, Collection<AttributeType> atTypes,
+	public SPSettingsWithETDEditor(UnityMessageSource msg, AttributeHandlerRegistry attributeHandlerRegistries, 
+			Identity[] identities, Collection<AttributeType> atTypes,
 			Set<String> allSps)
 	{
-		super(msg, identities, atTypes, allSps);
+		super(msg, attributeHandlerRegistries, identities, atTypes, allSps);
 		editor = new ETDSettingsEditor(msg, this);
 	}
 	

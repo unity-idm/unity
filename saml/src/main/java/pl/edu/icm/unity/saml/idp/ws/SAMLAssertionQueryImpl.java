@@ -18,6 +18,7 @@ import pl.edu.icm.unity.saml.idp.processor.AttributeQueryResponseProcessor;
 import pl.edu.icm.unity.saml.validator.UnityAttributeQueryValidator;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
+import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -47,15 +48,18 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 	protected String endpointAddress;
 	protected IdPEngine idpEngine;
 	protected PreferencesManagement preferencesMan;
+	private AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
 	
 	public SAMLAssertionQueryImpl(SamlIdpProperties samlProperties, String endpointAddress,
-			IdPEngine idpEngine, PreferencesManagement preferencesMan)
+			IdPEngine idpEngine, PreferencesManagement preferencesMan,
+			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry)
 	{
 		super();
 		this.samlProperties = samlProperties;
 		this.endpointAddress = endpointAddress;
 		this.idpEngine = idpEngine;
 		this.preferencesMan = preferencesMan;
+		this.attributeSyntaxFactoriesRegistry = attributeSyntaxFactoriesRegistry;
 	}
 
 	@Override
@@ -77,7 +81,8 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 		try
 		{
 			IdentityTaV subjectId = processor.getSubjectsIdentity();
-			SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan);
+			SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan,
+					attributeSyntaxFactoriesRegistry, new EntityParam(subjectId));
 			NameIDType reqIssuer = query.getAttributeQuery().getIssuer();
 			SPSettings spPreferences = preferences.getSPSettings(reqIssuer);
 			Collection<Attribute<?>> attributes = getAttributes(subjectId, processor, spPreferences);

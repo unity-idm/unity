@@ -37,6 +37,7 @@ import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.RoutingServlet;
@@ -64,12 +65,16 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	protected SSOResponseHandler ssoResponseHandler;
 	protected SessionManagement sessionMan;
 	protected String samlUiServletPath;
+	protected AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
 	
-	public IdpConsentDeciderServlet(PreferencesManagement preferencesMan, IdPEngine idpEngine,
+	public IdpConsentDeciderServlet(PreferencesManagement preferencesMan, 
+			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry,
+			IdPEngine idpEngine,
 			FreemarkerHandler freemarker,
 			SessionManagement sessionMan, String samlUiServletPath)
 	{
 		this.preferencesMan = preferencesMan;
+		this.attributeSyntaxFactoriesRegistry = attributeSyntaxFactoriesRegistry;
 		this.idpEngine = idpEngine;
 		this.ssoResponseHandler = new SSOResponseHandler(freemarker);
 		this.sessionMan = sessionMan;
@@ -133,7 +138,8 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	
 	protected SPSettings loadPreferences(SAMLAuthnContext samlCtx) throws EngineException
 	{
-		SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan);
+		SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan, 
+				attributeSyntaxFactoriesRegistry);
 		return preferences.getSPSettings(samlCtx.getRequest().getIssuer());
 	}
 	

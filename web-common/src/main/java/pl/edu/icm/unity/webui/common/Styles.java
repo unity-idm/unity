@@ -63,6 +63,7 @@ public enum Styles
 	bottomMargin("u-bottomMargin"),
 	margin("u-margin"),
 	idpTile("u-idptile"),
+	indent("u-indent"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),

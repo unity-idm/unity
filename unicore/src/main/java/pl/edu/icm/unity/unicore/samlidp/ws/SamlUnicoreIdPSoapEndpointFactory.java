@@ -24,6 +24,7 @@ import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
+import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
@@ -52,13 +53,15 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 	private UnityServerConfiguration mainConfig;
 	private SAMLLogoutProcessorFactory logoutProcessorFactory;
 	private AuthenticationProcessor authnProcessor;
+	private AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
 	
 	@Autowired
 	public SamlUnicoreIdPSoapEndpointFactory(UnityMessageSource msg, IdPEngine idpEngine,
 			PreferencesManagement preferencesMan, PKIManagement pkiManagement,
 			ExecutorsService executorsService, SessionManagement sessionMan,
 			MetaDownloadManager dowloadManager, UnityServerConfiguration mainConfig,
-			SAMLLogoutProcessorFactory logoutProcessorFactory, AuthenticationProcessor authnProcessor)
+			SAMLLogoutProcessorFactory logoutProcessorFactory, AuthenticationProcessor authnProcessor,
+			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry)
 	{
 		super();
 		this.msg = msg;
@@ -68,6 +71,7 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 		this.executorsService = executorsService;
 		this.sessionMan = sessionMan;
 		this.authnProcessor = authnProcessor;
+		this.attributeSyntaxFactoriesRegistry = attributeSyntaxFactoriesRegistry;
 		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
 		this.downloadManager = dowloadManager;
 		this.mainConfig = mainConfig;
@@ -96,6 +100,6 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 				SamlIdPSoapEndpointFactory.METADATA_SERVLET_PATH, idpEngine,
 				preferencesMan, pkiManagement, executorsService, sessionMan,
 				remoteMetadataManagers, downloadManager, mainConfig, logoutProcessorFactory,
-				authnProcessor);
+				authnProcessor, attributeSyntaxFactoriesRegistry);
 	}
 }

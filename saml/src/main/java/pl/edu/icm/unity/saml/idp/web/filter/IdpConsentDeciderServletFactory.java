@@ -11,6 +11,7 @@ import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
+import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 
 /**
  * Creates {@link IdpConsentDeciderServlet}s.
@@ -24,21 +25,25 @@ public class IdpConsentDeciderServletFactory
 	protected IdPEngine idpEngine;
 	protected FreemarkerHandler freemarker;
 	protected SessionManagement sessionMan;
+	private AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
 
 	@Autowired
 	public IdpConsentDeciderServletFactory(PreferencesManagement preferencesMan,
 			IdPEngine idpEngine, FreemarkerHandler freemarker,
-			SessionManagement sessionMan)
+			SessionManagement sessionMan,
+			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry)
 	{
 		this.preferencesMan = preferencesMan;
 		this.idpEngine = idpEngine;
 		this.freemarker = freemarker;
 		this.sessionMan = sessionMan;
+		this.attributeSyntaxFactoriesRegistry = attributeSyntaxFactoriesRegistry;
 	}
 	
 	public IdpConsentDeciderServlet getInstance(String uiServletPath)
 	{
-		return new IdpConsentDeciderServlet(preferencesMan, idpEngine, freemarker, sessionMan, uiServletPath);
+		return new IdpConsentDeciderServlet(preferencesMan, attributeSyntaxFactoriesRegistry, 
+				idpEngine, freemarker, sessionMan, uiServletPath);
 	}
 	
 }

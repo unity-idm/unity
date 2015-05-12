@@ -6,7 +6,11 @@ package pl.edu.icm.unity.samlidp.ws;
 
 import static org.junit.Assert.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.assertion.AttributeAssertionParser;
@@ -19,11 +23,24 @@ import eu.unicore.security.wsutil.samlclient.AuthnResponseAssertions;
 import eu.unicore.security.wsutil.samlclient.SAMLAttributeQueryClient;
 import eu.unicore.security.wsutil.samlclient.SAMLAuthnClient;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
+import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
+import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.ws.SamlIdPSoapEndpointFactory;
 import pl.edu.icm.unity.samlidp.AbstractTestIdpBase;
+import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
+import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 public class TestSoapEndpoint extends AbstractTestIdpBase
 {
+	
+	@Autowired
+	private AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
+	
 	/**
 	 * Tests authentication and attribute query of dynamic identities.
 	 */
@@ -196,4 +213,51 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		assertEquals(1, a3.getStringValues().size());
 		assertEquals("124.1", a3.getStringValues().get(0));
 	}
+	
+	
+	@Test
+	public void testPreferences() throws Exception
+	{
+		String attrWSUrl = "https://localhost:52443/saml" + SamlIdPSoapEndpointFactory.SERVLET_PATH +
+				"/AssertionQueryService";
+		
+		DefaultClientConfiguration clientCfg = getClientCfg();
+		clientCfg.setHttpUser("user1");
+		clientCfg.setHttpPassword("mockPassword1");
+		clientCfg.setSslAuthn(false);
+		clientCfg.setHttpAuthn(true);
+		NameID localIssuer = new NameID("http://example-reqester", SAMLConstants.NFORMAT_ENTITY);
+		
+		EntityParam entityParam = new EntityParam(new IdentityTaV(X500Identity.ID, 
+				"CN=Test UVOS,O=UNICORE,C=EU"));
+		SamlPreferences preferences = new SamlPreferences(attributeSyntaxFactoriesRegistry);
+		SPSettings settings = new SPSettings();
+		Map<String, Attribute<?>> hidden = new HashMap<>();
+		hidden.put("memberOf", null);
+		FloatingPointAttribute fpa = new FloatingPointAttribute("floatA", "/", AttributeVisibility.full, 124.1);
+		hidden.put("floatA", fpa);
+		settings.setHiddenAttribtues(hidden);
+		preferences.setSPSettings("http://example-reqester", settings);
+		preferencesMan.setPreference(entityParam, SamlPreferences.ID, preferences.getSerializedConfiguration());
+		
+		SAMLAttributeQueryClient client = new SAMLAttributeQueryClient(attrWSUrl, clientCfg);
+		AttributeAssertionParser a = client.getAssertion(new NameID("CN=Test UVOS,O=UNICORE,C=EU", SAMLConstants.NFORMAT_DN),
+				localIssuer);
+		assertEquals(5, a.getAttributes().size()); //2 identities, 3 plain attributes
+		ParsedAttribute a1 = a.getAttribute("stringA");
+		assertNotNull(a1);
+		assertEquals(0, a1.getStringValues().size());
+		ParsedAttribute a2 = a.getAttribute("intA");
+		assertNotNull(a2);
+		assertEquals(1, a2.getStringValues().size());
+		assertEquals("1", a2.getStringValues().get(0));
+		ParsedAttribute a3 = a.getAttribute("floatA");
+		assertNotNull(a3);
+		assertEquals(2, a3.getStringValues().size());
+		assertEquals("123.1", a3.getStringValues().get(0));
+		assertEquals("14.2", a3.getStringValues().get(1));
+		ParsedAttribute a4 = a.getAttribute("memberOf");
+		assertNull(a4);
+	}
+
 }

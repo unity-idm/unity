@@ -5,10 +5,13 @@
 package pl.edu.icm.unity.saml.idp.preferences;
 
 import java.util.Iterator;
-import java.util.Set;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
@@ -26,11 +29,12 @@ public class SamlSPSettingsViewer extends FormLayout
 	protected Label autoConfirm;
 	protected ListSelect hiddenAttributes;
 	protected Label defaultIdentity;
+	protected AttributeHandlerRegistry attrHandlerRegistry;
 	
-	
-	public SamlSPSettingsViewer(UnityMessageSource msg)
+	public SamlSPSettingsViewer(UnityMessageSource msg, AttributeHandlerRegistry attrHandlerRegistry)
 	{
 		this.msg = msg;
+		this.attrHandlerRegistry = attrHandlerRegistry;
 		
 		setSpacing(true);
 		setMargin(true);
@@ -66,18 +70,20 @@ public class SamlSPSettingsViewer extends FormLayout
 		
 		hiddenAttributes.setReadOnly(false);
 		hiddenAttributes.removeAllItems();
-		Set<String> hidden = spSettings.getHiddenAttribtues();
-		if (hidden.size() > 0)
+		Map<String, Attribute<?>> attributes = spSettings.getHiddenAttribtues();
+		hiddenAttributes.setVisible(!attributes.isEmpty());
+		for (Entry<String, Attribute<?>> entry : attributes.entrySet())
 		{
-			for (String h: hidden)
+			if (entry.getValue() == null)
+				hiddenAttributes.addItem(entry.getKey());
+			else
 			{
-				hiddenAttributes.addItem(h);
+				String simplifiedAttributeRepresentation = attrHandlerRegistry.
+						getSimplifiedAttributeRepresentation(entry.getValue(), 50);
+				hiddenAttributes.addItem(simplifiedAttributeRepresentation);
 			}
-			hiddenAttributes.setVisible(true);
-		} else
-		{
-			hiddenAttributes.setVisible(false);
 		}
+		
 		hiddenAttributes.setReadOnly(true);
 		
 		String selIdentity = spSettings.getSelectedIdentity();

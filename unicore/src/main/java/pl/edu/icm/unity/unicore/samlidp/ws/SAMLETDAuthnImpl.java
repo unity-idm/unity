@@ -16,6 +16,7 @@ import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.ws.SAMLAuthnImpl;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
+import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -45,9 +46,10 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 
 	public SAMLETDAuthnImpl(SamlIdpProperties samlProperties, String endpointAddress,
 			IdPEngine idpEngine,
-			PreferencesManagement preferencesMan)
+			PreferencesManagement preferencesMan,
+			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry)
 	{
-		super(samlProperties, endpointAddress, idpEngine, preferencesMan);
+		super(samlProperties, endpointAddress, idpEngine, preferencesMan, attributeSyntaxFactoriesRegistry);
 	}
 
 	@Override
@@ -69,7 +71,8 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 		ResponseDocument respDoc;
 		try
 		{
-			SamlPreferencesWithETD preferences = SamlPreferencesWithETD.getPreferences(preferencesMan);
+			SamlPreferencesWithETD preferences = SamlPreferencesWithETD.getPreferences(preferencesMan,
+					attributeSyntaxFactoriesRegistry);
 			SPETDSettings spEtdPreferences = preferences.getSPETDSettings(samlRequester);
 			SPSettings spPreferences = preferences.getSPSettings(samlRequester);
 			

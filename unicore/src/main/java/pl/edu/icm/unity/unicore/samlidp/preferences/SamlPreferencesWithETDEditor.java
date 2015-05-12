@@ -18,6 +18,7 @@ import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETD
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 /**
  * Viewing and editing UI of {@link SamlPreferencesWithETD}.
@@ -28,9 +29,9 @@ public class SamlPreferencesWithETDEditor extends SamlPreferencesEditor
 	private SamlPreferencesWithETD preferences;
 	
 	public SamlPreferencesWithETDEditor(UnityMessageSource msg, SamlPreferencesWithETD preferences, IdentitiesManagement idsMan,
-			AttributesManagement atsMan)
+			AttributesManagement atsMan, AttributeHandlerRegistry attributeHandlerRegistries)
 	{
-		super(msg, preferences, idsMan, atsMan);
+		super(msg, preferences, idsMan, atsMan, attributeHandlerRegistries);
 		this.preferences = preferences;
 	}
 
@@ -45,7 +46,8 @@ public class SamlPreferencesWithETDEditor extends SamlPreferencesEditor
 	@Override
 	protected SamlSPSettingsWithETDViewer configureViewer()
 	{
-		final SamlSPSettingsWithETDViewer viewer = new SamlSPSettingsWithETDViewer(msg);
+		final SamlSPSettingsWithETDViewer viewer = new SamlSPSettingsWithETDViewer(msg, 
+				attributeHandlerRegistry);
 		table.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override
@@ -84,8 +86,8 @@ public class SamlPreferencesWithETDEditor extends SamlPreferencesEditor
 				NotificationPopup.showError(msg, msg.getMessage("SAMLPreferences.errorLoadindSystemInfo"), e);
 				return;
 			}
-			SPSettingsWithETDEditor editor = new SPSettingsWithETDEditor(msg, identities, 
-					atTypes, preferences.getKeys());
+			SPSettingsWithETDEditor editor = new SPSettingsWithETDEditor(msg, attributeHandlerRegistry,
+					identities, atTypes, preferences.getKeys());
 			new SPSettingsWithETDDialog(msg, editor, new SPSettingsWithETDDialog.Callback()
 			{
 				@Override
@@ -117,8 +119,8 @@ public class SamlPreferencesWithETDEditor extends SamlPreferencesEditor
 			@SuppressWarnings("unchecked")
 			GenericItem<String> item = (GenericItem<String>)target;
 			String sp = item.getElement();
-			SPSettingsWithETDEditor editor = new SPSettingsWithETDEditor(msg, identities, 
-					atTypes, sp, preferences.getSPSettings(sp),
+			SPSettingsWithETDEditor editor = new SPSettingsWithETDEditor(msg, attributeHandlerRegistry, 
+					identities, atTypes, sp, preferences.getSPSettings(sp),
 					preferences.getSPETDSettings(sp));
 			new SPSettingsWithETDDialog(msg, editor, new SPSettingsWithETDDialog.Callback()
 			{

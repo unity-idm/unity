@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
+import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 
 
@@ -24,6 +25,11 @@ public class SamlPreferencesWithETD extends SamlPreferences
 {
 	public static final String ID = SamlPreferencesWithETD.class.getName();
 	private Map<String, SPETDSettings> spEtdSettings = new HashMap<String, SPETDSettings>();
+
+	public SamlPreferencesWithETD(AttributeSyntaxFactoriesRegistry syntaxReg)
+	{
+		super(syntaxReg);
+	}
 
 	@Override
 	protected void deserializeAll(ObjectNode main)
@@ -98,9 +104,10 @@ public class SamlPreferencesWithETD extends SamlPreferences
 		spEtdSettings.remove(getSPKey(spName));
 	}
 	
-	public static SamlPreferencesWithETD getPreferences(PreferencesManagement preferencesMan) throws EngineException
+	public static SamlPreferencesWithETD getPreferences(PreferencesManagement preferencesMan, 
+			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry) throws EngineException
 	{
-		SamlPreferencesWithETD ret = new SamlPreferencesWithETD();
+		SamlPreferencesWithETD ret = new SamlPreferencesWithETD(attributeSyntaxFactoriesRegistry);
 		initPreferencesGeneric(preferencesMan, ret, SamlPreferencesWithETD.ID);
 		return ret;
 	}

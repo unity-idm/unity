@@ -29,6 +29,7 @@ import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesEditor;
 
 /**
@@ -49,14 +50,16 @@ public class SamlPreferencesEditor implements PreferencesEditor
 	
 	protected Identity[] identities;
 	protected Collection<AttributeType> atTypes;
+	protected AttributeHandlerRegistry attributeHandlerRegistry;
 
 	public SamlPreferencesEditor(UnityMessageSource msg, SamlPreferences preferences, IdentitiesManagement idsMan,
-			AttributesManagement atsMan)
+			AttributesManagement atsMan, AttributeHandlerRegistry attributeHandlerRegistry)
 	{
 		this.msg = msg;
 		this.preferences = preferences;
 		this.idsMan = idsMan;
 		this.atsMan = atsMan;
+		this.attributeHandlerRegistry = attributeHandlerRegistry;
 		
 		init();
 	}
@@ -104,7 +107,7 @@ public class SamlPreferencesEditor implements PreferencesEditor
 	
 	protected SamlSPSettingsViewer configureViewer()
 	{
-		final SamlSPSettingsViewer viewer = new SamlSPSettingsViewer(msg);
+		final SamlSPSettingsViewer viewer = new SamlSPSettingsViewer(msg, attributeHandlerRegistry);
 		table.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override
@@ -154,7 +157,7 @@ public class SamlPreferencesEditor implements PreferencesEditor
 				NotificationPopup.showError(msg, msg.getMessage("SAMLPreferences.errorLoadindSystemInfo"), e);
 				return;
 			}
-			SPSettingsEditor editor = new SPSettingsEditor(msg, identities, 
+			SPSettingsEditor editor = new SPSettingsEditor(msg, attributeHandlerRegistry, identities, 
 					atTypes, preferences.getKeys());
 			new SPSettingsDialog(msg, editor, new SPSettingsDialog.Callback()
 			{
@@ -189,7 +192,7 @@ public class SamlPreferencesEditor implements PreferencesEditor
 			}
 			@SuppressWarnings("unchecked")
 			GenericItem<String> item = (GenericItem<String>)target;
-			SPSettingsEditor editor = new SPSettingsEditor(msg, identities, 
+			SPSettingsEditor editor = new SPSettingsEditor(msg, attributeHandlerRegistry, identities, 
 					atTypes, item.getElement(), preferences.getSPSettings(item.getElement()));
 			new SPSettingsDialog(msg, editor, new SPSettingsDialog.Callback()
 			{

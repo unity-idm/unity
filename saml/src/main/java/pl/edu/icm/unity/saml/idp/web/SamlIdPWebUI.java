@@ -4,10 +4,11 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
@@ -25,12 +26,14 @@ import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServlet;
+import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
@@ -91,12 +94,16 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	protected AuthnResponseProcessor samlProcessor;
 	protected SamlResponseHandler samlResponseHandler;
 	protected CheckBox rememberCB;
+	private AttributesManagement attrsMan;
+	protected AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
 
 	@Autowired
 	public SamlIdPWebUI(UnityMessageSource msg, FreemarkerHandler freemarkerHandler,
 			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
 			WebAuthenticationProcessor authnProcessor, IdPEngine idpEngine,
-			IdentityTypesRegistry identityTypesRegistry, SessionManagement sessionMan)
+			IdentityTypesRegistry identityTypesRegistry, SessionManagement sessionMan, 
+			AttributesManagement attrsMan, 
+			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry)
 	{
 		super(msg);
 		this.msg = msg;
@@ -107,6 +114,8 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		this.idpEngine = idpEngine;
 		this.identityTypesRegistry = identityTypesRegistry;
 		this.sessionMan = sessionMan;
+		this.attrsMan = attrsMan;
+		this.attributeSyntaxFactoriesRegistry = attributeSyntaxFactoriesRegistry;
 	}
 
 	protected TranslationResult getUserInfo(SAMLAuthnContext samlCtx, AuthnResponseProcessor processor) 
@@ -216,7 +225,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	
 	protected void createAttributesPart(TranslationResult translationResult, VerticalLayout contents) throws EngineException
 	{
-		attrsPresenter = new ExposedSelectableAttributesComponent(msg, handlersRegistry, 
+		attrsPresenter = new ExposedSelectableAttributesComponent(msg, handlersRegistry, attrsMan, 
 				translationResult.getAttributes());
 		contents.addComponent(attrsPresenter);
 	}
@@ -250,7 +259,8 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	{
 		try
 		{
-			SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan);
+			SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan, 
+					attributeSyntaxFactoriesRegistry);
 			SPSettings settings = preferences.getSPSettings(samlCtx.getRequest().getIssuer());
 			updateUIFromPreferences(settings, samlCtx);
 		} catch (EopException e)
@@ -269,8 +279,8 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	{
 		if (settings == null)
 			return;
-		Set<String> hidden = settings.getHiddenAttribtues();
-		attrsPresenter.setHidden(hidden);
+		Map<String, Attribute<?>> attribtues = settings.getHiddenAttribtues();
+		attrsPresenter.setInitialState(attribtues);
 		String selId = settings.getSelectedIdentity();
 		idSelector.setSelected(selId);
 
@@ -299,8 +309,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		SPSettings settings = preferences.getSPSettings(reqIssuer);
 		settings.setDefaultAccept(defaultAccept);
 		settings.setDoNotAsk(true);
-		
-		settings.setHiddenAttribtues(attrsPresenter.getHidden());
+		settings.setHiddenAttribtues(attrsPresenter.getHiddenAttributes());
 
 		String identityValue = idSelector.getSelectedIdentityForPreferences();
 		if (identityValue != null)
@@ -313,7 +322,8 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		try
 		{
 			SAMLAuthnContext samlCtx = SamlResponseHandler.getContext();
-			SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan);
+			SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan, 
+					attributeSyntaxFactoriesRegistry);
 			updatePreferencesFromUI(preferences, samlCtx, defaultAccept);
 			SamlPreferences.savePreferences(preferencesMan, preferences);
 		} catch (EngineException e)
@@ -335,8 +345,8 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		ResponseDocument respDoc;
 		try
 		{
-			Collection<Attribute<?>> attributes = attrsPresenter.getUserFilteredAttributes();
-			respDoc = samlProcessor.processAuthnRequest(idSelector.getSelectedIdentity(), attributes);
+			respDoc = samlProcessor.processAuthnRequest(idSelector.getSelectedIdentity(), 
+					getExposedAttributes());
 		} catch (Exception e)
 		{
 			samlResponseHandler.handleException(e, false);
@@ -345,6 +355,16 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		addSessionParticipant(samlCtx, samlProcessor.getAuthenticatedSubject().getNameID(), 
 				samlProcessor.getSessionId());
 		samlResponseHandler.returnSamlResponse(respDoc);
+	}
+	
+	protected Collection<Attribute<?>> getExposedAttributes()
+	{
+		Map<String, Attribute<?>> userFilteredAttributes = attrsPresenter.getUserFilteredAttributes();
+		Collection<Attribute<?>> nonNull = new ArrayList<>(userFilteredAttributes.size());
+		for (Attribute<?> a: userFilteredAttributes.values())
+			if (a != null)
+				nonNull.add(a);
+		return nonNull;
 	}
 	
 	protected void addSessionParticipant(SAMLAuthnContext samlCtx, NameIDType returnedSubject,

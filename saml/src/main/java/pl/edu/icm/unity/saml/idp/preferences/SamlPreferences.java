@@ -5,14 +5,18 @@
 package pl.edu.icm.unity.saml.idp.preferences;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
+import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.provider.IdPPreferences;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 
@@ -33,8 +37,14 @@ public class SamlPreferences extends IdPPreferences
 	public static final String ID = SamlPreferences.class.getName();
 	protected final ObjectMapper mapper = Constants.MAPPER;
 
+	protected AttributeSyntaxFactoriesRegistry syntaxReg;
 	private Map<String, SPSettings> spSettings = new HashMap<String, SamlPreferences.SPSettings>();
 	
+	public SamlPreferences(AttributeSyntaxFactoriesRegistry syntaxReg)
+	{
+		this.syntaxReg = syntaxReg;
+	}
+
 	@Override
 	protected void serializeAll(ObjectNode main)
 	{
@@ -48,9 +58,19 @@ public class SamlPreferences extends IdPPreferences
 		ObjectNode main = mapper.createObjectNode();
 		main.put("doNotAsk", what.doNotAsk);
 		main.put("defaultAccept", what.defaultAccept);
-		ArrayNode hN = main.withArray("hidden");
-		for (String h: what.hiddenAttribtues)
-			hN.add(h);
+		ArrayNode hN = main.withArray("attrHidden");
+		SimpleAttributeSerializer serializer = new SimpleAttributeSerializer(syntaxReg);
+		for (Entry<String, Attribute<?>> entry : what.hiddenAttribtues.entrySet())
+		{
+			ObjectNode aEntry = hN.addObject();
+			aEntry.put("name", entry.getKey());
+			if (entry.getValue() != null)
+			{
+				ObjectNode jsonAttr = serializer.toJson(entry.getValue());
+				aEntry.set("attribute", jsonAttr);
+			}
+		}
+		
 		if (what.selectedIdentity != null)
 			main.put("selectedIdentity", what.selectedIdentity);
 		return main;
@@ -73,20 +93,66 @@ public class SamlPreferences extends IdPPreferences
 		SPSettings ret = new SPSettings();
 		ret.setDefaultAccept(from.get("defaultAccept").asBoolean());
 		ret.setDoNotAsk(from.get("doNotAsk").asBoolean());
-		Set<String> hidden = new HashSet<String>();
-		ArrayNode hiddenA = from.withArray("hidden");
-		for (int i=0; i<hiddenA.size(); i++)
-			hidden.add(hiddenA.get(i).asText());
-		ret.setHiddenAttribtues(hidden);
+		
+		
+		if (from.has("hidden"))
+		{
+			handleLegacyHidden((ArrayNode) from.get("hidden"), ret);
+		} else
+		{
+			Map<String, Attribute<?>> attributes = new HashMap<>();
+			SimpleAttributeSerializer serializer = new SimpleAttributeSerializer(syntaxReg);
+			ArrayNode attrsNode = (ArrayNode) from.get("attrHidden");
+			for (int i=0; i<attrsNode.size(); i++)
+			{
+				ObjectNode attrNode = (ObjectNode) attrsNode.get(i);
+				String name = attrNode.get("name").asText();
+				if (attrNode.has("attribute"))
+				{
+					try
+					{
+						Attribute<Object> readA = serializer.fromJson(
+								(ObjectNode) attrNode.get("attribute"));
+						attributes.put(name, readA);
+					} catch (IllegalTypeException e)
+					{
+						//ok, type is somehow missing, ignore this preference
+					}
+				} else
+				{
+					attributes.put(name, null);
+				}
+			}
+			ret.setHiddenAttribtues(attributes);
+		}
+		
+		
 		if (from.has("selectedIdentity"))
 			ret.setSelectedIdentity(from.get("selectedIdentity").asText());
 		return ret;
 	}
 
-	public static SamlPreferences getPreferences(PreferencesManagement preferencesMan) throws EngineException
+	protected void handleLegacyHidden(ArrayNode hiddenA, SPSettings ret)
 	{
-		SamlPreferences ret = new SamlPreferences();
+		Map<String, Attribute<?>> hidden = new HashMap<>();
+		for (int i=0; i<hiddenA.size(); i++)
+			hidden.put(hiddenA.get(i).asText(), null);
+		ret.setHiddenAttribtues(hidden);
+	}
+	
+	public static SamlPreferences getPreferences(PreferencesManagement preferencesMan,
+			AttributeSyntaxFactoriesRegistry syntaxReg) throws EngineException
+	{
+		SamlPreferences ret = new SamlPreferences(syntaxReg);
 		initPreferencesGeneric(preferencesMan, ret, SamlPreferences.ID);
+		return ret;
+	}
+
+	public static SamlPreferences getPreferences(PreferencesManagement preferencesMan,
+			AttributeSyntaxFactoriesRegistry syntaxReg, EntityParam entity) throws EngineException
+	{
+		SamlPreferences ret = new SamlPreferences(syntaxReg);
+		initPreferencesGeneric(preferencesMan, ret, SamlPreferences.ID, entity);
 		return ret;
 	}
 	
@@ -162,7 +228,7 @@ public class SamlPreferences extends IdPPreferences
 	{
 		private boolean doNotAsk=false;
 		private boolean defaultAccept=true;
-		private Set<String> hiddenAttribtues = new HashSet<String>();
+		private Map<String, Attribute<?>> hiddenAttribtues = new HashMap<>();
 		private String selectedIdentity;
 
 		public boolean isDoNotAsk()
@@ -181,16 +247,16 @@ public class SamlPreferences extends IdPPreferences
 		{
 			this.defaultAccept = defaultAccept;
 		}
-		public Set<String> getHiddenAttribtues()
+		public Map<String, Attribute<?>> getHiddenAttribtues()
 		{
-			Set<String> ret = new HashSet<String>();
-			ret.addAll(hiddenAttribtues);
+			Map<String, Attribute<?>> ret = new HashMap<>();
+			ret.putAll(hiddenAttribtues);
 			return ret;
 		}
-		public void setHiddenAttribtues(Set<String> hiddenAttribtues)
+		public void setHiddenAttribtues(Map<String, Attribute<?>> attribtues)
 		{
 			this.hiddenAttribtues.clear();
-			this.hiddenAttribtues.addAll(hiddenAttribtues);
+			this.hiddenAttribtues.putAll(attribtues);
 		}
 		public String getSelectedIdentity()
 		{

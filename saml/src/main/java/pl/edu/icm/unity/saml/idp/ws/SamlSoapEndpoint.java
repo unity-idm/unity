@@ -27,6 +27,7 @@ import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
@@ -57,6 +58,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	private MetaDownloadManager downloadManager;
 	private UnityServerConfiguration mainConfig;
 	private SAMLLogoutProcessorFactory logoutProcessorFactory;
+	protected AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
 	
 	public SamlSoapEndpoint(UnityMessageSource msg, EndpointTypeDescription type,
 			String servletPath, String metadataPath, IdPEngine idpEngine,
@@ -64,7 +66,8 @@ public class SamlSoapEndpoint extends CXFEndpoint
 			ExecutorsService executorsService, SessionManagement sessionMan,
 			Map<String, RemoteMetaManager> remoteMetadataManagers,
 			MetaDownloadManager downloadManager, UnityServerConfiguration mainConfig,
-			SAMLLogoutProcessorFactory logoutProcessorFactory, AuthenticationProcessor authnProcessor)
+			SAMLLogoutProcessorFactory logoutProcessorFactory, AuthenticationProcessor authnProcessor,
+			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry)
 	{
 		super(msg, sessionMan, authnProcessor, type, servletPath);
 		this.idpEngine = idpEngine;
@@ -76,6 +79,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		this.downloadManager = downloadManager;
 		this.mainConfig = mainConfig;
 		this.logoutProcessorFactory = logoutProcessorFactory;
+		this.attributeSyntaxFactoriesRegistry = attributeSyntaxFactoriesRegistry;
 	}
 
 	@Override
@@ -127,10 +131,10 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		String endpointURL = getServletUrl(servletPath);
 		SamlIdpProperties virtualConf = (SamlIdpProperties) myMetadataManager.getVirtualConfiguration();
 		SAMLAssertionQueryImpl assertionQueryImpl = new SAMLAssertionQueryImpl(virtualConf, 
-				endpointURL, idpEngine, preferencesMan);
+				endpointURL, idpEngine, preferencesMan, attributeSyntaxFactoriesRegistry);
 		addWebservice(SAMLQueryInterface.class, assertionQueryImpl);
 		SAMLAuthnImpl authnImpl = new SAMLAuthnImpl(virtualConf, endpointURL, 
-				idpEngine, preferencesMan);
+				idpEngine, preferencesMan, attributeSyntaxFactoriesRegistry);
 		addWebservice(SAMLAuthnInterface.class, authnImpl);
 		
 		configureSLOService(virtualConf, endpointURL);

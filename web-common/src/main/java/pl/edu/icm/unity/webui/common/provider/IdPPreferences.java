@@ -65,6 +65,13 @@ public abstract class IdPPreferences implements JsonSerializable
 	{
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		EntityParam entity = new EntityParam(ae.getEntityId());
+		initPreferencesGeneric(preferencesMan, toInit, id, entity);
+	}
+
+	public static void initPreferencesGeneric(PreferencesManagement preferencesMan, JsonSerializable toInit, 
+			String id, EntityParam entity) 
+			throws EngineException
+	{
 		String raw = preferencesMan.getPreference(entity, id);
 		toInit.setSerializedConfiguration(raw);
 	}

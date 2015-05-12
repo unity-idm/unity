@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
@@ -242,19 +242,50 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 	}
 
 	/**
-	 * Filters the given attributes map with settings from user-controled preferences
+	 * Filters the given attributes map with settings from user-controlled preferences
 	 * @param preferences
 	 * @param all
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void filterAttributesWithPreferences(SPSettings preferences, Map<String, Attribute<?>> all)
 	{
-		Set<String> hidden = preferences.getHiddenAttribtues();
-		for (String hiddenA: hidden)
-			all.remove(hiddenA);
+		Map<String, Attribute<?>> hiddenAttribtues = preferences.getHiddenAttribtues();
+		for (Entry<String, Attribute<?>> entry : hiddenAttribtues.entrySet())
+		{
+			if (!all.containsKey(entry.getKey()))
+				continue;
+			
+			if (entry.getValue() == null)
+			{
+				all.remove(entry.getKey());
+			} else
+			{
+				Attribute attribute = all.get(entry.getKey());
+				List<Object> filteredValues = new ArrayList<>();
+				for (Object value : attribute.getValues())
+				{
+					if (!findValue(value, entry.getValue()))
+						filteredValues.add(value);
+				}
+				attribute.setValues(filteredValues);
+			}
+		}
+		
 		if (log.isDebugEnabled())
 			log.debug("Processed attributes to be returned: " + all.values());
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private boolean findValue(Object value, Attribute attr)
+	{
+		for (Object object : attr.getValues())
+		{
+			if (attr.getAttributeSyntax().areEqual(value, object))
+				return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * Returns a collection of attributes including only those attributes for which there is SAML 
 	 * representation.

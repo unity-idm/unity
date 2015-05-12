@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.unicore.samlidp.web;
 
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
@@ -21,16 +20,17 @@ import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.web.SamlIdPWebUI;
 import pl.edu.icm.unity.saml.idp.web.SamlResponseHandler;
+import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETDSettings;
@@ -74,10 +74,11 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	public SamlUnicoreIdPWebUI(UnityMessageSource msg, FreemarkerHandler freemarkerHandler,
 			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
 			WebAuthenticationProcessor authnProcessor, IdPEngine idpEngine, 
-			IdentityTypesRegistry idTypesRegistry, SessionManagement sessionMan)
+			IdentityTypesRegistry idTypesRegistry, SessionManagement sessionMan, 
+			AttributesManagement attrMan, AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry)
 	{
 		super(msg, freemarkerHandler, handlersRegistry, preferencesMan,	authnProcessor, idpEngine,
-				idTypesRegistry, sessionMan);
+				idTypesRegistry, sessionMan, attrMan, attributeSyntaxFactoriesRegistry);
 	}
 
 	@Override
@@ -93,7 +94,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		EntityParam entity = new EntityParam(ae.getEntityId());
 		String raw = preferencesMan.getPreference(entity, SamlPreferencesWithETD.ID);
-		SamlPreferencesWithETD ret = new SamlPreferencesWithETD();
+		SamlPreferencesWithETD ret = new SamlPreferencesWithETD(attributeSyntaxFactoriesRegistry);
 		ret.setSerializedConfiguration(raw);
 		return ret;
 	}
@@ -223,9 +224,8 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 		ResponseDocument respDoc;
 		try
 		{
-			Collection<Attribute<?>> attributes = attrsPresenter.getUserFilteredAttributes();
-			respDoc = samlWithEtdProcessor.processAuthnRequest(idSelector.getSelectedIdentity(), attributes, 
-					getRestrictions());
+			respDoc = samlWithEtdProcessor.processAuthnRequest(idSelector.getSelectedIdentity(), 
+					getExposedAttributes(), getRestrictions());
 		} catch (Exception e)
 		{
 			samlResponseHandler.handleException(e, false);

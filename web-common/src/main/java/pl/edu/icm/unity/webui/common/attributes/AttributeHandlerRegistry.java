@@ -33,7 +33,7 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.Representati
 public class AttributeHandlerRegistry
 {
 	private UnityMessageSource msg;
-	private Map<String, WebAttributeHandlerFactory> factoriesByType = new HashMap<String, WebAttributeHandlerFactory>();
+	private Map<String, WebAttributeHandlerFactory> factoriesByType = new HashMap<>();
 	public static final int DEFAULT_MAX_LEN = 16;
 	
 	@Autowired

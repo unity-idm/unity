@@ -4,24 +4,29 @@
  */
 package pl.edu.icm.unity.saml.idp.preferences;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
-import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.IndexedContainer;
@@ -47,21 +52,25 @@ public class SPSettingsEditor extends FormLayout
 	protected Label spLabel;
 	protected OptionGroup decision;
 	protected OptionGroup identity;
-	protected GenericElementsTable<String> hidden;
+	protected GenericElementsTable<TableEntry> hidden;
+	private AttributeHandlerRegistry handlerReg;
 	
-	public SPSettingsEditor(UnityMessageSource msg, Identity[] identities, 
+	public SPSettingsEditor(UnityMessageSource msg, AttributeHandlerRegistry handlerReg, Identity[] identities, 
 			Collection<AttributeType> atTypes, String sp, SPSettings initial)
 	{
 		this.msg = msg;
+		this.handlerReg = handlerReg;
 		this.identities = Arrays.copyOf(identities, identities.length);
 		this.attributeTypes = atTypes;
 		initUI(initial, sp, null);
 	}
 
-	public SPSettingsEditor(UnityMessageSource msg, Identity[] identities, Collection<AttributeType> atTypes,
+	public SPSettingsEditor(UnityMessageSource msg, AttributeHandlerRegistry handlerReg, 
+			Identity[] identities, Collection<AttributeType> atTypes,
 			Set<String> allSps)
 	{
 		this.msg = msg;
+		this.handlerReg = handlerReg;
 		this.identities = Arrays.copyOf(identities, identities.length);
 		this.attributeTypes = atTypes;
 		initUI(null, null, allSps);
@@ -96,8 +105,8 @@ public class SPSettingsEditor extends FormLayout
 				ret.setSelectedIdentity(id.getComparableValue());
 		}
 		
-		Set<String> hiddenAttrs = getHidden();
-		ret.setHiddenAttribtues(hiddenAttrs);
+		Map<String, Attribute<?>> hidden = getHidden();
+		ret.setHiddenAttribtues(hidden);
 		return ret;
 	}
 	
@@ -106,15 +115,15 @@ public class SPSettingsEditor extends FormLayout
 		return sp == null ? spLabel.getValue() : (String) sp.getValue();
 	}
 	
-	private Set<String> getHidden()
+	private Map<String, Attribute<?>> getHidden()
 	{
 		Collection<?> itemIds = hidden.getItemIds();
-		Set<String> hiddenAttrs = new HashSet<String>();
+		Map<String, Attribute<?>> hiddenAttrs = new HashMap<>();
 		for (Object itemId: itemIds)
 		{
 			@SuppressWarnings("unchecked")
-			String hiddenAttr = ((BeanItem<GenericItem<String>>)hidden.getItem(itemId)).getBean().getElement();
-			hiddenAttrs.add(hiddenAttr);
+			TableEntry hiddenAttr = ((BeanItem<GenericItem<TableEntry>>)hidden.getItem(itemId)).getBean().getElement();
+			hiddenAttrs.put(hiddenAttr.name, hiddenAttr.hiddenValues);
 		}
 		return hiddenAttrs;
 	}
@@ -153,7 +162,8 @@ public class SPSettingsEditor extends FormLayout
 		for (Identity id: identities)
 			identity.addItem(id.toPrettyString());
 		
-		hidden = new GenericElementsTable<String>(msg.getMessage("SAMLPreferences.hidden"), String.class);
+		hidden = new GenericElementsTable<TableEntry>(msg.getMessage("SAMLPreferences.hidden"), 
+				TableEntry.class);
 		hidden.setHeight(200, Unit.PIXELS);
 		hidden.addActionHandler(new AddActionHandler());
 		hidden.addActionHandler(new DeleteActionHandler());
@@ -197,9 +207,11 @@ public class SPSettingsEditor extends FormLayout
 			}
 		}
 			
-		Set<String> selHidden = initial.getHiddenAttribtues();
-		if (selHidden != null)
-			hidden.setInput(selHidden);
+		Map<String, Attribute<?>> hiddenAttribtues = initial.getHiddenAttribtues();
+		Collection<TableEntry> converted = new ArrayList<>();
+		for (Entry<String, Attribute<?>> entry : hiddenAttribtues.entrySet())
+			converted.add(new TableEntry(entry.getKey(), entry.getValue()));
+		hidden.setInput(converted);
 	}
 	
 	private class DeleteActionHandler extends SingleActionHandler
@@ -247,7 +259,7 @@ public class SPSettingsEditor extends FormLayout
 		{
 			selection = new ComboBox(msg.getMessage("SAMLPreferences.selectAttribute"));
 			selection.setNullSelectionAllowed(false);
-			Set<String> alreadySelected = getHidden();
+			Set<String> alreadySelected = getHidden().keySet();
 			for (AttributeType at: attributeTypes)
 				if (at.getVisibility() != AttributeVisibility.local && 
 						!alreadySelected.contains(at.getName()))
@@ -268,8 +280,29 @@ public class SPSettingsEditor extends FormLayout
 		protected void onConfirm()
 		{
 			String result = (String) selection.getValue();
-			hidden.addElement(result);
+			hidden.addElement(new TableEntry(result, null));
 			close();
+		}
+	}
+	
+	private class TableEntry
+	{
+		private String name;
+		private Attribute<?> hiddenValues;
+		
+		public TableEntry(String name, Attribute<?> hiddenValues)
+		{
+			this.name = name;
+			this.hiddenValues = hiddenValues;
+		}
+
+
+
+		@Override
+		public String toString()
+		{
+			return hiddenValues == null ? name : handlerReg.getSimplifiedAttributeRepresentation(
+					hiddenValues, 50);
 		}
 	}
 }
