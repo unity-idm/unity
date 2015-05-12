@@ -34,6 +34,6 @@ public class OIDCDiscoveryTest
 		props.setProperty("openIdConnectDiscoveryEndpoint", "https://accounts.google.com/.well-known/openid-configuration");
 		CustomProviderProperties def = new CustomProviderProperties(props, "", null);
 		OIDCProviderMetadata meta = tested.getMetadata(def);
-		Assert.assertEquals("accounts.google.com", meta.getIssuer().getValue());
+		Assert.assertEquals("https://accounts.google.com", meta.getIssuer().getValue());
 	}
 }
