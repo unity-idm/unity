@@ -24,8 +24,10 @@ import com.vaadin.server.Resource;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Grid;
-import com.vaadin.ui.Panel;
+import com.vaadin.ui.Grid.CellReference;
+import com.vaadin.ui.Grid.CellStyleGenerator;
 import com.vaadin.ui.Grid.SelectionMode;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.renderers.ImageRenderer;
 
 /**
@@ -76,6 +78,14 @@ public class AuthNTileGrid extends CustomComponent implements AuthNTile
 		providersChoice.addStyleName(Styles.idpTile.toString());
 		providersChoice.removeHeaderRow(0);
 		providersChoice.getColumn(COLUMN_IMG).setRenderer(new ImageRenderer());
+		providersChoice.setCellStyleGenerator(new CellStyleGenerator()
+		{
+			@Override
+			public String getStyle(CellReference cellReference)
+			{
+				return "idpentry_" + cellReference.getItemId();
+			}
+		});
 		reloadContents(filter);
 		
 		tilePanel.setContent(providersChoice);
