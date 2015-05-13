@@ -36,6 +36,7 @@ public class IdentityTypeSerializer
 	{
 		ObjectNode main = mapper.createObjectNode();
 		main.put("description", src.getDescription());
+		main.put("selfModificable", src.isSelfModificable());
 		ArrayNode extractedA = main.putArray("extractedAttributes");
 		for (Map.Entry<String, String> a: src.getExtractedAttributes().entrySet())
 		{
@@ -79,6 +80,11 @@ public class IdentityTypeSerializer
 			attrs2.put(a.get("key").asText(), a.get("value").asText());
 		}
 		target.setExtractedAttributes(attrs2);
+		
+		if (main.has("selfModificable"))
+			target.setSelfModificable(main.get("selfModificable").asBoolean());
+		else
+			target.setSelfModificable(false);
 	}
 }
 

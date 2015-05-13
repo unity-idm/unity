@@ -18,6 +18,7 @@ public class IdentityType
 	private IdentityTypeDefinition identityTypeProvider;
 	private String description;
 	private Map<String, String> extractedAttributes;
+	private boolean selfModificable;
 
 	public IdentityType(IdentityTypeDefinition identityTypeProvider)
 	{
@@ -60,6 +61,16 @@ public class IdentityType
 		this.extractedAttributes.putAll(extractedAttributes);
 	}
 	
+	public boolean isSelfModificable()
+	{
+		return selfModificable;
+	}
+
+	public void setSelfModificable(boolean selfModificable)
+	{
+		this.selfModificable = selfModificable;
+	}
+
 	public String toString()
 	{
 		return "[" + getIdentityTypeProvider().toString() + "] " + description;
