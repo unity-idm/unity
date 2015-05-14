@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.utils;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -102,7 +101,7 @@ public class ConfirmationsInitializer implements ServerInitializer
 				}
 			}
 			
-			List<IdentityType> identityTypes = identitiesMan.getIdentityTypes();
+			Collection<IdentityType> identityTypes = identitiesMan.getIdentityTypes();
 			for (IdentityType idType: identityTypes)
 			{
 				if (idType.getIdentityTypeProvider().isVerifiable())

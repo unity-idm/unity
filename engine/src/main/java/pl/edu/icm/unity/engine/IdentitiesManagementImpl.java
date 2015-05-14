@@ -100,13 +100,13 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<IdentityType> getIdentityTypes() throws EngineException
+	public Collection<IdentityType> getIdentityTypes() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.readInfo);
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
 		{
-			List<IdentityType> ret = dbIdentities.getIdentityTypes(sqlMap);
+			Collection<IdentityType> ret = dbIdentities.getIdentityTypes(sqlMap).values();
 			sqlMap.commit();
 			return ret;
 		} finally
@@ -203,9 +203,11 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		try
 		{
 			long entityId = idResolver.getEntityId(parentEntity, sqlMap);
-			authorizeAddIdentity(entityId, toAdd);
+			IdentityType identityType = dbIdentities.getIdentityTypes(sqlMap).get(
+					toAdd.getTypeId());
+			boolean fullAuthz = authorizeAddIdentity(entityId, toAdd, identityType);
 			Identity ret = dbIdentities.insertIdentity(toAdd, entityId, false, sqlMap);
-			if (extractAttributes)
+			if (extractAttributes && fullAuthz)
 				engineHelper.extractAttributes(ret, sqlMap);
 			sqlMap.commit();
 			confirmationManager.sendVerification(new EntityParam(entityId), ret, false);
@@ -219,16 +221,21 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	/**
 	 * Checks if identityModify capability is granted. If it is only in self access context the
 	 * confirmation status is forced to be unconfirmed.
-	 * @throws AuthorizationException 
+	 * @throws AuthorizationException
+	 * @returns true if full authZ is set or false if limited only. 
 	 */
-	private void authorizeAddIdentity(long entityId, IdentityParam toAdd) throws AuthorizationException
+	private boolean authorizeAddIdentity(long entityId, IdentityParam toAdd, IdentityType identityType) 
+			throws AuthorizationException
 	{
 		boolean fullAuthz = authz.getCapabilities(false, "/").contains(AuthzCapability.identityModify);
 		if (!fullAuthz)
 		{
-			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
+			authz.checkAuthorization(identityType.isSelfModificable() && authz.isSelf(entityId), 
+					AuthzCapability.identityModify);
 			toAdd.setConfirmationInfo(new ConfirmationInfo());
-		}		
+			return false;
+		}
+		return true;
 	}
 	
 	/**
@@ -242,7 +249,10 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		try
 		{
 			long entityId = idResolver.getEntityId(new EntityParam(toRemove), sqlMap);
-			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
+			IdentityType identityType = dbIdentities.getIdentityTypes(sqlMap).get(
+					toRemove.getTypeId());
+			authz.checkAuthorization(identityType.isSelfModificable() && authz.isSelf(entityId), 
+					AuthzCapability.identityModify);
 			dbIdentities.removeIdentity(toRemove, sqlMap);
 			sqlMap.commit();
 		} finally

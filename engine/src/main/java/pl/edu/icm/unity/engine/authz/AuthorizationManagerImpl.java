@@ -103,6 +103,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 				new AuthzCapability[] {
 					AuthzCapability.credentialModify,
 					AuthzCapability.attributeModify,
+					AuthzCapability.identityModify,
 					AuthzCapability.read
 				}));
 		
@@ -115,18 +116,20 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 				new AuthzCapability[] {
 					AuthzCapability.credentialModify,
 					AuthzCapability.attributeModify,
+					AuthzCapability.identityModify,
 					AuthzCapability.read
 				}));
 		
 		setupRole(new RoleImpl(USER_ROLE, "Allows owners for reading of the basic system information," +
-				" retrieval of information about themselves and also for changing passwords " +
-				"and self managed attributes", 
+				" retrieval of information about themselves and also for changing " +
+				"self managed attributes, identities and passwords", 
 				new AuthzCapability[] {
 					AuthzCapability.readInfo
 				},
 				new AuthzCapability[] {
 					AuthzCapability.credentialModify,
 					AuthzCapability.attributeModify,
+					AuthzCapability.identityModify,
 					AuthzCapability.read
 				}));
 

@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -14,7 +15,6 @@ import static org.junit.Assert.fail;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -22,11 +22,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.internal.EntitiesScheduledUpdater;
+import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
@@ -44,6 +46,7 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
 public class TestIdentities extends DBIntegrationTestBase
@@ -149,6 +152,44 @@ public class TestIdentities extends DBIntegrationTestBase
 		assertEquals(EntityState.valid, entity.getState());
 	}
 
+	@Test
+	public void selfModifiableIdentityCanBeControlledByUser() throws Exception
+	{
+		setupPasswordAuthn();
+		Identity id = createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		EntityParam ep1 = new EntityParam(id.getEntityId());
+		IdentityType idType = new IdentityType(new EmailIdentity());
+		idType.setSelfModificable(true);
+		idsMan.updateIdentityType(idType);
+		Collection<IdentityType> identityTypes = idsMan.getIdentityTypes();
+		for (IdentityType idTypeI: identityTypes)
+			if (idTypeI.getIdentityTypeProvider().getId().equals(EmailIdentity.ID))
+				assertTrue(idTypeI.isSelfModificable());
+			else
+				assertFalse(idTypeI.isSelfModificable());
+		
+		setupUserContext("user1", false);
+		
+		idsMan.addIdentity(new IdentityParam(EmailIdentity.ID, "email1@custom.net"), ep1, false);
+		idsMan.addIdentity(new IdentityParam(EmailIdentity.ID, "email2@custom.net"), ep1, false);
+		try
+		{
+			idsMan.addIdentity(new IdentityParam(UsernameIdentity.ID, "dummy"), ep1, false);
+			fail("Managed to add non self modifiable identity");
+		} catch (AuthorizationException e)
+		{
+			//expected
+		}
+		
+		idsMan.removeIdentity(new IdentityTaV(EmailIdentity.ID, "email1@custom.net"));
+
+		Entity entity = idsMan.getEntity(ep1);
+		Identity[] ids = entity.getIdentities();
+		for (Identity idd: ids)
+			if (idd.getTypeId().equals(EmailIdentity.ID))
+				assertEquals(idd.getValue(), "email2@custom.net");
+	}
+
 
 	@Test
 	public void longIdentityIsSupported() throws Exception
@@ -170,7 +211,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	@Test
 	public void testSyntaxes() throws Exception
 	{
-		List<IdentityType> idTypes = idsMan.getIdentityTypes();
+		Collection<IdentityType> idTypes = idsMan.getIdentityTypes();
 		assertEquals(7, idTypes.size());
 		assertNotNull(getIdentityTypeByName(idTypes, PersistentIdentity.ID));
 		assertNotNull(getIdentityTypeByName(idTypes, TargetedPersistentIdentity.ID));

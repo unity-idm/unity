@@ -244,7 +244,7 @@ public class AttributesManagementImpl implements AttributesManagement
 
 	private void clearAttributeExtractionFromIdentities(String id, SqlSession sql)
 	{
-		List<IdentityType> identityTypes = dbIdentities.getIdentityTypes(sql);
+		Collection<IdentityType> identityTypes = dbIdentities.getIdentityTypes(sql).values();
 		for (IdentityType idType: identityTypes)
 		{
 			Map<String, String> extractedMap = idType.getExtractedAttributes();

@@ -33,7 +33,7 @@ public interface IdentitiesManagement
 	 * @return list of supported identity types
 	 * @throws EngineException
 	 */
-	public List<IdentityType> getIdentityTypes() throws EngineException;
+	public Collection<IdentityType> getIdentityTypes() throws EngineException;
 	
 	/**
 	 * Allows to update mutable part of identity type, as extracted fields or description.

@@ -92,7 +92,7 @@ public abstract class TranslationProfileEditor extends VerticalLayout
 		credReqs = new TreeSet<String>();
 		for (CredentialRequirements cr: crs)
 			credReqs.add(cr.getName());
-		List<IdentityType> idTypesF = idMan.getIdentityTypes();
+		Collection<IdentityType> idTypesF = idMan.getIdentityTypes();
 		idTypes = new TreeSet<String>();
 		for (IdentityType it: idTypesF)
 			if (!it.getIdentityTypeProvider().isDynamic())
