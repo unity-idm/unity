@@ -26,6 +26,7 @@ import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
@@ -48,6 +49,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 public class TestIdentities extends DBIntegrationTestBase
 {
@@ -190,6 +192,59 @@ public class TestIdentities extends DBIntegrationTestBase
 				assertEquals(idd.getValue(), "email2@custom.net");
 	}
 
+	@Test
+	public void minMaxIsEnforced() throws Exception
+	{
+		setupPasswordAuthn();
+		Identity id = createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		EntityParam ep1 = new EntityParam(id.getEntityId());
+		IdentityType idType = new IdentityType(new EmailIdentity());
+		idType.setSelfModificable(true);
+		idType.setMinInstances(2);
+		idType.setMaxInstances(3);
+		idType.setMinVerifiedInstances(1);
+		idsMan.updateIdentityType(idType);
+		Collection<IdentityType> identityTypes = idsMan.getIdentityTypes();
+		for (IdentityType idTypeI: identityTypes)
+			if (idTypeI.getIdentityTypeProvider().getId().equals(EmailIdentity.ID))
+				assertTrue(idTypeI.isSelfModificable());
+			else
+				assertFalse(idTypeI.isSelfModificable());
+		IdentityParam identityParam = new IdentityParam(EmailIdentity.ID, "emailV@custom.net");
+		identityParam.setConfirmationInfo(new ConfirmationInfo(true));
+		idsMan.addIdentity(identityParam, ep1, false);
+		
+		setupUserContext("user1", false);
+		
+		idsMan.addIdentity(new IdentityParam(EmailIdentity.ID, "email1@custom.net"), ep1, false);
+		idsMan.addIdentity(new IdentityParam(EmailIdentity.ID, "email2@custom.net"), ep1, false);
+		try
+		{
+			idsMan.addIdentity(new IdentityParam(EmailIdentity.ID, "email3@custom.com"), ep1, false);
+			fail("Managed to add too many emails");
+		} catch (SchemaConsistencyException e)
+		{
+			//expected
+		}
+		try
+		{
+			idsMan.removeIdentity(new IdentityTaV(EmailIdentity.ID, "emailV@custom.net"));
+			fail("Managed to remove confirmed");
+		} catch (SchemaConsistencyException e)
+		{
+			//expected
+		}
+		
+		idsMan.removeIdentity(new IdentityTaV(EmailIdentity.ID, "email1@custom.net"));
+		try
+		{
+			idsMan.removeIdentity(new IdentityTaV(EmailIdentity.ID, "email2@custom.net"));
+			fail("Managed to remove too many");
+		} catch (SchemaConsistencyException e)
+		{
+			//expected
+		}
+	}
 
 	@Test
 	public void longIdentityIsSupported() throws Exception

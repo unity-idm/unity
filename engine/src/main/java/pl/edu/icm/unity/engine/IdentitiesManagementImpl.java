@@ -34,6 +34,7 @@ import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalPreviousCredentialException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
@@ -128,6 +129,17 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
 		{
+			if (toUpdate.getMinInstances() < 0)
+				throw new IllegalAttributeTypeException("Minimum number of instances "
+						+ "can not be negative");
+			if (toUpdate.getMinVerifiedInstances() > toUpdate.getMinInstances())
+				throw new IllegalAttributeTypeException("Minimum number of verified instances "
+						+ "can not be larger then the regular minimum of instances");
+			if (toUpdate.getMinInstances() > toUpdate.getMaxInstances())
+				throw new IllegalAttributeTypeException("Minimum number of instances "
+						+ "can not be larger then the maximum");
+			
+			
 			Map<String, AttributeType> atsMap = dbAttributes.getAttributeTypes(sqlMap);
 			Map<String, String> extractedAts = toUpdate.getExtractedAttributes();
 			Set<AttributeType> supportedForExtraction = idTypeDef.getAttributesSupportedForExtraction();
@@ -205,7 +217,13 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			long entityId = idResolver.getEntityId(parentEntity, sqlMap);
 			IdentityType identityType = dbIdentities.getIdentityTypes(sqlMap).get(
 					toAdd.getTypeId());
+			
 			boolean fullAuthz = authorizeAddIdentity(entityId, toAdd, identityType);
+			Identity[] identities = dbIdentities.getIdentitiesForEntityNoContext(entityId, sqlMap);
+			if (getIdentityCountOfType(identities, identityType.getIdentityTypeProvider().getId()) 
+					== identityType.getMaxInstances())
+				throw new SchemaConsistencyException("Can not add another identity of this type as "
+						+ "the configured maximum number of instances was reached.");
 			Identity ret = dbIdentities.insertIdentity(toAdd, entityId, false, sqlMap);
 			if (extractAttributes && fullAuthz)
 				engineHelper.extractAttributes(ret, sqlMap);
@@ -218,6 +236,38 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		}
 	}
 
+	private int getIdentityCountOfType(Identity[] identities, String type)
+	{
+		int ret = 0;
+		for (Identity id: identities)
+			if (id.getTypeId().equals(type))
+				ret++;
+		return ret;
+	}
+
+	private void checkVerifiedMinCount(Identity[] identities, IdentityTaV toRemove,
+			IdentityType type) throws SchemaConsistencyException, IllegalIdentityValueException
+	{
+		if (!type.getIdentityTypeProvider().isVerifiable())
+			return;
+		int existing = 0;
+		String comparableValue = type.getIdentityTypeProvider().getComparableValue(toRemove.getValue(), toRemove.getRealm(),
+				toRemove.getTarget());
+		for (Identity id: identities)
+		{
+			if (id.getTypeId().equals(toRemove.getTypeId()))
+			{
+				if (comparableValue.equals(id.getComparableValue()) && !id.isConfirmed())
+					return;
+				if (id.isConfirmed())
+					existing++;
+			}
+		}
+		if (existing == type.getMinVerifiedInstances())
+			throw new SchemaConsistencyException("Can not remove the verified identity as "
+					+ "the configured minimum number of verified instances was reached.");
+	}
+	
 	/**
 	 * Checks if identityModify capability is granted. If it is only in self access context the
 	 * confirmation status is forced to be unconfirmed.
@@ -251,6 +301,12 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			long entityId = idResolver.getEntityId(new EntityParam(toRemove), sqlMap);
 			IdentityType identityType = dbIdentities.getIdentityTypes(sqlMap).get(
 					toRemove.getTypeId());
+			Identity[] identities = dbIdentities.getIdentitiesForEntityNoContext(entityId, sqlMap);
+			String type = identityType.getIdentityTypeProvider().getId();
+			if (getIdentityCountOfType(identities, type) == identityType.getMinInstances())
+				throw new SchemaConsistencyException("Can not remove the identity as "
+						+ "the configured minimum number of instances was reached.");
+			checkVerifiedMinCount(identities, toRemove, identityType);
 			authz.checkAuthorization(identityType.isSelfModificable() && authz.isSelf(entityId), 
 					AuthzCapability.identityModify);
 			dbIdentities.removeIdentity(toRemove, sqlMap);

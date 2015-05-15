@@ -37,6 +37,9 @@ public class IdentityTypeSerializer
 		ObjectNode main = mapper.createObjectNode();
 		main.put("description", src.getDescription());
 		main.put("selfModificable", src.isSelfModificable());
+		main.put("minInstances", src.getMinInstances());
+		main.put("maxInstances", src.getMaxInstances());
+		main.put("minVerifiedInstances", src.getMinVerifiedInstances());
 		ArrayNode extractedA = main.putArray("extractedAttributes");
 		for (Map.Entry<String, String> a: src.getExtractedAttributes().entrySet())
 		{
@@ -85,6 +88,18 @@ public class IdentityTypeSerializer
 			target.setSelfModificable(main.get("selfModificable").asBoolean());
 		else
 			target.setSelfModificable(false);
+		
+		if (main.has("minInstances"))
+		{
+			target.setMinInstances(main.get("minInstances").asInt());
+			target.setMinVerifiedInstances(main.get("minVerifiedInstances").asInt());
+			target.setMaxInstances(main.get("maxInstances").asInt());
+		} else
+		{
+			target.setMinInstances(0);
+			target.setMinVerifiedInstances(0);
+			target.setMaxInstances(Integer.MAX_VALUE);
+		}
 	}
 }
 
