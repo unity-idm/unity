@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.webui.common.attributes;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -31,6 +34,8 @@ public class AttributeViewer
 	private AttributeType attributeType;
 	private Attribute<?> attribute;
 	private boolean showGroup;
+	private Label groupLabel;
+	private List<Component> values;
 	
 	public AttributeViewer(UnityMessageSource msg, AttributeHandlerRegistry registry,
 			AttributeType attributeType, Attribute<?> attribute, boolean showGroup)
@@ -42,6 +47,14 @@ public class AttributeViewer
 		this.showGroup = showGroup;
 	}
 
+	public void removeFromLayout(AbstractOrderedLayout parent)
+	{
+		if (showGroup)
+			parent.removeComponent(groupLabel);
+		for (Component c: values)
+			parent.removeComponent(c);
+	}
+	
 	public void addToLayout(AbstractOrderedLayout parent)
 	{
 		String caption = attributeType.getDisplayedName().getValue(msg);
@@ -49,7 +62,7 @@ public class AttributeViewer
 		
 		if (showGroup)
 		{
-			Label groupLabel = new Label(msg.getMessage("Attributes.groupOfAttribute", 
+			groupLabel = new Label(msg.getMessage("Attributes.groupOfAttribute", 
 					attribute.getGroupPath()));
 			groupLabel.addStyleName(Styles.vLabelSmall.toString());
 			groupLabel.addStyleName(Styles.negativeBottomMarginSmall.toString());
@@ -57,6 +70,7 @@ public class AttributeViewer
 		}
 
 		int i = 1;
+		values = new ArrayList<>();
 		for (Object o: attribute.getValues())
 		{
 			Component valueRepresentation = getRepresentation(o);
@@ -77,6 +91,7 @@ public class AttributeViewer
 			}
 			
 			valueRepresentation.addStyleName("u-baseline");
+			values.add(valueRepresentation);
 			parent.addComponent(valueRepresentation);
 			i++;
 

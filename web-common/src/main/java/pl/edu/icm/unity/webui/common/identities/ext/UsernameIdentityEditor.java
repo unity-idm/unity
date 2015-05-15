@@ -60,4 +60,11 @@ public class UsernameIdentityEditor implements IdentityEditor
 	{
 		field.setValue(value);	
 	}
+	
+
+	@Override
+	public void setLabel(String value)
+	{
+		field.setCaption(value);
+	}
 }

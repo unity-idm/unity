@@ -48,6 +48,7 @@ public class UserAttributesPanel
 	private List<FixedAttributeEditor> attributeEditors;
 
 	private AbstractOrderedLayout parent;
+	private List<AttributeViewer> viewers;
 	
 	public UserAttributesPanel(UnityMessageSource msg,
 			AttributeHandlerRegistry attributeHandlerRegistry,
@@ -70,6 +71,7 @@ public class UserAttributesPanel
 	private void initUI() throws EngineException
 	{
 		attributeEditors = new ArrayList<FixedAttributeEditor>();
+		viewers = new ArrayList<>();
 		Set<String> keys = config.getStructuredListKeys(HomeEndpointProperties.ATTRIBUTES);
 		Map<String, AttributeType> atTypes = attributesMan.getAttributeTypesAsMap();
 
@@ -89,7 +91,6 @@ public class UserAttributesPanel
 		AttributeType at = atTypes.get(attributeName);
 		AttributeExt<?> attribute = getAttribute(attributeName, group);
 
-		
 		if (editable && at.isSelfModificable())
 		{
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry, 
@@ -105,19 +106,22 @@ public class UserAttributesPanel
 			
 			AttributeViewer viewer = new AttributeViewer(msg, attributeHandlerRegistry, at, 
 					attribute, showGroup);
+			viewers.add(viewer);
 			viewer.addToLayout(parent);
 		}
 	}
 	
-	public void refreshEditable()
+	public void clear()
 	{
+		for (AttributeViewer viewer: viewers)
+			viewer.removeFromLayout(parent);
 		for (FixedAttributeEditor editor: attributeEditors)
-		{
-			AttributeExt<?> attribute = getAttribute(editor.getAttributeType().getName(), 
-					editor.getGroup());			
-			editor.setAttributeValues(attribute.getValues());
-		}
-
+			editor.clear();
+	}
+	
+	public void refreshEditable() throws EngineException
+	{
+		initUI();
 	}
 	
 	private AttributeExt<?> getAttribute(String attributeName, String group)

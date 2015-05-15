@@ -129,4 +129,11 @@ public class X500IdentityEditor implements IdentityEditor
 	{
 		field.setValue(value);	
 	}
+	
+
+	@Override
+	public void setLabel(String value)
+	{
+		field.setCaption(value);
+	}
 }

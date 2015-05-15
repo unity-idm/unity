@@ -59,4 +59,11 @@ public class IdentifierIdentityEditor implements IdentityEditor
 	{
 		field.setValue(value);	
 	}
+	
+	@Override
+	public void setLabel(String value)
+	{
+		field.setCaption(value);
+	}
+
 }

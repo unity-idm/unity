@@ -32,6 +32,8 @@ public class SingleTypeIdentityEditor
 	private IdentityEditorRegistry idEdRegistry;
 	private UnityMessageSource msg;
 	private AbstractOrderedLayout parent;
+	private String userFriendlyName;
+	private ListOfEmbeddedElementsStub<IdentityParam> ret;
 
 	public SingleTypeIdentityEditor(IdentityType idType, Collection<Identity> initial, 
 			IdentityEditorRegistry idEdRegistry, UnityMessageSource msg, 
@@ -46,13 +48,18 @@ public class SingleTypeIdentityEditor
 	
 	private void initUI(Collection<Identity> initial)
 	{
-		ListOfEmbeddedElementsStub<IdentityParam> ret = new ListOfEmbeddedElementsStub<IdentityParam>(
+		ret = new ListOfEmbeddedElementsStub<IdentityParam>(
 				msg, new IdentityEditorProvider(), 
 				0, Integer.MAX_VALUE, false, parent);
 		for (Identity id: initial)
 			ret.addEntry(id, null);
-		String userFriendlyName = idType.getIdentityTypeProvider().getHumanFriendlyName(msg);
+		userFriendlyName = idType.getIdentityTypeProvider().getHumanFriendlyName(msg);
 		ret.setLonelyLabel(userFriendlyName + ":");
+	}
+	
+	public void removeAll()
+	{
+		ret.clearContents();
 	}
 	
 	private class IdentityEditorProvider implements EditorProvider<IdentityParam>
@@ -80,7 +87,13 @@ public class SingleTypeIdentityEditor
 		@Override
 		public void setEditedComponentPosition(int position)
 		{
-			
+			editor.setLabel(esablishLabel(position));
+		}
+
+		private String esablishLabel(int position)
+		{
+			return (position > 0) ? userFriendlyName +" (" + (position+1) +"):" 
+					: userFriendlyName + ":";
 		}
 
 		@Override

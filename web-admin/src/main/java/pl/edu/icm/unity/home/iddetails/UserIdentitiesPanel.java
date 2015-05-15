@@ -37,6 +37,7 @@ public class UserIdentitiesPanel
 	private AbstractOrderedLayout parent;
 	private Map<IdentityType, List<Identity>> editableIdsByType;
 	private Map<IdentityType, List<Identity>> roIdsByType;
+	private List<Label> roLabels;
 	
 	public UserIdentitiesPanel(UnityMessageSource msg, IdentityEditorRegistry identityEditorReg,
 			IdentitiesManagement idsManagement, long entityId) throws EngineException
@@ -83,6 +84,7 @@ public class UserIdentitiesPanel
 	private void initUI() throws EngineException
 	{
 		identityEditors = new ArrayList<>();
+		roLabels = new ArrayList<>();
 
 		for (IdentityType typeKey: roIdsByType.keySet())
 			addRoIdentity(typeKey);
@@ -93,11 +95,14 @@ public class UserIdentitiesPanel
 	private void addRoIdentity(IdentityType idType)
 	{		
 		List<Identity> idList = roIdsByType.get(idType);
-		for (Identity id: idList)
+		for (int i = 0; i < idList.size(); i++)
 		{
+			Identity id = idList.get(i);
 			Label label = new Label(id.toPrettyStringNoPrefix());
-			label.setCaption(idType.getIdentityTypeProvider().getHumanFriendlyName(msg) + 
-					":");
+			String caption = idType.getIdentityTypeProvider().getHumanFriendlyName(msg);
+			caption += (i > 0) ? (i+1) + ":" : ":";
+			label.setCaption(caption);
+			roLabels.add(label);
 			parent.addComponent(label);
 		}
 	}
@@ -110,16 +115,18 @@ public class UserIdentitiesPanel
 		identityEditors.add(singleTypeIdentityEditor);
 	}
 	
-	private void refreshEditable()
+	public void clear()
 	{
-		/* TODO
-		for (FixedAttributeEditor editor: attributeEditors)
-		{
-			AttributeExt<?> attribute = getAttribute(editor.getAttributeType().getName(), 
-					editor.getGroup());			
-			editor.setAttributeValues(attribute.getValues());
-		}
-*/
+		for (Label l: roLabels)
+			parent.removeComponent(l);
+		for (SingleTypeIdentityEditor e: identityEditors)
+			e.removeAll();
+	}
+
+	public void refresh() throws EngineException
+	{
+		initIdentities();
+		initUI();
 	}
 	
 	private void saveChanges()

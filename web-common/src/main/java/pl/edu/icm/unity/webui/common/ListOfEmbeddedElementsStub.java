@@ -141,6 +141,7 @@ public class ListOfEmbeddedElementsStub<T>
 				parent.removeComponent(c);
 		}
 		components.clear();
+		lonelyBar.setVisible(false);
 	}
 	
 	public List<T> getElements() throws FormValidationException
@@ -184,6 +185,7 @@ public class ListOfEmbeddedElementsStub<T>
 		private Label hr;
 		private Editor<T> editor;
 		private ComponentsContainer cc;
+		private HorizontalLayout addRemoveBar;
 		
 		public Entry(T elementV, int position)
 		{
@@ -223,11 +225,11 @@ public class ListOfEmbeddedElementsStub<T>
 				}
 			});
 			
-			HorizontalLayout hl = new HorizontalLayout();
-			hl.setSpacing(true);
-			hl.addComponents(add, remove);
-			hl.addStyleName(Styles.negativeTopMargin.toString());
-			cc.add(hl);
+			addRemoveBar = new HorizontalLayout();
+			addRemoveBar.setSpacing(true);
+			addRemoveBar.addComponents(add, remove);
+			addRemoveBar.addStyleName(Styles.negativeTopMargin.toString());
+			cc.add(addRemoveBar);
 		}
 		
 		private ComponentsContainer getContents()
@@ -244,8 +246,12 @@ public class ListOfEmbeddedElementsStub<T>
 		{
 			if (showLine)
 				hr.setVisible(ListOfEmbeddedElementsStub.this.components.get(0) != this);
-			remove.setVisible(ListOfEmbeddedElementsStub.this.components.size() > min);
-			add.setVisible(ListOfEmbeddedElementsStub.this.components.size() < max);
+			boolean addVisible = ListOfEmbeddedElementsStub.this.components.size() < max;
+			boolean removeVisible = ListOfEmbeddedElementsStub.this.components.size() > min;
+			remove.setVisible(removeVisible);
+			add.setVisible(addVisible);
+			addRemoveBar.setVisible(addVisible || removeVisible);
+			
 			editor.setEditedComponentPosition(newPosition);
 		}
 	}

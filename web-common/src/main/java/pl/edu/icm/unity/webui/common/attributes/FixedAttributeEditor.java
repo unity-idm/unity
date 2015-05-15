@@ -38,6 +38,7 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 	private AttributeVisibility visibility;
 	private boolean required;
 	private boolean adminMode;
+	private AbstractOrderedLayout parent;
 
 	public FixedAttributeEditor(UnityMessageSource msg, AttributeHandlerRegistry registry, 
 			AttributeType attributeType, boolean showGroup, String group, AttributeVisibility visibility,
@@ -53,7 +54,8 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 		this.description = description;
 		this.required = required;
 		this.adminMode = adminMode;
-		initUI(parent);
+		this.parent = parent;
+		initUI();
 	}
 	
 	public void setAttributeValues(List<?> values)
@@ -91,7 +93,7 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 			new Attribute(attributeType.getName(), attributeType.getValueType(), group, visibility, aValues);
 	}
 	
-	private void initUI(AbstractOrderedLayout parent)
+	private void initUI()
 	{
 		if (caption == null)
 			caption = attributeType.getDisplayedName().getValue(msg) + ":";
@@ -107,4 +109,12 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 
 		valuesComponent = getValuesPart(attributeType, caption, required, adminMode, parent);
 	}
+	
+	public void clear()
+	{
+		if (showGroup)
+			parent.removeComponent(groupLabel);
+		valuesComponent.clearContents();
+	}
+	
 }
