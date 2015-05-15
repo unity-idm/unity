@@ -4,15 +4,15 @@
  */
 package pl.edu.icm.unity.webui.common.identities.ext;
 
-import com.vaadin.server.UserError;
-import com.vaadin.ui.TextField;
-
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
+
+import com.vaadin.server.UserError;
+import com.vaadin.ui.TextField;
 
 /**
  * {@link IdentifierIdentity} editor
@@ -32,7 +32,7 @@ public class IdentifierIdentityEditor implements IdentityEditor
 	@Override
 	public ComponentsContainer getEditor(boolean required, boolean adminMode)
 	{
-		field = new TextField(msg.getMessage("IdentifierIdentityEditor.value"));
+		field = new TextField(new IdentifierIdentity().getHumanFriendlyName(msg) + ":");
 		field.setRequired(required);
 		this.required = required;
 		return new ComponentsContainer(field);

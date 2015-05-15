@@ -52,7 +52,7 @@ public class AttributeViewer
 			Label groupLabel = new Label(msg.getMessage("Attributes.groupOfAttribute", 
 					attribute.getGroupPath()));
 			groupLabel.addStyleName(Styles.vLabelSmall.toString());
-			groupLabel.addStyleName(Styles.negativeMarginSmall.toString());
+			groupLabel.addStyleName(Styles.negativeBottomMarginSmall.toString());
 			parent.addComponent(groupLabel);
 		}
 

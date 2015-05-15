@@ -158,6 +158,12 @@ public class TargetedPersistentIdentity extends AbstractIdentityTypeProvider
 	{
 		return false;
 	}
+
+	@Override
+	public String getHumanFriendlyName(MessageSource msg)
+	{
+		return msg.getMessage("TargetedPersistentIdentity.name");
+	}
 }
 
 

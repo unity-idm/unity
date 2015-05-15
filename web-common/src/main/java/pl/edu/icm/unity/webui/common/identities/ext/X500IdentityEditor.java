@@ -9,6 +9,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.security.cert.X509Certificate;
 
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.ComponentsContainer;
+import pl.edu.icm.unity.webui.common.LimitedOuputStream;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
+
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.FormLayout;
@@ -19,17 +29,8 @@ import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.Upload.SucceededListener;
 
 import eu.emi.security.authn.x509.impl.CertificateUtils;
-import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.stdext.identity.X500Identity;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.ComponentsContainer;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.LimitedOuputStream;
-import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
+import eu.emi.security.authn.x509.impl.X500NameUtils;
 
 /**
  * {@link X500Identity} editor
@@ -60,7 +61,7 @@ public class X500IdentityEditor implements IdentityEditor
 		
 		FormLayout wrapper = new CompactFormLayout(upload);
 		wrapper.setMargin(false);
-		field.setCaption(msg.getMessage("X500IdentityEditor.dn"));
+		field.setCaption(new X500Identity().getHumanFriendlyName(msg) + ":");
 		field.setRequired(required);
 		return new ComponentsContainer(field, wrapper);
 	}
@@ -127,5 +128,5 @@ public class X500IdentityEditor implements IdentityEditor
 	public void setDefaultValue(String value)
 	{
 		field.setValue(value);	
-	};
+	}
 }

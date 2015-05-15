@@ -226,7 +226,7 @@ public class ListOfEmbeddedElementsStub<T>
 			HorizontalLayout hl = new HorizontalLayout();
 			hl.setSpacing(true);
 			hl.addComponents(add, remove);
-			
+			hl.addStyleName(Styles.negativeTopMargin.toString());
 			cc.add(hl);
 		}
 		

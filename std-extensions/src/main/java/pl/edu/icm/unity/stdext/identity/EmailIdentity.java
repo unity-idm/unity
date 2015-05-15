@@ -124,4 +124,10 @@ public class EmailIdentity extends AbstractStaticIdentityTypeProvider
 		return true;
 	}
 
+	@Override
+	public String getHumanFriendlyName(MessageSource msg)
+	{
+		return msg.getMessage("EmailIdentity.name");
+	}
+
 }

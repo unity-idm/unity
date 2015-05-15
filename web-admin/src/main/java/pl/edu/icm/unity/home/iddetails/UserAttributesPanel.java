@@ -23,18 +23,13 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewer;
 import pl.edu.icm.unity.webui.common.attributes.FixedAttributeEditor;
 
 import com.vaadin.ui.AbstractOrderedLayout;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.HorizontalLayout;
 
 /**
  * Shows (optionally in edit mode) all configured attributes.
@@ -82,38 +77,6 @@ public class UserAttributesPanel
 		{
 			addAttribute(atTypes, aKey);
 		}
-		
-		if (attributeEditors.size() > 0)
-		{
-			HorizontalLayout buttons = new HorizontalLayout();
-			buttons.setSpacing(true);
-			
-			Button save = new Button(msg.getMessage("save"));
-			save.setIcon(Images.save.getResource());
-			save.addClickListener(new ClickListener()
-			{
-				@Override
-				public void buttonClick(ClickEvent event)
-				{
-					saveChanges();
-				}
-			});
-			parent.addComponent(save);
-
-			Button refresh = new Button(msg.getMessage("refresh"));
-			refresh.setIcon(Images.refresh.getResource());
-			refresh.addClickListener(new ClickListener()
-			{
-				@Override
-				public void buttonClick(ClickEvent event)
-				{
-					refreshEditable();
-				}
-			});
-			buttons.addComponents(save, refresh);
-			
-			parent.addComponent(buttons);
-		}
 	}
 	
 	private void addAttribute(Map<String, AttributeType> atTypes, String key)
@@ -146,7 +109,7 @@ public class UserAttributesPanel
 		}
 	}
 	
-	private void refreshEditable()
+	public void refreshEditable()
 	{
 		for (FixedAttributeEditor editor: attributeEditors)
 		{
@@ -174,7 +137,7 @@ public class UserAttributesPanel
 		return attributes.iterator().next();
 	}
 	
-	private void saveChanges()
+	public void saveChanges()
 	{
 		for (FixedAttributeEditor ae: attributeEditors)
 		{
@@ -219,5 +182,10 @@ public class UserAttributesPanel
 			NotificationPopup.showError(msg, msg.getMessage("UserAttributesPanel.errorSaving",
 					ae.getAttributeType().getName()), e);
 		}
+	}
+
+	public boolean hasEditable()
+	{
+		return attributeEditors.size() > 0;
 	}
 }

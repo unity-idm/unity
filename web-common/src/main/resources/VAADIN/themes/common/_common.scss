@@ -198,8 +198,12 @@
 		padding-top: round($v-layout-margin-top/3);
 	}
 
-	.u-negativeMarginSmall {
+	.u-negativeBottomMarginSmall {
 		margin-bottom: (-round($v-layout-margin-bottom/3));
+	}
+
+	.u-negativeTopMargin {
+		margin-top: (-($v-layout-margin-top/3)*2);
 	}
 
 	.v-panel-content-u-centeredPanel > div {

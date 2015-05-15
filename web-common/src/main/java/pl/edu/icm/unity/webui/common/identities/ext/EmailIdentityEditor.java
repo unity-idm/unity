@@ -36,7 +36,7 @@ public class EmailIdentityEditor implements IdentityEditor
 	@Override
 	public ComponentsContainer getEditor(boolean required, boolean adminMode)
 	{
-		field = new TextField(msg.getMessage("EmailIdentityEditor.email"));
+		field = new TextField(new EmailIdentity().getHumanFriendlyName(msg) + ":");
 		field.setRequired(required);
 		this.required = required;
 		this.adminMode = adminMode;

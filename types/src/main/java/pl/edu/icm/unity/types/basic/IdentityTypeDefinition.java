@@ -112,6 +112,12 @@ public interface IdentityTypeDefinition
 
 	/**
 	 * @param msg
+	 * @return Name of the type which can be presented to end user.
+	 */
+	public String getHumanFriendlyName(MessageSource msg);
+
+	/**
+	 * @param msg
 	 * @return Description of the type which can be presented to end user.
 	 */
 	public String getHumanFriendlyDescription(MessageSource msg);
