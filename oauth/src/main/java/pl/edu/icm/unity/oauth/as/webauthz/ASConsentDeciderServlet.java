@@ -26,6 +26,7 @@ import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.server.translation.ExecutionFailException;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.RoutingServlet;
@@ -37,8 +38,10 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
+import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.SerializeException;
+import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 
@@ -153,6 +156,17 @@ public class ASConsentDeciderServlet extends HttpServlet
 			Collection<Attribute<?>> attributes = processor.filterAttributes(userInfo, oauthCtx);
 			respDoc = processor.prepareAuthzResponseAndRecordInternalState(attributes, selectedIdentity, 
 					oauthCtx, tokensMan);
+		} catch (ExecutionFailException e)
+		{
+			log.debug("Authentication failed due to profile's decision, returning error");
+			ErrorObject eo = new ErrorObject("access_denied", 
+					e.getMessage(), HTTPResponse.SC_FORBIDDEN);
+			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(
+					oauthCtx.getReturnURI(), 
+					eo, oauthCtx.getRequest().getResponseType(), 
+					oauthCtx.getRequest().getState());
+			sendReturnRedirect(oauthResponse, request, response, false);
+			return;
 		} catch (Exception e)
 		{
 			log.error("Engine problem when handling client request", e);

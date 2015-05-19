@@ -26,6 +26,7 @@ import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
+import pl.edu.icm.unity.server.translation.ExecutionFailException;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -50,7 +51,9 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 import com.google.gwt.thirdparty.guava.common.collect.Lists;
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
+import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
+import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
@@ -189,6 +192,15 @@ public class OAuthAuthzUI extends UnityUIBase
 			attrsPresenter = new ExposedAttributesComponent(msg, handlersRegistry, 
 					oauthProcessor.filterAttributes(translationResult, ctx));
 			eiLayout.addComponent(attrsPresenter);
+		} catch (ExecutionFailException e)
+		{
+			log.debug("Authentication failed due to profile's decision, returning error");
+			ErrorObject eo = new ErrorObject("access_denied", 
+					e.getMessage(), HTTPResponse.SC_FORBIDDEN);
+			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
+					eo, ctx.getRequest().getResponseType(), 
+					ctx.getRequest().getState());
+			oauthResponseHandler.returnOauthResponse(oauthResponse, true);
 		} catch (Exception e)
 		{
 			log.error("Engine problem when handling client request", e);
