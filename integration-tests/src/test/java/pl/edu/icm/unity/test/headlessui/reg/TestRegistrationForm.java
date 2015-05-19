@@ -21,7 +21,7 @@ public class TestRegistrationForm extends SeleniumTestBase
 	public void registrationTest() throws Exception
 	{
 		driver.get(baseUrl + "/admin/admin");
-		driver.findElement(By.className("idpentry_samlWeb_remoteIdp.7.")).click();
+		driver.findElement(By.className("idpentry_samlWeb_remoteIdp.5.")).click();
 		driver.findElement(By.id("AuthenticationUI.authnenticateButton")).click();
 		driver.findElement(By.id("AuthenticationUI.username")).clear();
 		driver.findElement(By.id("AuthenticationUI.username")).sendKeys("demo-user");
@@ -38,8 +38,9 @@ public class TestRegistrationForm extends SeleniumTestBase
 		driver.findElement(By.id("AbstractDialog.confirm")).click();	
 		//wait
 		simpleWait(1000);
-		waitForElement(By.id("AbstractDialog.confirm"));
-		driver.findElement(By.id("AbstractDialog.confirm")).click();
+		waitForElement(By.className("v-Notification"));
+		driver.findElement(By.className("v-Notification")).click();	
+
 		driver.findElement(By.id("AuthenticationUI.authnenticateButton")).click();
 		driver.findElement(By.id("IdpButtonsBar.confirmButton")).click();
 		assertTrue(driver.findElement(By.id("MainHeader.loggedAs")) != null);
