@@ -475,8 +475,6 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	private void ensureIdentitiesAreOfSpecifiedTypes(Collection<String> updatedTypes,
 			Collection<? extends IdentityParam> newIdentities) throws IllegalIdentityValueException
 	{
-		if (newIdentities.isEmpty())
-			throw new IllegalArgumentException("There must be at least one identity");
 		for (IdentityParam id: newIdentities)
 		{
 			id.validateInitialization();

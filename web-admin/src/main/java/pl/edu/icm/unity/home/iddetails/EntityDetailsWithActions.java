@@ -9,6 +9,7 @@ import java.util.Set;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.HomeEndpointProperties;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
@@ -82,8 +83,33 @@ public class EntityDetailsWithActions extends CustomComponent
 				@Override
 				public void buttonClick(ClickEvent event)
 				{
-					attrsPanel.saveChanges();
-					//TODO save identities
+					boolean ok = true;
+					try
+					{
+						attrsPanel.validate();
+					} catch (FormValidationException e)
+					{
+						ok = false;
+					}
+					try
+					{
+						identitiesPanel.validate();
+					} catch (FormValidationException e)
+					{
+						ok = false;
+					}
+					if (!ok)
+						return;
+					
+					try
+					{
+						identitiesPanel.saveChanges();
+						attrsPanel.saveChanges();
+					} catch (EngineException e)
+					{
+						NotificationPopup.showError(msg, 
+							msg.getMessage("EntityDetailsWithActions.errorSaving"), e);
+					}
 				}
 			});
 			buttons.addComponent(save);

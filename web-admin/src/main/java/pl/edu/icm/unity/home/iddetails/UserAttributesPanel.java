@@ -24,7 +24,6 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewer;
 import pl.edu.icm.unity.webui.common.attributes.FixedAttributeEditor;
@@ -141,7 +140,13 @@ public class UserAttributesPanel
 		return attributes.iterator().next();
 	}
 	
-	public void saveChanges()
+	public void validate() throws FormValidationException
+	{
+		for (FixedAttributeEditor ae: attributeEditors)
+			ae.getAttribute();
+	}
+	
+	public void saveChanges() throws EngineException
 	{
 		for (FixedAttributeEditor ae: attributeEditors)
 		{
@@ -159,20 +164,12 @@ public class UserAttributesPanel
 		}
 	}
 	
-	private void updateAttribute(Attribute<?> a)
+	private void updateAttribute(Attribute<?> a) throws EngineException
 	{
-		try
-		{
-			attributesMan.setAttribute(new EntityParam(entityId), a, true);
-		} catch (EngineException e)
-		{
-			NotificationPopup.showError(msg, 
-					msg.getMessage("UserAttributesPanel.errorSaving", a.getName()), e);
-		}
-		
+		attributesMan.setAttribute(new EntityParam(entityId), a, true);
 	}
 	
-	private void removeAttribute(FixedAttributeEditor ae)
+	private void removeAttribute(FixedAttributeEditor ae) throws EngineException
 	{
 		try
 		{
@@ -181,10 +178,6 @@ public class UserAttributesPanel
 		} catch (IllegalAttributeValueException e)
 		{
 			//OK - attribute already doesn't exist
-		} catch (EngineException e)
-		{
-			NotificationPopup.showError(msg, msg.getMessage("UserAttributesPanel.errorSaving",
-					ae.getAttributeType().getName()), e);
 		}
 	}
 

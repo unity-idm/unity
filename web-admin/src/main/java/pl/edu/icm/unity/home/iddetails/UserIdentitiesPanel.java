@@ -7,6 +7,7 @@ package pl.edu.icm.unity.home.iddetails;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +17,9 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
 import com.vaadin.ui.AbstractOrderedLayout;
@@ -129,24 +132,30 @@ public class UserIdentitiesPanel
 		initUI();
 	}
 	
-	private void saveChanges()
+	public void validate() throws FormValidationException
 	{
-		/*
-		for (FixedAttributeEditor ae: attributeEditors)
+		for (SingleTypeIdentityEditor editor: identityEditors)
+			editor.getIdentities();
+	}
+	
+	public void saveChanges() throws EngineException
+	{
+		Collection<IdentityParam> newIdentities = new HashSet<>();
+		Collection<String> types = new HashSet<>();
+		for (SingleTypeIdentityEditor editor: identityEditors)
 		{
 			try
 			{
-				Attribute<?> a = ae.getAttribute();
-				if (a != null)
-					updateAttribute(a);
-				else
-					removeAttribute(ae);
+				newIdentities.addAll(editor.getIdentities());
 			} catch (FormValidationException e)
 			{
-				continue;
+				throw new IllegalStateException("validation error on the idneities, "
+						+ "i.e. validation was not performed earlier");
 			}
+			types.add(editor.getType().getIdentityTypeProvider().getId());
 		}
-		*/
+		
+		idsManagement.setIdentities(new EntityParam(entityId), types, newIdentities);
 	}
 
 	public boolean hasEditable()

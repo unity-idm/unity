@@ -62,6 +62,16 @@ public class SingleTypeIdentityEditor
 		ret.clearContents();
 	}
 	
+	public Collection<IdentityParam> getIdentities() throws FormValidationException
+	{
+		return ret.getElements();
+	}
+	
+	public IdentityType getType()
+	{
+		return idType;
+	}
+	
 	private class IdentityEditorProvider implements EditorProvider<IdentityParam>
 	{
 		@Override
