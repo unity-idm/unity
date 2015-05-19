@@ -43,17 +43,18 @@ public class SingleTypeIdentityEditor
 		this.idEdRegistry = idEdRegistry;
 		this.msg = msg;
 		this.parent = parent;
+		this.userFriendlyName = idType.getIdentityTypeProvider().getHumanFriendlyName(msg);
+
 		initUI(initial);
 	}
 	
 	private void initUI(Collection<Identity> initial)
 	{
+		int min = Math.min(initial.size(), idType.getMinInstances());
 		ret = new ListOfEmbeddedElementsStub<IdentityParam>(
 				msg, new IdentityEditorProvider(), 
-				0, Integer.MAX_VALUE, false, parent);
-		for (Identity id: initial)
-			ret.addEntry(id, null);
-		userFriendlyName = idType.getIdentityTypeProvider().getHumanFriendlyName(msg);
+				min, idType.getMaxInstances(), false, parent);
+		ret.setEntries(initial);
 		ret.setLonelyLabel(userFriendlyName + ":");
 	}
 	
@@ -89,9 +90,10 @@ public class SingleTypeIdentityEditor
 		public ComponentsContainer getEditorComponent(IdentityParam value, int position)
 		{
 			editor = idEdRegistry.getEditor(idType.getIdentityTypeProvider().getId());
+			ComponentsContainer ret = editor.getEditor(true, false);
 			if (value != null)
 				editor.setDefaultValue(value.getValue());
-			return editor.getEditor(false, false);
+			return ret;
 		}
 
 		@Override

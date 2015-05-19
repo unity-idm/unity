@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webadmin.identitytype;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 
 import com.vaadin.ui.Component;
 
@@ -37,7 +38,14 @@ public class IdentityTypeEditDialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
-		IdentityType identityType = editor.getIdentityType();
+		IdentityType identityType;
+		try
+		{
+			identityType = editor.getIdentityType();
+		} catch (FormValidationException e)
+		{
+			return;
+		}
 		if (callback.updatedIdentityType(identityType))
 			close();
 	}

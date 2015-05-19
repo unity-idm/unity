@@ -82,7 +82,7 @@ public class ListOfEmbeddedElementsStub<T>
 		lonelyBar.setCaption(label);
 	}
 	
-	public void setEntries(Collection<T> values)
+	public void setEntries(Collection<? extends T> values)
 	{
 		clearContents();
 		Entry e = null;

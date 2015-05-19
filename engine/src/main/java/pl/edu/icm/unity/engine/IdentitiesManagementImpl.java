@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -222,11 +223,11 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			IdentityType identityType = dbIdentities.getIdentityTypes(sqlMap).get(
 					toAdd.getTypeId());
 			
-			boolean fullAuthz = authorizeAddIdentity(entityId, Sets.newHashSet(toAdd), 
+			boolean fullAuthz = authorizeIdentityChange(entityId, Sets.newHashSet(toAdd), 
 					identityType.isSelfModificable());
 			Identity[] identities = dbIdentities.getIdentitiesForEntityNoContext(entityId, sqlMap);
-			if (getIdentityCountOfType(identities, identityType.getIdentityTypeProvider().getId()) 
-					== identityType.getMaxInstances())
+			if (!fullAuthz && getIdentityCountOfType(identities, identityType.getIdentityTypeProvider().getId()) 
+					>= identityType.getMaxInstances())
 				throw new SchemaConsistencyException("Can not add another identity of this type as "
 						+ "the configured maximum number of instances was reached.");
 			Identity ret = dbIdentities.insertIdentity(toAdd, entityId, false, sqlMap);
@@ -250,14 +251,14 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		return ret;
 	}
 
-	private void checkVerifiedMinCount(Identity[] identities, IdentityTaV toRemove,
+	private void checkVerifiedMinCountForRemoval(Identity[] identities, IdentityTaV toRemove,
 			IdentityType type) throws SchemaConsistencyException, IllegalIdentityValueException
 	{
 		if (!type.getIdentityTypeProvider().isVerifiable())
 			return;
 		int existing = 0;
-		String comparableValue = type.getIdentityTypeProvider().getComparableValue(toRemove.getValue(), toRemove.getRealm(),
-				toRemove.getTarget());
+		String comparableValue = type.getIdentityTypeProvider().getComparableValue(toRemove.getValue(), 
+				toRemove.getRealm(), toRemove.getTarget());
 		for (Identity id: identities)
 		{
 			if (id.getTypeId().equals(toRemove.getTypeId()))
@@ -268,7 +269,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 					existing++;
 			}
 		}
-		if (existing == type.getMinVerifiedInstances())
+		if (existing <= type.getMinVerifiedInstances())
 			throw new SchemaConsistencyException("Can not remove the verified identity as "
 					+ "the configured minimum number of verified instances was reached.");
 	}
@@ -279,7 +280,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	 * @throws AuthorizationException
 	 * @returns true if full authZ is set or false if limited only. 
 	 */
-	private boolean authorizeAddIdentity(long entityId, Collection<? extends IdentityParam> toAdd, 
+	private boolean authorizeIdentityChange(long entityId, Collection<? extends IdentityParam> toAdd, 
 			boolean selfModifiable) throws AuthorizationException
 	{
 		boolean fullAuthz = authz.getCapabilities(false, "/").contains(AuthzCapability.identityModify);
@@ -309,12 +310,15 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 					toRemove.getTypeId());
 			Identity[] identities = dbIdentities.getIdentitiesForEntityNoContext(entityId, sqlMap);
 			String type = identityType.getIdentityTypeProvider().getId();
-			if (getIdentityCountOfType(identities, type) == identityType.getMinInstances())
-				throw new SchemaConsistencyException("Can not remove the identity as "
+			boolean fullAuthz = authorizeIdentityChange(entityId, new ArrayList<IdentityParam>(), 
+					identityType.isSelfModificable());
+			if (!fullAuthz)
+			{
+				if (getIdentityCountOfType(identities, type) <= identityType.getMinInstances())
+					throw new SchemaConsistencyException("Can not remove the identity as "
 						+ "the configured minimum number of instances was reached.");
-			checkVerifiedMinCount(identities, toRemove, identityType);
-			authz.checkAuthorization(identityType.isSelfModificable() && authz.isSelf(entityId), 
-					AuthzCapability.identityModify);
+				checkVerifiedMinCountForRemoval(identities, toRemove, identityType);
+			}
 			dbIdentities.removeIdentity(toRemove, sqlMap);
 			sqlMap.commit();
 		} finally
@@ -338,7 +342,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			long entityId = idResolver.getEntityId(entity, sqlMap);
 			Map<String, IdentityType> identityTypes = dbIdentities.getIdentityTypes(sqlMap);
 			boolean selfModifiable = areAllTypesSelfModifiable(updatedTypes, identityTypes);
-			authorizeAddIdentity(entityId, newIdentities, selfModifiable);
+			boolean fullAuthz = authorizeIdentityChange(entityId, newIdentities, selfModifiable);
 			Identity[] identities = dbIdentities.getIdentitiesForEntityNoContext(entityId, sqlMap);
 			Map<String, Set<Identity>> currentIdentitiesByType = 
 					getCurrentIdentitiesByType(updatedTypes, identities);
@@ -346,7 +350,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 					getRequestedIdentitiesByType(updatedTypes, newIdentities);
 			for (String type: updatedTypes)
 				setIdentitiesOfType(identityTypes.get(type), entityId, currentIdentitiesByType.get(type), 
-						requestedIdentitiesByType.get(type), sqlMap);			
+						requestedIdentitiesByType.get(type), fullAuthz, sqlMap);			
 			sqlMap.commit();
 		} finally
 		{
@@ -355,12 +359,12 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	}
 
 	private void setIdentitiesOfType(IdentityType type, long entityId, 
-			Set<Identity> existing, Set<IdentityParam> requested,
+			Set<Identity> existing, Set<IdentityParam> requested, boolean fullAuthz,
 			SqlSession sqlMap) throws EngineException
 	{
 		Set<IdentityParam> toRemove = substractIdentitySets(type, existing, requested);
 		Set<IdentityParam> toAdd = substractIdentitySets(type, requested, existing);
-		verifyLimitsOfIdentities(type, existing, requested, toRemove, toAdd);
+		verifyLimitsOfIdentities(type, existing, requested, toRemove, toAdd, fullAuthz);
 		
 		for (IdentityParam add: toAdd)
 			dbIdentities.insertIdentity(add, entityId, false, sqlMap);
@@ -369,24 +373,29 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	}
 	
 	private void verifyLimitsOfIdentities(IdentityType type, Set<Identity> existing, Set<IdentityParam> requested, 
-			Set<IdentityParam> toRemove, Set<IdentityParam> toAdd) 
+			Set<IdentityParam> toRemove, Set<IdentityParam> toAdd, boolean fullAuthz) 
 			throws SchemaConsistencyException
 	{
+		if (fullAuthz)
+			return;
+		
 		int newCount = requested.size();
-		if (newCount < type.getMinInstances())
+		if (newCount < type.getMinInstances() && existing.size() >= type.getMaxInstances())
 			throw new SchemaConsistencyException("The operation can not be completed as in effect "
 					+ "the configured minimum number of instances would be violated "
 					+ "for the identity type " + type.getIdentityTypeProvider().getId());
-		if (newCount > type.getMaxInstances())
+		if (newCount > type.getMaxInstances() && existing.size() <= type.getMaxInstances())
 			throw new SchemaConsistencyException("The operation can not be completed as in effect "
 					+ "the configured maximum number of instances would be violated "
 					+ "for the identity type " + type.getIdentityTypeProvider().getId());
 		if (type.getIdentityTypeProvider().isVerifiable())
 		{
 			int newConfirmedCount = 0;
+			int currentConfirmedCount = 0;
 			for (IdentityParam ni: existing)
 				if (ni.isConfirmed())
 					newConfirmedCount++;
+			currentConfirmedCount = newConfirmedCount;
 			for (IdentityParam ni: toRemove)
 				if (ni.isConfirmed())
 					newConfirmedCount--;
@@ -394,7 +403,8 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 				if (ni.isConfirmed())
 					newConfirmedCount++;
 			
-			if (newConfirmedCount < type.getMinVerifiedInstances())
+			if (newConfirmedCount < type.getMinVerifiedInstances() && 
+					currentConfirmedCount >= type.getMinVerifiedInstances())
 				throw new SchemaConsistencyException("The operation can not be completed as in effect "
 					+ "the configured minimum number of confirmed identities would be violated "
 					+ "for the identity type " + type.getIdentityTypeProvider().getId());

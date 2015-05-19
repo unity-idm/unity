@@ -99,13 +99,19 @@ public class EntityDetailsWithActions extends CustomComponent
 						ok = false;
 					}
 					if (!ok)
+					{
+						NotificationPopup.showError(msg, msg.getMessage("error"), 
+								msg.getMessage("EntityDetailsWithActions.errorSaving"));
 						return;
+					}
 					
 					try
 					{
 						identitiesPanel.saveChanges();
 						attrsPanel.saveChanges();
-					} catch (EngineException e)
+						identitiesPanel.refresh();
+						attrsPanel.refreshEditable();
+					} catch (Exception e)
 					{
 						NotificationPopup.showError(msg, 
 							msg.getMessage("EntityDetailsWithActions.errorSaving"), e);
@@ -125,8 +131,6 @@ public class EntityDetailsWithActions extends CustomComponent
 			{
 				try
 				{
-					identitiesPanel.clear();
-					attrsPanel.clear();
 					identitiesPanel.refresh();
 					attrsPanel.refreshEditable();
 				} catch (EngineException e)

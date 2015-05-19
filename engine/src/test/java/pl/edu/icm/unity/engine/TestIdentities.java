@@ -270,6 +270,92 @@ public class TestIdentities extends DBIntegrationTestBase
 			//expected
 		}
 	}
+
+	/**
+	 * When identity limits are not met (due to admin's settings) user should be able to add identities
+	 * if there are less then required by limit and to remove if there is more then the upper limit,
+	 * i.e. to improve the situation.
+	 * @throws Exception
+	 */
+	@Test
+	public void userCanImproveLimitsSituation() throws Exception
+	{
+		setupPasswordAuthn();
+		Identity id = createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		
+		IdentityType idType = new IdentityType(new EmailIdentity());
+		idType.setSelfModificable(true);
+		idType.setMinInstances(2);
+		idType.setMaxInstances(3);
+		idType.setMinVerifiedInstances(1);
+		idsMan.updateIdentityType(idType);
+		entityParam = new EntityParam(id);
+		IdentityParam emailId = new IdentityParam(EmailIdentity.ID,  "email@example.org");
+		emailId.setConfirmationInfo(new ConfirmationInfo(true));
+		IdentityParam emailId2 = new IdentityParam(EmailIdentity.ID,  "email2@example.org");
+		emailId2.setConfirmationInfo(new ConfirmationInfo(true));
+		IdentityParam emailId3 = new IdentityParam(EmailIdentity.ID,  "email3@example.org");
+		emailId3.setConfirmationInfo(new ConfirmationInfo(false));
+		IdentityParam emailId4 = new IdentityParam(EmailIdentity.ID,  "email4@example.org");
+		emailId4.setConfirmationInfo(new ConfirmationInfo(false));
+		IdentityParam emailId5 = new IdentityParam(EmailIdentity.ID,  "email5@example.org");
+		emailId5.setConfirmationInfo(new ConfirmationInfo(false));
+
+		idsMan.addIdentity(emailId, entityParam, false);
+		idsMan.addIdentity(emailId2, entityParam, false);
+		idsMan.addIdentity(emailId3, entityParam, false);
+		idsMan.addIdentity(emailId4, entityParam, false);
+		idsMan.addIdentity(emailId5, entityParam, false);
+
+		setupUserContext("user1", false);
+
+		//still above limit, but removing works
+		idsMan.setIdentities(entityParam, Sets.newHashSet(EmailIdentity.ID), 
+				Sets.newHashSet(emailId, emailId2, emailId3, emailId4));
+
+		setupAdmin();
+		
+		idsMan.setIdentities(entityParam, Sets.newHashSet(EmailIdentity.ID), 
+				new HashSet<IdentityParam>());
+
+		setupUserContext("user1", false);
+
+		//still under limit, but adding and changing works
+		idsMan.setIdentities(entityParam, Sets.newHashSet(EmailIdentity.ID), 
+				Sets.newHashSet(emailId));
+		idsMan.setIdentities(entityParam, Sets.newHashSet(EmailIdentity.ID), 
+				Sets.newHashSet(emailId, emailId2));
+		idsMan.setIdentities(entityParam, Sets.newHashSet(EmailIdentity.ID), 
+				Sets.newHashSet(emailId3, emailId4));
+	}
+
+	@Test
+	public void typeLimitsAreIgnoredForAdmin() throws Exception
+	{
+		setupPasswordAuthn();
+		Identity id = createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		
+		IdentityType idType = new IdentityType(new EmailIdentity());
+		idType.setSelfModificable(true);
+		idType.setMinInstances(2);
+		idType.setMaxInstances(2);
+		idType.setMinVerifiedInstances(1);
+		idsMan.updateIdentityType(idType);
+		entityParam = new EntityParam(id);
+		IdentityParam emailId = new IdentityParam(EmailIdentity.ID,  "email@example.org");
+		emailId.setConfirmationInfo(new ConfirmationInfo(true));
+		IdentityParam emailId2 = new IdentityParam(EmailIdentity.ID,  "email2@example.org");
+		emailId2.setConfirmationInfo(new ConfirmationInfo(true));
+		IdentityParam emailId3 = new IdentityParam(EmailIdentity.ID,  "email3@example.org");
+		emailId3.setConfirmationInfo(new ConfirmationInfo(true));
+
+		idsMan.setIdentities(entityParam, Sets.newHashSet(EmailIdentity.ID), 
+				Sets.newHashSet(emailId));
+		idsMan.setIdentities(entityParam, Sets.newHashSet(EmailIdentity.ID), 
+				new HashSet<IdentityParam>());
+		idsMan.setIdentities(entityParam, Sets.newHashSet(EmailIdentity.ID), 
+				Sets.newHashSet(emailId, emailId2, emailId3));
+	}
 	
 	@Test
 	public void selfModifiableIdentityCanBeControlledByUser() throws Exception

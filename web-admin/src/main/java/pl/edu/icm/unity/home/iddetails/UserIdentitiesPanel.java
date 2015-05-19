@@ -58,23 +58,22 @@ public class UserIdentitiesPanel
 		Identity[] identities = entity.getIdentities();
 		editableIdsByType = new HashMap<>();
 		roIdsByType = new HashMap<>();
+		Collection<IdentityType> identityTypes = idsManagement.getIdentityTypes();
+		for (IdentityType idType: identityTypes)
+		{
+			if (idType.isSelfModificable())
+				editableIdsByType.put(idType, new ArrayList<Identity>());
+		}
 		for (Identity id: identities)
 		{
 			boolean editable = id.getType().isSelfModificable(); 
-			List<Identity> list = (editable ? editableIdsByType : roIdsByType).get(id.getTypeId());
+			List<Identity> list = (editable ? editableIdsByType : roIdsByType).get(id.getType());
 			if (list == null)
 			{
 				list = new ArrayList<Identity>();
 				(editable ? editableIdsByType : roIdsByType).put(id.getType(), list);
 			}
 			list.add(id);
-		}
-		Collection<IdentityType> identityTypes = idsManagement.getIdentityTypes();
-		for (IdentityType idType: identityTypes)
-		{
-			String id = idType.getIdentityTypeProvider().getId();
-			if (!editableIdsByType.containsKey(id) && idType.isSelfModificable())
-				editableIdsByType.put(idType, new ArrayList<Identity>());
 		}
 	}
 	
@@ -118,7 +117,7 @@ public class UserIdentitiesPanel
 		identityEditors.add(singleTypeIdentityEditor);
 	}
 	
-	public void clear()
+	private void clear()
 	{
 		for (Label l: roLabels)
 			parent.removeComponent(l);
@@ -128,6 +127,7 @@ public class UserIdentitiesPanel
 
 	public void refresh() throws EngineException
 	{
+		clear();
 		initIdentities();
 		initUI();
 	}
@@ -138,7 +138,7 @@ public class UserIdentitiesPanel
 			editor.getIdentities();
 	}
 	
-	public void saveChanges() throws EngineException
+	public void saveChanges() throws Exception
 	{
 		Collection<IdentityParam> newIdentities = new HashSet<>();
 		Collection<String> types = new HashSet<>();

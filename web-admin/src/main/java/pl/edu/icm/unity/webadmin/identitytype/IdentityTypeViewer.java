@@ -26,6 +26,9 @@ public class IdentityTypeViewer extends CompactFormLayout
 	private Label selfModificable;
 	private Label targeted;
 	private Label confirmable;
+	private Label min;
+	private Label max;
+	private Label minVerified;
 	
 	public IdentityTypeViewer(UnityMessageSource msg)
 	{
@@ -52,6 +55,19 @@ public class IdentityTypeViewer extends CompactFormLayout
 		selfModificable = new Label();
 		selfModificable.setCaption(msg.getMessage("IdentityType.selfModificableCaption"));
 		addComponent(selfModificable);
+		
+		min = new Label();
+		min.setCaption(msg.getMessage("IdentityType.min"));
+		addComponent(min);
+		
+		minVerified = new Label();
+		minVerified.setCaption(msg.getMessage("IdentityType.minVerified"));
+		addComponent(minVerified);
+
+		max = new Label();
+		max.setCaption(msg.getMessage("IdentityType.max"));
+		addComponent(max);
+		
 		
 		removable = new Label();
 		removable.setCaption(msg.getMessage("IdentityType.removable"));
@@ -80,6 +96,9 @@ public class IdentityTypeViewer extends CompactFormLayout
 		selfModificable.setVisible(how);
 		targeted.setVisible(how);
 		confirmable.setVisible(how);
+		min.setVisible(how);
+		max.setVisible(how);
+		minVerified.setVisible(how);
 	}
 	
 	public void setInput(IdentityType iType)
@@ -98,5 +117,21 @@ public class IdentityTypeViewer extends CompactFormLayout
 		selfModificable.setValue(msg.getYesNo(iType.isSelfModificable()));
 		targeted.setValue(msg.getYesNo(iType.getIdentityTypeProvider().isTargeted()));
 		confirmable.setValue(msg.getYesNo(iType.getIdentityTypeProvider().isVerifiable()));
+		min.setValue(String.valueOf(iType.getMinInstances()));
+		max.setValue(String.valueOf(iType.getMaxInstances()));
+		minVerified.setValue(String.valueOf(iType.getMinVerifiedInstances()));
+		
+		if (!iType.getIdentityTypeProvider().isVerifiable())
+			minVerified.setVisible(false);
+		
+		if (iType.getMaxInstances() == Integer.MAX_VALUE)
+			max.setVisible(false);
+
+		if (!iType.isSelfModificable())
+		{
+			minVerified.setVisible(false);
+			min.setVisible(false);
+			max.setVisible(false);
+		}
 	}
 }

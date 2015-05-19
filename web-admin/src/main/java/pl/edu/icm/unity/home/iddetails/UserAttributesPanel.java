@@ -110,7 +110,7 @@ public class UserAttributesPanel
 		}
 	}
 	
-	public void clear()
+	private void clear()
 	{
 		for (AttributeViewer viewer: viewers)
 			viewer.removeFromLayout(parent);
@@ -120,6 +120,7 @@ public class UserAttributesPanel
 	
 	public void refreshEditable() throws EngineException
 	{
+		clear();
 		initUI();
 	}
 	
@@ -146,7 +147,7 @@ public class UserAttributesPanel
 			ae.getAttribute();
 	}
 	
-	public void saveChanges() throws EngineException
+	public void saveChanges() throws Exception
 	{
 		for (FixedAttributeEditor ae: attributeEditors)
 		{
