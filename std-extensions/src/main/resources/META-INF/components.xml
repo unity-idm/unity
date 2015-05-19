@@ -49,4 +49,5 @@
 	<bean class="pl.edu.icm.unity.stdext.tactions.out.UnFilterAttributeActionFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.tactions.out.FilterIdentityActionFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.tactions.out.FilterAttributeValuesActionFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.tactions.out.FailAuthnActionFactory"/>
 </beans>

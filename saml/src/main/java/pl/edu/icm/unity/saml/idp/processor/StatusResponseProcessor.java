@@ -13,6 +13,7 @@ import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLContext;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
+import pl.edu.icm.unity.server.translation.ExecutionFailException;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.RequestAbstractType;
 import eu.unicore.samly2.SAMLConstants;
@@ -105,6 +106,10 @@ public abstract class StatusResponseProcessor<T extends XmlObject, C extends Req
 			code = SAMLConstants.Status.STATUS_REQUESTER;
 			subcode = SAMLConstants.SubStatus.STATUS2_INVALID_ATTR;
 		} else if (e instanceof SecurityException)
+		{
+			code = SAMLConstants.Status.STATUS_REQUESTER;
+			subcode = SAMLConstants.SubStatus.STATUS2_REQUEST_DENIED;
+		} else if (e instanceof ExecutionFailException)
 		{
 			code = SAMLConstants.Status.STATUS_REQUESTER;
 			subcode = SAMLConstants.SubStatus.STATUS2_REQUEST_DENIED;
