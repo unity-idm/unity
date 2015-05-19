@@ -84,6 +84,21 @@ public interface IdentitiesManagement
 	public void removeIdentity(IdentityTaV toRemove) throws EngineException;
 
 	/**
+	 * Updates identities of a single entity. The identities of the types provided with the first argument are 
+	 * replaced with the identities given as the second argument. The set of new identities can contain only
+	 * identities of types enumerated in the first argument (which can have more types, if some needs to be 
+	 * cleared). Certain system identity types can not be modified using this method, only the 
+	 * {@link #resetIdentity(EntityParam, String, String, String)} is available for them.
+	 * @param entity all identities must belong to this entity  
+	 * @param updatedTypes set of all types that shall be modified
+	 * @param newIdentities a new, complete set of identities for the given types 
+	 * @throws EngineException
+	 */
+	public void setIdentities(EntityParam entity, 
+			Collection<String> updatedTypes, Collection<? extends IdentityParam> newIdentities) 
+			throws EngineException;
+
+	/**
 	 * Reset a possibly targeted value of a dynamic identity. For the identities which are fixed this method 
 	 * throws an exception. 
 	 * <p>

@@ -15,10 +15,14 @@ import static org.junit.Assert.fail;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.internal.EntitiesScheduledUpdater;
@@ -55,6 +59,7 @@ public class TestIdentities extends DBIntegrationTestBase
 {
 	@Autowired
 	private EntitiesScheduledUpdater entitiesUpdater;
+	private EntityParam entityParam;
 	
 	@Test
 	public void scheduledOpsWork() throws Exception
@@ -154,6 +159,118 @@ public class TestIdentities extends DBIntegrationTestBase
 		assertEquals(EntityState.valid, entity.getState());
 	}
 
+	@Test
+	public void setIdentitiesFailsOnIdentitiesOfWrongType() throws Exception
+	{
+		setupPasswordAuthn();
+		Identity id = createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		try
+		{
+			idsMan.setIdentities(new EntityParam(id.getEntityId()), 
+					new HashSet<String>(), Sets.newHashSet(id));
+			fail("Managed to set identities of not enumerated type");
+		} catch (IllegalArgumentException e)
+		{
+			//ok
+		}
+	}
+
+	@Test
+	public void setIdentitiesUpdatesIdentities() throws Exception
+	{
+		setupPasswordAuthn();
+		Identity id = createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		IdentityParam dnId = new IdentityParam(X500Identity.ID,  "CN=someCN");
+		idsMan.addIdentity(dnId, new EntityParam(id), false);
+		IdentityParam emailId = new IdentityParam(EmailIdentity.ID,  "email@example.org");
+		idsMan.addIdentity(emailId, new EntityParam(id), false);
+		
+		
+		IdentityParam newUser = new IdentityParam(UsernameIdentity.ID, "user-new");
+		IdentityParam newUser2 = new IdentityParam(UsernameIdentity.ID, "user-new2");
+		IdentityParam newId = new IdentityParam(IdentifierIdentity.ID, "added");
+		idsMan.setIdentities(new EntityParam(id.getEntityId()),
+				Sets.newHashSet(UsernameIdentity.ID, X500Identity.ID, IdentifierIdentity.ID), 
+				Sets.newHashSet(newUser, newUser2, newId));
+		
+		Entity updated = idsMan.getEntity(new EntityParam(id.getEntityId()));
+		Set<String> identities = new HashSet<>();
+		for (Identity i: updated.getIdentities())
+			identities.add(i.getValue());
+		//added
+		assertTrue(identities.contains(newUser.getValue()));
+		assertTrue(identities.contains(newUser2.getValue()));
+		assertTrue(identities.contains(newId.getValue()));
+		//left
+		assertTrue(identities.contains(emailId.getValue()));
+		//removed
+		assertFalse(identities.contains(dnId.getValue()));
+		assertFalse(identities.contains(id.getValue()));
+	}
+
+	@Test
+	public void setIdentitiesRespectTypeLimits() throws Exception
+	{
+		setupPasswordAuthn();
+		Identity id = createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		
+		IdentityType idType = new IdentityType(new EmailIdentity());
+		idType.setSelfModificable(true);
+		idType.setMinInstances(2);
+		idType.setMaxInstances(2);
+		idType.setMinVerifiedInstances(1);
+		idsMan.updateIdentityType(idType);
+		entityParam = new EntityParam(id);
+		IdentityParam emailId = new IdentityParam(EmailIdentity.ID,  "email@example.org");
+		emailId.setConfirmationInfo(new ConfirmationInfo(true));
+		IdentityParam emailId2 = new IdentityParam(EmailIdentity.ID,  "email2@example.org");
+		emailId2.setConfirmationInfo(new ConfirmationInfo(true));
+		IdentityParam emailId3 = new IdentityParam(EmailIdentity.ID,  "email3@example.org");
+		emailId3.setConfirmationInfo(new ConfirmationInfo(true));
+
+		idsMan.addIdentity(emailId, entityParam, false);
+
+		setupUserContext("user1", false);
+		
+		idsMan.setIdentities(entityParam, Sets.newHashSet(EmailIdentity.ID), 
+				Sets.newHashSet(emailId, emailId2));
+
+		idsMan.getEntity(entityParam).getIdentities();
+		for (Identity i: idsMan.getEntity(entityParam).getIdentities())
+			if (i.getValue().equals("email2@example.org"))
+				assertFalse(i.getConfirmationInfo().isConfirmed());
+		
+		try
+		{
+			idsMan.setIdentities(entityParam, Sets.newHashSet(EmailIdentity.ID), 
+				Sets.newHashSet(emailId3, emailId2));
+			fail("Managed to break confirmed limit");
+		} catch (SchemaConsistencyException e)
+		{
+			//expected
+		}
+		
+		try
+		{
+			idsMan.setIdentities(entityParam, Sets.newHashSet(EmailIdentity.ID), 
+				Sets.newHashSet(emailId));
+			fail("Managed to break min limit");
+		} catch (SchemaConsistencyException e)
+		{
+			//expected
+		}
+
+		try
+		{
+			idsMan.setIdentities(entityParam, Sets.newHashSet(EmailIdentity.ID), 
+				Sets.newHashSet(emailId, emailId2, emailId3));
+			fail("Managed to break max limit");
+		} catch (SchemaConsistencyException e)
+		{
+			//expected
+		}
+	}
+	
 	@Test
 	public void selfModifiableIdentityCanBeControlledByUser() throws Exception
 	{
