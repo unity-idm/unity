@@ -5,15 +5,12 @@
 package pl.edu.icm.unity.server.authn;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.Locale;
-import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
 
 
 /**
@@ -31,8 +28,7 @@ public class InvocationContext implements Serializable
 
 	private LoginSession loginSession;
 	private Locale locale;
-	private IdentityTaV tlsIdentity; 
-	private Set<String> authenticatedIdentities = new LinkedHashSet<>();
+	private IdentityTaV tlsIdentity;
 	private AuthenticationRealm realm;
 	private String currentURLUsed;
 
@@ -58,7 +54,12 @@ public class InvocationContext implements Serializable
 			throw new InternalException("The current call has no invocation context set");
 		return ret;
 	}
-
+	
+	public static boolean hasCurrent()
+	{
+		return threadLocal.get() != null;
+	}
+	
 	/**
 	 * @return current authentication realm's name or null if undefined/unknown.
 	 */
@@ -119,16 +120,6 @@ public class InvocationContext implements Serializable
 	public void setTlsIdentity(IdentityTaV tlsIdentity)
 	{
 		this.tlsIdentity = tlsIdentity;
-	}
-
-	public Set<String> getAuthenticatedIdentities()
-	{
-		return authenticatedIdentities;
-	}
-
-	public void addAuthenticatedIdentities(Collection<String> identity)
-	{
-		this.authenticatedIdentities.addAll(identity);
 	}
 
 	/**

@@ -15,8 +15,12 @@ import java.util.Map;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.Sets;
+
+import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
@@ -375,15 +379,19 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		OutputTranslationAction action1 = (OutputTranslationAction) tactionReg.getByName(
 				CreatePersistentIdentityActionFactory.NAME).getInstance(
 						X500Identity.ID, 
-						"'CN=foo,O=ICM'");
+						"'CN=foo,O=ICM,DC=' + authenticatedWith[0]");
 		rules.add(new OutputTranslationRule(action1, new TranslationCondition()));
 		OutputTranslationAction action2 = (OutputTranslationAction) tactionReg.getByName(
 				CreatePersistentAttributeActionFactory.NAME).getInstance(
 						"o", "'ICM'", "/"); 
 		rules.add(new OutputTranslationRule(action2, new TranslationCondition()));
-		
+
 		OutputTranslationProfile tp1 = new OutputTranslationProfile("p1", rules);
 		
+		setupPasswordAuthn();
+		createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		setupUserContext("user1", false);
+		InvocationContext.getCurrent().getLoginSession().addAuthenticatedIdentities(Sets.newHashSet("user1"));
 		
 		TranslationInput input = new TranslationInput(new ArrayList<Attribute<?>>(), userE, 
 				"/", Collections.singleton("/"),
@@ -392,7 +400,9 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		TranslationResult result = tp1.translate(input);
 		outputTrEngine.process(input, result);
 		
-		EntityParam ep = new EntityParam(new IdentityTaV(X500Identity.ID, "CN=foo,O=ICM"));
+		setupAdmin();
+		
+		EntityParam ep = new EntityParam(new IdentityTaV(X500Identity.ID, "CN=foo,O=ICM,DC=user1"));
 		Entity entity = idsMan.getEntity(ep);
 		assertEquals(userE.getId(), entity.getId());
 		assertEquals(3, entity.getIdentities().length);

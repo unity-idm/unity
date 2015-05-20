@@ -147,7 +147,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		LoginSession ls = sessionMan.getCreateSession(client.getEntityId(), realm, 
 				"", client.isUsedOutdatedCredential(), null);
 		ctx.setLoginSession(ls);
-		ctx.addAuthenticatedIdentities(client.getAuthenticatedWith());
+		ls.addAuthenticatedIdentities(client.getAuthenticatedWith());
 	}
 	
 	private AuthenticatedEntity processAuthnSet(Map<String, AuthenticationResult> authnCache,

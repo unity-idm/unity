@@ -4,15 +4,21 @@
  */
 package pl.edu.icm.unity.server.api.internal;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.InternalException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -22,7 +28,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * browser shutdowns.
  * <p>
  * In the absolute termination time the maxInactivity time is also used, but only after the 
- * absolute expiry time has passed. This prevents killing such session when it is being used.
+ * absolute expiration time has passed. This prevents killing such session when it is being used.
  * 
  * @author K. Benedyczak
  */
@@ -37,6 +43,7 @@ public class LoginSession
 	private String realm;
 	private boolean usedOutdatedCredential;
 	private String entityLabel;
+	private Set<String> authenticatedIdentities = new LinkedHashSet<>();
 	
 	private Map<String, String> sessionData = new HashMap<String, String>();
 
@@ -167,6 +174,16 @@ public class LoginSession
 		this.entityLabel = entityLabel;
 	}
 	
+	public Set<String> getAuthenticatedIdentities()
+	{
+		return authenticatedIdentities;
+	}
+
+	public void addAuthenticatedIdentities(Collection<String> identity)
+	{
+		this.authenticatedIdentities.addAll(identity);
+	}
+	
 	public void deserialize(Token token)
 	{
 		ObjectNode main;
@@ -183,6 +200,14 @@ public class LoginSession
 		long lastUsed = main.get("lastUsed").asLong();
 		String entityLabel = main.get("entityLabel").asText();
 		boolean outdatedCred = main.get("usedOutdatedCredential").asBoolean();
+		if (main.has("authenticatedIdentities"))
+		{
+			List<String> ai = new ArrayList<>(2);
+			ArrayNode an = (ArrayNode) main.get("authenticatedIdentities");
+			for (int i=0; i<an.size(); i++)
+				ai.add(an.get(i).asText());
+			addAuthenticatedIdentities(ai);
+		}
 		
 		setId(token.getValue());
 		setStarted(token.getCreated());
@@ -213,6 +238,9 @@ public class LoginSession
 		main.put("lastUsed", getLastUsed().getTime());
 		main.put("usedOutdatedCredential", isUsedOutdatedCredential());
 		main.put("entityLabel", getEntityLabel());
+		ArrayNode ai = main.withArray("authenticatedIdentities");
+		for (String id: authenticatedIdentities)
+			ai.add(id);
 		
 		ObjectNode attrsJson = main.putObject("attributes");
 		for (Map.Entry<String, String> a: getSessionData().entrySet())

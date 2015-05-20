@@ -244,7 +244,7 @@ public class WebAuthenticationProcessor
 		VaadinServletResponse servletResponse = (VaadinServletResponse) VaadinService.getCurrentResponse();
 		setupSessionCookie(getSessionCookieName(realm.getName()), ls.getId(), servletResponse, rememberMe, realm);
 
-		InvocationContext.getCurrent().addAuthenticatedIdentities(authenticatedEntity.getAuthenticatedWith());
+		ls.addAuthenticatedIdentities(authenticatedEntity.getAuthenticatedWith());
 	}
 	
 	public static String getSessionCookieName(String realmName)

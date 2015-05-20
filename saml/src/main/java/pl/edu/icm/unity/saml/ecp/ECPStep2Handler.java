@@ -186,7 +186,7 @@ public class ECPStep2Handler
 		LoginSession ls = sessionMan.getCreateSession(client.getEntityId(), realm, 
 				"", client.isUsedOutdatedCredential(), null);
 		ctx.setLoginSession(ls);
-		ctx.addAuthenticatedIdentities(client.getAuthenticatedWith());
+		ls.addAuthenticatedIdentities(client.getAuthenticatedWith());
 	}
 
 	

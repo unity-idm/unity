@@ -8,12 +8,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.NDC;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.AbstractTranslationProfile;
 import pl.edu.icm.unity.server.translation.ExecutionBreakException;
@@ -133,6 +135,16 @@ public class OutputTranslationProfile extends AbstractTranslationProfile<OutputT
 				subgroups.add(group);
 		}
 		ret.put("subGroups", subgroups);
+		
+		if (InvocationContext.hasCurrent())
+		{
+			Set<String> authenticatedIdentities = InvocationContext.getCurrent().
+				getLoginSession().getAuthenticatedIdentities();
+			ret.put("authenticatedWith", new ArrayList<String>(authenticatedIdentities));
+		} else
+		{
+			ret.put("authenticatedWith", new ArrayList<String>());
+		}
 		return ret;
 	}
 	
