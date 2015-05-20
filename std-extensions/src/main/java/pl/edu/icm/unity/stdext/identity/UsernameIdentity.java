@@ -131,4 +131,10 @@ public class UsernameIdentity extends AbstractStaticIdentityTypeProvider
 	{
 		return false;
 	}
+
+	@Override
+	public String getHumanFriendlyName(MessageSource msg)
+	{
+		return msg.getMessage("UsernameIdentity.name");
+	}
 }

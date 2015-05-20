@@ -4,10 +4,12 @@
  */
 package pl.edu.icm.unity.engine;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,6 +17,8 @@ import java.util.Set;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.db.DBAttributes;
@@ -33,7 +37,9 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalPreviousCredentialException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
@@ -100,13 +106,13 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<IdentityType> getIdentityTypes() throws EngineException
+	public Collection<IdentityType> getIdentityTypes() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.readInfo);
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
 		{
-			List<IdentityType> ret = dbIdentities.getIdentityTypes(sqlMap);
+			Collection<IdentityType> ret = dbIdentities.getIdentityTypes(sqlMap).values();
 			sqlMap.commit();
 			return ret;
 		} finally
@@ -128,6 +134,17 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		SqlSession sqlMap = db.getSqlSession(true);
 		try
 		{
+			if (toUpdate.getMinInstances() < 0)
+				throw new IllegalAttributeTypeException("Minimum number of instances "
+						+ "can not be negative");
+			if (toUpdate.getMinVerifiedInstances() > toUpdate.getMinInstances())
+				throw new IllegalAttributeTypeException("Minimum number of verified instances "
+						+ "can not be larger then the regular minimum of instances");
+			if (toUpdate.getMinInstances() > toUpdate.getMaxInstances())
+				throw new IllegalAttributeTypeException("Minimum number of instances "
+						+ "can not be larger then the maximum");
+			
+			
 			Map<String, AttributeType> atsMap = dbAttributes.getAttributeTypes(sqlMap);
 			Map<String, String> extractedAts = toUpdate.getExtractedAttributes();
 			Set<AttributeType> supportedForExtraction = idTypeDef.getAttributesSupportedForExtraction();
@@ -203,9 +220,18 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		try
 		{
 			long entityId = idResolver.getEntityId(parentEntity, sqlMap);
-			authorizeAddIdentity(entityId, toAdd);
+			IdentityType identityType = dbIdentities.getIdentityTypes(sqlMap).get(
+					toAdd.getTypeId());
+			
+			boolean fullAuthz = authorizeIdentityChange(entityId, Sets.newHashSet(toAdd), 
+					identityType.isSelfModificable());
+			Identity[] identities = dbIdentities.getIdentitiesForEntityNoContext(entityId, sqlMap);
+			if (!fullAuthz && getIdentityCountOfType(identities, identityType.getIdentityTypeProvider().getId()) 
+					>= identityType.getMaxInstances())
+				throw new SchemaConsistencyException("Can not add another identity of this type as "
+						+ "the configured maximum number of instances was reached.");
 			Identity ret = dbIdentities.insertIdentity(toAdd, entityId, false, sqlMap);
-			if (extractAttributes)
+			if (extractAttributes && fullAuthz)
 				engineHelper.extractAttributes(ret, sqlMap);
 			sqlMap.commit();
 			confirmationManager.sendVerification(new EntityParam(entityId), ret, false);
@@ -216,19 +242,57 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		}
 	}
 
+	private int getIdentityCountOfType(Identity[] identities, String type)
+	{
+		int ret = 0;
+		for (Identity id: identities)
+			if (id.getTypeId().equals(type))
+				ret++;
+		return ret;
+	}
+
+	private void checkVerifiedMinCountForRemoval(Identity[] identities, IdentityTaV toRemove,
+			IdentityType type) throws SchemaConsistencyException, IllegalIdentityValueException
+	{
+		if (!type.getIdentityTypeProvider().isVerifiable())
+			return;
+		int existing = 0;
+		String comparableValue = type.getIdentityTypeProvider().getComparableValue(toRemove.getValue(), 
+				toRemove.getRealm(), toRemove.getTarget());
+		for (Identity id: identities)
+		{
+			if (id.getTypeId().equals(toRemove.getTypeId()))
+			{
+				if (comparableValue.equals(id.getComparableValue()) && !id.isConfirmed())
+					return;
+				if (id.isConfirmed())
+					existing++;
+			}
+		}
+		if (existing <= type.getMinVerifiedInstances())
+			throw new SchemaConsistencyException("Can not remove the verified identity as "
+					+ "the configured minimum number of verified instances was reached.");
+	}
+	
 	/**
 	 * Checks if identityModify capability is granted. If it is only in self access context the
 	 * confirmation status is forced to be unconfirmed.
-	 * @throws AuthorizationException 
+	 * @throws AuthorizationException
+	 * @returns true if full authZ is set or false if limited only. 
 	 */
-	private void authorizeAddIdentity(long entityId, IdentityParam toAdd) throws AuthorizationException
+	private boolean authorizeIdentityChange(long entityId, Collection<? extends IdentityParam> toAdd, 
+			boolean selfModifiable) throws AuthorizationException
 	{
 		boolean fullAuthz = authz.getCapabilities(false, "/").contains(AuthzCapability.identityModify);
 		if (!fullAuthz)
 		{
-			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
-			toAdd.setConfirmationInfo(new ConfirmationInfo());
-		}		
+			authz.checkAuthorization(selfModifiable && authz.isSelf(entityId), 
+					AuthzCapability.identityModify);
+			for (IdentityParam idP: toAdd)
+				idP.setConfirmationInfo(new ConfirmationInfo());
+			return false;
+		}
+		return true;
 	}
 	
 	/**
@@ -242,7 +306,19 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		try
 		{
 			long entityId = idResolver.getEntityId(new EntityParam(toRemove), sqlMap);
-			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
+			IdentityType identityType = dbIdentities.getIdentityTypes(sqlMap).get(
+					toRemove.getTypeId());
+			Identity[] identities = dbIdentities.getIdentitiesForEntityNoContext(entityId, sqlMap);
+			String type = identityType.getIdentityTypeProvider().getId();
+			boolean fullAuthz = authorizeIdentityChange(entityId, new ArrayList<IdentityParam>(), 
+					identityType.isSelfModificable());
+			if (!fullAuthz)
+			{
+				if (getIdentityCountOfType(identities, type) <= identityType.getMinInstances())
+					throw new SchemaConsistencyException("Can not remove the identity as "
+						+ "the configured minimum number of instances was reached.");
+				checkVerifiedMinCountForRemoval(identities, toRemove, identityType);
+			}
 			dbIdentities.removeIdentity(toRemove, sqlMap);
 			sqlMap.commit();
 		} finally
@@ -252,6 +328,187 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	}
 
 
+	@Override
+	public void setIdentities(EntityParam entity, Collection<String> updatedTypes,
+			Collection<? extends IdentityParam> newIdentities) throws EngineException
+	{
+		entity.validateInitialization();
+		ensureNoDynamicIdentityType(updatedTypes);
+		ensureIdentitiesAreOfSpecifiedTypes(updatedTypes, newIdentities);
+		
+		SqlSession sqlMap = db.getSqlSession(true);
+		try
+		{
+			long entityId = idResolver.getEntityId(entity, sqlMap);
+			Map<String, IdentityType> identityTypes = dbIdentities.getIdentityTypes(sqlMap);
+			boolean selfModifiable = areAllTypesSelfModifiable(updatedTypes, identityTypes);
+			boolean fullAuthz = authorizeIdentityChange(entityId, newIdentities, selfModifiable);
+			Identity[] identities = dbIdentities.getIdentitiesForEntityNoContext(entityId, sqlMap);
+			Map<String, Set<Identity>> currentIdentitiesByType = 
+					getCurrentIdentitiesByType(updatedTypes, identities);
+			Map<String, Set<IdentityParam>> requestedIdentitiesByType = 
+					getRequestedIdentitiesByType(updatedTypes, newIdentities);
+			for (String type: updatedTypes)
+				setIdentitiesOfType(identityTypes.get(type), entityId, currentIdentitiesByType.get(type), 
+						requestedIdentitiesByType.get(type), fullAuthz, sqlMap);			
+			sqlMap.commit();
+		} finally
+		{
+			db.releaseSqlSession(sqlMap);
+		}
+	}
+
+	private void setIdentitiesOfType(IdentityType type, long entityId, 
+			Set<Identity> existing, Set<IdentityParam> requested, boolean fullAuthz,
+			SqlSession sqlMap) throws EngineException
+	{
+		Set<IdentityParam> toRemove = substractIdentitySets(type, existing, requested);
+		Set<IdentityParam> toAdd = substractIdentitySets(type, requested, existing);
+		verifyLimitsOfIdentities(type, existing, requested, toRemove, toAdd, fullAuthz);
+		
+		for (IdentityParam add: toAdd)
+			dbIdentities.insertIdentity(add, entityId, false, sqlMap);
+		for (IdentityParam remove: toRemove)
+			dbIdentities.removeIdentity(remove, sqlMap);
+	}
+	
+	private void verifyLimitsOfIdentities(IdentityType type, Set<Identity> existing, Set<IdentityParam> requested, 
+			Set<IdentityParam> toRemove, Set<IdentityParam> toAdd, boolean fullAuthz) 
+			throws SchemaConsistencyException
+	{
+		if (fullAuthz)
+			return;
+		
+		int newCount = requested.size();
+		if (newCount < type.getMinInstances() && existing.size() >= type.getMaxInstances())
+			throw new SchemaConsistencyException("The operation can not be completed as in effect "
+					+ "the configured minimum number of instances would be violated "
+					+ "for the identity type " + type.getIdentityTypeProvider().getId());
+		if (newCount > type.getMaxInstances() && existing.size() <= type.getMaxInstances())
+			throw new SchemaConsistencyException("The operation can not be completed as in effect "
+					+ "the configured maximum number of instances would be violated "
+					+ "for the identity type " + type.getIdentityTypeProvider().getId());
+		if (type.getIdentityTypeProvider().isVerifiable())
+		{
+			int newConfirmedCount = 0;
+			int currentConfirmedCount = 0;
+			for (IdentityParam ni: existing)
+				if (ni.isConfirmed())
+					newConfirmedCount++;
+			currentConfirmedCount = newConfirmedCount;
+			for (IdentityParam ni: toRemove)
+				if (ni.isConfirmed())
+					newConfirmedCount--;
+			for (IdentityParam ni: toAdd)
+				if (ni.isConfirmed())
+					newConfirmedCount++;
+			
+			if (newConfirmedCount < type.getMinVerifiedInstances() && 
+					currentConfirmedCount >= type.getMinVerifiedInstances())
+				throw new SchemaConsistencyException("The operation can not be completed as in effect "
+					+ "the configured minimum number of confirmed identities would be violated "
+					+ "for the identity type " + type.getIdentityTypeProvider().getId());
+		}
+		
+	}
+	
+	private Set<IdentityParam> substractIdentitySets(IdentityType type, Set<? extends IdentityParam> from, 
+			Set<? extends IdentityParam> what) throws IllegalIdentityValueException
+	{
+		IdentityTypeDefinition identityTypeProvider = type.getIdentityTypeProvider();
+		Set<IdentityParam> ret = new HashSet<>();
+		for (IdentityParam idParam: from)
+		{
+			String idParamCmp = identityTypeProvider.getComparableValue(idParam.getValue(), 
+					idParam.getRealm(), idParam.getTarget());
+			boolean found = false;
+			for (IdentityParam removed: what)
+			{
+				String removedCmp = identityTypeProvider.getComparableValue(removed.getValue(), 
+						removed.getRealm(), removed.getTarget());
+				
+				if (idParamCmp.equals(removedCmp))
+				{
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+				ret.add(idParam);
+		}
+		return ret;
+	}
+	
+
+	private Map<String, Set<IdentityParam>> getRequestedIdentitiesByType(Collection<String> updatedTypes, 
+			Collection<? extends IdentityParam> identities)
+	{
+		Map<String, Set<IdentityParam>> ret = new HashMap<>();
+		for (String type: updatedTypes)
+			ret.put(type, new HashSet<IdentityParam>());
+		for (IdentityParam id: identities)
+		{
+			ret.get(id.getTypeId()).add(id);
+		}
+		return ret;
+	}
+	
+	private Map<String, Set<Identity>> getCurrentIdentitiesByType(Collection<String> updatedTypes, 
+			Identity[] identities)
+	{
+		Map<String, Set<Identity>> ret = new HashMap<>();
+		for (String type: updatedTypes)
+			ret.put(type, new HashSet<Identity>());
+		for (Identity id: identities)
+		{
+			if (!updatedTypes.contains(id.getTypeId()))
+				continue;
+			ret.get(id.getTypeId()).add(id);
+		}
+		return ret;
+	}
+	
+	private boolean areAllTypesSelfModifiable(Collection<String> updatedTypes, 
+			Map<String, IdentityType> identityTypes)
+	{
+		for (String type: updatedTypes)
+		{
+			IdentityType idType = identityTypes.get(type);
+			if (!idType.isSelfModificable())
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private void ensureIdentitiesAreOfSpecifiedTypes(Collection<String> updatedTypes,
+			Collection<? extends IdentityParam> newIdentities) throws IllegalIdentityValueException
+	{
+		for (IdentityParam id: newIdentities)
+		{
+			id.validateInitialization();
+			if (!updatedTypes.contains(id.getTypeId()))
+				throw new IllegalArgumentException("All new identities must be "
+						+ "of types specified as the first argument");
+			
+		}		
+	}
+	
+	private void ensureNoDynamicIdentityType(Collection<String> updatedTypes) 
+			throws IllegalTypeException, IllegalIdentityValueException
+	{
+		for (String type: updatedTypes)
+		{
+			IdentityTypeDefinition idType = idTypesRegistry.getByName(type);
+			if (idType.isDynamic())
+				throw new IllegalIdentityValueException("Identity type " + type + 
+						" is dynamic and can not be manually set");
+
+		}		
+	}
+	
+	
 	@Override
 	public void resetIdentity(EntityParam toReset, String typeIdToReset,
 			String realm, String target) throws EngineException
@@ -689,4 +946,5 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			db.releaseSqlSession(sqlMap);
 		}		
 	}
+
 }

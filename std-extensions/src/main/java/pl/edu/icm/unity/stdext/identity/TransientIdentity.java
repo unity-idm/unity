@@ -226,6 +226,12 @@ public class TransientIdentity extends AbstractIdentityTypeProvider
 	{
 		return false;
 	}
+
+	@Override
+	public String getHumanFriendlyName(MessageSource msg)
+	{
+		return msg.getMessage("TransientIdentity.name");
+	}
 }
 
 

@@ -20,6 +20,7 @@ import pl.edu.icm.unity.home.iddetails.EntityDetailsWithActions;
 import pl.edu.icm.unity.home.iddetails.EntityRemovalButton;
 import pl.edu.icm.unity.home.iddetails.UserAttributesPanel;
 import pl.edu.icm.unity.home.iddetails.UserDetailsPanel;
+import pl.edu.icm.unity.home.iddetails.UserIdentitiesPanel;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
@@ -39,12 +40,13 @@ import pl.edu.icm.unity.webadmin.preferences.PreferencesComponent;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.bigtab.BigTabPanel;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialsPanel;
+import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesHandlerRegistry;
 
 import com.vaadin.ui.Label;
@@ -70,6 +72,7 @@ public class UserAccountComponent extends VerticalLayout
 	private WebAuthenticationProcessor authnProcessor;
 	private AttributeHandlerRegistry attributeHandlerRegistry;
 	private AttributesManagement attributesMan;
+	private IdentityEditorRegistry identityEditorRegistry;
 	
 	@Autowired
 	public UserAccountComponent(UnityMessageSource msg, AuthenticationManagement authnMan,
@@ -78,7 +81,7 @@ public class UserAccountComponent extends VerticalLayout
 			EndpointManagement endpMan, AttributesInternalProcessing attrMan,
 			WebAuthenticationProcessor authnProcessor,
 			AttributeHandlerRegistry attributeHandlerRegistry,
-			AttributesManagement attributesMan)
+			AttributesManagement attributesMan, IdentityEditorRegistry identityEditorRegistry)
 	{
 		this.msg = msg;
 		this.authnMan = authnMan;
@@ -91,6 +94,7 @@ public class UserAccountComponent extends VerticalLayout
 		this.authnProcessor = authnProcessor;
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
 		this.attributesMan = attributesMan;
+		this.identityEditorRegistry = identityEditorRegistry;
 	}
 
 	public void initUI(HomeEndpointProperties config)
@@ -128,10 +132,12 @@ public class UserAccountComponent extends VerticalLayout
 			UserDetailsPanel userInfo = getUserInfoComponent(theUser.getEntityId(), idsMan, attrMan);
 			EntityRemovalButton removalButton = new EntityRemovalButton(msg, 
 					theUser.getEntityId(), idsMan, authnProcessor);
+			UserIdentitiesPanel idsPanel = new UserIdentitiesPanel(msg, 
+					identityEditorRegistry, idsMan, theUser.getEntityId());
 			UserAttributesPanel attrsPanel = new UserAttributesPanel(msg, attributeHandlerRegistry, 
 					attributesMan, config, theUser.getEntityId());
 			EntityDetailsWithActions tabRoot = new EntityDetailsWithActions(disabled, 
-					userInfo, attrsPanel, removalButton);
+					userInfo, idsPanel, attrsPanel, removalButton, msg);
 			tabPanel.addTab("UserHomeUI.accountInfoLabel", "UserHomeUI.accountInfoDesc", 
 					Images.info64.getResource(), tabRoot);
 		} catch (AuthorizationException e)

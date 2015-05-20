@@ -13,7 +13,6 @@ import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
@@ -31,7 +30,6 @@ public class UserDetailsPanel
 	private UnityMessageSource msg;
 	private Label id;
 	private Label scheduledAction;
-	private HtmlLabel identities;
 	private HtmlLabel credStatus;
 	private HtmlLabel groups;
 	
@@ -45,9 +43,6 @@ public class UserDetailsPanel
 		scheduledAction = new Label();
 		scheduledAction.setCaption(msg.getMessage("IdentityDetails.expiration"));
 		
-		identities = new HtmlLabel(msg);
-		identities.setCaption(msg.getMessage("IdentityDetails.identities"));
-
 		credStatus = new HtmlLabel(msg);
 		credStatus.setCaption(msg.getMessage("IdentityDetails.credStatus"));
 
@@ -59,7 +54,7 @@ public class UserDetailsPanel
 	
 	public void addIntoLayout(AbstractOrderedLayout layout)
 	{
-		layout.addComponents(id, scheduledAction, identities, credStatus, groups);
+		layout.addComponents(id, scheduledAction, credStatus, groups);
 	}
 	
 	public void setInput(EntityWithLabel entityWithLabel, Collection<Group> groups)
@@ -77,13 +72,6 @@ public class UserDetailsPanel
 		} else
 		{
 			scheduledAction.setVisible(false);
-		}
-		
-		identities.resetValue();
-		for (Identity id: entity.getIdentities())
-		{
-			identities.addHtmlValueLine("IdentityFormatter.identityCore", id.getTypeId(), 
-					id.getType().getIdentityTypeProvider().toPrettyStringNoPrefix(id.getValue()));
 		}
 		
 		CredentialInfo credInf = entity.getCredentialInfo();

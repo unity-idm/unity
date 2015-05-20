@@ -105,4 +105,10 @@ public class IdentifierIdentity extends AbstractStaticIdentityTypeProvider
 	{
 		return msg.getMessage("IdentifierIdentity.description");
 	}
+
+	@Override
+	public String getHumanFriendlyName(MessageSource msg)
+	{
+		return msg.getMessage("IdentifierIdentity.name");
+	}
 }

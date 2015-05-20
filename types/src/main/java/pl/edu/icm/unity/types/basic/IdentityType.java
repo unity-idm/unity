@@ -18,6 +18,10 @@ public class IdentityType
 	private IdentityTypeDefinition identityTypeProvider;
 	private String description;
 	private Map<String, String> extractedAttributes;
+	private boolean selfModificable;
+	private int minInstances = 0;
+	private int maxInstances = Integer.MAX_VALUE;
+	private int minVerifiedInstances = 0;
 
 	public IdentityType(IdentityTypeDefinition identityTypeProvider)
 	{
@@ -60,6 +64,46 @@ public class IdentityType
 		this.extractedAttributes.putAll(extractedAttributes);
 	}
 	
+	public boolean isSelfModificable()
+	{
+		return selfModificable;
+	}
+
+	public void setSelfModificable(boolean selfModificable)
+	{
+		this.selfModificable = selfModificable;
+	}
+
+	public int getMinInstances()
+	{
+		return minInstances;
+	}
+
+	public void setMinInstances(int minInstances)
+	{
+		this.minInstances = minInstances;
+	}
+
+	public int getMaxInstances()
+	{
+		return maxInstances;
+	}
+
+	public void setMaxInstances(int maxInstances)
+	{
+		this.maxInstances = maxInstances;
+	}
+
+	public int getMinVerifiedInstances()
+	{
+		return minVerifiedInstances;
+	}
+
+	public void setMinVerifiedInstances(int minVerifiedInstances)
+	{
+		this.minVerifiedInstances = minVerifiedInstances;
+	}
+
 	public String toString()
 	{
 		return "[" + getIdentityTypeProvider().toString() + "] " + description;

@@ -87,7 +87,7 @@ public class RegistrationFormEditor extends VerticalLayout
 	private MessageTemplateManagement msgTempMan;
 	private AuthenticationManagement authenticationMan;
 	private AttributeHandlerRegistry attrHandlerRegistry;
-	private List<IdentityType> identityTypes;
+	private Collection<IdentityType> identityTypes;
 	private Collection<AttributeType> attributeTypes;
 	private List<String> groups;
 	private List<String> credentialTypes;

@@ -30,4 +30,11 @@ public interface IdentityEditor
 	 * @param value 
 	 */
 	public void setDefaultValue(String value);
+	
+	/**
+	 * Sets a label to be used by the editor instead of the default one. Used
+	 * when multiple editors are displayed next to each other to distinguish them.
+	 * @param value
+	 */
+	public void setLabel(String value);
 }

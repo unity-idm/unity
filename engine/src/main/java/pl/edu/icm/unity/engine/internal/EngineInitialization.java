@@ -431,13 +431,10 @@ public class EngineInitialization extends LifecycleBase
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			List<IdentityType> defined = dbIdentities.getIdentityTypes(sql);
-			Set<String> existingSet = new HashSet<String>();
-			for (IdentityType idType: defined)
-				existingSet.add(idType.getIdentityTypeProvider().getId());
+			Map<String, IdentityType> defined = dbIdentities.getIdentityTypes(sql);
 			for (IdentityTypeDefinition it: idTypes)
 			{
-				if (!existingSet.contains(it.getId()))
+				if (!defined.containsKey(it.getId()))
 				{
 					log.info("Adding identity type " + it.getId());
 					dbIdentities.createIdentityType(sql, it);

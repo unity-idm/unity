@@ -6,8 +6,10 @@ package pl.edu.icm.unity.db;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
@@ -68,16 +70,16 @@ public class DBIdentities
 		this.entitySerializer = entitySerializer;
 	}
 
-	public List<IdentityType> getIdentityTypes(SqlSession sqlMap)
+	public Map<String, IdentityType> getIdentityTypes(SqlSession sqlMap)
 	{
 		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
 		List<BaseBean> identityTypeState = mapper.getIdentityTypes();
-		List<IdentityType> ret = new ArrayList<IdentityType>(identityTypeState.size());
+		Map<String, IdentityType> ret = new HashMap<>(identityTypeState.size());
 		for (BaseBean state: identityTypeState)
 		{
 			try
 			{
-				ret.add(idResolver.resolveIdentityType(state));
+				ret.put(state.getName(), idResolver.resolveIdentityType(state));
 			} catch (IllegalTypeException e)
 			{
 				throw new InternalException("Can't find implementation of the identity type " + 

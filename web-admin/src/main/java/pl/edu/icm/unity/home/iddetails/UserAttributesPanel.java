@@ -23,18 +23,12 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewer;
 import pl.edu.icm.unity.webui.common.attributes.FixedAttributeEditor;
 
 import com.vaadin.ui.AbstractOrderedLayout;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.HorizontalLayout;
 
 /**
  * Shows (optionally in edit mode) all configured attributes.
@@ -53,6 +47,7 @@ public class UserAttributesPanel
 	private List<FixedAttributeEditor> attributeEditors;
 
 	private AbstractOrderedLayout parent;
+	private List<AttributeViewer> viewers;
 	
 	public UserAttributesPanel(UnityMessageSource msg,
 			AttributeHandlerRegistry attributeHandlerRegistry,
@@ -75,44 +70,13 @@ public class UserAttributesPanel
 	private void initUI() throws EngineException
 	{
 		attributeEditors = new ArrayList<FixedAttributeEditor>();
+		viewers = new ArrayList<>();
 		Set<String> keys = config.getStructuredListKeys(HomeEndpointProperties.ATTRIBUTES);
 		Map<String, AttributeType> atTypes = attributesMan.getAttributeTypesAsMap();
 
 		for (String aKey: keys)
 		{
 			addAttribute(atTypes, aKey);
-		}
-		
-		if (attributeEditors.size() > 0)
-		{
-			HorizontalLayout buttons = new HorizontalLayout();
-			buttons.setSpacing(true);
-			
-			Button save = new Button(msg.getMessage("save"));
-			save.setIcon(Images.save.getResource());
-			save.addClickListener(new ClickListener()
-			{
-				@Override
-				public void buttonClick(ClickEvent event)
-				{
-					saveChanges();
-				}
-			});
-			parent.addComponent(save);
-
-			Button refresh = new Button(msg.getMessage("refresh"));
-			refresh.setIcon(Images.refresh.getResource());
-			refresh.addClickListener(new ClickListener()
-			{
-				@Override
-				public void buttonClick(ClickEvent event)
-				{
-					refreshEditable();
-				}
-			});
-			buttons.addComponents(save, refresh);
-			
-			parent.addComponent(buttons);
 		}
 	}
 	
@@ -126,7 +90,6 @@ public class UserAttributesPanel
 		AttributeType at = atTypes.get(attributeName);
 		AttributeExt<?> attribute = getAttribute(attributeName, group);
 
-		
 		if (editable && at.isSelfModificable())
 		{
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry, 
@@ -142,19 +105,23 @@ public class UserAttributesPanel
 			
 			AttributeViewer viewer = new AttributeViewer(msg, attributeHandlerRegistry, at, 
 					attribute, showGroup);
+			viewers.add(viewer);
 			viewer.addToLayout(parent);
 		}
 	}
 	
-	private void refreshEditable()
+	private void clear()
 	{
+		for (AttributeViewer viewer: viewers)
+			viewer.removeFromLayout(parent);
 		for (FixedAttributeEditor editor: attributeEditors)
-		{
-			AttributeExt<?> attribute = getAttribute(editor.getAttributeType().getName(), 
-					editor.getGroup());			
-			editor.setAttributeValues(attribute.getValues());
-		}
-
+			editor.clear();
+	}
+	
+	public void refreshEditable() throws EngineException
+	{
+		clear();
+		initUI();
 	}
 	
 	private AttributeExt<?> getAttribute(String attributeName, String group)
@@ -174,7 +141,13 @@ public class UserAttributesPanel
 		return attributes.iterator().next();
 	}
 	
-	private void saveChanges()
+	public void validate() throws FormValidationException
+	{
+		for (FixedAttributeEditor ae: attributeEditors)
+			ae.getAttribute();
+	}
+	
+	public void saveChanges() throws Exception
 	{
 		for (FixedAttributeEditor ae: attributeEditors)
 		{
@@ -192,20 +165,12 @@ public class UserAttributesPanel
 		}
 	}
 	
-	private void updateAttribute(Attribute<?> a)
+	private void updateAttribute(Attribute<?> a) throws EngineException
 	{
-		try
-		{
-			attributesMan.setAttribute(new EntityParam(entityId), a, true);
-		} catch (EngineException e)
-		{
-			NotificationPopup.showError(msg, 
-					msg.getMessage("UserAttributesPanel.errorSaving", a.getName()), e);
-		}
-		
+		attributesMan.setAttribute(new EntityParam(entityId), a, true);
 	}
 	
-	private void removeAttribute(FixedAttributeEditor ae)
+	private void removeAttribute(FixedAttributeEditor ae) throws EngineException
 	{
 		try
 		{
@@ -214,10 +179,11 @@ public class UserAttributesPanel
 		} catch (IllegalAttributeValueException e)
 		{
 			//OK - attribute already doesn't exist
-		} catch (EngineException e)
-		{
-			NotificationPopup.showError(msg, msg.getMessage("UserAttributesPanel.errorSaving",
-					ae.getAttributeType().getName()), e);
 		}
+	}
+
+	public boolean hasEditable()
+	{
+		return attributeEditors.size() > 0;
 	}
 }

@@ -211,4 +211,10 @@ public class X500Identity extends AbstractStaticIdentityTypeProvider
 	{
 		return false;
 	}
+
+	@Override
+	public String getHumanFriendlyName(MessageSource msg)
+	{
+		return msg.getMessage("X500Identity.name");
+	}
 }

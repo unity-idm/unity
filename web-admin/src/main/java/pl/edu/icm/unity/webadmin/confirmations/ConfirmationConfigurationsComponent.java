@@ -219,7 +219,7 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 		List<String> vtypes = new ArrayList<String>();
 		try
 		{
-			List<IdentityType> ids = idMan.getIdentityTypes();
+			Collection<IdentityType> ids = idMan.getIdentityTypes();
 			for (IdentityType t : ids)
 			{
 				if (t.getIdentityTypeProvider().isVerifiable())
