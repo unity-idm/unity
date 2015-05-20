@@ -946,5 +946,22 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			db.releaseSqlSession(sqlMap);
 		}		
 	}
+	
+	public void mergeEntities(EntityParam target, EntityParam merged) throws EngineException
+	{
+		target.validateInitialization();
+		merged.validateInitialization();
+		SqlSession sqlMap = db.getSqlSession(true);
+		try
+		{
+			authz.checkAuthorization(AuthzCapability.identityModify);
 
+			//TODO
+			
+			sqlMap.commit();
+		} finally
+		{
+			db.releaseSqlSession(sqlMap);
+		}		
+	}
 }
