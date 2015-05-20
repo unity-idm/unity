@@ -33,8 +33,11 @@ import pl.edu.icm.unity.server.translation.in.GroupEffectMode;
 import pl.edu.icm.unity.server.translation.in.IdentityEffectMode;
 import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
+import pl.edu.icm.unity.server.translation.in.MappedGroup;
+import pl.edu.icm.unity.server.translation.in.MappedIdentity;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile.ProfileMode;
 import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
+import pl.edu.icm.unity.server.translation.in.MappedAttribute;
 import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationEngine;
@@ -42,6 +45,7 @@ import pl.edu.icm.unity.server.translation.out.OutputTranslationProfile;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationRule;
 import pl.edu.icm.unity.server.translation.out.TranslationInput;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
+import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
@@ -419,6 +423,56 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		assertNotNull(at.getCreationTs());
 		assertNotNull(at.getUpdateTs());
 		assertEquals("p1", at.getTranslationProfile());
+	}
+
+	
+	
+	@Test
+	public void testManualMergeWithExisting() throws Exception
+	{
+		AttributeType oType = new AttributeType("o", new StringAttributeSyntax());
+		oType.setMaxElements(10);
+		attrsMan.addAttributeType(oType);
+		
+		groupsMan.addGroup(new Group("/A"));
+
+		MappingResult result = new MappingResult();
+		result.addAttribute(new MappedAttribute(AttributeEffectMode.CREATE_ONLY, new StringAttribute("o", 
+				"/A", AttributeVisibility.full, "org")));
+		result.addGroup(new MappedGroup("/A", GroupEffectMode.ADD_IF_GROUP_EXISTS));
+		result.addIdentity(new MappedIdentity(IdentityEffectMode.CREATE_OR_MATCH, 
+				new IdentityParam(UsernameIdentity.ID, "added"), "dummy"));
+		
+		setupPasswordAuthn();
+		Identity baseUser = createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		EntityParam baseUserP = new EntityParam(baseUser);
+		
+		inputTrEngine.mergeWithExisting(result, baseUserP);
+		
+		Entity entity = idsMan.getEntity(baseUserP);
+		boolean hasBase = false;
+		boolean hasNew = false;
+		for (Identity id: entity.getIdentities())
+		{
+			if (id.getTypeId().equals(UsernameIdentity.ID))
+			{
+				if ("user1".equals(id.getValue()))
+				{
+					hasBase = true;
+				} else if ("added".equals(id.getValue()))
+				{
+					hasNew = true;
+				}
+			}
+		}
+		assertTrue("New not added", hasNew);
+		assertTrue("Old not preserved", hasBase);
+		
+		Collection<AttributeExt<?>> atrs = attrsMan.getAttributes(baseUserP, "/A", "o");
+		assertEquals(1, atrs.size());
+		AttributeExt<?> at = atrs.iterator().next();
+		assertEquals(1, at.getValues().size());
+		assertEquals("org", at.getValues().get(0).toString());
 	}
 
 }

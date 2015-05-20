@@ -82,10 +82,26 @@ public class InputTranslationEngine
 					+ "will be available for the registration form (if any)");
 			return;
 		}
+		EntityParam entity = new EntityParam(principal);
 		
-		processGroups(result, principal);
-		processAttributes(result, principal);
-		processEntityChanges(result, principal);
+		processGroups(result, entity);
+		processAttributes(result, entity);
+		processEntityChanges(result, entity);
+	}
+	
+	/**
+	 * Merges the information obtained after execution of an input translation profile with a manually specified
+	 * entity.
+	 * @param result
+	 * @param baseEntity
+	 * @throws EngineException 
+	 */
+	public void mergeWithExisting(MappingResult result, EntityParam baseEntity) throws EngineException
+	{
+		processIdentitiesForMerge(result, baseEntity);
+		processGroups(result, baseEntity);
+		processAttributes(result, baseEntity);
+		processEntityChanges(result, baseEntity);
 	}
 	
 	private Identity processIdentities(MappingResult result) throws EngineException
@@ -144,6 +160,41 @@ public class InputTranslationEngine
 		}
 
 	}
+
+	private void processIdentitiesForMerge(MappingResult result, EntityParam baseEntity) throws EngineException
+	{
+		List<MappedIdentity> mappedMissingIdentitiesToCreate = new ArrayList<>();
+		for (MappedIdentity checked: result.getIdentities())
+		{
+			try
+			{
+				idsMan.getEntity(new EntityParam(checked.getIdentity()));
+				log.warn("Identity was mapped to existing identity, merge can work only if there "
+						+ "is no identity automatically matched.");
+				throw new ExecutionBreakException();
+			} catch (IllegalIdentityValueException e)
+			{
+				if (checked.getMode() == IdentityEffectMode.REQUIRE_MATCH)
+				{
+					log.info("The identity " + checked.getIdentity() + " doesn't exists "
+							+ "in local database, but the profile requires so. Skipping.");
+					throw new ExecutionBreakException();
+				} else
+				{
+					mappedMissingIdentitiesToCreate.add(checked);
+				}
+			}			
+		}
+		if (mappedMissingIdentitiesToCreate.isEmpty())
+		{
+			log.info("The translation profile didn't return any identity of the principal. "
+					+ "We can't merge such anonymous principal.");
+			throw new ExecutionBreakException();
+		}
+		
+		addEquivalents(mappedMissingIdentitiesToCreate, baseEntity);
+	}
+
 	
 	private void addEquivalents(Collection<MappedIdentity> toAdd, EntityParam parentEntity) 
 			throws EngineException
@@ -194,18 +245,17 @@ public class InputTranslationEngine
 		return ret;
 	}
 	
-	private void processGroups(MappingResult result, Identity principal) throws EngineException
+	private void processGroups(MappingResult result, EntityParam principal) throws EngineException
 	{
 		Map<String, List<Attribute<?>>> attributesByGroup = getAttributesByGroup(result);
-		EntityParam entity = new EntityParam(principal);
-		Set<String> currentGroups = new HashSet<String>(idsMan.getGroups(entity));
+		Set<String> currentGroups = new HashSet<String>(idsMan.getGroups(principal));
 		for (MappedGroup gm: result.getGroups())
 		{
 		        if (!currentGroups.contains(gm.getGroup()))
 			{
 				Deque<String> missingGroups = GroupUtils.getMissingGroups(gm.getGroup(), currentGroups);
 				log.info("Adding to group " + gm);
-				addToGroupRecursive(entity, missingGroups, currentGroups, gm.getCreateIfMissing(),
+				addToGroupRecursive(principal, missingGroups, currentGroups, gm.getCreateIfMissing(),
 						attributesByGroup);
 			} else
 			{
@@ -251,12 +301,10 @@ public class InputTranslationEngine
 		}
 	}
 	
-	private void processAttributes(MappingResult result, Identity principal) throws EngineException
+	private void processAttributes(MappingResult result, EntityParam principal) throws EngineException
 	{
-		EntityParam entity = new EntityParam(principal);
-		
 		Set<String> existingANames = new HashSet<>();
-		Collection<AttributeExt<?>> existingAttrs = attrMan.getAllAttributes(entity, 
+		Collection<AttributeExt<?>> existingAttrs = attrMan.getAllAttributes(principal, 
 				false, null, null, false);
 		for (AttributeExt<?> a: existingAttrs)
 			existingANames.add(a.getGroupPath()+"///" + a.getName());
@@ -272,7 +320,7 @@ public class InputTranslationEngine
 				if (!existingANames.contains(att.getGroupPath()+"///"+att.getName()))
 				{
 					log.info("Creating attribute " + att);
-					attrMan.setAttribute(entity, att, false);					
+					attrMan.setAttribute(principal, att, false);					
 				} else
 				{
 					log.debug("Skipping attribute which is already present: " + att);
@@ -280,13 +328,13 @@ public class InputTranslationEngine
 				break;
 			case CREATE_OR_UPDATE:
 				log.info("Updating attribute " + att);
-				attrMan.setAttribute(entity, att, true);
+				attrMan.setAttribute(principal, att, true);
 				break;
 			case UPDATE_ONLY:
 				if (existingANames.contains(att.getGroupPath()+"///"+att.getName()))
 				{
 					log.info("Updating attribute " + att);
-					attrMan.setAttribute(entity, att, true);					
+					attrMan.setAttribute(principal, att, true);					
 				} else
 				{
 					log.debug("Skipping attribute to be updated as there is no one defined: " + att);
@@ -296,9 +344,8 @@ public class InputTranslationEngine
 		}
 	}
 	
-	private void processEntityChanges(MappingResult result, Identity principal) throws EngineException
+	private void processEntityChanges(MappingResult result, EntityParam principal) throws EngineException
 	{
-		EntityParam entity = new EntityParam(principal);
 		List<EntityChange> changes = result.getEntityChanges();
 		
 		for (EntityChange change: changes)
@@ -308,7 +355,7 @@ public class InputTranslationEngine
 					change.getScheduledOperation() + " on " + change.getScheduledTime());
 			else
 				log.info("Clearing entity scheduled change operation");
-			idsMan.scheduleEntityChange(entity, change.getScheduledTime(), 
+			idsMan.scheduleEntityChange(principal, change.getScheduledTime(), 
 					change.getScheduledOperation());
 		}
 	}
