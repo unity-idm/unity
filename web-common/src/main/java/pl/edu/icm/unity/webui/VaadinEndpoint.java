@@ -35,6 +35,7 @@ import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 
+import com.vaadin.server.Constants;
 import com.vaadin.server.VaadinServlet;
 
 import eu.unicore.util.configuration.ConfigurationException;
@@ -199,6 +200,8 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		holder.setInitParameter(PRODUCTION_MODE_PARAM, String.valueOf(productionMode));
 		holder.setInitParameter("org.atmosphere.cpr.broadcasterCacheClass", 
 				"org.atmosphere.cache.UUIDBroadcasterCache");
+		holder.setInitParameter(Constants.PARAMETER_WIDGETSET, 
+				"pl.edu.icm.unity.webui.customWidgetset");
 		return holder;
 	}
 

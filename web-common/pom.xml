@@ -40,6 +40,11 @@
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-web-vaadin-widgetset</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
 			<artifactId>unity-std-extensions</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -81,11 +86,13 @@
 				<version>${vaadin.version}</version>
 				<configuration>
 					<warSourceDirectory>${project.build.directory}/classes</warSourceDirectory>
-					<!-- <theme>unityTheme</theme> -->
+					<webappDirectory>${project.build.directory}/classes/VAADIN/widgetsets</webappDirectory>
+					<persistentunitcache>false</persistentunitcache>
 				</configuration>
 				<executions>
 					<execution>
-						<phase>generate-sources</phase>
+						<id>compile-theme</id>
+						<phase>compile</phase>
 						<goals>
 							<goal>compile-theme</goal>
 						</goals>
