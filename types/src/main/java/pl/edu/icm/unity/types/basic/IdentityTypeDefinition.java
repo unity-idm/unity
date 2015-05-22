@@ -35,7 +35,7 @@ public interface IdentityTypeDefinition
 	public boolean isDynamic();
 	
 	/**
-	 * @return true is returned only for dynamic identities, which can not be removed manually. This happens for 
+	 * @return false is returned only for dynamic identities, which can not be removed manually. This happens for 
 	 * volatile identities, for instance session-scoped. Those identities can be only reset, i.e. all instances
 	 * of its type can be removed.
 	 */

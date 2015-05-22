@@ -87,10 +87,23 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	
 	protected Identity createUsernameUser(String role) throws Exception
 	{
-		Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user1"), 
+		return createUsernameUser("user1", role, "mockPassword1");
+	}
+
+	/**
+	 * Creates entity with username identity, password and given role. 
+	 * The {@link #setupPasswordAuthn()} must be called before. 
+	 * @param username
+	 * @param role
+	 * @return
+	 * @throws Exception
+	 */
+	protected Identity createUsernameUser(String username, String role, String password) throws Exception
+	{
+		Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, username), 
 				"cr-pass", EntityState.valid, false);
 		idsMan.setEntityCredential(new EntityParam(added1), "credential1", 
-				new PasswordToken("mockPassword1").toJson());
+				new PasswordToken(password).toJson());
 		if (role != null)
 		{
 			EnumAttribute sa = new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE, 
@@ -124,12 +137,17 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 		
 	protected void setupPasswordAuthn() throws EngineException
 	{
+		setupPasswordAuthn(4, true);
+	}
+
+	protected void setupPasswordAuthn(int minLen, boolean denySeq) throws EngineException
+	{
 		CredentialDefinition credDef = new CredentialDefinition(
 				PasswordVerificatorFactory.NAME, "credential1");
-		credDef.setJsonConfiguration("{\"minLength\": 4, " +
+		credDef.setJsonConfiguration("{\"minLength\": " + minLen + ", " +
 				"\"historySize\": 5," +
 				"\"minClassesNum\": 1," +
-				"\"denySequences\": true," +
+				"\"denySequences\": " + denySeq + "," +
 				"\"maxAge\": 30758400}");
 		authnMan.addCredentialDefinition(credDef);
 		
@@ -140,7 +158,6 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 		Set<String> creds = new HashSet<String>();
 		Collections.addAll(creds, credDef.getName());
 	}
-
 	
 	
 	protected void setupPasswordAndCertAuthn() throws EngineException

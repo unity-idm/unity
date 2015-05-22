@@ -947,7 +947,8 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		}		
 	}
 	
-	public void mergeEntities(EntityParam target, EntityParam merged) throws EngineException
+	@Override
+	public void mergeEntities(EntityParam target, EntityParam merged, boolean safeMode) throws EngineException
 	{
 		target.validateInitialization();
 		merged.validateInitialization();

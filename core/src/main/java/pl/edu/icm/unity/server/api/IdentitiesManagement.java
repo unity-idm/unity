@@ -258,5 +258,27 @@ public interface IdentitiesManagement
 	 */
 	boolean isCurrentCredentialRequiredForChange(EntityParam entity, String credentialId)
 			throws EngineException;
+
+	/**
+	 * Merge the 2nd entity with the first one. Only non conflicting information is moved. In particular
+	 * the information of the merged entity is processed as follows:
+	 * <ol>
+	 * <li> static identities are added to the base entity
+	 * <li> dynamic identities are added to the base entity only if it has no identities of 
+	 * a particular identity type and the identity is removable
+	 * <li> credential requirement and attribute classes are ignored
+	 * <li> credentials are added, however only if the target identity has no credential defined of the same type
+	 * <li> group memberships are copied
+	 * <li> attributes are copied, however only if the target has no attribute of the same type in the same group.
+	 * Also attributes not allowed by the target's attribute policy are ignored 
+	 * </ol>
+	 * If the safe mode is activated then the operation will throw exception (without making any changes) 
+	 * if any of attributes, credentials or dynamic removable identity was not copied due to conflicts.  
+	 * 
+	 * @param target
+	 * @param merged
+	 * @throws EngineException
+	 */
+	void mergeEntities(EntityParam target, EntityParam merged, boolean safeMode) throws EngineException;
 }
 

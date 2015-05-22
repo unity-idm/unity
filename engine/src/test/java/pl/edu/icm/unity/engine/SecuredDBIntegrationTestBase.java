@@ -8,6 +8,8 @@ import static org.junit.Assert.fail;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -145,6 +147,15 @@ public abstract class SecuredDBIntegrationTestBase
 			if (a.getType().getIdentityTypeProvider().getId().equals(type))
 				return a;
 		return null;
+	}
+
+	protected Collection<Identity> getIdentitiesByType(Identity[] objs, String type)
+	{
+		Set<Identity> ret = new HashSet<>();
+		for (Identity a: objs)
+			if (a.getType().getIdentityTypeProvider().getId().equals(type))
+				ret.add(a);
+		return ret;
 	}
 	
 	protected void setupMockAuthn() throws Exception
