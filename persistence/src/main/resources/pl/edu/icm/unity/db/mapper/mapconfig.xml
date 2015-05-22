@@ -17,6 +17,7 @@
 		<typeAlias alias="GroupElementB" type="pl.edu.icm.unity.db.model.GroupElementBean" />
 		<typeAlias alias="GenericObjectB" type="pl.edu.icm.unity.db.model.GenericObjectBean" />
 		<typeAlias alias="TokenB" type="pl.edu.icm.unity.db.model.TokenBean" />
+		<typeAlias alias="GroupElementChangeB" type="pl.edu.icm.unity.db.model.GroupElementChangeBean" />
 		<typeAlias alias="DBLimits" type="pl.edu.icm.unity.db.model.DBLimits" />
 	</typeAliases>
 	

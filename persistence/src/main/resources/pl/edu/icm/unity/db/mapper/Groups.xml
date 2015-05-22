@@ -61,6 +61,10 @@
 		UPDATE GROUPS SET NAME = #{name}, CONTENTS = #{contents} WHERE ID = #{id}
 	</update>
 	
+	<update id="updateMembershipEntity" parameterType="GroupElementChangeB">
+		UPDATE GROUP_ENTITIES SET ENTITY_ID = #{newEntityId} WHERE ENTITY_ID = #{elementId} AND GROUP_ID = #{groupId}
+	</update>	
+	
 	<delete id="deleteGroup" parameterType="long">
 		DELETE FROM GROUPS WHERE ID = #{value}
 	</delete>

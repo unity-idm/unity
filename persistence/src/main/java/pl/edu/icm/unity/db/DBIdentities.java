@@ -517,6 +517,19 @@ public class DBIdentities
 	{
 		return date != null && !now.before(date);
 	}
+	
+	
+	public void reassignIdentity(Identity toReassign, long to, SqlSession sqlMap) 
+			throws IllegalIdentityValueException
+	{
+		IdentitiesMapper mapper = sqlMap.getMapper(IdentitiesMapper.class);
+		String cmpVal = IdentitiesResolver.getComparableIdentityValue(toReassign, 
+				toReassign.getType().getIdentityTypeProvider());
+		IdentityBean ib = new IdentityBean();
+		ib.setName(cmpVal);
+		ib.setEntityId(to);
+		mapper.updateIdentityEntity(ib);
+	}
 }
 
 

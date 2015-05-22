@@ -749,14 +749,6 @@ class RegistrationFormBuilderBase<GeneratorT extends RegistrationFormBuilderBase
 		}
 
 		@SuppressWarnings("unchecked")
-		public GeneratorT withUseDescription(boolean aValue)
-		{
-			instance.setUseDescription(aValue);
-
-			return (GeneratorT) this;
-		}
-
-		@SuppressWarnings("unchecked")
 		public GeneratorT withOptional(boolean aValue)
 		{
 			instance.setOptional(aValue);

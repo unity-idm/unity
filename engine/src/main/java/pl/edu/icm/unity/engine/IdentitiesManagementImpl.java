@@ -13,18 +13,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Sets;
-
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.db.DBAttributes;
+import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.DBShared;
+import pl.edu.icm.unity.db.generic.ac.AttributeClassDB;
+import pl.edu.icm.unity.db.generic.ac.AttributeClassUtil;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.authn.CredentialRequirementsHolder;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
@@ -39,9 +41,11 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalPreviousCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.MergeConflictException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
@@ -66,6 +70,8 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
+import com.google.common.collect.Sets;
+
 /**
  * Implementation of identities management. Responsible for top level transaction handling,
  * proper error logging and authorization.
@@ -83,10 +89,12 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	private AuthorizationManager authz;
 	private IdentityTypesRegistry idTypesRegistry;
 	private ConfirmationManager confirmationManager;
+	private DBGroups dbGroups;
+	private AttributeClassDB acDB;
 	
 	@Autowired
 	public IdentitiesManagementImpl(DBSessionManager db, DBIdentities dbIdentities,
-			DBAttributes dbAttributes, DBShared dbShared,
+			DBAttributes dbAttributes, DBShared dbShared, DBGroups dbGroups, AttributeClassDB acDB,
 			IdentitiesResolver idResolver, EngineHelper engineHelper, AttributesHelper attributesHelper,
 			AuthorizationManager authz, IdentityTypesRegistry idTypesRegistry,
 			ConfirmationManager confirmationsManager)
@@ -95,6 +103,8 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		this.dbIdentities = dbIdentities;
 		this.dbAttributes = dbAttributes;
 		this.dbShared = dbShared;
+		this.dbGroups = dbGroups;
+		this.acDB = acDB;
 		this.idResolver = idResolver;
 		this.engineHelper = engineHelper;
 		this.authz = authz;
@@ -956,13 +966,131 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		try
 		{
 			authz.checkAuthorization(AuthzCapability.identityModify);
+			long mergedId = idResolver.getEntityId(merged, sqlMap);
+			long targetId = idResolver.getEntityId(target, sqlMap);
 
-			//TODO
+			mergeIdentities(mergedId, targetId, safeMode, sqlMap);
+
+			mergeMemberships(mergedId, targetId, sqlMap);
+			mergeAttributes(mergedId, targetId, safeMode, sqlMap);
+			dbIdentities.removeEntity(mergedId, sqlMap);
 			
 			sqlMap.commit();
 		} finally
 		{
 			db.releaseSqlSession(sqlMap);
 		}		
+	}
+
+	private void mergeAttributes(long mergedId, long targetId, boolean safeMode, 
+			SqlSession sqlMap) throws EngineException
+	{
+		Collection<AttributeExt<?>> newAttributes = 
+				dbAttributes.getAllAttributes(mergedId, null, false, null, sqlMap);
+		Collection<AttributeExt<?>> targetAttributes = 
+				dbAttributes.getAllAttributes(targetId, null, false, null, sqlMap);
+		Set<String> targetAttributesSet = new HashSet<>();
+		for (AttributeExt<?> attribute: targetAttributes)
+			targetAttributesSet.add(getAttrKey(attribute));
+		
+		Map<String, AttributeType> attributeTypes = dbAttributes.getAttributeTypes(sqlMap);
+		
+		for (AttributeExt<?> attribute: newAttributes)
+		{
+			AttributeType type = attributeTypes.get(attribute.getName());
+			
+			if (attribute.getName().startsWith(SystemAttributeTypes.CREDENTIAL_PREFIX))
+			{
+				copyCredentialAttribute(attribute, targetAttributesSet, targetId, safeMode, sqlMap);
+				continue;
+			}
+			
+			if (type.isInstanceImmutable())
+				continue;
+			
+			if (targetAttributesSet.contains(getAttrKey(attribute)))
+			{
+				if (safeMode)
+					throw new MergeConflictException("Attribute " + attribute.getName() + 
+							" in group " + attribute.getGroupPath() + " is in conflict");
+				continue;
+			}
+			
+			AttributeClassHelper acHelper = AttributeClassUtil.getACHelper(targetId, 
+					attribute.getGroupPath(), 
+					dbAttributes, acDB, dbGroups, sqlMap);
+			if (!acHelper.isAllowed(attribute.getName()))
+			{
+				if (safeMode)
+					throw new MergeConflictException("Attribute " + attribute.getName() + 
+							" in group " + attribute.getGroupPath() + 
+							" is in conflict with target's entity attribute classes");
+				continue;
+			}
+			
+			dbAttributes.addAttribute(targetId, attribute, false, sqlMap);
+		}
+	}
+	
+	private void copyCredentialAttribute(AttributeExt<?> attribute, Set<String> targetAttributesSet,
+			long targetId, boolean safeMode, SqlSession sqlMap) throws EngineException
+	{
+		if (targetAttributesSet.contains(getAttrKey(attribute)))
+		{
+			if (safeMode)
+				throw new MergeConflictException("Credential " + attribute.getName().
+						substring(SystemAttributeTypes.CREDENTIAL_PREFIX.length()) + 
+						" is in conflict");
+			return;
+		}
+		dbAttributes.addAttribute(targetId, attribute, false, sqlMap);
+	}
+	
+	private String getAttrKey(Attribute<?> a)
+	{
+		return a.getGroupPath() + "///" + a.getName();
+	}
+	
+	private void mergeMemberships(long mergedId, long targetId, SqlSession sqlMap) throws EngineException
+	{
+		Set<String> currentGroups = dbShared.getAllGroups(targetId, sqlMap);
+		Set<String> mergedGroups = dbShared.getAllGroups(mergedId, sqlMap);
+		EntityParam ep = new EntityParam(targetId);
+		mergedGroups.removeAll(currentGroups);
+		Set<String> toAdd = new TreeSet<>(mergedGroups);
+		for (String group: toAdd)
+			dbGroups.addMemberFromParent(group, ep, sqlMap);
+	}
+	
+	private void mergeIdentities(long mergedId, long targetId, boolean safeMode, SqlSession sqlMap) 
+			throws EngineException
+	{
+		Identity[] mergedIdentities = dbIdentities.getIdentitiesForEntityNoContext(mergedId, sqlMap);
+		Identity[] targetIdentities = dbIdentities.getIdentitiesForEntityNoContext(targetId, sqlMap);
+		Set<String> existingIdTypesPerTarget = new HashSet<>();
+		for (Identity id: targetIdentities)
+			existingIdTypesPerTarget.add(getIdTypeKeyWithTargetAndRealm(id));
+		
+		for (Identity id: mergedIdentities)
+		{
+			IdentityTypeDefinition identityTypeProvider = id.getType().getIdentityTypeProvider();
+			if (!identityTypeProvider.isRemovable())
+				continue;
+			
+			if (identityTypeProvider.isDynamic() &&
+				existingIdTypesPerTarget.contains(getIdTypeKeyWithTargetAndRealm(id)))
+			{
+				if (safeMode)
+					throw new MergeConflictException("There is conflicting dynamic identity: " +
+							id);
+				continue;
+			}
+			dbIdentities.reassignIdentity(id, targetId, sqlMap);
+		}
+	}
+	
+	private String getIdTypeKeyWithTargetAndRealm(Identity id)
+	{
+		return id.getTypeId() + "__" + id.getTarget() + "__" + id.getRealm();
 	}
 }

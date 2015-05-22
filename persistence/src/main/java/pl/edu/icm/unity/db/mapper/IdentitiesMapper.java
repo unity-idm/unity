@@ -15,24 +15,26 @@ import pl.edu.icm.unity.db.model.IdentityBean;
  */
 public interface IdentitiesMapper
 {
-	public void insertIdentityType(BaseBean arg);
-	public void updateIdentityType(BaseBean arg);
-	public List<BaseBean> getIdentityTypes();
-	public BaseBean getIdentityTypeByName(String name);
-	public BaseBean getIdentityTypeById(long id);
+	void insertIdentityType(BaseBean arg);
+	void updateIdentityType(BaseBean arg);
+	List<BaseBean> getIdentityTypes();
+	BaseBean getIdentityTypeByName(String name);
+	BaseBean getIdentityTypeById(long id);
 	
-	public void insertEntity(BaseBean arg);
-	public void insertEntityWithId(BaseBean arg);
-	public List<BaseBean> getEntities();	
-	public BaseBean getEntityById(long id);
-	public void updateEntity(BaseBean arg);
-	public void deleteEntity(long id);
+	void insertEntity(BaseBean arg);
+	void insertEntityWithId(BaseBean arg);
+	List<BaseBean> getEntities();	
+	BaseBean getEntityById(long id);
+	void updateEntity(BaseBean arg);
+	void deleteEntity(long id);
 	
-	public void insertIdentity(IdentityBean arg);
-	public void updateIdentity(IdentityBean arg);
-	public void deleteIdentity(String cmpVal);
-	public void deleteAllIdentities();
-	public IdentityBean getIdentityByName(String name);
-	public List<IdentityBean> getIdentities();
-	public List<IdentityBean> getIdentitiesByEntity(long entityId);
+	void updateIdentityEntity(IdentityBean arg);
+	
+	void insertIdentity(IdentityBean arg);
+	void updateIdentity(IdentityBean arg);
+	void deleteIdentity(String cmpVal);
+	void deleteAllIdentities();
+	IdentityBean getIdentityByName(String name);
+	List<IdentityBean> getIdentities();
+	List<IdentityBean> getIdentitiesByEntity(long entityId);
 }

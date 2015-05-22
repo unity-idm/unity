@@ -76,7 +76,7 @@ public class TestMerge extends DBIntegrationTestBase
 		idsMan.mergeEntities(new EntityParam(target), new EntityParam(merged), false);
 		
 		
-		Entity result = idsMan.getEntity(new EntityParam(target.getEntityId()));
+		Entity result = idsMan.getEntityNoContext(new EntityParam(target.getEntityId()), "/");
 		
 		//regular - simply added
 		Collection<Identity> idT = getIdentitiesByType(result.getIdentities(), IdentifierIdentity.ID);
@@ -84,11 +84,11 @@ public class TestMerge extends DBIntegrationTestBase
 		assertEquals("id", idT.iterator().next().getValue());
 
 		//dynamic but added as target has no one of this type
-		idT = getIdentitiesByType(result.getIdentities(), TargetedPersistentIdentity.ID);
-		assertEquals(1, idT.size());
 		Collection<Identity> srcT = getIdentitiesByType(mergedFull.getIdentities(), 
 				TargetedPersistentIdentity.ID);
 		assertEquals(1, srcT.size());
+		idT = getIdentitiesByType(result.getIdentities(), TargetedPersistentIdentity.ID);
+		assertEquals(1, idT.size());
 		assertEquals(srcT.iterator().next().getValue(), idT.iterator().next().getValue());
 
 		//dynamic not added as target has one
@@ -107,15 +107,19 @@ public class TestMerge extends DBIntegrationTestBase
 
 		groupsMan.addGroup(new Group("/A"));
 		groupsMan.addGroup(new Group("/B"));
+		groupsMan.addGroup(new Group("/B/C"));
 		
 		groupsMan.addMemberFromParent("/A", new EntityParam(target));
+		groupsMan.addMemberFromParent("/A", new EntityParam(merged));
 		groupsMan.addMemberFromParent("/B", new EntityParam(merged));
+		groupsMan.addMemberFromParent("/B/C", new EntityParam(merged));
 		
 		idsMan.mergeEntities(new EntityParam(target), new EntityParam(merged), false);
 		
 		Collection<String> groups = idsMan.getGroups(new EntityParam(target));
 		assertTrue(groups.contains("/A"));
 		assertTrue(groups.contains("/B"));
+		assertTrue(groups.contains("/B/C"));
 	}
 
 	@Test
@@ -229,8 +233,8 @@ public class TestMerge extends DBIntegrationTestBase
 	@Test
 	public void credentialConflictsDetectedInSafeMode() throws Exception
 	{
-		Identity target = createUsernameUser("target", AuthorizationManagerImpl.USER_ROLE, "p1");
-		Identity merged = createUsernameUser("merged", AuthorizationManagerImpl.USER_ROLE, "p2");
+		Identity target = createUsernameUser("target", null, "p1");
+		Identity merged = createUsernameUser("merged", null, "p2");
 
 		try
 		{
@@ -248,8 +252,8 @@ public class TestMerge extends DBIntegrationTestBase
 	@Test
 	public void attributeConflictsDetectedInSafeMode() throws Exception
 	{
-		Identity target = createUsernameUser("target", AuthorizationManagerImpl.USER_ROLE, "p1");
-		Identity merged = createUsernameUser("merged", AuthorizationManagerImpl.USER_ROLE, "p2");
+		Identity target = createUsernameUser("target", null, "p1");
+		Identity merged = createUsernameUser("merged", null, "p2");
 		idsMan.setEntityCredentialStatus(new EntityParam(target), "credential1", LocalCredentialState.notSet);
 		attrsMan.addAttributeType(new AttributeType("a", new StringAttributeSyntax()));
 		attrsMan.setAttribute(new EntityParam(target), new StringAttribute("a", "/", AttributeVisibility.full, 

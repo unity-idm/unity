@@ -9,6 +9,7 @@ import java.util.List;
 import pl.edu.icm.unity.db.model.BaseBean;
 import pl.edu.icm.unity.db.model.GroupBean;
 import pl.edu.icm.unity.db.model.GroupElementBean;
+import pl.edu.icm.unity.db.model.GroupElementChangeBean;
 
 
 /**
@@ -22,22 +23,24 @@ public interface GroupsMapper
 	 * @param gb
 	 * @return
 	 */
-	public GroupBean resolveGroup(GroupBean gb);
+	GroupBean resolveGroup(GroupBean gb);
 	
 	
-	public void insertGroup(GroupBean group);
-	public void updateGroup(GroupBean group);
-	public void deleteGroup(long id);
+	void insertGroup(GroupBean group);
+	void updateGroup(GroupBean group);
+	void deleteGroup(long id);
 	
-	public List<GroupBean> getSubgroups(long parentId);
-	public List<GroupBean> getGroups4Entity(long entityId);
-	public List<GroupBean> getLinkedGroups(long parentId);
-	public List<BaseBean> getMembers(long groupId);
+	List<GroupBean> getSubgroups(long parentId);
+	List<GroupBean> getGroups4Entity(long entityId);
+	List<GroupBean> getLinkedGroups(long parentId);
+	List<BaseBean> getMembers(long groupId);
 	
-	public GroupBean getGroup(long id);
-	public List<GroupBean> getAllGroups();
+	GroupBean getGroup(long id);
+	List<GroupBean> getAllGroups();
 	
-	public GroupElementBean isMember(GroupElementBean param);
-	public void insertMember(GroupElementBean param);
-	public void deleteMember(GroupElementBean param);
+	GroupElementBean isMember(GroupElementBean param);
+	void insertMember(GroupElementBean param);
+	void deleteMember(GroupElementBean param);
+	
+	void updateMeembership(GroupElementChangeBean param);
 }

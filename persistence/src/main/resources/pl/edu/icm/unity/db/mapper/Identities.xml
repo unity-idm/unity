@@ -69,6 +69,10 @@
 	<update id="updateIdentity" parameterType="IdentityB">
 		UPDATE IDENTITIES SET CONTENTS = #{contents} WHERE NAME = #{name}
 	</update>
+
+	<update id="updateIdentityEntity" parameterType="IdentityB">
+		UPDATE IDENTITIES SET ENTITY_ID = #{entityId} WHERE NAME = #{name}
+	</update>
 	
 	<delete id="deleteIdentity" parameterType="string">
 		DELETE FROM IDENTITIES WHERE NAME = #{value}
