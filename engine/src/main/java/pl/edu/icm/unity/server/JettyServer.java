@@ -16,6 +16,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.Lifecycle;
@@ -30,6 +31,8 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityHttpServerConfiguration;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import eu.unicore.util.configuration.ConfigurationException;
+import eu.unicore.util.jetty.ConfigurableGzipFilter;
+import eu.unicore.util.jetty.HttpServerProperties;
 import eu.unicore.util.jetty.JettyDefaultHandler;
 import eu.unicore.util.jetty.JettyServerBase;
 
@@ -143,6 +146,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 		}
 		
 		mainContextHandler.addHandler(handler);
+		configureGzip(handler);
 		try
 		{
 			handler.start();
@@ -152,6 +156,16 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 			throw new EngineException("Can not start handler", e);
 		}
 		usedContextPaths.put(contextPath, handler);
+	}
+	
+	protected void configureGzip(ServletContextHandler handler) throws ConfigurationException {
+		boolean enableGzip = extraSettings.getBooleanValue(HttpServerProperties.ENABLE_GZIP);
+		if (enableGzip) {
+			FilterHolder gzipHolder = new FilterHolder(
+					new ConfigurableGzipFilter(extraSettings));
+			log.debug("Enabling GZIP compression filter for " + handler);
+			tryToAddGzipFilter(gzipHolder, handler);
+		}
 	}
 	
 	public synchronized void undeployEndpoint(String id) throws EngineException

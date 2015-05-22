@@ -53,7 +53,8 @@ public class UnityHttpServerConfiguration extends HttpServerProperties
 
 		for (Map.Entry<String, PropertyMD> entry: HttpServerProperties.defaults.entrySet())
 			defaults.put(entry.getKey(), entry.getValue().setCategory(advancedCat));
-
+		defaults.put(ENABLE_GZIP, new PropertyMD("true").
+				setDescription("Controls whether to enable compression of HTTP responses."));
 		defaults.put(USE_NIO, new PropertyMD("true").setCategory(advancedCat).
 				setDescription("Controls whether the NIO connector be used. NIO is best suited under high-load, " +
 						"when lots of connections exist that are idle for long periods."));
