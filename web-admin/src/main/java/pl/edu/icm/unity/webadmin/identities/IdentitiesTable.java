@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -188,6 +189,7 @@ public class IdentitiesTable extends TreeTable
 		addActionHandler(new ChangeCredentialHandler());
 		addActionHandler(new ChangeCredentialRequirementHandler());
 		addActionHandler(new EntityAttributesClassesHandler());
+		addActionHandler(new MergeEntitiesHandler());
 		setDragMode(TableDragMode.ROW);
 
 		setImmediate(true);
@@ -1098,6 +1100,56 @@ public class IdentitiesTable extends TreeTable
 		}
 	}
 
+	private class MergeEntitiesHandler extends SingleActionHandler
+	{
+		public MergeEntitiesHandler()
+		{
+			super(msg.getMessage("Identities.mergeEntitiesAction"),
+					Images.transfer.getResource());
+			setMultiTarget(true);
+		}
+
+		@Override
+		public Action[] getActions(Object target, Object sender)
+		{
+			if (target == null || !(target instanceof Collection<?>))
+				return EMPTY;
+			
+			
+			Collection<?> targets = (Collection<?>) target;
+			if (targets.size() != 2)
+				return EMPTY;
+
+			Iterator<?> iterator = targets.iterator();
+			EntityWithLabel e1 = getEntity(iterator.next());
+			EntityWithLabel e2 = getEntity(iterator.next());
+			if (e1.getEntity().getId() == e2.getEntity().getId())
+				return EMPTY;
+			
+			return super.getActions(target, sender);
+		}
+
+		private EntityWithLabel getEntity(Object selection)
+		{
+			if (selection instanceof IdentityWithEntity)
+				return ((IdentityWithEntity) selection).getEntityWithLabel();
+			else
+				return (EntityWithLabel) selection;
+		}
+		
+		@Override
+		public void handleAction(Object sender, Object target)
+		{		
+			Collection<?> targets = (Collection<?>) target;
+			Iterator<?> iterator = targets.iterator();
+			EntityWithLabel e1 = getEntity(iterator.next());
+			EntityWithLabel e2 = getEntity(iterator.next());
+			EntityMergeDialog dialog = new EntityMergeDialog(msg, e1, e2, group, identitiesMan);
+			dialog.show();
+		}
+	}
+
+	
 	public boolean isGroupByEntity()
 	{
 		return groupByEntity;
