@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webadmin.tprofile.wizard;
+package pl.edu.icm.unity.sandbox.wizard;
 
 import com.vaadin.server.BrowserWindowOpener;
 import com.vaadin.server.Resource;

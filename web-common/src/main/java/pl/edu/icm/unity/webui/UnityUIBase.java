@@ -103,7 +103,8 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 		log.debug("Set Poll wrapped " + interval);
 		if (interval < 0)
 		{
-			pollings.pop();
+			if (!pollings.isEmpty())
+				pollings.pop();
 			if (pollings.isEmpty())
 			{
 				log.debug("Poll disabled");

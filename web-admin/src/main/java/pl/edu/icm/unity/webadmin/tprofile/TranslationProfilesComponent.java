@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
+import pl.edu.icm.unity.sandbox.wizard.SandboxWizardDialog;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
@@ -29,16 +30,16 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webadmin.WebAdminEndpointFactory;
 import pl.edu.icm.unity.webadmin.WebAdminVaadinEndpoint;
-import pl.edu.icm.unity.webadmin.tprofile.dryrun.DryRunDialog;
-import pl.edu.icm.unity.webadmin.tprofile.wizard.WizardDialog;
+import pl.edu.icm.unity.webadmin.tprofile.dryrun.DryRunWizardProvider;
+import pl.edu.icm.unity.webadmin.tprofile.wizard.ProfileWizardProvider;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
@@ -464,8 +465,10 @@ public class TranslationProfilesComponent extends VerticalLayout
 				return;
 			}
 
-			WizardDialog wizard = new WizardDialog(msg, sandboxURL, sandboxNotifier, editor, addCallback);
-			wizard.show();
+			ProfileWizardProvider wizardProvider = new ProfileWizardProvider(msg, sandboxURL, 
+					sandboxNotifier, editor, addCallback);
+			SandboxWizardDialog dialog = new SandboxWizardDialog(wizardProvider.getWizard());
+			dialog.show();
 		}
 	}
 	
@@ -488,8 +491,10 @@ public class TranslationProfilesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			DryRunDialog wizard = new DryRunDialog(msg, sandboxURL, sandboxNotifier, tc, profileMan);
-			wizard.show();
+			DryRunWizardProvider provider = new DryRunWizardProvider(msg, sandboxURL, sandboxNotifier, 
+					tc, profileMan);
+			SandboxWizardDialog dialog = new SandboxWizardDialog(provider.getWizard());
+			dialog.show();
 		}
 	}	
 	

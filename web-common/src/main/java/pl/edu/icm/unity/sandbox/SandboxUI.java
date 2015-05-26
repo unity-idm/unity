@@ -118,7 +118,6 @@ public class SandboxUI extends AuthenticationUI
 			return;
 		}
 		
-		setSandboxCallbackForAuthenticators();
 		super.appInit(request);
 		
 		setSandboxCallbackForAuthenticators();

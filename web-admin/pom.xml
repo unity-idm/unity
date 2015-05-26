@@ -38,9 +38,5 @@
 			<artifactId>unity-server-engine</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-		   <groupId>org.vaadin.addons</groupId>
-		   <artifactId>wizards-for-vaadin</artifactId>
-		</dependency>
 	</dependencies>
 </project>
