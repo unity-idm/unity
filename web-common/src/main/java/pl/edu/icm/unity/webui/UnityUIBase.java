@@ -92,12 +92,23 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	}
 	
 	/**
-	 * @return sandbox servlet URL. Note that this URL is always fine but the servlet might not be deployed
+	 * @return sandbox servlet URL which can be used for account association login. 
+	 * Note that this URL is always fine but the servlet might not be deployed
 	 * under it, if your wrapping endpoint does not extend {@link VaadinEndpointWithSandbox}.  
 	 */
-	public String getSandboxServletURL()
+	public String getSandboxServletURLForAssociation()
 	{
-		return endpointDescription.getContextAddress() + VaadinEndpointWithSandbox.SANDBOX_PATH;
+		return endpointDescription.getContextAddress() + VaadinEndpointWithSandbox.SANDBOX_PATH_ASSOCIATION;
+	}
+
+	/**
+	 * @return sandbox servlet URL which can be used for translation profile wizards. 
+	 * Note that this URL is always fine but the servlet might not be deployed
+	 * under it, if your wrapping endpoint does not extend {@link VaadinEndpointWithSandbox}.  
+	 */
+	public String getSandboxServletURLForTranslation()
+	{
+		return endpointDescription.getContextAddress() + VaadinEndpointWithSandbox.SANDBOX_PATH_TRANSLATION;
 	}
 	
 	/**

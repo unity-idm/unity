@@ -99,7 +99,7 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 		
 		createMainTabPanel();
 		
-		userAccount.initUI(config, sandboxRouter, getSandboxServletURL());
+		userAccount.initUI(config, sandboxRouter, getSandboxServletURLForAssociation());
 		userAccount.setWidth(80, Unit.PERCENTAGE);
 
 		contents.addComponent(header);

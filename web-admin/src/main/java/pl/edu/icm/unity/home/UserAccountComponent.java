@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.connectid.ConnectIdWizardProvider;
+import pl.edu.icm.unity.home.connectid.ConnectIdWizardProvider.SuccessCallback;
 import pl.edu.icm.unity.home.iddetails.EntityDetailsWithActions;
 import pl.edu.icm.unity.home.iddetails.EntityRemovalButton;
 import pl.edu.icm.unity.home.iddetails.UserAttributesPanel;
@@ -31,6 +32,7 @@ import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.AttributesInternalProcessing;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
@@ -77,6 +79,7 @@ public class UserAccountComponent extends VerticalLayout
 	private IdentityEditorRegistry identityEditorRegistry;
 	private SandboxAuthnNotifier sandboxNotifier;
 	private String sandboxURL;
+	private InputTranslationEngine inputTranslationEngine;
 	
 	@Autowired
 	public UserAccountComponent(UnityMessageSource msg, AuthenticationManagement authnMan,
@@ -85,7 +88,8 @@ public class UserAccountComponent extends VerticalLayout
 			EndpointManagement endpMan, AttributesInternalProcessing attrMan,
 			WebAuthenticationProcessor authnProcessor,
 			AttributeHandlerRegistry attributeHandlerRegistry,
-			AttributesManagement attributesMan, IdentityEditorRegistry identityEditorRegistry)
+			AttributesManagement attributesMan, IdentityEditorRegistry identityEditorRegistry,
+			InputTranslationEngine inputTranslationEngine)
 	{
 		this.msg = msg;
 		this.authnMan = authnMan;
@@ -99,6 +103,7 @@ public class UserAccountComponent extends VerticalLayout
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
 		this.attributesMan = attributesMan;
 		this.identityEditorRegistry = identityEditorRegistry;
+		this.inputTranslationEngine = inputTranslationEngine;
 	}
 
 	public void initUI(HomeEndpointProperties config, SandboxAuthnNotifier sandboxNotifier, String sandboxURL)
@@ -138,12 +143,27 @@ public class UserAccountComponent extends VerticalLayout
 			UserDetailsPanel userInfo = getUserInfoComponent(theUser.getEntityId(), idsMan, attrMan);
 			EntityRemovalButton removalButton = new EntityRemovalButton(msg, 
 					theUser.getEntityId(), idsMan, authnProcessor);
-			UserIdentitiesPanel idsPanel = new UserIdentitiesPanel(msg, 
+			final UserIdentitiesPanel idsPanel = new UserIdentitiesPanel(msg, 
 					identityEditorRegistry, idsMan, theUser.getEntityId());
-			UserAttributesPanel attrsPanel = new UserAttributesPanel(msg, attributeHandlerRegistry, 
+			final UserAttributesPanel attrsPanel = new UserAttributesPanel(msg, attributeHandlerRegistry, 
 					attributesMan, config, theUser.getEntityId());
 			ConnectIdWizardProvider connectIdProvider = new ConnectIdWizardProvider(msg, 
-					sandboxURL, sandboxNotifier);
+					sandboxURL, sandboxNotifier, inputTranslationEngine, new SuccessCallback()
+					{
+						
+						@Override
+						public void onSuccess()
+						{
+							try
+							{
+								idsPanel.refresh();
+								attrsPanel.refreshEditable();
+							} catch (EngineException e)
+							{
+								NotificationPopup.showError(msg, msg.getMessage("error"), e);
+							}
+						}
+					});
 			EntityDetailsWithActions tabRoot = new EntityDetailsWithActions(disabled, 
 					userInfo, idsPanel, attrsPanel, removalButton, msg, connectIdProvider);
 			tabPanel.addTab("UserHomeUI.accountInfoLabel", "UserHomeUI.accountInfoDesc", 

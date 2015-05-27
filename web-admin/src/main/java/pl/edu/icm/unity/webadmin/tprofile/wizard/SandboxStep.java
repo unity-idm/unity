@@ -6,9 +6,15 @@ package pl.edu.icm.unity.webadmin.tprofile.wizard;
 
 import org.vaadin.teemu.wizards.WizardStep;
 
+import pl.edu.icm.unity.sandbox.wizard.SandboxPopup;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
+import com.vaadin.server.ExternalResource;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Second wizard step with sandbox authentication to get input 
@@ -16,18 +22,17 @@ import com.vaadin.ui.Component;
  * 
  * @author Roman Krysinski
  */
-public class SandboxStep implements WizardStep 
+public class SandboxStep extends CustomComponent implements WizardStep 
 {
 
 	private UnityMessageSource msg;
-	private String sandboxURL;
 	private boolean onAdvance;
 
 	public SandboxStep(UnityMessageSource msg, String sandboxURL) 
 	{
 		this.msg = msg;
-		this.sandboxURL = sandboxURL;
 		onAdvance = false;
+		buildMainLayout(msg, sandboxURL);
 	}
 
 	@Override
@@ -39,7 +44,29 @@ public class SandboxStep implements WizardStep
 	@Override
 	public Component getContent() 
 	{
-		return new SandboxStepComponent(msg, sandboxURL);
+		return this;
+	}
+
+	private void buildMainLayout(UnityMessageSource msg, String sandboxURL) 
+	{
+		VerticalLayout mainLayout = new VerticalLayout();
+		mainLayout.setWidth("100%");
+		mainLayout.setMargin(true);
+		mainLayout.setSpacing(true);
+		setWidth("100.0%");
+		setHeight("-1px");
+		Label infoLabel = new Label();
+		infoLabel.setWidth("100.0%");
+		mainLayout.addComponent(infoLabel);
+		Button sboxButton = new Button();
+		mainLayout.addComponent(sboxButton);
+		sboxButton.setCaption(msg.getMessage("Wizard.SandboxStepComponent.sboxButton"));
+		SandboxPopup popup = new SandboxPopup(new ExternalResource(sandboxURL));
+		popup.attachButton(sboxButton);
+		
+		infoLabel.setValue(msg.getMessage("Wizard.SandboxStepComponent.infoLabel"));
+
+		setCompositionRoot(mainLayout);
 	}
 
 	@Override

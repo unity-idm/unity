@@ -17,7 +17,7 @@ import com.vaadin.server.VaadinService;
 
 /**
  * Simple implementation of {@link SandboxAuthnRouter} interface, used by
- * {@link SandboxUI} to dispatch authn events. 
+ * {@link SandboxUIBase} to dispatch authn events. 
  * 
  * @author R. Krysinski
  */

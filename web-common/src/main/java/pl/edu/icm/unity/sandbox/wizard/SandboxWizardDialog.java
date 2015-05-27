@@ -37,14 +37,8 @@ public class SandboxWizardDialog extends Window implements WizardProgressListene
 	private Component getMainComponent(Wizard wizard)
 	{
 		VerticalLayout mainLayout = new VerticalLayout();
-		mainLayout.setImmediate(false);
-		mainLayout.setWidth("100%");
-		mainLayout.setHeight("100%");
+		mainLayout.setSizeFull();
 		mainLayout.setMargin(true);
-		
-		setWidth("100.0%");
-		setHeight("100.0%");
-		
 		mainLayout.addComponent(wizard);
 		return mainLayout;
 	}

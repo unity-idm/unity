@@ -115,7 +115,8 @@ public class TranslationProfilesComponent extends VerticalLayout
 			for (EndpointDescription endpoint : endpointList) {
 				if (endpoint.getType().getName().equals(WebAdminEndpointFactory.NAME))
 				{
-					sandboxURL = endpoint.getContextAddress() + VaadinEndpointWithSandbox.SANDBOX_PATH;
+					sandboxURL = endpoint.getContextAddress() + 
+							VaadinEndpointWithSandbox.SANDBOX_PATH_TRANSLATION;
 					break;
 				}
 			}

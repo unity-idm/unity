@@ -56,4 +56,7 @@
 	<bean primary="false" scope="prototype" class="pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher">
 			<qualifier value="insecure"/>
 	</bean>
+	
+	<bean scope="prototype" id="AccountAssociationSandboxUI" class="pl.edu.icm.unity.sandbox.AccountAssociationSandboxUI"/>
+	<bean scope="prototype" id="TranslationProfileSandboxUI" class="pl.edu.icm.unity.sandbox.TranslationProfileSandboxUI"/>
 </beans>

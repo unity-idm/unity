@@ -20,7 +20,8 @@ import pl.edu.icm.unity.webui.VaadinEndpoint;
 public class VaadinEndpointWithSandbox extends VaadinEndpoint 
 {
 
-	public static final String SANDBOX_PATH = "/sandbox";
+	public static final String SANDBOX_PATH_TRANSLATION = "/sandbox";
+	public static final String SANDBOX_PATH_ASSOCIATION = "/sandbox-association";
 
 	public VaadinEndpointWithSandbox(EndpointTypeDescription type,
 			ApplicationContext applicationContext, String uiBeanName,
@@ -38,20 +39,25 @@ public class VaadinEndpointWithSandbox extends VaadinEndpoint
 		}
 		
 		context = super.getServletContextHandler();
-		
-		authnFilter.addProtectedPath(SANDBOX_PATH);
-		
 		SandboxAuthnRouter sandboxRouter = new SandboxAuthnRouterImpl();
+
+		addSandboxUI(SANDBOX_PATH_ASSOCIATION, AccountAssociationSandboxUI.class.getSimpleName(), 
+				sandboxRouter);
+		addSandboxUI(SANDBOX_PATH_TRANSLATION, TranslationProfileSandboxUI.class.getSimpleName(), 
+				sandboxRouter);
+		theServlet.setSandboxRouter(sandboxRouter);
+		return context;
+	}
+	
+	private void addSandboxUI(String path, String uiBeanName, SandboxAuthnRouter sandboxRouter)
+	{
+		authnFilter.addProtectedPath(path);
 		
 		UnityVaadinServlet sandboxServlet = new UnityVaadinServlet(applicationContext, 
-				SandboxUI.class.getSimpleName(), description, null, null, properties);
+				uiBeanName, description, authenticators, null, properties);
 		sandboxServlet.setSandboxRouter(sandboxRouter);
 		ServletHolder sandboxServletHolder = createVaadinServletHolder(sandboxServlet, true);
 		sandboxServletHolder.setInitParameter("closeIdleSessions", "true");
-		context.addServlet(sandboxServletHolder, SANDBOX_PATH + "/*");
-		
-		theServlet.setSandboxRouter(sandboxRouter);
-		
-		return context;
+		context.addServlet(sandboxServletHolder, path + "/*");
 	}
 }
