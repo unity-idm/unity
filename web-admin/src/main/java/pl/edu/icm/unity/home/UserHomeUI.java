@@ -68,7 +68,7 @@ public class UserHomeUI extends UnityUIBase implements UnityWebUI
 				authnProcessor, msg);
 		contents.addComponent(header);
 
-		userAccount.initUI(config);
+		userAccount.initUI(config, sandboxRouter, getSandboxServletURL());
 		
 		userAccount.setWidth(80, Unit.PERCENTAGE);
 		contents.addComponent(userAccount);

@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.utils.Log;
 
@@ -22,7 +21,6 @@ import com.vaadin.server.VaadinService;
  * 
  * @author R. Krysinski
  */
-@Component
 public class SandboxAuthnRouterImpl implements SandboxAuthnRouter 
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, SandboxAuthnRouterImpl.class);
@@ -30,36 +28,7 @@ public class SandboxAuthnRouterImpl implements SandboxAuthnRouter
 
 	public SandboxAuthnRouterImpl()
 	{
-		authnListenerList = new HashMap<String, AuthnResultListener>();
-		if (LOG.isDebugEnabled()) 
-		{
-			Thread thread = new Thread(new Runnable() 
-			{
-				@Override
-				public void run() 
-				{
-					while (true)
-					{
-						int authnSize = 0;
-						synchronized (authnListenerList)
-						{
-							authnSize = authnListenerList.size();
-						}						
-						if (authnSize > 0)
-							LOG.debug("authnListenerList.size()==" + authnSize);
-						try 
-						{
-							Thread.sleep(5000);
-						} catch (InterruptedException e) 
-						{
-							break;
-						}
-					}
-				}
-			});
-			thread.setName("SandboxAuthnRouterImpl");
-			thread.start();
-		}
+		authnListenerList = new HashMap<>();
 	}
 	
 	@Override
@@ -78,7 +47,7 @@ public class SandboxAuthnRouterImpl implements SandboxAuthnRouter
 	public void addListener(AuthnResultListener listener) 
 	{
 		final String sessionId = VaadinService.getCurrentRequest().getWrappedSession().getId();
-		LOG.debug("addin AuthnResultListener: " + sessionId);
+		LOG.debug("Adding AuthnResultListener: " + sessionId);
 		synchronized (authnListenerList)
 		{
 			authnListenerList.put(sessionId, listener);

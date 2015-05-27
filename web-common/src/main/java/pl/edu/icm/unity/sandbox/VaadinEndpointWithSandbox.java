@@ -2,15 +2,12 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webadmin;
+package pl.edu.icm.unity.sandbox;
 
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.context.ApplicationContext;
 
-import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
-import pl.edu.icm.unity.sandbox.SandboxAuthnRouterImpl;
-import pl.edu.icm.unity.sandbox.SandboxUI;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.UnityVaadinServlet;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
@@ -20,12 +17,12 @@ import pl.edu.icm.unity.webui.VaadinEndpoint;
  * 
  * @author Roman Krysinski
  */
-public class WebAdminVaadinEndpoint extends VaadinEndpoint 
+public class VaadinEndpointWithSandbox extends VaadinEndpoint 
 {
 
 	public static final String SANDBOX_PATH = "/sandbox";
 
-	public WebAdminVaadinEndpoint(EndpointTypeDescription type,
+	public VaadinEndpointWithSandbox(EndpointTypeDescription type,
 			ApplicationContext applicationContext, String uiBeanName,
 			String servletPath) 
 	{

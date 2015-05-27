@@ -8,6 +8,8 @@ import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.HomeEndpointProperties;
+import pl.edu.icm.unity.home.connectid.ConnectIdWizardProvider;
+import pl.edu.icm.unity.sandbox.wizard.SandboxWizardDialog;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
@@ -22,6 +24,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -39,7 +42,8 @@ public class EntityDetailsWithActions extends CustomComponent
 	public EntityDetailsWithActions(Set<String> disabled,
 			UserDetailsPanel detailsPanel, UserIdentitiesPanel identitiesPanel,
 			UserAttributesPanel attrsPanel, 
-			EntityRemovalButton removalButton, UnityMessageSource msg) throws EngineException
+			EntityRemovalButton removalButton, UnityMessageSource msg,
+			ConnectIdWizardProvider accountAssociationWizardProvider) throws EngineException
 	{
 		this.identitiesPanel = identitiesPanel;
 		this.attrsPanel = attrsPanel;
@@ -63,11 +67,12 @@ public class EntityDetailsWithActions extends CustomComponent
 		}
 		
 		root.addComponent(mainForm);
-		root.addComponent(getButtonsBar(showSave, disabled, removalButton));
+		root.addComponent(getButtonsBar(showSave, disabled, removalButton, accountAssociationWizardProvider));
 		setCompositionRoot(root);
 	}
 	
-	private Component getButtonsBar(boolean showSave, Set<String> disabled, EntityRemovalButton removalButton)
+	private Component getButtonsBar(boolean showSave, Set<String> disabled, EntityRemovalButton removalButton,
+			final ConnectIdWizardProvider accountAssociationWizardProvider)
 	{
 		HorizontalLayout buttons = new HorizontalLayout();
 		buttons.setSpacing(true);
@@ -142,13 +147,32 @@ public class EntityDetailsWithActions extends CustomComponent
 		buttons.addComponent(refresh);
 		buttons.setComponentAlignment(refresh, Alignment.BOTTOM_LEFT);
 		
+		Label spacer = new Label();
+		buttons.addComponent(spacer);
+		buttons.setExpandRatio(spacer, 1);
+		
+		if (!disabled.contains(HomeEndpointProperties.Components.accountLinking.toString()))
+		{
+			Button associationButton = new Button(msg.getMessage("EntityDetailsWithActions.associateAccount"));
+			associationButton.addClickListener(new ClickListener()
+			{
+				@Override
+				public void buttonClick(ClickEvent event)
+				{
+					SandboxWizardDialog dialog = new SandboxWizardDialog(
+							accountAssociationWizardProvider.getWizard());
+					dialog.show();
+				}
+			});
+			buttons.addComponent(associationButton);
+			buttons.setComponentAlignment(associationButton, Alignment.BOTTOM_RIGHT);
+		}
+
 		if (!disabled.contains(HomeEndpointProperties.Components.accountRemoval.toString()))
 		{
 			buttons.addComponent(removalButton);
-			buttons.setExpandRatio(removalButton, 1);
 			buttons.setComponentAlignment(removalButton, Alignment.BOTTOM_RIGHT);
 		}
-		
 		return buttons;   
 	}
 }

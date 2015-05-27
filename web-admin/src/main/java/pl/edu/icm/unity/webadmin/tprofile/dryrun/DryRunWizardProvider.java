@@ -5,11 +5,6 @@
 package pl.edu.icm.unity.webadmin.tprofile.dryrun;
 
 import org.vaadin.teemu.wizards.Wizard;
-import org.vaadin.teemu.wizards.event.WizardCancelledEvent;
-import org.vaadin.teemu.wizards.event.WizardCompletedEvent;
-import org.vaadin.teemu.wizards.event.WizardProgressListener;
-import org.vaadin.teemu.wizards.event.WizardStepActivationEvent;
-import org.vaadin.teemu.wizards.event.WizardStepSetChangedEvent;
 
 import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
@@ -53,22 +48,7 @@ public class DryRunWizardProvider extends AbstractSandboxWizardProvider
 		openSandboxPopupOnNextButton(wizard);
 		
 		//and when the page is loaded with back button
-		wizard.addListener(new WizardProgressListener()
-		{
-			@Override
-			public void wizardCompleted(WizardCompletedEvent event)	{}
-			@Override
-			public void wizardCancelled(WizardCancelledEvent event)	{}
-			@Override
-			public void stepSetChanged(WizardStepSetChangedEvent event) {}
-			
-			@Override
-			public void activeStepChanged(WizardStepActivationEvent event)
-			{
-				if (event.getActivatedStep() instanceof IntroStep) 
-					openSandboxPopupOnNextButton(wizard);
-			}
-		});
+		configureNextButtonWithPopupOpen(wizard, IntroStep.class);
 		return wizard;
 	}
 

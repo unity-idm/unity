@@ -12,6 +12,7 @@ import java.util.Stack;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
+import pl.edu.icm.unity.sandbox.VaadinEndpointWithSandbox;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -88,6 +89,15 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	public void setSandboxRouter(SandboxAuthnRouter sandboxRouter) 
 	{
 		this.sandboxRouter = sandboxRouter;
+	}
+	
+	/**
+	 * @return sandbox servlet URL. Note that this URL is always fine but the servlet might not be deployed
+	 * under it, if your wrapping endpoint does not extend {@link VaadinEndpointWithSandbox}.  
+	 */
+	public String getSandboxServletURL()
+	{
+		return endpointDescription.getContextAddress() + VaadinEndpointWithSandbox.SANDBOX_PATH;
 	}
 	
 	/**

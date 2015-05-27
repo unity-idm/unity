@@ -5,6 +5,11 @@
 package pl.edu.icm.unity.sandbox.wizard;
 
 import org.vaadin.teemu.wizards.Wizard;
+import org.vaadin.teemu.wizards.event.WizardCancelledEvent;
+import org.vaadin.teemu.wizards.event.WizardCompletedEvent;
+import org.vaadin.teemu.wizards.event.WizardProgressListener;
+import org.vaadin.teemu.wizards.event.WizardStepActivationEvent;
+import org.vaadin.teemu.wizards.event.WizardStepSetChangedEvent;
 
 import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
@@ -78,5 +83,25 @@ public abstract class AbstractSandboxWizardProvider
 		};
 		
 		sandboxNotifier.addListener(sandboxListener);
+	}
+	
+	protected void configureNextButtonWithPopupOpen(final Wizard wizard, final Class<?> prePopupStepClass)
+	{
+		wizard.addListener(new WizardProgressListener()
+		{
+			@Override
+			public void wizardCompleted(WizardCompletedEvent event)	{}
+			@Override
+			public void wizardCancelled(WizardCancelledEvent event)	{}
+			@Override
+			public void stepSetChanged(WizardStepSetChangedEvent event) {}
+			
+			@Override
+			public void activeStepChanged(WizardStepActivationEvent event)
+			{
+				if (event.getActivatedStep().getClass().isAssignableFrom(prePopupStepClass)) 
+					openSandboxPopupOnNextButton(wizard);
+			}
+		});
 	}
 }

@@ -74,15 +74,13 @@ public class VaadinUIProvider extends UIProvider
 		UI ui = (UI) applicationContext.getBean(uiBeanName);
 		if (ui instanceof UnityWebUI)
 		{
+			if (sandboxRouter != null) 
+				((UnityWebUI)ui).setSandboxRouter(sandboxRouter);
 			((UnityWebUI)ui).configure(description, authenticators, registrationConfiguraiton,
 					endpointProperties);
 			if (cancelHandler != null)
 			{
 				((UnityWebUI)ui).setCancelHandler(cancelHandler);
-			}
-			if (sandboxRouter != null) 
-			{
-				((UnityWebUI)ui).setSandboxRouter(sandboxRouter);
 			}
 		}
 		return ui;

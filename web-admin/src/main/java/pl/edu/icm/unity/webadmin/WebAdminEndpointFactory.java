@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.sandbox.VaadinEndpointWithSandbox;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -53,7 +54,7 @@ public class WebAdminEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new WebAdminVaadinEndpoint(getDescription(), applicationContext, 
+		return new VaadinEndpointWithSandbox(getDescription(), applicationContext, 
 				WebAdminUI.class.getSimpleName(), SERVLET_PATH);
 	}
 }

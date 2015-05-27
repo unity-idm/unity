@@ -13,10 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.sandbox.VaadinEndpointWithSandbox;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
-import pl.edu.icm.unity.webui.VaadinEndpoint;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 
 /**
@@ -54,7 +54,7 @@ public class UserHomeEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new VaadinEndpoint(getDescription(), applicationContext, 
+		return new VaadinEndpointWithSandbox(getDescription(), applicationContext, 
 				UserHomeUI.class.getSimpleName(), SERVLET_PATH);
 	}
 }

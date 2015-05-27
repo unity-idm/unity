@@ -16,11 +16,13 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.home.connectid.ConnectIdWizardProvider;
 import pl.edu.icm.unity.home.iddetails.EntityDetailsWithActions;
 import pl.edu.icm.unity.home.iddetails.EntityRemovalButton;
 import pl.edu.icm.unity.home.iddetails.UserAttributesPanel;
 import pl.edu.icm.unity.home.iddetails.UserDetailsPanel;
 import pl.edu.icm.unity.home.iddetails.UserIdentitiesPanel;
+import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
@@ -73,6 +75,8 @@ public class UserAccountComponent extends VerticalLayout
 	private AttributeHandlerRegistry attributeHandlerRegistry;
 	private AttributesManagement attributesMan;
 	private IdentityEditorRegistry identityEditorRegistry;
+	private SandboxAuthnNotifier sandboxNotifier;
+	private String sandboxURL;
 	
 	@Autowired
 	public UserAccountComponent(UnityMessageSource msg, AuthenticationManagement authnMan,
@@ -97,8 +101,10 @@ public class UserAccountComponent extends VerticalLayout
 		this.identityEditorRegistry = identityEditorRegistry;
 	}
 
-	public void initUI(HomeEndpointProperties config)
+	public void initUI(HomeEndpointProperties config, SandboxAuthnNotifier sandboxNotifier, String sandboxURL)
 	{
+		this.sandboxNotifier = sandboxNotifier;
+		this.sandboxURL = sandboxURL;
 		Label spacer = new Label();
 		spacer.setHeight(20, Unit.PIXELS);
 		addComponent(spacer);
@@ -136,8 +142,10 @@ public class UserAccountComponent extends VerticalLayout
 					identityEditorRegistry, idsMan, theUser.getEntityId());
 			UserAttributesPanel attrsPanel = new UserAttributesPanel(msg, attributeHandlerRegistry, 
 					attributesMan, config, theUser.getEntityId());
+			ConnectIdWizardProvider connectIdProvider = new ConnectIdWizardProvider(msg, 
+					sandboxURL, sandboxNotifier);
 			EntityDetailsWithActions tabRoot = new EntityDetailsWithActions(disabled, 
-					userInfo, idsPanel, attrsPanel, removalButton, msg);
+					userInfo, idsPanel, attrsPanel, removalButton, msg, connectIdProvider);
 			tabPanel.addTab("UserHomeUI.accountInfoLabel", "UserHomeUI.accountInfoDesc", 
 					Images.info64.getResource(), tabRoot);
 		} catch (AuthorizationException e)
