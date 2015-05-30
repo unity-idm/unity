@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
@@ -148,20 +147,12 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 			X509Certificate[] clientCert = getTLSCertificate();
 
 			if (clientCert == null)
-			{
 				return new AuthenticationResult(Status.notApplicable, null);
-			}
-			try
-			{
-				AuthenticationResult authenticationResult = credentialExchange.checkCertificate(
-						clientCert, sandboxCallback);
-				component.setError(authenticationResult.getStatus() != Status.success);
-				return authenticationResult;
-			} catch (EngineException e)
-			{
-				component.setError(true);
-				return new AuthenticationResult(Status.deny, null);
-			}
+
+			AuthenticationResult authenticationResult = credentialExchange.checkCertificate(
+					clientCert, sandboxCallback);
+			component.setError(authenticationResult.getStatus() != Status.success);
+			return authenticationResult;
 		}
 
 		/**

@@ -468,7 +468,8 @@ public class TranslationProfilesComponent extends VerticalLayout
 
 			ProfileWizardProvider wizardProvider = new ProfileWizardProvider(msg, sandboxURL, 
 					sandboxNotifier, editor, addCallback);
-			SandboxWizardDialog dialog = new SandboxWizardDialog(wizardProvider.getWizard());
+			SandboxWizardDialog dialog = new SandboxWizardDialog(wizardProvider.getWizardInstance(),
+					wizardProvider.getCaption());
 			dialog.show();
 		}
 	}
@@ -494,7 +495,8 @@ public class TranslationProfilesComponent extends VerticalLayout
 		{
 			DryRunWizardProvider provider = new DryRunWizardProvider(msg, sandboxURL, sandboxNotifier, 
 					tc, profileMan);
-			SandboxWizardDialog dialog = new SandboxWizardDialog(provider.getWizard());
+			SandboxWizardDialog dialog = new SandboxWizardDialog(provider.getWizardInstance(),
+					provider.getCaption());
 			dialog.show();
 		}
 	}	

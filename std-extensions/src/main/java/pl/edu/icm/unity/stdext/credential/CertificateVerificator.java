@@ -6,20 +6,22 @@ package pl.edu.icm.unity.stdext.credential;
 
 import java.security.cert.X509Certificate;
 
-import eu.emi.security.authn.x509.impl.X500NameUtils;
-import pl.edu.icm.unity.exceptions.EngineException;
+import org.apache.log4j.Logger;
+
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.AbstractLocalVerificator;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.authn.EntityWithCredential;
+import pl.edu.icm.unity.server.authn.LocalSandboxAuthnContext;
+import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
+import eu.emi.security.authn.x509.impl.X500NameUtils;
 
 /**
  * Trivial verificator of certificates. It is assumed that the certificate was previously authenticated.
@@ -32,6 +34,7 @@ import pl.edu.icm.unity.types.authn.LocalCredentialState;
  */
 public class CertificateVerificator extends AbstractLocalVerificator implements CertificateExchange
 { 	
+	private static final Logger log = Log.getLogger(Log.U_SERVER, CertificateVerificator.class);
 	private static final String[] IDENTITY_TYPES = {X500Identity.ID};
 
 	public CertificateVerificator(String name, String description)
@@ -67,7 +70,6 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 	@Override
 	public AuthenticationResult checkCertificate(X509Certificate[] chain, 
 			SandboxAuthnResultCallback sandboxCallback)
-			throws EngineException
 	{
 		String identity = chain[0].getSubjectX500Principal().getName();
 		try
@@ -76,10 +78,17 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 				IDENTITY_TYPES, credentialName);
 			AuthenticatedEntity entity = new AuthenticatedEntity(resolved.getEntityId(), 
 					X500NameUtils.getReadableForm(identity), false);
-			return new AuthenticationResult(Status.success, entity);
-		} catch (IllegalIdentityValueException notFound)
+			AuthenticationResult ret = new AuthenticationResult(Status.success, entity);
+			sandboxCallback.sandboxedAuthenticationDone(new LocalSandboxAuthnContext(ret));
+			return ret;
+		} catch (Exception e)
 		{
-			return new AuthenticationResult(Status.deny, null);
+			log.debug("Checking certificate failed", e);
+			AuthenticationResult ret = new AuthenticationResult(Status.deny, null);
+			if (sandboxCallback != null)
+				sandboxCallback.sandboxedAuthenticationDone(
+						new LocalSandboxAuthnContext(ret));
+			return ret;
 		}
 	}
 

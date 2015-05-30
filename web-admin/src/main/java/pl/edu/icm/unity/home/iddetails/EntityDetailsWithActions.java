@@ -160,7 +160,10 @@ public class EntityDetailsWithActions extends CustomComponent
 				public void buttonClick(ClickEvent event)
 				{
 					SandboxWizardDialog dialog = new SandboxWizardDialog(
-							accountAssociationWizardProvider.getWizard());
+							accountAssociationWizardProvider.getWizardInstance(),
+							accountAssociationWizardProvider.getCaption());
+					dialog.setHeight(50, Unit.PERCENTAGE);
+					dialog.setWidth(60, Unit.PERCENTAGE);
 					dialog.show();
 				}
 			});

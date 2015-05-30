@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.sandbox;
 
-import pl.edu.icm.unity.server.authn.remote.SandboxAuthnContext;
+import pl.edu.icm.unity.server.authn.SandboxAuthnContext;
 
 import com.vaadin.server.VaadinService;
 

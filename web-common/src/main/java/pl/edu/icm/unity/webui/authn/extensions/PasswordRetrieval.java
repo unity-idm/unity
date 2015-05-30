@@ -200,30 +200,23 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			{
 				return new AuthenticationResult(Status.notApplicable, null);
 			}
-			try
-			{
-				AuthenticationResult authenticationResult = credentialExchange.checkPassword(
+
+			AuthenticationResult authenticationResult = credentialExchange.checkPassword(
 						username, password, sandboxCallback);
-				if (authenticationResult.getStatus() == Status.success)
-				{
-					passwordField.setComponentError(null);
-					usernameField.setComponentError(null);
-				} else if (authenticationResult.getStatus() == Status.unknownRemotePrincipal && 
-						registrationFormForUnknown != null) 
-				{
-					authenticationResult.setFormForUnknownPrincipal(registrationFormForUnknown);
-					clear();
-				} else
-				{
-					setError();
-				}
-				return authenticationResult;
-			} catch (Exception e)
+			if (authenticationResult.getStatus() == Status.success)
 			{
-				log.debug("Password verificator has thrown an exception", e);
+				passwordField.setComponentError(null);
+				usernameField.setComponentError(null);
+			} else if (authenticationResult.getStatus() == Status.unknownRemotePrincipal && 
+					registrationFormForUnknown != null) 
+			{
+				authenticationResult.setFormForUnknownPrincipal(registrationFormForUnknown);
+				clear();
+			} else
+			{
 				setError();
-				return new AuthenticationResult(Status.deny, null);
 			}
+			return authenticationResult;
 		}
 		
 		private void setError()

@@ -20,7 +20,6 @@ import pl.edu.icm.unity.webadmin.tprofile.wizard.IntroStep;
  */
 public class DryRunWizardProvider extends AbstractSandboxWizardProvider
 {
-	private DryRunStep dryrunStep;
 	private UnityMessageSource msg;
 	private TranslationActionsRegistry registry;
 	private TranslationProfileManagement tpMan;
@@ -32,15 +31,14 @@ public class DryRunWizardProvider extends AbstractSandboxWizardProvider
 		this.msg = msg;
 		this.registry = registry;
 		this.tpMan = tpMan;
-		this.wizard = initWizard();
 	}
 
 	@Override
-	protected Wizard initWizard()
+	public Wizard getWizardInstance()
 	{
 		final Wizard wizard = new Wizard();
 		wizard.setSizeFull();
-		dryrunStep = new DryRunStep(msg, sandboxURL, registry, tpMan);
+		final DryRunStep dryrunStep = new DryRunStep(msg, sandboxURL, registry, tpMan);
 		wizard.addStep(new IntroStep(msg));
 		wizard.addStep(dryrunStep);
 		
@@ -48,13 +46,22 @@ public class DryRunWizardProvider extends AbstractSandboxWizardProvider
 		openSandboxPopupOnNextButton(wizard);
 		
 		//and when the page is loaded with back button
-		configureNextButtonWithPopupOpen(wizard, IntroStep.class);
+		showSandboxPopupAfterGivenStep(wizard, IntroStep.class);
+		
+		addSandboxListener(new HandlerCallback()
+		{
+			@Override
+			public void handle(SandboxAuthnEvent event)
+			{
+				dryrunStep.handle(event);
+			}
+		}, wizard);
 		return wizard;
 	}
 
 	@Override
-	protected void handle(SandboxAuthnEvent event)
+	public String getCaption()
 	{
-		dryrunStep.handle(event);
+		return msg.getMessage("DryRun.wizardCaption");
 	}
 }

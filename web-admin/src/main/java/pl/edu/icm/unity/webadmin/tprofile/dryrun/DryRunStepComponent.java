@@ -12,8 +12,8 @@ import org.apache.log4j.Logger;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.authn.remote.RemoteSandboxAuthnContext;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.server.authn.remote.SandboxAuthnContext;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.utils.Log;
@@ -106,7 +106,7 @@ public class DryRunStepComponent extends CustomComponent
 
 	public void handle(SandboxAuthnEvent event) 
 	{
-		SandboxAuthnContext ctx = event.getCtx();
+		RemoteSandboxAuthnContext ctx = (RemoteSandboxAuthnContext) event.getCtx();
 		if (ctx.getAuthnException() == null)
 		{
 			authnResultLabel.setValue(msg.getMessage("DryRun.DryRunStepComponent.authnResultLabel.success"));

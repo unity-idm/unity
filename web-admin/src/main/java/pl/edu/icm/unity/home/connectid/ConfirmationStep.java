@@ -15,8 +15,13 @@ import org.vaadin.teemu.wizards.event.WizardStepSetChangedEvent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
+import pl.edu.icm.unity.server.authn.AuthenticationResult;
+import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.server.authn.LocalSandboxAuthnContext;
+import pl.edu.icm.unity.server.authn.SandboxAuthnContext;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
+import pl.edu.icm.unity.server.authn.remote.RemoteSandboxAuthnContext;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -40,7 +45,8 @@ public class ConfirmationStep extends CustomComponent implements WizardStep
 	private RemotelyAuthenticatedContext authnContext;
 	private ErrorComponent errorComponent;
 	
-	public ConfirmationStep(UnityMessageSource msg, InputTranslationEngine translationEngine, Wizard wizard)
+	public ConfirmationStep(UnityMessageSource msg, InputTranslationEngine translationEngine, 
+			final Wizard wizard)
 	{
 		this.msg = msg;
 		this.translationEngine = translationEngine;
@@ -66,6 +72,10 @@ public class ConfirmationStep extends CustomComponent implements WizardStep
 			@Override
 			public void activeStepChanged(WizardStepActivationEvent event)
 			{
+				if (event.getActivatedStep() instanceof ConfirmationStep)
+				{
+					wizard.getBackButton().setEnabled(false);
+				}
 			}
 		});
 	}
@@ -89,17 +99,48 @@ public class ConfirmationStep extends CustomComponent implements WizardStep
 
 	public void setAuthnData(SandboxAuthnEvent event)
 	{
-		if (event.getCtx().getAuthnException() != null)
+		SandboxAuthnContext ctx = event.getCtx();
+		if (ctx instanceof RemoteSandboxAuthnContext)
+			setRemoteAuthnData((RemoteSandboxAuthnContext) ctx);
+		else
+			setLocalAuthnData((LocalSandboxAuthnContext) ctx);
+	}
+	
+	private void setRemoteAuthnData(RemoteSandboxAuthnContext ctx)
+	{
+		if (ctx.getAuthnException() != null)
 		{
-			introLabel.setVisible(false);
-			errorComponent.setVisible(true);
-			errorComponent.setError(msg.getMessage("ConnectId.ConfirmStep.error"), 
-					event.getCtx().getAuthnException());
+			setError(msg.getMessage("ConnectId.ConfirmStep.error"));
 		} else
 		{
-			authnContext = event.getCtx().getAuthnContext();
-			introLabel.setHtmlValue("ConnectId.ConfirmStep.info", authnContext.getRemoteIdPName());
+			if (!translationEngine.identitiesNotPresentInDb(ctx.getAuthnContext().getMappingResult()))
+			{
+				setError(msg.getMessage("ConnectId.ConfirmStep.errorExistingIdentity"));
+			} else
+			{
+				authnContext = ctx.getAuthnContext();
+				introLabel.setHtmlValue("ConnectId.ConfirmStep.info", authnContext.getRemoteIdPName());
+			}
 		}
+	}
+
+	private void setLocalAuthnData(LocalSandboxAuthnContext ctx)
+	{
+		AuthenticationResult ae = ctx.getAuthenticationResult();
+		if (ae.getStatus() != Status.success)
+		{
+			setError(msg.getMessage("ConnectId.ConfirmStep.error"));
+		} else
+		{
+			setError(msg.getMessage("ConnectId.ConfirmStep.errorExistingIdentity"));
+		}
+	}
+
+	private void setError(String message)
+	{
+		introLabel.setVisible(false);
+		errorComponent.setVisible(true);
+		errorComponent.setError(message);
 	}
 	
 	private void merge()

@@ -1,32 +1,35 @@
 /*
- * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.server.authn.remote;
 
+import pl.edu.icm.unity.server.authn.SandboxAuthnContext;
 
 
 /**
- * Stores full information on the sandboxed remote authentication.
+ * Stores full information on the remote sandboxed authentication.
+ * Either {@link RemotelyAuthenticatedContext} is
+ * provided (successful authN) or exception with unprocessed {@link RemotelyAuthenticatedInput}.
  * The most of the information is in authnContext, which is enriched with logs and potential error.
- * User should be careful when using the authnResult. It may happen that many of the fields are not initialized 
- * in case of authentication failure. It is guaranteed that authnResult is always != null, that's all. 
+ * User should be careful when using the authnResult. It may happen that many of the 
+ * fields are not initialized in case of authentication failure. 
  *  
  * @author K. Benedyczak
  */
-public class SandboxAuthnContext
+public class RemoteSandboxAuthnContext implements SandboxAuthnContext
 {
 	private RemotelyAuthenticatedContext authnContext;
 	private Exception authnException;
 	private String logs;
 
-	public SandboxAuthnContext(RemotelyAuthenticatedContext authnResult, String logs)
+	public RemoteSandboxAuthnContext(RemotelyAuthenticatedContext authnResult, String logs)
 	{
 		this.authnContext = authnResult;
 		this.logs = logs;
 	}
 	
-	public SandboxAuthnContext(Exception authnException, String logs, 
+	public RemoteSandboxAuthnContext(Exception authnException, String logs, 
 			RemotelyAuthenticatedInput input)
 	{
 		this.authnException = authnException;

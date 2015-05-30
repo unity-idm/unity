@@ -12,7 +12,6 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
@@ -88,7 +87,6 @@ public class LdapVerificator extends AbstractRemoteVerificator implements Passwo
 
 	@Override
 	public AuthenticationResult checkPassword(String username, String password, SandboxAuthnResultCallback callback)
-			throws AuthenticationException
 	{
 		RemoteAuthnState state = startAuthnResponseProcessing(callback, 
 				Log.U_SERVER_TRANSLATION, Log.U_SERVER_LDAP);
@@ -97,14 +95,10 @@ public class LdapVerificator extends AbstractRemoteVerificator implements Passwo
 		{
 			RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(username, password);
 			return getResult(input, translationProfile, state);
-		} catch (LdapAuthenticationException e)
-		{
-			finishAuthnResponseProcessing(state, e);
-			return new AuthenticationResult(Status.deny, null, null);
 		} catch (Exception e)
 		{
 			finishAuthnResponseProcessing(state, e);
-			throw e;
+			return new AuthenticationResult(Status.deny, null, null);
 		}
 	}
 	
@@ -136,7 +130,6 @@ public class LdapVerificator extends AbstractRemoteVerificator implements Passwo
 	@Override
 	public AuthenticationResult checkCertificate(X509Certificate[] chain, 
 			SandboxAuthnResultCallback sandboxCallback)
-			throws EngineException
 	{
 		RemoteAuthnState state = startAuthnResponseProcessing(sandboxCallback, 
 				Log.U_SERVER_TRANSLATION, Log.U_SERVER_LDAP);
@@ -146,14 +139,11 @@ public class LdapVerificator extends AbstractRemoteVerificator implements Passwo
 			RemotelyAuthenticatedInput input = searchRemotelyAuthenticatedInput(
 					chain[0].getSubjectX500Principal().getName());
 			return getResult(input, translationProfile, state);
-		} catch (LdapAuthenticationException e)
-		{
-			finishAuthnResponseProcessing(state, e);
-			return new AuthenticationResult(Status.deny, null, null);
 		} catch (Exception e)
 		{
+			log.debug("LDAP authentication with certificate failed", e);
 			finishAuthnResponseProcessing(state, e);
-			throw e;
+			return new AuthenticationResult(Status.deny, null, null);
 		}
 	}
 	

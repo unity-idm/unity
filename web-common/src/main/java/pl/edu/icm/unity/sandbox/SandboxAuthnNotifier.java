@@ -13,6 +13,7 @@ package pl.edu.icm.unity.sandbox;
 public interface SandboxAuthnNotifier 
 {
 	void addListener(AuthnResultListener listener);
+	void removeListener(AuthnResultListener listener);
 	
 	public interface AuthnResultListener 
 	{

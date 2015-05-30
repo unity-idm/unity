@@ -24,8 +24,9 @@ import com.vaadin.ui.Window;
  */
 public class SandboxWizardDialog extends Window implements WizardProgressListener
 {
-	public SandboxWizardDialog(Wizard wizard)
+	public SandboxWizardDialog(Wizard wizard, String caption)
 	{
+		setCaption(caption);
 		wizard.addListener(this);
 		setModal(true);
 		setClosable(false);

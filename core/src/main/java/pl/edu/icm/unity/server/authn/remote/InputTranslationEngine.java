@@ -104,6 +104,23 @@ public class InputTranslationEngine
 		processEntityChanges(result, baseEntity);
 	}
 	
+	/**
+	 * 
+	 * @param result
+	 * @return true only if no one of mapped identities is present in db.
+	 */
+	public boolean identitiesNotPresentInDb(MappingResult result)
+	{
+		try
+		{
+			getIdentitiesToCreate(result);
+			return true;
+		} catch (EngineException e)
+		{
+			return false;
+		}
+	}
+	
 	private Identity processIdentities(MappingResult result) throws EngineException
 	{
 		List<MappedIdentity> mappedMissingIdentitiesToCreate = new ArrayList<>();
@@ -161,7 +178,14 @@ public class InputTranslationEngine
 
 	}
 
-	private void processIdentitiesForMerge(MappingResult result, EntityParam baseEntity) throws EngineException
+	/**
+	 * Besides returning the list of identities to be created also ensures that no one from mapped
+	 * identities does exist in the db.
+	 * @param result
+	 * @return list of mapped identities which should be created. 
+	 * @throws EngineException
+	 */
+	private List<MappedIdentity> getIdentitiesToCreate(MappingResult result) throws EngineException
 	{
 		List<MappedIdentity> mappedMissingIdentitiesToCreate = new ArrayList<>();
 		for (MappedIdentity checked: result.getIdentities())
@@ -185,6 +209,12 @@ public class InputTranslationEngine
 				}
 			}			
 		}
+		return mappedMissingIdentitiesToCreate;
+	}
+	
+	private void processIdentitiesForMerge(MappingResult result, EntityParam baseEntity) throws EngineException
+	{
+		List<MappedIdentity> mappedMissingIdentitiesToCreate = getIdentitiesToCreate(result);
 		if (mappedMissingIdentitiesToCreate.isEmpty())
 		{
 			log.info("The translation profile didn't return any identity of the principal. "

@@ -9,6 +9,7 @@ import org.vaadin.teemu.wizards.Wizard;
 import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.sandbox.wizard.AbstractSandboxWizardProvider;
+import pl.edu.icm.unity.server.authn.remote.RemoteSandboxAuthnContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditDialog.Callback;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditor;
@@ -19,8 +20,6 @@ import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditor;
  */
 public class ProfileWizardProvider extends AbstractSandboxWizardProvider
 {
-	private SandboxStep sandboxStep;
-	private ProfileStep profileStep;
 	private UnityMessageSource msg;
 	private Callback addCallback;
 	private TranslationProfileEditor editor;
@@ -32,19 +31,18 @@ public class ProfileWizardProvider extends AbstractSandboxWizardProvider
 		this.msg = msg;
 		this.editor = editor;
 		this.addCallback = addCallback;
-		this.wizard = initWizard();
 	}
 
 	@Override
-	protected Wizard initWizard()
+	public Wizard getWizardInstance()
 	{
 		final Wizard wizard = new Wizard();
 		wizard.setImmediate(false);
 		wizard.setWidth("100.0%");
 		wizard.setHeight("100.0%");
 		
-		sandboxStep = new SandboxStep(msg, sandboxURL);
-		profileStep = new ProfileStep(msg, editor, addCallback);
+		final SandboxStep sandboxStep = new SandboxStep(msg, sandboxURL, wizard);
+		final ProfileStep profileStep = new ProfileStep(msg, editor, addCallback);
 		
 		wizard.addStep(new IntroStep(msg));
 		wizard.addStep(sandboxStep);
@@ -54,17 +52,27 @@ public class ProfileWizardProvider extends AbstractSandboxWizardProvider
 		openSandboxPopupOnNextButton(wizard);
 		
 		//and when the page is loaded with back button
-		configureNextButtonWithPopupOpen(wizard, IntroStep.class);
+		showSandboxPopupAfterGivenStep(wizard, IntroStep.class);
+
+		addSandboxListener(new HandlerCallback()
+		{
+			@Override
+			public void handle(SandboxAuthnEvent event)
+			{
+				RemoteSandboxAuthnContext sandboxedCtx = ((RemoteSandboxAuthnContext) event.getCtx()); 
+				profileStep.handle(sandboxedCtx.getAuthnContext().getAuthnInput());
+				sandboxStep.enableNext();
+				wizard.next();
+				wizard.getBackButton().setEnabled(false);
+			}
+		}, wizard);
 		
 		return wizard;
 	}
 
 	@Override
-	protected void handle(SandboxAuthnEvent event)
+	public String getCaption()
 	{
-		profileStep.handle(event.getCtx().getAuthnContext().getAuthnInput());
-		sandboxStep.enableNext();
-		wizard.next();
-		wizard.getBackButton().setEnabled(false);
+		return msg.getMessage("Wizard.wizardCaption");
 	}
 }

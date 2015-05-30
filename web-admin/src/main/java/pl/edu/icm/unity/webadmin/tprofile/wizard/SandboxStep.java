@@ -4,7 +4,13 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile.wizard;
 
+import org.vaadin.teemu.wizards.Wizard;
 import org.vaadin.teemu.wizards.WizardStep;
+import org.vaadin.teemu.wizards.event.WizardCancelledEvent;
+import org.vaadin.teemu.wizards.event.WizardCompletedEvent;
+import org.vaadin.teemu.wizards.event.WizardProgressListener;
+import org.vaadin.teemu.wizards.event.WizardStepActivationEvent;
+import org.vaadin.teemu.wizards.event.WizardStepSetChangedEvent;
 
 import pl.edu.icm.unity.sandbox.wizard.SandboxPopup;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -27,12 +33,36 @@ public class SandboxStep extends CustomComponent implements WizardStep
 
 	private UnityMessageSource msg;
 	private boolean onAdvance;
+	private Wizard wizard;
 
-	public SandboxStep(UnityMessageSource msg, String sandboxURL) 
+	public SandboxStep(UnityMessageSource msg, String sandboxURL, final Wizard wizard) 
 	{
 		this.msg = msg;
+		this.wizard = wizard;
 		onAdvance = false;
 		buildMainLayout(msg, sandboxURL);
+		wizard.addListener(new WizardProgressListener()
+		{
+			@Override
+			public void wizardCompleted(WizardCompletedEvent event)
+			{
+			}
+			@Override
+			public void wizardCancelled(WizardCancelledEvent event)
+			{
+			}
+			@Override
+			public void stepSetChanged(WizardStepSetChangedEvent event)
+			{
+			}
+			
+			@Override
+			public void activeStepChanged(WizardStepActivationEvent event)
+			{
+				if (event.getActivatedStep() instanceof SandboxStep)
+					wizard.getNextButton().setEnabled(false);
+			}
+		});
 	}
 
 	@Override
@@ -84,6 +114,7 @@ public class SandboxStep extends CustomComponent implements WizardStep
 	public void enableNext()
 	{
 		onAdvance = true;
+		wizard.getNextButton().setEnabled(true);
 	}
 
 }

@@ -6,7 +6,6 @@ package pl.edu.icm.unity.stdext.credential;
 
 import java.security.cert.X509Certificate;
 
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
@@ -21,6 +20,5 @@ public interface CertificateExchange extends CredentialExchange
 {
 	public static final String ID = "certificate exchange";
 	
-	AuthenticationResult checkCertificate(X509Certificate[] chain, SandboxAuthnResultCallback sandboxCallback) 
-			throws EngineException;
+	AuthenticationResult checkCertificate(X509Certificate[] chain, SandboxAuthnResultCallback sandboxCallback); 
 }

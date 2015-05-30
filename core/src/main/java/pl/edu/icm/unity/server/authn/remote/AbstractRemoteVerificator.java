@@ -86,7 +86,7 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 			LogRecorder recorder = stateCasted.logRecorder;
 			recorder.stopLogRecording();
 			stateCasted.sandboxCallback.sandboxedAuthenticationDone(
-					new SandboxAuthnContext(context, 
+					new RemoteSandboxAuthnContext(context, 
 							recorder.getCapturedLogs().toString()));
 		}
 	}
@@ -106,7 +106,7 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 			LogRecorder recorder = stateCasted.logRecorder;
 			recorder.stopLogRecording();
 			stateCasted.sandboxCallback.sandboxedAuthenticationDone(
-					new SandboxAuthnContext(error, recorder.getCapturedLogs().toString(), 
+					new RemoteSandboxAuthnContext(error, recorder.getCapturedLogs().toString(), 
 							stateCasted.remoteInput));
 		}
 	}

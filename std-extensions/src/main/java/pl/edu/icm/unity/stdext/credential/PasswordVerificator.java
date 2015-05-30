@@ -10,6 +10,7 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.log4j.Logger;
 import org.bouncycastle.util.Arrays;
 
 import pl.edu.icm.unity.Constants;
@@ -30,7 +31,9 @@ import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.CredentialHelper;
 import pl.edu.icm.unity.server.authn.CredentialReset;
 import pl.edu.icm.unity.server.authn.EntityWithCredential;
+import pl.edu.icm.unity.server.authn.LocalSandboxAuthnContext;
 import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.utils.CryptoUtils;
@@ -70,6 +73,7 @@ import edu.vt.middleware.password.UppercaseCharacterRule;
  */
 public class PasswordVerificator extends AbstractLocalVerificator implements PasswordExchange
 { 	
+	private static final Logger log = Log.getLogger(Log.U_SERVER, PasswordVerificator.class);
 	static final String[] IDENTITY_TYPES = {UsernameIdentity.ID, EmailIdentity.ID};
 
 	private NotificationProducer notificationProducer;
@@ -210,28 +214,51 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	 */
 	@Override
 	public AuthenticationResult checkPassword(String username, String password, 
-			SandboxAuthnResultCallback sandboxCallback) throws AuthenticationException
+			SandboxAuthnResultCallback sandboxCallback)
+	{
+		AuthenticationResult authenticationResult = checkPasswordInternal(username, password);
+		if (sandboxCallback != null)
+			sandboxCallback.sandboxedAuthenticationDone(new LocalSandboxAuthnContext(authenticationResult));
+		return authenticationResult;
+	}
+
+	public AuthenticationResult checkPasswordInternal(String username, String password)
 	{
 		EntityWithCredential resolved;
 		try
 		{
 			resolved = identityResolver.resolveIdentity(username, 
 					IDENTITY_TYPES, credentialName);
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
-			throw new AuthenticationException("The entity can not be found", e);
-		}
-		String dbCredential = resolved.getCredentialValue();
-		PasswordCredentialDBState credState = PasswordCredentialDBState.fromJson(dbCredential);
-		Deque<PasswordInfo> credentials = credState.getPasswords();
-		if (credentials.isEmpty())
-			throw new AuthenticationException("The entity has no password set");
-		PasswordInfo current = credentials.getFirst();
-		if (!checkPasswordInternal(password, current))
+			log.debug("The user for password authN can not be found: " + username, e);
 			return new AuthenticationResult(Status.deny, null);
-		boolean isOutdated = isCurrentPasswordOutdated(password, credState, resolved);
-		AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), username, isOutdated);
-		return new AuthenticationResult(Status.success, ae);
+		}
+		
+		try
+		{
+			String dbCredential = resolved.getCredentialValue();
+			PasswordCredentialDBState credState = PasswordCredentialDBState.fromJson(dbCredential);
+			Deque<PasswordInfo> credentials = credState.getPasswords();
+			if (credentials.isEmpty())
+			{
+				log.debug("The user has no password set: " + username);
+				return new AuthenticationResult(Status.deny, null);
+			}
+			PasswordInfo current = credentials.getFirst();
+			if (!checkPasswordInternal(password, current))
+			{
+				log.debug("Password provided by " + username + " is invalid");
+				return new AuthenticationResult(Status.deny, null);
+			}
+			boolean isOutdated = isCurrentPasswordOutdated(password, credState, resolved);
+			AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), username, isOutdated);
+			return new AuthenticationResult(Status.success, ae);
+		} catch (Exception e)
+		{
+			log.debug("Error during password verification for " + username, e);
+			return new AuthenticationResult(Status.deny, null);
+		}
 	}
 
 	private boolean checkPasswordInternal(String password, PasswordInfo current) 
@@ -259,6 +286,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	 * this newly received information is stored in DB: credential is updated to be manually outdated.
 	 *   
 	 * @param password
+	 * @throws AuthenticationException 
 	 * @throws IllegalGroupValueException 
 	 * @throws IllegalAttributeTypeException 
 	 * @throws IllegalTypeException 

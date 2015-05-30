@@ -13,10 +13,10 @@ import org.vaadin.teemu.wizards.event.WizardStepSetChangedEvent;
 
 import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
+import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier.AuthnResultListener;
 
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.VaadinService;
-import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.UI;
 
 /**
@@ -27,10 +27,8 @@ import com.vaadin.ui.UI;
  */
 public abstract class AbstractSandboxWizardProvider
 {
-	protected Wizard wizard;
-	private SandboxAuthnNotifier sandboxNotifier;
-	private SandboxAuthnNotifier.AuthnResultListener sandboxListener;
-	private String callerId;
+	protected SandboxAuthnNotifier sandboxNotifier;
+	protected String callerId;
 	protected String sandboxURL;
 
 	
@@ -39,16 +37,10 @@ public abstract class AbstractSandboxWizardProvider
 		this.sandboxURL = sandboxURL;
 		this.sandboxNotifier = sandboxNotifier;
 		this.callerId = VaadinService.getCurrentRequest().getWrappedSession().getId();
-		addSandboxListener();
 	}
 	
-	protected abstract Wizard initWizard();
-	protected abstract void handle(SandboxAuthnEvent event);
-	
-	public Wizard getWizard()
-	{
-		return wizard;
-	}
+	public abstract String getCaption();
+	public abstract Wizard getWizardInstance();
 	
 	protected void openSandboxPopupOnNextButton(Wizard wizard) 
 	{
@@ -57,12 +49,12 @@ public abstract class AbstractSandboxWizardProvider
 	}
 
 	
-	protected void addSandboxListener() 
+	protected void addSandboxListener(final HandlerCallback callback, Wizard wizard) 
 	{
-		sandboxListener = new SandboxAuthnNotifier.AuthnResultListener() 
+		AuthnResultListener listener = new SandboxAuthnNotifier.AuthnResultListener() 
 		{
 			@Override
-			public void handle(SandboxAuthnEvent event) 
+			public void handle(final SandboxAuthnEvent event) 
 			{
 				
 				if (!callerId.equals(event.getCallerId()))
@@ -70,22 +62,47 @@ public abstract class AbstractSandboxWizardProvider
 					return;
 				}
 				
-				try 
+				UI.getCurrent().access(new Runnable()
 				{
-					VaadinSession.getCurrent().lock();
-					AbstractSandboxWizardProvider.this.handle(event);
-					UI.getCurrent().setPollInterval(-1);
-				} finally 
-				{
-					VaadinSession.getCurrent().unlock();
-				}				
+					@Override
+					public void run()
+					{
+						callback.handle(event);
+						UI.getCurrent().setPollInterval(-1);
+					}
+				});
 			}
 		};
-		
-		sandboxNotifier.addListener(sandboxListener);
+		sandboxNotifier.addListener(listener);
+		removeSandboxListenerOnCompleting(wizard, listener);
+	}
+
+	protected void removeSandboxListenerOnCompleting(final Wizard wizard, final AuthnResultListener listener)
+	{
+		wizard.addListener(new WizardProgressListener()
+		{
+			@Override
+			public void wizardCompleted(WizardCompletedEvent event)	
+			{
+				sandboxNotifier.removeListener(listener);
+			}
+			
+			@Override
+			public void wizardCancelled(WizardCancelledEvent event)	
+			{
+				sandboxNotifier.removeListener(listener);
+			}
+			
+			@Override
+			public void stepSetChanged(WizardStepSetChangedEvent event) {}
+			
+			@Override
+			public void activeStepChanged(WizardStepActivationEvent event) {}
+		});
+	
 	}
 	
-	protected void configureNextButtonWithPopupOpen(final Wizard wizard, final Class<?> prePopupStepClass)
+	protected void showSandboxPopupAfterGivenStep(final Wizard wizard, final Class<?> prePopupStepClass)
 	{
 		wizard.addListener(new WizardProgressListener()
 		{
@@ -103,5 +120,11 @@ public abstract class AbstractSandboxWizardProvider
 					openSandboxPopupOnNextButton(wizard);
 			}
 		});
+	
+	}
+	
+	protected interface HandlerCallback
+	{
+		void handle(SandboxAuthnEvent event);
 	}
 }

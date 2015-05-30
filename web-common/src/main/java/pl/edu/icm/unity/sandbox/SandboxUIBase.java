@@ -12,8 +12,9 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.internal.AuthenticatorsManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
+import pl.edu.icm.unity.server.authn.SandboxAuthnContext;
+import pl.edu.icm.unity.server.authn.remote.RemoteSandboxAuthnContext;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.authn.remote.SandboxAuthnContext;
 import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -141,7 +142,7 @@ public abstract class SandboxUIBase extends AuthenticationUI
 			{
 				Exception errorE = new Exception(msg.getMessage("SandboxUI.noRemoteAuthNTitle"));
 				RemotelyAuthenticatedInput dummy = new RemotelyAuthenticatedInput("no-idp");
-				SandboxAuthnContext error = new SandboxAuthnContext(errorE, "", dummy);
+				SandboxAuthnContext error = new RemoteSandboxAuthnContext(errorE, "", dummy);
 				sandboxRouter.fireEvent(new SandboxAuthnEvent(error));
 				JavaScript.getCurrent().execute("window.close();");
 			}

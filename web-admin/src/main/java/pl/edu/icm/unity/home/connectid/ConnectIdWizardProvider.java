@@ -26,8 +26,6 @@ public class ConnectIdWizardProvider extends AbstractSandboxWizardProvider
 {
 	private UnityMessageSource msg;
 	private InputTranslationEngine translationEngine;
-	private ConfirmationStep confirmationStep;
-	private SandboxStep sandboxStep;
 	private SuccessCallback callback;
 
 	public ConnectIdWizardProvider(UnityMessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier,
@@ -37,34 +35,36 @@ public class ConnectIdWizardProvider extends AbstractSandboxWizardProvider
 		this.msg = msg;
 		this.translationEngine = translationEngine;
 		this.callback = callback;
-		this.wizard = initWizard(); 
 	}
 
 	@Override
-	protected Wizard initWizard()
+	public Wizard getWizardInstance()
 	{
 		final Wizard wizard = new Wizard();
 		wizard.setSizeFull();
 		wizard.addStep(new IntroStep(msg));
-		sandboxStep = new SandboxStep(msg, sandboxURL);
+		final SandboxStep sandboxStep = new SandboxStep(msg, sandboxURL, wizard);
 		wizard.addStep(sandboxStep);
-		confirmationStep = new ConfirmationStep(msg, translationEngine, wizard);
+		final ConfirmationStep confirmationStep = new ConfirmationStep(msg, translationEngine, wizard);
 		wizard.addStep(confirmationStep);
 		
 		openSandboxPopupOnNextButton(wizard);
-		configureNextButtonWithPopupOpen(wizard, IntroStep.class);
+		showSandboxPopupAfterGivenStep(wizard, IntroStep.class);
+		addSandboxListener(new HandlerCallback()
+		{
+			@Override
+			public void handle(SandboxAuthnEvent event)
+			{
+				sandboxStep.enableNext();
+				confirmationStep.setAuthnData(event);
+				wizard.next();						
+			}
+		}, wizard);
 		return wizard;
 	}
 
 	@Override
-	protected void handle(SandboxAuthnEvent event)
-	{
-		sandboxStep.enableNext();
-		confirmationStep.setAuthnData(event);
-	}
-	
-	@Override
-	protected void configureNextButtonWithPopupOpen(final Wizard wizard, final Class<?> prePopupStepClass)
+	protected void showSandboxPopupAfterGivenStep(final Wizard wizard, final Class<?> prePopupStepClass)
 	{
 		wizard.addListener(new WizardProgressListener()
 		{
@@ -91,5 +91,11 @@ public class ConnectIdWizardProvider extends AbstractSandboxWizardProvider
 	public interface SuccessCallback
 	{
 		void onSuccess();
+	}
+
+	@Override
+	public String getCaption()
+	{
+		return msg.getMessage("ConnectId.wizardCaption");
 	}
 }
