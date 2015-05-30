@@ -94,8 +94,7 @@ public class MitreTokenVerificator implements TokenVerificatorProtocol
 			
 			if ("exp".equals(entry.getKey()))
 			{
-				DateFormat fd = new SimpleDateFormat(DATE_PATTERN);
-				exp = fd.parse(entry.getValue().toString());
+				exp = parseExpiry(entry.getValue().toString());
 			} else if ("scope".equals(entry.getKey()))
 			{
 				String scopes = (String) entry.getValue();
@@ -119,4 +118,19 @@ public class MitreTokenVerificator implements TokenVerificatorProtocol
 		return new TokenStatus(valid, exp, scope, subject);
 	}
 
+	private Date parseExpiry(String expiry) throws java.text.ParseException
+	{
+		Date result = null;
+		try 
+		{
+			Long timeStamp = 1000 * Long.parseLong(expiry);
+			result = new Date(timeStamp);
+		} catch(NumberFormatException nfe)
+		{
+			DateFormat fd = new SimpleDateFormat(DATE_PATTERN);
+			result = fd.parse(expiry);
+		}
+		return result;
+	} 
+	
 }
