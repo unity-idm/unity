@@ -276,16 +276,12 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		CustomProviderProperties providerProps = credentialExchange.getSettings().getProvider(
 				authnContext.getProviderConfigKey()); 
 		String regFormForUnknown = providerProps.getValue(CustomProviderProperties.REGISTRATION_FORM);
-		if (authnResult.getStatus() == Status.success)
-		{
-			showError(null);
-			breakLogin(false);
-		} else if (authnResult.getStatus() == Status.unknownRemotePrincipal && 
-				regFormForUnknown != null) 
-		{
-			log.debug("There is a registration form to show for the unknown user: " + 
-					regFormForUnknown);
+		if (regFormForUnknown != null)
 			authnResult.setFormForUnknownPrincipal(regFormForUnknown);
+		
+		if (authnResult.getStatus() == Status.success || 
+				authnResult.getStatus() == Status.unknownRemotePrincipal)
+		{
 			showError(null);
 			breakLogin(false);
 		} else

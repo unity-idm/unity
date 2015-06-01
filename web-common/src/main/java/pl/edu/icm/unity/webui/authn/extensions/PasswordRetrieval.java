@@ -203,14 +203,12 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 
 			AuthenticationResult authenticationResult = credentialExchange.checkPassword(
 						username, password, sandboxCallback);
-			if (authenticationResult.getStatus() == Status.success)
-			{
-				passwordField.setComponentError(null);
-				usernameField.setComponentError(null);
-			} else if (authenticationResult.getStatus() == Status.unknownRemotePrincipal && 
-					registrationFormForUnknown != null) 
-			{
+			if (registrationFormForUnknown != null) 
 				authenticationResult.setFormForUnknownPrincipal(registrationFormForUnknown);
+			
+			if (authenticationResult.getStatus() == Status.success || 
+					authenticationResult.getStatus() == Status.unknownRemotePrincipal)
+			{
 				clear();
 			} else
 			{

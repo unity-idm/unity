@@ -221,16 +221,12 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			authnResult = new AuthenticationResult(Status.deny, null);
 		}
 
-		if (authnResult.getStatus() == Status.success)
-		{
-			showError(null);
-			breakLogin(false);
-		} else if (authnResult.getStatus() == Status.unknownRemotePrincipal && 
-				authnContext.getRegistrationFormForUnknown() != null) 
-		{
-			log.debug("There is a registration form to show for the unknown user: " + 
-					authnContext.getRegistrationFormForUnknown());
+		if (authnContext.getRegistrationFormForUnknown() != null)
 			authnResult.setFormForUnknownPrincipal(authnContext.getRegistrationFormForUnknown());
+		
+		if (authnResult.getStatus() == Status.success || 
+				authnResult.getStatus() == Status.unknownRemotePrincipal)
+		{
 			showError(null);
 			breakLogin(false);
 		} else
