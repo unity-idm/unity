@@ -41,6 +41,7 @@ import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
+import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
@@ -290,7 +291,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			SAMLSPProperties config = context.getContextConfig();
 			String idpKey = context.getContextIdpKey();
 		
-			return getResult(input, config.getValue(idpKey + SAMLSPProperties.IDP_TRANSLATION_PROFILE), 
+			return getResult(input, config.getValue(idpKey + CommonWebAuthnProperties.TRANSLATION_PROFILE), 
 					state);
 		} catch (Exception e)
 		{

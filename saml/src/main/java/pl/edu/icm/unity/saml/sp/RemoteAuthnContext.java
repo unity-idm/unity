@@ -8,6 +8,7 @@ import java.io.Serializable;
 
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.server.utils.RemoteAuthnState;
+import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 
 /**
@@ -82,7 +83,12 @@ public class RemoteAuthnContext extends RemoteAuthnState implements Serializable
 	public synchronized String getRegistrationFormForUnknown()
 	{
 		return samlProperties.getValue(
-				idpKey + SAMLSPProperties.IDP_REGISTRATION_FORM);
+				idpKey + CommonWebAuthnProperties.REGISTRATION_FORM);
+	}
+	public synchronized boolean isEnableAssociation()
+	{
+		return samlProperties.getBooleanValue(
+				idpKey + CommonWebAuthnProperties.ENABLE_ASSOCIATION);
 	}
 	
 	public synchronized SAMLSPProperties getContextConfig()

@@ -16,6 +16,7 @@ import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityPropertiesHelper;
+import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
@@ -48,8 +49,6 @@ public class CustomProviderProperties extends UnityPropertiesHelper
 	public static final String ACCESS_TOKEN_FORMAT = "accessTokenFormat";
 	public static final String OPENID_CONNECT = "openIdConnect";
 	public static final String OPENID_DISCOVERY = "openIdConnectDiscoveryEndpoint";
-	public static final String REGISTRATION_FORM = "registrationFormForUnknown";
-	public static final String TRANSLATION_PROFILE = "translationProfile";
 	public static final String ICON_URL = "iconUrl";
 	public static final String CLIENT_TRUSTSTORE = "httpClientTruststore";
 	public static final String CLIENT_HOSTNAME_CHECKING = "httpClientHostnameChecking";
@@ -106,12 +105,15 @@ public class CustomProviderProperties extends UnityPropertiesHelper
 		META.put(OPENID_DISCOVERY, new PropertyMD().
 				setDescription("OpenID Connect Discovery endpoint address, relevant (and required) "
 						+ "only when OpenID Connect mode is turned on."));
-		META.put(REGISTRATION_FORM, new PropertyMD().
+		META.put(CommonWebAuthnProperties.REGISTRATION_FORM, new PropertyMD().
 				setDescription("Registration form to be shown for the locally unknown users which "
 						+ "were successfuly authenticated remotely."));
-		META.put(TRANSLATION_PROFILE, new PropertyMD().setMandatory().
+		META.put(CommonWebAuthnProperties.TRANSLATION_PROFILE, new PropertyMD().setMandatory().
 				setDescription("Translation profile which will be used to map received user "
 						+ "information to a local representation."));
+		META.put(CommonWebAuthnProperties.ENABLE_ASSOCIATION, new PropertyMD("true").
+				setDescription("If true then unknown remote user gets an option to associate "
+						+ "the remote identity with an another local (already existing) account."));
 		META.put(CLIENT_HOSTNAME_CHECKING, new PropertyMD(ServerHostnameCheckingMode.FAIL).
 				setDescription("Controls how to react on the DNS name mismatch with "
 						+ "the server's certificate. Unless in testing environment "

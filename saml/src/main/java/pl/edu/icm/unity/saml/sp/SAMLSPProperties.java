@@ -19,6 +19,7 @@ import pl.edu.icm.unity.saml.ecp.SAMLECPProperties;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
+import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
@@ -75,8 +76,6 @@ public class SAMLSPProperties extends SamlProperties
 	public static final String IDP_SIGN_REQUEST = "signRequest";
 	public static final String IDP_REQUESTED_NAME_FORMAT = "requestedNameFormat";
 	public static final String IDP_GROUP_MEMBERSHIP_ATTRIBUTE = "groupMembershipAttribute";
-	public static final String IDP_TRANSLATION_PROFILE = "translationProfile";
-	public static final String IDP_REGISTRATION_FORM = "registrationFormForUnknown";
 	
 	static
 	{
@@ -136,13 +135,15 @@ public class SAMLSPProperties extends SamlProperties
 		META.put(IDP_GROUP_MEMBERSHIP_ATTRIBUTE, new PropertyMD().setCategory(idp).setStructuredListEntry(IDP_PREFIX).setDescription(
 				"Defines a SAML attribute name which will be treated as an attribute carrying group" +
 				" membership information."));
-		META.put(IDP_TRANSLATION_PROFILE, new PropertyMD().setCategory(idp).setStructuredListEntry(IDP_PREFIX).
+		META.put(CommonWebAuthnProperties.TRANSLATION_PROFILE, new PropertyMD().setCategory(idp).setStructuredListEntry(IDP_PREFIX).
 				setDescription("Name of a translation" +
 				" profile, which will be used to map remotely obtained attributes and identity" +
 				" to the local counterparts. The profile should at least map the remote identity."));
-		META.put(IDP_REGISTRATION_FORM, new PropertyMD().setCategory(idp).setStructuredListEntry(IDP_PREFIX).setDescription(
+		META.put(CommonWebAuthnProperties.REGISTRATION_FORM, new PropertyMD().setCategory(idp).setStructuredListEntry(IDP_PREFIX).setDescription(
 				"Name of a registration form to be shown for a remotely authenticated principal who " +
 				"has no local account. If unset such users will be denied."));	
+		META.put(CommonWebAuthnProperties.ENABLE_ASSOCIATION, new PropertyMD("true").setCategory(idp).setStructuredListEntry(IDP_PREFIX).setDescription(
+				"If true then unknown remote user gets an option to associate the remote identity with an another local (already existing) account."));	
 		META.put(REQUESTER_ID, new PropertyMD().setMandatory().setCategory(common).setDescription(
 				"SAML entity ID (must be a URI) of the lcoal SAML requester (or service provider)."));
 		META.put(CREDENTIAL, new PropertyMD().setCategory(common).setDescription(
@@ -387,7 +388,7 @@ public class SAMLSPProperties extends SamlProperties
 			log.warn("No certificate for " + entityId + " ignoring IdP");
 			return false;
 		}		
-		if (!isSet(key + IDP_TRANSLATION_PROFILE))
+		if (!isSet(key + CommonWebAuthnProperties.TRANSLATION_PROFILE))
 		{
 			log.warn("No translation profile for " + entityId + " ignoring IdP");
 			return false;

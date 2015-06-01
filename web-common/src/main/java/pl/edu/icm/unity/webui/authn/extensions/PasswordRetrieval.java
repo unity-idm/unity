@@ -65,6 +65,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 	private I18nString name;
 	private String logoURL;
 	private String registrationFormForUnknown;
+	private boolean enableAssociation;
 	private CredentialEditorRegistry credEditorReg;
 
 	public PasswordRetrieval(UnityMessageSource msg, CredentialEditorRegistry credEditorReg)
@@ -80,6 +81,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		ObjectNode root = Constants.MAPPER.createObjectNode();
 		root.set("i18nName", I18nStringJsonUtil.toJson(name));
 		root.put("registrationFormForUnknown", registrationFormForUnknown);
+		root.put("enableAssociation", enableAssociation);
 		if (logoURL != null)
 			root.put("logoURL", logoURL);			
 		try
@@ -110,6 +112,10 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 				logoURL = logoNode.asText();
 			if (logoURL != null && !logoURL.isEmpty())
 				ImageUtils.getLogoResource(logoURL);
+			
+			JsonNode enableANode = root.get("enableAssociation");
+			if (enableANode != null && !enableANode.isNull())
+				enableAssociation = enableANode.asBoolean();
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("The configuration of the web-" +
@@ -205,7 +211,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 						username, password, sandboxCallback);
 			if (registrationFormForUnknown != null) 
 				authenticationResult.setFormForUnknownPrincipal(registrationFormForUnknown);
-			
+			authenticationResult.setEnableAssociation(enableAssociation);
 			if (authenticationResult.getStatus() == Status.success || 
 					authenticationResult.getStatus() == Status.unknownRemotePrincipal)
 			{

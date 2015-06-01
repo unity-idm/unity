@@ -34,6 +34,7 @@ import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
@@ -202,7 +203,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		{
 			RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(context);
 			String translationProfile = config.getProvider(context.getProviderConfigKey()).getValue( 
-				CustomProviderProperties.TRANSLATION_PROFILE);
+					CommonWebAuthnProperties.TRANSLATION_PROFILE);
 		
 			return getResult(input, translationProfile, state);
 		} catch (Exception e)

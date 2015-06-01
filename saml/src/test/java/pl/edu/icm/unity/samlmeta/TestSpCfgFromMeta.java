@@ -4,19 +4,42 @@
  */
 package pl.edu.icm.unity.samlmeta;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+import static pl.edu.icm.unity.saml.SamlProperties.METADATA_ISSUER_CERT;
+import static pl.edu.icm.unity.saml.SamlProperties.METADATA_SIGNATURE;
+import static pl.edu.icm.unity.saml.SamlProperties.METADATA_URL;
+import static pl.edu.icm.unity.saml.SamlProperties.PUBLISH_METADATA;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.CREDENTIAL;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.IDPMETA_PREFIX;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.IDPMETA_REGISTRATION_FORM;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.IDPMETA_TRANSLATION_PROFILE;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.IDP_ADDRESS;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.IDP_BINDING;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.IDP_CERTIFICATE;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.IDP_CERTIFICATES;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.IDP_GROUP_MEMBERSHIP_ATTRIBUTE;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.IDP_ID;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.IDP_LOGO;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.IDP_NAME;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.IDP_PREFIX;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.IDP_REQUESTED_NAME_FORMAT;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.IDP_SIGN_REQUEST;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.P;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.REQUESTER_ID;
+import static pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties.REGISTRATION_FORM;
+import static pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties.TRANSLATION_PROFILE;
+
 import java.io.ByteArrayInputStream;
 import java.security.cert.X509Certificate;
 import java.util.Properties;
 import java.util.Set;
 
-import static org.junit.Assert.*;
-import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.*;
-
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import eu.emi.security.authn.x509.impl.CertificateUtils;
-import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaToSPConfigConverter;
@@ -26,6 +49,8 @@ import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
+import eu.emi.security.authn.x509.impl.CertificateUtils;
+import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 
 public class TestSpCfgFromMeta extends DBIntegrationTestBase
 {
@@ -67,10 +92,10 @@ public class TestSpCfgFromMeta extends DBIntegrationTestBase
 		p.setProperty(P+IDP_PREFIX+"1." + IDP_ID, "https://aai.unifr.ch/idp/shibboleth");
 		p.setProperty(P+IDP_PREFIX+"1." + IDP_LOGO, "http://example.com");
 		p.setProperty(P+IDP_PREFIX+"1." + IDP_NAME, "Name");
-		p.setProperty(P+IDP_PREFIX+"1." + IDP_REGISTRATION_FORM, "regForm");
+		p.setProperty(P+IDP_PREFIX+"1." + REGISTRATION_FORM, "regForm");
 		p.setProperty(P+IDP_PREFIX+"1." + IDP_REQUESTED_NAME_FORMAT, "foo");
 		p.setProperty(P+IDP_PREFIX+"1." + IDP_SIGN_REQUEST, "true");
-		p.setProperty(P+IDP_PREFIX+"1." + IDP_TRANSLATION_PROFILE, "trProf");
+		p.setProperty(P+IDP_PREFIX+"1." + TRANSLATION_PROFILE, "trProf");
 
 		p.setProperty(P+IDP_PREFIX+"2." + IDP_ADDRESS, "https://aai-login.fh-htwchur.ch/idp/profile/SAML2/POST/SSO");
 		p.setProperty(P+IDP_PREFIX+"2." + IDP_ID, "https://aai-login.fh-htwchur.ch/idp/shibboleth");
@@ -93,10 +118,10 @@ public class TestSpCfgFromMeta extends DBIntegrationTestBase
 		assertEquals("https://aai.unifr.ch/idp/shibboleth", ret.getValue(pfx + IDP_ID));
 		assertEquals("http://example.com", ret.getValue(pfx + IDP_LOGO));
 		assertEquals("Name", ret.getValue(pfx + IDP_NAME));
-		assertEquals("regForm", ret.getValue(pfx + IDP_REGISTRATION_FORM));
+		assertEquals("regForm", ret.getValue(pfx + REGISTRATION_FORM));
 		assertEquals("foo", ret.getValue(pfx + IDP_REQUESTED_NAME_FORMAT));
 		assertEquals("true", ret.getValue(pfx + IDP_SIGN_REQUEST));
-		assertEquals("trProf", ret.getValue(pfx + IDP_TRANSLATION_PROFILE));
+		assertEquals("trProf", ret.getValue(pfx + TRANSLATION_PROFILE));
 		
 		pfx = getPrefixOf("https://aai-login.fh-htwchur.ch/idp/shibboleth", ret);
 		assertEquals("https://aai-login.fh-htwchur.ch/idp/profile/SAML2/POST/SSO", ret.getValue(pfx + IDP_ADDRESS));
@@ -108,10 +133,10 @@ public class TestSpCfgFromMeta extends DBIntegrationTestBase
 		assertEquals(LOGO, ret.getValue(pfx + IDP_LOGO));
 		assertEquals("HTW Chur - University of Applied Sciences HTW Chur", ret.getValue(pfx + IDP_NAME+".en"));
 		assertEquals("HTW Chur - Hochschule für Technik und Wirtschaft", ret.getValue(pfx + IDP_NAME+".de"));
-		assertEquals("metaRegForm", ret.getValue(pfx + IDP_REGISTRATION_FORM));
+		assertEquals("metaRegForm", ret.getValue(pfx + REGISTRATION_FORM));
 		assertNull(ret.getValue(pfx + IDP_REQUESTED_NAME_FORMAT));
 		assertEquals("false", ret.getValue(pfx + IDP_SIGN_REQUEST));
-		assertEquals("metaTrP", ret.getValue(pfx + IDP_TRANSLATION_PROFILE));
+		assertEquals("metaTrP", ret.getValue(pfx + TRANSLATION_PROFILE));
 		
 	}
 	

@@ -24,6 +24,7 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
+import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import pl.edu.icm.unity.webui.authn.IdPROComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
@@ -275,9 +276,11 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		}
 		CustomProviderProperties providerProps = credentialExchange.getSettings().getProvider(
 				authnContext.getProviderConfigKey()); 
-		String regFormForUnknown = providerProps.getValue(CustomProviderProperties.REGISTRATION_FORM);
+		String regFormForUnknown = providerProps.getValue(CommonWebAuthnProperties.REGISTRATION_FORM);
 		if (regFormForUnknown != null)
 			authnResult.setFormForUnknownPrincipal(regFormForUnknown);
+		boolean enableAssociation = providerProps.getBooleanValue(CommonWebAuthnProperties.ENABLE_ASSOCIATION);
+		authnResult.setEnableAssociation(enableAssociation);
 		
 		if (authnResult.getStatus() == Status.success || 
 				authnResult.getStatus() == Status.unknownRemotePrincipal)

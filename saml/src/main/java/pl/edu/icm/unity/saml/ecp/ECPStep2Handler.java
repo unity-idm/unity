@@ -45,6 +45,7 @@ import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 import eu.unicore.samly2.SAMLBindings;
@@ -233,7 +234,7 @@ public class ECPStep2Handler
 	{
 		String key = findIdPKey(samlProperties, responseDoc);
 		String groupAttr = samlProperties.getValue(key + SAMLSPProperties.IDP_GROUP_MEMBERSHIP_ATTRIBUTE);
-		String profile = samlProperties.getValue(key + SAMLSPProperties.IDP_TRANSLATION_PROFILE);
+		String profile = samlProperties.getValue(key + CommonWebAuthnProperties.TRANSLATION_PROFILE);
 		SAMLResponseValidatorUtil responseValidatorUtil = new SAMLResponseValidatorUtil(samlProperties, 
 				replayAttackChecker, myAddress);
 		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDoc, 

@@ -19,6 +19,7 @@ import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorType;
@@ -197,12 +198,12 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 			properties.setProperty(configKey + SAMLSPProperties.IDP_SIGN_REQUEST, 
 					Boolean.toString(requireSignedReq));
 		if ((perMetaProfile != null) && (noPerIdpConfig || 
-				!properties.containsKey(configKey + SAMLSPProperties.IDP_TRANSLATION_PROFILE)))
-			properties.setProperty(configKey + SAMLSPProperties.IDP_TRANSLATION_PROFILE, 
+				!properties.containsKey(configKey + CommonWebAuthnProperties.TRANSLATION_PROFILE)))
+			properties.setProperty(configKey + CommonWebAuthnProperties.TRANSLATION_PROFILE, 
 					perMetaProfile);
 		if (perMetaRegForm != null && (noPerIdpConfig || 
-				!properties.containsKey(configKey + SAMLSPProperties.IDP_REGISTRATION_FORM)))
-			properties.setProperty(configKey + SAMLSPProperties.IDP_REGISTRATION_FORM, 
+				!properties.containsKey(configKey + CommonWebAuthnProperties.REGISTRATION_FORM)))
+			properties.setProperty(configKey + CommonWebAuthnProperties.REGISTRATION_FORM, 
 					perMetaRegForm);
 		
 		log.debug("Added a trusted IdP loaded from SAML metadata: " + entityId + " with " + 
