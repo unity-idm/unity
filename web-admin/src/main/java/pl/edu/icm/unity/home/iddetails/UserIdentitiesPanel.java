@@ -102,7 +102,7 @@ public class UserIdentitiesPanel
 			Identity id = idList.get(i);
 			Label label = new Label(id.toPrettyStringNoPrefix());
 			String caption = idType.getIdentityTypeProvider().getHumanFriendlyName(msg);
-			caption += (i > 0) ? (i+1) + ":" : ":";
+			caption += (i > 0) ? (i+1) + " :" : ":";
 			label.setCaption(caption);
 			roLabels.add(label);
 			parent.addComponent(label);
