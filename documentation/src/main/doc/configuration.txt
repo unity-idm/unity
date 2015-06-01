@@ -397,6 +397,7 @@ each subsystem sending messages provides different variables. Therefore each tem
 a concrete subsystem. This is performed in the template edit screen. The list of available variables for each 
 subsystem is also provided there.  
 
+[[realms]]
 === Authentication realms and login sessions
 
 Unity uses _authenticaiton realms_ to manage shared configuration of login sessions for endpoints. Each endpoint 

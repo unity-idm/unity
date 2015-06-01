@@ -16,6 +16,8 @@ include::quickstart.txt[]
 
 include::update.txt[]
 
+include::authentication.txt[]
+
 include::configuration.txt[]
 
 include::contents-management.txt[]

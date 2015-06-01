@@ -1,0 +1,91 @@
+[id=authentication]
+== Understanding authentication in Unity
+
+Unity offers a LOT in terms of authentication. In this section we give an overview of what is possible
+and where to search the concrete settings. 
+
+First of all, as Unity often acts as authentication proxy it needs to be understood that by 
+'authentication in Unity' we understand authentication Unity's client, as performed for internal 
+Unity purposes. This authentication can be (and often is) a part of a larger process, where an external service
+asks Unity to authenticate its client (e.g. using OAuth or SAML). However such fact is irrelevant:
+in Unity authentication works in the very same way regardless whether is was initiated by redirection 
+from 3rd party service or directly by a person or agent accessing Unity.
+
+Each Unity endpoint (regardless whether it is WebAdmin UI, web OAuth IdP or SOAP SAML Attribute Authority) 
+requires its client to authenticate itself. Therefore administrator has to configure authentication per
+endpoint.
+
+Authentication of an endpoint is controlled using two main elements:
+
+* Authentication realm - controls settings which may be shared by multiple endpoints with similar security
+requirements. Endpoints in the same realm share login sessions and all their settings. See <<realms>>.
+* Assigned authenticators - each authenticator defines a unique authentication option as authentication
+with locally stored password or remote authentication with a help of a configured remote OAuth AS. 
+See <<cfg-authenticators>>.   
+
+Each endpoint can have many alternative authentication options. Options are provided by 
+all enabled authenticators. Each authenticator can provide a single option (as the password authenticator)
+or many of them (as the remote SAML authenticator allowing to use all federation IdPs).
+
+Authentication screen can be configured to organize the authentication options in a desired way. This
+is especially important if there is many of them. See <<endpoints-authn>> for details.
+
+Unity can be configured to support MFA, however this feature is simplistic as of now. It will be enhanced
+in upcoming versions, the only currently available option is discussed in <<endpoints>>. 
+
+=== Local authentication 
+
+Local authenticators use a locally stored credential to verify the client's identity. Local authentication
+is simple in the sense that it can result only in two states: valid or invalid. Local authenticators
+have a very simple configuration (usually limited to a displayed name of the authenticator) as are
+using the configuration of an associated local credential. 
+
+Local authentication can be supported by the public registration forms. Each registration form which is 
+marked as public (in the general settings of registration form) can be attached to the endpoint to offer
+the manual registration. Details on registration forms are given in <<registration>>. For information
+how to configure registration forms for web endpoints (non-web endpoints naturally do not support this feature)
+see <<endpoints-authn>>.
+
+The lost password reset feature can be configured in password credential configuration. 
+
+=== Remote authentication
+
+Remote authentication is more complicated then the local authentication. 
+In remote authentication an external authentication server
+is contacted and asked to authenticate the client. The details are dependent on actual authenticator: some redirect
+the user's browser, some are contacting the remote server directly as in LDAP case.
+
+Remote authenticator has a rather complex configuration. The authentication process using a remote
+authenticator works as follows:
+
+1. The remote authenticator contacts the remote server in a protocol specific way to obtain 
+an information about the logged user.
+2. If the remote login was successful the remotely provided data is mapped to the local representation
+(translated, enhanced, filtered...) using an _input translation profile_ which is assigned to the 
+authenticator. Input translation profiles are discussed in <<translation>>. In effect of translation: 
+	* The remote user may be mapped to an existing account (at not-the-first login
+	or when it is possible to automatically map remote user to local account using some attribute as email). 
+	In such case authentication is finished just after the translation.
+	* The remote user may not be mapped to any identity. In such case authentication fails.
+	* Finally a user (who is logging for the first time) may be mapped to an identity which does not exist
+	in Unity database. In such case user can have a choice: either to fill a registration form 
+	to create a new local account or to associate the remote identity with an existing local account manually.
+	
+Registration of unknown users is performed by using a very flexible mechanism of registration forms
+described in <<registration>>. To enable registration of unknown remote users
+a chosen registration form must be associated with an authenticator. See authenticator's documentation 
+for details how to do this. Note that some authenticators allow for setting different registration 
+forms per each remote identity provider. Registration forms may be configured to be automatically or
+manually accepted, also subject to dynamic conditions. 
+
+Account association is enabled by default. It requires additional login to the existing account in a 
+popup window. It can be turned off in authenticator settings.
+	
+Additionally it can be noted that translation profiles are very powerful. Translation profile
+can not only map the remote identity to a local representation but also it can be configured 
+to automatically create identities missing locally. In such case neither registration nor association 
+will be used as authentication will always complete. 
+
+
+	
+	

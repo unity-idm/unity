@@ -68,7 +68,7 @@ so the operation will fail. However _Joe_ can modify attributes of any entity in
 group as he has +System Manager+ role there.
 ====  
  
-
+[[registration]]
 === Registration forms
 
 Unity allows its administrators to define and deploy so called _registration forms_. A registration

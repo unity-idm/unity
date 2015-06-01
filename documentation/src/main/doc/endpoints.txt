@@ -45,7 +45,7 @@ Those options are presented here, the endpoint sections later on do not contain 
 For the Web Service (CXF) binding the common options are:
 include::ref-cxfEndpointProperties.txt[]
 
-
+[[endpoints-authn]]
 === Configuration of web authentication screen 
 
 Web endpoints (besides settings relevant for the particular type of the endpoint, what is covered below) share a
@@ -86,6 +86,7 @@ unity.endpoint.web.authenticationTiles.2.tileMode=table
 unity.endpoint.web.authenticationTiles.2.tileName.pl=Zdalne logowanie
 unity.endpoint.web.authenticationTiles.2.tileName.en=Remote methods
 ----
+
 
 Options reference for all Web (Vaadin) endpoints are as follows:
 
