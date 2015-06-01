@@ -29,6 +29,7 @@ public class TestRegistrationForm extends SeleniumTestBase
 		driver.findElement(By.id("WebPasswordRetrieval.password")).sendKeys("the!test1");
 		driver.findElement(By.id("AuthenticationUI.authnenticateButton")).click();
 		driver.findElement(By.id("IdpButtonsBar.confirmButton")).click();
+		driver.findElement(By.id("UnknownUserDialog.register")).click();
 		assertTrue(driver.findElement(By.id("EmailValueEditor.Email")).getAttribute("value")
 				.contains("x"));
 		driver.findElement(By.id("EmailValueEditor.Email")).clear();

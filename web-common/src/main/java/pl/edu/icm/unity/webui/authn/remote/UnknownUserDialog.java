@@ -97,6 +97,7 @@ public class UnknownUserDialog extends AbstractDialog
 		Label label = new Label(msg.getMessage("UnknownUserDialog.registerInfo"));
 		label.setSizeFull();
 		Button register = new Button(msg.getMessage("UnknownUserDialog.register"));
+		register.setId("UnknownUserDialog.register");
 		register.addStyleName(ValoTheme.BUTTON_LARGE);
 		register.addClickListener(new ClickListener()
 		{
@@ -120,6 +121,7 @@ public class UnknownUserDialog extends AbstractDialog
 		Label label = new Label(msg.getMessage("UnknownUserDialog.associationInfo"));
 		label.setSizeFull();
 		Button associate = new Button(msg.getMessage("UnknownUserDialog.associate"));
+		associate.setId("UnknownUserDialog.associate");
 		associate.addStyleName(ValoTheme.BUTTON_LARGE);
 		associate.addClickListener(new ClickListener()
 		{

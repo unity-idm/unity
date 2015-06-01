@@ -510,8 +510,9 @@ public class TestIdentities extends DBIntegrationTestBase
 		IdentityType updated = getIdentityTypeByName(idTypes, X500Identity.ID);
 		assertEquals("fiu fiu", updated.getDescription());
 		assertEquals(2, updated.getExtractedAttributes().size());
-		assertEquals("cn", updated.getExtractedAttributes().keySet().iterator().next());
-		assertEquals("cn", updated.getExtractedAttributes().values().iterator().next());
+		Set<String> extractedkeySet = updated.getExtractedAttributes().keySet();
+		assertTrue(extractedkeySet.contains("cn"));
+		assertEquals("cn", updated.getExtractedAttributes().get("cn"));
 		
 		setupMockAuthn();
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi, dc=ddd, ou=org unit,C=pl");
