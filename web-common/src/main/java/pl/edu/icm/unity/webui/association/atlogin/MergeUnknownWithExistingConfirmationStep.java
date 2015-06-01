@@ -52,7 +52,7 @@ public class MergeUnknownWithExistingConfirmationStep extends AbstractConfirmati
 					ctx.getAuthnContext().getMappingResult());
 			if (remotelyAuthenticatedExistingIdentity == null)
 			{
-				setError(msg.getMessage("ConnectId.ConfirmStep.errorNotExistingIdentity"));
+				setError(msg.getMessage("MergeUnknownWithExistingConfirmationStep.errorNotExistingIdentity"));
 			} else
 			{
 				introLabel.setHtmlValue("MergeUnknownWithExistingConfirmationStep.info", 

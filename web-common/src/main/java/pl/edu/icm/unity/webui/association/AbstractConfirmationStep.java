@@ -38,14 +38,12 @@ public abstract class AbstractConfirmationStep extends CustomComponent implement
 	protected HtmlLabel introLabel;
 	protected InputTranslationEngine translationEngine;
 	protected ErrorComponent errorComponent;
-	private Wizard wizard;
 	
 	public AbstractConfirmationStep(UnityMessageSource msg, InputTranslationEngine translationEngine, 
 			final Wizard wizard)
 	{
 		this.msg = msg;
 		this.translationEngine = translationEngine;
-		this.wizard = wizard;
 		setCompositionRoot(buildMainLayout());
 		wizard.addListener(new WizardProgressListener()
 		{
@@ -71,6 +69,8 @@ public abstract class AbstractConfirmationStep extends CustomComponent implement
 				if (event.getActivatedStep() instanceof AbstractConfirmationStep)
 				{
 					wizard.getBackButton().setEnabled(false);
+					if (errorComponent.isVisible())
+						wizard.getFinishButton().setEnabled(false);
 				}
 			}
 		});
@@ -126,7 +126,6 @@ public abstract class AbstractConfirmationStep extends CustomComponent implement
 		introLabel.setVisible(false);
 		errorComponent.setVisible(true);
 		errorComponent.setError(message);
-		wizard.getFinishButton().setEnabled(false);
 	}
 	
 	@Override
