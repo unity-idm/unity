@@ -120,6 +120,25 @@ public class InputTranslationEngine
 			return false;
 		}
 	}
+
+	public MappedIdentity getExistingIdentity(MappingResult result)
+	{
+		for (MappedIdentity checked: result.getIdentities())
+		{
+			try
+			{
+				idsMan.getEntity(new EntityParam(checked.getIdentity()));
+				return checked;
+			} catch (IllegalIdentityValueException e)
+			{
+				//OK
+			} catch (EngineException e)
+			{
+				log.error("Can't check the entity status, shouldn't happen", e);
+			}			
+		}
+		return null;
+	}
 	
 	private Identity processIdentities(MappingResult result) throws EngineException
 	{
@@ -193,8 +212,7 @@ public class InputTranslationEngine
 			try
 			{
 				idsMan.getEntity(new EntityParam(checked.getIdentity()));
-				log.warn("Identity was mapped to existing identity, merge can work only if there "
-						+ "is no identity automatically matched.");
+				log.debug("Identity was mapped to existing identity.");
 				throw new ExecutionBreakException();
 			} catch (IllegalIdentityValueException e)
 			{

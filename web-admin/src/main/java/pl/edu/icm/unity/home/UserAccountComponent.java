@@ -16,8 +16,6 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.home.connectid.ConnectIdWizardProvider;
-import pl.edu.icm.unity.home.connectid.ConnectIdWizardProvider.SuccessCallback;
 import pl.edu.icm.unity.home.iddetails.EntityDetailsWithActions;
 import pl.edu.icm.unity.home.iddetails.EntityRemovalButton;
 import pl.edu.icm.unity.home.iddetails.UserAttributesPanel;
@@ -41,6 +39,8 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webadmin.preferences.PreferencesComponent;
+import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider;
+import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider.SuccessCallback;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorComponent;

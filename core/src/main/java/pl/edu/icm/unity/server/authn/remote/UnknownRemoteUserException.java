@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.server.authn.remote;
 
 import pl.edu.icm.unity.server.authn.AuthenticationException;
+import pl.edu.icm.unity.server.authn.AuthenticationResult;
 
 /**
  * Thrown on authentication problem, when the user is properly authenticated remotely 
@@ -16,14 +17,9 @@ public class UnknownRemoteUserException extends AuthenticationException
 {
 	private static final long serialVersionUID = 1L;
 
-	private String form;
-	private RemotelyAuthenticatedContext remoteContext;
-	
-	public UnknownRemoteUserException(String msg, String form, RemotelyAuthenticatedContext remoteContext)
+	public UnknownRemoteUserException(String msg, AuthenticationResult result)
 	{
-		super(msg);
-		this.form = form;
-		this.remoteContext = remoteContext;
+		super(result, msg);
 	}
 
 	/**
@@ -32,11 +28,11 @@ public class UnknownRemoteUserException extends AuthenticationException
 	 */
 	public String getFormForUser()
 	{
-		return form;
+		return getResult().getFormForUnknownPrincipal();
 	}
 
 	public RemotelyAuthenticatedContext getRemoteContext()
 	{
-		return remoteContext;
+		return getResult().getRemoteAuthnContext();
 	}
 }

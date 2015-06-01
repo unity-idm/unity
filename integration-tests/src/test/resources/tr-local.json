@@ -13,7 +13,7 @@
 					"identifier",
 					"id",
 					"Password requirement",
-					"CREATE_OR_MATCH"
+					"MATCH"
 				]
 			}			
 		}

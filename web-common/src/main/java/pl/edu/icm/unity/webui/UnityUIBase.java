@@ -12,7 +12,6 @@ import java.util.Stack;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
-import pl.edu.icm.unity.sandbox.VaadinEndpointWithSandbox;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -98,7 +97,7 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	 */
 	public String getSandboxServletURLForAssociation()
 	{
-		return endpointDescription.getContextAddress() + VaadinEndpointWithSandbox.SANDBOX_PATH_ASSOCIATION;
+		return endpointDescription.getContextAddress() + VaadinEndpoint.SANDBOX_PATH_ASSOCIATION;
 	}
 
 	/**
@@ -108,7 +107,7 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	 */
 	public String getSandboxServletURLForTranslation()
 	{
-		return endpointDescription.getContextAddress() + VaadinEndpointWithSandbox.SANDBOX_PATH_TRANSLATION;
+		return endpointDescription.getContextAddress() + VaadinEndpoint.SANDBOX_PATH_TRANSLATION;
 	}
 	
 	/**

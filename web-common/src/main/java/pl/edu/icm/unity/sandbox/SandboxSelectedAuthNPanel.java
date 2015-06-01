@@ -28,7 +28,8 @@ public class SandboxSelectedAuthNPanel extends SelectedAuthNPanel
 			InsecureRegistrationFormLauncher formLauncher, ExecutorsService execService,
 			final CancelHandler cancelHandler, AuthenticationRealm realm)
 	{
-		super(msg, authnProcessor, idsMan, formLauncher, execService, cancelHandler, realm);
+		super(msg, authnProcessor, idsMan, formLauncher, execService, cancelHandler, realm,
+				null, null, null);
 	}
 
 	@Override

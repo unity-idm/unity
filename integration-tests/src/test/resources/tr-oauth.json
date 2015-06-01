@@ -13,7 +13,7 @@
 					"identifier",
 					"attr['sub']",
 					"Password requirement",
-					"CREATE_OR_MATCH"
+					"MATCH"
 				]
 			}
 		},

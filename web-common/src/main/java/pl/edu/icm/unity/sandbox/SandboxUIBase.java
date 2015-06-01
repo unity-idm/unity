@@ -67,7 +67,8 @@ public abstract class SandboxUIBase extends AuthenticationUI
 			AuthenticatorsManagement authenticatorsManagement,
 			IdentitiesManagement idsMan)
 	{
-		super(msg, localeChoice, authnProcessor, formsChooser, formLauncher, execService, idsMan);
+		super(msg, localeChoice, authnProcessor, formsChooser, formLauncher, execService, idsMan,
+				null);
 		this.authenticatorsManagement = authenticatorsManagement;
 	}
 

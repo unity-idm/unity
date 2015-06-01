@@ -2,7 +2,7 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.home.connectid;
+package pl.edu.icm.unity.webui.association;
 
 import org.vaadin.teemu.wizards.Wizard;
 import org.vaadin.teemu.wizards.WizardStep;
@@ -12,21 +12,13 @@ import org.vaadin.teemu.wizards.event.WizardProgressListener;
 import org.vaadin.teemu.wizards.event.WizardStepActivationEvent;
 import org.vaadin.teemu.wizards.event.WizardStepSetChangedEvent;
 
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.LocalSandboxAuthnContext;
 import pl.edu.icm.unity.server.authn.SandboxAuthnContext;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.authn.remote.RemoteSandboxAuthnContext;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
 import com.vaadin.ui.Component;
@@ -34,22 +26,26 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
 /**
- * Shows confirmation of the account association
+ * Shows confirmation of the account association and invokes the operation. 
+ * This class is base class. Extensions can work in one of two modes: either to require
+ * to get an unknown user from sandbox login or the get an existing user from sandbox login.
+ * Then the merge is performed in a proper way, depending on context.
  * @author K. Benedyczak
  */
-public class ConfirmationStep extends CustomComponent implements WizardStep
+public abstract class AbstractConfirmationStep extends CustomComponent implements WizardStep
 {
-	private UnityMessageSource msg;
-	private HtmlLabel introLabel;
-	private InputTranslationEngine translationEngine;
-	private RemotelyAuthenticatedContext authnContext;
-	private ErrorComponent errorComponent;
+	protected UnityMessageSource msg;
+	protected HtmlLabel introLabel;
+	protected InputTranslationEngine translationEngine;
+	protected ErrorComponent errorComponent;
+	private Wizard wizard;
 	
-	public ConfirmationStep(UnityMessageSource msg, InputTranslationEngine translationEngine, 
+	public AbstractConfirmationStep(UnityMessageSource msg, InputTranslationEngine translationEngine, 
 			final Wizard wizard)
 	{
 		this.msg = msg;
 		this.translationEngine = translationEngine;
+		this.wizard = wizard;
 		setCompositionRoot(buildMainLayout());
 		wizard.addListener(new WizardProgressListener()
 		{
@@ -72,7 +68,7 @@ public class ConfirmationStep extends CustomComponent implements WizardStep
 			@Override
 			public void activeStepChanged(WizardStepActivationEvent event)
 			{
-				if (event.getActivatedStep() instanceof ConfirmationStep)
+				if (event.getActivatedStep() instanceof AbstractConfirmationStep)
 				{
 					wizard.getBackButton().setEnabled(false);
 				}
@@ -80,6 +76,25 @@ public class ConfirmationStep extends CustomComponent implements WizardStep
 		});
 	}
 
+	/**
+	 * Performs the merge assuming that the all the settings are all right.
+	 */
+	protected abstract void merge();
+
+	/**
+	 * invoked when sandbox returns a remotely authenticated user 
+	 * @param ctx
+	 */
+	protected abstract void setRemoteAuthnData(RemoteSandboxAuthnContext ctx);
+
+	/**
+	 * invoked when sandbox callback returns a locally authenticated user.
+	 * @param ctx
+	 */
+	protected abstract void setLocalAuthnData(LocalSandboxAuthnContext ctx);
+
+
+	
 	private VerticalLayout buildMainLayout() 
 	{
 		VerticalLayout mainLayout = new VerticalLayout();
@@ -106,59 +121,12 @@ public class ConfirmationStep extends CustomComponent implements WizardStep
 			setLocalAuthnData((LocalSandboxAuthnContext) ctx);
 	}
 	
-	private void setRemoteAuthnData(RemoteSandboxAuthnContext ctx)
-	{
-		if (ctx.getAuthnException() != null)
-		{
-			setError(msg.getMessage("ConnectId.ConfirmStep.error"));
-		} else
-		{
-			if (!translationEngine.identitiesNotPresentInDb(ctx.getAuthnContext().getMappingResult()))
-			{
-				setError(msg.getMessage("ConnectId.ConfirmStep.errorExistingIdentity"));
-			} else
-			{
-				authnContext = ctx.getAuthnContext();
-				introLabel.setHtmlValue("ConnectId.ConfirmStep.info", authnContext.getRemoteIdPName());
-			}
-		}
-	}
-
-	private void setLocalAuthnData(LocalSandboxAuthnContext ctx)
-	{
-		AuthenticationResult ae = ctx.getAuthenticationResult();
-		if (ae.getStatus() != Status.success)
-		{
-			setError(msg.getMessage("ConnectId.ConfirmStep.error"));
-		} else
-		{
-			setError(msg.getMessage("ConnectId.ConfirmStep.errorExistingIdentity"));
-		}
-	}
-
-	private void setError(String message)
+	protected void setError(String message)
 	{
 		introLabel.setVisible(false);
 		errorComponent.setVisible(true);
 		errorComponent.setError(message);
-	}
-	
-	private void merge()
-	{
-		if (authnContext == null)
-			return;
-			
-		LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
-		try
-		{
-			translationEngine.mergeWithExisting(authnContext.getMappingResult(), 
-					new EntityParam(loginSession.getEntityId()));
-			NotificationPopup.showSuccess(msg, msg.getMessage("ConnectId.ConfirmStep.mergeSuccessfulCaption"), 
-					msg.getMessage("ConnectId.ConfirmStep.mergeSuccessful"));
-		} catch (EngineException e)
-		{
-			NotificationPopup.showError(msg, msg.getMessage("ConnectId.ConfirmStep.mergeFailed"), e);
-		}
+		wizard.getFinishButton().setEnabled(false);
 	}
 	
 	@Override
@@ -171,12 +139,6 @@ public class ConfirmationStep extends CustomComponent implements WizardStep
 	public Component getContent()
 	{
 		return this;
-	}
-
-	@Override
-	public boolean onAdvance()
-	{
-		return authnContext != null;
 	}
 
 	@Override

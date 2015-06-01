@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
-import pl.edu.icm.unity.sandbox.VaadinEndpointWithSandbox;
 import pl.edu.icm.unity.sandbox.wizard.SandboxWizardDialog;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
@@ -33,6 +32,7 @@ import pl.edu.icm.unity.webadmin.WebAdminEndpointFactory;
 import pl.edu.icm.unity.webadmin.tprofile.dryrun.DryRunWizardProvider;
 import pl.edu.icm.unity.webadmin.tprofile.wizard.ProfileWizardProvider;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
+import pl.edu.icm.unity.webui.VaadinEndpoint;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
@@ -116,7 +116,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 				if (endpoint.getType().getName().equals(WebAdminEndpointFactory.NAME))
 				{
 					sandboxURL = endpoint.getContextAddress() + 
-							VaadinEndpointWithSandbox.SANDBOX_PATH_TRANSLATION;
+							VaadinEndpoint.SANDBOX_PATH_TRANSLATION;
 					break;
 				}
 			}

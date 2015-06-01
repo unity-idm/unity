@@ -9,6 +9,7 @@ import java.util.Collection;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
@@ -16,6 +17,7 @@ import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor.PartialAuthnState;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
+import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
@@ -25,11 +27,11 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
+import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
-import pl.edu.icm.unity.webui.registration.RegistrationRequestEditorDialog;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.VaadinRequest;
@@ -73,12 +75,17 @@ public class SelectedAuthNPanel extends CustomComponent
 	private VaadinAuthenticationUI primaryAuthnUI;
 	private String authnId;
 	private HorizontalLayout authnProgressHL;
+	private String sandboxURL;
+	private SandboxAuthnNotifier sandboxNotifier;
+	private InputTranslationEngine inputTranslationEngine;
 	
 	
 	public SelectedAuthNPanel(UnityMessageSource msg, WebAuthenticationProcessor authnProcessor,
 			IdentitiesManagement idsMan,
 			InsecureRegistrationFormLauncher formLauncher, ExecutorsService execService,
-			final CancelHandler cancelHandler, AuthenticationRealm realm)
+			final CancelHandler cancelHandler, AuthenticationRealm realm,
+			String sandboxURL, SandboxAuthnNotifier sandboxNotifier,
+			InputTranslationEngine inputTranslationEngine)
 	{
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
@@ -86,6 +93,9 @@ public class SelectedAuthNPanel extends CustomComponent
 		this.formLauncher = formLauncher;
 		this.execService = execService;
 		this.realm = realm;
+		this.sandboxURL = sandboxURL;
+		this.sandboxNotifier = sandboxNotifier;
+		this.inputTranslationEngine = inputTranslationEngine;
 
 		VerticalLayout main = new VerticalLayout();
 		main.addStyleName("u-selectedAuthn");
@@ -375,17 +385,7 @@ public class SelectedAuthNPanel extends CustomComponent
 				}
 			} catch (UnknownRemoteUserException e)
 			{
-				if (e.getFormForUser() != null)
-				{
-					log.trace("Authentication successful, user unknown, "
-							+ "showing registration form");
-					showRegistration(e);
-				} else
-				{
-					log.trace("Authentication successful, user unknown, "
-							+ "no registration form");
-					handleError(msg.getMessage("AuthenticationUI.unknownRemoteUser"));
-				}
+				handleUnknownUser(e);
 			} catch (AuthenticationException e)
 			{
 				log.trace("Authentication failed ", e);
@@ -467,26 +467,27 @@ public class SelectedAuthNPanel extends CustomComponent
 		}
 	}
 
+	protected void handleUnknownUser(UnknownRemoteUserException e)
+	{
+		if (e.getFormForUser() != null || e.getResult().isEnableAssociation())
+		{
+			log.trace("Authentication successful, user unknown, "
+					+ "showing unknown user dialog");
+			showUnknownUserDialog(e);
+		} else
+		{
+			log.trace("Authentication successful, user unknown, "
+					+ "no registration form");
+			handleError(msg.getMessage("AuthenticationUI.unknownRemoteUser"));
+		}
+	}
 
-	protected void showRegistration(UnknownRemoteUserException ee)
+	protected void showUnknownUserDialog(UnknownRemoteUserException ee)
 	{
 		setNotAuthenticating();
-		RegistrationRequestEditorDialog dialog;
-		try
-		{
-			dialog = formLauncher.getDialog(ee.getFormForUser(), ee.getRemoteContext());
-			dialog.show();
-		} catch (AuthenticationException e)
-		{
-			log.debug("Can't show a registration form for the remotely authenticated user - "
-					+ "user does not meet form requirements.", e);
-			handleError(msg.getMessage("AuthenticationUI.infufficientRegistrationInput"));
-		} catch (EngineException e)
-		{
-			log.error("Can't show a registration form for the remotely authenticated user as configured. " +
-					"Probably the form name is wrong.", e);
-			handleError(msg.getMessage("AuthenticationUI.problemWithRegistration"));
-		}
+		UnknownUserDialog dialog = new UnknownUserDialog(msg, ee.getResult(), 
+				formLauncher, sandboxNotifier, inputTranslationEngine, sandboxURL);
+		dialog.show();
 	}	
 	
 	public void refresh(VaadinRequest request)

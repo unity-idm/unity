@@ -38,7 +38,7 @@ public class AuthenticationProcessor
 		{
 			if (result.getStatus() == Status.unknownRemotePrincipal)
 				throw new UnknownRemoteUserException("AuthenticationProcessorUtil.authnFailed", 
-						result.getFormForUnknownPrincipal(), result.getRemoteAuthnContext());
+						result);
 			throw new AuthenticationException("AuthenticationProcessorUtil.authnFailed");
 		}
 		

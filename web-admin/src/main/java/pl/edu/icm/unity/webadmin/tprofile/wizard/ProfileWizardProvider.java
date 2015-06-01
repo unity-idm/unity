@@ -13,6 +13,8 @@ import pl.edu.icm.unity.server.authn.remote.RemoteSandboxAuthnContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditDialog.Callback;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditor;
+import pl.edu.icm.unity.webui.association.IntroStep;
+import pl.edu.icm.unity.webui.association.SandboxStep;
 
 /**
  * Creates input profile creation wizard
@@ -37,14 +39,12 @@ public class ProfileWizardProvider extends AbstractSandboxWizardProvider
 	public Wizard getWizardInstance()
 	{
 		final Wizard wizard = new Wizard();
-		wizard.setImmediate(false);
-		wizard.setWidth("100.0%");
-		wizard.setHeight("100.0%");
+		wizard.setSizeFull();
 		
 		final SandboxStep sandboxStep = new SandboxStep(msg, sandboxURL, wizard);
 		final ProfileStep profileStep = new ProfileStep(msg, editor, addCallback);
 		
-		wizard.addStep(new IntroStep(msg));
+		wizard.addStep(new IntroStep(msg, "Wizard.IntroStepComponent.introLabel"));
 		wizard.addStep(sandboxStep);
 		wizard.addStep(profileStep);
 		

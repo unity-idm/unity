@@ -21,6 +21,10 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.context.ApplicationContext;
 
+import pl.edu.icm.unity.sandbox.AccountAssociationSandboxUI;
+import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
+import pl.edu.icm.unity.sandbox.SandboxAuthnRouterImpl;
+import pl.edu.icm.unity.sandbox.TranslationProfileSandboxUI;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
@@ -53,6 +57,8 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 	public static final int LONG_SESSION = 3600;
 	public static final int LONG_HEARTBEAT = 300;
 	public static final String AUTHENTICATION_PATH = "/authentication";
+	public static final String SANDBOX_PATH_TRANSLATION = "/sandbox-translation";
+	public static final String SANDBOX_PATH_ASSOCIATION = "/sandbox-association";
 	public static final String VAADIN_RESOURCES = "/VAADIN/*";
 	public static final String SESSION_TIMEOUT_PARAM = "session-timeout";
 	public static final String PRODUCTION_MODE_PARAM = "productionMode";
@@ -140,6 +146,15 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		if (webContentDir != null)
 			context.setResourceBase(webContentDir);
 		
+		SandboxAuthnRouter sandboxRouter = new SandboxAuthnRouterImpl();
+
+		addSandboxUI(SANDBOX_PATH_ASSOCIATION, AccountAssociationSandboxUI.class.getSimpleName(), 
+				sandboxRouter);
+		addProtectedSandboxUI(SANDBOX_PATH_TRANSLATION, TranslationProfileSandboxUI.class.getSimpleName(), 
+				sandboxRouter);
+		theServlet.setSandboxRouter(sandboxRouter);
+		authenticationServlet.setSandboxRouter(sandboxRouter);
+		
 		return context;
 	}
 
@@ -210,6 +225,22 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		return new EndpointRegistrationConfiguration(genericEndpointProperties.getListOfValues(
 				VaadinEndpointProperties.ENABLED_REGISTRATION_FORMS),
 				genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.ENABLE_REGISTRATION));
+	}
+
+	private void addSandboxUI(String path, String uiBeanName, SandboxAuthnRouter sandboxRouter)
+	{
+		UnityVaadinServlet sandboxServlet = new UnityVaadinServlet(applicationContext, 
+				uiBeanName, description, authenticators, null, properties);
+		sandboxServlet.setSandboxRouter(sandboxRouter);
+		ServletHolder sandboxServletHolder = createVaadinServletHolder(sandboxServlet, true);
+		sandboxServletHolder.setInitParameter("closeIdleSessions", "true");
+		context.addServlet(sandboxServletHolder, path + "/*");
+	}
+	
+	private void addProtectedSandboxUI(String path, String uiBeanName, SandboxAuthnRouter sandboxRouter)
+	{
+		authnFilter.addProtectedPath(path);
+		addSandboxUI(path, uiBeanName, sandboxRouter);
 	}
 	
 	@Override

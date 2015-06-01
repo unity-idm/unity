@@ -13,7 +13,7 @@
 					"userName",
 					"attr['urn:oid:2.5.4.3']",
 					"Password requirement",
-					"CREATE_OR_MATCH"
+					"MATCH"
 				]
 			}
 		},

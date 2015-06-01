@@ -12,7 +12,7 @@ import pl.edu.icm.unity.sandbox.wizard.AbstractSandboxWizardProvider;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webadmin.tprofile.wizard.IntroStep;
+import pl.edu.icm.unity.webui.association.IntroStep;
 
 /**
  * Configures profile dry run wizard 
@@ -39,7 +39,7 @@ public class DryRunWizardProvider extends AbstractSandboxWizardProvider
 		final Wizard wizard = new Wizard();
 		wizard.setSizeFull();
 		final DryRunStep dryrunStep = new DryRunStep(msg, sandboxURL, registry, tpMan);
-		wizard.addStep(new IntroStep(msg));
+		wizard.addStep(new IntroStep(msg, "DryRun.IntroStepComponent.introLabel"));
 		wizard.addStep(dryrunStep);
 		
 		//for the initial page

@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Scope;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
+import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.CookieHelper;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
@@ -84,13 +85,15 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	protected List<AuthenticationOption> authenticators;
 	protected EndpointRegistrationConfiguration registrationConfiguration;
 	protected IdentitiesManagement idsMan;
+	private InputTranslationEngine inputTranslationEngine;
 	
 	@Autowired
 	public AuthenticationUI(UnityMessageSource msg, LocaleChoiceComponent localeChoice,
 			WebAuthenticationProcessor authnProcessor,
 			InsecureRegistrationFormsChooserComponent formsChooser,
 			InsecureRegistrationFormLauncher formLauncher,
-			ExecutorsService execService, @Qualifier("insecure") IdentitiesManagement idsMan)
+			ExecutorsService execService, @Qualifier("insecure") IdentitiesManagement idsMan,
+			InputTranslationEngine inputTranslationEngine)
 	{
 		super(msg);
 		this.localeChoice = localeChoice;
@@ -99,6 +102,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		this.formLauncher = formLauncher;
 		this.execService = execService;
 		this.idsMan = idsMan;
+		this.inputTranslationEngine = inputTranslationEngine;
 	}
 
 
@@ -210,7 +214,8 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	protected SelectedAuthNPanel createSelectedAuthNPanel()
 	{
 		return new SelectedAuthNPanel(msg, authnProcessor, idsMan, formLauncher, 
-				execService, cancelHandler, endpointDescription.getRealm());
+				execService, cancelHandler, endpointDescription.getRealm(),
+				getSandboxServletURLForAssociation(), sandboxRouter, inputTranslationEngine);
 	}
 	
 	private List<AuthNTile> prepareTiles(List<AuthenticationOption> authenticators)

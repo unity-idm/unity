@@ -2,7 +2,7 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.home.connectid;
+package pl.edu.icm.unity.webui.association;
 
 import org.vaadin.teemu.wizards.WizardStep;
 
@@ -22,13 +22,13 @@ public class IntroStep extends CustomComponent implements WizardStep
 	private UnityMessageSource msg;
 	private HtmlLabel introLabel;
 	
-	public IntroStep(UnityMessageSource msg)
+	public IntroStep(UnityMessageSource msg, String introTextKey)
 	{
 		this.msg = msg;
-		setCompositionRoot(buildMainLayout());
+		setCompositionRoot(buildMainLayout(introTextKey));
 	}
 
-	private VerticalLayout buildMainLayout() 
+	private VerticalLayout buildMainLayout(String introTextKey) 
 	{
 		VerticalLayout mainLayout = new VerticalLayout();
 		mainLayout.setSizeFull();
@@ -36,7 +36,7 @@ public class IntroStep extends CustomComponent implements WizardStep
 		setSizeFull();
 		
 		introLabel = new HtmlLabel(msg);
-		introLabel.setHtmlValue("ConnectId.introLabel");
+		introLabel.setHtmlValue(introTextKey);
 		introLabel.setImmediate(false);
 		mainLayout.addComponent(introLabel);
 		

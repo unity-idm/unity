@@ -43,6 +43,7 @@ public class AuthenticationResult
 	private RemotelyAuthenticatedContext remoteAuthnContext;
 	private AuthenticatedEntity authenticatedEntity;
 	private String formForUnknownPrincipal;
+	private boolean enableAssociation = true;
 
 	/**
 	 * Used by local varificators
@@ -94,6 +95,16 @@ public class AuthenticationResult
 		this.formForUnknownPrincipal = formForUnknownPrincipal;
 	}
 	
+	public boolean isEnableAssociation()
+	{
+		return enableAssociation;
+	}
+
+	public void setEnableAssociation(boolean enableAssociation)
+	{
+		this.enableAssociation = enableAssociation;
+	}
+
 	@Override
 	public String toString()
 	{
