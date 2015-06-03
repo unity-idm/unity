@@ -42,7 +42,9 @@ public class TestRegistrationForm extends SeleniumTestBase
 		waitForElement(By.className("v-Notification"));
 		driver.findElement(By.className("v-Notification")).click();	
 
+		waitForElement(By.id("AuthenticationUI.authnenticateButton"));
 		driver.findElement(By.id("AuthenticationUI.authnenticateButton")).click();
+		waitForElement(By.id("IdpButtonsBar.confirmButton"));
 		driver.findElement(By.id("IdpButtonsBar.confirmButton")).click();
 		assertTrue(driver.findElement(By.id("MainHeader.loggedAs")) != null);
 		driver.findElement(By.id("MainHeader.logout"));			
