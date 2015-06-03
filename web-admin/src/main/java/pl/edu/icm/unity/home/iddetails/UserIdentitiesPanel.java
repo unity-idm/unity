@@ -21,6 +21,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
+import pl.edu.icm.unity.webui.common.identities.SingleTypeIdentityEditor;
 
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Label;
@@ -102,7 +103,7 @@ public class UserIdentitiesPanel
 			Identity id = idList.get(i);
 			Label label = new Label(id.toPrettyStringNoPrefix());
 			String caption = idType.getIdentityTypeProvider().getHumanFriendlyName(msg);
-			caption += (i > 0) ? (i+1) + " :" : ":";
+			caption += (i > 0) ? " (" + (i+1) + "):" : ":";
 			label.setCaption(caption);
 			roLabels.add(label);
 			parent.addComponent(label);
