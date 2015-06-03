@@ -12,7 +12,6 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
@@ -20,7 +19,6 @@ import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Image;
-import com.vaadin.ui.Label;
 
 /**
  * Shows an attribute values in read only mode. The look and feel is similar to the {@link FixedAttributeEditor}
@@ -34,7 +32,6 @@ public class AttributeViewer
 	private AttributeType attributeType;
 	private Attribute<?> attribute;
 	private boolean showGroup;
-	private Label groupLabel;
 	private List<Component> values;
 	
 	public AttributeViewer(UnityMessageSource msg, AttributeHandlerRegistry registry,
@@ -49,8 +46,6 @@ public class AttributeViewer
 
 	public void removeFromLayout(AbstractOrderedLayout parent)
 	{
-		if (showGroup)
-			parent.removeComponent(groupLabel);
 		for (Component c: values)
 			parent.removeComponent(c);
 	}
@@ -60,14 +55,8 @@ public class AttributeViewer
 		String caption = attributeType.getDisplayedName().getValue(msg);
 		I18nString description = attributeType.getDescription();
 		
-		if (showGroup)
-		{
-			groupLabel = new Label(msg.getMessage("Attributes.groupOfAttribute", 
-					attribute.getGroupPath()));
-			groupLabel.addStyleName(Styles.vLabelSmall.toString());
-			groupLabel.addStyleName(Styles.negativeBottomMarginSmall.toString());
-			parent.addComponent(groupLabel);
-		}
+		if (showGroup && !attribute.getGroupPath().equals("/"))
+			caption = caption + " @" + attribute.getGroupPath(); 
 
 		int i = 1;
 		values = new ArrayList<>();

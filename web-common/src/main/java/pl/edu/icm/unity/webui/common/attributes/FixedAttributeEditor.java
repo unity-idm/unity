@@ -7,16 +7,14 @@ package pl.edu.icm.unity.webui.common.attributes;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.vaadin.ui.AbstractOrderedLayout;
-import com.vaadin.ui.Label;
-import pl.edu.icm.unity.webui.common.Styles;
-
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub;
+
+import com.vaadin.ui.AbstractOrderedLayout;
 
 /**
  * Attribute editor allowing to edit a fixed attribute type. It can show the (also fixed) group 
@@ -32,7 +30,6 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 	private String caption;
 	private String description;
 	private String group;
-	private Label groupLabel;
 	private boolean showGroup;
 	private ListOfEmbeddedElementsStub<LabelledValue> valuesComponent;
 	private AttributeVisibility visibility;
@@ -96,24 +93,20 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 	private void initUI()
 	{
 		if (caption == null)
-			caption = attributeType.getDisplayedName().getValue(msg) + ":";
+		{
+			caption = attributeType.getDisplayedName().getValue(msg);
+			if (showGroup && !group.equals("/"))
+				caption = caption + " @" + group;
+			caption = caption + ":";
+		}
 		if (description == null)
 			description = attributeType.getDescription().getValue(msg);
 		
-		if (showGroup)
-		{
-			groupLabel = new Label(msg.getMessage("Attributes.groupOfAttribute", group));
-			groupLabel.addStyleName(Styles.vLabelSmall.toString());
-			parent.addComponent(groupLabel);
-		}
-
 		valuesComponent = getValuesPart(attributeType, caption, required, adminMode, parent);
 	}
 	
 	public void clear()
 	{
-		if (showGroup)
-			parent.removeComponent(groupLabel);
 		valuesComponent.clearContents();
 	}
 	

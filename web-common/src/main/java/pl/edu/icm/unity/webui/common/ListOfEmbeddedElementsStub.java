@@ -205,7 +205,8 @@ public class ListOfEmbeddedElementsStub<T>
 			add = new Button();
 			add.setIcon(Images.add.getResource());
 			add.setDescription(msg.getMessage("add"));
-			add.setStyleName(Styles.vButtonSmall.toString());
+			add.addStyleName(Styles.toolbarButton.toString());
+			add.addStyleName(Styles.vButtonLink.toString());
 			add.addClickListener(new Button.ClickListener()
 			{
 				@Override
@@ -217,7 +218,8 @@ public class ListOfEmbeddedElementsStub<T>
 			remove = new Button();
 			remove.setIcon(Images.delete.getResource());
 			remove.setDescription(msg.getMessage("remove"));
-			remove.setStyleName(Styles.vButtonSmall.toString());
+			remove.addStyleName(Styles.toolbarButton.toString());
+			remove.addStyleName(Styles.vButtonLink.toString());
 			remove.addClickListener(new Button.ClickListener()
 			{
 				@Override
