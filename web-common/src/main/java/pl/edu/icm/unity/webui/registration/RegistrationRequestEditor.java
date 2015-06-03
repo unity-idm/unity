@@ -453,7 +453,8 @@ public class RegistrationRequestEditor extends CustomComponent
 			if (idParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive && rid != null)
 			{
 				 if (rid.getValue() != null)
-					 editor.setDefaultValue(rid.getValue());
+					 editor.setDefaultValue(new IdentityParam(idParam.getIdentityType(),
+							 rid.getValue()));
 			}
 			if (idParam.getLabel() != null)
 				editorUI.setCaption(idParam.getLabel());

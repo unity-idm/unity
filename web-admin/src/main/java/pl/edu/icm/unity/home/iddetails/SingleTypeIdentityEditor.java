@@ -92,7 +92,7 @@ public class SingleTypeIdentityEditor
 			editor = idEdRegistry.getEditor(idType.getIdentityTypeProvider().getId());
 			ComponentsContainer ret = editor.getEditor(true, false);
 			if (value != null)
-				editor.setDefaultValue(value.getValue());
+				editor.setDefaultValue(value);
 			return ret;
 		}
 

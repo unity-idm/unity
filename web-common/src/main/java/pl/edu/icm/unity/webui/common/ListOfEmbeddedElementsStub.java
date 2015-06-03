@@ -85,6 +85,8 @@ public class ListOfEmbeddedElementsStub<T>
 	public void setEntries(Collection<? extends T> values)
 	{
 		clearContents();
+		if (values.isEmpty())
+			lonelyBar.setVisible(true);
 		Entry e = null;
 		for (T value: values)
 			e = addEntry(value, e);

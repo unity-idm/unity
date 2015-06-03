@@ -125,9 +125,9 @@ public class X500IdentityEditor implements IdentityEditor
 	}
 
 	@Override
-	public void setDefaultValue(String value)
+	public void setDefaultValue(IdentityParam value)
 	{
-		field.setValue(value);	
+		field.setValue(value.getValue());	
 	}
 	
 

@@ -8,6 +8,7 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
 
 
 /**
@@ -20,6 +21,7 @@ public class IdentityParam extends IdentityTaV implements VerifiableElement
 	private String translationProfile;
 	private String remoteIdp;
 	private ConfirmationInfo confirmationInfo;
+	private JsonNode metadata;
 	
 	public IdentityParam()
 	{
@@ -62,6 +64,16 @@ public class IdentityParam extends IdentityTaV implements VerifiableElement
 	public void setRemoteIdp(String remoteIdp)
 	{
 		this.remoteIdp = remoteIdp;
+	}
+
+	public JsonNode getMetadata()
+	{
+		return metadata;
+	}
+
+	public void setMetadata(JsonNode metadata)
+	{
+		this.metadata = metadata;
 	}
 
 	/**

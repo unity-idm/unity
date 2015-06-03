@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.stdext.utils;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
@@ -23,6 +26,7 @@ public class EmailUtils
 	
 	public final static String CONFIRMED_POSTFIX = "[CONFIRMED]"; 
 	public final static String UNCONFIRMED_POSTFIX = "[UNCONFIRMED]"; 
+	public final static String TAG_MAIN = "main";
 	
 	/**
 	 * @param value
@@ -37,6 +41,9 @@ public class EmailUtils
 					+ ") is too big, must be not greater than " + MAX_LENGTH;
 		if (!PATTERN.matcher(value).matches())
 			return "Value must match the regualr expression: " + EMAIL_REGEXP;
+		if (value.startsWith("+"))
+			return "Value must not start with '+', which is used to separate email tags";
+
 		return null;
 	}
 	
@@ -57,11 +64,42 @@ public class EmailUtils
 					UNCONFIRMED_POSTFIX.length());
 		}
 		
-			
+		List<String> tags = extractTags(email);
+		email = removeTags(email);
 		VerifiableEmail ret = new VerifiableEmail(email);
+		ret.setTags(tags);
 		if (confirmed)
 			ret.setConfirmationInfo(new ConfirmationInfo(true));
 		return ret;
 	}
 
+	private static List<String> extractTags(String address)
+	{
+		String local = address.substring(0, address.indexOf('@'));
+		
+		String[] parts = local.split("\\+");
+		if (parts.length > 1)
+		{
+			List<String> ret = new ArrayList<>(parts.length-1);
+			for (int i=1; i<parts.length; i++)
+				ret.add(parts[i]);
+			return ret;
+		} else
+		{
+			return Collections.emptyList();
+		}
+	}
+	
+	private static String removeTags(String address)
+	{
+		int atPos = address.indexOf('@');
+		String local = address.substring(0, atPos);
+		String domain = address.substring(atPos);
+		
+		int sepPos = local.indexOf('+');
+		if (sepPos != -1)
+			local = local.substring(0, sepPos);
+		
+		return local+domain;
+	}
 }

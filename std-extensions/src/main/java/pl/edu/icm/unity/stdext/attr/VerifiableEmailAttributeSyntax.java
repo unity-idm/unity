@@ -5,6 +5,8 @@
 package pl.edu.icm.unity.stdext.attr;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import pl.edu.icm.unity.Constants;
@@ -16,6 +18,7 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -72,8 +75,11 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 	private JsonNode serialize2Json(VerifiableEmail value)
 	{
 		ObjectNode main = Constants.MAPPER.createObjectNode();
-		main.put("value",value.getValue());
+		main.put("value", value.getValue());
 		main.put("confirmationData", value.getConfirmationInfo().getSerializedConfiguration());
+		ArrayNode tagsJ = main.putArray("tags");
+		for (String tag: value.getTags())
+			tagsJ.add(tag);
 		return main;
 	}
 
@@ -81,13 +87,13 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Object serializeSimple(VerifiableEmail value) throws InternalException
+	public Object serializeSimple(VerifiableEmail value)
 	{
 		return serialize2Json(value);
 	}
 
 	@Override
-	public VerifiableEmail deserializeSimple(Object value) throws InternalException
+	public VerifiableEmail deserializeSimple(Object value)
 	{
 		if (value instanceof Map)
 		{
@@ -113,12 +119,7 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 		{
 			throw new InternalException("Can't deserialize VerifiableEmail from JSON", e);
 		}
-		VerifiableEmail email = new VerifiableEmail();
-		email.setValue(jsonN.get("value").asText());
-		ConfirmationInfo confirmationData = new ConfirmationInfo();
-		confirmationData.setSerializedConfiguration(jsonN.get("confirmationData").asText());
-		email.setConfirmationInfo(confirmationData);
-		return email;
+		return deserializeFromJson(jsonN);
 	}
 
 	private VerifiableEmail deserializeFromJson(JsonNode jsonN) throws InternalException
@@ -128,6 +129,14 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 		ConfirmationInfo confirmationData = new ConfirmationInfo();
 		confirmationData.setSerializedConfiguration(jsonN.get("confirmationData").asText());
 		email.setConfirmationInfo(confirmationData);
+		List<String> tags = new ArrayList<>();
+		if (jsonN.has("tags"))
+		{
+			ArrayNode tagsJ = (ArrayNode) jsonN.get("tags");
+			for (JsonNode entry: tagsJ)
+				tags.add(entry.asText());
+		}
+		email.setTags(tags);
 		return email;
 	}
 	

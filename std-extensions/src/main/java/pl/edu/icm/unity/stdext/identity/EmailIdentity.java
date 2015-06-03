@@ -11,6 +11,10 @@ import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
@@ -70,11 +74,39 @@ public class EmailIdentity extends AbstractStaticIdentityTypeProvider
 	{
 		VerifiableEmail converted = EmailUtils.convertFromString(stringRepresentation);
 		validate(converted.getValue());
-		IdentityParam ret = new IdentityParam(getId(), converted.getValue(), remoteIdp, translationProfile);
-		ret.setConfirmationInfo(converted.getConfirmationInfo());
-		return ret;
+		return toIdentityParam(converted, remoteIdp, translationProfile);
 	}
 
+	public static IdentityParam toIdentityParam(VerifiableEmail email, String remoteIdp, String translationProfile)
+	{
+		IdentityParam ret = new IdentityParam(ID, email.getValue(), remoteIdp, translationProfile);
+		ret.setConfirmationInfo(email.getConfirmationInfo());
+		
+		boolean main = email.getTags().contains(EmailUtils.TAG_MAIN);
+		ObjectNode metadata = Constants.MAPPER.createObjectNode();
+		metadata.put("main", main);
+		ret.setMetadata(metadata);
+			
+		return ret;
+	}
+	
+	public static VerifiableEmail fromIdentityParam(IdentityParam idParam)
+	{
+		VerifiableEmail ret = new VerifiableEmail(idParam.getValue());
+		if (idParam.getConfirmationInfo() != null)
+			ret.setConfirmationInfo(idParam.getConfirmationInfo());
+		JsonNode metadata = idParam.getMetadata();
+		if (metadata != null)
+		{
+			boolean main = false;
+			if (metadata.has("main"))
+				main = metadata.get("main").asBoolean();
+			if (main)
+				ret.addTags(EmailUtils.TAG_MAIN);
+		}
+		return ret;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */

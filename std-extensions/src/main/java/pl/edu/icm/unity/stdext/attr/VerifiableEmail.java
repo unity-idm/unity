@@ -5,6 +5,9 @@
 
 package pl.edu.icm.unity.stdext.attr;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
@@ -17,22 +20,23 @@ public class VerifiableEmail implements VerifiableElement
 {
 	private String value;
 	private ConfirmationInfo confirmationInfo;
+	private List<String> tags;
 
 	public VerifiableEmail()
 	{
-		this.confirmationInfo = new ConfirmationInfo();
+		this(null, new ConfirmationInfo());
 	}
 
 	public VerifiableEmail(String value)
 	{
-		this.value = value;
-		this.confirmationInfo = new ConfirmationInfo();
+		this(value, new ConfirmationInfo());
 	}
 
 	public VerifiableEmail(String value, ConfirmationInfo confirmationData)
 	{
 		this.value = value;
 		this.confirmationInfo = confirmationData;
+		this.tags = new ArrayList<>();
 	}
 
 	@Override
@@ -64,7 +68,22 @@ public class VerifiableEmail implements VerifiableElement
 		return confirmationInfo.isConfirmed();
 	}
 	
+	public List<String> getTags()
+	{
+		return new ArrayList<>(tags);
+	}
 
+	public void setTags(List<String> tags)
+	{
+		this.tags = new ArrayList<>(tags);
+	}
+
+	public void addTags(String... tags)
+	{
+		for (String tag: tags)
+			this.tags.add(tag);
+	}
+	
 	@Override
 	public int hashCode()
 	{

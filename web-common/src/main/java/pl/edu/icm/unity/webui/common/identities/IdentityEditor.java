@@ -29,7 +29,12 @@ public interface IdentityEditor
 	/**
 	 * @param value 
 	 */
-	public void setDefaultValue(String value);
+	//public void setDefaultValue(String value);
+
+	/**
+	 * @param value 
+	 */
+	public void setDefaultValue(IdentityParam value);
 	
 	/**
 	 * Sets a label to be used by the editor instead of the default one. Used

@@ -6,7 +6,9 @@ package pl.edu.icm.unity.webui.common.identities.ext;
 
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
+import pl.edu.icm.unity.stdext.utils.EmailUtils;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
@@ -25,6 +27,7 @@ public class EmailIdentityEditor implements IdentityEditor
 	private UnityMessageSource msg;
 	private TextField field;
 	private CheckBox confirmed;
+	private CheckBox main;
 	private boolean required;
 	private boolean adminMode;
 	
@@ -41,7 +44,9 @@ public class EmailIdentityEditor implements IdentityEditor
 		this.required = required;
 		this.adminMode = adminMode;
 
-		ComponentsContainer ret = new ComponentsContainer(field);
+		main = new CheckBox(msg.getMessage("EmailIdentityEditor.mainCheckbox"));
+		ComponentsContainer ret = new ComponentsContainer(field, main);
+		
 		if (adminMode)
 		{
 			confirmed = new CheckBox(msg.getMessage(
@@ -66,18 +71,22 @@ public class EmailIdentityEditor implements IdentityEditor
 		}
 		field.setComponentError(null);
 		
-		IdentityParam ret = new IdentityParam(EmailIdentity.ID, emailVal); 
+		VerifiableEmail ve = new VerifiableEmail(emailVal);
+		if (main.getValue())
+			ve.addTags(EmailUtils.TAG_MAIN);
 		if (adminMode)
-		{
-			ret.setConfirmationInfo(new ConfirmationInfo(confirmed.getValue()));
-		}
-		return ret;
+			ve.setConfirmationInfo(new ConfirmationInfo(confirmed.getValue()));
+		return EmailIdentity.toIdentityParam(ve, null, null);
 	}
 
 	@Override
-	public void setDefaultValue(String value)
+	public void setDefaultValue(IdentityParam value)
 	{
-		field.setValue(value);	
+		VerifiableEmail ve = EmailIdentity.fromIdentityParam(value);
+		field.setValue(ve.getValue());
+		main.setValue(ve.getTags().contains(EmailUtils.TAG_MAIN));
+		if (adminMode)
+			confirmed.setValue(ve.isConfirmed());
 	}
 
 	@Override
