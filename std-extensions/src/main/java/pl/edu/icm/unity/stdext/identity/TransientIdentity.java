@@ -26,6 +26,7 @@ import pl.edu.icm.unity.stdext.identity.SessionIdentityModel.PerSessionEntry;
 import pl.edu.icm.unity.stdext.utils.Escaper;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityRepresentation;
 
 /**
@@ -128,9 +129,9 @@ public class TransientIdentity extends AbstractIdentityTypeProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String toPrettyStringNoPrefix(String from)
+	public String toPrettyStringNoPrefix(IdentityParam from)
 	{
-		return from;
+		return from.getValue();
 	}
 
 	@Override
@@ -210,7 +211,7 @@ public class TransientIdentity extends AbstractIdentityTypeProvider
 	
 
 	@Override
-	public String toHumanFriendlyString(MessageSource msg, String from)
+	public String toHumanFriendlyString(MessageSource msg, IdentityParam from)
 	{
 		return msg.getMessage("TransientIdentity.random");
 	}

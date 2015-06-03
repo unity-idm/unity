@@ -161,7 +161,7 @@ public class IdentitySelectorComponent extends CustomComponent
 			VerticalLayout ret = new VerticalLayout();
 			ret.setSpacing(true);
 			IdentityTypeDefinition idTypeDef = typesRegistry.getByName(identity.getTypeId());
-			String displayedValue = idTypeDef.toHumanFriendlyString(msg, identity.getValue());
+			String displayedValue = idTypeDef.toHumanFriendlyString(msg, identity);
 			if (!displayedValue.equals(identity.getValue()))
 			{
 				ret.addComponent(new Label(msg.getMessage(
@@ -183,7 +183,7 @@ public class IdentitySelectorComponent extends CustomComponent
 		try
 		{
 			IdentityTypeDefinition idTypeDef = typesRegistry.getByName(identity.getTypeId());
-			return idTypeDef.toHumanFriendlyString(msg, identity.getValue());
+			return idTypeDef.toHumanFriendlyString(msg, identity);
 		} catch (IllegalTypeException e)
 		{
 			return identity.getValue();

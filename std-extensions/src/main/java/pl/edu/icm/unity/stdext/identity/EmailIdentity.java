@@ -130,9 +130,13 @@ public class EmailIdentity extends AbstractStaticIdentityTypeProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String toPrettyStringNoPrefix(String from)
+	public String toPrettyStringNoPrefix(IdentityParam from)
 	{
-		return from;
+		VerifiableEmail ve = fromIdentityParam(from);
+		StringBuilder ret = new StringBuilder(ve.getValue());
+		if (ve.getTags().contains(EmailUtils.TAG_MAIN))
+			ret.append(" [*]");
+		return ret.toString();
 	}
 
 	/**

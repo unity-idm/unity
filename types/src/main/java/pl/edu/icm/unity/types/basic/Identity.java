@@ -126,7 +126,7 @@ public class Identity extends IdentityParam
 	public String toPrettyString()
 	{
 		if (prettyString == null)
-			prettyString = type.getIdentityTypeProvider().toPrettyString(value);
+			prettyString = type.getIdentityTypeProvider().toPrettyString(this);
 		return prettyString;
 	}
 
@@ -137,7 +137,7 @@ public class Identity extends IdentityParam
 	public String toPrettyStringNoPrefix()
 	{
 		if (prettyStringNoPfx == null)
-			prettyStringNoPfx = type.getIdentityTypeProvider().toPrettyStringNoPrefix(value);
+			prettyStringNoPfx = type.getIdentityTypeProvider().toPrettyStringNoPrefix(this);
 		return prettyStringNoPfx;
 	}
 	
@@ -147,7 +147,7 @@ public class Identity extends IdentityParam
 	public String toString()
 	{
 		if (ordinaryString == null)
-			ordinaryString = type.getIdentityTypeProvider().toString(value);
+			ordinaryString = type.getIdentityTypeProvider().toString(this);
 		return ordinaryString;
 	}
 

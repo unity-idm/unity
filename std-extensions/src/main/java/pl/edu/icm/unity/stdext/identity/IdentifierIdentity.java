@@ -16,6 +16,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
  * Opaque identifier identity. It is useful for storing a generic identifier, being a string. The only requirement is
@@ -89,9 +90,9 @@ public class IdentifierIdentity extends AbstractStaticIdentityTypeProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String toPrettyStringNoPrefix(String from)
+	public String toPrettyStringNoPrefix(IdentityParam from)
 	{
-		return from;
+		return from.getValue();
 	}
 
 	@Override

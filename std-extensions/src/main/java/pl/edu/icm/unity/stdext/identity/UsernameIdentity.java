@@ -22,6 +22,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
  * Simple username identity type definition
@@ -114,9 +115,9 @@ public class UsernameIdentity extends AbstractStaticIdentityTypeProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String toPrettyStringNoPrefix(String from)
+	public String toPrettyStringNoPrefix(IdentityParam from)
 	{
-		return from;
+		return from.getValue();
 	}
 
 

@@ -89,18 +89,18 @@ public interface IdentityTypeDefinition
 	 * and more user-friendly output.
 	 * @return
 	 */
-	public String toPrettyString(String from);
+	public String toPrettyString(IdentityParam from);
 
 	/**
 	 * Similar to {@link #toPrettyString()}, but doesn't return id type prefix.
 	 * @return
 	 */
-	public String toPrettyStringNoPrefix(String from);
+	public String toPrettyStringNoPrefix(IdentityParam from);
 
 	/**
 	 * @return full String representation
 	 */
-	public String toString(String from);
+	public String toString(IdentityParam from);
 	
 	/**
 	 * @param msg
@@ -108,7 +108,7 @@ public interface IdentityTypeDefinition
 	 * @return string representation which is most useful for end-user. Note that this representation may
 	 * even hide the actual value if it is considered cryptic.
 	 */
-	public String toHumanFriendlyString(MessageSource msg, String from);
+	public String toHumanFriendlyString(MessageSource msg, IdentityParam from);
 
 	/**
 	 * @param msg

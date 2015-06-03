@@ -17,6 +17,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityRepresentation;
 
 /**
@@ -87,9 +88,9 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String toPrettyStringNoPrefix(String from)
+	public String toPrettyStringNoPrefix(IdentityParam from)
 	{
-		return from;
+		return from.getValue();
 	}
 
 	@Override
@@ -136,7 +137,7 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	}
 
 	@Override
-	public String toHumanFriendlyString(MessageSource msg, String from)
+	public String toHumanFriendlyString(MessageSource msg, IdentityParam from)
 	{
 		return msg.getMessage("PersistentIdentity.anonymous");
 	}

@@ -20,7 +20,7 @@ public abstract class AbstractIdentityTypeProvider implements IdentityTypeDefini
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String toPrettyString(String from)
+	public String toPrettyString(IdentityParam from)
 	{
 		return "[" + getId() + "] " + toPrettyStringNoPrefix(from);
 	}
@@ -29,7 +29,7 @@ public abstract class AbstractIdentityTypeProvider implements IdentityTypeDefini
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String toString(String from)
+	public String toString(IdentityParam from)
 	{
 		return toPrettyString(from);
 	}
@@ -41,7 +41,7 @@ public abstract class AbstractIdentityTypeProvider implements IdentityTypeDefini
 	 * @return
 	 */
 	@Override
-	public String toHumanFriendlyString(MessageSource msg, String from)
+	public String toHumanFriendlyString(MessageSource msg, IdentityParam from)
 	{
 		return toPrettyStringNoPrefix(from);
 	}

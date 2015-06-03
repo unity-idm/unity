@@ -26,6 +26,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
  * X.500 identity type definition
@@ -194,9 +195,9 @@ public class X500Identity extends AbstractStaticIdentityTypeProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String toPrettyStringNoPrefix(String from)
+	public String toPrettyStringNoPrefix(IdentityParam from)
 	{
-		return X500NameUtils.getReadableForm(from);
+		return X500NameUtils.getReadableForm(from.getValue());
 	}
 
 
