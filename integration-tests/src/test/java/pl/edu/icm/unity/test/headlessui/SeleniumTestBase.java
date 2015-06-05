@@ -38,7 +38,7 @@ import pl.edu.icm.unity.server.JettyServer;
 public class SeleniumTestBase
 {
 	protected String baseUrl = "https://localhost:2443";
-	public static final int WAIT_TIME_S = 25;
+	public static final int WAIT_TIME_S = 45;
 	protected WebDriver driver;
 
 	private StringBuffer verificationErrors = new StringBuffer();
