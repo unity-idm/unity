@@ -38,7 +38,7 @@ import pl.edu.icm.unity.server.JettyServer;
 public class SeleniumTestBase
 {
 	protected String baseUrl = "https://localhost:2443";
-	public static final int WAIT_TIME_S = 15;
+	public static final int WAIT_TIME_S = 25;
 	protected WebDriver driver;
 
 	private StringBuffer verificationErrors = new StringBuffer();
@@ -91,8 +91,7 @@ public class SeleniumTestBase
 		try
 		{
 			WebElement ret = driver.findElement(by);
-			if (!ret.isDisplayed())
-				return null;
+			
 			return ret;
 		} catch (NoSuchElementException e)
 		{
