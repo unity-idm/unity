@@ -60,6 +60,7 @@ public class ImageUtils
 			break;
 		case none:
 			component.setHeight(100, Unit.PERCENTAGE);
+			break;
 		case maxHeightSmall:
 			component.addStyleName(Styles.maxHeightSmall.toString());
 			break;

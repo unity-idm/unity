@@ -1123,7 +1123,7 @@ public class IdentitiesTable extends TreeTable
 			Iterator<?> iterator = targets.iterator();
 			EntityWithLabel e1 = getEntity(iterator.next());
 			EntityWithLabel e2 = getEntity(iterator.next());
-			if (e1.getEntity().getId() == e2.getEntity().getId())
+			if (e1.getEntity().getId().longValue() == e2.getEntity().getId().longValue())
 				return EMPTY;
 			
 			return super.getActions(target, sender);
