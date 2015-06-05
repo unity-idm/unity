@@ -13,6 +13,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
@@ -58,17 +59,20 @@ public class AttributeHandlerRegistry
 		VerticalLayout vl = new VerticalLayout();
 		vl.addStyleName(Styles.smallSpacing.toString());
 		AttributeValueSyntax<?> syntax = attribute.getAttributeSyntax();
+		StringBuilder main = new StringBuilder(attribute.getName());
 		if (attribute.getRemoteIdp() != null)
 		{
-			String idpInfo = msg.getMessage("IdentityFormatter.remoteInfo", attribute.getRemoteIdp()); 
-			vl.addComponent(new Label("[" + idpInfo + "]"));
+			String idpInfo = msg.getMessage("IdentityFormatter.remoteInfo", attribute.getRemoteIdp());
+			main.append(" [").append(idpInfo).append("]");
 		}
+		vl.addComponent(new Label(main.toString()));
+		VerticalLayout indentedValues = new VerticalLayout();
+		indentedValues.setMargin(new MarginInfo(false, false, false, true));
 		@SuppressWarnings("rawtypes")
 		WebAttributeHandler handler = getHandler(syntax.getValueSyntaxId());
 		for (Object value: attribute.getValues())
-		{
-			vl.addComponent(handler.getRepresentation(value, syntax, size));
-		}
+			indentedValues.addComponent(handler.getRepresentation(value, syntax, size));
+		vl.addComponent(indentedValues);
 		return vl;
 	}
 	
