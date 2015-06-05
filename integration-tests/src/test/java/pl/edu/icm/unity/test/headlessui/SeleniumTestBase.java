@@ -91,7 +91,8 @@ public class SeleniumTestBase
 		try
 		{
 			WebElement ret = driver.findElement(by);
-			
+			if (ret.isDisplayed())
+				return null;
 			return ret;
 		} catch (NoSuchElementException e)
 		{
