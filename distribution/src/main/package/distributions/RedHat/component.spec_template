@@ -7,7 +7,7 @@ License: BSD
 Distribution: RedHat
 Group: System Environment/Daemons
 URL: http://unity-idm.eu
-Requires: java-1.7.0-openjdk findutils bash
+Requires: java >= 1.7.0 findutils bash
 BuildArch: @component-architecture@
 Packager: Krzysztof Benedyczak <unity-idm-discuss@lists.sourceforge.net> 
 @preamble@
