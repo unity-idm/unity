@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
@@ -66,7 +67,7 @@ public class SeleniumTestBase
 		}
 	}
 
-	protected void waitForElement(By by)
+	protected WebElement waitForElement(By by)
 	{
 		for (int second = 0;; second++)
 		{
@@ -74,8 +75,9 @@ public class SeleniumTestBase
 				Assert.fail("timeout");
 			try
 			{
-				if (isElementPresent(by))
-					break;
+				WebElement elementPresent = isElementPresent(by);
+				if (elementPresent != null)
+					return elementPresent;
 				Thread.sleep(250);
 			} catch (InterruptedException e)
 			{
@@ -84,15 +86,17 @@ public class SeleniumTestBase
 		}
 	}
 	
-	protected boolean isElementPresent(By by)
+	protected WebElement isElementPresent(By by)
 	{
 		try
 		{
-			driver.findElement(by);
-			return true;
+			WebElement ret = driver.findElement(by);
+			if (!ret.isDisplayed())
+				return null;
+			return ret;
 		} catch (NoSuchElementException e)
 		{
-			return false;
+			return null;
 		}
 	}
 	
