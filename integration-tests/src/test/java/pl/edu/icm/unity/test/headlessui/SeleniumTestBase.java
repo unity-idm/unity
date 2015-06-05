@@ -39,6 +39,7 @@ public class SeleniumTestBase
 {
 	protected String baseUrl = "https://localhost:2443";
 	public static final int WAIT_TIME_S = 45;
+	public static final int SLEEP_TIME_MS = 250;
 	protected WebDriver driver;
 
 	private StringBuffer verificationErrors = new StringBuffer();
@@ -69,16 +70,16 @@ public class SeleniumTestBase
 
 	protected WebElement waitForElement(By by)
 	{
-		for (int second = 0;; second++)
+		for (int i = 0;; i++)
 		{
-			if (second >= WAIT_TIME_S)
+			if (i >= WAIT_TIME_S*1000/SLEEP_TIME_MS)
 				Assert.fail("timeout");
 			try
 			{
 				WebElement elementPresent = isElementPresent(by);
 				if (elementPresent != null)
 					return elementPresent;
-				Thread.sleep(250);
+				Thread.sleep(SLEEP_TIME_MS);
 			} catch (InterruptedException e)
 			{
 				//OK
@@ -91,7 +92,7 @@ public class SeleniumTestBase
 		try
 		{
 			WebElement ret = driver.findElement(by);
-			if (ret.isDisplayed())
+			if (!ret.isDisplayed())
 				return null;
 			return ret;
 		} catch (NoSuchElementException e)
