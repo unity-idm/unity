@@ -129,4 +129,4 @@ The following changes in configuration are necessary:
  - Icon sizes configuration parameters found in SAML and OAuth authenticators (as +width50+) are now ignored. Instead
  scaling mode can be configured per endpoint in its authentication configuration. Scaling is no more fixed, it is using 
  CSS class names (small, tiny, ...) which are controlled by theme and can be customized.
-  
+
