@@ -8,6 +8,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import pl.edu.icm.unity.ldap.client.LdapUnsafeArgsEscaper;
+
 public class TestLdapEscaper
 {
 	@Test

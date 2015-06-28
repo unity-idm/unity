@@ -317,6 +317,16 @@ public class EngineInitialization extends LifecycleBase
 			}			
 		};
 		executors.getService().schedule(entitiesUpdaterTask, (int)(interval*0.5), TimeUnit.SECONDS);
+		
+		//wait to ensure that we return only when endpoint updates will be catched
+		try
+		{
+			Thread.sleep(1000 - (System.currentTimeMillis() - endpointsLoadTime));
+		} catch (InterruptedException e)
+		{
+			//ok
+		}
+		
 	}
 	
 	public void initializeDatabaseContents()

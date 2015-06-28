@@ -33,15 +33,15 @@ import pl.edu.icm.unity.rest.exception.InternalExceptionMapper;
 import pl.edu.icm.unity.rest.exception.JSONExceptionMapper;
 import pl.edu.icm.unity.rest.exception.JSONParseExceptionMapper;
 import pl.edu.icm.unity.rest.exception.NPEExceptionMapper;
+import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
-import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
+import pl.edu.icm.unity.server.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import eu.unicore.util.configuration.ConfigurationException;
 
 /**
@@ -54,7 +54,7 @@ import eu.unicore.util.configuration.ConfigurationException;
  *  
  * @author K. Benedyczak
  */
-public abstract class RESTEndpoint extends AbstractEndpoint implements WebAppEndpointInstance
+public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
 	private AuthenticationProcessor authenticationProcessor;
 	protected RESTEndpointProperties genericEndpointProperties;
@@ -66,9 +66,9 @@ public abstract class RESTEndpoint extends AbstractEndpoint implements WebAppEnd
 	
 	public RESTEndpoint(UnityMessageSource msg, SessionManagement sessionMan, 
 			AuthenticationProcessor authenticationProcessor,
-			EndpointTypeDescription type, String servletPath)
+			NetworkServer server, String servletPath)
 	{
-		super(type);
+		super(server);
 		this.authenticationProcessor = authenticationProcessor;
 		this.servletPath = servletPath;
 		this.msg = msg;

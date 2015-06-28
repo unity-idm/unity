@@ -10,15 +10,16 @@ import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
-import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
+import pl.edu.icm.unity.server.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 
-public class MockEndpoint extends AbstractEndpoint implements WebAppEndpointInstance
+public class MockEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
-	public MockEndpoint()
+	public MockEndpoint(NetworkServer httpServer)
 	{
-		super(MockEndpointFactory.TYPE);
+		super(httpServer);
 	}
 
 	@Override

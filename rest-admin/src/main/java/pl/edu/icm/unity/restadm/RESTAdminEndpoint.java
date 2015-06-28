@@ -14,10 +14,10 @@ import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
 /**
  * RESTful endpoint providing administration and query API.
@@ -31,11 +31,11 @@ public class RESTAdminEndpoint extends RESTEndpoint
 	private AttributesManagement attributesMan;
 	
 	public RESTAdminEndpoint(UnityMessageSource msg, SessionManagement sessionMan,
-			EndpointTypeDescription type, String servletPath, IdentitiesManagement identitiesMan,
+			NetworkServer server, String servletPath, IdentitiesManagement identitiesMan,
 			GroupsManagement groupsMan, AttributesManagement attributesMan, 
 			AuthenticationProcessor authnProcessor)
 	{
-		super(msg, sessionMan, authnProcessor, type, servletPath);
+		super(msg, sessionMan, authnProcessor, server, servletPath);
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
 		this.attributesMan = attributesMan;

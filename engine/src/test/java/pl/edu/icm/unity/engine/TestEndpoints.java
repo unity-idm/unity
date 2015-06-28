@@ -39,6 +39,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 		endpointMan.updateEndpoint(endpoints.get(0).getId(), new I18nString("endpoint1I"), "ada", 
 				null, null, realm.getName());
 		endpoints = endpointMan.getEndpoints();
+		assertEquals(1, endpoints.size());
 		assertEquals("ada", endpoints.get(0).getDescription());
 		assertEquals("endpoint1I", endpoints.get(0).getDisplayedName().getDefaultValue());
 
@@ -60,8 +61,8 @@ public class TestEndpoints extends DBIntegrationTestBase
 		endpointMan.updateEndpoint(endpoints.get(1).getId(), new I18nString("endp2"),
 				"endp2", null, null, realm.getName());
 
-		httpServer.undeployEndpoint(endpoints.get(0).getId());
-		httpServer.undeployEndpoint(endpoints.get(1).getId());
+		internalEndpointMan.undeploy(endpoints.get(0).getId());
+		internalEndpointMan.undeploy(endpoints.get(1).getId());
 
 		endpoints = endpointMan.getEndpoints();
 		assertEquals(0, endpoints.size());
@@ -76,10 +77,6 @@ public class TestEndpoints extends DBIntegrationTestBase
 		assertEquals("endp2", endpoints.get(1).getDisplayedName().getDefaultValue());
 		
 		//finally test if removal from DB works
-		
-		httpServer.undeployEndpoint(endpoints.get(0).getId());
-		httpServer.undeployEndpoint(endpoints.get(1).getId());
-
 		internalEndpointMan.removeAllPersistedEndpoints();
 		internalEndpointMan.loadPersistedEndpoints();
 		endpoints = endpointMan.getEndpoints();

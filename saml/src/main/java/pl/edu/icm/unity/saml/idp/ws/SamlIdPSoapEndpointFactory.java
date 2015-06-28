@@ -19,6 +19,7 @@ import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
+import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
@@ -54,6 +55,7 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 	private SAMLLogoutProcessorFactory logoutProcessorFactory;
 	private AuthenticationProcessor authnProcessor;
 	private AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
+	private NetworkServer server;
 	
 	@Autowired
 	public SamlIdPSoapEndpointFactory(UnityMessageSource msg,
@@ -62,7 +64,8 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 			SessionManagement sessionMan, MetaDownloadManager downloadManager,
 			UnityServerConfiguration mainConfig, SAMLLogoutProcessorFactory logoutProcessorFactory,
 			AuthenticationProcessor authnProcessor,
-			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry)
+			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry,
+			NetworkServer server)
 	{
 		super();
 		this.msg = msg;
@@ -73,6 +76,7 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 		this.preferencesMan = preferencesMan;
 		this.authnProcessor = authnProcessor;
 		this.attributeSyntaxFactoriesRegistry = attributeSyntaxFactoriesRegistry;
+		this.server = server;
 		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
 		this.downloadManager = downloadManager;
 		this.mainConfig = mainConfig;
@@ -96,7 +100,7 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new SamlSoapEndpoint(msg, getDescription(), SERVLET_PATH,
+		return new SamlSoapEndpoint(msg, server, SERVLET_PATH,
 				METADATA_SERVLET_PATH, idpEngine, preferencesMan, pkiManagement,
 				executorsService, sessionMan, remoteMetadataManagers, downloadManager, mainConfig,
 				logoutProcessorFactory, authnProcessor, attributeSyntaxFactoriesRegistry);

@@ -8,10 +8,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Handler;
@@ -122,6 +120,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 	 * @param endpoint
 	 * @throws EngineException
 	 */
+	@Override
 	public synchronized void deployEndpoint(WebAppEndpointInstance endpoint) 
 			throws EngineException
 	{
@@ -168,6 +167,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 		}
 	}
 	
+	@Override
 	public synchronized void undeployEndpoint(String id) throws EngineException
 	{
 		WebAppEndpointInstance endpoint = null;
@@ -191,22 +191,6 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 		mainContextHandler.removeHandler(handler);
 		usedContextPaths.remove(handler.getContextPath());
 		deployedEndpoints.remove(endpoint);
-	}
-	
-	public synchronized void undeployAllEndpoints() throws EngineException
-	{
-		Set<String> ids = new HashSet<String>();
-		
-		for (WebAppEndpointInstance webapp: deployedEndpoints)
-			ids.add(webapp.getEndpointDescription().getId());
-			
-		for (String id: ids)
-			undeployEndpoint(id);
-	}
-	
-	public synchronized List<WebAppEndpointInstance> getDeployedEndpoints()
-	{
-		return new ArrayList<WebAppEndpointInstance>(deployedEndpoints);
 	}
 	
 	@Override

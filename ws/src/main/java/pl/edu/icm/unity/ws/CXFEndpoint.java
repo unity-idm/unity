@@ -20,21 +20,21 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
+import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
-import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
+import pl.edu.icm.unity.server.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * Web service endpoint based on CXF
  * @author K. Benedyczak
  */
-public abstract class CXFEndpoint extends AbstractEndpoint implements WebAppEndpointInstance
+public abstract class CXFEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
 	protected UnityMessageSource msg;
 	protected String servletPath;
@@ -44,9 +44,9 @@ public abstract class CXFEndpoint extends AbstractEndpoint implements WebAppEndp
 	private AuthenticationProcessor authnProcessor;
 	
 	public CXFEndpoint(UnityMessageSource msg, SessionManagement sessionMan, AuthenticationProcessor authnProcessor,
-			EndpointTypeDescription type, String servletPath)
+			NetworkServer server, String servletPath)
 	{
-		super(type);
+		super(server);
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
 		this.servletPath = servletPath;

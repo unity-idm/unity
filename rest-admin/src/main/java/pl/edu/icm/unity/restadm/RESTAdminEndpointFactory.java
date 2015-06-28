@@ -13,6 +13,7 @@ import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
@@ -46,6 +47,8 @@ public class RESTAdminEndpointFactory implements EndpointFactory
 	private AttributesManagement attributesMan;
 	@Autowired
 	private AuthenticationProcessor authnProcessor;
+	@Autowired
+	private NetworkServer server;
 	
 	@Override
 	public EndpointTypeDescription getDescription()
@@ -56,7 +59,7 @@ public class RESTAdminEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new RESTAdminEndpoint(msg, sessionMan, TYPE, "", identitiesMan, groupsMan, attributesMan,
+		return new RESTAdminEndpoint(msg, sessionMan, server, "", identitiesMan, groupsMan, attributesMan,
 				authnProcessor);
 	}
 

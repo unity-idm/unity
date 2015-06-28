@@ -16,5 +16,5 @@ public interface WebAppEndpointInstance extends EndpointInstance
 	/**
 	 * @return web application context
 	 */
-	public ServletContextHandler getServletContextHandler();
+	ServletContextHandler getServletContextHandler();
 }
