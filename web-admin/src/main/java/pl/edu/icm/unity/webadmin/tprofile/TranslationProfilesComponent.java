@@ -179,6 +179,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		table.addActionHandler(new RefreshActionHandler());
 		table.addActionHandler(new AddActionHandler());
 		table.addActionHandler(new EditActionHandler());
+		table.addActionHandler(new CopyActionHandler());
 		table.addActionHandler(new DeleteActionHandler());
 		table.addActionHandler(new WizardActionHandler());
 		table.addActionHandler(new DryRunActionHandler());
@@ -394,7 +395,44 @@ public class TranslationProfilesComponent extends VerticalLayout
 			dialog.show();
 		}
 	}
+	
+	private class CopyActionHandler extends SingleActionHandler
+	{
+		public CopyActionHandler()
+		{
+			super(msg.getMessage("TranslationProfilesComponent.copyAction"), Images.copy.getResource());
+		}
 
+		@Override
+		public void handleAction(Object sender, final Object target)
+		{
+			@SuppressWarnings("unchecked")
+			GenericItem<TranslationProfile> item = (GenericItem<TranslationProfile>) target;
+			TranslationProfileEditor editor;
+			
+			try
+			{
+				editor = getProfileEditor(item.getElement());
+				editor.setCopyMode();
+			} catch (EngineException e)
+			{
+				NotificationPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorReadData"),
+						e);
+				return;
+			}
+			TranslationProfileEditDialog dialog = new TranslationProfileEditDialog(msg, 
+					msg.getMessage("TranslationProfilesComponent.copyAction"), 
+					new TranslationProfileEditDialog.Callback()
+					{
+						@Override
+						public boolean handleProfile(TranslationProfile profile)
+						{
+							return addProfile(profile);
+						}
+					}, editor);
+			dialog.show();
+		}
+	}
 	private class DeleteActionHandler extends SingleActionHandler
 	{
 		public DeleteActionHandler()
