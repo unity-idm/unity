@@ -86,7 +86,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		double maxAgeMonths = ((double)maxAgeMs)/MS_IN_MONTH;
 		BigDecimal maxAgeMonthsRounded = new BigDecimal(maxAgeMonths, new MathContext(2, RoundingMode.HALF_UP)); 
 		long maxAgeDays = maxAgeMs/(3600000L*24);
-		if (maxAgeMs == Long.MAX_VALUE)
+		if (maxAgeMs == PasswordCredential.MAX_AGE_UNDEF)
 			maxAge.setValue(msg.getMessage("PasswordDefinitionEditor.maxAgeUnlimited"));
 		else
 			maxAge.setValue(msg.getMessage("PasswordDefinitionEditor.maxAgeValue", 
@@ -170,7 +170,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 			maxAgeMonths = 40;
 		if (maxAgeMonths < 1)
 			maxAgeMonths = 1;
-		if (helper.getMaxAge() != Long.MAX_VALUE)
+		if (helper.getMaxAge() != PasswordCredential.MAX_AGE_UNDEF)
 		{
 			limitMaxAge.setValue(true);
 			maxAge.setEnabled(true);
