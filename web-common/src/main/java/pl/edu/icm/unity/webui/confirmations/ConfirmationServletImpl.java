@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.confirmations;
 
+import java.util.Properties;
+
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
@@ -68,7 +70,7 @@ public class ConfirmationServletImpl implements ConfirmationServlet
 				public void sessionInit(SessionInitEvent event) throws ServiceException
 				{
 					VaadinUIProvider uiProv = new VaadinUIProvider(applicationContext, ConfirmationUI.class.getSimpleName(),
-							null, null, null, null);
+							null, null, null, new Properties());
 					event.getSession().addUIProvider(uiProv);
 				}
 			});
