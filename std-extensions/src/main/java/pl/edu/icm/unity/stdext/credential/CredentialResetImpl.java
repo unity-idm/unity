@@ -54,7 +54,7 @@ public class CredentialResetImpl implements CredentialReset
 	private CredentialHelper credentialHelper;
 	private LocalCredentialVerificator localCredentialHandler;
 	
-	private EntityParam subject;
+	private IdentityTaV requestedSubject;
 	private EntityWithCredential resolved;
 	private PasswordCredentialDBState credState;
 	
@@ -87,7 +87,7 @@ public class CredentialResetImpl implements CredentialReset
 	@Override
 	public void setSubject(IdentityTaV subject)
 	{
-		this.subject = new EntityParam(subject);
+		this.requestedSubject = subject;
 		try
 		{
 			resolved = identityResolver.resolveIdentity(subject.getValue(), 
@@ -124,7 +124,7 @@ public class CredentialResetImpl implements CredentialReset
 	private String getFakeQuestion()
 	{
 		List<String> questions = settings.getQuestions();
-		int hash = subject.getIdentity().getValue().hashCode();
+		int hash = requestedSubject.getValue().hashCode();
 		int num = (hash < 0 ? -hash : hash) % questions.size();
 		return questions.get(num);
 	}
@@ -171,12 +171,13 @@ public class CredentialResetImpl implements CredentialReset
 
 		Map<String, String> params = new HashMap<>();
 		params.put(PasswordResetTemplateDef.VAR_CODE, codeSent);
-		params.put(PasswordResetTemplateDef.VAR_USER, subject.getIdentity().getValue());
+		params.put(PasswordResetTemplateDef.VAR_USER, requestedSubject.getValue());
 		String msgTemplate = settings.getSecurityCodeMsgTemplate();
 		Locale currentLocale = UnityMessageSource.getLocale(null);
 		String locale = currentLocale == null ? null : currentLocale.toString();
-		notificationProducer.sendNotification(subject, UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL, 
-					msgTemplate, params, locale);
+		notificationProducer.sendNotification(new EntityParam(resolved.getEntityId()), 
+				UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL, 
+				msgTemplate, params, locale);
 	}
 
 
