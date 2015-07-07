@@ -20,7 +20,6 @@
 	<bean class="pl.edu.icm.unity.server.registries.AuthenticatorsRegistry"/>
 	<bean class="pl.edu.icm.unity.server.registries.LocalCredentialsRegistry"/>
 	<bean class="pl.edu.icm.unity.server.registries.AttributeMetadataProvidersRegistry"/>
-	<bean class="pl.edu.icm.unity.server.registries.NotificationFacilitiesRegistry"/>
 	<bean class="pl.edu.icm.unity.server.registries.TranslationActionsRegistry"/>
 	<bean class="pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry"/>
 	<bean class="pl.edu.icm.unity.server.registries.SessionParticipantTypesRegistry"/>

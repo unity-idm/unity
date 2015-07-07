@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.NotificationsManagementImpl;
+import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.notifications.NotificationFacility;
 
 /**
  * Code common to notifications management  {@link NotificationsManagementImpl} and {@link NotificationsProducer}. 

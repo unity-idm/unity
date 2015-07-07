@@ -24,27 +24,19 @@ import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateDB;
 import pl.edu.icm.unity.db.generic.notify.NotificationChannelDB;
 import pl.edu.icm.unity.db.generic.notify.NotificationChannelHandler;
-import pl.edu.icm.unity.engine.internal.AttributesHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
-import pl.edu.icm.unity.notifications.NotificationChannelInstance;
-import pl.edu.icm.unity.notifications.NotificationFacility;
 import pl.edu.icm.unity.notifications.NotificationProducer;
 import pl.edu.icm.unity.notifications.NotificationStatus;
-import pl.edu.icm.unity.server.registries.NotificationFacilitiesRegistry;
 import pl.edu.icm.unity.server.utils.CacheProvider;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
-import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
 /**
  * Internal (shouldn't be exposed directly to end-users) subsystem for sending notifications.
@@ -54,7 +46,6 @@ import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 public class NotificationProducerImpl implements NotificationProducer
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, NotificationProducerImpl.class);
-	private AttributesHelper attributesHelper;
 	private DBSessionManager db;
 	private Ehcache channelsCache;
 	private NotificationFacilitiesRegistry facilitiesRegistry;
@@ -64,12 +55,11 @@ public class NotificationProducerImpl implements NotificationProducer
 	private UnityMessageSource msg;
 	
 	@Autowired
-	public NotificationProducerImpl(AttributesHelper attributesHelper, DBSessionManager db,
+	public NotificationProducerImpl(DBSessionManager db,
 			CacheProvider cacheProvider, 
 			NotificationFacilitiesRegistry facilitiesRegistry, NotificationChannelDB channelDB,
 			DBGroups dbGroups, MessageTemplateDB mtDB, UnityMessageSource msg)
 	{
-		this.attributesHelper = attributesHelper;
 		this.db = db;
 		this.dbGroups = dbGroups;
 		initCache(cacheProvider.getManager());
@@ -112,33 +102,6 @@ public class NotificationProducerImpl implements NotificationProducer
 		return facility.getChannel(channelDesc.getConfiguration());
 	}
 
-	/**
-	 * Returns the first confirmed value or the first if the attribute is not verifiable or if there is
-	 * no verified value. 
-	 * @param recipient
-	 * @param metadataId
-	 * @param sql
-	 * @return
-	 * @throws EngineException
-	 */
-	private String getAddressForEntity(EntityParam recipient, String metadataId, SqlSession sql) throws EngineException
-	{
-		AttributeExt<?> attr = attributesHelper.getAttributeByMetadata(recipient, "/", metadataId, sql);
-		if (attr == null)
-			throw new IllegalIdentityValueException("The entity does not have the email address specified");
-		if (attr.getAttributeSyntax().isVerifiable())
-		{
-			for (Object value: attr.getValues())
-			{
-				ConfirmationInfo ci = ((VerifiableElement)value).getConfirmationInfo();
-				if (ci != null && ci.isConfirmed())
-					return value.toString();
-			}
-		}
-			
-		return attr.getValues().get(0).toString();
-	}
-
 	@Override
 	public Future<NotificationStatus> sendNotification(EntityParam recipient,
 			String channelName, String templateId, Map<String, String> params, String locale)
@@ -155,7 +118,7 @@ public class NotificationProducerImpl implements NotificationProducer
 			template = loadTemplate(templateId, sql);
 			channel = loadChannel(channelName, sql);
 			NotificationFacility facility = facilitiesRegistry.getByName(channel.getFacilityId());
-			recipientAddress = getAddressForEntity(recipient, facility.getRecipientAddressMetadataKey(), sql);
+			recipientAddress = facility.getAddressForEntity(recipient, sql);
 			sql.commit();
 		} finally
 		{
@@ -190,8 +153,8 @@ public class NotificationProducerImpl implements NotificationProducer
 			{
 				try
 				{
-					String recipientAddress = getAddressForEntity(new EntityParam(entity), 
-							facility.getRecipientAddressMetadataKey(), sql);
+					String recipientAddress = facility.getAddressForEntity(
+							new EntityParam(entity), sql);
 					channel.sendNotification(recipientAddress, subject, body);
 				} catch (IllegalIdentityValueException e)
 				{
@@ -243,11 +206,10 @@ public class NotificationProducerImpl implements NotificationProducer
 		}
 	}
 	
-	public AttributeType getChannelAddressAttribute(String channelName, SqlSession sql) throws EngineException
+	public NotificationFacility getNotificationFacilityForChannel(String channelName, SqlSession sql) 
+			throws EngineException
 	{
 		NotificationChannelInstance channel = loadChannel(channelName, sql);
-		NotificationFacility facility = facilitiesRegistry.getByName(channel.getFacilityId());
-		return attributesHelper.getAttributeTypeWithSingeltonMetadata(
-				facility.getRecipientAddressMetadataKey(), sql);
+		return facilitiesRegistry.getByName(channel.getFacilityId());
 	}
 }

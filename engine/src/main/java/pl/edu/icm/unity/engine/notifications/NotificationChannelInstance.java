@@ -2,9 +2,11 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.notifications;
+package pl.edu.icm.unity.engine.notifications;
 
 import java.util.concurrent.Future;
+
+import pl.edu.icm.unity.notifications.NotificationStatus;
 
 /**
  * Configured instance of {@link NotificationFacility} able to send notifications.

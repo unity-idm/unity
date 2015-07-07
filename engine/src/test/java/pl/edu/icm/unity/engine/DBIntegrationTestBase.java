@@ -43,6 +43,8 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
  */
 public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 {
+	public static final String CRED_REQ_PASS = "cr-pass";
+	
 	@Autowired
 	private SessionManagement sessionMan;
 	
@@ -101,7 +103,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	protected Identity createUsernameUser(String username, String role, String password) throws Exception
 	{
 		Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, username), 
-				"cr-pass", EntityState.valid, false);
+				CRED_REQ_PASS, EntityState.valid, false);
 		idsMan.setEntityCredential(new EntityParam(added1), "credential1", 
 				new PasswordToken(password).toJson());
 		if (role != null)
@@ -151,7 +153,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 				"\"maxAge\": 30758400}");
 		authnMan.addCredentialDefinition(credDef);
 		
-		CredentialRequirements cr = new CredentialRequirements("cr-pass", "", 
+		CredentialRequirements cr = new CredentialRequirements(CRED_REQ_PASS, "", 
 				Collections.singleton(credDef.getName()));
 		authnMan.addCredentialRequirement(cr);
 

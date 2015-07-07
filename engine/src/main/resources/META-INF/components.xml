@@ -166,6 +166,7 @@
 	
 	<bean class="pl.edu.icm.unity.engine.notifications.NotificationProducerImpl"/> 
 	<bean class="pl.edu.icm.unity.engine.notifications.EmailFacility"/>
+	<bean class="pl.edu.icm.unity.engine.notifications.NotificationFacilitiesRegistry"/>
 
 	<bean class="pl.edu.icm.unity.engine.authn.AuthenticatorLoader"/>
 	

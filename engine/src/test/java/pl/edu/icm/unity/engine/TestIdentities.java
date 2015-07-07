@@ -459,7 +459,7 @@ public class TestIdentities extends DBIntegrationTestBase
 			id.append(i%10);
 		
 		Identity added = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, id.toString()), 
-				"cr-pass", EntityState.valid, false);
+				DBIntegrationTestBase.CRED_REQ_PASS, EntityState.valid, false);
 		
 		Entity full = idsMan.getEntity(new EntityParam(added), null, true, null);
 		assertEquals(2, full.getIdentities().length);
