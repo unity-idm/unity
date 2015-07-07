@@ -31,6 +31,7 @@ import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.generic.cred.CredentialDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
+import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.engine.notifications.NotificationProducerImpl;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
@@ -450,22 +451,9 @@ public class InternalRegistrationManagment
 			RegistrationFormNotifications notificationsCfg, SqlSession sql)
 			throws EngineException
 	{
-		List<Attribute<?>> attrs = currentRequest.getRequest().getAttributes();
-		AttributeType addrAttribute = notificationProducer.getChannelAddressAttribute(
+		NotificationFacility notificationFacility = notificationProducer.getNotificationFacilityForChannel(
 				notificationsCfg.getChannel(), sql);
-		String requesterAddress = null;
-		for (Attribute<?> ap : attrs)
-		{
-			if (ap == null)
-				continue;
-			if (ap.getName().equals(addrAttribute.getName())
-					&& ap.getGroupPath().equals("/"))
-			{
-				requesterAddress = (String) ap.getValues().get(0);
-				break;
-			}
-		}
-		return requesterAddress;
+		return notificationFacility.getAddressForRegistrationRequest(currentRequest, sql);
 	}
 
 	public boolean checkAutoAcceptCondition(RegistrationRequest request, SqlSession sql) throws EngineException
