@@ -24,9 +24,7 @@ of translation actions have) to be specified as _MVEL expressions_. Such express
 dynamic functionality. 
 
 The full MVEL documentation can be found here: 
-http://mvel.codehaus.org/Language+Guide+for+2.0 
-and the quick start is here:
-http://mvel.codehaus.org/Getting+Started+for+2.0
+https://en.wikisource.org/wiki/MVEL_Language_Guide
 
 The following example condition:
 ----
