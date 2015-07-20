@@ -199,6 +199,11 @@ public class CredentialsPanel extends VerticalLayout
 		return changed;
 	}
 	
+	public boolean isCredentialRequirementEmpty()
+	{
+		return credentials.isEmpty();
+	}	
+	
 	private void updateSelectedCredential()
 	{
 		CredentialDefinition chosen = credential.getSelectedValue();

@@ -83,6 +83,7 @@ public class UserDetailsPanel
 					cred.getValue().getState().toString());
 			credStatus.addHtmlValueLine("IdentityDetails.credStatusValue", cred.getKey(), status);
 		}
+		credStatus.setVisible(!credInf.getCredentialsState().entrySet().isEmpty());
 		
 		this.groups.resetValue();
 		for (Group group: groups)
