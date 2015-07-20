@@ -59,7 +59,9 @@ public class UserDetailsPanel
 	
 	public void setInput(EntityWithLabel entityWithLabel, Collection<Group> groups)
 	{
-		id.setValue(entityWithLabel.toString());
+		id.setValue(entityWithLabel.toShortString());
+		id.setDescription(msg.getMessage("IdentityDetails.entityIdTooltip", 
+				entityWithLabel.getEntity().getId()));
 		Entity entity = entityWithLabel.getEntity();
 		
 		EntityScheduledOperation operation = entity.getEntityInformation().getScheduledOperation();
