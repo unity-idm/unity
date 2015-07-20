@@ -74,6 +74,7 @@ public class AuthNTileSimple extends CustomComponent implements AuthNTile
 		
 		tilePanel.setContent(providersChoice);
 		setCompositionRoot(tilePanel);
+		setSizeUndefined();
 	}
 
 	@Override
