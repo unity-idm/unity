@@ -148,6 +148,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 				"", client.isUsedOutdatedCredential(), null);
 		ctx.setLoginSession(ls);
 		ls.addAuthenticatedIdentities(client.getAuthenticatedWith());
+		ls.setRemoteIdP(client.getRemoteIdP());
 	}
 	
 	private AuthenticatedEntity processAuthnSet(Map<String, AuthenticationResult> authnCache,

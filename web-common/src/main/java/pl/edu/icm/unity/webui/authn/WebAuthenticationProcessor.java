@@ -245,6 +245,7 @@ public class WebAuthenticationProcessor
 		setupSessionCookie(getSessionCookieName(realm.getName()), ls.getId(), servletResponse, rememberMe, realm);
 
 		ls.addAuthenticatedIdentities(authenticatedEntity.getAuthenticatedWith());
+		ls.setRemoteIdP(authenticatedEntity.getRemoteIdP());
 	}
 	
 	public static String getSessionCookieName(String realmName)
