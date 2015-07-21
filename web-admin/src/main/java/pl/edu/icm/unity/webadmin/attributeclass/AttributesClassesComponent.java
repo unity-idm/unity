@@ -44,7 +44,7 @@ import com.vaadin.ui.VerticalLayout;
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class AttributesClassesComponent  extends VerticalLayout
+public class AttributesClassesComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
 	private AttributesManagement attrMan;

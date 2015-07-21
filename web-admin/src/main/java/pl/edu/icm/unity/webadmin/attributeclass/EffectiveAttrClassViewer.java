@@ -101,7 +101,6 @@ public class EffectiveAttrClassViewer extends HorizontalSplitPanel
 		}
 		setVisible(true);
 		addRecursive(rootClass, null);
-		parents.select(new Node(rootClass, "/"+rootClass+"/"));
 	}
 	
 	private void addRecursive(String root, Node parent)
