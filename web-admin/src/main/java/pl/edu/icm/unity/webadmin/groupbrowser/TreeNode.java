@@ -13,36 +13,46 @@ import pl.edu.icm.unity.types.basic.Group;
  */
 public class TreeNode
 {
-	private UnityMessageSource msg;
 	private String name;
 	private String path;
-	private String parentPath;
+	private TreeNode parent;
 	private boolean contentsFetched = false;
+	private UnityMessageSource msg;
 	
-	public TreeNode(UnityMessageSource msg, String path)
+	public TreeNode(UnityMessageSource msg, Group group)
 	{
-		this(msg, path, false);
+		this(msg, group, null);
 	}
 	
-	public TreeNode(UnityMessageSource msg, String path, boolean forceRoot)
+	public TreeNode(UnityMessageSource msg, Group group, TreeNode parent)
 	{
 		this.msg = msg;
-		this.path = path;
-		if (!forceRoot)
+		this.path = group.toString();
+		this.parent = parent;
+		setGroupMetadata(group);
+	}
+	
+	public void setGroupMetadata(Group group)
+	{
+		if (group.isTopLevel())
 		{
-			Group tmp = new Group(path);
-			this.name = tmp.isTopLevel() ? msg.getMessage("GroupBrowser.root") : tmp.getName();
-			this.parentPath = tmp.getParentPath();
+			this.name = group.getDisplayedNameShort().getValue(msg);
+			if (this.name.equals("/"))
+				this.name = msg.getMessage("GroupBrowser.root");
+			else
+				this.name = name + " (/)";
 		} else
 		{
-			this.name = path;
-			this.parentPath = null;
+			this.name = group.getDisplayedNameShort().getValue(msg);
+			String realName = group.getName();
+			if (!realName.equals(name))
+				this.name = name + " (" + realName + ")";
 		}
 	}
 	
 	public TreeNode getParentNode()
 	{
-		return parentPath == null ? null : new TreeNode(msg, parentPath);
+		return parent;
 	}
 	
 	public boolean isContentsFetched()
