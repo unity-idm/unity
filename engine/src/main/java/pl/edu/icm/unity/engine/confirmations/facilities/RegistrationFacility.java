@@ -89,7 +89,9 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 		RegistrationRequest req = reqState.getRequest();
 		ConfirmationStatus status = confirmElements(req, state);
 		requestDB.update(requestId, reqState, sql);
-
+		//make sure we update request, later on auto-acceptance may fail
+		sql.commit();
+		
 		if (status.isSuccess()
 				&& reqState.getStatus().equals(RegistrationRequestStatus.pending)
 				&& internalRegistrationManagment.checkAutoAcceptCondition(req, sql))
@@ -104,11 +106,16 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 					+ " after confirmation [" + state.getType()
 					+ "]" + state.getValue() + " by "
 					+ state.getFacilityId());
-			internalRegistrationManagment.acceptRequest(form, reqState, null,
+			try
+			{
+				internalRegistrationManagment.acceptRequest(form, reqState, null,
 					internalComment, true, sql);
-		} else
-		{
-			requestDB.update(requestId, reqState, sql);
+			} catch (EngineException e)
+			{
+				sql.rollback();
+				log.error("Automatic acceptance of the reqistration request "
+						+ "(in effect of confirmation) failed", e);
+			}
 		}
 
 		return status;

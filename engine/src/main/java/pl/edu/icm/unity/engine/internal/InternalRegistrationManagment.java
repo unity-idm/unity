@@ -28,9 +28,11 @@ import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityConfirmation
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
+import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.cred.CredentialDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
+import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.engine.notifications.NotificationProducerImpl;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -90,6 +92,7 @@ public class InternalRegistrationManagment
 	private CredentialDB credentialDB;
 	private DBAttributes dbAttributes;
 	private DBIdentities dbIdentities;
+	private IdentitiesResolver idResolver;
 	private DBGroups dbGroups;
 	private TokensManagement tokensMan;
 	private UnityMessageSource msg;
@@ -98,6 +101,7 @@ public class InternalRegistrationManagment
 	private AttributesHelper attributesHelper;
 	private NotificationProducerImpl notificationProducer;
 	private LocalCredentialsRegistry authnRegistry;
+	private DBSessionManager dbSessionManager;
 
 	@Autowired
 	public InternalRegistrationManagment(RegistrationFormDB formsDB,
@@ -107,7 +111,7 @@ public class InternalRegistrationManagment
 			AttributesHelper attributesHelper,
 			NotificationProducerImpl notificationProducer,
 			LocalCredentialsRegistry authnRegistry, TokensManagement tokensMan,
-			UnityMessageSource msg)
+			UnityMessageSource msg, IdentitiesResolver idResolver, DBSessionManager dbSessionManager)
 	{
 		super();
 		this.formsDB = formsDB;
@@ -123,6 +127,8 @@ public class InternalRegistrationManagment
 		this.authnRegistry = authnRegistry;
 		this.tokensMan = tokensMan;
 		this.msg = msg;
+		this.idResolver = idResolver;
+		this.dbSessionManager = dbSessionManager;
 	}
 
 	public List<RegistrationForm> getForms(SqlSession sql) throws EngineException
@@ -318,24 +324,46 @@ public class InternalRegistrationManagment
 		List<IdentityParam> requestedIds = request.getIdentities();
 		validateParamsBase(form.getIdentityParams(), requestedIds, true, "identities");
 		boolean identitiesFound = false;
-		for (int i=0; i<requestedIds.size(); i++)
+		SqlSession sql = dbSessionManager.getSqlSession(false);
+		try
 		{
-			IdentityParam idParam = requestedIds.get(i);
-			if (idParam == null)
-				continue;
-			if (idParam.getTypeId() == null || idParam.getValue() == null)
-				throw new WrongArgumentException("Identity nr " + i + " contains null values");
-			if (!form.getIdentityParams().get(i).getIdentityType().equals(idParam.getTypeId()))
-				throw new WrongArgumentException("Identity nr " + i + " must be of " 
-						+ idParam.getTypeId() + " type");
-			identityTypesRegistry.getByName(idParam.getTypeId()).validate(idParam.getValue());
-			identitiesFound = true;
+			for (int i=0; i<requestedIds.size(); i++)
+			{
+				IdentityParam idParam = requestedIds.get(i);
+				if (idParam == null)
+					continue;
+				if (idParam.getTypeId() == null || idParam.getValue() == null)
+					throw new WrongArgumentException("Identity nr " + i + " contains null values");
+				if (!form.getIdentityParams().get(i).getIdentityType().equals(idParam.getTypeId()))
+					throw new WrongArgumentException("Identity nr " + i + " must be of " 
+							+ idParam.getTypeId() + " type");
+				identityTypesRegistry.getByName(idParam.getTypeId()).validate(idParam.getValue());
+				identitiesFound = true;
+				checkIdentityIsNotPresent(idParam, sql);
+			}
+		} finally
+		{
+			sql.commit();
+			dbSessionManager.releaseSqlSession(sql);
 		}
 		if (!identitiesFound)
 			throw new WrongArgumentException("At least one identity must be defined in the "
 					+ "registration request.");
 	}
 
+	private void checkIdentityIsNotPresent(IdentityParam idParam, SqlSession sql) throws WrongArgumentException
+	{
+		try
+		{
+			idResolver.getEntityId(new EntityParam(idParam), sql);
+		} catch (Exception e)
+		{
+			//OK
+			return;
+		}
+		throw new WrongArgumentException("The user with the given identity is already present.");
+	}
+	
 	private void validateRequestCredentials(RegistrationForm form, RegistrationRequest request,
 			boolean doCredentialCheckAndUpdate, SqlSession sql) throws EngineException
 	{
