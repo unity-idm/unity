@@ -30,6 +30,7 @@ public enum Styles
 	maxHeightMedium("u-imageMaxHeightMedium"),
 	maxHeightSmall("u-imageMaxHeightSmall"),
 	maxHeightTiny("u-imageMaxHeightTiny"),
+	maxWidthColumn("u-maxWidthColumn"),
 	
 	bigTabs("u-bigTabs"),
 	bigTab("u-bigTab"),

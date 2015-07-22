@@ -129,7 +129,7 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			SelectableAttributeWithValues<?> attributeComponent = new SelectableAttributeWithValues(
 					null, hideL, at, attributeType, handler, msg);
-			
+			attributeComponent.setWidth(100, Unit.PERCENTAGE);
 			if (first)
 			{
 				first = false;
