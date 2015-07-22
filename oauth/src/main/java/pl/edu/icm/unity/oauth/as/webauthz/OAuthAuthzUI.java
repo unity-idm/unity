@@ -115,7 +115,7 @@ public class OAuthAuthzUI extends UnityUIBase
 
 		
 		VerticalLayout contents = new VerticalLayout();
-		contents.setSizeUndefined();
+		contents.addStyleName(Styles.maxWidthColumn.toString());
 		contents.setMargin(true);
 		contents.setSpacing(true);
 		vmain.addComponent(contents);

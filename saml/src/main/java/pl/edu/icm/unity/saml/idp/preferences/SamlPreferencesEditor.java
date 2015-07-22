@@ -86,6 +86,7 @@ public class SamlPreferencesEditor implements PreferencesEditor
 					}
 				});
 		table.setWidth(90, Unit.PERCENTAGE);
+		table.setHeight(300, Unit.PIXELS);
 		main.addComponent(table);
 		viewer = configureViewer();
 		main.addComponent(viewer);

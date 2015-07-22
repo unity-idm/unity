@@ -74,7 +74,6 @@ public class UserHomeUI extends UnityUIBase implements UnityWebUI
 		contents.addComponent(userAccount);
 		contents.setComponentAlignment(userAccount, Alignment.TOP_CENTER);
 		contents.setExpandRatio(userAccount, 1.0f);
-		contents.setHeightUndefined();
 		
 		setSizeFull();
 		setContent(contents);
