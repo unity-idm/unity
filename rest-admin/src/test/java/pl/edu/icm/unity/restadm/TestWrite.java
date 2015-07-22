@@ -14,6 +14,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collections;
+import java.util.Date;
 
 import javax.ws.rs.core.Response.Status;
 
@@ -48,10 +49,12 @@ import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
+import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -245,5 +248,56 @@ public class TestWrite extends TestRESTBase
 		{
 			return false;
 		}
+	}
+	
+	@Test
+	public void scheduleOperationByAdminWorks() throws Exception
+	{
+		HttpPost addEntity = new HttpPost("/restadm/v1/entity/identity/userName/userA?credentialRequirement=cr-pass");
+		HttpResponse response = client.execute(host, addEntity, localcontext);
+		String contents = EntityUtils.toString(response.getEntity());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		ObjectNode root = (ObjectNode) m.readTree(contents);
+		long entityId = root.get("entityId").asLong();
+		assertTrue(checkIdentity("userA"));
+		System.out.println("Added entity:\n" + contents);
+		
+		long time = System.currentTimeMillis() + 20000;
+		HttpPut scheduleRemoval = new HttpPut("/restadm/v1/entity/" + entityId + "/admin-schedule?when=" + 
+				time + "&operation=REMOVE");
+		response = client.execute(host, scheduleRemoval, localcontext);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
+		
+		Entity entity = idsMan.getEntity(new EntityParam(entityId));
+		assertEquals(new Date(time), entity.getEntityInformation().getScheduledOperationTime());
+		assertEquals(EntityScheduledOperation.REMOVE, entity.getEntityInformation().getScheduledOperation());
+		
+		HttpPut scheduleRemovalWrong = new HttpPut("/restadm/v1/entity/" + entityId + "/admin-schedule?when=" + 
+				time + "&operation=WRONG");
+		response = client.execute(host, scheduleRemovalWrong, localcontext);
+		assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatusLine().getStatusCode());
+	}
+
+	@Test
+	public void scheduleRemovalByUserWorks() throws Exception
+	{
+		HttpPost addEntity = new HttpPost("/restadm/v1/entity/identity/userName/userA?credentialRequirement=cr-pass");
+		HttpResponse response = client.execute(host, addEntity, localcontext);
+		String contents = EntityUtils.toString(response.getEntity());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		ObjectNode root = (ObjectNode) m.readTree(contents);
+		long entityId = root.get("entityId").asLong();
+		assertTrue(checkIdentity("userA"));
+		System.out.println("Added entity:\n" + contents);
+		
+		long time = System.currentTimeMillis() + 20000;
+		HttpPut scheduleRemoval = new HttpPut("/restadm/v1/entity/" + entityId + "/removal-schedule?when=" + 
+				time);
+		response = client.execute(host, scheduleRemoval, localcontext);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
+		
+		Entity entity = idsMan.getEntity(new EntityParam(entityId));
+		assertEquals(new Date(time), entity.getEntityInformation().getRemovalByUserTime());
+		assertEquals(EntityState.onlyLoginPermitted, entity.getEntityInformation().getState());
 	}
 }

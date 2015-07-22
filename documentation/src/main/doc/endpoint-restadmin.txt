@@ -186,6 +186,26 @@ Removes the given entity. No content is returned.
 
 '''
 
++@Path("/entity/{entityId}/removal-schedule")+ +
++@QueryParam("when")+
++@PUT+ +
+
+Sets the entity in the state where it can only login and schedules its removal at given 
+time unless the user logs in before this time. No content is returned. This operation is 
+allowed to be called on self .
+
+'''
+
++@Path("/entity/{entityId}/admin-schedule")+ +
++@QueryParam("when")+
++@QueryParam("operation")+
++@PUT+ +
+
+Schedules an operation to be invoked at a given time on an entity. Must be called by privileged user. Allowed
+operations are: +REMOVE+ and +DISABLE+.
+
+'''
+
 +@Path("/entity/identity/{type}/{value}")+ +
 +@DELETE+ +
 

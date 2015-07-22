@@ -6,7 +6,9 @@ package pl.edu.icm.unity.restadm;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -32,10 +34,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -100,6 +104,37 @@ public class RESTAdmin
 		identitiesMan.removeEntity(new EntityParam(entityId));
 	}
 
+	@Path("/entity/{entityId}/removal-schedule")
+	@PUT
+	public void scheduleRemoval(@PathParam("entityId") long entityId, @QueryParam("when") long when) 
+			throws EngineException, JsonProcessingException
+	{
+		log.debug("scheduleRemovalByUser of " + entityId + " on " + when);
+		Date time = new Date(when);
+		identitiesMan.scheduleRemovalByUser(new EntityParam(entityId), time);
+	}
+
+	@Path("/entity/{entityId}/admin-schedule")
+	@PUT
+	public void scheduleOperation(@PathParam("entityId") long entityId, @QueryParam("when") long when,
+			@QueryParam("operation") String operationStr) 
+			throws EngineException
+	{
+		log.debug("scheduleEntityChange of " + entityId + " on " + when + " op " + operationStr);
+		Date time = new Date(when);
+		EntityScheduledOperation operation;
+		try
+		{
+			operation = EntityScheduledOperation.valueOf(operationStr);
+		} catch (Exception e)
+		{
+			throw new WrongArgumentException("Given operation '" + operationStr 
+					+ "' is unknown, valid are: " + 
+					Arrays.toString(EntityScheduledOperation.values()));
+		}
+		identitiesMan.scheduleEntityChange(new EntityParam(entityId), time, operation);
+	}
+	
 	@Path("/entity/identity/{type}/{value}")
 	@POST
 	public String addEntity(@PathParam("type") String type, @PathParam("value") String value, 
