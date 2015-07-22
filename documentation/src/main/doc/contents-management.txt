@@ -144,6 +144,8 @@ Condition operates on a data structure filled during registration request creati
 is multi-valued then the first value is returned. If the attribute has no value then empty string is returned. 
 . +attrs+ Map indexed with attribute names. Value of each entry is a list of the attribute values.
 . +idsByType+ Map of identity values indexed by type.
+. +idsByTypeObj+ Map of identity objects indexed by type. This map is harder to use then +idsByType+ 
+(which holds strings) but offers access to full information stored in identity as its confirmation state. 
 . +groups+ List of selected groups. 
 . +agrs+ List of agreements. Each agreement is boolean type.
 
@@ -164,6 +166,10 @@ idsByType["x500Name"] != null
 Accept a request only if the first agreement was accepted. 
 ------
 agrs[0] == true
+------
+Accept a request if the first email type identity is confirmed. 
+------
+idsByTypeObj["email"][0].confirmed == true
 ------
 
 === Identities and entities

@@ -337,7 +337,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		redirectAfterSubmit.setDescription(msg.getMessage(
 				"RegistrationFormEditor.redirectAfterSubmitDesc"));
 		redirectAfterSubmit.setValue("");
-		redirectAfterSubmit.setWidth(50, Unit.EM);
+		redirectAfterSubmit.setWidth(100, Unit.PERCENTAGE);
 		redirectAfterSubmit.setNullRepresentation("");
 		redirectAfterSubmit.addValidator(new URLValidator(msg));
 		redirectAfterSubmit.setValidationVisible(true);
@@ -347,7 +347,7 @@ public class RegistrationFormEditor extends VerticalLayout
 				msg.getMessage("RegistrationFormViewer.redirectAfterSubmitAndAccept"));
 		redirectAfterSubmitAndAccept.setDescription(msg.getMessage(
 				"RegistrationFormEditor.redirectAfterSubmitAndAcceptDesc"));
-		redirectAfterSubmitAndAccept.setWidth(50, Unit.EM);
+		redirectAfterSubmitAndAccept.setWidth(100, Unit.PERCENTAGE);
 		redirectAfterSubmitAndAccept.setValue("");
 		redirectAfterSubmitAndAccept.setNullRepresentation("");
 		redirectAfterSubmitAndAccept.addValidator(new URLValidator(msg));
@@ -355,6 +355,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		redirectAfterSubmitAndAccept.setImmediate(true);
 		
 		autoAcceptCondition = new TextField();
+		autoAcceptCondition.setWidth(100, Unit.PERCENTAGE);
 		autoAcceptCondition.setCaption(msg.getMessage("RegistrationFormViewer.autoAcceptCondition"));
 		autoAcceptCondition.setValue("false");
 		autoAcceptCondition.addValidator(new AbstractStringValidator(msg
