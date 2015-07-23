@@ -274,12 +274,13 @@ attr["email"].confirmed == true
 idsByTypeObj["email"][0].confirmed == true
 ----
 
-==== Input translation profile and confirmations
+==== Special encoding of emails 
 
-To control an attribute or identity confirmation state in a translation profile, the regular e-mail value must 
-be followed with the special suffix +[CONFIRMED]+ or +[UNCONFIRMED]+ (case sensitive, without spaces between
-the last character of email address). The default value is unconfirmed.
+When setting an email value from translation profile of via REST API it might be necessary to set the email's metadata.  
 
+To control an attribute or identity confirmation state, the regular e-mail value must be followed with the special 
+suffix +[CONFIRMED]+ or +[UNCONFIRMED]+ (case sensitive, without spaces between
+the last character of email address). The default value is unconfirmed. 
 For instance assuming that the remote IdP provided an attribute +emailAddress+ and we assume that this address
 should be treated as already confirmed the following expression will produce a proper value for the +mapAttribute+
 action:
@@ -288,6 +289,14 @@ action:
 attr["emailAddress"] + "[CONFIRMED]"
 ----
 
+To control whether an address is designated as a main (primary) contact address one can use email tag +main+ in 
+an email value provided to Unity (via REST or in input profile) as follows:
+
+----
+someuser+main@example.com
+----
+
+Of course the tag +main+ can be used together with confirmation. Currently no other email tags are used by Unity. 
 
 ==== User control of e-mail address
 

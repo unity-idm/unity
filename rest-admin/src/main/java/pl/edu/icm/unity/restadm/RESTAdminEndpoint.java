@@ -16,6 +16,7 @@ import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
@@ -29,16 +30,18 @@ public class RESTAdminEndpoint extends RESTEndpoint
 	private IdentitiesManagement identitiesMan;
 	private GroupsManagement groupsMan;
 	private AttributesManagement attributesMan;
+	private IdentityTypesRegistry identityTypesRegistry;
 	
 	public RESTAdminEndpoint(UnityMessageSource msg, SessionManagement sessionMan,
 			EndpointTypeDescription type, String servletPath, IdentitiesManagement identitiesMan,
 			GroupsManagement groupsMan, AttributesManagement attributesMan, 
-			AuthenticationProcessor authnProcessor)
+			AuthenticationProcessor authnProcessor, IdentityTypesRegistry identityTypesRegistry)
 	{
 		super(msg, sessionMan, authnProcessor, type, servletPath);
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
 		this.attributesMan = attributesMan;
+		this.identityTypesRegistry = identityTypesRegistry;
 	}
 
 	@Override
@@ -54,7 +57,7 @@ public class RESTAdminEndpoint extends RESTEndpoint
 		public Set<Object> getSingletons() 
 		{
 			HashSet<Object> ret = new HashSet<>();
-			ret.add(new RESTAdmin(identitiesMan, groupsMan, attributesMan));
+			ret.add(new RESTAdmin(identitiesMan, groupsMan, attributesMan, identityTypesRegistry));
 			installExceptionHandlers(ret);
 			return ret;
 		}

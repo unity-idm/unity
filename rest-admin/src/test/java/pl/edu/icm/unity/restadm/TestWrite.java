@@ -23,6 +23,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ContentType;
@@ -49,6 +50,8 @@ import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
+import pl.edu.icm.unity.stdext.identity.EmailIdentity;
+import pl.edu.icm.unity.stdext.utils.EmailUtils;
 import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -62,6 +65,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -148,6 +152,30 @@ public class TestWrite extends TestRESTBase
 		assertEquals(a.getValues().size(), attrsMan.getAttributes(new EntityParam(entityId), a.getGroupPath(), 
 				a.getName()).iterator().next().getValues().size());
 		System.out.println("Set attribute:\n" + m.writeValueAsString(ap));
+	}
+
+	@Test
+	public void addEmailIdentityPreservesMetadata() throws Exception
+	{
+		HttpPost addEntity = new HttpPost("/restadm/v1/entity/identity/email/"
+				+ "user%2Bmain%40example.xom%5BCONFIRMED%5D?credentialRequirement=cr-pass");
+		HttpResponse response = client.execute(host, addEntity, localcontext);
+		String contents = EntityUtils.toString(response.getEntity());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		ObjectNode root = (ObjectNode) m.readTree(contents);
+		long entityId = root.get("entityId").asLong();
+		Entity entity = idsMan.getEntity(new EntityParam(entityId));
+		Identity emailId = getIdentityByType(entity.getIdentities(), EmailIdentity.ID);
+		assertTrue(emailId.isConfirmed());
+		assertEquals("user@example.xom", emailId.getValue());
+		assertTrue(EmailIdentity.fromIdentityParam(emailId).getTags().contains(EmailUtils.TAG_MAIN));
+		
+		HttpGet resolve = new HttpGet("/restadm/v1/resolve/email/user%40example.xom");
+		response = client.execute(host, resolve, localcontext);
+		contents = EntityUtils.toString(response.getEntity());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		JsonNode n = m.readTree(contents);
+		System.out.println("User's info:\n" + m.writeValueAsString(n));
 	}
 	
 	@Test
