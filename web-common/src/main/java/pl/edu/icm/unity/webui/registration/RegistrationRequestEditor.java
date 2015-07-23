@@ -215,10 +215,16 @@ public class RegistrationRequestEditor extends CustomComponent
 				}
 			} else
 			{
-				String id = rid == null ? null : rid.getValue();
-				ip = id == null ? null : new IdentityParam(regParam.getIdentityType(), id, 
-						remotelyAuthenticated.getRemoteIdPName(), 
-						remotelyAuthenticated.getInputTranslationProfile());
+				if (rid instanceof IdentityParam) //important - we may have metadata set by profile
+				{
+					ip = (IdentityParam)rid;
+				} else
+				{
+					String id = rid == null ? null : rid.getValue();
+					ip = id == null ? null : new IdentityParam(regParam.getIdentityType(), id, 
+							remotelyAuthenticated.getRemoteIdPName(), 
+							remotelyAuthenticated.getInputTranslationProfile());
+				}
 			}
 			identities.add(ip);
 		}
