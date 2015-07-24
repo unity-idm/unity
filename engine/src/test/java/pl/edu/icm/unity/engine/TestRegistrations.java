@@ -22,6 +22,7 @@ import pl.edu.icm.unity.engine.builders.RegistrationRequestBuilder;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -328,7 +329,6 @@ public class TestRegistrations extends DBIntegrationTestBase
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(RegistrationRequestStatus.pending, fromDb.getStatus());
 		clearDB();
-		idsMan.removeIdentity(new IdentityTaV(X500Identity.ID, "CN=registration test"));
 		
 		initAndCreateForm(false, "idsByType[\"" + X500Identity.ID +"\"] != null");
 		request = getRequest();	
@@ -336,7 +336,6 @@ public class TestRegistrations extends DBIntegrationTestBase
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
 		clearDB();
-		idsMan.removeIdentity(new IdentityTaV(X500Identity.ID, "CN=registration test"));
 		
 		initAndCreateForm(false, "attr[\"email\"].toString() == \"foo@a.b\"");
 		request = getRequest();
@@ -344,7 +343,6 @@ public class TestRegistrations extends DBIntegrationTestBase
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
 		clearDB();
-		idsMan.removeIdentity(new IdentityTaV(X500Identity.ID, "CN=registration test"));
 		
 		initAndCreateForm(false, "attrs[\"email\"][0] == \"NoAccept\"");
 		request = getRequest();
@@ -359,7 +357,6 @@ public class TestRegistrations extends DBIntegrationTestBase
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
 		clearDB();
-		idsMan.removeIdentity(new IdentityTaV(X500Identity.ID, "CN=registration test"));
 		
 		initAndCreateForm(false, "agrs[0] == false");
 		request = getRequest();
@@ -472,7 +469,14 @@ public class TestRegistrations extends DBIntegrationTestBase
 		for (RegistrationForm f:registrationsMan.getForms())
 			registrationsMan.removeForm(f.getName(), true);
 		groupsMan.removeGroup("/A", true);
-		groupsMan.removeGroup("/B", true);	
+		groupsMan.removeGroup("/B", true);
+		try
+		{
+			idsMan.removeIdentity(new IdentityTaV(X500Identity.ID, "CN=registration test"));
+		} catch (IllegalIdentityValueException e)
+		{
+			//ok
+		}
 	}
 	
 }
