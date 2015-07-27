@@ -8,7 +8,6 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>unity-server-web-vaadin-widgetset</artifactId>
-	<version>1.0.0</version>
 	<packaging>jar</packaging>
 	<name>UNITY Server ${m.name} module</name>
 	<description>Reduced widgetset for the web endpoints based on Vaadin</description>
