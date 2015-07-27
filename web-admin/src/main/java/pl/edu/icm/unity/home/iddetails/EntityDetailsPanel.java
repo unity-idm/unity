@@ -107,6 +107,8 @@ public class EntityDetailsPanel extends FormLayout
 					cred.getValue().getState().toString());
 			credStatus.addHtmlValueLine("IdentityDetails.credStatusValue", cred.getKey(), status);
 		}
+		credStatus.setVisible(!credInf.getCredentialsState().entrySet().isEmpty());
+			
 		
 		this.groups.resetValue();
 		for (String group: groups)

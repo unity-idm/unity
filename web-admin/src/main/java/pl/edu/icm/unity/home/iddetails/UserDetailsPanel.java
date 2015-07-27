@@ -59,7 +59,9 @@ public class UserDetailsPanel
 	
 	public void setInput(EntityWithLabel entityWithLabel, Collection<Group> groups)
 	{
-		id.setValue(entityWithLabel.toString());
+		id.setValue(entityWithLabel.toShortString());
+		id.setDescription(msg.getMessage("IdentityDetails.entityIdTooltip", 
+				entityWithLabel.getEntity().getId()));
 		Entity entity = entityWithLabel.getEntity();
 		
 		EntityScheduledOperation operation = entity.getEntityInformation().getScheduledOperation();
@@ -83,6 +85,7 @@ public class UserDetailsPanel
 					cred.getValue().getState().toString());
 			credStatus.addHtmlValueLine("IdentityDetails.credStatusValue", cred.getKey(), status);
 		}
+		credStatus.setVisible(!credInf.getCredentialsState().entrySet().isEmpty());
 		
 		this.groups.resetValue();
 		for (Group group: groups)

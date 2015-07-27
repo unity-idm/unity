@@ -59,6 +59,7 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 		
 		selectableAttr = new ListOfSelectableElements(firstheader, secondHeader, DisableMode.WHEN_SELECTED);
 		selectableAttr.addEntry(new Label(at.getDisplayedName().getValue(msg)), false);
+		selectableAttr.setWidth(100, Unit.PERCENTAGE);
 		final CheckBox mainDisable = selectableAttr.getSelection().iterator().next();
 		mainDisable.addValueChangeListener(new ValueChangeListener()
 		{
@@ -72,6 +73,7 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 		main.addComponents(selectableAttr);
 		
 		listOfValues = new ListOfSelectableElements(null, null, DisableMode.WHEN_SELECTED);
+		listOfValues.setWidth(100, Unit.PERCENTAGE);
 		
 		for (T value: attribute.getValues())
 		{

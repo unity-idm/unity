@@ -142,7 +142,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 
 		
 		VerticalLayout contents = new VerticalLayout();
-		contents.setSizeUndefined();
+		contents.addStyleName(Styles.maxWidthColumn.toString());
 		contents.setMargin(true);
 		contents.setSpacing(true);
 		vmain.addComponent(contents);
@@ -189,6 +189,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 		VerticalLayout eiLayout = new VerticalLayout();
 		eiLayout.setMargin(true);
 		eiLayout.setSpacing(true);
+		eiLayout.setWidth(100, Unit.PERCENTAGE);
 		exposedInfoPanel.setContent(eiLayout);
 		try
 		{

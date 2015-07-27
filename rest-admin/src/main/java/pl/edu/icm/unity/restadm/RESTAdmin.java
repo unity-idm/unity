@@ -6,7 +6,9 @@ package pl.edu.icm.unity.restadm;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -23,19 +25,15 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -46,6 +44,14 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
+import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * RESTful API implementation.
@@ -61,14 +67,16 @@ public class RESTAdmin
 	private GroupsManagement groupsMan;
 	private AttributesManagement attributesMan;
 	private ObjectMapper mapper = Constants.MAPPER;
+	private IdentityTypesRegistry identityTypesRegistry;
 	
 	public RESTAdmin(IdentitiesManagement identitiesMan, GroupsManagement groupsMan,
-			AttributesManagement attributesMan)
+			AttributesManagement attributesMan, IdentityTypesRegistry identityTypesRegistry)
 	{
 		super();
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
 		this.attributesMan = attributesMan;
+		this.identityTypesRegistry = identityTypesRegistry;
 	}
 
 	@Path("/resolve/{identityType}/{identityValue}")
@@ -100,6 +108,37 @@ public class RESTAdmin
 		identitiesMan.removeEntity(new EntityParam(entityId));
 	}
 
+	@Path("/entity/{entityId}/removal-schedule")
+	@PUT
+	public void scheduleRemoval(@PathParam("entityId") long entityId, @QueryParam("when") long when) 
+			throws EngineException, JsonProcessingException
+	{
+		log.debug("scheduleRemovalByUser of " + entityId + " on " + when);
+		Date time = new Date(when);
+		identitiesMan.scheduleRemovalByUser(new EntityParam(entityId), time);
+	}
+
+	@Path("/entity/{entityId}/admin-schedule")
+	@PUT
+	public void scheduleOperation(@PathParam("entityId") long entityId, @QueryParam("when") long when,
+			@QueryParam("operation") String operationStr) 
+			throws EngineException
+	{
+		log.debug("scheduleEntityChange of " + entityId + " on " + when + " op " + operationStr);
+		Date time = new Date(when);
+		EntityScheduledOperation operation;
+		try
+		{
+			operation = EntityScheduledOperation.valueOf(operationStr);
+		} catch (Exception e)
+		{
+			throw new WrongArgumentException("Given operation '" + operationStr 
+					+ "' is unknown, valid are: " + 
+					Arrays.toString(EntityScheduledOperation.values()));
+		}
+		identitiesMan.scheduleEntityChange(new EntityParam(entityId), time, operation);
+	}
+	
 	@Path("/entity/identity/{type}/{value}")
 	@POST
 	public String addEntity(@PathParam("type") String type, @PathParam("value") String value, 
@@ -107,7 +146,7 @@ public class RESTAdmin
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("addEntity " + value + " type: " + type);
-		Identity identity = identitiesMan.addEntity(new IdentityParam(type, value), 
+		Identity identity = identitiesMan.addEntity(resolveIdentity(type, value), 
 				credReqIdId, EntityState.valid, false);
 		ObjectNode ret = mapper.createObjectNode();
 		ret.put("entityId", identity.getEntityId());
@@ -122,9 +161,15 @@ public class RESTAdmin
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("addIdentity of " + value + " type: " + type + " for entity: " + entityId);
-		identitiesMan.addIdentity(new IdentityParam(type, value), new EntityParam(entityId), false);
+		identitiesMan.addIdentity(resolveIdentity(type, value), new EntityParam(entityId), false);
 	}
 
+	private IdentityParam resolveIdentity(String type, String value) throws EngineException
+	{
+		IdentityTypeDefinition idType = identityTypesRegistry.getByName(type);
+		return idType.convertFromString(value, null, null);
+	}
+	
 	@Path("/entity/identity/{type}/{value}")
 	@DELETE
 	public void removeIdentity(@PathParam("type") String type, @PathParam("value") String value,

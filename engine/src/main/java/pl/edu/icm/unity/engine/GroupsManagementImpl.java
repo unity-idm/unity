@@ -29,6 +29,7 @@ import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
@@ -186,7 +187,7 @@ public class GroupsManagementImpl implements GroupsManagement
 			authz.checkAuthorization(path, AuthzCapability.read);
 		} catch (AuthorizationException e)
 		{
-			if ((GroupContents.GROUPS & filter) == 0)
+			if (((GroupContents.GROUPS | GroupContents.METADATA) & filter) == 0)
 				throw e;
 			return getLimitedContents(path, filter);
 		}
@@ -224,19 +225,21 @@ public class GroupsManagementImpl implements GroupsManagement
 						+ "getContents requires 'read' capability");
 				
 			//TODO - handle linked groups
-			List<String> directSubgroups = new ArrayList<String>();
-			
-			for (String g: allGroups)
-			{
-				Group potential = new Group(g);
-				String parent = potential.getParentPath();
-				if (parent != null && parent.equals(path))
-					directSubgroups.add(g);
-			}
-			
 			GroupContents ret = new GroupContents();
-			ret.setSubGroups(directSubgroups);
-			
+
+			if ((filter & GroupContents.GROUPS) != 0)
+			{
+				List<String> directSubgroups = new ArrayList<String>();
+
+				for (String g: allGroups)
+				{
+					Group potential = new Group(g);
+					String parent = potential.getParentPath();
+					if (parent != null && parent.equals(path))
+						directSubgroups.add(g);
+				}
+				ret.setSubGroups(directSubgroups);
+			}			
 			if ((filter & GroupContents.LINKED_GROUPS) != 0)
 			{
 				ret.setLinkedGroups(new ArrayList<String>());
@@ -247,7 +250,9 @@ public class GroupsManagementImpl implements GroupsManagement
 			}
 			if ((filter & GroupContents.METADATA) != 0)
 			{
-				ret.setGroup(new Group(path));
+				Group gMetadata = dbGroups.getContents(path, GroupContents.METADATA, sqlMap).
+						getGroup();
+				ret.setGroup(gMetadata);
 			}
 			return ret;
 		} finally
@@ -263,6 +268,9 @@ public class GroupsManagementImpl implements GroupsManagement
 		SqlSession sql = db.getSqlSession(true);
 		try 
 		{
+			if (!path.equals(group.toString()))
+				throw new IllegalGroupValueException("Changing group name is currently "
+						+ "unsupported. Only displayed name can be changed.");
 			validateGroupStatements(group, sql);
 			AttributeClassUtil.validateAttributeClasses(group.getAttributesClasses(), acDB, sql);
 			GroupContents gc = dbGroups.getContents(path, GroupContents.MEMBERS, sql);

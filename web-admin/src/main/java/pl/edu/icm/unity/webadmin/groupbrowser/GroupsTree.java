@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -27,6 +28,7 @@ import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.GroupUtils;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
@@ -64,6 +66,7 @@ import com.vaadin.ui.Tree;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class GroupsTree extends Tree
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, GroupsTree.class);
 	private GroupsManagement groupsMan;
 	private IdentitiesManagement identitiesMan;
 	private UnityMessageSource msg;
@@ -108,14 +111,15 @@ public class GroupsTree extends Tree
 		} catch (EngineException e)
 		{
 			//this will show error node
-			TreeNode parent = new TreeNode(msg, "/");
+			TreeNode parent = new TreeNode(msg, new Group("/"));
 			addItem(parent);
-			expandItem(new TreeNode(msg, "/"));
+			expandItem(parent);
 		}
 	}
 
 	@Override
-	public void addActionHandler(Action.Handler actionHandler) {
+	public void addActionHandler(Action.Handler actionHandler) 
+	{
 		super.addActionHandler(actionHandler);
 		if (actionHandler instanceof SingleActionHandler)
 			actionHandlers.add((SingleActionHandler) actionHandler);
@@ -135,11 +139,12 @@ public class GroupsTree extends Tree
 	{
 		try
 		{
-			groupsMan.getContents("/", GroupContents.GROUPS|GroupContents.LINKED_GROUPS);
-			TreeNode parent = new TreeNode(msg, "/");
+			GroupContents contents = groupsMan.getContents("/", 
+					GroupContents.GROUPS|GroupContents.LINKED_GROUPS|GroupContents.METADATA);
+			TreeNode parent = new TreeNode(msg, contents.getGroup());
 			addItem(parent);
 			setItemIcon(parent, Images.folder.getResource());
-			expandItem(new TreeNode(msg, "/"));
+			expandItem(parent);
 		} catch (AuthorizationException e)
 		{
 			setupAccessibleRoots();
@@ -179,22 +184,35 @@ public class GroupsTree extends Tree
 			}
 			if (!parentFound)
 			{
-				TreeNode parent = new TreeNode(msg, accessibleGroups.get(i), true);
-				addItem(parent);
-				setItemIcon(parent, Images.folder.getResource());
+				try
+				{
+					GroupContents contents = groupsMan.getContents(accessibleGroups.get(i), 
+						GroupContents.METADATA);
+					TreeNode parent = new TreeNode(msg, contents.getGroup());
+					addItem(parent);
+					setItemIcon(parent, Images.folder.getResource());
+				} catch (AuthorizationException e2)
+				{
+					continue;
+				}
 			}
 		}
 	}
 	
 	public void refresh()
 	{
-		refreshNode(new TreeNode(msg, "/"));
+		Collection<?> rootItemIds = rootItemIds();
+		for (Object rootItem: rootItemIds)
+			refreshNode((TreeNode) rootItem);
 	}
 	
 	private void refreshNode(TreeNode node)
 	{
 		if (node == null)
-			node = new TreeNode(msg, "/");
+		{
+			refresh();
+			return;
+		}
 		node.setContentsFetched(false);
 		setChildrenAllowed(node, true);
 		collapseItem(node);
@@ -527,7 +545,7 @@ public class GroupsTree extends Tree
 			try
 			{
 				contents = groupsMan.getContents(expandedNode.getPath(), GroupContents.GROUPS|
-						GroupContents.LINKED_GROUPS);
+						GroupContents.LINKED_GROUPS | GroupContents.METADATA);
 			} catch (Exception e)
 			{
 				setItemIcon(expandedNode, Images.noAuthzGrp.getResource());
@@ -535,6 +553,8 @@ public class GroupsTree extends Tree
 				return;
 			}
 
+			expandedNode.setGroupMetadata(contents.getGroup());
+			
 			if (contents.getLinkedGroups().isEmpty() && contents.getSubGroups().isEmpty())
 				setChildrenAllowed(expandedNode, false);
 
@@ -542,10 +562,18 @@ public class GroupsTree extends Tree
 			Collections.sort(subgroups);
 			for (String subgroup: subgroups)
 			{
-				TreeNode node = new TreeNode(msg, subgroup);
-				addItem(node);
-				setItemIcon(node, Images.folder.getResource());
-				setParent(node, node.getParentNode());
+				GroupContents contents2;
+				try
+				{
+					contents2 = groupsMan.getContents(subgroup, GroupContents.METADATA);
+					TreeNode node = new TreeNode(msg, contents2.getGroup(), expandedNode);
+					addItem(node);
+					setItemIcon(node, Images.folder.getResource());
+					setParent(node, node.getParentNode());
+				} catch (EngineException e)
+				{
+					log.debug("Group " + subgroup + " won't be shown - metadata not readable.");
+				}
 			}
 
 			expandedNode.setContentsFetched(true);

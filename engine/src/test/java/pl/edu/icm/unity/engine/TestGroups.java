@@ -45,6 +45,7 @@ public class TestGroups extends DBIntegrationTestBase
 		Group a = new Group("/A");
 		groupsMan.addGroup(a);
 		Group ab = new Group("/A/B");
+		ab.setDescription(new I18nString("d-n"));
 		groupsMan.addGroup(ab);
 		Group ac = new Group("/A/C");
 		groupsMan.addGroup(ac);
@@ -66,6 +67,10 @@ public class TestGroups extends DBIntegrationTestBase
 		assertEquals("/A/B", aC.getSubGroups().get(0));
 		assertNotNull(aC.getGroup());
 		assertNotNull(aC.getMembers());
+
+		GroupContents abC = groupsMan.getContents("/A/B", GroupContents.EVERYTHING);
+		assertNotNull(abC.getGroup());
+		assertEquals(new I18nString("d-n"), abC.getGroup().getDescription());
 
 		try
 		{
@@ -118,7 +123,7 @@ public class TestGroups extends DBIntegrationTestBase
 		a.setAttributeStatements(statements);
 		groupsMan.updateGroup("/A", a);
 		
-		Group root = new Group("should be ignored");
+		Group root = new Group("/");
 		root.setDescription(new I18nString("root desc"));
 		groupsMan.updateGroup("/", root);
 		

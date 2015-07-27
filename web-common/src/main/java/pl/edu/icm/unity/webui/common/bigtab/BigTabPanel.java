@@ -32,7 +32,6 @@ public class BigTabPanel extends HorizontalLayout
 		super();
 		this.msg = msg;
 		tabs = new BigTabs(tabsBarWidth, widthUnit);
-		tabs.setHeight(100, Unit.PERCENTAGE);
 		mainPanel = new SafePanel();
 		main = new VerticalLayout();
 		main.setSizeFull();

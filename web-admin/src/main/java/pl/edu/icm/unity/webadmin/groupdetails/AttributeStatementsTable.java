@@ -89,8 +89,7 @@ public class AttributeStatementsTable extends SmallTable
 	
 	private void updateGroup(AttributeStatement[] attributeStatements)
 	{
-		Group updated = new Group(group.toString());
-		updated.setDescription(group.getDescription());
+		Group updated = group.clone();
 		updated.setAttributeStatements(attributeStatements);
 		try
 		{

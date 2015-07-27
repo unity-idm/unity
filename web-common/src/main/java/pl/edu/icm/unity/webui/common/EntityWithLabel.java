@@ -19,12 +19,14 @@ public class EntityWithLabel
 	private Entity entity;
 	private String label;
 	private String txtRepresentation;
+	private String shortTxtRepresentation;
 	
 	public EntityWithLabel(Entity entity, String label)
 	{
 		this.entity = entity;
 		this.label = label;
 		txtRepresentation = label == null ? "["+entity.getId()+"]" : label + " [" + entity.getId() + "]";
+		shortTxtRepresentation = label == null ? "["+entity.getId()+"]" : label;
 	}
 	
 	public Entity getEntity()
@@ -35,6 +37,14 @@ public class EntityWithLabel
 	public String getLabel()
 	{
 		return label;
+	}
+
+	/**
+	 * @return entity displayed name or "[entityID]" if displayed name is undefined
+	 */
+	public String toShortString()
+	{
+		return shortTxtRepresentation;
 	}
 
 	@Override

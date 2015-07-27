@@ -50,6 +50,10 @@ public class UserIdentitiesPanel
 		this.identityEditorReg = identityEditorReg;
 		this.idsManagement = idsManagement;
 		this.entityId = entityId;
+		
+		identityEditors = new ArrayList<>();
+		roLabels = new ArrayList<>();
+		
 		initIdentities();
 	}
 
@@ -86,9 +90,8 @@ public class UserIdentitiesPanel
 	
 	private void initUI() throws EngineException
 	{
-		identityEditors = new ArrayList<>();
-		roLabels = new ArrayList<>();
-
+		identityEditors.clear();
+		roLabels.clear();
 		for (IdentityType typeKey: roIdsByType.keySet())
 			addRoIdentity(typeKey);
 		for (IdentityType typeKey: editableIdsByType.keySet())
@@ -130,7 +133,8 @@ public class UserIdentitiesPanel
 	{
 		clear();
 		initIdentities();
-		initUI();
+		if (parent != null)
+			initUI();
 	}
 	
 	public void validate() throws FormValidationException

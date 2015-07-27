@@ -20,6 +20,7 @@ public class AuthenticatedEntity
 	private Long entityId;
 	private boolean usedOutdatedCredential;
 	private List<String> authenticatedWith;
+	private String remoteIdP;
 
 	public AuthenticatedEntity(Long entityId, String info, boolean useOutdatedCredential)
 	{
@@ -28,6 +29,21 @@ public class AuthenticatedEntity
 		authenticatedWith.add(info);
 		this.usedOutdatedCredential = useOutdatedCredential;
 	}
+
+	/**
+	 * @return null in case entity was authenticated locally, id of the remote IdP otherwise.
+	 */
+	public String getRemoteIdP()
+	{
+		return remoteIdP;
+	}
+
+	public void setRemoteIdP(String remoteIdP)
+	{
+		this.remoteIdP = remoteIdP;
+	}
+
+
 
 	public Long getEntityId()
 	{

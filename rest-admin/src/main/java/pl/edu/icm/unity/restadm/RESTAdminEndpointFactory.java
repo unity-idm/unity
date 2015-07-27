@@ -17,6 +17,7 @@ import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
+import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
@@ -46,6 +47,8 @@ public class RESTAdminEndpointFactory implements EndpointFactory
 	private AttributesManagement attributesMan;
 	@Autowired
 	private AuthenticationProcessor authnProcessor;
+	@Autowired
+	private IdentityTypesRegistry identityTypesRegistry;
 	
 	@Override
 	public EndpointTypeDescription getDescription()
@@ -57,7 +60,7 @@ public class RESTAdminEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new RESTAdminEndpoint(msg, sessionMan, TYPE, "", identitiesMan, groupsMan, attributesMan,
-				authnProcessor);
+				authnProcessor, identityTypesRegistry);
 	}
 
 }

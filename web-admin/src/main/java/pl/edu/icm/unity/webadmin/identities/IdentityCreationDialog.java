@@ -62,6 +62,7 @@ public class IdentityCreationDialog extends AbstractDialog
 	@Override
 	protected FormLayout getContents() throws EngineException
 	{
+		setSizeMode(SizeMode.LARGE);
 		identityType = new ComboBox(msg.getMessage("IdentityCreation.idType"));
 		Set<String> supportedTypes = identityEditorReg.getSupportedTypes();
 		for (String type: supportedTypes)

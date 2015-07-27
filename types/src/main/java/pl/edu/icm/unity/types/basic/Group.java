@@ -36,6 +36,7 @@ public class Group extends I18nDescribedObject implements Serializable
 	
 	private AttributeStatement[] attributeStatements = new AttributeStatement[0];
 	private Set<String> attributesClasses = new HashSet<String>();
+	private boolean displayedNameSet = false;
 
 	public Group(Group parent, String name)
 	{
@@ -70,6 +71,18 @@ public class Group extends I18nDescribedObject implements Serializable
 		description = new I18nString();
 	}
 
+	@Override
+	public Group clone()
+	{
+		Group target = new Group(toString());
+		target.setDescription(description.clone());
+		target.setDisplayedName(displayedName.clone());
+		Set<String> acClone = new HashSet<>(attributesClasses);
+		target.setAttributesClasses(acClone);
+		target.setAttributeStatements(attributeStatements.clone());
+		return target;
+	}
+	
 	public boolean isChild(Group test)
 	{
 		String []tPath = test.getPath();
@@ -126,6 +139,24 @@ public class Group extends I18nDescribedObject implements Serializable
 		this.attributesClasses = attributesClasses;
 	}
 
+	/**
+	 * @return if displayed name was set to something different then the default value (i.e. the value returned 
+	 * by {@link #toString()}) it is returned. Otherwise the {@link #getName()} result is returned. 
+	 */
+	public I18nString getDisplayedNameShort()
+	{
+		return displayedNameSet ? displayedName : new I18nString(getName());
+	}
+	
+	@Override
+	public void setDisplayedName(I18nString displayedName)
+	{
+		displayedNameSet = !toString().equals(displayedName.getDefaultValue()) ||
+				!displayedName.getMap().isEmpty();
+		super.setDisplayedName(displayedName);
+	}
+	
+	@Override
 	public String toString()
 	{
 		if (path.length == 0)

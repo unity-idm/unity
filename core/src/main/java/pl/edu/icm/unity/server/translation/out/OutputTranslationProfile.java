@@ -15,6 +15,7 @@ import org.apache.log4j.NDC;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.AbstractTranslationProfile;
@@ -138,12 +139,15 @@ public class OutputTranslationProfile extends AbstractTranslationProfile<OutputT
 		
 		if (InvocationContext.hasCurrent())
 		{
-			Set<String> authenticatedIdentities = InvocationContext.getCurrent().
-				getLoginSession().getAuthenticatedIdentities();
+			LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
+			Set<String> authenticatedIdentities = loginSession.getAuthenticatedIdentities();
 			ret.put("authenticatedWith", new ArrayList<String>(authenticatedIdentities));
+			ret.put("idp", loginSession.getRemoteIdP() == null ? 
+					"_LOCAL" : loginSession.getRemoteIdP());
 		} else
 		{
 			ret.put("authenticatedWith", new ArrayList<String>());
+			ret.put("idp", null);
 		}
 		return ret;
 	}

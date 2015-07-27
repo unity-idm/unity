@@ -235,6 +235,7 @@ public class TestEmailFacility extends DBIntegrationTestBase
 	}
 
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void emailExtractedFromRegistration() throws Exception
 	{
@@ -242,8 +243,8 @@ public class TestEmailFacility extends DBIntegrationTestBase
 		
 		RegistrationRequestState request = new RegistrationRequestState();
 		request.setRequest(new RegistrationRequest());
-		request.getRequest().setAttributes(new ArrayList<>());
-		request.getRequest().setIdentities(new ArrayList<>());
+		request.getRequest().setAttributes(new ArrayList());
+		request.getRequest().setIdentities(new ArrayList());
 		
 		setEmailAttr(request, plainA);
 		check(request, plainA.getValue());

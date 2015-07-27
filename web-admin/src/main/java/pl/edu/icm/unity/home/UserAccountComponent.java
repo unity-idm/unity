@@ -187,7 +187,8 @@ public class UserAccountComponent extends VerticalLayout
 		{
 			CredentialsPanel credentialsPanel = new CredentialsPanel(msg, theUser.getEntityId(), 
 					authnMan, idsMan, credEditorReg, true);
-			tabPanel.addTab("UserHomeUI.credentialsLabel", "UserHomeUI.credentialsDesc", 
+			if (!credentialsPanel.isCredentialRequirementEmpty())
+				tabPanel.addTab("UserHomeUI.credentialsLabel", "UserHomeUI.credentialsDesc", 
 					Images.key64.getResource(), credentialsPanel);
 		} catch (Exception e)
 		{

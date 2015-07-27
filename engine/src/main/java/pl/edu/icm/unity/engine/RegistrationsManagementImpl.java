@@ -575,6 +575,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				for (Object v : attr.getValues())
 				{
 					VerifiableElement val = (VerifiableElement) v;
+					if (val.isConfirmed())
+						continue;
 					RegistrationReqAttribiuteConfirmationState state = 
 						new RegistrationReqAttribiuteConfirmationState(
 							requestState.getRequestId(), 
@@ -596,7 +598,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			if (id == null)
 				continue;
 			
-			if (identityTypesRegistry.getByName(id.getTypeId()).isVerifiable())
+			if (identityTypesRegistry.getByName(id.getTypeId()).isVerifiable() && !id.isConfirmed())
 			{
 				BaseConfirmationState state;
 				if (entityId == null)

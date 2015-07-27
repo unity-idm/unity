@@ -9,7 +9,10 @@ import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webadmin.groupdetails.GroupAttributesClassesDialog.Callback;
+import pl.edu.icm.unity.webui.WebSession;
+import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.SmallTable;
@@ -25,6 +28,7 @@ public class GroupAttributesClassesTable extends SmallTable
 	private AttributesManagement attrMan;
 	private Group group;
 	private SingleActionHandler[] handlers;
+	private EventsBus bus;
 	
 	public GroupAttributesClassesTable(UnityMessageSource msg, GroupsManagement groupsManagement, 
 			AttributesManagement attrMan)
@@ -32,6 +36,8 @@ public class GroupAttributesClassesTable extends SmallTable
 		this.msg = msg;
 		this.attrMan = attrMan;
 		this.groupsManagement = groupsManagement;
+		this.bus = WebSession.getCurrent().getEventBus();
+		
 		addContainerProperty(msg.getMessage("GroupDetails.groupAcs"), 
 				String.class, null);
 		handlers = new SingleActionHandler [] {new EditHandler()};
@@ -62,7 +68,7 @@ public class GroupAttributesClassesTable extends SmallTable
 					@Override
 					public void onUpdate(Group updated)
 					{
-						setInput(updated);
+						bus.fireEvent(new GroupChangedEvent(group.toString()));
 					}
 				});
 		dialog.show();

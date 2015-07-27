@@ -44,6 +44,7 @@ public class LoginSession
 	private boolean usedOutdatedCredential;
 	private String entityLabel;
 	private Set<String> authenticatedIdentities = new LinkedHashSet<>();
+	private String remoteIdP;
 	
 	private Map<String, String> sessionData = new HashMap<String, String>();
 
@@ -184,6 +185,16 @@ public class LoginSession
 		this.authenticatedIdentities.addAll(identity);
 	}
 	
+	public String getRemoteIdP()
+	{
+		return remoteIdP;
+	}
+
+	public void setRemoteIdP(String remoteIdP)
+	{
+		this.remoteIdP = remoteIdP;
+	}
+
 	public void deserialize(Token token)
 	{
 		ObjectNode main;
@@ -208,6 +219,9 @@ public class LoginSession
 				ai.add(an.get(i).asText());
 			addAuthenticatedIdentities(ai);
 		}
+
+		if (main.has("remoteIdP"))
+			setRemoteIdP(main.get("remoteIdP").asText());
 		
 		setId(token.getValue());
 		setStarted(token.getCreated());
@@ -241,7 +255,8 @@ public class LoginSession
 		ArrayNode ai = main.withArray("authenticatedIdentities");
 		for (String id: authenticatedIdentities)
 			ai.add(id);
-		
+		if (remoteIdP != null)
+			main.put("remoteIdP", remoteIdP);
 		ObjectNode attrsJson = main.putObject("attributes");
 		for (Map.Entry<String, String> a: getSessionData().entrySet())
 			attrsJson.put(a.getKey(), a.getValue());

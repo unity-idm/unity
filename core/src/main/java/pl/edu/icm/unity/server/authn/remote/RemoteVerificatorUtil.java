@@ -97,6 +97,7 @@ public class RemoteVerificatorUtil
 					null, null);
 			AuthenticatedEntity authenticatedEntity = new AuthenticatedEntity(resolved, 
 					remoteIdentityMapped.getValue(), false);
+			authenticatedEntity.setRemoteIdP(remoteContext.getRemoteIdPName());
 			return new AuthenticationResult(Status.success, remoteContext, authenticatedEntity);
 		} catch (IllegalIdentityValueException ie)
 		{

@@ -30,6 +30,7 @@ public class GroupEditDialog extends AbstractDialog
 	private I18nTextArea description;
 	private String parent;
 	private String originalName;
+	private Group originalGroup;
 	private I18nString originalDispName;
 	private I18nString originalDesc;
 
@@ -43,6 +44,7 @@ public class GroupEditDialog extends AbstractDialog
 		this.originalName = edit ? group.getName() : "";
 		this.originalDesc = edit ? group.getDescription() : new I18nString();
 		this.originalDispName = edit ? group.getDisplayedName() : new I18nString();
+		this.originalGroup = edit ? group : null;
 		this.callback = callback;
 		setSizeMode(SizeMode.MEDIUM);
 	}
@@ -56,7 +58,7 @@ public class GroupEditDialog extends AbstractDialog
 		
 		name = new TextField(msg.getMessage("GroupEditDialog.groupName"));
 		name.setValue(originalName);
-		if (originalName.equals("/"))
+		if (!originalName.isEmpty())
 			name.setReadOnly(true);
 		fl.addComponent(name);
 		
@@ -79,7 +81,12 @@ public class GroupEditDialog extends AbstractDialog
 		try
 		{
 			String gName = name.getValue();
-			Group group = gName.equals("/") ? new Group("/") : new Group(new Group(parent), name.getValue());
+			Group group;
+			if (originalGroup != null)
+				group = originalGroup.clone();
+			else
+				group = gName.equals("/") ? new Group("/") : 
+					new Group(new Group(parent), gName);
 			group.setDescription(description.getValue());
 			I18nString dispName = displayedName.getValue();
 			dispName.setDefaultValue(group.toString());

@@ -24,9 +24,7 @@ of translation actions have) to be specified as _MVEL expressions_. Such express
 dynamic functionality. 
 
 The full MVEL documentation can be found here: 
-http://mvel.codehaus.org/Language+Guide+for+2.0 
-and the quick start is here:
-http://mvel.codehaus.org/Getting+Started+for+2.0
+https://en.wikisource.org/wiki/MVEL_Language_Guide
 
 The following example condition:
 ----
@@ -223,6 +221,8 @@ If the attribute has no value then empty string is returned.
 If remote authentication was used the list contains a single identity that was used 
 to map the remote user to the local entity (as chosen by the input translation profile). 
 The list can have two elements when MFA was used.
+. +idp+ Identifier of a remote IdP that was used to authenticate the current user's session. 
+In case when only a local authentication was used, the value is set to +_LOCAL+.  
  
 
 Example output profile:

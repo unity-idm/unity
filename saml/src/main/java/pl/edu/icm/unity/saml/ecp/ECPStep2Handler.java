@@ -188,6 +188,7 @@ public class ECPStep2Handler
 				"", client.isUsedOutdatedCredential(), null);
 		ctx.setLoginSession(ls);
 		ls.addAuthenticatedIdentities(client.getAuthenticatedWith());
+		ls.setRemoteIdP(client.getRemoteIdP());
 	}
 
 	

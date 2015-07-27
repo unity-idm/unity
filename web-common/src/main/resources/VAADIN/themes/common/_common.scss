@@ -194,6 +194,10 @@
 		max-height: $v-unit-size * 2;
 	}
 	
+	.u-maxWidthColumn {
+		max-width: $v-unit-size * 24;
+	}
+	
 	.u-smallMargin.v-margin-top {
 		padding-top: round($v-layout-margin-top/3);
 	}
