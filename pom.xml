@@ -44,6 +44,7 @@
 		<module>engine</module>
 		<module>persistence</module>
 		<module>std-extensions</module>
+		<module>web-vaadin-widgetset</module>
 		<module>web-common</module>
 		<module>web-admin</module>
 		<module>rest</module>
