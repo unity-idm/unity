@@ -4,27 +4,26 @@
 <mapper namespace="pl.edu.icm.unity.db.mapper.InitdbMapper">
 
 	<sql id="dateTimeType">
-		DATETIME
+		TIMESTAMP
 	</sql>
-	
+
 	<sql id="primaryKeyColumn">
-		ID INTEGER PRIMARY KEY AUTO_INCREMENT
+		ID SERIAL PRIMARY KEY
 	</sql>
-	
+
 	<sql id="valuesColumn">
-		`VALUES` MEDIUMBLOB
+		VALUES BYTEA
 	</sql>
-	
 
 	<sql id="defaultColsBlob">
-		ID INTEGER PRIMARY KEY AUTO_INCREMENT,
-		NAME VARCHAR(200),
-		CONTENTS MEDIUMBLOB
+		ID SERIAL PRIMARY KEY, 
+		NAME VARCHAR(200), 
+		CONTENTS BYTEA
 	</sql>
 	<sql id="defaultColsMem">
-		ID INTEGER PRIMARY KEY AUTO_INCREMENT,
+		ID SERIAL PRIMARY KEY,
 		NAME VARCHAR(200),
-		CONTENTS VARBINARY(60000)
+		CONTENTS BYTEA
 	</sql>
 	<sql id="defaultColsMemU">
 		<include refid="defaultColsMem"/>,
@@ -36,39 +35,35 @@
 	<sql id="tableOpts">
 		);
 	</sql>
-	
+
 	<select id="getDBLimits" resultType="DBLimits">
-		select 200 AS nameLimit, 60000 AS contentsLimit
+		select 200 AS nameLimit, 60000 AS contentsLimit 
 	</select>
-	
-	<update id="shutdown">
-		SHUTDOWN;
-	</update>
-	
-	
+
+
 	<update id="resetIndex-00">
-		ALTER TABLE VAR_BIG_OBJECTS ALTER COLUMN ID RESTART WITH 1;
+		ALTER TABLE VAR_BIG_OBJECTS AUTO_INCREMENT=1;
 	</update>
 	<update id="resetIndex-01">
-		ALTER TABLE VAR_OBJECTS ALTER COLUMN ID RESTART WITH 1;
+		ALTER TABLE VAR_OBJECTS AUTO_INCREMENT=1;
 	</update>
 	<update id="resetIndex-02">
-		ALTER TABLE ATTRIBUTES ALTER COLUMN ID RESTART WITH 1;
+		ALTER TABLE ATTRIBUTES AUTO_INCREMENT=1;
 	</update>
 	<update id="resetIndex-03">
-		ALTER TABLE GROUPS ALTER COLUMN ID RESTART WITH 1;
+		ALTER TABLE GROUPS AUTO_INCREMENT=1;
 	</update>
 	<update id="resetIndex-04">
-		ALTER TABLE IDENTITIES ALTER COLUMN ID RESTART WITH 1;
+		ALTER TABLE IDENTITIES AUTO_INCREMENT=1;
 	</update>
 	<update id="resetIndex-05">
-		ALTER TABLE ENTITIES ALTER COLUMN ID RESTART WITH 1;
+		ALTER TABLE ENTITIES AUTO_INCREMENT=1;
 	</update>
 	<update id="resetIndex-06">
-		ALTER TABLE IDENTITY_TYPES ALTER COLUMN ID RESTART WITH 1;
+		ALTER TABLE IDENTITY_TYPES AUTO_INCREMENT=1;
 	</update>
 	<update id="resetIndex-07">
-		ALTER TABLE ATTRIBUTE_TYPES ALTER COLUMN ID RESTART WITH 1;
+		ALTER TABLE ATTRIBUTE_TYPES AUTO_INCREMENT=1;
 	</update>
-	
+
 </mapper>
