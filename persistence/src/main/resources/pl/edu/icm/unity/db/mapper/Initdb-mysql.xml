@@ -10,11 +10,15 @@
 	<sql id="primaryKeyColumn">
 		ID INTEGER PRIMARY KEY AUTO_INCREMENT
 	</sql>
-
+	
+	<sql id="values">
+		`VALUES`
+	</sql>
+	
 	<sql id="valuesColumn">
 		`VALUES` MEDIUMBLOB
 	</sql>
-
+	
 	<sql id="defaultColsBlob">
 		ID INTEGER PRIMARY KEY AUTO_INCREMENT, 
 		NAME VARCHAR(200), 
