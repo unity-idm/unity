@@ -7,7 +7,6 @@ package pl.edu.icm.unity.oauth.as;
 import java.security.PrivateKey;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.RSAPrivateKey;
-import java.text.ParseException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -37,6 +36,7 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
+import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.Issuer;
@@ -121,8 +121,8 @@ public class OAuthProcessor
 		{
 			AuthorizationCode authzCode = new AuthorizationCode();
 			internalToken.setAuthzCode(authzCode.getValue());
-			oauthResponse = new AuthorizationSuccessResponse(ctx.getReturnURI(), authzCode, 
-					ctx.getRequest().getState());
+			oauthResponse = new AuthorizationSuccessResponse(ctx.getReturnURI(), authzCode, null,
+					ctx.getRequest().getState(), ctx.getRequest().impliedResponseMode());
 			Date expiration = new Date(now.getTime() + ctx.getCodeTokenValidity() * 1000);
 			tokensMan.addToken(INTERNAL_CODE_TOKEN, authzCode.getValue(), 
 					new EntityParam(identity), internalToken.getSerialized(), now, expiration);
@@ -133,7 +133,8 @@ public class OAuthProcessor
 				//we return only the id token, no access token so we don't need an internal token.
 				return new AuthenticationSuccessResponse(
 						ctx.getReturnURI(), null, idTokenSigned, 
-						null, ctx.getRequest().getState());
+						null, ctx.getRequest().getState(), null, 
+						ctx.getRequest().impliedResponseMode());
 			}
 
 			AccessToken accessToken = new BearerAccessToken();
@@ -141,7 +142,8 @@ public class OAuthProcessor
 			Date expiration = new Date(now.getTime() + ctx.getAccessTokenValidity() * 1000);
 			oauthResponse = new AuthenticationSuccessResponse(
 						ctx.getReturnURI(), null, idTokenSigned, 
-						accessToken, ctx.getRequest().getState());
+						accessToken, ctx.getRequest().getState(), null, 
+						ctx.getRequest().impliedResponseMode());
 			tokensMan.addToken(INTERNAL_ACCESS_TOKEN, accessToken.getValue(), 
 					new EntityParam(identity), internalToken.getSerialized(), now, expiration);
 		} else if (GrantFlow.openidHybrid == ctx.getFlow())
@@ -169,7 +171,8 @@ public class OAuthProcessor
 			//id token also sometimes, but this was handled before.
 			oauthResponse = new AuthenticationSuccessResponse(
 					ctx.getReturnURI(), authzCode, idTokenSigned, 
-					accessToken, ctx.getRequest().getState());
+					accessToken, ctx.getRequest().getState(), null, 
+					ctx.getRequest().impliedResponseMode());
 		}
 		
 		return oauthResponse;
@@ -251,7 +254,7 @@ public class OAuthProcessor
 	}
 	
 	private JWT signIdToken(IDTokenClaimsSet idTokenClaims, OAuthAuthzContext ctx) 
-			throws ParseException, JOSEException
+			throws JOSEException, ParseException
 	{
 		PrivateKey pk = ctx.getCredential().getKey();
 		SignedJWT ret;

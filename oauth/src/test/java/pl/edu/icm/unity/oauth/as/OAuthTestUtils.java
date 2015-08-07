@@ -64,7 +64,7 @@ public class OAuthTestUtils
 	public static OAuthAuthzContext createContext(ResponseType respType, GrantFlow grant, 
 			long clientEntityId) throws Exception
 	{
-		AuthorizationRequest request = new AuthorizationRequest(null, respType, 
+		AuthorizationRequest request = new AuthorizationRequest(null, respType, null,
 				new ClientID("clientC"), new URI("https://return.host.com/foo"), 
 				null, new State("state123"));
 		X509Credential credential = new KeystoreCredential("src/test/resources/demoKeystore.p12", 

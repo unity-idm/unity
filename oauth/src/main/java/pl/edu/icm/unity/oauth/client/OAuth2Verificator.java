@@ -175,6 +175,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			req = new AuthorizationRequest(
 					new URI(authzEndpoint),
 					new ResponseType(ResponseType.Value.CODE),
+					null,
 					new ClientID(clientId),
 					new URI(responseConsumerAddress),
 					scope, 
