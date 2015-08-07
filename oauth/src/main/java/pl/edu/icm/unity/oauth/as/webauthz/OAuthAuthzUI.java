@@ -198,16 +198,15 @@ public class OAuthAuthzUI extends UnityUIBase
 			ErrorObject eo = new ErrorObject("access_denied", 
 					e.getMessage(), HTTPResponse.SC_FORBIDDEN);
 			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
-					eo, ctx.getRequest().getResponseType(), 
-					ctx.getRequest().getState());
+					eo, ctx.getRequest().getState(), ctx.getRequest().impliedResponseMode());
 			oauthResponseHandler.returnOauthResponse(oauthResponse, true);
 		} catch (Exception e)
 		{
 			log.error("Engine problem when handling client request", e);
 			//we kill the session as the user may want to log as different user if has access to several entities.
 			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
-					OAuth2Error.SERVER_ERROR, ctx.getRequest().getResponseType(), 
-					ctx.getRequest().getState());
+					OAuth2Error.SERVER_ERROR, ctx.getRequest().getState(),
+					ctx.getRequest().impliedResponseMode());
 			oauthResponseHandler.returnOauthResponse(oauthResponse, true);
 		}
 		
@@ -290,8 +289,8 @@ public class OAuthAuthzUI extends UnityUIBase
 			log.error("Engine problem when processing stored preferences", e);
 			//we kill the session as the user may want to log as different user if has access to several entities.
 			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
-					OAuth2Error.SERVER_ERROR, ctx.getRequest().getResponseType(), 
-					ctx.getRequest().getState());
+					OAuth2Error.SERVER_ERROR, ctx.getRequest().getState(),
+					ctx.getRequest().impliedResponseMode());
 			oauthResponseHandler.returnOauthResponse(oauthResponse, true);
 		}
 	}
@@ -354,8 +353,8 @@ public class OAuthAuthzUI extends UnityUIBase
 		OAuthAuthzContext ctx = OAuthResponseHandler.getContext();
 		storePreferences(false);
 		AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
-				OAuth2Error.ACCESS_DENIED, ctx.getRequest().getResponseType(), 
-				ctx.getRequest().getState());
+				OAuth2Error.ACCESS_DENIED, ctx.getRequest().getState(),
+				ctx.getRequest().impliedResponseMode());
 		oauthResponseHandler.returnOauthResponse(oauthResponse, false);
 	}
 	
@@ -380,8 +379,8 @@ public class OAuthAuthzUI extends UnityUIBase
 		{
 			log.error("Error during OAuth processing", e);
 			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
-					OAuth2Error.SERVER_ERROR, ctx.getRequest().getResponseType(), 
-					ctx.getRequest().getState());
+					OAuth2Error.SERVER_ERROR, ctx.getRequest().getState(),
+					ctx.getRequest().impliedResponseMode());
 			oauthResponseHandler.returnOauthResponse(oauthResponse, false);
 		}
 	}

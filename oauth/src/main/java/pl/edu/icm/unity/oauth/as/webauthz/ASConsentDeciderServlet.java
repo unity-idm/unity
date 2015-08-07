@@ -97,8 +97,9 @@ public class ASConsentDeciderServlet extends HttpServlet
 			log.error("Engine problem when handling client request - can not load preferences", e1);
 			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(
 					oauthCtx.getReturnURI(), 
-					OAuth2Error.SERVER_ERROR, oauthCtx.getRequest().getResponseType(), 
-					oauthCtx.getRequest().getState());
+					OAuth2Error.SERVER_ERROR,
+					oauthCtx.getRequest().getState(),
+					oauthCtx.getRequest().impliedResponseMode());
 			sendReturnRedirect(oauthResponse, req, resp, true);
 			return;
 
@@ -141,8 +142,9 @@ public class ASConsentDeciderServlet extends HttpServlet
 			log.trace("User preferences are set to decline authZ from the client");
 			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(
 					oauthCtx.getReturnURI(), 
-					OAuth2Error.ACCESS_DENIED, oauthCtx.getRequest().getResponseType(), 
-					oauthCtx.getRequest().getState());
+					OAuth2Error.ACCESS_DENIED, 
+					oauthCtx.getRequest().getState(),
+					oauthCtx.getRequest().impliedResponseMode());
 			sendReturnRedirect(oauthResponse, request, response, false);
 		}
 		
@@ -163,8 +165,9 @@ public class ASConsentDeciderServlet extends HttpServlet
 					e.getMessage(), HTTPResponse.SC_FORBIDDEN);
 			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(
 					oauthCtx.getReturnURI(), 
-					eo, oauthCtx.getRequest().getResponseType(), 
-					oauthCtx.getRequest().getState());
+					eo, 
+					oauthCtx.getRequest().getState(),
+					oauthCtx.getRequest().impliedResponseMode());
 			sendReturnRedirect(oauthResponse, request, response, false);
 			return;
 		} catch (Exception e)
@@ -172,8 +175,9 @@ public class ASConsentDeciderServlet extends HttpServlet
 			log.error("Engine problem when handling client request", e);
 			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(
 					oauthCtx.getReturnURI(), 
-					OAuth2Error.SERVER_ERROR, oauthCtx.getRequest().getResponseType(), 
-					oauthCtx.getRequest().getState());
+					OAuth2Error.SERVER_ERROR, 
+					oauthCtx.getRequest().getState(),
+					oauthCtx.getRequest().impliedResponseMode());
 			sendReturnRedirect(oauthResponse, request, response, false);
 			return;
 		}
