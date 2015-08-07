@@ -44,6 +44,50 @@
 		select 200 AS nameLimit, 60000 AS contentsLimit 
 	</select>
 
+	<update id="initdb-04-01">
+		CREATE INDEX IDENTITIES_ENTITY_ID_IDX ON IDENTITIES (ENTITY_ID);
+	</update>
+
+	<update id="initdb-04-02">
+		CREATE INDEX IDENTITIES_TYPE_ID_IDX ON IDENTITIES (TYPE_ID);	
+	</update>
+
+	<update id="initdb-05-01">
+		CREATE INDEX GROUPS_PARENT_ID_IDX ON GROUPS (PARENT_ID);
+	</update>
+
+	<update id="initdb-06-01">
+		CREATE INDEX ATTRIBUTES_ENTITY_ID_IDX ON ATTRIBUTES (ENTITY_ID);
+	</update>
+	
+	<update id="initdb-06-02">
+		CREATE INDEX ATTRIBUTES_GROUP_ID_IDX ON ATTRIBUTES (GROUP_ID);
+	</update>
+	
+	<update id="initdb-06-03">
+		CREATE INDEX ATTRIBUTES_TYPE_ID_IDX ON ATTRIBUTES (TYPE_ID);
+	</update>
+	
+	<update id="initdb-07-01">
+		CREATE INDEX GROUP_ENTITIES_ENTITY_ID_IDX ON GROUP_ENTITIES (ENTITY_ID);
+	</update>
+
+	<update id="initdb-07-02">
+		CREATE INDEX GROUP_ENTITIES_GROUP_ID_IDX ON GROUP_ENTITIES (GROUP_ID);
+	</update>
+	
+	<update id="initdb-08-01">
+		CREATE INDEX GROUP_LINKS_CHILD_ID_IDX ON GROUP_LINKS (CHILD_ID);
+	</update>
+	
+	<update id="initdb-08-02">
+		CREATE INDEX GROUP_LINKS_GROUP_ID_IDX ON GROUP_LINKS (GROUP_ID);
+	</update>
+	
+	<update id="initdb-11-01">
+		CREATE INDEX TOKENS_ENTITY_ID_IDX ON TOKENS (ENTITY_ID);
+	</update>
+
 
 	<update id="resetIndex-00">
 		ALTER TABLE VAR_BIG_OBJECTS AUTO_INCREMENT=1;
