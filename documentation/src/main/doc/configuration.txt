@@ -73,6 +73,9 @@ always handled by the H2 database engine, so only the database storage location 
 
 include::ref-dbProperties.txt[]
 
+The primary database can use one of engines: H2 (embedded, no setup required), MySQL or PostgreSQL.
+
+
 ==== MySQL setup
 
 The setup of MySQL requires creation of a database with a separate user which is able to connect to the database.
@@ -101,6 +104,42 @@ unityServer.db.dialect=mysql
 unityServer.db.password=unitypass
 unityServer.db.username=unity
 ----
+
+==== PostgreSQL setup
+
+The setup of PostgreSQL requires creation of a database with a separate role (user) 
+which is able to connect to the database. Typically on Linux system you have to invoke:
+
+ createuser -P unity
+ createdb -O unity unitydb
+ 
+using the desired database name, username and password. Of course any other tool can be used to create the user and
+database. Finally note that Postgres must allow for password authentication for the Unity user. Ensure that
+in +pg_hba.conf+ you have a lines similar to those two:
+
+ host   all         all         127.0.0.1/32          md5
+ host   all         all         ::1/128               md5
+
+If the database is on a different host then the Unity instance, change IP addresses to a proper ones.  
+
+Test if the connection works with:
+
+ psql -h localhost unitydb unity
+
+and give the configured password.
+
+Unity server will setup all tables automatically on startup.
+
+To configure Unity to use the Postgres database change the default database JDBC URI as well as 
+add the username, password and dialect:
+ 
+----
+unityServer.db.jdbcUrl=jdbc:postgresql://localhost/unitydb
+unityServer.db.dialect=psql
+unityServer.db.username=unity
+unityServer.db.password=unitypass
+----
+
 
 [[pki]]
 === PKI settings
