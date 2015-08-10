@@ -135,8 +135,8 @@ public class TestGroups extends DBIntegrationTestBase
 		GroupContents contentA = groupsMan.getContents("/A", GroupContents.EVERYTHING);
 		assertEquals(new I18nString("foo"), contentA.getGroup().getDescription());
 		assertEquals(2, contentA.getSubGroups().size());
-		assertEquals("/A/B", contentA.getSubGroups().get(0));
-		assertEquals("/A/C", contentA.getSubGroups().get(1));
+		assertTrue(contentA.getSubGroups().contains("/A/B"));
+		assertTrue(contentA.getSubGroups().contains("/A/C"));
 		assertEquals(2, contentA.getGroup().getAttributeStatements().length);
 		assertEquals(AttributeStatement.ConflictResolution.skip,
 				contentA.getGroup().getAttributeStatements()[0].getConflictResolution());
