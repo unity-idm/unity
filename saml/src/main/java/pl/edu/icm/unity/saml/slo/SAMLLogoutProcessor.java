@@ -188,7 +188,7 @@ public class SAMLLogoutProcessor
 		
 		SAMLInternalLogoutContext internalCtx = new SAMLInternalLogoutContext(externalCtx.getSession(), 
 				request.getLogoutRequest().getIssuer().getStringValue(), finishCallback, registry);
-		
+		internalCtx.setRelayState(externalCtx.getInternalRelayState());
 		switch (logoutMode)
 		{
 		case internalAndAsyncPeers:
