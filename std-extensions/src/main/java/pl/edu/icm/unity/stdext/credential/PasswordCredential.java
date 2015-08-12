@@ -22,12 +22,14 @@ public class PasswordCredential
 {
 	//200 years should be enough, Long MAX is too much as we would fail on maths
 	public static final long MAX_AGE_UNDEF = 200*12*30*24*3600000; 
+	public static final int DEFAULT_REHASH_NUMBER = 1000;
 	
 	private int minLength = 8;
 	private int historySize = 0;
 	private int minClassesNum = 3;
 	private boolean denySequences = true;
 	private long maxAge = MAX_AGE_UNDEF; 
+	private int rehashNumber = 1;
 	private CredentialResetSettings passwordResetSettings = new CredentialResetSettings();
 	
 	public String getSerializedConfiguration() throws InternalException
@@ -38,6 +40,7 @@ public class PasswordCredential
 		root.put("minClassesNum", minClassesNum);
 		root.put("maxAge", maxAge);
 		root.put("denySequences", denySequences);
+		root.put("rehashNumber", rehashNumber);
 		
 		ObjectNode resetNode = root.putObject("resetSettings");
 		passwordResetSettings.serializeTo(resetNode);
@@ -75,6 +78,13 @@ public class PasswordCredential
 		if (maxAge <= 0)
 			throw new InternalException("Maximum age must be positive");
 		denySequences = root.get("denySequences").asBoolean();
+		if (root.has("rehashNumber"))
+		{
+			rehashNumber = root.get("rehashNumber").asInt();
+			if (rehashNumber <= 0)
+				throw new InternalException("Rehash number must be positive");
+		}
+		
 		JsonNode resetNode = root.get("resetSettings");
 		if (resetNode != null)
 			passwordResetSettings.deserializeFrom((ObjectNode) resetNode);
@@ -128,6 +138,16 @@ public class PasswordCredential
 	public void setMaxAge(long maxAge)
 	{
 		this.maxAge = maxAge;
+	}
+
+	public int getRehashNumber()
+	{
+		return rehashNumber;
+	}
+
+	public void setRehashNumber(int rehashNumber)
+	{
+		this.rehashNumber = rehashNumber;
 	}
 
 	public CredentialResetSettings getPasswordResetSettings()

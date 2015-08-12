@@ -17,7 +17,7 @@ public class TestPassword
 	public void testArayCopy() throws Exception
 	{
 		byte[] A = {1,2,3,4};
-		PasswordInfo pi = new PasswordInfo(A, "11");
+		PasswordInfo pi = new PasswordInfo(A, "11", 3);
 		assertArrayEquals(A, pi.getHash());
 	}
 		

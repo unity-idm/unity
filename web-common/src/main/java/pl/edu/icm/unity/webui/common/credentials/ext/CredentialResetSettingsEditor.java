@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common.credentials.ext;
 
+import org.vaadin.risto.stepper.IntStepper;
+
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.authn.CredentialResetSettings;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -22,7 +24,6 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Slider;
 
 /**
  * Part of UI, insertable into FormLayout, useful for {@link CredentialResetSettings} editing or viewing.
@@ -33,7 +34,7 @@ public class CredentialResetSettingsEditor
 	private UnityMessageSource msg;
 	private CredentialResetSettings initial;
 	private CheckBox enable;
-	private Slider codeLength;
+	private IntStepper codeLength;
 	private CheckBox requireEmailConfirmation;
 	private CheckBox requireQuestionConfirmation;
 	private TextFieldWithButton questionAdder;
@@ -107,8 +108,10 @@ public class CredentialResetSettingsEditor
 			}
 		});
 		
-		codeLength = new Slider(msg.getMessage("CredentialResetSettings.codeLength"), 2, 10);
-		codeLength.setWidth(100, Unit.PERCENTAGE);
+		codeLength = new IntStepper(msg.getMessage("CredentialResetSettings.codeLength"));
+		codeLength.setMinValue(2);
+		codeLength.setMaxValue(10);
+		codeLength.setWidth(3, Unit.EM);
 		
 		requireEmailConfirmation = new CheckBox(
 				msg.getMessage("CredentialResetSettings.requireEmailConfirmation"));
@@ -200,7 +203,7 @@ public class CredentialResetSettingsEditor
 	private void setValue(CredentialResetSettings initial)
 	{
 		enable.setValue(initial.isEnabled());
-		codeLength.setValue((double)initial.getCodeLength());
+		codeLength.setValue(initial.getCodeLength());
 		requireEmailConfirmation.setValue(initial.isRequireEmailConfirmation());
 		requireQuestionConfirmation.setValue(initial.isRequireEmailConfirmation());
 		for (String question: initial.getQuestions())

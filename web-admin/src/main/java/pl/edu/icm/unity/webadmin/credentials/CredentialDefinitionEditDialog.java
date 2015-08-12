@@ -28,6 +28,7 @@ public class CredentialDefinitionEditDialog extends AbstractDialog
 		super(msg, caption);
 		this.editor = attributeEditor;
 		this.callback = callback;
+		setSizeMode(SizeMode.LARGE);
 	}
 
 	@Override

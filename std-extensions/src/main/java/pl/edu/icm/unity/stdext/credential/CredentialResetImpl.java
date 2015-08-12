@@ -139,11 +139,12 @@ public class CredentialResetImpl implements CredentialReset
 			throw new TooManyAttempts();
 		answerAttempts++;
 		byte[] answerHash = credState.getAnswerHash();
+		int rehashNumber = credState.getAnswerRehashNumber();
 		String question = credState.getSecurityQuestion();
 		if (answerHash == null || question == null)
 			throw new IllegalIdentityValueException("Identity has no question set.");
 
-		byte[] testedHash = CryptoUtils.hash(answer.toLowerCase(), question);
+		byte[] testedHash = CryptoUtils.hash(answer.toLowerCase(), question, rehashNumber);
 		if (!Arrays.areEqual(testedHash, answerHash))
 			throw new WrongArgumentException("The answer is incorrect");
 	}

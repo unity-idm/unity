@@ -72,6 +72,10 @@
 			<artifactId>responsive</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.vaadin.addons</groupId>
+			<artifactId>stepper</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>nl.simplecaptcha</groupId>
 			<artifactId>simplecaptcha</artifactId>
 		</dependency>
