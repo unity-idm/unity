@@ -9,6 +9,7 @@ import java.util.Collections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.json.AttributeTypeSerializer;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
@@ -17,6 +18,7 @@ import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
+import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -49,6 +51,10 @@ public class RESTAdminEndpointFactory implements EndpointFactory
 	private AuthenticationProcessor authnProcessor;
 	@Autowired
 	private IdentityTypesRegistry identityTypesRegistry;
+	@Autowired
+	private AttributeTypeSerializer attributeTypeSerializer;
+	@Autowired
+	private AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
 	
 	@Override
 	public EndpointTypeDescription getDescription()
@@ -60,7 +66,8 @@ public class RESTAdminEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new RESTAdminEndpoint(msg, sessionMan, TYPE, "", identitiesMan, groupsMan, attributesMan,
-				authnProcessor, identityTypesRegistry);
+				authnProcessor, identityTypesRegistry, attributeTypeSerializer,
+				attributeSyntaxFactoriesRegistry);
 	}
 
 }

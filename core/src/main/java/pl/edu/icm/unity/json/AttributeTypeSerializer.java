@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE file for licensing information.
  */
-package pl.edu.icm.unity.db.json;
+package pl.edu.icm.unity.json;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -15,7 +15,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.server.attributes.AttributeValueSyntaxFactory;
+import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.server.utils.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
@@ -28,10 +31,7 @@ public class AttributeTypeSerializer
 {
 	private final ObjectMapper mapper = new ObjectMapper();
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public byte[] toJson(AttributeType src)
+	public ObjectNode toJsonNode(AttributeType src)
 	{
 		ObjectNode root = mapper.createObjectNode();
 		root.put("flags", src.getFlags());
@@ -46,6 +46,25 @@ public class AttributeTypeSerializer
 		ObjectNode metaN = root.putObject("metadata");
 		for (Map.Entry<String, String> entry: src.getMetadata().entrySet())
 			metaN.put(entry.getKey(), entry.getValue());
+		return root;
+	}
+	
+	/**
+	 * As {@link #toJsonNode(AttributeType)} but also adds information about attribute type name and syntax
+	 * @param src
+	 * @return
+	 */
+	public ObjectNode toJsonNodeFull(AttributeType src)
+	{
+		ObjectNode root = toJsonNode(src);
+		root.put("name", src.getName());
+		root.put("syntaxId", src.getValueType().getValueSyntaxId());
+		return root;
+	}	
+	
+	public byte[] toJson(AttributeType src)
+	{
+		ObjectNode root = toJsonNode(src);
 		try
 		{
 			return mapper.writeValueAsBytes(root);
@@ -54,10 +73,7 @@ public class AttributeTypeSerializer
 			throw new InternalException("Can't perform JSON serialization", e);
 		}
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
+	
 	public void fromJson(byte[] json, AttributeType target)
 	{
 		if (json == null)
@@ -93,5 +109,23 @@ public class AttributeTypeSerializer
 				meta.put(entry.getKey(), entry.getValue().asText());
 			}	
 		}
+	}
+	
+	public AttributeType fromJsonFull(byte[] json, AttributeSyntaxFactoriesRegistry typesRegistry) 
+			throws IllegalTypeException
+	{
+		ObjectNode main;
+		try
+		{
+			main = mapper.readValue(json, ObjectNode.class);
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't perform JSON deserialization", e);
+		}
+		String name = main.get("name").asText();
+		AttributeValueSyntaxFactory<?> syntax = typesRegistry.getByName(main.get("syntaxId").asText());
+		AttributeType newAT = new AttributeType(name, syntax.createInstance());
+		fromJson(json, newAT);
+		return newAT;
 	}
 }

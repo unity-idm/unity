@@ -11,12 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.json.AttributeSerializer;
-import pl.edu.icm.unity.db.json.AttributeTypeSerializer;
 import pl.edu.icm.unity.db.mapper.AttributesMapper;
 import pl.edu.icm.unity.db.model.AttributeBean;
 import pl.edu.icm.unity.db.model.AttributeTypeBean;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.json.AttributeTypeSerializer;
 import pl.edu.icm.unity.server.attributes.AttributeValueSyntaxFactory;
 import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.types.basic.AttributeExt;

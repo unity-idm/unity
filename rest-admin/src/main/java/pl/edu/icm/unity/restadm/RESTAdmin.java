@@ -29,9 +29,11 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.json.AttributeTypeSerializer;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.EntityScheduledOperation;
@@ -69,15 +71,21 @@ public class RESTAdmin
 	private AttributesManagement attributesMan;
 	private ObjectMapper mapper = Constants.MAPPER;
 	private IdentityTypesRegistry identityTypesRegistry;
+	private AttributeTypeSerializer attrTypeSerializer;
+	private AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
 	
 	public RESTAdmin(IdentitiesManagement identitiesMan, GroupsManagement groupsMan,
-			AttributesManagement attributesMan, IdentityTypesRegistry identityTypesRegistry)
+			AttributesManagement attributesMan, IdentityTypesRegistry identityTypesRegistry,
+			AttributeTypeSerializer attrTypeSerializer,
+			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry)
 	{
 		super();
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
 		this.attributesMan = attributesMan;
 		this.identityTypesRegistry = identityTypesRegistry;
+		this.attrTypeSerializer = attrTypeSerializer;
+		this.attributeSyntaxFactoriesRegistry = attributeSyntaxFactoriesRegistry;
 	}
 
 	@Path("/resolve/{identityType}/{identityValue}")
@@ -315,4 +323,50 @@ public class RESTAdmin
 		log.debug("addMember " + entityId + " to " + group);
 		groupsMan.addMemberFromParent(group, new EntityParam(entityId));
 	}
+	
+	@Path("/attributeTypes")
+	@GET
+	public String getAttributeTypes() throws EngineException, JsonProcessingException
+	{
+		Collection<AttributeType> attributeTypes = attributesMan.getAttributeTypes();
+		ArrayNode root = mapper.createArrayNode();
+		for (AttributeType at: attributeTypes)
+			root.add(attrTypeSerializer.toJsonNodeFull(at));
+		return mapper.writeValueAsString(root);
+	}
+	
+	@Path("/attributeType")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void addAttributeType(String jsonRaw) throws EngineException
+	{
+		log.debug("addAttributeType " + jsonRaw);
+		AttributeType at = attrTypeSerializer.fromJsonFull(jsonRaw.getBytes(), attributeSyntaxFactoriesRegistry);
+		log.debug("addAttributeType " + at.getName());
+		attributesMan.addAttributeType(at);
+	}
+
+	@Path("/attributeType")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void updateAttributeType(String jsonRaw) throws EngineException
+	{
+		log.debug("updateAttributeType " + jsonRaw);
+		AttributeType at = attrTypeSerializer.fromJsonFull(jsonRaw.getBytes(), attributeSyntaxFactoriesRegistry);
+		log.debug("updateAttributeType " + at.getName());
+		attributesMan.updateAttributeType(at);
+	}
+	
+	@Path("/attributeType/{toRemove}")
+	@DELETE
+	public void removeAttributeType(@PathParam("toRemove") String toRemove, 
+			@QueryParam("withInstances") String withInstances) throws EngineException
+	{
+		log.debug("removeAttributeType " + toRemove);
+		boolean instances = false;
+		if (withInstances != null)
+			instances = Boolean.parseBoolean(withInstances);
+		attributesMan.removeAttributeType(toRemove, instances);
+	}
+	
 }

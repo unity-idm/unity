@@ -274,6 +274,7 @@ attr["email"].confirmed == true
 idsByTypeObj["email"][0].confirmed == true
 ----
 
+[[email-encoding]]
 ==== Special encoding of emails 
 
 When setting an email value from translation profile of via REST API it might be necessary to set the email's metadata.  
