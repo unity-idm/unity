@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
@@ -237,6 +238,9 @@ public class RESTAdmin
 		log.debug("setAttribute: " + attributeParam.getName() + " in " + attributeParam.getGroupPath());
 		Map<String, AttributeType> attributeTypesAsMap = attributesMan.getAttributeTypesAsMap();
 		AttributeType aType = attributeTypesAsMap.get(attributeParam.getName());
+		if (aType == null)
+			throw new IllegalAttributeTypeException("Attribute type " + attributeParam.getName() + 
+					" does not exist");
 		Attribute<?> apiAttribute = attributeParam.toAPIAttribute(aType.getValueType());
 		attributesMan.setAttribute(new EntityParam(entityId), apiAttribute, true);
 	}
