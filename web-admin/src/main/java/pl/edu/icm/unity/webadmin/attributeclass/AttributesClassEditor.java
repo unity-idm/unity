@@ -29,7 +29,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.TwinColSelect;
 
 /**
- * Editing component of an {@link AttributesClass} instance. Currently allows for editing a new AC only.
+ * Editing component of an {@link AttributesClass} instance.
  * @author K. Benedyczak
  */
 public class AttributesClassEditor extends CompactFormLayout
@@ -56,6 +56,18 @@ public class AttributesClassEditor extends CompactFormLayout
 			if (!at.isInstanceImmutable())
 				types.put(at.getName(), at);
 		initUI();
+	}
+
+	public void setEditedClass(AttributesClass ac)
+	{
+		name.setValue(ac.getName());
+		name.setReadOnly(true);
+		typeDescription.setValue(ac.getDescription());
+		parents.setValue(ac.getParentClasses());
+		allowed.setValue(ac.getAllowed());
+		mandatory.setValue(ac.getMandatory());
+		allowArbitrary.setValue(ac.isAllowArbitrary());
+		updateEffective();
 	}
 	
 	private void initUI()
@@ -123,7 +135,7 @@ public class AttributesClassEditor extends CompactFormLayout
 	private void updateEffective()
 	{
 		String root = name.getValue();
-		if (root == null || root.isEmpty() || allClasses.containsKey(root))
+		if (root == null || root.isEmpty())
 			effectiveViewer.setInput(null, allClasses);
 		else
 		{

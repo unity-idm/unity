@@ -94,6 +94,7 @@ public class AttributesClassesComponent extends VerticalLayout
 		});
 		table.addActionHandler(new RefreshActionHandler());
 		table.addActionHandler(new AddActionHandler());
+		table.addActionHandler(new EditActionHandler());
 		table.addActionHandler(new DeleteActionHandler());
 		table.setWidth(90, Unit.PERCENTAGE);
 		table.setMultiSelect(true);
@@ -146,6 +147,20 @@ public class AttributesClassesComponent extends VerticalLayout
 		}
 	}
 
+	private boolean updateAC(AttributesClass ac)
+	{
+		try
+		{
+			attrMan.updateAttributeClass(ac);
+			refresh();
+			return true;
+		} catch (Exception e)
+		{
+			NotificationPopup.showError(msg, msg.getMessage("AttributesClass.errorUpdate"), e);
+			return false;
+		}
+	}
+	
 	private boolean removeAC(String toRemove)
 	{
 		try
@@ -216,6 +231,42 @@ public class AttributesClassesComponent extends VerticalLayout
 						public boolean newAttributesClass(AttributesClass newAC)
 						{
 							return addAC(newAC);
+						}
+					});
+			dialog.show();
+		}
+	}
+
+	private class EditActionHandler extends SingleActionHandler
+	{
+		public EditActionHandler()
+		{
+			super(msg.getMessage("AttributesClass.editAction"), Images.edit.getResource());
+			setNeedsTarget(true);
+		}
+
+		@Override
+		public void handleAction(Object sender, final Object target)
+		{
+			Collection<AttributeType> allTypes;
+			try
+			{
+				allTypes = attrMan.getAttributeTypes();
+			} catch (EngineException e)
+			{
+				NotificationPopup.showError(msg, msg.getMessage("AttributesClass.errorGetAttributeTypes"), e);
+				return;
+			}
+			AttributesClassEditor editor = new AttributesClassEditor(msg, allACs, allTypes);
+			editor.setEditedClass(allACs.get(((GenericItem<?>)target).getElement()));
+			AttributesClassEditDialog dialog = new AttributesClassEditDialog(msg, 
+					msg.getMessage("AttributesClass.addACCaption"), editor, 
+					new AttributesClassEditDialog.Callback()
+					{
+						@Override
+						public boolean newAttributesClass(AttributesClass newAC)
+						{
+							return updateAC(newAC);
 						}
 					});
 			dialog.show();

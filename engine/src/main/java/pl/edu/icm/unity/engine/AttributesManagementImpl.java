@@ -379,9 +379,70 @@ public class AttributesManagementImpl implements AttributesManagement
 	@Override
 	public void updateAttributeClass(AttributesClass updated) throws EngineException
 	{
-		throw new RuntimeException("NOT implemented"); // TODO Auto-generated method stub
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		SqlSession sql = db.getSqlSession(true);
+		try
+		{
+			Map<String, AttributesClass> allClasses = AttributeClassUtil.resolveAttributeClasses(acDB, sql);
+			AttributesClass original = allClasses.get(updated.getName());
+			if (original == null)
+				throw new WrongArgumentException("There is no attribute class '" + 
+						updated.getName() + "'");
+			String acName = original.getName();
+			
+			AttributeClassHelper originalEffective = new AttributeClassHelper(allClasses, 
+					Collections.singleton(acName));
+			
+			allClasses.put(acName, updated);
+			AttributeClassHelper updatedEffective = new AttributeClassHelper(allClasses, 
+					Collections.singleton(acName));
+			
+			boolean restrictiveChange = updatedEffective.isRestricting(originalEffective);
+			if (restrictiveChange)
+				checkIfUnused(acName, allClasses, sql);
+
+			acDB.update(acName, updated, sql);
+			sql.commit();
+		} finally
+		{
+			db.releaseSqlSession(sql);
+		}
 	}
 
+	private void checkIfUnused(String acName, Map<String, AttributesClass> allClasses, SqlSession sql) 
+			throws EngineException
+	{
+		for (AttributesClass ac: allClasses.values())
+		{
+			if (ac.getParentClasses().contains(acName))
+				throw new SchemaConsistencyException("Can not perform a restrictive "
+						+ "change of an attribute class " + acName + 
+						" as it is a parent of another attribute class " + ac.getName()
+						+ ". Only non restrictive changes are allowed for used classes.");
+		}
+		Set<Long> entities = dbAttributes.getEntitiesWithStringAttribute(
+				SystemAttributeTypes.ATTRIBUTE_CLASSES, acName, sql);
+		if (entities.size() > 0)
+		{
+			String info = String.valueOf(entities.iterator().next());
+			if (entities.size() > 1)
+				info += " and " + (entities.size()-1) + " more";
+			throw new SchemaConsistencyException("Can not perform a restrictive change of an "
+					+ "attribute class " + acName + 
+					" as there are entities with this class set. " +
+					"Ids of entities: " + info + 
+					". Only non restrictive changes are allowed for used classes.");
+		}
+		
+		Set<String> groupsUsing = dbGroups.getGroupsUsingAc(acName, sql);
+		if (groupsUsing.size() > 0)
+			throw new SchemaConsistencyException("Can not perform a restrictive change of an "
+					+ "attribute class " + acName + 
+					" as there are groups with have this class set: " +
+					groupsUsing.toString() + 
+					". Only non restrictive changes are allowed for used classes.");
+	}
+	
 	@Override
 	public Map<String, AttributesClass> getAttributeClasses() throws EngineException
 	{
