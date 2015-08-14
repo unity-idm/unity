@@ -255,6 +255,16 @@ and +direct+ shall not be used. No content is returned. Example attribute encode
 
 '''
 
++@Path("/entity/{entityId}/attributes")+ +
++@PUT+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Bulk attributes creation or update for a given entity. The body of the PUT request describes the attributes. Its root
+level element must be JSON array. Elements of the array are attributes expressed in the same way as in the singular
+set attribute operation.
+
+'''
+
 +@Path("/entity/{entityId}/attribute/{attributeName}")+ +
 +@QueryParam("group")+ +
 +@DELETE+ +

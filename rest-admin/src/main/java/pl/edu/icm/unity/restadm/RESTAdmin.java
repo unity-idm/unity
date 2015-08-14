@@ -243,6 +243,40 @@ public class RESTAdmin
 		{
 			throw new JsonParseException("Can't parse the attribute input", null, e);
 		}
+		setAttribute(attributeParam, entityId);
+	}
+
+	@Path("/entity/{entityId}/attributes")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void setAttributes(@PathParam("entityId") long entityId, String attributes) 
+			throws EngineException, IOException
+	{
+		log.debug("Bulk setAttributes for " + entityId);
+		
+		JsonNode root = mapper.readTree(attributes);
+		if (!root.isArray())
+			throw new JsonParseException("Can't parse the attributes input: root is not an array", 
+					null, null);
+		ArrayNode rootA = (ArrayNode) root;
+		List<AttributeParamRepresentation> parsedParams = new ArrayList<>(rootA.size());
+		for (JsonNode node: rootA)
+		{
+			try
+			{
+				parsedParams.add(mapper.readValue(mapper.writeValueAsString(node), 
+						AttributeParamRepresentation.class));
+			} catch (IOException e)
+			{
+				throw new JsonParseException("Can't parse the attribute input", null, e);
+			}
+		}
+		for (AttributeParamRepresentation ap: parsedParams)
+			setAttribute(ap, entityId);;
+	}
+
+	private void setAttribute(AttributeParamRepresentation attributeParam, long entityId) throws EngineException
+	{
 		log.debug("setAttribute: " + attributeParam.getName() + " in " + attributeParam.getGroupPath());
 		Map<String, AttributeType> attributeTypesAsMap = attributesMan.getAttributeTypesAsMap();
 		AttributeType aType = attributeTypesAsMap.get(attributeParam.getName());
@@ -252,6 +286,7 @@ public class RESTAdmin
 		Attribute<?> apiAttribute = attributeParam.toAPIAttribute(aType.getValueType());
 		attributesMan.setAttribute(new EntityParam(entityId), apiAttribute, true);
 	}
+	
 	
 	@Path("/entity/{entityId}/credential-adm/{credential}")
 	@PUT
