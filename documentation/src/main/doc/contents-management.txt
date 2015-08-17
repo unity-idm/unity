@@ -84,8 +84,12 @@ added to the local database.
 
 After creation a registration form can be tested and also filled (use case no 2 above) directly from 
 the Admin Web UI. If the form is public it can be associated with any endpoint with the Web (Vaadin) binding.
-Then a link to register a new account will appear on the login screen of the endpoint. Finally 
-a form can be associated with a remote authenticator as a "handler" for unknown users who were 
+Then a link to register a new account will appear on the login screen of the endpoint. Additionally all public
+forms get its own public address which can be used to directly launch the form. This address is constructed
+from the form name and can be seen in the form viewer after selecting an existing form in the AdminUI 
+(Registrations management -> Registration forms). 
+
+Finally a form can be associated with a remote authenticator as a "handler" for unknown users who were 
 correctly authenticated remotely. For this last case typically the form should not be public. It is also
 crucial to configure the input translation profile of the authenticator so it _does not_ create local user 
 automatically. Otherwise the configured form won't be launched as the local user will be always present 

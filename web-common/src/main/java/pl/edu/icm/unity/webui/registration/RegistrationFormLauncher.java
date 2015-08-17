@@ -109,34 +109,7 @@ public class RegistrationFormLauncher
 						msg.getMessage("RegistrationFormsChooserComponent.requestSubmittedInfoWithAccept"));
 			} else
 			{
-
-				for (RegistrationRequestState r : registrationsManagement.getRegistrationRequests())
-				{
-					if (r.getRequestId().equals(id)
-							&& r.getStatus() == RegistrationRequestStatus.accepted)
-					{
-						String redirect = form.getRedirectAfterSubmitAndAccept(); 
-						if (redirect != null)
-						{
-							Page.getCurrent().open(redirect, null);
-						} else
-						{
-							NotificationPopup.showNotice(msg,
-								msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"),
-								msg.getMessage("RegistrationFormsChooserComponent.requestSubmittedInfoWithAccept"));
-						}
-						return true;
-					}
-				}
-				String redirect = form.getRedirectAfterSubmit(); 
-				if (redirect != null)
-				{
-					Page.getCurrent().open(redirect, null);
-				} else
-				{
-					NotificationPopup.showNotice(msg, msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"),
-						msg.getMessage("RegistrationFormsChooserComponent.requestSubmittedInfoNoAccept"));
-				}
+				invokePostRegistrationAction(form, id, msg, registrationsManagement);
 			}	
 			
 			return true;
@@ -145,6 +118,46 @@ public class RegistrationFormLauncher
 			NotificationPopup.showError(msg, msg.getMessage(
 					"RegistrationFormsChooserComponent.errorRequestAutoAccept"), e);
 			return true;
+		}
+	}
+	
+	/**
+	 * Invokes proper redirection or shows an information message depending on request status and form settings.
+	 * @param form
+	 * @param requestId
+	 * @param msg
+	 * @param registrationsManagement
+	 * @throws EngineException
+	 */
+	public static void invokePostRegistrationAction(RegistrationForm form, String requestId, 
+			UnityMessageSource msg, RegistrationsManagement registrationsManagement) throws EngineException
+	{
+		for (RegistrationRequestState r : registrationsManagement.getRegistrationRequests())
+		{
+			if (r.getRequestId().equals(requestId)
+					&& r.getStatus() == RegistrationRequestStatus.accepted)
+			{
+				String redirect = form.getRedirectAfterSubmitAndAccept(); 
+				if (redirect != null)
+				{
+					Page.getCurrent().open(redirect, null);
+				} else
+				{
+					NotificationPopup.showNotice(msg,
+						msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"),
+						msg.getMessage("RegistrationFormsChooserComponent.requestSubmittedInfoWithAccept"));
+				}
+				return;
+			}
+		}
+		String redirect = form.getRedirectAfterSubmit(); 
+		if (redirect != null)
+		{
+			Page.getCurrent().open(redirect, null);
+		} else
+		{
+			NotificationPopup.showNotice(msg, msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"),
+				msg.getMessage("RegistrationFormsChooserComponent.requestSubmittedInfoNoAccept"));
 		}
 	}
 	

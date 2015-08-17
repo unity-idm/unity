@@ -4,7 +4,13 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formman;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
+import pl.edu.icm.unity.server.api.internal.PublicWellKnownURLServlet;
+import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -25,6 +31,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
+import pl.edu.icm.unity.webui.registration.PublicRegistrationURLProvider;
 
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
@@ -48,6 +55,7 @@ public class RegistrationFormViewer extends VerticalLayout
 	private Label name;
 	private Label description;
 	private Label publiclyAvailable;
+	private Label publicLink;
 	private SimpleMessageTemplateViewer submittedTemplate;
 	private SimpleMessageTemplateViewer updatedTemplate;
 	private SimpleMessageTemplateViewer rejectedTemplate;
@@ -74,13 +82,15 @@ public class RegistrationFormViewer extends VerticalLayout
 	private ListOfElements<Attribute<?>> attributeAssignments;
 	private ListOfElements<String> groupAssignments;
 	private ListOfElements<AttributeClassAssignment> attributeClassAssignments;
+	private SharedEndpointManagement sharedEndpointMan;
 	
 	public RegistrationFormViewer(UnityMessageSource msg, AttributeHandlerRegistry attrHandlerRegistry,
-			MessageTemplateManagement msgTempMan)
+			MessageTemplateManagement msgTempMan, SharedEndpointManagement sharedEndpointMan)
 	{
 		this.msg = msg;
 		this.attrHandlerRegistry = attrHandlerRegistry;
 		this.msgTempMan = msgTempMan;
+		this.sharedEndpointMan = sharedEndpointMan;
 		initUI();
 	}
 	
@@ -105,6 +115,8 @@ public class RegistrationFormViewer extends VerticalLayout
 		redirectAfterSubmitAndAccept.setValue(form.getRedirectAfterSubmitAndAccept() == null ? 
 				"-" : form.getRedirectAfterSubmitAndAccept());
 		publiclyAvailable.setValue(msg.getYesNo(form.isPubliclyAvailable()));
+		
+		publicLink.setValue(form.isPubliclyAvailable() ? getPublicLink(form) : "-");
 		
 		RegistrationFormNotifications notCfg = form.getNotificationsConfiguration();
 		if (notCfg != null)
@@ -144,11 +156,25 @@ public class RegistrationFormViewer extends VerticalLayout
 			attributeClassAssignments.addEntry(aa);
 	}
 	
+	private String getPublicLink(RegistrationForm form)
+	{
+		try
+		{
+			return sharedEndpointMan.getServletUrl(PublicWellKnownURLServlet.SERVLET_PATH) + 
+				"#!" + PublicRegistrationURLProvider.FRAGMENT_PREFIX + URLEncoder.encode(form.getName(), 
+						StandardCharsets.UTF_8.name());
+		} catch (UnsupportedEncodingException e)
+		{
+			throw new IllegalStateException(e);
+		}
+	}
+
 	private void setEmpty()
 	{
 		name.setValue("");
 		description.setValue("");
 		publiclyAvailable.setValue("");
+		publicLink.setValue("");
 		autoAcceptCondition.setValue("");
 		captcha.setValue("");
 		redirectAfterSubmit.setValue("");
@@ -369,6 +395,9 @@ public class RegistrationFormViewer extends VerticalLayout
 		publiclyAvailable = new Label();
 		publiclyAvailable.setCaption(msg.getMessage("RegistrationFormViewer.publiclyAvailable"));
 		
+		publicLink = new Label();
+		publicLink.setCaption(msg.getMessage("RegistrationFormViewer.publicLink"));
+		
 		channel = new Label();
 		channel.setCaption(msg.getMessage("RegistrationFormViewer.channel"));
 		
@@ -384,7 +413,7 @@ public class RegistrationFormViewer extends VerticalLayout
 		acceptedTemplate = new SimpleMessageTemplateViewer(msg.getMessage("RegistrationFormViewer.acceptedTemplate"),
 				msg, msgTempMan);
 		
-		main.addComponents(name, description, publiclyAvailable, channel, adminsNotificationGroup,
+		main.addComponents(name, description, publiclyAvailable, publicLink, channel, adminsNotificationGroup,
 				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate, captcha,
 				redirectAfterSubmit, redirectAfterSubmitAndAccept, autoAcceptCondition);
 	}

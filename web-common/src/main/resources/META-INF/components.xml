@@ -56,7 +56,11 @@
 	<bean primary="false" scope="prototype" class="pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher">
 			<qualifier value="insecure"/>
 	</bean>
+	<bean class="pl.edu.icm.unity.webui.registration.PublicRegistrationURLProvider"/>
 	
+	<bean scope="prototype" id="PublicNavigationUI" class="pl.edu.icm.unity.wellknownurl.PublicNavigationUI"/>
+	<bean scope="prototype" class="pl.edu.icm.unity.wellknownurl.PublicWellKnownUrlServletImpl"/>
+
 	<bean scope="prototype" id="AccountAssociationSandboxUI" class="pl.edu.icm.unity.sandbox.AccountAssociationSandboxUI"/>
 	<bean scope="prototype" id="TranslationProfileSandboxUI" class="pl.edu.icm.unity.sandbox.TranslationProfileSandboxUI"/>
 </beans>

@@ -77,6 +77,7 @@ public enum Styles
 	vLabelLarge(ValoTheme.LABEL_LARGE),
 	vLabelH1(ValoTheme.LABEL_H1),
 	vButtonLink(ValoTheme.BUTTON_LINK),
+	vButtonPrimary(ValoTheme.BUTTON_PRIMARY),
 	vButtonLinkV(ValoTheme.BUTTON_LINK),
 	vSmall(ValoTheme.TEXTFIELD_SMALL),
 	vTiny(ValoTheme.TEXTFIELD_TINY),
