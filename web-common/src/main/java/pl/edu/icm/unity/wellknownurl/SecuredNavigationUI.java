@@ -14,22 +14,31 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 import com.vaadin.annotations.Theme;
+import com.vaadin.server.VaadinRequest;
 
 /**
  * The Vaadin UI providing a concrete view depending on URL fragment. Actual views are configured via DI.
- * This variant is for use with unprotected resources, i.e. those not requiring prior authentication.
+ * This variant is for use with protected resources, i.e. those requiring an authentication to gain access.
  * 
  * @author K. Benedyczak
  */
-@Component("PublicNavigationUI")
+@Component("SecuredNavigationUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("unityThemeValo")
-public class PublicNavigationUI extends GenericNavigationUI<PublicViewProvider>
+public class SecuredNavigationUI extends GenericNavigationUI<SecuredViewProvider>
 {
 	@Autowired
-	public PublicNavigationUI(UnityMessageSource msg, Collection<PublicViewProvider> viewProviders)
+	public SecuredNavigationUI(UnityMessageSource msg, Collection<SecuredViewProvider> viewProviders)
 	{
 		super(msg, viewProviders);
+	}
+	
+	@Override
+	protected void appInit(VaadinRequest request)
+	{
+		super.appInit(request);
+		for (SecuredViewProvider viewProvider: viewProviders)
+			viewProvider.setSandboxNotifier(sandboxRouter, getSandboxServletURLForAssociation());
 	}
 }
 

@@ -27,10 +27,10 @@ public class ConnectIdWizardProvider extends AbstractSandboxWizardProvider
 {
 	private UnityMessageSource msg;
 	private InputTranslationEngine translationEngine;
-	private SuccessCallback callback;
+	private WizardFinishedCallback callback;
 
 	public ConnectIdWizardProvider(UnityMessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier,
-			InputTranslationEngine translationEngine, SuccessCallback callback)
+			InputTranslationEngine translationEngine, WizardFinishedCallback callback)
 	{
 		super(sandboxURL, sandboxNotifier);
 		this.msg = msg;
@@ -77,7 +77,11 @@ public class ConnectIdWizardProvider extends AbstractSandboxWizardProvider
 			}
 			
 			@Override
-			public void wizardCancelled(WizardCancelledEvent event)	{}
+			public void wizardCancelled(WizardCancelledEvent event)	
+			{
+				callback.onCancel();
+			}
+			
 			@Override
 			public void stepSetChanged(WizardStepSetChangedEvent event) {}
 			
@@ -90,9 +94,10 @@ public class ConnectIdWizardProvider extends AbstractSandboxWizardProvider
 		});
 	}
 	
-	public interface SuccessCallback
+	public interface WizardFinishedCallback
 	{
 		void onSuccess();
+		void onCancel();
 	}
 
 	@Override

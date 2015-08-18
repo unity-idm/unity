@@ -59,8 +59,12 @@
 	<bean class="pl.edu.icm.unity.webui.registration.PublicRegistrationURLProvider"/>
 	
 	<bean scope="prototype" id="PublicNavigationUI" class="pl.edu.icm.unity.wellknownurl.PublicNavigationUI"/>
+	<bean scope="prototype" id="SecuredNavigationUI" class="pl.edu.icm.unity.wellknownurl.SecuredNavigationUI"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.wellknownurl.PublicWellKnownUrlServletImpl"/>
-
+	<bean class="pl.edu.icm.unity.wellknownurl.WellKnownURLEndpointFactory"/>
+	
 	<bean scope="prototype" id="AccountAssociationSandboxUI" class="pl.edu.icm.unity.sandbox.AccountAssociationSandboxUI"/>
 	<bean scope="prototype" id="TranslationProfileSandboxUI" class="pl.edu.icm.unity.sandbox.TranslationProfileSandboxUI"/>
+
+	<bean class="pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWellKnownURLViewProvider"/>
 </beans>

@@ -40,7 +40,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webadmin.preferences.PreferencesComponent;
 import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider;
-import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider.SuccessCallback;
+import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider.WizardFinishedCallback;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
@@ -148,9 +148,8 @@ public class UserAccountComponent extends VerticalLayout
 			final UserAttributesPanel attrsPanel = new UserAttributesPanel(msg, attributeHandlerRegistry, 
 					attributesMan, config, theUser.getEntityId());
 			ConnectIdWizardProvider connectIdProvider = new ConnectIdWizardProvider(msg, 
-					sandboxURL, sandboxNotifier, inputTranslationEngine, new SuccessCallback()
+					sandboxURL, sandboxNotifier, inputTranslationEngine, new WizardFinishedCallback()
 					{
-						
 						@Override
 						public void onSuccess()
 						{
@@ -162,6 +161,11 @@ public class UserAccountComponent extends VerticalLayout
 							{
 								NotificationPopup.showError(msg, msg.getMessage("error"), e);
 							}
+						}
+
+						@Override
+						public void onCancel()
+						{
 						}
 					});
 			EntityDetailsWithActions tabRoot = new EntityDetailsWithActions(disabled, 
