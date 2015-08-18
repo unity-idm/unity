@@ -1,0 +1,22 @@
+=== Access with well-known URLs
+
+Endpoint type:: +WellKnownLinksHandler+
+Binding:: Web (Vaadin)
+Exposed paths:: +/sec+
+
+This endpoint is providing access to various Unity functions which are accessible via well known URLs and,
+at the same time, require authentication to be used. Analogous feature but for cases not requiring authentication
+is exposed always under the +/unitygw+ reserved path.
+
+Currently the endpoint offers a single feature but there are plans to extend it in future. The endpoint
+does not require any custom configuration.
+
+Available paths:
+
+[cols="m,n", options="header"]
+|====
+|Path						| Description 
+|/#!account-association		| Provides direct access to account association feature, i.e. the same which is available
+from the HomeUI. 
+|==== 
+
