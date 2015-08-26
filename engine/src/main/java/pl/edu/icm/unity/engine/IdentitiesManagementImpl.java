@@ -920,7 +920,8 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 
 			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
 			
-			if (changeTime.getTime() <= System.currentTimeMillis())
+			if (operation != null && changeTime != null &&
+					changeTime.getTime() <= System.currentTimeMillis())
 				dbIdentities.performScheduledOperation(entityId, operation, sqlMap);
 			else
 				dbIdentities.setScheduledOperationByAdmin(entityId, changeTime, operation, sqlMap);

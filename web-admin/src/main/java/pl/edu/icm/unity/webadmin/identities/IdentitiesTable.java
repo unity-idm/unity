@@ -37,6 +37,7 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.types.EntityInformation;
+import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -724,10 +725,13 @@ public class IdentitiesTable extends TreeTable
 	{
 		try
 		{
+			
 			EntityParam entity = new EntityParam(entityId);
-			identitiesMan.setEntityStatus(entity, newState.getState());
+			
+			if (newState.getState() != EntityState.onlyLoginPermitted)
+				identitiesMan.setEntityStatus(entity, newState.getState());
 			identitiesMan.scheduleEntityChange(entity, newState.getScheduledOperationTime(), 
-					newState.getScheduledOperation());
+						newState.getScheduledOperation());
 			refresh();
 			return true;
 		} catch (Exception e)

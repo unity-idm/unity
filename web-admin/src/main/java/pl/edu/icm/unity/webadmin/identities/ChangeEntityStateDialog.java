@@ -14,7 +14,7 @@ import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
-import com.google.common.collect.Sets;
+import com.google.gwt.thirdparty.guava.common.collect.Sets;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.UserError;
@@ -93,7 +93,17 @@ public class ChangeEntityStateDialog extends AbstractDialog
 		schedLay.setMargin(true);
 		
 		FormLayout main = new CompactFormLayout();
-		main.addComponents(info, entityState, scheduleEnable, schedulePanel);
+		main.addComponents(info);
+		
+		if (entity.getEntity().getEntityInformation().getRemovalByUserTime() != null &&
+				entity.getEntity().getEntityInformation().getState() == EntityState.onlyLoginPermitted)
+		{
+			Label infoRemovalByUser = new Label(msg.getMessage("ChangeEntityStateDialog.infoUserScheduledRemoval", 
+				entity.getEntity().getEntityInformation().getRemovalByUserTime()));
+			main.addComponent(infoRemovalByUser);
+		}
+		
+		main.addComponents(entityState, scheduleEnable, schedulePanel);
 		main.setSizeFull();
 		return main;
 	}
@@ -101,7 +111,9 @@ public class ChangeEntityStateDialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
-		EntityInformation newInfo = new EntityInformation(entityState.getSelectedValue());
+		EntityState newState = entityState.getSelectedValue() == null ? entity.getEntity().getState() :
+			entityState.getSelectedValue();
+		EntityInformation newInfo = new EntityInformation(newState);
 		changeTime.setComponentError(null);
 
 		if (scheduleEnable.getValue())
@@ -115,6 +127,7 @@ public class ChangeEntityStateDialog extends AbstractDialog
 			newInfo.setScheduledOperation(entityScheduledChange.getSelectedValue());
 			newInfo.setScheduledOperationTime(changeTime.getValue());
 		}
+		
 		if (callback.onChanged(newInfo))
 			close();
 	}
