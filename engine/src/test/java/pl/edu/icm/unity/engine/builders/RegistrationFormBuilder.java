@@ -397,14 +397,6 @@ class RegistrationFormBuilderBase<GeneratorT extends RegistrationFormBuilderBase
 	}
 
 	@SuppressWarnings("unchecked")
-	public GeneratorT withRedirectAfterSubmitAndAccept(String aValue)
-	{
-		instance.setRedirectAfterSubmitAndAccept(aValue);
-
-		return (GeneratorT) this;
-	}
-
-	@SuppressWarnings("unchecked")
 	public GeneratorT withName(String aValue)
 	{
 		instance.setName(aValue);

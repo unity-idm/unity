@@ -68,12 +68,14 @@ public abstract class UserFacility <T extends UserConfirmationState> extends Bas
 			entityState = dbIdentities.getEntityStatus(idState.getOwnerEntityId(), sql);
 		} catch (Exception e)
 		{
-			return new ConfirmationStatus(false, idState.getErrorUrl(), "ConfirmationStatus.entityRemoved");
+			return new ConfirmationStatus(false, idState.getRedirectUrl(), 
+					"ConfirmationStatus.entityRemoved");
 		}
 
 		if (!entityState.equals(EntityState.valid))
 		{
-			return new ConfirmationStatus(false, idState.getErrorUrl(), "ConfirmationStatus.entityInvalid");
+			return new ConfirmationStatus(false, idState.getRedirectUrl(), 
+					"ConfirmationStatus.entityInvalid");
 		}
 			
 		return confirmElements(idState, sql);

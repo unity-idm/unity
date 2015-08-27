@@ -15,8 +15,6 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
@@ -27,7 +25,7 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.Label;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -100,15 +98,23 @@ public class StandalonePublicFormView extends CustomComponent implements View
 
 		main.addComponent(editor);
 
+		HorizontalLayout buttons = new HorizontalLayout();
+		
 		Button ok = new Button(msg.getMessage("RegistrationRequestEditorDialog.submitRequest"));
 		ok.addStyleName(Styles.vButtonPrimary.toString());
 		ok.addClickListener(event -> {
 			accept(editor);
 		});
 		
-		Label cancel = new Label(msg.getMessage("StandalonePublicFormView.cancel"));
-		main.addComponents(ok, cancel);
-		main.setComponentAlignment(ok, Alignment.MIDDLE_CENTER);
+		Button cancel = new Button(msg.getMessage("cancel"));
+		cancel.addClickListener(event -> {
+			new PostRegistrationHandler(form, msg).cancelled(true);
+		});
+		buttons.addComponents(cancel, ok);
+		buttons.setSpacing(true);
+		main.addComponent(buttons);
+		main.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
+		
 		addStyleName("u-standalone-public-form");
 		setCompositionRoot(main);
 		setWidthUndefined();
@@ -120,19 +126,11 @@ public class StandalonePublicFormView extends CustomComponent implements View
 		try
 		{
 			RegistrationRequest request = editor.getRequest();
-			String requestId = regMan.submitRegistrationRequest(request, false);
-			RegistrationFormLauncher.invokePostRegistrationAction(form, requestId, msg, regMan);
-		} catch (FormValidationException e) 
+			String requestId = regMan.submitRegistrationRequest(request, true);
+			new PostRegistrationHandler(form, msg).submitted(requestId, regMan);
+		} catch (Exception e) 
 		{
-			if (e.getMessage() == null || e.getMessage().equals(""))
-				NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), 
-						msg.getMessage("Generic.formErrorHint"));
-			else
-				NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
-		} catch (EngineException e)
-		{
-			NotificationPopup.showError(msg, msg.getMessage(
-					"RegistrationFormsChooserComponent.errorRequestAutoAccept"), e);
+			new PostRegistrationHandler(form, msg).submissionError(e);
 		}
 	}
 

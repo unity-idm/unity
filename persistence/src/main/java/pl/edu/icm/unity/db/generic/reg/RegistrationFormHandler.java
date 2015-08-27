@@ -81,7 +81,6 @@ public class RegistrationFormHandler extends DefaultEntityHandler<RegistrationFo
 			root.put("RegistrationCode", value.getRegistrationCode());
 			root.put("CaptchaLength", value.getCaptchaLength());
 			root.put("RedirectAfterSubmit", value.getRedirectAfterSubmit());
-			root.put("RedirectAfterSubmitAndAccept", value.getRedirectAfterSubmitAndAccept());
 			byte[] contents = jsonMapper.writeValueAsBytes(root);
 			return new GenericObjectBean(value.getName(), contents, supportedType);
 		} catch (JsonProcessingException e)
@@ -259,13 +258,6 @@ public class RegistrationFormHandler extends DefaultEntityHandler<RegistrationFo
 				n = root.get("RedirectAfterSubmit");
 				if (!n.isNull())
 					ret.setRedirectAfterSubmit(n.asText());
-			}
-			
-			if (root.has("RedirectAfterSubmitAndAccept"))
-			{
-				n = root.get("RedirectAfterSubmitAndAccept");
-				if (!n.isNull())
-					ret.setRedirectAfterSubmitAndAccept(n.asText());
 			}
 			
 			return ret;

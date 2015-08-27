@@ -130,3 +130,13 @@ The following changes in configuration are necessary:
  scaling mode can be configured per endpoint in its authentication configuration. Scaling is no more fixed, it is using 
  CSS class names (small, tiny, ...) which are controlled by theme and can be customized.
 
+==== From 1.6.x to 1.7.0
+
+First of all make sure you use Java 8. 
+
+Version 1.7.0 introduces one incompatible change wrt previous versions. There is a *single redirect
+URL* which can be defined for a registration form. Previously used redirect URL for requests which were auto accepted
+is not available any more. Instead the same URL is used, but has rich set of query parameters allowing 
+consuming service to present appropriate content.
+
+ 

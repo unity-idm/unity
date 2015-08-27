@@ -65,7 +65,6 @@ public class RegistrationFormViewer extends VerticalLayout
 	private Label autoAcceptCondition;
 	private Label captcha;
 	private Label redirectAfterSubmit;
-	private Label redirectAfterSubmitAndAccept;
 	
 	private I18nLabel displayedName;
 	private I18nLabel formInformation;
@@ -112,8 +111,6 @@ public class RegistrationFormViewer extends VerticalLayout
 				msg.getMessage("no"));
 		redirectAfterSubmit.setValue(form.getRedirectAfterSubmit() == null ? 
 				"-" : form.getRedirectAfterSubmit());
-		redirectAfterSubmitAndAccept.setValue(form.getRedirectAfterSubmitAndAccept() == null ? 
-				"-" : form.getRedirectAfterSubmitAndAccept());
 		publiclyAvailable.setValue(msg.getYesNo(form.isPubliclyAvailable()));
 		
 		publicLink.setValue(form.isPubliclyAvailable() ? getPublicLink(form) : "-");
@@ -178,7 +175,6 @@ public class RegistrationFormViewer extends VerticalLayout
 		autoAcceptCondition.setValue("");
 		captcha.setValue("");
 		redirectAfterSubmit.setValue("");
-		redirectAfterSubmitAndAccept.setValue("");
 		
 		submittedTemplate.setInput(null);
 		updatedTemplate.setInput(null);
@@ -389,9 +385,6 @@ public class RegistrationFormViewer extends VerticalLayout
 		redirectAfterSubmit = new Label();
 		redirectAfterSubmit.setCaption(msg.getMessage("RegistrationFormViewer.redirectAfterSubmit"));
 
-		redirectAfterSubmitAndAccept = new Label();
-		redirectAfterSubmitAndAccept.setCaption(msg.getMessage("RegistrationFormViewer.redirectAfterSubmitAndAccept"));
-		
 		publiclyAvailable = new Label();
 		publiclyAvailable.setCaption(msg.getMessage("RegistrationFormViewer.publiclyAvailable"));
 		
@@ -415,7 +408,7 @@ public class RegistrationFormViewer extends VerticalLayout
 		
 		main.addComponents(name, description, publiclyAvailable, publicLink, channel, adminsNotificationGroup,
 				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate, captcha,
-				redirectAfterSubmit, redirectAfterSubmitAndAccept, autoAcceptCondition);
+				redirectAfterSubmit, autoAcceptCondition);
 	}
 	
 	private String toHTMLLabel(OptionalRegistrationParam value)
