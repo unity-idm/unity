@@ -26,9 +26,9 @@ public class IdentityConfirmationState extends UserConfirmationState
 	}
 
 	public IdentityConfirmationState(long owner, String type, String value, String locale,
-			String successUrl, String errorUrl)
+			String redirectUrl)
 	{
-		super(FACILITY_ID, type, value, locale, successUrl, errorUrl, owner);
+		super(FACILITY_ID, type, value, locale, redirectUrl, owner);
 	}
 	
 	public IdentityConfirmationState(long owner, String type, String value, String locale)

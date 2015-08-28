@@ -18,9 +18,9 @@ import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
 import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder.ConfirmedElementType;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 
 /**
@@ -55,14 +55,14 @@ public class RegistrationReqAttributeFacility extends RegistrationFacility<Regis
 	}
 
 	@Override
-	protected ConfirmationStatus confirmElements(RegistrationRequest req, 
+	protected ConfirmationStatus confirmElements(RegistrationRequestState reqState, 
 			RegistrationReqAttribiuteConfirmationState attrState) throws EngineException
 	{
-		Collection<Attribute<?>> confirmedList = confirmAttributes(req.getAttributes(),
+		Collection<Attribute<?>> confirmedList = confirmAttributes(reqState.getRequest().getAttributes(),
 				attrState.getType(), attrState.getGroup(), attrState.getValue());
 		boolean confirmed = (confirmedList.size() > 0);
-		return new ConfirmationStatus(confirmed, confirmed ? attrState.getSuccessUrl()
-				: attrState.getErrorUrl(),
+		return new ConfirmationStatus(confirmed, confirmed ? getSuccessRedirect(attrState, reqState)
+				: getErrorRedirect(attrState, reqState),
 				confirmed ? "ConfirmationStatus.successAttribute"
 						: "ConfirmationStatus.attributeChanged",
 				attrState.getType());
@@ -107,5 +107,12 @@ public class RegistrationReqAttributeFacility extends RegistrationFacility<Regis
 	public RegistrationReqAttribiuteConfirmationState parseState(String state) throws WrongArgumentException
 	{
 		return new RegistrationReqAttribiuteConfirmationState(state);
+	}
+
+	@Override
+	protected ConfirmedElementType getConfirmedElementType(
+			RegistrationReqAttribiuteConfirmationState state)
+	{
+		return ConfirmedElementType.attribute;
 	}
 }

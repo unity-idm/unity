@@ -70,8 +70,7 @@ public class IdentityFacility extends UserFacility<IdentityConfirmationState>
 		}
 		sql.commit();
 		boolean confirmed = (confirmedList.size() > 0);
-		status = new ConfirmationStatus(confirmed, confirmed ? idState
-				.getSuccessUrl() : idState.getErrorUrl(),
+		status = new ConfirmationStatus(confirmed, idState.getRedirectUrl(),
 				confirmed ? "ConfirmationStatus.successIdentity"
 						: "ConfirmationStatus.identityChanged",
 						idState.getType());

@@ -24,9 +24,9 @@ public class RegistrationReqIdentityConfirmationState extends RegistrationConfir
 	}
 
 	public RegistrationReqIdentityConfirmationState(String requestId, String type,
-			String value, String locale, String successUrl, String errorUrl)
+			String value, String locale, String redirectUrl)
 	{
-		super(FACILITY_ID, type, value, locale, successUrl, errorUrl, requestId);
+		super(FACILITY_ID, type, value, locale, redirectUrl, requestId);
 	}
 	
 	public RegistrationReqIdentityConfirmationState(String requestId, String type,

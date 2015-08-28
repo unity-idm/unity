@@ -186,6 +186,7 @@
 								<argument>pl.edu.icm.unity.oauth.as.OAuthASProperties|ref-oauthASProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.oauth.rp.OAuthRPProperties|ref-oauthRPProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.home.HomeEndpointProperties|ref-homeEndpointProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWellKnownURLProperties|ref-connectIdWellKnownURLProperties.txt|</argument>
 							</arguments>
 						</configuration>
 						<goals>

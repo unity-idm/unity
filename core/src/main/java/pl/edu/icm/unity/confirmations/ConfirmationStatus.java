@@ -18,6 +18,14 @@ public class ConfirmationStatus
 	private String userMessageKey;
 	private String[] userMessageArgs;
 	
+	public ConfirmationStatus(boolean status, String returnUrl, String userMessage, String...userMessageArgs)
+	{
+		this.success = status;
+		this.returnUrl = returnUrl;
+		this.userMessageKey = userMessage;
+		this.userMessageArgs = userMessageArgs;
+	}
+
 	public boolean isSuccess()
 	{
 		return success;
@@ -28,14 +36,6 @@ public class ConfirmationStatus
 		this.success = success;
 	}
 	
-	public ConfirmationStatus(boolean status, String returnUrl ,String userMessage, String...userMessageArgs)
-	{
-		this.success = status;
-		this.returnUrl = returnUrl;
-		this.userMessageKey = userMessage;
-		this.userMessageArgs = userMessageArgs;
-	}
-
 	public String getUserMessageKey()
 	{
 		return userMessageKey;

@@ -18,9 +18,9 @@ import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
 import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder.ConfirmedElementType;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 
 /**
@@ -56,16 +56,17 @@ public class RegistrationReqIdentityFacility extends RegistrationFacility<Regist
 	}
 
 	@Override
-	protected ConfirmationStatus confirmElements(RegistrationRequest req,
+	protected ConfirmationStatus confirmElements(RegistrationRequestState reqState,
 			RegistrationReqIdentityConfirmationState idState) throws EngineException
 	{
 		if (!(identityTypesRegistry.getByName(idState.getType()).isVerifiable()))
 			return new ConfirmationStatus(false, "ConfirmationStatus.identityChanged", idState.getType());
-		Collection<IdentityParam> confirmedList = confirmIdentity(req.getIdentities(),
+		Collection<IdentityParam> confirmedList = confirmIdentity(reqState.getRequest().getIdentities(),
 				idState.getType(), idState.getValue());
 		boolean confirmed = (confirmedList.size() > 0);
-		return new ConfirmationStatus(confirmed, confirmed ? idState.getSuccessUrl()
-				: idState.getErrorUrl(),
+		
+		return new ConfirmationStatus(confirmed, confirmed ? getSuccessRedirect(idState, reqState)
+				: getErrorRedirect(idState, reqState),
 				confirmed ? "ConfirmationStatus.successIdentity"
 						: "ConfirmationStatus.identityChanged",
 				idState.getType());
@@ -103,5 +104,12 @@ public class RegistrationReqIdentityFacility extends RegistrationFacility<Regist
 	public RegistrationReqIdentityConfirmationState parseState(String state) throws WrongArgumentException
 	{
 		return new RegistrationReqIdentityConfirmationState(state);
+	}
+
+	@Override
+	protected ConfirmedElementType getConfirmedElementType(
+			RegistrationReqIdentityConfirmationState state)
+	{
+		return ConfirmedElementType.identity;
 	}
 }

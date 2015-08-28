@@ -84,11 +84,15 @@ added to the local database.
 
 After creation a registration form can be tested and also filled (use case no 2 above) directly from 
 the Admin Web UI. If the form is public it can be associated with any endpoint with the Web (Vaadin) binding.
-Then a link to register a new account will appear on the login screen of the endpoint. Finally 
-a form can be associated with a remote authenticator as a "handler" for unknown users who were 
+Then a link to register a new account will appear on the login screen of the endpoint. Additionally all public
+forms get its own public address which can be used to directly launch a form. This address is constructed
+from the form name and can be seen in the form viewer after selecting an existing form in the AdminUI 
+(Registrations management -> Registration forms). 
+
+Finally a form can be associated with a remote authenticator as a "handler" for unknown users who were 
 correctly authenticated remotely. For this last case typically the form should not be public. It is also
-crucial to configure the input translation profile of the authenticator so it _does not_ create local user 
-automatically. Otherwise the configured form won't be launched as the local user will be always present 
+crucial to configure the input translation profile of the authenticator so it _does not_ create a local user 
+automatically. Otherwise the configured form won't ever be launched as the local user will be always present 
 after translation profile execution. 
 
 An example of registration form creation:
@@ -171,6 +175,30 @@ Accept a request if the first email type identity is confirmed.
 ------
 idsByTypeObj["email"][0].confirmed == true
 ------
+
+==== Redirections
+
+After filling a registration form a user can be redirected to a given address. This is useful especially in many
+integration scenarios when registration is launched in a part of bigger process. 
+
+When defining a form a single registration URL can be defined. If given a registering user will redirected to 
+this URL after filling a form. Additional query parameters are filled by Unity to inform a target service about the
+details of the request. 
+
+The easiest way to check the resulting redirection URL is to play with filling a form directly from the AdminUI. 
+In such case redirection is not performed but a notification message is presented with a full redirection URL included. 
+
+The possible query parameters are:
+
+. +status+ one of +submitted+, +submittedAccepted+ (if auto accept condition triggered request acceptance), 
++submittedWithError+, +cancelled+, +elementConfirmed+, +elementConfirmationError+. The last two are used after confirming 
+elements as email of the form.
+. +error_code+ more detailed information about error in case of error status
+. +form_id+ identifier of the form, may be missing in rare cases
+. +request_id+ request identifier, may be missing in rare cases
+. +confirmed_element_type+ one of +identity+ or +attribute+
+. +confirmed_element_name+ 
+. +confirmed_element_value+
 
 === Identities and entities
 

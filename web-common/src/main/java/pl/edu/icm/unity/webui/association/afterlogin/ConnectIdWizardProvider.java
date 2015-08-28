@@ -15,6 +15,7 @@ import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.sandbox.wizard.AbstractSandboxWizardProvider;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
+import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.association.IntroStep;
 import pl.edu.icm.unity.webui.association.SandboxStep;
@@ -27,10 +28,11 @@ public class ConnectIdWizardProvider extends AbstractSandboxWizardProvider
 {
 	private UnityMessageSource msg;
 	private InputTranslationEngine translationEngine;
-	private SuccessCallback callback;
+	private WizardFinishedCallback callback;
+	private MergeCurrentWithUnknownConfirmationStep confirmationStep;
 
 	public ConnectIdWizardProvider(UnityMessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier,
-			InputTranslationEngine translationEngine, SuccessCallback callback)
+			InputTranslationEngine translationEngine, WizardFinishedCallback callback)
 	{
 		super(sandboxURL, sandboxNotifier);
 		this.msg = msg;
@@ -46,8 +48,7 @@ public class ConnectIdWizardProvider extends AbstractSandboxWizardProvider
 		wizard.addStep(new IntroStep(msg, "ConnectId.introLabel"));
 		final SandboxStep sandboxStep = new SandboxStep(msg, sandboxURL, wizard);
 		wizard.addStep(sandboxStep);
-		final MergeCurrentWithUnknownConfirmationStep confirmationStep = 
-				new MergeCurrentWithUnknownConfirmationStep(msg, translationEngine, wizard);
+		confirmationStep = new MergeCurrentWithUnknownConfirmationStep(msg, translationEngine, wizard);
 		wizard.addStep(confirmationStep);
 		
 		openSandboxPopupOnNextButton(wizard);
@@ -73,11 +74,19 @@ public class ConnectIdWizardProvider extends AbstractSandboxWizardProvider
 			@Override
 			public void wizardCompleted(WizardCompletedEvent event)	
 			{
-				callback.onSuccess();
+				
+				if (confirmationStep.getMergeError() != null)
+					callback.onError(confirmationStep.getMergeError());
+				else
+					callback.onSuccess(confirmationStep.getMerged());
 			}
 			
 			@Override
-			public void wizardCancelled(WizardCancelledEvent event)	{}
+			public void wizardCancelled(WizardCancelledEvent event)	
+			{
+				callback.onCancel();
+			}
+			
 			@Override
 			public void stepSetChanged(WizardStepSetChangedEvent event) {}
 			
@@ -90,9 +99,11 @@ public class ConnectIdWizardProvider extends AbstractSandboxWizardProvider
 		});
 	}
 	
-	public interface SuccessCallback
+	public interface WizardFinishedCallback
 	{
-		void onSuccess();
+		void onSuccess(MappingResult mergedIdentity);
+		void onError(Exception error);
+		void onCancel();
 	}
 
 	@Override

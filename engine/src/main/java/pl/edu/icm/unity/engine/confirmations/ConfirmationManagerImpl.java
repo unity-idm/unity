@@ -335,7 +335,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 						entityId,
 						attribute.getName(), val.getValue(),
 						msg.getDefaultLocaleCode(),
-						attribute.getGroupPath(), url, url);
+						attribute.getGroupPath(), url);
 				sendConfirmationRequest(state);
 			}
 		}
@@ -389,7 +389,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		IdentityConfirmationState state = new IdentityConfirmationState(
 				identity.getEntityId(), identity.getTypeId(),  
 				identity.getValue(), msg.getDefaultLocaleCode(),
-				url, url);
+				url);
 		sendConfirmationRequest(state);
 	}
 

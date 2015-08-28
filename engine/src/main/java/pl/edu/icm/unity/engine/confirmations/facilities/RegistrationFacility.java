@@ -15,6 +15,9 @@ import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
 import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder;
+import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder.ConfirmedElementType;
+import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder.Status;
 import pl.edu.icm.unity.server.utils.JsonUtil;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.registration.AdminComment;
@@ -28,7 +31,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Common code for processing verifiable elements for elements existing in registration (as opposed to 
- * elements bound to existing entitites).
+ * elements bound to existing entities).
  * 
  * @author K. Benedyczak
  */
@@ -62,7 +65,26 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 		return base.getRequestId().equals(requestId) && base.getValue().equals(value);
 	}
 	
-	protected abstract ConfirmationStatus confirmElements(RegistrationRequest req, T state) throws EngineException;
+	protected abstract ConfirmationStatus confirmElements(RegistrationRequestState reqState, T state) 
+			throws EngineException;
+	
+	protected abstract ConfirmedElementType getConfirmedElementType(T state);
+
+	protected String getSuccessRedirect(T state, RegistrationRequestState reqState)
+	{
+		return new RegistrationRedirectURLBuilder(state.getRedirectUrl(), reqState.getRequest().getFormId(),
+				reqState.getRequestId(), Status.elementConfirmed).
+			setConfirmationInfo(getConfirmedElementType(state), state.getType(), state.getValue()).
+			toString();
+	}
+	
+	protected String getErrorRedirect(T state, RegistrationRequestState reqState)
+	{
+		return new RegistrationRedirectURLBuilder(state.getRedirectUrl(), reqState.getRequest().getFormId(),
+				reqState.getRequestId(), Status.elementConfirmationError).
+			setConfirmationInfo(getConfirmedElementType(state), state.getType(), state.getValue()).
+			toString();
+	}
 	
 	/**
 	 * {@inheritDoc}
@@ -80,14 +102,25 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 
 		} catch (EngineException e)
 		{
-			return new ConfirmationStatus(false, state.getErrorUrl() , "ConfirmationStatus.requestDeleted");
+			String redirect = new RegistrationRedirectURLBuilder(state.getRedirectUrl(), null,
+					requestId, Status.elementConfirmationError).
+				setErrorCode("requestDeleted").
+				setConfirmationInfo(getConfirmedElementType(state), state.getType(), state.getValue()).
+				toString();
+			return new ConfirmationStatus(false, redirect, "ConfirmationStatus.requestDeleted");
 		}
 		
 		if (reqState.getStatus().equals(RegistrationRequestStatus.rejected))
-			return new ConfirmationStatus(false, state.getErrorUrl(), "ConfirmationStatus.requestRejected");
-		
+		{
+			String redirect = new RegistrationRedirectURLBuilder(state.getRedirectUrl(), null,
+					requestId, Status.elementConfirmationError).
+				setErrorCode("requestRejected").
+				setConfirmationInfo(getConfirmedElementType(state), state.getType(), state.getValue()).
+				toString();
+			return new ConfirmationStatus(false, redirect, "ConfirmationStatus.requestRejected");
+		}
 		RegistrationRequest req = reqState.getRequest();
-		ConfirmationStatus status = confirmElements(req, state);
+		ConfirmationStatus status = confirmElements(reqState, state);
 		requestDB.update(requestId, reqState, sql);
 		//make sure we update request, later on auto-acceptance may fail
 		sql.commit();

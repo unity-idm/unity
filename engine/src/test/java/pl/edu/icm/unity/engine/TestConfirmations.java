@@ -262,7 +262,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 		attrsMan.setAttribute(entity, at1, false);
 		AttribiuteConfirmationState attrState = new AttribiuteConfirmationState(
 				entity.getEntityId(), InitializerCommon.EMAIL_ATTR,
-				"example2@ex.com", "pl", "/test", "", "");
+				"example2@ex.com", "pl", "/test", "");
 
 		confirmationMan.sendConfirmationRequest(attrState);
 
@@ -318,7 +318,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 		
 		AttribiuteConfirmationState attrState = new AttribiuteConfirmationState(
 				entity.getEntityId(), InitializerCommon.EMAIL_ATTR,
-				"example2@ex.com", "pl", "/test", "", "");
+				"example2@ex.com", "pl", "/test", "");
 		try
 		{
 			confirmationMan.sendConfirmationRequest(attrState);
@@ -368,8 +368,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 						.size());
 
 		IdentityConfirmationState idState = new IdentityConfirmationState(
-				entity.getEntityId(), EmailIdentity.ID, "example1@ex.com", "en",
-				"", "");
+				entity.getEntityId(), EmailIdentity.ID, "example1@ex.com", "en", "");
 		try
 		{
 			confirmationMan.sendConfirmationRequest(idState);

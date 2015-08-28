@@ -33,6 +33,9 @@ public class RegistrationFormChooserDialog extends AbstractDialog
 		VerticalLayout vl = new VerticalLayout();
 		vl.addComponent(editor);
 		vl.setComponentAlignment(editor, Alignment.TOP_CENTER);
+		editor.setCallback(() -> {
+			close();
+		});
 		vl.setHeight(100, Unit.PERCENTAGE);
 		return vl;
 	}

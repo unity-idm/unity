@@ -27,9 +27,9 @@ public class RegistrationConfirmationState extends BaseConfirmationState
 
 
 	public RegistrationConfirmationState(String facilityId, String type, String value, String locale,
-			String successUrl, String errorUrl, String requestId)
+			String redirectUrl, String requestId)
 	{
-		super(facilityId, type, value, locale, successUrl, errorUrl);
+		super(facilityId, type, value, locale, redirectUrl);
 		this.requestId = requestId;
 	}
 

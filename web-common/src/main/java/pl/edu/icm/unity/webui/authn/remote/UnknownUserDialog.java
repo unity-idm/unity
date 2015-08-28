@@ -6,16 +6,6 @@ package pl.edu.icm.unity.webui.authn.remote;
 
 import org.apache.log4j.Logger;
 
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.themes.ValoTheme;
-
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.sandbox.wizard.SandboxWizardDialog;
@@ -28,8 +18,18 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.association.atlogin.ConnectIdAtLoginWizardProvider;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.registration.RegistrationFormLauncher;
+import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.registration.RegistrationRequestEditorDialog;
+
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Dialog presented to users who were correctly authenticated with a remote IdP
@@ -46,7 +46,7 @@ public class UnknownUserDialog extends AbstractDialog
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, UnknownUserDialog.class);
 	
 	private AuthenticationResult authNResult;
-	private RegistrationFormLauncher formLauncher;
+	private InsecureRegistrationFormLauncher formLauncher;
 
 	private SandboxAuthnNotifier sandboxAuthnNotifier;
 	private InputTranslationEngine inputTranslationEngine;
@@ -54,7 +54,7 @@ public class UnknownUserDialog extends AbstractDialog
 	private String sandboxURL;
 
 	public UnknownUserDialog(UnityMessageSource msg, AuthenticationResult authNResult,
-			RegistrationFormLauncher formLauncher, SandboxAuthnNotifier sandboxAuthnNotifier,
+			InsecureRegistrationFormLauncher formLauncher, SandboxAuthnNotifier sandboxAuthnNotifier,
 			InputTranslationEngine inputTranslationEngine, String sandboxURL)
 	{
 		super(msg, msg.getMessage("UnknownUserDialog.caption"), msg.getMessage("cancel"));
