@@ -144,6 +144,7 @@ public class InputTranslationEngine
 	{
 		List<MappedIdentity> mappedMissingIdentitiesToCreate = new ArrayList<>();
 		List<MappedIdentity> mappedMissingIdentities = new ArrayList<>();
+		List<MappedIdentity> mappedMissingCreateOrUpdateIdentities = new ArrayList<>();
 		Entity existing = null;
 		for (MappedIdentity checked: result.getIdentities())
 		{
@@ -167,12 +168,21 @@ public class InputTranslationEngine
 				} else if (checked.getMode() == IdentityEffectMode.CREATE_OR_MATCH)
 				{
 					mappedMissingIdentitiesToCreate.add(checked);
-				} else
+				} else if (checked.getMode() == IdentityEffectMode.MATCH)
 				{
 					mappedMissingIdentities.add(checked);
+				} else
+				{
+					mappedMissingCreateOrUpdateIdentities.add(checked);
 				}
 			}			
 		}
+		
+		if (existing != null)
+			mappedMissingIdentitiesToCreate.addAll(mappedMissingCreateOrUpdateIdentities);
+		else
+			mappedMissingIdentities.addAll(mappedMissingCreateOrUpdateIdentities);
+		
 		if (mappedMissingIdentitiesToCreate.isEmpty() && mappedMissingIdentities.isEmpty() && existing == null)
 		{
 			log.info("The translation profile didn't return any identity of the principal. "

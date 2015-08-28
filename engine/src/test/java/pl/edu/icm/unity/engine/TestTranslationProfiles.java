@@ -8,6 +8,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
@@ -237,6 +239,64 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		Collection<String> groups = idsMan.getGroups(ep);
 		assertTrue(groups.contains("/A"));
 		assertTrue(groups.contains("/A/newGr"));
+	}
+
+	@Test
+	public void testInputCreateOrUpdateIdentityMapping() throws Exception
+	{
+		List<InputTranslationRule> rules = new ArrayList<>();
+		InputTranslationAction action1 = (InputTranslationAction) tactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+				IdentifierIdentity.ID, 
+				"'test'", 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				IdentityEffectMode.UPDATE_OR_MATCH.toString());
+		rules.add(new InputTranslationRule(action1, new TranslationCondition()));
+		InputTranslationAction action2 = (InputTranslationAction) tactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+				IdentifierIdentity.ID, 
+				"'test-base'", 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				IdentityEffectMode.MATCH.toString());
+		rules.add(new InputTranslationRule(action2, new TranslationCondition()));
+		
+		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules);
+		
+		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
+		MappingResult result = tp1.translate(input);
+		inputTrEngine.process(result);
+
+		EntityParam ep = new EntityParam(new IdentityTaV(IdentifierIdentity.ID, "test"));
+		EntityParam ep2 = new EntityParam(new IdentityTaV(IdentifierIdentity.ID, "test-base"));
+		try
+		{
+			idsMan.getEntity(ep);
+			fail("Entity created");
+		} catch (IllegalIdentityValueException e)
+		{
+			//ok
+		}
+		try
+		{
+			idsMan.getEntity(ep2);
+			fail("Entity created");
+		} catch (IllegalIdentityValueException e)
+		{
+			//ok
+		}
+		
+		idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "test"), 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, EntityState.valid, false);
+
+		
+		MappingResult result2 = tp1.translate(input);
+		inputTrEngine.process(result2);
+
+		try
+		{
+			idsMan.getEntity(ep);
+		} catch (IllegalIdentityValueException e)
+		{
+			fail("Entity not created");
+		}
 	}
 
 	@Test

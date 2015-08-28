@@ -7,8 +7,7 @@ modify the information about a principal being processed by Unity. Such situatio
 . Remote user was externally authenticated and its data is consumed by Unity. In this case
 translation is performed by so called _input translation profiles_.
 . Information about Unity's entity is being exposed to outside world with an IdP-like endpoint
-as for instance SAML web endpoint.  In this case
-translation is performed by so called _output translation profiles_.
+as SAML web endpoint.  In this case translation is performed by so called _output translation profiles_.
 
 For instance, an input translation profile can change remote attribute 'size' name to
 'width' and insert a remotely authenticated user to the local database (to a desired group)
@@ -20,7 +19,7 @@ are common. The profiles are managed with the Admin UI in the Server management-
 The profile has a name and a list of rules. Each rule has a condition and an action.
 
 Conditions are used to dynamically turn action execution on or off. Conditions (as well as some of the arguments 
-of translation actions have) to be specified as _MVEL expressions_. Such expressions allow for a powerful, 
+of translation actions have) have to be specified as _MVEL expressions_. Such expressions allow for a powerful, 
 dynamic functionality. 
 
 The full MVEL documentation can be found here: 
@@ -56,10 +55,33 @@ filled by the protocol specific component. The structure can contain:
 What data is actually in this structure is dependent on the upstream protocol, upstream server and 
 callout configuration.
 
-Each profile should be started from a mandatory identity mapping. It is possible to control whether
-the remote identity should be matched against the local one and/or automatically created. 
+Profile actions map remote data to Unity artifacts. For instance mapped result can be an attribute of type 'cn'
+with some dynamic value. The value is completely controllable with a MVEL expression and can be anything from a 
+simple direct reuse of remotely provided attribute to a sophisticatedly crafted string. It might be good to 
+take a look at the example profile below.
 
-Additionally the actions allow for creating Unity's attributes, identities and assigning the remote user to groups. 
+Each profile should be started from a mandatory *identity mapping*. It is possible to control whether
+the remote identity should be matched against the local one and/or automatically created. Note that the identity mapping
+result decides how the general login process looks like: if a profile maps a user to an existing user (also by 
+creating an new entity) login will proceed automatically. If the profile maps the remote user to some not existing 
+identity then Unity can be configured to present a registration form or account association dialog. Finally if 
+remote user is not mapped to any identity the login fails. 
+
+There are several so called _identity mapping effects_ which are important for the remote user mapping process:
+
+. +CREATE_OR_MATCH+ if the mapped identity doesn't exist it is automatically created. If it exists then the remote user
+is mapped onto this entity what sets the context for all other profile actions.   
+. +MATCH+ The remote user is mapped onto existing entity it it is found. Otherwise nothing happens. 
+. +REQUIRE_MATCH+ The remote user is mapped onto existing entity it it is found. Otherwise authentication is failed.
+. +UPDATE_OR_MATCH+ is the most tricky option, similar to +CREATE_OR_MATCH+. 
+The remote user is mapped onto an existing one if it exists. If there is no mapped identity then it is created but 
+only if the remote user was already mapped onto existing entity by other rules of the profile. This complicated 
+behavior is actually quite useful whenever we want to have new remote identities propagated to the existing user
+in Unity, but at the same time we don't want to have a new user created automatically 
+(what would be +CREATE_OR_MATCH+ effect).      
+
+Additionally the actions allow for creating Unity's attributes, assigning the remote user to groups and to change
+entity status. 
 
 ==== Translation profile creation wizard and dry-run
 
