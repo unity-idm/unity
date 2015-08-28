@@ -16,14 +16,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.engine.notifications.EmailFacility;
+import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
+import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
 import pl.edu.icm.unity.stdext.utils.EmailUtils;
 import pl.edu.icm.unity.stdext.utils.InitializerCommon;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -85,6 +89,29 @@ public class TestEmailFacility extends DBIntegrationTestBase
 		{
 			db.releaseSqlSession(sqlSession);
 		}
+	}
+
+	@Test
+	public void emailExtractedFromAttributeInOrderWithStringContactEmail() throws Exception
+	{
+		AttributeType verifiableEmail = new AttributeType(InitializerCommon.EMAIL_ATTR, 
+				new StringAttributeSyntax());
+		verifiableEmail.setMinElements(1);
+		verifiableEmail.setMaxElements(5);
+		verifiableEmail.getMetadata().put(ContactEmailMetadataProvider.NAME, "");
+		attrsMan.addAttributeType(verifiableEmail);
+
+		setupPasswordAuthn();
+
+		Identity entity = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "123"), 
+				DBIntegrationTestBase.CRED_REQ_PASS, EntityState.valid, false);
+		EntityParam entityP = new EntityParam(entity);
+
+		StringAttribute attribute = new StringAttribute(InitializerCommon.EMAIL_ATTR, 
+				"/", AttributeVisibility.full,  "email1@ex.com");
+		attrsMan.setAttribute(entityP, attribute, true);
+		
+		check(entityP, "email1@ex.com");
 	}
 	
 	@Test

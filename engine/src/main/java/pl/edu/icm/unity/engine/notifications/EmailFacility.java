@@ -189,10 +189,16 @@ public class EmailFacility implements NotificationFacility
 		if (emailAttr != null && (!useConfirmed || emailAttr.getAttributeSyntax().isVerifiable()))
 			for (Object emailO: emailAttr.getValues())
 			{
-				VerifiableEmail email = (VerifiableEmail) emailO;
-				if ((!useConfirmed || email.isConfirmed()) && 
-						(!useMain || email.getTags().contains(EmailUtils.TAG_MAIN)))
-					return email.getValue();
+				if (!useConfirmed && !useMain)
+				{
+					return emailO.toString();
+				} else if (emailAttr.getAttributeSyntax().isVerifiable())
+				{
+					VerifiableEmail email = (VerifiableEmail) emailO;
+					if ((!useConfirmed || email.isConfirmed()) && 
+							(!useMain || email.getTags().contains(EmailUtils.TAG_MAIN)))
+						return email.getValue();
+				}
 			}
 		return null;
 	}
