@@ -9,8 +9,7 @@ import com.vaadin.navigator.ViewProvider;
 
 /**
  * Implementations provide {@link View}s for registration in {@link PublicNavigationUI}.
- * Merely a marker.
- * 
+ * Marker interface.
  * 
  * @author K. Benedyczak
  */

@@ -34,7 +34,7 @@ public class ConnectIdWellKnownURLView extends CustomComponent implements View
 		title.addStyleName(Styles.textLarge.toString());
 		main.addComponent(title);
 		main.addComponent(wizardInstance);
-
+		
 		setCompositionRoot(main);
 	}
 	

@@ -52,12 +52,13 @@ public class RegistrationRedirectURLBuilder
 			throw new IllegalStateException("Form has illegal redirect URI, shouldn't happen", e);
 		}
 		
+		uriBuilder.addParameter(PARAM_STATUS, status.toString());
 		if (formName != null)
-			uriBuilder.addParameter(PARAM_STATUS, status.toString()).
-				addParameter(PARAM_FORM_ID, formName);
+			uriBuilder.addParameter(PARAM_FORM_ID, formName);
 		if (requestId != null)
 			uriBuilder.addParameter(PARAM_REQUEST_ID, requestId);
-	}	
+	}
+	
 	public RegistrationRedirectURLBuilder setErrorCode(String errorCode)
 	{
 		uriBuilder.addParameter(PARAM_ERROR_CODE, errorCode);

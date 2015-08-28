@@ -31,6 +31,7 @@ import pl.edu.icm.unity.server.api.internal.AttributesInternalProcessing;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
+import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
@@ -151,7 +152,12 @@ public class UserAccountComponent extends VerticalLayout
 					sandboxURL, sandboxNotifier, inputTranslationEngine, new WizardFinishedCallback()
 					{
 						@Override
-						public void onSuccess()
+						public void onCancel()
+						{
+						}
+
+						@Override
+						public void onSuccess(MappingResult mergedIdentity)
 						{
 							try
 							{
@@ -160,11 +166,11 @@ public class UserAccountComponent extends VerticalLayout
 							} catch (EngineException e)
 							{
 								NotificationPopup.showError(msg, msg.getMessage("error"), e);
-							}
+							}							
 						}
 
 						@Override
-						public void onCancel()
+						public void onError(Exception error)
 						{
 						}
 					});

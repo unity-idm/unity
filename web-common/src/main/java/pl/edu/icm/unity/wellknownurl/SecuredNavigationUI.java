@@ -5,13 +5,18 @@
 package pl.edu.icm.unity.wellknownurl;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
@@ -27,6 +32,8 @@ import com.vaadin.server.VaadinRequest;
 @Theme("unityThemeValo")
 public class SecuredNavigationUI extends GenericNavigationUI<SecuredViewProvider>
 {
+	private Properties configuration;
+	
 	@Autowired
 	public SecuredNavigationUI(UnityMessageSource msg, Collection<SecuredViewProvider> viewProviders)
 	{
@@ -34,11 +41,24 @@ public class SecuredNavigationUI extends GenericNavigationUI<SecuredViewProvider
 	}
 	
 	@Override
+	public void configure(EndpointDescription description,
+			List<AuthenticationOption> authenticators,
+			EndpointRegistrationConfiguration registrationConfiguration,
+			Properties genericEndpointConfiguration)
+	{
+		super.configure(description, authenticators, registrationConfiguration, genericEndpointConfiguration);
+		this.configuration = genericEndpointConfiguration;
+	}
+	
+	@Override
 	protected void appInit(VaadinRequest request)
 	{
 		super.appInit(request);
 		for (SecuredViewProvider viewProvider: viewProviders)
+		{
+			viewProvider.setEndpointConfiguration(configuration);
 			viewProvider.setSandboxNotifier(sandboxRouter, getSandboxServletURLForAssociation());
+		}
 	}
 }
 

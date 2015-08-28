@@ -15,6 +15,7 @@ import pl.edu.icm.unity.server.authn.LocalSandboxAuthnContext;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.authn.remote.RemoteSandboxAuthnContext;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.association.AbstractConfirmationStep;
@@ -28,6 +29,7 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 public class MergeCurrentWithUnknownConfirmationStep extends AbstractConfirmationStep
 {
 	private RemotelyAuthenticatedContext authnContext;
+	private Exception mergeError;
 	
 	public MergeCurrentWithUnknownConfirmationStep(UnityMessageSource msg, InputTranslationEngine translationEngine, 
 			final Wizard wizard)
@@ -82,8 +84,19 @@ public class MergeCurrentWithUnknownConfirmationStep extends AbstractConfirmatio
 					msg.getMessage("ConnectId.ConfirmStep.mergeSuccessful"));
 		} catch (EngineException e)
 		{
+			this.mergeError = e;
 			NotificationPopup.showError(msg, msg.getMessage("ConnectId.ConfirmStep.mergeFailed"), e);
 		}
+	}
+	
+	public Exception getMergeError()
+	{
+		return mergeError;
+	}
+	
+	public MappingResult getMerged()
+	{
+		return authnContext.getMappingResult();
 	}
 	
 	@Override
