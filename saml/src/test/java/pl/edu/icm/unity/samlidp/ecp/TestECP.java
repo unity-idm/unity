@@ -55,7 +55,6 @@ import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
 import pl.edu.icm.unity.server.translation.in.IdentityEffectMode;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
-import pl.edu.icm.unity.server.translation.in.InputTranslationProfile.ProfileMode;
 import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
 import pl.edu.icm.unity.stdext.tactions.in.MapIdentityActionFactory;
 import pl.edu.icm.unity.types.I18nString;
@@ -108,7 +107,7 @@ public class TestECP extends AbstractTestIdpBase
 							"cr-pass", IdentityEffectMode.CREATE_OR_MATCH.toString()), 
 					new TranslationCondition());
 			rules.add(mapId);
-			InputTranslationProfile testP = new InputTranslationProfile("testP", rules, ProfileMode.UPDATE_ONLY);
+			InputTranslationProfile testP = new InputTranslationProfile("testP", rules);
 			profilesMan.addProfile(testP);
 			
 		} catch (Exception e)

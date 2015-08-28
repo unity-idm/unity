@@ -38,21 +38,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public class InputTranslationProfile extends AbstractTranslationProfile<InputTranslationRule>
 {
-	public enum ProfileMode 
-	{
-		/**
-		 * Actions from the profile are applied and all the data (attributes, ...) 
-		 * which is marked as coming from this remote source which is not present after mapping is removed
-		 * from the local database.
-		 */
-		UPDATE_AND_REMOVE_MISSING, 
-		
-		/**
-		 * Actions from the profile are applied only.
-		 */
-		UPDATE_ONLY
-	}
-	
 	public enum ContextKey
 	{
 		id,
@@ -66,27 +51,15 @@ public class InputTranslationProfile extends AbstractTranslationProfile<InputTra
 
 	
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, InputTranslationProfile.class);
-	private ProfileMode mode;
 	
-	public InputTranslationProfile(String name, List<InputTranslationRule> rules, ProfileMode mode)
+	public InputTranslationProfile(String name, List<InputTranslationRule> rules)
 	{
 		super(name, ProfileType.INPUT, rules);
-		this.mode = mode;
 	}
 
 	public InputTranslationProfile(String json, ObjectMapper jsonMapper, TranslationActionsRegistry registry)
 	{
 		fromJson(json, jsonMapper, registry);
-	}
-	
-	public ProfileMode getMode()
-	{
-		return mode;
-	}
-
-	public void setMode(ProfileMode mode)
-	{
-		this.mode = mode;
 	}
 	
 	public MappingResult translate(RemotelyAuthenticatedInput input) throws EngineException
@@ -219,7 +192,6 @@ public class InputTranslationProfile extends AbstractTranslationProfile<InputTra
 		{
 			ObjectNode root = jsonMapper.createObjectNode();
 			storePreable(root);
-			root.put("mode", getMode().toString());
 			storeRules(root);
 			return jsonMapper.writeValueAsString(root);
 		} catch (JsonProcessingException e)
@@ -236,12 +208,6 @@ public class InputTranslationProfile extends AbstractTranslationProfile<InputTra
 			
 			loadPreamble(root);
 			
-			if (root.has("mode"))
-			{
-				String m = root.get("mode").asText();
-				setMode(ProfileMode.valueOf(m));
-			} else
-				setMode(ProfileMode.UPDATE_ONLY);
 			ArrayNode rulesA = (ArrayNode) root.get("rules");
 			rules = new ArrayList<>(rulesA.size());
 			for (int i=0; i<rulesA.size(); i++)

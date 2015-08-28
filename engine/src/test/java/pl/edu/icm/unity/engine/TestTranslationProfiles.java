@@ -4,7 +4,10 @@
  */
 package pl.edu.icm.unity.engine;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,8 +17,6 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
@@ -33,11 +34,10 @@ import pl.edu.icm.unity.server.translation.in.GroupEffectMode;
 import pl.edu.icm.unity.server.translation.in.IdentityEffectMode;
 import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
-import pl.edu.icm.unity.server.translation.in.MappedGroup;
-import pl.edu.icm.unity.server.translation.in.MappedIdentity;
-import pl.edu.icm.unity.server.translation.in.InputTranslationProfile.ProfileMode;
 import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
 import pl.edu.icm.unity.server.translation.in.MappedAttribute;
+import pl.edu.icm.unity.server.translation.in.MappedGroup;
+import pl.edu.icm.unity.server.translation.in.MappedIdentity;
 import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationEngine;
@@ -74,6 +74,8 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
+import com.google.common.collect.Sets;
+
 /**
  * Integration and engine related part tests of the subsystem mapping the remote data to the unity's representation. 
  * @author K. Benedyczak
@@ -104,7 +106,7 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 				"'/A'"); 
 		rules.add(new InputTranslationRule(action2, new TranslationCondition()));
 		
-		InputTranslationProfile toAdd = new InputTranslationProfile("p1", rules, ProfileMode.UPDATE_ONLY);
+		InputTranslationProfile toAdd = new InputTranslationProfile("p1", rules);
 		tprofMan.addProfile(toAdd);
 		
 		Map<String, InputTranslationProfile> profiles = tprofMan.listInputProfiles();
@@ -194,7 +196,7 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 				EntityScheduledOperation.REMOVE.toString(), "1"); 
 		rules.add(new InputTranslationRule(action4, new TranslationCondition()));
 		
-		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules, ProfileMode.UPDATE_ONLY);
+		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules);
 		
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 		input.addIdentity(new RemoteIdentity("someUser", UsernameIdentity.ID));
@@ -268,7 +270,7 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 				AttributeVisibility.full.toString(), AttributeEffectMode.CREATE_OR_UPDATE.toString()); 
 		rules.add(new InputTranslationRule(action4, new TranslationCondition()));
 		
-		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules, ProfileMode.UPDATE_ONLY);
+		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules);
 		
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 		
@@ -340,7 +342,7 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 				AttributeVisibility.full.toString(), AttributeEffectMode.CREATE_OR_UPDATE.toString()); 
 		rules.add(new InputTranslationRule(action3, new TranslationCondition()));
 		
-		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules, ProfileMode.UPDATE_ONLY);
+		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules);
 		
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 		input.addIdentity(new RemoteIdentity("someUser", UsernameIdentity.ID));
