@@ -221,7 +221,7 @@ public class OAuthParseServlet extends HttpServlet
 		{
 			Entity clientResolvedEntity = identitiesMan.getEntity(clientEntity);
 			context.setClientEntityId(clientResolvedEntity.getId());
-			groups = identitiesMan.getGroups(clientEntity);
+			groups = identitiesMan.getGroups(clientEntity).keySet();
 		} catch (IllegalIdentityValueException e)
 		{
 			throw new OAuthValidationException("The client '" + client + "' is unknown");

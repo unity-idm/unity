@@ -60,9 +60,25 @@ public interface GroupsManagement
 	 * @throws EngineException
 	 */
 	public void addSelfManagedGroup(Group toAdd) throws EngineException;
+
+	/**
+	 * Adds a new member to the group. The entity must be a member of a parent group. This method should be used
+	 * when adding to a group in effect of remote account mapping. 
+	 * @param path
+	 * @param entity
+	 * @param attributes an optional list of attributes to be assigned to the member in this group scope.
+	 * It is especially useful in the case when group's {@link AttributesClass}es require some attributes
+	 * from all members.  
+	 * @param idp Id of Idp responsible (typically implicitly via translation profile) for addition to the group
+	 * @param translationProfile name of an input translation profile which created the membership 
+	 * @throws EngineException
+	 */
+	public void addMemberFromParent(String path, EntityParam entity, 
+			List<Attribute<?>> attributes, String idp, String translationProfile) throws EngineException;
 	
 	/**
 	 * Adds a new member to the group. The entity must be a member of a parent group.
+	 * This method must be used when adding to a group manually.
 	 * @param path
 	 * @param entity
 	 * @param attributes an optional list of attributes to be assigned to the member in this group scope.

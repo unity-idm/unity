@@ -7,12 +7,15 @@ package pl.edu.icm.unity.engine;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
+
 
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.db.DBAttributes;
@@ -41,7 +44,8 @@ import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.GroupContents;import pl.edu.icm.unity.types.basic.GroupMembership;
+
 
 /**
  * Implementation of groups management. Responsible for top level transaction handling,
@@ -134,10 +138,16 @@ public class GroupsManagementImpl implements GroupsManagement
 		addMemberFromParent(path, entity, null);
 	}
 	
-
 	@Override
 	public void addMemberFromParent(String path, EntityParam entity,
 			List<Attribute<?>> attributes) throws EngineException
+	{
+		addMemberFromParent(path, entity, attributes, null, null);
+	}
+
+	@Override
+	public void addMemberFromParent(String path, EntityParam entity,
+			List<Attribute<?>> attributes, String idp, String translationProfile) throws EngineException
 	{
 		entity.validateInitialization();
 		if (attributes == null)
@@ -150,7 +160,7 @@ public class GroupsManagementImpl implements GroupsManagement
 			
 			attributesHelper.checkGroupAttributeClassesConsistency(attributes, path, sql);
 			
-			dbGroups.addMemberFromParent(path, entity, sql);
+			dbGroups.addMemberFromParent(path, entity, idp, translationProfile, new Date(), sql);
 
 			attributesHelper.addAttributesList(attributes, entityId, true, sql);
 			sql.commit();
@@ -246,7 +256,7 @@ public class GroupsManagementImpl implements GroupsManagement
 			}
 			if ((filter & GroupContents.MEMBERS) != 0)
 			{
-				ret.setMembers(new ArrayList<Long>());
+				ret.setMembers(new ArrayList<>());
 			}
 			if ((filter & GroupContents.METADATA) != 0)
 			{
@@ -275,8 +285,10 @@ public class GroupsManagementImpl implements GroupsManagement
 			AttributeClassUtil.validateAttributeClasses(group.getAttributesClasses(), acDB, sql);
 			GroupContents gc = dbGroups.getContents(path, GroupContents.MEMBERS, sql);
 			Map<String, AttributeType> allTypes = dbAttributes.getAttributeTypes(sql);
-			for (Long entity: gc.getMembers())
+			
+			for (GroupMembership membership: gc.getMembers())
 			{
+				long entity = membership.getEntityId();
 				AttributeClassHelper helper = AttributeClassUtil.getACHelper(entity, path, 
 						dbAttributes, acDB, group.getAttributesClasses(), sql);
 				Collection<String> attributes = dbAttributes.getEntityInGroupAttributeNames(

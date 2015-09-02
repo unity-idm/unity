@@ -44,8 +44,8 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
@@ -154,19 +154,19 @@ public class GroupsTree extends Tree
 	private void setupAccessibleRoots() throws EngineException
 	{
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
-		Collection<String> groups = identitiesMan.getGroups(
-				new EntityParam(ae.getEntityId()));
+		Collection<String> groups = identitiesMan.getGroups(new EntityParam(ae.getEntityId())).keySet();
 		List<String> accessibleGroups = new ArrayList<String>(groups.size());
-		for (String group: groups)
+		for (String groupM: groups)
 		{
 			try
 			{
-				groupsMan.getContents(group, GroupContents.GROUPS|GroupContents.LINKED_GROUPS);
+				groupsMan.getContents(groupM, 
+						GroupContents.GROUPS|GroupContents.LINKED_GROUPS);
 			} catch (AuthorizationException e2)
 			{
 				continue;
 			}
-			accessibleGroups.add(group);
+			accessibleGroups.add(groupM);
 		}
 		for (int i=0; i<accessibleGroups.size(); i++)
 		{
@@ -259,7 +259,7 @@ public class GroupsTree extends Tree
 		Collection<String> existingGroups;
 		try
 		{
-			existingGroups = identitiesMan.getGroups(entityParam);
+			existingGroups = identitiesMan.getGroups(entityParam).keySet();
 		} catch (EngineException e1)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("GroupsTree.getMembershipError", entity), e1);

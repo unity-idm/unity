@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.db;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,11 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.generic.DependencyNotificationManager;
+import pl.edu.icm.unity.db.json.GroupMembershipSerializer;
 import pl.edu.icm.unity.db.json.GroupsSerializer;
 import pl.edu.icm.unity.db.mapper.AttributesMapper;
 import pl.edu.icm.unity.db.mapper.GroupsMapper;
 import pl.edu.icm.unity.db.model.AttributeBean;
-import pl.edu.icm.unity.db.model.BaseBean;
 import pl.edu.icm.unity.db.model.DBLimits;
 import pl.edu.icm.unity.db.model.GroupBean;
 import pl.edu.icm.unity.db.model.GroupElementBean;
@@ -35,6 +36,7 @@ import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 
 
 /**
@@ -51,13 +53,16 @@ public class DBGroups
 	private DBLimits limits;
 	private GroupsSerializer jsonS;
 	private DependencyNotificationManager notificationsManager;
+	private GroupMembershipSerializer groupMembershipSerializer;
 	
 	@Autowired
 	public DBGroups(DBShared dbShared, GroupResolver groupResolver, IdentitiesResolver idResolver, 
-			GroupsSerializer jsonS, DB db, DependencyNotificationManager notificationsManager)
+			GroupsSerializer jsonS, DB db, DependencyNotificationManager notificationsManager,
+			GroupMembershipSerializer groupMembershipSerializer)
 	{
 		this.groupResolver = groupResolver;
 		this.idResolver = idResolver;
+		this.groupMembershipSerializer = groupMembershipSerializer;
 		this.limits = db.getDBLimits();
 		this.jsonS = jsonS;
 		this.dbShared = dbShared;
@@ -167,8 +172,8 @@ public class DBGroups
 			}
 			if ((filter & GroupContents.MEMBERS) != 0)
 			{
-				List<BaseBean> membersRaw = mapper.getMembers(gb.getId());
-				ret.setMembers(convertEntities(membersRaw));
+				List<GroupElementBean> membersRaw = mapper.getMembers(gb.getId());
+				ret.setMembers(convertEntities(membersRaw, path));
 			}
 			if ((filter & GroupContents.METADATA) != 0)
 			{
@@ -182,9 +187,9 @@ public class DBGroups
 		return ret;
 	}
 	
-	public void addMemberFromParent(String path, EntityParam entity, SqlSession sqlMap) 
-			throws IllegalGroupValueException, IllegalIdentityValueException, 
-			IllegalTypeException
+	public void addMemberFromParent(String path, EntityParam entity, String idp, String translationProfile,
+			Date creationTs, SqlSession sqlMap) 
+				throws IllegalGroupValueException, IllegalIdentityValueException, IllegalTypeException
 	{
 		GroupsMapper mapper = sqlMap.getMapper(GroupsMapper.class);
 		GroupBean gb = groupResolver.resolveGroup(path, mapper);
@@ -197,9 +202,12 @@ public class DBGroups
 						", as the entity is not a member of its parent group");
 		}
 
+		byte[] contents = groupMembershipSerializer.toJson(new GroupMembership(path, entityId, creationTs, 
+				translationProfile, idp));
 		GroupElementBean param = new GroupElementBean(gb.getId(), entityId);
+		param.setContents(contents);
 		if (mapper.isMember(param) != null)
-			throw new IllegalGroupValueException("The entity is already a member a member of this group");
+			throw new IllegalGroupValueException("The entity is already a member of this group");
 		mapper.insertMember(param);
 	}
 	
@@ -291,11 +299,11 @@ public class DBGroups
 		return ret;
 	}
 	
-	private List<Long> convertEntities(List<BaseBean> src)
+	private List<GroupMembership> convertEntities(List<GroupElementBean> src, String group)
 	{
-		List<Long> ret = new ArrayList<Long>(src.size());
-		for (int i=0; i<src.size(); i++)
-			ret.add(src.get(i).getId());
+		List<GroupMembership> ret = new ArrayList<GroupMembership>(src.size());
+		for (GroupElementBean geb: src)
+			ret.add(groupMembershipSerializer.fromJson(geb.getContents(), geb.getElementId(), group));
 		return ret;
 	}
 }

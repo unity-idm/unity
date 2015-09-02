@@ -58,6 +58,7 @@ CREATE TABLE ATTRIBUTES(
 CREATE TABLE GROUP_ENTITIES(
 		ENTITY_ID INTEGER NOT NULL,
 		GROUP_ID INTEGER NOT NULL,
+		<include refid="contentsColumn"/>,
 		PRIMARY KEY (ENTITY_ID, GROUP_ID),
 		FOREIGN KEY (ENTITY_ID) REFERENCES ENTITIES(ID) ON DELETE CASCADE,
 		FOREIGN KEY (GROUP_ID) REFERENCES GROUPS(ID) ON DELETE CASCADE		
@@ -117,7 +118,7 @@ CREATE TABLE UVOS_FLAG(
 	</update>
 
 	<insert id="initVersion">
-INSERT INTO UVOS_FLAG (VAL) VALUES ('2_1_3');
+INSERT INTO UVOS_FLAG (VAL) VALUES ('2_1_4');
 	</insert>
 	
 	<update id="updateSchema-020100-01">
@@ -137,6 +138,13 @@ UPDATE UVOS_FLAG SET VAL='2_1_2';
 	</update>
 	<update id="updateSchema-020103-01">
 UPDATE UVOS_FLAG SET VAL='2_1_3';
+	</update>
+
+	<update id="updateSchema-020104-01">
+ALTER TABLE GROUP_ENTITIES ADD <include refid="contentsColumn"/>
+	</update>
+	<update id="updateSchema-020104-02">
+UPDATE UVOS_FLAG SET VAL='2_1_4';
 	</update>
 	
 </mapper>

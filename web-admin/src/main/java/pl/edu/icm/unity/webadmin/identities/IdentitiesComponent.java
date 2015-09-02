@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.webadmin.attribute.AttributeChangedEvent;
 import pl.edu.icm.unity.webadmin.credentials.CredentialDefinitionChangedEvent;
 import pl.edu.icm.unity.webadmin.credreq.CredentialRequirementChangedEvent;
@@ -361,7 +363,9 @@ public class IdentitiesComponent extends SafePanel
 		try
 		{
 			GroupContents contents = groupsManagement.getContents(group, GroupContents.MEMBERS);
-			identitiesTable.setInput(group, contents.getMembers());
+			identitiesTable.setInput(group, contents.getMembers().stream().
+					map(GroupMembership::getEntityId).
+					collect(Collectors.toList()));
 			identitiesTable.setVisible(true);
 			setCaption(msg.getMessage("Identities.caption", group));
 			setContent(main);

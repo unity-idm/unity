@@ -13,12 +13,16 @@ public class MappedGroup
 {
 	private String group;
 	private GroupEffectMode createIfMissing;
+	private String idp;
+	private String profile;
 	
-	public MappedGroup(String group, GroupEffectMode createIfMissing)
+	public MappedGroup(String group, GroupEffectMode createIfMissing, String idp, String profile)
 	{
 		super();
 		this.group = group;
 		this.createIfMissing = createIfMissing;
+		this.idp = idp;
+		this.profile = profile;
 	}
 	
 	public String getGroup()
@@ -37,7 +41,16 @@ public class MappedGroup
 	{
 		this.createIfMissing = createIfMissing;
 	}
-        public String toString()
+        public String getIdp()
+	{
+		return idp;
+	}
+	public String getProfile()
+	{
+		return profile;
+	}
+
+	public String toString()
         {
 	    return group;
         }

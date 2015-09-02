@@ -131,11 +131,13 @@ public class RequestReviewPanel extends CustomComponent
 		ret.setGroupSelections(new ArrayList<Selection>(orig.getGroupSelections().size()));
 		for (int i=0, j=0; i<orig.getGroupSelections().size(); i++)
 		{
-			if (orig.getGroupSelections().get(i).isSelected())
+			Selection origSelection = orig.getGroupSelections().get(i);
+			if (origSelection.isSelected())
 			{
 				boolean ignore = groups.getSelection().size() > j && 
 						groups.getSelection().get(j).getValue();
-				ret.getGroupSelections().add(new Selection(!ignore));
+				origSelection.setSelected(!ignore);
+				ret.getGroupSelections().add(origSelection);
 				j++;
 			} else
 			{

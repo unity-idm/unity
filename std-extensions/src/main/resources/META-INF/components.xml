@@ -40,6 +40,7 @@
 	<bean class="pl.edu.icm.unity.stdext.tactions.in.MapAttributeActionFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.tactions.in.MultiMapAttributeActionFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.tactions.in.EntityChangeActionFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.tactions.in.RemoveStaleDataActionFactory"/>
 	
 	<bean class="pl.edu.icm.unity.stdext.tactions.out.CreateAttributeActionFactory"/>
 	<bean class="pl.edu.icm.unity.stdext.tactions.out.CreatePersistentAttributeActionFactory"/>

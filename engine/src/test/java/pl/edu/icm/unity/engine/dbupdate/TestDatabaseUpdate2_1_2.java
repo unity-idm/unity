@@ -2,7 +2,7 @@
  * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine;
+package pl.edu.icm.unity.engine.dbupdate;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -12,6 +12,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.internal.SessionManagementImpl;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
@@ -21,6 +22,7 @@ import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 
 /**
@@ -53,9 +55,9 @@ public class TestDatabaseUpdate2_1_2
 						.size());
 		DBIntegrationTestBase.setupUserContext(sessionMan, identityResolver, "admin", true);
 		GroupContents contents = groupsMan.getContents("/", GroupContents.MEMBERS);
-		for (long mem : contents.getMembers())
+		for (GroupMembership mem : contents.getMembers())
 		{
-			EntityParam entityP = new EntityParam(mem);
+			EntityParam entityP = new EntityParam(mem.getEntityId());
 			Entity entity = idsMan.getEntityNoContext(entityP, "/");
 			Identity[] ids = entity.getIdentities();
 			Assert.assertTrue(ids.length > 1);
