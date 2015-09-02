@@ -21,6 +21,7 @@ import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 
 /**
@@ -53,9 +54,9 @@ public class TestDatabaseUpdate2_1_2
 						.size());
 		DBIntegrationTestBase.setupUserContext(sessionMan, identityResolver, "admin", true);
 		GroupContents contents = groupsMan.getContents("/", GroupContents.MEMBERS);
-		for (long mem : contents.getMembers())
+		for (GroupMembership mem : contents.getMembers())
 		{
-			EntityParam entityP = new EntityParam(mem);
+			EntityParam entityP = new EntityParam(mem.getEntityId());
 			Entity entity = idsMan.getEntityNoContext(entityP, "/");
 			Identity[] ids = entity.getIdentities();
 			Assert.assertTrue(ids.length > 1);

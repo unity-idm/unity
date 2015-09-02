@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.TreeMap;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +63,7 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -679,7 +680,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Collection<String> getGroups(EntityParam entity) throws EngineException
+	public Map<String, GroupMembership> getGroups(EntityParam entity) throws EngineException
 	{
 		entity.validateInitialization();
 		SqlSession sqlMap = db.getSqlSession(true);
@@ -687,7 +688,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		{
 			long entityId = idResolver.getEntityId(entity, sqlMap);
 			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.read);
-			Set<String> allGroups = dbShared.getAllGroups(entityId, sqlMap);
+			Map<String, GroupMembership> allGroups = dbShared.getGroupMembership(entityId, sqlMap);
 			sqlMap.commit();
 			return allGroups;
 		} finally
@@ -1054,13 +1055,15 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	
 	private void mergeMemberships(long mergedId, long targetId, SqlSession sqlMap) throws EngineException
 	{
-		Set<String> currentGroups = dbShared.getAllGroups(targetId, sqlMap);
-		Set<String> mergedGroups = dbShared.getAllGroups(mergedId, sqlMap);
+		Map<String, GroupMembership> currentGroups = dbShared.getGroupMembership(targetId, sqlMap);
+		Map<String, GroupMembership> mergedGroups = dbShared.getGroupMembership(mergedId, sqlMap);
 		EntityParam ep = new EntityParam(targetId);
-		mergedGroups.removeAll(currentGroups);
-		Set<String> toAdd = new TreeSet<>(mergedGroups);
-		for (String group: toAdd)
-			dbGroups.addMemberFromParent(group, ep, sqlMap);
+		mergedGroups.keySet().removeAll(currentGroups.keySet());
+		Map<String, GroupMembership> toAdd = new TreeMap<>(mergedGroups);
+		for (Map.Entry<String, GroupMembership> groupM: toAdd.entrySet())
+			dbGroups.addMemberFromParent(groupM.getKey(), ep, groupM.getValue().getRemoteIdp(), 
+					groupM.getValue().getTranslationProfile(), 
+					groupM.getValue().getCreationTs(), sqlMap);
 	}
 	
 	private void mergeIdentities(long mergedId, long targetId, boolean safeMode, SqlSession sqlMap) 

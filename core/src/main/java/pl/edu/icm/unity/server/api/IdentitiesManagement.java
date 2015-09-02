@@ -7,6 +7,7 @@ package pl.edu.icm.unity.server.api;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.EntityScheduledOperation;
@@ -18,6 +19,7 @@ import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -218,12 +220,13 @@ public interface IdentitiesManagement
 			LocalCredentialState desiredCredentialState) throws EngineException;
 	
 	/**
-	 * Returns a collection with all groups where the entity is a member.
+	 * Returns a collection with all groups where the entity is a member. For convenience returned 
+	 * as map indexed with group paths.
 	 * @param entity
 	 * @return
 	 * @throws EngineException
 	 */
-	public Collection<String> getGroups(EntityParam entity) throws EngineException;
+	public Map<String, GroupMembership> getGroups(EntityParam entity) throws EngineException;
 
 	/**
 	 * Returns a collection with all groups where the entity is a member. This method 

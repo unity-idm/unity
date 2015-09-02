@@ -12,10 +12,12 @@ import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.identities.IdentityFormatter;
+import pl.edu.icm.unity.webui.common.identities.MembershipFormatter;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
@@ -74,7 +76,7 @@ public class EntityDetailsPanel extends FormLayout
 		addComponents(id, status, scheduledAction, identities, credReq, credStatus, groups);
 	}
 	
-	public void setInput(EntityWithLabel entityWithLabel, Collection<String> groups)
+	public void setInput(EntityWithLabel entityWithLabel, Collection<GroupMembership> groups)
 	{
 		id.setValue(entityWithLabel.toString());
 		Entity entity = entityWithLabel.getEntity();
@@ -111,9 +113,7 @@ public class EntityDetailsPanel extends FormLayout
 			
 		
 		this.groups.resetValue();
-		for (String group: groups)
-		{
-			this.groups.addHtmlValueLine("IdentityDetails.groupLine", group);
-		}
+		for (GroupMembership groupM: groups)
+			this.groups.addHtmlValueLine(MembershipFormatter.toString(msg, groupM));
 	}
 }

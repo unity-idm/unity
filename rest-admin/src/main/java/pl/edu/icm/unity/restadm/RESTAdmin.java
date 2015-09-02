@@ -44,6 +44,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -194,8 +195,8 @@ public class RESTAdmin
 	public String getGroups(@PathParam("entityId") long entityId) throws EngineException, JsonProcessingException
 	{
 		log.debug("getGroups query for " + entityId);
-		Collection<String> groups = identitiesMan.getGroups(new EntityParam(entityId));
-		return mapper.writeValueAsString(groups);
+		Map<String, GroupMembership> groups = identitiesMan.getGroups(new EntityParam(entityId));
+		return mapper.writeValueAsString(groups.keySet());
 	}
 
 	@Path("/entity/{entityId}/attributes")

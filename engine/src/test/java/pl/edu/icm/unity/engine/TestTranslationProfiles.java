@@ -71,6 +71,7 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -236,9 +237,15 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		assertEquals("test", at.getRemoteIdp());
 		assertEquals("p1", at.getTranslationProfile());
 		
-		Collection<String> groups = idsMan.getGroups(ep);
-		assertTrue(groups.contains("/A"));
-		assertTrue(groups.contains("/A/newGr"));
+		Map<String, GroupMembership> groups = idsMan.getGroups(ep);
+		assertTrue(groups.containsKey("/A"));
+		assertEquals("test", groups.get("/A").getRemoteIdp());
+		assertEquals("p1", groups.get("/A").getTranslationProfile());
+		assertNotNull(groups.get("/A").getCreationTs());
+		assertTrue(groups.containsKey("/A/newGr"));
+		assertEquals("test", groups.get("/A/newGr").getRemoteIdp());
+		assertEquals("p1", groups.get("/A/newGr").getTranslationProfile());
+		assertNotNull(groups.get("/A/newGr").getCreationTs());
 	}
 
 	@Test
@@ -421,6 +428,8 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		
 		assertEquals(1, result.getGroups().size());
 		assertEquals("/A", result.getGroups().get(0).getGroup());
+		assertEquals("test", result.getGroups().get(0).getIdp());
+		assertEquals("p1", result.getGroups().get(0).getProfile());
 		
 		assertEquals(1, result.getAttributes().size());
 		assertEquals("o", result.getAttributes().get(0).getAttribute().getName());
@@ -501,7 +510,7 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		MappingResult result = new MappingResult();
 		result.addAttribute(new MappedAttribute(AttributeEffectMode.CREATE_ONLY, new StringAttribute("o", 
 				"/A", AttributeVisibility.full, "org")));
-		result.addGroup(new MappedGroup("/A", GroupEffectMode.ADD_IF_GROUP_EXISTS));
+		result.addGroup(new MappedGroup("/A", GroupEffectMode.ADD_IF_GROUP_EXISTS, "idp", "profile"));
 		result.addIdentity(new MappedIdentity(IdentityEffectMode.CREATE_OR_MATCH, 
 				new IdentityParam(UsernameIdentity.ID, "added"), "dummy"));
 		

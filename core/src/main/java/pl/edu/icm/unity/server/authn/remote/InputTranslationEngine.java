@@ -40,6 +40,7 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 
 /**
@@ -306,14 +307,17 @@ public class InputTranslationEngine
 	private void processGroups(MappingResult result, EntityParam principal) throws EngineException
 	{
 		Map<String, List<Attribute<?>>> attributesByGroup = getAttributesByGroup(result);
-		Set<String> currentGroups = new HashSet<String>(idsMan.getGroups(principal));
+		Map<String, GroupMembership> currentGroups = idsMan.getGroups(principal);
+        	Set<String> currentSimple = new HashSet<>(currentGroups.keySet());
 		for (MappedGroup gm: result.getGroups())
 		{
-		        if (!currentGroups.contains(gm.getGroup()))
+		        if (!currentGroups.containsKey(gm.getGroup()))
 			{
-				Deque<String> missingGroups = GroupUtils.getMissingGroups(gm.getGroup(), currentGroups);
+				Deque<String> missingGroups = 
+						GroupUtils.getMissingGroups(gm.getGroup(), currentSimple);
 				log.info("Adding to group " + gm);
-				addToGroupRecursive(principal, missingGroups, currentGroups, gm.getCreateIfMissing(),
+				addToGroupRecursive(principal, missingGroups, currentSimple, gm.getIdp(), 
+						gm.getProfile(), gm.getCreateIfMissing(),
 						attributesByGroup);
 			} else
 			{
@@ -322,7 +326,8 @@ public class InputTranslationEngine
 		}
 	}
 	
-	private void addToGroupRecursive(EntityParam who, Deque<String> missingGroups, Set<String> currentGroups,
+	private void addToGroupRecursive(EntityParam who, Deque<String> missingGroups, 
+			Set<String> currentGroups, String idp, String profile, 
 			GroupEffectMode createMissingGroups, Map<String, List<Attribute<?>>> attributesByGroup) 
 					throws EngineException
 	{
@@ -332,7 +337,7 @@ public class InputTranslationEngine
 			attributes = new ArrayList<Attribute<?>>();
 		try
 		{
-			groupsMan.addMemberFromParent(group, who, attributes);
+			groupsMan.addMemberFromParent(group, who, attributes, idp, profile);
 		} catch (IllegalGroupValueException missingGroup)
 		{
 			if (createMissingGroups == GroupEffectMode.CREATE_GROUP_IF_MISSING)
@@ -340,7 +345,7 @@ public class InputTranslationEngine
 				log.info("Group " + group + " doesn't exist, "
 						+ "will be created to fullfil translation profile rule");
 				groupsMan.addGroup(new Group(group));
-				groupsMan.addMemberFromParent(group, who, attributes);
+				groupsMan.addMemberFromParent(group, who, attributes, idp, profile);
 			} else if (createMissingGroups == GroupEffectMode.REQUIRE_EXISTING_GROUP)
 			{
 				log.debug("Entity should be added to a group " + group + " which is missing, failing.");
@@ -355,7 +360,8 @@ public class InputTranslationEngine
 		currentGroups.add(group);
 		if (!missingGroups.isEmpty())
 		{
-			addToGroupRecursive(who, missingGroups, currentGroups, createMissingGroups, attributesByGroup);
+			addToGroupRecursive(who, missingGroups, currentGroups, 
+					idp, profile, createMissingGroups, attributesByGroup);
 		}
 	}
 	

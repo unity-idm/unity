@@ -310,7 +310,8 @@ public class RegistrationRequestEditor extends CustomComponent
 				} else
 				{
 					g.add(new Selection(remotelyAuthenticated.getGroups().contains(gp.getGroupPath()),
-							remotelyAuthenticated.getRemoteIdPName()));
+							remotelyAuthenticated.getRemoteIdPName(),
+							remotelyAuthenticated.getInputTranslationProfile()));
 				}
 			}
 			ret.setGroupSelections(g);

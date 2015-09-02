@@ -18,7 +18,10 @@
 	<sql id="valuesColumn">
 		`VALUES` MEDIUMBLOB
 	</sql>
-	
+
+	<sql id="contentsColumn">
+		CONTENTS VARBINARY(60000)
+	</sql>	
 
 	<sql id="defaultColsBlob">
 		ID INTEGER PRIMARY KEY AUTO_INCREMENT,

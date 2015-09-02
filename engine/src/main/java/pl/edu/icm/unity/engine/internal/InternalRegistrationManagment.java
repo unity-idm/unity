@@ -7,11 +7,11 @@ package pl.edu.icm.unity.engine.internal;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.TreeMap;
 
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
@@ -173,29 +173,32 @@ public class InternalRegistrationManagment
 			dbIdentities.insertIdentity(idParam, initial.getEntityId(), false, sql);
 		}
 
-		Set<String> sortedGroups = new TreeSet<>();
+		Map<String, Selection> sortedGroups = new TreeMap<>();
 		if (form.getGroupAssignments() != null)
 		{
 			for (String group : form.getGroupAssignments())
-				sortedGroups.add(group);
+				sortedGroups.put(group, null);
 		}
 		if (form.getGroupParams() != null)
 		{
 			for (int i = 0; i < form.getGroupParams().size(); i++)
 			{
 				if (req.getGroupSelections().get(i).isSelected())
-					sortedGroups.add(form.getGroupParams().get(i)
-							.getGroupPath());
+					sortedGroups.put(form.getGroupParams().get(i)
+							.getGroupPath(), req.getGroupSelections().get(i));
 			}
 		}
 		EntityParam entity = new EntityParam(initial.getEntityId());
-		for (String group : sortedGroups)
+		for (Map.Entry<String, Selection> entry : sortedGroups.entrySet())
 		{
-			List<Attribute<?>> attributes = remainingAttributesByGroup.get(group);
+			List<Attribute<?>> attributes = remainingAttributesByGroup.get(entry.getKey());
 			if (attributes == null)
 				attributes = Collections.emptyList();
-			attributesHelper.checkGroupAttributeClassesConsistency(attributes, group, sql);
-			dbGroups.addMemberFromParent(group, entity, sql);
+			attributesHelper.checkGroupAttributeClassesConsistency(attributes, entry.getKey(), sql);
+			Selection sel = entry.getValue();
+			String idp = sel == null ? null : sel.getExternalIdp();
+			String profile = sel == null ? null : sel.getTranslationProfile();
+			dbGroups.addMemberFromParent(entry.getKey(), entity,idp, profile, new Date(), sql);
 			attributesHelper.addAttributesList(attributes, initial.getEntityId(),
 					true, sql);
 		}

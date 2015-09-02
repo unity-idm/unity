@@ -649,13 +649,13 @@ public class TestIdentities extends DBIntegrationTestBase
 		
 		GroupContents contents = groupsMan.getContents("/", GroupContents.MEMBERS);
 		assertEquals(2, contents.getMembers().size());
-		assertTrue(contents.getMembers().contains(id.getEntityId()));
+		assertTrue(contents.getMembers().stream().anyMatch(t -> id.getEntityId().equals(t.getEntityId())));
 
 		groupsMan.addGroup(new Group("/test"));
 		groupsMan.addMemberFromParent("/test", new EntityParam(id.getEntityId()));
 		contents = groupsMan.getContents("/test", GroupContents.MEMBERS);
 		assertEquals(1, contents.getMembers().size());
-		assertEquals(id.getEntityId(), contents.getMembers().get(0));
+		assertEquals(id.getEntityId().longValue(), contents.getMembers().get(0).getEntityId());
 		
 		
 		groupsMan.addGroup(new Group("/test2"));

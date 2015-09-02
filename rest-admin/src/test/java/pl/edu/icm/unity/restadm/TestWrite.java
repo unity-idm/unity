@@ -278,7 +278,7 @@ public class TestWrite extends TestRESTBase
 		response = client.execute(host, addMember, localcontext);
 		assertNull(response.getEntity());
 		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
-		assertTrue(idsMan.getGroups(new EntityParam(entityId)).contains("/example"));
+		assertTrue(idsMan.getGroups(new EntityParam(entityId)).containsKey("/example"));
 		System.out.println("Added entity to group");
 
 		
@@ -286,7 +286,7 @@ public class TestWrite extends TestRESTBase
 		response = client.execute(host, removeMember, localcontext);
 		assertNull(response.getEntity());
 		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
-		assertFalse(idsMan.getGroups(new EntityParam(entityId)).contains("/example"));
+		assertFalse(idsMan.getGroups(new EntityParam(entityId)).containsKey("/example"));
 		System.out.println("Removed membership");
 
 		

@@ -21,6 +21,7 @@ import pl.edu.icm.unity.stdext.identity.TransientIdentity;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
@@ -50,9 +51,9 @@ public class TestDatabaseUpdate2_1_3
 	{
 		DBIntegrationTestBase.setupUserContext(sessionMan, identityResolver, "admin", false);
 		GroupContents contents = groupsMan.getContents("/", GroupContents.MEMBERS);
-		for (long mem: contents.getMembers())
+		for (GroupMembership mem: contents.getMembers())
 		{
-			EntityParam entityP = new EntityParam(mem);
+			EntityParam entityP = new EntityParam(mem.getEntityId());
 			Entity entity = idsMan.getEntityNoContext(entityP, "/");
 			Identity[] ids = entity.getIdentities();
 			for (Identity id: ids)

@@ -43,6 +43,7 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webadmin.identities.CredentialRequirementDialog.Callback;
@@ -95,7 +96,7 @@ public class IdentitiesTable extends TreeTable
 	private CredentialEditorRegistry credEditorsRegistry;
 	private EventsBus bus;
 	private String group;
-	private Map<Long, IdentitiesAndAttributes> data = new HashMap<Long, IdentitiesAndAttributes>();
+	private Map<Long, IdentitiesAndAttributes> data = new HashMap<>();
 	private boolean groupByEntity;
 	private boolean showTargeted;
 	private Entity selected;
@@ -389,7 +390,7 @@ public class IdentitiesTable extends TreeTable
 	public void setShowTargeted(boolean showTargeted) throws EngineException
 	{
 		this.showTargeted = showTargeted;
-		ArrayList<Long> entities = new ArrayList<Long>();
+		ArrayList<Long> entities = new ArrayList<>();
 		entities.addAll(data.keySet());
 		setInput(group, entities);
 		updateContents();
@@ -1048,10 +1049,10 @@ public class IdentitiesTable extends TreeTable
 	private void showEntityDetails(EntityWithLabel entity)
 	{
 		final EntityDetailsPanel identityDetailsPanel = new EntityDetailsPanel(msg);
-		Collection<String> groups;
+		Collection<GroupMembership> groups;
 		try
 		{
-			groups = identitiesMan.getGroups(new EntityParam(entity.getEntity().getId()));
+			groups = identitiesMan.getGroups(new EntityParam(entity.getEntity().getId())).values();
 		} catch (EngineException e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("error"), e);

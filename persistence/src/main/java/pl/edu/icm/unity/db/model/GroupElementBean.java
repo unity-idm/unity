@@ -12,6 +12,7 @@ public class GroupElementBean
 {
 	private long groupId;
 	private long elementId;
+	private byte[] contents;
 
 	public GroupElementBean()
 	{
@@ -37,5 +38,13 @@ public class GroupElementBean
 	public void setElementId(long elementId)
 	{
 		this.elementId = elementId;
+	}
+	public byte[] getContents()
+	{
+		return contents;
+	}
+	public void setContents(byte[] contents)
+	{
+		this.contents = contents;
 	}
 }

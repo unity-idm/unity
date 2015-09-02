@@ -12,6 +12,7 @@
 	<resultMap id="groupMember" type="GroupElementB">
 		<result property="groupId" column="GROUP_ID"/>
 		<result property="elementId" column="ENTITY_ID"/>
+		<result property="contents" column="CONTENTS"/>
 	</resultMap>
 
 	<select id="resolveGroup" parameterType="GroupB" resultMap="groupResult">
@@ -43,14 +44,18 @@
 		where GROUP_LINKS.GROUP_ID = #{value} AND GROUP_LINKS.CHILD_ID = GROUPS.ID 
 	</select>
 
-	<select id="getMembers" parameterType="long" resultType="BaseB">
-		select ENTITIES.* from ENTITIES, GROUP_ENTITIES 
+	<select id="getMembers" parameterType="long" resultMap="groupMember">
+		select GROUP_ENTITIES.* from ENTITIES, GROUP_ENTITIES 
 		where GROUP_ENTITIES.GROUP_ID = #{value} AND GROUP_ENTITIES.ENTITY_ID = ENTITIES.ID 
 	</select>
 
 	<select id="getGroups4Entity" parameterType="long" resultMap="groupResult">
 		select GROUPS.* from GROUPS, GROUP_ENTITIES 
 			where GROUP_ENTITIES.ENTITY_ID = #{value} AND GROUP_ENTITIES.GROUP_ID = GROUPS.ID 
+	</select>
+	
+	<select id="getGroupMembership4Entity" parameterType="long" resultMap="groupMember">
+		select * from GROUP_ENTITIES where ENTITY_ID = #{value} 
 	</select>
 	
 	<insert id="insertGroup" parameterType="GroupB" useGeneratedKeys="true" keyProperty="id">
@@ -74,7 +79,7 @@
 	</select>
 	
 	<insert id="insertMember" parameterType="GroupElementB">
-		INSERT INTO GROUP_ENTITIES (GROUP_ID, ENTITY_ID) VALUES (#{groupId}, #{elementId})
+		INSERT INTO GROUP_ENTITIES (GROUP_ID, ENTITY_ID, CONTENTS) VALUES (#{groupId}, #{elementId}, #{contents})
 	</insert>
 	
 	<delete id="deleteMember" parameterType="GroupElementB">

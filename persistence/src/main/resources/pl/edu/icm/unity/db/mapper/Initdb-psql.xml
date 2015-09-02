@@ -19,6 +19,10 @@
 		VALUES BYTEA
 	</sql>
 
+	<sql id="contentsColumn">
+		CONTENTS BYTEA
+	</sql>
+	
 	<sql id="defaultColsBlob">
 		ID SERIAL PRIMARY KEY, 
 		NAME VARCHAR(200), 

@@ -13,6 +13,7 @@ public class Selection
 {
 	private boolean selected;
 	private String externalIdp;
+	private String translationProfile;
 
 	public Selection()
 	{
@@ -23,10 +24,11 @@ public class Selection
 		this.selected = selected;
 	}
 
-	public Selection(boolean selected, String externalIdp)
+	public Selection(boolean selected, String externalIdp, String translationProfile)
 	{
 		this.selected = selected;
 		this.externalIdp = externalIdp;
+		this.translationProfile = translationProfile;
 	}
 
 	public boolean isSelected()
@@ -49,6 +51,16 @@ public class Selection
 		this.externalIdp = externalIdp;
 	}
 
+	public String getTranslationProfile()
+	{
+		return translationProfile;
+	}
+
+	public void setTranslationProfile(String translationProfile)
+	{
+		this.translationProfile = translationProfile;
+	}
+
 	@Override
 	public int hashCode()
 	{
@@ -56,6 +68,9 @@ public class Selection
 		int result = 1;
 		result = prime * result + ((externalIdp == null) ? 0 : externalIdp.hashCode());
 		result = prime * result + (selected ? 1231 : 1237);
+		result = prime
+				* result
+				+ ((translationProfile == null) ? 0 : translationProfile.hashCode());
 		return result;
 	}
 
@@ -76,6 +91,12 @@ public class Selection
 		} else if (!externalIdp.equals(other.externalIdp))
 			return false;
 		if (selected != other.selected)
+			return false;
+		if (translationProfile == null)
+		{
+			if (other.translationProfile != null)
+				return false;
+		} else if (!translationProfile.equals(other.translationProfile))
 			return false;
 		return true;
 	}

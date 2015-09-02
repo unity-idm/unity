@@ -22,7 +22,7 @@ public class GroupContents
 	private Group group;
 	private List<String> subGroups;
 	private List<String> linkedGroups;
-	private List<Long> members;
+	private List<GroupMembership> members;
 	
 	public void setSubGroups(List<String> subGroups)
 	{
@@ -32,7 +32,7 @@ public class GroupContents
 	{
 		this.linkedGroups = linkedGroups;
 	}
-	public void setMembers(List<Long> members)
+	public void setMembers(List<GroupMembership> members)
 	{
 		this.members = members;
 	}
@@ -45,10 +45,7 @@ public class GroupContents
 		return linkedGroups;
 	}
 	
-	/**
-	 * @return list of entity ids
-	 */
-	public List<Long> getMembers()
+	public List<GroupMembership> getMembers()
 	{
 		return members;
 	}

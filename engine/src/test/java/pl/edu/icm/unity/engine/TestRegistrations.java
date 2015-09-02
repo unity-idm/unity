@@ -276,7 +276,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 				EngineInitialization.DEFAULT_CREDENTIAL);
 		assertEquals(LocalCredentialState.correct, cpi.getState());
 		EntityParam addedP = new EntityParam(added.getId());
-		Collection<String> groups = idsMan.getGroups(addedP);
+		Collection<String> groups = idsMan.getGroups(addedP).keySet();
 		assertTrue(groups.contains("/"));
 		assertTrue(groups.contains("/A"));
 		assertTrue(groups.contains("/B"));
