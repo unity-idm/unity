@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -58,6 +59,7 @@ import pl.edu.icm.unity.stdext.tactions.in.EntityChangeActionFactory;
 import pl.edu.icm.unity.stdext.tactions.in.MapAttributeActionFactory;
 import pl.edu.icm.unity.stdext.tactions.in.MapGroupActionFactory;
 import pl.edu.icm.unity.stdext.tactions.in.MapIdentityActionFactory;
+import pl.edu.icm.unity.stdext.tactions.in.RemoveStaleDataActionFactory;
 import pl.edu.icm.unity.stdext.tactions.out.CreateAttributeActionFactory;
 import pl.edu.icm.unity.stdext.tactions.out.CreatePersistentAttributeActionFactory;
 import pl.edu.icm.unity.stdext.tactions.out.CreatePersistentIdentityActionFactory;
@@ -248,6 +250,84 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		assertNotNull(groups.get("/A/newGr").getCreationTs());
 	}
 
+	@Test
+	public void staleDataRemoved() throws Exception
+	{
+		AttributeType oType = new AttributeType("o", new StringAttributeSyntax());
+		oType.setMaxElements(10);
+		attrsMan.addAttributeType(oType);
+		
+		groupsMan.addGroup(new Group("/A"));
+		groupsMan.addGroup(new Group("/B"));
+		
+		EntityParam ep = new EntityParam(new IdentityTaV(IdentifierIdentity.ID, "id"));
+		idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "id"), 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				EntityState.valid, false);
+		idsMan.addIdentity(new IdentityParam(IdentifierIdentity.ID, "id2", "test", "p1"), ep, false);
+		groupsMan.addMemberFromParent("/A", ep, null, "test", "p1");
+		groupsMan.addMemberFromParent("/B", ep, null, "test", "p1");
+		StringAttribute attr = new StringAttribute("o", "/", AttributeVisibility.full, "v1");
+		attr.setRemoteIdp("test");
+		attr.setTranslationProfile("p1");
+		attrsMan.setAttribute(ep, attr, false);
+		
+		List<InputTranslationRule> rules = new ArrayList<>();
+		InputTranslationAction action1 = (InputTranslationAction) tactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+				IdentifierIdentity.ID, 
+				"'id'", 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				IdentityEffectMode.MATCH.toString());
+		rules.add(new InputTranslationRule(action1, new TranslationCondition()));
+		InputTranslationAction action2 = (InputTranslationAction) tactionReg.getByName(MapGroupActionFactory.NAME).getInstance(
+				"'/A'", GroupEffectMode.REQUIRE_EXISTING_GROUP.name()); 
+		rules.add(new InputTranslationRule(action2, new TranslationCondition()));
+		InputTranslationAction action3 = (InputTranslationAction) tactionReg.getByName(MapAttributeActionFactory.NAME).getInstance(
+				"o", "/A", "['groups']",
+				AttributeVisibility.full.toString(), AttributeEffectMode.CREATE_OR_UPDATE.toString()); 
+		rules.add(new InputTranslationRule(action3, new TranslationCondition()));
+		InputTranslationAction action4 = (InputTranslationAction) tactionReg.getByName(RemoveStaleDataActionFactory.NAME).getInstance(); 
+		rules.add(new InputTranslationRule(action4, new TranslationCondition()));
+		
+		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules);
+		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
+		MappingResult result = tp1.translate(input);
+		inputTrEngine.process(result);
+
+		
+		Entity entity = idsMan.getEntity(ep);
+		
+		assertEquals(1, getIdentitiesByType(entity.getIdentities(), IdentifierIdentity.ID).size());
+		Identity id = getIdentityByType(entity.getIdentities(), IdentifierIdentity.ID);
+		assertNotNull(id.getCreationTs());
+		assertNotNull(id.getUpdateTs());
+		assertNull(id.getRemoteIdp());
+		assertNull(id.getTranslationProfile());
+		assertEquals("id", id.getValue());
+		
+		Collection<AttributeExt<?>> atrs = attrsMan.getAttributes(ep, "/A", "o");
+		assertEquals(1, atrs.size());
+		AttributeExt<?> at = atrs.iterator().next();
+		assertEquals(1, at.getValues().size());
+		assertEquals("groups", at.getValues().get(0));
+		assertNotNull(at.getCreationTs());
+		assertNotNull(at.getUpdateTs());
+		assertEquals("test", at.getRemoteIdp());
+		assertEquals("p1", at.getTranslationProfile());
+
+		atrs = attrsMan.getAttributes(ep, "/", "o");
+		assertEquals(0, atrs.size());
+		
+		Map<String, GroupMembership> groups = idsMan.getGroups(ep);
+		assertTrue(groups.containsKey("/A"));
+		assertEquals("test", groups.get("/A").getRemoteIdp());
+		assertEquals("p1", groups.get("/A").getTranslationProfile());
+		assertNotNull(groups.get("/A").getCreationTs());
+		assertFalse(groups.containsKey("/B"));
+	}
+
+	
+	
 	@Test
 	public void testInputCreateOrUpdateIdentityMapping() throws Exception
 	{

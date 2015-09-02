@@ -17,6 +17,9 @@ public class MappingResult
 	private List<MappedIdentity> identities = new ArrayList<>();
 	private List<MappedAttribute> attributes = new ArrayList<>();
 	private List<EntityChange> entityChanges = new ArrayList<>();
+	private boolean cleanStaleGroups;
+	private boolean cleanStaleAttributes;
+	private boolean cleanStaleIdentities;
 	
 	public MappingResult()
 	{
@@ -62,11 +65,44 @@ public class MappingResult
 		return entityChanges;
 	}
 
+	public boolean isCleanStaleGroups()
+	{
+		return cleanStaleGroups;
+	}
+
+	public void setCleanStaleGroups(boolean cleanStaleGroups)
+	{
+		this.cleanStaleGroups = cleanStaleGroups;
+	}
+
+	public boolean isCleanStaleAttributes()
+	{
+		return cleanStaleAttributes;
+	}
+
+	public void setCleanStaleAttributes(boolean cleanStaleAttributes)
+	{
+		this.cleanStaleAttributes = cleanStaleAttributes;
+	}
+
+	public boolean isCleanStaleIdentities()
+	{
+		return cleanStaleIdentities;
+	}
+
+	public void setCleanStaleIdentities(boolean cleanStaleIdentities)
+	{
+		this.cleanStaleIdentities = cleanStaleIdentities;
+	}
+
 	public void mergeWith(MappingResult result)
 	{
 		groups.addAll(result.getGroups());
 		identities.addAll(result.getIdentities());
 		attributes.addAll(result.getAttributes());
 		entityChanges.addAll(result.getEntityChanges());
+		this.cleanStaleAttributes |= result.isCleanStaleAttributes();
+		this.cleanStaleIdentities |= result.isCleanStaleIdentities();
+		this.cleanStaleGroups |= result.isCleanStaleGroups();
 	}
 }

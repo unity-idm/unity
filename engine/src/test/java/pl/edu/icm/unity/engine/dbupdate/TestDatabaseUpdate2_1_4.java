@@ -49,7 +49,6 @@ public class TestDatabaseUpdate2_1_4
 		GroupContents contents = groupsMan.getContents("/", GroupContents.MEMBERS);
 		for (GroupMembership mem: contents.getMembers())
 		{
-			Assert.assertNotNull(mem.getCreationTs());
 			Assert.assertNull(mem.getRemoteIdp());
 			Assert.assertNull(mem.getTranslationProfile());
 		}

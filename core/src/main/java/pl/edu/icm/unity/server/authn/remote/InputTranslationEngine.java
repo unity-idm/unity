@@ -42,6 +42,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
  * Applies all mappings which were recorded by profile's actions, taking into account the overall profile's settings.
@@ -99,6 +100,10 @@ public class InputTranslationEngine
 	 */
 	public void mergeWithExisting(MappingResult result, EntityParam baseEntity) throws EngineException
 	{
+		result.setCleanStaleAttributes(false);
+		result.setCleanStaleIdentities(false);
+		result.setCleanStaleGroups(false);
+		
 		processIdentitiesForMerge(result, baseEntity);
 		processGroups(result, baseEntity);
 		processAttributes(result, baseEntity);
@@ -180,10 +185,14 @@ public class InputTranslationEngine
 		}
 		
 		if (existing != null)
+		{
 			mappedMissingIdentitiesToCreate.addAll(mappedMissingCreateOrUpdateIdentities);
-		else
+			if (result.isCleanStaleIdentities())
+				removeStaleIdentities(existing, result.getIdentities());
+		} else
+		{
 			mappedMissingIdentities.addAll(mappedMissingCreateOrUpdateIdentities);
-		
+		}
 		if (mappedMissingIdentitiesToCreate.isEmpty() && mappedMissingIdentities.isEmpty() && existing == null)
 		{
 			log.info("The translation profile didn't return any identity of the principal. "
@@ -208,6 +217,37 @@ public class InputTranslationEngine
 
 	}
 
+	private void removeStaleIdentities(Entity existing, List<MappedIdentity> allMapped)
+	{
+		IdentityParam exampleMapped = allMapped.get(0).getIdentity();
+		String idp = exampleMapped.getRemoteIdp();
+		if (idp == null)
+			idp = "_____MISSING";
+		String profile = exampleMapped.getTranslationProfile();
+		if (profile == null)
+			profile = "_____MISSING";
+		for (Identity id: existing.getIdentities())
+		{
+			if (idp.equals(id.getRemoteIdp()) && profile.equals(id.getTranslationProfile()))
+			{
+				boolean has = allMapped.stream().anyMatch(mi -> 
+					id.getValue().equals(mi.getIdentity().getValue()) &&
+						id.getTypeId().equals(mi.getIdentity().getTypeId())
+				);
+				if (!has)
+				{
+					try
+					{
+						idsMan.removeIdentity(id);
+					} catch (EngineException e)
+					{
+						log.error("Can not remove stale identity " + id, e);
+					}
+				}
+			}
+		}
+	}
+	
 	/**
 	 * Besides returning the list of identities to be created also ensures that no one from mapped
 	 * identities does exist in the db.
@@ -324,6 +364,38 @@ public class InputTranslationEngine
 				log.debug("Entity already in the group " + gm + ", skipping");
 			}
 		}
+		if (result.isCleanStaleGroups())
+			removeStaleMemberships(currentGroups, result, principal);
+		
+	}
+	
+	private void removeStaleMemberships(Map<String, GroupMembership> currentGroups, MappingResult result,
+			EntityParam principal)
+	{
+		IdentityParam exampleMapped = result.getIdentities().get(0).getIdentity();
+		String idp = exampleMapped.getRemoteIdp();
+		if (idp == null)
+			idp = "_____MISSING";
+		String profile = exampleMapped.getTranslationProfile();
+		if (profile == null)
+			profile = "_____MISSING";
+		List<MappedGroup> mappedGroups = result.getGroups();
+		for (GroupMembership membership: currentGroups.values())
+		{
+			if (!membership.getGroup().equals("/") &&
+				idp.equals(membership.getRemoteIdp()) && profile.equals(membership.getTranslationProfile()))
+			{
+				if (!mappedGroups.stream().anyMatch(gm -> membership.getGroup().equals(gm.getGroup())))
+					try
+					{
+						groupsMan.removeMember(membership.getGroup(), principal);
+					} catch (EngineException e)
+					{
+						log.error("Can not remove stale group membership in " 
+								+ membership.getGroup(), e);
+					}
+			}
+		}
 	}
 	
 	private void addToGroupRecursive(EntityParam who, Deque<String> missingGroups, 
@@ -404,6 +476,38 @@ public class InputTranslationEngine
 					log.debug("Skipping attribute to be updated as there is no one defined: " + att);
 				}
 				break;
+			}
+		}
+		
+		if (result.isCleanStaleAttributes())
+			removeStaleAttributes(result, existingAttrs, principal);
+	}
+	
+	private void removeStaleAttributes(MappingResult result, Collection<AttributeExt<?>> existingAttrs,
+			EntityParam principal)
+	{
+		IdentityParam exampleMapped = result.getIdentities().get(0).getIdentity();
+		String idp = exampleMapped.getRemoteIdp();
+		if (idp == null)
+			idp = "_____MISSING";
+		String profile = exampleMapped.getTranslationProfile();
+		if (profile == null)
+			profile = "_____MISSING";
+		List<MappedAttribute> mappedAttributes = result.getAttributes();
+		for (AttributeExt<?> a: existingAttrs)
+		{
+			if (idp.equals(a.getRemoteIdp()) && profile.equals(a.getTranslationProfile()))
+			{
+				if (!mappedAttributes.stream().anyMatch(ma -> 
+						a.getName().equals(ma.getAttribute().getName()) &&
+						a.getGroupPath().equals(ma.getAttribute().getGroupPath())))
+					try
+					{
+						attrMan.removeAttribute(principal, a.getGroupPath(), a.getName());
+					} catch (EngineException e)
+					{
+						log.error("Can not remove stale attribute " + a, e);
+					}
 			}
 		}
 	}
