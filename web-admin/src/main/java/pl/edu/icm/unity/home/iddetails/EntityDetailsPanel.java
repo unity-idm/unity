@@ -38,7 +38,7 @@ public class EntityDetailsPanel extends FormLayout
 	private ListOfElements<String> identities;
 	private Label credReq;
 	private HtmlLabel credStatus;
-	private HtmlLabel groups;
+	private ListOfElements<String> groups;
 	
 	
 	public EntityDetailsPanel(UnityMessageSource msg)
@@ -70,7 +70,15 @@ public class EntityDetailsPanel extends FormLayout
 		credStatus = new HtmlLabel(msg);
 		credStatus.setCaption(msg.getMessage("IdentityDetails.credStatus"));
 
-		groups = new HtmlLabel(msg);
+		groups = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
+		{
+			@Override
+			public Label toLabel(String value)
+			{
+				return new HtmlSimplifiedLabel(value);
+			}
+		}); 
+		groups.setAddSeparatorLine(false);
 		groups.setCaption(msg.getMessage("IdentityDetails.groups"));
 		
 		addComponents(id, status, scheduledAction, identities, credReq, credStatus, groups);
@@ -112,8 +120,8 @@ public class EntityDetailsPanel extends FormLayout
 		credStatus.setVisible(!credInf.getCredentialsState().entrySet().isEmpty());
 			
 		
-		this.groups.resetValue();
+		this.groups.clearContents();
 		for (GroupMembership groupM: groups)
-			this.groups.addHtmlValueLine(MembershipFormatter.toString(msg, groupM));
+			this.groups.addEntry(MembershipFormatter.toString(msg, groupM));
 	}
 }
