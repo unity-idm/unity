@@ -76,16 +76,14 @@ public class InputTranslationEngine
 	 */
 	public void process(MappingResult result) throws EngineException
 	{
-		Identity principal = processIdentities(result);
-		if (principal == null)
+		EntityParam entity = processIdentities(result);
+		if (entity == null)
 		{
 			log.info("The mapped identity does not exist in database and was not created. "
 					+ "The creation of groups and attributes is skipped, the mapped groups and attributes "
 					+ "will be available for the registration form (if any)");
 			return;
 		}
-		EntityParam entity = new EntityParam(principal);
-		
 		processGroups(result, entity);
 		processAttributes(result, entity);
 		processEntityChanges(result, entity);
@@ -146,7 +144,13 @@ public class InputTranslationEngine
 		return null;
 	}
 	
-	private Identity processIdentities(MappingResult result) throws EngineException
+	/**
+	 * performs identities mapping
+	 * @param result
+	 * @return an mapped identity - previously existing or newly created; or null if identity mapping was not successful
+	 * @throws EngineException
+	 */
+	private EntityParam processIdentities(MappingResult result) throws EngineException
 	{
 		List<MappedIdentity> mappedMissingIdentitiesToCreate = new ArrayList<>();
 		List<MappedIdentity> mappedMissingIdentities = new ArrayList<>();
@@ -203,20 +207,26 @@ public class InputTranslationEngine
 		if (mappedMissingIdentitiesToCreate.isEmpty())
 		{
 			log.debug("No identity needs to be added");
-			return existing != null ? existing.getIdentities()[0] : null;
+			return existing != null ? new EntityParam(existing.getId()) : null;
 		}
 		
 		if (existing != null)
 		{
 			addEquivalents(mappedMissingIdentitiesToCreate, new EntityParam(existing.getId()));
-			return existing.getIdentities()[0];
+			return new EntityParam(existing.getId());
 		} else
 		{
-			return createNewEntity(result, mappedMissingIdentitiesToCreate);
+			Identity created = createNewEntity(result, mappedMissingIdentitiesToCreate);
+			return new EntityParam(created.getEntityId());
 		}
 
 	}
 
+	/**
+	 * Identities created from this profile and idp which are not present are removed.
+	 * @param existing
+	 * @param allMapped
+	 */
 	private void removeStaleIdentities(Entity existing, List<MappedIdentity> allMapped)
 	{
 		IdentityParam exampleMapped = allMapped.get(0).getIdentity();
