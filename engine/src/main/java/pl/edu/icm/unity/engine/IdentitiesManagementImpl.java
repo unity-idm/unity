@@ -209,8 +209,8 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			
 			//careful - must be after the transaction is committed
 			EntityParam added = new EntityParam(ret.getEntityId());
-			confirmationManager.sendVerificationsQuiet(added, attributes, false);
-			confirmationManager.sendVerificationQuiet(added, ret, false);
+			confirmationManager.sendVerificationsQuiet(added, attributes);
+			confirmationManager.sendVerificationQuiet(added, ret);
 			return ret;
 		} finally
 		{
@@ -245,7 +245,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			if (extractAttributes && fullAuthz)
 				engineHelper.extractAttributes(ret, sqlMap);
 			sqlMap.commit();
-			confirmationManager.sendVerification(new EntityParam(entityId), ret, false);
+			confirmationManager.sendVerification(new EntityParam(entityId), ret);
 			return ret;
 		} finally
 		{

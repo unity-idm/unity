@@ -55,7 +55,6 @@ import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.CacheProvider;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -88,6 +87,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	private IdentitiesResolver idResolver;
 	private Ehcache confirmationReqCache;
 	private int requestLimit;
+	private String defaultRedirectURL;
 
 	@Autowired
 	public ConfirmationManagerImpl(TokensManagement tokensMan,
@@ -120,7 +120,8 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		persistCfg.setStrategy("none");
 		cacheConfig.persistence(persistCfg);		
 		confirmationReqCache = cacheProvider.getManager().addCacheIfAbsent(new Cache(cacheConfig));
-		requestLimit = mainConf.getIntValue(UnityServerConfiguration.CONFIRMATION_REQUEST_LIMIT);	
+		requestLimit = mainConf.getIntValue(UnityServerConfiguration.CONFIRMATION_REQUEST_LIMIT);
+		defaultRedirectURL = mainConf.getValue(UnityServerConfiguration.CONFIRMATION_DEFAULT_RETURN_URL);
 	}
 
 	/**
@@ -317,12 +318,11 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	
 	
 	
-	private <T> void sendVerification(EntityParam entity, Attribute<T> attribute, boolean useCurrentReturnUrl) 
+	private <T> void sendVerification(EntityParam entity, Attribute<T> attribute) 
 			throws EngineException
 	{
 		if (!attribute.getAttributeSyntax().isVerifiable())
 			return;
-		String url = getCurrentURL(useCurrentReturnUrl);
 		for (T valA : attribute.getValues())
 		{
 			VerifiableElement val = (VerifiableElement) valA;
@@ -335,7 +335,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 						entityId,
 						attribute.getName(), val.getValue(),
 						msg.getDefaultLocaleCode(),
-						attribute.getGroupPath(), url);
+						attribute.getGroupPath(), defaultRedirectURL);
 				sendConfirmationRequest(state);
 			}
 		}
@@ -356,11 +356,11 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	}
 	
 	@Override
-	public <T> void sendVerificationQuiet(EntityParam entity, Attribute<T> attribute, boolean useCurrentReturnUrl)
+	public <T> void sendVerificationQuiet(EntityParam entity, Attribute<T> attribute)
 	{
 		try
 		{
-			sendVerification(entity, attribute, useCurrentReturnUrl);
+			sendVerification(entity, attribute);
 		} catch (Exception e)
 		{
 			log.warn("Can not send a confirmation for the verificable attribute being added "
@@ -369,55 +369,39 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	}
 	
 	@Override
-	public void sendVerificationsQuiet(EntityParam entity, List<Attribute<?>> attributes, 
-			boolean useCurrentReturnUrl)
+	public void sendVerificationsQuiet(EntityParam entity, List<Attribute<?>> attributes)
 	{
 		for (Attribute<?> attribute: attributes)
-			sendVerificationQuiet(entity, attribute, useCurrentReturnUrl);
+			sendVerificationQuiet(entity, attribute);
 	}
 
 	@Override
-	public void sendVerification(EntityParam entity, Identity identity, boolean useCurrentReturnUrl) 
+	public void sendVerification(EntityParam entity, Identity identity) 
 			throws EngineException
 	{
 		if (!identity.getType().getIdentityTypeProvider().isVerifiable())
 			return;
 		if (identity.isConfirmed())
 			return;
-		String url = getCurrentURL(useCurrentReturnUrl);
 		//TODO - should use user's preferred locale
 		IdentityConfirmationState state = new IdentityConfirmationState(
 				identity.getEntityId(), identity.getTypeId(),  
 				identity.getValue(), msg.getDefaultLocaleCode(),
-				url);
+				defaultRedirectURL);
 		sendConfirmationRequest(state);
 	}
 
 
 	@Override
-	public void sendVerificationQuiet(EntityParam entity, Identity identity, boolean useCurrentReturnUrl)
+	public void sendVerificationQuiet(EntityParam entity, Identity identity)
 	{
 		try
 		{
-			sendVerification(entity, identity, useCurrentReturnUrl);
+			sendVerification(entity, identity);
 		} catch (Exception e)
 		{
 			log.warn("Can not send a confirmation for the verificable identity being added "
 					+ identity.getValue(), e);
-		}
-	}
-	
-	private String getCurrentURL(boolean useCurrentReturnUrl)
-	{
-		if (!useCurrentReturnUrl)
-			return null;
-		try
-		{
-			return InvocationContext.getCurrent().getCurrentURLUsed();
-		} catch (InternalException e)
-		{
-			//OK - no context -> no URL.
-			return null;
 		}
 	}
 	

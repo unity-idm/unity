@@ -165,7 +165,7 @@ public class GroupsManagementImpl implements GroupsManagement
 			attributesHelper.addAttributesList(attributes, entityId, true, sql);
 			sql.commit();
 			//careful - must be after the transaction is committed
-			confirmationManager.sendVerificationsQuiet(entity, attributes, false);
+			confirmationManager.sendVerificationsQuiet(entity, attributes);
 		} finally
 		{
 			db.releaseSqlSession(sql);

@@ -46,10 +46,8 @@ public interface ConfirmationManager
 	 * In case of error only log entry is printed, no exception is thrown.
 	 * @param entity
 	 * @param attribute
-	 * @param verifiableValues
 	 */
-	<T> void sendVerificationQuiet(EntityParam entity, Attribute<T> attribute, 
-			boolean useCurrentReturnUrl);
+	<T> void sendVerificationQuiet(EntityParam entity, Attribute<T> attribute);
 
 	/**
 	 * Sends confirmation messages for the identity if it requires so. Only for unconfirmed identities.
@@ -57,7 +55,7 @@ public interface ConfirmationManager
 	 * @param entity
 	 * @param identity
 	 */
-	void sendVerificationQuiet(EntityParam entity, Identity identity, boolean useCurrentReturnUrl);
+	void sendVerificationQuiet(EntityParam entity, Identity identity);
 
 	/**
 	 * see {@link #sendVerificationQuiet(EntityParam, Identity)}, the only difference is that this
@@ -66,15 +64,14 @@ public interface ConfirmationManager
 	 * @param identity
 	 * @throws EngineException
 	 */
-	void sendVerification(EntityParam entity, Identity identity, boolean useCurrentReturnUrl) 
+	void sendVerification(EntityParam entity, Identity identity) 
 			throws EngineException;
 	
 	/**
 	 * Sends confirmation messages for the values which requires so. Only for unconfirmed attributes.
 	 * @param entity
 	 * @param attribute
-	 * @param verifiableValues
 	 */
-	void sendVerificationsQuiet(EntityParam entity, List<Attribute<?>> attributes, boolean useCurrentReturnUrl);
+	void sendVerificationsQuiet(EntityParam entity, List<Attribute<?>> attributes);
 
 }

@@ -574,10 +574,7 @@ public class AttributesManagementImpl implements AttributesManagement
 			db.releaseSqlSession(sql);
 		}
 		
-		//trick: if we don't have full authorization, then there is a very high chance 
-		//that we are from admin UI and confirmation messages shouldn't return to the current URL 
-		//even if it is available. 
-		confirmationManager.sendVerificationQuiet(entity, attribute, !fullAuthz);
+		confirmationManager.sendVerificationQuiet(entity, attribute);
 	}
 	
 	private <T> boolean checkSetAttributeAuthz(long entityId, AttributeType at, Attribute<T> attribute) 

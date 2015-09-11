@@ -116,6 +116,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String WIPE_DB_AT_STARTUP = "wipeDbAtStartup";
 	
 	public static final String CONFIRMATION_REQUEST_LIMIT = "confirmationRequestLimit";
+	public static final String CONFIRMATION_DEFAULT_RETURN_URL = "defaultPostConfirmationReturnURL";
+	public static final String CONFIRMATION_AUTO_REDIRECT = "automaticRedirectAfterConfirmation";
 
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
@@ -273,6 +275,13 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		
 		defaults.put(CONFIRMATION_REQUEST_LIMIT, new PropertyMD("3").setCategory(mainCat).
 				setDescription("Defines number of confirmation request that can be send to particular address in day"));
+		defaults.put(CONFIRMATION_DEFAULT_RETURN_URL, new PropertyMD().setCategory(mainCat).
+				setDescription("If set the value should be a valid URL. The URL is used as a return (redirect) URL "
+						+ "to be used after confirmation of a verifiable element as email. "
+						+ "Can be overriden for instance in registration form definition, for all confirmations related to the form."));
+		defaults.put(CONFIRMATION_AUTO_REDIRECT, new PropertyMD("false").setCategory(mainCat).
+				setDescription("If false Unity will show its confirmation screen after email verification. "
+						+ "If true and a return URL is defined for the confirmation then the screen is not shown and redirect is immediate."));
 		
 		defaults.put(MAIN_TRUSTSTORE, new PropertyMD().setMandatory().setCategory(mainCat).
 				setDescription("Name of the truststore to be used by the server."));

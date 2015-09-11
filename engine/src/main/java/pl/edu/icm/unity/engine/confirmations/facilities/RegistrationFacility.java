@@ -8,6 +8,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder.ConfirmedElementType;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.states.RegistrationConfirmationState;
 import pl.edu.icm.unity.db.DBSessionManager;
@@ -16,7 +17,6 @@ import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
 import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder;
-import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder.ConfirmedElementType;
 import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder.Status;
 import pl.edu.icm.unity.server.utils.JsonUtil;
 import pl.edu.icm.unity.server.utils.Log;
