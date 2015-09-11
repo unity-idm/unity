@@ -74,11 +74,11 @@ is mapped onto this entity what sets the context for all other profile actions.
 . +MATCH+ The remote user is mapped onto existing entity it it is found. Otherwise nothing happens. 
 . +REQUIRE_MATCH+ The remote user is mapped onto existing entity it it is found. Otherwise authentication is failed.
 . +UPDATE_OR_MATCH+ is the most tricky option, similar to +CREATE_OR_MATCH+. 
-The remote user is mapped onto an existing one if it exists. If there is no mapped identity then it is created but 
-only if the remote user was already mapped onto existing entity by other rules of the profile. This complicated 
-behavior is actually quite useful whenever we want to have new remote identities propagated to the existing user
-in Unity, but at the same time we don't want to have a new user created automatically 
-(what would be +CREATE_OR_MATCH+ effect).      
+The remote user is mapped onto an existing one if it exists. Conversely if the resulting identity does not exist 
+in the system, then it is created but only if additionally the remote user was already mapped onto existing entity 
+by other rules of the profile. This complicated behavior is actually quite useful whenever we want to have new remote
+identities propagated to the existing user in Unity, but at the same time we don't want to have a new user (entity) 
+created automatically (what would be +CREATE_OR_MATCH+ effect), so that a registration facility can be used.      
 
 Additionally the actions allow for creating Unity's attributes, assigning the remote user to groups and to change
 entity status. 
