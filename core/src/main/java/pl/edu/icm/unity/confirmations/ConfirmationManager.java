@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.confirmations;
 
-import java.util.List;
+import java.util.Collection;
 
 import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -76,6 +76,6 @@ public interface ConfirmationManager
 	 * @param attribute
 	 * @param force if true then request is sent even if one was already sent previously
 	 */
-	void sendVerificationsQuiet(EntityParam entity, List<Attribute<?>> attributes, boolean force);
+	void sendVerificationsQuiet(EntityParam entity, Collection<? extends Attribute<?>> attributes, boolean force);
 
 }

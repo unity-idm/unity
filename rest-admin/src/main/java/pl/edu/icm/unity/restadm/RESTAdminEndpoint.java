@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
+import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.json.AttributeTypeSerializer;
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.server.api.AttributesManagement;
@@ -35,13 +36,15 @@ public class RESTAdminEndpoint extends RESTEndpoint
 	private IdentityTypesRegistry identityTypesRegistry;
 	private AttributeTypeSerializer attributeTypeSerializer;
 	private AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
+	private ConfirmationManager confirmationManager;
 	
 	public RESTAdminEndpoint(UnityMessageSource msg, SessionManagement sessionMan,
 			EndpointTypeDescription type, String servletPath, IdentitiesManagement identitiesMan,
 			GroupsManagement groupsMan, AttributesManagement attributesMan, 
 			AuthenticationProcessor authnProcessor, IdentityTypesRegistry identityTypesRegistry,
 			AttributeTypeSerializer attributeTypeSerializer,
-			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry)
+			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry,
+			ConfirmationManager confirmationManager)
 	{
 		super(msg, sessionMan, authnProcessor, type, servletPath);
 		this.identitiesMan = identitiesMan;
@@ -50,6 +53,7 @@ public class RESTAdminEndpoint extends RESTEndpoint
 		this.identityTypesRegistry = identityTypesRegistry;
 		this.attributeTypeSerializer = attributeTypeSerializer;
 		this.attributeSyntaxFactoriesRegistry = attributeSyntaxFactoriesRegistry;
+		this.confirmationManager = confirmationManager;
 	}
 
 	@Override
@@ -66,7 +70,8 @@ public class RESTAdminEndpoint extends RESTEndpoint
 		{
 			HashSet<Object> ret = new HashSet<>();
 			ret.add(new RESTAdmin(identitiesMan, groupsMan, attributesMan, identityTypesRegistry, 
-					attributeTypeSerializer, attributeSyntaxFactoriesRegistry));
+					attributeTypeSerializer, attributeSyntaxFactoriesRegistry,
+					confirmationManager));
 			installExceptionHandlers(ret);
 			return ret;
 		}

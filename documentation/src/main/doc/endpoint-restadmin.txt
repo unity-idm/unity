@@ -370,4 +370,21 @@ type must resolve to an existing attribute type.
 Removes a given attribute type. Query parameter +withInstances+ is used to control whether all attributes of the
 removed type should be removed too (value +true+) or whether the operation should fail if there are any attributes
 (value +false+).
- 
+
+
+'''
+
++@Path("/confirmation-trigger/identity/{type}/{value}")+ +
++@POST+ +
+
+Triggers sending of confirmation message of identity. Nearly always it is a re-send.
+
+
+'''
+
++@Path("/confirmation-trigger/entity/{entityId}/attribute/{attributeName}")+ +
++@QueryParam("group")+ +
++@POST+ +
+
+Triggers sending of confirmation message for an attribute. Nearly always it is a re-send.
+

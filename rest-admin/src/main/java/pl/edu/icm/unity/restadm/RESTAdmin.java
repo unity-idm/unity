@@ -26,6 +26,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -74,11 +75,13 @@ public class RESTAdmin
 	private IdentityTypesRegistry identityTypesRegistry;
 	private AttributeTypeSerializer attrTypeSerializer;
 	private AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
+	private ConfirmationManager confirmationManager;
 	
 	public RESTAdmin(IdentitiesManagement identitiesMan, GroupsManagement groupsMan,
 			AttributesManagement attributesMan, IdentityTypesRegistry identityTypesRegistry,
 			AttributeTypeSerializer attrTypeSerializer,
-			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry)
+			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry,
+			ConfirmationManager confirmationManager)
 	{
 		super();
 		this.identitiesMan = identitiesMan;
@@ -87,6 +90,7 @@ public class RESTAdmin
 		this.identityTypesRegistry = identityTypesRegistry;
 		this.attrTypeSerializer = attrTypeSerializer;
 		this.attributeSyntaxFactoriesRegistry = attributeSyntaxFactoriesRegistry;
+		this.confirmationManager = confirmationManager;
 	}
 
 	@Path("/resolve/{identityType}/{identityValue}")
@@ -404,5 +408,41 @@ public class RESTAdmin
 			instances = Boolean.parseBoolean(withInstances);
 		attributesMan.removeAttributeType(toRemove, instances);
 	}
-	
+
+	@Path("/confirmation-trigger/entity/{entityId}/attribute/{attributeName}")
+	@POST
+	public void resendConfirmationForAttribute(@PathParam("entityId") long entityId, 
+			@PathParam("attributeName") String attribute,
+			@QueryParam("group") String group) throws EngineException, JsonProcessingException
+	{
+		if (group == null)
+			group = "/";
+		log.debug("confirmation trigger for " + attribute + " of " + entityId + " in " + group);
+		EntityParam entityParam = new EntityParam(entityId);
+		Collection<AttributeExt<?>> attributes = attributesMan.getAttributes(entityParam, group, attribute);
+		
+		if (attributes.isEmpty())
+			throw new WrongArgumentException("Attribute is undefined");
+		
+		confirmationManager.sendVerificationsQuiet(entityParam, attributes, true);
+	}
+
+	@Path("/confirmation-trigger/identity/{type}/{value}")
+	@POST
+	public void resendConfirmationForIdentity(@PathParam("type") String idType, 
+			@PathParam("value") String value) throws EngineException, JsonProcessingException
+	{
+		log.debug("confirmation trigger for " + idType + ": " + value);
+		EntityParam entityParam = new EntityParam(new IdentityTaV(idType, value));
+		Entity entity = identitiesMan.getEntity(entityParam);
+		for (Identity id: entity.getIdentities())
+			if (id.getTypeId().equals(idType) && id.getValue().equals(value))
+			{
+				confirmationManager.sendVerification(entityParam, id, true);
+				return;
+			}
+
+		throw new WrongArgumentException("Identity is unknown");
+	}
+
 }

@@ -9,6 +9,7 @@ import java.util.Collections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.json.AttributeTypeSerializer;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
 import pl.edu.icm.unity.server.api.AttributesManagement;
@@ -55,6 +56,8 @@ public class RESTAdminEndpointFactory implements EndpointFactory
 	private AttributeTypeSerializer attributeTypeSerializer;
 	@Autowired
 	private AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
+	@Autowired
+	private ConfirmationManager cofirmationManager;
 	
 	@Override
 	public EndpointTypeDescription getDescription()
@@ -67,7 +70,7 @@ public class RESTAdminEndpointFactory implements EndpointFactory
 	{
 		return new RESTAdminEndpoint(msg, sessionMan, TYPE, "", identitiesMan, groupsMan, attributesMan,
 				authnProcessor, identityTypesRegistry, attributeTypeSerializer,
-				attributeSyntaxFactoriesRegistry);
+				attributeSyntaxFactoriesRegistry, cofirmationManager);
 	}
 
 }

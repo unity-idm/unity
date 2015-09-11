@@ -124,11 +124,13 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		defaultRedirectURL = mainConf.getValue(UnityServerConfiguration.CONFIRMATION_DEFAULT_RETURN_URL);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void sendConfirmationRequest(BaseConfirmationState baseState) throws EngineException
+	{
+		sendConfirmationRequest(baseState, false);
+	}
+	
+	private void sendConfirmationRequest(BaseConfirmationState baseState, boolean force) throws EngineException
 	{
 		String facilityId = baseState.getFacilityId();
 		ConfirmationFacility<?> facility = getFacility(facilityId);
@@ -153,7 +155,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			tokensMan.closeTokenTransaction(transaction);
 		}
 		
-		if (!hasDuplicate)
+		if (force || !hasDuplicate)
 		{
 			sendConfirmationRequest(baseState.getValue(), configEntry.getNotificationChannel(),
 					configEntry.getMsgTemplate(), 
@@ -336,7 +338,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 						attribute.getName(), val.getValue(),
 						msg.getDefaultLocaleCode(),
 						attribute.getGroupPath(), defaultRedirectURL);
-				sendConfirmationRequest(state);
+				sendConfirmationRequest(state, force);
 			}
 		}
 	}
@@ -369,7 +371,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	}
 	
 	@Override
-	public void sendVerificationsQuiet(EntityParam entity, List<Attribute<?>> attributes, boolean force)
+	public void sendVerificationsQuiet(EntityParam entity, Collection<? extends Attribute<?>> attributes, boolean force)
 	{
 		for (Attribute<?> attribute: attributes)
 			sendVerificationQuiet(entity, attribute, force);
@@ -388,7 +390,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 				identity.getEntityId(), identity.getTypeId(),  
 				identity.getValue(), msg.getDefaultLocaleCode(),
 				defaultRedirectURL);
-		sendConfirmationRequest(state);
+		sendConfirmationRequest(state, force);
 	}
 
 
