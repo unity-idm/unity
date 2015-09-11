@@ -574,7 +574,7 @@ public class AttributesManagementImpl implements AttributesManagement
 			db.releaseSqlSession(sql);
 		}
 		
-		confirmationManager.sendVerificationQuiet(entity, attribute);
+		confirmationManager.sendVerificationQuiet(entity, attribute, false);
 	}
 	
 	private <T> boolean checkSetAttributeAuthz(long entityId, AttributeType at, Attribute<T> attribute) 

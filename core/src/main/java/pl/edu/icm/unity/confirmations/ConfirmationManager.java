@@ -46,32 +46,36 @@ public interface ConfirmationManager
 	 * In case of error only log entry is printed, no exception is thrown.
 	 * @param entity
 	 * @param attribute
+	 * @param force if true then request is sent even if one was already sent previously
 	 */
-	<T> void sendVerificationQuiet(EntityParam entity, Attribute<T> attribute);
+	<T> void sendVerificationQuiet(EntityParam entity, Attribute<T> attribute, boolean force);
 
 	/**
 	 * Sends confirmation messages for the identity if it requires so. Only for unconfirmed identities.
 	 * In case of error only log entry is printed, no exception is thrown.
 	 * @param entity
 	 * @param identity
+	 * @param force if true then request is sent even if one was already sent previously
 	 */
-	void sendVerificationQuiet(EntityParam entity, Identity identity);
+	void sendVerificationQuiet(EntityParam entity, Identity identity, boolean force);
 
 	/**
 	 * see {@link #sendVerificationQuiet(EntityParam, Identity)}, the only difference is that this
 	 * method throws exception.
 	 * @param entity
 	 * @param identity
+	 * @param force if true then request is sent even if one was already sent previously
 	 * @throws EngineException
 	 */
-	void sendVerification(EntityParam entity, Identity identity) 
+	void sendVerification(EntityParam entity, Identity identity, boolean force) 
 			throws EngineException;
 	
 	/**
 	 * Sends confirmation messages for the values which requires so. Only for unconfirmed attributes.
 	 * @param entity
 	 * @param attribute
+	 * @param force if true then request is sent even if one was already sent previously
 	 */
-	void sendVerificationsQuiet(EntityParam entity, List<Attribute<?>> attributes);
+	void sendVerificationsQuiet(EntityParam entity, List<Attribute<?>> attributes, boolean force);
 
 }

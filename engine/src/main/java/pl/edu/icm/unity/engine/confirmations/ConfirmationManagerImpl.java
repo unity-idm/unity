@@ -318,7 +318,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	
 	
 	
-	private <T> void sendVerification(EntityParam entity, Attribute<T> attribute) 
+	private <T> void sendVerification(EntityParam entity, Attribute<T> attribute, boolean force) 
 			throws EngineException
 	{
 		if (!attribute.getAttributeSyntax().isVerifiable())
@@ -327,7 +327,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		{
 			VerifiableElement val = (VerifiableElement) valA;
 			ConfirmationInfo ci = val.getConfirmationInfo();
-			if (!ci.isConfirmed() && ci.getSentRequestAmount() == 0)
+			if (!ci.isConfirmed() && (force || ci.getSentRequestAmount() == 0))
 			{
 				// TODO - should use user's preferred locale
 				long entityId = resolveEntityId(entity);
@@ -356,11 +356,11 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	}
 	
 	@Override
-	public <T> void sendVerificationQuiet(EntityParam entity, Attribute<T> attribute)
+	public <T> void sendVerificationQuiet(EntityParam entity, Attribute<T> attribute, boolean force)
 	{
 		try
 		{
-			sendVerification(entity, attribute);
+			sendVerification(entity, attribute, force);
 		} catch (Exception e)
 		{
 			log.warn("Can not send a confirmation for the verificable attribute being added "
@@ -369,19 +369,19 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	}
 	
 	@Override
-	public void sendVerificationsQuiet(EntityParam entity, List<Attribute<?>> attributes)
+	public void sendVerificationsQuiet(EntityParam entity, List<Attribute<?>> attributes, boolean force)
 	{
 		for (Attribute<?> attribute: attributes)
-			sendVerificationQuiet(entity, attribute);
+			sendVerificationQuiet(entity, attribute, force);
 	}
 
 	@Override
-	public void sendVerification(EntityParam entity, Identity identity) 
+	public void sendVerification(EntityParam entity, Identity identity, boolean force) 
 			throws EngineException
 	{
 		if (!identity.getType().getIdentityTypeProvider().isVerifiable())
 			return;
-		if (identity.isConfirmed())
+		if (identity.isConfirmed() || (!force && identity.getConfirmationInfo().getSentRequestAmount() > 0))
 			return;
 		//TODO - should use user's preferred locale
 		IdentityConfirmationState state = new IdentityConfirmationState(
@@ -393,11 +393,11 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 
 
 	@Override
-	public void sendVerificationQuiet(EntityParam entity, Identity identity)
+	public void sendVerificationQuiet(EntityParam entity, Identity identity, boolean force)
 	{
 		try
 		{
-			sendVerification(entity, identity);
+			sendVerification(entity, identity, force);
 		} catch (Exception e)
 		{
 			log.warn("Can not send a confirmation for the verificable identity being added "
