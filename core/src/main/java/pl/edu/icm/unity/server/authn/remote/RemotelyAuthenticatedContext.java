@@ -14,6 +14,7 @@ import pl.edu.icm.unity.server.api.internal.SessionParticipant;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
@@ -28,7 +29,7 @@ public class RemotelyAuthenticatedContext
 	private String inputTranslationProfile;
 	private Set<SessionParticipant> sessionParticipants;
 	private Collection<IdentityTaV> identities = new ArrayList<>();
-	private IdentityTaV primaryIdentity;
+	private EntityParam localMappedPrincipal;
 	private Collection<Attribute<?>> attributes = new ArrayList<>();
 	private Collection<String> groups = new ArrayList<>();
 	private MappingResult mappingResult;
@@ -72,13 +73,13 @@ public class RemotelyAuthenticatedContext
 	{
 		this.groups.addAll(groups);
 	}
-	public IdentityTaV getPrimaryIdentity()
+	public EntityParam getLocalMappedPrincipal()
 	{
-		return primaryIdentity;
+		return localMappedPrincipal;
 	}
-	public void setPrimaryIdentity(IdentityTaV primaryIdentity)
+	public void setLocalMappedPrincipal(EntityParam localMappedPrincipal)
 	{
-		this.primaryIdentity = primaryIdentity;
+		this.localMappedPrincipal = localMappedPrincipal;
 	}
 	public String getRemoteIdPName()
 	{

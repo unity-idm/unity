@@ -5,7 +5,11 @@
 package pl.edu.icm.unity.server.translation.in;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
  * Stores a set of mapping results, produced by one or more translation actions.
@@ -17,6 +21,8 @@ public class MappingResult
 	private List<MappedIdentity> identities = new ArrayList<>();
 	private List<MappedAttribute> attributes = new ArrayList<>();
 	private List<EntityChange> entityChanges = new ArrayList<>();
+	private EntityParam mappedAtExistingEntity;
+	private Set<String> authenticatedWith = new HashSet<>();
 	private boolean cleanStaleGroups;
 	private boolean cleanStaleAttributes;
 	private boolean cleanStaleIdentities;
@@ -94,6 +100,29 @@ public class MappingResult
 	{
 		this.cleanStaleIdentities = cleanStaleIdentities;
 	}
+	
+	/**
+	 * @return null if remote entity was not mapped on a local one or the local principal
+	 */
+	public EntityParam getMappedAtExistingEntity()
+	{
+		return mappedAtExistingEntity;
+	}
+
+	public void setMappedAtExistingEntity(EntityParam mappedAtExistingEntity)
+	{
+		this.mappedAtExistingEntity = mappedAtExistingEntity;
+	}
+
+	public Set<String> getAuthenticatedWith()
+	{
+		return authenticatedWith;
+	}
+
+	public void addAuthenticatedWith(String authenticatedWith)
+	{
+		this.authenticatedWith.add(authenticatedWith);
+	}
 
 	public void mergeWith(MappingResult result)
 	{
@@ -104,5 +133,7 @@ public class MappingResult
 		this.cleanStaleAttributes |= result.isCleanStaleAttributes();
 		this.cleanStaleIdentities |= result.isCleanStaleIdentities();
 		this.cleanStaleGroups |= result.isCleanStaleGroups();
+		if (mappedAtExistingEntity == null)
+			this.mappedAtExistingEntity = result.mappedAtExistingEntity; 
 	}
 }

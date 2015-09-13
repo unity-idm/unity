@@ -5,7 +5,9 @@
 package pl.edu.icm.unity.server.authn;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 
@@ -24,12 +26,18 @@ public class AuthenticatedEntity
 
 	public AuthenticatedEntity(Long entityId, String info, boolean useOutdatedCredential)
 	{
-		this.entityId = entityId;
-		this.authenticatedWith = new ArrayList<String>(4);
+		this(entityId, new HashSet<>(), useOutdatedCredential);
 		authenticatedWith.add(info);
-		this.usedOutdatedCredential = useOutdatedCredential;
 	}
 
+	public AuthenticatedEntity(Long entityId, Set<String> info, boolean useOutdatedCredential)
+	{
+		this.entityId = entityId;
+		this.authenticatedWith = new ArrayList<String>(4);
+		authenticatedWith.addAll(info);
+		this.usedOutdatedCredential = useOutdatedCredential;
+	}
+	
 	/**
 	 * @return null in case entity was authenticated locally, id of the remote IdP otherwise.
 	 */

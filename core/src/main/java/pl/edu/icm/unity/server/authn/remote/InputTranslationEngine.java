@@ -77,6 +77,7 @@ public class InputTranslationEngine
 	public void process(MappingResult result) throws EngineException
 	{
 		EntityParam entity = processIdentities(result);
+		result.setMappedAtExistingEntity(entity);
 		if (entity == null)
 		{
 			log.info("The mapped identity does not exist in database and was not created. "
@@ -168,6 +169,7 @@ public class InputTranslationEngine
 					throw new ExecutionBreakException();
 				}
 				existing = found;
+				result.addAuthenticatedWith(checked.getIdentity().getValue());
 			} catch (IllegalIdentityValueException e)
 			{
 				if (checked.getMode() == IdentityEffectMode.REQUIRE_MATCH)
@@ -212,7 +214,7 @@ public class InputTranslationEngine
 		
 		if (existing != null)
 		{
-			addEquivalents(mappedMissingIdentitiesToCreate, new EntityParam(existing.getId()));
+			addEquivalents(mappedMissingIdentitiesToCreate, new EntityParam(existing.getId()), result);
 			return new EntityParam(existing.getId());
 		} else
 		{
@@ -301,16 +303,17 @@ public class InputTranslationEngine
 			throw new ExecutionBreakException();
 		}
 		
-		addEquivalents(mappedMissingIdentitiesToCreate, baseEntity);
+		addEquivalents(mappedMissingIdentitiesToCreate, baseEntity, result);
 	}
 
 	
-	private void addEquivalents(Collection<MappedIdentity> toAdd, EntityParam parentEntity) 
+	private void addEquivalents(Collection<MappedIdentity> toAdd, EntityParam parentEntity, MappingResult result) 
 			throws EngineException
 	{
 		for (MappedIdentity mi: toAdd)
 		{
 			idsMan.addIdentity(mi.getIdentity(), parentEntity, false);
+			result.addAuthenticatedWith(mi.getIdentity().getValue());
 		}
 	}
 	
@@ -324,8 +327,9 @@ public class InputTranslationEngine
 		log.info("Adding entity " + first.getIdentity() + " to the local DB");
 		added = idsMan.addEntity(first.getIdentity(), first.getCredentialRequirement(), 
 				EntityState.valid, false, attributes);
+		result.addAuthenticatedWith(first.getIdentity().getValue());
 		
-		addEquivalents(mappedMissingIdentities, new EntityParam(added));
+		addEquivalents(mappedMissingIdentities, new EntityParam(added), result);
 		return added;
 	}
 

@@ -29,6 +29,8 @@ import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
+import pl.edu.icm.unity.server.authn.remote.RemoteVerificatorUtil;
+import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
@@ -626,6 +628,38 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		assertEquals("org", at.getValues().get(0).toString());
 	}
 
+	
+	@Test
+	public void primaryIdentityProperlySet() throws Exception
+	{
+		Identity toBeMappedOn = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "known"), 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT,
+				EntityState.valid, false);
+		List<InputTranslationRule> rules = new ArrayList<>();
+		InputTranslationAction action1 = (InputTranslationAction) tactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+				IdentifierIdentity.ID, 
+				"'unknown'", 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				IdentityEffectMode.MATCH.toString());
+		rules.add(new InputTranslationRule(action1, new TranslationCondition()));
+		InputTranslationAction action2 = (InputTranslationAction) tactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+				IdentifierIdentity.ID, 
+				"'known'", 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				IdentityEffectMode.MATCH.toString());
+		rules.add(new InputTranslationRule(action2, new TranslationCondition()));
+		
+		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules);
+		tprofMan.addProfile(tp1);
+		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
+		
+		RemoteVerificatorUtil verificatatorUtil = new RemoteVerificatorUtil(identityResolver, 
+				tprofMan, inputTrEngine);
+		RemotelyAuthenticatedContext processed = verificatatorUtil.processRemoteInput(input, "p1", false);
+
+		assertNotNull(processed.getLocalMappedPrincipal());
+		assertEquals(toBeMappedOn.getEntityId(), processed.getLocalMappedPrincipal().getEntityId());
+	}
 }
 
 
