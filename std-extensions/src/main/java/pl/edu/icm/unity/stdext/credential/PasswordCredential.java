@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class PasswordCredential
 {
 	//200 years should be enough, Long MAX is too much as we would fail on maths
-	public static final long MAX_AGE_UNDEF = 200*12*30*24*3600000; 
+	public static final long MAX_AGE_UNDEF = 200L*12L*30L*24L*3600000L; 
 	public static final int DEFAULT_REHASH_NUMBER = 1000;
 	
 	private int minLength = 8;
