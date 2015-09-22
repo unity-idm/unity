@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
+import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder;
+import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder.Status;
 import pl.edu.icm.unity.confirmations.ConfirmationServlet;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
@@ -50,6 +52,7 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 
 	private ConfirmationManager confirmationMan;
 	private boolean autoRedirect;
+	private String defaultRedirect;
 
 	@Autowired
 	public ConfirmationUI(UnityMessageSource msg, ConfirmationManager confirmationMan,
@@ -58,6 +61,7 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 		super(msg);
 		this.confirmationMan = confirmationMan;
 		this.autoRedirect = serverConfig.getBooleanValue(UnityServerConfiguration.CONFIRMATION_AUTO_REDIRECT);
+		this.defaultRedirect = serverConfig.getValue(UnityServerConfiguration.CONFIRMATION_DEFAULT_RETURN_URL);
 	}
 
 	public void initUI(ConfirmationStatus status)
@@ -161,7 +165,9 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 		} catch (Exception e)
 		{
 			log.error("Internal unity problem with confirmation", e);
-			status = new ConfirmationStatus(false,"", "ConfirmationStatus.internalError");
+			String redirectURL = new ConfirmationRedirectURLBuilder(defaultRedirect, Status.elementConfirmationError).
+				setErrorCode(e.toString()).toString();
+			status = new ConfirmationStatus(false, redirectURL, "ConfirmationStatus.internalError");
 		}
 		initUI(status);
 	}

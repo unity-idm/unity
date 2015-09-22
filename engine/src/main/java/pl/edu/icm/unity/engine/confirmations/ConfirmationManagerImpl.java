@@ -32,9 +32,11 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationConfiguration;
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
+import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder;
 import pl.edu.icm.unity.confirmations.ConfirmationServlet;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.ConfirmationTemplateDef;
+import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder.Status;
 import pl.edu.icm.unity.confirmations.states.AttribiuteConfirmationState;
 import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
 import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
@@ -236,8 +238,13 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			throws EngineException
 	{
 		if (token == null)
-			return new ConfirmationStatus(false, null, "ConfirmationStatus.invalidToken");
-
+		{
+			String redirectURL = new ConfirmationRedirectURLBuilder(defaultRedirectURL, 
+					Status.elementConfirmationError).
+					setErrorCode("noToken").toString();
+			return new ConfirmationStatus(false, redirectURL, "ConfirmationStatus.invalidToken");
+		}
+		
 		Object transaction = tokensMan.startTokenTransaction(); 
 		try
 		{
@@ -248,7 +255,10 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 						transaction);
 			} catch (WrongArgumentException e)
 			{
-				return new ConfirmationStatus(false, null, "ConfirmationStatus.invalidToken");
+				String redirectURL = new ConfirmationRedirectURLBuilder(defaultRedirectURL, 
+						Status.elementConfirmationError).
+						setErrorCode("invalidToken").toString();
+				return new ConfirmationStatus(false, redirectURL, "ConfirmationStatus.invalidToken");
 			}
 
 			ConfirmationStatus ret = processConfirmationInternal(tk, true, transaction);
@@ -266,8 +276,12 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 
 		Date today = new Date();
 		if (tk.getExpires().compareTo(today) < 0)
-			return new ConfirmationStatus(false, null, "ConfirmationStatus.expiredToken");
-
+		{
+			String redirectURL = new ConfirmationRedirectURLBuilder(defaultRedirectURL, 
+					Status.elementConfirmationError).
+					setErrorCode("expiredToken").toString();
+			return new ConfirmationStatus(false, redirectURL, "ConfirmationStatus.expiredToken");
+		}
 		String rawState = tk.getContentsString();
 		BaseConfirmationState baseState = new BaseConfirmationState(rawState);
 		ConfirmationFacility<?> facility = getFacility(baseState.getFacilityId());
