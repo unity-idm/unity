@@ -87,11 +87,7 @@ public class AdminsRegistrationRequestEditorDialog extends AbstractDialog
 				close();
 		} catch (FormValidationException e) 
 		{
-			if (e.getMessage() == null || e.getMessage().equals(""))
-				NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), 
-						msg.getMessage("Generic.formErrorHint"));
-			else
-				NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
 			return;
 		}
 	}

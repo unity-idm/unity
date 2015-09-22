@@ -47,8 +47,7 @@ public class AttributesClassEditDialog extends AbstractDialog
 				close();
 		} catch (FormValidationException e) 
 		{
-			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), 
-						msg.getMessage("Generic.formErrorHint"));
+			NotificationPopup.showFormError(msg);
 			return;
 		}
 	}

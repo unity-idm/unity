@@ -54,6 +54,9 @@ public class NotificationPopup
 	public static void showError(UnityMessageSource msg, String message, Exception e)
 	{
 		String description = getHumanMessage(e);
+		if (description.trim().isEmpty())
+			description = msg.getMessage("Generic.formErrorHint");
+
 		if (log.isDebugEnabled())
 		{
 			log.debug("Error popup showed an error to the user: " + message);
@@ -72,14 +75,21 @@ public class NotificationPopup
 		StringBuilder sb = new StringBuilder();
 		if (e instanceof AuthorizationException)
 			return e.getMessage();
+		String lastMessage = "";
 		if (e.getMessage() != null)
-			sb.append(e.getMessage());
+		{
+			lastMessage = e.getMessage();
+			sb.append(lastMessage);
+		}
 		while (e.getCause() != null)
 		{
 			e = e.getCause();
 			if (e.getMessage() == null)
 				break;
-			sb.append(separator).append(e.getMessage());
+			if (e.getMessage().equals(lastMessage))
+				continue;
+			lastMessage = e.getMessage();
+			sb.append(separator).append(lastMessage);
 		}
 		return sb.toString();
 	}

@@ -122,11 +122,7 @@ public class PostRegistrationHandler
 	{
 		if (e instanceof FormValidationException || e instanceof WrongArgumentException)
 		{
-			if (e.getMessage() == null || e.getMessage().equals(""))
-				NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), 
-						msg.getMessage("Generic.formErrorHint"));
-			else
-				NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
 		} else
 		{
 			if (form.getRedirectAfterSubmit() != null)

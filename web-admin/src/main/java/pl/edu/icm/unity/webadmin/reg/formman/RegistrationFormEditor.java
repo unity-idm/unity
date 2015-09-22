@@ -61,6 +61,7 @@ import pl.edu.icm.unity.webui.common.attributes.SelectableAttributeEditor;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
+import com.vaadin.data.Validator;
 import com.vaadin.data.validator.AbstractStringValidator;
 import com.vaadin.data.validator.AbstractValidator;
 import com.vaadin.ui.AbstractTextField;
@@ -192,12 +193,15 @@ public class RegistrationFormEditor extends VerticalLayout
 	
 	public RegistrationForm getForm() throws FormValidationException
 	{
-		if (!autoAcceptCondition.isValid())
-			return null;
-		if (!publiclyAvailable.isValid())
-			return null;
-		if (!redirectAfterSubmit.isValid())
-			return null;
+		try
+		{
+			autoAcceptCondition.validate();
+			publiclyAvailable.validate();
+			redirectAfterSubmit.validate();
+		} catch (Validator.InvalidValueException e)
+		{
+			throw new FormValidationException(e.getMessage(), e);
+		}
 		RegistrationForm ret = new RegistrationForm();	
 		ret.setAgreements(agreements.getElements());
 		ret.setAttributeAssignments(attributeAssignments.getElements());
