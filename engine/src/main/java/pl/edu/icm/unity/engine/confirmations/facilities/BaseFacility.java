@@ -92,7 +92,7 @@ public abstract class BaseFacility<T extends BaseConfirmationState> implements C
 		List<Attribute<?>> confirmed = new ArrayList<Attribute<?>>();
 		for (Attribute<?> attr : attrs)
 		{
-			if (attr.getName().equals(attrName) && attr.getGroupPath().equals(group)
+			if (attr != null && attr.getName().equals(attrName) && attr.getGroupPath().equals(group)
 					&& attr.getValues() != null
 					&& attr.getAttributeSyntax().isVerifiable())
 			{
@@ -122,7 +122,7 @@ public abstract class BaseFacility<T extends BaseConfirmationState> implements C
 		ArrayList<IdentityParam> confirmed = new ArrayList<IdentityParam>();
 		for (IdentityParam id : identities)
 		{
-			if (id.getTypeId().equals(type))
+			if (id != null && id.getTypeId().equals(type))
 			{
 				if (confirmSingleElement(id, value))
 					confirmed.add(id);
