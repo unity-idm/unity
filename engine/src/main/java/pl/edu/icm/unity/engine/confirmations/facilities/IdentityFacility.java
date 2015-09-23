@@ -93,8 +93,11 @@ public class IdentityFacility extends UserFacility<IdentityConfirmationState>
 					idState.getOwnerEntityId(), sql);
 			for (IdentityParam id : ids)
 			{
-				updateConfirmationInfo(id, idState.getValue());
-				dbIdentities.updateIdentityConfirmationInfo(id, id.getConfirmationInfo(), sql);
+				if (id.getTypeId().equals(idState.getType()) && id.getValue().equals(idState.getValue()))
+				{
+					updateConfirmationInfo(id, idState.getValue());
+					dbIdentities.updateIdentityConfirmationInfo(id, id.getConfirmationInfo(), sql);
+				}
 			}
 			sql.commit();
 		} finally
