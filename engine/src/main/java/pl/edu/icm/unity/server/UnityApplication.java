@@ -14,11 +14,10 @@ import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.SimpleCommandLinePropertySource;
 import org.springframework.stereotype.Component;
 
-import eu.unicore.util.LoggerFactory;
-import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityLoggerFactory;
 import pl.edu.icm.unity.utils.LifecycleBase;
+import eu.unicore.util.LoggerFactory;
 
 
 /**
@@ -47,30 +46,12 @@ public class UnityApplication
 		propertySources.addFirst(clps);
 		container.getEnvironment().setActiveProfiles("production");
 		
-		try
-		{
-			container.refresh();
-		} catch (Exception e)
-		{
-			Throwable cause = getRootCause(e);
-			if (cause instanceof ConfigurationException)
-			{
-				throw (ConfigurationException)cause;  
-			}
-		}
-		
+		container.refresh();
+
 		container.registerShutdownHook();
 		container.start();
 	}
 
-	private Throwable getRootCause(Throwable e)
-	{
-		Throwable cause = e;
-		while (cause.getCause() != null)
-			cause = cause.getCause();
-		return cause;
-	}
-	
 	public static void main(String[] args)
 	{
 		UnityApplication theServer = new UnityApplication();
