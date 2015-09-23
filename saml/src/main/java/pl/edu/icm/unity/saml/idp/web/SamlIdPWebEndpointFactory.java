@@ -21,6 +21,7 @@ import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 import pl.edu.icm.unity.server.api.PKIManagement;
+import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
@@ -49,6 +50,7 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 	private SAMLLogoutProcessorFactory logoutProcessorFactory;
 	private SLOReplyInstaller sloReplyInstaller;
 	private IdpConsentDeciderServletFactoryImpl dispatcherServletFactory;
+	private NetworkServer server;
 
 	private UnityMessageSource msg;
 	
@@ -58,13 +60,14 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 			ExecutorsService executorsService, UnityServerConfiguration mainConfig,
 			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller,
 			IdpConsentDeciderServletFactoryImpl dispatcherServletFactory,
-			UnityMessageSource msg)
+			UnityMessageSource msg, NetworkServer server)
 	{
 		this.applicationContext = applicationContext;
 		this.freemarkerHandler = freemarkerHandler;
 		this.pkiManagement = pkiManagement;
 		this.executorsService = executorsService;
 		this.msg = msg;
+		this.server = server;
 		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
 		this.downloadManager = downloadManager;
 		this.mainConfig = mainConfig;
@@ -96,7 +99,7 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new SamlAuthVaadinEndpoint(getDescription(), applicationContext, freemarkerHandler,
+		return new SamlAuthVaadinEndpoint(server, applicationContext, freemarkerHandler,
 				SamlIdPWebUI.class, pkiManagement, executorsService, mainConfig,
 				dispatcherServletFactory, remoteMetadataManagers, downloadManager,  
 				logoutProcessorFactory, sloReplyInstaller, msg);

@@ -28,16 +28,16 @@ import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.api.internal.IdentityResolver;
+import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
-import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
+import pl.edu.icm.unity.server.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
@@ -47,7 +47,7 @@ import eu.unicore.util.configuration.ConfigurationException;
  * ECP endpoint used to enable ECP support in Unity. The endpoint doesn't use any authenticator by itself.
  * @author K. Benedyczak
  */
-public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInstance
+public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
 	private Properties properties;
 	private SAMLECPProperties samlProperties;
@@ -71,7 +71,7 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 	private MultiMetadataServlet metadataServlet;
 	private UnityMessageSource msg;
 	
-	public ECPEndpoint(EndpointTypeDescription type, String servletPath,
+	public ECPEndpoint(NetworkServer server, String servletPath,
 			PKIManagement pkiManagement, ECPContextManagement samlContextManagement,
 			URL baseAddress, String baseContext,
 			ReplayAttackChecker replayAttackChecker, IdentityResolver identityResolver,
@@ -83,7 +83,7 @@ public class ECPEndpoint extends AbstractEndpoint implements WebAppEndpointInsta
 			ExecutorsService executorsService, MultiMetadataServlet metadataServlet,
 			UnityMessageSource msg)
 	{
-		super(type);
+		super(server);
 		this.pkiManagement = pkiManagement;
 		this.servletPath = servletPath;
 		this.samlContextManagement = samlContextManagement;

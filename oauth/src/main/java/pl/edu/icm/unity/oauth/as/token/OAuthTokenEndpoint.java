@@ -14,11 +14,11 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.server.api.PKIManagement;
+import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
 
 /**
@@ -38,11 +38,11 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	private OAuthEndpointsCoordinator coordinator;
 	
 	public OAuthTokenEndpoint(UnityMessageSource msg, SessionManagement sessionMan,
-			EndpointTypeDescription type, String servletPath, TokensManagement tokensMan,
+			NetworkServer server, String servletPath, TokensManagement tokensMan,
 			PKIManagement pkiManagement, OAuthEndpointsCoordinator coordinator, 
 			AuthenticationProcessor authnProcessor)
 	{
-		super(msg, sessionMan, authnProcessor, type, servletPath);
+		super(msg, sessionMan, authnProcessor, server, servletPath);
 		this.tokensManagement = tokensMan;
 		this.pkiManagement = pkiManagement;
 		this.coordinator = coordinator;

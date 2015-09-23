@@ -2,16 +2,16 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.ldap;
+package pl.edu.icm.unity.ldap.client;
 
-import static pl.edu.icm.unity.ldap.LdapProperties.*;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.ldap.LdapProperties.BindAs;
+import pl.edu.icm.unity.ldap.client.LdapProperties.BindAs;
 import pl.edu.icm.unity.server.api.PKIManagement;
 
 import com.unboundid.ldap.sdk.DereferencePolicy;
@@ -174,7 +174,7 @@ public class LdapClientConfiguration
 			String[] attrsA = attrs!= null ? attrs.split("[ ]+") : new String[0];
 			spec.setAttributes(attrsA);
 			spec.setScope(ldapProperties.getEnumValue(key+LdapProperties.ADV_SEARCH_SCOPE, 
-					pl.edu.icm.unity.ldap.LdapProperties.SearchScope.class));
+					pl.edu.icm.unity.ldap.client.LdapProperties.SearchScope.class));
 			extraSearches.add(spec);
 			if (searchUserQueryKey != null && searchUserQueryKey.equals(key))
 				searchUserQuery = spec;

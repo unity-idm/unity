@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.ldap;
+package pl.edu.icm.unity.ldap.client;
 
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -18,7 +18,7 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.ldap.LdapClientConfiguration.ConnectionMode;
+import pl.edu.icm.unity.ldap.client.LdapClientConfiguration.ConnectionMode;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;

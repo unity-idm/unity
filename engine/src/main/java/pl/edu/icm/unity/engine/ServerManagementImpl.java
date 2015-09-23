@@ -14,22 +14,23 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-
-import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.InitDB;
 import pl.edu.icm.unity.db.export.ImportExport;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.JettyServer;
 import pl.edu.icm.unity.server.api.ServerManagement;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
+
+import com.fasterxml.jackson.core.JsonGenerationException;
+
+import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * Implementation of general maintenance.
@@ -43,20 +44,21 @@ public class ServerManagementImpl implements ServerManagement
 	private ImportExport dbDump;
 	private InitDB initDb;
 	private EngineInitialization engineInit;
-	private JettyServer httpServer;
 	private AuthorizationManager authz;
 	private UnityServerConfiguration config;
+	private InternalEndpointManagement endpointMan;
+	
 	
 	@Autowired
 	public ServerManagementImpl(DBSessionManager db, ImportExport dbDump, InitDB initDb,
-			EngineInitialization engineInit, JettyServer httpServer,
-			AuthorizationManager authz, ExecutorsService executorsService,UnityServerConfiguration config)
+			EngineInitialization engineInit, InternalEndpointManagement endpointMan,
+			AuthorizationManager authz, ExecutorsService executorsService, UnityServerConfiguration config)
 	{
 		this.db = db;
 		this.dbDump = dbDump;
 		this.initDb = initDb;
 		this.engineInit = engineInit;
-		this.httpServer = httpServer;
+		this.endpointMan = endpointMan;
 		this.authz = authz;
 		this.config = config;
 		executorsService.getService().scheduleWithFixedDelay(new ClenupDumpsTask(), 20, 60, TimeUnit.SECONDS);
@@ -68,7 +70,7 @@ public class ServerManagementImpl implements ServerManagement
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		initDb.resetDatabase();
-		httpServer.undeployAllEndpoints();
+		endpointMan.undeployAll();
 		engineInit.initializeDatabaseContents();
 	}
 
@@ -123,7 +125,7 @@ public class ServerManagementImpl implements ServerManagement
 		{
 			db.releaseSqlSession(sql);
 		}
-		httpServer.undeployAllEndpoints();
+		endpointMan.undeployAll();
 		engineInit.initializeDatabaseContents();
 	}
 	

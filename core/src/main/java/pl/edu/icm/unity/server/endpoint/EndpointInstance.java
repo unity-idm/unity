@@ -4,19 +4,16 @@
  */
 package pl.edu.icm.unity.server.endpoint;
 
-import java.net.URL;
 import java.util.List;
 
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
-import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.JsonSerializable;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
 /**
  * Generic endpoint instance. Implementations must persist/load only the custom settings using the {@link JsonSerializable}
- * interface; authenticators, id, context address and description are always set via initialize method. 
+ * interface; authenticators, id, and description are always set via initialize method. 
  * 
  * Lifecycle:
  * <ol>
@@ -33,29 +30,38 @@ import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 public interface EndpointInstance
 {
 	/**
-	 * @param authenticatorsInfo generic info about authenticators set with their ids and groupings
-	 * @param authenticatonOptions actual authenticators. the list has entries corresponding to the first argument.
-	 * the map holds mappings of each authenticator name to its implementation
+	 * @param endpointDescription most of the endpoint's settings
+	 * @param authenticatonOptions authenticator instances for the endpoint.
+	 * @param serializedConfiguration endpoint specific configuration 
+	 * (as returned by {@link #getSerializedConfiguration()}.
 	 */
-	public void initialize(String id, I18nString displayedName, URL baseAddress, String contextAddress, 
-			String description, 
-			List<AuthenticationOptionDescription> authenticatorsInfo, 
+	void initialize(EndpointDescription endpointDescription, 
 			List<AuthenticationOption> authenticatonOptions,
-			AuthenticationRealm realm, String serializedConfiguration);
+			String serializedConfiguration);
 
-	public EndpointDescription getEndpointDescription();
+	EndpointDescription getEndpointDescription();
 	
 	/**
 	 * @return the current list of previously configured authenticators (with initialize).
 	 */
-	public List<AuthenticationOption> getAuthenticationOptions();
+	List<AuthenticationOption> getAuthenticationOptions();
 	
 	/**
 	 * @return serialized representation of the endpoint configuration/state
 	 */
-	public String getSerializedConfiguration();
+	String getSerializedConfiguration();
 
-	public void destroy();
+	/**
+	 * Starts the endpoint. After this method returns the endpoint should be made available for usage.
+	 * @throws EngineException 
+	 */
+	void start() throws EngineException;
+	
+	/**
+	 * Stops the endpoint.
+	 * @throws EngineException 
+	 */
+	void destroy() throws EngineException;
 	
 	
 	/**
@@ -65,6 +71,6 @@ public interface EndpointInstance
 	 * @throws UnsupportedOperationException if the operation is unsupported and the endpoint must be 
 	 * re-created instead.
 	 */
-	public void updateAuthenticationOptions(List<AuthenticationOption> authenticationOptions)
+	void updateAuthenticationOptions(List<AuthenticationOption> authenticationOptions)
 		throws UnsupportedOperationException;
 }

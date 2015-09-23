@@ -35,6 +35,22 @@ public class EndpointDescription
 		displayedName = endpointDesc.getDisplayedName().clone();
 	}
 	
+	public EndpointDescription(String id, I18nString displayedName, String contextAddress,
+			String description, AuthenticationRealm realm,
+			EndpointTypeDescription type,
+			List<AuthenticationOptionDescription> authenticatorSets)
+	{
+		this.id = id;
+		this.displayedName = displayedName;
+		this.contextAddress = contextAddress;
+		this.description = description;
+		this.realm = realm;
+		this.type = type;
+		this.authenticatorSets = authenticatorSets;
+	}
+
+
+
 	public EndpointDescription() 
 	{
 	}

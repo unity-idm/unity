@@ -67,6 +67,7 @@ public class ECPEndpointFactory implements EndpointFactory
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
 	private MetaDownloadManager downloadManager;
 	private UnityMessageSource msg;
+	private NetworkServer server;
 	
 	@Autowired
 	public ECPEndpointFactory(PKIManagement pkiManagement, NetworkServer jettyServer,
@@ -78,11 +79,12 @@ public class ECPEndpointFactory implements EndpointFactory
 			IdentitiesManagement identitiesMan, SessionManagement sessionMan,
 			UnityServerConfiguration mainCfg, MetaDownloadManager downloadManager,
 			ExecutorsService executorsService, SharedEndpointManagement sharedEndpointManagement,
-			UnityMessageSource msg) 
+			UnityMessageSource msg, NetworkServer server) 
 					throws EngineException
 	{
 		this.pkiManagement = pkiManagement;
 		this.msg = msg;
+		this.server = server;
 		this.baseAddress = jettyServer.getAdvertisedAddress();
 		this.samlContextManagement = samlContextManagement;
 		this.replayAttackChecker = replayAttackChecker;
@@ -118,7 +120,7 @@ public class ECPEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new ECPEndpoint(description, SERVLET_PATH, pkiManagement, samlContextManagement, baseAddress,
+		return new ECPEndpoint(server, SERVLET_PATH, pkiManagement, samlContextManagement, baseAddress,
 				baseContext, replayAttackChecker, identityResolver, profileManagement, trEngine, 
 				tokensMan, identitiesMan, sessionMan, remoteMetadataManagers, 
 				mainCfg, downloadManager, executorsService, metadataServlet, msg);

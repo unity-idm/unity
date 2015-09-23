@@ -18,10 +18,10 @@ import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 import pl.edu.icm.unity.server.api.PKIManagement;
+import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
 
 /**
@@ -34,7 +34,7 @@ public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 {
 	public static final String SAML_CONSUMER_SERVLET_PATH = "/saml2unicoreIdp-web";
 	
-	public SamlAuthETDVaadinEndpoint(EndpointTypeDescription type, ApplicationContext applicationContext,
+	public SamlAuthETDVaadinEndpoint(NetworkServer server, ApplicationContext applicationContext,
 			FreemarkerHandler freemarkerHandler,
 			PKIManagement pkiManagement, ExecutorsService executorsService,
 			Map<String, RemoteMetaManager> remoteMetadataManagers, MetaDownloadManager downloadManager, 
@@ -43,7 +43,7 @@ public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 			UnityMessageSource msg)
 	{
 		super(SAML_CONSUMER_SERVLET_PATH, 
-				type, applicationContext, freemarkerHandler, SamlUnicoreIdPWebUI.class, pkiManagement, 
+				server, applicationContext, freemarkerHandler, SamlUnicoreIdPWebUI.class, pkiManagement, 
 				executorsService, mainConfig, dispatcherServletFactory, 
 				remoteMetadataManagers, downloadManager, 
 				logoutProcessorFactory, 

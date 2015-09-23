@@ -20,6 +20,7 @@ import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
+import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
@@ -54,6 +55,7 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 	private SAMLLogoutProcessorFactory logoutProcessorFactory;
 	private AuthenticationProcessor authnProcessor;
 	private AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
+	private NetworkServer server;
 	
 	@Autowired
 	public SamlUnicoreIdPSoapEndpointFactory(UnityMessageSource msg, IdPEngine idpEngine,
@@ -61,7 +63,8 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 			ExecutorsService executorsService, SessionManagement sessionMan,
 			MetaDownloadManager dowloadManager, UnityServerConfiguration mainConfig,
 			SAMLLogoutProcessorFactory logoutProcessorFactory, AuthenticationProcessor authnProcessor,
-			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry)
+			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry,
+			NetworkServer server)
 	{
 		super();
 		this.msg = msg;
@@ -72,6 +75,7 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 		this.sessionMan = sessionMan;
 		this.authnProcessor = authnProcessor;
 		this.attributeSyntaxFactoriesRegistry = attributeSyntaxFactoriesRegistry;
+		this.server = server;
 		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
 		this.downloadManager = dowloadManager;
 		this.mainConfig = mainConfig;
@@ -96,7 +100,7 @@ public class SamlUnicoreIdPSoapEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new SamlUnicoreSoapEndpoint(msg, getDescription(), SERVLET_PATH,
+		return new SamlUnicoreSoapEndpoint(msg, server, SERVLET_PATH,
 				SamlIdPSoapEndpointFactory.METADATA_SERVLET_PATH, idpEngine,
 				preferencesMan, pkiManagement, executorsService, sessionMan,
 				remoteMetadataManagers, downloadManager, mainConfig, logoutProcessorFactory,

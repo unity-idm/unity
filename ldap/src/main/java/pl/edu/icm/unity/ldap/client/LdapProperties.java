@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.ldap;
+package pl.edu.icm.unity.ldap.client;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,9 +10,8 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.ldap.LdapClientConfiguration.ConnectionMode;
+import pl.edu.icm.unity.ldap.client.LdapClientConfiguration.ConnectionMode;
 import pl.edu.icm.unity.server.utils.Log;
-
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;

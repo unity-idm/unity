@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.endpoints;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,9 +20,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.authn.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.JettyServer;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
-import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 
@@ -38,18 +37,16 @@ public class EndpointsUpdater
 	private static final Logger log = Log.getLogger(Log.U_SERVER, EndpointsUpdater.class);
 	private long lastUpdate = 0;
 	private DBSessionManager db;
-	private JettyServer httpServer;
 	private InternalEndpointManagement endpointMan;
 	private EndpointDB endpointDB;
 	private AuthenticatorInstanceDB authnDB;
 	
 	@Autowired
-	public EndpointsUpdater(DBSessionManager db, JettyServer httpServer,
+	public EndpointsUpdater(DBSessionManager db,
 			InternalEndpointManagement endpointMan, EndpointDB endpointDB,
 			AuthenticatorInstanceDB authnDB)
 	{
 		this.db = db;
-		this.httpServer = httpServer;
 		this.endpointMan = endpointMan;
 		this.endpointDB = endpointDB;
 		this.authnDB = authnDB;
@@ -96,10 +93,10 @@ public class EndpointsUpdater
 
 	private void updateEndpointsInt() throws EngineException
 	{
-		List<WebAppEndpointInstance> deployedEndpoints = httpServer.getDeployedEndpoints();
+		List<EndpointInstance> deployedEndpoints = endpointMan.getDeployedEndpoints();
 		Set<String> endpointsInDb = new HashSet<String>();
-		Map<String, WebAppEndpointInstance> endpointsDeployed = new HashMap<String, WebAppEndpointInstance>();
-		for (WebAppEndpointInstance endpoint: deployedEndpoints)
+		Map<String, EndpointInstance> endpointsDeployed = new HashMap<>();
+		for (EndpointInstance endpoint: deployedEndpoints)
 			endpointsDeployed.put(endpoint.getEndpointDescription().getId(), endpoint);
 		log.debug("Running periodic endpoints update task. There are " + deployedEndpoints.size() + 
 				" deployed endpoints.");
@@ -110,6 +107,7 @@ public class EndpointsUpdater
 			Set<String> changedAuthenticators = getChangedAuthenticators(sql, roundedUpdateTime);
 
 			List<Map.Entry<EndpointInstance, Date>> endpoints = endpointDB.getAllWithUpdateTimestamps(sql);
+			log.debug("There are " + endpoints.size() + " endpoints in DB.");
 			for (Map.Entry<EndpointInstance, Date> instanceWithDate: endpoints)
 			{
 				EndpointInstance instance = instanceWithDate.getKey();
@@ -129,11 +127,11 @@ public class EndpointsUpdater
 					if (endpointsDeployed.containsKey(name))
 					{
 						log.info("Endpoint " + name + " will be re-deployed");
-						httpServer.undeployEndpoint(name);
+						endpointMan.undeploy(instance.getEndpointDescription().getId());
 					} else
 						log.info("Endpoint " + name + " will be deployed");
 					
-					httpServer.deployEndpoint((WebAppEndpointInstance) instance);
+					endpointMan.deploy(instance);
 				} else if (hasChangedAuthenticator(changedAuthenticators, instance))
 				{
 					updateEndpointAuthenticators(name, instance, endpointsDeployed);
@@ -151,18 +149,18 @@ public class EndpointsUpdater
 	}
 	
 	private void updateEndpointAuthenticators(String name, EndpointInstance instance,
-			Map<String, WebAppEndpointInstance> endpointsDeployed) throws EngineException
+			Map<String, EndpointInstance> endpointsDeployed) throws EngineException
 	{
 		log.info("Endpoint " + name + " will have its authenticators updated");
-		WebAppEndpointInstance toUpdate = endpointsDeployed.get(name);
+		EndpointInstance toUpdate = endpointsDeployed.get(name);
 		try
 		{
 			toUpdate.updateAuthenticationOptions(instance.getAuthenticationOptions());
 		} catch (UnsupportedOperationException e)
 		{
 			log.info("Endpoint " + name + " doesn't support authenticators update so will be redeployed");
-			httpServer.undeployEndpoint(name);
-			httpServer.deployEndpoint((WebAppEndpointInstance) instance);
+			endpointMan.undeploy(instance.getEndpointDescription().getId());
+			endpointMan.deploy(instance);
 		}
 	}
 	
@@ -178,9 +176,12 @@ public class EndpointsUpdater
 		for (Map.Entry<String, Date> authn: authnNames)
 		{
 			long authenticatorChangedAt = roundToS(authn.getValue().getTime());
+			log.trace("Authenticator update timestampses: " + roundedUpdateTime + " " + 
+					lastUpdate + " " + authn.getKey() + ": " + authenticatorChangedAt);
 			if (authenticatorChangedAt >= lastUpdate && roundedUpdateTime != authenticatorChangedAt)
 				changedAuthenticators.add(authn.getKey());
 		}
+		log.trace("Changed authenticators" + changedAuthenticators);
 		return changedAuthenticators;
 	}
 	
@@ -203,16 +204,16 @@ public class EndpointsUpdater
 		return false;
 	}
 	
-	private void undeployRemoved(Set<String> endpointsInDb, List<WebAppEndpointInstance> deployedEndpoints) 
+	private void undeployRemoved(Set<String> endpointsInDb, Collection<EndpointInstance> deployedEndpoints) 
 			throws EngineException
 	{
-		for (WebAppEndpointInstance endpoint: deployedEndpoints)
+		for (EndpointInstance endpoint: deployedEndpoints)
 		{
 			String name = endpoint.getEndpointDescription().getId();
 			if (!endpointsInDb.contains(name))
 			{
 				log.info("Undeploying a removed endpoint: " + name);
-				httpServer.undeployEndpoint(name);
+				endpointMan.undeploy(endpoint.getEndpointDescription().getId());
 			}
 		}
 	}
