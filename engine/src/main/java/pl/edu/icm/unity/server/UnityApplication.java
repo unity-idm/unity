@@ -34,8 +34,7 @@ public class UnityApplication
 	private static final Logger log = Log.getLogger(Log.U_SERVER, UnityApplication.class);
 
 	private AbstractApplicationContext container;
-	//10:23 sobota
-	//22:27
+
 	public void run(String[] args)
 	{
 		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.LONG);
