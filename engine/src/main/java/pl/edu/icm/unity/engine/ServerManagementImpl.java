@@ -116,6 +116,7 @@ public class ServerManagementImpl implements ServerManagement
 				throw new InternalException("Database import failed. " +
 						"Database should not be changed.", e);
 			}
+			initDb.runPostImportCleanup(sql);
 			
 			sql.commit();
 		} finally

@@ -121,4 +121,8 @@
 		ALTER SEQUENCE ATTRIBUTE_TYPES_id_seq RESTART WITH 1;
 	</update>
 
+	<update id="postDBImport-00">
+		SELECT setval('ENTITIES_id_seq', (select max(ID)+1 from ENTITIES));
+	</update>
+
 </mapper>
