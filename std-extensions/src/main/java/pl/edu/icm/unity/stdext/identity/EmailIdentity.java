@@ -11,10 +11,6 @@ import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
@@ -82,11 +78,6 @@ public class EmailIdentity extends AbstractStaticIdentityTypeProvider
 		IdentityParam ret = new IdentityParam(ID, email.getValue(), remoteIdp, translationProfile);
 		ret.setConfirmationInfo(email.getConfirmationInfo());
 		
-		boolean main = email.getTags().contains(EmailUtils.TAG_MAIN);
-		ObjectNode metadata = Constants.MAPPER.createObjectNode();
-		metadata.put("main", main);
-		ret.setMetadata(metadata);
-			
 		return ret;
 	}
 	
@@ -95,15 +86,6 @@ public class EmailIdentity extends AbstractStaticIdentityTypeProvider
 		VerifiableEmail ret = new VerifiableEmail(idParam.getValue());
 		if (idParam.getConfirmationInfo() != null)
 			ret.setConfirmationInfo(idParam.getConfirmationInfo());
-		JsonNode metadata = idParam.getMetadata();
-		if (metadata != null)
-		{
-			boolean main = false;
-			if (metadata.has("main"))
-				main = metadata.get("main").asBoolean();
-			if (main)
-				ret.addTags(EmailUtils.TAG_MAIN);
-		}
 		return ret;
 	}
 	
@@ -134,8 +116,6 @@ public class EmailIdentity extends AbstractStaticIdentityTypeProvider
 	{
 		VerifiableEmail ve = fromIdentityParam(from);
 		StringBuilder ret = new StringBuilder(ve.getValue());
-		if (ve.getTags().contains(EmailUtils.TAG_MAIN))
-			ret.append(" [*]");
 		return ret.toString();
 	}
 

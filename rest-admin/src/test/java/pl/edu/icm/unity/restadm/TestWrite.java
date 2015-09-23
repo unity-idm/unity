@@ -52,7 +52,6 @@ import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
-import pl.edu.icm.unity.stdext.utils.EmailUtils;
 import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -198,7 +197,7 @@ public class TestWrite extends TestRESTBase
 	public void addEmailIdentityPreservesMetadata() throws Exception
 	{
 		HttpPost addEntity = new HttpPost("/restadm/v1/entity/identity/email/"
-				+ "user%2Bmain%40example.xom%5BCONFIRMED%5D?credentialRequirement=cr-pass");
+				+ "user%40example.xom%5BCONFIRMED%5D?credentialRequirement=cr-pass");
 		HttpResponse response = client.execute(host, addEntity, localcontext);
 		String contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
@@ -208,7 +207,6 @@ public class TestWrite extends TestRESTBase
 		Identity emailId = getIdentityByType(entity.getIdentities(), EmailIdentity.ID);
 		assertTrue(emailId.isConfirmed());
 		assertEquals("user@example.xom", emailId.getValue());
-		assertTrue(EmailIdentity.fromIdentityParam(emailId).getTags().contains(EmailUtils.TAG_MAIN));
 		
 		HttpGet resolve = new HttpGet("/restadm/v1/resolve/email/user%40example.xom");
 		response = client.execute(host, resolve, localcontext);

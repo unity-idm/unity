@@ -23,7 +23,6 @@ import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
-import pl.edu.icm.unity.stdext.utils.EmailUtils;
 import pl.edu.icm.unity.stdext.utils.InitializerCommon;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -53,22 +52,12 @@ public class TestEmailFacility extends DBIntegrationTestBase
 	
 	private VerifiableEmail plainA = new VerifiableEmail("email1@ex.com");
 	private VerifiableEmail onlyConfirmedA = new VerifiableEmail("email2@ex.com");
-	private VerifiableEmail onlyMainA = new VerifiableEmail("email3@ex.com");
-	private VerifiableEmail mainAndConfirmedA = new VerifiableEmail("email4@ex.com");
 	private VerifiableEmail plainI = new VerifiableEmail("email5@ex.com");
 	private VerifiableEmail onlyConfirmedI = new VerifiableEmail("email6@ex.com");
-	private VerifiableEmail onlyMainI = new VerifiableEmail("email7@ex.com");
-	private VerifiableEmail mainAndConfirmedI = new VerifiableEmail("email8@ex.com");
 	
 	{
 		onlyConfirmedA.setConfirmationInfo(new ConfirmationInfo(true));
-		onlyMainA.addTags(EmailUtils.TAG_MAIN);
-		mainAndConfirmedA.setConfirmationInfo(new ConfirmationInfo(true));
-		mainAndConfirmedA.addTags(EmailUtils.TAG_MAIN);
 		onlyConfirmedI.setConfirmationInfo(new ConfirmationInfo(true));
-		onlyMainI.addTags(EmailUtils.TAG_MAIN);
-		mainAndConfirmedI.setConfirmationInfo(new ConfirmationInfo(true));
-		mainAndConfirmedI.addTags(EmailUtils.TAG_MAIN);
 	}
 
 	private void setEmailAttr(EntityParam entity, VerifiableEmail... emails) throws Exception
@@ -127,14 +116,8 @@ public class TestEmailFacility extends DBIntegrationTestBase
 		setEmailAttr(entityP, plainA);
 		check(entityP, plainA.getValue());
 
-		setEmailAttr(entityP, plainA, onlyMainA);
-		check(entityP, onlyMainA.getValue());
-
-		setEmailAttr(entityP, plainA, onlyMainA, onlyConfirmedA);
+		setEmailAttr(entityP, plainA, onlyConfirmedA);
 		check(entityP, onlyConfirmedA.getValue());
-
-		setEmailAttr(entityP, plainA, onlyMainA, onlyConfirmedA, mainAndConfirmedA);
-		check(entityP, mainAndConfirmedA.getValue());
 	}
 	
 	@Test
@@ -150,14 +133,8 @@ public class TestEmailFacility extends DBIntegrationTestBase
 		setEmailAttr(entityP, plainA);
 		check(entityP, plainI.getValue());
 		
-		idsMan.addIdentity(EmailIdentity.toIdentityParam(onlyMainI, null, null), entityP, false);
-		check(entityP, onlyMainI.getValue());
-		
 		idsMan.addIdentity(EmailIdentity.toIdentityParam(onlyConfirmedI, null, null), entityP, false);
 		check(entityP, onlyConfirmedI.getValue());
-
-		idsMan.addIdentity(EmailIdentity.toIdentityParam(mainAndConfirmedI, null, null), entityP, false);
-		check(entityP, mainAndConfirmedI.getValue());
 	}
 	
 	@Test
@@ -170,67 +147,14 @@ public class TestEmailFacility extends DBIntegrationTestBase
 				DBIntegrationTestBase.CRED_REQ_PASS, EntityState.valid, false);
 		EntityParam entityP = new EntityParam(entity);
 
-		setEmailAttr(entityP, plainA, onlyMainA);
-		check(entityP, onlyMainA.getValue());
-		
-		idsMan.addIdentity(EmailIdentity.toIdentityParam(onlyMainI, null, null), entityP, false);
-		check(entityP, onlyMainI.getValue());
-		
-		idsMan.addIdentity(EmailIdentity.toIdentityParam(onlyConfirmedI, null, null), entityP, false);
-		check(entityP, onlyConfirmedI.getValue());
-
-		idsMan.addIdentity(EmailIdentity.toIdentityParam(mainAndConfirmedI, null, null), entityP, false);
-		check(entityP, mainAndConfirmedI.getValue());
-	}
-
-
-	@Test
-	public void emailExtractedFromIdentityInOrderThreeAttr() throws Exception
-	{
-		initCommon.initializeCommonAttributeTypes();
-		setupPasswordAuthn();
-		
-		Identity entity = idsMan.addEntity(new IdentityParam(EmailIdentity.ID, plainI.getValue()), 
-				DBIntegrationTestBase.CRED_REQ_PASS, EntityState.valid, false);
-		EntityParam entityP = new EntityParam(entity);
-
-		setEmailAttr(entityP, plainA, onlyMainA, onlyConfirmedA);
-		check(entityP, onlyConfirmedA.getValue());
-		
-		idsMan.addIdentity(EmailIdentity.toIdentityParam(onlyMainI, null, null), entityP, false);
+		setEmailAttr(entityP, plainA, onlyConfirmedA);
 		check(entityP, onlyConfirmedA.getValue());
 		
 		idsMan.addIdentity(EmailIdentity.toIdentityParam(onlyConfirmedI, null, null), entityP, false);
 		check(entityP, onlyConfirmedI.getValue());
-
-		idsMan.addIdentity(EmailIdentity.toIdentityParam(mainAndConfirmedI, null, null), entityP, false);
-		check(entityP, mainAndConfirmedI.getValue());
 	}
 
-	@Test
-	public void emailExtractedFromIdentityInOrderFourAttr() throws Exception
-	{
-		initCommon.initializeCommonAttributeTypes();
-		setupPasswordAuthn();
-		
-		Identity entity = idsMan.addEntity(new IdentityParam(EmailIdentity.ID, plainI.getValue()), 
-				DBIntegrationTestBase.CRED_REQ_PASS, EntityState.valid, false);
-		EntityParam entityP = new EntityParam(entity);
 
-		setEmailAttr(entityP, plainA, onlyMainA, onlyConfirmedA, mainAndConfirmedA);
-		check(entityP, mainAndConfirmedA.getValue());
-		
-		idsMan.addIdentity(EmailIdentity.toIdentityParam(onlyMainI, null, null), entityP, false);
-		check(entityP, mainAndConfirmedA.getValue());
-		
-		idsMan.addIdentity(EmailIdentity.toIdentityParam(onlyConfirmedI, null, null), entityP, false);
-		check(entityP, mainAndConfirmedA.getValue());
-
-		idsMan.addIdentity(EmailIdentity.toIdentityParam(mainAndConfirmedI, null, null), entityP, false);
-		check(entityP, mainAndConfirmedI.getValue());
-	}
-	
-	
 	
 	private void setEmailAttr(RegistrationRequestState request, VerifiableEmail... emails) throws Exception
 	{
@@ -276,13 +200,6 @@ public class TestEmailFacility extends DBIntegrationTestBase
 		setEmailAttr(request, plainA);
 		check(request, plainA.getValue());
 
-		setEmailAttr(request, plainA, onlyMainA);
-		check(request, onlyMainA.getValue());
-
-		setEmailAttr(request, plainA, onlyMainA);
-		setEmailId(request, plainI);
-		check(request, onlyMainA.getValue());
-		
 		setEmailAttr(request, plainA);
 		setEmailId(request, plainI);
 		check(request, plainI.getValue());
@@ -290,10 +207,6 @@ public class TestEmailFacility extends DBIntegrationTestBase
 		setEmailAttr(request);
 		setEmailId(request, plainI);
 		check(request, plainI.getValue());
-		
-		setEmailAttr(request, plainA, onlyMainA);
-		setEmailId(request, plainI, onlyMainI);
-		check(request, onlyMainI.getValue());
 	}
 
 }

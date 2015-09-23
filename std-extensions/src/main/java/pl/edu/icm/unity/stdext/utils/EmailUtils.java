@@ -26,7 +26,6 @@ public class EmailUtils
 	
 	public final static String CONFIRMED_POSTFIX = "[CONFIRMED]"; 
 	public final static String UNCONFIRMED_POSTFIX = "[UNCONFIRMED]"; 
-	public final static String TAG_MAIN = "main";
 	
 	/**
 	 * @param value

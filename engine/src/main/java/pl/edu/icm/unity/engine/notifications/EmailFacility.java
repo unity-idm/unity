@@ -40,7 +40,6 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
-import pl.edu.icm.unity.stdext.utils.EmailUtils;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -121,12 +120,8 @@ public class EmailFacility implements NotificationFacility
 	/**
 	 * Address is established as follows (first found is returned):
 	 * <ol> 
-	 * <li> entity's identity of email type tagged with EmailUtils.TAG_MAIN, confirmed
-	 * <li> entity's attribute selected as contact email tagged with EmailUtils.TAG_MAIN, confirmed
 	 * <li> entity's identity of email type, confirmed
 	 * <li> entity's attribute selected as contact email, confirmed
-	 * <li> entity's identity of email type tagged with EmailUtils.TAG_MAIN
-	 * <li> entity's attribute selected as contact email tagged with EmailUtils.TAG_MAIN
 	 * <li> entity's identity of email type
 	 * <li> entity's attribute selected as contact email
 	 * </ol>
@@ -140,19 +135,11 @@ public class EmailFacility implements NotificationFacility
 		AttributeExt<?> emailAttr = attributesHelper.getAttributeByMetadata(recipient, "/", 
 				ContactEmailMetadataProvider.NAME, sql);		
 		
-		String mainAndConfirmed = getAddressFrom(emailIds, emailAttr, true, true);
-		if (mainAndConfirmed != null)
-			return mainAndConfirmed;
-
-		String confirmedOnly = getAddressFrom(emailIds, emailAttr, false, true);
+		String confirmedOnly = getAddressFrom(emailIds, emailAttr, true);
 		if (confirmedOnly != null)
 			return confirmedOnly;
 		
-		String mainOnly = getAddressFrom(emailIds, emailAttr, true, false);
-		if (mainOnly != null)
-			return mainOnly;
-
-		String plain = getAddressFrom(emailIds, emailAttr, false, false);
+		String plain = getAddressFrom(emailIds, emailAttr, false);
 		if (plain != null)
 			return plain;
 
@@ -170,33 +157,26 @@ public class EmailFacility implements NotificationFacility
 		List<VerifiableEmail> emailIds = getEmailIdentities(currentRequest);
 		Attribute<?> emailAttr = getEmailAttributeFromRequest(currentRequest, sql); 
 
-		String main = getAddressFrom(emailIds, emailAttr, true, false);
-		if (main != null)
-			return main;
-		
-		return getAddressFrom(emailIds, emailAttr, false, false);
+		return getAddressFrom(emailIds, emailAttr, false);
 	}
 	
 	
-	private String getAddressFrom(List<VerifiableEmail> emailIds, Attribute<?> emailAttr, boolean useMain, 
-			boolean useConfirmed)
+	private String getAddressFrom(List<VerifiableEmail> emailIds, Attribute<?> emailAttr, boolean useConfirmed)
 	{
 		for (VerifiableEmail id: emailIds)
-			if ((!useConfirmed || id.isConfirmed()) && 
-					(!useMain || id.getTags().contains(EmailUtils.TAG_MAIN)))
+			if (!useConfirmed || id.isConfirmed())
 				return id.getValue();
 
 		if (emailAttr != null && (!useConfirmed || emailAttr.getAttributeSyntax().isVerifiable()))
 			for (Object emailO: emailAttr.getValues())
 			{
-				if (!useConfirmed && !useMain)
+				if (!useConfirmed)
 				{
 					return emailO.toString();
 				} else if (emailAttr.getAttributeSyntax().isVerifiable())
 				{
 					VerifiableEmail email = (VerifiableEmail) emailO;
-					if ((!useConfirmed || email.isConfirmed()) && 
-							(!useMain || email.getTags().contains(EmailUtils.TAG_MAIN)))
+					if (!useConfirmed || email.isConfirmed())
 						return email.getValue();
 				}
 			}
