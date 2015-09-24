@@ -72,14 +72,51 @@ public class TestEmailFacility extends DBIntegrationTestBase
 		SqlSession sqlSession = db.getSqlSession(true);
 		try
 		{
-			assertEquals(expected, emailFacility.getAddressForEntity(entity, sqlSession));
+			assertEquals(expected, emailFacility.getAddressForEntity(entity, sqlSession, null));
 			sqlSession.commit();
 		} finally
 		{
 			db.releaseSqlSession(sqlSession);
 		}
 	}
+	
+	@Test
+	public void preferredEmailIsUsedIfPresent() throws Exception
+	{
+		AttributeType verifiableEmail = new AttributeType(InitializerCommon.EMAIL_ATTR, 
+				new StringAttributeSyntax());
+		verifiableEmail.setMinElements(1);
+		verifiableEmail.setMaxElements(5);
+		verifiableEmail.getMetadata().put(ContactEmailMetadataProvider.NAME, "");
+		attrsMan.addAttributeType(verifiableEmail);
 
+		setupPasswordAuthn();
+
+		Identity entity = idsMan.addEntity(new IdentityParam(EmailIdentity.ID, "email2@ex.com"), 
+				DBIntegrationTestBase.CRED_REQ_PASS, EntityState.valid, false);
+		EntityParam entityP = new EntityParam(entity);
+
+		StringAttribute attribute = new StringAttribute(InitializerCommon.EMAIL_ATTR, 
+				"/", AttributeVisibility.full,  "email1@ex.com");
+		attrsMan.setAttribute(entityP, attribute, true);
+		
+		SqlSession sqlSession = db.getSqlSession(true);
+		try
+		{
+			assertEquals("email2@ex.com", emailFacility.getAddressForEntity(
+					entityP, sqlSession, "email2@ex.com"));
+			assertEquals("email1@ex.com", emailFacility.getAddressForEntity(
+					entityP, sqlSession, "email1@ex.com"));
+			assertEquals("email2@ex.com", emailFacility.getAddressForEntity(
+					entityP, sqlSession, "emailNNN@ex.com"));
+			sqlSession.commit();
+		} finally
+		{
+			db.releaseSqlSession(sqlSession);
+		}
+		
+	}
+	
 	@Test
 	public void emailExtractedFromAttributeInOrderWithStringContactEmail() throws Exception
 	{

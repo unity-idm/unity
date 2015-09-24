@@ -25,11 +25,14 @@ public interface NotificationProducer
 	 * @param templateId
 	 * @param params
 	 * @param locale can be null. In such case the server's default locale will be used
+	 * @param preferredAddress can be null. If not null then this address will be used if can be found among all 
+	 * valid addresses of entity. 
 	 * @return
 	 * @throws EngineException
 	 */
 	public Future<NotificationStatus> sendNotification(EntityParam recipient, String channelName, 
-			String templateId, Map<String, String> params, String locale) throws EngineException;
+			String templateId, Map<String, String> params, String locale, String preferredAddress) 
+					throws EngineException;
 
 	/**
 	 * Sends a message which is resolved from a given template with parameters.

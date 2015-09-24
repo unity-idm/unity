@@ -105,7 +105,8 @@ public class NotificationProducerImpl implements NotificationProducer
 
 	@Override
 	public Future<NotificationStatus> sendNotification(EntityParam recipient,
-			String channelName, String templateId, Map<String, String> params, String locale)
+			String channelName, String templateId, Map<String, String> params, String locale, 
+			String preferredAddress)
 			throws EngineException
 	{
 		recipient.validateInitialization();
@@ -119,7 +120,7 @@ public class NotificationProducerImpl implements NotificationProducer
 			template = loadTemplate(templateId, sql);
 			channel = loadChannel(channelName, sql);
 			NotificationFacility facility = facilitiesRegistry.getByName(channel.getFacilityId());
-			recipientAddress = facility.getAddressForEntity(recipient, sql);
+			recipientAddress = facility.getAddressForEntity(recipient, sql, preferredAddress);
 			sql.commit();
 		} finally
 		{
@@ -155,7 +156,7 @@ public class NotificationProducerImpl implements NotificationProducer
 				try
 				{
 					String recipientAddress = facility.getAddressForEntity(
-							new EntityParam(membership.getEntityId()), sql);
+							new EntityParam(membership.getEntityId()), sql, null);
 					channel.sendNotification(recipientAddress, subject, body);
 				} catch (IllegalIdentityValueException e)
 				{

@@ -128,12 +128,15 @@ public class EmailFacility implements NotificationFacility
 	 * In each case if there are more then one addresses the first in the list is returned.
 	 */
 	@Override
-	public String getAddressForEntity(EntityParam recipient, SqlSession sql)
+	public String getAddressForEntity(EntityParam recipient, SqlSession sql, String preferredAddress)
 			throws EngineException
 	{
 		List<VerifiableEmail> emailIds = getEmailIdentities(recipient, sql);
 		AttributeExt<?> emailAttr = attributesHelper.getAttributeByMetadata(recipient, "/", 
 				ContactEmailMetadataProvider.NAME, sql);		
+		
+		if (preferredAddress != null && isPresent(preferredAddress, emailIds, emailAttr))
+			return preferredAddress;
 		
 		String confirmedOnly = getAddressFrom(emailIds, emailAttr, true);
 		if (confirmedOnly != null)
@@ -144,6 +147,22 @@ public class EmailFacility implements NotificationFacility
 			return plain;
 
 		throw new IllegalIdentityValueException("The entity does not have the email address specified");
+	}
+	
+	private boolean isPresent(String address, List<VerifiableEmail> emailIds, AttributeExt<?> emailAttr)
+	{
+		for (VerifiableEmail ve: emailIds)
+			if (ve.getValue().equals(address))
+				return true;
+		if (emailAttr != null)
+		{
+			for (Object emailO: emailAttr.getValues())
+			{
+				if (emailO.toString().equals(address))
+					return true;
+			}
+		}
+		return false;
 	}
 
 	/**
