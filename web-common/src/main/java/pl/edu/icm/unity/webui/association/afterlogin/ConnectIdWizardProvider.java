@@ -44,6 +44,8 @@ public class ConnectIdWizardProvider extends AbstractSandboxWizardProvider
 	public Wizard getWizardInstance()
 	{
 		final Wizard wizard = new Wizard();
+		wizard.getNextButton().setId("SandboxWizard.next");
+		wizard.getFinishButton().setId("SandboxWizard.finish");
 		wizard.setSizeFull();
 		wizard.addStep(new IntroStep(msg, "ConnectId.introLabel"));
 		final SandboxStep sandboxStep = new SandboxStep(msg, sandboxURL, wizard);

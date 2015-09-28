@@ -21,7 +21,7 @@ public class TestRegistrationForm extends SeleniumTestBase
 	public void registrationTest() throws Exception
 	{
 		driver.get(baseUrl + "/admin/admin");
-		waitForElement(By.className("idpentry_samlWeb_remoteIdp.5.")).click();;
+		waitForElement(By.className("idpentry_samlWeb_remoteIdp.5.")).click();
 		waitForElement(By.id("AuthenticationUI.authnenticateButton")).click();
 		waitForElement(By.id("AuthenticationUI.username")).clear();
 		waitForElement(By.id("AuthenticationUI.username")).sendKeys("demo-user");
