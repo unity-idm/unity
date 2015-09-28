@@ -174,6 +174,8 @@ public class AttributesManagementImpl implements AttributesManagement
 	{
 		existing.setDisplayedName(at.getDisplayedName());
 		existing.setDescription(at.getDescription());
+		existing.setSelfModificable(at.isSelfModificable());
+		existing.setVisibility(at.getVisibility());
 		dbAttributes.updateAttributeType(existing, sql);
 		sql.commit();
 	}
