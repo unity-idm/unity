@@ -6,7 +6,9 @@ package pl.edu.icm.unity.sandbox;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
@@ -49,7 +51,6 @@ import com.vaadin.ui.VerticalLayout;
  */
 public abstract class SandboxUIBase extends AuthenticationUI 
 {
-	private static final long serialVersionUID = 5093317898729462049L;
 	private static final String DEBUG_ID = "sbox";
 	public static final String PROFILE_VALIDATION = "validate";
 
@@ -94,8 +95,27 @@ public abstract class SandboxUIBase extends AuthenticationUI
 		this.registrationConfiguration = new EndpointRegistrationConfiguration(false);
 		this.endpointDescription          = new EndpointDescription(description);
 		this.endpointDescription.setAuthenticatorSets(authnList);
-		config = new VaadinEndpointProperties(new Properties());
+		config = prepareConfiguration(endpointProperties);
 	}
+	
+	/**
+	 * @param endpointProperties
+	 * @return configuration of the sandbox based on the properties of the base endpoint
+	 */
+	protected VaadinEndpointProperties prepareConfiguration(Properties endpointProperties)
+	{
+		Properties stripDown = new Properties();
+		Map<Object, Object> reduced = endpointProperties.entrySet().stream().filter(entry -> {
+			String key = (String) entry.getKey();
+			return !(key.endsWith(VaadinEndpointProperties.ENABLE_REGISTRATION) || 
+					key.endsWith(VaadinEndpointProperties.ENABLED_REGISTRATION_FORMS) ||
+					key.endsWith(VaadinEndpointProperties.PRODUCTION_MODE) ||
+					key.endsWith(VaadinEndpointProperties.WEB_CONTENT_PATH));
+		}).collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
+		stripDown.putAll(reduced);
+		return new VaadinEndpointProperties(stripDown);
+	}
+	
 	
 	@Override
 	protected void appInit(VaadinRequest request) 
@@ -170,21 +190,25 @@ public abstract class SandboxUIBase extends AuthenticationUI
 	{
 		if (authenticators == null)
 			return;
-		AuthNTile firstTile = selectorPanel.getTiles().get(0);
-		Collection<VaadinAuthenticationUI> authnUIs = firstTile.getAuthenticators().values();
-		for (VaadinAuthenticationUI authUI : authnUIs)
+		for (AuthNTile tile: selectorPanel.getTiles())
 		{
-			authUI.setSandboxAuthnResultCallback(new SandboxAuthnResultCallbackImpl());
+			Collection<VaadinAuthenticationUI> authnUIs = tile.getAuthenticators().values();
+			for (VaadinAuthenticationUI authUI : authnUIs)
+			{
+				authUI.setSandboxAuthnResultCallback(new SandboxAuthnResultCallbackImpl());
+			}
 		}
 	}
 
 	private void cancelAuthentication() 
 	{
-		AuthNTile firstTile = selectorPanel.getTiles().get(0);
-		Collection<VaadinAuthenticationUI> authnUIs = firstTile.getAuthenticators().values();
-		for (VaadinAuthenticationUI authUI : authnUIs)
+		for (AuthNTile tile: selectorPanel.getTiles())
 		{
-			authUI.cancelAuthentication();
+			Collection<VaadinAuthenticationUI> authnUIs = tile.getAuthenticators().values();
+			for (VaadinAuthenticationUI authUI : authnUIs)
+			{
+				authUI.cancelAuthentication();
+			}
 		}
 	}
 	
