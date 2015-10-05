@@ -25,6 +25,7 @@ import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.trust.StrictSamlTrustChecker;
+import eu.unicore.samly2.trust.DsigSamlTrustCheckerBase.CheckingMode;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
@@ -57,6 +58,7 @@ public class SAMLSPProperties extends SamlProperties
 	public static final String METADATA_PATH = "metadataPath";
 	public static final String SLO_PATH = "sloPath";
 	public static final String SLO_REALM = "sloRealm";
+	public static final String DO_NOT_REQUIRE_SIGNED_ASSERTION = "allowForOnlySignedResponses";
 	
 	public static final String DEF_SIGN_REQUEST = "defaultSignRequest";
 	public static final String DEF_REQUESTED_NAME_FORMAT = "defaultRequestedNameFormat";
@@ -157,6 +159,10 @@ public class SAMLSPProperties extends SamlProperties
 				+ "This is needed to enable Single Logout functionality (if undefined the SLO "
 				+ "functionality will be disabled). If this authenticator is used by endpoints placed in different realms and "
 				+ "you still want to have SLO functionality you have to define one authenticator per realm."));
+		META.put(DO_NOT_REQUIRE_SIGNED_ASSERTION, new PropertyMD("false").setDescription(
+				"If set to false then response signature is optional and assertion must be always signed. "
+				+ "This is strongly suggested mode. However some IdPs may return signed responses with unsinged assertions. "
+				+ "If such responses should be accepted set this to true."));
 		META.put(METADATA_PATH, new PropertyMD().setCategory(SamlProperties.samlMetaCat).setDescription(
 				"Last element of the URL, under which the SAML metadata should be published for this SAML authenticator." +
 				"Used only if metadata publication is enabled. See the SAML Metadata section for more details."));
@@ -319,7 +325,10 @@ public class SAMLSPProperties extends SamlProperties
 	public SamlTrustChecker getTrustChecker() throws ConfigurationException
 	{
 		Set<String> idpKeys = getStructuredListKeys(IDP_PREFIX);
-		StrictSamlTrustChecker trustChecker = new StrictSamlTrustChecker();
+		Boolean allowUnsignedAssertion = getBooleanValue(DO_NOT_REQUIRE_SIGNED_ASSERTION);
+		StrictSamlTrustChecker trustChecker = new StrictSamlTrustChecker(allowUnsignedAssertion ? 
+				CheckingMode.REQUIRE_SIGNED_RESPONSE_OR_ASSERTION : 
+				CheckingMode.REQUIRE_SIGNED_ASSERTION);
 		for (String idpKey: idpKeys)
 		{
 			String idpId = getValue(idpKey+IDP_ID);
