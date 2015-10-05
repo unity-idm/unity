@@ -23,9 +23,9 @@ public class TestAccountAssociation extends SeleniumTestBase
 		//login to home UI 
 		driver.get(baseUrl + "/home/home");
 		waitForElement(By.id("AuthenticationUI.username")).clear();
-		waitForElement(By.id("AuthenticationUI.username")).sendKeys("demo-user");
+		waitForElement(By.id("AuthenticationUI.username")).sendKeys("demo-user2");
 		waitForElement(By.id("WebPasswordRetrieval.password")).clear();
-		waitForElement(By.id("WebPasswordRetrieval.password")).sendKeys("the!test1");
+		waitForElement(By.id("WebPasswordRetrieval.password")).sendKeys("the!test2");
 		waitForElement(By.id("AuthenticationUI.authnenticateButton")).click();
 		
 		//invoke association
@@ -54,7 +54,8 @@ public class TestAccountAssociation extends SeleniumTestBase
 		Assert.assertTrue(finishB.isEnabled());
 		finishB.click();
 		waitForElement(By.id("SandboxWizard.finish")).click();
-		waitForElement(By.className("success"));
+		waitForElement(By.className("success")).click();
+		waitForElement(By.id("MainHeader.logout")).click();
 	}
 	
 	private String waitForPopup() throws InterruptedException

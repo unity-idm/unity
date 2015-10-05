@@ -6,6 +6,8 @@ package pl.edu.icm.unity.webadmin.tprofile.wizard;
 
 import org.vaadin.teemu.wizards.Wizard;
 
+import com.vaadin.ui.UI;
+
 import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.sandbox.wizard.AbstractSandboxWizardProvider;
@@ -65,7 +67,7 @@ public class ProfileWizardProvider extends AbstractSandboxWizardProvider
 				wizard.next();
 				wizard.getBackButton().setEnabled(false);
 			}
-		}, wizard);
+		}, wizard, UI.getCurrent());
 		
 		return wizard;
 	}

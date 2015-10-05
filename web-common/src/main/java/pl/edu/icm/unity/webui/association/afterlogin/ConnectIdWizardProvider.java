@@ -11,6 +11,8 @@ import org.vaadin.teemu.wizards.event.WizardProgressListener;
 import org.vaadin.teemu.wizards.event.WizardStepActivationEvent;
 import org.vaadin.teemu.wizards.event.WizardStepSetChangedEvent;
 
+import com.vaadin.ui.UI;
+
 import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.sandbox.wizard.AbstractSandboxWizardProvider;
@@ -64,7 +66,7 @@ public class ConnectIdWizardProvider extends AbstractSandboxWizardProvider
 				confirmationStep.setAuthnData(event);
 				wizard.next();						
 			}
-		}, wizard);
+		}, wizard, UI.getCurrent());
 		return wizard;
 	}
 

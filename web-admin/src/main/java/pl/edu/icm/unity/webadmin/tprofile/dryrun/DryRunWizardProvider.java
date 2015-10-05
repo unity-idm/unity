@@ -6,6 +6,8 @@ package pl.edu.icm.unity.webadmin.tprofile.dryrun;
 
 import org.vaadin.teemu.wizards.Wizard;
 
+import com.vaadin.ui.UI;
+
 import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.sandbox.wizard.AbstractSandboxWizardProvider;
@@ -55,7 +57,7 @@ public class DryRunWizardProvider extends AbstractSandboxWizardProvider
 			{
 				dryrunStep.handle(event);
 			}
-		}, wizard);
+		}, wizard, UI.getCurrent());
 		return wizard;
 	}
 

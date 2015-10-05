@@ -6,6 +6,8 @@ package pl.edu.icm.unity.webui.association.atlogin;
 
 import org.vaadin.teemu.wizards.Wizard;
 
+import com.vaadin.ui.UI;
+
 import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.sandbox.wizard.AbstractSandboxWizardProvider;
@@ -60,7 +62,7 @@ public class ConnectIdAtLoginWizardProvider extends AbstractSandboxWizardProvide
 				confirmationStep.setAuthnData(event);
 				wizard.next();						
 			}
-		}, wizard);
+		}, wizard, UI.getCurrent());
 		return wizard;
 	}
 

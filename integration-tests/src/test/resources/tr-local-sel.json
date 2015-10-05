@@ -11,7 +11,7 @@
 				"name": "mapIdentity",
 				"parameters": [
 					"userName",
-					"'xxxxxxxxxxx'",
+					"id",
 					"Password requirement",
 					"MATCH"
 				]
