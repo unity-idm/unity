@@ -25,8 +25,16 @@ unity.endpoint.web.authnTheme=customAuthnTheme
 unity.endpoint.web.webContentDirectory=conf/webContents-homeEndpoint
 ----
 
-Note that all files (e.g. images) served by Unity must be present in the web content directory used for the 
-endpoint in question.
+There are couple of facts that it might be useful to know:
+ 
+* All files (e.g. images) served by Unity must be present in the web content directory used for the 
+  endpoint in question. 
+* While authentication screen and the main endpoint UI can have different themes the web contents directory is 
+  always common.
+* Sandboxed authentication UI (used during account association or during translation profile wizard run) uses
+  the same theme as the endpoint's main authentication UI.
+* Confirmation screen shown after email confirmation uses the default theme or the one configured separately 
+  with the +unityServer.core.confirmationUITheme+ option.
 
 
 === Preparing a custom theme
