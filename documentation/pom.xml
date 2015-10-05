@@ -175,7 +175,7 @@
 								<argument>pl.edu.icm.unity.server.utils.UnityHttpServerConfiguration|ref-httpServerProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.server.utils.UnityServerConfiguration|ref-mainServerProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.ws.CXFEndpointProperties|ref-cxfEndpointProperties.txt|</argument>
-								<argument>pl.edu.icm.unity.ldap.LdapProperties|ref-ldapProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.ldap.client.LdapProperties|ref-ldapProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.webui.VaadinEndpointProperties|ref-vaadinEndpointProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.saml.idp.SamlIdpProperties|ref-samlIdPProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.saml.sp.SAMLSPProperties|ref-samlSPProperties.txt|</argument>
