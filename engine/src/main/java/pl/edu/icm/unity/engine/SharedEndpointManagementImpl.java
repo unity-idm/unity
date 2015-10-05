@@ -23,6 +23,7 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.JettyServer;
 import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 
 
 /**
@@ -39,10 +40,13 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 	private Set<String> usedPaths;
 	
 	@Autowired
-	public SharedEndpointManagementImpl(JettyServer httpServer) throws EngineException
+	public SharedEndpointManagementImpl(JettyServer httpServer, UnityServerConfiguration config) throws EngineException
 	{
 		sharedHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		sharedHandler.setContextPath(CONTEXT_PATH);
+		String resourceBase = getWebContentsDir(config);
+		if (resourceBase != null)
+			sharedHandler.setResourceBase(resourceBase);
 		httpServer.deployHandler(sharedHandler);
 		usedPaths = new HashSet<>();
 		this.advertisedAddress = httpServer.getAdvertisedAddress();
@@ -82,5 +86,15 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 		return advertisedAddress.toExternalForm() +
 				getBaseContextPath() + 
 				servletPath;
+	}
+	
+
+	protected String getWebContentsDir(UnityServerConfiguration config)
+	{
+		if (config.isSet(UnityServerConfiguration.UNITYGW_WEB_CONTENT_PATH))
+			return config.getValue(UnityServerConfiguration.UNITYGW_WEB_CONTENT_PATH);
+		if (config.isSet(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH))
+			return config.getValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH);
+		return null;
 	}
 }
