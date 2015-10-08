@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webui.authn;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -54,7 +55,7 @@ public class AuthenticationFilter implements Filter
 			AuthenticationRealm realm,
 			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder)
 	{
-		this.protectedServletPaths = protectedServletPaths;
+		this.protectedServletPaths = new ArrayList<>(protectedServletPaths);
 		this.authnServletPath = authnServletPath;
 		dosGauard = new UnsuccessfulAuthenticationCounter(realm.getBlockAfterUnsuccessfulLogins(), 
 				realm.getBlockFor()*1000);

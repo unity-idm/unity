@@ -121,7 +121,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 						OAUTH_CONSENT_DECIDER_SERVLET_PATH, OAUTH_UI_SERVLET_PATH)))), 
 				"/*", EnumSet.of(DispatcherType.REQUEST));
 		
-		AuthenticationFilter authnFilter = new AuthenticationFilter(
+		authnFilter = new AuthenticationFilter(
 				Collections.singletonList(OAUTH_ROUTING_SERVLET_PATH), 
 				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder);
 		context.addFilter(new FilterHolder(authnFilter), "/*", 
@@ -133,7 +133,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 		
 		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
-		UnityVaadinServlet authenticationServlet = new UnityVaadinServlet(applicationContext, 
+		authenticationServlet = new UnityVaadinServlet(applicationContext, 
 				AuthenticationUI.class.getSimpleName(), description, authenticators,
 				registrationConfiguration, properties);
 		
@@ -143,7 +143,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");
 		context.addServlet(authnServletHolder, VAADIN_RESOURCES);
 		
-		UnityVaadinServlet theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
+		theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
 				description, authenticators, registrationConfiguration, properties);
 		context.addServlet(createVaadinServletHolder(theServlet, false), OAUTH_UI_SERVLET_PATH + "/*");
 

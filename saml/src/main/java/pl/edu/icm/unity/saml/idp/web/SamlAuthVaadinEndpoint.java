@@ -214,7 +214,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 						SAML_CONSENT_DECIDER_SERVLET_PATH, SAML_UI_SERVLET_PATH)))), 
 				"/*", EnumSet.of(DispatcherType.REQUEST));
 		authnFilter = new AuthenticationFilter(
-				Collections.unmodifiableList(Arrays.asList(SAML_ENTRY_SERVLET_PATH)), 
+				Arrays.asList(SAML_ENTRY_SERVLET_PATH), 
 				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder);
 		context.addFilter(new FilterHolder(authnFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
@@ -224,7 +224,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 		
 		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
-		UnityVaadinServlet authenticationServlet = new UnityVaadinServlet(applicationContext, 
+		authenticationServlet = new UnityVaadinServlet(applicationContext, 
 				AuthenticationUI.class.getSimpleName(), description, authenticators,
 				registrationConfiguration, properties);
 		
@@ -235,7 +235,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");
 		context.addServlet(authnServletHolder, VAADIN_RESOURCES);
 		
-		UnityVaadinServlet theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
+		theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
 				description, authenticators, registrationConfiguration, properties);
 		context.addServlet(createVaadinServletHolder(theServlet, false), uiServletPath + "/*");
 		

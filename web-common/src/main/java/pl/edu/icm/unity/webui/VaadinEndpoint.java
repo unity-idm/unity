@@ -110,7 +110,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		if (context != null)
 			return context;
 	 	
-		context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath(description.getContextAddress());
 		
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
@@ -142,7 +142,19 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
 				description, authenticators, registrationConfiguration, properties);
 		context.addServlet(createVaadinServletHolder(theServlet, false), uiServletPath + "/*");
-
+		
+		return context;
+	}
+	
+	@Override
+	public final synchronized ServletContextHandler getServletContextHandler()
+	{
+		context = getServletContextHandlerOverridable();
+		
+		String webContentDir = getWebContentsDir(serverConfig);
+		if (webContentDir != null)
+			context.setResourceBase(webContentDir);
+		
 		SandboxAuthnRouter sandboxRouter = new SandboxAuthnRouterImpl();
 
 		addSandboxUI(SANDBOX_PATH_ASSOCIATION, AccountAssociationSandboxUI.class.getSimpleName(), 
@@ -153,16 +165,6 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		authenticationServlet.setSandboxRouter(sandboxRouter);
 		
 		return context;
-	}
-	
-	@Override
-	public final synchronized ServletContextHandler getServletContextHandler()
-	{
-		ServletContextHandler handler = getServletContextHandlerOverridable();
-		String webContentDir = getWebContentsDir(serverConfig);
-		if (webContentDir != null)
-			handler.setResourceBase(webContentDir);
-		return handler;
 	}
 
 	protected String getWebContentsDir(UnityServerConfiguration config)
