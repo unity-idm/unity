@@ -172,7 +172,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	}
 
 	@Override
-	public ServletContextHandler getServletContextHandler()
+	protected ServletContextHandler getServletContextHandlerOverridable()
 	{	
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath(description.getContextAddress());
