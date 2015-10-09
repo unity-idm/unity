@@ -47,14 +47,14 @@ public abstract class UserFacility <T extends UserConfirmationState> extends Bas
 		return new ConfirmationRedirectURLBuilder(state.getRedirectUrl(), 
 				Status.elementConfirmed).
 			setConfirmationInfo(getConfirmedElementType(state), state.getType(), state.getValue()).
-			toString();
+			build();
 	}
 	
 	protected String getErrorRedirect(T state)
 	{
 		return new ConfirmationRedirectURLBuilder(state.getRedirectUrl(), Status.elementConfirmationError).
 			setConfirmationInfo(getConfirmedElementType(state), state.getType(), state.getValue()).
-			toString();
+			build();
 	}
 	
 	@Override

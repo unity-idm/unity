@@ -63,8 +63,7 @@ public class ConfirmationRedirectURLBuilder
 		return this;
 	}
 	
-	@Override
-	public String toString()
+	public String build()
 	{
 		return noRedirect ? null : uriBuilder.toString();
 	}

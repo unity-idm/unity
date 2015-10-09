@@ -241,7 +241,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		{
 			String redirectURL = new ConfirmationRedirectURLBuilder(defaultRedirectURL, 
 					Status.elementConfirmationError).
-					setErrorCode("noToken").toString();
+					setErrorCode("noToken").build();
 			return new ConfirmationStatus(false, redirectURL, "ConfirmationStatus.invalidToken");
 		}
 		
@@ -257,7 +257,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			{
 				String redirectURL = new ConfirmationRedirectURLBuilder(defaultRedirectURL, 
 						Status.elementConfirmationError).
-						setErrorCode("invalidToken").toString();
+						setErrorCode("invalidToken").build();
 				return new ConfirmationStatus(false, redirectURL, "ConfirmationStatus.invalidToken");
 			}
 
@@ -279,7 +279,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		{
 			String redirectURL = new ConfirmationRedirectURLBuilder(defaultRedirectURL, 
 					Status.elementConfirmationError).
-					setErrorCode("expiredToken").toString();
+					setErrorCode("expiredToken").build();
 			return new ConfirmationStatus(false, redirectURL, "ConfirmationStatus.expiredToken");
 		}
 		String rawState = tk.getContentsString();

@@ -68,7 +68,7 @@ public class PostRegistrationHandler
 		if (redirect != null)
 		{
 			String finalRedirect = new RegistrationRedirectURLBuilder(form, requestId, 
-					autoAccepted ? Status.submittedAccepted : Status.submitted).toString();
+					autoAccepted ? Status.submittedAccepted : Status.submitted).build();
 			redirectOrInform(finalRedirect);
 		} else
 		{
@@ -108,7 +108,7 @@ public class PostRegistrationHandler
 	{
 		if (form.getRedirectAfterSubmit() != null)
 		{
-			String redirect = new RegistrationRedirectURLBuilder(form, null, Status.cancelled).toString();
+			String redirect = new RegistrationRedirectURLBuilder(form, null, Status.cancelled).build();
 			redirectOrInform(redirect);
 		} else
 		{

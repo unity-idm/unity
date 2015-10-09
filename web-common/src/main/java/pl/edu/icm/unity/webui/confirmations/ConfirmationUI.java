@@ -166,7 +166,7 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 		{
 			log.error("Internal unity problem with confirmation", e);
 			String redirectURL = new ConfirmationRedirectURLBuilder(defaultRedirect, Status.elementConfirmationError).
-				setErrorCode(e.toString()).toString();
+				setErrorCode(e.toString()).build();
 			status = new ConfirmationStatus(false, redirectURL, "ConfirmationStatus.internalError");
 		}
 		initUI(status);

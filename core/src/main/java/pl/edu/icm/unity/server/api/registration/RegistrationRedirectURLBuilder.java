@@ -36,7 +36,7 @@ public class RegistrationRedirectURLBuilder extends ConfirmationRedirectURLBuild
 	}
 	
 	@Override
-	public String toString()
+	public String build()
 	{
 		return noRedirect ? null : uriBuilder.toString();
 	}

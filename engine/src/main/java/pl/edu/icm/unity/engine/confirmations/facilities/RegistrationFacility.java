@@ -75,7 +75,7 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 		return new RegistrationRedirectURLBuilder(state.getRedirectUrl(), reqState.getRequest().getFormId(),
 				reqState.getRequestId(), Status.elementConfirmed).
 			setConfirmationInfo(getConfirmedElementType(state), state.getType(), state.getValue()).
-			toString();
+			build();
 	}
 	
 	protected String getErrorRedirect(T state, RegistrationRequestState reqState)
@@ -83,7 +83,7 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 		return new RegistrationRedirectURLBuilder(state.getRedirectUrl(), reqState.getRequest().getFormId(),
 				reqState.getRequestId(), Status.elementConfirmationError).
 			setConfirmationInfo(getConfirmedElementType(state), state.getType(), state.getValue()).
-			toString();
+			build();
 	}
 	
 	/**
@@ -106,7 +106,7 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 					requestId, Status.elementConfirmationError).
 				setErrorCode("requestDeleted").
 				setConfirmationInfo(getConfirmedElementType(state), state.getType(), state.getValue()).
-				toString();
+				build();
 			return new ConfirmationStatus(false, redirect, "ConfirmationStatus.requestDeleted");
 		}
 		
@@ -116,7 +116,7 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 					requestId, Status.elementConfirmationError).
 				setErrorCode("requestRejected").
 				setConfirmationInfo(getConfirmedElementType(state), state.getType(), state.getValue()).
-				toString();
+				build();
 			return new ConfirmationStatus(false, redirect, "ConfirmationStatus.requestRejected");
 		}
 		RegistrationRequest req = reqState.getRequest();
