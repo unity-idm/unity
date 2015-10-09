@@ -62,34 +62,10 @@ When using RPM distribution it is enough to update the package with your package
 The last component in the version string is irrelevant for the following instructions. For instance instructions
 for the 1.2.0->1.3.0 applies also to 1.2.0->1.3.1 and all other 1.3.x versions.
 
-==== From pre-1.2.0 version
+==== From pre-1.3.0 version
 
 You should follow instructions and upgrade version by version. The update instructions are always available
 in the documentation of the version to which you are upgrading.
-
-==== From 1.2.0 to 1.3.x
-
-The version 1.3.0 introduces automatic update database tooling. Be sure to make a backup before an update. 
-In case of production environments be sure to perform a test drive on a production database copy.
-
-During update to 1.3.0 the translation profiles will be updated to the new model. Be sure to carefully check 
-the results manually and to test if the profiles still work correctly. In case of any problems please let us know
-providing the profile's update log entries.   
-
-The version 1.3.0 introduces _output translation profiles_. Two of the features previously available in the 
-configuration of SAML IdP endpoints are now handled by the translation profile in a more flexible and generic way: 
-attribute filters and control of a dynamic attribute storing group membership information. If you relayed on 
-default settings for those features (i.e. no filtering and 'memberOf' membership attribute) then it is only required
-to remove the legacy properties from endpoint configuration files: +filter*+, +groupAttribute+ and +groupSelection+.
-If the defaults were not used, the properties should be removed too, a custom output translation profile created
-with rules filtering and or settings proper membership attribute, and finally the new profile must be assigned to the 
-affected endpoint.    
-
-If you still use the feature to load translation profiles from JSON files, please remove the definitions 
-from configuration in +unityServer.conf+ or manually update the JSON definitions. 
-Note that the profiles are anyway stored in the database after initial loading at server startup and will be updated
-there. The JSON files won't be updated automatically. 
-Note also that this format is undocumented and this feature is going to be deprecated soon.
 
 ==== From 1.3.x to 1.4.0
 
@@ -139,4 +115,3 @@ URL* which can be defined for a registration form. Previously used redirect URL 
 is not available any more. Instead the same URL is used, but has rich set of query parameters allowing 
 consuming service to present appropriate content.
 
- 
