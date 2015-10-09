@@ -61,7 +61,7 @@ public class JWTManagementEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new JWTManagementEndpoint(msg, sessionMan, authenticationProcessor, 
-				TYPE, "", tokensMan, pkiManagement, server, identitiesMan);
+				"", tokensMan, pkiManagement, server, identitiesMan);
 	}
 
 }

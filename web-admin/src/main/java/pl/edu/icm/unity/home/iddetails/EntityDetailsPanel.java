@@ -12,10 +12,12 @@ import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.identities.IdentityFormatter;
+import pl.edu.icm.unity.webui.common.identities.MembershipFormatter;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
@@ -36,7 +38,7 @@ public class EntityDetailsPanel extends FormLayout
 	private ListOfElements<String> identities;
 	private Label credReq;
 	private HtmlLabel credStatus;
-	private HtmlLabel groups;
+	private ListOfElements<String> groups;
 	
 	
 	public EntityDetailsPanel(UnityMessageSource msg)
@@ -68,13 +70,21 @@ public class EntityDetailsPanel extends FormLayout
 		credStatus = new HtmlLabel(msg);
 		credStatus.setCaption(msg.getMessage("IdentityDetails.credStatus"));
 
-		groups = new HtmlLabel(msg);
+		groups = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
+		{
+			@Override
+			public Label toLabel(String value)
+			{
+				return new HtmlSimplifiedLabel(value);
+			}
+		}); 
+		groups.setAddSeparatorLine(false);
 		groups.setCaption(msg.getMessage("IdentityDetails.groups"));
 		
 		addComponents(id, status, scheduledAction, identities, credReq, credStatus, groups);
 	}
 	
-	public void setInput(EntityWithLabel entityWithLabel, Collection<String> groups)
+	public void setInput(EntityWithLabel entityWithLabel, Collection<GroupMembership> groups)
 	{
 		id.setValue(entityWithLabel.toString());
 		Entity entity = entityWithLabel.getEntity();
@@ -110,10 +120,8 @@ public class EntityDetailsPanel extends FormLayout
 		credStatus.setVisible(!credInf.getCredentialsState().entrySet().isEmpty());
 			
 		
-		this.groups.resetValue();
-		for (String group: groups)
-		{
-			this.groups.addHtmlValueLine("IdentityDetails.groupLine", group);
-		}
+		this.groups.clearContents();
+		for (GroupMembership groupM: groups)
+			this.groups.addEntry(MembershipFormatter.toString(msg, groupM));
 	}
 }

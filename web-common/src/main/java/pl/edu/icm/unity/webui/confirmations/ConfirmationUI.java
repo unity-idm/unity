@@ -11,11 +11,14 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
+import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder;
+import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder.Status;
 import pl.edu.icm.unity.confirmations.ConfirmationServlet;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.common.Images;
@@ -24,6 +27,7 @@ import pl.edu.icm.unity.webui.common.TopHeaderLight;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.ExternalResource;
+import com.vaadin.server.Page;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
@@ -47,17 +51,29 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ConfirmationUI.class);
 
 	private ConfirmationManager confirmationMan;
+	private boolean autoRedirect;
+	private String defaultRedirect;
 
 	@Autowired
 	public ConfirmationUI(UnityMessageSource msg, ConfirmationManager confirmationMan,
-			TokensManagement tokensMan)
+			TokensManagement tokensMan, UnityServerConfiguration serverConfig)
 	{
 		super(msg);
 		this.confirmationMan = confirmationMan;
+		this.autoRedirect = serverConfig.getBooleanValue(UnityServerConfiguration.CONFIRMATION_AUTO_REDIRECT);
+		this.defaultRedirect = serverConfig.getValue(UnityServerConfiguration.CONFIRMATION_DEFAULT_RETURN_URL);
 	}
 
 	public void initUI(ConfirmationStatus status)
 	{
+		final String returnUrl = status.getReturnUrl();
+		
+		if (autoRedirect && returnUrl != null)
+		{
+			Page.getCurrent().open(returnUrl, null);
+			return;
+		}
+		
 		VerticalLayout contents = new VerticalLayout();
 		VerticalLayout mainWrapper = new VerticalLayout();
 		mainWrapper.setSizeFull();
@@ -67,7 +83,7 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 		infoWrapper.setWidth(50, Unit.PERCENTAGE);
 		String infoKey = status.getUserMessageKey();
 		String[] infoArgs = status.getUserMessageArgs();
-		final String returnUrl = status.getReturnUrl();
+
 		infoWrapper.addComponent(status.isSuccess() == true ? getSuccessfullStatus(infoKey, infoArgs)
 				: getUnsuccessfullStatus(infoKey, infoArgs));
 		Label spacerB = new Label();
@@ -149,7 +165,9 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 		} catch (Exception e)
 		{
 			log.error("Internal unity problem with confirmation", e);
-			status = new ConfirmationStatus(false,"", "ConfirmationStatus.internalError");
+			String redirectURL = new ConfirmationRedirectURLBuilder(defaultRedirect, Status.elementConfirmationError).
+				setErrorCode(e.toString()).build();
+			status = new ConfirmationStatus(false, redirectURL, "ConfirmationStatus.internalError");
 		}
 		initUI(status);
 	}

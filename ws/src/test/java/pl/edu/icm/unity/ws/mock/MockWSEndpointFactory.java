@@ -9,6 +9,7 @@ import java.util.Collections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
@@ -36,6 +37,9 @@ public class MockWSEndpointFactory implements EndpointFactory
 	@Autowired
 	private AuthenticationProcessor authnProcessor;
 	
+	@Autowired
+	private NetworkServer server;
+	
 	@Override
 	public EndpointTypeDescription getDescription()
 	{
@@ -45,7 +49,7 @@ public class MockWSEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new CXFEndpoint(msg, sessionMan, authnProcessor, getDescription(), SERVLET_PATH)
+		return new CXFEndpoint(msg, sessionMan, authnProcessor, server, SERVLET_PATH)
 		{
 			@Override
 			protected void configureServices()

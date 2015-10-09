@@ -49,10 +49,12 @@ public abstract class AbstractSandboxWizardProvider
 	}
 
 	
-	protected void addSandboxListener(final HandlerCallback callback, Wizard wizard) 
+	protected void addSandboxListener(final HandlerCallback callback, Wizard wizard, final UI ui) 
 	{
 		AuthnResultListener listener = new SandboxAuthnNotifier.AuthnResultListener() 
 		{
+			private UI parentUI = ui;
+			
 			@Override
 			public void handle(final SandboxAuthnEvent event) 
 			{
@@ -62,13 +64,13 @@ public abstract class AbstractSandboxWizardProvider
 					return;
 				}
 				
-				UI.getCurrent().access(new Runnable()
+				parentUI.access(new Runnable()
 				{
 					@Override
 					public void run()
 					{
 						callback.handle(event);
-						UI.getCurrent().setPollInterval(-1);
+						parentUI.setPollInterval(-1);
 					}
 				});
 			}

@@ -10,46 +10,30 @@ import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
-import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
 /**
  * Dialog allowing to fill a registration form. It takes an editor component as argument.
- * Dialog uses 3 buttons: submit request, submit and accept, cancel.
+ * Dialog uses 2 buttons: submit request, cancel.
  * @author K. Benedyczak
  */
 public class RegistrationRequestEditorDialog extends AbstractDialog
 {
 	private RegistrationRequestEditor editor;
 	private Callback callback;
-	private Button submitAndAccept;
-	private boolean addAutoAccept;
 	
 	public RegistrationRequestEditorDialog(UnityMessageSource msg, String caption, 
-			RegistrationRequestEditor editor, boolean addAutoAccept, Callback callback)
+			RegistrationRequestEditor editor, Callback callback)
 	{
 		super(msg, caption, msg.getMessage("RegistrationRequestEditorDialog.submitRequest"), 
 				msg.getMessage("cancel"));
-		submitAndAccept = new Button(msg.getMessage("RegistrationRequestEditorDialog.submitAndAccept"), this);
 		this.editor = editor;
 		this.callback = callback;
-		this.addAutoAccept = addAutoAccept;
 		setSizeMode(SizeMode.LARGE);
 	}
 
-	@Override
-	protected AbstractOrderedLayout getButtonsBar()
-	{
-		AbstractOrderedLayout ret = super.getButtonsBar();
-		if (addAutoAccept)
-			ret.addComponent(submitAndAccept, 0);
-		return ret;
-	}
-	
 	@Override
 	protected Component getContents()
 	{
@@ -61,42 +45,30 @@ public class RegistrationRequestEditorDialog extends AbstractDialog
 	}
 
 	@Override
+	protected void onCancel()
+	{
+		callback.cancelled();
+		super.onCancel();
+	}
+	
+	@Override
 	protected void onConfirm()
-	{
-		onConfirm(false);
-	}
-	
-	private void onSubmitAndAccept()
-	{
-		onConfirm(true);
-	}
-	
-	private void onConfirm(boolean autoAccept)
 	{
 		try
 		{
 			RegistrationRequest request = editor.getRequest();
-			if (callback.newRequest(request, autoAccept))
+			if (callback.newRequest(request))
 				close();
 		} catch (FormValidationException e) 
 		{
-			if (e.getMessage() == null || e.getMessage().equals(""))
-				NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), 
-						msg.getMessage("Generic.formErrorHint"));
-			else
-				NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
 			return;
 		}
 	}
 	
 	public interface Callback
 	{
-		public boolean newRequest(RegistrationRequest request, boolean autoAccept);
-	}
-	
-	public void buttonClick(ClickEvent event) {
-		if (event.getSource() == submitAndAccept)
-			onSubmitAndAccept();
-		super.buttonClick(event);
+		boolean newRequest(RegistrationRequest request);
+		void cancelled();
 	}
 }

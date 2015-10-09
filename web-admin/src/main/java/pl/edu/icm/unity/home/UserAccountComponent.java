@@ -31,6 +31,7 @@ import pl.edu.icm.unity.server.api.internal.AttributesInternalProcessing;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
+import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
@@ -40,7 +41,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webadmin.preferences.PreferencesComponent;
 import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider;
-import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider.SuccessCallback;
+import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider.WizardFinishedCallback;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
@@ -148,11 +149,15 @@ public class UserAccountComponent extends VerticalLayout
 			final UserAttributesPanel attrsPanel = new UserAttributesPanel(msg, attributeHandlerRegistry, 
 					attributesMan, config, theUser.getEntityId());
 			ConnectIdWizardProvider connectIdProvider = new ConnectIdWizardProvider(msg, 
-					sandboxURL, sandboxNotifier, inputTranslationEngine, new SuccessCallback()
+					sandboxURL, sandboxNotifier, inputTranslationEngine, new WizardFinishedCallback()
 					{
-						
 						@Override
-						public void onSuccess()
+						public void onCancel()
+						{
+						}
+
+						@Override
+						public void onSuccess(MappingResult mergedIdentity)
 						{
 							try
 							{
@@ -161,7 +166,12 @@ public class UserAccountComponent extends VerticalLayout
 							} catch (EngineException e)
 							{
 								NotificationPopup.showError(msg, msg.getMessage("error"), e);
-							}
+							}							
+						}
+
+						@Override
+						public void onError(Exception error)
+						{
 						}
 					});
 			EntityDetailsWithActions tabRoot = new EntityDetailsWithActions(disabled, 

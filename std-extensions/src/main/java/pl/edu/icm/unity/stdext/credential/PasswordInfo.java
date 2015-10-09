@@ -16,15 +16,16 @@ public class PasswordInfo
 	private byte[] hash;
 	private String salt;
 	private Date time;
+	private int rehashNumber;
 
-	public PasswordInfo(byte[] hash, String salt)
+	public PasswordInfo(byte[] hash, String salt, int rehashNumber)
 	{
-		this.hash = Arrays.copyOf(hash, hash.length);
-		this.salt = salt;
-		this.time = new Date();
+		this(hash, salt, rehashNumber, System.currentTimeMillis());
 	}
-	public PasswordInfo(byte[] hash, String salt, long time)
+	
+	public PasswordInfo(byte[] hash, String salt, int rehashNumber, long time)
 	{
+		this.rehashNumber = rehashNumber;
 		this.hash = Arrays.copyOf(hash, hash.length);
 		this.salt = salt;
 		this.time = new Date(time);
@@ -40,5 +41,9 @@ public class PasswordInfo
 	public Date getTime()
 	{
 		return time;
+	}
+	public int getRehashNumber()
+	{
+		return rehashNumber;
 	}
 }

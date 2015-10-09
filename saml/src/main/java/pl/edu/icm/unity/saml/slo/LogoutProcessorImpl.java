@@ -58,6 +58,7 @@ public class LogoutProcessorImpl implements LogoutProcessor
 		
 		SAMLInternalLogoutContext internalCtx = new SAMLInternalLogoutContext(session, null, finishCallback,
 				registry);
+		internalCtx.setRelayState(relayState);
 		contextsStore.addInternalContext(relayState, internalCtx);
 		
 		try

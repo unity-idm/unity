@@ -50,17 +50,11 @@ public class RegistrationFormEditDialog extends AbstractDialog
 		try
 		{
 			RegistrationForm form = editor.getForm();
-			if (form == null)
-				return;	
 			if (callback.newForm(form, editor.isIgnoreRequests()))
 				close();
 		} catch (FormValidationException e) 
 		{
-			if (e.getMessage() == null || e.getMessage().equals(""))
-				NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), 
-						msg.getMessage("Generic.formErrorHint"));
-			else
-				NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
 			return;
 		}
 	}

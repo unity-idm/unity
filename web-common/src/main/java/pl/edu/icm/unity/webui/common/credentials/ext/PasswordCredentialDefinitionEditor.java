@@ -8,14 +8,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Slider;
+import org.vaadin.risto.stepper.IntStepper;
 
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -28,6 +21,14 @@ import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer;
 
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.server.Sizeable.Unit;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
+
 /**
  * {@link CredentialDefinition} editor and viewer for the {@link PasswordVerificator}.
  * @author K. Benedyczak
@@ -38,12 +39,13 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 	private static final int MAX_MONTHS = 48;
 	private UnityMessageSource msg;
 	private MessageTemplateManagement msgTplMan;
-	private Slider minLength;
-	private Slider minClasses;
+	private IntStepper minLength;
+	private IntStepper minClasses;
 	private CheckBox denySequences;
 	private CheckBox limitMaxAge;
-	private Slider maxAge;
-	private Slider historySize;
+	private IntStepper maxAge;
+	private IntStepper historySize;
+	private IntStepper rehashNumber;
 	private CredentialResetSettingsEditor resetSettings;
 	
 	public PasswordCredentialDefinitionEditor(UnityMessageSource msg, MessageTemplateManagement msgTplMan)
@@ -69,11 +71,14 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		historySize.setCaption(msg.getMessage("PasswordDefinitionEditor.historySize"));
 		Label maxAge = new Label();
 		maxAge.setCaption(msg.getMessage("PasswordDefinitionEditor.maxAgeRo"));
+		Label rehashNumber = new Label();
+		rehashNumber.setCaption(msg.getMessage("PasswordDefinitionEditor.rehashNumber"));
 		
 		CredentialResetSettingsEditor viewer = new CredentialResetSettingsEditor(msg, msgTplMan,
 				helper.getPasswordResetSettings());
 		
-		FormLayout form = new CompactFormLayout(minLength, minClasses, denySequences, historySize, maxAge);
+		FormLayout form = new CompactFormLayout(minLength, minClasses, denySequences, historySize, maxAge,
+				rehashNumber);
 		viewer.addViewerToLayout(form);
 		form.setMargin(true);
 		
@@ -82,6 +87,8 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		denySequences.setValue(helper.isDenySequences() ? msg.getMessage("yes") : msg.getMessage("no"));
 		denySequences.setReadOnly(true);
 		historySize.setValue(String.valueOf(helper.getHistorySize()));
+		rehashNumber.setValue(String.valueOf(helper.getRehashNumber()));
+		
 		long maxAgeMs = helper.getMaxAge();
 		double maxAgeMonths = ((double)maxAgeMs)/MS_IN_MONTH;
 		BigDecimal maxAgeMonthsRounded = new BigDecimal(maxAgeMonths, new MathContext(2, RoundingMode.HALF_UP)); 
@@ -98,13 +105,19 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 	@Override
 	public Component getEditor(String credentialDefinitionConfiguration)
 	{
-		minLength = new Slider(msg.getMessage("PasswordDefinitionEditor.minLength"), 1, 30);
-		minLength.setWidth(100, Unit.PERCENTAGE);
-		minClasses = new Slider(msg.getMessage("PasswordDefinitionEditor.minClasses"), 1, 4);
-		minClasses.setWidth(100, Unit.PERCENTAGE);
+		minLength = new IntStepper(msg.getMessage("PasswordDefinitionEditor.minLength"));
+		minLength.setMinValue(1);
+		minLength.setMaxValue(30);
+		minLength.setWidth(3, Unit.EM);
+		minClasses = new IntStepper(msg.getMessage("PasswordDefinitionEditor.minClasses"));
+		minClasses.setMinValue(1);
+		minClasses.setMaxValue(4);
+		minClasses.setWidth(3, Unit.EM);
 		denySequences = new CheckBox(msg.getMessage("PasswordDefinitionEditor.denySequences"));
-		historySize = new Slider(msg.getMessage("PasswordDefinitionEditor.historySize"), 0, 50);
-		historySize.setWidth(100, Unit.PERCENTAGE);
+		historySize = new IntStepper(msg.getMessage("PasswordDefinitionEditor.historySize"));
+		historySize.setMinValue(0);
+		historySize.setMaxValue(50);
+		historySize.setWidth(3, Unit.EM);
 		limitMaxAge = new CheckBox(msg.getMessage("PasswordDefinitionEditor.limitMaxAge"));
 		limitMaxAge.setImmediate(true);
 		limitMaxAge.addValueChangeListener(new ValueChangeListener()
@@ -115,18 +128,26 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 				maxAge.setEnabled(limitMaxAge.getValue());
 			}
 		});
-		maxAge = new Slider(msg.getMessage("PasswordDefinitionEditor.maxAge"), 1, MAX_MONTHS);
-		maxAge.setWidth(100, Unit.PERCENTAGE);
-		maxAge.setValue(24d);
-
+		maxAge = new IntStepper(msg.getMessage("PasswordDefinitionEditor.maxAge"));
+		maxAge.setMinValue(1);
+		maxAge.setMaxValue(MAX_MONTHS);
+		maxAge.setWidth(3, Unit.EM);
+		maxAge.setValue(24);
+		rehashNumber = new IntStepper(msg.getMessage("PasswordDefinitionEditor.rehashNumber"));
+		rehashNumber.setStepAmount(100);
+		rehashNumber.setMinValue(0);
+		rehashNumber.setMaxValue(100000);
+		rehashNumber.setWidth(5, Unit.EM);
 
 		FormLayout form = new CompactFormLayout(minLength, minClasses, denySequences, historySize, limitMaxAge,
-				maxAge);
+				maxAge, rehashNumber);
 		form.setSpacing(true);
 		form.setMargin(true);
 		PasswordCredential helper = new PasswordCredential();
 		if (credentialDefinitionConfiguration != null)
 			helper.setSerializedConfiguration(credentialDefinitionConfiguration);
+		else
+			helper.setRehashNumber(PasswordCredential.DEFAULT_REHASH_NUMBER);
 		initUIState(helper);
 		resetSettings = new CredentialResetSettingsEditor(msg, msgTplMan, helper.getPasswordResetSettings());
 		resetSettings.addEditorToLayout(form);
@@ -150,6 +171,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		helper.setMinClassesNum((int)(double)minClasses.getValue());
 		helper.setMinLength((int)(double)minLength.getValue());
 		helper.setPasswordResetSettings(resetSettings.getValue());
+		helper.setRehashNumber(rehashNumber.getValue());
 		try
 		{
 			return helper.getSerializedConfiguration();
@@ -161,10 +183,10 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 
 	private void initUIState(PasswordCredential helper)
 	{
-		minLength.setValue((double)helper.getMinLength());
-		minClasses.setValue((double)helper.getMinClassesNum());
+		minLength.setValue(helper.getMinLength());
+		minClasses.setValue(helper.getMinClassesNum());
 		denySequences.setValue(helper.isDenySequences());
-		historySize.setValue((double)helper.getHistorySize());
+		historySize.setValue(helper.getHistorySize());
 		long maxAgeMonths = Math.round(helper.getMaxAge() / MS_IN_MONTH);
 		if (maxAgeMonths > 40)
 			maxAgeMonths = 40;
@@ -174,11 +196,12 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		{
 			limitMaxAge.setValue(true);
 			maxAge.setEnabled(true);
-			maxAge.setValue((double) maxAgeMonths);
+			maxAge.setValue((int)maxAgeMonths);
 		} else
 		{
 			limitMaxAge.setValue(false);
 			maxAge.setEnabled(false);
 		}
+		rehashNumber.setValue(helper.getRehashNumber());
 	}
 }

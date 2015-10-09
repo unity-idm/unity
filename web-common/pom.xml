@@ -2,7 +2,7 @@
 	<parent>
 		<groupId>pl.edu.icm.unity</groupId>
 		<artifactId>unity-server-parent</artifactId>
-		<version>1.6.2-SNAPSHOT</version>
+		<version>1.7.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -70,6 +70,10 @@
 		<dependency>
 			<groupId>com.vaadin.addon.responsive</groupId>
 			<artifactId>responsive</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.vaadin.addons</groupId>
+			<artifactId>stepper</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>nl.simplecaptcha</groupId>

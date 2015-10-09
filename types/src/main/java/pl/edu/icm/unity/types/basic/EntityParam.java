@@ -52,4 +52,10 @@ public class EntityParam implements InitializationValidator
 	{
 		return identity;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return entityId == null ? identity.toString() : entityId.toString();
+	}
 }

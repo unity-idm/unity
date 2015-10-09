@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -523,6 +525,17 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 					throw new WrongArgumentException("Agreement text must not be empty.");
 			}
 		}
+		
+		if (form.getRedirectAfterSubmit() != null)
+		{
+			try
+			{
+				new URI(form.getRedirectAfterSubmit());
+			} catch (URISyntaxException e)
+			{
+				throw new WrongArgumentException("Redirect URL is invalid", e);
+			}
+		}
 	}
 	
 	private void checkTemplate(String tpl, String compatibleDef, SqlSession sql, String purpose) throws EngineException
@@ -555,7 +568,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 							attr.getName(), 
 							val.getValue(), 
 							requestState.getRequest().getUserLocale(), 
-							attr.getGroupPath(), getSuccessUrl(form), getErrorUrl(form));
+							attr.getGroupPath(), getFormRedirectUrl(form));
 					confirmationManager.sendConfirmationRequest(state);
 				}
 			}
@@ -583,7 +596,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 							attr.getName(), 
 							val.getValue(), 
 							requestState.getRequest().getUserLocale(),
-							attr.getGroupPath(), getSuccessUrl(form), getErrorUrl(form));
+							attr.getGroupPath(), getFormRedirectUrl(form));
 					confirmationManager.sendConfirmationRequest(state);
 				}
 			}
@@ -607,20 +620,20 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 							requestState.getRequestId(),
 							id.getTypeId(), id.getValue(), 
 							requestState.getRequest().getUserLocale(),
-							getSuccessUrl(form), getErrorUrl(form));
+							getFormRedirectUrl(form));
 				} else
 				{
 					state = new IdentityConfirmationState(entityId, 
 							id.getTypeId(), id.getValue(), 
 							requestState.getRequest().getUserLocale(),
-							getSuccessUrl(form), getErrorUrl(form));
+							getFormRedirectUrl(form));
 				}
 				confirmationManager.sendConfirmationRequest(state);
 			}
 		}
 	}
 	
-	private String getSuccessUrl(RegistrationForm form)
+	private String getFormRedirectUrl(RegistrationForm form)
 	{
 		String url = null;
 		if (InvocationContext.getCurrent().getCurrentURLUsed() != null
@@ -629,18 +642,6 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		if (form.getRedirectAfterSubmit() != null
 				&& !form.getRedirectAfterSubmit().equals(""))
 			url = form.getRedirectAfterSubmit();
-		if (form.getRedirectAfterSubmitAndAccept() != null
-				&& !form.getRedirectAfterSubmitAndAccept().equals(""))
-			url = form.getRedirectAfterSubmitAndAccept();
-		return url;
-	}
-
-	private String getErrorUrl(RegistrationForm form)
-	{
-		String url = null;
-		if (InvocationContext.getCurrent().getCurrentURLUsed() != null
-				&& InvocationContext.getCurrent().getLoginSession() == null)
-			url = InvocationContext.getCurrent().getCurrentURLUsed();
 		return url;
 	}
 }

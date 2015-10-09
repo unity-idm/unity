@@ -19,7 +19,6 @@ import pl.edu.icm.unity.engine.authn.AuthenticatorLoader;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.server.JettyServer;
 import pl.edu.icm.unity.server.api.RealmsManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
@@ -46,18 +45,16 @@ public class EndpointHandler extends DefaultEntityHandler<EndpointInstance>
 {
 	public static final String ENDPOINT_OBJECT_TYPE = "endpointDefinition";
 	private EndpointFactoriesRegistry endpointFactoriesReg;
-	private JettyServer httpServer;
 	private AuthenticatorLoader authnLoader;
 	private RealmsManagement realmsManagement;
 	
 	@Autowired
 	public EndpointHandler(ObjectMapper jsonMapper, EndpointFactoriesRegistry endpointFactoriesReg,
-			JettyServer httpServer, AuthenticatorLoader authnLoader, 
+			AuthenticatorLoader authnLoader, 
 			@Qualifier("insecure") RealmsManagement realmsManagement)
 	{
 		super(jsonMapper, ENDPOINT_OBJECT_TYPE, EndpointInstance.class);
 		this.endpointFactoriesReg = endpointFactoriesReg;
-		this.httpServer = httpServer;
 		this.authnLoader = authnLoader;
 		this.realmsManagement = realmsManagement;
 	}
@@ -83,8 +80,8 @@ public class EndpointHandler extends DefaultEntityHandler<EndpointInstance>
 			descNode.put("typeName", desc.getType().getName());
 			root.put("state", state);
 			byte[] serialized = jsonMapper.writeValueAsBytes(root);
-			return new GenericObjectBean(endpoint.getEndpointDescription().getId(), 
-					serialized, getType(), endpoint.getEndpointDescription().getType().getName());
+			return new GenericObjectBean(desc.getId(), 
+					serialized, getType(), desc.getType().getName());
 		} catch (JsonProcessingException e)
 		{
 			throw new InternalException("Can't serialize JSON endpoint state", e);
@@ -153,10 +150,7 @@ public class EndpointHandler extends DefaultEntityHandler<EndpointInstance>
 			EndpointInstance instance = factory.newInstance();
 			List<AuthenticationOption> authenticators = 
 					authnLoader.getAuthenticators(description.getAuthenticatorSets(), sql);
-			instance.initialize(blob.getName(), description.getDisplayedName(), 
-					httpServer.getAdvertisedAddress(),
-					description.getContextAddress(), description.getDescription(), 
-					description.getAuthenticatorSets(), authenticators, realm, state);
+			instance.initialize(description, authenticators, state);
 			return instance;
 		} catch (JsonProcessingException e)
 		{

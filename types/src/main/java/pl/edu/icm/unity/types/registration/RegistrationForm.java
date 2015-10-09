@@ -40,7 +40,6 @@ public class RegistrationForm extends DescribedObjectImpl
 	private I18nString formInformation;
 	private String registrationCode;
 	private String redirectAfterSubmit;
-	private String redirectAfterSubmitAndAccept;
 	
 	private String credentialRequirementAssignment;
 	private List<Attribute<?>> attributeAssignments;
@@ -239,16 +238,6 @@ public class RegistrationForm extends DescribedObjectImpl
 		this.redirectAfterSubmit = redirectAfterSubmit;
 	}
 
-	public String getRedirectAfterSubmitAndAccept()
-	{
-		return redirectAfterSubmitAndAccept;
-	}
-
-	public void setRedirectAfterSubmitAndAccept(String redirectAfterSubmitAndAccept)
-	{
-		this.redirectAfterSubmitAndAccept = redirectAfterSubmitAndAccept;
-	}
-	
 	@Override
 	public void setName(String name)
 	{
@@ -342,10 +331,6 @@ public class RegistrationForm extends DescribedObjectImpl
 				* result
 				+ ((redirectAfterSubmit == null) ? 0 : redirectAfterSubmit
 						.hashCode());
-		result = prime
-				* result
-				+ ((redirectAfterSubmitAndAccept == null) ? 0
-						: redirectAfterSubmitAndAccept.hashCode());
 		result = prime * result
 				+ ((registrationCode == null) ? 0 : registrationCode.hashCode());
 		return result;
@@ -453,12 +438,6 @@ public class RegistrationForm extends DescribedObjectImpl
 			if (other.redirectAfterSubmit != null)
 				return false;
 		} else if (!redirectAfterSubmit.equals(other.redirectAfterSubmit))
-			return false;
-		if (redirectAfterSubmitAndAccept == null)
-		{
-			if (other.redirectAfterSubmitAndAccept != null)
-				return false;
-		} else if (!redirectAfterSubmitAndAccept.equals(other.redirectAfterSubmitAndAccept))
 			return false;
 		if (registrationCode == null)
 		{

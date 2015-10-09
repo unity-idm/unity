@@ -61,6 +61,7 @@ import pl.edu.icm.unity.webui.common.attributes.SelectableAttributeEditor;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
+import com.vaadin.data.Validator;
 import com.vaadin.data.validator.AbstractStringValidator;
 import com.vaadin.data.validator.AbstractValidator;
 import com.vaadin.ui.AbstractTextField;
@@ -109,7 +110,6 @@ public class RegistrationFormEditor extends VerticalLayout
 	private GroupComboBox adminsNotificationGroup;
 	private Slider captcha;
 	private AbstractTextField redirectAfterSubmit;
-	private AbstractTextField redirectAfterSubmitAndAccept;
 	private AbstractTextField autoAcceptCondition;
 	
 	private I18nTextField displayedName;
@@ -193,12 +193,15 @@ public class RegistrationFormEditor extends VerticalLayout
 	
 	public RegistrationForm getForm() throws FormValidationException
 	{
-		if (!autoAcceptCondition.isValid())
-			return null;
-		if (!publiclyAvailable.isValid())
-			return null;
-		if (!redirectAfterSubmit.isValid() || !redirectAfterSubmitAndAccept.isValid())
-			return null;
+		try
+		{
+			autoAcceptCondition.validate();
+			publiclyAvailable.validate();
+			redirectAfterSubmit.validate();
+		} catch (Validator.InvalidValueException e)
+		{
+			throw new FormValidationException(e.getMessage(), e);
+		}
 		RegistrationForm ret = new RegistrationForm();	
 		ret.setAgreements(agreements.getElements());
 		ret.setAttributeAssignments(attributeAssignments.getElements());
@@ -225,11 +228,6 @@ public class RegistrationFormEditor extends VerticalLayout
 		if (redirect != null && !redirect.isEmpty())
 		{
 			ret.setRedirectAfterSubmit(redirect);
-		}
-		String redirect2 = redirectAfterSubmitAndAccept.getValue(); 
-		if (redirect2 != null && !redirect2.isEmpty())
-		{
-			ret.setRedirectAfterSubmitAndAccept(redirect2);
 		}
 		
 		RegistrationFormNotifications notCfg = ret.getNotificationsConfiguration();
@@ -342,18 +340,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		redirectAfterSubmit.addValidator(new URLValidator(msg));
 		redirectAfterSubmit.setValidationVisible(true);
 		redirectAfterSubmit.setImmediate(true);
-		
-		redirectAfterSubmitAndAccept = new TextField(
-				msg.getMessage("RegistrationFormViewer.redirectAfterSubmitAndAccept"));
-		redirectAfterSubmitAndAccept.setDescription(msg.getMessage(
-				"RegistrationFormEditor.redirectAfterSubmitAndAcceptDesc"));
-		redirectAfterSubmitAndAccept.setWidth(100, Unit.PERCENTAGE);
-		redirectAfterSubmitAndAccept.setValue("");
-		redirectAfterSubmitAndAccept.setNullRepresentation("");
-		redirectAfterSubmitAndAccept.addValidator(new URLValidator(msg));
-		redirectAfterSubmitAndAccept.setValidationVisible(true);
-		redirectAfterSubmitAndAccept.setImmediate(true);
-		
+				
 		autoAcceptCondition = new TextField();
 		autoAcceptCondition.setWidth(100, Unit.PERCENTAGE);
 		autoAcceptCondition.setCaption(msg.getMessage("RegistrationFormViewer.autoAcceptCondition"));
@@ -380,7 +367,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		autoAcceptCondition.setImmediate(true);
 		main.addComponents(name, description, publiclyAvailable, channel, adminsNotificationGroup,
 				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate, 
-				captcha, redirectAfterSubmit, redirectAfterSubmitAndAccept, autoAcceptCondition);
+				captcha, redirectAfterSubmit, autoAcceptCondition);
 		
 		if (toEdit != null)
 		{
@@ -396,7 +383,6 @@ public class RegistrationFormEditor extends VerticalLayout
 			autoAcceptCondition.setValue(toEdit.getAutoAcceptCondition());
 			captcha.setValue(Double.valueOf(toEdit.getCaptchaLength()));
 			redirectAfterSubmit.setValue(toEdit.getRedirectAfterSubmit());
-			redirectAfterSubmitAndAccept.setValue(toEdit.getRedirectAfterSubmitAndAccept());
 		}
 	}
 	

@@ -116,7 +116,7 @@ public class TestMerge extends DBIntegrationTestBase
 		
 		idsMan.mergeEntities(new EntityParam(target), new EntityParam(merged), false);
 		
-		Collection<String> groups = idsMan.getGroups(new EntityParam(target));
+		Collection<String> groups = idsMan.getGroups(new EntityParam(target)).keySet();
 		assertTrue(groups.contains("/A"));
 		assertTrue(groups.contains("/B"));
 		assertTrue(groups.contains("/B/C"));

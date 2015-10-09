@@ -4,11 +4,9 @@
  */
 package pl.edu.icm.unity.test.headlessui;
 
-import java.io.File;
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -49,9 +47,7 @@ public class SeleniumTestBase
 	@Before
 	public void setUp() throws Exception
 	{
-		FileUtils.deleteDirectory(new File("target/data"));
 		httpServer.start();
-	//	UnityApplication.main(new String[] {"src/test/resources/unityServer.conf"});
 		driver = new FirefoxDriver();
 		driver.manage().timeouts().implicitlyWait(WAIT_TIME_S, TimeUnit.SECONDS);
 	}
@@ -59,6 +55,7 @@ public class SeleniumTestBase
 	@After
 	public void tearDown() throws Exception
 	{
+		driver.manage().deleteAllCookies();
 		httpServer.stop();
 		driver.quit();
 		String verificationErrorString = verificationErrors.toString();

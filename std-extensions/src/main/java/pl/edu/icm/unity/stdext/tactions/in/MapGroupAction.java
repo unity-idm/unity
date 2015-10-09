@@ -53,12 +53,14 @@ public class MapGroupAction extends AbstractInputTranslationAction
 			for (Object mg: mgs)
 			{
 				log.debug("Mapped group: " + mg.toString());
-				ret.addGroup(new MappedGroup(mg.toString(), groupEffect));
+				ret.addGroup(new MappedGroup(mg.toString(), groupEffect, input.getIdpName(),
+						currentProfile));
 			}
 		} else
 		{
 			log.debug("Mapped group: " + result.toString());
-			ret.addGroup(new MappedGroup(result.toString(), groupEffect));
+			ret.addGroup(new MappedGroup(result.toString(), groupEffect, input.getIdpName(), 
+					currentProfile));
 		}
 		return ret;
 	}

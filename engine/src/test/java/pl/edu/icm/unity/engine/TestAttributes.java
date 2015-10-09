@@ -474,6 +474,29 @@ public class TestAttributes extends DBIntegrationTestBase
 		
 	}
 
+	
+	@Test
+	public void nameLocalAndSelfFlagsAreModifiableForImmutableType() throws Exception
+	{
+		Collection<AttributeType> ats = attrsMan.getAttributeTypes();
+		AttributeType crAt = getAttributeTypeByName(ats, SystemAttributeTypes.CREDENTIAL_REQUIREMENTS);
+		assertTrue((crAt.getFlags() | AttributeType.TYPE_IMMUTABLE_FLAG) != 0);
+		
+		crAt.setSelfModificable(true);
+		crAt.setDisplayedName(new I18nString("Foo"));
+		crAt.setDescription(new I18nString("FooDesc"));
+		crAt.setVisibility(AttributeVisibility.full);
+		crAt.setFlags(0);
+		attrsMan.updateAttributeType(crAt);
+		
+		ats = attrsMan.getAttributeTypes();
+		crAt = getAttributeTypeByName(ats, SystemAttributeTypes.CREDENTIAL_REQUIREMENTS);
+		assertTrue((crAt.getFlags() | AttributeType.TYPE_IMMUTABLE_FLAG) != 0);
+		assertEquals(new I18nString("Foo"), crAt.getDisplayedName());
+		assertEquals(new I18nString("FooDesc"), crAt.getDescription());
+		assertEquals(AttributeVisibility.full, crAt.getVisibility());
+		assertTrue(crAt.isSelfModificable());
+	}
 }
 
 

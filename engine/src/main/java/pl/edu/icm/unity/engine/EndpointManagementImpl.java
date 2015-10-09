@@ -22,14 +22,11 @@ import pl.edu.icm.unity.engine.endpoints.EndpointsUpdater;
 import pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.server.JettyServer;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
-import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.registries.EndpointFactoriesRegistry;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
@@ -47,7 +44,6 @@ public class EndpointManagementImpl implements EndpointManagement
 	private EndpointFactoriesRegistry endpointFactoriesReg;
 	private DBSessionManager db;
 	private AuthenticatorLoader authnLoader;
-	private JettyServer httpServer;
 	private InternalEndpointManagement internalManagement;
 	private EndpointsUpdater endpointsUpdater;
 	private AuthorizationManager authz;
@@ -57,14 +53,13 @@ public class EndpointManagementImpl implements EndpointManagement
 	@Autowired
 	public EndpointManagementImpl(EndpointFactoriesRegistry endpointFactoriesReg,
 			DBSessionManager db, AuthenticatorLoader authnLoader,
-			JettyServer httpServer, InternalEndpointManagement internalManagement,
+			InternalEndpointManagement internalManagement,
 			EndpointsUpdater endpointsUpdater, AuthorizationManager authz,
 			EndpointDB endpointDB, RealmDB realmDB)
 	{
 		this.endpointFactoriesReg = endpointFactoriesReg;
 		this.db = db;
 		this.authnLoader = authnLoader;
-		this.httpServer = httpServer;
 		this.internalManagement = internalManagement;
 		this.endpointsUpdater = endpointsUpdater;
 		this.authz = authz;
@@ -112,9 +107,6 @@ public class EndpointManagementImpl implements EndpointManagement
 		if (factory == null)
 			throw new WrongArgumentException("Endpoint type " + typeId + " is unknown");
 		EndpointInstance instance = factory.newInstance();
-		if (!(instance instanceof WebAppEndpointInstance))
-			throw new InternalException("Endpoint type " + typeId + " provides endpoint of " + 
-					instance.getClass() + " class, which is unsupported.");
 		SqlSession sql = db.getSqlSession(true);
 		try
 		{
@@ -122,16 +114,18 @@ public class EndpointManagementImpl implements EndpointManagement
 					authenticatorsInfo, sql);
 			verifyAuthenticators(authenticators, factory.getDescription().getSupportedBindings());
 			AuthenticationRealm realm = realmDB.get(realmName, sql);
-			instance.initialize(endpointName, displayedName, httpServer.getAdvertisedAddress(), 
-					address, description, authenticatorsInfo, authenticators, 
-					realm, jsonConfiguration);
-
+			
+			EndpointDescription endpDescription = new EndpointDescription(
+					endpointName, displayedName, address, description, realm, 
+					factory.getDescription(), authenticatorsInfo);
+			
+			instance.initialize(endpDescription, authenticators, jsonConfiguration);
 			endpointDB.insert(endpointName, instance, sql);
-			httpServer.deployEndpoint((WebAppEndpointInstance) instance);
+			internalManagement.deploy(instance);
 			sql.commit();
 		} catch (Exception e)
 		{
-			instance.destroy();
+			internalManagement.undeploy(instance.getEndpointDescription().getId());
 			throw new EngineException("Unable to deploy an endpoint: " + e.getMessage(), e);
 		} finally
 		{
@@ -151,9 +145,9 @@ public class EndpointManagementImpl implements EndpointManagement
 	public List<EndpointDescription> getEndpoints() throws AuthorizationException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		List<WebAppEndpointInstance> endpoints = httpServer.getDeployedEndpoints();
+		List<EndpointInstance> endpoints = internalManagement.getDeployedEndpoints();
 		List<EndpointDescription> ret = new ArrayList<EndpointDescription>(endpoints.size());
-		for (WebAppEndpointInstance endpI: endpoints)
+		for (EndpointInstance endpI: endpoints)
 			ret.add(endpI.getEndpointDescription());
 		return ret;
 	}
@@ -237,10 +231,14 @@ public class EndpointManagementImpl implements EndpointManagement
 				authenticators = authnLoader.getAuthenticators(newAuthn, sql);
 			}
 			AuthenticationRealm realm = realmDB.get(realmName, sql);
-			newInstance.initialize(id, displayedName, httpServer.getAdvertisedAddress(), 
-					instance.getEndpointDescription().getContextAddress(), 
-					newDesc, newAuthn, authenticators, realm, jsonConf);
 			
+			EndpointDescription endpDescription = new EndpointDescription(
+					id, displayedName, 
+					instance.getEndpointDescription().getContextAddress(), 
+					newDesc, realm, 
+					factory.getDescription(), newAuthn);
+			
+			newInstance.initialize(endpDescription, authenticators, jsonConf);
 			endpointDB.update(id, newInstance, sql);
 			sql.commit();				
 		} catch (Exception e)

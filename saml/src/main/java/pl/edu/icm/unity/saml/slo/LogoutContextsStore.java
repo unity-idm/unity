@@ -72,12 +72,11 @@ public class LogoutContextsStore
 	public synchronized void addInternalContext(String key, SAMLInternalLogoutContext context)
 	{
 		cleanup();
-		context.setRelayState(key);
 		intContexts.put(key, context);
 	}
 	
 	/**
-	 * Adds a new external logout context, the key is returned.
+	 * Adds a new external logout context, the key is returned and set as internal relay state.
 	 * @param key
 	 * @param context
 	 */

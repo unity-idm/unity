@@ -15,13 +15,13 @@ import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
+import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
 import eu.unicore.samly2.webservice.SAMLQueryInterface;
 
@@ -34,7 +34,7 @@ import eu.unicore.samly2.webservice.SAMLQueryInterface;
  */
 public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 {
-	public SamlUnicoreSoapEndpoint(UnityMessageSource msg, EndpointTypeDescription type,
+	public SamlUnicoreSoapEndpoint(UnityMessageSource msg, NetworkServer server,
 			String servletPath, String metadataServletPath, IdPEngine idpEngine,
 			PreferencesManagement preferencesMan,
 			PKIManagement pkiManagement, ExecutorsService executorsService, SessionManagement sessionMan,
@@ -43,7 +43,7 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 			SAMLLogoutProcessorFactory logoutProcessorFactory, AuthenticationProcessor authnProcessor,
 			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry)
 	{
-		super(msg, type, servletPath, metadataServletPath, idpEngine, preferencesMan,
+		super(msg, server, servletPath, metadataServletPath, idpEngine, preferencesMan,
 				pkiManagement, executorsService, sessionMan, remoteMetadataManagers, downloadManager, 
 				mainConfig, logoutProcessorFactory, authnProcessor, attributeSyntaxFactoriesRegistry);
 	}

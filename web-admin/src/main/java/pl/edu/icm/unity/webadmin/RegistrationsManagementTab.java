@@ -36,7 +36,6 @@ public class RegistrationsManagementTab  extends VerticalLayout
 		super();
 		this.msg = msg;
 		reqFillComponent.setShowNonPublic(true);
-		reqFillComponent.setAddAutoAccept(true);
 		reqFillComponent.initUI();
 		this.tabs = new MainTabPanel(requestsComponent, reqFillComponent, regComponent);
 		this.tabs.addStyleName(Styles.vTabsheetMinimal.toString());

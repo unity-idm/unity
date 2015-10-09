@@ -56,7 +56,7 @@ public class MockNotificationFacility implements NotificationFacility
 	}
 
 	@Override
-	public String getAddressForEntity(EntityParam recipient, SqlSession sql)
+	public String getAddressForEntity(EntityParam recipient, SqlSession sql, String address)
 			throws EngineException
 	{
 		throw new IllegalIdentityValueException("no address");

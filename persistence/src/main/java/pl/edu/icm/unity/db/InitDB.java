@@ -111,6 +111,18 @@ public class InitDB
 					session.update(name);
 		}
 	}
+
+	/**
+	 * Runs DB-specific operations, which are needed after import. 
+	 * @param session
+	 */
+	public void runPostImportCleanup(SqlSession session)
+	{
+		Collection<String> ops = new TreeSet<String>(db.getMyBatisConfiguration().getMappedStatementNames());
+		for (String name: ops)
+			if (name.startsWith("postDBImport-"))
+				session.update(name);
+	}
 	
 	private void performUpdate(SessionManager db, String operationPfx)
 	{

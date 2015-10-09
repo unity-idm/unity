@@ -305,6 +305,17 @@ public abstract class TranslationProfileEditor extends VerticalLayout
 		this.testProfileButton.setVisible(true);
 	}
 
+	public void setCopyMode()
+	{
+		if (editMode)
+		{
+			name.setReadOnly(false);
+			String old = name.getValue();
+			name.setValue(msg.getMessage("TranslationProfileEditor.nameCopy", old));
+			name.setReadOnly(true);
+		}
+	}
+	
 	public abstract TranslationProfile getProfile() throws Exception;
 	
 	protected abstract ProfileType getProfileType();

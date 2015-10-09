@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
 import pl.edu.icm.unity.server.api.PKIManagement;
+import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
@@ -46,6 +47,8 @@ public class OAuthTokenEndpointFactory implements EndpointFactory
 	private OAuthEndpointsCoordinator coordinator;
 	@Autowired
 	private AuthenticationProcessor authnProcessor;
+	@Autowired
+	private NetworkServer server;
 	
 	@Override
 	public EndpointTypeDescription getDescription()
@@ -56,7 +59,7 @@ public class OAuthTokenEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new OAuthTokenEndpoint(msg, sessionMan, TYPE, PATH, tokensMan, pkiMan, coordinator, 
+		return new OAuthTokenEndpoint(msg, sessionMan, server, PATH, tokensMan, pkiMan, coordinator, 
 				authnProcessor);
 	}
 

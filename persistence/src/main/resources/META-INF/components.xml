@@ -29,10 +29,10 @@
 	<bean class="pl.edu.icm.unity.db.json.IdentityTypeSerializer"/>
 	<bean class="pl.edu.icm.unity.db.json.IdentitySerializer"/>
 	<bean class="pl.edu.icm.unity.db.json.EntitySerializer"/>
-	<bean class="pl.edu.icm.unity.db.json.AttributeTypeSerializer"/>
 	<bean class="pl.edu.icm.unity.db.json.AttributeSerializer"/>
 	<bean class="pl.edu.icm.unity.db.json.FullAttributeSerializer"/>
 	<bean class="pl.edu.icm.unity.db.json.EventSerializer"/>
+	<bean class="pl.edu.icm.unity.db.json.GroupMembershipSerializer"/>
 
 	<bean class="pl.edu.icm.unity.db.generic.DependencyNotificationManager"/>
 	<bean class="pl.edu.icm.unity.db.generic.GenericObjectHandlersRegistry"/>

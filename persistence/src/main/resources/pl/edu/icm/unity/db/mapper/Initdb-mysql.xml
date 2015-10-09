@@ -3,6 +3,26 @@
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="pl.edu.icm.unity.db.mapper.InitdbMapper">
 
+	<sql id="dateTimeType">
+		DATETIME
+	</sql>
+	
+	<sql id="primaryKeyColumn">
+		ID INTEGER PRIMARY KEY AUTO_INCREMENT
+	</sql>
+	
+	<sql id="values">
+		`VALUES`
+	</sql>
+	
+	<sql id="valuesColumn">
+		`VALUES` MEDIUMBLOB
+	</sql>
+
+	<sql id="contentsColumn">
+		CONTENTS VARBINARY(60000)
+	</sql>
+	
 	<sql id="defaultColsBlob">
 		ID INTEGER PRIMARY KEY AUTO_INCREMENT, 
 		NAME VARCHAR(200), 
@@ -30,27 +50,30 @@
 
 
 	<update id="resetIndex-00">
-		ALTER TABLE VAR_BIG_OBJECTS AUTO_INCREMENT=1;
+		ALTER TABLE TOKENS AUTO_INCREMENT=1;
 	</update>
 	<update id="resetIndex-01">
-		ALTER TABLE VAR_OBJECTS AUTO_INCREMENT=1;
+		ALTER TABLE VAR_BIG_OBJECTS AUTO_INCREMENT=1;
 	</update>
 	<update id="resetIndex-02">
-		ALTER TABLE ATTRIBUTES AUTO_INCREMENT=1;
+		ALTER TABLE VAR_OBJECTS AUTO_INCREMENT=1;
 	</update>
 	<update id="resetIndex-03">
-		ALTER TABLE GROUPS AUTO_INCREMENT=1;
+		ALTER TABLE ATTRIBUTES AUTO_INCREMENT=1;
 	</update>
 	<update id="resetIndex-04">
-		ALTER TABLE IDENTITIES AUTO_INCREMENT=1;
+		ALTER TABLE GROUPS AUTO_INCREMENT=1;
 	</update>
 	<update id="resetIndex-05">
-		ALTER TABLE ENTITIES AUTO_INCREMENT=1;
+		ALTER TABLE IDENTITIES AUTO_INCREMENT=1;
 	</update>
 	<update id="resetIndex-06">
-		ALTER TABLE IDENTITY_TYPES AUTO_INCREMENT=1;
+		ALTER TABLE ENTITIES AUTO_INCREMENT=1;
 	</update>
 	<update id="resetIndex-07">
+		ALTER TABLE IDENTITY_TYPES AUTO_INCREMENT=1;
+	</update>
+	<update id="resetIndex-08">
 		ALTER TABLE ATTRIBUTE_TYPES AUTO_INCREMENT=1;
 	</update>
 

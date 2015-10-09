@@ -6,7 +6,6 @@ package pl.edu.icm.unity.db.mapper;
 
 import java.util.List;
 
-import pl.edu.icm.unity.db.model.BaseBean;
 import pl.edu.icm.unity.db.model.GroupBean;
 import pl.edu.icm.unity.db.model.GroupElementBean;
 import pl.edu.icm.unity.db.model.GroupElementChangeBean;
@@ -32,8 +31,9 @@ public interface GroupsMapper
 	
 	List<GroupBean> getSubgroups(long parentId);
 	List<GroupBean> getGroups4Entity(long entityId);
+	List<GroupElementBean> getGroupMembership4Entity(long entityId);
 	List<GroupBean> getLinkedGroups(long parentId);
-	List<BaseBean> getMembers(long groupId);
+	List<GroupElementBean> getMembers(long groupId);
 	
 	GroupBean getGroup(long id);
 	List<GroupBean> getAllGroups();

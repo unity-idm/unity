@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import javax.ws.rs.core.Response.Status;
 
@@ -51,7 +52,6 @@ import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
-import pl.edu.icm.unity.stdext.utils.EmailUtils;
 import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -70,6 +70,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.Lists;
 
 
 public class TestWrite extends TestRESTBase
@@ -139,6 +140,44 @@ public class TestWrite extends TestRESTBase
 		assertEquals(0, attrsMan.getAttributes(new EntityParam(entityId), "/", "stringA").size());
 	}
 
+	@Test
+	public void setAttributes() throws Exception
+	{
+		Identity identity = idsMan.addEntity(new IdentityParam("userName", "userC"), 
+				"cr-pass", EntityState.valid, false);
+		long entityId = identity.getEntityId();
+		attrsMan.addAttributeType(new AttributeType("stringA", new StringAttributeSyntax()));
+		attrsMan.addAttributeType(new AttributeType("intA", new IntegerAttributeSyntax()));
+		attrsMan.addAttributeType(new AttributeType("floatA", new FloatingPointAttributeSyntax()));
+		attrsMan.addAttributeType(new AttributeType("enumA", new EnumAttributeSyntax("V1", "V2")));
+		AttributeType email =  new AttributeType("emailA", new VerifiableEmailAttributeSyntax());
+		email.setMaxElements(2);
+		attrsMan.addAttributeType(email);
+		attrsMan.addAttributeType(new AttributeType("jpegA", new JpegImageAttributeSyntax()));
+		
+
+		
+		HttpPut setAttribute = new HttpPut("/restadm/v1/entity/" + entityId + "/attributes");
+		
+		StringAttribute a1 = new StringAttribute("stringA", "/", AttributeVisibility.full, 
+				Collections.singletonList("value1"));
+		AttributeParamRepresentation ap1 = new AttributeParamRepresentation(a1);
+		EnumAttribute a2 = new EnumAttribute(
+				"enumA", "/", AttributeVisibility.full, Collections.singletonList("V1"));
+		AttributeParamRepresentation ap2 = new AttributeParamRepresentation(a2);
+		
+		List<AttributeParamRepresentation> params = Lists.newArrayList(ap1, ap2);
+		setAttribute.setEntity(new StringEntity(m.writeValueAsString(params), ContentType.APPLICATION_JSON));
+		
+		HttpResponse response = client.execute(host, setAttribute, localcontext);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(1, attrsMan.getAttributes(new EntityParam(entityId), a1.getGroupPath(), 
+				a1.getName()).size());
+		assertEquals(a1.getValues().size(), attrsMan.getAttributes(new EntityParam(entityId), a1.getGroupPath(), 
+				a1.getName()).iterator().next().getValues().size());
+		System.out.println("Bulk set attributes:\n" + m.writeValueAsString(params));
+	}
+	
 	private void setSingleAttribute(long entityId, Attribute<?> a) throws EngineException, 
 		UnsupportedCharsetException, ClientProtocolException, IOException
 	{
@@ -158,7 +197,7 @@ public class TestWrite extends TestRESTBase
 	public void addEmailIdentityPreservesMetadata() throws Exception
 	{
 		HttpPost addEntity = new HttpPost("/restadm/v1/entity/identity/email/"
-				+ "user%2Bmain%40example.xom%5BCONFIRMED%5D?credentialRequirement=cr-pass");
+				+ "user%40example.xom%5BCONFIRMED%5D?credentialRequirement=cr-pass");
 		HttpResponse response = client.execute(host, addEntity, localcontext);
 		String contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
@@ -168,7 +207,6 @@ public class TestWrite extends TestRESTBase
 		Identity emailId = getIdentityByType(entity.getIdentities(), EmailIdentity.ID);
 		assertTrue(emailId.isConfirmed());
 		assertEquals("user@example.xom", emailId.getValue());
-		assertTrue(EmailIdentity.fromIdentityParam(emailId).getTags().contains(EmailUtils.TAG_MAIN));
 		
 		HttpGet resolve = new HttpGet("/restadm/v1/resolve/email/user%40example.xom");
 		response = client.execute(host, resolve, localcontext);
@@ -238,7 +276,7 @@ public class TestWrite extends TestRESTBase
 		response = client.execute(host, addMember, localcontext);
 		assertNull(response.getEntity());
 		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
-		assertTrue(idsMan.getGroups(new EntityParam(entityId)).contains("/example"));
+		assertTrue(idsMan.getGroups(new EntityParam(entityId)).containsKey("/example"));
 		System.out.println("Added entity to group");
 
 		
@@ -246,7 +284,7 @@ public class TestWrite extends TestRESTBase
 		response = client.execute(host, removeMember, localcontext);
 		assertNull(response.getEntity());
 		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
-		assertFalse(idsMan.getGroups(new EntityParam(entityId)).contains("/example"));
+		assertFalse(idsMan.getGroups(new EntityParam(entityId)).containsKey("/example"));
 		System.out.println("Removed membership");
 
 		

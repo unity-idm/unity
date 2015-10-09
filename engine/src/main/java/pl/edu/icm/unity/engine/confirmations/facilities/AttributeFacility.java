@@ -10,6 +10,7 @@ import java.util.Collection;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder.ConfirmedElementType;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.states.AttribiuteConfirmationState;
 import pl.edu.icm.unity.db.DBAttributes;
@@ -68,9 +69,8 @@ public class AttributeFacility extends UserFacility<AttribiuteConfirmationState>
 			dbAttributes.addAttribute(attrState.getOwnerEntityId(), attr, true, sql);
 		}
 		boolean confirmed = (confirmedList.size() > 0);
-		status = new ConfirmationStatus(confirmed,
-				confirmed ? attrState.getSuccessUrl() : attrState
-						.getErrorUrl(),
+		status = new ConfirmationStatus(confirmed, 
+				confirmed ? getSuccessRedirect(attrState) : getErrorRedirect(attrState),
 						confirmed ? "ConfirmationStatus.successAttribute"
 								: "ConfirmationStatus.attributeChanged",
 								attrState.getType());
@@ -128,5 +128,11 @@ public class AttributeFacility extends UserFacility<AttribiuteConfirmationState>
 	public AttribiuteConfirmationState parseState(String state) throws WrongArgumentException
 	{
 		return new AttribiuteConfirmationState(state);
+	}
+
+	@Override
+	protected ConfirmedElementType getConfirmedElementType(AttribiuteConfirmationState state)
+	{
+		return ConfirmedElementType.attribute;
 	}
 }

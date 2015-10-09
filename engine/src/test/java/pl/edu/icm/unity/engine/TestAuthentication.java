@@ -17,8 +17,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
+import pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.mock.MockEndpoint;
 import pl.edu.icm.unity.engine.mock.MockEndpointFactory;
 import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
@@ -47,6 +49,9 @@ import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
 public class TestAuthentication extends DBIntegrationTestBase
 {
+	@Autowired
+	private InternalEndpointManagement internalEndpointMan;
+	
 	@Test
 	public void testAuthentication() throws Exception
 	{
@@ -72,7 +77,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		EntityParam entityP = new EntityParam(id);
 		idsMan.setEntityCredential(entityP, "credential1", "password");
 		
-		MockEndpoint endpoint = (MockEndpoint) httpServer.getDeployedEndpoints().iterator().next();
+		MockEndpoint endpoint = (MockEndpoint) internalEndpointMan.getDeployedEndpoints().iterator().next();
 		try
 		{
 			endpoint.authenticate();

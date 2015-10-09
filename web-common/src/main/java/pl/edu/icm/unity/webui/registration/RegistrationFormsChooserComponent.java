@@ -23,6 +23,7 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Images;
@@ -32,6 +33,7 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
+
 import pl.edu.icm.unity.webui.common.Styles;
 
 
@@ -48,7 +50,7 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 	private Logger log = Log.getLogger(Log.U_SERVER_WEB, RegistrationFormsChooserComponent.class);
 	protected UnityMessageSource msg;
 	protected RegistrationsManagement registrationsManagement;
-	protected RegistrationFormLauncher formLauncher;
+	protected RegistrationFormDialogProvider formLauncher;
 
 	protected boolean showNonPublic;
 	protected boolean showWithAutomaticParams;
@@ -56,11 +58,19 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 	protected List<RegistrationForm> displayedForms;
 	protected VerticalLayout main;
 	protected EventsBus bus;
+	private Callback callback;
 	
 	@Autowired
 	public RegistrationFormsChooserComponent(UnityMessageSource msg,
 			RegistrationsManagement registrationsManagement,
 			RegistrationFormLauncher formLauncher)
+	{
+		this(msg, registrationsManagement, (RegistrationFormDialogProvider)formLauncher);
+	}
+
+	protected RegistrationFormsChooserComponent(UnityMessageSource msg,
+			RegistrationsManagement registrationsManagement,
+			RegistrationFormDialogProvider formLauncher)
 	{
 		super();
 		this.msg = msg;
@@ -82,7 +92,7 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 			}
 		}, RegistrationFormChangedEvent.class);
 	}
-
+	
 	public void setShowNonPublic(boolean showNonPublic)
 	{
 		this.showNonPublic = showNonPublic;
@@ -91,11 +101,6 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 	public void setShowWithAutomaticParams(boolean showWithAutomaticParams)
 	{
 		this.showWithAutomaticParams = showWithAutomaticParams;
-	}
-	
-	public void setAddAutoAccept(boolean addAutoAccept)
-	{
-		formLauncher.setAddAutoAccept(addAutoAccept);
 	}
 	
 	public void setAllowedForms(Collection<String> allowed)
@@ -175,7 +180,11 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 		}
 	}
 
-	
+	public void setCallback(Callback callback)
+	{
+		this.callback = callback;
+	}
+
 	private class ButtonListener implements ClickListener
 	{
 		private RegistrationForm form;
@@ -188,16 +197,22 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 		@Override
 		public void buttonClick(ClickEvent event)
 		{
-			RegistrationRequestEditorDialog dialog;
 			try
 			{
-				dialog = formLauncher.getDialog(form, 
+				AbstractDialog dialog = formLauncher.getDialog(form, 
 						new RemotelyAuthenticatedContext("--none--", "--none--"));
 				dialog.show();
+				if (callback != null)
+					callback.closed();
 			} catch (EngineException e)
 			{
 				NotificationPopup.showError(msg, msg.getMessage("RegistrationFormsChooserComponent.errorShowFormEdit"), e);
 			}
 		}
+	}
+	
+	public interface Callback
+	{
+		void closed();
 	}
 }

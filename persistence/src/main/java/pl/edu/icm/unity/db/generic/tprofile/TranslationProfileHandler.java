@@ -132,7 +132,6 @@ public class TranslationProfileHandler extends DefaultEntityHandler<TranslationP
 		root.put("ver", "2");
 		root.put("name", name);
 		root.set("description", old.get("description"));
-		root.put("mode", InputTranslationProfile.ProfileMode.UPDATE_ONLY.toString());
 		ArrayNode jsonRules = root.putArray("rules");
 
 		String idMode = (createUserCond != null) ? IdentityEffectMode.CREATE_OR_MATCH.toString() 

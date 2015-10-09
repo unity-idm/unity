@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.internal;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -166,7 +167,7 @@ public class EngineHelper
 		long entityId = ret.getEntityId();
 
 		dbIdentities.setEntityStatus(entityId, initialState, sqlMap);
-		dbGroups.addMemberFromParent("/", new EntityParam(ret.getEntityId()), sqlMap);
+		dbGroups.addMemberFromParent("/", new EntityParam(ret.getEntityId()), null, null, new Date(), sqlMap);
 		setEntityCredentialRequirements(entityId, credReqId, sqlMap);
 		
 		attributesHelper.addAttributesList(attributes, entityId, honorInitialConfirmation, sqlMap);

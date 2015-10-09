@@ -27,7 +27,7 @@ public class GroupUtils
 	{
 		Group group = new Group(finalGroup);
 		String[] path = group.getPath();
-		final Deque<String> notMember = new ArrayDeque<String>(path.length);
+		final Deque<String> notMember = new ArrayDeque<>(path.length);
 		for (int i=path.length-1; i>=0 && !existingGroups.contains(group.toString()); i--)
 		{
 			notMember.addLast(group.toString());
@@ -37,3 +37,10 @@ public class GroupUtils
 		return notMember;
 	}
 }
+
+
+
+
+
+
+

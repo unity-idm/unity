@@ -23,6 +23,7 @@ import pl.edu.icm.unity.server.translation.in.MappedGroup;
 import pl.edu.icm.unity.server.translation.in.MappedIdentity;
 import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import eu.unicore.util.configuration.ConfigurationException;
 
@@ -85,31 +86,40 @@ public class RemoteVerificatorUtil
 	public AuthenticationResult assembleAuthenticationResult(RemotelyAuthenticatedContext remoteContext) 
 			throws AuthenticationException
 	{
-		IdentityTaV remoteIdentityMapped = remoteContext.getPrimaryIdentity();
-		if (remoteIdentityMapped == null)
+		if (remoteContext.getIdentities().isEmpty())
 			throw new AuthenticationException("The remotely authenticated principal " +
 					"was not mapped to a local representation.");
-		
+		if (remoteContext.getLocalMappedPrincipal() == null)
+			handleUnknownUser(remoteContext);
 		try
 		{
-			long resolved = identityResolver.resolveIdentity(remoteIdentityMapped.getValue(), 
-					new String[] {remoteIdentityMapped.getTypeId()}, 
+			EntityParam mappedEntity = remoteContext.getLocalMappedPrincipal();
+			long resolved = mappedEntity.getEntityId() != null ? 
+					mappedEntity.getEntityId() : 
+					identityResolver.resolveIdentity(mappedEntity.getIdentity().getValue(), 
+					new String[] {mappedEntity.getIdentity().getTypeId()}, 
 					null, null);
 			AuthenticatedEntity authenticatedEntity = new AuthenticatedEntity(resolved, 
-					remoteIdentityMapped.getValue(), false);
+					remoteContext.getMappingResult().getAuthenticatedWith(), false);
 			authenticatedEntity.setRemoteIdP(remoteContext.getRemoteIdPName());
 			return new AuthenticationResult(Status.success, remoteContext, authenticatedEntity);
 		} catch (IllegalIdentityValueException ie)
 		{
-			AuthenticationResult r = new AuthenticationResult(Status.unknownRemotePrincipal, 
-					remoteContext, null);
-			throw new AuthenticationException(r, "The mapped identity is not present in the local " +
-					"user store.");
+			handleUnknownUser(remoteContext);
+			return null; //dummy - above line always throws exception
 		} catch (EngineException e)
 		{
 			throw new AuthenticationException("Problem occured when searching for the " +
 					"mapped, remotely authenticated identity in the local user store", e);
 		}
+	}
+	
+	private void handleUnknownUser(RemotelyAuthenticatedContext remoteContext) throws AuthenticationException
+	{
+		AuthenticationResult r = new AuthenticationResult(Status.unknownRemotePrincipal, 
+				remoteContext, null);
+		throw new AuthenticationException(r, "The mapped identity is not present in the local " +
+				"user store.");
 	}
 	
 	/**
@@ -137,16 +147,11 @@ public class RemoteVerificatorUtil
 		ret.addAttributes(extractAttributes(result));
 		ret.addIdentities(extractIdentities(result));
 		ret.addGroups(extractGroups(result));
-		ret.setPrimaryIdentity(extractPrimaryIdentity(result));
+		ret.setLocalMappedPrincipal(result.getMappedAtExistingEntity());
 		ret.setMappingResult(result);
 		ret.setAuthnInput(input);
 		ret.setSessionParticipants(input.getSessionParticipants());
 		return ret;
-	}
-	
-	private IdentityTaV extractPrimaryIdentity(MappingResult input)
-	{
-		return input.getIdentities().get(0).getIdentity();
 	}
 	
 	private List<IdentityTaV> extractIdentities(MappingResult input)

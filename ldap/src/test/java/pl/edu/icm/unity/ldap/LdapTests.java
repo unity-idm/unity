@@ -25,6 +25,10 @@ import org.junit.Test;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.ldap.client.LdapAuthenticationException;
+import pl.edu.icm.unity.ldap.client.LdapClient;
+import pl.edu.icm.unity.ldap.client.LdapClientConfiguration;
+import pl.edu.icm.unity.ldap.client.LdapProperties;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
@@ -44,7 +48,7 @@ import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
-import static pl.edu.icm.unity.ldap.LdapProperties.*;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.*;
 import static org.junit.Assert.*;
 
 public class LdapTests

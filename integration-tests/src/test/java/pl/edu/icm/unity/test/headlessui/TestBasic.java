@@ -31,5 +31,6 @@ public class TestBasic extends SeleniumTestBase
 		driver.findElement(By.id("MainHeader.logout"));
 		Cookie sessionAfter = driver.manage().getCookieNamed("JSESSIONID");
 		assertNotEquals(sessionBefore.getValue(), sessionAfter.getValue());
+		waitForElement(By.id("MainHeader.logout")).click();
 	}
 }

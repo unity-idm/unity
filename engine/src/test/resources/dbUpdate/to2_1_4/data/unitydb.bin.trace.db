@@ -1,0 +1,4 @@
+09-02 08:24:11 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Tabela "UVOS_FLAG" nie istnieje
+Table "UVOS_FLAG" not found; SQL statement:
+select VAL from UVOS_FLAG [42102-176]

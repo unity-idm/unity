@@ -43,6 +43,7 @@ public class OutdatedCredentialDialog extends AbstractDialog
 		this.idsMan = idsMan;
 		this.credEditorReg = credEditorReg;
 		this.authnProcessor = authnProcessor;
+		setSizeMode(SizeMode.SMALL);
 	}
 
 	@Override

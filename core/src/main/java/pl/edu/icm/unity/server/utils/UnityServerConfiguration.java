@@ -64,6 +64,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String LOGOUT_MODE = "logoutMode";
 	public static final String DEFAULT_WEB_CONTENT_PATH = "defaultWebContentDirectory";
 	public static final String THEME = "defaultTheme";
+	public static final String CONFIRMATION_THEME = "confirmationUITheme";
+	public static final String UNITYGW_WEB_CONTENT_PATH = "unityGWWebContentDirectory";
 	
 	public static final String ENDPOINTS = "endpoints.";
 	public static final String ENDPOINT_DESCRIPTION = "endpointDescription";
@@ -116,6 +118,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String WIPE_DB_AT_STARTUP = "wipeDbAtStartup";
 	
 	public static final String CONFIRMATION_REQUEST_LIMIT = "confirmationRequestLimit";
+	public static final String CONFIRMATION_DEFAULT_RETURN_URL = "defaultPostConfirmationReturnURL";
+	public static final String CONFIRMATION_AUTO_REDIRECT = "automaticRedirectAfterConfirmation";
 
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
@@ -170,9 +174,16 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put(DEFAULT_WEB_CONTENT_PATH, new PropertyMD("webContent").setPath().setCategory(mainCat).setDescription(
 				"Defines a default folder from which the web endpoints will serve static content, configured locally. "
 				+ "Also used for the shared endpoint under /unitygw path."));
-		defaults.put(THEME, new PropertyMD().setDescription(
+		defaults.put(THEME, new PropertyMD().setCategory(mainCat).setDescription(
 				"Overrides the default theme name as used for rendering the web endpoints. "
 				+ "This setting can be overriden per-endpoint. Applicable only for the web endpoints."));
+		defaults.put(UNITYGW_WEB_CONTENT_PATH, new PropertyMD().setPath().setCategory(mainCat).setDescription(
+				"Defines a folder from which all the web applications operating on the shared unitygw path "
+				+ "(e.g. the email confirmation screen) "
+				+ "will serve static content as images. Overrides the default webContent path."));
+		defaults.put(CONFIRMATION_THEME, new PropertyMD().setCategory(mainCat).setDescription(
+				"Sets the theme used for rendering the confirmation UI (shown after confirming email etc)."
+				+ "This setting overrides the default server theme."));
 		defaults.put(INITIAL_ADMIN_USER, new PropertyMD().setCategory(mainCat).
 				setDescription("Username of the administrator to be installed to the database upon startup. Remove the property if no admin should be added."));
 		defaults.put(INITIAL_ADMIN_PASSWORD, new PropertyMD("admin").setCategory(mainCat).
@@ -273,6 +284,13 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		
 		defaults.put(CONFIRMATION_REQUEST_LIMIT, new PropertyMD("3").setCategory(mainCat).
 				setDescription("Defines number of confirmation request that can be send to particular address in day"));
+		defaults.put(CONFIRMATION_DEFAULT_RETURN_URL, new PropertyMD().setCategory(mainCat).
+				setDescription("If set the value should be a valid URL. The URL is used as a return (redirect) URL "
+						+ "to be used after confirmation of a verifiable element as email. "
+						+ "Can be overriden for instance in registration form definition, for all confirmations related to the form."));
+		defaults.put(CONFIRMATION_AUTO_REDIRECT, new PropertyMD("false").setCategory(mainCat).
+				setDescription("If false Unity will show its confirmation screen after email verification. "
+						+ "If true and a return URL is defined for the confirmation then the screen is not shown and redirect is immediate."));
 		
 		defaults.put(MAIN_TRUSTSTORE, new PropertyMD().setMandatory().setCategory(mainCat).
 				setDescription("Name of the truststore to be used by the server."));

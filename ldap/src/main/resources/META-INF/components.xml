@@ -5,6 +5,7 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<context:annotation-config/>
-	<bean class="pl.edu.icm.unity.ldap.LdapVerificatorFactory"/>
-	<bean class="pl.edu.icm.unity.ldap.LdapDNVerificatorFactory"/>
+	<bean class="pl.edu.icm.unity.ldap.client.LdapVerificatorFactory"/>
+	<bean class="pl.edu.icm.unity.ldap.client.LdapDNVerificatorFactory"/>
+	
 </beans>

@@ -117,7 +117,8 @@ public class IdentitiesResolver
 		{
 			entityB = mapper.getEntityById(entityParam.getEntityId());
 			if (entityB == null)
-				throw new IllegalIdentityValueException("The entity id is invalid");
+				throw new IllegalIdentityValueException("The entity id is invalid): " + 
+						entityParam);
 			return entityB.getId();
 		} else
 		{
@@ -137,7 +138,7 @@ public class IdentitiesResolver
 
 			IdentityBean idBean = mapper.getIdentityByName(inDBIdentityValue);
 			if (idBean == null)
-				throw new IllegalIdentityValueException("The entity id is invalid");
+				throw new IllegalIdentityValueException("The entity id is invalid: " + entityParam);
 			return idBean.getEntityId();
 		}
 	}

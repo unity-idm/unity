@@ -11,6 +11,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder.ConfirmedElementType;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
 import pl.edu.icm.unity.db.DBIdentities;
@@ -70,8 +71,8 @@ public class IdentityFacility extends UserFacility<IdentityConfirmationState>
 		}
 		sql.commit();
 		boolean confirmed = (confirmedList.size() > 0);
-		status = new ConfirmationStatus(confirmed, confirmed ? idState
-				.getSuccessUrl() : idState.getErrorUrl(),
+		status = new ConfirmationStatus(confirmed, 
+				confirmed ? getSuccessRedirect(idState) : getErrorRedirect(idState),
 				confirmed ? "ConfirmationStatus.successIdentity"
 						: "ConfirmationStatus.identityChanged",
 						idState.getType());
@@ -92,8 +93,11 @@ public class IdentityFacility extends UserFacility<IdentityConfirmationState>
 					idState.getOwnerEntityId(), sql);
 			for (IdentityParam id : ids)
 			{
-				updateConfirmationInfo(id, idState.getValue());
-				dbIdentities.updateIdentityConfirmationInfo(id, id.getConfirmationInfo(), sql);
+				if (id.getTypeId().equals(idState.getType()) && id.getValue().equals(idState.getValue()))
+				{
+					updateConfirmationInfo(id, idState.getValue());
+					dbIdentities.updateIdentityConfirmationInfo(id, id.getConfirmationInfo(), sql);
+				}
 			}
 			sql.commit();
 		} finally
@@ -106,5 +110,11 @@ public class IdentityFacility extends UserFacility<IdentityConfirmationState>
 	public IdentityConfirmationState parseState(String state) throws WrongArgumentException
 	{
 		return new IdentityConfirmationState(state);
+	}
+
+	@Override
+	protected ConfirmedElementType getConfirmedElementType(IdentityConfirmationState state)
+	{
+		return ConfirmedElementType.identity;
 	}
 }

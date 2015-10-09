@@ -25,16 +25,16 @@ import pl.edu.icm.unity.sandbox.AccountAssociationSandboxUI;
 import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.sandbox.SandboxAuthnRouterImpl;
 import pl.edu.icm.unity.sandbox.TranslationProfileSandboxUI;
+import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
-import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
+import pl.edu.icm.unity.server.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
@@ -50,7 +50,7 @@ import eu.unicore.util.configuration.ConfigurationException;
  * object initialized with the actual Vaadin application which should be exposed. 
  * @author K. Benedyczak
  */
-public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointInstance
+public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, VaadinEndpoint.class);
 	public static final int DEFAULT_HEARTBEAT = 10;
@@ -72,14 +72,17 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 	protected UnityVaadinServlet authenticationServlet;
 	protected AuthenticationFilter authnFilter;
 	protected InvocationContextSetupFilter contextSetupFilter;
+	protected UnityServerConfiguration serverConfig;
 	
-	public VaadinEndpoint(EndpointTypeDescription type, ApplicationContext applicationContext,
+	public VaadinEndpoint(NetworkServer server, ApplicationContext applicationContext,
 			String uiBeanName, String servletPath)
 	{
-		super(type);
+		super(server);
 		this.applicationContext = applicationContext;
 		this.uiBeanName = uiBeanName;
 		this.uiServletPath = servletPath;
+		serverConfig = applicationContext.getBean(UnityServerConfiguration.class);		
+
 	}
 
 	@Override
@@ -89,6 +92,11 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		try
 		{
 			properties.load(new StringReader(cfg));
+			//a copy is set to endpoint's configuration so that the default is easily accessible
+			if (serverConfig.isSet(UnityServerConfiguration.THEME))
+				properties.setProperty(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.DEF_THEME, 
+					serverConfig.getValue(UnityServerConfiguration.THEME));
+			
 			genericEndpointProperties = new VaadinEndpointProperties(properties);
 		} catch (Exception e)
 		{
@@ -97,18 +105,16 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		}
 	}
 
-	@Override
-	public synchronized ServletContextHandler getServletContextHandler()
+	protected ServletContextHandler getServletContextHandlerOverridable()
 	{
 		if (context != null)
 			return context;
 	 	
-		context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath(description.getContextAddress());
 		
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
-		UnityServerConfiguration config = applicationContext.getBean(UnityServerConfiguration.class);		
 		
 		context.addFilter(new FilterHolder(new HiddenResourcesFilter(
 				Collections.unmodifiableList(Arrays.asList(AUTHENTICATION_PATH)))), 
@@ -118,17 +124,12 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder);
 		context.addFilter(new FilterHolder(authnFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
-		contextSetupFilter = new InvocationContextSetupFilter(config, description.getRealm(),
+		contextSetupFilter = new InvocationContextSetupFilter(serverConfig, description.getRealm(),
 				getServletUrl(uiServletPath));
 		context.addFilter(new FilterHolder(contextSetupFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
 		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
-
-		//a copy is set to endpoint's configuration so that the default is easily accessible
-		if (config.isSet(UnityServerConfiguration.THEME))
-			properties.setProperty(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.DEF_THEME, 
-				config.getValue(UnityServerConfiguration.THEME));
 		
 		authenticationServlet = new UnityVaadinServlet(applicationContext, 
 				AuthenticationUI.class.getSimpleName(), description, authenticators, 
@@ -141,8 +142,16 @@ public class VaadinEndpoint extends AbstractEndpoint implements WebAppEndpointIn
 		theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
 				description, authenticators, registrationConfiguration, properties);
 		context.addServlet(createVaadinServletHolder(theServlet, false), uiServletPath + "/*");
-
-		String webContentDir = getWebContentsDir(config);
+		
+		return context;
+	}
+	
+	@Override
+	public final synchronized ServletContextHandler getServletContextHandler()
+	{
+		context = getServletContextHandlerOverridable();
+		
+		String webContentDir = getWebContentsDir(serverConfig);
 		if (webContentDir != null)
 			context.setResourceBase(webContentDir);
 		

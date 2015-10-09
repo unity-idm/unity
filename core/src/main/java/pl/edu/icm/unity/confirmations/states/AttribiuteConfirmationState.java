@@ -30,9 +30,9 @@ public class AttribiuteConfirmationState extends UserConfirmationState
 	
 	
 	public AttribiuteConfirmationState(long owner, String type,
-			String value, String locale, String group, String successUrl, String errorUrl)
+			String value, String locale, String group, String redirectUrl)
 	{
-		super(FACILITY_ID, type, value, locale, successUrl, errorUrl, owner);
+		super(FACILITY_ID, type, value, locale, redirectUrl, owner);
 		this.group = group;
 	}
 

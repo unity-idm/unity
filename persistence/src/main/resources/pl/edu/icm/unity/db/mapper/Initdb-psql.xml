@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pl.edu.icm.unity.db.mapper.InitdbMapper">
+
+	<sql id="dateTimeType">
+		TIMESTAMP
+	</sql>
+
+	<sql id="primaryKeyColumn">
+		ID SERIAL PRIMARY KEY
+	</sql>
+
+	<sql id="values">
+		VALUES
+	</sql>
+
+	<sql id="valuesColumn">
+		VALUES BYTEA
+	</sql>
+
+	<sql id="contentsColumn">
+		CONTENTS BYTEA
+	</sql>
+	
+	<sql id="defaultColsBlob">
+		ID SERIAL PRIMARY KEY, 
+		NAME VARCHAR(200), 
+		CONTENTS BYTEA
+	</sql>
+	<sql id="defaultColsMem">
+		ID SERIAL PRIMARY KEY,
+		NAME VARCHAR(200),
+		CONTENTS BYTEA
+	</sql>
+	<sql id="defaultColsMemU">
+		<include refid="defaultColsMem"/>,
+		UNIQUE(NAME)
+	</sql>
+	<sql id="subTypeCol">
+		SUB_TYPE VARCHAR(200)
+	</sql>
+	<sql id="tableOpts">
+		);
+	</sql>
+
+	<select id="getDBLimits" resultType="DBLimits">
+		select 200 AS nameLimit, 60000 AS contentsLimit 
+	</select>
+
+	<update id="initdb-04-01">
+		CREATE INDEX IDENTITIES_ENTITY_ID_IDX ON IDENTITIES (ENTITY_ID);
+	</update>
+
+	<update id="initdb-04-02">
+		CREATE INDEX IDENTITIES_TYPE_ID_IDX ON IDENTITIES (TYPE_ID);	
+	</update>
+
+	<update id="initdb-05-01">
+		CREATE INDEX GROUPS_PARENT_ID_IDX ON GROUPS (PARENT_ID);
+	</update>
+
+	<update id="initdb-06-01">
+		CREATE INDEX ATTRIBUTES_ENTITY_ID_IDX ON ATTRIBUTES (ENTITY_ID);
+	</update>
+	
+	<update id="initdb-06-02">
+		CREATE INDEX ATTRIBUTES_GROUP_ID_IDX ON ATTRIBUTES (GROUP_ID);
+	</update>
+	
+	<update id="initdb-06-03">
+		CREATE INDEX ATTRIBUTES_TYPE_ID_IDX ON ATTRIBUTES (TYPE_ID);
+	</update>
+	
+	<update id="initdb-07-01">
+		CREATE INDEX GROUP_ENTITIES_ENTITY_ID_IDX ON GROUP_ENTITIES (ENTITY_ID);
+	</update>
+
+	<update id="initdb-07-02">
+		CREATE INDEX GROUP_ENTITIES_GROUP_ID_IDX ON GROUP_ENTITIES (GROUP_ID);
+	</update>
+	
+	<update id="initdb-08-01">
+		CREATE INDEX GROUP_LINKS_CHILD_ID_IDX ON GROUP_LINKS (CHILD_ID);
+	</update>
+	
+	<update id="initdb-08-02">
+		CREATE INDEX GROUP_LINKS_GROUP_ID_IDX ON GROUP_LINKS (GROUP_ID);
+	</update>
+	
+	<update id="initdb-11-01">
+		CREATE INDEX TOKENS_ENTITY_ID_IDX ON TOKENS (ENTITY_ID);
+	</update>
+
+
+	<update id="resetIndex-00">
+		ALTER SEQUENCE TOKENS_id_seq RESTART WITH 1;
+	</update>
+	<update id="resetIndex-01">
+		ALTER SEQUENCE VAR_BIG_OBJECTS_id_seq RESTART WITH 1;
+	</update>
+	<update id="resetIndex-02">
+		ALTER SEQUENCE VAR_OBJECTS_id_seq RESTART WITH 1;
+	</update>
+	<update id="resetIndex-03">
+		ALTER SEQUENCE ATTRIBUTES_id_seq RESTART WITH 1;
+	</update>
+	<update id="resetIndex-04">
+		ALTER SEQUENCE GROUPS_id_seq RESTART WITH 1;
+	</update>
+	<update id="resetIndex-05">
+		ALTER SEQUENCE IDENTITIES_id_seq RESTART WITH 1;
+	</update>
+	<update id="resetIndex-06">
+		ALTER SEQUENCE ENTITIES_id_seq RESTART WITH 1;
+	</update>
+	<update id="resetIndex-07">
+		ALTER SEQUENCE IDENTITY_TYPES_id_seq RESTART WITH 1;
+	</update>
+	<update id="resetIndex-08">
+		ALTER SEQUENCE ATTRIBUTE_TYPES_id_seq RESTART WITH 1;
+	</update>
+
+	<update id="postDBImport-00">
+		SELECT setval('ENTITIES_id_seq', (select max(ID)+1 from ENTITIES));
+	</update>
+
+</mapper>

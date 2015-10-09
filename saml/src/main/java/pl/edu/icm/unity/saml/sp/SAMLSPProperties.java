@@ -25,6 +25,7 @@ import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.trust.StrictSamlTrustChecker;
+import eu.unicore.samly2.trust.DsigSamlTrustCheckerBase.CheckingMode;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
@@ -145,9 +146,10 @@ public class SAMLSPProperties extends SamlProperties
 		META.put(CommonWebAuthnProperties.ENABLE_ASSOCIATION, new PropertyMD("true").setCategory(idp).setStructuredListEntry(IDP_PREFIX).setDescription(
 				"If true then unknown remote user gets an option to associate the remote identity with an another local (already existing) account."));	
 		META.put(REQUESTER_ID, new PropertyMD().setMandatory().setCategory(common).setDescription(
-				"SAML entity ID (must be a URI) of the lcoal SAML requester (or service provider)."));
+				"SAML entity ID (must be a URI) of the local SAML requester (or service provider)."));
 		META.put(CREDENTIAL, new PropertyMD().setCategory(common).setDescription(
-				"Local credential, used to sign requests. If signing is disabled it is not used."));
+				"Local credential, used to sign requests and to decrypt encrypted assertions. "
+				+ "If neither signing nor decryption is used it can be skipped."));
 		META.put(SLO_PATH, new PropertyMD().setCategory(common).setDescription(
 				"Last element of the URL, under which the SAML Single Logout functionality should "
 				+ "be published for this SAML authenticator. Any suffix can be used, however it "
@@ -319,7 +321,7 @@ public class SAMLSPProperties extends SamlProperties
 	public SamlTrustChecker getTrustChecker() throws ConfigurationException
 	{
 		Set<String> idpKeys = getStructuredListKeys(IDP_PREFIX);
-		StrictSamlTrustChecker trustChecker = new StrictSamlTrustChecker();
+		StrictSamlTrustChecker trustChecker = new StrictSamlTrustChecker(CheckingMode.REQUIRE_SIGNED_ASSERTION);
 		for (String idpKey: idpKeys)
 		{
 			String idpId = getValue(idpKey+IDP_ID);

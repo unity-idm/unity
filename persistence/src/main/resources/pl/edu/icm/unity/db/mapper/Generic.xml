@@ -34,7 +34,7 @@
 	</delete>
 	
 	<update id="updateByNameType" parameterType="GenericObjectB">
-		UPDATE VAR_OBJECTS SET CONTENTS=#{contents}, LAST_UPDATE=CURRENT_TIMESTAMP() WHERE NAME=#{name} AND TYPE=#{type}  
+		UPDATE VAR_OBJECTS SET CONTENTS=#{contents}, LAST_UPDATE=NOW() WHERE NAME=#{name} AND TYPE=#{type}  
 	</update>
 	
 	<select id="selectObjectsByType" parameterType="string" resultMap="objectResult">

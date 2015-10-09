@@ -21,6 +21,7 @@ import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
+import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormEditDialog.Callback;
@@ -30,18 +31,19 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
-import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.registration.RegistrationFormChangedEvent;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.HorizontalLayout;
@@ -79,7 +81,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 			NotificationsManagement notificationsMan,
 			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
 			AttributesManagement attributeMan, AuthenticationManagement authenticationMan,
-			AttributeHandlerRegistry attrHandlerRegistry)
+			AttributeHandlerRegistry attrHandlerRegistry, SharedEndpointManagement sharedEndpointMan)
 	{
 		this.msg = msg;
 		this.registrationsManagement = registrationsManagement;
@@ -106,7 +108,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 				});
 		table.setWidth(90, Unit.PERCENTAGE);
 		table.setMultiSelect(true);
-		viewer = new RegistrationFormViewer(msg, attrHandlersRegistry, msgTempMan);
+		viewer = new RegistrationFormViewer(msg, attrHandlersRegistry, msgTempMan, sharedEndpointMan);
 		viewer.setInput(null);
 		table.addValueChangeListener(new ValueChangeListener()
 		{
@@ -270,52 +272,39 @@ public class RegistrationFormsComponent extends VerticalLayout
 		}
 	}
 
-	private class EditActionHandler extends SingleActionHandler
+	private class EditActionHandler extends CopyEditBaseActionHandler
 	{
 		public EditActionHandler()
 		{
-			super(msg.getMessage("RegistrationFormsComponent.editAction"), Images.edit.getResource());
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			
-			GenericItem<?> witem = (GenericItem<?>) target;
-			RegistrationForm item = (RegistrationForm) witem.getElement();
-			RegistrationFormEditor editor;
-			try
-			{
-				editor = new RegistrationFormEditor(msg, groupsMan, notificationsMan,
-						msgTempMan, identitiesMan, attributeMan, authenticationMan,
-						attrHandlerRegistry, item, false);
-			} catch (EngineException e)
-			{
-				NotificationPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
-				return;
-			}
-			RegistrationFormEditDialog dialog = new RegistrationFormEditDialog(msg, 
-					msg.getMessage("RegistrationFormsComponent.editAction"), new Callback()
-					{
-						@Override
-						public boolean newForm(RegistrationForm form, boolean ignoreRequests)
-						{
-							return updateForm(form, ignoreRequests);
-						}
-					}, editor);
-			dialog.show();
+			super(msg.getMessage("RegistrationFormsComponent.editAction"), 
+					Images.edit.getResource(), false);
 		}
 	}
 	
-	private class CopyActionHandler extends SingleActionHandler
+	private class CopyActionHandler extends CopyEditBaseActionHandler
 	{
 		public CopyActionHandler()
 		{
-			super(msg.getMessage("RegistrationFormsComponent.copyAction"), Images.copy.getResource());
+			super(msg.getMessage("RegistrationFormsComponent.copyAction"), 
+					Images.copy.getResource(), true);
+		}
+	}
+
+	
+	private abstract class CopyEditBaseActionHandler extends SingleActionHandler
+	{
+		private boolean copyMode;
+		private String caption;
+
+		public CopyEditBaseActionHandler(String caption, Resource icon, boolean copyMode)
+		{
+			super(caption, icon);
+			this.caption = caption;
+			this.copyMode = copyMode;
 		}
 
 		@Override
-		public void handleAction(Object sender, final Object target)
+		protected void handleAction(Object sender, final Object target)
 		{
 			@SuppressWarnings("unchecked")
 			GenericItem<RegistrationForm> item = (GenericItem<RegistrationForm>) target;
@@ -325,24 +314,28 @@ public class RegistrationFormsComponent extends VerticalLayout
 			{		
 				editor = new RegistrationFormEditor(msg, groupsMan, notificationsMan,
 						msgTempMan, identitiesMan, attributeMan, authenticationMan,
-						attrHandlerRegistry, form, true);
+						attrHandlerRegistry, form, copyMode);
 			} catch (Exception e)
 			{
-				NotificationPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
+				NotificationPopup.showError(msg, msg.getMessage(
+						"RegistrationFormsComponent.errorInFormEdit"), e);
 				return;
 			}
 			RegistrationFormEditDialog dialog = new RegistrationFormEditDialog(msg, 
-					msg.getMessage("RegistrationFormsComponent.copyAction"), new Callback()
+					caption, new Callback()
 					{
 						@Override
-						public boolean newForm(RegistrationForm form, boolean foo)
+						public boolean newForm(RegistrationForm form, boolean ignoreRequests)
 						{
-							return addForm(form);
+							return copyMode ? addForm(form) :
+								updateForm(form, ignoreRequests);
 						}
 					}, editor);
 			dialog.show();		
 		}
 	}
+	
+	
 	
 	private class DeleteActionHandler extends SingleActionHandler
 	{

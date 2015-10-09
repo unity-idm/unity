@@ -17,7 +17,6 @@ import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
-import pl.edu.icm.unity.server.translation.in.InputTranslationProfile.ProfileMode;
 import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -64,7 +63,7 @@ public class InputTranslationProfileEditor extends TranslationProfileEditor
 			}
 
 		}
-		InputTranslationProfile profile = new InputTranslationProfile(n, trules, ProfileMode.UPDATE_ONLY);
+		InputTranslationProfile profile = new InputTranslationProfile(n, trules);
 		profile.setDescription(desc);
 		return profile;
 	}

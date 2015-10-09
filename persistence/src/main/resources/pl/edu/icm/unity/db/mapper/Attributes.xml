@@ -69,12 +69,12 @@
 	</select>
 	
 	<insert id="insertAttribute" parameterType="AttributeB">
-		INSERT INTO ATTRIBUTES (TYPE_ID, ENTITY_ID, GROUP_ID, `VALUES`) 
+		INSERT INTO ATTRIBUTES (TYPE_ID, ENTITY_ID, GROUP_ID, <include refid="pl.edu.icm.unity.db.mapper.InitdbMapper.values"/>) 
 			VALUES (#{typeId}, #{entityId}, #{groupId}, #{values}) 
 	</insert>
 
 	<update id="updateAttribute" parameterType="AttributeB">
-		UPDATE ATTRIBUTES SET `VALUES` = #{values} 
+		UPDATE ATTRIBUTES SET <include refid="pl.edu.icm.unity.db.mapper.InitdbMapper.values"/> = #{values} 
 			WHERE TYPE_ID = #{typeId} AND ENTITY_ID = #{entityId} AND GROUP_ID = #{groupId}
 	</update>
 	

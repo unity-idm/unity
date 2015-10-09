@@ -27,9 +27,9 @@ public class UserConfirmationState extends BaseConfirmationState
 
 
 	public UserConfirmationState(String facilityId, String type, String value, String locale,
-			String successUrl, String errorUrl, long ownerEntityId)
+			String redirectUrl, long ownerEntityId)
 	{
-		super(facilityId, type, value, locale, successUrl, errorUrl);
+		super(facilityId, type, value, locale, redirectUrl);
 		this.ownerEntityId = ownerEntityId;
 	}
 

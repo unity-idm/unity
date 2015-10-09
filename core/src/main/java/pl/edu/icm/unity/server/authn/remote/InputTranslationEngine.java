@@ -40,7 +40,9 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
  * Applies all mappings which were recorded by profile's actions, taking into account the overall profile's settings.
@@ -74,16 +76,15 @@ public class InputTranslationEngine
 	 */
 	public void process(MappingResult result) throws EngineException
 	{
-		Identity principal = processIdentities(result);
-		if (principal == null)
+		EntityParam entity = processIdentities(result);
+		result.setMappedAtExistingEntity(entity);
+		if (entity == null)
 		{
 			log.info("The mapped identity does not exist in database and was not created. "
 					+ "The creation of groups and attributes is skipped, the mapped groups and attributes "
 					+ "will be available for the registration form (if any)");
 			return;
 		}
-		EntityParam entity = new EntityParam(principal);
-		
 		processGroups(result, entity);
 		processAttributes(result, entity);
 		processEntityChanges(result, entity);
@@ -98,6 +99,10 @@ public class InputTranslationEngine
 	 */
 	public void mergeWithExisting(MappingResult result, EntityParam baseEntity) throws EngineException
 	{
+		result.setCleanStaleAttributes(false);
+		result.setCleanStaleIdentities(false);
+		result.setCleanStaleGroups(false);
+		
 		processIdentitiesForMerge(result, baseEntity);
 		processGroups(result, baseEntity);
 		processAttributes(result, baseEntity);
@@ -140,10 +145,17 @@ public class InputTranslationEngine
 		return null;
 	}
 	
-	private Identity processIdentities(MappingResult result) throws EngineException
+	/**
+	 * performs identities mapping
+	 * @param result
+	 * @return an mapped identity - previously existing or newly created; or null if identity mapping was not successful
+	 * @throws EngineException
+	 */
+	private EntityParam processIdentities(MappingResult result) throws EngineException
 	{
 		List<MappedIdentity> mappedMissingIdentitiesToCreate = new ArrayList<>();
 		List<MappedIdentity> mappedMissingIdentities = new ArrayList<>();
+		List<MappedIdentity> mappedMissingCreateOrUpdateIdentities = new ArrayList<>();
 		Entity existing = null;
 		for (MappedIdentity checked: result.getIdentities())
 		{
@@ -157,6 +169,7 @@ public class InputTranslationEngine
 					throw new ExecutionBreakException();
 				}
 				existing = found;
+				result.addAuthenticatedWith(checked.getIdentity().getValue());
 			} catch (IllegalIdentityValueException e)
 			{
 				if (checked.getMode() == IdentityEffectMode.REQUIRE_MATCH)
@@ -167,11 +180,24 @@ public class InputTranslationEngine
 				} else if (checked.getMode() == IdentityEffectMode.CREATE_OR_MATCH)
 				{
 					mappedMissingIdentitiesToCreate.add(checked);
-				} else
+				} else if (checked.getMode() == IdentityEffectMode.MATCH)
 				{
 					mappedMissingIdentities.add(checked);
+				} else
+				{
+					mappedMissingCreateOrUpdateIdentities.add(checked);
 				}
 			}			
+		}
+		
+		if (existing != null)
+		{
+			mappedMissingIdentitiesToCreate.addAll(mappedMissingCreateOrUpdateIdentities);
+			if (result.isCleanStaleIdentities())
+				removeStaleIdentities(existing, result.getIdentities());
+		} else
+		{
+			mappedMissingIdentities.addAll(mappedMissingCreateOrUpdateIdentities);
 		}
 		if (mappedMissingIdentitiesToCreate.isEmpty() && mappedMissingIdentities.isEmpty() && existing == null)
 		{
@@ -183,20 +209,57 @@ public class InputTranslationEngine
 		if (mappedMissingIdentitiesToCreate.isEmpty())
 		{
 			log.debug("No identity needs to be added");
-			return existing != null ? existing.getIdentities()[0] : null;
+			return existing != null ? new EntityParam(existing.getId()) : null;
 		}
 		
 		if (existing != null)
 		{
-			addEquivalents(mappedMissingIdentitiesToCreate, new EntityParam(existing.getId()));
-			return existing.getIdentities()[0];
+			addEquivalents(mappedMissingIdentitiesToCreate, new EntityParam(existing.getId()), result);
+			return new EntityParam(existing.getId());
 		} else
 		{
-			return createNewEntity(result, mappedMissingIdentitiesToCreate);
+			Identity created = createNewEntity(result, mappedMissingIdentitiesToCreate);
+			return new EntityParam(created.getEntityId());
 		}
 
 	}
 
+	/**
+	 * Identities created from this profile and idp which are not present are removed.
+	 * @param existing
+	 * @param allMapped
+	 */
+	private void removeStaleIdentities(Entity existing, List<MappedIdentity> allMapped)
+	{
+		IdentityParam exampleMapped = allMapped.get(0).getIdentity();
+		String idp = exampleMapped.getRemoteIdp();
+		if (idp == null)
+			idp = "_____MISSING";
+		String profile = exampleMapped.getTranslationProfile();
+		if (profile == null)
+			profile = "_____MISSING";
+		for (Identity id: existing.getIdentities())
+		{
+			if (idp.equals(id.getRemoteIdp()) && profile.equals(id.getTranslationProfile()))
+			{
+				boolean has = allMapped.stream().anyMatch(mi -> 
+					id.getValue().equals(mi.getIdentity().getValue()) &&
+						id.getTypeId().equals(mi.getIdentity().getTypeId())
+				);
+				if (!has)
+				{
+					try
+					{
+						idsMan.removeIdentity(id);
+					} catch (EngineException e)
+					{
+						log.error("Can not remove stale identity " + id, e);
+					}
+				}
+			}
+		}
+	}
+	
 	/**
 	 * Besides returning the list of identities to be created also ensures that no one from mapped
 	 * identities does exist in the db.
@@ -240,16 +303,17 @@ public class InputTranslationEngine
 			throw new ExecutionBreakException();
 		}
 		
-		addEquivalents(mappedMissingIdentitiesToCreate, baseEntity);
+		addEquivalents(mappedMissingIdentitiesToCreate, baseEntity, result);
 	}
 
 	
-	private void addEquivalents(Collection<MappedIdentity> toAdd, EntityParam parentEntity) 
+	private void addEquivalents(Collection<MappedIdentity> toAdd, EntityParam parentEntity, MappingResult result) 
 			throws EngineException
 	{
 		for (MappedIdentity mi: toAdd)
 		{
 			idsMan.addIdentity(mi.getIdentity(), parentEntity, false);
+			result.addAuthenticatedWith(mi.getIdentity().getValue());
 		}
 	}
 	
@@ -263,8 +327,9 @@ public class InputTranslationEngine
 		log.info("Adding entity " + first.getIdentity() + " to the local DB");
 		added = idsMan.addEntity(first.getIdentity(), first.getCredentialRequirement(), 
 				EntityState.valid, false, attributes);
+		result.addAuthenticatedWith(first.getIdentity().getValue());
 		
-		addEquivalents(mappedMissingIdentities, new EntityParam(added));
+		addEquivalents(mappedMissingIdentities, new EntityParam(added), result);
 		return added;
 	}
 
@@ -296,23 +361,59 @@ public class InputTranslationEngine
 	private void processGroups(MappingResult result, EntityParam principal) throws EngineException
 	{
 		Map<String, List<Attribute<?>>> attributesByGroup = getAttributesByGroup(result);
-		Set<String> currentGroups = new HashSet<String>(idsMan.getGroups(principal));
+		Map<String, GroupMembership> currentGroups = idsMan.getGroups(principal);
+        	Set<String> currentSimple = new HashSet<>(currentGroups.keySet());
 		for (MappedGroup gm: result.getGroups())
 		{
-		        if (!currentGroups.contains(gm.getGroup()))
+		        if (!currentGroups.containsKey(gm.getGroup()))
 			{
-				Deque<String> missingGroups = GroupUtils.getMissingGroups(gm.getGroup(), currentGroups);
+				Deque<String> missingGroups = 
+						GroupUtils.getMissingGroups(gm.getGroup(), currentSimple);
 				log.info("Adding to group " + gm);
-				addToGroupRecursive(principal, missingGroups, currentGroups, gm.getCreateIfMissing(),
+				addToGroupRecursive(principal, missingGroups, currentSimple, gm.getIdp(), 
+						gm.getProfile(), gm.getCreateIfMissing(),
 						attributesByGroup);
 			} else
 			{
 				log.debug("Entity already in the group " + gm + ", skipping");
 			}
 		}
+		if (result.isCleanStaleGroups())
+			removeStaleMemberships(currentGroups, result, principal);
+		
 	}
 	
-	private void addToGroupRecursive(EntityParam who, Deque<String> missingGroups, Set<String> currentGroups,
+	private void removeStaleMemberships(Map<String, GroupMembership> currentGroups, MappingResult result,
+			EntityParam principal)
+	{
+		IdentityParam exampleMapped = result.getIdentities().get(0).getIdentity();
+		String idp = exampleMapped.getRemoteIdp();
+		if (idp == null)
+			idp = "_____MISSING";
+		String profile = exampleMapped.getTranslationProfile();
+		if (profile == null)
+			profile = "_____MISSING";
+		List<MappedGroup> mappedGroups = result.getGroups();
+		for (GroupMembership membership: currentGroups.values())
+		{
+			if (!membership.getGroup().equals("/") &&
+				idp.equals(membership.getRemoteIdp()) && profile.equals(membership.getTranslationProfile()))
+			{
+				if (!mappedGroups.stream().anyMatch(gm -> membership.getGroup().equals(gm.getGroup())))
+					try
+					{
+						groupsMan.removeMember(membership.getGroup(), principal);
+					} catch (EngineException e)
+					{
+						log.error("Can not remove stale group membership in " 
+								+ membership.getGroup(), e);
+					}
+			}
+		}
+	}
+	
+	private void addToGroupRecursive(EntityParam who, Deque<String> missingGroups, 
+			Set<String> currentGroups, String idp, String profile, 
 			GroupEffectMode createMissingGroups, Map<String, List<Attribute<?>>> attributesByGroup) 
 					throws EngineException
 	{
@@ -322,7 +423,7 @@ public class InputTranslationEngine
 			attributes = new ArrayList<Attribute<?>>();
 		try
 		{
-			groupsMan.addMemberFromParent(group, who, attributes);
+			groupsMan.addMemberFromParent(group, who, attributes, idp, profile);
 		} catch (IllegalGroupValueException missingGroup)
 		{
 			if (createMissingGroups == GroupEffectMode.CREATE_GROUP_IF_MISSING)
@@ -330,7 +431,7 @@ public class InputTranslationEngine
 				log.info("Group " + group + " doesn't exist, "
 						+ "will be created to fullfil translation profile rule");
 				groupsMan.addGroup(new Group(group));
-				groupsMan.addMemberFromParent(group, who, attributes);
+				groupsMan.addMemberFromParent(group, who, attributes, idp, profile);
 			} else if (createMissingGroups == GroupEffectMode.REQUIRE_EXISTING_GROUP)
 			{
 				log.debug("Entity should be added to a group " + group + " which is missing, failing.");
@@ -345,7 +446,8 @@ public class InputTranslationEngine
 		currentGroups.add(group);
 		if (!missingGroups.isEmpty())
 		{
-			addToGroupRecursive(who, missingGroups, currentGroups, createMissingGroups, attributesByGroup);
+			addToGroupRecursive(who, missingGroups, currentGroups, 
+					idp, profile, createMissingGroups, attributesByGroup);
 		}
 	}
 	
@@ -388,6 +490,38 @@ public class InputTranslationEngine
 					log.debug("Skipping attribute to be updated as there is no one defined: " + att);
 				}
 				break;
+			}
+		}
+		
+		if (result.isCleanStaleAttributes())
+			removeStaleAttributes(result, existingAttrs, principal);
+	}
+	
+	private void removeStaleAttributes(MappingResult result, Collection<AttributeExt<?>> existingAttrs,
+			EntityParam principal)
+	{
+		IdentityParam exampleMapped = result.getIdentities().get(0).getIdentity();
+		String idp = exampleMapped.getRemoteIdp();
+		if (idp == null)
+			idp = "_____MISSING";
+		String profile = exampleMapped.getTranslationProfile();
+		if (profile == null)
+			profile = "_____MISSING";
+		List<MappedAttribute> mappedAttributes = result.getAttributes();
+		for (AttributeExt<?> a: existingAttrs)
+		{
+			if (idp.equals(a.getRemoteIdp()) && profile.equals(a.getTranslationProfile()))
+			{
+				if (!mappedAttributes.stream().anyMatch(ma -> 
+						a.getName().equals(ma.getAttribute().getName()) &&
+						a.getGroupPath().equals(ma.getAttribute().getGroupPath())))
+					try
+					{
+						attrMan.removeAttribute(principal, a.getGroupPath(), a.getName());
+					} catch (EngineException e)
+					{
+						log.error("Can not remove stale attribute " + a, e);
+					}
 			}
 		}
 	}

@@ -4,7 +4,12 @@
  */
 package pl.edu.icm.unity.engine;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,16 +20,17 @@ import java.util.Map;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.google.common.collect.Sets;
-
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
+import pl.edu.icm.unity.server.authn.remote.RemoteVerificatorUtil;
+import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
@@ -33,11 +39,10 @@ import pl.edu.icm.unity.server.translation.in.GroupEffectMode;
 import pl.edu.icm.unity.server.translation.in.IdentityEffectMode;
 import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
-import pl.edu.icm.unity.server.translation.in.MappedGroup;
-import pl.edu.icm.unity.server.translation.in.MappedIdentity;
-import pl.edu.icm.unity.server.translation.in.InputTranslationProfile.ProfileMode;
 import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
 import pl.edu.icm.unity.server.translation.in.MappedAttribute;
+import pl.edu.icm.unity.server.translation.in.MappedGroup;
+import pl.edu.icm.unity.server.translation.in.MappedIdentity;
 import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationEngine;
@@ -56,6 +61,7 @@ import pl.edu.icm.unity.stdext.tactions.in.EntityChangeActionFactory;
 import pl.edu.icm.unity.stdext.tactions.in.MapAttributeActionFactory;
 import pl.edu.icm.unity.stdext.tactions.in.MapGroupActionFactory;
 import pl.edu.icm.unity.stdext.tactions.in.MapIdentityActionFactory;
+import pl.edu.icm.unity.stdext.tactions.in.RemoveStaleDataActionFactory;
 import pl.edu.icm.unity.stdext.tactions.out.CreateAttributeActionFactory;
 import pl.edu.icm.unity.stdext.tactions.out.CreatePersistentAttributeActionFactory;
 import pl.edu.icm.unity.stdext.tactions.out.CreatePersistentIdentityActionFactory;
@@ -69,10 +75,13 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
+
+import com.google.common.collect.Sets;
 
 /**
  * Integration and engine related part tests of the subsystem mapping the remote data to the unity's representation. 
@@ -104,7 +113,7 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 				"'/A'"); 
 		rules.add(new InputTranslationRule(action2, new TranslationCondition()));
 		
-		InputTranslationProfile toAdd = new InputTranslationProfile("p1", rules, ProfileMode.UPDATE_ONLY);
+		InputTranslationProfile toAdd = new InputTranslationProfile("p1", rules);
 		tprofMan.addProfile(toAdd);
 		
 		Map<String, InputTranslationProfile> profiles = tprofMan.listInputProfiles();
@@ -194,7 +203,7 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 				EntityScheduledOperation.REMOVE.toString(), "1"); 
 		rules.add(new InputTranslationRule(action4, new TranslationCondition()));
 		
-		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules, ProfileMode.UPDATE_ONLY);
+		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules);
 		
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 		input.addIdentity(new RemoteIdentity("someUser", UsernameIdentity.ID));
@@ -232,9 +241,151 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		assertEquals("test", at.getRemoteIdp());
 		assertEquals("p1", at.getTranslationProfile());
 		
-		Collection<String> groups = idsMan.getGroups(ep);
-		assertTrue(groups.contains("/A"));
-		assertTrue(groups.contains("/A/newGr"));
+		Map<String, GroupMembership> groups = idsMan.getGroups(ep);
+		assertTrue(groups.containsKey("/A"));
+		assertEquals("test", groups.get("/A").getRemoteIdp());
+		assertEquals("p1", groups.get("/A").getTranslationProfile());
+		assertNotNull(groups.get("/A").getCreationTs());
+		assertTrue(groups.containsKey("/A/newGr"));
+		assertEquals("test", groups.get("/A/newGr").getRemoteIdp());
+		assertEquals("p1", groups.get("/A/newGr").getTranslationProfile());
+		assertNotNull(groups.get("/A/newGr").getCreationTs());
+	}
+
+	@Test
+	public void staleDataRemoved() throws Exception
+	{
+		AttributeType oType = new AttributeType("o", new StringAttributeSyntax());
+		oType.setMaxElements(10);
+		attrsMan.addAttributeType(oType);
+		
+		groupsMan.addGroup(new Group("/A"));
+		groupsMan.addGroup(new Group("/B"));
+		
+		EntityParam ep = new EntityParam(new IdentityTaV(IdentifierIdentity.ID, "id"));
+		idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "id"), 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				EntityState.valid, false);
+		idsMan.addIdentity(new IdentityParam(IdentifierIdentity.ID, "id2", "test", "p1"), ep, false);
+		groupsMan.addMemberFromParent("/A", ep, null, "test", "p1");
+		groupsMan.addMemberFromParent("/B", ep, null, "test", "p1");
+		StringAttribute attr = new StringAttribute("o", "/", AttributeVisibility.full, "v1");
+		attr.setRemoteIdp("test");
+		attr.setTranslationProfile("p1");
+		attrsMan.setAttribute(ep, attr, false);
+		
+		List<InputTranslationRule> rules = new ArrayList<>();
+		InputTranslationAction action1 = (InputTranslationAction) tactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+				IdentifierIdentity.ID, 
+				"'id'", 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				IdentityEffectMode.MATCH.toString());
+		rules.add(new InputTranslationRule(action1, new TranslationCondition()));
+		InputTranslationAction action2 = (InputTranslationAction) tactionReg.getByName(MapGroupActionFactory.NAME).getInstance(
+				"'/A'", GroupEffectMode.REQUIRE_EXISTING_GROUP.name()); 
+		rules.add(new InputTranslationRule(action2, new TranslationCondition()));
+		InputTranslationAction action3 = (InputTranslationAction) tactionReg.getByName(MapAttributeActionFactory.NAME).getInstance(
+				"o", "/A", "['groups']",
+				AttributeVisibility.full.toString(), AttributeEffectMode.CREATE_OR_UPDATE.toString()); 
+		rules.add(new InputTranslationRule(action3, new TranslationCondition()));
+		InputTranslationAction action4 = (InputTranslationAction) tactionReg.getByName(RemoveStaleDataActionFactory.NAME).getInstance(); 
+		rules.add(new InputTranslationRule(action4, new TranslationCondition()));
+		
+		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules);
+		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
+		MappingResult result = tp1.translate(input);
+		inputTrEngine.process(result);
+
+		
+		Entity entity = idsMan.getEntity(ep);
+		
+		assertEquals(1, getIdentitiesByType(entity.getIdentities(), IdentifierIdentity.ID).size());
+		Identity id = getIdentityByType(entity.getIdentities(), IdentifierIdentity.ID);
+		assertNotNull(id.getCreationTs());
+		assertNotNull(id.getUpdateTs());
+		assertNull(id.getRemoteIdp());
+		assertNull(id.getTranslationProfile());
+		assertEquals("id", id.getValue());
+		
+		Collection<AttributeExt<?>> atrs = attrsMan.getAttributes(ep, "/A", "o");
+		assertEquals(1, atrs.size());
+		AttributeExt<?> at = atrs.iterator().next();
+		assertEquals(1, at.getValues().size());
+		assertEquals("groups", at.getValues().get(0));
+		assertNotNull(at.getCreationTs());
+		assertNotNull(at.getUpdateTs());
+		assertEquals("test", at.getRemoteIdp());
+		assertEquals("p1", at.getTranslationProfile());
+
+		atrs = attrsMan.getAttributes(ep, "/", "o");
+		assertEquals(0, atrs.size());
+		
+		Map<String, GroupMembership> groups = idsMan.getGroups(ep);
+		assertTrue(groups.containsKey("/A"));
+		assertEquals("test", groups.get("/A").getRemoteIdp());
+		assertEquals("p1", groups.get("/A").getTranslationProfile());
+		assertNotNull(groups.get("/A").getCreationTs());
+		assertFalse(groups.containsKey("/B"));
+	}
+
+	
+	
+	@Test
+	public void testInputCreateOrUpdateIdentityMapping() throws Exception
+	{
+		List<InputTranslationRule> rules = new ArrayList<>();
+		InputTranslationAction action1 = (InputTranslationAction) tactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+				IdentifierIdentity.ID, 
+				"'test'", 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				IdentityEffectMode.UPDATE_OR_MATCH.toString());
+		rules.add(new InputTranslationRule(action1, new TranslationCondition()));
+		InputTranslationAction action2 = (InputTranslationAction) tactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+				IdentifierIdentity.ID, 
+				"'test-base'", 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				IdentityEffectMode.MATCH.toString());
+		rules.add(new InputTranslationRule(action2, new TranslationCondition()));
+		
+		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules);
+		
+		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
+		MappingResult result = tp1.translate(input);
+		inputTrEngine.process(result);
+
+		EntityParam ep = new EntityParam(new IdentityTaV(IdentifierIdentity.ID, "test"));
+		EntityParam ep2 = new EntityParam(new IdentityTaV(IdentifierIdentity.ID, "test-base"));
+		try
+		{
+			idsMan.getEntity(ep);
+			fail("Entity created");
+		} catch (IllegalIdentityValueException e)
+		{
+			//ok
+		}
+		try
+		{
+			idsMan.getEntity(ep2);
+			fail("Entity created");
+		} catch (IllegalIdentityValueException e)
+		{
+			//ok
+		}
+		
+		idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "test"), 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, EntityState.valid, false);
+
+		
+		MappingResult result2 = tp1.translate(input);
+		inputTrEngine.process(result2);
+
+		try
+		{
+			idsMan.getEntity(ep);
+		} catch (IllegalIdentityValueException e)
+		{
+			fail("Entity not created");
+		}
 	}
 
 	@Test
@@ -268,7 +419,7 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 				AttributeVisibility.full.toString(), AttributeEffectMode.CREATE_OR_UPDATE.toString()); 
 		rules.add(new InputTranslationRule(action4, new TranslationCondition()));
 		
-		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules, ProfileMode.UPDATE_ONLY);
+		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules);
 		
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 		
@@ -340,7 +491,7 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 				AttributeVisibility.full.toString(), AttributeEffectMode.CREATE_OR_UPDATE.toString()); 
 		rules.add(new InputTranslationRule(action3, new TranslationCondition()));
 		
-		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules, ProfileMode.UPDATE_ONLY);
+		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules);
 		
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 		input.addIdentity(new RemoteIdentity("someUser", UsernameIdentity.ID));
@@ -359,6 +510,8 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		
 		assertEquals(1, result.getGroups().size());
 		assertEquals("/A", result.getGroups().get(0).getGroup());
+		assertEquals("test", result.getGroups().get(0).getIdp());
+		assertEquals("p1", result.getGroups().get(0).getProfile());
 		
 		assertEquals(1, result.getAttributes().size());
 		assertEquals("o", result.getAttributes().get(0).getAttribute().getName());
@@ -439,7 +592,7 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		MappingResult result = new MappingResult();
 		result.addAttribute(new MappedAttribute(AttributeEffectMode.CREATE_ONLY, new StringAttribute("o", 
 				"/A", AttributeVisibility.full, "org")));
-		result.addGroup(new MappedGroup("/A", GroupEffectMode.ADD_IF_GROUP_EXISTS));
+		result.addGroup(new MappedGroup("/A", GroupEffectMode.ADD_IF_GROUP_EXISTS, "idp", "profile"));
 		result.addIdentity(new MappedIdentity(IdentityEffectMode.CREATE_OR_MATCH, 
 				new IdentityParam(UsernameIdentity.ID, "added"), "dummy"));
 		
@@ -475,6 +628,38 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		assertEquals("org", at.getValues().get(0).toString());
 	}
 
+	
+	@Test
+	public void primaryIdentityProperlySet() throws Exception
+	{
+		Identity toBeMappedOn = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "known"), 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT,
+				EntityState.valid, false);
+		List<InputTranslationRule> rules = new ArrayList<>();
+		InputTranslationAction action1 = (InputTranslationAction) tactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+				IdentifierIdentity.ID, 
+				"'unknown'", 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				IdentityEffectMode.MATCH.toString());
+		rules.add(new InputTranslationRule(action1, new TranslationCondition()));
+		InputTranslationAction action2 = (InputTranslationAction) tactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+				IdentifierIdentity.ID, 
+				"'known'", 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				IdentityEffectMode.MATCH.toString());
+		rules.add(new InputTranslationRule(action2, new TranslationCondition()));
+		
+		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules);
+		tprofMan.addProfile(tp1);
+		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
+		
+		RemoteVerificatorUtil verificatatorUtil = new RemoteVerificatorUtil(identityResolver, 
+				tprofMan, inputTrEngine);
+		RemotelyAuthenticatedContext processed = verificatatorUtil.processRemoteInput(input, "p1", false);
+
+		assertNotNull(processed.getLocalMappedPrincipal());
+		assertEquals(toBeMappedOn.getEntityId(), processed.getLocalMappedPrincipal().getEntityId());
+	}
 }
 
 

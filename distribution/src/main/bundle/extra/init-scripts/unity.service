@@ -1,0 +1,13 @@
+[Unit]
+Description=Unity IdM Service
+After=network.target
+
+[Service]
+Type=simple
+User=unity-idm
+PIDFile=/var/run/unity-idm/unity-idm-server.pid
+ExecStart=/usr/sbin/unity-idm-server-start
+ExecStop=/usr/sbin/unity-idm-server-stop
+
+[Install]
+WantedBy=multi-user.target

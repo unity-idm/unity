@@ -154,6 +154,7 @@ public class EntityDetailsWithActions extends CustomComponent
 		if (!disabled.contains(HomeEndpointProperties.Components.accountLinking.toString()))
 		{
 			Button associationButton = new Button(msg.getMessage("EntityDetailsWithActions.associateAccount"));
+			associationButton.setId("EntityDetailsWithActions.associateAccount");
 			associationButton.addClickListener(new ClickListener()
 			{
 				@Override

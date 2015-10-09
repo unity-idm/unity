@@ -21,6 +21,7 @@ import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 import pl.edu.icm.unity.server.api.PKIManagement;
+import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
@@ -51,6 +52,8 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 	private UnicoreIdpConsentDeciderServletFactory dispatcherServletFactory;
 
 	private UnityMessageSource msg;
+
+	private NetworkServer server;
 	
 	@Autowired
 	public SamlUnicoreIdPWebEndpointFactory(ApplicationContext applicationContext, 
@@ -58,13 +61,14 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 			ExecutorsService executorsService, MetaDownloadManager downloadManager, 
 			UnityServerConfiguration mainConfig, UnicoreIdpConsentDeciderServletFactory dispatcherServletFactory,
 			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller,
-			UnityMessageSource msg)
+			UnityMessageSource msg, NetworkServer server)
 	{
 		this.applicationContext = applicationContext;
 		this.freemarkerHandler = freemarkerHandler;
 		this.pkiManagement = pkiManagement;
 		this.executorsService = executorsService;
 		this.msg = msg;
+		this.server = server;
 		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
 		this.mainConfig = mainConfig;
 		this.downloadManager = downloadManager;
@@ -96,7 +100,7 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new SamlAuthETDVaadinEndpoint(getDescription(), applicationContext,
+		return new SamlAuthETDVaadinEndpoint(server, applicationContext,
 				freemarkerHandler, 
 				pkiManagement, executorsService, 
 				remoteMetadataManagers, downloadManager, mainConfig,  

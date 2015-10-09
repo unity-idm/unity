@@ -18,6 +18,7 @@ import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
+import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -41,13 +42,15 @@ public class OAuthAuthzWebEndpointFactory implements EndpointFactory
 	private PKIManagement pkiManagement;
 	private OAuthEndpointsCoordinator coordinator;
 	private ASConsentDeciderServletFactory dispatcherServletFactory;
+	private NetworkServer server;
 	
 	@Autowired
 	public OAuthAuthzWebEndpointFactory(ApplicationContext applicationContext, FreemarkerHandler freemarkerHandler,
 			OAuthEndpointsCoordinator coordinator,
 			@Qualifier("insecure") IdentitiesManagement identitiesManagement, 
 			@Qualifier("insecure") AttributesManagement attributesManagement,
-			PKIManagement pkiManagement, ASConsentDeciderServletFactory dispatcherServletFactory)
+			PKIManagement pkiManagement, ASConsentDeciderServletFactory dispatcherServletFactory,
+			NetworkServer server)
 	{
 		this.applicationContext = applicationContext;
 		this.freemarkerHandler = freemarkerHandler;
@@ -56,6 +59,7 @@ public class OAuthAuthzWebEndpointFactory implements EndpointFactory
 		this.pkiManagement = pkiManagement;
 		this.coordinator = coordinator;
 		this.dispatcherServletFactory = dispatcherServletFactory;
+		this.server = server;
 		
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(VaadinAuthentication.NAME);
@@ -74,7 +78,7 @@ public class OAuthAuthzWebEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new OAuthAuthzWebEndpoint(description, applicationContext,  
+		return new OAuthAuthzWebEndpoint(server, applicationContext,  
 				freemarkerHandler, identitiesManagement, 
 				attributesManagement, pkiManagement, coordinator, dispatcherServletFactory);
 	}

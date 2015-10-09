@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.restadm;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -26,11 +27,15 @@ import javax.ws.rs.core.MediaType;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.json.AttributeTypeSerializer;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.EntityScheduledOperation;
@@ -41,6 +46,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -68,15 +74,24 @@ public class RESTAdmin
 	private AttributesManagement attributesMan;
 	private ObjectMapper mapper = Constants.MAPPER;
 	private IdentityTypesRegistry identityTypesRegistry;
+	private AttributeTypeSerializer attrTypeSerializer;
+	private AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
+	private ConfirmationManager confirmationManager;
 	
 	public RESTAdmin(IdentitiesManagement identitiesMan, GroupsManagement groupsMan,
-			AttributesManagement attributesMan, IdentityTypesRegistry identityTypesRegistry)
+			AttributesManagement attributesMan, IdentityTypesRegistry identityTypesRegistry,
+			AttributeTypeSerializer attrTypeSerializer,
+			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry,
+			ConfirmationManager confirmationManager)
 	{
 		super();
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
 		this.attributesMan = attributesMan;
 		this.identityTypesRegistry = identityTypesRegistry;
+		this.attrTypeSerializer = attrTypeSerializer;
+		this.attributeSyntaxFactoriesRegistry = attributeSyntaxFactoriesRegistry;
+		this.confirmationManager = confirmationManager;
 	}
 
 	@Path("/resolve/{identityType}/{identityValue}")
@@ -185,8 +200,8 @@ public class RESTAdmin
 	public String getGroups(@PathParam("entityId") long entityId) throws EngineException, JsonProcessingException
 	{
 		log.debug("getGroups query for " + entityId);
-		Collection<String> groups = identitiesMan.getGroups(new EntityParam(entityId));
-		return mapper.writeValueAsString(groups);
+		Map<String, GroupMembership> groups = identitiesMan.getGroups(new EntityParam(entityId));
+		return mapper.writeValueAsString(groups.keySet());
 	}
 
 	@Path("/entity/{entityId}/attributes")
@@ -234,12 +249,50 @@ public class RESTAdmin
 		{
 			throw new JsonParseException("Can't parse the attribute input", null, e);
 		}
+		setAttribute(attributeParam, entityId);
+	}
+
+	@Path("/entity/{entityId}/attributes")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void setAttributes(@PathParam("entityId") long entityId, String attributes) 
+			throws EngineException, IOException
+	{
+		log.debug("Bulk setAttributes for " + entityId);
+		
+		JsonNode root = mapper.readTree(attributes);
+		if (!root.isArray())
+			throw new JsonParseException("Can't parse the attributes input: root is not an array", 
+					null, null);
+		ArrayNode rootA = (ArrayNode) root;
+		List<AttributeParamRepresentation> parsedParams = new ArrayList<>(rootA.size());
+		for (JsonNode node: rootA)
+		{
+			try
+			{
+				parsedParams.add(mapper.readValue(mapper.writeValueAsString(node), 
+						AttributeParamRepresentation.class));
+			} catch (IOException e)
+			{
+				throw new JsonParseException("Can't parse the attribute input", null, e);
+			}
+		}
+		for (AttributeParamRepresentation ap: parsedParams)
+			setAttribute(ap, entityId);;
+	}
+
+	private void setAttribute(AttributeParamRepresentation attributeParam, long entityId) throws EngineException
+	{
 		log.debug("setAttribute: " + attributeParam.getName() + " in " + attributeParam.getGroupPath());
 		Map<String, AttributeType> attributeTypesAsMap = attributesMan.getAttributeTypesAsMap();
 		AttributeType aType = attributeTypesAsMap.get(attributeParam.getName());
+		if (aType == null)
+			throw new IllegalAttributeTypeException("Attribute type " + attributeParam.getName() + 
+					" does not exist");
 		Attribute<?> apiAttribute = attributeParam.toAPIAttribute(aType.getValueType());
 		attributesMan.setAttribute(new EntityParam(entityId), apiAttribute, true);
 	}
+	
 	
 	@Path("/entity/{entityId}/credential-adm/{credential}")
 	@PUT
@@ -311,4 +364,88 @@ public class RESTAdmin
 		log.debug("addMember " + entityId + " to " + group);
 		groupsMan.addMemberFromParent(group, new EntityParam(entityId));
 	}
+	
+	@Path("/attributeTypes")
+	@GET
+	public String getAttributeTypes() throws EngineException, JsonProcessingException
+	{
+		Collection<AttributeType> attributeTypes = attributesMan.getAttributeTypes();
+		ArrayNode root = mapper.createArrayNode();
+		for (AttributeType at: attributeTypes)
+			root.add(attrTypeSerializer.toJsonNodeFull(at));
+		return mapper.writeValueAsString(root);
+	}
+	
+	@Path("/attributeType")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void addAttributeType(String jsonRaw) throws EngineException
+	{
+		log.debug("addAttributeType " + jsonRaw);
+		AttributeType at = attrTypeSerializer.fromJsonFull(jsonRaw.getBytes(StandardCharsets.UTF_8), 
+				attributeSyntaxFactoriesRegistry);
+		log.debug("addAttributeType " + at.getName());
+		attributesMan.addAttributeType(at);
+	}
+
+	@Path("/attributeType")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void updateAttributeType(String jsonRaw) throws EngineException
+	{
+		log.debug("updateAttributeType " + jsonRaw);
+		AttributeType at = attrTypeSerializer.fromJsonFull(jsonRaw.getBytes(StandardCharsets.UTF_8), 
+				attributeSyntaxFactoriesRegistry);
+		log.debug("updateAttributeType " + at.getName());
+		attributesMan.updateAttributeType(at);
+	}
+	
+	@Path("/attributeType/{toRemove}")
+	@DELETE
+	public void removeAttributeType(@PathParam("toRemove") String toRemove, 
+			@QueryParam("withInstances") String withInstances) throws EngineException
+	{
+		log.debug("removeAttributeType " + toRemove);
+		boolean instances = false;
+		if (withInstances != null)
+			instances = Boolean.parseBoolean(withInstances);
+		attributesMan.removeAttributeType(toRemove, instances);
+	}
+
+	@Path("/confirmation-trigger/entity/{entityId}/attribute/{attributeName}")
+	@POST
+	public void resendConfirmationForAttribute(@PathParam("entityId") long entityId, 
+			@PathParam("attributeName") String attribute,
+			@QueryParam("group") String group) throws EngineException, JsonProcessingException
+	{
+		if (group == null)
+			group = "/";
+		log.debug("confirmation trigger for " + attribute + " of " + entityId + " in " + group);
+		EntityParam entityParam = new EntityParam(entityId);
+		Collection<AttributeExt<?>> attributes = attributesMan.getAttributes(entityParam, group, attribute);
+		
+		if (attributes.isEmpty())
+			throw new WrongArgumentException("Attribute is undefined");
+		
+		confirmationManager.sendVerificationsQuiet(entityParam, attributes, true);
+	}
+
+	@Path("/confirmation-trigger/identity/{type}/{value}")
+	@POST
+	public void resendConfirmationForIdentity(@PathParam("type") String idType, 
+			@PathParam("value") String value) throws EngineException, JsonProcessingException
+	{
+		log.debug("confirmation trigger for " + idType + ": " + value);
+		EntityParam entityParam = new EntityParam(new IdentityTaV(idType, value));
+		Entity entity = identitiesMan.getEntity(entityParam);
+		for (Identity id: entity.getIdentities())
+			if (id.getTypeId().equals(idType) && id.getValue().equals(value))
+			{
+				confirmationManager.sendVerification(entityParam, id, true);
+				return;
+			}
+
+		throw new WrongArgumentException("Identity is unknown");
+	}
+
 }

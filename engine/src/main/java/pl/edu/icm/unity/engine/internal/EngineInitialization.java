@@ -63,6 +63,7 @@ import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.RealmsManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.api.internal.AuthenticatorsManagement;
+import pl.edu.icm.unity.server.api.internal.PublicWellKnownURLServlet;
 import pl.edu.icm.unity.server.attributes.SystemAttributesProvider;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
@@ -187,6 +188,8 @@ public class EngineInitialization extends LifecycleBase
 	private SharedEndpointManagementImpl sharedEndpointManagement;
 	@Autowired(required = false)
 	private ConfirmationServlet confirmationServlet;
+	@Autowired(required = false)
+	private PublicWellKnownURLServlet publicWellKnownURLServlet;
 	
 	
 	private long endpointsLoadTime;
@@ -209,6 +212,7 @@ public class EngineInitialization extends LifecycleBase
 		startLogConfigurationMonitoring();
 		initializeBackgroundTasks();
 		deployConfirmationServlet();
+		deployPublicWellKnownURLServlet();
 		super.start();
 	}
 	
@@ -317,6 +321,16 @@ public class EngineInitialization extends LifecycleBase
 			}			
 		};
 		executors.getService().schedule(entitiesUpdaterTask, (int)(interval*0.5), TimeUnit.SECONDS);
+		
+		//wait to ensure that we return only when endpoint updates will be catched
+		try
+		{
+			Thread.sleep(1000 - (System.currentTimeMillis() - endpointsLoadTime));
+		} catch (InterruptedException e)
+		{
+			//ok
+		}
+		
 	}
 	
 	public void initializeDatabaseContents()
@@ -337,11 +351,34 @@ public class EngineInitialization extends LifecycleBase
 		initializeEndpoints();
 	}
 	
+	private void deployPublicWellKnownURLServlet()
+	{
+		if (publicWellKnownURLServlet == null)
+		{
+			log.info("Public well-known URL servlet is not available, skipping its deploymnet");
+			return;
+		}	
+		
+		log.info("Deploing public well-known URL servlet");
+		ServletHolder holder = new ServletHolder(publicWellKnownURLServlet.getServiceServlet());
+		FilterHolder filterHolder = new FilterHolder(publicWellKnownURLServlet.getServiceFilter());
+		try
+		{
+			sharedEndpointManagement.deployInternalEndpointServlet(PublicWellKnownURLServlet.SERVLET_PATH, 
+					holder, true);
+			sharedEndpointManagement.deployInternalEndpointFilter(PublicWellKnownURLServlet.SERVLET_PATH, 
+					filterHolder);
+		} catch (EngineException e)
+		{
+			throw new InternalException("Cannot deploy public well-known URL servlet", e);
+		}
+	}
+		
 	private void deployConfirmationServlet()
 	{
 		if (confirmationServlet == null)
 		{
-			log.info("Confirmation servlet is not available, skipping deploing");
+			log.info("Confirmation servlet is not available, skipping its deploymnet");
 			return;
 		}	
 		

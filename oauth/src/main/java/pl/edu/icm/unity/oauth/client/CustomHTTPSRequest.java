@@ -10,6 +10,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -193,9 +195,9 @@ public class CustomHTTPSRequest extends HTTPRequest
 		if (location != null) {
 
 			try {
-				response.setLocation(new URL(location));
+				response.setLocation(new URI(location));
 
-			} catch (MalformedURLException e) {
+			} catch (URISyntaxException e) {
 
 				throw new IOException("Couldn't parse Location header: " + e.getMessage(), e);
 			}

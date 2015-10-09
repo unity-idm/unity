@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
+import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
@@ -35,6 +36,9 @@ public class MockRESTEndpointFactory implements EndpointFactory
 	@Autowired
 	private AuthenticationProcessor authnProcessor;
 	
+	@Autowired
+	private NetworkServer server;
+	
 	@Override
 	public EndpointTypeDescription getDescription()
 	{
@@ -44,7 +48,7 @@ public class MockRESTEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new MockRESTEndpoint(msg, sessionMan, authnProcessor, TYPE, SERVLET_PATH);
+		return new MockRESTEndpoint(msg, sessionMan, authnProcessor, server, SERVLET_PATH);
 	}
 
 }

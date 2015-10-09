@@ -27,10 +27,11 @@ public interface NotificationFacility extends DescribedObject
 	 * Returns an address of the entity to be used when sending notifications via the channel.
 	 * @param recipient
 	 * @param sql
+	 * @param preferred if not null then this address should be used if it is avaliable
 	 * @return never null, in case no address is found then exception is thrown
 	 * @throws EngineException
 	 */
-	String getAddressForEntity(EntityParam recipient, SqlSession sql) throws EngineException;
+	String getAddressForEntity(EntityParam recipient, SqlSession sql, String preferred) throws EngineException;
 	
 	/**
 	 * Returns an address of the person who filled registration form.

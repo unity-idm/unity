@@ -87,6 +87,23 @@ public class AttributeClassHelper
 		removeIncluded(toCleanup.getMandatory(), helper, false);
 	}
 	
+	/**
+	 * @param original
+	 * @return true only if the this effective class is more restrictive then the given argument,
+	 * i.e. it has more mandatory attributes or less allowed.
+	 */
+	public boolean isRestricting(AttributeClassHelper original)
+	{
+		
+		if (!original.getEffectiveMandatory().containsAll(getEffectiveMandatory()))
+			return true;
+		if (isEffectiveAllowArbitrary())
+			return false;
+		if (!getEffectiveAllowed().containsAll(original.getEffectiveAllowed()))
+			return true;
+		return false;
+	}
+	
 	private static void removeIncluded(Set<String> set, AttributeClassHelper helper, boolean mode)
 	{
 		Iterator<String> aIt = set.iterator();

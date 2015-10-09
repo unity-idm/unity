@@ -7,6 +7,9 @@ package pl.edu.icm.unity.engine.confirmations.facilities;
 import org.apache.ibatis.session.SqlSession;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder;
+import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder.ConfirmedElementType;
+import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder.Status;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.states.UserConfirmationState;
 import pl.edu.icm.unity.db.DBIdentities;
@@ -36,6 +39,23 @@ public abstract class UserFacility <T extends UserConfirmationState> extends Bas
 	}
 
 	protected abstract ConfirmationStatus confirmElements(T state, SqlSession sql) throws EngineException;
+	
+	protected abstract ConfirmedElementType getConfirmedElementType(T state);
+	
+	protected String getSuccessRedirect(T state)
+	{
+		return new ConfirmationRedirectURLBuilder(state.getRedirectUrl(), 
+				Status.elementConfirmed).
+			setConfirmationInfo(getConfirmedElementType(state), state.getType(), state.getValue()).
+			build();
+	}
+	
+	protected String getErrorRedirect(T state)
+	{
+		return new ConfirmationRedirectURLBuilder(state.getRedirectUrl(), Status.elementConfirmationError).
+			setConfirmationInfo(getConfirmedElementType(state), state.getType(), state.getValue()).
+			build();
+	}
 	
 	@Override
 	public boolean isDuplicate(T base, String candidate)
@@ -68,12 +88,14 @@ public abstract class UserFacility <T extends UserConfirmationState> extends Bas
 			entityState = dbIdentities.getEntityStatus(idState.getOwnerEntityId(), sql);
 		} catch (Exception e)
 		{
-			return new ConfirmationStatus(false, idState.getErrorUrl(), "ConfirmationStatus.entityRemoved");
+			return new ConfirmationStatus(false, idState.getRedirectUrl(), 
+					"ConfirmationStatus.entityRemoved");
 		}
 
 		if (!entityState.equals(EntityState.valid))
 		{
-			return new ConfirmationStatus(false, idState.getErrorUrl(), "ConfirmationStatus.entityInvalid");
+			return new ConfirmationStatus(false, idState.getRedirectUrl(), 
+					"ConfirmationStatus.entityInvalid");
 		}
 			
 		return confirmElements(idState, sql);

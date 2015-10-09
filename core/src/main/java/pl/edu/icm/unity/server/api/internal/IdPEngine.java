@@ -76,7 +76,7 @@ public class IdPEngine
 			String requester, String protocol, String protocolSubType, boolean allowIdentityCreate) 
 			throws EngineException
 	{
-		Collection<String> allGroups = identitiesMan.getGroups(entity);
+		Collection<String> allGroups = identitiesMan.getGroups(entity).keySet();
 		Collection<AttributeExt<?>> allAttributes = attributesMan.getAttributes(
 				entity, group, null);
 		Entity fullEntity = identitiesMan.getEntity(entity, requester, allowIdentityCreate, group);

@@ -25,13 +25,13 @@ import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
+import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.ws.CXFEndpoint;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import eu.unicore.samly2.SAMLConstants;
@@ -60,7 +60,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	private SAMLLogoutProcessorFactory logoutProcessorFactory;
 	protected AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
 	
-	public SamlSoapEndpoint(UnityMessageSource msg, EndpointTypeDescription type,
+	public SamlSoapEndpoint(UnityMessageSource msg, NetworkServer server,
 			String servletPath, String metadataPath, IdPEngine idpEngine,
 			PreferencesManagement preferencesMan, PKIManagement pkiManagement,
 			ExecutorsService executorsService, SessionManagement sessionMan,
@@ -69,7 +69,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 			SAMLLogoutProcessorFactory logoutProcessorFactory, AuthenticationProcessor authnProcessor,
 			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry)
 	{
-		super(msg, sessionMan, authnProcessor, type, servletPath);
+		super(msg, sessionMan, authnProcessor, server, servletPath);
 		this.idpEngine = idpEngine;
 		this.preferencesMan = preferencesMan;
 		this.pkiManagement = pkiManagement;

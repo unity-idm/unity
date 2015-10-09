@@ -19,12 +19,21 @@ public class CryptoUtils
 	 * @param salt salt to be concatenated
 	 * @return SHA254 hash of the salted argument.
 	 */
-	public static byte[] hash(String password, String salt)
+	public static byte[] hash(String password, String salt, int rehashNumber)
 	{
+		byte[] interim = (salt+password).getBytes(StandardCharsets.UTF_8);
 		SHA256Digest digest = new SHA256Digest();
 		int size = digest.getDigestSize();
-		byte[] salted = (salt+password).getBytes(StandardCharsets.UTF_8);
-		digest.update(salted, 0, salted.length);
+		
+		for (int i=0; i<rehashNumber; i++)
+			interim = hash(interim, size, digest);
+		
+		return interim;
+	}
+
+	private static byte[] hash(byte[] current, int size, SHA256Digest digest)
+	{
+		digest.update(current, 0, current.length);
 		byte[] hashed = new byte[size];
 		digest.doFinal(hashed, 0);
 		return hashed;

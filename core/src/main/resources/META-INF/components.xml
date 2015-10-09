@@ -40,6 +40,8 @@
 
 	<bean class="pl.edu.icm.unity.server.api.internal.IdPEngine"/>
 	
+	<bean class="pl.edu.icm.unity.json.AttributeTypeSerializer"/>
+	
 	<beans profile="production">
 		<bean class="pl.edu.icm.unity.server.utils.DefaultConfigurationLocation"/>
 	</beans>

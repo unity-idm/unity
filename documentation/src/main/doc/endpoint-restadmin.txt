@@ -175,7 +175,8 @@ Example output:
 +@Path("/entity/{entityId}/identity/{type}/{value}")+ +
 +@POST+ +
 
-Creates a new identity for the given entity. No content is returned.
+Creates a new identity for the given entity. No content is returned. Note that for e-mail identities the regular Unity
+conventions can be used to control confirmation state and tags - see <<email-encoding>>.
 
 '''
 
@@ -254,6 +255,16 @@ and +direct+ shall not be used. No content is returned. Example attribute encode
 
 '''
 
++@Path("/entity/{entityId}/attributes")+ +
++@PUT+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Bulk attributes creation or update for a given entity. The body of the PUT request describes the attributes. Its root
+level element must be JSON array. Elements of the array are attributes expressed in the same way as in the singular
+set attribute operation.
+
+'''
+
 +@Path("/entity/{entityId}/attribute/{attributeName}")+ +
 +@QueryParam("group")+ +
 +@DELETE+ +
@@ -295,3 +306,85 @@ For the password credential the complete value could be (with a selected securit
   "{\"password\":\"currentpass\",\"answer\":\"Some answer\",\"question\":1}" 
 ]
 ----
+
+'''
+
++@Path("/attributeTypes")+ +
++@GET+ +
+
+Returns an array with all attribute types. Example:
+
+----
+[{
+  "flags" : 0,
+  "maxElements" : 1,
+  "minElements" : 0,
+  "selfModificable" : false,
+  "uniqueValues" : false,
+  "visibility" : "full",
+  "syntaxState" : "{\"allowed\":[\"V2\",\"V1\"]}",
+  "displayedName" : {
+    "DefaultValue" : "enumA",
+    "Map" : { }
+  },
+  "i18nDescription" : {
+    "DefaultValue" : null,
+    "Map" : { }
+  },
+  "metadata" : { },
+  "name" : "enumA",
+  "syntaxId" : "enumeration"
+},
+...
+]
+----
+
+
+'''
+
++@Path("/attributeType")+ +
++@POST+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Creates a new attribute type. The POSTed request body must contain a JSON description of the attribute type, 
+with the same syntax as returned by the GET query on attributeTypes. Only a single element is permitted, i.e. do
+not pass an JSON array. The +flags+ field should be always set to 0.
+
+
+'''
+
++@Path("/attributeType")+ +
++@PUT+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Updates an existing attribute type. The syntax rules are as for POST, however the name of the updated attribute
+type must resolve to an existing attribute type.
+
+
+'''
+
++@Path("/attributeType/{toRemove}")+ +
++@QueryParam("withInstances")+ +
++@DELETE+ +
+
+Removes a given attribute type. Query parameter +withInstances+ is used to control whether all attributes of the
+removed type should be removed too (value +true+) or whether the operation should fail if there are any attributes
+(value +false+).
+
+
+'''
+
++@Path("/confirmation-trigger/identity/{type}/{value}")+ +
++@POST+ +
+
+Triggers sending of confirmation message of identity. Nearly always it is a re-send.
+
+
+'''
+
++@Path("/confirmation-trigger/entity/{entityId}/attribute/{attributeName}")+ +
++@QueryParam("group")+ +
++@POST+ +
+
+Triggers sending of confirmation message for an attribute. Nearly always it is a re-send.
+

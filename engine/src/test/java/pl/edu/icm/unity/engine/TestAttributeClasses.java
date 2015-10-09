@@ -12,9 +12,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
+
+import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
@@ -124,6 +127,122 @@ public class TestAttributeClasses extends DBIntegrationTestBase
 		
 		attrsMan.removeAttributeClass(ac2.getName());
 	}
+
+	@Test
+	public void unusedACIsUpdated() throws Exception
+	{
+		setupStateForConditions();
+
+		AttributesClass ac = new AttributesClass("ac1", "desc", Sets.newHashSet("a2"), 
+				 Sets.newHashSet("a1"), false, Sets.newHashSet());
+		attrsMan.addAttributeClass(ac);
+		
+		AttributesClass acUp1 = new AttributesClass("ac1", "desc2", Sets.newHashSet("a3"), 
+				 Sets.newHashSet("a2"), false, Sets.newHashSet());
+		
+		attrsMan.updateAttributeClass(acUp1);
+		Map<String, AttributesClass> attributeClasses = attrsMan.getAttributeClasses();
+		AttributesClass updated = attributeClasses.get("ac1");
+		assertEquals("desc2", updated.getDescription());
+		assertEquals("ac1", updated.getName());
+		assertEquals(Sets.newHashSet("a2"), updated.getMandatory());
+		assertEquals(Sets.newHashSet("a3", "a2"), updated.getAllowed());
+	}
+	
+	@Test
+	public void usedACIsUpdatedWithoutRestricting() throws Exception
+	{
+		setupStateForConditions();
+
+		AttributesClass ac = new AttributesClass("ac1", "desc", Sets.newHashSet("a2"), 
+				 Sets.newHashSet("a1"), false, Sets.newHashSet());
+		attrsMan.addAttributeClass(ac);
+		
+		//let's add child so we are allowed to do only non restrictive udpates
+		AttributesClass acChild = new AttributesClass("acChild", "desc", Collections.singleton("a2"), 
+				 Sets.newHashSet("a1"), false, Collections.singleton("ac1"));
+		attrsMan.addAttributeClass(acChild);
+		
+		AttributesClass acUp1 = new AttributesClass("ac1", "desc", Sets.newHashSet("a2", "a3"), 
+				 Sets.newHashSet("a1"), false, Sets.newHashSet());		
+		attrsMan.updateAttributeClass(acUp1);
+
+		AttributesClass acUp2 = new AttributesClass("ac1", "desc", Sets.newHashSet("a2", "a3"), 
+				 Sets.newHashSet(), true, Sets.newHashSet());		
+		attrsMan.updateAttributeClass(acUp2);
+	}
+		
+	@Test
+	public void usedACIsNotUpdatedWhenRestricting() throws Exception
+	{
+		setupStateForConditions();
+
+		AttributesClass ac = new AttributesClass("ac1", "desc", Sets.newHashSet("a2"), 
+				 Sets.newHashSet("a1"), false, Sets.newHashSet());
+		attrsMan.addAttributeClass(ac);
+		
+		//let's add child so we are allowed to do only non restrictive udpates
+		AttributesClass acChild = new AttributesClass("acChild", "desc", Collections.singleton("a2"), 
+				 Sets.newHashSet("a1"), false, Collections.singleton("ac1"));
+		attrsMan.addAttributeClass(acChild);
+		
+		AttributesClass acUp1 = new AttributesClass("ac1", "desc", Sets.newHashSet(), 
+				 Sets.newHashSet("a1"), false, Sets.newHashSet());
+		try
+		{
+			attrsMan.updateAttributeClass(acUp1);
+			fail("Should get an exception");
+		} catch (SchemaConsistencyException e)
+		{
+			//ok, expected
+		}
+
+		AttributesClass acUp2 = new AttributesClass("ac1", "desc", Sets.newHashSet("a2"), 
+				 Sets.newHashSet("a1", "a2"), true, Sets.newHashSet());		
+		try
+		{
+			attrsMan.updateAttributeClass(acUp2);
+			fail("Should get an exception");
+		} catch (SchemaConsistencyException e)
+		{
+			//ok, expected
+		}
+	}
+
+	@Test
+	public void usedACUpdateRestrictingIsDetectedViaParents() throws Exception
+	{
+		//Given
+		setupStateForConditions();
+
+		AttributesClass acParent = new AttributesClass("acParent", "desc", Sets.newHashSet("a2"), 
+				 Sets.newHashSet("a1"), false, Sets.newHashSet());
+		attrsMan.addAttributeClass(acParent);
+
+		AttributesClass ac = new AttributesClass("ac1", "desc", Sets.newHashSet("a3"), 
+				 Sets.newHashSet(), false, Sets.newHashSet("acParent"));
+		attrsMan.addAttributeClass(ac);
+		
+		//let's add child so we are allowed to do only non restrictive udpates
+		AttributesClass acChild = new AttributesClass("acChild", "desc", Collections.singleton("a2"), 
+				 Sets.newHashSet("a1"), false, Collections.singleton("ac1"));
+		attrsMan.addAttributeClass(acChild);
+		
+		
+		//When
+		AttributesClass acUp1 = new AttributesClass("ac1", "desc", Sets.newHashSet("a3"), 
+				 Sets.newHashSet(), false, Sets.newHashSet());
+		try
+		{
+			attrsMan.updateAttributeClass(acUp1);
+			//Then
+			fail("Should get an exception");
+		} catch (SchemaConsistencyException e)
+		{
+			//ok, expected
+		}
+	}
+	
 	
 	/**
 	 * - try to assign non-exiting AC to group (should fail)
