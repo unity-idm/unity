@@ -81,7 +81,12 @@ identities propagated to the existing user in Unity, but at the same time we don
 created automatically (what would be +CREATE_OR_MATCH+ effect), so that a registration facility can be used.      
 
 Additionally the actions allow for creating Unity's attributes, assigning the remote user to groups and to change
-entity status. 
+entity status.  
+
+One action requires a special attention: +removeStaleData+. This action, when added to a profile, causes Unity
+to remove all stale data: attributes, group memberships, identities. The data is assumed to be stale if it 
+was previously created by the same profile, basing on input from the same remote IdP 
+and which was not reproduced during the current invocation of the profile.
 
 ==== Translation profile creation wizard and dry-run
 
