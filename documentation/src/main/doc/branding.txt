@@ -11,7 +11,7 @@ Unity themes are placed in a configured directory. Each theme is named and the s
 theme as follows (in +unityServer.conf+):
 
 ----
-unityServer.core.defaultWebContentDirectory=conf/webContents
+unityServer.core.defaultWebContentDirectory=webContents
 unityServer.core.defaultTheme=unityThemeValo
 ----
 
@@ -22,7 +22,7 @@ can also use a separate directory with theme files and other web resources. For 
 ----
 unity.endpoint.web.mainTheme=customTheme
 unity.endpoint.web.authnTheme=customAuthnTheme
-unity.endpoint.web.webContentDirectory=conf/webContents-homeEndpoint
+unity.endpoint.web.webContentDirectory=webContents-homeEndpoint
 ----
 
 There are couple of facts that it might be useful to know:
