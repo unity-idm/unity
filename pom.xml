@@ -21,7 +21,7 @@
 		<scm.base>scm:git:git@git.assembla.com:unity-public.git</scm.base>
 		<jetty.version>8.1.18.v20150929</jetty.version>
 		<slf4j.version>1.7.12</slf4j.version>
-		<spring.version>4.2.1.RELEASE</spring.version>
+		<spring.version>4.1.7.RELEASE</spring.version>
 		<vaadin.version>7.5.7</vaadin.version>
 		<cxf.version>2.7.13</cxf.version>
 		<apacheds.version>2.0.0-M20</apacheds.version>
