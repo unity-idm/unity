@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.restadm;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -381,7 +382,8 @@ public class RESTAdmin
 	public void addAttributeType(String jsonRaw) throws EngineException
 	{
 		log.debug("addAttributeType " + jsonRaw);
-		AttributeType at = attrTypeSerializer.fromJsonFull(jsonRaw.getBytes(), attributeSyntaxFactoriesRegistry);
+		AttributeType at = attrTypeSerializer.fromJsonFull(jsonRaw.getBytes(StandardCharsets.UTF_8), 
+				attributeSyntaxFactoriesRegistry);
 		log.debug("addAttributeType " + at.getName());
 		attributesMan.addAttributeType(at);
 	}
@@ -392,7 +394,8 @@ public class RESTAdmin
 	public void updateAttributeType(String jsonRaw) throws EngineException
 	{
 		log.debug("updateAttributeType " + jsonRaw);
-		AttributeType at = attrTypeSerializer.fromJsonFull(jsonRaw.getBytes(), attributeSyntaxFactoriesRegistry);
+		AttributeType at = attrTypeSerializer.fromJsonFull(jsonRaw.getBytes(StandardCharsets.UTF_8), 
+				attributeSyntaxFactoriesRegistry);
 		log.debug("updateAttributeType " + at.getName());
 		attributesMan.updateAttributeType(at);
 	}
