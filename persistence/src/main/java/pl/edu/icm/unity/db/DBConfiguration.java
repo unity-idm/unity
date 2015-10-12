@@ -57,11 +57,11 @@ public class DBConfiguration extends PropertiesHelper
 	public static final Map<String, PropertyMD> META;
 	static 
 	{
-		META = DBPropertiesHelper.getMetadata(Driver.class, "jdbc:h2:file:data/unitydb.bin", 
+		META = DBPropertiesHelper.getMetadata(Driver.class, "jdbc:h2:file:./data/unitydb.bin", 
 				Dialect.h2, "");
 		META.put(DBCONFIG_FILE, new PropertyMD().setPath().setHidden().
 				setDescription("Path of the low level database file with mappings configuration."));
-		META.put(LOCAL_DB_URL, new PropertyMD("jdbc:h2:file:data/unity-localdb.bin").
+		META.put(LOCAL_DB_URL, new PropertyMD("jdbc:h2:file:./data/unity-localdb.bin").
 				setDescription("Location of the local H2 database can be " +
 				"controlled with this connection URL."));
 		META.put(IGNORE_ALTERNATIVE_DB_CONFIG, new PropertyMD("false").setHidden().
