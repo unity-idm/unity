@@ -5,22 +5,34 @@
 package pl.edu.icm.unity.webadmin.reg.reqman;
 
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.List;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
+import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
+import pl.edu.icm.unity.webui.WebSession;
+import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
+import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.SmallTable;
 import pl.edu.icm.unity.webui.common.Toolbar;
+import pl.edu.icm.unity.webui.registration.RegistrationRequestChangedEvent;
 
+import com.google.common.collect.Lists;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.event.Action;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Table;
@@ -34,6 +46,7 @@ public class RequestsTable extends CustomComponent
 {
 	private RegistrationsManagement registrationsManagement;
 	private UnityMessageSource msg;
+	private EventsBus bus;
 	
 	private Table requestsTable;
 
@@ -41,20 +54,20 @@ public class RequestsTable extends CustomComponent
 	{
 		this.registrationsManagement = regMan;
 		this.msg = msg;
-		
+		this.bus = WebSession.getCurrent().getEventBus();
 		initUI();
 	}
 
 	private void initUI()
 	{
-		requestsTable = new Table();
+		requestsTable = new SmallTable();
 		requestsTable.setNullSelectionAllowed(false);
 		requestsTable.setImmediate(true);
 		requestsTable.setSizeFull();
 		BeanItemContainer<TableRequestBean> tableContainer = new BeanItemContainer<>(TableRequestBean.class);
 		tableContainer.removeContainerProperty("element");
 		requestsTable.setSelectable(true);
-		requestsTable.setMultiSelect(false);
+		requestsTable.setMultiSelect(true);
 		requestsTable.setContainerDataSource(tableContainer);
 		requestsTable.setVisibleColumns(new Object[] {"form", "requestId", "submitTime", "status", 
 				"requestedIdentity"});
@@ -66,11 +79,20 @@ public class RequestsTable extends CustomComponent
 				msg.getMessage("RegistrationRequest.requestedIdentity")});
 		requestsTable.setSortContainerPropertyId(requestsTable.getContainerPropertyIds().iterator().next());
 		requestsTable.setSortAscending(true);
-		RefreshActionHandler handler = new RefreshActionHandler();
-		requestsTable.addActionHandler(handler);
-		
+
+		RefreshActionHandler refreshA = new RefreshActionHandler();
+		BulkProcessActionHandler acceptA = new BulkProcessActionHandler(
+				RegistrationRequestAction.accept, Images.ok);
+		BulkProcessActionHandler deleteA = new BulkProcessActionHandler(
+				RegistrationRequestAction.drop, Images.trashBin);
+		BulkProcessActionHandler rejectA = new BulkProcessActionHandler(
+				RegistrationRequestAction.reject, Images.delete);
 		Toolbar toolbar = new Toolbar(requestsTable, Orientation.HORIZONTAL);
-		toolbar.addActionHandlers(handler);
+		addAction(refreshA, toolbar);
+		addAction(acceptA, toolbar);
+		addAction(rejectA, toolbar);
+		addAction(deleteA, toolbar);
+
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(requestsTable, toolbar);
 		tableWithToolbar.setSizeFull();
 		
@@ -78,6 +100,12 @@ public class RequestsTable extends CustomComponent
 		refresh();
 	}
 
+	private void addAction(SingleActionHandler action, Toolbar toolbar)
+	{
+		requestsTable.addActionHandler(action);
+		toolbar.addActionHandler(action);
+	}
+	
 	public void addValueChangeListener(final RequestSelectionListener listener)
 	{
 		requestsTable.addValueChangeListener(new ValueChangeListener()
@@ -85,17 +113,24 @@ public class RequestsTable extends CustomComponent
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
-				TableRequestBean bean = (TableRequestBean) requestsTable.getValue();
-				listener.requestChanged(bean == null ? null : bean.request);
+				TableRequestBean selected = getOnlyOneSelected();
+				listener.requestChanged(selected == null ? null : selected.request);
 			}
 		});
+	}
+	
+	private TableRequestBean getOnlyOneSelected()
+	{
+		Collection<?> beans = (Collection<?>) requestsTable.getValue();
+		return beans == null || beans.isEmpty() || beans.size() > 1 ? 
+				null : ((TableRequestBean)beans.iterator().next());
 	}
 	
 	public void refresh()
 	{
 		try
 		{
-			TableRequestBean selected = (TableRequestBean) requestsTable.getValue();
+			TableRequestBean selected = getOnlyOneSelected();
 			List<RegistrationRequestState> requests = registrationsManagement.getRegistrationRequests();
 			requestsTable.removeAllItems();
 			for (RegistrationRequestState req: requests)
@@ -103,13 +138,36 @@ public class RequestsTable extends CustomComponent
 				TableRequestBean item = new TableRequestBean(req, msg);
 				requestsTable.addItem(item);
 				if (selected != null && selected.request.getRequestId().equals(req.getRequestId()))
-					requestsTable.setValue(item);
+					requestsTable.setValue(Lists.newArrayList(item));
 			}
 		} catch (Exception e)
 		{
 			ErrorComponent error = new ErrorComponent();
 			error.setError(msg.getMessage("RequestsTable.errorGetRequests"), e);
 			setCompositionRoot(error);
+		}
+	}
+	
+	public void process(Collection<?> items, RegistrationRequestAction action)
+	{
+		for (Object item: items)
+		{
+			RegistrationRequestState request = ((TableRequestBean)item).request;
+			try
+			{
+				registrationsManagement.processRegistrationRequest(request.getRequestId(), 
+						request.getRequest(), 
+						action, 
+						null, 
+						null);
+				bus.fireEvent(new RegistrationRequestChangedEvent(request.getRequestId()));
+			} catch (EngineException e)
+			{
+				String info = msg.getMessage("RequestsTable.processError." + action.toString(),
+						request.getRequestId());
+				NotificationPopup.showError(msg, info, e);
+				break;
+			}
 		}
 	}
 	
@@ -128,6 +186,51 @@ public class RequestsTable extends CustomComponent
 		}
 	}
 	
+	private class BulkProcessActionHandler extends SingleActionHandler
+	{
+		private final RegistrationRequestAction action;
+		
+		
+		public BulkProcessActionHandler(RegistrationRequestAction action, Images image)
+		{
+			super(msg.getMessage("RequestProcessingPanel." + action.toString()), 
+					image.getResource());
+			this.action = action;
+			setMultiTarget(true);
+		}
+		
+		@Override
+		public Action[] getActions(Object target, Object sender)
+		{
+			if (action != RegistrationRequestAction.drop && target instanceof Collection<?>)
+			{
+				Collection<?> t = (Collection<?>) target;
+				boolean hasPending = t.stream().allMatch(o -> {
+					TableRequestBean bean = (TableRequestBean) o;
+					return bean.request.getStatus() == RegistrationRequestStatus.pending;
+				});
+				return hasPending ? super.getActions(target, sender) : EMPTY;
+			} 
+			return super.getActions(target, sender);
+		}
+		
+		@Override
+		public void handleAction(Object sender, Object target)
+		{	
+			final Collection<?> items = (Collection<?>) requestsTable.getValue();
+			new ConfirmDialog(msg, msg.getMessage(
+					"RequestsTable.confirmAction."+action, items.size()),
+					new ConfirmDialog.Callback()
+					{
+						@Override
+						public void onConfirm()
+						{
+							process(items, action);
+						}
+					}).show();
+		}
+	}
+
 	public static class TableRequestBean
 	{
 		private RegistrationRequestState request;

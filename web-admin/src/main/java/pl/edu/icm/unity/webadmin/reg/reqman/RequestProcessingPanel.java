@@ -113,7 +113,7 @@ public class RequestProcessingPanel extends CustomComponent
 				process(RegistrationRequestAction.reject);
 			}
 		});
-		delete = new Button(msg.getMessage("RequestProcessingPanel.delete"));
+		delete = new Button(msg.getMessage("RequestProcessingPanel.drop"));
 		delete.addClickListener(new Button.ClickListener()
 		{
 			@Override
