@@ -30,6 +30,8 @@ public class CookieHelper
 	 */
 	public static String getCookie(Cookie[] cookies, String name)
 	{
+		if (cookies == null)
+			return null;
 		for (Cookie cookie: cookies)
 			if (name.equals(cookie.getName()))
 				return cookie.getValue();

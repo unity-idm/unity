@@ -35,6 +35,7 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, SharedEndpointManagementImpl.class);
 	public static final String CONTEXT_PATH = "/unitygw";
+	public static final String VAADIN_RESOURCE_PATH = "/VAADIN/*";
 	private ServletContextHandler sharedHandler;
 	private URL advertisedAddress;
 	private Set<String> usedPaths;
@@ -59,8 +60,11 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 		if (usedPaths.contains(contextPath))
 			throw new WrongArgumentException("The context path " + contextPath + " is already assigned.");
 		sharedHandler.addServlet(servlet, contextPath + "/*");
-		if (mapVaadinResource)
-			sharedHandler.addServlet(servlet, "/VAADIN/*");
+		if (mapVaadinResource && !usedPaths.contains(VAADIN_RESOURCE_PATH))
+		{
+			usedPaths.add(VAADIN_RESOURCE_PATH);
+			sharedHandler.addServlet(servlet, VAADIN_RESOURCE_PATH);
+		}
 		log.debug("Deployed internal servlet " + servlet.getClassName() + " at: " +
 				CONTEXT_PATH + contextPath);
 	}

@@ -21,8 +21,8 @@ import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 import eu.unicore.util.jetty.HttpServerProperties;
 
 /**
- * Overrides defaults of {@link HttpServerProperties} in case of allowing of anonymous SSL clients 
- * and NIO is enabled by default. This class also warns if typical misconfigurations are detected.
+ * Overrides defaults of {@link HttpServerProperties}, allowing anonymous SSL clients. 
+ * This class also warns if typical misconfigurations are detected.
  * @author K. Benedyczak
  */
 public class UnityHttpServerConfiguration extends HttpServerProperties
@@ -55,9 +55,6 @@ public class UnityHttpServerConfiguration extends HttpServerProperties
 			defaults.put(entry.getKey(), entry.getValue().setCategory(advancedCat));
 		defaults.put(ENABLE_GZIP, new PropertyMD("true").
 				setDescription("Controls whether to enable compression of HTTP responses."));
-		defaults.put(USE_NIO, new PropertyMD("true").setCategory(advancedCat).
-				setDescription("Controls whether the NIO connector be used. NIO is best suited under high-load, " +
-						"when lots of connections exist that are idle for long periods."));
 		defaults.get(REQUIRE_CLIENT_AUTHN).setDefault("false");
 	}
 
