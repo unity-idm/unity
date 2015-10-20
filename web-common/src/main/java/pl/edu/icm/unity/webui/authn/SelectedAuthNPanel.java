@@ -379,6 +379,8 @@ public class SelectedAuthNPanel extends CustomComponent
 				if (partialState == null)
 				{
 					setNotAuthenticating();
+					if (authNListener != null)
+						authNListener.clearUI();
 				} else
 				{
 					switchToSecondaryAuthentication(partialState);
@@ -458,6 +460,8 @@ public class SelectedAuthNPanel extends CustomComponent
 				authnProcessor.processSecondaryAuthnResult(partialState, result, clientIp, realm, 
 						selectedAuthnOption, rememberMe.getValue());
 				setNotAuthenticating();
+				if (authNListener != null)
+					authNListener.clearUI();
 			} catch (AuthenticationException e)
 			{
 				log.trace("Secondary authentication failed ", e);
@@ -508,6 +512,7 @@ public class SelectedAuthNPanel extends CustomComponent
 	public interface AuthenticationListener
 	{
 		void authenticationStateChanged(boolean started);
+		void clearUI();
 	}
 	
 	/**

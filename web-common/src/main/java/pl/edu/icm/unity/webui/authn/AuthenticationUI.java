@@ -172,17 +172,24 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		main.addComponent(authenticationPanel);
 		main.setComponentAlignment(authenticationPanel, Alignment.TOP_CENTER);
 		
+		authenticationPanel.setAuthenticationListener(new AuthenticationListener()
+		{
+			@Override
+			public void authenticationStateChanged(boolean started)
+			{
+				if (tiles.size() > 1 || tiles.get(0).size() > 1)
+					selectorPanel.setEnabled(!started);
+			}
+
+			@Override
+			public void clearUI()
+			{
+				setContent(new VerticalLayout());
+			}
+		});
+		
 		if (tiles.size() > 1 || tiles.get(0).size() > 1)
 		{
-			authenticationPanel.setAuthenticationListener(new AuthenticationListener()
-			{
-				@Override
-				public void authenticationStateChanged(boolean started)
-				{
-					selectorPanel.setEnabled(!started);
-				}
-			});
-			
 			HorizontalLayout tilesWrapper = new HorizontalLayout();
 			tilesWrapper.addComponent(selectorPanel);
 			main.addComponent(tilesWrapper);
