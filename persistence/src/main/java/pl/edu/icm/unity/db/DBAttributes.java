@@ -43,6 +43,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributesClass;
+import pl.edu.icm.unity.types.basic.Identity;
 
 
 /**
@@ -62,6 +63,7 @@ public class DBAttributes
 	private AttributeStatementProcessor statementsHelper;
 	private AttributeClassDB acDB;
 	private DependencyNotificationManager notificationsManager;
+	private DBIdentities dbIdentities;
 	
 	
 	@Autowired
@@ -69,8 +71,9 @@ public class DBAttributes
 			AttributeTypeSerializer atSerializer, AttributeSerializer aSerializer,
 			GroupResolver groupResolver, DBShared dbShared,
 			AttributeStatementProcessor statementsHelper, AttributeClassDB acDB,
-			DependencyNotificationManager notificationsManager)
+			DependencyNotificationManager notificationsManager, DBIdentities dbIdentities)
 	{
+		this.dbIdentities = dbIdentities;
 		this.limits = db.getDBLimits();
 		this.attrResolver = attrResolver;
 		this.atSerializer = atSerializer;
@@ -369,9 +372,10 @@ public class DBAttributes
 		
 		Map<String, AttributesClass> allClasses = acDB.getAllAsMap(sql);
 		
+		Identity[] identities = dbIdentities.getIdentitiesForEntity(entityId, null, false, sql);
 		for (String group: groups)
 		{
-			Map<String, AttributeExt<?>> inGroup = statementsHelper.getEffectiveAttributes(entityId, 
+			Map<String, AttributeExt<?>> inGroup = statementsHelper.getEffectiveAttributes(identities, 
 					group, attributeTypeName, allGroups, directAttributesByGroup, atMapper, 
 					gMapper, allClasses);
 			ret.put(group, inGroup);

@@ -21,6 +21,7 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
  * 
  * @author K. Benedyczak
  */
+@Deprecated
 public abstract class AttributeStatement
 {
 	public enum ConflictResolution {

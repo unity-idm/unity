@@ -25,16 +25,14 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.types.basic.AttributeStatement2;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
-import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
-import pl.edu.icm.unity.types.basic.attrstmnt.EverybodyStatement;
 
 /**
  * Code to initialize popular objects. Useful for various initializers. 
@@ -90,13 +88,12 @@ public class InitializerCommon
 
 	public void initializeCommonAttributeStatements() throws EngineException
 	{
-		EverybodyStatement everybodyStmt = new EverybodyStatement(
+		AttributeStatement2 everybodyStmt = AttributeStatement2.getFixedEverybodyStatement(
 				new EnumAttribute("sys:AuthorizationRole", 
-						"/", AttributeVisibility.local,
-						"Regular User"), 
-				ConflictResolution.skip);
+				"/", AttributeVisibility.local,
+				"Regular User")); 
 		Group rootGroup = groupsMan.getContents("/", GroupContents.METADATA).getGroup();
-		rootGroup.setAttributeStatements(new AttributeStatement[]{everybodyStmt});
+		rootGroup.setAttributeStatements(new AttributeStatement2[]{everybodyStmt});
 		groupsMan.updateGroup("/", rootGroup);
 	}
 	
