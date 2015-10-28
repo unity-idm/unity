@@ -11,11 +11,13 @@ import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.tprofile.TranslationProfileDB;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
@@ -34,6 +36,8 @@ import pl.edu.icm.unity.stdext.tactions.out.CreateAttributeActionFactory;
  * 
  * @author K. Benedyczak
  */
+@Component
+@InvocationEventProducer
 public class TranslationProfileManagementImpl implements TranslationProfileManagement
 {
 	private DBSessionManager db;

@@ -179,7 +179,7 @@ public class SessionManagementImpl implements SessionManagement
 		sessionBinder.removeLoginSession(id, soft);
 		try
 		{
-			tokensManagement.removeToken(SESSION_TOKEN_TYPE, id, null);
+			tokensManagement.removeToken(SESSION_TOKEN_TYPE, id);
 			if (log.isDebugEnabled())
 				log.debug("Removed session with id " + id);
 		} catch (WrongArgumentException e)
@@ -191,7 +191,7 @@ public class SessionManagementImpl implements SessionManagement
 	@Override
 	public LoginSession getSession(String id) throws WrongArgumentException
 	{
-		Token token = tokensManagement.getTokenById(SESSION_TOKEN_TYPE, id, null);
+		Token token = tokensManagement.getTokenById(SESSION_TOKEN_TYPE, id);
 		return token2session(token);
 	}
 
@@ -213,7 +213,7 @@ public class SessionManagementImpl implements SessionManagement
 	public LoginSession getOwnedSession(EntityParam owner, String realm)
 			throws EngineException
 	{
-		LoginSession ret = getOwnedSession(owner, realm, null);
+		LoginSession ret = getOwnedSession(owner, realm);
 		if (ret == null)
 			throw new WrongArgumentException("No session for this owner in the given realm");
 		return ret;

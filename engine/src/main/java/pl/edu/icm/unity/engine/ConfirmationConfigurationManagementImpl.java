@@ -15,6 +15,7 @@ import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.confirmation.ConfirmationConfigurationDB;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
 
@@ -24,6 +25,7 @@ import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
  * @author P. Piernik
  */
 @Component
+@InvocationEventProducer
 public class ConfirmationConfigurationManagementImpl implements ConfirmationConfigurationManagement
 {
 	private DBSessionManager db;

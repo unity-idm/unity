@@ -15,6 +15,7 @@ import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.notify.NotificationChannelDB;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.internal.NotificationsManagementCore;
 import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -28,6 +29,7 @@ import pl.edu.icm.unity.types.basic.NotificationChannel;
  * @author K. Benedyczak
  */
 @Component
+@InvocationEventProducer
 public class NotificationsManagementImpl implements NotificationsManagement
 {
 	private DBSessionManager db;

@@ -21,6 +21,7 @@ import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -40,6 +41,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
  * @author K. Benedyczak
  */
 @Component
+@InvocationEventProducer
 public class PreferencesManagementImpl implements PreferencesManagement
 {
 	private ObjectMapper mapper;

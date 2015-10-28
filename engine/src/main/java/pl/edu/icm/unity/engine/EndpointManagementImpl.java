@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.endpoints.EndpointDB;
 import pl.edu.icm.unity.engine.endpoints.EndpointsUpdater;
 import pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement;
+import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -39,6 +40,7 @@ import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
  * @author K. Benedyczak
  */
 @Component
+@InvocationEventProducer
 public class EndpointManagementImpl implements EndpointManagement
 {
 	private EndpointFactoriesRegistry endpointFactoriesReg;

@@ -23,7 +23,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 
 public class TestTransactionRetry extends DBIntegrationTestBase
 {
-	public static final int LOOP = 1000;
+	public static final int LOOP = 500;
 	public static final int TOKENS = 100;
 	
 	@Autowired

@@ -12,10 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.db.DBAttributes;
@@ -27,6 +26,7 @@ import pl.edu.icm.unity.db.generic.ac.AttributeClassUtil;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.internal.AttributesHelper;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -53,6 +53,8 @@ import pl.edu.icm.unity.types.basic.GroupContents;import pl.edu.icm.unity.types.
  * 
  * @author K. Benedyczak
  */
+@Component
+@InvocationEventProducer
 public class GroupsManagementImpl implements GroupsManagement
 {
 	private DBSessionManager db;

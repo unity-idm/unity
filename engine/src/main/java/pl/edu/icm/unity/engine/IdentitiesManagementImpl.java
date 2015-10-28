@@ -31,6 +31,7 @@ import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.authn.CredentialRequirementsHolder;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.internal.AttributesHelper;
 import pl.edu.icm.unity.engine.internal.EngineHelper;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
@@ -79,6 +80,7 @@ import com.google.common.collect.Sets;
  * @author K. Benedyczak
  */
 @Component
+@InvocationEventProducer
 public class IdentitiesManagementImpl implements IdentitiesManagement
 {
 	private DBSessionManager db;

@@ -35,6 +35,7 @@ import pl.edu.icm.unity.db.mapper.GroupsMapper;
 import pl.edu.icm.unity.db.resolvers.GroupResolver;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
 import pl.edu.icm.unity.engine.notifications.NotificationProducerImpl;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -76,6 +77,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
  * @author K. Benedyczak
  */
 @Component
+@InvocationEventProducer
 public class RegistrationsManagementImpl implements RegistrationsManagement
 {
 	private DBSessionManager db;

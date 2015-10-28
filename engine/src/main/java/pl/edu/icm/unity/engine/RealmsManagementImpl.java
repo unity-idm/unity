@@ -14,6 +14,7 @@ import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.realm.RealmDB;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.RealmsManagement;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -23,6 +24,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
  * @author K. Benedyczak
  */
 @Component
+@InvocationEventProducer
 public class RealmsManagementImpl implements RealmsManagement
 {
 	private DBSessionManager db;

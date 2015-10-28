@@ -20,6 +20,7 @@ import pl.edu.icm.unity.db.export.ImportExport;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement;
+import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -37,6 +38,7 @@ import eu.unicore.util.configuration.ConfigurationException;
  * @author K. Benedyczak
  */
 @Component
+@InvocationEventProducer
 public class ServerManagementImpl implements ServerManagement
 {
 	private Logger log = Log.getLogger(Log.U_SERVER, ServerManagementImpl.class);
