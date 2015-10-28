@@ -20,6 +20,8 @@ import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.DBTokens;
 import pl.edu.icm.unity.db.model.TokenBean;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
+import pl.edu.icm.unity.engine.aop.Transactional;
+import pl.edu.icm.unity.engine.aop.SqlSessionTL;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -68,18 +70,9 @@ public class TokensManagementImpl implements TokensManagement
 			Date created, Date expires, Object transaction) 
 			throws WrongArgumentException, IllegalIdentityValueException, IllegalTypeException
 	{
-		SqlSession sql = transaction == null ? db.getSqlSession(true) : (SqlSession)transaction;
-		try
-		{
-			long entity = idResolver.getEntityId(owner, sql);
-			dbTokens.addToken(value, type, contents, entity, created, expires, sql);
-			if (transaction == null)
-				sql.commit();
-		} finally
-		{
-			if (transaction == null)
-				db.releaseSqlSession(sql);
-		}
+		SqlSession sql = (SqlSession)transaction;
+		long entity = idResolver.getEntityId(owner, sql);
+		dbTokens.addToken(value, type, contents, entity, created, expires, sql);
 	}
 	
 	@Override
@@ -87,88 +80,49 @@ public class TokensManagementImpl implements TokensManagement
 			Date created, Date expires, Object transaction) 
 			throws WrongArgumentException, IllegalTypeException
 	{
-		SqlSession sql = transaction == null ? db.getSqlSession(true) : (SqlSession)transaction;
-		try
-		{
-			dbTokens.addToken(value, type, contents, created, expires, sql);
-			if (transaction == null)
-				sql.commit();
-		} finally
-		{
-			if (transaction == null)
-				db.releaseSqlSession(sql);
-		}
+		dbTokens.addToken(value, type, contents, created, expires, (SqlSession)transaction);
 	}
 	
 	@Override
 	public void removeToken(String type, String value, Object transaction) throws WrongArgumentException
 	{
-		SqlSession sql = transaction == null ? db.getSqlSession(true) : (SqlSession)transaction;
-		try
-		{
-			dbTokens.removeToken(value, type, sql);
-			if (transaction == null)
-				sql.commit();
-		} finally
-		{
-			if (transaction == null)
-				db.releaseSqlSession(sql);
-		}
+		dbTokens.removeToken(value, type, (SqlSession)transaction);
 	}
 
 	@Override
 	public void updateToken(String type, String value, Date expires, byte[] contents, Object transaction)
 			throws WrongArgumentException
 	{
-		SqlSession sql = transaction == null ? db.getSqlSession(true) : (SqlSession)transaction;
-		try
-		{
-			dbTokens.updateToken(value, type, expires, contents, sql);
-			if (transaction == null)
-				sql.commit();
-		} finally
-		{
-			if (transaction == null)
-				db.releaseSqlSession(sql);
-		}
+		dbTokens.updateToken(value, type, expires, contents, (SqlSession)transaction);
 	}
 
 	@Override
 	public Token getTokenById(String type, String value, Object transaction) throws WrongArgumentException
 	{
-		SqlSession sql = transaction == null ? db.getSqlSession(true) : (SqlSession)transaction;
-		try
-		{
-			TokenBean token = dbTokens.getTokenById(type, value, sql);
-			if (transaction == null)
-				sql.commit();
-			if (token.isExpired())
-				throw new WrongArgumentException("There is no such token");
-			return convert(token);
-		} finally
-		{
-			if (transaction == null)
-				db.releaseSqlSession(sql);
-		}
+		TokenBean token = dbTokens.getTokenById(type, value, (SqlSession)transaction);
+		if (token.isExpired())
+			throw new WrongArgumentException("There is no such token");
+		return convert(token);
 	}
 
+	
+	private List<TokenBean> getOwnedTokensRaw(String type, EntityParam owner, SqlSession sql) 
+			throws IllegalIdentityValueException, IllegalTypeException
+	{
+		long entity = idResolver.getEntityId(owner, sql);
+		return dbTokens.getOwnedTokens(type, entity, sql);
+	}
+	
 	@Override
 	public List<Token> getOwnedTokens(String type, EntityParam owner, Object transaction) 
 			throws IllegalIdentityValueException, IllegalTypeException
 	{
-		SqlSession sql = transaction == null ? db.getSqlSession(true) : (SqlSession)transaction;
-		List<TokenBean> tokens;
-		try
-		{
-			long entity = idResolver.getEntityId(owner, sql);
-			tokens = dbTokens.getOwnedTokens(type, entity, sql);
-			if (transaction == null)
-				sql.commit();
-		} finally
-		{
-			if (transaction == null)
-				db.releaseSqlSession(sql);
-		}
+		List<TokenBean> tokens = getOwnedTokensRaw(type, owner, (SqlSession)transaction);
+		return convertTokens(tokens);
+	}
+
+	private List<Token> convertTokens(List<TokenBean> tokens)
+	{
 		List<Token> ret = new ArrayList<>(tokens.size());
 		for (TokenBean tb: tokens)
 		{
@@ -252,73 +206,74 @@ public class TokensManagementImpl implements TokensManagement
 		db.releaseSqlSession((SqlSession) transaction);
 	}
 
+	@Transactional
 	@Override
 	public void addToken(String type, String value, EntityParam owner, byte[] contents,
 			Date created, Date expires) throws WrongArgumentException, IllegalIdentityValueException,
 			IllegalTypeException
 	{
-		addToken(type, value, owner, contents, created, expires, null);
+		addToken(type, value, owner, contents, created, expires, SqlSessionTL.sqlSession.get());
 	}
 	
+	@Transactional
 	@Override
 	public void addToken(String type, String value, byte[] contents,
 			Date created, Date expires) throws WrongArgumentException, IllegalTypeException
 	{
-		addToken(type, value, contents, created, expires, null);
+		addToken(type, value, contents, created, expires, SqlSessionTL.sqlSession.get());
 	}
 
+	@Transactional
 	@Override
 	public void removeToken(String type, String value) throws WrongArgumentException
 	{
-		removeToken(type, value, null);
+		removeToken(type, value, SqlSessionTL.sqlSession.get());	
 	}
 
+	@Transactional
 	@Override
 	public void updateToken(String type, String value, Date expires, byte[] contents)
 			throws WrongArgumentException
 	{
-		updateToken(type, value, expires, contents, null);
+		updateToken(type, value, expires, contents, SqlSessionTL.sqlSession.get());
 	}
-
+	
+	@Transactional(autoCommit=false)
 	@Override
 	public Token getTokenById(String type, String value) throws WrongArgumentException
 	{
-		return getTokenById(type, value, null);
+		SqlSession sql = SqlSessionTL.sqlSession.get();
+		TokenBean token = dbTokens.getTokenById(type, value, sql);
+		sql.commit();
+		if (token.isExpired())
+			throw new WrongArgumentException("There is no such token");
+		return convert(token);
 	}
-
+	
+	@Transactional
 	@Override
 	public List<Token> getOwnedTokens(String type, EntityParam entity)
 			throws IllegalIdentityValueException, IllegalTypeException
 	{
-		return getOwnedTokens(type, entity, null);
+		return getOwnedTokens(type, entity, SqlSessionTL.sqlSession.get());
 	}
-
+	
+	@Transactional
 	@Override
 	public List<Token> getAllTokens(String type)
 	{
-		return getAllTokens(type, null);
+		return getAllTokens(type, SqlSessionTL.sqlSession.get());
 	}
 
 	@Override
 	public List<Token> getAllTokens(String type, Object transaction)
 	{
-		SqlSession sql = transaction == null ? db.getSqlSession(true) : (SqlSession)transaction;
-		List<Token> ret;
-		try
+		List<TokenBean> tokens = dbTokens.getTokens(type, (SqlSession)transaction);
+		List<Token> ret = new ArrayList<>(tokens.size());;
+		for (TokenBean t: tokens)
 		{
-			List<TokenBean> tokens = dbTokens.getTokens(type, sql);
-			ret = new ArrayList<>(tokens.size());
-			for (TokenBean t: tokens)
-			{
-				Token tt = convert(t);
-				ret.add(tt);
-			}
-			if (transaction == null)
-				sql.commit();
-		} finally
-		{
-			if (transaction == null)
-				db.releaseSqlSession(sql);
+			Token tt = convert(t);
+			ret.add(tt);
 		}
 		return ret;
 	}
