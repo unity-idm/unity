@@ -2,7 +2,7 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.aop;
+package pl.edu.icm.unity.engine.transactions;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -22,4 +22,8 @@ public @interface Transactional
 	int maxRetries() default DEF_MAX_RETRIES;
 	
 	boolean autoCommit() default true;
+	
+	boolean noTransaction() default false;
+	
+	Propagation propagation() default Propagation.REQUIRED;
 }

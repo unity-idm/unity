@@ -13,7 +13,7 @@
 		<property name="bundle" value="pl/edu/icm/unity/engine/messages/messages"/>
 	</bean>
 	
-	<bean class="pl.edu.icm.unity.engine.aop.TransactionalAspect"/>
+	<bean class="pl.edu.icm.unity.engine.transactions.TransactionalAspect"/>
 	
 	<bean class="pl.edu.icm.unity.server.JettyServer"/>
 	<bean class="pl.edu.icm.unity.server.UnityApplication$InnerServerLifecycle"/>

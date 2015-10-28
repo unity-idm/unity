@@ -34,6 +34,8 @@ import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.internal.AttributesHelper;
 import pl.edu.icm.unity.engine.internal.EngineHelper;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
+import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
@@ -119,24 +121,18 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
 	public Collection<IdentityType> getIdentityTypes() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.readInfo);
-		SqlSession sqlMap = db.getSqlSession(true);
-		try
-		{
-			Collection<IdentityType> ret = dbIdentities.getIdentityTypes(sqlMap).values();
-			sqlMap.commit();
-			return ret;
-		} finally
-		{
-			db.releaseSqlSession(sqlMap);
-		}
+		SqlSession sql = SqlSessionTL.sqlSession.get();
+		return dbIdentities.getIdentityTypes(sql).values();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Transactional
 	@Override
 	public void updateIdentityType(IdentityType toUpdate) throws EngineException
 	{
@@ -144,46 +140,39 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		IdentityTypeDefinition idTypeDef = idTypesRegistry.getByName(toUpdate.getIdentityTypeProvider().getId());
 		if (idTypeDef == null)
 			throw new IllegalIdentityValueException("The identity type is unknown");
-		SqlSession sqlMap = db.getSqlSession(true);
-		try
+		SqlSession sql = SqlSessionTL.sqlSession.get();
+		if (toUpdate.getMinInstances() < 0)
+			throw new IllegalAttributeTypeException("Minimum number of instances "
+					+ "can not be negative");
+		if (toUpdate.getMinVerifiedInstances() > toUpdate.getMinInstances())
+			throw new IllegalAttributeTypeException("Minimum number of verified instances "
+					+ "can not be larger then the regular minimum of instances");
+		if (toUpdate.getMinInstances() > toUpdate.getMaxInstances())
+			throw new IllegalAttributeTypeException("Minimum number of instances "
+					+ "can not be larger then the maximum");
+
+
+		Map<String, AttributeType> atsMap = dbAttributes.getAttributeTypes(sql);
+		Map<String, String> extractedAts = toUpdate.getExtractedAttributes();
+		Set<AttributeType> supportedForExtraction = idTypeDef.getAttributesSupportedForExtraction();
+		Map<String, AttributeType> supportedForExtractionMap = new HashMap<String, AttributeType>();
+		for (AttributeType at: supportedForExtraction)
+			supportedForExtractionMap.put(at.getName(), at);
+
+		for (Map.Entry<String, String> extracted: extractedAts.entrySet())
 		{
-			if (toUpdate.getMinInstances() < 0)
-				throw new IllegalAttributeTypeException("Minimum number of instances "
-						+ "can not be negative");
-			if (toUpdate.getMinVerifiedInstances() > toUpdate.getMinInstances())
-				throw new IllegalAttributeTypeException("Minimum number of verified instances "
-						+ "can not be larger then the regular minimum of instances");
-			if (toUpdate.getMinInstances() > toUpdate.getMaxInstances())
-				throw new IllegalAttributeTypeException("Minimum number of instances "
-						+ "can not be larger then the maximum");
-			
-			
-			Map<String, AttributeType> atsMap = dbAttributes.getAttributeTypes(sqlMap);
-			Map<String, String> extractedAts = toUpdate.getExtractedAttributes();
-			Set<AttributeType> supportedForExtraction = idTypeDef.getAttributesSupportedForExtraction();
-			Map<String, AttributeType> supportedForExtractionMap = new HashMap<String, AttributeType>();
-			for (AttributeType at: supportedForExtraction)
-				supportedForExtractionMap.put(at.getName(), at);
-			
-			for (Map.Entry<String, String> extracted: extractedAts.entrySet())
-			{
-				AttributeType type = atsMap.get(extracted.getValue());
-				if (type == null)
-					throw new IllegalAttributeTypeException("Can not extract attribute " + 
-							extracted.getKey() + " as " + extracted.getValue() + 
-							" because the latter is not defined in the system");
-				AttributeType supportedType = supportedForExtractionMap.get(extracted.getKey());
-				if (supportedType == null)
-					throw new IllegalAttributeTypeException("Can not extract attribute " + 
-							extracted.getKey() + " as " + extracted.getValue() + 
-							" because the former is not supported by the identity provider");
-			}
-			dbIdentities.updateIdentityType(sqlMap, toUpdate);
-			sqlMap.commit();
-		} finally
-		{
-			db.releaseSqlSession(sqlMap);
+			AttributeType type = atsMap.get(extracted.getValue());
+			if (type == null)
+				throw new IllegalAttributeTypeException("Can not extract attribute " + 
+						extracted.getKey() + " as " + extracted.getValue() + 
+						" because the latter is not defined in the system");
+			AttributeType supportedType = supportedForExtractionMap.get(extracted.getKey());
+			if (supportedType == null)
+				throw new IllegalAttributeTypeException("Can not extract attribute " + 
+						extracted.getKey() + " as " + extracted.getValue() + 
+						" because the former is not supported by the identity provider");
 		}
+		dbIdentities.updateIdentityType(sql, toUpdate);
 	}
 
 	@Override
@@ -311,37 +300,32 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	/**
 	 * {@inheritDoc}
 	 */
+	@Transactional
 	@Override
 	public void removeIdentity(IdentityTaV toRemove) throws EngineException
 	{
 		toRemove.validateInitialization();
-		SqlSession sqlMap = db.getSqlSession(true);
-		try
+		SqlSession sqlMap = SqlSessionTL.get();
+		long entityId = idResolver.getEntityId(new EntityParam(toRemove), sqlMap);
+		IdentityType identityType = dbIdentities.getIdentityTypes(sqlMap).get(
+				toRemove.getTypeId());
+		Identity[] identities = dbIdentities.getIdentitiesForEntityNoContext(entityId, sqlMap);
+		String type = identityType.getIdentityTypeProvider().getId();
+		boolean fullAuthz = authorizeIdentityChange(entityId, new ArrayList<IdentityParam>(), 
+				identityType.isSelfModificable());
+		if (!fullAuthz)
 		{
-			long entityId = idResolver.getEntityId(new EntityParam(toRemove), sqlMap);
-			IdentityType identityType = dbIdentities.getIdentityTypes(sqlMap).get(
-					toRemove.getTypeId());
-			Identity[] identities = dbIdentities.getIdentitiesForEntityNoContext(entityId, sqlMap);
-			String type = identityType.getIdentityTypeProvider().getId();
-			boolean fullAuthz = authorizeIdentityChange(entityId, new ArrayList<IdentityParam>(), 
-					identityType.isSelfModificable());
-			if (!fullAuthz)
-			{
-				if (getIdentityCountOfType(identities, type) <= identityType.getMinInstances())
-					throw new SchemaConsistencyException("Can not remove the identity as "
+			if (getIdentityCountOfType(identities, type) <= identityType.getMinInstances())
+				throw new SchemaConsistencyException("Can not remove the identity as "
 						+ "the configured minimum number of instances was reached.");
-				checkVerifiedMinCountForRemoval(identities, toRemove, identityType);
-			}
-			dbIdentities.removeIdentity(toRemove, sqlMap);
-			sqlMap.commit();
-		} finally
-		{
-			db.releaseSqlSession(sqlMap);
+			checkVerifiedMinCountForRemoval(identities, toRemove, identityType);
 		}
+		dbIdentities.removeIdentity(toRemove, sqlMap);
 	}
 
 
 	@Override
+	@Transactional
 	public void setIdentities(EntityParam entity, Collection<String> updatedTypes,
 			Collection<? extends IdentityParam> newIdentities) throws EngineException
 	{
@@ -349,26 +333,19 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		ensureNoDynamicIdentityType(updatedTypes);
 		ensureIdentitiesAreOfSpecifiedTypes(updatedTypes, newIdentities);
 		
-		SqlSession sqlMap = db.getSqlSession(true);
-		try
-		{
-			long entityId = idResolver.getEntityId(entity, sqlMap);
-			Map<String, IdentityType> identityTypes = dbIdentities.getIdentityTypes(sqlMap);
-			boolean selfModifiable = areAllTypesSelfModifiable(updatedTypes, identityTypes);
-			boolean fullAuthz = authorizeIdentityChange(entityId, newIdentities, selfModifiable);
-			Identity[] identities = dbIdentities.getIdentitiesForEntityNoContext(entityId, sqlMap);
-			Map<String, Set<Identity>> currentIdentitiesByType = 
-					getCurrentIdentitiesByType(updatedTypes, identities);
-			Map<String, Set<IdentityParam>> requestedIdentitiesByType = 
-					getRequestedIdentitiesByType(updatedTypes, newIdentities);
-			for (String type: updatedTypes)
-				setIdentitiesOfType(identityTypes.get(type), entityId, currentIdentitiesByType.get(type), 
-						requestedIdentitiesByType.get(type), fullAuthz, sqlMap);			
-			sqlMap.commit();
-		} finally
-		{
-			db.releaseSqlSession(sqlMap);
-		}
+		SqlSession sqlMap = SqlSessionTL.get();
+		long entityId = idResolver.getEntityId(entity, sqlMap);
+		Map<String, IdentityType> identityTypes = dbIdentities.getIdentityTypes(sqlMap);
+		boolean selfModifiable = areAllTypesSelfModifiable(updatedTypes, identityTypes);
+		boolean fullAuthz = authorizeIdentityChange(entityId, newIdentities, selfModifiable);
+		Identity[] identities = dbIdentities.getIdentitiesForEntityNoContext(entityId, sqlMap);
+		Map<String, Set<Identity>> currentIdentitiesByType = 
+				getCurrentIdentitiesByType(updatedTypes, identities);
+		Map<String, Set<IdentityParam>> requestedIdentitiesByType = 
+				getRequestedIdentitiesByType(updatedTypes, newIdentities);
+		for (String type: updatedTypes)
+			setIdentitiesOfType(identityTypes.get(type), entityId, currentIdentitiesByType.get(type), 
+					requestedIdentitiesByType.get(type), fullAuthz, sqlMap);			
 	}
 
 	private void setIdentitiesOfType(IdentityType type, long entityId, 
@@ -522,6 +499,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	}
 	
 	
+	@Transactional
 	@Override
 	public void resetIdentity(EntityParam toReset, String typeIdToReset,
 			String realm, String target) throws EngineException
@@ -533,46 +511,32 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		if (!idType.isDynamic())
 			throw new IllegalIdentityValueException("Identity type " + typeIdToReset + 
 					" is not dynamic and can not be reset");
-		
-		SqlSession sqlMap = db.getSqlSession(true);
-		try
-		{
-			long entityId = idResolver.getEntityId(toReset, sqlMap);
-			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
-			dbIdentities.resetIdentityForEntity(entityId, typeIdToReset, realm, target, sqlMap);
-			sqlMap.commit();
-		} finally
-		{
-			db.releaseSqlSession(sqlMap);
-		}
+		SqlSession sqlMap = SqlSessionTL.get();
+		long entityId = idResolver.getEntityId(toReset, sqlMap);
+		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
+		dbIdentities.resetIdentityForEntity(entityId, typeIdToReset, realm, target, sqlMap);
 	}
 
 	
 	/**
 	 * {@inheritDoc}
 	 */
+	@Transactional
 	@Override
 	public void removeEntity(EntityParam toRemove) throws EngineException
 	{
 		toRemove.validateInitialization();
-		
-		SqlSession sqlMap = db.getSqlSession(true);
-		try
-		{
-			long entityId = idResolver.getEntityId(toRemove, sqlMap);
-			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
-			dbIdentities.removeEntity(entityId, sqlMap);
-			sqlMap.commit();
-		} finally
-		{
-			db.releaseSqlSession(sqlMap);
-		}
+		SqlSession sqlMap = SqlSessionTL.get();		
+		long entityId = idResolver.getEntityId(toRemove, sqlMap);
+		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
+		dbIdentities.removeEntity(entityId, sqlMap);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
 	public void setEntityStatus(EntityParam toChange, EntityState status)
 			throws EngineException
 	{
@@ -581,67 +545,48 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			throw new IllegalArgumentException("The new entity status 'only login permitted' "
 					+ "can be only set as a side effect of scheduling an account "
 					+ "removal with a grace period.");
-		SqlSession sqlMap = db.getSqlSession(true);
-		try
-		{
-			long entityId = idResolver.getEntityId(toChange, sqlMap);
-			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
-			dbIdentities.setEntityStatus(entityId, status, sqlMap);
-			sqlMap.commit();
-		} finally
-		{
-			db.releaseSqlSession(sqlMap);
-		}
+		SqlSession sqlMap = SqlSessionTL.get();
+		long entityId = idResolver.getEntityId(toChange, sqlMap);
+		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
+		dbIdentities.setEntityStatus(entityId, status, sqlMap);
 	}
 
+	@Transactional
 	@Override
 	public Entity getEntity(EntityParam entity) throws EngineException
 	{
 		return getEntity(entity, null, true, "/");
 	}
 	
+	@Transactional
 	@Override
 	public Entity getEntityNoContext(EntityParam entity, String group) throws EngineException
 	{
 		entity.validateInitialization();
-		SqlSession sqlMap = db.getSqlSession(true);
+		SqlSession sqlMap = SqlSessionTL.get();
+		long entityId = idResolver.getEntityId(entity, sqlMap);
+		Entity ret;
 		try
 		{
-			long entityId = idResolver.getEntityId(entity, sqlMap);
-			Entity ret;
-			try
-			{
-				authz.checkAuthorization(authz.isSelf(entityId), group, AuthzCapability.readHidden);
-				Identity[] identities = dbIdentities.getIdentitiesForEntityNoContext(entityId, sqlMap);
-				ret = assembleEntity(entityId, identities, sqlMap);
-			} catch (AuthorizationException e)
-			{
-				ret = resolveEntityBasic(entityId, null, false, group, sqlMap);
-			}
-			sqlMap.commit();
-			return ret;
-		} finally
+			authz.checkAuthorization(authz.isSelf(entityId), group, AuthzCapability.readHidden);
+			Identity[] identities = dbIdentities.getIdentitiesForEntityNoContext(entityId, sqlMap);
+			ret = assembleEntity(entityId, identities, sqlMap);
+		} catch (AuthorizationException e)
 		{
-			db.releaseSqlSession(sqlMap);
+			ret = resolveEntityBasic(entityId, null, false, group, sqlMap);
 		}
+		return ret;
 	}
 	
+	@Transactional
 	@Override
 	public Entity getEntity(EntityParam entity, String target, boolean allowCreate, String group)
 			throws EngineException
 	{
 		entity.validateInitialization();
-		SqlSession sqlMap = db.getSqlSession(true);
-		try
-		{
-			long entityId = idResolver.getEntityId(entity, sqlMap);
-			Entity ret = resolveEntityBasic(entityId, target, allowCreate, group, sqlMap);
-			sqlMap.commit();
-			return ret;
-		} finally
-		{
-			db.releaseSqlSession(sqlMap);
-		}
+		SqlSession sqlMap = SqlSessionTL.get();
+		long entityId = idResolver.getEntityId(entity, sqlMap);
+		return resolveEntityBasic(entityId, target, allowCreate, group, sqlMap);
 	}
 
 	/**
@@ -682,76 +627,49 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
 	public Map<String, GroupMembership> getGroups(EntityParam entity) throws EngineException
 	{
 		entity.validateInitialization();
-		SqlSession sqlMap = db.getSqlSession(true);
-		try
-		{
-			long entityId = idResolver.getEntityId(entity, sqlMap);
-			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.read);
-			Map<String, GroupMembership> allGroups = dbShared.getGroupMembership(entityId, sqlMap);
-			sqlMap.commit();
-			return allGroups;
-		} finally
-		{
-			db.releaseSqlSession(sqlMap);
-		}
+		SqlSession sqlMap = SqlSessionTL.get();
+		long entityId = idResolver.getEntityId(entity, sqlMap);
+		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.read);
+		return dbShared.getGroupMembership(entityId, sqlMap);
 	}
 
 	@Override
+	@Transactional
 	public Collection<Group> getGroupsForPresentation(EntityParam entity)
 			throws EngineException
 	{
 		entity.validateInitialization();
-		SqlSession sqlMap = db.getSqlSession(true);
-		try
-		{
-			long entityId = idResolver.getEntityId(entity, sqlMap);
-			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.read);
-			Set<Group> ret = dbShared.getAllGroupsWithNames(entityId, sqlMap);
-			sqlMap.commit();
-			return ret;
-		} finally
-		{
-			db.releaseSqlSession(sqlMap);
-		}
+		SqlSession sqlMap = SqlSessionTL.get();
+		long entityId = idResolver.getEntityId(entity, sqlMap);
+		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.read);
+		return dbShared.getAllGroupsWithNames(entityId, sqlMap);
 	}
 	
 	@Override
+	@Transactional
 	public void setEntityCredentialRequirements(EntityParam entity, String requirementId) throws EngineException
 	{
 		entity.validateInitialization();
-		SqlSession sqlMap = db.getSqlSession(true);
-		try
-		{
-			long entityId = idResolver.getEntityId(entity, sqlMap);
-			engineHelper.setEntityCredentialRequirements(entityId, requirementId, sqlMap);
-			sqlMap.commit();
-		} finally
-		{
-			db.releaseSqlSession(sqlMap);
-		}
+		SqlSession sqlMap = SqlSessionTL.get();
+		long entityId = idResolver.getEntityId(entity, sqlMap);
+		engineHelper.setEntityCredentialRequirements(entityId, requirementId, sqlMap);
 	}
 
 	@Override
+	@Transactional
 	public boolean isCurrentCredentialRequiredForChange(EntityParam entity, String credentialId)
 			throws EngineException
 	{
-		SqlSession sqlMap = db.getSqlSession(true);
-		try
-		{
-			long entityId = idResolver.getEntityId(entity, sqlMap);
-			boolean ret = authorizeCredentialChange(entityId, credentialId, sqlMap);
-			sqlMap.commit();
-			return ret;
-		} finally
-		{
-			db.releaseSqlSession(sqlMap);
-		}
-
+		SqlSession sqlMap = SqlSessionTL.get();
+		long entityId = idResolver.getEntityId(entity, sqlMap);
+		return authorizeCredentialChange(entityId, credentialId, sqlMap);
 	}
 	
+	@Transactional
 	@Override
 	public void setEntityCredential(EntityParam entity, String credentialId, String rawCredential) 
 			throws EngineException
@@ -760,35 +678,29 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	}
 	
 	@Override
+	@Transactional
 	public void setEntityCredential(EntityParam entity, String credentialId, String rawCredential,
 			String currentRawCredential) throws EngineException
 	{
 		if (rawCredential == null)
 			throw new IllegalCredentialException("The credential can not be null");
 		entity.validateInitialization();
-		SqlSession sqlMap = db.getSqlSession(true);
-		try
-		{
-			long entityId = idResolver.getEntityId(entity, sqlMap);
-			boolean requireCurrent = authorizeCredentialChange(entityId, credentialId, sqlMap);
+		SqlSession sqlMap = SqlSessionTL.get();
+		long entityId = idResolver.getEntityId(entity, sqlMap);
+		boolean requireCurrent = authorizeCredentialChange(entityId, credentialId, sqlMap);
 
-			if (requireCurrent && currentRawCredential == null)
-			{
-				throw new IllegalPreviousCredentialException(
-						"The current credential must be provided");
-			}
-			
-			//we don't check it 
-			if (!requireCurrent)
-				currentRawCredential = null;
-			
-			engineHelper.setEntityCredentialInternal(entityId, credentialId, rawCredential, 
-					currentRawCredential, sqlMap);
-			sqlMap.commit();
-		} finally
+		if (requireCurrent && currentRawCredential == null)
 		{
-			db.releaseSqlSession(sqlMap);
+			throw new IllegalPreviousCredentialException(
+					"The current credential must be provided");
 		}
+
+		//we don't check it 
+		if (!requireCurrent)
+			currentRawCredential = null;
+
+		engineHelper.setEntityCredentialInternal(entityId, credentialId, rawCredential, 
+				currentRawCredential, sqlMap);
 	}
 
 	/**
@@ -826,61 +738,55 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
+	@Transactional
 	public void setEntityCredentialStatus(EntityParam entity, String credentialId,
 			LocalCredentialState desiredCredentialState) throws EngineException
 	{
 		entity.validateInitialization();
 		if (desiredCredentialState == LocalCredentialState.correct)
 			throw new WrongArgumentException("Credential can not be put into the correct state with this method. Use setEntityCredential.");
-		SqlSession sqlMap = db.getSqlSession(true);
-		try
-		{
-			long entityId = idResolver.getEntityId(entity, sqlMap);
-			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
-			Map<String, AttributeExt<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(
-					entityId, "/", null, sqlMap);
-			
-			Attribute<?> credReqA = attributes.get(SystemAttributeTypes.CREDENTIAL_REQUIREMENTS);
-			String credentialRequirements = (String)credReqA.getValues().get(0);
-			CredentialRequirementsHolder credReqs = engineHelper.getCredentialRequirements(
-					credentialRequirements, sqlMap);
-			LocalCredentialVerificator handler = credReqs.getCredentialHandler(credentialId);
-			if (handler == null)
-				throw new IllegalCredentialException("The credential id is not among the entity's credential requirements: " + credentialId);
+		SqlSession sqlMap = SqlSessionTL.get();
+		long entityId = idResolver.getEntityId(entity, sqlMap);
+		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
+		Map<String, AttributeExt<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(
+				entityId, "/", null, sqlMap);
 
-			String credentialAttributeName = SystemAttributeTypes.CREDENTIAL_PREFIX+credentialId;
-			Attribute<?> currentCredentialA = attributes.get(credentialAttributeName);
-			String currentCredential = currentCredentialA != null ? 
-					(String)currentCredentialA.getValues().get(0) : null;
-					
-			if (currentCredential == null)
-			{ 
-				if (desiredCredentialState != LocalCredentialState.notSet)
-					throw new IllegalCredentialException("The credential is not set, so it's state can be only notSet");
-				return;
-			}
-			
-			//remove or invalidate
-			if (desiredCredentialState == LocalCredentialState.notSet)
-			{
-				dbAttributes.removeAttribute(entityId, "/", credentialAttributeName, sqlMap);
-				attributes.remove(credentialAttributeName);
-			} else if (desiredCredentialState == LocalCredentialState.outdated)
-			{
-				if (!handler.isSupportingInvalidation())
-					throw new IllegalCredentialException("The credential doesn't support the outdated state");
-				String updated = handler.invalidate(currentCredential);
-				StringAttribute newCredentialA = new StringAttribute(credentialAttributeName, 
-						"/", AttributeVisibility.local, Collections.singletonList(updated));
-				Date now = new Date();
-				AttributeExt added = new AttributeExt(newCredentialA, true, now, now);
-				attributes.put(credentialAttributeName, added);
-				dbAttributes.addAttribute(entityId, added, true, sqlMap);
-			}
-			sqlMap.commit();
-		} finally
+		Attribute<?> credReqA = attributes.get(SystemAttributeTypes.CREDENTIAL_REQUIREMENTS);
+		String credentialRequirements = (String)credReqA.getValues().get(0);
+		CredentialRequirementsHolder credReqs = engineHelper.getCredentialRequirements(
+				credentialRequirements, sqlMap);
+		LocalCredentialVerificator handler = credReqs.getCredentialHandler(credentialId);
+		if (handler == null)
+			throw new IllegalCredentialException("The credential id is not among the entity's credential requirements: " + credentialId);
+
+		String credentialAttributeName = SystemAttributeTypes.CREDENTIAL_PREFIX+credentialId;
+		Attribute<?> currentCredentialA = attributes.get(credentialAttributeName);
+		String currentCredential = currentCredentialA != null ? 
+				(String)currentCredentialA.getValues().get(0) : null;
+
+		if (currentCredential == null)
+		{ 
+			if (desiredCredentialState != LocalCredentialState.notSet)
+				throw new IllegalCredentialException("The credential is not set, so it's state can be only notSet");
+			return;
+		}
+
+		//remove or invalidate
+		if (desiredCredentialState == LocalCredentialState.notSet)
 		{
-			db.releaseSqlSession(sqlMap);
+			dbAttributes.removeAttribute(entityId, "/", credentialAttributeName, sqlMap);
+			attributes.remove(credentialAttributeName);
+		} else if (desiredCredentialState == LocalCredentialState.outdated)
+		{
+			if (!handler.isSupportingInvalidation())
+				throw new IllegalCredentialException("The credential doesn't support the outdated state");
+			String updated = handler.invalidate(currentCredential);
+			StringAttribute newCredentialA = new StringAttribute(credentialAttributeName, 
+					"/", AttributeVisibility.local, Collections.singletonList(updated));
+			Date now = new Date();
+			AttributeExt added = new AttributeExt(newCredentialA, true, now, now);
+			attributes.put(credentialAttributeName, added);
+			dbAttributes.addAttribute(entityId, added, true, sqlMap);
 		}
 	}
 	
@@ -912,78 +818,57 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	
 
 	@Override
+	@Transactional
 	public void scheduleEntityChange(EntityParam toChange, Date changeTime,
 			EntityScheduledOperation operation) throws EngineException
 	{
 		toChange.validateInitialization();
-		SqlSession sqlMap = db.getSqlSession(true);
-		try
-		{
-			long entityId = idResolver.getEntityId(toChange, sqlMap);
+		SqlSession sqlMap = SqlSessionTL.get();
+		long entityId = idResolver.getEntityId(toChange, sqlMap);
 
-			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
-			
-			if (operation != null && changeTime != null &&
-					changeTime.getTime() <= System.currentTimeMillis())
-				dbIdentities.performScheduledOperation(entityId, operation, sqlMap);
-			else
-				dbIdentities.setScheduledOperationByAdmin(entityId, changeTime, operation, sqlMap);
-			
-			sqlMap.commit();
-		} finally
-		{
-			db.releaseSqlSession(sqlMap);
-		}
+		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
+
+		if (operation != null && changeTime != null &&
+				changeTime.getTime() <= System.currentTimeMillis())
+			dbIdentities.performScheduledOperation(entityId, operation, sqlMap);
+		else
+			dbIdentities.setScheduledOperationByAdmin(entityId, changeTime, operation, sqlMap);
 	}
 
 	@Override
+	@Transactional
 	public void scheduleRemovalByUser(EntityParam toChange, Date changeTime)
 			throws EngineException
 	{
 		toChange.validateInitialization();
-		SqlSession sqlMap = db.getSqlSession(true);
-		try
-		{
-			long entityId = idResolver.getEntityId(toChange, sqlMap);
+		SqlSession sqlMap = SqlSessionTL.get();
+		long entityId = idResolver.getEntityId(toChange, sqlMap);
 
-			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.attributeModify);
-			
-			if (changeTime.getTime() <= System.currentTimeMillis())
-				dbIdentities.performScheduledOperation(entityId, 
-						EntityScheduledOperation.REMOVE, sqlMap);
-			else
-				dbIdentities.setScheduledRemovalByUser(entityId, changeTime, sqlMap);
-			
-			sqlMap.commit();
-		} finally
-		{
-			db.releaseSqlSession(sqlMap);
-		}		
+		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.attributeModify);
+
+		if (changeTime.getTime() <= System.currentTimeMillis())
+			dbIdentities.performScheduledOperation(entityId, 
+					EntityScheduledOperation.REMOVE, sqlMap);
+		else
+			dbIdentities.setScheduledRemovalByUser(entityId, changeTime, sqlMap);
 	}
 	
 	@Override
+	@Transactional
 	public void mergeEntities(EntityParam target, EntityParam merged, boolean safeMode) throws EngineException
 	{
 		target.validateInitialization();
 		merged.validateInitialization();
-		SqlSession sqlMap = db.getSqlSession(true);
-		try
-		{
-			authz.checkAuthorization(AuthzCapability.identityModify);
-			long mergedId = idResolver.getEntityId(merged, sqlMap);
-			long targetId = idResolver.getEntityId(target, sqlMap);
+		SqlSession sqlMap = SqlSessionTL.get();
+		authz.checkAuthorization(AuthzCapability.identityModify);
+		long mergedId = idResolver.getEntityId(merged, sqlMap);
+		long targetId = idResolver.getEntityId(target, sqlMap);
 
-			mergeIdentities(mergedId, targetId, safeMode, sqlMap);
+		mergeIdentities(mergedId, targetId, safeMode, sqlMap);
 
-			mergeMemberships(mergedId, targetId, sqlMap);
-			mergeAttributes(mergedId, targetId, safeMode, sqlMap);
-			dbIdentities.removeEntity(mergedId, sqlMap);
-			
-			sqlMap.commit();
-		} finally
-		{
-			db.releaseSqlSession(sqlMap);
-		}		
+		mergeMemberships(mergedId, targetId, sqlMap);
+		mergeAttributes(mergedId, targetId, safeMode, sqlMap);
+		dbIdentities.removeEntity(mergedId, sqlMap);
 	}
 
 	private void mergeAttributes(long mergedId, long targetId, boolean safeMode, 

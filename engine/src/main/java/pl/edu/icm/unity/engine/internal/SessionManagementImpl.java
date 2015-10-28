@@ -18,6 +18,8 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
+import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -210,10 +212,11 @@ public class SessionManagementImpl implements SessionManagement
 	}
 	
 	@Override
+	@Transactional
 	public LoginSession getOwnedSession(EntityParam owner, String realm)
 			throws EngineException
 	{
-		LoginSession ret = getOwnedSession(owner, realm);
+		LoginSession ret = getOwnedSession(owner, realm, SqlSessionTL.get());
 		if (ret == null)
 			throw new WrongArgumentException("No session for this owner in the given realm");
 		return ret;

@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.DBAttributes;
-import pl.edu.icm.unity.db.DBSessionManager;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
+import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
@@ -41,7 +41,6 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 {
 	private Map<String, AuthzRole> roles = new LinkedHashMap<String, AuthzRole>(); 
 
-	private DBSessionManager db;
 	private DBAttributes dbAttributes;
 	/**
 	 * System manager role with all privileges. Must not be removed or modified.
@@ -55,9 +54,8 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 	public static final String ANONYMOUS_ROLE = "Anonymous User";
 			
 	@Autowired
-	public AuthorizationManagerImpl(DBSessionManager db, DBAttributes dbAttributes)
+	public AuthorizationManagerImpl(DBAttributes dbAttributes)
 	{
-		this.db = db;
 		this.dbAttributes = dbAttributes;
 		setupRoleCapabilities();
 	}
@@ -167,30 +165,35 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 	}
 	
 	@Override
+	@Transactional
 	public void checkAuthorization(AuthzCapability... requiredCapabilities) throws AuthorizationException
 	{
 		checkAuthorizationInternal(getCallerMethodName(2), false, null, requiredCapabilities);
 	}
 
 	@Override
+	@Transactional
 	public void checkAuthorization(boolean selfAccess, AuthzCapability... requiredCapabilities) throws AuthorizationException
 	{
 		checkAuthorizationInternal(getCallerMethodName(2), selfAccess, null, requiredCapabilities);
 	}
 	
 	@Override
+	@Transactional
 	public void checkAuthorization(String group, AuthzCapability... requiredCapabilities) throws AuthorizationException
 	{
 		checkAuthorizationInternal(getCallerMethodName(2), false, group, requiredCapabilities);
 	}
 
 	@Override
+	@Transactional
 	public void checkAuthorization(boolean selfAccess, String groupPath, AuthzCapability... requiredCapabilities) throws AuthorizationException
 	{
 		checkAuthorizationInternal(getCallerMethodName(2), selfAccess, groupPath, requiredCapabilities);
 	}
 
 	@Override
+	@Transactional
 	public Set<AuthzCapability> getCapabilities(boolean selfAccess, String group) throws AuthorizationException
 	{
 		LoginSession client = getVerifiedClient(new AuthzCapability[] {});
@@ -301,12 +304,11 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 	
 	private Map<String, Map<String, AttributeExt<?>>> getAllAttributes(long entityId) throws EngineException 
 	{
-		SqlSession sql = db.getSqlSession(true);
 		try
 		{
 			Map<String, Map<String, AttributeExt<?>>> allAttributes = 
-					dbAttributes.getAllAttributesAsMap(entityId, null, true, null, sql);
-			sql.commit();
+					dbAttributes.getAllAttributesAsMap(entityId, null, true, null, 
+							SqlSessionTL.sqlSession.get());
 			return allAttributes;
 		} catch (IllegalTypeException e)
 		{
@@ -314,9 +316,6 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 		} catch (IllegalGroupValueException e)
 		{
 			throw new InternalException("Can't establish attributes for authorization pipeline - group problem", e);
-		} finally
-		{
-			db.releaseSqlSession(sql);
 		}
 	}
 	

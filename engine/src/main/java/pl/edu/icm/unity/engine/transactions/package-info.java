@@ -10,4 +10,4 @@
  * AOP related code.
  * @author K. Benedyczak
  */
-package pl.edu.icm.unity.engine.aop;
+package pl.edu.icm.unity.engine.transactions;

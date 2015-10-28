@@ -21,6 +21,8 @@ import pl.edu.icm.unity.engine.endpoints.EndpointDB;
 import pl.edu.icm.unity.engine.endpoints.EndpointsUpdater;
 import pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
+import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -89,6 +91,7 @@ public class EndpointManagementImpl implements EndpointManagement
 	 *  transaction is committed
 	 */
 	@Override
+	@Transactional
 	public EndpointDescription deploy(String typeId, String endpointName, I18nString displayedName, 
 			String address, String description,
 			List<AuthenticationOptionDescription> authn, String jsonConfiguration, String realm) throws EngineException 
@@ -109,7 +112,7 @@ public class EndpointManagementImpl implements EndpointManagement
 		if (factory == null)
 			throw new WrongArgumentException("Endpoint type " + typeId + " is unknown");
 		EndpointInstance instance = factory.newInstance();
-		SqlSession sql = db.getSqlSession(true);
+		SqlSession sql = SqlSessionTL.get();
 		try
 		{
 			List<AuthenticationOption> authenticators = authnLoader.getAuthenticators(
@@ -124,14 +127,10 @@ public class EndpointManagementImpl implements EndpointManagement
 			instance.initialize(endpDescription, authenticators, jsonConfiguration);
 			endpointDB.insert(endpointName, instance, sql);
 			internalManagement.deploy(instance);
-			sql.commit();
 		} catch (Exception e)
 		{
 			internalManagement.undeploy(instance.getEndpointDescription().getId());
 			throw new EngineException("Unable to deploy an endpoint: " + e.getMessage(), e);
-		} finally
-		{
-			db.releaseSqlSession(sql);
 		}
 		return instance.getEndpointDescription();
 	}

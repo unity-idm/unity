@@ -38,6 +38,8 @@ import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
 import pl.edu.icm.unity.engine.notifications.NotificationProducerImpl;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
+import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
@@ -125,88 +127,65 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	}
 
 	@Override
+	@Transactional
 	public void addForm(RegistrationForm form) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			validateFormContents(form, sql);
-			formsDB.insert(form.getName(), form, sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		SqlSession sql = SqlSessionTL.get();
+		validateFormContents(form, sql);
+		formsDB.insert(form.getName(), form, sql);
 	}
 
 	@Override
+	@Transactional
 	public void removeForm(String formId, boolean dropRequests) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		SqlSession sql = db.getSqlSession(true);
-		try
+		SqlSession sql = SqlSessionTL.get();
+		List<RegistrationRequestState> requests = requestDB.getAll(sql);
+		if (dropRequests)
 		{
-			List<RegistrationRequestState> requests = requestDB.getAll(sql);
-			if (dropRequests)
-			{
-				for (RegistrationRequestState req: requests)
-					if (formId.equals(req.getRequest().getFormId()))
-						requestDB.remove(req.getRequestId(), sql);
-			} else
-			{
-				for (RegistrationRequestState req: requests)
-					if (formId.equals(req.getRequest().getFormId()))
-						throw new SchemaConsistencyException("There are requests bound " +
-								"to this form, and it was not chosen to drop them.");
-			}
-			formsDB.remove(formId, sql);
-			sql.commit();
-		} finally
+			for (RegistrationRequestState req: requests)
+				if (formId.equals(req.getRequest().getFormId()))
+					requestDB.remove(req.getRequestId(), sql);
+		} else
 		{
-			db.releaseSqlSession(sql);
+			for (RegistrationRequestState req: requests)
+				if (formId.equals(req.getRequest().getFormId()))
+					throw new SchemaConsistencyException("There are requests bound " +
+							"to this form, and it was not chosen to drop them.");
 		}
+		formsDB.remove(formId, sql);
 	}
 
 	@Override
+	@Transactional
 	public void updateForm(RegistrationForm updatedForm, boolean ignoreRequests)
 			throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		SqlSession sql = db.getSqlSession(true);
-		try
+		SqlSession sql = SqlSessionTL.get();
+		validateFormContents(updatedForm, sql);
+		String formId = updatedForm.getName();
+		if (!ignoreRequests)
 		{
-			validateFormContents(updatedForm, sql);
-			String formId = updatedForm.getName();
-			if (!ignoreRequests)
-			{
-				List<RegistrationRequestState> requests = requestDB.getAll(sql);
-				for (RegistrationRequestState req: requests)
-					if (formId.equals(req.getRequest().getFormId()) && 
-							req.getStatus() == RegistrationRequestStatus.pending)
-						throw new SchemaConsistencyException("There are requests bound to " +
-								"this form, and it was not chosen to ignore them.");
-			}
-			formsDB.update(formId, updatedForm, sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
+			List<RegistrationRequestState> requests = requestDB.getAll(sql);
+			for (RegistrationRequestState req: requests)
+				if (formId.equals(req.getRequest().getFormId()) && 
+						req.getStatus() == RegistrationRequestStatus.pending)
+					throw new SchemaConsistencyException("There are requests bound to " +
+							"this form, and it was not chosen to ignore them.");
 		}
+		formsDB.update(formId, updatedForm, sql);
 	}
 
 	@Override
+	@Transactional(noTransaction=true)
 	public List<RegistrationForm> getForms() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.readInfo);
-		SqlSession sql = db.getSqlSession(false);
-		try
-		{
-			return internalManagment.getForms(sql);
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		SqlSession sql = SqlSessionTL.get();
+		return internalManagment.getForms(sql);
 	}
 
 	@Override
@@ -264,90 +243,76 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	}
 
 	@Override
+	@Transactional
 	public List<RegistrationRequestState> getRegistrationRequests() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.read);
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			List<RegistrationRequestState> ret = requestDB.getAll(sql);
-			sql.commit();
-			return ret;
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		return requestDB.getAll(SqlSessionTL.get());
 	}
 
 	@Override
+	@Transactional
 	public void processRegistrationRequest(String id, RegistrationRequest finalRequest,
 			RegistrationRequestAction action, String publicCommentStr,
 			String internalCommentStr) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.credentialModify, AuthzCapability.attributeModify,
 				AuthzCapability.identityModify, AuthzCapability.groupModify);
-		SqlSession sql = db.getSqlSession(true);
-		try
+		SqlSession sql = SqlSessionTL.get();
+		RegistrationRequestState currentRequest = requestDB.get(id, sql);
+		if (finalRequest != null)
 		{
-			RegistrationRequestState currentRequest = requestDB.get(id, sql);
-			if (finalRequest != null)
-			{
-				finalRequest.setCredentials(currentRequest.getRequest().getCredentials());
-				currentRequest.setRequest(finalRequest);
-			}
-			InvocationContext authnCtx = InvocationContext.getCurrent();
-			LoginSession client = authnCtx.getLoginSession();
-		
-			if (client == null)
-			{
-				client = new LoginSession();
-				client.setEntityId(0);
-			}
-			
-			AdminComment publicComment = null;
-			AdminComment internalComment = null;
-			if (publicCommentStr != null)
-			{
-				publicComment = new AdminComment(publicCommentStr, client.getEntityId(), true);
-				currentRequest.getAdminComments().add(publicComment);
-			}
-			if (internalCommentStr != null)
-			{
-				internalComment = new AdminComment(internalCommentStr, client.getEntityId(), false);
-				currentRequest.getAdminComments().add(internalComment);
-			}
-			
-			if (currentRequest.getStatus() != RegistrationRequestStatus.pending && 
-					(action == RegistrationRequestAction.accept || 
-					action == RegistrationRequestAction.reject))
-				throw new WrongArgumentException("The request was already processed. " +
-						"It is only possible to drop it or to modify its comments.");
-			if (currentRequest.getStatus() != RegistrationRequestStatus.pending && 
-					action == RegistrationRequestAction.update && finalRequest != null)
-				throw new WrongArgumentException("The request was already processed. " +
-							"It is only possible to drop it or to modify its comments.");
-			RegistrationForm form = formsDB.get(currentRequest.getRequest().getFormId(), sql);
-			
-			switch (action)
-			{
-			case drop:
-				dropRequest(id, sql);
-				break;
-			case reject:
-				rejectRequest(form, currentRequest, publicComment, internalComment, sql);
-				break;
-			case update:
-				updateRequest(form, currentRequest, publicComment, internalComment, sql);
-				break;
-			case accept:
-				internalManagment.acceptRequest(form, currentRequest, publicComment, 
-						internalComment, true, sql);
-				break;
-			}
-			sql.commit();
-		} finally
+			finalRequest.setCredentials(currentRequest.getRequest().getCredentials());
+			currentRequest.setRequest(finalRequest);
+		}
+		InvocationContext authnCtx = InvocationContext.getCurrent();
+		LoginSession client = authnCtx.getLoginSession();
+
+		if (client == null)
 		{
-			db.releaseSqlSession(sql);
+			client = new LoginSession();
+			client.setEntityId(0);
+		}
+
+		AdminComment publicComment = null;
+		AdminComment internalComment = null;
+		if (publicCommentStr != null)
+		{
+			publicComment = new AdminComment(publicCommentStr, client.getEntityId(), true);
+			currentRequest.getAdminComments().add(publicComment);
+		}
+		if (internalCommentStr != null)
+		{
+			internalComment = new AdminComment(internalCommentStr, client.getEntityId(), false);
+			currentRequest.getAdminComments().add(internalComment);
+		}
+
+		if (currentRequest.getStatus() != RegistrationRequestStatus.pending && 
+				(action == RegistrationRequestAction.accept || 
+				action == RegistrationRequestAction.reject))
+			throw new WrongArgumentException("The request was already processed. " +
+					"It is only possible to drop it or to modify its comments.");
+		if (currentRequest.getStatus() != RegistrationRequestStatus.pending && 
+				action == RegistrationRequestAction.update && finalRequest != null)
+			throw new WrongArgumentException("The request was already processed. " +
+					"It is only possible to drop it or to modify its comments.");
+		RegistrationForm form = formsDB.get(currentRequest.getRequest().getFormId(), sql);
+
+		switch (action)
+		{
+		case drop:
+			dropRequest(id, sql);
+			break;
+		case reject:
+			rejectRequest(form, currentRequest, publicComment, internalComment, sql);
+			break;
+		case update:
+			updateRequest(form, currentRequest, publicComment, internalComment, sql);
+			break;
+		case accept:
+			internalManagment.acceptRequest(form, currentRequest, publicComment, 
+					internalComment, true, sql);
+			break;
 		}
 	}
 

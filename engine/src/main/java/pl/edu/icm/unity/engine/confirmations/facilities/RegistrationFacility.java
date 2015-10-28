@@ -11,7 +11,6 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder.ConfirmedElementType;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.states.RegistrationConfirmationState;
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
 import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
@@ -44,11 +43,10 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 	protected RegistrationFormDB formsDB;
 	protected InternalRegistrationManagment internalRegistrationManagment;
 
-	public RegistrationFacility(DBSessionManager db, RegistrationRequestDB requestDB,
+	public RegistrationFacility(RegistrationRequestDB requestDB,
 			RegistrationFormDB formsDB,
 			InternalRegistrationManagment internalRegistrationManagment)
 	{
-		super(db);
 		this.requestDB = requestDB;
 		this.formsDB = formsDB;
 		this.internalRegistrationManagment = internalRegistrationManagment;

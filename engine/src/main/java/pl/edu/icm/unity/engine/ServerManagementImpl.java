@@ -22,6 +22,8 @@ import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
+import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.ServerManagement;
@@ -78,28 +80,19 @@ public class ServerManagementImpl implements ServerManagement
 
 
 	@Override
+	@Transactional
 	public File exportDb() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			File ret;
-			try
-			{
-				ret = dbDump.exportDB(sql);
-			} catch (JsonGenerationException e)
-			{
-				throw new InternalException("Error creating JSON from database contents", e);
-			} catch (IOException e)
-			{
-				throw new InternalException("Error writing database contents to disk", e);
-			}
-			sql.commit();
-			return ret;
-		} finally
+			return dbDump.exportDB(SqlSessionTL.get());
+		} catch (JsonGenerationException e)
 		{
-			db.releaseSqlSession(sql);
+			throw new InternalException("Error creating JSON from database contents", e);
+		} catch (IOException e)
+		{
+			throw new InternalException("Error writing database contents to disk", e);
 		}
 	}
 

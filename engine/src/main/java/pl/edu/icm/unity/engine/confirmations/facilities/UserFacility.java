@@ -13,7 +13,6 @@ import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder.Status;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.states.UserConfirmationState;
 import pl.edu.icm.unity.db.DBIdentities;
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.EntityState;
@@ -32,9 +31,8 @@ public abstract class UserFacility <T extends UserConfirmationState> extends Bas
 	protected final ObjectMapper mapper = Constants.MAPPER;
 	protected DBIdentities dbIdentities;
 
-	protected UserFacility(DBSessionManager db, DBIdentities dbIdentities)
+	protected UserFacility(DBIdentities dbIdentities)
 	{
-		super(db);
 		this.dbIdentities = dbIdentities;
 	}
 

@@ -15,7 +15,8 @@ import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.states.AttribiuteConfirmationState;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBIdentities;
-import pl.edu.icm.unity.db.DBSessionManager;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
+import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -32,10 +33,9 @@ public class AttributeFacility extends UserFacility<AttribiuteConfirmationState>
 	private DBAttributes dbAttributes;
 
 	@Autowired
-	public AttributeFacility(DBSessionManager db, DBAttributes dbAttributes,
-			DBIdentities dbIdentities)
+	public AttributeFacility(DBAttributes dbAttributes, DBIdentities dbIdentities)
 	{
-		super(db, dbIdentities);
+		super(dbIdentities);
 		this.dbAttributes = dbAttributes;
 	}
 
@@ -94,33 +94,26 @@ public class AttributeFacility extends UserFacility<AttribiuteConfirmationState>
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
 	public void processAfterSendRequest(String state) throws EngineException
 	{
 		AttribiuteConfirmationState attrState = new AttribiuteConfirmationState(state);
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			Collection<AttributeExt<?>> allAttrs = dbAttributes.getAllAttributes(
-					attrState.getOwnerEntityId(), attrState.getGroup(),
-					false, attrState.getType(), sql);
+		SqlSession sql = SqlSessionTL.get();
+		Collection<AttributeExt<?>> allAttrs = dbAttributes.getAllAttributes(
+				attrState.getOwnerEntityId(), attrState.getGroup(),
+				false, attrState.getType(), sql);
 
-			for (Attribute<?> attr : allAttrs)
+		for (Attribute<?> attr : allAttrs)
+		{
+			if (attr.getAttributeSyntax().isVerifiable())
 			{
-				if (attr.getAttributeSyntax().isVerifiable())
+				for (Object val : attr.getValues())
 				{
-					for (Object val : attr.getValues())
-					{
-						updateConfirmationInfo((VerifiableElement) val,
-								attrState.getValue());
-					}
-					dbAttributes.addAttribute(attrState.getOwnerEntityId(), attr, true, sql);
+					updateConfirmationInfo((VerifiableElement) val,
+							attrState.getValue());
 				}
+				dbAttributes.addAttribute(attrState.getOwnerEntityId(), attr, true, sql);
 			}
-			sql.commit();
-
-		} finally
-		{
-			db.releaseSqlSession(sql);
 		}
 	}
 

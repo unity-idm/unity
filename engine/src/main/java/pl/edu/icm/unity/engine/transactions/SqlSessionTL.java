@@ -2,7 +2,7 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.aop;
+package pl.edu.icm.unity.engine.transactions;
 
 import org.apache.ibatis.session.SqlSession;
 
@@ -13,4 +13,11 @@ import org.apache.ibatis.session.SqlSession;
 public class SqlSessionTL
 {
 	public static ThreadLocal<SqlSession> sqlSession = new ThreadLocal<>();
+	
+	static ThreadLocal<TransactionsState> transactionState = new ThreadLocal<>();
+	
+	public static SqlSession get()
+	{
+		return sqlSession.get();
+	}
 }
