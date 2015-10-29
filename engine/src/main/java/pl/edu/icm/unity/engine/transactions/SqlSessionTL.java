@@ -14,10 +14,18 @@ public class SqlSessionTL
 {
 	public static ThreadLocal<SqlSession> sqlSession = new ThreadLocal<>();
 	
-	static ThreadLocal<TransactionsState> transactionState = new ThreadLocal<>();
+	static ThreadLocal<TransactionsState> transactionState = new TransactionsThreadLocal();
 	
 	public static SqlSession get()
 	{
 		return sqlSession.get();
+	}
+	
+	private static class TransactionsThreadLocal extends ThreadLocal<TransactionsState>
+	{
+		public TransactionsState initialValue()
+		{
+			return new TransactionsState();
+		}
 	}
 }

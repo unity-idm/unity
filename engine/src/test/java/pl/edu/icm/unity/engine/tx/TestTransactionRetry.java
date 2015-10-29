@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine;
+package pl.edu.icm.unity.engine.tx;
 
 import static org.junit.Assert.fail;
 
@@ -12,6 +12,7 @@ import java.util.Random;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -31,7 +32,7 @@ public class TestTransactionRetry extends DBIntegrationTestBase
 	private boolean failure;
 	
 	@Test
-	public void test() throws Exception
+	public void testTransactionRetry() throws Exception
 	{
 		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");
 		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 

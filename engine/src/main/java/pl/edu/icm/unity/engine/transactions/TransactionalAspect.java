@@ -90,21 +90,18 @@ public class TransactionalAspect
 	{
 		TransactionsState transactionsStack = SqlSessionTL.transactionState.get();
 		
-		if (transactionsStack == null || transactionsStack.isEmpty())
+		if (transactionsStack.isEmpty())
 		{
 			createNewSqlSession(pjp, transactional);
-			transactionsStack = new TransactionsState();
 			transactionsStack.push(new TransactionState(transactional.propagation(), 
 					SqlSessionTL.get()));
-			SqlSessionTL.transactionState.set(transactionsStack);
 		} else
 		{
-			TransactionState ti = transactionsStack.getCurrent();
-			if (ti.getPropagation() == Propagation.REQUIRED)
+			if (transactional.propagation() == Propagation.REQUIRED)
 			{
 				SqlSession current = SqlSessionTL.get();
 				transactionsStack.push(new TransactionState(transactional.propagation(), current));
-			} else if (ti.getPropagation() == Propagation.REQUIRE_SEPARATE)
+			} else if (transactional.propagation() == Propagation.REQUIRE_SEPARATE)
 			{
 				createNewSqlSession(pjp, transactional);
 				transactionsStack.push(new TransactionState(transactional.propagation(), 
