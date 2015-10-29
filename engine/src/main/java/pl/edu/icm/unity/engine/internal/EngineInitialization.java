@@ -39,13 +39,14 @@ import pl.edu.icm.unity.db.ContentsUpdater;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.InitDB;
 import pl.edu.icm.unity.engine.SharedEndpointManagementImpl;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.endpoints.EndpointsUpdater;
 import pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.notifications.EmailFacility;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
+import pl.edu.icm.unity.engine.transactions.TransactionalRunner;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -132,7 +133,7 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	private InitDB initDB;
 	@Autowired
-	private DBSessionManager db;
+	private TransactionalRunner tx;
 	@Autowired
 	private DBAttributes dbAttributes;
 	@Autowired
@@ -285,20 +286,16 @@ public class EngineInitialization extends LifecycleBase
 			@Override
 			public void run()
 			{
-				SqlSession sqlMap = db.getSqlSession(true);
+				log.debug("Clearing expired identities");
 				try
 				{
-					log.debug("Clearing expired identities");
-					dbIdentities.removeExpiredIdentities(sqlMap);
-					sqlMap.commit();
+					tx.runInTransaciton(() -> {
+						dbIdentities.removeExpiredIdentities(SqlSessionTL.get());
+					});
 				} catch (Exception e)
 				{
 					log.error("Can't clean expired identities", e);
-				} finally
-				{
-					db.releaseSqlSession(sqlMap);
-				}
-			}
+				}			}
 		};
 		executors.getService().scheduleWithFixedDelay(expiredIdentitiesCleaner, 
 				interval*100, interval*100, TimeUnit.SECONDS);
@@ -465,24 +462,24 @@ public class EngineInitialization extends LifecycleBase
 	{
 		log.info("Checking if all identity types are defined");
 		Collection<IdentityTypeDefinition> idTypes = idTypesReg.getAll();
-		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			Map<String, IdentityType> defined = dbIdentities.getIdentityTypes(sql);
-			for (IdentityTypeDefinition it: idTypes)
-			{
-				if (!defined.containsKey(it.getId()))
+			tx.runInTransaciton(() -> {
+				SqlSession sql = SqlSessionTL.get();
+				Map<String, IdentityType> defined = dbIdentities.getIdentityTypes(sql);
+				for (IdentityTypeDefinition it: idTypes)
 				{
-					log.info("Adding identity type " + it.getId());
-					dbIdentities.createIdentityType(sql, it);
-					coldStart = true;
+					if (!defined.containsKey(it.getId()))
+					{
+						log.info("Adding identity type " + it.getId());
+						dbIdentities.createIdentityType(sql, it);
+						coldStart = true;
+					}
 				}
-					
-			}
-			sql.commit();
-		} finally
+			});
+		} catch (EngineException e)
 		{
-			db.releaseSqlSession(sql);
+			throw new InternalException("Can not initialize identity types", e);
 		}
 	}
 
@@ -490,28 +487,25 @@ public class EngineInitialization extends LifecycleBase
 	private void initializeAttributeTypes() 
 	{
 		log.info("Checking if all system attribute types are defined");
-		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			Map<String, AttributeType> existing = dbAttributes.getAttributeTypes(sql);
-			for (SystemAttributesProvider attrTypesProvider: sysTypeProviders)
-				for (AttributeType at: attrTypesProvider.getSystemAttributes())
-				{
-					if (!existing.containsKey(at.getName()))
+			tx.runInTransaciton(() -> {
+				SqlSession sql = SqlSessionTL.get();
+				Map<String, AttributeType> existing = dbAttributes.getAttributeTypes(sql);
+				for (SystemAttributesProvider attrTypesProvider: sysTypeProviders)
+					for (AttributeType at: attrTypesProvider.getSystemAttributes())
 					{
-						log.info("Adding a system attribute type: " + at.getName());
-						dbAttributes.addAttributeType(at, sql);
+						if (!existing.containsKey(at.getName()))
+						{
+							log.info("Adding a system attribute type: " + at.getName());
+							dbAttributes.addAttributeType(at, sql);
+						}
 					}
-				}
-			sql.commit();
+			});
 		} catch (EngineException e)
 		{
 			throw new InternalException("Initialization problem when creating attribute types", e);
-		} finally
-		{
-			db.releaseSqlSession(sql);
 		}
-
 	}
 	
 	private void initializeAdminUser()

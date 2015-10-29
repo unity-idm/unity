@@ -64,6 +64,10 @@ public class TransactionalAspect
 				Object retVal = pjp.proceed();
 				commitIfNeeded(pjp, transactional);
 				return retVal;
+			} catch (TxPersistenceException pe)
+			{
+				log.warn("Got persistence error from a child transaction, give up", pe);
+				throw pe;
 			} catch (PersistenceException pe)
 			{
 				retry++;
@@ -76,7 +80,7 @@ public class TransactionalAspect
 				} else
 				{
 					log.warn("Got persistence error, give up", pe);
-					throw pe;
+					throw new TxPersistenceException(pe);
 				}
 
 			} finally

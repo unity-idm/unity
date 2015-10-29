@@ -21,7 +21,6 @@ import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassDB;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassUtil;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
@@ -31,6 +30,7 @@ import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.internal.AttributesHelper;
 import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
 import pl.edu.icm.unity.engine.transactions.Transactional;
+import pl.edu.icm.unity.engine.transactions.TransactionalRunner;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
@@ -63,7 +63,6 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 public class AttributesManagementImpl implements AttributesManagement
 {
 	private AttributeSyntaxFactoriesRegistry attrValueTypesReg;
-	private DBSessionManager db;
 	private AttributeClassDB acDB;
 	private DBAttributes dbAttributes;
 	private DBIdentities dbIdentities;
@@ -73,19 +72,19 @@ public class AttributesManagementImpl implements AttributesManagement
 	private AuthorizationManager authz;
 	private AttributesHelper attributesHelper;
 	private ConfirmationManager confirmationManager;
+	private TransactionalRunner txRunner;
 
 	
 	@Autowired
 	public AttributesManagementImpl(AttributeSyntaxFactoriesRegistry attrValueTypesReg,
-			DBSessionManager db, AttributeClassDB acDB, 
+			AttributeClassDB acDB, 
 			DBAttributes dbAttributes, DBIdentities dbIdentities, DBGroups dbGroups,
 			IdentitiesResolver idResolver,
 			AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
 			AuthorizationManager authz, AttributesHelper attributesHelper,
-			ConfirmationManager confirmationManager)
+			ConfirmationManager confirmationManager, TransactionalRunner txRunner)
 	{
 		this.attrValueTypesReg = attrValueTypesReg;
-		this.db = db;
 		this.acDB = acDB;
 		this.dbAttributes = dbAttributes;
 		this.dbIdentities = dbIdentities;
@@ -95,6 +94,7 @@ public class AttributesManagementImpl implements AttributesManagement
 		this.authz = authz;
 		this.attributesHelper = attributesHelper;
 		this.confirmationManager = confirmationManager;
+		this.txRunner = txRunner;
 	}
 
 	/**
@@ -493,10 +493,9 @@ public class AttributesManagementImpl implements AttributesManagement
 	{
 		attribute.validateInitialization();
 		entity.validateInitialization(); 
-		SqlSession sql = db.getSqlSession(true);
-		boolean fullAuthz;
-		try
-		{
+		txRunner.runInTransaciton(() -> {
+			SqlSession sql = SqlSessionTL.get();
+			boolean fullAuthz;
 			//Important - attributes can be also set as a result of addMember and addEntity.
 			//  when changing this method, verify if those needs an update too.
 			long entityId = idResolver.getEntityId(entity, sql);
@@ -505,13 +504,7 @@ public class AttributesManagementImpl implements AttributesManagement
 			checkIfAllowed(entityId, attribute.getGroupPath(), attribute.getName(), sql);
 
 			attributesHelper.addAttribute(sql, entityId, update, at, fullAuthz, attribute);
-			
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
-		
+		});
 		confirmationManager.sendVerificationQuiet(entity, attribute, false);
 	}
 	

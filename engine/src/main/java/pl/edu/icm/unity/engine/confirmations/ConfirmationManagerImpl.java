@@ -41,11 +41,12 @@ import pl.edu.icm.unity.confirmations.states.AttribiuteConfirmationState;
 import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
 import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
 import pl.edu.icm.unity.confirmations.states.RegistrationReqAttribiuteConfirmationState;
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.confirmation.ConfirmationConfigurationDB;
 import pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateDB;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.SharedEndpointManagementImpl;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
+import pl.edu.icm.unity.engine.transactions.TransactionalRunner;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -83,13 +84,13 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	private ConfirmationFacilitiesRegistry confirmationFacilitiesRegistry;
 	private MessageTemplateDB mtDB;
 	private ConfirmationConfigurationDB configurationDB;
-	private DBSessionManager db;
 	private URL advertisedAddress;
 	private UnityMessageSource msg;
 	private IdentitiesResolver idResolver;
 	private Ehcache confirmationReqCache;
 	private int requestLimit;
 	private String defaultRedirectURL;
+	private TransactionalRunner tx;
 
 	@Autowired
 	public ConfirmationManagerImpl(TokensManagement tokensMan,
@@ -97,18 +98,18 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			NotificationProducer notificationProducer,
 			ConfirmationFacilitiesRegistry confirmationFacilitiesRegistry,
 			JettyServer httpServer, MessageTemplateDB mtDB,
-			ConfirmationConfigurationDB configurationDB, DBSessionManager db,
+			ConfirmationConfigurationDB configurationDB, TransactionalRunner tx,
 			IdentitiesResolver idResolver, UnityMessageSource msg,
 			CacheProvider cacheProvider, UnityServerConfiguration mainConf)
 	{
 		this.tokensMan = tokensMan;
 		this.notificationProducer = notificationProducer;
 		this.confirmationFacilitiesRegistry = confirmationFacilitiesRegistry;
+		this.tx = tx;
 		this.idResolver = idResolver;
 		this.advertisedAddress = httpServer.getAdvertisedAddress();
 		this.mtDB = mtDB;
 		this.configurationDB = configurationDB;
-		this.db = db;
 		this.msg = msg;
 		
 		CacheConfiguration cacheConfig = new CacheConfiguration(CACHE_ID, 0);
@@ -361,14 +362,9 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	{
 		if (entity.getEntityId() != null)
 			return entity.getEntityId();
-		SqlSession sqlMap = db.getSqlSession(false);
-		try
-		{
-			return idResolver.getEntityId(entity, sqlMap);
-		} finally
-		{
-			db.releaseSqlSession(sqlMap);
-		}
+		return tx.runInTransacitonRet(() -> {
+			return idResolver.getEntityId(entity, SqlSessionTL.get());
+		});
 	}
 	
 	@Override
@@ -449,30 +445,17 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	private ConfirmationConfiguration getConfiguration(String typeToConfirm,
 			String nameToConfirm) throws EngineException
 	{
-		SqlSession sql = db.getSqlSession(true);
-		ConfirmationConfiguration configuration = null;
-		try
-		{
-			configuration = configurationDB.get(typeToConfirm + nameToConfirm, sql);
-			sql.commit();
-			return configuration;
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		return tx.runInTransacitonRet(() -> {
+			return configurationDB.get(typeToConfirm + nameToConfirm, SqlSessionTL.get());
+		});
 	}
 
 	private Collection<MessageTemplate> getAllTemplatesFromDB() throws EngineException
 	{
-		SqlSession sql = db.getSqlSession(false);
-		try
-		{
-			Map<String, MessageTemplate> templates = mtDB.getAllAsMap(sql);
+		return tx.runInTransacitonRet(() -> {
+			Map<String, MessageTemplate> templates = mtDB.getAllAsMap(SqlSessionTL.get());
 			return templates.values();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		});
 	}
 
 	private ConfirmationFacility<?> getFacility(String id) throws InternalException

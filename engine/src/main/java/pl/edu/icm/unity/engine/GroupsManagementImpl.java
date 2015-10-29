@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.DBShared;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassDB;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassUtil;
@@ -30,6 +29,7 @@ import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.internal.AttributesHelper;
 import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
 import pl.edu.icm.unity.engine.transactions.Transactional;
+import pl.edu.icm.unity.engine.transactions.TransactionalRunner;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
@@ -46,7 +46,8 @@ import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupContents;import pl.edu.icm.unity.types.basic.GroupMembership;
+import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 
 
 /**
@@ -59,7 +60,6 @@ import pl.edu.icm.unity.types.basic.GroupContents;import pl.edu.icm.unity.types.
 @InvocationEventProducer
 public class GroupsManagementImpl implements GroupsManagement
 {
-	private DBSessionManager db;
 	private DBGroups dbGroups;
 	private DBShared dbShared;
 	private DBAttributes dbAttributes;
@@ -68,14 +68,15 @@ public class GroupsManagementImpl implements GroupsManagement
 	private AttributesHelper attributesHelper;
 	private IdentitiesResolver idResolver;
 	private ConfirmationManager confirmationManager;
+	private TransactionalRunner tx;
 	
 	@Autowired
-	public GroupsManagementImpl(DBSessionManager db, DBGroups dbGroups, DBShared dbShared,
+	public GroupsManagementImpl(TransactionalRunner tx, DBGroups dbGroups, DBShared dbShared,
 			DBAttributes dbAttributes, AttributeClassDB acDB,
 			AuthorizationManager authz, AttributesHelper attributesHelper,
 			IdentitiesResolver idResolver, ConfirmationManager confirmationsManager)
 	{
-		this.db = db;
+		this.tx = tx;
 		this.dbGroups = dbGroups;
 		this.dbShared = dbShared;
 		this.dbAttributes = dbAttributes;
@@ -139,14 +140,13 @@ public class GroupsManagementImpl implements GroupsManagement
 
 	@Override
 	public void addMemberFromParent(String path, EntityParam entity,
-			List<Attribute<?>> attributes, String idp, String translationProfile) throws EngineException
+			final List<Attribute<?>> attributesP, String idp, String translationProfile) throws EngineException
 	{
 		entity.validateInitialization();
-		if (attributes == null)
-			attributes = Collections.emptyList();
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
+		List<Attribute<?>> attributes = attributesP == null ? Collections.emptyList() : attributesP;
+
+		tx.runInTransaciton(() -> {
+			SqlSession sql = SqlSessionTL.get();
 			long entityId = idResolver.getEntityId(entity, sql);
 			authz.checkAuthorization(authz.isSelf(entityId), path, AuthzCapability.groupModify);
 			
@@ -155,14 +155,10 @@ public class GroupsManagementImpl implements GroupsManagement
 			dbGroups.addMemberFromParent(path, entity, idp, translationProfile, new Date(), sql);
 
 			attributesHelper.addAttributesList(attributes, entityId, true, sql);
-			sql.commit();
-			//careful - must be after the transaction is committed
-			confirmationManager.sendVerificationsQuiet(entity, attributes, false);
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
-	}
+		}); 
+		
+		//careful - must be after the transaction is committed
+		confirmationManager.sendVerificationsQuiet(entity, attributes, false);	}
 
 	@Override
 	@Transactional

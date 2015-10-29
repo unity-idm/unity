@@ -17,8 +17,9 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.authn.AuthenticatorInstanceDB;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
+import pl.edu.icm.unity.engine.transactions.TransactionalRunner;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.utils.Log;
@@ -36,17 +37,17 @@ public class EndpointsUpdater
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, EndpointsUpdater.class);
 	private long lastUpdate = 0;
-	private DBSessionManager db;
 	private InternalEndpointManagement endpointMan;
 	private EndpointDB endpointDB;
 	private AuthenticatorInstanceDB authnDB;
+	private TransactionalRunner tx;
 	
 	@Autowired
-	public EndpointsUpdater(DBSessionManager db,
+	public EndpointsUpdater(TransactionalRunner tx,
 			InternalEndpointManagement endpointMan, EndpointDB endpointDB,
 			AuthenticatorInstanceDB authnDB)
 	{
-		this.db = db;
+		this.tx = tx;
 		this.endpointMan = endpointMan;
 		this.endpointDB = endpointDB;
 		this.authnDB = authnDB;
@@ -100,9 +101,9 @@ public class EndpointsUpdater
 			endpointsDeployed.put(endpoint.getEndpointDescription().getId(), endpoint);
 		log.debug("Running periodic endpoints update task. There are " + deployedEndpoints.size() + 
 				" deployed endpoints.");
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
+		
+		tx.runInTransaciton(() -> {
+			SqlSession sql = SqlSessionTL.get();
 			long roundedUpdateTime = roundToS(System.currentTimeMillis());
 			Set<String> changedAuthenticators = getChangedAuthenticators(sql, roundedUpdateTime);
 
@@ -130,7 +131,7 @@ public class EndpointsUpdater
 						endpointMan.undeploy(instance.getEndpointDescription().getId());
 					} else
 						log.info("Endpoint " + name + " will be deployed");
-					
+
 					endpointMan.deploy(instance);
 				} else if (hasChangedAuthenticator(changedAuthenticators, instance))
 				{
@@ -140,12 +141,7 @@ public class EndpointsUpdater
 			setLastUpdate(roundedUpdateTime);
 
 			undeployRemoved(endpointsInDb, deployedEndpoints);
-			
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		});
 	}
 	
 	private void updateEndpointAuthenticators(String name, EndpointInstance instance,

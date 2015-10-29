@@ -14,6 +14,7 @@
 	</bean>
 	
 	<bean class="pl.edu.icm.unity.engine.transactions.TransactionalAspect"/>
+	<bean class="pl.edu.icm.unity.engine.transactions.TransactionalRunnerImpl"/>
 	
 	<bean class="pl.edu.icm.unity.server.JettyServer"/>
 	<bean class="pl.edu.icm.unity.server.UnityApplication$InnerServerLifecycle"/>

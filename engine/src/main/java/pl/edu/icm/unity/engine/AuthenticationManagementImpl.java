@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.DBAttributes;
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.authn.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.db.generic.cred.CredentialDB;
 import pl.edu.icm.unity.db.generic.credreq.CredentialRequirementDB;
@@ -32,6 +31,7 @@ import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.internal.EngineHelper;
 import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
 import pl.edu.icm.unity.engine.transactions.Transactional;
+import pl.edu.icm.unity.engine.transactions.TransactionalRunner;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
@@ -60,7 +60,6 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 {
 	private AuthenticatorsRegistry authReg;
 	private LocalCredentialsRegistry localCredReg;
-	private DBSessionManager db;
 	private AuthenticatorInstanceDB authenticatorDB;
 	private CredentialDB credentialDB;
 	private CredentialRequirementDB credentialRequirementDB;
@@ -71,9 +70,10 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 	private DBAttributes dbAttributes;
 	private AuthorizationManager authz;
 	private UnityMessageSource msg;
+	private TransactionalRunner tx;
 	
 	@Autowired
-	public AuthenticationManagementImpl(AuthenticatorsRegistry authReg, DBSessionManager db,
+	public AuthenticationManagementImpl(AuthenticatorsRegistry authReg, TransactionalRunner tx,
 			AuthenticatorInstanceDB authenticatorDB,
 			CredentialDB credentialDB, CredentialRequirementDB credentialRequirementDB,
 			IdentityResolver identityResolver, EngineHelper engineHelper,
@@ -82,8 +82,8 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 			UnityMessageSource msg)
 	{
 		this.authReg = authReg;
+		this.tx = tx;
 		this.localCredReg = localCredReg;
-		this.db = db;
 		this.authenticatorDB = authenticatorDB;
 		this.credentialDB = credentialDB;
 		this.credentialRequirementDB = credentialRequirementDB;
@@ -164,26 +164,23 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 			String jsonRetrievalConfig, String localCredential) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
+		
+		tx.runInTransaciton(() -> {
+			SqlSession sql = SqlSessionTL.get();
 			AuthenticatorImpl current = authenticatorLoader.getAuthenticator(id, sql);
+			String verificatorConfig = jsonVerificatorConfig;
 			if (localCredential != null)
 			{
 				CredentialDefinition credentialDef = credentialDB.get(localCredential, sql);
 				CredentialHolder credential = new CredentialHolder(credentialDef, localCredReg);
-				jsonVerificatorConfig = credential.getCredentialDefinition().getJsonConfiguration();
+				verificatorConfig = credential.getCredentialDefinition().getJsonConfiguration();
 				verifyIfLocalCredentialMatchesVerificator(current, credential, 
 						localCredential);
 			}
 			
-			current.updateConfiguration(jsonRetrievalConfig, jsonVerificatorConfig, localCredential);
+			current.updateConfiguration(jsonRetrievalConfig, verificatorConfig, localCredential);
 			authenticatorDB.update(id, current.getAuthenticatorInstance(), sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		});
 		endpointsUpdater.updateEndpointsManual();
 	}
 

@@ -14,7 +14,8 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.DBSessionManager;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
+import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.utils.Log;
@@ -22,21 +23,21 @@ import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
 /**
  * Implementation of the internal endpoint management. 
- * This is used internally and not exposed by the public interfaces. 
+ * This is used internally and not exposed by the public interfaces.
+ * <p>
+ * NOTE: make sure to fix transactions if this class is refactored to implement an interface! 
  * @author K. Benedyczak
  */
 @Component
 public class InternalEndpointManagement
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, InternalEndpointManagement.class);
-	private DBSessionManager db;
 	private EndpointDB endpointDB;
 	private Map<String, EndpointInstance> deployedEndpoints = new LinkedHashMap<>();
 	
 	@Autowired
-	public InternalEndpointManagement(DBSessionManager db, EndpointDB endpointDB)
+	public InternalEndpointManagement(EndpointDB endpointDB)
 	{
-		this.db = db;
 		this.endpointDB = endpointDB;
 	}
 
@@ -45,38 +46,25 @@ public class InternalEndpointManagement
 	 * Should be run only on startup
 	 * @throws EngineException 
 	 */
+	@Transactional
 	public synchronized void loadPersistedEndpoints() throws EngineException
 	{
-		SqlSession sql = db.getSqlSession(true);
-		try
+		SqlSession sql = SqlSessionTL.get();
+		List<EndpointInstance> fromDb = endpointDB.getAll(sql);
+		for (EndpointInstance instance: fromDb)
 		{
-			List<EndpointInstance> fromDb = endpointDB.getAll(sql);
-			for (EndpointInstance instance: fromDb)
-			{
-				deploy(instance);
-				EndpointDescription endpoint = instance.getEndpointDescription();
-				log.debug(" - " + endpoint.getId() + ": " + endpoint.getType().getName() + 
-						" " + endpoint.getDescription());
-			}
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
+			deploy(instance);
+			EndpointDescription endpoint = instance.getEndpointDescription();
+			log.debug(" - " + endpoint.getId() + ": " + endpoint.getType().getName() + 
+					" " + endpoint.getDescription());
 		}
 	}
 
+	@Transactional
 	public synchronized void removeAllPersistedEndpoints() throws EngineException
 	{
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			endpointDB.removeAllNoCheck(sql);
-			undeployAll();
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		endpointDB.removeAllNoCheck(SqlSessionTL.get());
+		undeployAll();
 	}
 	
 	public synchronized void deploy(EndpointInstance instance) throws EngineException

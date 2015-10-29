@@ -12,7 +12,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.realm.RealmDB;
 import pl.edu.icm.unity.engine.authn.AuthenticatorLoader;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
@@ -23,6 +22,7 @@ import pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
 import pl.edu.icm.unity.engine.transactions.Transactional;
+import pl.edu.icm.unity.engine.transactions.TransactionalRunner;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -46,23 +46,23 @@ import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 public class EndpointManagementImpl implements EndpointManagement
 {
 	private EndpointFactoriesRegistry endpointFactoriesReg;
-	private DBSessionManager db;
 	private AuthenticatorLoader authnLoader;
 	private InternalEndpointManagement internalManagement;
 	private EndpointsUpdater endpointsUpdater;
 	private AuthorizationManager authz;
 	private EndpointDB endpointDB;
 	private RealmDB realmDB;
+	private TransactionalRunner tx;
 	
 	@Autowired
 	public EndpointManagementImpl(EndpointFactoriesRegistry endpointFactoriesReg,
-			DBSessionManager db, AuthenticatorLoader authnLoader,
+			TransactionalRunner tx, AuthenticatorLoader authnLoader,
 			InternalEndpointManagement internalManagement,
 			EndpointsUpdater endpointsUpdater, AuthorizationManager authz,
 			EndpointDB endpointDB, RealmDB realmDB)
 	{
 		this.endpointFactoriesReg = endpointFactoriesReg;
-		this.db = db;
+		this.tx = tx;
 		this.authnLoader = authnLoader;
 		this.internalManagement = internalManagement;
 		this.endpointsUpdater = endpointsUpdater;
@@ -165,18 +165,15 @@ public class EndpointManagementImpl implements EndpointManagement
 
 	private void undeployInt(String id) throws EngineException
 	{
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			endpointDB.remove(id, sql);
-			sql.commit();
-		} catch (Exception e)
-		{
-			throw new EngineException("Unable to undeploy an endpoint: " + e.getMessage(), e);
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		tx.runInTransaciton(() -> {
+			try
+			{
+				endpointDB.remove(id, SqlSessionTL.get());
+			} catch (Exception e)
+			{
+				throw new EngineException("Unable to undeploy an endpoint: " + e.getMessage(), e);
+			}
+		});
 		endpointsUpdater.updateEndpoints();
 	}	
 	
@@ -207,48 +204,47 @@ public class EndpointManagementImpl implements EndpointManagement
 			String jsonConfiguration, 
 			List<AuthenticationOptionDescription> authn, String realmName) throws EngineException
 	{
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			EndpointInstance instance = endpointDB.get(id, sql); 
-			String endpointTypeId = instance.getEndpointDescription().getType().getName();
-			EndpointFactory factory = endpointFactoriesReg.getById(endpointTypeId);
-			EndpointInstance newInstance = factory.newInstance();
-			
-			String jsonConf = (jsonConfiguration != null) ? jsonConfiguration : 
-				instance.getSerializedConfiguration();
-			String newDesc = (description != null) ? description : 
-				instance.getEndpointDescription().getDescription();
-			
-			List<AuthenticationOption> authenticators;
-			List<AuthenticationOptionDescription> newAuthn;
-			if (authn != null)
+		tx.runInTransaciton(() -> {
+			SqlSession sql = SqlSessionTL.get();
+			try
 			{
-				newAuthn = authn;
-				authenticators = authnLoader.getAuthenticators(authn, sql);
-			} else
+				EndpointInstance instance = endpointDB.get(id, sql); 
+				String endpointTypeId = instance.getEndpointDescription().getType().getName();
+				EndpointFactory factory = endpointFactoriesReg.getById(endpointTypeId);
+				EndpointInstance newInstance = factory.newInstance();
+				
+				String jsonConf = (jsonConfiguration != null) ? jsonConfiguration : 
+					instance.getSerializedConfiguration();
+				String newDesc = (description != null) ? description : 
+					instance.getEndpointDescription().getDescription();
+				
+				List<AuthenticationOption> authenticators;
+				List<AuthenticationOptionDescription> newAuthn;
+				if (authn != null)
+				{
+					newAuthn = authn;
+					authenticators = authnLoader.getAuthenticators(authn, sql);
+				} else
+				{
+					newAuthn = instance.getEndpointDescription().getAuthenticatorSets();
+					authenticators = authnLoader.getAuthenticators(newAuthn, sql);
+				}
+				AuthenticationRealm realm = realmDB.get(realmName, sql);
+				
+				EndpointDescription endpDescription = new EndpointDescription(
+						id, displayedName, 
+						instance.getEndpointDescription().getContextAddress(), 
+						newDesc, realm, 
+						factory.getDescription(), newAuthn);
+				
+				newInstance.initialize(endpDescription, authenticators, jsonConf);
+				endpointDB.update(id, newInstance, sql);
+			} catch (Exception e)
 			{
-				newAuthn = instance.getEndpointDescription().getAuthenticatorSets();
-				authenticators = authnLoader.getAuthenticators(newAuthn, sql);
+				throw new EngineException("Unable to reconfigure an endpoint: " + e.getMessage(), e);
 			}
-			AuthenticationRealm realm = realmDB.get(realmName, sql);
-			
-			EndpointDescription endpDescription = new EndpointDescription(
-					id, displayedName, 
-					instance.getEndpointDescription().getContextAddress(), 
-					newDesc, realm, 
-					factory.getDescription(), newAuthn);
-			
-			newInstance.initialize(endpDescription, authenticators, jsonConf);
-			endpointDB.update(id, newInstance, sql);
-			sql.commit();				
-		} catch (Exception e)
-		{
-			throw new EngineException("Unable to reconfigure an endpoint: " + e.getMessage(), e);
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+
+		});
 		endpointsUpdater.updateEndpointsManual();
 	}
 }

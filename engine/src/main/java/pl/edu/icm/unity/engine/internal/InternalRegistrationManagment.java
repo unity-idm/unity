@@ -28,7 +28,6 @@ import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityConfirmation
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.cred.CredentialDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
@@ -102,7 +101,6 @@ public class InternalRegistrationManagment
 	private AttributesHelper attributesHelper;
 	private NotificationProducer notificationProducer;
 	private LocalCredentialsRegistry authnRegistry;
-	private DBSessionManager dbSessionManager;
 
 	private InternalFacilitiesManagement facilitiesManagement;
 
@@ -114,7 +112,7 @@ public class InternalRegistrationManagment
 			AttributesHelper attributesHelper,
 			NotificationProducer notificationProducer,
 			LocalCredentialsRegistry authnRegistry, TokensManagement tokensMan,
-			UnityMessageSource msg, IdentitiesResolver idResolver, DBSessionManager dbSessionManager,
+			UnityMessageSource msg, IdentitiesResolver idResolver, 
 			InternalFacilitiesManagement facilitiesManagement)
 	{
 		super();
@@ -132,7 +130,6 @@ public class InternalRegistrationManagment
 		this.tokensMan = tokensMan;
 		this.msg = msg;
 		this.idResolver = idResolver;
-		this.dbSessionManager = dbSessionManager;
 		this.facilitiesManagement = facilitiesManagement;
 	}
 
@@ -267,7 +264,7 @@ public class InternalRegistrationManagment
 		validateRequestAttributes(form, request, doCheckMandatoryAttr, sql);
 		validateRequestCode(form, request);
 		validateRequestCredentials(form, request, doCredentialCheckAndUpdate, sql);
-		validateRequestIdentities(form, request);
+		validateRequestIdentities(form, request, sql);
 
 		if (!form.isCollectComments() && request.getComments() != null)
 			throw new WrongArgumentException("This registration "
@@ -298,8 +295,8 @@ public class InternalRegistrationManagment
 		}
 	}
 
-	private void validateRequestAttributes(RegistrationForm form, RegistrationRequest request,boolean doCheckMandatoryAttr,
-			SqlSession sql) throws WrongArgumentException,
+	private void validateRequestAttributes(RegistrationForm form, RegistrationRequest request,
+			boolean doCheckMandatoryAttr, SqlSession sql) throws WrongArgumentException,
 			IllegalAttributeValueException, IllegalAttributeTypeException
 	{
 		validateParamsBase(form.getAttributeParams(), request.getAttributes(), doCheckMandatoryAttr, "attributes");
@@ -326,33 +323,25 @@ public class InternalRegistrationManagment
 		}
 	}
 
-	private void validateRequestIdentities(RegistrationForm form, RegistrationRequest request) 
+	private void validateRequestIdentities(RegistrationForm form, RegistrationRequest request, SqlSession sql) 
 			throws WrongArgumentException, IllegalIdentityValueException, IllegalTypeException
 	{
 		List<IdentityParam> requestedIds = request.getIdentities();
 		validateParamsBase(form.getIdentityParams(), requestedIds, true, "identities");
 		boolean identitiesFound = false;
-		SqlSession sql = dbSessionManager.getSqlSession(false);
-		try
+		for (int i=0; i<requestedIds.size(); i++)
 		{
-			for (int i=0; i<requestedIds.size(); i++)
-			{
-				IdentityParam idParam = requestedIds.get(i);
-				if (idParam == null)
-					continue;
-				if (idParam.getTypeId() == null || idParam.getValue() == null)
-					throw new WrongArgumentException("Identity nr " + i + " contains null values");
-				if (!form.getIdentityParams().get(i).getIdentityType().equals(idParam.getTypeId()))
-					throw new WrongArgumentException("Identity nr " + i + " must be of " 
-							+ idParam.getTypeId() + " type");
-				identityTypesRegistry.getByName(idParam.getTypeId()).validate(idParam.getValue());
-				identitiesFound = true;
-				checkIdentityIsNotPresent(idParam, sql);
-			}
-		} finally
-		{
-			sql.commit();
-			dbSessionManager.releaseSqlSession(sql);
+			IdentityParam idParam = requestedIds.get(i);
+			if (idParam == null)
+				continue;
+			if (idParam.getTypeId() == null || idParam.getValue() == null)
+				throw new WrongArgumentException("Identity nr " + i + " contains null values");
+			if (!form.getIdentityParams().get(i).getIdentityType().equals(idParam.getTypeId()))
+				throw new WrongArgumentException("Identity nr " + i + " must be of " 
+						+ idParam.getTypeId() + " type");
+			identityTypesRegistry.getByName(idParam.getTypeId()).validate(idParam.getValue());
+			identitiesFound = true;
+			checkIdentityIsNotPresent(idParam, sql);
 		}
 		if (!identitiesFound)
 			throw new WrongArgumentException("At least one identity must be defined in the "

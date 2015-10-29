@@ -24,7 +24,6 @@ import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
 import pl.edu.icm.unity.confirmations.states.RegistrationReqAttribiuteConfirmationState;
 import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityConfirmationState;
 import pl.edu.icm.unity.db.DBAttributes;
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassDB;
 import pl.edu.icm.unity.db.generic.cred.CredentialDB;
 import pl.edu.icm.unity.db.generic.credreq.CredentialRequirementDB;
@@ -39,6 +38,7 @@ import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
 import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
 import pl.edu.icm.unity.engine.transactions.Transactional;
+import pl.edu.icm.unity.engine.transactions.TransactionalRunner;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
@@ -82,7 +82,6 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 @InvocationEventProducer
 public class RegistrationsManagementImpl implements RegistrationsManagement
 {
-	private DBSessionManager db;
 	private RegistrationFormDB formsDB;
 	private RegistrationRequestDB requestDB;
 	private CredentialDB credentialDB;
@@ -98,9 +97,10 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private ConfirmationManager confirmationManager;
 	private InternalRegistrationManagment internalManagment;
 	private UnityMessageSource msg;
+	private TransactionalRunner tx;
 
 	@Autowired
-	public RegistrationsManagementImpl(DBSessionManager db, RegistrationFormDB formsDB,
+	public RegistrationsManagementImpl(TransactionalRunner tx, RegistrationFormDB formsDB,
 			RegistrationRequestDB requestDB, CredentialDB credentialDB,
 			CredentialRequirementDB credentialReqDB, AttributeClassDB acDB,
 			DBAttributes dbAttributes, GroupResolver groupsResolver, 
@@ -109,7 +109,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			MessageTemplateDB msgTplDB, InternalRegistrationManagment internalManagment,
 			UnityMessageSource msg)
 	{
-		this.db = db;
+		this.tx = tx;
 		this.formsDB = formsDB;
 		this.requestDB = requestDB;
 		this.credentialDB = credentialDB;
@@ -191,27 +191,30 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	@Override
 	public String submitRegistrationRequest(RegistrationRequest request, boolean tryAutoAccept) throws EngineException
 	{
-		RegistrationRequestState requestFull = null;
-		Long entityId = null;
-		RegistrationForm form;
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			form = formsDB.get(request.getFormId(), sql);
+		RegistrationRequestState requestFull = new RegistrationRequestState();
+		requestFull.setStatus(RegistrationRequestStatus.pending);
+		requestFull.setRequest(request);
+		requestFull.setRequestId(UUID.randomUUID().toString());
+		requestFull.setTimestamp(new Date());
+		
+		
+		RegistrationForm form2 = tx.runInTransacitonRet(() -> {
+			SqlSession sql = SqlSessionTL.get();
+			RegistrationForm form = formsDB.get(request.getFormId(), sql);
 			internalManagment.validateRequestContents(form, request, true, true, sql);
-			requestFull = new RegistrationRequestState();
-			requestFull.setStatus(RegistrationRequestStatus.pending);
-			requestFull.setRequest(request);
-			requestFull.setRequestId(UUID.randomUUID().toString());
-			requestFull.setTimestamp(new Date());
 			requestDB.insert(requestFull.getRequestId(), requestFull, sql);
-			sql.commit();
-			RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
+			return form;
+		});
+			
+		Long entityId2 = tx.runInTransacitonRet(() -> {
+			SqlSession sql = SqlSessionTL.get();
+			Long entityId = null;
+			RegistrationFormNotifications notificationsCfg = form2.getNotificationsConfiguration();
 			if (notificationsCfg.getChannel() != null && notificationsCfg.getSubmittedTemplate() != null
 					&& notificationsCfg.getAdminsNotificationGroup() != null)
 			{
 				Map<String, String> params = internalManagment.getBaseNotificationParams(
-						form.getName(), requestFull.getRequestId()); 
+						form2.getName(), requestFull.getRequestId()); 
 				notificationProducer.sendNotificationToGroup(
 						notificationsCfg.getAdminsNotificationGroup(), 
 						notificationsCfg.getChannel(), 
@@ -224,19 +227,17 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				AdminComment autoAcceptComment = new AdminComment(
 						InternalRegistrationManagment.AUTO_ACCEPT_COMMENT, 0, false);
 				requestFull.getAdminComments().add(autoAcceptComment);
-				entityId = internalManagment.acceptRequest(form, requestFull, null, 
+				entityId = internalManagment.acceptRequest(form2, requestFull, null, 
 						autoAcceptComment, false, sql);
 			}
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
-		if (entityId == null)
-			sendFormAttributeConfirmationRequest(requestFull, form);
+			return entityId;
+		});
+		
+		if (entityId2 == null)
+			sendFormAttributeConfirmationRequest(requestFull, form2);
 		else
-			sendAttributeConfirmationRequest(requestFull, entityId, form);
-		sendIdentityConfirmationRequest(requestFull, entityId, form);	
+			sendAttributeConfirmationRequest(requestFull, entityId2, form2);
+		sendIdentityConfirmationRequest(requestFull, entityId2, form2);	
 		
 		
 		return requestFull.getRequestId();

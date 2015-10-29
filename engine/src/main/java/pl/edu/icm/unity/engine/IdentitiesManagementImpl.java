@@ -23,7 +23,6 @@ import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.DBShared;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassDB;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassUtil;
@@ -36,6 +35,7 @@ import pl.edu.icm.unity.engine.internal.AttributesHelper;
 import pl.edu.icm.unity.engine.internal.EngineHelper;
 import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
 import pl.edu.icm.unity.engine.transactions.Transactional;
+import pl.edu.icm.unity.engine.transactions.TransactionalRunner;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
@@ -85,7 +85,6 @@ import com.google.common.collect.Sets;
 @InvocationEventProducer
 public class IdentitiesManagementImpl implements IdentitiesManagement
 {
-	private DBSessionManager db;
 	private DBIdentities dbIdentities;
 	private DBAttributes dbAttributes;
 	private DBShared dbShared;
@@ -96,15 +95,16 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	private ConfirmationManager confirmationManager;
 	private DBGroups dbGroups;
 	private AttributeClassDB acDB;
+	private TransactionalRunner tx;
 	
 	@Autowired
-	public IdentitiesManagementImpl(DBSessionManager db, DBIdentities dbIdentities,
+	public IdentitiesManagementImpl(TransactionalRunner tx, DBIdentities dbIdentities,
 			DBAttributes dbAttributes, DBShared dbShared, DBGroups dbGroups, AttributeClassDB acDB,
 			IdentitiesResolver idResolver, EngineHelper engineHelper, AttributesHelper attributesHelper,
 			AuthorizationManager authz, IdentityTypesRegistry idTypesRegistry,
 			ConfirmationManager confirmationsManager)
 	{
-		this.db = db;
+		this.tx = tx;
 		this.dbIdentities = dbIdentities;
 		this.dbAttributes = dbAttributes;
 		this.dbShared = dbShared;
@@ -185,28 +185,22 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	@Override
 	public Identity addEntity(IdentityParam toAdd, String credReqId,
 			EntityState initialState, boolean extractAttributes,
-			List<Attribute<?>> attributes) throws EngineException
+			List<Attribute<?>> attributesP) throws EngineException
 	{
 		toAdd.validateInitialization();
 		authz.checkAuthorization(AuthzCapability.identityModify);
-		if (attributes == null)
-			attributes = Collections.emptyList();
-		SqlSession sqlMap = db.getSqlSession(true);
-		try
-		{
-			Identity ret = engineHelper.addEntity(toAdd, credReqId, initialState, 
-					extractAttributes, attributes, true, sqlMap);
-			sqlMap.commit();
-			
-			//careful - must be after the transaction is committed
-			EntityParam added = new EntityParam(ret.getEntityId());
-			confirmationManager.sendVerificationsQuiet(added, attributes, false);
-			confirmationManager.sendVerificationQuiet(added, ret, false);
-			return ret;
-		} finally
-		{
-			db.releaseSqlSession(sqlMap);
-		}
+		List<Attribute<?>> attributes = attributesP == null ? Collections.emptyList() : attributesP;
+		
+		Identity ret = tx.runInTransacitonRet(() -> {
+			return engineHelper.addEntity(toAdd, credReqId, initialState, 
+					extractAttributes, attributes, true, SqlSessionTL.get());
+		}); 
+		
+		//careful - must be after the transaction is committed
+		EntityParam added = new EntityParam(ret.getEntityId());
+		confirmationManager.sendVerificationsQuiet(added, attributes, false);
+		confirmationManager.sendVerificationQuiet(added, ret, false);
+		return ret;
 	}
 	
 	/**
@@ -217,10 +211,9 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 			throws EngineException
 	{
 		toAdd.validateInitialization();
-		
-		SqlSession sqlMap = db.getSqlSession(true);
-		try
-		{
+
+		Identity ret = tx.runInTransacitonRet(() -> {
+			SqlSession sqlMap = SqlSessionTL.get();
 			long entityId = idResolver.getEntityId(parentEntity, sqlMap);
 			IdentityType identityType = dbIdentities.getIdentityTypes(sqlMap).get(
 					toAdd.getTypeId());
@@ -232,16 +225,13 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 					>= identityType.getMaxInstances())
 				throw new SchemaConsistencyException("Can not add another identity of this type as "
 						+ "the configured maximum number of instances was reached.");
-			Identity ret = dbIdentities.insertIdentity(toAdd, entityId, false, sqlMap);
+			Identity ret2 = dbIdentities.insertIdentity(toAdd, entityId, false, sqlMap);
 			if (extractAttributes && fullAuthz)
-				engineHelper.extractAttributes(ret, sqlMap);
-			sqlMap.commit();
-			confirmationManager.sendVerification(new EntityParam(entityId), ret, false);
-			return ret;
-		} finally
-		{
-			db.releaseSqlSession(sqlMap);
-		}
+				engineHelper.extractAttributes(ret2, sqlMap);
+			return ret2;
+		});
+		confirmationManager.sendVerification(new EntityParam(ret.getEntityId()), ret, false);
+		return ret;
 	}
 
 	private int getIdentityCountOfType(Identity[] identities, String type)

@@ -13,7 +13,7 @@ import org.apache.ibatis.session.SqlSession;
 public class SqlSessionTL
 {
 	public static ThreadLocal<SqlSession> sqlSession = new ThreadLocal<>();
-	
+
 	static ThreadLocal<TransactionsState> transactionState = new TransactionsThreadLocal();
 	
 	public static SqlSession get()

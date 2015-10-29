@@ -28,6 +28,8 @@ public class TestDeclarativeTransactions extends DBIntegrationTestBase
 	private CheckPropagationParent checkPropagationParent;
 	@Autowired
 	private CheckSessionWithoutInterface checkSessionWithoutInterface;
+//	@Autowired
+//	private CheckSessionWithInterface checkSessionWithInterface2;
 
 	
 	@Test
@@ -59,6 +61,12 @@ public class TestDeclarativeTransactions extends DBIntegrationTestBase
 	{
 		checkSessionWithoutInterface.required();
 	}
+
+//	@Test
+//	public void transactionIsStartedOnClassWithInterfaceAccessedOutsideInterface()
+//	{
+//		checkSessionWithInterface2.nonFromInterface();
+//	}
 	
 	@Component
 	public static class CheckSessionWithInterface implements TransactionCall
@@ -74,6 +82,13 @@ public class TestDeclarativeTransactions extends DBIntegrationTestBase
 		@Transactional(propagation=Propagation.REQUIRE_SEPARATE)
 		@Override
 		public void requireSeparate()
+		{
+			SqlSession sql = SqlSessionTL.get();
+			assertThat(sql, notNullValue());
+		}
+
+		@Transactional
+		public void nonFromInterface()
 		{
 			SqlSession sql = SqlSessionTL.get();
 			assertThat(sql, notNullValue());
