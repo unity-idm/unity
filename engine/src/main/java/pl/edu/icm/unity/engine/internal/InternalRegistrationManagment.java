@@ -33,14 +33,15 @@ import pl.edu.icm.unity.db.generic.cred.CredentialDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
+import pl.edu.icm.unity.engine.notifications.InternalFacilitiesManagement;
 import pl.edu.icm.unity.engine.notifications.NotificationFacility;
-import pl.edu.icm.unity.engine.notifications.NotificationProducerImpl;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.notifications.NotificationProducer;
 import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.api.registration.BaseRegistrationTemplateDef;
@@ -99,9 +100,11 @@ public class InternalRegistrationManagment
 	private IdentityTypesRegistry identityTypesRegistry;
 	private EngineHelper engineHelper;
 	private AttributesHelper attributesHelper;
-	private NotificationProducerImpl notificationProducer;
+	private NotificationProducer notificationProducer;
 	private LocalCredentialsRegistry authnRegistry;
 	private DBSessionManager dbSessionManager;
+
+	private InternalFacilitiesManagement facilitiesManagement;
 
 	@Autowired
 	public InternalRegistrationManagment(RegistrationFormDB formsDB,
@@ -109,9 +112,10 @@ public class InternalRegistrationManagment
 			DBAttributes dbAttributes, DBIdentities dbIdentities, DBGroups dbGroups,
 			IdentityTypesRegistry identityTypesRegistry, EngineHelper engineHelper,
 			AttributesHelper attributesHelper,
-			NotificationProducerImpl notificationProducer,
+			NotificationProducer notificationProducer,
 			LocalCredentialsRegistry authnRegistry, TokensManagement tokensMan,
-			UnityMessageSource msg, IdentitiesResolver idResolver, DBSessionManager dbSessionManager)
+			UnityMessageSource msg, IdentitiesResolver idResolver, DBSessionManager dbSessionManager,
+			InternalFacilitiesManagement facilitiesManagement)
 	{
 		super();
 		this.formsDB = formsDB;
@@ -129,6 +133,7 @@ public class InternalRegistrationManagment
 		this.msg = msg;
 		this.idResolver = idResolver;
 		this.dbSessionManager = dbSessionManager;
+		this.facilitiesManagement = facilitiesManagement;
 	}
 
 	public List<RegistrationForm> getForms(SqlSession sql) throws EngineException
@@ -482,7 +487,7 @@ public class InternalRegistrationManagment
 			RegistrationFormNotifications notificationsCfg, SqlSession sql)
 			throws EngineException
 	{
-		NotificationFacility notificationFacility = notificationProducer.getNotificationFacilityForChannel(
+		NotificationFacility notificationFacility = facilitiesManagement.getNotificationFacilityForChannel(
 				notificationsCfg.getChannel(), sql);
 		return notificationFacility.getAddressForRegistrationRequest(currentRequest, sql);
 	}

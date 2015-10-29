@@ -37,13 +37,13 @@ import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
-import pl.edu.icm.unity.engine.notifications.NotificationProducerImpl;
 import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
 import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.notifications.NotificationProducer;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.registration.AcceptRegistrationTemplateDef;
@@ -94,7 +94,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private GroupResolver groupsResolver;
 	private IdentityTypesRegistry identityTypesRegistry;
 	private AuthorizationManager authz;
-	private NotificationProducerImpl notificationProducer;
+	private NotificationProducer notificationProducer;
 	private ConfirmationManager confirmationManager;
 	private InternalRegistrationManagment internalManagment;
 	private UnityMessageSource msg;
@@ -105,7 +105,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			CredentialRequirementDB credentialReqDB, AttributeClassDB acDB,
 			DBAttributes dbAttributes, GroupResolver groupsResolver, 
 			IdentityTypesRegistry identityTypesRegistry, AuthorizationManager authz,
-			NotificationProducerImpl notificationProducer, ConfirmationManager confirmationManager, 
+			NotificationProducer notificationProducer, ConfirmationManager confirmationManager, 
 			MessageTemplateDB msgTplDB, InternalRegistrationManagment internalManagment,
 			UnityMessageSource msg)
 	{

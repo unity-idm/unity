@@ -5,7 +5,9 @@
 package pl.edu.icm.unity.engine;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,9 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.builders.NotificationChannelBuilder;
 import pl.edu.icm.unity.engine.notifications.EmailFacility;
-import pl.edu.icm.unity.engine.notifications.NotificationProducerImpl;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.notifications.NotificationProducer;
 import pl.edu.icm.unity.notifications.NotificationStatus;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordResetTemplateDef;
@@ -36,7 +38,7 @@ import pl.edu.icm.unity.types.basic.NotificationChannel;
 public class TestNotifications extends DBIntegrationTestBase
 {
 	@Autowired
-	private NotificationProducerImpl notProducer;
+	private NotificationProducer notProducer;
 	@Autowired
 	private InitializerCommon initCommon;
 	

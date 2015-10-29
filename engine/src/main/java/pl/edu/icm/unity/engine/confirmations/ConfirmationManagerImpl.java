@@ -33,10 +33,10 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.confirmations.ConfirmationConfiguration;
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder;
+import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder.Status;
 import pl.edu.icm.unity.confirmations.ConfirmationServlet;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.ConfirmationTemplateDef;
-import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder.Status;
 import pl.edu.icm.unity.confirmations.states.AttribiuteConfirmationState;
 import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
 import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
@@ -46,12 +46,12 @@ import pl.edu.icm.unity.db.generic.confirmation.ConfirmationConfigurationDB;
 import pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateDB;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.SharedEndpointManagementImpl;
-import pl.edu.icm.unity.engine.notifications.NotificationProducerImpl;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
+import pl.edu.icm.unity.notifications.NotificationProducer;
 import pl.edu.icm.unity.server.JettyServer;
 import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
@@ -79,7 +79,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	private static final String CACHE_ID = "ConfirmationCache";
 	
 	private TokensManagement tokensMan;
-	private NotificationProducerImpl notificationProducer;
+	private NotificationProducer notificationProducer;
 	private ConfirmationFacilitiesRegistry confirmationFacilitiesRegistry;
 	private MessageTemplateDB mtDB;
 	private ConfirmationConfigurationDB configurationDB;
@@ -94,7 +94,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	@Autowired
 	public ConfirmationManagerImpl(TokensManagement tokensMan,
 			MessageTemplateManagement templateMan,
-			NotificationProducerImpl notificationProducer,
+			NotificationProducer notificationProducer,
 			ConfirmationFacilitiesRegistry confirmationFacilitiesRegistry,
 			JettyServer httpServer, MessageTemplateDB mtDB,
 			ConfirmationConfigurationDB configurationDB, DBSessionManager db,
