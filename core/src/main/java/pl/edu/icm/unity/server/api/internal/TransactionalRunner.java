@@ -2,7 +2,7 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.transactions;
+package pl.edu.icm.unity.server.api.internal;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 

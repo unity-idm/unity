@@ -229,7 +229,7 @@ public class InternalRegistrationManagment
 				currentRequest.getRequestId(), form.getName(), true, publicComment,
 				internalComment, notificationsCfg, sql);
 		if (rewriteConfirmationToken)
-			rewriteRequestTokenInternal(currentRequest, initial.getEntityId(), sql);
+			rewriteRequestTokenInternal(currentRequest, initial.getEntityId());
 
 		return initial.getEntityId();
 	}
@@ -588,11 +588,11 @@ public class InternalRegistrationManagment
 		return ctx;
 	}
 
-	private void rewriteRequestTokenInternal(RegistrationRequestState finalReguest, long entityId, 
-			Object transaction) throws EngineException
+	private void rewriteRequestTokenInternal(RegistrationRequestState finalReguest, long entityId) 
+			throws EngineException
 	{
 
-		List<Token> tks = tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, transaction);
+		List<Token> tks = tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE);
 		for (Token tk : tks)
 		{
 			RegistrationConfirmationState state;
@@ -609,18 +609,18 @@ public class InternalRegistrationManagment
 				if (state.getFacilityId().equals(
 						RegistrationReqAttribiuteConfirmationState.FACILITY_ID))
 				{
-					rewriteSingleAttributeToken(finalReguest, tk, transaction, entityId);
+					rewriteSingleAttributeToken(finalReguest, tk, entityId);
 				} else if (state.getFacilityId().equals(
 						RegistrationReqIdentityConfirmationState.FACILITY_ID))
 				{
-					rewriteSingleIdentityToken(finalReguest, tk, transaction, entityId);
+					rewriteSingleIdentityToken(finalReguest, tk, entityId);
 				}
 			}
 		}
 	}
 
 	private void rewriteSingleIdentityToken(RegistrationRequestState finalReguest, Token tk, 
-			Object transaction, long entityId) throws EngineException
+			long entityId) throws EngineException
 	{
 		RegistrationReqIdentityConfirmationState oldState = new RegistrationReqIdentityConfirmationState(
 				new String(tk.getContents(), StandardCharsets.UTF_8));
@@ -638,7 +638,7 @@ public class InternalRegistrationManagment
 			}
 		}
 
-		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue(), transaction);
+		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue());
 		if (inRequest)
 		{
 			IdentityConfirmationState newstate = new IdentityConfirmationState(
@@ -649,13 +649,13 @@ public class InternalRegistrationManagment
 			tokensMan.addToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk
 					.getValue(), newstate.getSerializedConfiguration()
 					.getBytes(StandardCharsets.UTF_8), tk.getCreated(), tk
-					.getExpires(), transaction);
+					.getExpires());
 		}
 
 	}
 
 	private void rewriteSingleAttributeToken(RegistrationRequestState finalReguest, Token tk, 
-			Object transaction, long entityId) throws EngineException
+			long entityId) throws EngineException
 	{
 
 		RegistrationReqAttribiuteConfirmationState oldState = new RegistrationReqAttribiuteConfirmationState(
@@ -684,7 +684,7 @@ public class InternalRegistrationManagment
 				}
 			}
 		}
-		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue(), transaction);
+		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue());
 		if (inRequest)
 		{
 			AttribiuteConfirmationState newstate = new AttribiuteConfirmationState(
@@ -696,7 +696,7 @@ public class InternalRegistrationManagment
 			tokensMan.addToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk
 					.getValue(), newstate.getSerializedConfiguration()
 					.getBytes(StandardCharsets.UTF_8), tk.getCreated(), tk
-					.getExpires(), transaction);
+					.getExpires());
 		}
 	}
 }

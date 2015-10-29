@@ -19,8 +19,8 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.generic.authn.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
-import pl.edu.icm.unity.engine.transactions.TransactionalRunner;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;

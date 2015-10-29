@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.transactions;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
 
 /**
  * Trivial transactional runner - useful for executing a code in a transaction, whenever it is too much overhead to

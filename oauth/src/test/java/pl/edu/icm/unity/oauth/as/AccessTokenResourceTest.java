@@ -18,9 +18,11 @@ import net.minidev.json.JSONValue;
 
 import org.junit.Test;
 
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.token.AccessTokenResource;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 
@@ -32,12 +34,27 @@ import com.nimbusds.openid.connect.sdk.OIDCAccessTokenResponse;
 
 public class AccessTokenResourceTest 
 {
+	private TransactionalRunner tx = new TransactionalRunner()
+	{
+		@Override
+		public <T> T runInTransacitonRet(TxRunnableRet<T> code) throws EngineException
+		{
+			return code.run();
+		}
+		
+		@Override
+		public void runInTransaciton(TxRunnable code) throws EngineException
+		{
+			code.run();
+		}
+	};
+	
 	@Test
 	public void userInfoFailsWithWrongClient() throws Exception
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
-		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config);
+		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, tx);
 		setupInvocationContext(111);
 		
 		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement,
@@ -53,7 +70,7 @@ public class AccessTokenResourceTest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
-		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config);
+		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, tx);
 		setupInvocationContext(100);
 		
 		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement,
@@ -69,7 +86,7 @@ public class AccessTokenResourceTest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
-		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config);
+		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, tx);
 		setupInvocationContext(100);
 
 		Response resp = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
@@ -84,7 +101,7 @@ public class AccessTokenResourceTest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
-		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config);
+		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, tx);
 		setupInvocationContext(100);
 
 		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement,
@@ -115,5 +132,4 @@ public class AccessTokenResourceTest
 		virtualAdmin.setLocale(Locale.ENGLISH);
 		InvocationContext.setCurrent(virtualAdmin);
 	}
-	
 }

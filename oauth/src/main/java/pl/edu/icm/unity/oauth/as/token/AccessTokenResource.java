@@ -21,6 +21,7 @@ import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -49,11 +50,14 @@ public class AccessTokenResource extends BaseOAuthResource
 	
 	private TokensManagement tokensManagement;
 	private OAuthASProperties config;
+	private TransactionalRunner tx;
 	
-	public AccessTokenResource(TokensManagement tokensManagement, OAuthASProperties config)
+	public AccessTokenResource(TokensManagement tokensManagement, OAuthASProperties config,
+			TransactionalRunner tx)
 	{
 		this.tokensManagement = tokensManagement;
 		this.config = config;
+		this.tx = tx;
 	}
 
 	@Path("/")
@@ -69,30 +73,17 @@ public class AccessTokenResource extends BaseOAuthResource
 		if (!grantType.equals(GrantType.AUTHORIZATION_CODE.getValue()))
 			return makeError(OAuth2Error.INVALID_GRANT, "wrong grant_type value");
 
-		Token codeToken;
-		OAuthToken parsedAuthzCodeToken;
-		Object transaction = tokensManagement.startTokenTransaction();
+		TokensPair tokensPair;
 		try
 		{
-			codeToken = tokensManagement.getTokenById(OAuthProcessor.INTERNAL_CODE_TOKEN, code, transaction);
-			parsedAuthzCodeToken = parseInternalToken(codeToken);
-			
-			long callerEntityId = InvocationContext.getCurrent().getLoginSession().getEntityId();
-			if (parsedAuthzCodeToken.getClientId() != callerEntityId)
-			{
-				log.warn("Client with id " + callerEntityId + " presented authorization code issued "
-						+ "for client " + parsedAuthzCodeToken.getClientId());
-				return makeError(OAuth2Error.INVALID_GRANT, "wrong code"); //intended - we mask the reason
-			}
-			tokensManagement.removeToken(OAuthProcessor.INTERNAL_CODE_TOKEN, code, transaction);
-			tokensManagement.commitTokenTransaction(transaction);
-		} catch (WrongArgumentException e)
+			tokensPair = loadAndRemoveAuthzCodeToken(code);
+		} catch (OAuthErrorException e)
 		{
-			return makeError(OAuth2Error.INVALID_GRANT, "wrong code");
-		} finally
-		{
-			tokensManagement.closeTokenTransaction(transaction);
+			return e.response;
 		}
+		
+		Token codeToken = tokensPair.codeToken;
+		OAuthToken parsedAuthzCodeToken = tokensPair.parsedAuthzCodeToken;
 		
 		if (parsedAuthzCodeToken.getRedirectUri() != null)
 		{
@@ -118,5 +109,53 @@ public class AccessTokenResource extends BaseOAuthResource
 				new EntityParam(codeToken.getOwner()), internalToken.getSerialized(), now, expiration);
 		
 		return toResponse(Response.ok(getResponseContent(oauthResponse)));
+	}
+	
+	private TokensPair loadAndRemoveAuthzCodeToken(String code) throws OAuthErrorException, EngineException
+	{
+		return tx.runInTransacitonRet(() -> {
+			try
+			{
+				Token codeToken = tokensManagement.getTokenById(
+						OAuthProcessor.INTERNAL_CODE_TOKEN, code);
+				OAuthToken parsedAuthzCodeToken = parseInternalToken(codeToken);
+				
+				long callerEntityId = InvocationContext.getCurrent().getLoginSession().getEntityId();
+				if (parsedAuthzCodeToken.getClientId() != callerEntityId)
+				{
+					log.warn("Client with id " + callerEntityId + " presented authorization code issued "
+							+ "for client " + parsedAuthzCodeToken.getClientId());
+					 //intended - we mask the reason
+					throw new OAuthErrorException(makeError(OAuth2Error.INVALID_GRANT, "wrong code"));
+				}
+				tokensManagement.removeToken(OAuthProcessor.INTERNAL_CODE_TOKEN, code);
+				return new TokensPair(codeToken, parsedAuthzCodeToken);
+			} catch (WrongArgumentException e)
+			{
+				throw new OAuthErrorException(makeError(OAuth2Error.INVALID_GRANT, "wrong code"));
+			}
+		});
+	}
+	
+	private static class OAuthErrorException extends EngineException
+	{
+		private Response response;
+
+		public OAuthErrorException(Response response)
+		{
+			this.response = response;
+		}
+	}
+	
+	private static class TokensPair
+	{
+		Token codeToken;
+		OAuthToken parsedAuthzCodeToken;
+
+		public TokensPair(Token codeToken, OAuthToken parsedAuthzCodeToken)
+		{
+			this.codeToken = codeToken;
+			this.parsedAuthzCodeToken = parsedAuthzCodeToken;
+		}
 	}
 }

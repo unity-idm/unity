@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
-import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
 import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -74,27 +73,26 @@ public class SessionManagementImpl implements SessionManagement
 	}
 
 	@Override
+	@Transactional
 	public LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm, String entityLabel, 
 			boolean outdatedCredential, Date absoluteExpiration)
 	{
-		Object transaction = tokensManagement.startTokenTransaction();
 		try
 		{
 			try
 			{
-				LoginSession ret = getOwnedSession(new EntityParam(loggedEntity), 
-						realm.getName(), transaction);
+				LoginSession ret = getOwnedSessionInternal(new EntityParam(loggedEntity), 
+						realm.getName());
 				if (ret != null)
 				{
 					ret.setLastUsed(new Date());
 					byte[] contents = ret.getTokenContents();
 					tokensManagement.updateToken(SESSION_TOKEN_TYPE, ret.getId(), null, 
-							contents, transaction);
+							contents);
 					
 					if (log.isDebugEnabled())
 						log.debug("Using existing session " + ret.getId() + " for logged entity "
 							+ ret.getEntityId() + " in realm " + realm.getName());
-					tokensManagement.commitTokenTransaction(transaction);
 					return ret;
 				}
 			} catch (EngineException e)
@@ -104,15 +102,13 @@ public class SessionManagementImpl implements SessionManagement
 			}
 			
 			LoginSession ret = createSession(loggedEntity, realm, entityLabel, outdatedCredential,
-					absoluteExpiration, transaction);
-			tokensManagement.commitTokenTransaction(transaction);
+					absoluteExpiration);
 			if (log.isDebugEnabled())
 				log.debug("Created a new session " + ret.getId() + " for logged entity "
 					+ ret.getEntityId() + " in realm " + realm.getName());
 			return ret;
 		} finally
 		{
-			tokensManagement.closeTokenTransaction(transaction);
 			cleanScheduledRemoval(loggedEntity);
 		}
 	}
@@ -134,7 +130,7 @@ public class SessionManagementImpl implements SessionManagement
 	}
 	
 	private LoginSession createSession(long loggedEntity, AuthenticationRealm realm, String entityLabel, 
-			boolean outdatedCredential, Date absoluteExpiration, Object transaction)
+			boolean outdatedCredential, Date absoluteExpiration)
 	{
 		UUID randomid = UUID.randomUUID();
 		String id = randomid.toString();
@@ -146,7 +142,7 @@ public class SessionManagementImpl implements SessionManagement
 		try
 		{
 			tokensManagement.addToken(SESSION_TOKEN_TYPE, id, new EntityParam(loggedEntity), 
-					ls.getTokenContents(), ls.getStarted(), ls.getExpires(), transaction);
+					ls.getTokenContents(), ls.getStarted(), ls.getExpires());
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't create a new session", e);
@@ -154,25 +150,18 @@ public class SessionManagementImpl implements SessionManagement
 		return ls;
 	}
 
+	@Transactional
 	@Override
 	public void updateSessionAttributes(String id, AttributeUpdater updater) 
 			throws WrongArgumentException
 	{
-		Object transaction = tokensManagement.startTokenTransaction();
-		try
-		{
-			Token token = tokensManagement.getTokenById(SESSION_TOKEN_TYPE, id, transaction);
-			LoginSession session = token2session(token);
-			
-			updater.updateAttributes(session.getSessionData());
+		Token token = tokensManagement.getTokenById(SESSION_TOKEN_TYPE, id);
+		LoginSession session = token2session(token);
+		
+		updater.updateAttributes(session.getSessionData());
 
-			byte[] contents = session.getTokenContents();
-			tokensManagement.updateToken(SESSION_TOKEN_TYPE, id, null, contents, transaction);
-			tokensManagement.commitTokenTransaction(transaction);
-		} finally
-		{
-			tokensManagement.closeTokenTransaction(transaction);
-		}
+		byte[] contents = session.getTokenContents();
+		tokensManagement.updateToken(SESSION_TOKEN_TYPE, id, null, contents);
 	}
 
 	@Override
@@ -198,10 +187,10 @@ public class SessionManagementImpl implements SessionManagement
 	}
 
 	
-	private LoginSession getOwnedSession(EntityParam owner, String realm, Object transaction)
+	private LoginSession getOwnedSessionInternal(EntityParam owner, String realm)
 			throws EngineException
 	{
-		List<Token> tokens = tokensManagement.getOwnedTokens(SESSION_TOKEN_TYPE, owner, transaction);
+		List<Token> tokens = tokensManagement.getOwnedTokens(SESSION_TOKEN_TYPE, owner);
 		for (Token token: tokens)
 		{
 			LoginSession ls = token2session(token);
@@ -216,13 +205,14 @@ public class SessionManagementImpl implements SessionManagement
 	public LoginSession getOwnedSession(EntityParam owner, String realm)
 			throws EngineException
 	{
-		LoginSession ret = getOwnedSession(owner, realm, SqlSessionTL.get());
+		LoginSession ret = getOwnedSessionInternal(owner, realm);
 		if (ret == null)
 			throw new WrongArgumentException("No session for this owner in the given realm");
 		return ret;
 	}
 	
 	@Override
+	@Transactional
 	public void updateSessionActivity(String id) throws WrongArgumentException
 	{
 		Long lastWrite = recentUsageUpdates.get(id);
@@ -232,21 +222,13 @@ public class SessionManagementImpl implements SessionManagement
 				return;
 		}
 		
-		Object transaction = tokensManagement.startTokenTransaction();
-		try
-		{
-			Token token = tokensManagement.getTokenById(SESSION_TOKEN_TYPE, id, transaction);
-			LoginSession session = token2session(token);
-			session.setLastUsed(new Date());
-			byte[] contents = session.getTokenContents();
-			tokensManagement.updateToken(SESSION_TOKEN_TYPE, id, null, contents, transaction);
-			tokensManagement.commitTokenTransaction(transaction);
-			log.trace("Updated in db session activity timestamp for " + id);
-			recentUsageUpdates.put(id, System.currentTimeMillis());
-		} finally
-		{
-			tokensManagement.closeTokenTransaction(transaction);
-		}
+		Token token = tokensManagement.getTokenById(SESSION_TOKEN_TYPE, id);
+		LoginSession session = token2session(token);
+		session.setLastUsed(new Date());
+		byte[] contents = session.getTokenContents();
+		tokensManagement.updateToken(SESSION_TOKEN_TYPE, id, null, contents);
+		log.trace("Updated in db session activity timestamp for " + id);
+		recentUsageUpdates.put(id, System.currentTimeMillis());
 	}
 	
 	@Override
