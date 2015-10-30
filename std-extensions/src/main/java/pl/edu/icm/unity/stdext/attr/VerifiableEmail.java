@@ -34,7 +34,7 @@ public class VerifiableEmail implements VerifiableElement
 
 	public VerifiableEmail(String value, ConfirmationInfo confirmationData)
 	{
-		this.value = value;
+		this.value = value.trim();
 		this.confirmationInfo = confirmationData;
 		this.tags = new ArrayList<>();
 	}
@@ -59,7 +59,7 @@ public class VerifiableEmail implements VerifiableElement
 
 	public void setValue(String value)
 	{
-		this.value = value;
+		this.value = value.trim();
 	}
 
 	@Override

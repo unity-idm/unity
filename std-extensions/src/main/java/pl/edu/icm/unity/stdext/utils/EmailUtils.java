@@ -46,8 +46,9 @@ public class EmailUtils
 		return null;
 	}
 	
-	public static VerifiableEmail convertFromString(String stringRepresentation)
+	public static VerifiableEmail convertFromString(String stringRepresentationRaw)
 	{
+		String stringRepresentation = stringRepresentationRaw.trim();
 		String email = stringRepresentation;
 		boolean confirmed = false;
 		if (stringRepresentation.endsWith(CONFIRMED_POSTFIX))

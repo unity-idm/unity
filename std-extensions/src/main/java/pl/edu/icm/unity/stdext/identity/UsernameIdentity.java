@@ -86,7 +86,14 @@ public class UsernameIdentity extends AbstractStaticIdentityTypeProvider
 			throw new IllegalIdentityValueException("Username must be non empty");
 		}
 	}
-
+	
+	@Override
+	public IdentityParam convertFromString(String stringRepresentation, String remoteIdp, 
+			String translationProfile) throws IllegalIdentityValueException
+	{
+		return super.convertFromString(stringRepresentation.trim(), remoteIdp, translationProfile);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */

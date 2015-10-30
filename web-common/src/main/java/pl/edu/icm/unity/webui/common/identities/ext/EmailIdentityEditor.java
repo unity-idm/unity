@@ -57,8 +57,8 @@ public class EmailIdentityEditor implements IdentityEditor
 	@Override
 	public IdentityParam getValue() throws IllegalIdentityValueException
 	{
-		String emailVal = field.getValue();
-		if (emailVal.trim().equals(""))
+		String emailVal = field.getValue().trim();
+		if (emailVal.equals(""))
 		{
 			if (!required)
 				return null;
