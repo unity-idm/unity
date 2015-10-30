@@ -135,16 +135,11 @@ public abstract class SandboxUIBase extends AuthenticationUI
 		VaadinRequest vaadinRequest = VaadinService.getCurrentRequest();
 		validationMode = vaadinRequest.getParameter(PROFILE_VALIDATION) != null;
 		debug = vaadinRequest.getParameter(DEBUG_ID) == null;
-		
-		AuthNTile firstTile = selectorPanel.getTiles().get(0);
-		if (isProfileValidation())
-		{
-			firstTile.setCaption(msg.getMessage("SandboxUI.selectionTitle.profileValidation"));
-		} else
-		{
-			firstTile.setCaption(msg.getMessage("SandboxUI.selectionTitle.profileCreation"));
-		}
-		
+		customizeUI();
+	}
+	
+	protected void customizeUI()
+	{
 	}
 	
 	private void noRemoteAuthnUI()
@@ -236,7 +231,7 @@ public abstract class SandboxUIBase extends AuthenticationUI
 		return debug;
 	}	
 	
-	private boolean isProfileValidation()
+	protected boolean isProfileValidation()
 	{
 		return validationMode;
 	}
