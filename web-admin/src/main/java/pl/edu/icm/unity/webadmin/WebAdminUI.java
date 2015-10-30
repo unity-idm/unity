@@ -131,6 +131,7 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 	@Override
 	public void setSandboxRouter(SandboxAuthnRouter sandboxRouter) 
 	{
+		super.setSandboxRouter(sandboxRouter);
 		serverManagement.setSandboxNotifier(sandboxRouter);
 	}	
 }
