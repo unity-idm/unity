@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.saml.idp.web.filter;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 
 import javax.servlet.Filter;
@@ -70,8 +71,12 @@ public class SamlGuardFilter implements Filter
 		if (context == null)
 		{
 			if (log.isDebugEnabled())
+			{
 				log.debug("Request to SAML post-processing address, without SAML context: " 
-						+ request.getRequestURI());
+						+ request.getRequestURI() + "?" + request.getQueryString());
+				if (log.isTraceEnabled())
+					dumpRequest(request);
+			}
 			errorHandler.showErrorPage(new SAMLProcessingException("No SAML context"), 
 					(HttpServletResponse) response);
 			return;
@@ -93,5 +98,16 @@ public class SamlGuardFilter implements Filter
 	@Override
 	public void destroy()
 	{
+	}
+	
+	private void dumpRequest(HttpServletRequest request) throws IOException
+	{
+		StringBuilder sb = new StringBuilder(); 
+		BufferedReader br = new BufferedReader(request.getReader());
+		String line;
+		while ((line = br.readLine()) != null)
+			sb.append(line);
+		log.trace("Blocked request params:\n" + request.getParameterMap());
+		log.trace("Blocked request conents:\n" + sb);
 	}
 }
