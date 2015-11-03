@@ -66,7 +66,7 @@ public class ImportExport
 		
 		jg.writeStartObject();
 		jg.writeNumberField("versionMajor", 1);
-		jg.writeNumberField("versionMinor", 1);
+		jg.writeNumberField("versionMinor", 5);
 		jg.writeNumberField("timestamp", System.currentTimeMillis());
 
 		jg.writeObjectFieldStart("contents");
@@ -140,7 +140,7 @@ public class ImportExport
 		identitiesIE.deserialize(sql, jp, header);
 
 		JsonUtils.nextExpect(jp, "groups");
-		groupsIE.deserialize(sql, jp);
+		groupsIE.deserialize(sql, jp, header);
 		
 		JsonUtils.nextExpect(jp, "groupMembers");
 		groupMembersIE.deserialize(sql, jp);

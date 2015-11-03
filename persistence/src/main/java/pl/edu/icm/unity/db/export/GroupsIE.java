@@ -22,6 +22,7 @@ import pl.edu.icm.unity.db.model.BaseBean;
 import pl.edu.icm.unity.db.model.GroupBean;
 import pl.edu.icm.unity.db.resolvers.GroupResolver;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.types.basic.Group;
 
@@ -31,6 +32,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -70,7 +72,7 @@ public class GroupsIE extends AbstractIE
 		jg.writeEndArray();
 	}
 	
-	public void deserialize(SqlSession sql, JsonParser input) throws IOException, EngineException
+	public void deserialize(SqlSession sql, JsonParser input, DumpHeader header) throws IOException, EngineException
 	{
 		GroupsMapper mapper = sql.getMapper(GroupsMapper.class);
 		AttributesMapper attributeMapper = sql.getMapper(AttributesMapper.class);
@@ -82,6 +84,9 @@ public class GroupsIE extends AbstractIE
 			JsonUtils.nextExpect(input, "groupPath");
 			String path = input.getValueAsString();
 			JsonUtils.nextExpect(input, JsonToken.END_OBJECT);
+			
+			if (header.getVersionMajor() == 1 && header.getVersionMinor() < 5)
+				convertStatements(sql, bean);
 			
 			if (path.equals("/"))
 			{
@@ -147,4 +152,69 @@ public class GroupsIE extends AbstractIE
 		}
 		return sortedGroups;
 	}
+	
+	public void convertStatements(SqlSession sql, GroupBean legacy) throws IOException, IllegalGroupValueException
+	{
+		ObjectNode root = (ObjectNode) jsonMapper.readTree(legacy.getContents());
+		ArrayNode oldStatements = (ArrayNode) root.get("attributeStatements");
+		if (oldStatements == null)
+			return;
+		
+		ArrayNode newStatements = jsonMapper.createArrayNode();
+		for (JsonNode statement: oldStatements)
+			newStatements.add(convertStatement(statement, sql));
+		root.set("attributeStatements", newStatements);
+		legacy.setContents(jsonMapper.writeValueAsBytes(root));
+	}
+	
+	private JsonNode convertStatement(JsonNode legacy, SqlSession sql) throws IllegalGroupValueException
+	{
+		AttributesMapper atMapper = sql.getMapper(AttributesMapper.class);
+		GroupsMapper gMapper = sql.getMapper(GroupsMapper.class);
+		ObjectNode updated = jsonMapper.createObjectNode();
+		updated.set("resolution", legacy.get("resolution"));
+		updated.put("visibility", "full");
+		
+		String type = legacy.get("type").asText();
+		
+		switch (type)
+		{
+		case "everybody":
+			updated.put("condition", "true");
+			copyLegacyToNew(legacy, updated);
+			break;
+		case "copyParentGroupAttribute":
+		case "copySubgroupAttribute":
+			String atName = atMapper.getAttributeTypeById(
+					legacy.get("condition-attributeId").asLong()).getName();
+			updated.put("condition", "eattrs contains '" + atName + "'");
+			updated.put("extraGroup", legacy.get("condition-attributeGroupId").asText());
+			updated.put("dynamicAttributeName", atName);
+			updated.put("dynamicAttributeExpression", "eattrs['" + atName + "']");
+			break;
+		case "hasParentgroupAttribute":
+		case "hasSubgroupAttribute":
+			atName = atMapper.getAttributeTypeById(
+					legacy.get("condition-attributeId").asLong()).getName();
+			updated.put("condition", "eattrs contains '" + atName + "'");
+			updated.put("extraGroup", legacy.get("condition-attributeGroupId").asText());
+			copyLegacyToNew(legacy, updated);
+			break;
+		case "memberOf":
+			String group = groupResolver.resolveGroupPath(legacy.get("conditionGroup").asLong(), gMapper);
+			updated.put("condition", "groups contains '" + group + "'");
+			copyLegacyToNew(legacy, updated);
+			break;
+		}
+		
+		return updated;
+	}
+	
+	private void copyLegacyToNew(JsonNode legacy, ObjectNode updated)
+	{
+		updated.put("fixedAttribute-attributeId", legacy.get("assigned-attributeId").asText());
+		updated.put("fixedAttribute-attributeGroupId", legacy.get("assigned-attributeGroupId").asText());
+		updated.put("fixedAttribute-attributeValues", legacy.get("assigned-attributeValues").asText());
+	}
 }
+
