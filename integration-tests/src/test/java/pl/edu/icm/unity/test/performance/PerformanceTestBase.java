@@ -20,10 +20,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.Before;
 
-
-
-
-
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.rest.TestRESTBase;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
@@ -39,8 +35,8 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeStatement;
-import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
+import pl.edu.icm.unity.types.basic.AttributeStatement2;
+import pl.edu.icm.unity.types.basic.AttributeStatement2.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -50,12 +46,6 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
-import pl.edu.icm.unity.types.basic.attrstmnt.CopyParentAttributeStatement;
-import pl.edu.icm.unity.types.basic.attrstmnt.CopySubgroupAttributeStatement;
-import pl.edu.icm.unity.types.basic.attrstmnt.EverybodyStatement;
-import pl.edu.icm.unity.types.basic.attrstmnt.HasParentAttributeStatement;
-import pl.edu.icm.unity.types.basic.attrstmnt.HasSubgroupAttributeStatement;
-import pl.edu.icm.unity.types.basic.attrstmnt.MemberOfStatement;
 /**
  * Contains all necessary db and time method for integration tests
  * @author P.Piernik
@@ -431,14 +421,14 @@ public class PerformanceTestBase extends TestRESTBase
 	
 	
 	/**
-	 * Add set of attribute statment to all groups 
+	 * Add a set of attribute statements to all groups 
 	 * @param groups
 	 * @param attributeTypesAsMap
 	 * @param d Numbers of group tiers
 	 * @throws EngineException
 	 */	
-	protected void addAttrStatments(ArrayList<GroupContents> groups,Map<String, AttributeType> attributeTypesAsMap, 
-			int d) throws EngineException
+	protected void addAttrStatments(ArrayList<GroupContents> groups, 
+			Map<String, AttributeType> attributeTypesAsMap,	int d) throws EngineException
 	{
 		for (GroupContents c : groups)
 		{
@@ -447,69 +437,31 @@ public class PerformanceTestBase extends TestRESTBase
 			if (path.equals("/"))
 					continue;
 
-			ArrayList<AttributeStatement> asts = new ArrayList<AttributeStatement>();
-			AttributeStatement st = new EverybodyStatement();
+			ArrayList<AttributeStatement2> asts = new ArrayList<AttributeStatement2>();
+
 			Attribute<?> a = new StringAttribute("ex_everybody", path,
 					AttributeVisibility.full,
 					Collections.singletonList(new String(g.getName()
 							+ "_everybody")));
-			st.setAssignedAttribute(a);
-			st.setConflictResolution(ConflictResolution.merge);
-			asts.add(st);
+			AttributeStatement2 stFixed = new AttributeStatement2("true", null, ConflictResolution.merge, a);
+			asts.add(stFixed);
 
-			st = new MemberOfStatement();
-			a = new StringAttribute("ex_memberof", path, AttributeVisibility.full,
-					Collections.singletonList(new String(g.getName()
-							+ "_memberof")));
-			st.setAssignedAttribute(a);
-			st.setConditionGroup(path);
-			st.setConflictResolution(ConflictResolution.merge);
-			asts.add(st);
-
-			st = new CopyParentAttributeStatement();	
-			st.setConditionAttribute(new StringAttribute("string_0", new Group(path).getParentPath(),
-					AttributeVisibility.full));
-			st.setConflictResolution(ConflictResolution.merge);
-			asts.add(st);	
 			if (path.split("/").length > 1 && path.split("/").length < d)
 			{
-				st = new CopySubgroupAttributeStatement();
-				st.setConditionAttribute(new StringAttribute("string_0",
-						c.getSubGroups().get(0), AttributeVisibility.full));
-				st.setConflictResolution(ConflictResolution.merge);
-				asts.add(st);
-						
-				st = new HasSubgroupAttributeStatement();
-				st.setConditionAttribute(new StringAttribute("ex_everybody",
-						c.getSubGroups().get(0), AttributeVisibility.full));
-				
-				st.setAssignedAttribute(new StringAttribute("ex_ho2",
-						path, AttributeVisibility.full,
-						Collections.singletonList(new String(g.getName()+"_ho2"))));
-				st.setConditionGroup(c.getSubGroups().get(0));	
-				st.setConflictResolution(ConflictResolution.merge);
-				asts.add(st);
+				String group = c.getSubGroups().get(0);
+				AttributeStatement2 stDynamic = new AttributeStatement2("true", group, 
+					ConflictResolution.merge, AttributeVisibility.full, 
+					attributeTypesAsMap.get("ex_ho2"), "eattrs['ex_ho2']");
+				asts.add(stDynamic);
 			}
-			
-			st = new HasParentAttributeStatement();
-			st.setConditionAttribute(new StringAttribute("ex_everybody",
-					new Group(path).getParentPath(), AttributeVisibility.full));
-			
-			st.setAssignedAttribute(new StringAttribute("ex_ho1",
-					path, AttributeVisibility.full,
-					Collections.singletonList(new String(g.getName()+"_ho1"))));
-			
-			st.setConflictResolution(ConflictResolution.merge);
-			asts.add(st);
-		
 			addStatments(g, asts);			
 			groupsMan.updateGroup(path, g);
 		}
 	}
 
-	private void addStatments(Group g, ArrayList<AttributeStatement> asts)
+	private void addStatments(Group g, ArrayList<AttributeStatement2> asts)
 	{
-		AttributeStatement[] sts = Arrays.copyOf(g.getAttributeStatements(),
+		AttributeStatement2[] sts = Arrays.copyOf(g.getAttributeStatements(),
 				g.getAttributeStatements().length + asts.size());
 
 		for (int i = 0; i < asts.size(); i++)

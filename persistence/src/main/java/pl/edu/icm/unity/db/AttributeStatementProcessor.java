@@ -373,7 +373,10 @@ public class AttributeStatementProcessor
 		} catch (Exception e)
 		{
 			log.warn("Error during attribute statement condition evaluation, condition '"
-					+ statement.getCondition() + "' is invalid. Skipping statement", e);
+					+ statement.getCondition() + "' is invalid. Skipping statement.\n" 
+					+ e.toString());
+			if (log.isTraceEnabled())
+				log.trace("Full stack trace of the problematic attribute statement error", e);
 			return false;
 		}
 		

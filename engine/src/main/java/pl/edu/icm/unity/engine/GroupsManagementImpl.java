@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,8 @@ import pl.edu.icm.unity.types.basic.AttributeStatement2.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupContents;import pl.edu.icm.unity.types.basic.GroupMembership;
+import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 
 
 /**
@@ -327,6 +329,24 @@ public class GroupsManagementImpl implements GroupsManagement
 			{
 				AttributeValueChecker.validate(fixedAttribute, at);
 			}
+		}
+	}
+
+	@Override
+	public Set<String> getChildGroups(String root) throws EngineException
+	{
+		authz.checkAuthorization(root, AuthzCapability.read);
+		SqlSession sql = db.getSqlSession(true);
+		try 
+		{
+			Set<String> allGroups = dbGroups.getAllGroups(sql);
+			sql.commit();
+			return allGroups.stream().
+					filter(g -> g.startsWith(root)).
+					collect(Collectors.toSet());
+		} finally
+		{
+			db.releaseSqlSession(sql);
 		}
 	}
 }

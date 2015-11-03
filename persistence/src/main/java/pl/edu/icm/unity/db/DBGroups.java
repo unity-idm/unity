@@ -306,4 +306,15 @@ public class DBGroups
 			ret.add(groupMembershipSerializer.fromJson(geb.getContents(), geb.getElementId(), group));
 		return ret;
 	}
+	
+	
+	public Set<String> getAllGroups(SqlSession sqlMap)
+	{
+		GroupsMapper mapper = sqlMap.getMapper(GroupsMapper.class);
+		List<GroupBean> allGroups = mapper.getAllGroups();
+		Set<String> ret = new HashSet<>();
+		for (GroupBean gb: allGroups)
+			ret.add(groupResolver.resolveGroupPath(gb, mapper));
+		return ret;
+	}
 }

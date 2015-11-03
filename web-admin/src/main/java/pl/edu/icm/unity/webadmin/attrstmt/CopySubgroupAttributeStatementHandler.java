@@ -78,7 +78,7 @@ public class CopySubgroupAttributeStatementHandler implements AttributeStatement
 			addConditionAttributeField(false);
 			conditionGroup = new GroupComboBox(msg.getMessage("AttributeStatementEditDialog.inGroup"), 
 					groupsMan);
-			conditionGroup.setInput(group, false, false);
+			conditionGroup.setInput(group, false);
 			main.addComponent(conditionGroup);
 		}
 

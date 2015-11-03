@@ -17,7 +17,6 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
-import pl.edu.icm.unity.webadmin.attrstmt.StatementHandlersRegistry;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
@@ -59,8 +58,7 @@ public class GroupDetailsComponent extends SafePanel
 	
 	@Autowired
 	public GroupDetailsComponent(UnityMessageSource msg, GroupsManagement groupsManagement, 
-			AttributeHandlerRegistry attributeHandlersReg, AttributesManagement attrsMan,
-			StatementHandlersRegistry statementHandlersReg)
+			AttributeHandlerRegistry attributeHandlersReg, AttributesManagement attrsMan)
 	{
 		this.msg = msg;
 		this.groupsManagement = groupsManagement;
@@ -83,7 +81,7 @@ public class GroupDetailsComponent extends SafePanel
 		acWithToolbar.setSizeFull();
 		
 		attrStatements = new AttributeStatementsTable(msg, groupsManagement, 
-				attrsMan, statementHandlersReg);
+				attrsMan, attributeHandlersReg);
 		
 		Toolbar asToolbar = new Toolbar(attrStatements, Orientation.VERTICAL);
 		asToolbar.addActionHandlers(attrStatements.getActionHandlers());

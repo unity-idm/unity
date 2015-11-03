@@ -278,19 +278,9 @@ public class AttributeStatement2
 	@Override
 	public String toString()
 	{
-		return "AttributeStatement ["
-				+ (condition != null ? "condition=" + condition + ", " : "")
-				+ (extraAttributesGroup != null ? "extraAttributesGroup="
-						+ extraAttributesGroup + ", " : "")
-				+ (conflictResolution != null ? "conflictResolution="
-						+ conflictResolution + ", " : "")
-				+ (fixedAttribute != null ? "fixedAttribute=" + fixedAttribute
-						+ ", " : "")
-				+ (dynamicAttributeType != null ? "dynamicAttributeType="
-						+ dynamicAttributeType + ", " : "")
-				+ (dynamicAttributeExpression != null ? "dynamicAttributeExpression="
-						+ dynamicAttributeExpression + ", "
-						: "")
-				+ (visibility != null ? "visibility=" + visibility : "") + "]";
+		return "Assign " + (dynamicAttributeMode() ? 
+				(dynamicAttributeType.getName() + "= expr(" + dynamicAttributeExpression) + ")":
+				fixedAttribute.toString())
+				+ " if '" + condition + "' is true";
 	}
 }

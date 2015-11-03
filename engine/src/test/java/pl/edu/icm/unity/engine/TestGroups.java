@@ -4,10 +4,14 @@
  */
 package pl.edu.icm.unity.engine;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -176,5 +180,33 @@ public class TestGroups extends DBIntegrationTestBase
 		groupsMan.removeGroup("/A", true);
 		contentRoot = groupsMan.getContents("/", GroupContents.EVERYTHING);
 		assertEquals(0, contentRoot.getSubGroups().size());
+	}
+	
+	@Test
+	public void getChildrenReturnsAll() throws Exception
+	{
+		Group a = new Group("/A");
+		groupsMan.addGroup(a);
+		Group ab = new Group("/A/B");
+		groupsMan.addGroup(ab);
+		Group ac = new Group("/A/C");
+		groupsMan.addGroup(ac);
+		Group abd = new Group("/A/B/D");
+		groupsMan.addGroup(abd);
+
+		Set<String> rootChildren = groupsMan.getChildGroups("/");
+		
+		assertThat(rootChildren.size(), is(5));
+		assertThat(rootChildren.contains("/"), is(true));
+		assertThat(rootChildren.contains("/A"), is(true));
+		assertThat(rootChildren.contains("/A/B"), is(true));
+		assertThat(rootChildren.contains("/A/C"), is(true));
+		assertThat(rootChildren.contains("/A/B/D"), is(true));
+
+		Set<String> abChildren = groupsMan.getChildGroups("/A/B");
+		
+		assertThat(abChildren.toString(), abChildren.size(), is(2));
+		assertThat(abChildren.contains("/A/B"), is(true));
+		assertThat(abChildren.contains("/A/B/D"), is(true));
 	}
 }
