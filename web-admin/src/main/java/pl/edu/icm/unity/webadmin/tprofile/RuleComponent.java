@@ -211,7 +211,6 @@ public class RuleComponent extends VerticalLayout
 				}
 
 				return true;
-
 			}
 		});
 		condition.setValidationVisible(false);

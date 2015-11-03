@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
+import org.mvel2.MVEL;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.GroupsManagement;
@@ -26,6 +27,7 @@ import pl.edu.icm.unity.webui.common.GroupComboBox;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 
+import com.vaadin.data.Validator;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
@@ -98,12 +100,32 @@ public class AttributeStatementComponent extends CustomComponent
 		extraAttributesGroupCB.addValueChangeListener((e) -> {
 			extraAttributesGroupCombo.setEnabled(extraAttributesGroupCB.getValue());
 		});
+		extraAttributesGroupCB.setDescription(msg.getMessage("AttributeStatementComponent.extraGroupCBDesc"));
 		extraAttributesGroupCombo = new GroupComboBox(
 				msg.getMessage("AttributeStatementComponent.extraGroupSelect"), groups);
 		extraAttributesGroupCombo.setEnabled(false);
 		extraAttributesGroupCombo.setInput(group, false);
 		
+		if (groups.isEmpty())
+			extraAttributesGroupCB.setEnabled(false);
+		Validator expressionValidator = v -> {
+			try
+			{
+				MVEL.compileExpression((String)v);
+			} catch (Exception e)
+			{
+				throw new Validator.InvalidValueException(
+						msg.getMessage("AttributeStatementComponent.invalidExpression", 
+								e.getMessage()));
+			}
+		}; 
+		
 		condition = new TextField(msg.getMessage("AttributeStatementComponent.condition"));
+		condition.setDescription(msg.getMessage("AttributeStatementComponent.conditionDesc"));
+		condition.setWidth(100, Unit.PERCENTAGE);
+		condition.addValidator(expressionValidator);
+		condition.setRequiredError(msg.getMessage("fieldRequired"));
+		condition.setRequired(true);
 		
 		assignMode = new OptionGroup();
 		assignMode.addItem(MODE_DYNAMIC);
@@ -123,7 +145,15 @@ public class AttributeStatementComponent extends CustomComponent
 		visibilityCombo = new EnumComboBox<AttributeVisibility>(
 				msg.getMessage("AttributeStatementComponent.dynamicAttrVisibility"), msg, 
 				"AttributeVisibility.", AttributeVisibility.class, AttributeVisibility.full);
-		dynamicAttributeValue = new TextField(msg.getMessage("AttributeStatementComponent.dynamicAttrValue"));
+		dynamicAttributeValue = new TextField(
+				msg.getMessage("AttributeStatementComponent.dynamicAttrValue"));
+		dynamicAttributeValue.setDescription(
+				msg.getMessage("AttributeStatementComponent.dynamicAttrValueDesc"));
+		dynamicAttributeValue.setWidth(100, Unit.PERCENTAGE);
+		dynamicAttributeValue.addValidator(expressionValidator);
+		dynamicAttributeValue.setRequiredError(msg.getMessage("fieldRequired"));
+		dynamicAttributeValue.setRequired(true);
+
 		
 		fixedAttribute = new AttributeFieldWithEdit(msg, 
 				msg.getMessage("AttributeStatementComponent.fixedAttr"), 
@@ -139,7 +169,6 @@ public class AttributeStatementComponent extends CustomComponent
 		
 		FormLayout main = new CompactFormLayout();
 		setCompositionRoot(main);
-		//main.setWidth(100, Unit.PERCENTAGE);
 		main.addComponents(extraAttributesGroupCB, extraAttributesGroupCombo, condition, assignMode,
 				dynamicAttributeName, dynamicAttributeValue, visibilityCombo, fixedAttribute,
 				conflictResolution);
@@ -173,6 +202,9 @@ public class AttributeStatementComponent extends CustomComponent
 	
 	public AttributeStatement2 getStatementFromComponent() throws FormValidationException
 	{
+		if (!condition.isValid())
+			throw new FormValidationException();
+		
 		AttributeStatement2 ret = new AttributeStatement2();
 		
 		if (extraAttributesGroupCB.getValue())
@@ -184,6 +216,8 @@ public class AttributeStatementComponent extends CustomComponent
 		
 		if (assignMode.getValue().equals(MODE_DYNAMIC))
 		{
+			if (!dynamicAttributeValue.isValid())
+				throw new FormValidationException();
 			ret.setDynamicAttributeVisibility(visibilityCombo.getSelectedValue());
 			ret.setDynamicAttributeExpression(dynamicAttributeValue.getValue());
 			ret.setDynamicAttributeType(dynamicAttributeName.getSelectedValue());
