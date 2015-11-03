@@ -19,11 +19,136 @@ the received requests (_Registrations management tab_).
 * Possibility to create and load database dumps and to browse and trigger reconfiguration of 
 endpoints, authenticators and translation profiles (_Server management tab_).
 
-We hope that the UI is easy to use, therefore we limit the description to the following 
-screenshot with some hints. In case of troubles please let us know through the mailing list, 
-we will provide more details.
+We hope that the UI is easy to use, the base information is provided on the following screenshot and in 
+subsequent sections. In case of troubles please let us know through the mailing list, we will provide more details.
 
 image::./figures/contentsMan-comments.png[alt="Unity Web Admin UI",align="center",scaledwidth="50%"]
+
+=== Identities and entities
+
+Unity represents principals as _entities_. Entity is a logical element symbolizing, the principal. Each entity
+must have at least one concrete representation which is called _identity_. 
+
+Identities in Unity have its type, which defines the syntax, comparison rules etc. of the value. 
+
+Regular identities can be created manually by administrators, imported from external IdPs with a help of 
+input translation profile or added in effect of registration request acceptance. There is also a special category
+of identities: dynamic (or automatic) identities. Those identities are special in this sense that their values
+are assigned by Unity itself - administrator is able to only see their values and optionally can remove the values.
+
+The following table describes all available identity types:
+
+[cols="m,n,n" options="header"]
+|=== 
+|UNITY identity type	| Category	| Description  
+|userName				| regular	| User name, compared with simple string equality. This type of identity can be used for all password-alike authentications in Unity. 
+|identifier				| regular	| Generic identifier, compared with string equality. It is useful to represent remotely assigned user identifiers and to match against them during subsequent authentications. It is not possible to directly login with this identity type. 
+|x500Name				| regular	| X.500 name or a Distinguished Name (DN). Used in case of TLS/SSL authentication. The equality is tested on canonical form of DN.
+|email					| regular	| Email address identity, compared with simple string equality. This type of identity can be used for all password-alike authentications in Unity. The value of this identity is subject of confirmation process.
+|persistent				| automatic	| An automatically assigned anonymous identifier. Should be constant for each entity for its lifetime (and is unless manually removed).
+|targetedPersistent		| automatic	| An automatically assigned anonymous identifier. It is different from the persistent type as for each of Unity clients (targets) a different identifier is maintained. 
+|transient				| automatic	| An automatically assigned anonymous identifier. It is very similar to targetedPersistent, the only difference is that the identifier is regenerated for each login session. 
+|===
+
+
+=== Attributes and attribute statements
+
+Regular Unity attributes are assigned in groups and an attribute assigned in a group is valid and visible only 
+in the group where is was defined. Regular attributes are assigned either manually (in Admin UI or via REST interface)
+or by translation profile for users logging from remote IdP. 
+
+In many cases it is not enough: some attributes should be visible in multiple groups, some attributes should be
+added just for everybody, other attributes should be added to all users fulfilling some criteria. For all those 
+cases Unity offers a feature called 'attribute statements'.
+
+Attribute statements are created per group. Each group can contain multiple statements, which are applied in order.
+Each statement can assign a single attribute to a group member. Each statement is evaluated per each group member
+what means it can provide a different values for different group members. The assigned attribute is always fixed, 
+however the actual values and to whom/when the attribute is assigned is decided at runtime.
+
+Each attribute statement contains a _condition_, an MVEL expression, which must evaluate to a boolean value. 
+Only if condition evaluates to true the attribute of the statement is applied. 
+
+Statement's attribute can be assigned in two ways:
+
+* as a _fixed_ attribute. In this mode the attribute is defined together with values in the statement. 
+The advantage of this mode is that one can define the value with the type-specific attribute editor.
+* as a _dynamic_ attribute. In this mode attribute values are determined at runtime. It is the most useful to copy
+values from a different group, to modify some values etc.
+
+Each statement contains a conflict resolution rule. It defines what to do if two statements create 
+the same attribute. Note that if a statement creates a dynamic attribute which is already defined as a regular one,
+the dynamic one is always skipped. 
+
+Condition and (in case of dynamic attribute) attribute value expressions are given with MVEL language. 
+See https://en.wikisource.org/wiki/MVEL_Language_Guide for a generic introduction. Below we present
+a number of examples of the common cases.
+
+Finally a statement can have an 'extra' attribute group defined. If such group is set, then the attributes
+from this extra group are available in the MVEL context of conditions and dynamic value expressions. 
+Note that dynamic attributes in an extra group are available too, what offers a great power. Unity, however
+uses advanced algorithms to prevent dependency circles. It is also only possible to to use a subgroup or
+a parent group as an extra group. 
+
+Always check log files after changing attribute statements, to verify if there are no errors. It is
+also good to enable DEBUG logging on +unity.server.AttributeStatementProcessor+ when behavior is not as expected.
+
+==== Reference
+MVEL context reference:
+
+. +attr+ Map indexed with regular attribute names of the current group. Value of each entry is a \
+single value of the attribute. If the attribute is multi-valued then the first value is returned. \
+If the attribute has no value then empty string is returned. 
+. +attrs+ Map indexed with regular attribute names of the current group. Value of each entry is a \
+list of the attribute values.
+. +eattr+ As +attr+ but with attributes of the extra group (only available if extra group is defined). 
+. +eattrs+ As +attrs+ but with attributes of the extra group (only available if extra group is defined). 
+. +entityId+ The identifier (numeric) of the entity
+. +groupName+ Name of the group in which the statement is defined/evaluated.
+. +groups+ List of all groups the entity is member of. 
+. +idsByType+ Map indexed with identity types. Each entry is a list with all identities of the entity.  
+
+
+==== Examples
+
+Condition
+
+----
+true
+----
+
+can be used to assign an attribute to every group member.
+
+Condition
+
+----
+groups contains '/staff' 
+----
+
+will assign statement's attribute to all members of group '/staff'.
+
+The following statement of group '/staff/admins':
+
+----
+extra group: /staff
+condition: eattrs contains 'phoneNumber'
+attribute name: phoneNumber
+attribute values: eattrs['phoneNumber']
+----
+
+copies the attribute 'phoneNumber' from the parent group.
+
+The following statement:
+
+----
+condition: idsByType contains 'userName'
+attribute name: username
+attribute values: idsByType['userName']
+----
+
+creates an attribute 'username' with all identities of 'userName' type.
+
+
 
 === Authorization
 
@@ -199,33 +324,6 @@ elements as email of the form.
 . +confirmed_element_type+ one of +identity+ or +attribute+
 . +confirmed_element_name+ 
 . +confirmed_element_value+
-
-=== Identities and entities
-
-Unity represents principals as _entities_. Entity is a logical element symbolizing, the principal. Each entity
-must have at least one concrete representation which is called _identity_. 
-
-Identities in Unity have its type, which defines the syntax, comparison rules etc. of the value. 
-
-Regular identities can be created manually by administrators, imported from external IdPs with a help of 
-input translation profile or added in effect of registration request acceptance. There is also a special category
-of identities: dynamic or automatic identities. Those identities are special in this sense that their values
-are assigned by Unity itself - administrator is able to only see their values and optionally can remove the values.
-
-The following table describes all available identity types:
-
-[cols="m,n,n" options="header"]
-|=== 
-|UNITY identity type	| Category	| Description  
-|userName				| regular	| User name, compared with simple string equality. This type of identity can be used for all password-alike authentications in Unity. 
-|identifier				| regular	| Generic identifier, compared with string equality. It is useful to represent remotely assigned user identifiers and to match against them during subsequent authentications. It is not possible to directly login with this identity type. 
-|x500Name				| regular	| X.500 name or a Distinguished Name (DN). Used in case of TLS/SSL authentication. The equality is tested on canonical form of DN.
-|email					| regular	| Email address identity, compared with simple string equality. This type of identity can be used for all password-alike authentications in Unity. The value of this identity is subject of confirmation process.
-|persistent				| automatic	| An automatically assigned anonymous identifier. Should be constant for each entity for its lifetime (and is unless manually removed).
-|targetedPersistent		| automatic	| An automatically assigned anonymous identifier. It is different from the persistent type as for each of Unity clients (targets) a different identifier is maintained. 
-|transient				| automatic	| An automatically assigned anonymous identifier. It is very similar to targetedPersistent, the only difference is that the identifier is regenerated for each login session. 
-|===
- 
 
 === E-mail confirmations
 

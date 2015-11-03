@@ -125,6 +125,7 @@ public class AttributeStatementComponent extends CustomComponent
 		condition.setWidth(100, Unit.PERCENTAGE);
 		condition.addValidator(expressionValidator);
 		condition.setRequiredError(msg.getMessage("fieldRequired"));
+		condition.setValue("true");
 		condition.setRequired(true);
 		
 		assignMode = new OptionGroup();
