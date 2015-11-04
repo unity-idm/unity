@@ -33,7 +33,8 @@ import pl.edu.icm.unity.server.utils.Log;
 public class TransactionalAspect
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, TransactionalAspect.class);
-	public static final int RETRY_BASE_DELAY = 40;
+	public static final int RETRY_BASE_DELAY = 50;
+	public static final int RETRY_MAX_DELAY = 200;
 	
 	@Autowired
 	private DBSessionManager db;
@@ -70,13 +71,26 @@ public class TransactionalAspect
 				throw pe;
 			} catch (PersistenceException pe)
 			{
+				TransactionsState transactionsStack = SqlSessionTL.transactionState.get();
+				TransactionState ti = transactionsStack.getCurrent();
+				if (transactionsStack.isSubtransaction() && 
+						ti.getPropagation() != Propagation.REQUIRE_SEPARATE)
+				{
+					if (log.isDebugEnabled())
+						log.debug("Got persistence error in a subtransaction, propagate to parent; " + 
+							pjp.toShortString() + 
+							"; " + pe.getCause());
+					throw pe;
+				}
+				
 				retry++;
 				if (retry < transactional.maxRetries())
 				{
-					log.debug("Got persistence error, will do retry #" + retry + 
+					if (log.isDebugEnabled())
+						log.debug("Got persistence error, will do retry #" + retry + 
 							"; " + pjp.toShortString() + 
 							"; " + pe.getCause());
-					sleepInterruptible(RETRY_BASE_DELAY*retry);
+					sleepInterruptible(retry);
 				} else
 				{
 					log.warn("Got persistence error, give up", pe);
@@ -154,8 +168,11 @@ public class TransactionalAspect
 	}
 	
 	
-	private void sleepInterruptible(long ms)
+	private void sleepInterruptible(int retryNum)
 	{
+		long ms = retryNum * RETRY_BASE_DELAY;
+		if (ms > RETRY_MAX_DELAY)
+			ms = RETRY_MAX_DELAY;
 		try
 		{
 			Thread.sleep(ms);

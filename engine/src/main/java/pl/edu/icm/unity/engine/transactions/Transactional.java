@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE})
 public @interface Transactional 
 {
-	public static final int DEF_MAX_RETRIES = 5;
+	public static final int DEF_MAX_RETRIES = 50;
 	
 	int maxRetries() default DEF_MAX_RETRIES;
 	

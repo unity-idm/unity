@@ -7,28 +7,28 @@ package pl.edu.icm.unity.engine.tx;
 import static org.junit.Assert.fail;
 
 import java.util.Date;
-import java.util.Random;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.EntityState;
-import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
 
 public class TestTransactionRetry extends DBIntegrationTestBase
 {
-	public static final int LOOP = 500;
-	public static final int TOKENS = 100;
+	public static final int LOOP = 200;
+	public static final int THREADS = 8;
 	
 	@Autowired
-	protected TokensManagement tokensMan;
+	protected SessionManagement sessionMan;
 	private boolean failure;
 	
 	@Test
@@ -37,19 +37,11 @@ public class TestTransactionRetry extends DBIntegrationTestBase
 		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");
 		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
 				EntityState.valid, false);
-		EntityParam ep = new EntityParam(id);
-
-		byte[] c = new byte[] {'a'};
-
-		for (int i=0; i<TOKENS; i++)
-			tokensMan.addToken("t", String.valueOf(i), ep, c, new Date(), 
-					new Date(System.currentTimeMillis()+1000000));
-
 		Thread[] threads = new Thread[8];
-		Random rand = new Random();
 		failure = false;
-		
-		for (int i=0; i<4; i++)
+		Date expiration = new Date(System.currentTimeMillis() + 1000000);
+		AuthenticationRealm realm = new AuthenticationRealm("realm", "desc", 10, 1000, 3, 100000);
+		for (int i=0; i<THREADS; i++)
 		{
 			threads[i] = new Thread(new Runnable()
 			{
@@ -59,8 +51,12 @@ public class TestTransactionRetry extends DBIntegrationTestBase
 					try
 					{
 						for (int i=0; i<LOOP; i++)
-							tokensMan.updateToken("t", String.valueOf(rand.nextInt(TOKENS)), 
-								null, new byte[] {(byte) rand.nextInt(TOKENS)});
+						{
+							LoginSession createSession = sessionMan.getCreateSession(
+									id.getEntityId(), 
+									realm, "somelabel", false, expiration);
+							sessionMan.updateSessionActivity(createSession.getId());
+						}
 					} catch (Exception e)
 					{
 						e.printStackTrace();
@@ -70,28 +66,7 @@ public class TestTransactionRetry extends DBIntegrationTestBase
 			});
 			threads[i].start();
 		}
-		for (int i=4; i<8; i++)
-		{
-			threads[i] = new Thread(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					try
-					{
-						for (int i=0; i<LOOP; i++)
-							tokensMan.getOwnedTokens("t", ep);
-					} catch (Exception e)
-					{
-						e.printStackTrace();
-						failure = true;
-					}
-				}
-			});
-			threads[i].start();
-		}
-
-		for (int i=0; i<8; i++)
+		for (int i=0; i<THREADS; i++)
 			threads[i].join();
 		
 		if (failure)
