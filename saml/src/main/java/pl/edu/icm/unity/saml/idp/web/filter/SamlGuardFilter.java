@@ -107,7 +107,8 @@ public class SamlGuardFilter implements Filter
 		String line;
 		while ((line = br.readLine()) != null)
 			sb.append(line);
+		log.trace("Blocked request info:\n" + request.getMethod());
 		log.trace("Blocked request params:\n" + request.getParameterMap());
-		log.trace("Blocked request conents:\n" + sb);
+		log.trace("Blocked request contents:\n" + sb);
 	}
 }

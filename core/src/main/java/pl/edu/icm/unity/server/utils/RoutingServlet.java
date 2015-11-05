@@ -43,12 +43,12 @@ public class RoutingServlet extends HttpServlet
 			String destination = (String) session.getAttribute(CURRENT_DESTINATION);
 			if (destination != null)
 			{
-				log.info("Routing request to regular destination " + destination);
+				log.debug("Routing request to regular destination " + destination);
 				req.getRequestDispatcher(constructPath(destination, req)).forward(req, resp);
 				return;
 			}
 		}
-		log.info("Routing request to DEFAULT destination " + defaultTarget);
+		log.debug("Routing request to DEFAULT destination " + defaultTarget);
 		req.getRequestDispatcher(constructPath(defaultTarget, req)).forward(req, resp);
 	}
 	
