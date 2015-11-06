@@ -144,7 +144,9 @@ Identity::
  Each entity can have one or more representations.  Each representation is called identity. Identities have its type,
  as _username_ or _X.500 Distinguished Name_ (DN) which defines its syntax, equality rules etc. If an entity has 
  several identities attached, then all are equivalent. This is used to provide aliases for the same principal,
- at the same time supporting different authentication systems, which represent principals in different ways.  
+ at the same time supporting different authentication systems, which represent principals in different ways.
+ Identities are used during authentication (think about user name or email address used in login form or to match
+ external user with the local one).   
 
 Credentials (local)::
  Credentials are associated with entities and are used to perform local authentication of an entity. When authentication
@@ -177,8 +179,9 @@ Group::
 
 Attribute statements::
  Attribute statements are defined in a group. Attribute statement automatically assigns an attribute to selected 
- members of the group. For instance there is statement which can copy an attribute X for all users who has the  
- X attribute in a parent group to the current group (what enables attributes propagation). 
+ members of the group. For instance an attribute statement can copy an attribute X for all users who has the  
+ X attribute in a parent group to the current group (what enables attributes propagation). Another statement
+ can create an attribute which will expose identities as values of an attribute. 
 
 Attribute class::
  Attribute class defines which attributes (more properly: which attribute types) are allowed and/or mandatory. 

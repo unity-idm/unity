@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
+import pl.edu.icm.unity.db.DB;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.ServerManagement;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
@@ -65,8 +66,13 @@ public class ImportExport
 		jg.useDefaultPrettyPrinter();
 		
 		jg.writeStartObject();
-		jg.writeNumberField("versionMajor", 1);
-		jg.writeNumberField("versionMinor", 5);
+		
+		String[] dbVer = DB.DB_VERSION.split("_");
+		int versionMajor = Integer.parseInt(dbVer[1]);
+		int versionMinor = Integer.parseInt(dbVer[2]);
+		
+		jg.writeNumberField("versionMajor", versionMajor);
+		jg.writeNumberField("versionMinor", versionMinor);
 		jg.writeNumberField("timestamp", System.currentTimeMillis());
 
 		jg.writeObjectFieldStart("contents");

@@ -51,6 +51,7 @@ The following table describes all available identity types:
 |===
 
 
+[[attributes]]
 === Attributes and attribute statements
 
 Regular Unity attributes are assigned in groups and an attribute assigned in a group is valid and visible only 
@@ -96,10 +97,10 @@ also good to enable DEBUG logging on +unity.server.AttributeStatementProcessor+ 
 ==== Reference
 MVEL context reference:
 
-. +attr+ Map indexed with regular attribute names of the current group. Value of each entry is a \
-single value of the attribute. If the attribute is multi-valued then the first value is returned. \
+. +attr+ Map indexed with regular attribute names of the current group. Value of each entry is a 
+single value of the attribute. If the attribute is multi-valued then the first value is returned. 
 If the attribute has no value then empty string is returned. 
-. +attrs+ Map indexed with regular attribute names of the current group. Value of each entry is a \
+. +attrs+ Map indexed with regular attribute names of the current group. Value of each entry is a 
 list of the attribute values.
 . +eattr+ As +attr+ but with attributes of the extra group (only available if extra group is defined). 
 . +eattrs+ As +attrs+ but with attributes of the extra group (only available if extra group is defined). 
@@ -111,7 +112,7 @@ list of the attribute values.
 
 ==== Examples
 
-Condition
+Condition:
 
 ----
 true
@@ -119,7 +120,7 @@ true
 
 can be used to assign an attribute to every group member.
 
-Condition
+Condition:
 
 ----
 groups contains '/staff' 
