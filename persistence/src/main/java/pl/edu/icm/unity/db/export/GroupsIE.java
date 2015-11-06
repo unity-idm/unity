@@ -14,8 +14,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.DBGroups;
-import pl.edu.icm.unity.db.json.GroupsSerializer;
 import pl.edu.icm.unity.db.mapper.AttributesMapper;
 import pl.edu.icm.unity.db.mapper.GroupsMapper;
 import pl.edu.icm.unity.db.model.BaseBean;
@@ -43,17 +41,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class GroupsIE extends AbstractIE
 {
 	private final GroupResolver groupResolver;
-	private final DBGroups dbGroups;
-	private final GroupsSerializer groupsSerializer;
 
 	@Autowired
-	public GroupsIE(ObjectMapper jsonMapper, GroupResolver groupResolver, DBGroups dbGroups,
-			GroupsSerializer groupsSerializer)
+	public GroupsIE(ObjectMapper jsonMapper, GroupResolver groupResolver)
 	{
 		super(jsonMapper);
 		this.groupResolver = groupResolver;
-		this.dbGroups = dbGroups;
-		this.groupsSerializer = groupsSerializer;
 	}
 
 	public void serialize(SqlSession sql, JsonGenerator jg) throws JsonGenerationException, 
@@ -75,7 +68,6 @@ public class GroupsIE extends AbstractIE
 	public void deserialize(SqlSession sql, JsonParser input, DumpHeader header) throws IOException, EngineException
 	{
 		GroupsMapper mapper = sql.getMapper(GroupsMapper.class);
-		AttributesMapper attributeMapper = sql.getMapper(AttributesMapper.class);
 		JsonUtils.expect(input, JsonToken.START_ARRAY);
 		while(input.nextToken() == JsonToken.START_OBJECT)
 		{
@@ -85,21 +77,20 @@ public class GroupsIE extends AbstractIE
 			String path = input.getValueAsString();
 			JsonUtils.nextExpect(input, JsonToken.END_OBJECT);
 			
-			if (header.getVersionMajor() == 1 && header.getVersionMinor() < 5)
-				convertStatements(sql, bean);
-			
 			if (path.equals("/"))
-			{
 				bean.setName(GroupResolver.ROOT_GROUP_NAME);
-				mapper.insertGroup(bean);
-			} else
+			else
 			{
-				Group toAdd =  new Group(path);
-				groupsSerializer.fromJson(bean.getContents(), toAdd, mapper, attributeMapper);
-				dbGroups.addGroup(toAdd, sql);
+				String parent = new Group(path).getParentPath();
+				GroupBean parentBean = groupResolver.resolveGroup(parent, mapper);
+				bean.setParent(parentBean.getId());
 			}
+			mapper.insertGroup(bean);
 		}
 		JsonUtils.expect(input, JsonToken.END_ARRAY);
+		
+		if (header.getVersionMajor() == 1 && header.getVersionMinor() < 5)
+			updateGroupStatements(sql);
 	}
 	
 	/**
@@ -125,6 +116,17 @@ public class GroupsIE extends AbstractIE
 			
 			at.setContents(jsonMapper.writeValueAsBytes(parsed));
 		}		
+	}
+	
+	public void updateGroupStatements(SqlSession sql) throws IOException, EngineException
+	{
+		GroupsMapper mapper = sql.getMapper(GroupsMapper.class);
+		List<GroupBean> allGroups = mapper.getAllGroups();
+		for (GroupBean group: allGroups)
+		{
+			convertStatements(sql, group);
+			mapper.updateGroup(group);
+		}
 	}
 	
 	public static Map<String, GroupBean> getSortedGroups(SqlSession sql, GroupResolver groupResolver)
@@ -153,7 +155,7 @@ public class GroupsIE extends AbstractIE
 		return sortedGroups;
 	}
 	
-	public void convertStatements(SqlSession sql, GroupBean legacy) throws IOException, IllegalGroupValueException
+	private void convertStatements(SqlSession sql, GroupBean legacy) throws IOException, IllegalGroupValueException
 	{
 		ObjectNode root = (ObjectNode) jsonMapper.readTree(legacy.getContents());
 		ArrayNode oldStatements = (ArrayNode) root.get("attributeStatements");

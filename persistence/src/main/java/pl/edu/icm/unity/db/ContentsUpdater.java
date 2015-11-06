@@ -6,7 +6,6 @@ package pl.edu.icm.unity.db;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
@@ -18,9 +17,7 @@ import pl.edu.icm.unity.db.export.GenericsIE;
 import pl.edu.icm.unity.db.export.GroupsIE;
 import pl.edu.icm.unity.db.export.IdentitiesIE;
 import pl.edu.icm.unity.db.mapper.GenericMapper;
-import pl.edu.icm.unity.db.mapper.GroupsMapper;
 import pl.edu.icm.unity.db.mapper.IdentitiesMapper;
-import pl.edu.icm.unity.db.model.GroupBean;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.utils.Log;
 
@@ -55,7 +52,10 @@ public class ContentsUpdater
 	public void update(long oldDbVersion, SqlSession sql) throws IOException, EngineException
 	{
 		if (oldDbVersion < InitDB.dbVersion2Long("2_1_5"))
-			updateGroups(sql, headerForVersion(oldDbVersion));
+		{
+			log.info("Updating group attribute statements");
+			groupsIE.updateGroupStatements(sql);
+		}
 		if (oldDbVersion < InitDB.dbVersion2Long("2_1_3"))
 			updateIdentitites(sql, headerForVersion(oldDbVersion));
 		if (oldDbVersion < InitDB.dbVersion2Long("2_1_1"))
@@ -104,17 +104,6 @@ public class ContentsUpdater
 		JsonParser jp = jsonF.createParser(contents);
 		jp.nextToken();
 		genericsIE.deserialize(sql, jp);
-	}
-	
-	private void updateGroups(SqlSession sql, DumpHeader fakeHeader) throws IOException, EngineException
-	{
-		GroupsMapper mapper = sql.getMapper(GroupsMapper.class);
-		List<GroupBean> allGroups = mapper.getAllGroups();
-		for (GroupBean group: allGroups)
-		{
-			groupsIE.convertStatements(sql, group);
-			mapper.updateGroup(group);
-		}
 	}
 }
 
