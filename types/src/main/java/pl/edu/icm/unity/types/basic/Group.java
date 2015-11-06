@@ -34,7 +34,7 @@ public class Group extends I18nDescribedObject implements Serializable
 	
 	private String[] path;
 	
-	private AttributeStatement[] attributeStatements = new AttributeStatement[0];
+	private AttributeStatement2[] attributeStatements = new AttributeStatement2[0];
 	private Set<String> attributesClasses = new HashSet<String>();
 	private boolean displayedNameSet = false;
 
@@ -119,12 +119,12 @@ public class Group extends I18nDescribedObject implements Serializable
 		return sb.toString();
 	}
 	
-	public AttributeStatement[] getAttributeStatements()
+	public AttributeStatement2[] getAttributeStatements()
 	{
 		return attributeStatements;
 	}
 
-	public void setAttributeStatements(AttributeStatement[] attributeStatements)
+	public void setAttributeStatements(AttributeStatement2[] attributeStatements)
 	{
 		this.attributeStatements = attributeStatements;
 	}

@@ -11,11 +11,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+import java.util.stream.Collectors;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
-
 
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.db.DBAttributes;
@@ -39,12 +38,13 @@ import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.attributes.AttributeValueChecker;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeStatement;
-import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
+import pl.edu.icm.unity.types.basic.AttributeStatement2;
+import pl.edu.icm.unity.types.basic.AttributeStatement2.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupContents;import pl.edu.icm.unity.types.basic.GroupMembership;
+import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 
 
 /**
@@ -306,30 +306,47 @@ public class GroupsManagementImpl implements GroupsManagement
 	private void validateGroupStatements(Group group, SqlSession sql) throws IllegalAttributeValueException, 
 		IllegalAttributeTypeException, IllegalTypeException
 	{
-		AttributeStatement[] statements = group.getAttributeStatements();
+		AttributeStatement2[] statements = group.getAttributeStatements();
 		String path = group.toString();
-		for (AttributeStatement statement: statements)
+		for (AttributeStatement2 statement: statements)
 			validateGroupStatement(path, statement, sql);
 	}
 
-	private void validateGroupStatement(String group, AttributeStatement statement, SqlSession sql) 
+	private void validateGroupStatement(String group, AttributeStatement2 statement, SqlSession sql) 
 			throws IllegalAttributeValueException, IllegalAttributeTypeException, IllegalTypeException
 	{
 		statement.validate(group);
-		Attribute<?> attribute = statement.getAssignedAttribute();
 		String attributeName = statement.getAssignedAttributeName();
 		AttributeType at = dbAttributes.getAttributeType(attributeName, sql);
 		if (at.isInstanceImmutable())
 			throw new IllegalAttributeTypeException("Can not assign attribute " + at.getName() +
 					" in attribute statement as the attribute type is an internal, system attribute.");
-		if (statement.getConflictResolution() != ConflictResolution.merge && attribute != null)
+
+		Attribute<?> fixedAttribute = statement.getFixedAttribute();
+		if (fixedAttribute != null)
 		{
-			AttributeValueChecker.validate(attribute, at);
+			if (statement.getConflictResolution() != ConflictResolution.merge && fixedAttribute != null)
+			{
+				AttributeValueChecker.validate(fixedAttribute, at);
+			}
 		}
-		Attribute<?> conditionAttr = statement.getConditionAttribute();
-		if (conditionAttr != null)
+	}
+
+	@Override
+	public Set<String> getChildGroups(String root) throws EngineException
+	{
+		authz.checkAuthorization(root, AuthzCapability.read);
+		SqlSession sql = db.getSqlSession(true);
+		try 
 		{
-			dbAttributes.getAttributeType(conditionAttr.getName(), sql);
+			Set<String> allGroups = dbGroups.getAllGroups(sql);
+			sql.commit();
+			return allGroups.stream().
+					filter(g -> g.startsWith(root)).
+					collect(Collectors.toSet());
+		} finally
+		{
+			db.releaseSqlSession(sql);
 		}
 	}
 }

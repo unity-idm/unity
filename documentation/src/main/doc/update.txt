@@ -115,3 +115,19 @@ URL* which can be defined for a registration form. Previously used redirect URL 
 is not available any more. Instead the same URL is used, but has rich set of query parameters allowing 
 consuming service to present appropriate content.
 
+==== From 1.7.x to 1.8.0
+
+Version 1.8.0 introduces a completely new group attribute statements feature. During the (automatic) database update
+all legacy attribute statements are updated to the new schema. The same happens when a JSON database dump created 
+with an earlier Unity version is loaded. It is highly advisable to review the converted attribute statements. 
+The documentation of the subsystem is available in <<attributes>>.
+
+The attribute statements conversion has one limitation: the former +hasParentAttribute+, +hasSubgroupAttribute+,
++copyParentAttribute+ and +copySubgroupAttribute+ are converted ignoring the setting of the condition's 
+attribute values (of course in the has* statements the assigned attribute values are preserved). 
+This former feature usefulness was very low, so most probably your attribute statements didn't 
+specify any attribute values in conditions. The semantics was that only if the member has an attribute in child/parent
+group with the specified value the attribute is copied or the new one is assigned in the statement's group.
+If your statements did use that feature, you have to manually modify the conditions of the converted statements 
+to add proper attribute value based rules. In case of troubles please ask at the mailing list!  
+

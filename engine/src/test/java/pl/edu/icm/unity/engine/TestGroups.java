@@ -4,7 +4,14 @@
  */
 package pl.edu.icm.unity.engine;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -16,7 +23,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.AttributeStatement;
+import pl.edu.icm.unity.types.basic.AttributeStatement2;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -24,8 +31,6 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.IdentityType;
-import pl.edu.icm.unity.types.basic.attrstmnt.EverybodyStatement;
-import pl.edu.icm.unity.types.basic.attrstmnt.HasSubgroupAttributeStatement;
 
 
 public class TestGroups extends DBIntegrationTestBase
@@ -112,14 +117,12 @@ public class TestGroups extends DBIntegrationTestBase
 		Group abd = new Group("/A/B/D");
 		groupsMan.addGroup(abd);
 
-		AttributeStatement[] statements = new AttributeStatement[2];
-		statements[0] = new EverybodyStatement(
-				new StringAttribute("foo", "/A", AttributeVisibility.full, "val1"), 
-				AttributeStatement.ConflictResolution.skip);
-		statements[1] = new HasSubgroupAttributeStatement(
-				new StringAttribute("foo", "/A", AttributeVisibility.full, "val1"), 
-				new StringAttribute("foo", "/A/B", AttributeVisibility.full, "ala"),
-				AttributeStatement.ConflictResolution.skip);
+		AttributeStatement2[] statements = new AttributeStatement2[2];
+		statements[0] = AttributeStatement2.getFixedEverybodyStatement(
+				new StringAttribute("foo", "/A", AttributeVisibility.full, "val1"));
+		statements[1] = AttributeStatement2.getFixedStatement(
+				new StringAttribute("foo", "/A", AttributeVisibility.full, "val1"),
+				"/A/B", "eattr['foo'] != null");
 		a.setAttributeStatements(statements);
 		groupsMan.updateGroup("/A", a);
 		
@@ -138,12 +141,12 @@ public class TestGroups extends DBIntegrationTestBase
 		assertTrue(contentA.getSubGroups().contains("/A/B"));
 		assertTrue(contentA.getSubGroups().contains("/A/C"));
 		assertEquals(2, contentA.getGroup().getAttributeStatements().length);
-		assertEquals(AttributeStatement.ConflictResolution.skip,
-				contentA.getGroup().getAttributeStatements()[0].getConflictResolution());
-		assertEquals("foo", contentA.getGroup().getAttributeStatements()[0].getAssignedAttribute().getName());
-		assertEquals("val1", contentA.getGroup().getAttributeStatements()[0].getAssignedAttribute().
-				getValues().get(0).toString());
-		assertEquals(EverybodyStatement.NAME, contentA.getGroup().getAttributeStatements()[0].getName());
+		AttributeStatement2 attributeStatement = contentA.getGroup().getAttributeStatements()[0];
+		assertEquals(AttributeStatement2.ConflictResolution.skip,
+				attributeStatement.getConflictResolution());
+		assertEquals("foo", attributeStatement.getAssignedAttributeName());
+		assertNotNull(attributeStatement.getFixedAttribute());
+		assertEquals("val1", attributeStatement.getFixedAttribute().getValues().get(0).toString());
 		
 		GroupContents contentAB = groupsMan.getContents("/A/B", GroupContents.EVERYTHING);
 		assertEquals(1, contentAB.getSubGroups().size());
@@ -177,5 +180,33 @@ public class TestGroups extends DBIntegrationTestBase
 		groupsMan.removeGroup("/A", true);
 		contentRoot = groupsMan.getContents("/", GroupContents.EVERYTHING);
 		assertEquals(0, contentRoot.getSubGroups().size());
+	}
+	
+	@Test
+	public void getChildrenReturnsAll() throws Exception
+	{
+		Group a = new Group("/A");
+		groupsMan.addGroup(a);
+		Group ab = new Group("/A/B");
+		groupsMan.addGroup(ab);
+		Group ac = new Group("/A/C");
+		groupsMan.addGroup(ac);
+		Group abd = new Group("/A/B/D");
+		groupsMan.addGroup(abd);
+
+		Set<String> rootChildren = groupsMan.getChildGroups("/");
+		
+		assertThat(rootChildren.size(), is(5));
+		assertThat(rootChildren.contains("/"), is(true));
+		assertThat(rootChildren.contains("/A"), is(true));
+		assertThat(rootChildren.contains("/A/B"), is(true));
+		assertThat(rootChildren.contains("/A/C"), is(true));
+		assertThat(rootChildren.contains("/A/B/D"), is(true));
+
+		Set<String> abChildren = groupsMan.getChildGroups("/A/B");
+		
+		assertThat(abChildren.toString(), abChildren.size(), is(2));
+		assertThat(abChildren.contains("/A/B"), is(true));
+		assertThat(abChildren.contains("/A/B/D"), is(true));
 	}
 }

@@ -30,7 +30,6 @@ import pl.edu.icm.unity.webadmin.tprofile.StartStopButton.ClickStartEvent;
 import pl.edu.icm.unity.webadmin.tprofile.StartStopButton.ClickStopEvent;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
-import pl.edu.icm.unity.webui.common.GroupComboBox;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -85,9 +84,8 @@ public abstract class TranslationProfileEditor extends VerticalLayout
 			AuthenticationManagement authnMan, GroupsManagement groupsMan) throws EngineException
 	{
 		this.atTypes = attrsMan.getAttributeTypes();
-		this.groups = new ArrayList<String>(); 
-		GroupComboBox.getGroups("/", true, groups, groupsMan);
-		groups.add("/");
+		this.groups = new ArrayList<>(groupsMan.getChildGroups("/"));
+		Collections.sort(groups);
 		Collection<CredentialRequirements> crs = authnMan.getCredentialRequirements();
 		credReqs = new TreeSet<String>();
 		for (CredentialRequirements cr: crs)

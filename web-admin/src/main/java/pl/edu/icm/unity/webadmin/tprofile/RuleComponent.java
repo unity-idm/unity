@@ -8,7 +8,6 @@ package pl.edu.icm.unity.webadmin.tprofile;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.mvel2.MVEL;
@@ -31,8 +30,8 @@ import pl.edu.icm.unity.server.translation.out.OutputTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.RequiredComboBox;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -67,7 +66,7 @@ public class RuleComponent extends VerticalLayout
 	private ProfileType profileType;
 	private TranslationActionsRegistry tc;
 	private Collection<AttributeType> attributeTypes;
-	private List<String> groups;
+	private Collection<String> groups;
 	private Collection<String> credReqs;
 	private Collection<String> idTypes;
 	private ComboBox actions;
@@ -84,7 +83,7 @@ public class RuleComponent extends VerticalLayout
 	private Image helpAction;
 
 	public RuleComponent(ProfileType profileType, UnityMessageSource msg, TranslationActionsRegistry tc,
-			AbstractTranslationRule<?> toEdit, Collection<AttributeType> attributeTypes, List<String> groups,
+			AbstractTranslationRule<?> toEdit, Collection<AttributeType> attributeTypes, Collection<String> groups,
 			Collection<String> credReqs, Collection<String> idTypes, Callback callback)
 	{
 		this.profileType = profileType;
@@ -212,7 +211,6 @@ public class RuleComponent extends VerticalLayout
 				}
 
 				return true;
-
 			}
 		});
 		condition.setValidationVisible(false);

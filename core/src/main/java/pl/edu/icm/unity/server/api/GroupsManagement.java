@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.server.api;
 
 import java.util.List;
+import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -26,7 +27,7 @@ public interface GroupsManagement
 	 * @param toAdd group to add
 	 * @throws EngineException
 	 */
-	public void addGroup(Group toAdd) throws EngineException;
+	void addGroup(Group toAdd) throws EngineException;
 
 	/**
 	 * Links the sourcePath group in targetPath group, so the sourcePath group contents becomes 
@@ -35,7 +36,7 @@ public interface GroupsManagement
 	 * @param sourcePath
 	 * @throws EngineException
 	 */
-	public void linkGroup(String targetPath, String sourcePath) throws EngineException;
+	void linkGroup(String targetPath, String sourcePath) throws EngineException;
 
 	/**
 	 * Unlinks the sourcePath group from the targetPath group.
@@ -43,7 +44,7 @@ public interface GroupsManagement
 	 * @param sourcePath
 	 * @throws EngineException
 	 */
-	public void unlinkGroup(String targetPath, String sourcePath) throws EngineException;
+	void unlinkGroup(String targetPath, String sourcePath) throws EngineException;
 	
 	/**
 	 * Removes a given group. Doesn't work for '/' path.
@@ -51,7 +52,7 @@ public interface GroupsManagement
 	 * @param recursive
 	 * @throws EngineException
 	 */
-	public void removeGroup(String path, boolean recursive) throws EngineException;
+	void removeGroup(String path, boolean recursive) throws EngineException;
 	
 	/**
 	 * Creates a group normally. Then adds the creator to it and assigns him/her the manager role.
@@ -59,7 +60,7 @@ public interface GroupsManagement
 	 * @param toAdd
 	 * @throws EngineException
 	 */
-	public void addSelfManagedGroup(Group toAdd) throws EngineException;
+	void addSelfManagedGroup(Group toAdd) throws EngineException;
 
 	/**
 	 * Adds a new member to the group. The entity must be a member of a parent group. This method should be used
@@ -73,7 +74,7 @@ public interface GroupsManagement
 	 * @param translationProfile name of an input translation profile which created the membership 
 	 * @throws EngineException
 	 */
-	public void addMemberFromParent(String path, EntityParam entity, 
+	void addMemberFromParent(String path, EntityParam entity, 
 			List<Attribute<?>> attributes, String idp, String translationProfile) throws EngineException;
 	
 	/**
@@ -86,13 +87,13 @@ public interface GroupsManagement
 	 * from all members.  
 	 * @throws EngineException
 	 */
-	public void addMemberFromParent(String path, EntityParam entity, 
+	void addMemberFromParent(String path, EntityParam entity, 
 			List<Attribute<?>> attributes) throws EngineException;
 
 	/**
 	 * As {@link #addMemberFromParent(String, EntityParam, List)} with an empty list of attribute classes.
 	 */
-	public void addMemberFromParent(String path, EntityParam entity) throws EngineException;
+	void addMemberFromParent(String path, EntityParam entity) throws EngineException;
 	
 	/**
 	 * Removes from the group and all subgroups if the user is in any. 
@@ -101,7 +102,7 @@ public interface GroupsManagement
 	 * @param entity
 	 * @throws EngineException
 	 */
-	public void removeMember(String path, EntityParam entity) throws EngineException;
+	void removeMember(String path, EntityParam entity) throws EngineException;
 
 	/**
 	 * Allows to retrieve group's contents and metadata. 
@@ -111,7 +112,15 @@ public interface GroupsManagement
 	 * @return
 	 * @throws EngineException
 	 */
-	public GroupContents getContents(String path, int filter) throws EngineException;
+	GroupContents getContents(String path, int filter) throws EngineException;
+	
+	/**
+	 * @param root
+	 * @return all groups which are children of the root group (including grand children). The root group
+	 * is also in the returned set. 
+	 * @throws EngineException
+	 */
+	Set<String> getChildGroups(String root) throws EngineException;
 	
 	/**
 	 * Updates the group.
@@ -119,6 +128,6 @@ public interface GroupsManagement
 	 * @param group new group's metadata
 	 * @throws EngineException
 	 */
-	public void updateGroup(String path, Group group) throws EngineException;
+	void updateGroup(String path, Group group) throws EngineException;
 }
 

@@ -13,7 +13,6 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.types.basic.GroupContents;
 
 import com.vaadin.ui.ComboBox;
 
@@ -43,13 +42,13 @@ public class GroupComboBox extends ComboBox
 		setNullSelectionAllowed(false);
 	}
 
-	public void setInput(String rootGroup, boolean recursive, boolean inclusive)
+	public void setInput(String rootGroup, boolean inclusive)
 	{
 		removeAllItems();
 		if (groupsMan != null)
 		{
 			fixedGroups = new ArrayList<String>();
-			getGroups(rootGroup, recursive, fixedGroups);
+			getGroups(rootGroup, fixedGroups);
 		}
 		if (inclusive && !fixedGroups.contains(rootGroup))
 			fixedGroups.add(rootGroup);
@@ -67,23 +66,11 @@ public class GroupComboBox extends ComboBox
 		return new ArrayList<>(fixedGroups);
 	}
 	
-	private void getGroups(String group, boolean recursive, List<String> groups)
+	private void getGroups(String group, List<String> groups)
 	{
-		getGroups(group, recursive, groups, groupsMan);
-	}
-	
-	public static void getGroups(String group, boolean recursive, List<String> groups, GroupsManagement groupsMan)
-	{
-		GroupContents contents;
 		try
 		{
-			contents = groupsMan.getContents(group, GroupContents.GROUPS);
-			for (String subgroup: contents.getSubGroups())
-			{
-				groups.add(subgroup);
-				if (recursive)
-					getGroups(subgroup, recursive, groups, groupsMan);
-			}
+			groups.addAll(groupsMan.getChildGroups(group));
 		} catch (Exception e)
 		{
 			log.warn("Can't read groups for combo box", e);

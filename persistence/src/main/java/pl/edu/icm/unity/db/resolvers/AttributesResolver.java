@@ -66,6 +66,14 @@ public class AttributesResolver
 					" does not exist");
 		return atBean;
 	}
+
+	public AttributeType resolveAttributeTypeFull(String attributeName, AttributesMapper mapper) 
+			throws IllegalAttributeTypeException, IllegalTypeException
+	{
+		AttributeTypeBean atb = resolveAttributeType(attributeName, mapper);
+		return resolveAttributeTypeBean(atb);
+	}
+
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public AttributeExt<?> resolveAttributeBean(AttributeBean raw, String groupPath) throws IllegalTypeException

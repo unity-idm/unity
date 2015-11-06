@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.export.DumpHeader;
 import pl.edu.icm.unity.db.export.GenericsIE;
+import pl.edu.icm.unity.db.export.GroupsIE;
 import pl.edu.icm.unity.db.export.IdentitiesIE;
 import pl.edu.icm.unity.db.mapper.GenericMapper;
 import pl.edu.icm.unity.db.mapper.IdentitiesMapper;
@@ -38,16 +39,23 @@ public class ContentsUpdater
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, ContentsUpdater.class);
 	private final IdentitiesIE identitiesIE;
 	private GenericsIE genericsIE;
+	private GroupsIE groupsIE;
 	
 	@Autowired
-	public ContentsUpdater(IdentitiesIE identitiesIE, GenericsIE genericsIE)
+	public ContentsUpdater(IdentitiesIE identitiesIE, GenericsIE genericsIE, GroupsIE groupsIE)
 	{
 		this.identitiesIE = identitiesIE;
 		this.genericsIE = genericsIE;
+		this.groupsIE = groupsIE;
 	}
 
 	public void update(long oldDbVersion, SqlSession sql) throws IOException, EngineException
 	{
+		if (oldDbVersion < InitDB.dbVersion2Long("2_1_5"))
+		{
+			log.info("Updating group attribute statements");
+			groupsIE.updateGroupStatements(sql);
+		}
 		if (oldDbVersion < InitDB.dbVersion2Long("2_1_3"))
 			updateIdentitites(sql, headerForVersion(oldDbVersion));
 		if (oldDbVersion < InitDB.dbVersion2Long("2_1_1"))

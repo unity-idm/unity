@@ -314,7 +314,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		adminsNotificationGroup = new GroupComboBox(
 				msg.getMessage("RegistrationFormViewer.adminsNotificationsGroup"), groupsMan);
 		adminsNotificationGroup.setNullSelectionAllowed(true);
-		adminsNotificationGroup.setInput("/", true, true);
+		adminsNotificationGroup.setInput("/", true);
 		this.groups = adminsNotificationGroup.getGroups();
 		
 		
@@ -569,7 +569,7 @@ public class RegistrationFormEditor extends VerticalLayout
 			attributeType = new AttributeSelectionComboBox(
 					msg.getMessage("RegistrationFormViewer.paramAttribute"), attributeTypes);
 			group = new GroupComboBox(msg.getMessage("RegistrationFormViewer.paramAttributeGroup"), groups);
-			group.setInput("/", true, true);
+			group.setInput("/", true);
 			showGroups = new CheckBox(msg.getMessage("RegistrationFormViewer.paramShowGroup"));
 			
 			main.add(attributeType, group, showGroups);
@@ -615,7 +615,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		public ComponentsContainer getEditorComponent(GroupRegistrationParam value, int index)
 		{
 			group = new GroupComboBox(msg.getMessage("RegistrationFormViewer.paramGroup"), groups);
-			group.setInput("/", true, false);
+			group.setInput("/", false);
 			if (value != null)
 				group.setValue(value.getGroupPath());
 			main.add(group);
@@ -772,7 +772,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		public ComponentsContainer getEditorComponent(String value, int index)
 		{
 			group = new GroupComboBox(msg.getMessage("RegistrationFormViewer.paramGroup"), groups);
-			group.setInput("/", true, false);
+			group.setInput("/", false);
 			if (value != null)
 				group.setValue(value);
 			return new ComponentsContainer(group);
@@ -804,7 +804,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		public ComponentsContainer getEditorComponent(AttributeClassAssignment value, int index)
 		{
 			group = new GroupComboBox(msg.getMessage("RegistrationFormViewer.paramGroup"), groups);
-			group.setInput("/", true, true);
+			group.setInput("/", true);
 			
 			ac = new NotNullComboBox(msg.getMessage("RegistrationFormViewer.assignedAC")); 
 			for (String a: attributeClasses)

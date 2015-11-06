@@ -27,14 +27,14 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.attributes.AttributeValueChecker;
-import pl.edu.icm.unity.server.registries.AttributeStatementsRegistry;
 import pl.edu.icm.unity.server.utils.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeStatement;
-import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
+import pl.edu.icm.unity.types.basic.AttributeStatement2;
+import pl.edu.icm.unity.types.basic.AttributeStatement2.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.Group;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -82,7 +82,7 @@ public class GroupsSerializer
 			main.set("i18nDescription", I18nStringJsonUtil.toJson(src.getDescription()));
 			main.set("displayedName", I18nStringJsonUtil.toJson(src.getDisplayedName()));
 			ArrayNode ases = main.putArray("attributeStatements");
-			for (AttributeStatement as: src.getAttributeStatements())
+			for (AttributeStatement2 as: src.getAttributeStatements())
 			{
 				ases.add(serializeAS(as, groupMapper, attributeMapper));
 			}
@@ -125,7 +125,7 @@ public class GroupsSerializer
 			{
 				JsonNode jsonStatements = main.get("attributeStatements");
 				int asLen = jsonStatements.size();
-				List<AttributeStatement> statements = new ArrayList<AttributeStatement>(asLen);
+				List<AttributeStatement2> statements = new ArrayList<AttributeStatement2>(asLen);
 				for (int i=0; i<asLen; i++)
 				{
 					try
@@ -136,9 +136,11 @@ public class GroupsSerializer
 					{
 						//OK - we are ignoring outdated ASes - will be removed by async cleanup
 						outdatedASes++;
+						e.printStackTrace();
 					}
 				}			
-				target.setAttributeStatements(statements.toArray(new AttributeStatement[statements.size()]));
+				target.setAttributeStatements(statements.toArray(
+						new AttributeStatement2[statements.size()]));
 			}
 			
 			JsonNode jsonAcs = main.get("attributesClasses");
@@ -195,21 +197,30 @@ public class GroupsSerializer
 		return group;
 	}
 	
-	private JsonNode serializeAS(AttributeStatement as, GroupsMapper groupMapper, 
+	private JsonNode serializeAS(AttributeStatement2 as, GroupsMapper groupMapper, 
 			AttributesMapper attributeMapper) 
 			throws JsonProcessingException, IllegalGroupValueException, IllegalAttributeTypeException
 	{
 		ObjectNode main = mapper.createObjectNode();
 		main.put("resolution", as.getConflictResolution().name());
 
-		addAttributeToJson(main, "assigned-", as.getAssignedAttribute(), attributeMapper, groupMapper);
-		addAttributeToJson(main, "condition-", as.getConditionAttribute(), attributeMapper, groupMapper);
-		if (as.getConditionGroup() != null)
+		main.put("condition", as.getCondition());
+		if (as.getExtraAttributesGroup() != null)
 		{
-			GroupBean gb = groupResolver.resolveGroup(as.getConditionGroup(), groupMapper);
-			main.put("conditionGroup", gb.getId());
+			GroupBean resolvedGroup = groupResolver.resolveGroup(as.getExtraAttributesGroup(), groupMapper);
+			main.put("extraGroup", resolvedGroup.getId());
 		}
-		main.put("type", as.getName());
+		main.put("visibility", as.getDynamicAttributeVisibility().name());
+		if (as.dynamicAttributeMode())
+		{
+			main.put("dynamicAttributeExpression", as.getDynamicAttributeExpression());
+			main.put("dynamicAttributeName", as.getDynamicAttributeType().getName());
+		} else
+		{
+			addAttributeToJson(main, "fixedAttribute-", as.getFixedAttribute(), 
+					attributeMapper, groupMapper);
+			
+		}
 		return main;
 	}
 	
@@ -231,35 +242,44 @@ public class GroupsSerializer
 		main.put(pfx+"attributeValues", attrValues);
 	}
 	
-	private AttributeStatement deserializeAS(JsonNode as, GroupsMapper groupMapper, 
+	private AttributeStatement2 deserializeAS(JsonNode as, GroupsMapper groupMapper, 
 			AttributesMapper attributeMapper) throws IOException, IllegalGroupValueException, 
 			IllegalTypeException, IllegalAttributeTypeException, WrongArgumentException, 
 			IllegalAttributeValueException
 	{
-		String type = as.get("type").asText();
-		AttributeStatement ret = AttributeStatementsRegistry.getInstance(type);
+		AttributeStatement2 ret = new AttributeStatement2();
 		String resolution = as.get("resolution").asText();
 		ret.setConflictResolution(ConflictResolution.valueOf(resolution));
+
+		ret.setCondition(as.get("condition").asText());
 		
-		Attribute<?> attr = getAttributeFromJson(as, "assigned-", attributeMapper, groupMapper);
+		if (as.has("extraGroup"))
+		{
+			long group = as.get("extraGroup").asLong();
+			String groupPath = groupResolver.resolveGroupPath(group, groupMapper);
+			ret.setExtraAttributesGroup(groupPath);
+		}
+		
+		String visibility = as.get("visibility").asText();
+		ret.setDynamicAttributeVisibility(AttributeVisibility.valueOf(visibility));
+		
+		Attribute<?> attr = getAttributeFromJson(as, "fixedAttribute-", attributeMapper, groupMapper);
 		if (attr != null)
 		{
 			AttributeTypeBean atBean = attributeResolver.resolveAttributeType(attr.getName(), 
 					attributeMapper);
 			AttributeType at = attributeResolver.resolveAttributeTypeBean(atBean);
 			AttributeValueChecker.validate(attr, at);
-			ret.setAssignedAttribute(attr);
-		}
-		
-		Attribute<?> condAttr = getAttributeFromJson(as, "condition-", attributeMapper, groupMapper);
-		ret.setConditionAttribute(condAttr);
-
-		if (as.has("conditionGroup"))
+			ret.setFixedAttribute(attr);
+		} else
 		{
-			long group = as.get("conditionGroup").asLong();
-			String groupPath = groupResolver.resolveGroupPath(group, groupMapper);
-			ret.setConditionGroup(groupPath);
+			ret.setDynamicAttributeExpression(as.get("dynamicAttributeExpression").asText());
+			String aTypeName = as.get("dynamicAttributeName").asText();
+			AttributeType aType = attributeResolver.resolveAttributeTypeFull(aTypeName, 
+					attributeMapper);
+			ret.setDynamicAttributeType(aType);
 		}
+
 		return ret;
 	}
 	
