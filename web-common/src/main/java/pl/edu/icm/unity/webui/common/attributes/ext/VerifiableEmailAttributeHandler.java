@@ -167,8 +167,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 				return null;
 			try
 			{
-				VerifiableEmail email = new VerifiableEmail();
-				email.setValue(field.getValue());
+				VerifiableEmail email = new VerifiableEmail(field.getValue());
 				if (adminMode)
 					email.setConfirmationInfo(new ConfirmationInfo(confirmed.getValue()));
 				syntax.validate(email);

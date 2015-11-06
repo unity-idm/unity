@@ -33,9 +33,14 @@ public class SSOResponseHandler extends ResponseHandlerBase
 			String relayState, HttpServletRequest request, HttpServletResponse response) 
 					throws IOException, EopException
 	{
-		cleanContext(request.getSession(), false);
-		super.sendResponse(binding, responseDoc, serviceUrl, relayState, 
+		try
+		{
+			super.sendResponse(binding, responseDoc, serviceUrl, relayState,
 				response, "SSO Authentication response");
+		} finally
+		{
+			cleanContext(request.getSession(), false);
+		}
 	}
 	
 	public void handleException(AuthnResponseProcessor samlProcessor,
@@ -47,9 +52,14 @@ public class SSOResponseHandler extends ResponseHandlerBase
 		SAMLServerException convertedException = samlProcessor.convert2SAMLError(e, null, true);
 		ResponseDocument respDoc = samlProcessor.getErrorResponse(convertedException);
 
-		cleanContext(request.getSession(), invalidate);
-		super.sendResponse(binding, respDoc, serviceUrl, relayState, response, 
+		try
+		{
+			super.sendResponse(binding, respDoc, serviceUrl, relayState, response,
 				"SSO Authentication error response");
+		} finally
+		{
+			cleanContext(request.getSession(), invalidate);
+		}
 	}
 	
 	protected void cleanContext(HttpSession httpSession, boolean invalidate)

@@ -26,5 +26,8 @@ public class TestEmailUtils
 		VerifiableEmail converted3 = EmailUtils.convertFromString("a@b.com");
 		Assert.assertFalse(converted3.isConfirmed());
 		Assert.assertEquals("a@b.com", converted3.getValue());
+		
+		VerifiableEmail converted4 = EmailUtils.convertFromString(" a@b.com   ");
+		Assert.assertEquals("a@b.com", converted4.getValue());
 	}
 }

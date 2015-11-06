@@ -5,14 +5,15 @@
 package pl.edu.icm.unity.engine;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.engine.events.EventDecoratingHandler;
 import pl.edu.icm.unity.engine.events.EventProcessor;
+import pl.edu.icm.unity.engine.events.EventProducingAspect;
 import pl.edu.icm.unity.engine.events.InvocationEventContents;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.events.Event;
@@ -54,7 +55,7 @@ public class TestEvents extends DBIntegrationTestBase
 		do 
 		{
 			Thread.sleep(500);
-			assertNotEquals(40, i++);
+			assertNotEquals(10, i++);
 		} while (!testInvocationTries(1, false) || !testInvocations(1, false));
 		
 		testInvocationTries(1, true);
@@ -122,7 +123,7 @@ public class TestEvents extends DBIntegrationTestBase
 		@Override
 		public String getCategory()
 		{
-			return EventDecoratingHandler.CATEGORY_INVOCATION;
+			return EventProducingAspect.CATEGORY_INVOCATION;
 		}
 
 		@Override

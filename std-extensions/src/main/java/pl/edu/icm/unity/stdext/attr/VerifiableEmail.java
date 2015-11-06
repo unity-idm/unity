@@ -8,6 +8,7 @@ package pl.edu.icm.unity.stdext.attr;
 import java.util.ArrayList;
 import java.util.List;
 
+import pl.edu.icm.unity.stdext.utils.EmailUtils;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
@@ -34,9 +35,9 @@ public class VerifiableEmail implements VerifiableElement
 
 	public VerifiableEmail(String value, ConfirmationInfo confirmationData)
 	{
-		this.value = value;
+		this.value = value == null ? null : EmailUtils.removeTags(value.trim());
 		this.confirmationInfo = confirmationData;
-		this.tags = new ArrayList<>();
+		this.tags = value == null ? new ArrayList<>() : EmailUtils.extractTags(value);
 	}
 
 	@Override
@@ -55,11 +56,6 @@ public class VerifiableEmail implements VerifiableElement
 	public String getValue()
 	{
 		return value;
-	}
-
-	public void setValue(String value)
-	{
-		this.value = value;
 	}
 
 	@Override

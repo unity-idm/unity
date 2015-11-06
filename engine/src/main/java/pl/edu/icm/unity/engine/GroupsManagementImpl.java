@@ -12,21 +12,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.DBShared;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassDB;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassUtil;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.internal.AttributesHelper;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
+import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
@@ -34,6 +35,7 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.api.GroupsManagement;
+import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.attributes.AttributeValueChecker;
 import pl.edu.icm.unity.server.authn.InvocationContext;
@@ -53,9 +55,10 @@ import pl.edu.icm.unity.types.basic.GroupMembership;
  * 
  * @author K. Benedyczak
  */
+@Component
+@InvocationEventProducer
 public class GroupsManagementImpl implements GroupsManagement
 {
-	private DBSessionManager db;
 	private DBGroups dbGroups;
 	private DBShared dbShared;
 	private DBAttributes dbAttributes;
@@ -64,14 +67,15 @@ public class GroupsManagementImpl implements GroupsManagement
 	private AttributesHelper attributesHelper;
 	private IdentitiesResolver idResolver;
 	private ConfirmationManager confirmationManager;
+	private TransactionalRunner tx;
 	
 	@Autowired
-	public GroupsManagementImpl(DBSessionManager db, DBGroups dbGroups, DBShared dbShared,
+	public GroupsManagementImpl(TransactionalRunner tx, DBGroups dbGroups, DBShared dbShared,
 			DBAttributes dbAttributes, AttributeClassDB acDB,
 			AuthorizationManager authz, AttributesHelper attributesHelper,
 			IdentitiesResolver idResolver, ConfirmationManager confirmationsManager)
 	{
-		this.db = db;
+		this.tx = tx;
 		this.dbGroups = dbGroups;
 		this.dbShared = dbShared;
 		this.dbAttributes = dbAttributes;
@@ -83,20 +87,14 @@ public class GroupsManagementImpl implements GroupsManagement
 	}
 
 	@Override
+	@Transactional
 	public void addGroup(Group toAdd) throws EngineException
 	{
 		authz.checkAuthorization(toAdd.getParentPath(), AuthzCapability.groupModify);
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			validateGroupStatements(toAdd, sql);
-			AttributeClassUtil.validateAttributeClasses(toAdd.getAttributesClasses(), acDB, sql);
-			dbGroups.addGroup(toAdd, sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		SqlSession sql = SqlSessionTL.get();
+		validateGroupStatements(toAdd, sql);
+		AttributeClassUtil.validateAttributeClasses(toAdd.getAttributesClasses(), acDB, sql);
+		dbGroups.addGroup(toAdd, sql);
 	}
 
 	@Override
@@ -112,18 +110,12 @@ public class GroupsManagementImpl implements GroupsManagement
 	}
 
 	@Override
+	@Transactional
 	public void removeGroup(String path, boolean recursive) throws EngineException
 	{
 		authz.checkAuthorization(path, AuthzCapability.groupModify);
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			dbGroups.removeGroup(path, recursive, sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		SqlSession sql = SqlSessionTL.get();
+		dbGroups.removeGroup(path, recursive, sql);
 	}
 
 	@Override
@@ -147,14 +139,13 @@ public class GroupsManagementImpl implements GroupsManagement
 
 	@Override
 	public void addMemberFromParent(String path, EntityParam entity,
-			List<Attribute<?>> attributes, String idp, String translationProfile) throws EngineException
+			final List<Attribute<?>> attributesP, String idp, String translationProfile) throws EngineException
 	{
 		entity.validateInitialization();
-		if (attributes == null)
-			attributes = Collections.emptyList();
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
+		List<Attribute<?>> attributes = attributesP == null ? Collections.emptyList() : attributesP;
+
+		tx.runInTransaciton(() -> {
+			SqlSession sql = SqlSessionTL.get();
 			long entityId = idResolver.getEntityId(entity, sql);
 			authz.checkAuthorization(authz.isSelf(entityId), path, AuthzCapability.groupModify);
 			
@@ -163,33 +154,24 @@ public class GroupsManagementImpl implements GroupsManagement
 			dbGroups.addMemberFromParent(path, entity, idp, translationProfile, new Date(), sql);
 
 			attributesHelper.addAttributesList(attributes, entityId, true, sql);
-			sql.commit();
-			//careful - must be after the transaction is committed
-			confirmationManager.sendVerificationsQuiet(entity, attributes, false);
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
-	}
+		}); 
+		
+		//careful - must be after the transaction is committed
+		confirmationManager.sendVerificationsQuiet(entity, attributes, false);	}
 
 	@Override
+	@Transactional
 	public void removeMember(String path, EntityParam entity) throws EngineException
 	{
 		entity.validateInitialization();
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			long entityId = idResolver.getEntityId(entity, sql);
-			authz.checkAuthorization(authz.isSelf(entityId), path, AuthzCapability.groupModify);
-			dbGroups.removeMember(path, entity, sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		SqlSession sql = SqlSessionTL.get();
+		long entityId = idResolver.getEntityId(entity, sql);
+		authz.checkAuthorization(authz.isSelf(entityId), path, AuthzCapability.groupModify);
+		dbGroups.removeMember(path, entity, sql);
 	}
 
 	@Override
+	@Transactional
 	public GroupContents getContents(String path, int filter) throws EngineException
 	{
 		try
@@ -201,16 +183,8 @@ public class GroupsManagementImpl implements GroupsManagement
 				throw e;
 			return getLimitedContents(path, filter);
 		}
-		SqlSession sql = db.getSqlSession(true);
-		try 
-		{
-			GroupContents ret = dbGroups.getContents(path, filter, sql);
-			sql.commit();
-			return ret;
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		SqlSession sql = SqlSessionTL.get();
+		return dbGroups.getContents(path, filter, sql);
 	}
 
 	/**
@@ -225,82 +199,70 @@ public class GroupsManagementImpl implements GroupsManagement
 	{
 		long entity = InvocationContext.getCurrent().getLoginSession().getEntityId();
 		authz.checkAuthorization(true, AuthzCapability.read);
-		SqlSession sqlMap = db.getSqlSession(true);
-		try
-		{
-			Set<String> allGroups = dbShared.getAllGroups(entity, sqlMap);
-			sqlMap.commit();
-			if (!allGroups.contains(path))
-				throw new AuthorizationException("Access is denied. The operation "
-						+ "getContents requires 'read' capability");
-				
-			//TODO - handle linked groups
-			GroupContents ret = new GroupContents();
+		SqlSession sqlMap = SqlSessionTL.get();
+		Set<String> allGroups = dbShared.getAllGroups(entity, sqlMap);
+		sqlMap.commit();
+		if (!allGroups.contains(path))
+			throw new AuthorizationException("Access is denied. The operation "
+					+ "getContents requires 'read' capability");
 
-			if ((filter & GroupContents.GROUPS) != 0)
-			{
-				List<String> directSubgroups = new ArrayList<String>();
+		//TODO - handle linked groups
+		GroupContents ret = new GroupContents();
 
-				for (String g: allGroups)
-				{
-					Group potential = new Group(g);
-					String parent = potential.getParentPath();
-					if (parent != null && parent.equals(path))
-						directSubgroups.add(g);
-				}
-				ret.setSubGroups(directSubgroups);
-			}			
-			if ((filter & GroupContents.LINKED_GROUPS) != 0)
-			{
-				ret.setLinkedGroups(new ArrayList<String>());
-			}
-			if ((filter & GroupContents.MEMBERS) != 0)
-			{
-				ret.setMembers(new ArrayList<>());
-			}
-			if ((filter & GroupContents.METADATA) != 0)
-			{
-				Group gMetadata = dbGroups.getContents(path, GroupContents.METADATA, sqlMap).
-						getGroup();
-				ret.setGroup(gMetadata);
-			}
-			return ret;
-		} finally
+		if ((filter & GroupContents.GROUPS) != 0)
 		{
-			db.releaseSqlSession(sqlMap);
+			List<String> directSubgroups = new ArrayList<String>();
+
+			for (String g: allGroups)
+			{
+				Group potential = new Group(g);
+				String parent = potential.getParentPath();
+				if (parent != null && parent.equals(path))
+					directSubgroups.add(g);
+			}
+			ret.setSubGroups(directSubgroups);
+		}			
+		if ((filter & GroupContents.LINKED_GROUPS) != 0)
+		{
+			ret.setLinkedGroups(new ArrayList<String>());
 		}
+		if ((filter & GroupContents.MEMBERS) != 0)
+		{
+			ret.setMembers(new ArrayList<>());
+		}
+		if ((filter & GroupContents.METADATA) != 0)
+		{
+			Group gMetadata = dbGroups.getContents(path, GroupContents.METADATA, sqlMap).
+					getGroup();
+			ret.setGroup(gMetadata);
+		}
+		return ret;
 	}
 	
 	@Override
+	@Transactional
 	public void updateGroup(String path, Group group) throws EngineException
 	{
 		authz.checkAuthorization(path, AuthzCapability.groupModify);
-		SqlSession sql = db.getSqlSession(true);
-		try 
+		SqlSession sql = SqlSessionTL.get();
+		if (!path.equals(group.toString()))
+			throw new IllegalGroupValueException("Changing group name is currently "
+					+ "unsupported. Only displayed name can be changed.");
+		validateGroupStatements(group, sql);
+		AttributeClassUtil.validateAttributeClasses(group.getAttributesClasses(), acDB, sql);
+		GroupContents gc = dbGroups.getContents(path, GroupContents.MEMBERS, sql);
+		Map<String, AttributeType> allTypes = dbAttributes.getAttributeTypes(sql);
+
+		for (GroupMembership membership: gc.getMembers())
 		{
-			if (!path.equals(group.toString()))
-				throw new IllegalGroupValueException("Changing group name is currently "
-						+ "unsupported. Only displayed name can be changed.");
-			validateGroupStatements(group, sql);
-			AttributeClassUtil.validateAttributeClasses(group.getAttributesClasses(), acDB, sql);
-			GroupContents gc = dbGroups.getContents(path, GroupContents.MEMBERS, sql);
-			Map<String, AttributeType> allTypes = dbAttributes.getAttributeTypes(sql);
-			
-			for (GroupMembership membership: gc.getMembers())
-			{
-				long entity = membership.getEntityId();
-				AttributeClassHelper helper = AttributeClassUtil.getACHelper(entity, path, 
-						dbAttributes, acDB, group.getAttributesClasses(), sql);
-				Collection<String> attributes = dbAttributes.getEntityInGroupAttributeNames(
-						entity, path, sql);
-				helper.checkAttribtues(attributes, allTypes);
-			}
-			dbGroups.updateGroup(path, group, sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
+			long entity = membership.getEntityId();
+			AttributeClassHelper helper = AttributeClassUtil.getACHelper(entity, path, 
+					dbAttributes, acDB, group.getAttributesClasses(), sql);
+			Collection<String> attributes = dbAttributes.getEntityInGroupAttributeNames(
+					entity, path, sql);
+			helper.checkAttribtues(attributes, allTypes);
 		}
+		dbGroups.updateGroup(path, group, sql);
 	}
 	
 	private void validateGroupStatements(Group group, SqlSession sql) throws IllegalAttributeValueException, 
@@ -332,21 +294,15 @@ public class GroupsManagementImpl implements GroupsManagement
 		}
 	}
 
+	@Transactional
 	@Override
 	public Set<String> getChildGroups(String root) throws EngineException
 	{
 		authz.checkAuthorization(root, AuthzCapability.read);
-		SqlSession sql = db.getSqlSession(true);
-		try 
-		{
-			Set<String> allGroups = dbGroups.getAllGroups(sql);
-			sql.commit();
-			return allGroups.stream().
-					filter(g -> g.startsWith(root)).
-					collect(Collectors.toSet());
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		SqlSession sql = SqlSessionTL.get();
+		Set<String> allGroups = dbGroups.getAllGroups(sql);
+		return allGroups.stream().
+				filter(g -> g.startsWith(root)).
+				collect(Collectors.toSet());
 	}
 }

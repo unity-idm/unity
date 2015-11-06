@@ -2,84 +2,41 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:context="http://www.springframework.org/schema/context"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd"
+  xmlns:aop="http://www.springframework.org/schema/aop">
 
 	<context:annotation-config/>
+	<aop:aspectj-autoproxy/>
 	
 	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
 		<property name="bundle" value="pl/edu/icm/unity/engine/messages/messages"/>
 	</bean>
 	
+	<bean class="pl.edu.icm.unity.engine.transactions.TransactionalAspect"/>
+	<bean class="pl.edu.icm.unity.engine.transactions.TransactionalRunnerImpl"/>
+	
 	<bean class="pl.edu.icm.unity.server.JettyServer"/>
 	<bean class="pl.edu.icm.unity.server.UnityApplication$InnerServerLifecycle"/>
 	<bean class="pl.edu.icm.unity.server.UnityApplication$ShutdownFinished"/>
 
-	<bean id="proxyBuilder" class="pl.edu.icm.unity.engine.events.EventProxyBuilder"/>
-	<bean id="proxyBuilder2" class="pl.edu.icm.unity.engine.events.EventProxyBuilderSystem"/>
-	<bean id="proxyBuilderProfile" class="pl.edu.icm.unity.engine.events.EventProxyBuilderProfile"/>
-	<bean id="proxyBuilderTemplate" class="pl.edu.icm.unity.engine.events.EventProxyBuilderTemplate"/>
-	<bean id="proxyBuilderAuthn" class="pl.edu.icm.unity.engine.events.EventProxyBuilderAuthn"/>
-	<bean id="proxyBuilderEndp" class="pl.edu.icm.unity.engine.events.EventProxyBuilderEndpoint"/>
+	<bean class="pl.edu.icm.unity.engine.events.EventProducingAspect"/>
 	<bean class="pl.edu.icm.unity.engine.events.EventProcessor"/>
-	
-	<!-- Proxied beans which are the ultimate implementation of the core interface. Proxies
-			binds with the events mechanism. -->
-	<bean primary="true" factory-bean="proxyBuilder" factory-method="getAttributeManagementInstance"/>
-	<bean primary="true" factory-bean="proxyBuilder" factory-method="getGroupsManagementInstance"/>
-	<bean primary="true" factory-bean="proxyBuilder" factory-method="getIdentitiesManagementInstance"/>
-	<bean primary="true" factory-bean="proxyBuilder" factory-method="getPreferencesManagementInstance"/>
-	<bean primary="true" factory-bean="proxyBuilder" factory-method="getRegistrationsManagementInstance"/>
-	<bean primary="true" factory-bean="proxyBuilder" factory-method="getRealmsManagementInstance"/>
-	<bean primary="true" factory-bean="proxyBuilder2" factory-method="getServerManagementInstance"/>
-	<bean primary="true" factory-bean="proxyBuilderEndp" factory-method="getEndpointsManagementInstance"/>
-	<bean primary="true" factory-bean="proxyBuilderAuthn" factory-method="getAuthenticationManagementInstance"/>
-	<bean primary="true" factory-bean="proxyBuilder2" factory-method="getNotificationsManagementInstance"/>
-	<bean primary="true" factory-bean="proxyBuilderProfile" factory-method="getTranslationProfileManagementInstance"/>
-    <bean primary="true" factory-bean="proxyBuilderTemplate" factory-method="getMessageTemplateManagementInstance"/> 
-	<bean primary="true" factory-bean="proxyBuilderTemplate" factory-method="getConfirmationConfigurationManagementInstance"/> 
-	 
-
-	<!-- The real implementation, with a real authorization module injected. However those beans are plain,
-	are not generating any events. -->	
-	<bean primary="false" class="pl.edu.icm.unity.engine.GroupsManagementImpl">
-		<qualifier value="plain"/>
-	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.IdentitiesManagementImpl">
-		<qualifier value="plain"/>
-	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.AttributesManagementImpl">
-		<qualifier value="plain"/>
-	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.AuthenticationManagementImpl">
-		<qualifier value="plain"/>
-	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.ServerManagementImpl">
-		<qualifier value="plain"/>
-	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.EndpointManagementImpl">
-		<qualifier value="plain"/>
-	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.PreferencesManagementImpl">
-		<qualifier value="plain"/>
-	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.NotificationsManagementImpl">
-		<qualifier value="plain"/>
-	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.RegistrationsManagementImpl">
-		<qualifier value="plain"/>
-	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.TranslationProfileManagementImpl">
-		<qualifier value="plain"/>
-	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.RealmsManagementImpl">
-		<qualifier value="plain"/>
-	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.MessageTemplateManagementImpl">
-		<qualifier value="plain"/>
-	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.ConfirmationConfigurationManagementImpl">
-		<qualifier value="plain"/>
-	</bean>
+		
+	<!-- The regular implementation, with a real authorization module injected -->	
+	<bean primary="true" class="pl.edu.icm.unity.engine.GroupsManagementImpl"/>
+	<bean primary="true" class="pl.edu.icm.unity.engine.IdentitiesManagementImpl"/>
+	<bean primary="true" class="pl.edu.icm.unity.engine.AttributesManagementImpl"/>
+	<bean primary="true" class="pl.edu.icm.unity.engine.AuthenticationManagementImpl"/>
+	<bean primary="true" class="pl.edu.icm.unity.engine.ServerManagementImpl"/>
+	<bean primary="true" class="pl.edu.icm.unity.engine.EndpointManagementImpl"/>
+	<bean primary="true" class="pl.edu.icm.unity.engine.PreferencesManagementImpl"/>
+	<bean primary="true" class="pl.edu.icm.unity.engine.NotificationsManagementImpl"/>
+	<bean primary="true" class="pl.edu.icm.unity.engine.RegistrationsManagementImpl"/>
+	<bean primary="true" class="pl.edu.icm.unity.engine.TranslationProfileManagementImpl"/>
+	<bean primary="true" class="pl.edu.icm.unity.engine.RealmsManagementImpl"/>
+	<bean primary="true" class="pl.edu.icm.unity.engine.MessageTemplateManagementImpl"/>
+	<bean primary="true" class="pl.edu.icm.unity.engine.ConfirmationConfigurationManagementImpl"/>
 	
 	<!-- Those beans are the same as the 'primary' beans above, but do not perform authorization. 
 	Must be used with qualifier. -->

@@ -13,9 +13,10 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBIdentities;
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.credreq.CredentialRequirementDB;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
+import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.api.internal.IdentityResolver;
@@ -37,7 +38,6 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 public class IdentityResolverImpl implements IdentityResolver
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, IdentityResolverImpl.class);
-	private DBSessionManager db;
 	private DBAttributes dbAttributes;
 	private DBIdentities dbIdentities;
 	private IdentitiesResolver dbResolver;
@@ -45,10 +45,9 @@ public class IdentityResolverImpl implements IdentityResolver
 	
 	
 	@Autowired
-	public IdentityResolverImpl(DBSessionManager db, DBAttributes dbAttributes, CredentialRequirementDB dbCredReq,
+	public IdentityResolverImpl(DBAttributes dbAttributes, CredentialRequirementDB dbCredReq,
 			DBIdentities dbIdentities, IdentitiesResolver dbResolver)
 	{
-		this.db = db;
 		this.dbAttributes = dbAttributes;
 		this.dbIdentities = dbIdentities;
 		this.dbResolver = dbResolver;
@@ -56,41 +55,35 @@ public class IdentityResolverImpl implements IdentityResolver
 	}
 
 	@Override
+	@Transactional
 	public EntityWithCredential resolveIdentity(String identity, String[] identityTypes,
 			String credentialName) throws EngineException
 	{
-		SqlSession sql = db.getSqlSession(true);
-		try
+		SqlSession sql = SqlSessionTL.get();
+		long entityId = getEntity(identity, identityTypes, null, null, true, sql);
+		EntityState entityState = dbIdentities.getEntityStatus(entityId, sql);
+		if (entityState == EntityState.authenticationDisabled || entityState == EntityState.disabled)
+			throw new IllegalIdentityValueException("Authentication is disabled for this entity");
+		EntityWithCredential ret = new EntityWithCredential();
+		if (credentialName != null)
 		{
-			long entityId = getEntity(identity, identityTypes, null, null, true, sql);
-			EntityState entityState = dbIdentities.getEntityStatus(entityId, sql);
-			if (entityState == EntityState.authenticationDisabled || entityState == EntityState.disabled)
-				throw new IllegalIdentityValueException("Authentication is disabled for this entity");
-			EntityWithCredential ret = new EntityWithCredential();
-			if (credentialName != null)
+			CredentialRequirements credentialRequirements = resolveCredentialRequirements(
+					entityId, sql);
+			if (credentialRequirements.getRequiredCredentials().contains(credentialName))
 			{
-				CredentialRequirements credentialRequirements = resolveCredentialRequirements(
-						entityId, sql);
-				if (credentialRequirements.getRequiredCredentials().contains(credentialName))
-				{
-					Collection<AttributeExt<?>> credAttributes = dbAttributes.getAllAttributes(
+				Collection<AttributeExt<?>> credAttributes = dbAttributes.getAllAttributes(
 						entityId, "/", true, 
 						SystemAttributeTypes.CREDENTIAL_PREFIX+credentialName, sql);
-					if (credAttributes.size() > 0)
-					{
-						Attribute<?> a = credAttributes.iterator().next();
-						ret.setCredentialValue((String)a.getValues().get(0));
-					}
+				if (credAttributes.size() > 0)
+				{
+					Attribute<?> a = credAttributes.iterator().next();
+					ret.setCredentialValue((String)a.getValues().get(0));
 				}
-				ret.setCredentialName(credentialName);
 			}
-			ret.setEntityId(entityId);
-			sql.commit();
-			return ret;
-		} finally
-		{
-			db.releaseSqlSession(sql);
+			ret.setCredentialName(credentialName);
 		}
+		ret.setEntityId(entityId);
+		return ret;
 	}
 	
 	private CredentialRequirements resolveCredentialRequirements(long entityId, SqlSession sql) 
@@ -105,19 +98,13 @@ public class IdentityResolverImpl implements IdentityResolver
 	}
 	
 	@Override
+	@Transactional
 	public long resolveIdentity(String identity, String[] identityTypes, String target, String realm) 
 			throws IllegalIdentityValueException
 	{
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			long entityId = getEntity(identity, identityTypes, target, realm, false, sql);
-			sql.commit();
-			return entityId;
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		SqlSession sql = SqlSessionTL.get();
+		long entityId = getEntity(identity, identityTypes, target, realm, false, sql);
+		return entityId;
 	}
 	
 	private long getEntity(String identity, String[] identityTypes, String target, String realm, 

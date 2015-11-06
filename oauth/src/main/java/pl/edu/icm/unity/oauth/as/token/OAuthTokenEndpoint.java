@@ -17,6 +17,7 @@ import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
@@ -36,16 +37,18 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	private PKIManagement pkiManagement;
 	private OAuthASProperties config;
 	private OAuthEndpointsCoordinator coordinator;
+	private TransactionalRunner tx;
 	
 	public OAuthTokenEndpoint(UnityMessageSource msg, SessionManagement sessionMan,
 			NetworkServer server, String servletPath, TokensManagement tokensMan,
 			PKIManagement pkiManagement, OAuthEndpointsCoordinator coordinator, 
-			AuthenticationProcessor authnProcessor)
+			AuthenticationProcessor authnProcessor, TransactionalRunner tx)
 	{
 		super(msg, sessionMan, authnProcessor, server, servletPath);
 		this.tokensManagement = tokensMan;
 		this.pkiManagement = pkiManagement;
 		this.coordinator = coordinator;
+		this.tx = tx;
 	}
 	
 	@Override
@@ -72,7 +75,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		public Set<Object> getSingletons() 
 		{
 			HashSet<Object> ret = new HashSet<>();
-			ret.add(new AccessTokenResource(tokensManagement, config));
+			ret.add(new AccessTokenResource(tokensManagement, config, tx));
 			ret.add(new DiscoveryResource(config, coordinator));
 			ret.add(new KeysResource(config));
 			ret.add(new TokenInfoResource(tokensManagement));

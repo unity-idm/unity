@@ -42,8 +42,8 @@ public class UsernameIdentityEditor implements IdentityEditor
 	@Override
 	public IdentityParam getValue() throws IllegalIdentityValueException
 	{
-		String username = field.getValue();
-		if (username.trim().equals(""))
+		String username = field.getValue().trim();
+		if (username.equals(""))
 		{
 			if (!required)
 				return null;

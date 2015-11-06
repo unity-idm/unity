@@ -25,7 +25,6 @@ import net.sf.ehcache.config.Searchable;
 import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.Results;
 
-import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -33,30 +32,31 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.confirmations.ConfirmationConfiguration;
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder;
+import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder.Status;
 import pl.edu.icm.unity.confirmations.ConfirmationServlet;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.ConfirmationTemplateDef;
-import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder.Status;
 import pl.edu.icm.unity.confirmations.states.AttribiuteConfirmationState;
 import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
 import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
 import pl.edu.icm.unity.confirmations.states.RegistrationReqAttribiuteConfirmationState;
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.confirmation.ConfirmationConfigurationDB;
 import pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateDB;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.SharedEndpointManagementImpl;
-import pl.edu.icm.unity.engine.notifications.NotificationProducerImpl;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
+import pl.edu.icm.unity.notifications.NotificationProducer;
 import pl.edu.icm.unity.server.JettyServer;
 import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
 import pl.edu.icm.unity.server.utils.CacheProvider;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -79,36 +79,36 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	private static final String CACHE_ID = "ConfirmationCache";
 	
 	private TokensManagement tokensMan;
-	private NotificationProducerImpl notificationProducer;
+	private NotificationProducer notificationProducer;
 	private ConfirmationFacilitiesRegistry confirmationFacilitiesRegistry;
 	private MessageTemplateDB mtDB;
 	private ConfirmationConfigurationDB configurationDB;
-	private DBSessionManager db;
 	private URL advertisedAddress;
 	private UnityMessageSource msg;
 	private IdentitiesResolver idResolver;
 	private Ehcache confirmationReqCache;
 	private int requestLimit;
 	private String defaultRedirectURL;
+	private TransactionalRunner tx;
 
 	@Autowired
 	public ConfirmationManagerImpl(TokensManagement tokensMan,
 			MessageTemplateManagement templateMan,
-			NotificationProducerImpl notificationProducer,
+			NotificationProducer notificationProducer,
 			ConfirmationFacilitiesRegistry confirmationFacilitiesRegistry,
 			JettyServer httpServer, MessageTemplateDB mtDB,
-			ConfirmationConfigurationDB configurationDB, DBSessionManager db,
+			ConfirmationConfigurationDB configurationDB, TransactionalRunner tx,
 			IdentitiesResolver idResolver, UnityMessageSource msg,
 			CacheProvider cacheProvider, UnityServerConfiguration mainConf)
 	{
 		this.tokensMan = tokensMan;
 		this.notificationProducer = notificationProducer;
 		this.confirmationFacilitiesRegistry = confirmationFacilitiesRegistry;
+		this.tx = tx;
 		this.idResolver = idResolver;
 		this.advertisedAddress = httpServer.getAdvertisedAddress();
 		this.mtDB = mtDB;
 		this.configurationDB = configurationDB;
-		this.db = db;
 		this.msg = msg;
 		
 		CacheConfiguration cacheConfig = new CacheConfiguration(CACHE_ID, 0);
@@ -134,6 +134,17 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	
 	private void sendConfirmationRequest(BaseConfirmationState baseState, boolean force) throws EngineException
 	{
+		class TokenAndFlag
+		{
+			private String token;
+			private boolean hasDuplicate;
+			public TokenAndFlag(String token, boolean hasDuplicate)
+			{
+				this.token = token;
+				this.hasDuplicate = hasDuplicate;
+			}
+		}
+		
 		String facilityId = baseState.getFacilityId();
 		ConfirmationFacility<?> facility = getFacility(facilityId);
 		ConfirmationConfiguration configEntry = getConfiguration(baseState);
@@ -144,24 +155,17 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		if (!checkSendingLimit(baseState.getValue()))
 			return;
 			
-		boolean hasDuplicate;
-		String token;
-		Object transaction = tokensMan.startTokenTransaction();
-		try
-		{
-			hasDuplicate = !getDuplicateTokens(facility, serializedState, transaction).isEmpty();
-			token = insertConfirmationToken(serializedState, transaction);
-			tokensMan.commitTokenTransaction(transaction);
-		} finally
-		{
-			tokensMan.closeTokenTransaction(transaction);
-		}
+		TokenAndFlag taf = tx.runInTransacitonRet(() -> {
+			boolean hasDuplicate = !getDuplicateTokens(facility, serializedState).isEmpty();
+			String token = insertConfirmationToken(serializedState);
+			return new TokenAndFlag(token, hasDuplicate);
+		});
 		
-		if (force || !hasDuplicate)
+		if (force || !taf.hasDuplicate)
 		{
 			sendConfirmationRequest(baseState.getValue(), configEntry.getNotificationChannel(),
 					configEntry.getMsgTemplate(), 
-					facility, baseState.getLocale(), token);
+					facility, baseState.getLocale(), taf.token);
 			
 		}
 		facility.processAfterSendRequest(serializedState);
@@ -179,7 +183,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		return true;
 	}
 	
-	private String insertConfirmationToken(String state, Object transaction) throws EngineException
+	private String insertConfirmationToken(String state) throws EngineException
 	{
 		Date createDate = new Date();
 		Calendar cl = Calendar.getInstance();
@@ -191,7 +195,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		{
 			tokensMan.addToken(CONFIRMATION_TOKEN_TYPE, token, 
 					state.getBytes(StandardCharsets.UTF_8),
-					createDate, expires, transaction);
+					createDate, expires);
 		} catch (Exception e)
 		{
 			log.error("Cannot add token to db", e);
@@ -245,14 +249,11 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			return new ConfirmationStatus(false, redirectURL, "ConfirmationStatus.invalidToken");
 		}
 		
-		Object transaction = tokensMan.startTokenTransaction(); 
-		try
-		{
+		return tx.runInTransacitonRet(() -> {
 			Token tk = null;
 			try
 			{
-				tk = tokensMan.getTokenById(ConfirmationManagerImpl.CONFIRMATION_TOKEN_TYPE, token,
-						transaction);
+				tk = tokensMan.getTokenById(ConfirmationManagerImpl.CONFIRMATION_TOKEN_TYPE, token);
 			} catch (WrongArgumentException e)
 			{
 				String redirectURL = new ConfirmationRedirectURLBuilder(defaultRedirectURL, 
@@ -261,19 +262,13 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 				return new ConfirmationStatus(false, redirectURL, "ConfirmationStatus.invalidToken");
 			}
 
-			ConfirmationStatus ret = processConfirmationInternal(tk, true, transaction);
-			tokensMan.commitTokenTransaction(transaction);
-			return ret;
-		} finally 
-		{
-			tokensMan.closeTokenTransaction(transaction);
-		}
+			return processConfirmationInternal(tk, true);
+		});
 	}
 
-	private ConfirmationStatus processConfirmationInternal(Token tk, boolean withDuplicates, Object transaction)
+	private ConfirmationStatus processConfirmationInternal(Token tk, boolean withDuplicates)
 			throws EngineException
 	{
-
 		Date today = new Date();
 		if (tk.getExpires().compareTo(today) < 0)
 		{
@@ -285,18 +280,18 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		String rawState = tk.getContentsString();
 		BaseConfirmationState baseState = new BaseConfirmationState(rawState);
 		ConfirmationFacility<?> facility = getFacility(baseState.getFacilityId());
-		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue(), transaction);
+		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue());
 		log.debug("Process confirmation using " + facility.getName() + " facility");
-		ConfirmationStatus status = facility.processConfirmation(rawState, (SqlSession) transaction);
+		ConfirmationStatus status = facility.processConfirmation(rawState, SqlSessionTL.get());
 
 		if (withDuplicates)
 		{
-			Collection<Token> duplicateTokens = getDuplicateTokens(facility, rawState, transaction);
+			Collection<Token> duplicateTokens = getDuplicateTokens(facility, rawState);
 			for (Token duplicate: duplicateTokens)
 			{
 				log.debug("Found duplicte confirmation token " + duplicate.getValue() + 
 						" confirming it too");
-				processConfirmationInternal(duplicate, false, transaction);
+				processConfirmationInternal(duplicate, false);
 			}
 		}
 		
@@ -310,8 +305,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	 * @return
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private Collection<Token> getDuplicateTokens(ConfirmationFacility facility, String baseState, 
-			Object transaction)
+	private Collection<Token> getDuplicateTokens(ConfirmationFacility facility, String baseState)
 	{
 		BaseConfirmationState state;
 		try
@@ -323,7 +317,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		}
 		
 		Set<Token> ret = new HashSet<>();
-		List<Token> tks = tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, transaction);
+		List<Token> tks = tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE);
 		for (Token tk : tks)
 		{
 			if (facility.isDuplicate(state, tk.getContentsString()))
@@ -361,14 +355,9 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	{
 		if (entity.getEntityId() != null)
 			return entity.getEntityId();
-		SqlSession sqlMap = db.getSqlSession(false);
-		try
-		{
-			return idResolver.getEntityId(entity, sqlMap);
-		} finally
-		{
-			db.releaseSqlSession(sqlMap);
-		}
+		return tx.runInTransacitonRet(() -> {
+			return idResolver.getEntityId(entity, SqlSessionTL.get());
+		});
 	}
 	
 	@Override
@@ -449,30 +438,17 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	private ConfirmationConfiguration getConfiguration(String typeToConfirm,
 			String nameToConfirm) throws EngineException
 	{
-		SqlSession sql = db.getSqlSession(true);
-		ConfirmationConfiguration configuration = null;
-		try
-		{
-			configuration = configurationDB.get(typeToConfirm + nameToConfirm, sql);
-			sql.commit();
-			return configuration;
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		return tx.runInTransacitonRet(() -> {
+			return configurationDB.get(typeToConfirm + nameToConfirm, SqlSessionTL.get());
+		});
 	}
 
 	private Collection<MessageTemplate> getAllTemplatesFromDB() throws EngineException
 	{
-		SqlSession sql = db.getSqlSession(false);
-		try
-		{
-			Map<String, MessageTemplate> templates = mtDB.getAllAsMap(sql);
+		return tx.runInTransacitonRet(() -> {
+			Map<String, MessageTemplate> templates = mtDB.getAllAsMap(SqlSessionTL.get());
 			return templates.values();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		});
 	}
 
 	private ConfirmationFacility<?> getFacility(String id) throws InternalException

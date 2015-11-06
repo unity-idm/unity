@@ -28,19 +28,19 @@ import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityConfirmation
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.cred.CredentialDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
+import pl.edu.icm.unity.engine.notifications.InternalFacilitiesManagement;
 import pl.edu.icm.unity.engine.notifications.NotificationFacility;
-import pl.edu.icm.unity.engine.notifications.NotificationProducerImpl;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.notifications.NotificationProducer;
 import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.api.registration.BaseRegistrationTemplateDef;
@@ -99,9 +99,10 @@ public class InternalRegistrationManagment
 	private IdentityTypesRegistry identityTypesRegistry;
 	private EngineHelper engineHelper;
 	private AttributesHelper attributesHelper;
-	private NotificationProducerImpl notificationProducer;
+	private NotificationProducer notificationProducer;
 	private LocalCredentialsRegistry authnRegistry;
-	private DBSessionManager dbSessionManager;
+
+	private InternalFacilitiesManagement facilitiesManagement;
 
 	@Autowired
 	public InternalRegistrationManagment(RegistrationFormDB formsDB,
@@ -109,9 +110,10 @@ public class InternalRegistrationManagment
 			DBAttributes dbAttributes, DBIdentities dbIdentities, DBGroups dbGroups,
 			IdentityTypesRegistry identityTypesRegistry, EngineHelper engineHelper,
 			AttributesHelper attributesHelper,
-			NotificationProducerImpl notificationProducer,
+			NotificationProducer notificationProducer,
 			LocalCredentialsRegistry authnRegistry, TokensManagement tokensMan,
-			UnityMessageSource msg, IdentitiesResolver idResolver, DBSessionManager dbSessionManager)
+			UnityMessageSource msg, IdentitiesResolver idResolver, 
+			InternalFacilitiesManagement facilitiesManagement)
 	{
 		super();
 		this.formsDB = formsDB;
@@ -128,7 +130,7 @@ public class InternalRegistrationManagment
 		this.tokensMan = tokensMan;
 		this.msg = msg;
 		this.idResolver = idResolver;
-		this.dbSessionManager = dbSessionManager;
+		this.facilitiesManagement = facilitiesManagement;
 	}
 
 	public List<RegistrationForm> getForms(SqlSession sql) throws EngineException
@@ -227,7 +229,7 @@ public class InternalRegistrationManagment
 				currentRequest.getRequestId(), form.getName(), true, publicComment,
 				internalComment, notificationsCfg, sql);
 		if (rewriteConfirmationToken)
-			rewriteRequestTokenInternal(currentRequest, initial.getEntityId(), sql);
+			rewriteRequestTokenInternal(currentRequest, initial.getEntityId());
 
 		return initial.getEntityId();
 	}
@@ -262,7 +264,7 @@ public class InternalRegistrationManagment
 		validateRequestAttributes(form, request, doCheckMandatoryAttr, sql);
 		validateRequestCode(form, request);
 		validateRequestCredentials(form, request, doCredentialCheckAndUpdate, sql);
-		validateRequestIdentities(form, request);
+		validateRequestIdentities(form, request, sql);
 
 		if (!form.isCollectComments() && request.getComments() != null)
 			throw new WrongArgumentException("This registration "
@@ -293,8 +295,8 @@ public class InternalRegistrationManagment
 		}
 	}
 
-	private void validateRequestAttributes(RegistrationForm form, RegistrationRequest request,boolean doCheckMandatoryAttr,
-			SqlSession sql) throws WrongArgumentException,
+	private void validateRequestAttributes(RegistrationForm form, RegistrationRequest request,
+			boolean doCheckMandatoryAttr, SqlSession sql) throws WrongArgumentException,
 			IllegalAttributeValueException, IllegalAttributeTypeException
 	{
 		validateParamsBase(form.getAttributeParams(), request.getAttributes(), doCheckMandatoryAttr, "attributes");
@@ -321,33 +323,25 @@ public class InternalRegistrationManagment
 		}
 	}
 
-	private void validateRequestIdentities(RegistrationForm form, RegistrationRequest request) 
+	private void validateRequestIdentities(RegistrationForm form, RegistrationRequest request, SqlSession sql) 
 			throws WrongArgumentException, IllegalIdentityValueException, IllegalTypeException
 	{
 		List<IdentityParam> requestedIds = request.getIdentities();
 		validateParamsBase(form.getIdentityParams(), requestedIds, true, "identities");
 		boolean identitiesFound = false;
-		SqlSession sql = dbSessionManager.getSqlSession(false);
-		try
+		for (int i=0; i<requestedIds.size(); i++)
 		{
-			for (int i=0; i<requestedIds.size(); i++)
-			{
-				IdentityParam idParam = requestedIds.get(i);
-				if (idParam == null)
-					continue;
-				if (idParam.getTypeId() == null || idParam.getValue() == null)
-					throw new WrongArgumentException("Identity nr " + i + " contains null values");
-				if (!form.getIdentityParams().get(i).getIdentityType().equals(idParam.getTypeId()))
-					throw new WrongArgumentException("Identity nr " + i + " must be of " 
-							+ idParam.getTypeId() + " type");
-				identityTypesRegistry.getByName(idParam.getTypeId()).validate(idParam.getValue());
-				identitiesFound = true;
-				checkIdentityIsNotPresent(idParam, sql);
-			}
-		} finally
-		{
-			sql.commit();
-			dbSessionManager.releaseSqlSession(sql);
+			IdentityParam idParam = requestedIds.get(i);
+			if (idParam == null)
+				continue;
+			if (idParam.getTypeId() == null || idParam.getValue() == null)
+				throw new WrongArgumentException("Identity nr " + i + " contains null values");
+			if (!form.getIdentityParams().get(i).getIdentityType().equals(idParam.getTypeId()))
+				throw new WrongArgumentException("Identity nr " + i + " must be of " 
+						+ idParam.getTypeId() + " type");
+			identityTypesRegistry.getByName(idParam.getTypeId()).validate(idParam.getValue());
+			identitiesFound = true;
+			checkIdentityIsNotPresent(idParam, sql);
 		}
 		if (!identitiesFound)
 			throw new WrongArgumentException("At least one identity must be defined in the "
@@ -482,7 +476,7 @@ public class InternalRegistrationManagment
 			RegistrationFormNotifications notificationsCfg, SqlSession sql)
 			throws EngineException
 	{
-		NotificationFacility notificationFacility = notificationProducer.getNotificationFacilityForChannel(
+		NotificationFacility notificationFacility = facilitiesManagement.getNotificationFacilityForChannel(
 				notificationsCfg.getChannel(), sql);
 		return notificationFacility.getAddressForRegistrationRequest(currentRequest, sql);
 	}
@@ -594,11 +588,11 @@ public class InternalRegistrationManagment
 		return ctx;
 	}
 
-	private void rewriteRequestTokenInternal(RegistrationRequestState finalReguest, long entityId, 
-			Object transaction) throws EngineException
+	private void rewriteRequestTokenInternal(RegistrationRequestState finalReguest, long entityId) 
+			throws EngineException
 	{
 
-		List<Token> tks = tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, transaction);
+		List<Token> tks = tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE);
 		for (Token tk : tks)
 		{
 			RegistrationConfirmationState state;
@@ -615,18 +609,18 @@ public class InternalRegistrationManagment
 				if (state.getFacilityId().equals(
 						RegistrationReqAttribiuteConfirmationState.FACILITY_ID))
 				{
-					rewriteSingleAttributeToken(finalReguest, tk, transaction, entityId);
+					rewriteSingleAttributeToken(finalReguest, tk, entityId);
 				} else if (state.getFacilityId().equals(
 						RegistrationReqIdentityConfirmationState.FACILITY_ID))
 				{
-					rewriteSingleIdentityToken(finalReguest, tk, transaction, entityId);
+					rewriteSingleIdentityToken(finalReguest, tk, entityId);
 				}
 			}
 		}
 	}
 
 	private void rewriteSingleIdentityToken(RegistrationRequestState finalReguest, Token tk, 
-			Object transaction, long entityId) throws EngineException
+			long entityId) throws EngineException
 	{
 		RegistrationReqIdentityConfirmationState oldState = new RegistrationReqIdentityConfirmationState(
 				new String(tk.getContents(), StandardCharsets.UTF_8));
@@ -644,7 +638,7 @@ public class InternalRegistrationManagment
 			}
 		}
 
-		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue(), transaction);
+		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue());
 		if (inRequest)
 		{
 			IdentityConfirmationState newstate = new IdentityConfirmationState(
@@ -655,13 +649,13 @@ public class InternalRegistrationManagment
 			tokensMan.addToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk
 					.getValue(), newstate.getSerializedConfiguration()
 					.getBytes(StandardCharsets.UTF_8), tk.getCreated(), tk
-					.getExpires(), transaction);
+					.getExpires());
 		}
 
 	}
 
 	private void rewriteSingleAttributeToken(RegistrationRequestState finalReguest, Token tk, 
-			Object transaction, long entityId) throws EngineException
+			long entityId) throws EngineException
 	{
 
 		RegistrationReqAttribiuteConfirmationState oldState = new RegistrationReqAttribiuteConfirmationState(
@@ -690,7 +684,7 @@ public class InternalRegistrationManagment
 				}
 			}
 		}
-		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue(), transaction);
+		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue());
 		if (inRequest)
 		{
 			AttribiuteConfirmationState newstate = new AttribiuteConfirmationState(
@@ -702,7 +696,7 @@ public class InternalRegistrationManagment
 			tokensMan.addToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk
 					.getValue(), newstate.getSerializedConfiguration()
 					.getBytes(StandardCharsets.UTF_8), tk.getCreated(), tk
-					.getExpires(), transaction);
+					.getExpires());
 		}
 	}
 }

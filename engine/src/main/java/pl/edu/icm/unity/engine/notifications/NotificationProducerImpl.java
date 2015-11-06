@@ -20,10 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.DBGroups;
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateDB;
 import pl.edu.icm.unity.db.generic.notify.NotificationChannelDB;
 import pl.edu.icm.unity.db.generic.notify.NotificationChannelHandler;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
+import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -44,10 +45,9 @@ import pl.edu.icm.unity.types.basic.NotificationChannel;
  * @author K. Benedyczak
  */
 @Component
-public class NotificationProducerImpl implements NotificationProducer
+public class NotificationProducerImpl implements NotificationProducer, InternalFacilitiesManagement
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, NotificationProducerImpl.class);
-	private DBSessionManager db;
 	private Ehcache channelsCache;
 	private NotificationFacilitiesRegistry facilitiesRegistry;
 	private NotificationChannelDB channelDB;
@@ -56,12 +56,11 @@ public class NotificationProducerImpl implements NotificationProducer
 	private UnityMessageSource msg;
 	
 	@Autowired
-	public NotificationProducerImpl(DBSessionManager db,
+	public NotificationProducerImpl(
 			CacheProvider cacheProvider, 
 			NotificationFacilitiesRegistry facilitiesRegistry, NotificationChannelDB channelDB,
 			DBGroups dbGroups, MessageTemplateDB mtDB, UnityMessageSource msg)
 	{
-		this.db = db;
 		this.dbGroups = dbGroups;
 		initCache(cacheProvider.getManager());
 		this.facilitiesRegistry = facilitiesRegistry;
@@ -103,6 +102,7 @@ public class NotificationProducerImpl implements NotificationProducer
 		return facility.getChannel(channelDesc.getConfiguration());
 	}
 
+	@Transactional(autoCommit=false)
 	@Override
 	public Future<NotificationStatus> sendNotification(EntityParam recipient,
 			String channelName, String templateId, Map<String, String> params, String locale, 
@@ -114,79 +114,62 @@ public class NotificationProducerImpl implements NotificationProducer
 		MessageTemplate template;
 		NotificationChannelInstance channel;
 		String recipientAddress;
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			template = loadTemplate(templateId, sql);
-			channel = loadChannel(channelName, sql);
-			NotificationFacility facility = facilitiesRegistry.getByName(channel.getFacilityId());
-			recipientAddress = facility.getAddressForEntity(recipient, sql, preferredAddress);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
-
+		SqlSession sql = SqlSessionTL.get();
+		template = loadTemplate(templateId, sql);
+		channel = loadChannel(channelName, sql);
+		NotificationFacility facility = facilitiesRegistry.getByName(channel.getFacilityId());
+		recipientAddress = facility.getAddressForEntity(recipient, sql, preferredAddress);
+		sql.commit();
 		Message templateMsg = template.getMessage(locale, msg.getDefaultLocaleCode(), params);
 		return channel.sendNotification(recipientAddress, templateMsg.getSubject(), templateMsg.getBody());
 	}
 	
 	@Override
+	@Transactional
 	public void sendNotificationToGroup(String group, String channelName,
 			String templateId, Map<String, String> params, String locale) throws EngineException
 	{
 		if (templateId == null)
 			return;
-		SqlSession sql = db.getSqlSession(true);
-		try
+		SqlSession sql = SqlSessionTL.get();
+
+		MessageTemplate template = loadTemplate(templateId, sql);
+		Message templateMsg = template.getMessage(locale, msg.getDefaultLocaleCode(), params);
+		String subject = templateMsg.getSubject();
+		String body = templateMsg.getBody();
+
+		GroupContents contents = dbGroups.getContents(group, GroupContents.MEMBERS, sql);
+
+		List<GroupMembership> memberships = contents.getMembers();
+		NotificationChannelInstance channel = loadChannel(channelName, sql);
+		NotificationFacility facility = facilitiesRegistry.getByName(channel.getFacilityId());
+
+		for (GroupMembership membership: memberships)
 		{
-			MessageTemplate template = loadTemplate(templateId, sql);
-			Message templateMsg = template.getMessage(locale, msg.getDefaultLocaleCode(), params);
-			String subject = templateMsg.getSubject();
-			String body = templateMsg.getBody();
-
-			GroupContents contents = dbGroups.getContents(group, GroupContents.MEMBERS, sql);
-
-			List<GroupMembership> memberships = contents.getMembers();
-			NotificationChannelInstance channel = loadChannel(channelName, sql);
-			NotificationFacility facility = facilitiesRegistry.getByName(channel.getFacilityId());
-
-			for (GroupMembership membership: memberships)
+			try
 			{
-				try
-				{
-					String recipientAddress = facility.getAddressForEntity(
-							new EntityParam(membership.getEntityId()), sql, null);
-					channel.sendNotification(recipientAddress, subject, body);
-				} catch (IllegalIdentityValueException e)
-				{
-					//OK - ignored
-				}
+				String recipientAddress = facility.getAddressForEntity(
+						new EntityParam(membership.getEntityId()), sql, null);
+				channel.sendNotification(recipientAddress, subject, body);
+			} catch (IllegalIdentityValueException e)
+			{
+				//OK - ignored
 			}
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
 		}
 	}
 
 	@Override
+	@Transactional(autoCommit=false)
 	public Future<NotificationStatus> sendNotification(String recipientAddress,
 			String channelName, String templateId, Map<String, String> params, String locale)
 			throws EngineException
 	{
 		NotificationChannelInstance channel;
 		MessageTemplate template;
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			channel = loadChannel(channelName, sql);
-			template = loadTemplate(templateId, sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		SqlSession sql = SqlSessionTL.get();
+		channel = loadChannel(channelName, sql);
+		template = loadTemplate(templateId, sql);
+		sql.commit();
 		Message templateMsg = template.getMessage(locale, msg.getDefaultLocaleCode(), params);
 		return channel.sendNotification(recipientAddress, templateMsg.getSubject(), templateMsg.getBody());
 	}
@@ -208,6 +191,7 @@ public class NotificationProducerImpl implements NotificationProducer
 		}
 	}
 	
+	@Override
 	public NotificationFacility getNotificationFacilityForChannel(String channelName, SqlSession sql) 
 			throws EngineException
 	{

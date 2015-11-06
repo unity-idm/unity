@@ -4,7 +4,10 @@
  */
 package pl.edu.icm.unity.engine.dbupdate;
 
+import java.io.IOException;
+
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +24,6 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 
 /**
- * Warning: this test works really only after mvn clean. Otherwise it barely test anything. 
  * @author K. Benedyczak
  */
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -40,7 +42,13 @@ public class TestDatabaseUpdate2_1_4
 
 	@Autowired
 	protected GroupsManagement groupsMan;
-
+	
+	@BeforeClass
+	public static void copyDB() throws IOException
+	{
+		DBUpdateUtil.installTestDB("2_1_4");
+	}
+	
 	@Test
 	public void test() throws Exception
 	{

@@ -15,6 +15,7 @@ import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
@@ -49,6 +50,8 @@ public class OAuthTokenEndpointFactory implements EndpointFactory
 	private AuthenticationProcessor authnProcessor;
 	@Autowired
 	private NetworkServer server;
+	@Autowired
+	private TransactionalRunner tx;
 	
 	@Override
 	public EndpointTypeDescription getDescription()
@@ -60,7 +63,7 @@ public class OAuthTokenEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new OAuthTokenEndpoint(msg, sessionMan, server, PATH, tokensMan, pkiMan, coordinator, 
-				authnProcessor);
+				authnProcessor, tx);
 	}
 
 }

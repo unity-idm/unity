@@ -11,16 +11,13 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import pl.edu.icm.unity.db.DBAttributes;
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.events.InvocationEventProducer;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
+import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -35,25 +32,30 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 /**
  * Implements attributes operations.
  * @author K. Benedyczak
  */
 @Component
+@InvocationEventProducer
+@Transactional
 public class PreferencesManagementImpl implements PreferencesManagement
 {
 	private ObjectMapper mapper;
-	private DBSessionManager db;
 	private DBAttributes dbAttributes;
 	private IdentitiesResolver idResolver;
 	private AuthorizationManager authz;
 	
 	@Autowired
 	public PreferencesManagementImpl(AttributeSyntaxFactoriesRegistry attrValueTypesReg,
-			DBSessionManager db, DBAttributes dbAttributes, 
+			DBAttributes dbAttributes, 
 			IdentitiesResolver idResolver, AuthorizationManager authz, ObjectMapper mapper)
 	{
-		this.db = db;
 		this.dbAttributes = dbAttributes;
 		this.idResolver = idResolver;
 		this.authz = authz;
@@ -72,21 +74,13 @@ public class PreferencesManagementImpl implements PreferencesManagement
 		if (value == null)
 			throw new IllegalAttributeValueException("Preference value must not be null");
 		entity.validateInitialization();
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			long entityId = idResolver.getEntityId(entity, sql);
-			authz.checkAuthorization(authz.isSelf(entityId), 
-					AuthzCapability.attributeModify);
-			String raw = getPreferenceAttribute(entityId, sql);
-			String updated = setPreference(raw, preferenceId, value);
-			storePreferenceAttribute(entityId, updated, sql);
-			
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		SqlSession sql = SqlSessionTL.get();
+		long entityId = idResolver.getEntityId(entity, sql);
+		authz.checkAuthorization(authz.isSelf(entityId), 
+				AuthzCapability.attributeModify);
+		String raw = getPreferenceAttribute(entityId, sql);
+		String updated = setPreference(raw, preferenceId, value);
+		storePreferenceAttribute(entityId, updated, sql);
 	}
 
 	/**
@@ -98,19 +92,12 @@ public class PreferencesManagementImpl implements PreferencesManagement
 		if (preferenceId == null)
 			throw new IllegalAttributeValueException("Preference must not be null");
 		entity.validateInitialization();
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			long entityId = idResolver.getEntityId(entity, sql);
-			authz.checkAuthorization(authz.isSelf(entityId), 
-					AuthzCapability.read);
-			String raw = getPreferenceAttribute(entityId, sql);
-			sql.commit();
-			return extractPreference(raw, preferenceId);
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		SqlSession sql = SqlSessionTL.get();
+		long entityId = idResolver.getEntityId(entity, sql);
+		authz.checkAuthorization(authz.isSelf(entityId), 
+				AuthzCapability.read);
+		String raw = getPreferenceAttribute(entityId, sql);
+		return extractPreference(raw, preferenceId);
 	}
 
 	/**
@@ -123,20 +110,13 @@ public class PreferencesManagementImpl implements PreferencesManagement
 		if (preferenceId == null)
 			throw new IllegalAttributeValueException("Preference must not be null");
 		entity.validateInitialization();
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			long entityId = idResolver.getEntityId(entity, sql);
-			authz.checkAuthorization(authz.isSelf(entityId), 
-					AuthzCapability.attributeModify);
-			String raw = getPreferenceAttribute(entityId, sql);
-			String updated = setPreference(raw, preferenceId, null);
-			storePreferenceAttribute(entityId, updated, sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		SqlSession sql = SqlSessionTL.get();
+		long entityId = idResolver.getEntityId(entity, sql);
+		authz.checkAuthorization(authz.isSelf(entityId), 
+				AuthzCapability.attributeModify);
+		String raw = getPreferenceAttribute(entityId, sql);
+		String updated = setPreference(raw, preferenceId, null);
+		storePreferenceAttribute(entityId, updated, sql);
 	}
 	
 	private String getPreferenceAttribute(long entityId, SqlSession sql) 

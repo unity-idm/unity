@@ -157,6 +157,8 @@ public class GroupsIE extends AbstractIE
 	
 	private void convertStatements(SqlSession sql, GroupBean legacy) throws IOException, IllegalGroupValueException
 	{
+		if (legacy.getContents() == null)
+			return;
 		ObjectNode root = (ObjectNode) jsonMapper.readTree(legacy.getContents());
 		ArrayNode oldStatements = (ArrayNode) root.get("attributeStatements");
 		if (oldStatements == null)

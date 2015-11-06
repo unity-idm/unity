@@ -23,31 +23,6 @@ public class MockTokensMan implements TokensManagement
 		
 	
 	@Override
-	public Object startTokenTransaction()
-	{
-		return null;
-	}
-
-	@Override
-	public void commitTokenTransaction(Object transaction)
-	{
-	}
-
-	@Override
-	public void closeTokenTransaction(Object transaction)
-	{
-	}
-
-	@Override
-	public void addToken(String type, String value, EntityParam owner, byte[] contents,
-			Date created, Date expires, Object transaction)
-			throws WrongArgumentException, IllegalIdentityValueException,
-			IllegalTypeException
-	{
-		addToken(type, value, owner, contents, created, expires);
-	}
-
-	@Override
 	public void addToken(String type, String value, EntityParam owner, byte[] contents,
 			Date created, Date expires) throws WrongArgumentException,
 			IllegalIdentityValueException, IllegalTypeException
@@ -61,23 +36,9 @@ public class MockTokensMan implements TokensManagement
 	}
 
 	@Override
-	public void removeToken(String type, String value, Object transaction)
-			throws WrongArgumentException
-	{
-		removeToken(type, value);
-	}
-
-	@Override
 	public void removeToken(String type, String value) throws WrongArgumentException
 	{
 		tokens.remove(type+value);
-	}
-
-	@Override
-	public void updateToken(String type, String value, Date expires, byte[] contents,
-			Object transaction) throws WrongArgumentException
-	{
-		updateToken(type, value, expires, contents);
 	}
 
 	@Override
@@ -91,26 +52,11 @@ public class MockTokensMan implements TokensManagement
 	}
 
 	@Override
-	public Token getTokenById(String type, String value, Object transaction)
-			throws WrongArgumentException
-	{
-		return getTokenById(type, value);
-	}
-
-	@Override
 	public Token getTokenById(String type, String value) throws WrongArgumentException
 	{
 		if (!tokens.containsKey(type+value))
 			throw new WrongArgumentException("no such token");
 		return tokens.get(type+value);
-	}
-
-	@Override
-	public List<Token> getOwnedTokens(String type, EntityParam entity,
-			Object transaction) throws IllegalIdentityValueException,
-			IllegalTypeException
-	{
-		return getOwnedTokens(type, entity);
 	}
 
 	@Override
@@ -133,25 +79,10 @@ public class MockTokensMan implements TokensManagement
 	}
 
 	@Override
-	public void addToken(String type, String value, byte[] contents, Date created,
-			Date expires, Object transaction) throws WrongArgumentException,
-			IllegalTypeException
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void addToken(String type, String value, byte[] contents, Date created, Date expires)
 			throws WrongArgumentException, IllegalTypeException
 	{
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public List<Token> getAllTokens(String type, Object transaction)
-	{
-		return getAllTokens(type, null);
 	}
 }

@@ -12,7 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.DBAttributes;
-import pl.edu.icm.unity.db.DBSessionManager;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
+import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.CredentialHelper;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
@@ -29,51 +30,36 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
 @Component
 public class CredentialHelperImpl implements CredentialHelper
 {
-	private DBSessionManager db;
 	private DBAttributes dbAttributes;
 	
 	
 	@Autowired
-	public CredentialHelperImpl(DBSessionManager db, DBAttributes dbAttributes)
+	public CredentialHelperImpl(DBAttributes dbAttributes)
 	{
-		this.db = db;
 		this.dbAttributes = dbAttributes;
 	}
 
 	@Override
+	@Transactional
 	public void updateCredential(long entityId, String credentialName, String value) throws EngineException 
 	{
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			updateCredentialInternal(entityId, credentialName, value, sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		updateCredentialInternal(entityId, credentialName, value, SqlSessionTL.get());
 	}
 	
 	@Override
+	@Transactional
 	public void setCredential(long entityId, String credentialName, String value, 
 			LocalCredentialVerificator handler) throws EngineException 
 	{
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			String credentialAttributeName = SystemAttributeTypes.CREDENTIAL_PREFIX+credentialName;
-			Map<String, AttributeExt<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(
-					entityId, "/", credentialAttributeName, sql);
-			Attribute<?> currentCredentialA = attributes.get(credentialAttributeName);
-			String currentCredential = currentCredentialA != null ? 
-					(String)currentCredentialA.getValues().get(0) : null;
-			String newValue = handler.prepareCredential(value, currentCredential);
-			updateCredentialInternal(entityId, credentialName, newValue, sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		SqlSession sql = SqlSessionTL.get();
+		String credentialAttributeName = SystemAttributeTypes.CREDENTIAL_PREFIX+credentialName;
+		Map<String, AttributeExt<?>> attributes = dbAttributes.getAllAttributesAsMapOneGroup(
+				entityId, "/", credentialAttributeName, sql);
+		Attribute<?> currentCredentialA = attributes.get(credentialAttributeName);
+		String currentCredential = currentCredentialA != null ? 
+				(String)currentCredentialA.getValues().get(0) : null;
+				String newValue = handler.prepareCredential(value, currentCredential);
+				updateCredentialInternal(entityId, credentialName, newValue, sql);
 	}
 	
 

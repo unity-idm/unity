@@ -124,8 +124,7 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 
 	private VerifiableEmail deserializeFromJson(JsonNode jsonN) throws InternalException
 	{
-		VerifiableEmail email = new VerifiableEmail();
-		email.setValue(jsonN.get("value").asText());
+		VerifiableEmail email = new VerifiableEmail(jsonN.get("value").asText());
 		ConfirmationInfo confirmationData = new ConfirmationInfo();
 		confirmationData.setSerializedConfiguration(jsonN.get("confirmationData").asText());
 		email.setConfirmationInfo(confirmationData);

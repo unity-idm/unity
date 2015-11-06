@@ -13,10 +13,11 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder.ConfirmedElementType;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityConfirmationState;
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
 import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
+import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
@@ -34,12 +35,12 @@ public class RegistrationReqIdentityFacility extends RegistrationFacility<Regist
 	private IdentityTypesRegistry identityTypesRegistry;
 
 	@Autowired
-	public RegistrationReqIdentityFacility(DBSessionManager db,
+	public RegistrationReqIdentityFacility(
 			RegistrationRequestDB requestDB, RegistrationFormDB formsDB,
 			InternalRegistrationManagment internalRegistrationManagment,
 			IdentityTypesRegistry identityTypesRegistry)
 	{
-		super(db, requestDB, formsDB, internalRegistrationManagment);
+		super(requestDB, formsDB, internalRegistrationManagment);
 		this.identityTypesRegistry = identityTypesRegistry;
 	}
 
@@ -76,28 +77,23 @@ public class RegistrationReqIdentityFacility extends RegistrationFacility<Regist
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
 	public void processAfterSendRequest(String state) throws EngineException
 	{
 		RegistrationReqIdentityConfirmationState idState = new RegistrationReqIdentityConfirmationState(state);
 		String requestId = idState.getRequestId();
-		SqlSession sql = db.getSqlSession(true);
-		try
+		SqlSession sql = SqlSessionTL.get();
+
+		RegistrationRequestState reqState = internalRegistrationManagment
+				.getRequest(requestId, sql);
+		for (IdentityParam id : reqState.getRequest().getIdentities())
 		{
-			RegistrationRequestState reqState = internalRegistrationManagment
-					.getRequest(requestId, sql);
-			for (IdentityParam id : reqState.getRequest().getIdentities())
-			{
-				if (id == null)
-					continue;
-				if (identityTypesRegistry.getByName(id.getTypeId()).isVerifiable())
-					updateConfirmationInfo(id, id.getValue());
-			}
-			requestDB.update(requestId, reqState, sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
+			if (id == null)
+				continue;
+			if (identityTypesRegistry.getByName(id.getTypeId()).isVerifiable())
+				updateConfirmationInfo(id, id.getValue());
 		}
+		requestDB.update(requestId, reqState, sql);
 	}
 
 	@Override

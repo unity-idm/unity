@@ -24,6 +24,7 @@ import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.webui.authn.AuthNTile;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
@@ -63,6 +64,19 @@ public class TranslationProfileSandboxUI extends SandboxUIBase
 				authenticatorsManagement, idsMan);
 		this.authenticationManagement = authenticationManagement;
 		this.authnRegistry = authnRegistry;
+	}
+
+	@Override
+	protected void customizeUI()
+	{
+		AuthNTile firstTile = selectorPanel.getTiles().get(0);
+		if (isProfileValidation())
+		{
+			firstTile.setCaption(msg.getMessage("SandboxUI.selectionTitle.profileValidation"));
+		} else
+		{
+			firstTile.setCaption(msg.getMessage("SandboxUI.selectionTitle.profileCreation"));
+		}
 	}
 
 	@Override

@@ -51,16 +51,15 @@ public class ContentsUpdater
 
 	public void update(long oldDbVersion, SqlSession sql) throws IOException, EngineException
 	{
-		if (oldDbVersion < InitDB.dbVersion2Long("2_1_5"))
-		{
-			log.info("Updating group attribute statements");
-			groupsIE.updateGroupStatements(sql);
-		}
-		if (oldDbVersion < InitDB.dbVersion2Long("2_1_3"))
-			updateIdentitites(sql, headerForVersion(oldDbVersion));
 		if (oldDbVersion < InitDB.dbVersion2Long("2_1_1"))
 			updateGeneric(sql);
-		
+		if (oldDbVersion < InitDB.dbVersion2Long("2_1_3"))
+			updateIdentitites(sql, headerForVersion(oldDbVersion));
+		if (oldDbVersion < InitDB.dbVersion2Long("2_1_5"))
+		{
+			log.info(" - Updating group attribute statements");
+			groupsIE.updateGroupStatements(sql);
+		}
 	}
 	
 	private DumpHeader headerForVersion(long version)

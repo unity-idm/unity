@@ -14,16 +14,19 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.InitDB;
 import pl.edu.icm.unity.db.export.ImportExport;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement;
+import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
+import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.ServerManagement;
+import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
@@ -37,24 +40,25 @@ import eu.unicore.util.configuration.ConfigurationException;
  * @author K. Benedyczak
  */
 @Component
+@InvocationEventProducer
 public class ServerManagementImpl implements ServerManagement
 {
 	private Logger log = Log.getLogger(Log.U_SERVER, ServerManagementImpl.class);
-	private DBSessionManager db;
 	private ImportExport dbDump;
 	private InitDB initDb;
 	private EngineInitialization engineInit;
 	private AuthorizationManager authz;
 	private UnityServerConfiguration config;
 	private InternalEndpointManagement endpointMan;
+	private TransactionalRunner tx;
 	
 	
 	@Autowired
-	public ServerManagementImpl(DBSessionManager db, ImportExport dbDump, InitDB initDb,
+	public ServerManagementImpl(TransactionalRunner tx, ImportExport dbDump, InitDB initDb,
 			EngineInitialization engineInit, InternalEndpointManagement endpointMan,
 			AuthorizationManager authz, ExecutorsService executorsService, UnityServerConfiguration config)
 	{
-		this.db = db;
+		this.tx = tx;
 		this.dbDump = dbDump;
 		this.initDb = initDb;
 		this.engineInit = engineInit;
@@ -76,28 +80,19 @@ public class ServerManagementImpl implements ServerManagement
 
 
 	@Override
+	@Transactional
 	public File exportDb() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		SqlSession sql = db.getSqlSession(true);
 		try
 		{
-			File ret;
-			try
-			{
-				ret = dbDump.exportDB(sql);
-			} catch (JsonGenerationException e)
-			{
-				throw new InternalException("Error creating JSON from database contents", e);
-			} catch (IOException e)
-			{
-				throw new InternalException("Error writing database contents to disk", e);
-			}
-			sql.commit();
-			return ret;
-		} finally
+			return dbDump.exportDB(SqlSessionTL.get());
+		} catch (JsonGenerationException e)
 		{
-			db.releaseSqlSession(sql);
+			throw new InternalException("Error creating JSON from database contents", e);
+		} catch (IOException e)
+		{
+			throw new InternalException("Error writing database contents to disk", e);
 		}
 	}
 
@@ -106,9 +101,9 @@ public class ServerManagementImpl implements ServerManagement
 	public void importDb(File from, boolean resetIndexes) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
+		
+		tx.runInTransaciton(() -> {
+			SqlSession sql = SqlSessionTL.get();
 			initDb.deleteEverything(sql, resetIndexes);
 			try
 			{
@@ -119,12 +114,7 @@ public class ServerManagementImpl implements ServerManagement
 						"Database should not be changed.", e);
 			}
 			initDb.runPostImportCleanup(sql);
-			
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		});
 		endpointMan.undeployAll();
 		engineInit.initializeDatabaseContents();
 	}

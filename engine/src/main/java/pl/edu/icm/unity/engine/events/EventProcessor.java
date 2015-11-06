@@ -59,6 +59,8 @@ public class EventProcessor
 		if (interestedListeners == null)
 			return;
 		
+		if (log.isDebugEnabled())
+			log.debug("Fire event: " + event);
 		for (EventListener listener: interestedListeners)
 		{
 			Callable<Void> task = listener.isLightweight() ? 

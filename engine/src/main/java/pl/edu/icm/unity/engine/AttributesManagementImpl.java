@@ -21,13 +21,15 @@ import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassDB;
 import pl.edu.icm.unity.db.generic.ac.AttributeClassUtil;
 import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.internal.AttributesHelper;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
+import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
@@ -37,6 +39,7 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
 import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.attributes.AttributeMetadataProvider;
 import pl.edu.icm.unity.server.attributes.AttributeValueSyntaxFactory;
@@ -56,10 +59,10 @@ import pl.edu.icm.unity.types.basic.IdentityType;
  * @author K. Benedyczak
  */
 @Component
+@InvocationEventProducer
 public class AttributesManagementImpl implements AttributesManagement
 {
 	private AttributeSyntaxFactoriesRegistry attrValueTypesReg;
-	private DBSessionManager db;
 	private AttributeClassDB acDB;
 	private DBAttributes dbAttributes;
 	private DBIdentities dbIdentities;
@@ -69,19 +72,19 @@ public class AttributesManagementImpl implements AttributesManagement
 	private AuthorizationManager authz;
 	private AttributesHelper attributesHelper;
 	private ConfirmationManager confirmationManager;
+	private TransactionalRunner txRunner;
 
 	
 	@Autowired
 	public AttributesManagementImpl(AttributeSyntaxFactoriesRegistry attrValueTypesReg,
-			DBSessionManager db, AttributeClassDB acDB, 
+			AttributeClassDB acDB, 
 			DBAttributes dbAttributes, DBIdentities dbIdentities, DBGroups dbGroups,
 			IdentitiesResolver idResolver,
 			AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
 			AuthorizationManager authz, AttributesHelper attributesHelper,
-			ConfirmationManager confirmationManager)
+			ConfirmationManager confirmationManager, TransactionalRunner txRunner)
 	{
 		this.attrValueTypesReg = attrValueTypesReg;
-		this.db = db;
 		this.acDB = acDB;
 		this.dbAttributes = dbAttributes;
 		this.dbIdentities = dbIdentities;
@@ -91,6 +94,7 @@ public class AttributesManagementImpl implements AttributesManagement
 		this.authz = authz;
 		this.attributesHelper = attributesHelper;
 		this.confirmationManager = confirmationManager;
+		this.txRunner = txRunner;
 	}
 
 	/**
@@ -112,55 +116,43 @@ public class AttributesManagementImpl implements AttributesManagement
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
 	public void addAttributeType(AttributeType toAdd) throws EngineException
 	{
 		toAdd.validateInitialization();
 		if (toAdd.getFlags() != 0)
 			throw new IllegalAttributeTypeException("Custom attribute types must not have any flags set");
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			Collection<AttributeType> existingAts = dbAttributes.getAttributeTypes(sql).values();
-			verifyATMetadata(toAdd, existingAts);
-			dbAttributes.addAttributeType(toAdd, sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		SqlSession sql = SqlSessionTL.sqlSession.get();
+		Collection<AttributeType> existingAts = dbAttributes.getAttributeTypes(sql).values();
+		verifyATMetadata(toAdd, existingAts);
+		dbAttributes.addAttributeType(toAdd, sql);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
 	public void updateAttributeType(AttributeType at) throws EngineException
 	{
 		at.validateInitialization();
 		if (at.getFlags() != 0)
 			throw new IllegalAttributeTypeException("Custom attribute types must not have any flags set");
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		SqlSession sql = db.getSqlSession(true);
-		try
+		SqlSession sql = SqlSessionTL.sqlSession.get();
+		AttributeType atExisting = dbAttributes.getAttributeType(at.getName(), sql);
+		if ((atExisting.getFlags() & AttributeType.TYPE_IMMUTABLE_FLAG) != 0)
 		{
-			AttributeType atExisting = dbAttributes.getAttributeType(at.getName(), sql);
-			if ((atExisting.getFlags() & AttributeType.TYPE_IMMUTABLE_FLAG) != 0)
-			{
-				updateImmutableAttributeType(sql, at, atExisting);
-				return;
-			}
-			Collection<AttributeType> existingAts = dbAttributes.getAttributeTypes(sql).values();
-			verifyATMetadata(at, existingAts);
-			
-			dbAttributes.updateAttributeType(at, sql);
-			if (!at.getValueType().getValueSyntaxId().equals(atExisting.getValueType().getValueSyntaxId()))
-				clearAttributeExtractionFromIdentities(at.getName(), sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
+			updateImmutableAttributeType(sql, at, atExisting);
+			return;
 		}
+		Collection<AttributeType> existingAts = dbAttributes.getAttributeTypes(sql).values();
+		verifyATMetadata(at, existingAts);
+
+		dbAttributes.updateAttributeType(at, sql);
+		if (!at.getValueType().getValueSyntaxId().equals(atExisting.getValueType().getValueSyntaxId()))
+			clearAttributeExtractionFromIdentities(at.getName(), sql);
 	}
 
 	/**
@@ -177,7 +169,6 @@ public class AttributesManagementImpl implements AttributesManagement
 		existing.setSelfModificable(at.isSelfModificable());
 		existing.setVisibility(at.getVisibility());
 		dbAttributes.updateAttributeType(existing, sql);
-		sql.commit();
 	}
 	
 	private void verifyATMetadata(AttributeType at, Collection<AttributeType> existingAts) 
@@ -223,25 +214,20 @@ public class AttributesManagementImpl implements AttributesManagement
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
 	public void removeAttributeType(String id, boolean deleteInstances) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			AttributeType at = dbAttributes.getAttributeType(id, sql);
-			if ((at.getFlags() & (AttributeType.TYPE_IMMUTABLE_FLAG | 
-					AttributeType.INSTANCES_IMMUTABLE_FLAG)) != 0)
-				throw new IllegalAttributeTypeException("The attribute type with name " + id + 
-						" can not be manually removed");
+		SqlSession sql = SqlSessionTL.sqlSession.get();
 
-			dbAttributes.removeAttributeType(id, deleteInstances, sql);
-			clearAttributeExtractionFromIdentities(id, sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		AttributeType at = dbAttributes.getAttributeType(id, sql);
+		if ((at.getFlags() & (AttributeType.TYPE_IMMUTABLE_FLAG | 
+				AttributeType.INSTANCES_IMMUTABLE_FLAG)) != 0)
+			throw new IllegalAttributeTypeException("The attribute type with name " + id + 
+					" can not be manually removed");
+
+		dbAttributes.removeAttributeType(id, deleteInstances, sql);
+		clearAttributeExtractionFromIdentities(id, sql);
 	}
 
 	private void clearAttributeExtractionFromIdentities(String id, SqlSession sql)
@@ -272,35 +258,21 @@ public class AttributesManagementImpl implements AttributesManagement
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional(noTransaction=true)
 	public Collection<AttributeType> getAttributeTypes() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.readInfo);
-		SqlSession sql = db.getSqlSession(false);
-		try
-		{
-			Collection<AttributeType> ret =  dbAttributes.getAttributeTypes(sql).values();
-			sql.commit();
-			return ret;
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		SqlSession sql = SqlSessionTL.sqlSession.get();
+		return dbAttributes.getAttributeTypes(sql).values();
 	}
 
 	@Override
+	@Transactional(noTransaction=true)
 	public Map<String, AttributeType> getAttributeTypesAsMap() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.readInfo);
-		SqlSession sql = db.getSqlSession(false);
-		try
-		{
-			Map<String, AttributeType> ret =  dbAttributes.getAttributeTypes(sql);
-			sql.commit();
-			return ret;
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		SqlSession sql = SqlSessionTL.sqlSession.get();
+		return dbAttributes.getAttributeTypes(sql);
 	}
 
 
@@ -308,107 +280,90 @@ public class AttributesManagementImpl implements AttributesManagement
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
 	public void addAttributeClass(AttributesClass clazz) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		String addedName = clazz.getName();
 		Set<String> missingParents = new HashSet<>(clazz.getParentClasses());
-		SqlSession sql = db.getSqlSession(true);
-		try
+		SqlSession sql = SqlSessionTL.sqlSession.get();
+		Map<String, AttributesClass> allClasses = AttributeClassUtil.resolveAttributeClasses(acDB, sql);
+		for (String c: allClasses.keySet())
 		{
-			Map<String, AttributesClass> allClasses = AttributeClassUtil.resolveAttributeClasses(acDB, sql);
-			for (String c: allClasses.keySet())
-			{
-				if (addedName.equals(c))
-					throw new WrongArgumentException("The attribute class " + addedName + " already exists");
-				missingParents.remove(c);
-			}
-			if (!missingParents.isEmpty())
-				throw new WrongArgumentException("The attribute class parent(s): " + missingParents + 
-						" do(es) not exist");
-			
-			AttributeClassHelper.cleanupClass(clazz, allClasses);
-			acDB.insert(clazz.getName(), clazz, sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
+			if (addedName.equals(c))
+				throw new WrongArgumentException("The attribute class " + addedName + " already exists");
+			missingParents.remove(c);
 		}
+		if (!missingParents.isEmpty())
+			throw new WrongArgumentException("The attribute class parent(s): " + missingParents + 
+					" do(es) not exist");
+
+		AttributeClassHelper.cleanupClass(clazz, allClasses);
+		acDB.insert(clazz.getName(), clazz, sql);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
 	public void removeAttributeClass(String id) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		SqlSession sql = db.getSqlSession(true);
-		try
+		SqlSession sql = SqlSessionTL.sqlSession.get();
+		Map<String, AttributesClass> allClasses = AttributeClassUtil.resolveAttributeClasses(acDB, sql);
+		for (AttributesClass ac: allClasses.values())
 		{
-			Map<String, AttributesClass> allClasses = AttributeClassUtil.resolveAttributeClasses(acDB, sql);
-			for (AttributesClass ac: allClasses.values())
-			{
-				if (ac.getParentClasses().contains(id))
-					throw new SchemaConsistencyException("Can not remove attribute class " + id + 
-							" as it is a parent of the attribute class " + ac.getName());
-			}
-			Set<Long> entities = dbAttributes.getEntitiesWithStringAttribute(SystemAttributeTypes.ATTRIBUTE_CLASSES, id, sql);
-			if (entities.size() > 0)
-			{
-				String info = String.valueOf(entities.iterator().next());
-				if (entities.size() > 1)
-					info += " and " + (entities.size()-1) + " more";
-				throw new SchemaConsistencyException("The attribute class " + id + 
-						" can not be removed as there are entities with this class set. " +
-						"Ids of entities: " + info);
-			}
-			
-			Set<String> groupsUsing = dbGroups.getGroupsUsingAc(id, sql);
-			if (groupsUsing.size() > 0)
-				throw new SchemaConsistencyException("The attribute class " + id + 
-						" can not be removed as there are groups with have this class set: " +
-						groupsUsing.toString());
-
-			acDB.remove(id, sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
+			if (ac.getParentClasses().contains(id))
+				throw new SchemaConsistencyException("Can not remove attribute class " + id + 
+						" as it is a parent of the attribute class " + ac.getName());
 		}
+		Set<Long> entities = dbAttributes.getEntitiesWithStringAttribute(
+				SystemAttributeTypes.ATTRIBUTE_CLASSES, id, sql);
+		if (entities.size() > 0)
+		{
+			String info = String.valueOf(entities.iterator().next());
+			if (entities.size() > 1)
+				info += " and " + (entities.size()-1) + " more";
+			throw new SchemaConsistencyException("The attribute class " + id + 
+					" can not be removed as there are entities with this class set. " +
+					"Ids of entities: " + info);
+		}
+
+		Set<String> groupsUsing = dbGroups.getGroupsUsingAc(id, sql);
+		if (groupsUsing.size() > 0)
+			throw new SchemaConsistencyException("The attribute class " + id + 
+					" can not be removed as there are groups with have this class set: " +
+					groupsUsing.toString());
+
+		acDB.remove(id, sql);
 	}
 
 	@Override
+	@Transactional
 	public void updateAttributeClass(AttributesClass updated) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			Map<String, AttributesClass> allClasses = AttributeClassUtil.resolveAttributeClasses(acDB, sql);
-			AttributesClass original = allClasses.get(updated.getName());
-			if (original == null)
-				throw new WrongArgumentException("There is no attribute class '" + 
-						updated.getName() + "'");
-			String acName = original.getName();
-			
-			AttributeClassHelper originalEffective = new AttributeClassHelper(allClasses, 
-					Collections.singleton(acName));
-			
-			allClasses.put(acName, updated);
-			AttributeClassHelper updatedEffective = new AttributeClassHelper(allClasses, 
-					Collections.singleton(acName));
-			
-			boolean restrictiveChange = updatedEffective.isRestricting(originalEffective);
-			if (restrictiveChange)
-				checkIfUnused(acName, allClasses, sql);
+		SqlSession sql = SqlSessionTL.sqlSession.get();
+		Map<String, AttributesClass> allClasses = AttributeClassUtil.resolveAttributeClasses(acDB, sql);
+		AttributesClass original = allClasses.get(updated.getName());
+		if (original == null)
+			throw new WrongArgumentException("There is no attribute class '" + 
+					updated.getName() + "'");
+		String acName = original.getName();
 
-			acDB.update(acName, updated, sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		AttributeClassHelper originalEffective = new AttributeClassHelper(allClasses, 
+				Collections.singleton(acName));
+
+		allClasses.put(acName, updated);
+		AttributeClassHelper updatedEffective = new AttributeClassHelper(allClasses, 
+				Collections.singleton(acName));
+
+		boolean restrictiveChange = updatedEffective.isRestricting(originalEffective);
+		if (restrictiveChange)
+			checkIfUnused(acName, allClasses, sql);
+
+		acDB.update(acName, updated, sql);
 	}
 
 	private void checkIfUnused(String acName, Map<String, AttributesClass> allClasses, SqlSession sql) 
@@ -446,72 +401,53 @@ public class AttributesManagementImpl implements AttributesManagement
 	}
 	
 	@Override
+	@Transactional
 	public Map<String, AttributesClass> getAttributeClasses() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.readInfo);
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			Map<String, AttributesClass> allClasses = AttributeClassUtil.resolveAttributeClasses(acDB, sql);
-			sql.commit();
-			return allClasses;
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		SqlSession sql = SqlSessionTL.sqlSession.get();
+		return AttributeClassUtil.resolveAttributeClasses(acDB, sql);
 	}
 
 	@Override
+	@Transactional
 	public void setEntityAttributeClasses(EntityParam entity, String group, Collection<String> classes)
 			throws EngineException
 	{
 		entity.validateInitialization();
 		authz.checkAuthorization(group, AuthzCapability.attributeModify);
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			long entityId = idResolver.getEntityId(entity, sql);
-			attributesHelper.setAttributeClasses(entityId, group, classes, sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		SqlSession sql = SqlSessionTL.sqlSession.get();
+		long entityId = idResolver.getEntityId(entity, sql);
+		attributesHelper.setAttributeClasses(entityId, group, classes, sql);
 	}
 	
 
 	@Override
+	@Transactional
 	public Collection<AttributesClass> getEntityAttributeClasses(EntityParam entity,
 			String group) throws EngineException
 	{
 		entity.validateInitialization();
-		SqlSession sql = db.getSqlSession(true);
-		try
+		SqlSession sql = SqlSessionTL.sqlSession.get();
+		long entityId = idResolver.getEntityId(entity, sql);
+		authz.checkAuthorization(group, AuthzCapability.read);
+		Collection<AttributeExt<?>> attrs = dbAttributes.getAllAttributes(entityId, group, false, 
+				SystemAttributeTypes.ATTRIBUTE_CLASSES, sql);
+		if (attrs.size() == 0)
+			return Collections.emptySet();
+		AttributeExt<?> attr = attrs.iterator().next();
+		@SuppressWarnings("unchecked")
+		List<String> classes = (List<String>) attr.getValues();
+
+		Map<String, AttributesClass> allClasses = AttributeClassUtil.resolveAttributeClasses(acDB, sql);
+		Set<AttributesClass> ret = new HashSet<>(classes.size());
+		for (String clazz: classes)
 		{
-			long entityId = idResolver.getEntityId(entity, sql);
-			authz.checkAuthorization(group, AuthzCapability.read);
-			Collection<AttributeExt<?>> attrs = dbAttributes.getAllAttributes(entityId, group, false, 
-					SystemAttributeTypes.ATTRIBUTE_CLASSES, sql);
-			if (attrs.size() == 0)
-				return Collections.emptySet();
-			AttributeExt<?> attr = attrs.iterator().next();
-			@SuppressWarnings("unchecked")
-			List<String> classes = (List<String>) attr.getValues();
-			
-			Map<String, AttributesClass> allClasses = AttributeClassUtil.resolveAttributeClasses(acDB, sql);
-			Set<AttributesClass> ret = new HashSet<>(classes.size());
-			for (String clazz: classes)
-			{
-				AttributesClass ac = allClasses.get(clazz);
-				if (ac != null)
-					ret.add(ac);
-			}
-			sql.commit();
-			return ret;
-		} finally
-		{
-			db.releaseSqlSession(sql);
+			AttributesClass ac = allClasses.get(clazz);
+			if (ac != null)
+				ret.add(ac);
 		}
+		return ret;
 	}
 	
 	/**
@@ -557,10 +493,9 @@ public class AttributesManagementImpl implements AttributesManagement
 	{
 		attribute.validateInitialization();
 		entity.validateInitialization(); 
-		SqlSession sql = db.getSqlSession(true);
-		boolean fullAuthz;
-		try
-		{
+		txRunner.runInTransaciton(() -> {
+			SqlSession sql = SqlSessionTL.get();
+			boolean fullAuthz;
 			//Important - attributes can be also set as a result of addMember and addEntity.
 			//  when changing this method, verify if those needs an update too.
 			long entityId = idResolver.getEntityId(entity, sql);
@@ -569,13 +504,7 @@ public class AttributesManagementImpl implements AttributesManagement
 			checkIfAllowed(entityId, attribute.getGroupPath(), attribute.getName(), sql);
 
 			attributesHelper.addAttribute(sql, entityId, update, at, fullAuthz, attribute);
-			
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
-		
+		});
 		confirmationManager.sendVerificationQuiet(entity, attribute, false);
 	}
 	
@@ -597,6 +526,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
 	public void removeAttribute(EntityParam entity, String groupPath, String attributeTypeId)
 			throws EngineException
 	{
@@ -606,31 +536,25 @@ public class AttributesManagementImpl implements AttributesManagement
 			throw new IllegalAttributeValueException("Attribute name must not be null");
 		entity.validateInitialization();
 
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			long entityId = idResolver.getEntityId(entity, sql);
-			AttributeType at = dbAttributes.getAttributeType(attributeTypeId, sql);
-			if (at.isInstanceImmutable())
-				throw new SchemaConsistencyException("The attribute with name " + at.getName() + 
-						" can not be manually modified");
-			authz.checkAuthorization(at.isSelfModificable() && authz.isSelf(entityId),
-					groupPath, AuthzCapability.attributeModify);
-			
-			checkIfMandatory(entityId, groupPath, attributeTypeId, sql);
-			
-			dbAttributes.removeAttribute(entityId, groupPath, attributeTypeId, sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}
+		SqlSession sql = SqlSessionTL.sqlSession.get();
+		long entityId = idResolver.getEntityId(entity, sql);
+		AttributeType at = dbAttributes.getAttributeType(attributeTypeId, sql);
+		if (at.isInstanceImmutable())
+			throw new SchemaConsistencyException("The attribute with name " + at.getName() + 
+					" can not be manually modified");
+		authz.checkAuthorization(at.isSelfModificable() && authz.isSelf(entityId),
+				groupPath, AuthzCapability.attributeModify);
+		
+		checkIfMandatory(entityId, groupPath, attributeTypeId, sql);
+		
+		dbAttributes.removeAttribute(entityId, groupPath, attributeTypeId, sql);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
 	public Collection<AttributeExt<?>> getAttributes(EntityParam entity, String groupPath,
 			String attributeTypeId) throws EngineException
 	{
@@ -644,6 +568,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
 	public Collection<AttributeExt<?>> getAllAttributes(EntityParam entity, boolean effective, String groupPath,
 			String attributeTypeId, boolean allowDegrade) throws EngineException
 	{
@@ -681,18 +606,11 @@ public class AttributesManagementImpl implements AttributesManagement
 			String attributeTypeName, AuthzCapability[] requiredCapability, boolean allowDisabled) throws EngineException
 	{
 		entity.validateInitialization();
-		SqlSession sql = db.getSqlSession(true);
-		try
-		{
-			long entityId = idResolver.getEntityId(entity, sql);
-			authz.checkAuthorization(authz.isSelf(entityId), groupPath, requiredCapability);
-			Collection<AttributeExt<?>> ret = attributesHelper.getAllAttributesInternal(sql, entityId, 
-					effective, groupPath, attributeTypeName, allowDisabled);
-			sql.commit();
-			return ret;
-		} finally
-		{
-			db.releaseSqlSession(sql);
-		}	
+		SqlSession sql = SqlSessionTL.sqlSession.get();
+		long entityId = idResolver.getEntityId(entity, sql);
+		authz.checkAuthorization(authz.isSelf(entityId), groupPath, requiredCapability);
+		Collection<AttributeExt<?>> ret = attributesHelper.getAllAttributesInternal(sql, entityId, 
+				effective, groupPath, attributeTypeName, allowDisabled);
+		return ret;
 	}
 }

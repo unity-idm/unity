@@ -15,7 +15,8 @@ import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder.ConfirmedEl
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
 import pl.edu.icm.unity.db.DBIdentities;
-import pl.edu.icm.unity.db.DBSessionManager;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
+import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -30,9 +31,9 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 public class IdentityFacility extends UserFacility<IdentityConfirmationState>
 {
 	@Autowired
-	protected IdentityFacility(DBSessionManager db, DBIdentities dbIdentities)
+	protected IdentityFacility(DBIdentities dbIdentities)
 	{
-		super(db, dbIdentities);
+		super(dbIdentities);
 	}
 
 	@Override
@@ -83,26 +84,20 @@ public class IdentityFacility extends UserFacility<IdentityConfirmationState>
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
 	public void processAfterSendRequest(String state) throws EngineException
 	{
 		IdentityConfirmationState idState = new IdentityConfirmationState(state);
-		SqlSession sql = db.getSqlSession(true);
-		try
+		SqlSession sql = SqlSessionTL.get();
+		Identity[] ids = dbIdentities.getIdentitiesForEntityNoContext(
+				idState.getOwnerEntityId(), sql);
+		for (IdentityParam id : ids)
 		{
-			Identity[] ids = dbIdentities.getIdentitiesForEntityNoContext(
-					idState.getOwnerEntityId(), sql);
-			for (IdentityParam id : ids)
+			if (id.getTypeId().equals(idState.getType()) && id.getValue().equals(idState.getValue()))
 			{
-				if (id.getTypeId().equals(idState.getType()) && id.getValue().equals(idState.getValue()))
-				{
-					updateConfirmationInfo(id, idState.getValue());
-					dbIdentities.updateIdentityConfirmationInfo(id, id.getConfirmationInfo(), sql);
-				}
+				updateConfirmationInfo(id, idState.getValue());
+				dbIdentities.updateIdentityConfirmationInfo(id, id.getConfirmationInfo(), sql);
 			}
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
 		}
 	}
 

@@ -10,10 +10,12 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.realm.RealmDB;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.events.InvocationEventProducer;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
+import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.RealmsManagement;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -23,17 +25,17 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
  * @author K. Benedyczak
  */
 @Component
+@InvocationEventProducer
+@Transactional
 public class RealmsManagementImpl implements RealmsManagement
 {
-	private DBSessionManager db;
 	private RealmDB realmDB;
 	private AuthorizationManager authz;
 	
 	@Autowired
-	public RealmsManagementImpl(DBSessionManager db, RealmDB realmDB, AuthorizationManager authz)
+	public RealmsManagementImpl(RealmDB realmDB, AuthorizationManager authz)
 	{
 		super();
-		this.db = db;
 		this.realmDB = realmDB;
 		this.authz = authz;
 	}
@@ -42,17 +44,13 @@ public class RealmsManagementImpl implements RealmsManagement
 	public void addRealm(AuthenticationRealm realm) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		SqlSession sql = db.getSqlSession(true);
+		SqlSession sql = SqlSessionTL.get();
 		try
 		{
 			realmDB.insert(realm.getName(), realm, sql);
-			sql.commit();
 		} catch (Exception e)
 		{
 			throw new EngineException("Unable to create a realm: " + e.getMessage(), e);
-		} finally
-		{
-			db.releaseSqlSession(sql);
 		}
 	}
 
@@ -60,18 +58,13 @@ public class RealmsManagementImpl implements RealmsManagement
 	public AuthenticationRealm getRealm(String name) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		SqlSession sql = db.getSqlSession(true);
+		SqlSession sql = SqlSessionTL.get();
 		try
 		{
-			AuthenticationRealm ret = realmDB.get(name, sql);
-			sql.commit();
-			return ret;
+			return realmDB.get(name, sql);
 		} catch (Exception e)
 		{
 			throw new EngineException("Unable to retrieve a realm: " + e.getMessage(), e);
-		} finally
-		{
-			db.releaseSqlSession(sql);
 		}
 	}
 
@@ -79,18 +72,13 @@ public class RealmsManagementImpl implements RealmsManagement
 	public Collection<AuthenticationRealm> getRealms() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		SqlSession sql = db.getSqlSession(true);
+		SqlSession sql = SqlSessionTL.get();
 		try
 		{
-			Collection<AuthenticationRealm> ret = realmDB.getAll(sql);
-			sql.commit();
-			return ret;
+			return realmDB.getAll(sql);
 		} catch (Exception e)
 		{
 			throw new EngineException("Unable to retrieve realms: " + e.getMessage(), e);
-		} finally
-		{
-			db.releaseSqlSession(sql);
 		}
 	}
 
@@ -98,17 +86,13 @@ public class RealmsManagementImpl implements RealmsManagement
 	public void updateRealm(AuthenticationRealm realm) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		SqlSession sql = db.getSqlSession(true);
+		SqlSession sql = SqlSessionTL.get();
 		try
 		{
 			realmDB.update(realm.getName(), realm, sql);
-			sql.commit();
 		} catch (Exception e)
 		{
 			throw new EngineException("Unable to update a realm: " + e.getMessage(), e);
-		} finally
-		{
-			db.releaseSqlSession(sql);
 		}
 	}
 
@@ -116,17 +100,13 @@ public class RealmsManagementImpl implements RealmsManagement
 	public void removeRealm(String name) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		SqlSession sql = db.getSqlSession(true);
+		SqlSession sql = SqlSessionTL.get();
 		try
 		{
 			realmDB.remove(name, sql);
-			sql.commit();
 		} catch (Exception e)
 		{
 			throw new EngineException("Unable to remove a realm: " + e.getMessage(), e);
-		} finally
-		{
-			db.releaseSqlSession(sql);
 		}
 	}
 }

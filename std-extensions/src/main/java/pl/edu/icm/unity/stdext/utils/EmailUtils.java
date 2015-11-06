@@ -46,8 +46,9 @@ public class EmailUtils
 		return null;
 	}
 	
-	public static VerifiableEmail convertFromString(String stringRepresentation)
+	public static VerifiableEmail convertFromString(String stringRepresentationRaw)
 	{
+		String stringRepresentation = stringRepresentationRaw.trim();
 		String email = stringRepresentation;
 		boolean confirmed = false;
 		if (stringRepresentation.endsWith(CONFIRMED_POSTFIX))
@@ -72,7 +73,7 @@ public class EmailUtils
 		return ret;
 	}
 
-	private static List<String> extractTags(String address)
+	public static List<String> extractTags(String address)
 	{
 		String local = address.substring(0, address.indexOf('@'));
 		
@@ -89,7 +90,7 @@ public class EmailUtils
 		}
 	}
 	
-	private static String removeTags(String address)
+	public static String removeTags(String address)
 	{
 		int atPos = address.indexOf('@');
 		String local = address.substring(0, atPos);

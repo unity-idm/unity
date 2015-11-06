@@ -13,10 +13,11 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder.ConfirmedElementType;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.states.RegistrationReqAttribiuteConfirmationState;
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
 import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
+import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -35,11 +36,10 @@ public class RegistrationReqAttributeFacility extends RegistrationFacility<Regis
 	public static final String NAME = "registrationRequestVerificator";
 
 	@Autowired
-	public RegistrationReqAttributeFacility(DBSessionManager db,
-			RegistrationRequestDB requestDB, RegistrationFormDB formsDB,
+	public RegistrationReqAttributeFacility(RegistrationRequestDB requestDB, RegistrationFormDB formsDB,
 			InternalRegistrationManagment internalRegistrationManagment)
 	{
-		super(db, requestDB, formsDB, internalRegistrationManagment);
+		super(requestDB, formsDB, internalRegistrationManagment);
 	}
 
 	@Override
@@ -72,35 +72,29 @@ public class RegistrationReqAttributeFacility extends RegistrationFacility<Regis
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
 	public void processAfterSendRequest(String state) throws EngineException
 	{
 		RegistrationReqAttribiuteConfirmationState attrState = 
 				new RegistrationReqAttribiuteConfirmationState(state);
 		String requestId = attrState.getRequestId();
-		SqlSession sql = db.getSqlSession(true);
-		try
+		SqlSession sql = SqlSessionTL.get();
+		RegistrationRequestState reqState = internalRegistrationManagment.getRequest(requestId, sql);
+		for (Attribute<?> attr : reqState.getRequest().getAttributes())
 		{
-			RegistrationRequestState reqState = internalRegistrationManagment.getRequest(requestId, sql);
-			for (Attribute<?> attr : reqState.getRequest().getAttributes())
+			if (attr == null)
+				continue;
+
+			if (attr.getAttributeSyntax().isVerifiable())
 			{
-				if (attr == null)
-					continue;
-				
-				if (attr.getAttributeSyntax().isVerifiable())
+				for (Object val : attr.getValues())
 				{
-					for (Object val : attr.getValues())
-					{
-						updateConfirmationInfo((VerifiableElement) val,
-								attrState.getValue());
-					}
+					updateConfirmationInfo((VerifiableElement) val,
+							attrState.getValue());
 				}
 			}
-			requestDB.update(requestId, reqState, sql);
-			sql.commit();
-		} finally
-		{
-			db.releaseSqlSession(sql);
 		}
+		requestDB.update(requestId, reqState, sql);
 	}
 
 	@Override
