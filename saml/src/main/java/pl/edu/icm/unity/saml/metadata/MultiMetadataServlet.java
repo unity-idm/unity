@@ -35,6 +35,11 @@ public class MultiMetadataServlet extends MetadataServlet
 		this.servletPath = servletPath;
 	}
 	
+	public synchronized void updateProvider(String path, MetadataProvider provider)
+	{
+		metaProviders.put(path, provider);
+	}
+	
 	public synchronized void addProvider(String path, MetadataProvider provider)
 	{
 		if (!metaProviders.containsKey(path))
