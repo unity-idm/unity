@@ -128,7 +128,7 @@ public class PostRegistrationHandler
 			if (form.getRedirectAfterSubmit() != null)
 			{
 				String redirect = new RegistrationRedirectURLBuilder(form, null, 
-						Status.submittedWithError).setErrorCode(e.toString()).toString();
+						Status.submittedWithError).setErrorCode(e.toString()).build();
 				log.warn("Form submission finished with error", e);
 				redirectOrInform(redirect);
 			} else
