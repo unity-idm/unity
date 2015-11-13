@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.stdext.util;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -29,5 +32,29 @@ public class TestEmailUtils
 		
 		VerifiableEmail converted4 = EmailUtils.convertFromString(" a@b.com   ");
 		Assert.assertEquals("a@b.com", converted4.getValue());
+	}
+	
+	@Test
+	public void emailWithTagIsEqualToNotTagged()
+	{
+		VerifiableEmail email = new VerifiableEmail("a+tag1@ex.com");
+		
+		assertThat(email, equalTo(new VerifiableEmail("a@ex.com ")));
+	}
+
+	@Test
+	public void emailWithoutTagIsEqualToTagged()
+	{
+		VerifiableEmail email = new VerifiableEmail("a@ex.com");
+		
+		assertThat(email, equalTo(new VerifiableEmail("a+tag@ex.com ")));
+	}
+
+	@Test
+	public void emailsWithTagsAreEqual()
+	{
+		VerifiableEmail email = new VerifiableEmail("a+tag1@ex.com");
+		
+		assertThat(email, equalTo(new VerifiableEmail(" a+tag1@ex.com ")));
 	}
 }

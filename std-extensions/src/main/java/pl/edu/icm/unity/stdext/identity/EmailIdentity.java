@@ -96,7 +96,7 @@ public class EmailIdentity extends AbstractStaticIdentityTypeProvider
 	public String getComparableValue(String from, String realm, String target)
 			throws IllegalIdentityValueException
 	{
-		return from;
+		return new VerifiableEmail(from).getComparableValue();
 	}
 
 	/**

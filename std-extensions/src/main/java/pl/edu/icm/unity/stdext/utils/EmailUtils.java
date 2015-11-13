@@ -65,7 +65,6 @@ public class EmailUtils
 		}
 		
 		List<String> tags = extractTags(email);
-		email = removeTags(email);
 		VerifiableEmail ret = new VerifiableEmail(email);
 		ret.setTags(tags);
 		if (confirmed)

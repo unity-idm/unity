@@ -4,10 +4,12 @@
  */
 package pl.edu.icm.unity.engine;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -16,6 +18,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +55,7 @@ import pl.edu.icm.unity.server.translation.out.TranslationInput;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
@@ -659,6 +663,47 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 
 		assertNotNull(processed.getLocalMappedPrincipal());
 		assertEquals(toBeMappedOn.getEntityId(), processed.getLocalMappedPrincipal().getEntityId());
+	}
+	
+	@Test
+	public void emailTagsArePreserved() throws Exception
+	{
+		attrsMan.addAttributeType(new AttributeType("email", new VerifiableEmailAttributeSyntax()));
+		
+		List<InputTranslationRule> rules = new ArrayList<>();
+		InputTranslationAction action1 = (InputTranslationAction) tactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+				EmailIdentity.ID, 
+				"'a+tag@example.com'", 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				IdentityEffectMode.CREATE_OR_MATCH.toString());
+		rules.add(new InputTranslationRule(action1, new TranslationCondition()));
+		InputTranslationAction action2 = (InputTranslationAction) tactionReg.getByName(MapAttributeActionFactory.NAME).getInstance(
+				"email", 
+				"/",
+				"'b+tag@example.com'",
+				AttributeVisibility.full.toString(), 
+				AttributeEffectMode.CREATE_OR_UPDATE.toString());
+		rules.add(new InputTranslationRule(action2, new TranslationCondition()));
+		
+		InputTranslationProfile tp1 = new InputTranslationProfile("p1", rules);
+		tprofMan.addProfile(tp1);
+		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
+
+		MappingResult result = tp1.translate(input);
+		inputTrEngine.process(result);
+		
+		EntityParam ep = new EntityParam(new IdentityTaV(EmailIdentity.ID, "a@example.com"));
+		Entity entity = idsMan.getEntity(ep);
+		boolean hasTagged = Stream.of(entity.getIdentities()).
+				map(i -> i.getValue()).
+				anyMatch(iv -> iv.equals("a+tag@example.com"));
+		assertThat(hasTagged, is(true));
+		
+		Collection<AttributeExt<?>> attrs = attrsMan.getAllAttributes(ep, false, "/", "email", true);
+		assertThat(attrs.size(), is(1));
+		List<?> values = attrs.iterator().next().getValues();
+		assertThat(values.size(), is(1));
+		assertThat(((VerifiableEmail)values.get(0)).getValue(), is("b+tag@example.com"));
 	}
 }
 
