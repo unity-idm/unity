@@ -86,6 +86,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	protected EndpointRegistrationConfiguration registrationConfiguration;
 	protected IdentitiesManagement idsMan;
 	private InputTranslationEngine inputTranslationEngine;
+	private VerticalLayout topLevelLayout;
 	
 	@Autowired
 	public AuthenticationUI(UnityMessageSource msg, LocaleChoiceComponent localeChoice,
@@ -197,15 +198,15 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			main.setExpandRatio(tilesWrapper, 1.0f);
 		}
 		
-		VerticalLayout topLevel = new VerticalLayout();
+		topLevelLayout = new VerticalLayout();
 		headerUIComponent = new AuthenticationTopHeader(msg.getMessage("AuthenticationUI.login", 
 				endpointDescription.getDisplayedName().getValue(msg)), localeChoice, msg);
-		topLevel.addComponents(headerUIComponent, main);
-		topLevel.setHeightUndefined();
-		topLevel.setWidth(100, Unit.PERCENTAGE);
-		topLevel.setExpandRatio(main, 1.0f);
+		topLevelLayout.addComponents(headerUIComponent, main);
+		topLevelLayout.setHeightUndefined();
+		topLevelLayout.setWidth(100, Unit.PERCENTAGE);
+		topLevelLayout.setExpandRatio(main, 1.0f);
 		
-		setContent(topLevel);
+		setContent(topLevelLayout);
 		setSizeFull();
 
 		//Extra safety - it can happen that we entered the UI in pipeline of authentication,
@@ -358,6 +359,8 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	@Override
 	protected void refresh(VaadinRequest request) 
 	{
+		setContent(topLevelLayout);		//in case somebody refreshes UI which was previously replaced with empty
+							//may happen that the following code will clean it but it is OK.
 		authenticationPanel.refresh(request);
 	}
 	
