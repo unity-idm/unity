@@ -128,6 +128,12 @@ public class SPMetadataGenerator implements MetadataProvider
 	{
 		return generationDate;
 	}
+
+	@Override
+	public void stop()
+	{
+		//nop
+	}
 }
 
 

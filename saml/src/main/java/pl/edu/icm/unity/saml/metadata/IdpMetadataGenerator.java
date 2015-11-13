@@ -140,6 +140,12 @@ public class IdpMetadataGenerator implements MetadataProvider
 	{
 		return generationDate;
 	}
+
+	@Override
+	public void stop()
+	{
+		//nop
+	}
 }
 
 

@@ -35,7 +35,7 @@ public class VerifiableEmail implements VerifiableElement
 
 	public VerifiableEmail(String value, ConfirmationInfo confirmationData)
 	{
-		this.value = value == null ? null : EmailUtils.removeTags(value.trim());
+		this.value = value == null ? null : value.trim();
 		this.confirmationInfo = confirmationData;
 		this.tags = value == null ? new ArrayList<>() : EmailUtils.extractTags(value);
 	}
@@ -73,11 +73,10 @@ public class VerifiableEmail implements VerifiableElement
 	{
 		this.tags = new ArrayList<>(tags);
 	}
-
-	public void addTags(String... tags)
+	
+	public String getComparableValue()
 	{
-		for (String tag: tags)
-			this.tags.add(tag);
+		return value == null ? null : EmailUtils.removeTags(value);
 	}
 	
 	@Override
@@ -99,12 +98,14 @@ public class VerifiableEmail implements VerifiableElement
 		if (getClass() != obj.getClass())
 			return false;
 		VerifiableEmail other = (VerifiableEmail) obj;
-		if (value == null)
+		String cmpValue = getComparableValue();
+		String otherCmpValue = other.getComparableValue();
+		if (cmpValue == null)
 		{
-			if (other.value != null)
+			if (otherCmpValue != null)
 				return false;
-		} else if (!value.equals(other.value))
-			return false;
+		} else	if (!cmpValue.equals(otherCmpValue))
+				return false;
 		return true;
 	}
 

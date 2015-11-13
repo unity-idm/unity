@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.saml.metadata.LocalSPMetadataManager;
 import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
@@ -52,6 +53,7 @@ public class SAMLVerificatorFactory implements CredentialVerificatorFactory
 	private URL baseAddress;
 	private String baseContext;
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
+	private Map<String, LocalSPMetadataManager> localSPMetadataManagers;
 	private MetaDownloadManager downloadManager;
 	private SLOSPManager sloManager;
 	private SLOReplyInstaller sloReplyInstaller;
@@ -75,7 +77,8 @@ public class SAMLVerificatorFactory implements CredentialVerificatorFactory
 		this.msg = msg;
 		this.baseAddress = jettyServer.getAdvertisedAddress();
 		this.baseContext = sharedEndpointManagement.getBaseContextPath();
-		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
+		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<>());
+		this.localSPMetadataManagers = Collections.synchronizedMap(new HashMap<>());
 		this.downloadManager = downloadManager;
 		this.mainConfig = mainConfig;
 		this.sloManager = sloManager;
@@ -106,7 +109,8 @@ public class SAMLVerificatorFactory implements CredentialVerificatorFactory
 	{
 		return new SAMLVerificator(NAME, getDescription(), profileManagement, trEngine, pkiMan, 
 				replayAttackChecker, executorsService, metadataServlet,
-				baseAddress, baseContext, remoteMetadataManagers, downloadManager, mainConfig,
+				baseAddress, baseContext, remoteMetadataManagers, localSPMetadataManagers,
+				downloadManager, mainConfig,
 				sloManager, sloReplyInstaller, msg);
 	}
 }

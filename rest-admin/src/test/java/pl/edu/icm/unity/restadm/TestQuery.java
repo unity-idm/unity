@@ -33,6 +33,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
+import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -55,6 +56,28 @@ public class TestQuery extends TestRESTBase
 	{
 		m.enable(SerializationFeature.INDENT_OUTPUT);
 	}
+	
+	@Test
+	public void resolveOfEmailWithTagsReturnsEntity() throws Exception
+	{
+
+		setupPasswordAuthn();
+		createUsernameUser("System Manager");
+		super.deployEndpoint(RESTAdminEndpointFactory.NAME, 
+				"restAdmin", "/restadm");
+		idsMan.addEntity(new IdentityParam(EmailIdentity.ID, "a+zzz@ex.com"), "cr-pass", 
+				EntityState.valid, false);
+		
+		HttpClient client = getClient();
+		HttpHost host = new HttpHost("localhost", 53456, "https");
+		HttpContext localcontext = getClientContext(client, host);
+
+		HttpGet resolve = new HttpGet("/restadm/v1/resolve/email/a+foo@ex.com");
+		HttpResponse response = client.execute(host, resolve, localcontext);
+		String contents = EntityUtils.toString(response.getEntity());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		System.out.println("User's info:\n" + formatJson(contents));
+	}	
 	
 	@Test
 	public void testQuery() throws Exception

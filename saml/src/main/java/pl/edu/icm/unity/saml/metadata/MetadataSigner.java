@@ -60,4 +60,10 @@ public class MetadataSigner implements MetadataProvider
 	{
 		return wrappedProvider.getLastmodification();
 	}
+
+	@Override
+	public void stop()
+	{
+		wrappedProvider.stop();
+	}
 }

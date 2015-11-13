@@ -14,6 +14,7 @@ import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorDocument;
  */
 public interface MetadataProvider
 {
-	public EntityDescriptorDocument getMetadata() throws Exception;
-	public Date getLastmodification();
+	EntityDescriptorDocument getMetadata() throws Exception;
+	Date getLastmodification();
+	void stop();
 }

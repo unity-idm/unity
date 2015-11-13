@@ -14,7 +14,6 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
-
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorDocument;
 
 /**
@@ -29,30 +28,33 @@ public class FileMetadataProvider implements MetadataProvider
 	private Date lastModification;
 	private ScheduledExecutorService scheduler;
 	private EntityDescriptorDocument document;
+	private boolean stopped = false;
+	
+	private Runnable task;
 	
 	public FileMetadataProvider(ExecutorsService executorsService, final File file) throws IOException
 	{
 		this.file = file;
 		scheduler = executorsService.getService();
 		load();
-		scheduler.scheduleWithFixedDelay(new Runnable()
-		{
-			@Override
-			public void run()
+		
+		task = () -> {
+			try
 			{
-				try
+				if (file.lastModified() > lastModification.getTime())
 				{
-					if (file.lastModified() > lastModification.getTime())
-					{
-						log.info("Metadata file modification detected, reloading " + file);
-						load();
-					}
-				} catch (IOException e)
-				{
-					log.error("Can not load the metadata from the configured file " + file, e);
+					log.info("Metadata file modification detected, reloading " + file);
+					load();
 				}
+			} catch (IOException e)
+			{
+				log.error("Can not load the metadata from the configured file " + file, e);
 			}
-		}, 20, 20, TimeUnit.SECONDS);
+		
+			reschedule();
+		};
+		
+		reschedule();
 	}
 
 	private synchronized void load() throws IOException
@@ -77,5 +79,22 @@ public class FileMetadataProvider implements MetadataProvider
 	public synchronized Date getLastmodification()
 	{
 		return lastModification;
+	}
+
+	@Override
+	public synchronized void stop()
+	{
+		this.stopped = true;
+	}
+	
+	private synchronized boolean isStopped()
+	{
+		return stopped ;
+	}
+	
+	private void reschedule()
+	{
+		if (!isStopped())
+			scheduler.schedule(task, 20, TimeUnit.SECONDS);
 	}
 }

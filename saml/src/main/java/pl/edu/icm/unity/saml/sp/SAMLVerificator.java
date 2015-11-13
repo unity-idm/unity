@@ -20,10 +20,8 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SAMLEndpointDefinition;
 import pl.edu.icm.unity.saml.SAMLHelper;
 import pl.edu.icm.unity.saml.SAMLResponseValidatorUtil;
-import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.idp.IdentityTypeMapper;
-import pl.edu.icm.unity.saml.metadata.MetadataProvider;
-import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
+import pl.edu.icm.unity.saml.metadata.LocalSPMetadataManager;
 import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaToSPConfigConverter;
@@ -43,13 +41,10 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
-import xmlbeans.org.oasis.saml2.metadata.EndpointType;
-import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLBindings;
-import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.util.configuration.ConfigurationException;
@@ -76,6 +71,8 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	private SLOReplyInstaller sloReplyInstaller;
 
 	private UnityMessageSource msg;
+
+	private Map<String, LocalSPMetadataManager> localMetadataManagers;
 	
 	public SAMLVerificator(String name, String description,
 			TranslationProfileManagement profileManagement,
@@ -83,12 +80,14 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			ReplayAttackChecker replayAttackChecker, ExecutorsService executorsService,
 			MultiMetadataServlet metadataServlet, URL baseAddress, String baseContext,
 			Map<String, RemoteMetaManager> remoteMetadataManagers,
+			Map<String, LocalSPMetadataManager> localMetadataManagers,
 			MetaDownloadManager downloadManager, UnityServerConfiguration mainConfig, 
 			SLOSPManager sloManager, SLOReplyInstaller sloReplyInstaller,
 			UnityMessageSource msg)
 	{
 		super(name, description, SAMLExchange.ID, profileManagement, trEngine);
 		this.remoteMetadataManagers = remoteMetadataManagers;
+		this.localMetadataManagers = localMetadataManagers;
 		this.downloadManager = downloadManager;
 		this.pkiMan = pkiMan;
 		this.mainConfig = mainConfig;
@@ -136,8 +135,18 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			throw new InternalException("Invalid configuration of the SAML verificator(?)", e);
 		}
 		
-		if (samlProperties.getBooleanValue(SamlProperties.PUBLISH_METADATA))
-			exposeMetadata();
+		if (!localMetadataManagers.containsKey(instanceName))
+		{
+			LocalSPMetadataManager manager = new LocalSPMetadataManager(executorsService, 
+					responseConsumerAddress, 
+					sloManager, sloReplyInstaller, metadataServlet);
+			manager.updateConfiguration(samlProperties);
+			localMetadataManagers.put(instanceName, manager);
+		} else
+		{
+			localMetadataManagers.get(instanceName).updateConfiguration(samlProperties);
+		}
+
 		if (!remoteMetadataManagers.containsKey(instanceName))
 		{
 			myMetadataManager = new RemoteMetaManager(samlProperties, 
@@ -213,51 +222,6 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 				sloRealm);
 		
 		sloReplyInstaller.enable();
-	}
-	
-	private void exposeMetadata()
-	{
-		String metaPath = samlProperties.getValue(SAMLSPProperties.METADATA_PATH);
-		IndexedEndpointType consumerEndpoint = IndexedEndpointType.Factory.newInstance();
-		consumerEndpoint.setIndex(1);
-		consumerEndpoint.setBinding(SAMLConstants.BINDING_HTTP_POST);
-		consumerEndpoint.setLocation(responseConsumerAddress);
-		consumerEndpoint.setIsDefault(true);
-
-		IndexedEndpointType consumerEndpoint2 = IndexedEndpointType.Factory.newInstance();
-		consumerEndpoint2.setIndex(2);
-		consumerEndpoint2.setBinding(SAMLConstants.BINDING_HTTP_REDIRECT);
-		consumerEndpoint2.setLocation(responseConsumerAddress);
-		consumerEndpoint2.setIsDefault(false);
-
-		EndpointType[] sloEndpoints = null;
-		String sloPath = samlProperties.getValue(SAMLSPProperties.SLO_PATH);
-		String sloEndpointURL = sloPath != null ? sloManager.getAsyncServletURL(sloPath) : null;
-		String sloSoapPath = sloPath != null ? sloManager.getSyncServletURL(sloPath) : null; 
-		if (sloEndpointURL != null && sloSoapPath != null)
-		{
-			EndpointType sloPost = EndpointType.Factory.newInstance();
-			sloPost.setLocation(sloEndpointURL);
-			sloPost.setBinding(SAMLConstants.BINDING_HTTP_POST);
-			sloPost.setResponseLocation(sloReplyInstaller.getServletURL());
-			
-			EndpointType sloRedirect = EndpointType.Factory.newInstance();
-			sloRedirect.setLocation(sloEndpointURL);
-			sloRedirect.setResponseLocation(sloReplyInstaller.getServletURL());
-			sloRedirect.setBinding(SAMLConstants.BINDING_HTTP_REDIRECT);
-			
-			EndpointType sloSoap = EndpointType.Factory.newInstance();
-			sloSoap.setLocation(sloSoapPath);
-			sloSoap.setBinding(SAMLConstants.BINDING_SOAP);
-			
-			sloEndpoints = new EndpointType[] {sloPost, sloRedirect, sloSoap};
-		}
-		
-		IndexedEndpointType[] assertionConsumerEndpoints = new IndexedEndpointType[] {consumerEndpoint,
-				consumerEndpoint2};
-		MetadataProvider provider = MetadataProviderFactory.newSPInstance(samlProperties, 
-				executorsService, assertionConsumerEndpoints, sloEndpoints);
-		metadataServlet.addProvider("/" + metaPath, provider);
 	}
 	
 	@Override
