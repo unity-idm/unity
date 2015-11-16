@@ -37,7 +37,7 @@ public class TestRegistrationForm extends SeleniumTestBase
 		assertTrue(waitForElement(By.id("ListOfElements")) != null);
 		waitForElement(By.id("AbstractDialog.confirm")).click();	
 		//wait
-		simpleWait(1000);
+		simpleWait();
 		waitForElement(By.className("v-Notification")).click();	
 
 		waitForElement(By.id("AuthenticationUI.authnenticateButton")).click();

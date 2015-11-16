@@ -52,7 +52,7 @@ public class TestAccountAssociation extends SeleniumTestBase
 		driver.switchTo().window(cwh);
 		WebElement finishB = waitForElement(By.id("SandboxWizard.finish"));
 		Assert.assertTrue(finishB.isEnabled());
-		Thread.sleep(1000);
+		simpleWait();
 		finishB.click();
 		waitForElement(By.className("success")).click();
 		waitForElement(By.id("MainHeader.logout")).click();

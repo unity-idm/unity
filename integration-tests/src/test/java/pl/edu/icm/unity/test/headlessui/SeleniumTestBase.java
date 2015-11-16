@@ -38,6 +38,8 @@ public class SeleniumTestBase
 	protected String baseUrl = "https://localhost:2443";
 	public static final int WAIT_TIME_S = 45;
 	public static final int SLEEP_TIME_MS = 250;
+	public static final int SIMPLE_WAIT_TIME_MS = Integer.parseInt(
+			System.getProperty("unity.selenium.delay", "1000"));
 	protected WebDriver driver;
 
 	private StringBuffer verificationErrors = new StringBuffer();
@@ -98,11 +100,11 @@ public class SeleniumTestBase
 		}
 	}
 	
-	protected void simpleWait(int ms)
+	protected void simpleWait()
 	{
 		try
 		{
-			Thread.sleep(ms);
+			Thread.sleep(SIMPLE_WAIT_TIME_MS);
 		} catch (InterruptedException e)
 		{
 			//OK
