@@ -68,6 +68,35 @@ public class VaadinUIProvider extends UIProvider
 		return (Class<? extends UI>) applicationContext.getType(uiBeanName);
 	}
 
+	
+	/**
+	 * Sets theme to the one defined with the given key. If not set then the default theme from the configuration
+	 * is set. If this is also undefined nothing is changed.
+	 * @param properties
+	 * @param mainKey
+	 */
+	@Override
+	public String getTheme(UICreateEvent event) 
+	{
+		UI ui = (UI) applicationContext.getBean(uiBeanName);
+		String configuredTheme = null;
+		if (ui instanceof UnityWebUI)
+			configuredTheme = getConfiguredTheme((UnityWebUI) ui);
+		return configuredTheme == null ? super.getTheme(event) : configuredTheme;
+	}
+	
+
+	private String getConfiguredTheme(UnityWebUI unityUI)
+	{
+		String themeKey = unityUI.getThemeConfigKey();
+		VaadinEndpointProperties properties = new VaadinEndpointProperties(endpointProperties);
+		if (properties.isSet(themeKey))
+			return properties.getValue(themeKey);
+		else if (properties.isSet(VaadinEndpointProperties.DEF_THEME))
+			return properties.getValue(VaadinEndpointProperties.DEF_THEME);
+		return null;
+	}
+	
 	@Override
 	public UI createInstance(UICreateEvent event)
 	{

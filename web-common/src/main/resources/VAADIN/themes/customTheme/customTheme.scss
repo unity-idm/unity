@@ -1,3 +1,6 @@
+$v-background-color: #66FF99 !default;
+
+
 //We base our theme on Vaadin Valo theme
 @import "../valo/valo.scss";
 
@@ -7,8 +10,10 @@
 //here goes actual contents of our theme, in the main mixin
 @mixin customTheme {
 	
+	
 	//we include Valo
 	@include valo;
+	
 	
 	//let's override one of the variables used by Unity's default theme (imported below)
 	$headerBackgroundImage: 	none;

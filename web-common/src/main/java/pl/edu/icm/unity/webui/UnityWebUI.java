@@ -19,7 +19,7 @@ import pl.edu.icm.unity.webui.authn.CancelHandler;
  */
 public interface UnityWebUI
 {
-	public void configure(EndpointDescription description, 
+	void configure(EndpointDescription description, 
 			List<AuthenticationOption> authenticators,
 			EndpointRegistrationConfiguration registrationConfiguration,
 			Properties genericEndpointConfiguration);
@@ -30,11 +30,16 @@ public interface UnityWebUI
 	 * This method is either not invoked, or invoked just after {@link #configure(EndpointDescription, List)}.  
 	 * @param handler
 	 */
-	public void setCancelHandler(CancelHandler handler);
+	void setCancelHandler(CancelHandler handler);
 
 	/**
 	 * Method invoked only for SandboxUI and AuthenticationUI.
 	 * @param sandboxRouter
 	 */
-	public void setSandboxRouter(SandboxAuthnRouter sandboxRouter);
+	void setSandboxRouter(SandboxAuthnRouter sandboxRouter);
+	
+	/**
+	 * @return properties key with theme name for this UI.
+	 */
+	String getThemeConfigKey();
 }

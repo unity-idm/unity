@@ -73,7 +73,6 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	@Override
 	protected final void init(VaadinRequest request)
 	{
-		configureTheme(config, getThemeConfigKey());
 		setErrorHandler(new ErrorHandlerImpl());
 		appInit(request);
 	}
@@ -152,7 +151,8 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	/**
 	 * @return the configuration key under which UI's theme can be explicitly set.  
 	 */
-	protected String getThemeConfigKey()
+	@Override
+	public String getThemeConfigKey()
 	{
 		return VaadinEndpointProperties.THEME;
 	}
@@ -168,19 +168,5 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 			NotificationPopup.showError(msg, msg.getMessage("error"), 
 					msg.getMessage("UnityUIBase.unhandledError"));
 		} 
-	}
-	
-	/**
-	 * Sets theme to the one defined with the given key. If not set then the default theme from the configuration
-	 * is set. If this is also undefined nothing is changed.
-	 * @param properties
-	 * @param mainKey
-	 */
-	protected void configureTheme(VaadinEndpointProperties properties, String mainKey)
-	{
-		if (properties.isSet(mainKey))
-			setTheme(properties.getValue(mainKey));
-		else if (properties.isSet(VaadinEndpointProperties.DEF_THEME))
-			setTheme(properties.getValue(VaadinEndpointProperties.DEF_THEME));
 	}
 }

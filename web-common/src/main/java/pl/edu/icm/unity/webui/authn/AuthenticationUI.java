@@ -119,7 +119,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	}
 
 	@Override
-	protected String getThemeConfigKey()
+	public String getThemeConfigKey()
 	{
 		return VaadinEndpointProperties.AUTHN_THEME;
 	}
