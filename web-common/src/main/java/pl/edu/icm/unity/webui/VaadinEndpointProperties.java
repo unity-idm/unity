@@ -69,6 +69,7 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	public static final String DEF_THEME = "defaultTheme";
 	public static final String THEME = "mainTheme";
 	public static final String AUTHN_THEME = "authnTheme";
+	public static final String TEMPLATE = "template";
 	
 	public static final String ENABLE_REGISTRATION = "enableRegistration";
 	public static final String ENABLED_REGISTRATION_FORMS = "enabledRegistrationForms.";
@@ -103,6 +104,10 @@ public class VaadinEndpointProperties extends PropertiesHelper
 				"Overrides the default theme name as used for rendering the endpoint's "
 				+ "authentication screen contents. If undefined the same setting as for the "
 				+ "main endpoint UI is used."));
+		META.put(TEMPLATE, new PropertyMD("default.ftl").setDescription(
+				"The name of a Freemarker template, relative to templates directory, with a "
+				+ "template of the endpoint web interface. Custom template can be used to add "
+				+ "static header/footer etc."));
 		META.put(ENABLE_REGISTRATION, new PropertyMD("false").
 				setDescription("Controls if registration option should be allowed for an endpoint."));
 		META.put(ENABLED_REGISTRATION_FORMS, new PropertyMD().setList(false).

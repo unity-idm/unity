@@ -45,7 +45,6 @@ import com.vaadin.util.CurrentInstance;
  * Customization of the ordinary {@link VaadinServlet} using {@link VaadinUIProvider}
  * @author K. Benedyczak
  */
-@SuppressWarnings("serial")
 public class UnityVaadinServlet extends VaadinServlet
 {
 	private transient ApplicationContext applicationContext;
