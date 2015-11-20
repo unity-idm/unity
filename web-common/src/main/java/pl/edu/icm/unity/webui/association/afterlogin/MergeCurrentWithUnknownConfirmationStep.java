@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.association.afterlogin;
 
+import org.apache.log4j.Logger;
 import org.vaadin.teemu.wizards.Wizard;
 
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -15,8 +16,11 @@ import pl.edu.icm.unity.server.authn.LocalSandboxAuthnContext;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.authn.remote.RemoteSandboxAuthnContext;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.server.translation.in.MappedIdentity;
 import pl.edu.icm.unity.server.translation.in.MappingResult;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.association.AbstractConfirmationStep;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -28,6 +32,8 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
  */
 public class MergeCurrentWithUnknownConfirmationStep extends AbstractConfirmationStep
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
+			MergeCurrentWithUnknownConfirmationStep.class);
 	private RemotelyAuthenticatedContext authnContext;
 	private Exception mergeError;
 	
@@ -47,7 +53,22 @@ public class MergeCurrentWithUnknownConfirmationStep extends AbstractConfirmatio
 		{
 			if (!translationEngine.identitiesNotPresentInDb(ctx.getAuthnContext().getMappingResult()))
 			{
-				setError(msg.getMessage("ConnectId.ConfirmStep.errorExistingIdentity"));
+				MappedIdentity existingIdentity = translationEngine.getExistingIdentity(
+						ctx.getAuthnContext().getMappingResult());
+				Entity existingEntity;
+				try
+				{
+					existingEntity = translationEngine.resolveMappedIdentity(existingIdentity);
+					LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
+					if (existingEntity.getId() == loginSession.getEntityId())
+						setError(msg.getMessage("ConnectId.ConfirmStep.errorSameIdentity"));
+					else
+						setError(msg.getMessage("ConnectId.ConfirmStep.errorExistingIdentity"));
+				} catch (EngineException e)
+				{
+					log.error("Shouldn't happen: existing identity can not be resolved", e);
+					setError(msg.getMessage("ConnectId.ConfirmStep.errorExistingIdentity"));
+				}
 			} else
 			{
 				authnContext = ctx.getAuthnContext();

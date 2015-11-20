@@ -126,6 +126,11 @@ public class InputTranslationEngine
 		}
 	}
 
+	public Entity resolveMappedIdentity(MappedIdentity checked) throws EngineException
+	{
+		return idsMan.getEntity(new EntityParam(checked.getIdentity()));
+	}
+	
 	public MappedIdentity getExistingIdentity(MappingResult result)
 	{
 		for (MappedIdentity checked: result.getIdentities())
