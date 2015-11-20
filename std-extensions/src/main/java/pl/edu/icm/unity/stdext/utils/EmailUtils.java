@@ -7,7 +7,8 @@ package pl.edu.icm.unity.stdext.utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Pattern;
+
+import org.apache.commons.validator.routines.EmailValidator;
 
 import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
@@ -21,9 +22,6 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 public class EmailUtils
 {
 	private static final int MAX_LENGTH = 80;
-	private static final String EMAIL_REGEXP = "[^@]+@.+\\..+";
-	private static final Pattern PATTERN = Pattern.compile(EMAIL_REGEXP);
-	
 	public final static String CONFIRMED_POSTFIX = "[CONFIRMED]"; 
 	public final static String UNCONFIRMED_POSTFIX = "[UNCONFIRMED]"; 
 	
@@ -38,11 +36,10 @@ public class EmailUtils
 		if (value.length() > MAX_LENGTH)
 			return "Value length (" + value.length() 
 					+ ") is too big, must be not greater than " + MAX_LENGTH;
-		if (!PATTERN.matcher(value).matches())
-			return "Value must match the regualr expression: " + EMAIL_REGEXP;
+		if (!EmailValidator.getInstance().isValid(value))
+			return "Value is not a valid email address";
 		if (value.startsWith("+"))
 			return "Value must not start with '+', which is used to separate email tags";
-
 		return null;
 	}
 	
