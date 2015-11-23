@@ -132,7 +132,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	@Override
 	protected void appInit(VaadinRequest request)
 	{
-		SAMLAuthnContext samlCtx = SamlResponseHandler.getContext();
+		SAMLAuthnContext samlCtx = SAMLContextSupport.getContext();
 		samlProcessor = new AuthnResponseProcessor(samlCtx, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 		samlResponseHandler = new SamlResponseHandler(freemarkerHandler, samlProcessor);
 		
@@ -322,7 +322,7 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 	{
 		try
 		{
-			SAMLAuthnContext samlCtx = SamlResponseHandler.getContext();
+			SAMLAuthnContext samlCtx = SAMLContextSupport.getContext();
 			SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan, 
 					attributeSyntaxFactoriesRegistry);
 			updatePreferencesFromUI(preferences, samlCtx, defaultAccept);

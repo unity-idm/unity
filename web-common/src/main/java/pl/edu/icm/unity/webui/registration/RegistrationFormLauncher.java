@@ -14,6 +14,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
+import pl.edu.icm.unity.server.api.internal.IdPLoginController;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -49,6 +50,7 @@ public class RegistrationFormLauncher implements RegistrationFormDialogProvider
 	protected GroupsManagement groupsMan;
 	
 	protected EventsBus bus;
+	private IdPLoginController idpLoginController;
 	
 	@Autowired
 	public RegistrationFormLauncher(UnityMessageSource msg,
@@ -57,7 +59,7 @@ public class RegistrationFormLauncher implements RegistrationFormDialogProvider
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributesManagement attrsMan, AuthenticationManagement authnMan,
-			GroupsManagement groupsMan)
+			GroupsManagement groupsMan, IdPLoginController idpLoginController)
 	{
 		super();
 		this.msg = msg;
@@ -68,6 +70,7 @@ public class RegistrationFormLauncher implements RegistrationFormDialogProvider
 		this.attrsMan = attrsMan;
 		this.authnMan = authnMan;
 		this.groupsMan = groupsMan;
+		this.idpLoginController = idpLoginController;
 		this.bus = WebSession.getCurrent().getEventBus();
 	}
 
@@ -80,7 +83,7 @@ public class RegistrationFormLauncher implements RegistrationFormDialogProvider
 			bus.fireEvent(new RegistrationRequestChangedEvent(id));
 		} catch (EngineException e)
 		{
-			new PostRegistrationHandler(form, msg).submissionError(e);
+			new PostRegistrationHandler(idpLoginController, form, msg).submissionError(e);
 			return false;
 		}
 
@@ -93,7 +96,8 @@ public class RegistrationFormLauncher implements RegistrationFormDialogProvider
 						msg.getMessage("RegistrationFormsChooserComponent.autoAccept"));
 				bus.fireEvent(new RegistrationRequestChangedEvent(id));
 			}	
-			new PostRegistrationHandler(form, msg, false).submitted(id, registrationsManagement);
+			new PostRegistrationHandler(idpLoginController, form, msg, false).
+				submitted(id, registrationsManagement);
 			
 			return true;
 		} catch (EngineException e)
@@ -125,7 +129,8 @@ public class RegistrationFormLauncher implements RegistrationFormDialogProvider
 						@Override
 						public void cancelled()
 						{
-							new PostRegistrationHandler(form, msg).cancelled(false);
+							new PostRegistrationHandler(idpLoginController, form, msg).
+								cancelled(false);
 						}
 					});
 			return dialog;

@@ -16,7 +16,6 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinServletResponse;
 import com.vaadin.server.VaadinSession;
-import com.vaadin.server.WrappedSession;
 
 /**
  * Redirects the client's browser creating URL with Vaadin response (or error).
@@ -60,7 +59,7 @@ public class OAuthResponseHandler
 				{
 					throw new IOException("Error: can not serialize error response", e);
 				}
-				cleanContext();
+				OAuthContextUtils.cleanContext();
 				if (destroySession)
 					session.getSession().invalidate();
 				return true;
@@ -68,23 +67,5 @@ public class OAuthResponseHandler
 			
 			return false;
 		}
-	}
-	
-	public static OAuthAuthzContext getContext()
-	{
-		WrappedSession httpSession = VaadinSession.getCurrent().getSession();
-		OAuthAuthzContext ret = (OAuthAuthzContext) httpSession.getAttribute(
-				OAuthParseServlet.SESSION_OAUTH_CONTEXT);
-		if (ret == null)
-			throw new IllegalStateException("No OAuth context in UI");
-		return ret;
-	}
-	
-	public static void cleanContext()
-	{
-		VaadinSession vSession = VaadinSession.getCurrent();
-		vSession.setAttribute(AuthorizationResponse.class, null);
-		WrappedSession httpSession = vSession.getSession();
-		httpSession.removeAttribute(OAuthParseServlet.SESSION_OAUTH_CONTEXT);
 	}
 }

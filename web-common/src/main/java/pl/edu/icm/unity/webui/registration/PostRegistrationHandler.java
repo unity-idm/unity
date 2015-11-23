@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
+import pl.edu.icm.unity.server.api.internal.IdPLoginController;
 import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder;
 import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder.Status;
 import pl.edu.icm.unity.server.utils.Log;
@@ -31,14 +32,18 @@ public class PostRegistrationHandler
 	private RegistrationForm form;
 	private UnityMessageSource msg;
 	private boolean doRedirect;
+	private IdPLoginController loginController;
 	
-	public PostRegistrationHandler(RegistrationForm form, UnityMessageSource msg)
+	public PostRegistrationHandler(IdPLoginController loginController, 
+			RegistrationForm form, UnityMessageSource msg)
 	{
-		this(form, msg, true);
+		this(loginController, form, msg, true);
 	}
 
-	public PostRegistrationHandler(RegistrationForm form, UnityMessageSource msg, boolean doRedirect)
+	public PostRegistrationHandler(IdPLoginController loginController, 
+			RegistrationForm form, UnityMessageSource msg, boolean doRedirect)
 	{
+		this.loginController = loginController;
 		this.form = form;
 		this.msg = msg;
 		this.doRedirect = doRedirect;
@@ -143,10 +148,14 @@ public class PostRegistrationHandler
 	private void redirectOrInform(String redirectUrl)
 	{
 		if (doRedirect)
+		{
+			loginController.breakLogin();
 			Page.getCurrent().open(redirectUrl, null);
-		else
+		} else
+		{
 			NotificationPopup.showNotice(msg,
 					msg.getMessage("RegistrationFormsChooserComponent.requestProcessed"), 
 					msg.getMessage("RegistrationFormsChooserComponent.redirectInfo", redirectUrl));
+		}
 	}
 }
