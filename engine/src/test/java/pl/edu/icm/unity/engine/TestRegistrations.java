@@ -291,7 +291,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		attrs = attrsMan.getAttributes(addedP, "/", "email");
 		assertEquals(1, attrs.size());
 		VerifiableEmail email = (VerifiableEmail) attrs.iterator().next().getValues().get(0);
-		assertEquals("foo@a.b", email.getValue());
+		assertEquals("foo@example.com", email.getValue());
 		assertEquals(false, email.getConfirmationInfo().isConfirmed());
 		
 		
@@ -337,7 +337,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
 		clearDB();
 		
-		initAndCreateForm(false, "attr[\"email\"].toString() == \"foo@a.b\"");
+		initAndCreateForm(false, "attr[\"email\"].toString() == \"foo@example.com\"");
 		request = getRequest();
 		registrationsMan.submitRegistrationRequest(request, true);
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
@@ -421,7 +421,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 				.withAddedAttribute(
 						new VerifiableEmailAttribute(
 								InitializerCommon.EMAIL_ATTR, "/",
-								AttributeVisibility.full, "foo@a.b"))
+								AttributeVisibility.full, "foo@example.com"))
 				.withAddedCredential()
 				.withCredentialId(EngineInitialization.DEFAULT_CREDENTIAL)
 				.withSecrets(new PasswordToken("abc").toJson()).endCredential()
