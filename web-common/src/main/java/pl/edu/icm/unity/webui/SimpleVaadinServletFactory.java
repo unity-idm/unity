@@ -11,21 +11,16 @@ import javax.servlet.Servlet;
 
 import org.springframework.context.ApplicationContext;
 
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 
-import com.vaadin.server.DeploymentConfiguration;
-import com.vaadin.server.ServiceException;
-import com.vaadin.server.SessionInitEvent;
-import com.vaadin.server.SessionInitListener;
-import com.vaadin.server.VaadinServlet;
-import com.vaadin.server.VaadinServletService;
-
 /**
- * Contains boilerplate for creation of a servlet exposing Vaadin UI by means of {@link VaadinUIProvider}
- * (which in turn takes care of IoC).
+ * Contains boilerplate for creation of a {@link UnityVaadinServlet}, with interface useful for simple 
+ * pseudo-endpoints, which are not configured with the full power of Unity endpoints subsystem, but are accessible
+ * from public & container-wide addresses.
  * @author P. Piernik
- *
+ * @author K. Benedyczak
  */
 public class SimpleVaadinServletFactory
 {
@@ -33,19 +28,34 @@ public class SimpleVaadinServletFactory
 	private UnityServerConfiguration config;
 	private String uiClassName;
 	private Properties configuration;
+	private UnityMessageSource msg;
+	private String themeConfigKey;
+	private String servletPath;
+	private String templateConfigKey;
 
 	public SimpleVaadinServletFactory(ApplicationContext applicationContext, UnityServerConfiguration config,
-			String uiClassName, Properties configuration)
+			UnityMessageSource msg, 
+			String uiClassName, Properties configuration,
+			String themeConfigKey, 
+			String templateConfigKey, 
+			String servletPath)
 	{
 		this.applicationContext = applicationContext;
 		this.config = config;
+		this.msg = msg;
 		this.uiClassName = uiClassName;
+		this.themeConfigKey = themeConfigKey;
+		this.templateConfigKey = templateConfigKey;
+		this.servletPath = servletPath;
 		this.configuration = configuration;
 	}
 	
 	public Servlet getServiceServlet()
 	{
-		return new SimpleVaadinServlet();
+		return new UnityVaadinServlet(applicationContext, uiClassName, null, 
+				null, null, 
+				configuration, 
+				getBootstrapHandlerGeneric(servletPath));
 	}
 	
 	public Filter getServiceFilter()
@@ -53,28 +63,12 @@ public class SimpleVaadinServletFactory
 		return new InvocationContextSetupFilter(config, null, null);
 	}
 
-	private class SimpleVaadinServlet extends VaadinServlet
+	private UnityBootstrapHandler getBootstrapHandlerGeneric(String uiPath)
 	{
-				
-		@Override
-		protected VaadinServletService createServletService(DeploymentConfiguration deploymentConfiguration) 
-				throws ServiceException 
-		{	 
-			final VaadinServletService service = super.createServletService(deploymentConfiguration);
-
-			service.addSessionInitListener(new SessionInitListener()
-			{
-				@Override
-				public void sessionInit(SessionInitEvent event) throws ServiceException
-				{
-					VaadinUIProvider uiProv = new VaadinUIProvider(applicationContext, 
-							uiClassName,
-							null, null, null, configuration, 
-							VaadinEndpointProperties.THEME);
-					event.getSession().addUIProvider(uiProv);
-				}
-			});
-			return service;
-		}
+		String template = config.getValue(templateConfigKey);
+		boolean productionMode = true;
+		String theme = config.getConfiguredTheme(themeConfigKey, VaadinEndpoint.DEFAULT_THEME);
+		return new UnityBootstrapHandler(template, msg, theme, productionMode, 
+				VaadinEndpoint.DEFAULT_HEARTBEAT, uiPath);
 	}
 }

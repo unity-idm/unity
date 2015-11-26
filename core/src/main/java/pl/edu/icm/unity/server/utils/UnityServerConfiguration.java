@@ -65,6 +65,9 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String DEFAULT_WEB_CONTENT_PATH = "defaultWebContentDirectory";
 	public static final String THEME = "defaultTheme";
 	public static final String CONFIRMATION_THEME = "confirmationUITheme";
+	public static final String CONFIRMATION_TEMPLATE = "confirmationUITemplate";
+	public static final String WELL_KNOWN_URL_THEME = "wellKnownUrlUITheme";
+	public static final String WELL_KNOWN_URL_TEMPLATE = "wellKnownUrlUITemplate";
 	public static final String UNITYGW_WEB_CONTENT_PATH = "unityGWWebContentDirectory";
 	
 	public static final String ENDPOINTS = "endpoints.";
@@ -184,6 +187,18 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put(CONFIRMATION_THEME, new PropertyMD().setCategory(mainCat).setDescription(
 				"Sets the theme used for rendering the confirmation UI (shown after confirming email etc)."
 				+ "This setting overrides the default server theme."));
+		defaults.put(CONFIRMATION_TEMPLATE, new PropertyMD("default.ftl").setCategory(mainCat).setDescription(
+				"The name of a Freemarker template, relative to templates directory, with a "
+				+ "template of the confirmation UI. Custom template can be used to add "
+				+ "static header/footer etc."));
+		defaults.put(WELL_KNOWN_URL_THEME, new PropertyMD().setCategory(mainCat).setDescription(
+				"Sets the theme used for rendering the well known links UI "
+				+ "(used for standalone registration forms and others)."
+				+ "This setting overrides the default server theme."));
+		defaults.put(WELL_KNOWN_URL_TEMPLATE, new PropertyMD("default.ftl").setCategory(mainCat).setDescription(
+				"The name of a Freemarker template, relative to templates directory, with a "
+				+ "template of the well-known links web interface. Custom template can be used to add "
+				+ "static header/footer etc."));
 		defaults.put(INITIAL_ADMIN_USER, new PropertyMD().setCategory(mainCat).
 				setDescription("Username of the administrator to be installed to the database upon startup. Remove the property if no admin should be added."));
 		defaults.put(INITIAL_ADMIN_PASSWORD, new PropertyMD("admin").setCategory(mainCat).
@@ -455,6 +470,21 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 			endpointAuthn.add(new AuthenticationOptionDescription(authenticators[0], secondary));
 		}
 		return endpointAuthn;
+	}
+	
+	/**
+	 * Returns either a theme configured with the key given as argument or the default theme if the
+	 * specific one is not defined. If neither is available returns default theme.
+	 * @param themeConfigKey
+	 * @return configuration theme
+	 */
+	public String getConfiguredTheme(String themeConfigKey, String defaultTheme)
+	{
+		if (isSet(themeConfigKey))
+			return getValue(themeConfigKey);
+		else if (isSet(THEME))
+			return getValue(THEME);
+		return defaultTheme;
 	}
 	
 	public Properties getProperties()

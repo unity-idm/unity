@@ -135,7 +135,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 
 		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
 		
-		UnityBootstrapHandler handler4Authn = getBootstrapHanlder4Authn(uiServletPath);
+		UnityBootstrapHandler handler4Authn = getBootstrapHandler4Authn(uiServletPath);
 		authenticationServlet = new AuthenticationVaadinServlet(applicationContext, 
 				description, authenticators, 
 				registrationConfiguration, properties, handler4Authn);
@@ -144,7 +144,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");
 		context.addServlet(authnServletHolder, VAADIN_RESOURCES);
 		
-		UnityBootstrapHandler handler4Main = getBootstrapHanlder(uiServletPath);
+		UnityBootstrapHandler handler4Main = getBootstrapHandler(uiServletPath);
 		theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
 				description, authenticators, registrationConfiguration, properties,
 				handler4Main);
@@ -153,19 +153,19 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		return context;
 	}
 	
-	protected UnityBootstrapHandler getBootstrapHanlder(String uiPath)
+	protected UnityBootstrapHandler getBootstrapHandler(String uiPath)
 	{
 		int sessionTimeout = description.getRealm().getMaxInactivity();
-		return getBootstrapHanlderGeneric(uiPath, getHeartbeatInterval(sessionTimeout),
+		return getBootstrapHandlerGeneric(uiPath, getHeartbeatInterval(sessionTimeout),
 				VaadinEndpointProperties.THEME);
 	}
 
-	protected UnityBootstrapHandler getBootstrapHanlder4Authn(String uiPath)
+	protected UnityBootstrapHandler getBootstrapHandler4Authn(String uiPath)
 	{
-		return getBootstrapHanlderGeneric(uiPath, LONG_HEARTBEAT, VaadinEndpointProperties.AUTHN_THEME);
+		return getBootstrapHandlerGeneric(uiPath, LONG_HEARTBEAT, VaadinEndpointProperties.AUTHN_THEME);
 	}
 
-	private UnityBootstrapHandler getBootstrapHanlderGeneric(String uiPath, int heartBeat, String themeKey)
+	private UnityBootstrapHandler getBootstrapHandlerGeneric(String uiPath, int heartBeat, String themeKey)
 	{
 		String template = genericEndpointProperties.getValue(VaadinEndpointProperties.TEMPLATE);
 		boolean productionMode = genericEndpointProperties.getBooleanValue(
@@ -272,7 +272,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 
 	private void addSandboxUI(String path, String uiBeanName, SandboxAuthnRouter sandboxRouter)
 	{
-		UnityBootstrapHandler bootstrapHanlder = getBootstrapHanlder(path);
+		UnityBootstrapHandler bootstrapHanlder = getBootstrapHandler(path);
 		UnityVaadinServlet sandboxServlet = new UnityVaadinServlet(applicationContext, 
 				uiBeanName, description, authenticators, null, properties, bootstrapHanlder);
 		sandboxServlet.setSandboxRouter(sandboxRouter);

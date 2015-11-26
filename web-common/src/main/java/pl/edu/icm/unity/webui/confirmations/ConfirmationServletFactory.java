@@ -11,9 +11,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationServlet;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.webui.SimpleVaadinServletFactory;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 
 /**
  * Contains confirmation vaadin servlet implementation
@@ -24,21 +24,12 @@ import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 public class ConfirmationServletFactory extends SimpleVaadinServletFactory implements ConfirmationServlet
 {
 	@Autowired
-	public ConfirmationServletFactory(ApplicationContext applicationContext, UnityServerConfiguration config)
+	public ConfirmationServletFactory(ApplicationContext applicationContext, UnityMessageSource msg, 
+			UnityServerConfiguration config)
 	{
-		super(applicationContext, config, ConfirmationUI.class.getSimpleName(), prepareConfig(config));
-	}
-	
-	private static Properties prepareConfig(UnityServerConfiguration config)
-	{
-		Properties properties = new Properties();
-		//a copy is set to endpoint's configuration so that the default is easily accessible
-		if (config.isSet(UnityServerConfiguration.CONFIRMATION_THEME))
-			properties.setProperty(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.DEF_THEME, 
-				config.getValue(UnityServerConfiguration.CONFIRMATION_THEME));
-		else if (config.isSet(UnityServerConfiguration.THEME))
-			properties.setProperty(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.DEF_THEME, 
-					config.getValue(UnityServerConfiguration.THEME));
-		return properties;
+		super(applicationContext, config, msg, ConfirmationUI.class.getSimpleName(), new Properties(),
+				UnityServerConfiguration.CONFIRMATION_THEME, 
+				UnityServerConfiguration.CONFIRMATION_TEMPLATE, 
+				ConfirmationServlet.SERVLET_PATH);
 	}
 }

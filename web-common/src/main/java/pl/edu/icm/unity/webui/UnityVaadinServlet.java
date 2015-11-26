@@ -96,7 +96,7 @@ public class UnityVaadinServlet extends VaadinServlet
 		restoreThreadLocalState(saved);
 		
 		Object counter = getServletContext().getAttribute(UnsuccessfulAuthenticationCounter.class.getName());
-		if (counter == null)
+		if (counter == null && description != null)
 		{
 			AuthenticationRealm realm = description.getRealm();
 			getServletContext().setAttribute(UnsuccessfulAuthenticationCounter.class.getName(),
@@ -125,7 +125,8 @@ public class UnityVaadinServlet extends VaadinServlet
 		}; 
 		getService().setSystemMessagesProvider(msgProvider);
 		
-		getServletContext().getSessionCookieConfig().setHttpOnly(true);
+		if (!config.getServletContext().getSessionCookieConfig().isHttpOnly())
+			config.getServletContext().getSessionCookieConfig().setHttpOnly(true);
 	}
 	
 	private Map<Class<?>, Object> saveThreadLocalState()

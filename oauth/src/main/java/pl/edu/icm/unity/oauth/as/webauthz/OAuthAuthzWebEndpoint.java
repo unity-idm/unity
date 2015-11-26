@@ -137,7 +137,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		authenticationServlet = new UnityVaadinServlet(applicationContext, 
 				AuthenticationUI.class.getSimpleName(), description, authenticators,
 				registrationConfiguration, properties, 
-				getBootstrapHanlder4Authn(OAUTH_ROUTING_SERVLET_PATH));
+				getBootstrapHandler4Authn(OAUTH_ROUTING_SERVLET_PATH));
 		
 		authenticationServlet.setCancelHandler(new OAuthCancelHandler());
 		
@@ -147,7 +147,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		
 		theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
 				description, authenticators, registrationConfiguration, properties,
-				getBootstrapHanlder(OAUTH_ROUTING_SERVLET_PATH));
+				getBootstrapHandler(OAUTH_ROUTING_SERVLET_PATH));
 		context.addServlet(createVaadinServletHolder(theServlet, false), OAUTH_UI_SERVLET_PATH + "/*");
 
 		

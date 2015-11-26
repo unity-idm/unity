@@ -11,6 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.api.internal.PublicWellKnownURLServlet;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.webui.SimpleVaadinServletFactory;
 
@@ -23,8 +24,12 @@ import pl.edu.icm.unity.webui.SimpleVaadinServletFactory;
 public class PublicWellKnownUrlServletFactory extends SimpleVaadinServletFactory implements PublicWellKnownURLServlet
 {
 	@Autowired
-	public PublicWellKnownUrlServletFactory(ApplicationContext applicationContext, UnityServerConfiguration config)
+	public PublicWellKnownUrlServletFactory(ApplicationContext applicationContext, UnityMessageSource msg, 
+			UnityServerConfiguration config)
 	{
-		super(applicationContext, config, PublicNavigationUI.class.getSimpleName(), new Properties());
+		super(applicationContext, config, msg, PublicNavigationUI.class.getSimpleName(), new Properties(),
+				UnityServerConfiguration.WELL_KNOWN_URL_THEME, 
+				UnityServerConfiguration.WELL_KNOWN_URL_TEMPLATE,
+				PublicWellKnownURLServlet.SERVLET_PATH);
 	}
 }
