@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.api.internal.PublicWellKnownURLServlet;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-import pl.edu.icm.unity.webui.SimpleVaadinServletImpl;
+import pl.edu.icm.unity.webui.SimpleVaadinServletFactory;
 
 /**
  * Contains confirmation vaadin servlet implementation
@@ -20,10 +20,10 @@ import pl.edu.icm.unity.webui.SimpleVaadinServletImpl;
  *
  */
 @Component
-public class PublicWellKnownUrlServletImpl extends SimpleVaadinServletImpl implements PublicWellKnownURLServlet
+public class PublicWellKnownUrlServletFactory extends SimpleVaadinServletFactory implements PublicWellKnownURLServlet
 {
 	@Autowired
-	public PublicWellKnownUrlServletImpl(ApplicationContext applicationContext, UnityServerConfiguration config)
+	public PublicWellKnownUrlServletFactory(ApplicationContext applicationContext, UnityServerConfiguration config)
 	{
 		super(applicationContext, config, PublicNavigationUI.class.getSimpleName(), new Properties());
 	}

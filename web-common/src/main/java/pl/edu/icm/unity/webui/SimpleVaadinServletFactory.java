@@ -9,12 +9,9 @@ import java.util.Properties;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-import pl.edu.icm.unity.webui.VaadinUIProvider;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 
 import com.vaadin.server.DeploymentConfiguration;
@@ -30,16 +27,14 @@ import com.vaadin.server.VaadinServletService;
  * @author P. Piernik
  *
  */
-@Component
-public class SimpleVaadinServletImpl
+public class SimpleVaadinServletFactory
 {
 	private ApplicationContext applicationContext;
 	private UnityServerConfiguration config;
 	private String uiClassName;
 	private Properties configuration;
 
-	@Autowired
-	public SimpleVaadinServletImpl(ApplicationContext applicationContext, UnityServerConfiguration config,
+	public SimpleVaadinServletFactory(ApplicationContext applicationContext, UnityServerConfiguration config,
 			String uiClassName, Properties configuration)
 	{
 		this.applicationContext = applicationContext;
@@ -50,7 +45,7 @@ public class SimpleVaadinServletImpl
 	
 	public Servlet getServiceServlet()
 	{
-		return new ConfirmationVaadinServlet();
+		return new SimpleVaadinServlet();
 	}
 	
 	public Filter getServiceFilter()
@@ -58,7 +53,7 @@ public class SimpleVaadinServletImpl
 		return new InvocationContextSetupFilter(config, null, null);
 	}
 
-	private class ConfirmationVaadinServlet extends VaadinServlet
+	private class SimpleVaadinServlet extends VaadinServlet
 	{
 				
 		@Override

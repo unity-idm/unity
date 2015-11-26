@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationServlet;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-import pl.edu.icm.unity.webui.SimpleVaadinServletImpl;
+import pl.edu.icm.unity.webui.SimpleVaadinServletFactory;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 
 /**
@@ -21,10 +21,10 @@ import pl.edu.icm.unity.webui.VaadinEndpointProperties;
  *
  */
 @Component
-public class ConfirmationServletImpl extends SimpleVaadinServletImpl implements ConfirmationServlet
+public class ConfirmationServletFactory extends SimpleVaadinServletFactory implements ConfirmationServlet
 {
 	@Autowired
-	public ConfirmationServletImpl(ApplicationContext applicationContext, UnityServerConfiguration config)
+	public ConfirmationServletFactory(ApplicationContext applicationContext, UnityServerConfiguration config)
 	{
 		super(applicationContext, config, ConfirmationUI.class.getSimpleName(), prepareConfig(config));
 	}
