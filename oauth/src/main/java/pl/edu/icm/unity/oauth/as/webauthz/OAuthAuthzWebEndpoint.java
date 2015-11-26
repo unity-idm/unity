@@ -27,6 +27,7 @@ import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.server.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.server.utils.RoutingServlet;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityVaadinServlet;
@@ -59,9 +60,9 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 			ApplicationContext applicationContext, FreemarkerHandler freemarkerHandler,
 			IdentitiesManagement identitiesManagement, AttributesManagement attributesManagement,
 			PKIManagement pkiManagement, OAuthEndpointsCoordinator coordinator,
-			ASConsentDeciderServletFactory dispatcherServletFactory)
+			ASConsentDeciderServletFactory dispatcherServletFactory, UnityMessageSource msg)
 	{
-		super(server, applicationContext, OAuthAuthzUI.class.getSimpleName(), OAUTH_UI_SERVLET_PATH);
+		super(server, msg, applicationContext, OAuthAuthzUI.class.getSimpleName(), OAUTH_UI_SERVLET_PATH);
 		this.freemarkerHandler = freemarkerHandler;
 		this.attributesManagement = attributesManagement;
 		this.identitiesManagement = identitiesManagement;
@@ -135,7 +136,8 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
 		authenticationServlet = new UnityVaadinServlet(applicationContext, 
 				AuthenticationUI.class.getSimpleName(), description, authenticators,
-				registrationConfiguration, properties);
+				registrationConfiguration, properties, 
+				getBootstrapHanlder4Authn(OAUTH_ROUTING_SERVLET_PATH));
 		
 		authenticationServlet.setCancelHandler(new OAuthCancelHandler());
 		
@@ -144,7 +146,8 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		context.addServlet(authnServletHolder, VAADIN_RESOURCES);
 		
 		theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
-				description, authenticators, registrationConfiguration, properties);
+				description, authenticators, registrationConfiguration, properties,
+				getBootstrapHanlder(OAUTH_ROUTING_SERVLET_PATH));
 		context.addServlet(createVaadinServletHolder(theServlet, false), OAUTH_UI_SERVLET_PATH + "/*");
 
 		

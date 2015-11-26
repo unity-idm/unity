@@ -9,8 +9,8 @@ window.__gwtStatsEvent = function(event) {vaadin.gwtStatsEvents.push(event); ret
 }
 
 vaadin.initApplication("${appId}",{
-    "browserDetailsUrl": "vaadin-ui/",
-    "serviceUrl": "vaadin-ui/",
+    "browserDetailsUrl": ".${uiPath}/",
+    "serviceUrl": ".${uiPath}/",
     "theme": "${theme}",
     "versionInfo": {
         "vaadinVersion": "${vaadinVersion}"

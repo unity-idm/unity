@@ -74,7 +74,8 @@ public class SimpleVaadinServletImpl
 				{
 					VaadinUIProvider uiProv = new VaadinUIProvider(applicationContext, 
 							uiClassName,
-							null, null, null, configuration);
+							null, null, null, configuration, 
+							VaadinEndpointProperties.THEME);
 					event.getSession().addUIProvider(uiProv);
 				}
 			});

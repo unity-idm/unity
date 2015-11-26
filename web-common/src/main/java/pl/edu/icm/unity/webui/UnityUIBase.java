@@ -148,15 +148,6 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	 */
 	protected abstract void appInit(VaadinRequest request);
 
-	/**
-	 * @return the configuration key under which UI's theme can be explicitly set.  
-	 */
-	@Override
-	public String getThemeConfigKey()
-	{
-		return VaadinEndpointProperties.THEME;
-	}
-	
 	private class ErrorHandlerImpl extends DefaultErrorHandler 
 	{
 		@Override

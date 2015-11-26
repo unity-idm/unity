@@ -8,7 +8,7 @@ import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
 /**
- * Provides servlet using as endpoint for confirmation
+ * Provides servlet used as a confirmation endpoint
  *
  * @author P. Piernik
  *

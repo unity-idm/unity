@@ -117,12 +117,6 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		this.authenticators = new ArrayList<>(authenticators);
 		this.registrationConfiguration = registrationConfiguration;
 	}
-
-	@Override
-	public String getThemeConfigKey()
-	{
-		return VaadinEndpointProperties.AUTHN_THEME;
-	}
 	
 	@Override
 	protected void appInit(final VaadinRequest request)
