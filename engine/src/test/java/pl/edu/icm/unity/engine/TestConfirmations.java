@@ -460,7 +460,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 				.withAddedAttribute(
 						new VerifiableEmailAttribute(
 								InitializerCommon.EMAIL_ATTR, "/",
-								AttributeVisibility.full, "test1@a.b"))
+								AttributeVisibility.full, "test1@example.com"))
 				.withAddedCredential()
 				.withCredentialId(EngineInitialization.DEFAULT_CREDENTIAL)
 				.withSecrets(new PasswordToken("abs").toJson()).endCredential()
@@ -638,7 +638,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 				.withAddedAttribute(
 						new VerifiableEmailAttribute(
 								InitializerCommon.EMAIL_ATTR, "/",
-								AttributeVisibility.full, "test2@a.b"))
+								AttributeVisibility.full, "test2@example.com"))
 				.withAddedCredential()
 				.withCredentialId(EngineInitialization.DEFAULT_CREDENTIAL)
 				.withSecrets(new PasswordToken("abs").toJson()).endCredential()
@@ -731,13 +731,13 @@ public class TestConfirmations extends DBIntegrationTestBase
 				.withAddedAttribute(
 						new VerifiableEmailAttribute(
 								InitializerCommon.EMAIL_ATTR, "/",
-								AttributeVisibility.full, "test3@a.b"))
+								AttributeVisibility.full, "test3@example.com"))
 				.withAddedCredential()
 				.withCredentialId(EngineInitialization.DEFAULT_CREDENTIAL)
 				.withSecrets(new PasswordToken("abs").toJson()).endCredential()
 				.withAddedGroupSelection().withSelected(true).endGroupSelection()
 				.withAddedIdentity().withTypeId(EmailIdentity.ID)
-				.withValue("test33@c.d").endIdentity()
+				.withValue("test33@example.com").endIdentity()
 				.build();
 
 		String requestId = registrationsMan.submitRegistrationRequest(request, true);
@@ -838,7 +838,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 				.withAddedAttribute(
 						new VerifiableEmailAttribute(
 								InitializerCommon.EMAIL_ATTR, "/",
-								AttributeVisibility.full, "test5@a.b"))
+								AttributeVisibility.full, "test5@example.com"))
 				.withAddedCredential()
 				.withCredentialId(EngineInitialization.DEFAULT_CREDENTIAL)
 				.withSecrets(new PasswordToken("abs").toJson()).endCredential()

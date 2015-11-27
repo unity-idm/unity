@@ -118,6 +118,51 @@ public class SAMLSessionParticipant implements SessionParticipant
 	@Override
 	public String toString()
 	{
-		return identifier;
+		return identifier + " [" + sessionIndex + " / " + principalNameAtParticipant + "]";
+	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((identifier == null) ? 0 : identifier.hashCode());
+		result = prime
+				* result
+				+ ((principalNameAtParticipant == null) ? 0
+						: principalNameAtParticipant.hashCode());
+		result = prime * result + ((sessionIndex == null) ? 0 : sessionIndex.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SAMLSessionParticipant other = (SAMLSessionParticipant) obj;
+		if (identifier == null)
+		{
+			if (other.identifier != null)
+				return false;
+		} else if (!identifier.equals(other.identifier))
+			return false;
+		if (principalNameAtParticipant == null)
+		{
+			if (other.principalNameAtParticipant != null)
+				return false;
+		} else if (!principalNameAtParticipant.equals(other.principalNameAtParticipant))
+			return false;
+		if (sessionIndex == null)
+		{
+			if (other.sessionIndex != null)
+				return false;
+		} else if (!sessionIndex.equals(other.sessionIndex))
+			return false;
+		return true;
 	}
 }

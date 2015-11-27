@@ -106,7 +106,7 @@ The following changes in configuration are necessary:
  scaling mode can be configured per endpoint in its authentication configuration. Scaling is no more fixed, it is using 
  CSS class names (small, tiny, ...) which are controlled by theme and can be customized.
 
-==== From 1.6.x to 1.7.0
+==== From 1.6.x to 1.7.x
 
 First of all make sure you use Java 8. 
 
@@ -115,6 +115,17 @@ URL* which can be defined for a registration form. Previously used redirect URL 
 is not available any more. Instead the same URL is used, but has rich set of query parameters allowing 
 consuming service to present appropriate content.
 
+Starting from the *version 1.7.1* an updated H2 DB engine is used (to fix problems with the older version). 
+This change requires that all H2 relative paths are started from +./+. E.g. 
++jdbc:h2:file:./data/unitydb.bin;LOCK_TIMEOUT=10000;MVCC=TRUE+ is a correct path. Please update your configuration
+file (always for the local DB, and also for the main DB if it is using the H2 database).
+
+In the version *1.7.2* a stricter email validation is implemented. This means that some addresses that 
+were accepted by the previous Unity versions are not valid anymore. For instance +some@@email.com+ or 
+addresses with invalid DNS domain are not accepted. Due this change an import of database dump with invalid
+email addresses inside will not be loaded. You have to fix invalid addresses before importing, 
+directly in the database dump.
+   
 ==== From 1.7.x to 1.8.0
 
 Version 1.8.0 introduces a completely new group attribute statements feature. During the (automatic) database update
@@ -130,4 +141,5 @@ specify any attribute values in conditions. The semantics was that only if the m
 group with the specified value the attribute is copied or the new one is assigned in the statement's group.
 If your statements did use that feature, you have to manually modify the conditions of the converted statements 
 to add proper attribute value based rules. In case of troubles please ask at the mailing list!  
+
 

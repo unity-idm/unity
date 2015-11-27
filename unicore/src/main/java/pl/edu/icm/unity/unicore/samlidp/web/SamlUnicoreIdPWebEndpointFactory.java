@@ -16,11 +16,13 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
+import pl.edu.icm.unity.saml.idp.web.SamlIdPWebEndpointFactory.IdPLoginHandlerImpl;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 import pl.edu.icm.unity.server.api.PKIManagement;
+import pl.edu.icm.unity.server.api.internal.IdPLoginController;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
@@ -61,7 +63,7 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 			ExecutorsService executorsService, MetaDownloadManager downloadManager, 
 			UnityServerConfiguration mainConfig, UnicoreIdpConsentDeciderServletFactory dispatcherServletFactory,
 			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller,
-			UnityMessageSource msg, NetworkServer server)
+			UnityMessageSource msg, NetworkServer server, IdPLoginController loginController)
 	{
 		this.applicationContext = applicationContext;
 		this.freemarkerHandler = freemarkerHandler;
@@ -89,6 +91,7 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 				"Single Logout web endpoint (supports SOAP binding)");
 		description = new EndpointTypeDescription(NAME, 
 				"SAML 2 UNICORE identity provider web endpoint", supportedAuthn,paths);
+		loginController.addIdPLoginHandler(new IdPLoginHandlerImpl());
 	}
 	
 	@Override

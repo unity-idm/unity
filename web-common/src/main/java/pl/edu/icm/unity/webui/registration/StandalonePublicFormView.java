@@ -9,6 +9,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
+import pl.edu.icm.unity.server.api.internal.IdPLoginController;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -45,6 +46,7 @@ public class StandalonePublicFormView extends CustomComponent implements View
 	private GroupsManagement groupsMan;
 	private UnityMessageSource msg;
 	private UnityServerConfiguration cfg;
+	private IdPLoginController idpLoginController;
 	
 	public StandalonePublicFormView(RegistrationForm form, UnityMessageSource msg,
 			RegistrationsManagement regMan,
@@ -54,7 +56,7 @@ public class StandalonePublicFormView extends CustomComponent implements View
 			AttributesManagement attrsMan, 
 			AuthenticationManagement authnMan,
 			GroupsManagement groupsMan,
-			UnityServerConfiguration cfg)
+			UnityServerConfiguration cfg, IdPLoginController idpLoginController)
 	{
 		this.form = form;
 		this.msg = msg;
@@ -66,6 +68,7 @@ public class StandalonePublicFormView extends CustomComponent implements View
 		this.authnMan = authnMan;
 		this.groupsMan = groupsMan;
 		this.cfg = cfg;
+		this.idpLoginController = idpLoginController;
 	}
 	
 	@Override
@@ -108,7 +111,7 @@ public class StandalonePublicFormView extends CustomComponent implements View
 		
 		Button cancel = new Button(msg.getMessage("cancel"));
 		cancel.addClickListener(event -> {
-			new PostRegistrationHandler(form, msg).cancelled(true);
+			new PostRegistrationHandler(idpLoginController, form, msg).cancelled(true);
 		});
 		buttons.addComponents(cancel, ok);
 		buttons.setSpacing(true);
@@ -127,10 +130,10 @@ public class StandalonePublicFormView extends CustomComponent implements View
 		{
 			RegistrationRequest request = editor.getRequest();
 			String requestId = regMan.submitRegistrationRequest(request, true);
-			new PostRegistrationHandler(form, msg).submitted(requestId, regMan);
+			new PostRegistrationHandler(idpLoginController, form, msg).submitted(requestId, regMan);
 		} catch (Exception e) 
 		{
-			new PostRegistrationHandler(form, msg).submissionError(e);
+			new PostRegistrationHandler(idpLoginController, form, msg).submissionError(e);
 		}
 	}
 

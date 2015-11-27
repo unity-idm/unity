@@ -197,7 +197,7 @@ public class TestWrite extends TestRESTBase
 	public void addEmailIdentityPreservesMetadata() throws Exception
 	{
 		HttpPost addEntity = new HttpPost("/restadm/v1/entity/identity/email/"
-				+ "user%40example.xom%5BCONFIRMED%5D?credentialRequirement=cr-pass");
+				+ "user%40example.com%5BCONFIRMED%5D?credentialRequirement=cr-pass");
 		HttpResponse response = client.execute(host, addEntity, localcontext);
 		String contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
@@ -206,9 +206,9 @@ public class TestWrite extends TestRESTBase
 		Entity entity = idsMan.getEntity(new EntityParam(entityId));
 		Identity emailId = getIdentityByType(entity.getIdentities(), EmailIdentity.ID);
 		assertTrue(emailId.isConfirmed());
-		assertEquals("user@example.xom", emailId.getValue());
+		assertEquals("user@example.com", emailId.getValue());
 		
-		HttpGet resolve = new HttpGet("/restadm/v1/resolve/email/user%40example.xom");
+		HttpGet resolve = new HttpGet("/restadm/v1/resolve/email/user%40example.com");
 		response = client.execute(host, resolve, localcontext);
 		contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());

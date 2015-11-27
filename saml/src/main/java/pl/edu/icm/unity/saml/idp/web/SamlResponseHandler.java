@@ -17,7 +17,6 @@ import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
-import pl.edu.icm.unity.saml.idp.web.filter.SamlParseServlet;
 import pl.edu.icm.unity.server.utils.Log;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
@@ -26,7 +25,6 @@ import com.vaadin.server.SynchronizedRequestHandler;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinSession;
-import com.vaadin.server.WrappedSession;
 
 import eu.unicore.samly2.exceptions.SAMLServerException;
 
@@ -90,7 +88,7 @@ public class SamlResponseHandler
 			String encodedAssertion = Base64.encode(assertion.getBytes(StandardCharsets.UTF_8));
 			SessionDisposal error = session.getAttribute(SessionDisposal.class);
 			
-			SAMLAuthnContext samlCtx = getContext();
+			SAMLAuthnContext samlCtx = SAMLContextSupport.getContext();
 			String serviceUrl = samlCtx.getRequestDocument().getAuthnRequest().getAssertionConsumerServiceURL();
 			if (serviceUrl == null)
 				serviceUrl = samlCtx.getSamlConfiguration().getReturnAddressForRequester(
@@ -113,7 +111,7 @@ public class SamlResponseHandler
 					log.trace("RelayState: " + samlCtx.getRelayState());
 			}
 
-			cleanContext();
+			SAMLContextSupport.cleanContext();
 			if (error!= null && error.isDestroySession())
 				session.getSession().invalidate();
 			response.setContentType("application/xhtml+xml; charset=utf-8");
@@ -121,25 +119,6 @@ public class SamlResponseHandler
 			freemarkerHandler.process("finishSaml.ftl", data, writer);
 			return true;
 		}
-	}
-	
-	
-	public static SAMLAuthnContext getContext()
-	{
-		WrappedSession httpSession = VaadinSession.getCurrent().getSession();
-		SAMLAuthnContext ret = (SAMLAuthnContext) httpSession.getAttribute(
-				SamlParseServlet.SESSION_SAML_CONTEXT);
-		if (ret == null)
-			throw new IllegalStateException("No SAML context in UI");
-		return ret;
-	}
-	
-	public static void cleanContext()
-	{
-		VaadinSession vSession = VaadinSession.getCurrent();
-		vSession.setAttribute(ResponseDocument.class, null);
-		WrappedSession httpSession = vSession.getSession();
-		httpSession.removeAttribute(SamlParseServlet.SESSION_SAML_CONTEXT);
 	}
 	
 	private static class SessionDisposal
