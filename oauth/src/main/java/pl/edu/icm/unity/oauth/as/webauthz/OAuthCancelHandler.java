@@ -22,7 +22,7 @@ public class OAuthCancelHandler implements CancelHandler
 	{
 		OAuthResponseHandler responseH = new OAuthResponseHandler();
 
-		OAuthAuthzContext ctx = OAuthResponseHandler.getContext();
+		OAuthAuthzContext ctx = OAuthContextUtils.getContext();
 		AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
 				OAuth2Error.ACCESS_DENIED, ctx.getRequest().getState(),
 				ctx.getRequest().impliedResponseMode());

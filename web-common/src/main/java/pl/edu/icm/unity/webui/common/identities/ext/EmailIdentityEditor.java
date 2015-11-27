@@ -68,6 +68,15 @@ public class EmailIdentityEditor implements IdentityEditor
 		}
 		field.setComponentError(null);
 		
+		try
+		{
+			new EmailIdentity().validate(emailVal);
+		} catch (IllegalIdentityValueException e)
+		{
+			field.setComponentError(new UserError(e.getMessage()));
+			throw e;
+		}
+		
 		VerifiableEmail ve = new VerifiableEmail(emailVal);
 		if (adminMode)
 			ve.setConfirmationInfo(new ConfirmationInfo(confirmed.getValue()));

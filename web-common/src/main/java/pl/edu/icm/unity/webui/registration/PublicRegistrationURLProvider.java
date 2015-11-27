@@ -16,6 +16,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
+import pl.edu.icm.unity.server.api.internal.IdPLoginController;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
@@ -46,8 +47,8 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 	private AuthenticationManagement authnMan;
 	private GroupsManagement groupsMan;
 	private UnityMessageSource msg;
-
 	private UnityServerConfiguration cfg;
+	private IdPLoginController idpLoginController;
 	
 	@Autowired
 	public PublicRegistrationURLProvider(UnityMessageSource msg,
@@ -58,7 +59,8 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 			@Qualifier("insecure") AttributesManagement attrsMan, 
 			@Qualifier("insecure") AuthenticationManagement authnMan,
 			@Qualifier("insecure") GroupsManagement groupsMan,
-			UnityServerConfiguration cfg)
+			UnityServerConfiguration cfg, 
+			IdPLoginController idpLoginController)
 	{
 		this.msg = msg;
 		this.regMan = regMan;
@@ -69,6 +71,7 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 		this.authnMan = authnMan;
 		this.groupsMan = groupsMan;
 		this.cfg = cfg;
+		this.idpLoginController = idpLoginController;
 	}
 
 	@Override
@@ -88,7 +91,7 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 			return null;
 		return new StandalonePublicFormView(form, msg, regMan, identityEditorRegistry, 
 				credentialEditorRegistry, attributeHandlerRegistry, attrsMan, authnMan, 
-				groupsMan, cfg);
+				groupsMan, cfg, idpLoginController);
 	}
 
 	

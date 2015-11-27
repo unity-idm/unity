@@ -39,6 +39,7 @@
 	<bean class="pl.edu.icm.unity.server.translation.out.OutputTranslationEngine"/>
 
 	<bean class="pl.edu.icm.unity.server.api.internal.IdPEngine"/>
+	<bean class="pl.edu.icm.unity.server.api.internal.IdPLoginController"/>
 	
 	<bean class="pl.edu.icm.unity.json.AttributeTypeSerializer"/>
 	

@@ -321,13 +321,26 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		Button register = new Button(msg.getMessage("RegistrationFormChooserDialog.register"));
 		register.addStyleName(Styles.vButtonLink.toString());
 		
-		final AbstractDialog dialog;
+		register.addClickListener(new ClickListener()
+		{
+			@Override
+			public void buttonClick(ClickEvent event)
+			{
+				createRegistrationDialog().show();
+			}
+		});
+		register.setId("AuthenticationUI.registerButton");
+		return register;
+	}
+	
+	private AbstractDialog createRegistrationDialog()
+	{
 		if (formsChooser.getDisplayedForms().size() == 1)
 		{
 			RegistrationForm form = formsChooser.getDisplayedForms().get(0);
 			try
 			{
-				dialog = formLauncher.getDialog(form, new RemotelyAuthenticatedContext("--none--",
+				return formLauncher.getDialog(form, new RemotelyAuthenticatedContext("--none--",
 						"--none--"));
 			} catch (EngineException e)
 			{
@@ -341,19 +354,9 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			}
 		} else
 		{
-			dialog = new RegistrationFormChooserDialog(
+			return new RegistrationFormChooserDialog(
 				msg, msg.getMessage("RegistrationFormChooserDialog.selectForm"), formsChooser);
 		}
-		register.addClickListener(new ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				dialog.show();
-			}
-		});
-		register.setId("AuthenticationUI.registerButton");
-		return register;
 	}
 	
 	@Override

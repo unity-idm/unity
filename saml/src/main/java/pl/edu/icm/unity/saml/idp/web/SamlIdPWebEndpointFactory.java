@@ -21,6 +21,8 @@ import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 import pl.edu.icm.unity.server.api.PKIManagement;
+import pl.edu.icm.unity.server.api.internal.IdPLoginController;
+import pl.edu.icm.unity.server.api.internal.IdPLoginController.IdPLoginHandler;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
@@ -60,7 +62,7 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 			ExecutorsService executorsService, UnityServerConfiguration mainConfig,
 			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller,
 			IdpConsentDeciderServletFactoryImpl dispatcherServletFactory,
-			UnityMessageSource msg, NetworkServer server)
+			UnityMessageSource msg, NetworkServer server, IdPLoginController loginController)
 	{
 		this.applicationContext = applicationContext;
 		this.freemarkerHandler = freemarkerHandler;
@@ -88,6 +90,7 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 				"Single Logout web endpoint (supports SOAP binding)");
 		description = new EndpointTypeDescription(NAME, 
 				"SAML 2 identity provider web endpoint", supportedAuthn, paths);
+		loginController.addIdPLoginHandler(new IdPLoginHandlerImpl());
 	}
 	
 	@Override
@@ -105,4 +108,18 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 				logoutProcessorFactory, sloReplyInstaller, msg);
 	}
 
+	public static class IdPLoginHandlerImpl implements IdPLoginHandler
+	{
+		@Override
+		public boolean isLoginInProgress()
+		{
+			return SAMLContextSupport.hasContext();
+		}
+
+		@Override
+		public void breakLogin()
+		{
+			SAMLContextSupport.cleanContext();
+		}
+	}
 }

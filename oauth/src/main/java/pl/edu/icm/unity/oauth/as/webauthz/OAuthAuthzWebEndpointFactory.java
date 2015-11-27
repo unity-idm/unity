@@ -18,7 +18,9 @@ import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
+import pl.edu.icm.unity.server.api.internal.IdPLoginController;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
+import pl.edu.icm.unity.server.api.internal.IdPLoginController.IdPLoginHandler;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -50,7 +52,7 @@ public class OAuthAuthzWebEndpointFactory implements EndpointFactory
 			@Qualifier("insecure") IdentitiesManagement identitiesManagement, 
 			@Qualifier("insecure") AttributesManagement attributesManagement,
 			PKIManagement pkiManagement, ASConsentDeciderServletFactory dispatcherServletFactory,
-			NetworkServer server)
+			NetworkServer server, IdPLoginController loginController)
 	{
 		this.applicationContext = applicationContext;
 		this.freemarkerHandler = freemarkerHandler;
@@ -67,6 +69,7 @@ public class OAuthAuthzWebEndpointFactory implements EndpointFactory
 		paths.put(OAuthAuthzWebEndpoint.OAUTH_CONSUMER_SERVLET_PATH, "OAuth 2 Authorization Grant web endpoint");
 		description = new EndpointTypeDescription(NAME, 
 				"OAuth 2 Server - Authorization Grant endpoint", supportedAuthn, paths);
+		loginController.addIdPLoginHandler(new IdpLoginControllerImpl());
 	}
 	
 	@Override
@@ -81,5 +84,20 @@ public class OAuthAuthzWebEndpointFactory implements EndpointFactory
 		return new OAuthAuthzWebEndpoint(server, applicationContext,  
 				freemarkerHandler, identitiesManagement, 
 				attributesManagement, pkiManagement, coordinator, dispatcherServletFactory);
+	}
+	
+	public static class IdpLoginControllerImpl implements IdPLoginHandler
+	{
+		@Override
+		public boolean isLoginInProgress()
+		{
+			return OAuthContextUtils.hasContext();
+		}
+
+		@Override
+		public void breakLogin()
+		{
+			OAuthContextUtils.cleanContext();
+		}
 	}
 }

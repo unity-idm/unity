@@ -30,7 +30,7 @@ public class SamlAuthnCancelHandler implements CancelHandler
 	@Override
 	public void onCancel()
 	{
-		AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(SamlResponseHandler.getContext(), 
+		AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(SAMLContextSupport.getContext(), 
 				Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 		SamlResponseHandler responseHandler = new SamlResponseHandler(freemarkerHandler, samlProcessor);
 		AuthenticationException ea = new AuthenticationException("Authentication was declined");

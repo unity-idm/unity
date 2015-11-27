@@ -105,7 +105,7 @@ public class OAuthAuthzUI extends UnityUIBase
 	@Override
 	protected void appInit(VaadinRequest request)
 	{
-		OAuthAuthzContext ctx = OAuthResponseHandler.getContext();
+		OAuthAuthzContext ctx = OAuthContextUtils.getContext();
 		oauthResponseHandler = new OAuthResponseHandler();
 		oauthProcessor = new OAuthProcessor();
 		
@@ -338,7 +338,7 @@ public class OAuthAuthzUI extends UnityUIBase
 	{
 		try
 		{
-			OAuthAuthzContext ctx = OAuthResponseHandler.getContext();
+			OAuthAuthzContext ctx = OAuthContextUtils.getContext();
 			OAuthPreferences preferences = OAuthPreferences.getPreferences(preferencesMan);
 			updatePreferencesFromUI(preferences, ctx, defaultAccept);
 			OAuthPreferences.savePreferences(preferencesMan, preferences);
@@ -350,7 +350,7 @@ public class OAuthAuthzUI extends UnityUIBase
 	
 	protected void decline() throws EopException
 	{
-		OAuthAuthzContext ctx = OAuthResponseHandler.getContext();
+		OAuthAuthzContext ctx = OAuthContextUtils.getContext();
 		storePreferences(false);
 		AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
 				OAuth2Error.ACCESS_DENIED, ctx.getRequest().getState(),
@@ -361,7 +361,7 @@ public class OAuthAuthzUI extends UnityUIBase
 	protected void confirm() throws EopException
 	{
 		storePreferences(true);
-		OAuthAuthzContext ctx = OAuthResponseHandler.getContext();
+		OAuthAuthzContext ctx = OAuthContextUtils.getContext();
 		try
 		{
 			Collection<Attribute<?>> attributes = attrsPresenter.getUserFilteredAttributes();

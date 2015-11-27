@@ -18,8 +18,8 @@ import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
+import pl.edu.icm.unity.saml.idp.web.SAMLContextSupport;
 import pl.edu.icm.unity.saml.idp.web.SamlIdPWebUI;
-import pl.edu.icm.unity.saml.idp.web.SamlResponseHandler;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
@@ -81,7 +81,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	@Override
 	protected void appInit(VaadinRequest request)
 	{
-		SAMLAuthnContext samlCtx = SamlResponseHandler.getContext();
+		SAMLAuthnContext samlCtx = SAMLContextSupport.getContext();
 		samlWithEtdProcessor = new AuthnWithETDResponseProcessor(samlCtx, Calendar.getInstance());
 		super.appInit(request);
 	}
@@ -183,7 +183,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	{
 		try
 		{
-			SAMLAuthnContext samlCtx = SamlResponseHandler.getContext();
+			SAMLAuthnContext samlCtx = SAMLContextSupport.getContext();
 			SamlPreferencesWithETD preferences = SamlPreferencesWithETD.getPreferences(preferencesMan, 
 					attributeSyntaxFactoriesRegistry);
 			updatePreferencesFromUI(preferences, samlCtx, defaultAccept);
