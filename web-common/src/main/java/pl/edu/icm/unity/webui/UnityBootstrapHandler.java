@@ -63,6 +63,9 @@ public class UnityBootstrapHandler extends SynchronizedRequestHandler
 			VaadinResponse response) throws IOException
 	{
 		response.setContentType("text/html; charset=utf-8");
+	        response.setHeader("Cache-Control", "no-cache");
+	        response.setHeader("Pragma", "no-cache");
+	        response.setDateHeader("Expires", 0);
 		process(mainTemplate, createContext(), response.getWriter());
 		return true;
 	}
