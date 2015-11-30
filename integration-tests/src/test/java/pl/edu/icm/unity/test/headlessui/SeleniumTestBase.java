@@ -39,7 +39,7 @@ public class SeleniumTestBase
 	public static final int WAIT_TIME_S = 45;
 	public static final int SLEEP_TIME_MS = 250;
 	public static final int SIMPLE_WAIT_TIME_MS = Integer.parseInt(
-			System.getProperty("unity.selenium.delay", "1000"));
+			System.getProperty("unity.selenium.delay", "2000"));
 	protected WebDriver driver;
 
 	private StringBuffer verificationErrors = new StringBuffer();
