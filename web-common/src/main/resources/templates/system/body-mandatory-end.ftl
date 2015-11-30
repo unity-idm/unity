@@ -9,7 +9,6 @@ window.__gwtStatsEvent = function(event) {vaadin.gwtStatsEvents.push(event); ret
 }
 
 vaadin.initApplication("${appId}",{
-    "browserDetailsUrl": ".${uiPath}/",
     "serviceUrl": ".${uiPath}/",
     "theme": "${theme}",
     "versionInfo": {
@@ -33,7 +32,7 @@ vaadin.initApplication("${appId}",{
     },
     "vaadinDir": "./VAADIN/",
     "debug": ${debug},
-    "standalone": false,
+    "standalone": true,
     "heartbeatInterval": ${heartbeat}
 });
 //]]></script>
