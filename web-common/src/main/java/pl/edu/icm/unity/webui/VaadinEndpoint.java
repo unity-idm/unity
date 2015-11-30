@@ -34,9 +34,9 @@ import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.server.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
-import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 
 import com.vaadin.server.Constants;
@@ -53,6 +53,7 @@ import eu.unicore.util.configuration.ConfigurationException;
 public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, VaadinEndpoint.class);
+	public static final String DEFAULT_THEME = "unityThemeValo";
 	public static final int DEFAULT_HEARTBEAT = 10;
 	public static final int LONG_SESSION = 3600;
 	public static final int LONG_HEARTBEAT = 300;
@@ -73,11 +74,13 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 	protected AuthenticationFilter authnFilter;
 	protected InvocationContextSetupFilter contextSetupFilter;
 	protected UnityServerConfiguration serverConfig;
+	protected UnityMessageSource msg;
 	
-	public VaadinEndpoint(NetworkServer server, ApplicationContext applicationContext,
+	public VaadinEndpoint(NetworkServer server, UnityMessageSource msg, ApplicationContext applicationContext,
 			String uiBeanName, String servletPath)
 	{
 		super(server);
+		this.msg = msg;
 		this.applicationContext = applicationContext;
 		this.uiBeanName = uiBeanName;
 		this.uiServletPath = servletPath;
@@ -94,7 +97,8 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 			properties.load(new StringReader(cfg));
 			//a copy is set to endpoint's configuration so that the default is easily accessible
 			if (serverConfig.isSet(UnityServerConfiguration.THEME))
-				properties.setProperty(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.DEF_THEME, 
+				properties.setProperty(VaadinEndpointProperties.PREFIX + 
+						VaadinEndpointProperties.DEF_THEME, 
 					serverConfig.getValue(UnityServerConfiguration.THEME));
 			
 			genericEndpointProperties = new VaadinEndpointProperties(properties);
@@ -131,19 +135,49 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 
 		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
 		
-		authenticationServlet = new UnityVaadinServlet(applicationContext, 
-				AuthenticationUI.class.getSimpleName(), description, authenticators, 
-				registrationConfiguration, properties);
+		UnityBootstrapHandler handler4Authn = getBootstrapHandler4Authn(uiServletPath);
+		authenticationServlet = new AuthenticationVaadinServlet(applicationContext, 
+				description, authenticators, 
+				registrationConfiguration, properties, handler4Authn);
 		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet, true);
 		authnServletHolder.setInitParameter("closeIdleSessions", "true");
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");
 		context.addServlet(authnServletHolder, VAADIN_RESOURCES);
 		
+		UnityBootstrapHandler handler4Main = getBootstrapHandler(uiServletPath);
 		theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
-				description, authenticators, registrationConfiguration, properties);
+				description, authenticators, registrationConfiguration, properties,
+				handler4Main);
 		context.addServlet(createVaadinServletHolder(theServlet, false), uiServletPath + "/*");
 		
 		return context;
+	}
+	
+	protected UnityBootstrapHandler getBootstrapHandler(String uiPath)
+	{
+		int sessionTimeout = description.getRealm().getMaxInactivity();
+		return getBootstrapHandlerGeneric(uiPath, getHeartbeatInterval(sessionTimeout),
+				VaadinEndpointProperties.THEME);
+	}
+
+	protected UnityBootstrapHandler getBootstrapHandler4Authn(String uiPath)
+	{
+		return getBootstrapHandlerGeneric(uiPath, LONG_HEARTBEAT, VaadinEndpointProperties.AUTHN_THEME);
+	}
+
+	private UnityBootstrapHandler getBootstrapHandlerGeneric(String uiPath, int heartBeat, String themeKey)
+	{
+		String template = genericEndpointProperties.getValue(VaadinEndpointProperties.TEMPLATE);
+		boolean productionMode = genericEndpointProperties.getBooleanValue(
+				VaadinEndpointProperties.PRODUCTION_MODE);
+		return new UnityBootstrapHandler(template, msg, getConfiguredTheme(themeKey), !productionMode, 
+				heartBeat, uiPath);
+	}
+	
+	private String getConfiguredTheme(String themeKey)
+	{
+		String theme = genericEndpointProperties.getConfiguredTheme(themeKey);
+		return theme == null ? DEFAULT_THEME : theme;
 	}
 	
 	@Override
@@ -238,8 +272,9 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 
 	private void addSandboxUI(String path, String uiBeanName, SandboxAuthnRouter sandboxRouter)
 	{
+		UnityBootstrapHandler bootstrapHanlder = getBootstrapHandler(path);
 		UnityVaadinServlet sandboxServlet = new UnityVaadinServlet(applicationContext, 
-				uiBeanName, description, authenticators, null, properties);
+				uiBeanName, description, authenticators, null, properties, bootstrapHanlder);
 		sandboxServlet.setSandboxRouter(sandboxRouter);
 		ServletHolder sandboxServletHolder = createVaadinServletHolder(sandboxServlet, true);
 		sandboxServletHolder.setInitParameter("closeIdleSessions", "true");

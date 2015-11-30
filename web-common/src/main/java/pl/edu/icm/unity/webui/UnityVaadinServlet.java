@@ -45,7 +45,6 @@ import com.vaadin.util.CurrentInstance;
  * Customization of the ordinary {@link VaadinServlet} using {@link VaadinUIProvider}
  * @author K. Benedyczak
  */
-@SuppressWarnings("serial")
 public class UnityVaadinServlet extends VaadinServlet
 {
 	private transient ApplicationContext applicationContext;
@@ -56,12 +55,27 @@ public class UnityVaadinServlet extends VaadinServlet
 	private transient SandboxAuthnRouter sandboxRouter;
 	private transient EndpointRegistrationConfiguration registrationConfiguration;
 	private transient Properties endpointProperties;
+	private UnityBootstrapHandler bootstrapHandler;
+	private String themeConfigKey;
 	
 	public UnityVaadinServlet(ApplicationContext applicationContext, String uiBeanName,
 			EndpointDescription description,
 			List<AuthenticationOption> authenticators,
 			EndpointRegistrationConfiguration registrationConfiguration,
-			Properties endpointProperties)
+			Properties endpointProperties,
+			UnityBootstrapHandler bootstrapHandler)
+	{
+		this(applicationContext, uiBeanName, description, authenticators, registrationConfiguration, 
+				endpointProperties, bootstrapHandler, VaadinEndpointProperties.THEME);
+	}
+	
+	protected UnityVaadinServlet(ApplicationContext applicationContext, String uiBeanName,
+			EndpointDescription description,
+			List<AuthenticationOption> authenticators,
+			EndpointRegistrationConfiguration registrationConfiguration,
+			Properties endpointProperties,
+			UnityBootstrapHandler bootstrapHandler,
+			String theme)
 	{
 		super();
 		this.applicationContext = applicationContext;
@@ -70,6 +84,8 @@ public class UnityVaadinServlet extends VaadinServlet
 		this.authenticators = authenticators;
 		this.registrationConfiguration = registrationConfiguration;
 		this.endpointProperties = endpointProperties;
+		this.bootstrapHandler = bootstrapHandler;
+		this.themeConfigKey = theme;
 	}
 	
 	@Override
@@ -80,7 +96,7 @@ public class UnityVaadinServlet extends VaadinServlet
 		restoreThreadLocalState(saved);
 		
 		Object counter = getServletContext().getAttribute(UnsuccessfulAuthenticationCounter.class.getName());
-		if (counter == null)
+		if (counter == null && description != null)
 		{
 			AuthenticationRealm realm = description.getRealm();
 			getServletContext().setAttribute(UnsuccessfulAuthenticationCounter.class.getName(),
@@ -109,7 +125,8 @@ public class UnityVaadinServlet extends VaadinServlet
 		}; 
 		getService().setSystemMessagesProvider(msgProvider);
 		
-		getServletContext().getSessionCookieConfig().setHttpOnly(true);
+		if (!config.getServletContext().getSessionCookieConfig().isHttpOnly())
+			config.getServletContext().getSessionCookieConfig().setHttpOnly(true);
 	}
 	
 	private Map<Class<?>, Object> saveThreadLocalState()
@@ -170,7 +187,9 @@ public class UnityVaadinServlet extends VaadinServlet
 	protected VaadinServletService createServletService(DeploymentConfiguration deploymentConfiguration) 
 			throws ServiceException 
 	{
-		final VaadinServletService service = super.createServletService(deploymentConfiguration);
+		VaadinServletService service = new UnityVaadinServletService(this, 
+				deploymentConfiguration, bootstrapHandler);
+		service.init();
 
 		service.addSessionInitListener(new SessionInitListener()
 		{
@@ -179,7 +198,7 @@ public class UnityVaadinServlet extends VaadinServlet
 			{
 				VaadinUIProvider uiProv = new VaadinUIProvider(applicationContext, uiBeanName,
 						description, getAuthenticators(), registrationConfiguration,
-						endpointProperties);
+						endpointProperties, themeConfigKey);
 				uiProv.setCancelHandler(cancelHandler);
 				uiProv.setSandboxRouter(sandboxRouter);
 				event.getSession().addUIProvider(uiProv);

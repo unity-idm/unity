@@ -11,6 +11,7 @@
 			<directory>src/main/resources</directory>
 			<includes>
 				<include>VAADIN/**</include>
+				<include>templates/**</include>
 			</includes>
 			<outputDirectory>/webContents/</outputDirectory>
 		</fileSet>

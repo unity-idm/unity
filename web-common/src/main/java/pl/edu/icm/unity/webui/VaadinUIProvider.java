@@ -26,7 +26,6 @@ import com.vaadin.ui.UI;
  */
 public class VaadinUIProvider extends UIProvider
 {
-	private static final long serialVersionUID = 1L;
 	private transient ApplicationContext applicationContext;
 	private transient String uiBeanName;
 	private transient EndpointDescription description;
@@ -35,11 +34,12 @@ public class VaadinUIProvider extends UIProvider
 	private transient SandboxAuthnRouter sandboxRouter;
 	private transient EndpointRegistrationConfiguration registrationConfiguraiton;
 	private transient Properties endpointProperties;
+	private transient String themeConfigKey;
 
 	public VaadinUIProvider(ApplicationContext applicationContext, String uiBeanName,
 			EndpointDescription description, List<AuthenticationOption> authenticators,
 			EndpointRegistrationConfiguration registrationConfiguraiton,
-			Properties properties)
+			Properties properties, String themeConfigKey)
 	{
 		super();
 		this.applicationContext = applicationContext;
@@ -48,6 +48,7 @@ public class VaadinUIProvider extends UIProvider
 		this.authenticators = authenticators;
 		this.registrationConfiguraiton = registrationConfiguraiton;
 		this.endpointProperties = properties;
+		this.themeConfigKey = themeConfigKey;
 	}
 
 
@@ -71,30 +72,16 @@ public class VaadinUIProvider extends UIProvider
 	
 	/**
 	 * Sets theme to the one defined with the given key. If not set then the default theme from the configuration
-	 * is set. If this is also undefined nothing is changed.
+	 * is set. If this is also undefined nothing is changed (in practice: fall back to theme defined with annotation).
 	 * @param properties
 	 * @param mainKey
 	 */
 	@Override
 	public String getTheme(UICreateEvent event) 
 	{
-		UI ui = (UI) applicationContext.getBean(uiBeanName);
-		String configuredTheme = null;
-		if (ui instanceof UnityWebUI)
-			configuredTheme = getConfiguredTheme((UnityWebUI) ui);
-		return configuredTheme == null ? super.getTheme(event) : configuredTheme;
-	}
-	
-
-	private String getConfiguredTheme(UnityWebUI unityUI)
-	{
-		String themeKey = unityUI.getThemeConfigKey();
 		VaadinEndpointProperties properties = new VaadinEndpointProperties(endpointProperties);
-		if (properties.isSet(themeKey))
-			return properties.getValue(themeKey);
-		else if (properties.isSet(VaadinEndpointProperties.DEF_THEME))
-			return properties.getValue(VaadinEndpointProperties.DEF_THEME);
-		return null;
+		String configuredTheme = properties.getConfiguredTheme(themeConfigKey);
+		return configuredTheme == null ? super.getTheme(event) : configuredTheme;
 	}
 	
 	@Override

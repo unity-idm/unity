@@ -45,6 +45,7 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 	{
 		sharedHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		sharedHandler.setContextPath(CONTEXT_PATH);
+		sharedHandler.getServletContext().getSessionCookieConfig().setHttpOnly(true);
 		String resourceBase = getWebContentsDir(config);
 		if (resourceBase != null)
 			sharedHandler.setResourceBase(resourceBase);

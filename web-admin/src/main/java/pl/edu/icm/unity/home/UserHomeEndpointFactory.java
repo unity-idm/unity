@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
@@ -33,12 +34,15 @@ public class UserHomeEndpointFactory implements EndpointFactory
 	private EndpointTypeDescription description;
 	private ApplicationContext applicationContext;
 	private NetworkServer server;
+	private UnityMessageSource msg;
 	
 	@Autowired
-	public UserHomeEndpointFactory(ApplicationContext applicationContext, NetworkServer server)
+	public UserHomeEndpointFactory(ApplicationContext applicationContext, NetworkServer server,
+			UnityMessageSource msg)
 	{
 		this.applicationContext = applicationContext;
 		this.server = server;
+		this.msg = msg;
 		
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(VaadinAuthentication.NAME);
@@ -57,7 +61,7 @@ public class UserHomeEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new VaadinEndpoint(server, applicationContext, 
+		return new VaadinEndpoint(server, msg, applicationContext, 
 				UserHomeUI.class.getSimpleName(), SERVLET_PATH);
 	}
 }

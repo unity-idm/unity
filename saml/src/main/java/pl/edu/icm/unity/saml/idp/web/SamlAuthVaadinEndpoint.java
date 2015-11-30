@@ -121,7 +121,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller,
 			UnityMessageSource msg)
 	{
-		super(server, applicationContext, uiClass.getSimpleName(), SAML_UI_SERVLET_PATH);
+		super(server, msg, applicationContext, uiClass.getSimpleName(), SAML_UI_SERVLET_PATH);
 		this.publicEntryPointPath = publicEntryServletPath;
 		this.freemarkerHandler = freemarkerHandler;
 		this.dispatcherServletFactory = dispatcherServletFactory;
@@ -226,7 +226,8 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
 		authenticationServlet = new UnityVaadinServlet(applicationContext, 
 				AuthenticationUI.class.getSimpleName(), description, authenticators,
-				registrationConfiguration, properties);
+				registrationConfiguration, properties, 
+				getBootstrapHandler4Authn(SAML_ENTRY_SERVLET_PATH));
 		
 		CancelHandler cancelHandler = new SamlAuthnCancelHandler(freemarkerHandler);
 		authenticationServlet.setCancelHandler(cancelHandler);
@@ -236,7 +237,8 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		context.addServlet(authnServletHolder, VAADIN_RESOURCES);
 		
 		theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
-				description, authenticators, registrationConfiguration, properties);
+				description, authenticators, registrationConfiguration, properties, 
+				getBootstrapHandler(SAML_ENTRY_SERVLET_PATH));
 		context.addServlet(createVaadinServletHolder(theServlet, false), uiServletPath + "/*");
 		
 		if (samlProperties.getBooleanValue(SamlIdpProperties.PUBLISH_METADATA))

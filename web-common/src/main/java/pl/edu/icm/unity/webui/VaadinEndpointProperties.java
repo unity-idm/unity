@@ -69,6 +69,7 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	public static final String DEF_THEME = "defaultTheme";
 	public static final String THEME = "mainTheme";
 	public static final String AUTHN_THEME = "authnTheme";
+	public static final String TEMPLATE = "template";
 	
 	public static final String ENABLE_REGISTRATION = "enableRegistration";
 	public static final String ENABLED_REGISTRATION_FORMS = "enabledRegistrationForms.";
@@ -103,6 +104,10 @@ public class VaadinEndpointProperties extends PropertiesHelper
 				"Overrides the default theme name as used for rendering the endpoint's "
 				+ "authentication screen contents. If undefined the same setting as for the "
 				+ "main endpoint UI is used."));
+		META.put(TEMPLATE, new PropertyMD("default.ftl").setDescription(
+				"The name of a Freemarker template, relative to templates directory, with a "
+				+ "template of the endpoint web interface. Custom template can be used to add "
+				+ "static header/footer etc."));
 		META.put(ENABLE_REGISTRATION, new PropertyMD("false").
 				setDescription("Controls if registration option should be allowed for an endpoint."));
 		META.put(ENABLED_REGISTRATION_FORMS, new PropertyMD().setList(false).
@@ -165,6 +170,21 @@ public class VaadinEndpointProperties extends PropertiesHelper
 		defaultScaleMode = getScaleModeInternal(DEFAULT_AUTHN_ICON_SCALE, DEFAULT_AUTHN_ICON_SIZE);
 	}
 
+	/**
+	 * Returns either a theme configured with the key given as argument or the default theme if the
+	 * specific one is not defined. Can return null if neither is available.
+	 * @param themeConfigKey
+	 * @return configuration theme
+	 */
+	public String getConfiguredTheme(String themeConfigKey)
+	{
+		if (isSet(themeConfigKey))
+			return getValue(themeConfigKey);
+		else if (isSet(VaadinEndpointProperties.DEF_THEME))
+			return getValue(VaadinEndpointProperties.DEF_THEME);
+		return null;
+	}
+
 	public ScaleMode getScaleMode(String tileKey)
 	{
 		ScaleMode ret = getScaleModeInternal(tileKey + VaadinEndpointProperties.AUTHN_TILE_ICON_SCALE, 
@@ -187,6 +207,5 @@ public class VaadinEndpointProperties extends PropertiesHelper
 				ret = legacy.toScaleMode();
 		}
 		return ret;
-	}
-	
+	}	
 }

@@ -188,7 +188,7 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	private SharedEndpointManagementImpl sharedEndpointManagement;
 	@Autowired(required = false)
-	private ConfirmationServlet confirmationServlet;
+	private ConfirmationServlet confirmationServletFactory;
 	@Autowired(required = false)
 	private PublicWellKnownURLServlet publicWellKnownURLServlet;
 	
@@ -373,15 +373,15 @@ public class EngineInitialization extends LifecycleBase
 		
 	private void deployConfirmationServlet()
 	{
-		if (confirmationServlet == null)
+		if (confirmationServletFactory == null)
 		{
-			log.info("Confirmation servlet is not available, skipping its deploymnet");
+			log.info("Confirmation servlet factory is not available, skipping its deploymnet");
 			return;
 		}	
 		
 		log.info("Deploing confirmation servlet");
-		ServletHolder holder = new ServletHolder(confirmationServlet.getServiceServlet());
-		FilterHolder filterHolder = new FilterHolder(confirmationServlet.getServiceFilter());
+		ServletHolder holder = new ServletHolder(confirmationServletFactory.getServiceServlet());
+		FilterHolder filterHolder = new FilterHolder(confirmationServletFactory.getServiceFilter());
 		try
 		{
 			sharedEndpointManagement.deployInternalEndpointServlet(ConfirmationServlet.SERVLET_PATH, 

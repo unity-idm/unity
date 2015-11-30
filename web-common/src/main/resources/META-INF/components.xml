@@ -7,7 +7,8 @@
 	<context:annotation-config/>
 
 	<bean scope="prototype" id="ConfirmationUI" class="pl.edu.icm.unity.webui.confirmations.ConfirmationUI" />
-	<bean class="pl.edu.icm.unity.webui.confirmations.ConfirmationServletImpl" />
+
+	<bean class="pl.edu.icm.unity.webui.confirmations.ConfirmationServletFactory" />
 
 	<bean class="pl.edu.icm.unity.webui.authn.extensions.PasswordRetrievalFactory"/>
 	<bean class="pl.edu.icm.unity.webui.authn.extensions.TLSRetrievalFactory"/>
@@ -60,7 +61,7 @@
 	
 	<bean scope="prototype" id="PublicNavigationUI" class="pl.edu.icm.unity.wellknownurl.PublicNavigationUI"/>
 	<bean scope="prototype" id="SecuredNavigationUI" class="pl.edu.icm.unity.wellknownurl.SecuredNavigationUI"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.wellknownurl.PublicWellKnownUrlServletImpl"/>
+	<bean class="pl.edu.icm.unity.wellknownurl.PublicWellKnownUrlServletFactory"/>
 	<bean class="pl.edu.icm.unity.wellknownurl.WellKnownURLEndpointFactory"/>
 	
 	<bean scope="prototype" id="AccountAssociationSandboxUI" class="pl.edu.icm.unity.sandbox.AccountAssociationSandboxUI"/>

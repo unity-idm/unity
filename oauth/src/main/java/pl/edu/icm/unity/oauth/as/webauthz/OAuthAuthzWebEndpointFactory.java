@@ -23,6 +23,7 @@ import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.IdPLoginController.IdPLoginHandler;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 
@@ -45,6 +46,8 @@ public class OAuthAuthzWebEndpointFactory implements EndpointFactory
 	private OAuthEndpointsCoordinator coordinator;
 	private ASConsentDeciderServletFactory dispatcherServletFactory;
 	private NetworkServer server;
+
+	private UnityMessageSource msg;
 	
 	@Autowired
 	public OAuthAuthzWebEndpointFactory(ApplicationContext applicationContext, FreemarkerHandler freemarkerHandler,
@@ -52,7 +55,8 @@ public class OAuthAuthzWebEndpointFactory implements EndpointFactory
 			@Qualifier("insecure") IdentitiesManagement identitiesManagement, 
 			@Qualifier("insecure") AttributesManagement attributesManagement,
 			PKIManagement pkiManagement, ASConsentDeciderServletFactory dispatcherServletFactory,
-			NetworkServer server, IdPLoginController loginController)
+			NetworkServer server, IdPLoginController loginController,
+			UnityMessageSource msg)
 	{
 		this.applicationContext = applicationContext;
 		this.freemarkerHandler = freemarkerHandler;
@@ -62,6 +66,7 @@ public class OAuthAuthzWebEndpointFactory implements EndpointFactory
 		this.coordinator = coordinator;
 		this.dispatcherServletFactory = dispatcherServletFactory;
 		this.server = server;
+		this.msg = msg;
 		
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(VaadinAuthentication.NAME);
@@ -83,7 +88,7 @@ public class OAuthAuthzWebEndpointFactory implements EndpointFactory
 	{
 		return new OAuthAuthzWebEndpoint(server, applicationContext,  
 				freemarkerHandler, identitiesManagement, 
-				attributesManagement, pkiManagement, coordinator, dispatcherServletFactory);
+				attributesManagement, pkiManagement, coordinator, dispatcherServletFactory, msg);
 	}
 	
 	public static class IdpLoginControllerImpl implements IdPLoginHandler

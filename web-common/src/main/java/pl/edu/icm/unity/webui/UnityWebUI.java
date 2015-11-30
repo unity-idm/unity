@@ -37,9 +37,4 @@ public interface UnityWebUI
 	 * @param sandboxRouter
 	 */
 	void setSandboxRouter(SandboxAuthnRouter sandboxRouter);
-	
-	/**
-	 * @return properties key with theme name for this UI.
-	 */
-	String getThemeConfigKey();
 }
