@@ -13,6 +13,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
@@ -35,6 +36,9 @@ public class UnityHttpServerConfiguration extends HttpServerProperties
 	public static final String HTTPS_HOST = "host";
 	public static final String ADVERTISED_HOST = "advertisedHost";
 	
+	public static final String ENABLE_DOS_FILTER = "enableDoSFilter";
+	public static final String DOS_FILTER_PFX = "dosFilter.";
+	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
 	
@@ -53,7 +57,17 @@ public class UnityHttpServerConfiguration extends HttpServerProperties
 					"also should be set whenever the server is listening on "
 					+ "a private interface accessible via DNAT or similar solutions. Examples:"
 					+ " +login.example.com+ or +login.example.com:8443+ "));		
-
+		defaults.put(ENABLE_DOS_FILTER, new PropertyMD("false").
+				setDescription("If enabled then the DenayOfService fileter is enabled for"
+					+ "all services. The filter prevents DoS attacks, but requires "
+					+ "a proper configuration dependent on the installation site."));
+		defaults.put(DOS_FILTER_PFX, new PropertyMD().setCanHaveSubkeys().
+				setDescription("Under this prefix the settings of the DoS filter must be placed."
+					+ " The reference of allowed settings is available in the Jetty "
+					+ "DoS filter documentation, currently here: "
+					+ "http://www.eclipse.org/jetty/documentation/current/dos-filter.html"));
+		
+		
 		for (Map.Entry<String, PropertyMD> entry: HttpServerProperties.defaults.entrySet())
 			defaults.put(entry.getKey(), entry.getValue().setCategory(advancedCat));
 		defaults.put(ENABLE_GZIP, new PropertyMD("true").
@@ -82,5 +96,16 @@ public class UnityHttpServerConfiguration extends HttpServerProperties
 						" is invalid, URL can not be constructed from it", e);
 			}
 		}
+	}
+	
+	@Override
+	public Set<String> getSortedStringKeys(String base, boolean allowListSubKeys)
+	{
+		return super.getSortedStringKeys(PREFIX+base, allowListSubKeys);
+	}
+	
+	public String getProperty(String key)
+	{
+		return properties.getProperty(key);
 	}
 }

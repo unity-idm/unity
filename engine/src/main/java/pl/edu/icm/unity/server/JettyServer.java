@@ -7,14 +7,20 @@ package pl.edu.icm.unity.server;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.DispatcherType;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlets.DoSFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.Lifecycle;
 import org.springframework.stereotype.Component;
@@ -49,6 +55,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 	private List<WebAppEndpointInstance> deployedEndpoints;
 	private Map<String, ServletContextHandler> usedContextPaths;
 	private ContextHandlerCollection mainContextHandler;
+	private FilterHolder dosFilter = null;
 	
 	@Autowired
 	public JettyServer(UnityServerConfiguration cfg, PKIManagement pkiManagement)
@@ -56,6 +63,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 		super(createURLs(cfg.getJettyProperties()), pkiManagement.getMainAuthnAndTrust(), 
 				cfg.getJettyProperties(), null);
 		initServer();
+		dosFilter = getDOSFilter();
 	}
 
 	private static URL[] createURLs(UnityHttpServerConfiguration conf)
@@ -144,6 +152,12 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 		handler.setServer(getServer());
 		mainContextHandler.addHandler(handler);
 		configureGzip(handler);
+		if (dosFilter != null)
+		{
+			log.info("Enabling DoS filter on context " + handler.getContextPath());
+			handler.addFilter(dosFilter, "/*", EnumSet.of(DispatcherType.REQUEST));
+		}
+		
 		try
 		{
 			handler.start();
@@ -168,7 +182,8 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 		if (endpoint == null)
 			throw new WrongArgumentException("There is no deployed endpoint with id " + id);
 		
-		ServletContextHandler handler = usedContextPaths.get(endpoint.getEndpointDescription().getContextAddress());
+		ServletContextHandler handler = usedContextPaths.get(
+				endpoint.getEndpointDescription().getContextAddress());
 		try
 		{
 			handler.stop();
@@ -194,6 +209,22 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 			throw new IllegalStateException("Ups, URL can not " +
 					"be reconstructed, while it should", e);
 		}
+	}
+	
+	private FilterHolder getDOSFilter()
+	{
+		if (!extraSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_DOS_FILTER))
+			return null;
+		FilterHolder holder = new FilterHolder(new DoSFilter());
+		UnityHttpServerConfiguration conf = (UnityHttpServerConfiguration)extraSettings;
+		Set<String> keys = conf.
+				getSortedStringKeys(UnityHttpServerConfiguration.DOS_FILTER_PFX, false);
+		for (String key: keys)
+			holder.setInitParameter(key.substring(
+						UnityHttpServerConfiguration.PREFIX.length() + 
+						UnityHttpServerConfiguration.DOS_FILTER_PFX.length()), 
+					conf.getProperty(key));
+		return holder;
 	}
 }
 
