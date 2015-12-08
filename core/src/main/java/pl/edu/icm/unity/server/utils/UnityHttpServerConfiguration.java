@@ -8,10 +8,11 @@
 
 package pl.edu.icm.unity.server.utils;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-
 
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
@@ -46,10 +47,12 @@ public class UnityHttpServerConfiguration extends HttpServerProperties
 		defaults.put(HTTPS_PORT, new PropertyMD("2443").setBounds(0, 65535).setCategory(mainCat).
 				setDescription("The HTTPS port to be used. If zero (0) is set then a random free port is used."));
 		defaults.put(ADVERTISED_HOST, new PropertyMD().setCategory(mainCat).
-				setDescription("The hostname or IP address which is advertised externally whenever " +
-						"the server has to provide its address. By default it is set to the listen address, " + 
-						"however it must be set when the listen address is 0.0.0.0 and " +
-						"also should be set whenver the server is listening on private interface accessible via DNAT or similar solutions."));		
+				setDescription("The hostname or IP address (optionally with port), which is advertised externally whenever " +
+					"the server has to provide its address. By default it is set to the listen address, " + 
+					"however it must be set when the listen address is 0.0.0.0 and " +
+					"also should be set whenever the server is listening on "
+					+ "a private interface accessible via DNAT or similar solutions. Examples:"
+					+ " +login.example.com+ or +login.example.com:8443+ "));		
 
 		for (Map.Entry<String, PropertyMD> entry: HttpServerProperties.defaults.entrySet())
 			defaults.put(entry.getKey(), entry.getValue().setCategory(advancedCat));
@@ -61,8 +64,23 @@ public class UnityHttpServerConfiguration extends HttpServerProperties
 	public UnityHttpServerConfiguration(Properties source) throws ConfigurationException
 	{
 		super(source, PREFIX, defaults);
-		if ("0.0.0.0".equals(getValue(HTTPS_HOST)) && getValue(ADVERTISED_HOST) == null)
+		String advertisedHost = getValue(ADVERTISED_HOST);
+		if ("0.0.0.0".equals(getValue(HTTPS_HOST)) && advertisedHost == null)
 			throw new ConfigurationException(getKeyDescription(ADVERTISED_HOST) + 
 					" must be set when the listen address is 0.0.0.0 (all interfaces).");
+		if (advertisedHost != null) {
+			if (advertisedHost.contains("://"))
+				throw new ConfigurationException(getKeyDescription(ADVERTISED_HOST) + 
+						" must contain hostname and optionally the port, "
+						+ "but not the protocol prefix.");
+			try
+			{
+				new URL("https://" + advertisedHost);
+			} catch (MalformedURLException e)
+			{
+				throw new ConfigurationException(getKeyDescription(ADVERTISED_HOST) + 
+						" is invalid, URL can not be constructed from it", e);
+			}
+		}
 	}
 }

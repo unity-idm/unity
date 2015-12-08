@@ -187,12 +187,11 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 		String advertisedHost = extraSettings.getValue(UnityHttpServerConfiguration.ADVERTISED_HOST);
 		if (advertisedHost == null)
 			return getUrls()[0];
-		URL url = getUrls()[0];
+		
 		try {
-			return new URL(url.getProtocol(), advertisedHost, 
-					url.getPort(), url.getFile());
+			return new URL("https://" + advertisedHost);
 		} catch (MalformedURLException e) {
-			throw new RuntimeException("Ups, URL can not " +
+			throw new IllegalStateException("Ups, URL can not " +
 					"be reconstructed, while it should", e);
 		}
 	}
