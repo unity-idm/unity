@@ -147,45 +147,49 @@ public class SamlIdpProperties extends SamlProperties
 				setDescription("List of entries defining allowed Service Providers (clients). Used " +
 				"only for +validRequester+ and +strict+ acceptance policies."));
 				
-		defaults.put(ALLOWED_SP_DN, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).setCanHaveSubkeys().setCategory(samlCat).
+		defaults.put(ALLOWED_SP_DN, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).setCanHaveSubkeys().setCategory(sp).
 				setDescription("Rarely useful: for SPs which use DN SAML identifiers as UNICORE portal. " +
 				"Typically " + ALLOWED_SP_ENTITY + " is used instead. " +
 				"Value must be the X.500 DN of the trusted SP."));
-		defaults.put(ALLOWED_SP_ENTITY, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(samlCat).
+		defaults.put(ALLOWED_SP_ENTITY, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(sp).
 				setDescription("Entity ID (typically an URI) of a trusted SAML requester (SP)."));	
-		defaults.put(ALLOWED_SP_ENCRYPT, new PropertyMD("false").setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(samlCat).
+		defaults.put(ALLOWED_SP_ENCRYPT, new PropertyMD("false").setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(sp).
 				setDescription("Whether to encrypt assertions sent to this peer. "
 						+ "Usually not needed as Unity uses TLS. If turned on, then certificate of the peer must be also set."));
-		defaults.put(ALLOWED_SP_RETURN_URL, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(samlCat).
+		defaults.put(ALLOWED_SP_RETURN_URL, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(sp).
 				setDescription("Response consumer address of the SP. Mandatory when acceptance " +
 				"policy is +validRequester+, optional otherwise as SAML requesters may send this address" +
 				"with a request."));
 		defaults.put(SOAP_LOGOUT_URL, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).
-				setCategory(samlCat).setDescription("SOAP Single Logout Endpoint of the SP."));
+				setCategory(sp).setDescription("SOAP Single Logout Endpoint of the SP."));
 		defaults.put(REDIRECT_LOGOUT_URL, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).
-				setCategory(samlCat).setDescription("HTTP Redirect Single Logout Endpoint of the SP."));
+				setCategory(sp).setDescription("HTTP Redirect Single Logout Endpoint of the SP."));
 		defaults.put(POST_LOGOUT_URL, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).
-				setCategory(samlCat).setDescription("HTTP POST Single Logout Endpoint of the SP."));
+				setCategory(sp).setDescription("HTTP POST Single Logout Endpoint of the SP."));
 		defaults.put(REDIRECT_LOGOUT_RET_URL, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).
-				setCategory(samlCat).setDescription("HTTP Redirect Single Logout response endpoint of the SP. "
+				setCategory(sp).setDescription("HTTP Redirect Single Logout response endpoint of the SP. "
 						+ "If undefined the base endpoint address is assumed."));
 		defaults.put(POST_LOGOUT_RET_URL, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).
-				setCategory(samlCat).setDescription("HTTP POST Single Logout response endpoint of the SP. "
+				setCategory(sp).setDescription("HTTP POST Single Logout response endpoint of the SP. "
 						+ "If undefined the base endpoint address is assumed."));
 
-		defaults.put(ALLOWED_SP_NAME, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(sp).setCanHaveSubkeys().setDescription(
+		defaults.put(ALLOWED_SP_NAME, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).
+				setCategory(sp).setCanHaveSubkeys().setDescription(
 				"Displayed name of the Sp. If not defined then the name is created " +
 				"from the Sp address (what is rather not user friendly). The property can have subkeys being "
 				+ "locale names; then the localized value is used if it is matching the selected locale of the UI."));	
-		defaults.put(ALLOWED_SP_LOGO, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(sp).setCanHaveSubkeys().setDescription(
+		defaults.put(ALLOWED_SP_LOGO, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).
+				setCategory(sp).setCanHaveSubkeys().setDescription(
 				"Displayed logo of the SP. If not defined then only the name is used. "
 				+ "The value can be a file:, http(s): or data: URI. The last option allows for embedding the logo in the configuration. "
 				+ "The property can have subkeys being "
 				+ "locale names; then the localized value is used if it is matching the selected locale of the UI."));
-		defaults.put(ALLOWED_SP_CERTIFICATE, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(samlCat).
+		defaults.put(ALLOWED_SP_CERTIFICATE, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(sp).
 				setDescription("Certificate of the SP. Used only when acceptance policy is +strict+ "
-						+ "and when assertion encryption is turned on for this SP."));
-		defaults.put(ALLOWED_SP_CERTIFICATES, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(sp).setList(false).setDescription(
+						+ "and when assertion encryption is turned on for this SP. Also"
+						+ "used for single logout, initiated by the peer."));
+		defaults.put(ALLOWED_SP_CERTIFICATES, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).
+				setCategory(sp).setList(false).setDescription(
 				"Using this property additional trusted certificates of an SP can be added (when SP uses more then one). See " 
 						+ ALLOWED_SP_CERTIFICATE + " for details. Those properties can be used together or alternatively."));
 
