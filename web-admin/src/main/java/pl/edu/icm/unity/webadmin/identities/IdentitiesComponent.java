@@ -105,7 +105,7 @@ public class IdentitiesComponent extends SafePanel
 		showTargeted.addStyleName(Styles.verticalAlignmentMiddle.toString());
 		showTargeted.addStyleName(Styles.horizontalMarginSmall.toString());
 		
-		Toolbar toolbar = new Toolbar(identitiesTable, Orientation.HORIZONTAL);
+		Toolbar toolbar = new Toolbar(identitiesTable.getValueChangeNotifier(), Orientation.HORIZONTAL);
 		toolbar.addStyleName(Styles.floatRight.toString());
 		toolbar.addStyleName(Styles.verticalAlignmentMiddle.toString());
 		toolbar.addStyleName(Styles.horizontalMarginSmall.toString());
@@ -363,9 +363,10 @@ public class IdentitiesComponent extends SafePanel
 		try
 		{
 			GroupContents contents = groupsManagement.getContents(group, GroupContents.MEMBERS);
-			identitiesTable.setInput(group, contents.getMembers().stream().
+			List<Long> entities = contents.getMembers().stream().
 					map(GroupMembership::getEntityId).
-					collect(Collectors.toList()));
+					collect(Collectors.toList());
+			identitiesTable.setInput(group, entities);
 			identitiesTable.setVisible(true);
 			setCaption(msg.getMessage("Identities.caption", group));
 			setContent(main);

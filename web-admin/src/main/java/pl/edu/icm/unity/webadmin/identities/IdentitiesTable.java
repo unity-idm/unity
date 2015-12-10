@@ -11,9 +11,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +37,7 @@ import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.AttributesInternalProcessing;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
@@ -52,8 +57,8 @@ import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -61,11 +66,19 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
+import com.google.common.collect.Lists;
 import com.vaadin.data.Container;
+import com.vaadin.data.Container.Filter;
+import com.vaadin.data.Container.Filterable;
 import com.vaadin.data.Item;
-import com.vaadin.data.Property;
+import com.vaadin.data.Property.ValueChangeNotifier;
 import com.vaadin.event.Action;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.ProgressBar;
+import com.vaadin.ui.Table.TableDragMode;
 import com.vaadin.ui.TreeTable;
+import com.vaadin.ui.UI;
 
 /**
  * Displays a tree table with identities. Can present contents in two modes: 
@@ -75,12 +88,60 @@ import com.vaadin.ui.TreeTable;
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class IdentitiesTable extends TreeTable
+public class IdentitiesTable extends CustomComponent
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdentitiesTable.class);
 	
-	enum BaseColumnId {entity, type, identity, status, local, dynamic, credReq, remoteIdP, profile, target, realm,
-		scheduledOperation};
+	private static final int LOAD_IN_SYNC = 40;
+	
+	enum BaseColumnId {
+		entity("Identities.entity", false, false, 200), 
+		type("Identities.type", true, false, 100), 
+		identity("Identities.identity", true, false, -1), 
+		status("Identities.status", true, false, 100), 
+		local("Identities.local", true, true, 100), 
+		dynamic("Identities.dynamic", true, true, 100), 
+		credReq("Identities.credReq", true, true, 180), 
+		target("Identities.target", true, true, 180), 
+		realm("Identities.realm", true, true, 100),
+		remoteIdP("Identities.remoteIdP", true, true, 200), 
+		profile("Identities.profile", true, true, 100), 
+		scheduledOperation("Identities.scheduledOperation", true, true, 200);
+
+		private String captionKey;
+		private boolean collapsingAllowed;
+		private boolean initiallyCollapsed;
+		private int defWidth;
+
+		BaseColumnId(String captionKey, boolean collapsingAllowed, boolean initiallyCollapsed, int defWidth)
+		{
+			this.captionKey = captionKey;
+			this.collapsingAllowed = collapsingAllowed;
+			this.initiallyCollapsed = initiallyCollapsed;
+			this.defWidth = defWidth;
+		}
+
+		public String getCaptionKey()
+		{
+			return captionKey;
+		}
+
+		public boolean isCollapsingAllowed()
+		{
+			return collapsingAllowed;
+		}
+
+		public boolean isInitiallyCollapsed()
+		{
+			return initiallyCollapsed;
+		}
+
+		public int getDefWidth()
+		{
+			return defWidth;
+		}
+	};
+	
 	public static final String ATTR_COL_PREFIX = "a::";
 	public static final String ATTR_ROOT_COL_PREFIX = ATTR_COL_PREFIX + "root::";
 	public static final String ATTR_CURRENT_COL_PREFIX = ATTR_COL_PREFIX + "current::";
@@ -95,6 +156,10 @@ public class IdentitiesTable extends TreeTable
 	private AttributeHandlerRegistry attrHandlerRegistry;
 	private CredentialEditorRegistry credEditorsRegistry;
 	private EventsBus bus;
+	private ExecutorsService executor;
+	
+	private TreeTable table;
+	private ProgressBar loadingProgress;
 	private String group;
 	private Map<Long, IdentitiesAndAttributes> data = new HashMap<>();
 	private boolean groupByEntity;
@@ -103,13 +168,14 @@ public class IdentitiesTable extends TreeTable
 	private List<Filter> containerFilters;
 	private String entityNameAttribute = null;
 	private List<SingleActionHandler> actionHandlers;
+	private volatile FutureTask<?> entitiesLoader;
 	
 	@Autowired
 	public IdentitiesTable(IdentitiesManagement identitiesMan, GroupsManagement groupsMan, 
 			AuthenticationManagement authnMan, AttributesManagement attrMan,PreferencesManagement preferencesMan,
 			AttributesInternalProcessing attrProcessor,
 			IdentityEditorRegistry identityEditorReg, CredentialEditorRegistry credEditorsRegistry,
-			AttributeHandlerRegistry attrHandlerReg, UnityMessageSource msg)
+			AttributeHandlerRegistry attrHandlerReg, UnityMessageSource msg, ExecutorsService executor)
 	{
 		this.preferencesMan = preferencesMan;
 		this.identitiesMan = identitiesMan;
@@ -120,64 +186,18 @@ public class IdentitiesTable extends TreeTable
 		this.msg = msg;
 		this.attrHandlerRegistry = attrHandlerReg;
 		this.attrMan = attrMan;
+		this.executor = executor;
 		this.bus = WebSession.getCurrent().getEventBus();
 		this.containerFilters = new ArrayList<Container.Filter>();
 		this.credEditorsRegistry = credEditorsRegistry;
 		this.actionHandlers = new ArrayList<>();
 		
-		addContainerProperty(BaseColumnId.entity.toString(), String.class, null);
-		addContainerProperty(BaseColumnId.type.toString(), String.class, "");
-		addContainerProperty(BaseColumnId.identity.toString(), String.class, "");
-		addContainerProperty(BaseColumnId.status.toString(), String.class, "");
-		addContainerProperty(BaseColumnId.local.toString(), String.class, "");
-		addContainerProperty(BaseColumnId.dynamic.toString(), String.class, "");
-		addContainerProperty(BaseColumnId.credReq.toString(), String.class, "");
-		addContainerProperty(BaseColumnId.target.toString(), String.class, "");
-		addContainerProperty(BaseColumnId.realm.toString(), String.class, "");
-		addContainerProperty(BaseColumnId.remoteIdP.toString(), String.class, "");
-		addContainerProperty(BaseColumnId.profile.toString(), String.class, "");
-		addContainerProperty(BaseColumnId.scheduledOperation.toString(), String.class, "");
-
-		setColumnHeader(BaseColumnId.entity.toString(), msg.getMessage("Identities.entity"));
-		setColumnHeader(BaseColumnId.type.toString(), msg.getMessage("Identities.type"));
-		setColumnHeader(BaseColumnId.identity.toString(), msg.getMessage("Identities.identity"));
-		setColumnHeader(BaseColumnId.status.toString(), msg.getMessage("Identities.status"));
-		setColumnHeader(BaseColumnId.local.toString(), msg.getMessage("Identities.local"));
-		setColumnHeader(BaseColumnId.dynamic.toString(), msg.getMessage("Identities.dynamic"));
-		setColumnHeader(BaseColumnId.credReq.toString(), msg.getMessage("Identities.credReq"));
-		setColumnHeader(BaseColumnId.target.toString(), msg.getMessage("Identities.target"));
-		setColumnHeader(BaseColumnId.realm.toString(), msg.getMessage("Identities.realm"));
-		setColumnHeader(BaseColumnId.remoteIdP.toString(), msg.getMessage("Identities.remoteIdP"));
-		setColumnHeader(BaseColumnId.profile.toString(), msg.getMessage("Identities.profile"));
-		setColumnHeader(BaseColumnId.scheduledOperation.toString(), 
-				msg.getMessage("Identities.scheduledOperation"));
+		//let's init to something what reports that is finished/not working.
+		entitiesLoader = new FutureTask<Object>(() -> null);
+		entitiesLoader.cancel(true);
 		
-		setSelectable(true);
-		setMultiSelect(true);	
-		setColumnReorderingAllowed(true);
-		setColumnCollapsingAllowed(true);
-		setColumnCollapsible(BaseColumnId.entity.toString(), false);
-		setColumnCollapsed(BaseColumnId.local.toString(), true);
-		setColumnCollapsed(BaseColumnId.dynamic.toString(), true);
-		setColumnCollapsed(BaseColumnId.credReq.toString(), true);
-		setColumnCollapsed(BaseColumnId.target.toString(), true);
-		setColumnCollapsed(BaseColumnId.realm.toString(), true);
-		setColumnCollapsed(BaseColumnId.remoteIdP.toString(), true);
-		setColumnCollapsed(BaseColumnId.profile.toString(), true);
-		setColumnCollapsed(BaseColumnId.scheduledOperation.toString(), true);
-
-		setColumnWidth(BaseColumnId.entity.toString(), 200);
-		setColumnWidth(BaseColumnId.type.toString(), 100);
-		setColumnWidth(BaseColumnId.status.toString(), 100);
-		setColumnWidth(BaseColumnId.local.toString(), 100);
-		setColumnWidth(BaseColumnId.dynamic.toString(), 100);
-		setColumnWidth(BaseColumnId.credReq.toString(), 180);
-		setColumnWidth(BaseColumnId.target.toString(), 180);
-		setColumnWidth(BaseColumnId.realm.toString(), 100);
-		setColumnWidth(BaseColumnId.remoteIdP.toString(), 200);
-		setColumnWidth(BaseColumnId.profile.toString(), 100);
-		setColumnWidth(BaseColumnId.scheduledOperation.toString(), 200);
-
+		initiTable();
+		
 		loadPreferences();
 
 		addActionHandler(new RefreshHandler());
@@ -192,46 +212,43 @@ public class IdentitiesTable extends TreeTable
 		addActionHandler(new ChangeCredentialRequirementHandler());
 		addActionHandler(new EntityAttributesClassesHandler());
 		addActionHandler(new MergeEntitiesHandler());
-		setDragMode(TableDragMode.ROW);
-
-		setImmediate(true);
-		setSizeFull();
-
-		addValueChangeListener(new Property.ValueChangeListener()
-		{
-			@Override
-			public void valueChange(com.vaadin.data.Property.ValueChangeEvent event)
-			{
-				Collection<?> nodes = (Collection<?>) getValue();
-				Object selected = null;
-				if (nodes != null && nodes.size() == 1)
-				{
-					selected = nodes.iterator().next();
-				}
-				if (selected == null)
-				{
-					IdentitiesTable.this.selected = null;
-					bus.fireEvent(new EntityChangedEvent(null, group));
-				} else if (selected instanceof EntityWithLabel)
-				{
-					if (selected.equals(IdentitiesTable.this.selected))
-						return;
-					IdentitiesTable.this.selected = ((EntityWithLabel)selected).getEntity();
-					bus.fireEvent(new EntityChangedEvent((EntityWithLabel)selected, group));
-				} else if (selected instanceof IdentityWithEntity)
-				{
-					IdentityWithEntity identity = (IdentityWithEntity) selected;
-					if (identity.getEntityWithLabel().getEntity().equals(IdentitiesTable.this.selected))
-						return;
-					IdentitiesTable.this.selected = identity.getEntityWithLabel().getEntity();
-					bus.fireEvent(new EntityChangedEvent(identity.getEntityWithLabel(), group));
-				}
-			}
-		});
-
-		addStyleName(Styles.vTableNoHorizontalLines.toString());
-		addStyleName(Styles.vSmall.toString());
 		
+		loadingProgress = new ProgressBar();
+		loadingProgress.setWidth(100, Unit.PERCENTAGE);
+		loadingProgress.addStyleName(Styles.hidden.toString());
+		GridLayout main = new GridLayout(1, 2);
+		main.setRowExpandRatio(1, 1);
+		main.setSizeFull();
+		main.addComponent(loadingProgress, 0, 0);
+		main.addComponent(table, 0, 1);
+		setCompositionRoot(main);
+		setSizeFull();
+	}
+
+	private void initiTable()
+	{
+		table = new TreeTable();
+		table.setSelectable(true);
+		table.setMultiSelect(true);	
+		table.setColumnReorderingAllowed(true);
+		table.setColumnCollapsingAllowed(true);
+		table.setImmediate(true);
+		table.setSizeFull();
+		table.setDragMode(TableDragMode.ROW);
+		table.addStyleName(Styles.vTableNoHorizontalLines.toString());
+		table.addStyleName(Styles.vSmall.toString());
+		
+		for (BaseColumnId column: BaseColumnId.values())
+		{
+			table.addContainerProperty(column.toString(), String.class, null);
+			table.setColumnHeader(column.toString(), msg.getMessage(column.getCaptionKey()));
+			table.setColumnCollapsible(column.toString(), column.isCollapsingAllowed());
+			table.setColumnCollapsed(column.toString(), column.isInitiallyCollapsed());
+			table.setColumnWidth(column.toString(), column.getDefWidth());
+		}
+
+		table.addValueChangeListener(event -> tableSelectionChange());
+
 //		addColumnResizeListener(new ColumnResizeListener()
 //		{
 //			@Override
@@ -250,13 +267,43 @@ public class IdentitiesTable extends TreeTable
 //			}
 //		});
 		//For future: addColumnCollapseListener, expected for Vaadin 7.2
-	}
 
+	}
+	
+	
+	private void tableSelectionChange()
+	{
+		Collection<?> nodes = (Collection<?>) table.getValue();
+		Object selected = null;
+		if (nodes != null && nodes.size() == 1)
+		{
+			selected = nodes.iterator().next();
+		}
+		if (selected == null)
+		{
+			IdentitiesTable.this.selected = null;
+			bus.fireEvent(new EntityChangedEvent(null, group));
+		} else if (selected instanceof EntityWithLabel)
+		{
+			if (selected.equals(IdentitiesTable.this.selected))
+				return;
+			IdentitiesTable.this.selected = ((EntityWithLabel)selected).getEntity();
+			bus.fireEvent(new EntityChangedEvent((EntityWithLabel)selected, group));
+		} else if (selected instanceof IdentityWithEntity)
+		{
+			IdentityWithEntity identity = (IdentityWithEntity) selected;
+			if (identity.getEntityWithLabel().getEntity().equals(IdentitiesTable.this.selected))
+				return;
+			IdentitiesTable.this.selected = identity.getEntityWithLabel().getEntity();
+			bus.fireEvent(new EntityChangedEvent(identity.getEntityWithLabel(), group));
+		}
+	}
+	
 	public void savePreferences()
 	{
-		Collection<?> props = getContainerPropertyIds();
+		Collection<?> props = table.getContainerPropertyIds();
 		IdentitiesTablePreferences preferences = new IdentitiesTablePreferences();
-		Object[] columns = getVisibleColumns(); //order of the columns
+		Object[] columns = table.getVisibleColumns(); //order of the columns
 
 		for (Object prop : props)
 		{
@@ -265,9 +312,9 @@ public class IdentitiesTable extends TreeTable
 			String property = (String) prop;
 			IdentitiesTablePreferences.ColumnSettings settings = 
 					new IdentitiesTablePreferences.ColumnSettings();
-			settings.setCollapsed(isColumnCollapsed(property));
+			settings.setCollapsed(table.isColumnCollapsed(property));
 
-			settings.setWidth(getColumnWidth(property));
+			settings.setWidth(table.getColumnWidth(property));
 
 			for (int i = 0; i < columns.length; i++)
 			{
@@ -313,7 +360,7 @@ public class IdentitiesTable extends TreeTable
 		
 		Set<String> props = new HashSet<String>();
 
-		for (Object prop : getContainerPropertyIds())
+		for (Object prop : table.getContainerPropertyIds())
 		{
 			if (!(prop instanceof String))
 				continue;
@@ -337,17 +384,17 @@ public class IdentitiesTable extends TreeTable
 						addAttributeColumn(entry.getKey().substring(
 								ATTR_CURRENT_COL_PREFIX.length()), null);
 
-					setColumnCollapsed(entry.getKey(), entry.getValue().isCollapsed());
-					setColumnWidth(entry.getKey(), entry.getValue().getWidth());
+					table.setColumnCollapsed(entry.getKey(), entry.getValue().isCollapsed());
+					table.setColumnWidth(entry.getKey(), entry.getValue().getWidth());
 
 				} else
 				{
 					if (!entry.getKey().equals(BaseColumnId.entity.toString()))
 					{
-						setColumnCollapsed(entry.getKey(), entry.getValue()
+						table.setColumnCollapsed(entry.getKey(), entry.getValue()
 								.isCollapsed());
 					}
-					setColumnWidth(entry.getKey(), entry.getValue().getWidth());
+					table.setColumnWidth(entry.getKey(), entry.getValue().getWidth());
 
 				}
 
@@ -364,14 +411,13 @@ public class IdentitiesTable extends TreeTable
 			for (String miss: missing)
 				scolComplete[i++] = miss;
 			
-			setVisibleColumns(scolComplete);
+			table.setVisibleColumns(scolComplete);
 		}
 
 	}
 
-	@Override
 	public void addActionHandler(Action.Handler actionHandler) {
-		super.addActionHandler(actionHandler);
+		table.addActionHandler(actionHandler);
 		if (actionHandler instanceof SingleActionHandler)
 			actionHandlers.add((SingleActionHandler) actionHandler);
 	}
@@ -384,7 +430,8 @@ public class IdentitiesTable extends TreeTable
 	public void setMode(boolean groupByEntity)
 	{
 		this.groupByEntity = groupByEntity;
-		updateContents();
+		if (entitiesLoader.isDone())
+			reloadTableContentsFromData();
 	}
 	
 	public void setShowTargeted(boolean showTargeted) throws EngineException
@@ -393,7 +440,6 @@ public class IdentitiesTable extends TreeTable
 		ArrayList<Long> entities = new ArrayList<>();
 		entities.addAll(data.keySet());
 		setInput(group, entities);
-		updateContents();
 	}	
 
 	private void refresh()
@@ -412,158 +458,228 @@ public class IdentitiesTable extends TreeTable
 		AttributeType nameAt = attrProcessor.getAttributeTypeWithSingeltonMetadata(
 				EntityNameMetadataProvider.NAME);
 		this.entityNameAttribute = nameAt == null ? null : nameAt.getName();
+		updateAttributeColumnHeaders();
+
+		Object selected = getSingleSelectedItem();
+		
 		data.clear();
-		for (Long entity : entities)
+		table.removeAllItems();
+
+		if (group != null)
+		{
+			UI.getCurrent().setPollInterval(500);
+			restartEntitiesLoading(entities, selected);
+		}
+	}
+
+	private Object getSingleSelectedItem()
+	{
+		Collection<?> selectedColl = (Collection<?>) table.getValue();
+		return selectedColl != null && selectedColl.size() == 1 ? 
+				selectedColl.iterator().next() : null;
+	}
+	
+	
+	private class EntitiesLoader implements Runnable
+	{
+		private static final int CHUNK = 500;
+		private List<Long> entities;
+		private UI ui;
+		private InvocationContext ctx;
+		private Future<?> controller;
+		private Object selected;
+		private int offset;
+		private boolean groupByEntityLocal;
+		
+		public EntitiesLoader(List<Long> entities, Object selected, int offset)
+		{
+			this.entities = entities;
+			this.selected = selected;
+			this.offset = offset;
+			this.ui = UI.getCurrent();
+			this.ctx = InvocationContext.getCurrent();
+			this.groupByEntityLocal = groupByEntity;
+		}
+
+		public void setController(Future<?> controller)
+		{
+			this.controller = controller;
+		}
+		
+		@Override
+		public void run()
 		{
 			try
 			{
-				resolveEntity(entity);
+				InvocationContext.setCurrent(ctx);
+				resolveEntitiesAndUpdateTable(entities);
+			} catch (EngineException e)
+			{
+				log.error("Problem retrieving group contents of " + group, e);
+			}
+		}
+
+		private void resolveEntitiesAndUpdateTable(List<Long> entities) throws EngineException
+		{
+			for (int i=offset; i<entities.size(); i+=CHUNK)
+			{
+				List<IdentitiesAndAttributes> resolved = resolveEntities(entities, i, CHUNK);
+				if (controller.isCancelled())
+					return;
+				updateTable(resolved, (float)(i+CHUNK)/entities.size());
+			}
+			ui.accessSynchronously(() -> {
+				if (controller.isCancelled())
+					return;					
+				addAllFilters();
+				loadingProgress.addStyleName(Styles.hidden.toString());
+				if (groupByEntity != groupByEntityLocal)
+					reloadTableContentsFromData();
+				ui.setPollInterval(-1);
+			}); 
+		}
+		
+		private List<IdentitiesAndAttributes> resolveEntities(List<Long> entities, 
+				int first, int amount) throws EngineException
+		{
+			int limit = first + amount > entities.size() ? entities.size() : amount + first;
+			List<IdentitiesAndAttributes> toAdd = new LinkedList<>();
+			for (int i=first; i<limit; i++)
+			{
+				long entity = entities.get(i);
+				if (controller.isCancelled())
+					break;
+				try
+				{
+					IdentitiesAndAttributes resolvedEntity = resolveEntity(entity);
+					toAdd.add(resolvedEntity);
+					if (controller.isCancelled())
+						break;
+				} catch (AuthorizationException e)
+				{
+					log.debug("Entity " + entity + " information can not be loaded, "
+							+ "won't be in the identities table", e);
+				}
+			}
+			return toAdd;
+		}
+		
+		private void updateTable(List<IdentitiesAndAttributes> toAdd, float progress)
+		{
+			ui.accessSynchronously(() -> {
+				for (IdentitiesAndAttributes resolvedEntity: toAdd)
+				{
+					if (groupByEntityLocal)
+						addGroupedEntryToTable(resolvedEntity, selected);
+					else
+						addFlatEntryToTable(resolvedEntity, selected);
+				}
+				loadingProgress.setValue(progress);
+			}); 
+		}
+	}
+	
+	private void restartEntitiesLoading(List<Long> entities, Object selected) throws EngineException
+	{
+		if (!entitiesLoader.isDone())
+		{
+			entitiesLoader.cancel(false);
+			try
+			{
+				entitiesLoader.get();
+			} catch (CancellationException e)
+			{
+				//ok, expected
+			}catch (Exception e)
+			{
+				log.warn("Background identities loader threw an exception", e);
+			}
+		}
+		
+		int toSyncLoad = entities.size() > LOAD_IN_SYNC ? LOAD_IN_SYNC : entities.size();
+		resolveEntitiesAndUpdateTableSync(entities, toSyncLoad, selected);
+		
+		if (entities.size() > LOAD_IN_SYNC)
+		{
+			removeAllFiltersFromTable();
+			loadingProgress.removeStyleName(Styles.hidden.toString());
+			loadingProgress.setValue(0f);
+			EntitiesLoader loaderTask = new EntitiesLoader(entities, selected, toSyncLoad);
+			entitiesLoader = new FutureTask<Object>(loaderTask, null);
+			loaderTask.setController(entitiesLoader);
+			executor.getService().execute(entitiesLoader);
+		}
+	}
+	
+	private void resolveEntitiesAndUpdateTableSync(List<Long> entities, int amount, Object selected) 
+			throws EngineException
+	{
+		removeAllFiltersFromTable();
+		for (int i=0; i<amount; i++)
+		{
+			long entity = entities.get(i);
+			try
+			{
+				IdentitiesAndAttributes resolvedEntity = resolveEntity(entity);
+				if (groupByEntity)
+					addGroupedEntryToTable(resolvedEntity, selected);
+				else
+					addFlatEntryToTable(resolvedEntity, selected);
 			} catch (AuthorizationException e)
 			{
 				log.debug("Entity " + entity + " information can not be loaded, "
 						+ "won't be in the identities table", e);
 			}
 		}
-		updateContents();
+		addAllFilters();
 	}
-
-	/**
-	 * Adds a new attribute column.
-	 * 
-	 * @param attribute
-	 * @param group group from where the attribute's value should be displayed. If it is null then the current 
-	 * group is used. Otherwise root group is assumed (in future other 'fixed' groups might be supported, 
-	 * but it isn't implemented yet)
-	 */
-	public void addAttributeColumn(String attribute, String group)
+	
+	private void reloadTableContentsFromData()
 	{
-		String key = (group == null) ? ATTR_CURRENT_COL_PREFIX+attribute : ATTR_ROOT_COL_PREFIX+attribute;
-		addContainerProperty(key, String.class, "");
-		setColumnHeader(key, attribute + (group == null ? "@" + this.group : "@/"));
-		refresh();
-		// savePreferences();
-	}
-
-	public void removeAttributeColumn(String group, String... attributes)
-	{
-		for (String attribute: attributes)
-		{
-			if (group.equals("/"))
-				removeContainerProperty(ATTR_ROOT_COL_PREFIX + attribute);
-			if (group.equals(this.group))
-				removeContainerProperty(ATTR_CURRENT_COL_PREFIX + attribute);
-		}
-		refresh();
-		// savePreferences();
-	}
-
-	public Set<String> getAttributeColumns(boolean root)
-	{
-		Collection<?> props = getContainerPropertyIds();
-		Set<String> ret = new HashSet<String>();
-		for (Object prop: props)
-		{
-			if (!(prop instanceof String))
-				continue;
-			String property = (String) prop;
-			if (root)
-			{
-				if (property.startsWith(ATTR_ROOT_COL_PREFIX))
-					ret.add(property.substring(ATTR_ROOT_COL_PREFIX.length()));
-			} else
-			{
-				if (property.startsWith(ATTR_CURRENT_COL_PREFIX))
-					ret.add(property.substring(ATTR_CURRENT_COL_PREFIX.length()));
-			}
-		}
-		return ret;
-	}
-
-	private void updateAttributeColumnHeaders()
-	{
-		Collection<?> props = getContainerPropertyIds();
-		for (Object prop : props)
-		{
-			if (!(prop instanceof String))
-				continue;
-			String property = (String) prop;
-			if (property.startsWith(ATTR_CURRENT_COL_PREFIX))
-			{
-				String attrName = property.substring(ATTR_CURRENT_COL_PREFIX.length());
-				setColumnHeader(property, attrName + "@" + this.group);
-			}
-		}
-	}
-
-	public void addFilter(Filter filter)
-	{
-		Container.Filterable filterable = (Filterable) getContainerDataSource();
-		filterable.addContainerFilter(filter);
-		containerFilters.add(filter);
-	}
-
-	public void removeFilter(Filter filter)
-	{
-		Container.Filterable filterable = (Filterable) getContainerDataSource();
-		filterable.removeContainerFilter(filter);
-		containerFilters.remove(filter);
-		refresh();
-	}
-
-	private void updateContents()
-	{
-		updateAttributeColumnHeaders();
-		Object selected = getValue();
-		removeAllItems();
-		if (groupByEntity)
-			setGroupedContents(selected);
-		else
-			setFlatContents(selected);
-	}
-
-	/*
-	 * We use a hack here: filters are temporarly removed and readded after all data is set. 
-	 * This is because Vaadin (tested at 7.0.4) seems to ignore parent elements when not matching filter
-	 * during addition, but properly shows them afterwards.
-	 */
-	private void setGroupedContents(Object selected)
-	{
-		Container.Filterable filterable = (Filterable) getContainerDataSource();
-		filterable.removeAllContainerFilters();
+		Object selected = getSingleSelectedItem();
+		table.removeAllItems();
+		removeAllFiltersFromTable();
 		for (IdentitiesAndAttributes entry: data.values())
 		{
-			Entity entity = entry.getEntity();
-			Object parentKey = addRow(null, entity, entry.getRootAttributes(), entry.getCurrentAttributes());
-			if (selected != null && selected.equals(parentKey))
-				setValue(parentKey);
-			for (Identity id: entry.getIdentities())
-			{
-				Object key = addRow(id, entity, entry.getRootAttributes(), entry.getCurrentAttributes());
-				setParent(key, parentKey);
-				setChildrenAllowed(key, false);
-				if (selected != null && selected.equals(key))
-					setValue(key);
-			}
+			if (groupByEntity)
+				addGroupedEntryToTable(entry, selected);
+			else
+				addFlatEntryToTable(entry, selected);
 		}
-		for (Filter filter: containerFilters)
-			filterable.addContainerFilter(filter);
+		addAllFilters();
 	}
 
-	private void setFlatContents(Object selected)
+	private void addGroupedEntryToTable(IdentitiesAndAttributes entry, Object selected)
 	{
-		for (IdentitiesAndAttributes entry: data.values())
+		Entity entity = entry.getEntity();
+		Object parentKey = addRow(null, entity, entry.getRootAttributes(), entry.getCurrentAttributes());
+		if (selected != null && selected.equals(parentKey) && 
+				((Collection<?>)table.getValue()).isEmpty())
+			table.setValue(Lists.newArrayList(parentKey));
+		for (Identity id: entry.getIdentities())
 		{
-			for (Identity id: entry.getIdentities())
+			Object key = addRow(id, entity, entry.getRootAttributes(), entry.getCurrentAttributes());
+			table.setParent(key, parentKey);
+			table.setChildrenAllowed(key, false);
+			if (selected != null && selected.equals(key) && 
+					((Collection<?>)table.getValue()).isEmpty())
+				table.setValue(Lists.newArrayList(key));
+		}
+	}
+	
+	private void addFlatEntryToTable(IdentitiesAndAttributes entry, Object selected)
+	{
+		for (Identity id: entry.getIdentities())
 			{
 				Object itemId = addRow(id, entry.getEntity(), entry.getRootAttributes(), 
 						entry.getCurrentAttributes());
-				setChildrenAllowed(itemId, false);
-				if (selected != null && selected.equals(itemId))
-					setValue(itemId);
+				table.setChildrenAllowed(itemId, false);
+				if (selected != null && selected.equals(itemId) && 
+						((Collection<?>)table.getValue()).isEmpty())
+					table.setValue(Lists.newArrayList(itemId));
 			}
-		}
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	private Object addRow(Identity id, Entity ent, Map<String, Attribute<?>> rootAttributes,
 			Map<String, Attribute<?>> curAttributes)
@@ -574,7 +690,7 @@ public class IdentitiesTable extends TreeTable
 		EntityWithLabel entWithLabel = new EntityWithLabel(ent, label);
 		Object itemId = id == null ? entWithLabel
 				: new IdentityWithEntity(id, entWithLabel);
-		Item newItem = addItem(itemId);
+		Item newItem = table.addItem(itemId);
 		
 		newItem.getItemProperty(BaseColumnId.entity.toString()).setValue(
 				entWithLabel.toString());
@@ -637,7 +753,103 @@ public class IdentitiesTable extends TreeTable
 		}
 		return itemId;
 	}
+
 	
+	/**
+	 * Adds a new attribute column.
+	 * 
+	 * @param attribute
+	 * @param group group from where the attribute's value should be displayed. If it is null then the current 
+	 * group is used. Otherwise root group is assumed (in future other 'fixed' groups might be supported, 
+	 * but it isn't implemented yet)
+	 */
+	public void addAttributeColumn(String attribute, String group)
+	{
+		String key = (group == null) ? ATTR_CURRENT_COL_PREFIX+attribute : ATTR_ROOT_COL_PREFIX+attribute;
+		table.addContainerProperty(key, String.class, "");
+		table.setColumnHeader(key, attribute + (group == null ? "@" + this.group : "@/"));
+		refresh();
+		// savePreferences();
+	}
+
+	public void removeAttributeColumn(String group, String... attributes)
+	{
+		for (String attribute: attributes)
+		{
+			if (group.equals("/"))
+				table.removeContainerProperty(ATTR_ROOT_COL_PREFIX + attribute);
+			if (group.equals(this.group))
+				table.removeContainerProperty(ATTR_CURRENT_COL_PREFIX + attribute);
+		}
+		refresh();
+		// savePreferences();
+	}
+
+	public Set<String> getAttributeColumns(boolean root)
+	{
+		Collection<?> props = table.getContainerPropertyIds();
+		Set<String> ret = new HashSet<String>();
+		for (Object prop: props)
+		{
+			if (!(prop instanceof String))
+				continue;
+			String property = (String) prop;
+			if (root)
+			{
+				if (property.startsWith(ATTR_ROOT_COL_PREFIX))
+					ret.add(property.substring(ATTR_ROOT_COL_PREFIX.length()));
+			} else
+			{
+				if (property.startsWith(ATTR_CURRENT_COL_PREFIX))
+					ret.add(property.substring(ATTR_CURRENT_COL_PREFIX.length()));
+			}
+		}
+		return ret;
+	}
+
+	private void updateAttributeColumnHeaders()
+	{
+		Collection<?> props = table.getContainerPropertyIds();
+		for (Object prop : props)
+		{
+			if (!(prop instanceof String))
+				continue;
+			String property = (String) prop;
+			if (property.startsWith(ATTR_CURRENT_COL_PREFIX))
+			{
+				String attrName = property.substring(ATTR_CURRENT_COL_PREFIX.length());
+				table.setColumnHeader(property, attrName + "@" + this.group);
+			}
+		}
+	}
+
+	public void addFilter(Filter filter)
+	{
+		Container.Filterable filterable = (Filterable) table.getContainerDataSource();
+		filterable.addContainerFilter(filter);
+		containerFilters.add(filter);
+	}
+
+	public void removeFilter(Filter filter)
+	{
+		Container.Filterable filterable = (Filterable) table.getContainerDataSource();
+		filterable.removeContainerFilter(filter);
+		containerFilters.remove(filter);
+	}
+
+	private void removeAllFiltersFromTable()
+	{
+		Container.Filterable filterable = (Filterable) table.getContainerDataSource();
+		filterable.removeAllContainerFilters();
+	}
+	
+	private void addAllFilters()
+	{
+		Container.Filterable filterable = (Filterable) table.getContainerDataSource();
+		for (Filter filter: containerFilters)
+			filterable.addContainerFilter(filter);
+	}
+		
 	private Attribute<?> getAttributeForColumnProperty(String propId, Map<String, Attribute<?>> rootAttributes, 
 			Map<String, Attribute<?>> curAttributes)
 	{
@@ -652,7 +864,7 @@ public class IdentitiesTable extends TreeTable
 		}
 	}
 
-	private void resolveEntity(long entity) throws EngineException
+	private IdentitiesAndAttributes resolveEntity(long entity) throws EngineException
 	{		
 		Entity resolvedEntity = showTargeted ? identitiesMan
 				.getEntityNoContext(new EntityParam(entity), this.group) : identitiesMan
@@ -678,6 +890,7 @@ public class IdentitiesTable extends TreeTable
 		IdentitiesAndAttributes resolved = new IdentitiesAndAttributes(resolvedEntity, 
 				resolvedEntity.getIdentities(),	rootAttrs, curAttrs);
 		data.put(resolvedEntity.getId(), resolved);
+		return resolved;
 	}
 
 	private void removeEntity(long entityId)
@@ -1105,6 +1318,14 @@ public class IdentitiesTable extends TreeTable
 		}
 	}
 
+	private EntityWithLabel getEntityFromSelection(Object selection)
+	{
+		if (selection instanceof IdentityWithEntity)
+			return ((IdentityWithEntity) selection).getEntityWithLabel();
+		else
+			return (EntityWithLabel) selection;
+	}
+	
 	private class MergeEntitiesHandler extends SingleActionHandler
 	{
 		public MergeEntitiesHandler()
@@ -1126,20 +1347,12 @@ public class IdentitiesTable extends TreeTable
 				return EMPTY;
 
 			Iterator<?> iterator = targets.iterator();
-			EntityWithLabel e1 = getEntity(iterator.next());
-			EntityWithLabel e2 = getEntity(iterator.next());
+			EntityWithLabel e1 = getEntityFromSelection(iterator.next());
+			EntityWithLabel e2 = getEntityFromSelection(iterator.next());
 			if (e1.getEntity().getId().longValue() == e2.getEntity().getId().longValue())
 				return EMPTY;
 			
 			return super.getActions(target, sender);
-		}
-
-		private EntityWithLabel getEntity(Object selection)
-		{
-			if (selection instanceof IdentityWithEntity)
-				return ((IdentityWithEntity) selection).getEntityWithLabel();
-			else
-				return (EntityWithLabel) selection;
 		}
 		
 		@Override
@@ -1147,8 +1360,8 @@ public class IdentitiesTable extends TreeTable
 		{		
 			Collection<?> targets = (Collection<?>) target;
 			Iterator<?> iterator = targets.iterator();
-			EntityWithLabel e1 = getEntity(iterator.next());
-			EntityWithLabel e2 = getEntity(iterator.next());
+			EntityWithLabel e1 = getEntityFromSelection(iterator.next());
+			EntityWithLabel e2 = getEntityFromSelection(iterator.next());
 			EntityMergeDialog dialog = new EntityMergeDialog(msg, e1, e2, group, identitiesMan);
 			dialog.show();
 		}
@@ -1232,7 +1445,7 @@ public class IdentitiesTable extends TreeTable
 		{
 			return entity;
 		}
-
+		
 		@Override
 		public int hashCode()
 		{
@@ -1261,5 +1474,26 @@ public class IdentitiesTable extends TreeTable
 			return true;
 		}
 
+		@Override
+		public String toString()
+		{
+			return "IdentityWithEntity [identity=" + identity + ", entity=" + entity + "]";
+		}
+
+	}
+
+	public boolean isColumnCollapsed(String colId)
+	{
+		return table.isColumnCollapsed(colId);
+	}
+
+	public Collection<?> getContainerPropertyIds()
+	{
+		return table.getContainerPropertyIds();
+	}
+	
+	public ValueChangeNotifier getValueChangeNotifier()
+	{
+		return table;
 	}
 }

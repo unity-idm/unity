@@ -11,21 +11,19 @@ import java.util.List;
 import com.google.common.html.HtmlEscapers;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.data.Property.ValueChangeNotifier;
 import com.vaadin.event.Action;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.AbstractOrderedLayout;
-import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
-
-import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Component with a list of small buttons. Buttons are bound to {@link Action}s via 
@@ -39,12 +37,12 @@ import pl.edu.icm.unity.webui.common.Styles;
 public class Toolbar extends CustomComponent
 {
 	private Orientation orientation;
-	private AbstractSelect source;
+	private ValueChangeNotifier source;
 	private Object target;
 	private List<Button> buttons;
 	private AbstractOrderedLayout main;
 	
-	public Toolbar(AbstractSelect source, Orientation orientation)
+	public Toolbar(ValueChangeNotifier source, Orientation orientation)
 	{
 		this.source = source;
 		this.orientation = orientation;
@@ -74,7 +72,7 @@ public class Toolbar extends CustomComponent
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
-				target = source.getValue();
+				target = event.getProperty().getValue();
 				for (Button button: buttons)
 				{
 					updateButtonState(button);
