@@ -4,12 +4,14 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.preferences;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import eu.unicore.security.etd.DelegationRestrictions;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
@@ -147,6 +149,16 @@ public class SamlPreferencesWithETD extends SamlPreferences
 		public void setMaxProxyCount(int maxProxyCount)
 		{
 			this.maxProxyCount = maxProxyCount;
+		}
+		
+		public DelegationRestrictions toDelegationRestrictions()
+		{
+			if (!isGenerateETD())
+				return null;
+			long ms = getEtdValidity();
+			Date start = new Date();
+			Date end = new Date(start.getTime() + ms);
+			return new DelegationRestrictions(start, end, -1);
 		}
 	}
 }

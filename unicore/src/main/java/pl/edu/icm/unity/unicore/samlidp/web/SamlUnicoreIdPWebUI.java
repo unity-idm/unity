@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.unicore.samlidp.web;
 
 import java.util.Calendar;
-import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +47,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
-import eu.unicore.security.etd.DelegationRestrictions;
 
 
 /**
@@ -194,18 +192,6 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 		}
 	}
 	
-	protected DelegationRestrictions getRestrictions()
-	{
-		SPETDSettings settings = etdEditor.getSPETDSettings();
-		if (!settings.isGenerateETD())
-			return null;
-		
-		long ms = settings.getEtdValidity();
-		Date start = new Date();
-		Date end = new Date(start.getTime() + ms);
-		return new DelegationRestrictions(start, end, -1);
-	}
-	
 	@Override
 	protected void confirm(SAMLAuthnContext samlCtx) throws EopException
 	{
@@ -214,7 +200,8 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 		try
 		{
 			respDoc = samlWithEtdProcessor.processAuthnRequest(idSelector.getSelectedIdentity(), 
-					getExposedAttributes(), getRestrictions());
+					getExposedAttributes(), 
+					etdEditor.getSPETDSettings().toDelegationRestrictions());
 		} catch (Exception e)
 		{
 			samlResponseHandler.handleException(e, false);
