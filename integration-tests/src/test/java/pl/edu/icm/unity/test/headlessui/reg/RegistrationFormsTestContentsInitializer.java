@@ -26,7 +26,6 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
-import pl.edu.icm.unity.types.registration.AttributeClassAssignment;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
@@ -79,8 +78,7 @@ public class RegistrationFormsTestContentsInitializer implements ServerInitializ
 		{
 			RegistrationForm form = new RegistrationForm();
 			form.setName("Test");
-			form.setCredentialRequirementAssignment(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT);
-			form.setInitialEntityState(EntityState.valid);
+			form.setDefaultCredentialRequirement(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT);
 			form.setPubliclyAvailable(true);
 			
 			AttributeRegistrationParam attrReg = new AttributeRegistrationParam();

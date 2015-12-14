@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.server.api.registration;
 
 import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
 
 /**
  * Creates redirect URL which shall be used in certain situations after registration request submission 
@@ -19,11 +18,6 @@ public class RegistrationRedirectURLBuilder extends ConfirmationRedirectURLBuild
 	
 	public static final String PARAM_FORM_ID = "form_id";
 	public static final String PARAM_REQUEST_ID = "request_id";
-	
-	public RegistrationRedirectURLBuilder(RegistrationForm form, String requestId, Status status)
-	{
-		this(form.getRedirectAfterSubmit(), form.getName(), requestId, status);
-	}
 	
 	public RegistrationRedirectURLBuilder(String baseUrl, String formName, String requestId, Status status)
 	{

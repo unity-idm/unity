@@ -4,10 +4,15 @@
  */
 package pl.edu.icm.unity.server.translation;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.types.DescribedObjectImpl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -86,6 +91,71 @@ public abstract class AbstractTranslationProfile<T extends AbstractTranslationRu
 					rule.getAction().getParameters());
 		}
 	}
+	
+	@Override
+	public String toJson(ObjectMapper jsonMapper)
+	{
+		try
+		{
+			return jsonMapper.writeValueAsString(toJsonObject(jsonMapper));
+		} catch (JsonProcessingException e)
+		{
+			throw new InternalException("Can't serialize translation profile to JSON", e);
+		}
+	}
+	
+	public ObjectNode toJsonObject(ObjectMapper jsonMapper)
+	{
+		ObjectNode root = jsonMapper.createObjectNode();
+		storePreable(root);
+		storeRules(root);
+		return root;
+	}
+	
+	protected void fromJson(ObjectNode root, TranslationActionsRegistry registry)
+	{
+		try
+		{
+			loadPreamble(root);
+			ArrayNode rulesA = (ArrayNode) root.get("rules");
+			rules = new ArrayList<>(rulesA.size());
+			for (int i=0; i<rulesA.size(); i++)
+			{
+				ObjectNode jsonRule = (ObjectNode) rulesA.get(i);
+				String condition = jsonRule.get("condition").get("conditionValue").asText();
+				ObjectNode jsonAction = (ObjectNode) jsonRule.get("action");
+				String actionName = jsonAction.get("name").asText();
+				TranslationActionFactory fact = registry.getByName(actionName);
+				String[] parameters = extractParams(jsonAction);
+				TranslationAction action = fact.getInstance(parameters);
+				rules.add(createRule(action, new TranslationCondition(condition)));
+			}
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't deserialize translation profile from JSON", e);
+		}
+	}
+	
+	protected void fromJson(String json, ObjectMapper jsonMapper, TranslationActionsRegistry registry)
+	{
+		try
+		{
+			ObjectNode root = (ObjectNode) jsonMapper.readTree(json);
+			fromJson(root, registry);
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't deserialize translation profile from JSON", e);
+		}
+	}
+	
+	/**
+	 * Must return a correct instance of a rule. Should check if the action is of proper type.
+	 * @param action
+	 * @param condition
+	 * @return
+	 */
+	protected abstract T createRule(TranslationAction action, TranslationCondition condition);
+	
 	
 	/**
 	 * Add a profile's action to JSON array.

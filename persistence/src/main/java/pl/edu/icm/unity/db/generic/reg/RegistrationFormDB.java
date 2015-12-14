@@ -16,7 +16,6 @@ import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.generic.DependencyChangeListener;
 import pl.edu.icm.unity.db.generic.DependencyNotificationManager;
 import pl.edu.icm.unity.db.generic.GenericObjectsDB;
-import pl.edu.icm.unity.db.generic.ac.AttributeClassHandler;
 import pl.edu.icm.unity.db.generic.cred.CredentialHandler;
 import pl.edu.icm.unity.db.generic.credreq.CredentialRequirementHandler;
 import pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateHandler;
@@ -29,12 +28,8 @@ import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.registration.AttributeClassAssignment;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
@@ -56,7 +51,6 @@ public class RegistrationFormDB extends GenericObjectsDB<RegistrationForm>
 				"registration form");
 		notificationManager.addListener(new CredentialChangeListener());
 		notificationManager.addListener(new CredentialRequirementChangeListener());
-		notificationManager.addListener(new ACChangeListener());
 		notificationManager.addListener(new GroupChangeListener());
 		notificationManager.addListener(new AttributeTypeChangeListener());
 		notificationManager.addListener(new MessageTemplateChangeListener());
@@ -112,43 +106,13 @@ public class RegistrationFormDB extends GenericObjectsDB<RegistrationForm>
 			List<RegistrationForm> forms = getAll(sql);
 			for (RegistrationForm form: forms)
 			{
-				if (removedObject.getName().equals(form.getCredentialRequirementAssignment()))
+				if (removedObject.getName().equals(form.getDefaultCredentialRequirement()))
 					throw new SchemaConsistencyException("The credential requirement is used by a registration form " 
 							+ form.getName());
 			}
 		}
 	}
 
-	private class ACChangeListener implements DependencyChangeListener<AttributesClass>
-	{
-		@Override
-		public String getDependencyObjectType()
-		{
-			return AttributeClassHandler.ATTRIBUTE_CLASS_OBJECT_TYPE;
-		}
-
-		@Override
-		public void preAdd(AttributesClass newObject, SqlSession sql) throws EngineException { }
-		@Override
-		public void preUpdate(AttributesClass oldObject,
-				AttributesClass updatedObject, SqlSession sql) throws EngineException {}
-
-		@Override
-		public void preRemove(AttributesClass removedObject, SqlSession sql)
-				throws EngineException
-		{
-			List<RegistrationForm> forms = getAll(sql);
-			for (RegistrationForm form: forms)
-			{
-				for (AttributeClassAssignment ac: form.getAttributeClassAssignments())
-					if (removedObject.getName().equals(ac.getAcName()))
-						throw new SchemaConsistencyException(
-							"The attribute class is used by a registration form " 
-							+ form.getName());
-			}
-		}
-	}
-	
 	private class GroupChangeListener implements DependencyChangeListener<Group>
 	{
 		@Override
@@ -170,17 +134,9 @@ public class RegistrationFormDB extends GenericObjectsDB<RegistrationForm>
 			List<RegistrationForm> forms = getAll(sql);
 			for (RegistrationForm form: forms)
 			{
-				for (String group: form.getGroupAssignments())
-					if (group.startsWith(removedObject.toString()))
-						throw new SchemaConsistencyException("The group is used by a registration form " 
-							+ form.getName());
 				for (GroupRegistrationParam group: form.getGroupParams())
 					if (group.getGroupPath().startsWith(removedObject.toString()))
 						throw new SchemaConsistencyException("The group is used by a registration form " 
-							+ form.getName());
-				for (Attribute<?> attr: form.getAttributeAssignments())
-					if (attr.getGroupPath().startsWith(removedObject.toString()))
-						throw new SchemaConsistencyException("The group is used by an attribute in registration form " 
 							+ form.getName());
 				for (AttributeRegistrationParam attr: form.getAttributeParams())
 					if (attr.getGroup().startsWith(removedObject.toString()))
@@ -206,24 +162,9 @@ public class RegistrationFormDB extends GenericObjectsDB<RegistrationForm>
 		@Override
 		public void preAdd(AttributeType newObject, SqlSession sql) throws EngineException { }
 		
-		@SuppressWarnings("unchecked")
 		@Override
 		public void preUpdate(AttributeType oldObject,
-				AttributeType updatedObject, SqlSession sql) throws EngineException 
-		{
-			List<RegistrationForm> forms = getAll(sql);
-			for (RegistrationForm form: forms)
-			{
-				for (Attribute<?> attr: form.getAttributeAssignments())
-					if (attr.getName().equals(updatedObject.getName()))
-					{
-						@SuppressWarnings("rawtypes")
-						AttributeValueSyntax syntax = updatedObject.getValueType();
-						for (Object o: attr.getValues())
-							syntax.validate(o);
-					}
-			}			
-		}
+				AttributeType updatedObject, SqlSession sql) throws EngineException {}
 
 		@Override
 		public void preRemove(AttributeType removedObject, SqlSession sql)
@@ -232,10 +173,6 @@ public class RegistrationFormDB extends GenericObjectsDB<RegistrationForm>
 			List<RegistrationForm> forms = getAll(sql);
 			for (RegistrationForm form: forms)
 			{
-				for (Attribute<?> attr: form.getAttributeAssignments())
-					if (attr.getName().equals(removedObject.getName()))
-						throw new SchemaConsistencyException("The attribute type is used by an attribute in registration form " 
-							+ form.getName());
 				for (AttributeRegistrationParam attr: form.getAttributeParams())
 					if (attr.getAttributeType().equals(removedObject.getName()))
 						throw new SchemaConsistencyException("The attribute type is used by an attribute in registration form " 

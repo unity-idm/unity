@@ -23,14 +23,10 @@ import pl.edu.icm.unity.server.translation.AbstractTranslationProfile;
 import pl.edu.icm.unity.server.translation.ExecutionBreakException;
 import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.TranslationAction;
-import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
 import pl.edu.icm.unity.server.utils.Log;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Entry point: input translation profile, a list of translation rules annotated with a name and description.
@@ -186,51 +182,15 @@ public class InputTranslationProfile extends AbstractTranslationProfile<InputTra
 		return exprValMap;
 	}
 	
-	public String toJson(ObjectMapper jsonMapper)
+	@Override
+	protected InputTranslationRule createRule(TranslationAction action, TranslationCondition condition)
 	{
-		try
+		if (!(action instanceof InputTranslationAction))
 		{
-			ObjectNode root = jsonMapper.createObjectNode();
-			storePreable(root);
-			storeRules(root);
-			return jsonMapper.writeValueAsString(root);
-		} catch (JsonProcessingException e)
-		{
-			throw new InternalException("Can't serialize translation profile to JSON", e);
+			throw new InternalException("The translation action of the input translation "
+					+ "profile is not compatible with it, it is " + action.getClass());
 		}
-	}
-	
-	private void fromJson(String json, ObjectMapper jsonMapper, TranslationActionsRegistry registry)
-	{
-		try
-		{
-			ObjectNode root = (ObjectNode) jsonMapper.readTree(json);
-			
-			loadPreamble(root);
-			
-			ArrayNode rulesA = (ArrayNode) root.get("rules");
-			rules = new ArrayList<>(rulesA.size());
-			for (int i=0; i<rulesA.size(); i++)
-			{
-				ObjectNode jsonRule = (ObjectNode) rulesA.get(i);
-				String condition = jsonRule.get("condition").get("conditionValue").asText();
-				ObjectNode jsonAction = (ObjectNode) jsonRule.get("action");
-				String actionName = jsonAction.get("name").asText();
-				TranslationActionFactory fact = registry.getByName(actionName);
-				String[] parameters = extractParams(jsonAction);
-				TranslationAction action = fact.getInstance(parameters);
-				if (!(action instanceof InputTranslationAction))
-				{
-					throw new InternalException("The translation action of the input translation "
-							+ "profile is not compatible with it, it is " + action.getClass());
-				}
-				
-				rules.add(new InputTranslationRule((InputTranslationAction) action, 
-						new TranslationCondition(condition)));
-			}
-		} catch (Exception e)
-		{
-			throw new InternalException("Can't deserialize translation profile from JSON", e);
-		}
+		
+		return new InputTranslationRule((InputTranslationAction) action, condition);
 	}
 }
