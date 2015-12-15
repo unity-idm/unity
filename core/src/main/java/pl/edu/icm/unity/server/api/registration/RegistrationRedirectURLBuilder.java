@@ -11,6 +11,7 @@ import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder;
  * or confirmation of request's email.   
  * @author K. Benedyczak
  */
+@Deprecated
 public class RegistrationRedirectURLBuilder extends ConfirmationRedirectURLBuilder
 {
 	public enum Status {submitted, submittedAccepted, submittedWithError, cancelled, elementConfirmed,

@@ -36,6 +36,7 @@ public class TranslatedRegistrationRequest
 	private EntityChange entityChange;
 	private EntityState initialEntityState = EntityState.valid;
 	private String credentialRequirement;
+	private String redirectURL = null;
 	
 	public TranslatedRegistrationRequest(String credentialRequirement)
 	{
@@ -46,13 +47,25 @@ public class TranslatedRegistrationRequest
 	{
 		identities.put(identity.getTypeId()+"_"+identity.getValue(), identity);
 	}
+	public void removeIdentity(IdentityParam identity)
+	{
+		identities.remove(identity.getTypeId()+"_"+identity.getValue());
+	}
 	public void addAttribute(Attribute<?> attribute)
 	{
 		attributes.put(attribute.getGroupPath()+"//"+attribute.getName(), attribute);
 	}
+	public void removeAttribute(Attribute<?> attribute)
+	{
+		attributes.remove(attribute.getGroupPath()+"//"+attribute.getName());
+	}
 	public void addMembership(GroupParam group)
 	{
 		groups.put(group.getGroup(), group);
+	}
+	public void removeMembership(String group)
+	{
+		groups.remove(group);
 	}
 
 	public void setAutoAction(AutomaticRequestAction autoAction)
@@ -103,5 +116,20 @@ public class TranslatedRegistrationRequest
 	public String getCredentialRequirement()
 	{
 		return credentialRequirement;
+	}
+
+	public String getRedirectURL()
+	{
+		return redirectURL;
+	}
+
+	public void setRedirectURL(String redirectURL)
+	{
+		this.redirectURL = redirectURL;
+	}
+
+	public void setCredentialRequirement(String credentialRequirement)
+	{
+		this.credentialRequirement = credentialRequirement;
 	}
 }
