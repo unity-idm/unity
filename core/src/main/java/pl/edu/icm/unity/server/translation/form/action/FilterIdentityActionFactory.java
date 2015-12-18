@@ -28,7 +28,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 @Component
 public class FilterIdentityActionFactory extends AbstractTranslationActionFactory
 {
-	public static final String NAME = "filterIdentity";
+	public static final String NAME = "regFilterIdentity";
 	
 	public FilterIdentityActionFactory()
 	{

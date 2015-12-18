@@ -28,7 +28,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 @Component
 public class FilterAttributeActionFactory extends AbstractTranslationActionFactory
 {
-	public static final String NAME = "filterAttribute";
+	public static final String NAME = "regFilterAttribute";
 	
 	public FilterAttributeActionFactory()
 	{

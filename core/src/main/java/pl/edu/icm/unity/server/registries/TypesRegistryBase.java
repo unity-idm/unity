@@ -27,7 +27,12 @@ public abstract class TypesRegistryBase<T>
 		if (typeElements == null)
 			typeElements = new ArrayList<T>();
 		for (T idDef: typeElements)
-			this.elements.put(getId(idDef), idDef);
+		{
+			String id = getId(idDef);
+			if (this.elements.containsKey(id))
+				throw new IllegalStateException("Key " + id + " is used twice");
+			this.elements.put(id, idDef);
+		}
 	}
 	
 	public T getByName(String name) throws IllegalTypeException

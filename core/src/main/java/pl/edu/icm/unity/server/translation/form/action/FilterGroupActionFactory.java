@@ -28,7 +28,7 @@ import pl.edu.icm.unity.server.utils.Log;
 @Component
 public class FilterGroupActionFactory extends AbstractTranslationActionFactory
 {
-	public static final String NAME = "filterGroup";
+	public static final String NAME = "regFilterGroup";
 	
 	public FilterGroupActionFactory()
 	{
