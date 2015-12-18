@@ -56,7 +56,7 @@ import pl.edu.icm.unity.server.translation.TranslationCondition;
 import pl.edu.icm.unity.server.translation.in.IdentityEffectMode;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
-import pl.edu.icm.unity.stdext.tactions.in.MapIdentityActionFactory;
+import pl.edu.icm.unity.server.translation.in.action.MapIdentityActionFactory;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;

@@ -7,7 +7,6 @@ package pl.edu.icm.unity.engine;
 import static org.junit.Assert.fail;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.junit.Assert;
@@ -34,8 +33,14 @@ import pl.edu.icm.unity.msgtemplates.MessageTemplate.I18nMessage;
 import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
+import pl.edu.icm.unity.server.api.RegistrationContext;
+import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfileBuilder;
+import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
@@ -47,7 +52,6 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.utils.InitializerCommon;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
@@ -86,6 +90,8 @@ public class TestConfirmations extends DBIntegrationTestBase
 	private InitializerCommon commonInitializer;
 	@Autowired
 	private UnityServerConfiguration mainConfig;
+	@Autowired
+	private TranslationActionsRegistry registry;
 
 	@Test
 	public void shouldNotPreservedConfirmationStateIfChangedByAdmin() throws Exception
@@ -413,14 +419,12 @@ public class TestConfirmations extends DBIntegrationTestBase
 				.registrationForm()
 				.withName("f1")
 				.withDescription("description")
-				.withCredentialRequirementAssignment(
+				.withPubliclyAvailable(true)
+				.withDefaultCredentialRequirement(
 						EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
-				.withAddedGroupAssignment("/A").withPubliclyAvailable(true)
-				.withInitialEntityState(EntityState.valid)
-				.withRegistrationCode("123").withAutoAcceptCondition("false")
+				.withRegistrationCode("123")
 				.withCollectComments(true)
 				.withFormInformation().withDefaultValue("formInformation").endFormInformation()
-				.withAttributeAssignments(new ArrayList<Attribute<?>>())
 				.withAddedCredentialParam()
 				.withCredentialName(EngineInitialization.DEFAULT_CREDENTIAL)
 				.withDescription("description").withLabel("label")
@@ -470,7 +474,8 @@ public class TestConfirmations extends DBIntegrationTestBase
 
 				.build();
 
-		registrationsMan.submitRegistrationRequest(request, true);
+		registrationsMan.submitRegistrationRequest(request, new RegistrationContext(true, 
+				false, TriggeringMode.manualAtLogin));
 		Assert.assertEquals(1,
 				tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE)
 						.size());
@@ -503,14 +508,12 @@ public class TestConfirmations extends DBIntegrationTestBase
 		RegistrationForm form = RegistrationFormBuilder
 				.registrationForm()
 				.withName("f1")
-				.withCredentialRequirementAssignment(
+				.withDefaultCredentialRequirement(
 						EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
-				.withAddedGroupAssignment("/A").withPubliclyAvailable(true)
-				.withInitialEntityState(EntityState.valid)
-				.withRegistrationCode("123").withAutoAcceptCondition("false")
+				.withPubliclyAvailable(true)
+				.withRegistrationCode("123")
 				.withCollectComments(true).withFormInformation()
 				.withDefaultValue("formInformation").endFormInformation()
-				.withAttributeAssignments(new ArrayList<Attribute<?>>())
 				.withAddedCredentialParam().withCredentialName(EngineInitialization.DEFAULT_CREDENTIAL)
 				.endCredentialParam()
 				.withAddedAgreement().withManatory(false).withText()
@@ -555,7 +558,8 @@ public class TestConfirmations extends DBIntegrationTestBase
 				.withValue("example@example.com").endIdentity()
 				.build();
 
-		registrationsMan.submitRegistrationRequest(request, true);
+		registrationsMan.submitRegistrationRequest(request, new RegistrationContext(true, 
+				false, TriggeringMode.manualAtLogin));
 		Assert.assertEquals(1,
 				tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE)
 						.size());
@@ -589,18 +593,20 @@ public class TestConfirmations extends DBIntegrationTestBase
 		groupsMan.addGroup(new Group("/A"));
 		groupsMan.addGroup(new Group("/B"));
 
+		RegistrationTranslationProfile translationProfile = new RegistrationTranslationProfileBuilder(
+				registry, "form").
+				withAutoProcess("attr[\"email\"].confirmed ==  true", AutomaticRequestAction.accept).
+				build();
 		RegistrationForm form = RegistrationFormBuilder
 				.registrationForm()
 				.withName("f1")
-				.withCredentialRequirementAssignment(
+				.withDefaultCredentialRequirement(
 						EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
-				.withAddedGroupAssignment("/A").withPubliclyAvailable(true)
-				.withInitialEntityState(EntityState.valid)
+				.withPubliclyAvailable(true)
 				.withRegistrationCode("123")
-				.withAutoAcceptCondition("attr[\"email\"].confirmed ==  true ")
+				.withTranslationProfile(translationProfile)
 				.withCollectComments(true).withFormInformation()
 				.withDefaultValue("formInformation").endFormInformation()
-				.withAttributeAssignments(new ArrayList<Attribute<?>>())
 				.withAddedCredentialParam()
 				.withCredentialName(EngineInitialization.DEFAULT_CREDENTIAL)
 				.endCredentialParam()
@@ -647,7 +653,8 @@ public class TestConfirmations extends DBIntegrationTestBase
 				.withValue("username").endIdentity()
 				.build();
 
-		registrationsMan.submitRegistrationRequest(request, true);
+		registrationsMan.submitRegistrationRequest(request, new RegistrationContext(true, 
+				false, TriggeringMode.manualAtLogin));
 
 		Assert.assertEquals(RegistrationRequestStatus.pending, registrationsMan
 				.getRegistrationRequests().get(0).getStatus());
@@ -681,14 +688,12 @@ public class TestConfirmations extends DBIntegrationTestBase
 		RegistrationForm form = RegistrationFormBuilder
 				.registrationForm()
 				.withName("f1")
-				.withCredentialRequirementAssignment(
+				.withDefaultCredentialRequirement(
 						EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
-				.withAddedGroupAssignment("/A").withPubliclyAvailable(true)
-				.withInitialEntityState(EntityState.valid)
-				.withRegistrationCode("123").withAutoAcceptCondition("false")
+				.withPubliclyAvailable(true)
+				.withRegistrationCode("123")
 				.withCollectComments(true).withFormInformation()
 				.withDefaultValue("formInformation").endFormInformation()
-				.withAttributeAssignments(new ArrayList<Attribute<?>>())
 				.withAddedCredentialParam()
 				.withCredentialName(EngineInitialization.DEFAULT_CREDENTIAL)
 				.endCredentialParam()
@@ -740,7 +745,8 @@ public class TestConfirmations extends DBIntegrationTestBase
 				.withValue("test33@example.com").endIdentity()
 				.build();
 
-		String requestId = registrationsMan.submitRegistrationRequest(request, true);
+		String requestId = registrationsMan.submitRegistrationRequest(request, new RegistrationContext(true, 
+				false, TriggeringMode.manualAtLogin));
 
 		Assert.assertEquals(2,
 				tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE)
@@ -788,18 +794,21 @@ public class TestConfirmations extends DBIntegrationTestBase
 		groupsMan.addGroup(new Group("/A"));
 		groupsMan.addGroup(new Group("/B"));
 
+		RegistrationTranslationProfile translationProfile = new RegistrationTranslationProfileBuilder(
+				registry, "form").
+				withAutoProcess("attr[\"email\"].confirmed ==  true", AutomaticRequestAction.accept).
+				build();
+		
 		RegistrationForm form = RegistrationFormBuilder
 				.registrationForm()
 				.withName("f1")
-				.withCredentialRequirementAssignment(
+				.withDefaultCredentialRequirement(
 						EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
-				.withAddedGroupAssignment("/A").withPubliclyAvailable(true)
-				.withInitialEntityState(EntityState.valid)
+				.withPubliclyAvailable(true)
 				.withRegistrationCode("123")
-				.withAutoAcceptCondition("attr[\"email\"].confirmed ==  true ")
+				.withTranslationProfile(translationProfile)
 				.withCollectComments(true).withFormInformation()
 				.withDefaultValue("formInformation").endFormInformation()
-				.withAttributeAssignments(new ArrayList<Attribute<?>>())
 				.withAddedCredentialParam()
 				.withCredentialName(EngineInitialization.DEFAULT_CREDENTIAL)
 				.endCredentialParam()
@@ -847,7 +856,8 @@ public class TestConfirmations extends DBIntegrationTestBase
 				.withValue("username").endIdentity()
 				.build();
 
-		String requestId = registrationsMan.submitRegistrationRequest(request, true);
+		String requestId = registrationsMan.submitRegistrationRequest(request, new RegistrationContext(true, 
+				false, TriggeringMode.manualAtLogin));
 		
 		Assert.assertEquals(RegistrationRequestStatus.pending, registrationsMan
 				.getRegistrationRequests().get(0).getStatus());

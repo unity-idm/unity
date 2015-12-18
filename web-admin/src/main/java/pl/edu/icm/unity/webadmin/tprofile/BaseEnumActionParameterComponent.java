@@ -43,10 +43,10 @@ public class BaseEnumActionParameterComponent extends ComboBox implements Action
 	{
 		this.msg = msg;
 		this.desc = desc;
-		setNullSelectionAllowed(desc.getMinValues() != 1);
+		setNullSelectionAllowed(false);
 		if (def != null)
 			select(def);
-		setRequired(desc.getMinValues() == 1);
+		setRequired(true);
 		setDescription(msg.getMessage(desc.getDescriptionKey()));
 		setCaption(desc.getName() + ":");
 	}

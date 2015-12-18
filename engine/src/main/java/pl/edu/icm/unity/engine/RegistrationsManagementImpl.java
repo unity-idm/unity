@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.engine;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -24,7 +22,6 @@ import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
 import pl.edu.icm.unity.confirmations.states.RegistrationReqAttribiuteConfirmationState;
 import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityConfirmationState;
 import pl.edu.icm.unity.db.DBAttributes;
-import pl.edu.icm.unity.db.generic.ac.AttributeClassDB;
 import pl.edu.icm.unity.db.generic.cred.CredentialDB;
 import pl.edu.icm.unity.db.generic.credreq.CredentialRequirementDB;
 import pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateDB;
@@ -36,6 +33,7 @@ import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
+import pl.edu.icm.unity.engine.internal.RegistrationRequestValidator;
 import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
 import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -43,6 +41,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.notifications.NotificationProducer;
+import pl.edu.icm.unity.server.api.RegistrationContext;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
@@ -50,9 +49,9 @@ import pl.edu.icm.unity.server.api.registration.AcceptRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
-import pl.edu.icm.unity.server.attributes.AttributeValueChecker;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -60,7 +59,6 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
-import pl.edu.icm.unity.types.registration.AttributeClassAssignment;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
@@ -86,10 +84,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private RegistrationRequestDB requestDB;
 	private CredentialDB credentialDB;
 	private CredentialRequirementDB credentialReqDB;
-	private AttributeClassDB acDB;
 	private DBAttributes dbAttributes;
 	private MessageTemplateDB msgTplDB;
-	
 	private GroupResolver groupsResolver;
 	private IdentityTypesRegistry identityTypesRegistry;
 	private AuthorizationManager authz;
@@ -98,32 +94,35 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private InternalRegistrationManagment internalManagment;
 	private UnityMessageSource msg;
 	private TransactionalRunner tx;
+	private RegistrationRequestValidator registrationRequestValidator;
 
 	@Autowired
-	public RegistrationsManagementImpl(TransactionalRunner tx, RegistrationFormDB formsDB,
+	public RegistrationsManagementImpl(RegistrationFormDB formsDB,
 			RegistrationRequestDB requestDB, CredentialDB credentialDB,
-			CredentialRequirementDB credentialReqDB, AttributeClassDB acDB,
-			DBAttributes dbAttributes, GroupResolver groupsResolver, 
+			CredentialRequirementDB credentialReqDB, DBAttributes dbAttributes,
+			MessageTemplateDB msgTplDB, GroupResolver groupsResolver,
 			IdentityTypesRegistry identityTypesRegistry, AuthorizationManager authz,
-			NotificationProducer notificationProducer, ConfirmationManager confirmationManager, 
-			MessageTemplateDB msgTplDB, InternalRegistrationManagment internalManagment,
-			UnityMessageSource msg)
+			NotificationProducer notificationProducer,
+			ConfirmationManager confirmationManager,
+			InternalRegistrationManagment internalManagment, UnityMessageSource msg,
+			TransactionalRunner tx,
+			RegistrationRequestValidator registrationRequestValidator)
 	{
-		this.tx = tx;
 		this.formsDB = formsDB;
 		this.requestDB = requestDB;
 		this.credentialDB = credentialDB;
 		this.credentialReqDB = credentialReqDB;
-		this.acDB = acDB;
 		this.dbAttributes = dbAttributes;
+		this.msgTplDB = msgTplDB;
 		this.groupsResolver = groupsResolver;
 		this.identityTypesRegistry = identityTypesRegistry;
 		this.authz = authz;
 		this.notificationProducer = notificationProducer;
 		this.confirmationManager = confirmationManager;
-		this.msgTplDB = msgTplDB;
 		this.internalManagment = internalManagment;
 		this.msg = msg;
+		this.tx = tx;
+		this.registrationRequestValidator = registrationRequestValidator;
 	}
 
 	@Override
@@ -189,60 +188,70 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	}
 
 	@Override
-	public String submitRegistrationRequest(RegistrationRequest request, boolean tryAutoAccept) throws EngineException
+	public String submitRegistrationRequest(RegistrationRequest request, final RegistrationContext context) 
+			throws EngineException
 	{
 		RegistrationRequestState requestFull = new RegistrationRequestState();
 		requestFull.setStatus(RegistrationRequestStatus.pending);
 		requestFull.setRequest(request);
 		requestFull.setRequestId(UUID.randomUUID().toString());
 		requestFull.setTimestamp(new Date());
+		requestFull.setRegistrationContext(context);
 		
+		RegistrationForm form = recordRequestAndReturnForm(requestFull); 
+			
+		Long entityId = sendNotificationAndTryAutoProcess(form, requestFull, context);
 		
-		RegistrationForm form2 = tx.runInTransacitonRet(() -> {
+		if (entityId == null)
+			sendFormAttributeConfirmationRequest(requestFull, form);
+		else
+			sendAttributeConfirmationRequest(requestFull, entityId, form);
+		sendIdentityConfirmationRequest(requestFull, entityId, form);	
+		
+		return requestFull.getRequestId();
+	}
+
+	private RegistrationForm recordRequestAndReturnForm(RegistrationRequestState requestFull) throws EngineException
+	{
+		return tx.runInTransacitonRet(() -> {
+			RegistrationRequest request = requestFull.getRequest();
 			SqlSession sql = SqlSessionTL.get();
 			RegistrationForm form = formsDB.get(request.getFormId(), sql);
-			internalManagment.validateRequestContents(form, request, true, true, sql);
+			registrationRequestValidator.validateSubmittedRequest(form, request, true, sql);
 			requestDB.insert(requestFull.getRequestId(), requestFull, sql);
 			return form;
 		});
-			
-		Long entityId2 = tx.runInTransacitonRet(() -> {
+	}
+	
+	private Long sendNotificationAndTryAutoProcess(RegistrationForm form, RegistrationRequestState requestFull, 
+			RegistrationContext context) throws EngineException
+	{
+		return tx.runInTransacitonRet(() -> {
 			SqlSession sql = SqlSessionTL.get();
 			Long entityId = null;
-			RegistrationFormNotifications notificationsCfg = form2.getNotificationsConfiguration();
+			RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
 			if (notificationsCfg.getChannel() != null && notificationsCfg.getSubmittedTemplate() != null
 					&& notificationsCfg.getAdminsNotificationGroup() != null)
 			{
 				Map<String, String> params = internalManagment.getBaseNotificationParams(
-						form2.getName(), requestFull.getRequestId()); 
+						form.getName(), requestFull.getRequestId()); 
 				notificationProducer.sendNotificationToGroup(
 						notificationsCfg.getAdminsNotificationGroup(), 
 						notificationsCfg.getChannel(), 
 						notificationsCfg.getSubmittedTemplate(),
 						params,
 						msg.getDefaultLocaleCode());
+				
+				if (context.tryAutoAccept)
+					entityId = internalManagment.autoProcess(form, requestFull, 
+							"Automatic processing of the request  " + 
+							requestFull.getRequestId() + " invoked, action: {0}", sql);
 			}	
-			if (tryAutoAccept && internalManagment.checkAutoAcceptCondition(requestFull.getRequest(), sql))
-			{
-				AdminComment autoAcceptComment = new AdminComment(
-						InternalRegistrationManagment.AUTO_ACCEPT_COMMENT, 0, false);
-				requestFull.getAdminComments().add(autoAcceptComment);
-				entityId = internalManagment.acceptRequest(form2, requestFull, null, 
-						autoAcceptComment, false, sql);
-			}
+			
 			return entityId;
 		});
-		
-		if (entityId2 == null)
-			sendFormAttributeConfirmationRequest(requestFull, form2);
-		else
-			sendAttributeConfirmationRequest(requestFull, entityId2, form2);
-		sendIdentityConfirmationRequest(requestFull, entityId2, form2);	
-		
-		
-		return requestFull.getRequestId();
 	}
-
+	
 	@Override
 	@Transactional
 	public List<RegistrationRequestState> getRegistrationRequests() throws EngineException
@@ -302,10 +311,10 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		switch (action)
 		{
 		case drop:
-			dropRequest(id, sql);
+			internalManagment.dropRequest(id, sql);
 			break;
 		case reject:
-			rejectRequest(form, currentRequest, publicComment, internalComment, sql);
+			internalManagment.rejectRequest(form, currentRequest, publicComment, internalComment, sql);
 			break;
 		case update:
 			updateRequest(form, currentRequest, publicComment, internalComment, sql);
@@ -317,28 +326,11 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		}
 	}
 
-	private void dropRequest(String id, SqlSession sql) throws EngineException
-	{
-		requestDB.remove(id, sql);
-	}
-	
-	private void rejectRequest(RegistrationForm form, RegistrationRequestState currentRequest, 
-			AdminComment publicComment, AdminComment internalComment, SqlSession sql) throws EngineException
-	{
-		currentRequest.setStatus(RegistrationRequestStatus.rejected);
-		requestDB.update(currentRequest.getRequestId(), currentRequest, sql);
-		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
-		internalManagment.sendProcessingNotification(notificationsCfg.getRejectedTemplate(), 
-				currentRequest, currentRequest.getRequestId(), form.getName(),
-				true, publicComment, 
-				internalComment, notificationsCfg, sql);
-	}
-	
 	private void updateRequest(RegistrationForm form, RegistrationRequestState currentRequest,
 			AdminComment publicComment, AdminComment internalComment, SqlSession sql) 
 			throws EngineException
 	{
-		internalManagment.validateRequestContents(form, currentRequest.getRequest(), false, true, sql);
+		registrationRequestValidator.validateSubmittedRequest(form, currentRequest.getRequest(), false, sql);
 		requestDB.update(currentRequest.getRequestId(), currentRequest, sql);
 		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
 		internalManagment.sendProcessingNotification(notificationsCfg.getUpdatedTemplate(),
@@ -354,24 +346,6 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		GroupsMapper gm = sql.getMapper(GroupsMapper.class);
 
 		Map<String, AttributeType> atMap = dbAttributes.getAttributeTypes(sql);
-		if (form.getAttributeAssignments() != null)
-		{
-			Set<String> used = new HashSet<>();
-			for (Attribute<?> attr: form.getAttributeAssignments())
-			{
-				AttributeType at = atMap.get(attr.getName());
-				if (at == null)
-					throw new WrongArgumentException("Attribute type " + attr.getName() + 
-							" does not exist");
-				String key = at.getName() + " @ " + attr.getGroupPath();
-				if (used.contains(key))
-					throw new WrongArgumentException("Assigned attribute " + key + 
-							" was specified more then once.");
-				used.add(key);
-				AttributeValueChecker.validate(attr, at);
-				groupsResolver.resolveGroup(attr.getGroupPath(), gm);
-			}
-		}
 
 		if (form.getAttributeParams() != null)
 		{
@@ -390,19 +364,6 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			}
 		}
 
-		if (form.getAttributeClassAssignments() != null)
-		{
-			Set<String> acs = new HashSet<>();
-			for (AttributeClassAssignment ac: form.getAttributeClassAssignments())
-			{
-				if (acs.contains(ac.getAcName()))
-					throw new WrongArgumentException("Assigned attribute class " + 
-							ac.getAcName() + " was specified more then once.");
-				acs.add(ac.getAcName());
-			}
-			acDB.assertExist(acs, sql);
-		}
-
 		if (form.getCredentialParams() != null)
 		{
 			Set<String> creds = new HashSet<>();
@@ -416,24 +377,11 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			credentialDB.assertExist(creds, sql);
 		}
 
-		if (form.getCredentialRequirementAssignment() == null)
+		if (form.getDefaultCredentialRequirement() == null)
 			throw new WrongArgumentException("Credential requirement must be set for the form");
-		if (credentialReqDB.get(form.getCredentialRequirementAssignment(), sql) == null)
+		if (credentialReqDB.get(form.getDefaultCredentialRequirement(), sql) == null)
 			throw new WrongArgumentException("Credential requirement " + 
-					form.getCredentialRequirementAssignment() + " does not exist");
-
-		if (form.getGroupAssignments() != null)
-		{
-			Set<String> used = new HashSet<>();
-			for (String group: form.getGroupAssignments())
-			{
-				groupsResolver.resolveGroup(group, gm);
-				if (used.contains(group))
-					throw new WrongArgumentException("Assigned group " + group + 
-							" was specified more then once.");
-				used.add(group);
-			}
-		}
+					form.getDefaultCredentialRequirement() + " does not exist");
 
 		if (form.getGroupParams() != null)
 		{
@@ -470,9 +418,6 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		if (!hasIdentity)
 			throw new WrongArgumentException("Registration form must collect at least one identity.");
 		
-		if (form.getInitialEntityState() == null)
-			throw new WrongArgumentException("Initial entity state must be set in the form.");
-		
 		RegistrationFormNotifications notCfg = form.getNotificationsConfiguration();
 		if (notCfg == null)
 			throw new WrongArgumentException("NotificationsConfiguration must be set in the form.");
@@ -491,17 +436,6 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			{
 				if (o.getText() == null || o.getText().isEmpty())
 					throw new WrongArgumentException("Agreement text must not be empty.");
-			}
-		}
-		
-		if (form.getRedirectAfterSubmit() != null)
-		{
-			try
-			{
-				new URI(form.getRedirectAfterSubmit());
-			} catch (URISyntaxException e)
-			{
-				throw new WrongArgumentException("Redirect URL is invalid", e);
 			}
 		}
 	}
@@ -536,7 +470,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 							attr.getName(), 
 							val.getValue(), 
 							requestState.getRequest().getUserLocale(), 
-							attr.getGroupPath(), getFormRedirectUrl(form));
+							attr.getGroupPath(), 
+							getFormRedirectUrlForAttribute(requestState, form, attr));
 					confirmationManager.sendConfirmationRequest(state);
 				}
 			}
@@ -564,7 +499,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 							attr.getName(), 
 							val.getValue(), 
 							requestState.getRequest().getUserLocale(),
-							attr.getGroupPath(), getFormRedirectUrl(form));
+							attr.getGroupPath(), 
+							getFormRedirectUrlForAttribute(requestState, form, attr));
 					confirmationManager.sendConfirmationRequest(state);
 				}
 			}
@@ -588,28 +524,35 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 							requestState.getRequestId(),
 							id.getTypeId(), id.getValue(), 
 							requestState.getRequest().getUserLocale(),
-							getFormRedirectUrl(form));
+							getFormRedirectUrlForIdentity(requestState, form, id));
 				} else
 				{
 					state = new IdentityConfirmationState(entityId, 
 							id.getTypeId(), id.getValue(), 
 							requestState.getRequest().getUserLocale(),
-							getFormRedirectUrl(form));
+							getFormRedirectUrlForIdentity(requestState, form, id));
 				}
 				confirmationManager.sendConfirmationRequest(state);
 			}
 		}
 	}
 	
-	private String getFormRedirectUrl(RegistrationForm form)
+	private String getFormRedirectUrlForIdentity(RegistrationRequestState requestState, RegistrationForm form,
+			IdentityParam identity)
 	{
-		String url = null;
+		RegistrationTranslationProfile translationProfile = form.getTranslationProfile();
+		return translationProfile.getPostConfirmationRedirectURL(form, requestState, identity);
+	}	
+	
+	private String getFormRedirectUrlForAttribute(RegistrationRequestState requestState, RegistrationForm form,
+			Attribute<?> attr)
+	{
+		String current = null;
 		if (InvocationContext.getCurrent().getCurrentURLUsed() != null
 				&& InvocationContext.getCurrent().getLoginSession() == null)
-			url = InvocationContext.getCurrent().getCurrentURLUsed();
-		if (form.getRedirectAfterSubmit() != null
-				&& !form.getRedirectAfterSubmit().equals(""))
-			url = form.getRedirectAfterSubmit();
-		return url;
+			current = InvocationContext.getCurrent().getCurrentURLUsed();
+		RegistrationTranslationProfile translationProfile = form.getTranslationProfile();
+		String configured = translationProfile.getPostConfirmationRedirectURL(form, requestState, attr);
+		return configured != null ? configured : current;
 	}
 }

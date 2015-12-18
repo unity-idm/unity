@@ -27,8 +27,8 @@ public class SetCredentialRequirementActionFactory extends AbstractTranslationAc
 		super(NAME, new ActionParameterDesc[] {
 				new ActionParameterDesc(
 						"credential requirement",
-						"TranslationAction.setCredReq.paramDesc.credentialRequirement",
-						1, 1, Type.UNITY_CRED_REQ)
+						"RegTranslationAction.setCredReq.paramDesc.credentialRequirement",
+						Type.UNITY_CRED_REQ)
 		});
 	}
 

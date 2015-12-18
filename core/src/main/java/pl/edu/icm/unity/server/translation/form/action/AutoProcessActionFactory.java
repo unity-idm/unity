@@ -27,7 +27,7 @@ public class AutoProcessActionFactory extends AbstractTranslationActionFactory
 	{
 		super(NAME, new ActionParameterDesc[] {
 				new ActionParameterDesc("action", 
-						"TranslationAction.autoProcess.paramDesc.action", 1, 1, 
+						"RegTranslationAction.autoProcess.paramDesc.action", 
 						AutomaticRequestAction.class)
 		});
 	}

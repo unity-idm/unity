@@ -9,6 +9,7 @@ import java.util.List;
 
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.TypesRegistryBase;
 import pl.edu.icm.unity.types.DescribedObjectImpl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -112,7 +113,7 @@ public abstract class AbstractTranslationProfile<T extends AbstractTranslationRu
 		return root;
 	}
 	
-	protected void fromJson(ObjectNode root, TranslationActionsRegistry registry)
+	protected void fromJson(ObjectNode root, TypesRegistryBase<? extends TranslationActionFactory> registry)
 	{
 		try
 		{

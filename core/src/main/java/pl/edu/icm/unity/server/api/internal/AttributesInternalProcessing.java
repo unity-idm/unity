@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.server.api.internal;
 
 import java.util.List;
+import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -49,5 +50,12 @@ public interface AttributesInternalProcessing
 	 * @return
 	 * @throws EngineException
 	 */
-	public AttributeExt<?> getAttributeByMetadata(EntityParam entity, String group, String metadataId) throws EngineException;
+	public AttributeExt<?> getAttributeByMetadata(EntityParam entity, String group, String metadataId)
+			throws EngineException;
+	
+	/**
+	 * @return all attribute types as map. Not authorized anyhow 
+	 * @throws EngineException
+	 */
+	public Map<String, AttributeType> getAttributeTypesAsMap() throws EngineException;
 }

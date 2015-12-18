@@ -34,12 +34,12 @@ public class AddIdentityActionFactory extends AbstractTranslationActionFactory
 		super(NAME, new ActionParameterDesc[] {
 				new ActionParameterDesc(
 						"identityType",
-						"TranslationAction.addIdentity.paramDesc.identityType",
-						1, 1, Type.UNITY_ID_TYPE),
+						"RegTranslationAction.addIdentity.paramDesc.identityType",
+						Type.UNITY_ID_TYPE),
 				new ActionParameterDesc(
 						"group",
-						"TranslationAction.addIdentity.paramDesc.identity",
-						1, 1, Type.EXPRESSION)
+						"RegTranslationAction.addIdentity.paramDesc.identity",
+						Type.EXPRESSION)
 		});
 	}
 

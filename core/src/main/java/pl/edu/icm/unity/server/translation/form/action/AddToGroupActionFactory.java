@@ -34,7 +34,7 @@ public class AddToGroupActionFactory extends AbstractTranslationActionFactory
 	{
 		super(NAME, new ActionParameterDesc[] {
 				new ActionParameterDesc("group", 
-						"TranslationAction.addToGroup.paramDesc.group", 1, 1, 
+						"RegTranslationAction.addToGroup.paramDesc.group", 
 						Type.EXPRESSION)
 		});
 	}

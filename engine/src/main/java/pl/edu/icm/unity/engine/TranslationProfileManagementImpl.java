@@ -30,7 +30,7 @@ import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationProfile;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationRule;
-import pl.edu.icm.unity.stdext.tactions.out.CreateAttributeActionFactory;
+import pl.edu.icm.unity.stdext.translation.out.CreateAttributeActionFactory;
 
 /**
  * Implementation of {@link TranslationProfileManagement}

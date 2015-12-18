@@ -29,7 +29,7 @@ public class ConfirmationRedirectActionFactory extends AbstractTranslationAction
 	{
 		super(NAME, new ActionParameterDesc[] {
 				new ActionParameterDesc("URL", 
-						"TranslationAction.confirmationRedirect.paramDesc.URL", 1, 1, 
+						"RegTranslationAction.confirmationRedirect.paramDesc.URL",
 						Type.EXPRESSION)
 		});
 	}

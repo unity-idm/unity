@@ -33,12 +33,12 @@ public class ScheduleEntityChangeActionFactory extends AbstractTranslationAction
 		super(NAME, new ActionParameterDesc[] {
 				new ActionParameterDesc(
 						"schedule change",
-						"TranslationAction.scheduleChange.paramDesc.scheduleChange",
-						1, 1, EntityScheduledOperation.class),
+						"RegTranslationAction.scheduleChange.paramDesc.scheduleChange",
+						EntityScheduledOperation.class),
 				new ActionParameterDesc(
 						"scheduled after days",
-						"TranslationAction.scheduleChange.paramDesc.scheduledTime",
-						1, 1, Type.DAYS)
+						"RegTranslationAction.scheduleChange.paramDesc.scheduledTime",
+						Type.DAYS)
 		});
 	}
 

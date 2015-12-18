@@ -16,11 +16,16 @@ import org.apache.log4j.NDC;
 import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.api.RegistrationContext;
+import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.AbstractTranslationProfile;
 import pl.edu.icm.unity.server.translation.ExecutionBreakException;
+import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.TranslationAction;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
+import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
+import pl.edu.icm.unity.server.translation.form.action.AutoProcessActionFactory;
 import pl.edu.icm.unity.server.translation.form.action.ConfirmationRedirectActionFactory;
 import pl.edu.icm.unity.server.translation.form.action.RedirectActionFactory;
 import pl.edu.icm.unity.server.utils.Log;
@@ -31,6 +36,7 @@ import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
+import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.Selection;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -41,6 +47,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public class RegistrationTranslationProfile extends AbstractTranslationProfile<RegistrationTranslationRule>
 {
+	public enum RequestSubmitStatus 
+	{
+		submitted,
+		canceled
+	}
+	
 	public enum ContextKey
 	{
 		idsByType,
@@ -58,7 +70,8 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 		onIdpEndpoint,
 		userLocale,
 		registrationForm,
-		requestId;
+		requestId,
+		agrs;
 	}
 	
 	public enum PostConfirmationContextKey
@@ -71,29 +84,57 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, RegistrationTranslationProfile.class);
 	
-	public RegistrationTranslationProfile(ObjectNode json, TranslationActionsRegistry registry)
+	public RegistrationTranslationProfile(ObjectNode json, RegistrationTranslationActionsRegistry registry)
 	{
 		fromJson(json, registry);
 	}
 	
-	public TranslatedRegistrationRequest translate(RegistrationForm form, RegistrationRequest request,
-			String status, String triggered, boolean idpEndpoint) throws EngineException
+	public RegistrationTranslationProfile(String name, List<RegistrationTranslationRule> rules)
 	{
-		NDC.push("[TrProfile " + getName() + "]");
-		Map<String, Object> mvelCtx = createMvelContext(form, request, status, triggered, idpEndpoint);
-		return executeFilteredActions(form, request, mvelCtx, null);
+		super(name, ProfileType.REGISTRATION, rules);
 	}
 	
-
-	public String getPostSubmitRedirectURL(RegistrationForm form, RegistrationRequest request,
-			String status, String triggered, boolean idpEndpoint)
+	public TranslatedRegistrationRequest translate(RegistrationForm form, RegistrationRequestState request) 
+			throws EngineException
 	{
-		Map<String, Object> mvelCtx = createMvelContext(form, request, status, triggered, idpEndpoint);
+		NDC.push("[TrProfile " + getName() + "]");
+		Map<String, Object> mvelCtx = createMvelContext(form, request.getRequest(), 
+				RequestSubmitStatus.submitted, 
+				request.getRegistrationContext().triggeringMode, 
+				request.getRegistrationContext().isOnIdpEndpoint);
+		return executeFilteredActions(form, request.getRequest(), mvelCtx, null);
+	}
+	
+	public AutomaticRequestAction getAutoProcessAction(RegistrationForm form, 
+			RegistrationRequestState request, RequestSubmitStatus status)
+	{
+		Map<String, Object> mvelCtx = createMvelContext(form, request.getRequest(), status, 
+				request.getRegistrationContext().triggeringMode, 
+				request.getRegistrationContext().isOnIdpEndpoint);
 		TranslatedRegistrationRequest result;
 		try
 		{
 			result = executeFilteredActions(form, 
-					request, mvelCtx, RedirectActionFactory.NAME);
+					request.getRequest(), mvelCtx, AutoProcessActionFactory.NAME);
+		} catch (EngineException e)
+		{
+			log.error("Couldn't establish automatic request processing action from profile", e);
+			return null;
+		}
+		return result.getAutoAction();
+	}
+	
+	public String getPostSubmitRedirectURL(RegistrationForm form, RegistrationRequestState request,
+			RequestSubmitStatus status)
+	{
+		Map<String, Object> mvelCtx = createMvelContext(form, request.getRequest(), status, 
+				request.getRegistrationContext().triggeringMode, 
+				request.getRegistrationContext().isOnIdpEndpoint);
+		TranslatedRegistrationRequest result;
+		try
+		{
+			result = executeFilteredActions(form, 
+					request.getRequest(), mvelCtx, RedirectActionFactory.NAME);
 		} catch (EngineException e)
 		{
 			log.error("Couldn't establish redirect URL from profile", e);
@@ -102,27 +143,28 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 		return result.getRedirectURL();
 	}
 
-	public String getPostConfirmationRedirectURL(RegistrationForm form, RegistrationRequest request,
-			String status, String triggered, boolean idpEndpoint, IdentityParam confirmed)
+	public String getPostConfirmationRedirectURL(RegistrationForm form, RegistrationRequestState request,
+			IdentityParam confirmed)
 	{
-		return getPostConfirmationRedirectURL(form, request, status, triggered, idpEndpoint, 
+		return getPostConfirmationRedirectURL(form, request.getRequest(), request.getRegistrationContext(),
 				ConfirmationRedirectURLBuilder.ConfirmedElementType.identity.toString(), 
 				confirmed.getTypeId(), confirmed.getValue());
 	}
 
-	public String getPostConfirmationRedirectURL(RegistrationForm form, RegistrationRequest request,
-			String status, String triggered, boolean idpEndpoint, Attribute<?> confirmed)
+	public String getPostConfirmationRedirectURL(RegistrationForm form, RegistrationRequestState request,
+			Attribute<?> confirmed)
 	{
-		return getPostConfirmationRedirectURL(form, request, status, triggered, idpEndpoint, 
+		return getPostConfirmationRedirectURL(form, request.getRequest(), request.getRegistrationContext(),
 				ConfirmationRedirectURLBuilder.ConfirmedElementType.attribute.toString(), 
 				confirmed.getName(), confirmed.getValues().get(0).toString());
 	}
 	
 	private String getPostConfirmationRedirectURL(RegistrationForm form, RegistrationRequest request,
-			String status, String triggered, boolean idpEndpoint, 
+			RegistrationContext regContxt, 
 			String cType, String cName, String cValue)
 	{
-		Map<String, Object> mvelCtx = createMvelContext(form, request, status, triggered, idpEndpoint);
+		Map<String, Object> mvelCtx = createMvelContext(form, request, RequestSubmitStatus.submitted, 
+				regContxt.triggeringMode, regContxt.isOnIdpEndpoint);
 		addConfirmationContext(mvelCtx, cType, cName, cValue);
 		TranslatedRegistrationRequest result;
 		try
@@ -134,7 +176,8 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 			log.error("Couldn't establish redirect URL from profile", e);
 			return null;
 		}
-		return result.getRedirectURL();
+		
+		return "".equals(result.getRedirectURL()) ? null : result.getRedirectURL();
 	}
 	
 	private TranslatedRegistrationRequest executeFilteredActions(RegistrationForm form, 
@@ -185,7 +228,8 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 		{
 			GroupRegistrationParam groupRegistrationParam = form.getGroupParams().get(i);
 			Selection selection = request.getGroupSelections().get(i);
-			initial.addMembership(new GroupParam(groupRegistrationParam.getGroupPath(), 
+			if (selection.isSelected())
+				initial.addMembership(new GroupParam(groupRegistrationParam.getGroupPath(), 
 					selection.getExternalIdp(), selection.getTranslationProfile()));			
 		}
 		
@@ -215,7 +259,7 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 	
 	@SuppressWarnings("unchecked")
 	public static Map<String, Object> createMvelContext(RegistrationForm form, RegistrationRequest request,
-			String status, String triggered, boolean idpEndpoint)
+			RequestSubmitStatus status, TriggeringMode triggered, boolean idpEndpoint)
 	{
 		Map<String, Object> ret = new HashMap<>();
 		
@@ -313,9 +357,16 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 		ret.put(ContextKey.groups.name(), groups);
 		ret.put(ContextKey.rgroups.name(), rgroups);
 		
+		ArrayList<String> agr = new ArrayList<String>();
+		for (Selection a : request.getAgreements())
+		{
+			agr.add(Boolean.toString(a.isSelected()));
+		}
+		ret.put(ContextKey.agrs.name(), agr);
+		
 		ret.put(ContextKey.onIdpEndpoint.name(), idpEndpoint);
-		ret.put(ContextKey.triggered.name(), triggered);
-		ret.put(ContextKey.status.name(), status);
+		ret.put(ContextKey.triggered.name(), triggered.toString());
+		ret.put(ContextKey.status.name(), status.toString());
 		return ret;
 	}
 	

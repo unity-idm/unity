@@ -21,6 +21,7 @@
 	<bean class="pl.edu.icm.unity.server.registries.LocalCredentialsRegistry"/>
 	<bean class="pl.edu.icm.unity.server.registries.AttributeMetadataProvidersRegistry"/>
 	<bean class="pl.edu.icm.unity.server.registries.TranslationActionsRegistry"/>
+	<bean class="pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry"/>
 	<bean class="pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry"/>
 	<bean class="pl.edu.icm.unity.server.registries.SessionParticipantTypesRegistry"/>
 	
@@ -42,6 +43,37 @@
 	<bean class="pl.edu.icm.unity.server.api.internal.IdPLoginController"/>
 	
 	<bean class="pl.edu.icm.unity.json.AttributeTypeSerializer"/>
+	
+		
+	<bean class="pl.edu.icm.unity.server.translation.in.action.MapIdentityActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.in.action.MapGroupActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.in.action.MapAttributeActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.in.action.MultiMapAttributeActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.in.action.EntityChangeActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.in.action.RemoveStaleDataActionFactory"/>
+	
+	<bean class="pl.edu.icm.unity.server.translation.out.action.CreatePersistentAttributeActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.out.action.CreateIdentityActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.out.action.CreatePersistentIdentityActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.out.action.FilterAttributeActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.out.action.UnFilterAttributeActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.out.action.FilterIdentityActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.out.action.FilterAttributeValuesActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.out.action.FailAuthnActionFactory"/>
+	
+	<bean class="pl.edu.icm.unity.server.translation.form.action.AddAttributeActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.form.action.AddIdentityActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.form.action.AddToGroupActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.form.action.AutoProcessActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.form.action.ConfirmationRedirectActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.form.action.FilterAttributeActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.form.action.FilterGroupActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.form.action.FilterIdentityActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.form.action.RedirectActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.form.action.ScheduleEntityChangeActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.form.action.SetCredentialRequirementActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.form.action.SetEntityStateActionFactory"/>
+	
 	
 	<beans profile="production">
 		<bean class="pl.edu.icm.unity.server.utils.DefaultConfigurationLocation"/>

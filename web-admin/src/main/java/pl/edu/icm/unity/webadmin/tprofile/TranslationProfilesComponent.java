@@ -319,6 +319,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		case OUTPUT:
 			return new OutputTranslationProfileEditor(msg, tc, toEdit, attrsMan, 
 					idMan, authnMan, groupsMan);
+TODO			
 		}
 		throw new IllegalStateException("not implemented");
 	}

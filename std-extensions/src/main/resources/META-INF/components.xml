@@ -35,20 +35,5 @@
 	<bean class="pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider"/>
 	<bean class="pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider"/>
 	
-	<bean class="pl.edu.icm.unity.stdext.tactions.in.MapIdentityActionFactory"/>
-	<bean class="pl.edu.icm.unity.stdext.tactions.in.MapGroupActionFactory"/>
-	<bean class="pl.edu.icm.unity.stdext.tactions.in.MapAttributeActionFactory"/>
-	<bean class="pl.edu.icm.unity.stdext.tactions.in.MultiMapAttributeActionFactory"/>
-	<bean class="pl.edu.icm.unity.stdext.tactions.in.EntityChangeActionFactory"/>
-	<bean class="pl.edu.icm.unity.stdext.tactions.in.RemoveStaleDataActionFactory"/>
-	
-	<bean class="pl.edu.icm.unity.stdext.tactions.out.CreateAttributeActionFactory"/>
-	<bean class="pl.edu.icm.unity.stdext.tactions.out.CreatePersistentAttributeActionFactory"/>
-	<bean class="pl.edu.icm.unity.stdext.tactions.out.CreateIdentityActionFactory"/>
-	<bean class="pl.edu.icm.unity.stdext.tactions.out.CreatePersistentIdentityActionFactory"/>
-	<bean class="pl.edu.icm.unity.stdext.tactions.out.FilterAttributeActionFactory"/>
-	<bean class="pl.edu.icm.unity.stdext.tactions.out.UnFilterAttributeActionFactory"/>
-	<bean class="pl.edu.icm.unity.stdext.tactions.out.FilterIdentityActionFactory"/>
-	<bean class="pl.edu.icm.unity.stdext.tactions.out.FilterAttributeValuesActionFactory"/>
-	<bean class="pl.edu.icm.unity.stdext.tactions.out.FailAuthnActionFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.translation.out.CreateAttributeActionFactory"/>
 </beans>

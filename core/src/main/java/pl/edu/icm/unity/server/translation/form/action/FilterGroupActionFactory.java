@@ -34,7 +34,7 @@ public class FilterGroupActionFactory extends AbstractTranslationActionFactory
 	{
 		super(NAME, new ActionParameterDesc[] {
 				new ActionParameterDesc("group", 
-						"TranslationAction.filterGroup.paramDesc.group", 1, 1, 
+						"RegTranslationAction.filterGroup.paramDesc.group",
 						Type.EXPRESSION)
 		});
 	}

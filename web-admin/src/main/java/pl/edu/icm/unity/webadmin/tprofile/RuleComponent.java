@@ -21,6 +21,8 @@ import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.TranslationAction;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationRule;
 import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
@@ -357,7 +359,8 @@ public class RuleComponent extends VerticalLayout
 			return new InputTranslationRule((InputTranslationAction) action, cnd);
 		case OUTPUT:
 			return new OutputTranslationRule((OutputTranslationAction) action, cnd);
-		
+		case REGISTRATION:
+			return new RegistrationTranslationRule((RegistrationTranslationAction) action, cnd);
 		}
 		throw new IllegalStateException("Not implemented");
 	}

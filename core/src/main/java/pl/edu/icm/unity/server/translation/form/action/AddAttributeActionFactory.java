@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.internal.AttributesInternalProcessing;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
 import pl.edu.icm.unity.server.translation.TranslationAction;
@@ -38,28 +38,28 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
 public class AddAttributeActionFactory extends AbstractTranslationActionFactory
 {
 	public static final String NAME = "addAttribute";
-	private AttributesManagement attrsMan;
+	private AttributesInternalProcessing attrsMan;
 	
 	@Autowired
-	public AddAttributeActionFactory(AttributesManagement attrsMan)
+	public AddAttributeActionFactory(AttributesInternalProcessing attrsMan)
 	{
 		super(NAME, new ActionParameterDesc[] {
 				new ActionParameterDesc(
 						"attributeName",
-						"TranslationAction.addAttribute.paramDesc.attributeName",
-						1, 1, Type.UNITY_ATTRIBUTE),
+						"RegTranslationAction.addAttribute.paramDesc.attributeName",
+						Type.UNITY_ATTRIBUTE),
 				new ActionParameterDesc(
 						"group",
-						"TranslationAction.addAttribute.paramDesc.group",
-						1, 1, Type.UNITY_GROUP),
+						"RegTranslationAction.addAttribute.paramDesc.group",
+						Type.UNITY_GROUP),
 				new ActionParameterDesc(
 						"expression",
-						"TranslationAction.addAttribute.paramDesc.expression",
-						1, 1, Type.EXPRESSION),
+						"RegTranslationAction.addAttribute.paramDesc.expression",
+						Type.EXPRESSION),
 				new ActionParameterDesc(
 						"visibility",
-						"TranslationAction.addAttribute.paramDesc.visibility",
-						1, 1, AttributeVisibility.class)
+						"RegTranslationAction.addAttribute.paramDesc.visibility",
+						AttributeVisibility.class)
 		});
 		this.attrsMan = attrsMan;
 	}
@@ -81,7 +81,7 @@ public class AddAttributeActionFactory extends AbstractTranslationActionFactory
 		private AttributeType at;
 		
 		public AddAttributeAction(TranslationActionDescription description, String[] parameters, 
-				AttributesManagement attrsMan) throws EngineException
+				AttributesInternalProcessing attrsMan) throws EngineException
 		{
 			super(description, parameters);
 			setParameters(parameters);

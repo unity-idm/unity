@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.engine.confirmations.facilities;
 
 import org.apache.ibatis.session.SqlSession;
-import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder.ConfirmedElementType;
@@ -18,8 +17,6 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder;
 import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder.Status;
 import pl.edu.icm.unity.server.utils.JsonUtil;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
@@ -36,7 +33,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public abstract class RegistrationFacility <T extends RegistrationConfirmationState> extends BaseFacility<T>
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, RegistrationFacility.class);
 	protected final ObjectMapper mapper = Constants.MAPPER;
 	
 	protected RegistrationRequestDB requestDB;
@@ -123,33 +119,16 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 		//make sure we update request, later on auto-acceptance may fail
 		sql.commit();
 		
-		if (status.isSuccess()
-				&& reqState.getStatus().equals(RegistrationRequestStatus.pending)
-				&& internalRegistrationManagment.checkAutoAcceptCondition(req, sql))
-
+		if (status.isSuccess() && reqState.getStatus().equals(RegistrationRequestStatus.pending))
 		{
 			RegistrationForm form = formsDB.get(req.getFormId(), sql);
-			AdminComment internalComment = new AdminComment(
-					InternalRegistrationManagment.AUTO_ACCEPT_COMMENT,
-					0, false);
-			reqState.getAdminComments().add(internalComment);
-			log.debug("Accept registration request " + state.getRequestId()
-					+ " after confirmation [" + state.getType()
-					+ "]" + state.getValue() + " by "
-					+ state.getFacilityId());
-			try
-			{
-				internalRegistrationManagment.acceptRequest(form, reqState, null,
-					internalComment, true, sql);
-			} catch (EngineException e)
-			{
-				sql.rollback();
-				log.error("Automatic acceptance of the reqistration request "
-						+ "(in effect of confirmation) failed", e);
-			}
+			
+			internalRegistrationManagment.autoProcess(form, reqState, 
+					"Automatically processing registration request " + state.getRequestId()
+					+ " after confirmation [" + state.getType() + "]" + state.getValue() + " by "
+					+ state.getFacilityId() + ". Action: {0}", sql);
 		}
 
 		return status;
 	}
-	
 }

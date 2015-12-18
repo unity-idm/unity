@@ -9,7 +9,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -26,7 +25,12 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.server.api.RegistrationContext;
+import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfileBuilder;
+import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
@@ -36,7 +40,6 @@ import pl.edu.icm.unity.stdext.utils.InitializerCommon;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
-import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.AttributesClass;
@@ -45,7 +48,6 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
-import pl.edu.icm.unity.types.registration.AttributeClassAssignment;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
@@ -61,6 +63,9 @@ public class TestRegistrations extends DBIntegrationTestBase
 {
 	@Autowired
 	private InitializerCommon commonInitializer;
+	
+	@Autowired
+	private TranslationActionsRegistry registry;
 	
 	@Test
 	public void testRegistrationForms() throws Exception
@@ -90,20 +95,6 @@ public class TestRegistrations extends DBIntegrationTestBase
 		} catch (WrongArgumentException e) {/*ok*/}
 		
 		
-		Attribute<?> attrB = new StringAttribute("missing", "/", AttributeVisibility.full, "val");
-		List<Attribute<?>> attrsB = new ArrayList<>();
-		attrsB.add(attrB);
-		form.setAttributeAssignments(attrsB);
-		checkUpdateOrAdd(form, "attr", WrongArgumentException.class);
-		form.setAttributeAssignments(null);
-		
-		AttributeClassAssignment acAB = new AttributeClassAssignment();
-		acAB.setAcName("missing");
-		acAB.setGroup("/");
-		form.setAttributeClassAssignments(Collections.singletonList(acAB));
-		checkUpdateOrAdd(form, "AC", WrongArgumentException.class);
-		form.setAttributeClassAssignments(null);
-		
 		AttributeRegistrationParam attrReg = form.getAttributeParams().get(0);
 		attrReg.setAttributeType("missing");
 		form.setAttributeParams(Collections.singletonList(attrReg));
@@ -116,12 +107,12 @@ public class TestRegistrations extends DBIntegrationTestBase
 		checkUpdateOrAdd(form, "cred", WrongArgumentException.class);
 		form.setCredentialParams(null);
 		
-		form.setCredentialRequirementAssignment("missing");
+		form.setDefaultCredentialRequirement("missing");
 		checkUpdateOrAdd(form, "cred req", WrongArgumentException.class);
-		form.setCredentialRequirementAssignment(null);
+		form.setDefaultCredentialRequirement(null);
 		checkUpdateOrAdd(form, "credential req (2)", WrongArgumentException.class);
 		
-		form.setCredentialRequirementAssignment(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT);
+		form.setDefaultCredentialRequirement(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT);
 		
 		GroupRegistrationParam groupParam = form.getGroupParams().get(0);
 		groupParam.setGroupPath("/missing");
@@ -137,7 +128,8 @@ public class TestRegistrations extends DBIntegrationTestBase
 		form.setIdentityParams(Collections.singletonList(idParam));
 		
 		RegistrationRequest request = getRequest();
-		registrationsMan.submitRegistrationRequest(request, false);
+		registrationsMan.submitRegistrationRequest(request, 
+				new RegistrationContext(false, false, TriggeringMode.manualAtLogin));
 		assertEquals(1, registrationsMan.getRegistrationRequests().size());
 		
 		try
@@ -201,7 +193,8 @@ public class TestRegistrations extends DBIntegrationTestBase
 		initAndCreateForm(true, null);
 		RegistrationRequest request = getRequest();
 		request.setRegistrationCode(null);
-		registrationsMan.submitRegistrationRequest(request, false);
+		registrationsMan.submitRegistrationRequest(request, 
+				new RegistrationContext(false, false, TriggeringMode.manualAtLogin));
 		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(request.getRegistrationCode(), fromDb.getRequest().getRegistrationCode());
 	}
@@ -209,9 +202,10 @@ public class TestRegistrations extends DBIntegrationTestBase
 	@Test
 	public void testRequests() throws EngineException
 	{
+		RegistrationContext defContext = new RegistrationContext(false, false, TriggeringMode.manualAtLogin);
 		initAndCreateForm(false, null);
 		RegistrationRequest request = getRequest();
-		String id1 = registrationsMan.submitRegistrationRequest(request, false);
+		String id1 = registrationsMan.submitRegistrationRequest(request, defContext);
 		
 		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(request, fromDb.getRequest());
@@ -243,7 +237,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		assertEquals(0, registrationsMan.getRegistrationRequests().size());
 		
 		request = getRequest();
-		String id2 = registrationsMan.submitRegistrationRequest(request, false);
+		String id2 = registrationsMan.submitRegistrationRequest(request, defContext);
 		registrationsMan.processRegistrationRequest(id2, null, 
 				RegistrationRequestAction.reject, "a2", "p2");
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
@@ -256,7 +250,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		assertNotNull(fromDb.getTimestamp());
 		
 		request = getRequest();
-		String id3 = registrationsMan.submitRegistrationRequest(request, false);
+		String id3 = registrationsMan.submitRegistrationRequest(request, defContext);
 		registrationsMan.processRegistrationRequest(id3, null, 
 				RegistrationRequestAction.accept, "a2", "p2");
 		fromDb = registrationsMan.getRegistrationRequests().get(1);
@@ -299,7 +293,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		request = getRequest();
 		IdentityParam ip = new IdentityParam(X500Identity.ID, "CN=registration test2");
 		request.setIdentities(Collections.singletonList(ip));		
-		String id4 = registrationsMan.submitRegistrationRequest(request, false);
+		String id4 = registrationsMan.submitRegistrationRequest(request, defContext);
 		
 		request = getRequest();
 		ip = new IdentityParam(X500Identity.ID, "CN=registration test updated");
@@ -316,51 +310,52 @@ public class TestRegistrations extends DBIntegrationTestBase
 	@Test
 	public void testRequestsWithAutoAccept() throws EngineException
 	{
+		RegistrationContext defContext = new RegistrationContext(true, false, TriggeringMode.manualAtLogin);
 		initAndCreateForm(false, "true");
 		RegistrationRequest request = getRequest();
-		registrationsMan.submitRegistrationRequest(request, true);
+		registrationsMan.submitRegistrationRequest(request, defContext);
 		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
 		clearDB();
 		
 		initAndCreateForm(false, "false");
 		request = getRequest();
-		registrationsMan.submitRegistrationRequest(request, true);
+		registrationsMan.submitRegistrationRequest(request, defContext);
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(RegistrationRequestStatus.pending, fromDb.getStatus());
 		clearDB();
 		
 		initAndCreateForm(false, "idsByType[\"" + X500Identity.ID +"\"] != null");
 		request = getRequest();	
-		registrationsMan.submitRegistrationRequest(request, true);
+		registrationsMan.submitRegistrationRequest(request, defContext);
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
 		clearDB();
 		
 		initAndCreateForm(false, "attr[\"email\"].toString() == \"foo@example.com\"");
 		request = getRequest();
-		registrationsMan.submitRegistrationRequest(request, true);
+		registrationsMan.submitRegistrationRequest(request, defContext);
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
 		clearDB();
 		
 		initAndCreateForm(false, "attrs[\"email\"][0] == \"NoAccept\"");
 		request = getRequest();
-		registrationsMan.submitRegistrationRequest(request, true);
+		registrationsMan.submitRegistrationRequest(request, defContext);
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(RegistrationRequestStatus.pending, fromDb.getStatus());
 		clearDB();
 				
 		initAndCreateForm(false, "agrs[0] == true");
 		request = getRequest();
-		registrationsMan.submitRegistrationRequest(request, true);
+		registrationsMan.submitRegistrationRequest(request, defContext);
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
 		clearDB();
 		
 		initAndCreateForm(false, "agrs[0] == false");
 		request = getRequest();
-		registrationsMan.submitRegistrationRequest(request, true);
+		registrationsMan.submitRegistrationRequest(request, defContext);
 		fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(RegistrationRequestStatus.pending, fromDb.getStatus());
 		clearDB();		
@@ -368,20 +363,23 @@ public class TestRegistrations extends DBIntegrationTestBase
 		
 	private RegistrationForm getForm(boolean nullCode, String autoAcceptCondition)
 	{
+		RegistrationTranslationProfile translationProfile = new RegistrationTranslationProfileBuilder(
+				registry, "form").
+				withAutoProcess(autoAcceptCondition == null ? "false"
+						: autoAcceptCondition, 
+						AutomaticRequestAction.accept).
+				withAddAttribute("true", "cn", "/", "'val'", AttributeVisibility.full).
+				build();
 		return RegistrationFormBuilder
 				.registrationForm()
 				.withName("f1")
 				.withDescription("desc")
-				.withCredentialRequirementAssignment(
+				.withDefaultCredentialRequirement(
 						EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
-				.withAddedGroupAssignment("/A").withPubliclyAvailable(true)
-				.withInitialEntityState(EntityState.valid)
-				.withAutoAcceptCondition(
-						autoAcceptCondition == null ? "false"
-								: autoAcceptCondition)
+				.withPubliclyAvailable(true)
+				.withTranslationProfile(translationProfile)
 				.withCollectComments(true).withFormInformation()
 				.withDefaultValue("formInformation").endFormInformation()
-				.withAddedAttributeAssignment(new StringAttribute("cn", "/", AttributeVisibility.full, "val"))
 				.withAddedCredentialParam()
 				.withCredentialName(EngineInitialization.DEFAULT_CREDENTIAL)
 				.endCredentialParam()
@@ -401,8 +399,6 @@ public class TestRegistrations extends DBIntegrationTestBase
 				.withGroupPath("/B")
 				.withRetrievalSettings(ParameterRetrievalSettings.automatic)
 				.endGroupParam()
-				.withAddedAttributeClassAssignment().withAcName(InitializerCommon.NAMING_AC)
-				.withGroup("/").endAttributeClassAssignment()
 				.withRegistrationCode(nullCode ? null : "123")
 				.build();
 

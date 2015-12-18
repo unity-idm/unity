@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.db.generic.DefaultEntityHandler;
 import pl.edu.icm.unity.db.model.GenericObjectBean;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.utils.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
@@ -40,11 +40,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class RegistrationFormHandler extends DefaultEntityHandler<RegistrationForm>
 {
 	public static final String REGISTRATION_FORM_OBJECT_TYPE = "registrationForm";
-	private TranslationActionsRegistry translationActionsRegistry;
+	private RegistrationTranslationActionsRegistry translationActionsRegistry;
 	
 	@Autowired
 	public RegistrationFormHandler(ObjectMapper jsonMapper, 
-			TranslationActionsRegistry translationActionsRegistry)
+			RegistrationTranslationActionsRegistry translationActionsRegistry)
 	{
 		super(jsonMapper, REGISTRATION_FORM_OBJECT_TYPE, RegistrationForm.class);
 		this.translationActionsRegistry = translationActionsRegistry;

@@ -32,8 +32,8 @@ public class SetEntityStateActionFactory extends AbstractTranslationActionFactor
 		super(NAME, new ActionParameterDesc[] {
 				new ActionParameterDesc(
 						"state",
-						"TranslationAction.setState.paramDesc.state",
-						1, 1, EntityStateLimited.class)
+						"RegTranslationAction.setState.paramDesc.state",
+						EntityStateLimited.class)
 		});
 	}
 

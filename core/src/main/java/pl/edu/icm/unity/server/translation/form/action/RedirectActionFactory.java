@@ -34,7 +34,7 @@ public class RedirectActionFactory extends AbstractTranslationActionFactory
 	{
 		super(NAME, new ActionParameterDesc[] {
 				new ActionParameterDesc("URL", 
-						"TranslationAction.redirect.paramDesc.URL", 1, 1, 
+						"RegTranslationAction.redirect.paramDesc.URL",
 						Type.EXPRESSION)
 		});
 	}

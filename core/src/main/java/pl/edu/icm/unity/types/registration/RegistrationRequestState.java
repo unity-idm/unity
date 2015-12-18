@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import pl.edu.icm.unity.server.api.RegistrationContext;
+
 /**
  * Records an information about registration request state. The objects of this class are fully managed by the 
  * engine, users can only retrieve it.  
@@ -19,6 +21,7 @@ public class RegistrationRequestState
 	private String requestId;
 	private Date timestamp;
 	private RegistrationRequest request;
+	private RegistrationContext registrationContext;
 	private List<AdminComment> adminComments = new ArrayList<>();
 	private RegistrationRequestStatus status;
 
@@ -61,5 +64,13 @@ public class RegistrationRequestState
 	public void setStatus(RegistrationRequestStatus status)
 	{
 		this.status = status;
+	}
+	public RegistrationContext getRegistrationContext()
+	{
+		return registrationContext;
+	}
+	public void setRegistrationContext(RegistrationContext registrationContext)
+	{
+		this.registrationContext = registrationContext;
 	}
 }

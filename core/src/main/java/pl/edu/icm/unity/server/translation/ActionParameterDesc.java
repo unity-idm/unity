@@ -17,31 +17,21 @@ public class ActionParameterDesc
 	
 	private String name;
 	private String descriptionKey;
-	private int minValues;
-	private int maxValues;
 	private Type type;
 	private Class<? extends Enum<?>> enumClass;
 	
 	
-	public ActionParameterDesc(String name, String descriptionKey, int minValues,
-			int maxValues, Type type)
+	public ActionParameterDesc(String name, String descriptionKey, Type type)
 	{
-		super();
 		this.name = name;
 		this.descriptionKey = descriptionKey;
-		this.minValues = minValues;
-		this.maxValues = maxValues;
 		this.type = type;
 	}
 
-	public ActionParameterDesc(String name, String descriptionKey, int minValues,
-			int maxValues, Class<? extends Enum<?>> enumClass)
+	public ActionParameterDesc(String name, String descriptionKey, Class<? extends Enum<?>> enumClass)
 	{
-		super();
 		this.name = name;
 		this.descriptionKey = descriptionKey;
-		this.minValues = minValues;
-		this.maxValues = maxValues;
 		this.type = Type.ENUM;
 		this.enumClass = enumClass;
 	}
@@ -54,16 +44,6 @@ public class ActionParameterDesc
 	public String getDescriptionKey()
 	{
 		return descriptionKey;
-	}
-
-	public int getMinValues()
-	{
-		return minValues;
-	}
-
-	public int getMaxValues()
-	{
-		return maxValues;
 	}
 
 	public Type getType()

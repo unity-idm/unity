@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,7 +27,6 @@ import pl.edu.icm.unity.types.basic.EntityParam;
  * @author K. Benedyczak
  */
 @Component
-@Transactional
 public class AttributesInternalProcessingImpl implements AttributesInternalProcessing
 {
 	private DBAttributes dbAttributes;
@@ -39,6 +39,7 @@ public class AttributesInternalProcessingImpl implements AttributesInternalProce
 		this.attributesHelper = attributesHelper;
 	}
 
+	@Transactional
 	@Override
 	public AttributeType getAttributeTypeWithSingeltonMetadata(String metadataId)
 			throws EngineException
@@ -47,6 +48,7 @@ public class AttributesInternalProcessingImpl implements AttributesInternalProce
 					SqlSessionTL.sqlSession.get());
 	}
 
+	@Transactional
 	@Override
 	public List<AttributeType> getAttributeTypeWithMetadata(String metadataId)
 			throws EngineException
@@ -60,7 +62,7 @@ public class AttributesInternalProcessingImpl implements AttributesInternalProce
 		return ret;
 	}
 	
-	
+	@Transactional
 	@Override
 	public AttributeExt<?> getAttributeByMetadata(EntityParam entity, String group,
 			String metadataId) throws EngineException
@@ -69,4 +71,11 @@ public class AttributesInternalProcessingImpl implements AttributesInternalProce
 		return attributesHelper.getAttributeByMetadata(entity, group, metadataId, 
 					SqlSessionTL.sqlSession.get());
 	}
+
+	@Transactional(noTransaction=true)
+	public Map<String, AttributeType> getAttributeTypesAsMap() throws EngineException
+	{
+		return dbAttributes.getAttributeTypes(SqlSessionTL.sqlSession.get());
+	}
+
 }

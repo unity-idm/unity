@@ -7,11 +7,9 @@ package pl.edu.icm.unity.engine.builders;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
-import pl.edu.icm.unity.types.registration.AttributeClassAssignment;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
@@ -58,14 +56,6 @@ class RegistrationFormBuilderBase<GeneratorT extends RegistrationFormBuilderBase
 	}
 
 	@SuppressWarnings("unchecked")
-	public GeneratorT withAutoAcceptCondition(String aValue)
-	{
-		instance.setAutoAcceptCondition(aValue);
-
-		return (GeneratorT) this;
-	}
-
-	@SuppressWarnings("unchecked")
 	public GeneratorT withNotificationsConfiguration(RegistrationFormNotifications aValue)
 	{
 		instance.setNotificationsConfiguration(aValue);
@@ -73,6 +63,13 @@ class RegistrationFormBuilderBase<GeneratorT extends RegistrationFormBuilderBase
 		return (GeneratorT) this;
 	}
 
+	@SuppressWarnings("unchecked")
+	public GeneratorT withTranslationProfile(RegistrationTranslationProfile profile)
+	{
+		instance.setTranslationProfile(profile);
+		return (GeneratorT) this;
+	}
+	
 	public NotificationsConfigurationRegistrationFormNotificationsBuilder withNotificationsConfiguration()
 	{
 		RegistrationFormNotifications obj = new RegistrationFormNotifications();
@@ -80,14 +77,6 @@ class RegistrationFormBuilderBase<GeneratorT extends RegistrationFormBuilderBase
 		withNotificationsConfiguration(obj);
 
 		return new NotificationsConfigurationRegistrationFormNotificationsBuilder(obj);
-	}
-
-	@SuppressWarnings("unchecked")
-	public GeneratorT withInitialEntityState(EntityState aValue)
-	{
-		instance.setInitialEntityState(aValue);
-
-		return (GeneratorT) this;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -300,98 +289,17 @@ class RegistrationFormBuilderBase<GeneratorT extends RegistrationFormBuilderBase
 	}
 
 	@SuppressWarnings("unchecked")
-	public GeneratorT withCredentialRequirementAssignment(String aValue)
+	public GeneratorT withDefaultCredentialRequirement(String aValue)
 	{
-		instance.setCredentialRequirementAssignment(aValue);
+		instance.setDefaultCredentialRequirement(aValue);
 
 		return (GeneratorT) this;
-	}
-
-	@SuppressWarnings("unchecked")
-	public GeneratorT withAttributeAssignments(List<Attribute<?>> aValue)
-	{
-		instance.setAttributeAssignments(aValue);
-
-		return (GeneratorT) this;
-	}
-
-	@SuppressWarnings("unchecked")
-	public GeneratorT withAddedAttributeAssignment(Attribute<?> aValue)
-	{
-		if (instance.getAttributeAssignments() == null)
-		{
-			instance.setAttributeAssignments(new ArrayList<Attribute<?>>());
-		}
-
-		((ArrayList<Attribute<?>>) instance.getAttributeAssignments()).add(aValue);
-
-		return (GeneratorT) this;
-	}
-
-	@SuppressWarnings("unchecked")
-	public GeneratorT withGroupAssignments(List<String> aValue)
-	{
-		instance.setGroupAssignments(aValue);
-
-		return (GeneratorT) this;
-	}
-
-	@SuppressWarnings("unchecked")
-	public GeneratorT withAddedGroupAssignment(String aValue)
-	{
-		if (instance.getGroupAssignments() == null)
-		{
-			instance.setGroupAssignments(new ArrayList<String>());
-		}
-
-		((ArrayList<String>) instance.getGroupAssignments()).add(aValue);
-
-		return (GeneratorT) this;
-	}
-
-	@SuppressWarnings("unchecked")
-	public GeneratorT withAttributeClassAssignments(List<AttributeClassAssignment> aValue)
-	{
-		instance.setAttributeClassAssignments(aValue);
-
-		return (GeneratorT) this;
-	}
-
-	@SuppressWarnings("unchecked")
-	public GeneratorT withAddedAttributeClassAssignment(AttributeClassAssignment aValue)
-	{
-		if (instance.getAttributeClassAssignments() == null)
-		{
-			instance.setAttributeClassAssignments(new ArrayList<AttributeClassAssignment>());
-		}
-
-		((ArrayList<AttributeClassAssignment>) instance.getAttributeClassAssignments())
-				.add(aValue);
-
-		return (GeneratorT) this;
-	}
-
-	public AddedAttributeClassAssignmentAttributeClassAssignmentBuilder withAddedAttributeClassAssignment()
-	{
-		AttributeClassAssignment obj = new AttributeClassAssignment();
-
-		withAddedAttributeClassAssignment(obj);
-
-		return new AddedAttributeClassAssignmentAttributeClassAssignmentBuilder(obj);
 	}
 
 	@SuppressWarnings("unchecked")
 	public GeneratorT withCaptchaLength(int aValue)
 	{
 		instance.setCaptchaLength(aValue);
-
-		return (GeneratorT) this;
-	}
-
-	@SuppressWarnings("unchecked")
-	public GeneratorT withRedirectAfterSubmit(String aValue)
-	{
-		instance.setRedirectAfterSubmit(aValue);
 
 		return (GeneratorT) this;
 	}
@@ -543,23 +451,6 @@ class RegistrationFormBuilderBase<GeneratorT extends RegistrationFormBuilderBase
 		}
 	}
 
-	public class AddedAttributeClassAssignmentAttributeClassAssignmentBuilder
-			extends
-			AttributeClassAssignmentBuilderBase<AddedAttributeClassAssignmentAttributeClassAssignmentBuilder>
-	{
-		public AddedAttributeClassAssignmentAttributeClassAssignmentBuilder(
-				AttributeClassAssignment aInstance)
-		{
-			super(aInstance);
-		}
-
-		@SuppressWarnings("unchecked")
-		public GeneratorT endAttributeClassAssignment()
-		{
-			return (GeneratorT) RegistrationFormBuilderBase.this;
-		}
-	}
-
 	public static class RegistrationFormNotificationsBuilderBase<GeneratorT extends RegistrationFormNotificationsBuilderBase<GeneratorT>>
 	{
 		private RegistrationFormNotifications instance;
@@ -619,37 +510,6 @@ class RegistrationFormBuilderBase<GeneratorT extends RegistrationFormBuilderBase
 		public GeneratorT withAdminsNotificationGroup(String aValue)
 		{
 			instance.setAdminsNotificationGroup(aValue);
-
-			return (GeneratorT) this;
-		}
-	}
-
-	public static class AttributeClassAssignmentBuilderBase<GeneratorT extends AttributeClassAssignmentBuilderBase<GeneratorT>>
-	{
-		private AttributeClassAssignment instance;
-
-		protected AttributeClassAssignmentBuilderBase(AttributeClassAssignment aInstance)
-		{
-			instance = aInstance;
-		}
-
-		protected AttributeClassAssignment getInstance()
-		{
-			return instance;
-		}
-
-		@SuppressWarnings("unchecked")
-		public GeneratorT withAcName(String aValue)
-		{
-			instance.setAcName(aValue);
-
-			return (GeneratorT) this;
-		}
-
-		@SuppressWarnings("unchecked")
-		public GeneratorT withGroup(String aValue)
-		{
-			instance.setGroup(aValue);
 
 			return (GeneratorT) this;
 		}

@@ -42,7 +42,7 @@ import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
-import pl.edu.icm.unity.stdext.tactions.out.CreateAttributeActionFactory;
+import pl.edu.icm.unity.stdext.translation.out.CreateAttributeActionFactory;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.I18nString;

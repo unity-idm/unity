@@ -1,8 +1,6 @@
 package pl.edu.icm.unity.test.headlessui.reg;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,14 +11,15 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
+import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfileBuilder;
+import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.server.utils.ServerInitializer;
-import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.stdext.utils.InitializerCommon;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -38,15 +37,19 @@ public class RegistrationFormsTestContentsInitializer implements ServerInitializ
 	private RegistrationsManagement regMan;
 	private IdentitiesManagement idsMan;
 	private GroupsManagement groupsMan;
+	private TranslationActionsRegistry registry;
+
 
 	@Autowired
 	public RegistrationFormsTestContentsInitializer(@Qualifier("insecure") GroupsManagement groupsMan, 
 			@Qualifier("insecure")RegistrationsManagement regMan,
-			@Qualifier("insecure") IdentitiesManagement idsMan)
+			@Qualifier("insecure") IdentitiesManagement idsMan,
+			TranslationActionsRegistry registry)
 	{
 		this.groupsMan = groupsMan;
 		this.regMan = regMan;
 		this.idsMan = idsMan;
+		this.registry = registry;
 	}
 
 	@Override
@@ -99,24 +102,21 @@ public class RegistrationFormsTestContentsInitializer implements ServerInitializ
 			idParam.setRetrievalSettings(ParameterRetrievalSettings.automaticOrInteractive);
 			form.setIdentityParams(Collections.singletonList(idParam));
 			
-			Attribute<?> attr = new StringAttribute("cn", "/", AttributeVisibility.full, "val");
-			List<Attribute<?>> attrs = new ArrayList<>();
-			attrs.add(attr);
-			form.setAttributeAssignments(attrs);
-			
-			AttributeClassAssignment acA = new AttributeClassAssignment();
-			acA.setAcName(InitializerCommon.NAMING_AC);
-			acA.setGroup("/");
-			form.setAttributeClassAssignments(Collections.singletonList(acA));
-			
 			AgreementRegistrationParam agreement = new AgreementRegistrationParam();
 			agreement.setManatory(false);
 			agreement.setText(new I18nString("a"));
 			form.setAgreements(Collections.singletonList(agreement));
 			
 			form.setCredentialParams(null);
+						
+			RegistrationTranslationProfile translationProfile = new RegistrationTranslationProfileBuilder(
+					registry, "form").
+					withAddAttribute("true", "cn", "/", "'val'", AttributeVisibility.full).
+					withAutoProcess("true", AutomaticRequestAction.accept).
+					build();
 			
-			form.setAutoAcceptCondition("true");
+			form.setTranslationProfile(translationProfile);
+			
 			
 			regMan.addForm(form);
 		} catch (EngineException e)

@@ -19,6 +19,8 @@ import pl.edu.icm.unity.db.model.GenericObjectBean;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.server.api.RegistrationContext;
+import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AdminComment;
@@ -64,6 +66,7 @@ public class RegistrationRequestHandler extends DefaultEntityHandler<Registratio
 			root.set("RequestId", jsonMapper.valueToTree(value.getRequestId()));
 			root.set("Status", jsonMapper.valueToTree(value.getStatus()));
 			root.set("Timestamp", jsonMapper.valueToTree(value.getTimestamp().getTime()));
+			root.set("Context", jsonMapper.valueToTree(value.getRegistrationContext()));
 			RegistrationRequest req = value.getRequest();
 			root.set("Agreements", jsonMapper.valueToTree(req.getAgreements()));
 			addAttributes(root, req.getAttributes());
@@ -144,6 +147,13 @@ public class RegistrationRequestHandler extends DefaultEntityHandler<Registratio
 			n = root.get("Timestamp");
 			ret.setTimestamp(new Date(n.longValue()));
 
+			n = root.get("Context");
+			if (n != null)
+				ret.setRegistrationContext(jsonMapper.treeToValue(n, RegistrationContext.class));
+			else
+				ret.setRegistrationContext(new RegistrationContext(true, true, 
+						TriggeringMode.manualAtLogin));
+			
 			RegistrationRequest retReq = new RegistrationRequest();
 			ret.setRequest(retReq);
 			

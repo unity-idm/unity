@@ -112,6 +112,7 @@
 	<bean class="pl.edu.icm.unity.engine.internal.AuthenticatorsManagementImpl"/>
 	<bean class="pl.edu.icm.unity.engine.internal.EntitiesScheduledUpdater"/>
 	<bean class="pl.edu.icm.unity.engine.internal.InternalRegistrationManagment"/>
+	<bean class="pl.edu.icm.unity.engine.internal.RegistrationRequestValidator"/>
 
 
 	<bean primary="true" class="pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl"/>
