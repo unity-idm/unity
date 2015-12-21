@@ -396,7 +396,8 @@ public class RegistrationFormEditor extends VerticalLayout
 		profileEditor = new RegistrationTranslationProfileEditor(msg, actionsRegistry, profile, 
 				attributeMan, identitiesMan, authenticationMan, groupsMan);
 		
-		main.addComponents(credentialRequirementAssignment, profileEditor);
+		main.addComponents(credentialRequirementAssignment);
+		wrapper.addComponent(profileEditor);
 		
 		if (toEdit!= null)
 		{

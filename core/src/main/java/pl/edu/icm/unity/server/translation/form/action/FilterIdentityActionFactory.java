@@ -34,10 +34,10 @@ public class FilterIdentityActionFactory extends AbstractTranslationActionFactor
 	{
 		super(NAME, new ActionParameterDesc[] {
 				new ActionParameterDesc("identity", 
-						"RegTranslationAction.filterIdentity.paramDesc.identity",
+						"RegTranslationAction.regFilterIdentity.paramDesc.identity",
 						Type.EXPRESSION),
 				new ActionParameterDesc("type", 
-						"RegTranslationAction.filterIdentity.paramDesc.identityType",
+						"RegTranslationAction.regFilterIdentity.paramDesc.identityType",
 						Type.UNITY_ID_TYPE)
 		});
 	}

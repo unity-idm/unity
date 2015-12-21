@@ -48,4 +48,11 @@ public class RegistrationTranslationProfileEditor extends TranslationProfileEdit
 	{
 		return new RegistrationTranslationProfile(name, trules);
 	}
+	
+	protected void initUI(TranslationProfile toEdit)
+	{
+		super.initUI(toEdit);
+		name.setVisible(false);
+		description.setVisible(false);
+	}
 }

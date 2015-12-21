@@ -303,7 +303,8 @@ public class RegistrationFormViewer extends VerticalLayout
 
 		translationProfile = new TranslationProfileViewer(msg, actionsRegistry);
 		
-		main.addComponents(credentialRequirementAssignment, translationProfile);
+		main.addComponents(credentialRequirementAssignment);
+		wrapper.addComponent(translationProfile);
 	}
 	
 	private void initMainTab()

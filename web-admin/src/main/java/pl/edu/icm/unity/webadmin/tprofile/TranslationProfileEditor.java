@@ -93,7 +93,7 @@ public abstract class TranslationProfileEditor<T extends AbstractTranslationRule
 			}
 		}	
 		name.setValidationVisible(true);
-		if (!(name.isValid() && nvalidr == 0))
+		if (!name.isValid() || nvalidr != 0)
 			throw new FormValidationException();
 		String n = name.getValue();
 		String desc = description.getValue();
@@ -130,7 +130,7 @@ public abstract class TranslationProfileEditor<T extends AbstractTranslationRule
 				idTypes.add(it.getIdentityTypeProvider().getId());
 	}
 	
-	private void initUI(TranslationProfile toEdit)
+	protected void initUI(TranslationProfile toEdit)
 	{
 		rulesLayout = new CompactFormLayout();
 		rulesLayout.setImmediate(true);

@@ -73,7 +73,7 @@ public class InternalRegistrationManagment
 	private static final Logger log = Log.getLogger(Log.U_SERVER,
 			InternalRegistrationManagment.class);
 
-	public static final String AUTO_PROCESS_COMMENT = "System";
+	public static final String AUTO_PROCESS_COMMENT = "Automatically processed";
 
 	@Autowired
 	private RegistrationFormDB formsDB;

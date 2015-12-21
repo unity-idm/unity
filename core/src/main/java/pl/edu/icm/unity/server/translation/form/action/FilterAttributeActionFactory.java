@@ -34,10 +34,10 @@ public class FilterAttributeActionFactory extends AbstractTranslationActionFacto
 	{
 		super(NAME, new ActionParameterDesc[] {
 				new ActionParameterDesc("attribute", 
-						"RegTranslationAction.filterAttribute.paramDesc.attribute",
+						"RegTranslationAction.regFilterAttribute.paramDesc.attribute",
 						Type.EXPRESSION),
 				new ActionParameterDesc("group", 
-						"RegTranslationAction.filterAttribute.paramDesc.group",
+						"RegTranslationAction.regFilterAttribute.paramDesc.group",
 						Type.UNITY_GROUP)
 		});
 	}
