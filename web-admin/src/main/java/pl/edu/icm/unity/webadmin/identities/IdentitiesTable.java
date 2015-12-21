@@ -466,10 +466,7 @@ public class IdentitiesTable extends CustomComponent
 		table.removeAllItems();
 
 		if (group != null)
-		{
-			UI.getCurrent().setPollInterval(500);
 			restartEntitiesLoading(entities, selected);
-		}
 	}
 
 	private Object getSingleSelectedItem()
@@ -601,6 +598,7 @@ public class IdentitiesTable extends CustomComponent
 		
 		if (entities.size() > LOAD_IN_SYNC)
 		{
+			UI.getCurrent().setPollInterval(500);
 			removeAllFiltersFromTable();
 			loadingProgress.removeStyleName(Styles.hidden.toString());
 			loadingProgress.setValue(0f);
