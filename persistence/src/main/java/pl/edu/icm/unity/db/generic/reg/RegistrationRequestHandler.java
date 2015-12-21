@@ -66,7 +66,7 @@ public class RegistrationRequestHandler extends DefaultEntityHandler<Registratio
 			root.set("RequestId", jsonMapper.valueToTree(value.getRequestId()));
 			root.set("Status", jsonMapper.valueToTree(value.getStatus()));
 			root.set("Timestamp", jsonMapper.valueToTree(value.getTimestamp().getTime()));
-			root.set("Context", jsonMapper.valueToTree(value.getRegistrationContext()));
+			root.set("Context", value.getRegistrationContext().toJson());
 			RegistrationRequest req = value.getRequest();
 			root.set("Agreements", jsonMapper.valueToTree(req.getAgreements()));
 			addAttributes(root, req.getAttributes());
@@ -149,7 +149,7 @@ public class RegistrationRequestHandler extends DefaultEntityHandler<Registratio
 
 			n = root.get("Context");
 			if (n != null)
-				ret.setRegistrationContext(jsonMapper.treeToValue(n, RegistrationContext.class));
+				ret.setRegistrationContext(RegistrationContext.fromJson(n));
 			else
 				ret.setRegistrationContext(new RegistrationContext(true, true, 
 						TriggeringMode.manualAtLogin));

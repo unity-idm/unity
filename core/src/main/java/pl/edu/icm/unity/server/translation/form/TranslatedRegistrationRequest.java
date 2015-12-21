@@ -6,7 +6,9 @@ package pl.edu.icm.unity.server.translation.form;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import pl.edu.icm.unity.server.translation.in.EntityChange;
 import pl.edu.icm.unity.types.EntityState;
@@ -28,11 +30,12 @@ public class TranslatedRegistrationRequest
 {
 	public enum AutomaticRequestAction {none, drop, reject, accept}
 	
-	private AutomaticRequestAction autoAction;
+	private AutomaticRequestAction autoAction = AutomaticRequestAction.none;
 	
 	private Map<String, IdentityParam> identities = new HashMap<>();
 	private Map<String, Attribute<?>> attributes = new HashMap<>();
 	private Map<String, GroupParam> groups = new HashMap<>();
+	private Map<String, Set<String>> attributeClasses = new HashMap<>();
 	private EntityChange entityChange;
 	private EntityState initialEntityState = EntityState.valid;
 	private String credentialRequirement;
@@ -67,7 +70,17 @@ public class TranslatedRegistrationRequest
 	{
 		groups.remove(group);
 	}
-
+	public void addAttributeClass(String group, String ac)
+	{
+		Set<String> acs = attributeClasses.get(group);
+		if (acs == null)
+		{
+			acs = new HashSet<>();
+			attributeClasses.put(group, acs);
+		}
+		acs.add(ac);
+	}
+	
 	public void setAutoAction(AutomaticRequestAction autoAction)
 	{
 		this.autoAction = autoAction;
@@ -131,5 +144,10 @@ public class TranslatedRegistrationRequest
 	public void setCredentialRequirement(String credentialRequirement)
 	{
 		this.credentialRequirement = credentialRequirement;
+	}
+
+	public Map<String, Set<String>> getAttributeClasses()
+	{
+		return attributeClasses;
 	}
 }

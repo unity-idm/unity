@@ -4,6 +4,11 @@
  */
 package pl.edu.icm.unity.server.api;
 
+import pl.edu.icm.unity.Constants;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 /**
  * Describes registration context, i.e. circumstances and environment at the request submission.
  * This data influences the submitted request's processing.
@@ -43,5 +48,22 @@ public class RegistrationContext
 		this.tryAutoAccept = tryAutoAccept;
 		this.isOnIdpEndpoint = isOnIdpEndpoint;
 		this.triggeringMode = triggeringMode;
+	}
+	
+	public JsonNode toJson()
+	{
+		ObjectNode root = Constants.MAPPER.createObjectNode();
+		root.put("tryAutoAccept", tryAutoAccept);
+		root.put("isOnIdpEndpoint", isOnIdpEndpoint);
+		root.put("triggeringMode", triggeringMode.name());
+		return root;
+	}
+	
+	public static RegistrationContext fromJson(JsonNode object)
+	{
+		return new RegistrationContext(
+				object.get("tryAutoAccept").asBoolean(),
+				object.get("isOnIdpEndpoint").asBoolean(),
+				TriggeringMode.valueOf(object.get("triggeringMode").asText()));
 	}
 }

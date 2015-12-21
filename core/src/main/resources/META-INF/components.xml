@@ -61,8 +61,9 @@
 	<bean class="pl.edu.icm.unity.server.translation.out.action.FilterAttributeValuesActionFactory"/>
 	<bean class="pl.edu.icm.unity.server.translation.out.action.FailAuthnActionFactory"/>
 	
-	<bean class="pl.edu.icm.unity.server.translation.form.action.AddAttributeActionFactory"/>
 	<bean class="pl.edu.icm.unity.server.translation.form.action.AddIdentityActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.form.action.AddAttributeActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.translation.form.action.AddAttributeClassActionFactory"/>
 	<bean class="pl.edu.icm.unity.server.translation.form.action.AddToGroupActionFactory"/>
 	<bean class="pl.edu.icm.unity.server.translation.form.action.AutoProcessActionFactory"/>
 	<bean class="pl.edu.icm.unity.server.translation.form.action.ConfirmationRedirectActionFactory"/>

@@ -48,6 +48,8 @@ class RegistrationFormBuilderBase<GeneratorT extends RegistrationFormBuilderBase
 	protected RegistrationFormBuilderBase(RegistrationForm aInstance)
 	{
 		instance = aInstance;
+		instance.setTranslationProfile(new RegistrationTranslationProfile("registrationProfile", 
+				new ArrayList<>()));
 	}
 
 	protected RegistrationForm getInstance()

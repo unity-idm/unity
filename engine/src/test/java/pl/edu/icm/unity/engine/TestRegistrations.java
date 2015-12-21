@@ -369,6 +369,8 @@ public class TestRegistrations extends DBIntegrationTestBase
 						: autoAcceptCondition, 
 						AutomaticRequestAction.accept).
 				withAddAttribute("true", "cn", "/", "'val'", AttributeVisibility.full).
+				withGroupMembership("true", "'/A'").
+				withAttributeClass("true", "/", "'" + InitializerCommon.NAMING_AC + "'").
 				build();
 		return RegistrationFormBuilder
 				.registrationForm()

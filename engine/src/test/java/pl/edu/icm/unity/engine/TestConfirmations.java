@@ -445,7 +445,8 @@ public class TestConfirmations extends DBIntegrationTestBase
 				.withAddedGroupParam().withDescription("description")
 				.withGroupPath("/B").withLabel("label")
 				.withRetrievalSettings(ParameterRetrievalSettings.automatic)
-				.endGroupParam().build();
+				.endGroupParam().
+				build();
 
 		registrationsMan.addForm(form);
 
@@ -487,6 +488,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 			confirmationMan.processConfirmation(token);
 		} catch (Exception e)
 		{
+			e.printStackTrace();
 			fail("Cannot proccess confirmation");
 		}
 
@@ -571,6 +573,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 			confirmationMan.processConfirmation(token);
 		} catch (Exception e)
 		{
+			e.printStackTrace();
 			fail("Cannot proccess confirmation");
 		}
 
@@ -670,6 +673,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 			confirmationMan.processConfirmation(token);
 		} catch (Exception e)
 		{
+			e.printStackTrace();
 			fail("Cannot proccess confirmation");
 		}
 		Assert.assertEquals(RegistrationRequestStatus.accepted, registrationsMan
@@ -781,6 +785,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 
 			} catch (Exception e)
 			{
+				e.printStackTrace();
 				fail("Tokens content cannot be parsed as UserConfirmationState");
 			}
 		}
@@ -878,6 +883,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 			 status = confirmationMan.processConfirmation(token);
 		} catch (Exception e)
 		{
+			e.printStackTrace();
 			fail("Cannot proccess confirmation");
 		}
 		
@@ -917,6 +923,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 				confirmationMan.processConfirmation(token);
 			} catch (Exception e)
 			{
+				e.printStackTrace();
 				fail("Cannot proccess confirmation");
 			}
 			

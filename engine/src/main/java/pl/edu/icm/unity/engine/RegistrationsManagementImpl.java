@@ -347,6 +347,9 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 
 		Map<String, AttributeType> atMap = dbAttributes.getAttributeTypes(sql);
 
+		if (form.getTranslationProfile() == null)
+			throw new WrongArgumentException("Translation profile is not set.");
+		
 		if (form.getAttributeParams() != null)
 		{
 			Set<String> used = new HashSet<>();

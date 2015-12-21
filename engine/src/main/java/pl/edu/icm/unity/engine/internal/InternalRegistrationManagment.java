@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.ibatis.session.SqlSession;
@@ -161,11 +162,18 @@ public class InternalRegistrationManagment
 			GroupParam sel = entry.getValue();
 			String idp = sel == null ? null : sel.getExternalIdp();
 			String profile = sel == null ? null : sel.getTranslationProfile();
-			dbGroups.addMemberFromParent(entry.getKey(), entity,idp, profile, new Date(), sql);
+			dbGroups.addMemberFromParent(entry.getKey(), entity, idp, profile, new Date(), sql);
 			attributesHelper.addAttributesList(attributes, initial.getEntityId(),
 					true, sql);
 		}
 
+		Map<String, Set<String>> attributeClasses = translatedRequest.getAttributeClasses();
+		for (Map.Entry<String, Set<String>> groupAcs: attributeClasses.entrySet())
+		{
+			attributesHelper.setAttributeClasses(initial.getEntityId(), groupAcs.getKey(), 
+					groupAcs.getValue(), sql);
+		}
+		
 		RegistrationRequest originalRequest = currentRequest.getRequest();
 		if (originalRequest.getCredentials() != null)
 		{

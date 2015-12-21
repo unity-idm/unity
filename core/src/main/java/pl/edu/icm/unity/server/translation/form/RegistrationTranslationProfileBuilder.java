@@ -11,6 +11,8 @@ import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.server.translation.form.action.AddAttributeActionFactory;
+import pl.edu.icm.unity.server.translation.form.action.AddAttributeClassActionFactory;
+import pl.edu.icm.unity.server.translation.form.action.AddToGroupActionFactory;
 import pl.edu.icm.unity.server.translation.form.action.AutoProcessActionFactory;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
@@ -45,6 +47,18 @@ public class RegistrationTranslationProfileBuilder
 				value, visibility.toString());
 	}
 
+	public RegistrationTranslationProfileBuilder withGroupMembership(String condition, 
+			String group)
+	{
+		return withRule(AddToGroupActionFactory.NAME, condition, group);
+	}
+
+	public RegistrationTranslationProfileBuilder withAttributeClass(String condition, 
+			String group, String acExpression)
+	{
+		return withRule(AddAttributeClassActionFactory.NAME, condition, group, acExpression);
+	}
+	
 	public RegistrationTranslationProfileBuilder withRule(String ruleName, String condition, 
 			String... parameters)
 	{
