@@ -52,7 +52,7 @@ public class CreatePersistentIdentityActionFactory extends AbstractOutputTransla
 	}
 
 	@Override
-	public CreatePersistentIdentityAction getInstance(String... parameters) throws EngineException
+	public CreatePersistentIdentityAction getInstance(String... parameters)
 	{
 		return new CreatePersistentIdentityAction(parameters, this, idTypesReg);
 	}
@@ -64,7 +64,7 @@ public class CreatePersistentIdentityActionFactory extends AbstractOutputTransla
 		private Serializable idValueExpression;
 
 		public CreatePersistentIdentityAction(String[] params, TranslationActionDescription desc,
-				IdentityTypesRegistry idTypesReg) throws EngineException
+				IdentityTypesRegistry idTypesReg)
 		{
 			super(desc, params);
 			setParameters(params, idTypesReg);

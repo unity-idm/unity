@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
@@ -63,7 +63,7 @@ public class MultiMapAttributeActionFactory extends AbstractInputTranslationActi
 	}
 
 	@Override
-	public InputTranslationAction getInstance(String... parameters) throws EngineException
+	public InputTranslationAction getInstance(String... parameters)
 	{
 		return new MultiMapAttributeAction(parameters, this, attrsMan);
 	}
@@ -78,7 +78,6 @@ public class MultiMapAttributeActionFactory extends AbstractInputTranslationActi
 		private List<Mapping> mappings;
 
 		public MultiMapAttributeAction(String[] params, TranslationActionDescription desc, AttributesManagement attrsMan) 
-				throws EngineException
 		{
 			super(desc, params);
 			setParameters(params);
@@ -124,10 +123,17 @@ public class MultiMapAttributeActionFactory extends AbstractInputTranslationActi
 			ret.addAttribute(ma);
 		}
 		
-		private void parseMapping() throws EngineException
+		private void parseMapping()
 		{
 			mappings = new ArrayList<MultiMapAttributeAction.Mapping>();
-			Map<String, AttributeType> attributeTypes = attrMan.getAttributeTypesAsMap();
+			Map<String, AttributeType> attributeTypes;
+			try
+			{
+				attributeTypes = attrMan.getAttributeTypesAsMap();
+			} catch (EngineException e)
+			{
+				throw new InternalException("Can't get attribute types", e);
+			}
 			String lines[] = mapping.split("\n");
 			int num = 0;
 			for (String line: lines)
@@ -140,7 +146,7 @@ public class MultiMapAttributeActionFactory extends AbstractInputTranslationActi
 				
 				AttributeType at = attributeTypes.get(tokens[1]);
 				if (at == null)
-					throw new WrongArgumentException("Attribute type " + tokens[1] + " is not known");
+					throw new IllegalArgumentException("Attribute type " + tokens[1] + " is not known");
 				Mapping map = new Mapping(tokens[0], at, tokens[2]);
 				mappings.add(map);
 			}

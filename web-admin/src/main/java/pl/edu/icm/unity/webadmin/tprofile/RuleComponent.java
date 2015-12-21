@@ -342,7 +342,7 @@ public class RuleComponent extends VerticalLayout
 		}
 	}
 	
-	public AbstractTranslationRule<?> getRule() throws Exception
+	public AbstractTranslationRule<?> getRule()
 	{
 		String ac = (String) actions.getValue();
 		if (ac == null)

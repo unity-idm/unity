@@ -36,7 +36,7 @@ public class FailAuthnActionFactory extends AbstractOutputTranslationActionFacto
 	}
 	
 	@Override
-	public FailAuthnAction getInstance(String... parameters) throws EngineException
+	public FailAuthnAction getInstance(String... parameters)
 	{
 		return new FailAuthnAction(parameters, this);
 	}
@@ -47,7 +47,6 @@ public class FailAuthnActionFactory extends AbstractOutputTranslationActionFacto
 		private String error;
 
 		public FailAuthnAction(String[] params, TranslationActionDescription desc) 
-				throws EngineException
 		{
 			super(desc, params);
 			setParameters(params);

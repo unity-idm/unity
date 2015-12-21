@@ -30,7 +30,7 @@ public class RemoveStaleDataActionFactory extends AbstractInputTranslationAction
 	}
 	
 	@Override
-	public InputTranslationAction getInstance(String... parameters) throws EngineException
+	public InputTranslationAction getInstance(String... parameters)
 	{
 		return new RemoveStaleDataAction(this, parameters);
 	}

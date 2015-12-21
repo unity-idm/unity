@@ -11,11 +11,10 @@ import java.nio.charset.StandardCharsets;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.internal.PublicWellKnownURLServlet;
 import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
+import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
-import pl.edu.icm.unity.types.registration.AttributeClassAssignment;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
@@ -25,9 +24,9 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
 import pl.edu.icm.unity.webadmin.msgtemplate.SimpleMessageTemplateViewer;
+import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileViewer;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ListOfElements;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
@@ -47,7 +46,6 @@ import com.vaadin.ui.VerticalLayout;
 public class RegistrationFormViewer extends VerticalLayout
 {
 	private UnityMessageSource msg;
-	private AttributeHandlerRegistry attrHandlerRegistry;
 	private MessageTemplateManagement msgTempMan;
 	
 	private TabSheet tabs;
@@ -62,9 +60,7 @@ public class RegistrationFormViewer extends VerticalLayout
 	private SimpleMessageTemplateViewer acceptedTemplate;
 	private Label channel;
 	private Label adminsNotificationGroup;
-	private Label autoAcceptCondition;
 	private Label captcha;
-	private Label redirectAfterSubmit;
 	
 	private I18nLabel displayedName;
 	private I18nLabel formInformation;
@@ -77,19 +73,18 @@ public class RegistrationFormViewer extends VerticalLayout
 	private ListOfElements<CredentialRegistrationParam> credentialParams;	
 	
 	private Label credentialRequirementAssignment;
-	private Label initialState;
-	private ListOfElements<Attribute<?>> attributeAssignments;
-	private ListOfElements<String> groupAssignments;
-	private ListOfElements<AttributeClassAssignment> attributeClassAssignments;
+	private TranslationProfileViewer translationProfile;
 	private SharedEndpointManagement sharedEndpointMan;
+	private TranslationActionsRegistry actionsRegistry;
 	
-	public RegistrationFormViewer(UnityMessageSource msg, AttributeHandlerRegistry attrHandlerRegistry,
-			MessageTemplateManagement msgTempMan, SharedEndpointManagement sharedEndpointMan)
+	public RegistrationFormViewer(UnityMessageSource msg, 
+			MessageTemplateManagement msgTempMan, SharedEndpointManagement sharedEndpointMan, 
+			TranslationActionsRegistry registry)
 	{
 		this.msg = msg;
-		this.attrHandlerRegistry = attrHandlerRegistry;
 		this.msgTempMan = msgTempMan;
 		this.sharedEndpointMan = sharedEndpointMan;
+		this.actionsRegistry = registry;
 		initUI();
 	}
 	
@@ -105,12 +100,9 @@ public class RegistrationFormViewer extends VerticalLayout
 		
 		name.setValue(form.getName());
 		description.setValue(form.getDescription());
-		autoAcceptCondition.setValue(form.getAutoAcceptCondition());
 		captcha.setValue(form.getCaptchaLength() > 0 ? 
 				msg.getMessage("RegistrationFormViewer.captchaLength", form.getCaptchaLength()) : 
 				msg.getMessage("no"));
-		redirectAfterSubmit.setValue(form.getRedirectAfterSubmit() == null ? 
-				"-" : form.getRedirectAfterSubmit());
 		publiclyAvailable.setValue(msg.getYesNo(form.isPubliclyAvailable()));
 		
 		publicLink.setValue(form.isPubliclyAvailable() ? getPublicLink(form) : "-");
@@ -143,14 +135,8 @@ public class RegistrationFormViewer extends VerticalLayout
 		for (CredentialRegistrationParam cp: form.getCredentialParams())
 			credentialParams.addEntry(cp);
 		
-		credentialRequirementAssignment.setValue(form.getCredentialRequirementAssignment());
-		initialState.setValue(msg.getMessage("EntityState." + form.getInitialEntityState()));
-		for (Attribute<?> a: form.getAttributeAssignments())
-			attributeAssignments.addEntry(a);
-		for (String g: form.getGroupAssignments())
-			groupAssignments.addEntry(g);
-		for (AttributeClassAssignment aa: form.getAttributeClassAssignments())
-			attributeClassAssignments.addEntry(aa);
+		credentialRequirementAssignment.setValue(form.getDefaultCredentialRequirement());
+		translationProfile.setInput(form.getTranslationProfile());
 	}
 	
 	private String getPublicLink(RegistrationForm form)
@@ -172,9 +158,7 @@ public class RegistrationFormViewer extends VerticalLayout
 		description.setValue("");
 		publiclyAvailable.setValue("");
 		publicLink.setValue("");
-		autoAcceptCondition.setValue("");
 		captcha.setValue("");
-		redirectAfterSubmit.setValue("");
 		
 		submittedTemplate.setInput(null);
 		updatedTemplate.setInput(null);
@@ -194,10 +178,7 @@ public class RegistrationFormViewer extends VerticalLayout
 		credentialParams.clearContents();
 		
 		credentialRequirementAssignment.setValue("");
-		initialState.setValue("");
-		attributeAssignments.clearContents();
-		groupAssignments.clearContents();
-		attributeClassAssignments.clearContents();
+		translationProfile.setInput(null);
 	}
 	
 	private void initUI()
@@ -317,50 +298,12 @@ public class RegistrationFormViewer extends VerticalLayout
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.assignedTab"));
 		
 		credentialRequirementAssignment = new Label();
-		credentialRequirementAssignment.setCaption(msg.getMessage("RegistrationFormViewer.credentialRequirementAssignment"));
-		initialState = new Label();
-		initialState.setCaption(msg.getMessage("RegistrationFormViewer.initialState"));
+		credentialRequirementAssignment.setCaption(
+				msg.getMessage("RegistrationFormViewer.credentialRequirementAssignment"));
 
-		attributeAssignments = new ListOfElements<>(msg, new ListOfElements.LabelConverter<Attribute<?>>()
-		{
-			@Override
-			public Label toLabel(Attribute<?> value)
-			{
-				String content = attrHandlerRegistry.getSimplifiedAttributeRepresentation(
-						value, 64) + " @ " + value.getGroupPath();
-				return new Label(content);
-			}
-		});
-		attributeAssignments.setMargin(true);
-		Panel attributeAssignmentsP = new SafePanel(msg.getMessage("RegistrationFormViewer.attributeAssignments"),
-				attributeAssignments);
-
-		groupAssignments = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
-		{
-			@Override
-			public Label toLabel(String value)
-			{
-				return new Label(value);
-			}
-		});
-		groupAssignments.setMargin(true);
-		Panel groupAssignmentsP = new SafePanel(msg.getMessage("RegistrationFormViewer.groupAssignments"), 
-				groupAssignments);
-
-		attributeClassAssignments = new ListOfElements<>(msg, new ListOfElements.LabelConverter<AttributeClassAssignment>()
-		{
-			@Override
-			public Label toLabel(AttributeClassAssignment value)
-			{
-				return new Label(value.getAcName() + " @ " + value.getGroup());
-			}
-		});
-		attributeClassAssignments.setMargin(true);
-		Panel attributeClassAssignmentsP = new SafePanel(msg.getMessage("RegistrationFormViewer.attributeClassAssignments"),
-				attributeClassAssignments);
+		translationProfile = new TranslationProfileViewer(msg, actionsRegistry);
 		
-		main.addComponents(credentialRequirementAssignment, initialState);
-		wrapper.addComponents(attributeAssignmentsP, groupAssignmentsP,	attributeClassAssignmentsP);
+		main.addComponents(credentialRequirementAssignment, translationProfile);
 	}
 	
 	private void initMainTab()
@@ -376,15 +319,9 @@ public class RegistrationFormViewer extends VerticalLayout
 		description = new Label();
 		description.setCaption(msg.getMessage("RegistrationFormViewer.description"));
 		
-		autoAcceptCondition = new Label();
-		autoAcceptCondition.setCaption(msg.getMessage("RegistrationFormViewer.autoAcceptCondition"));
-		
 		captcha = new Label();
 		captcha.setCaption(msg.getMessage("RegistrationFormViewer.captcha"));
 		
-		redirectAfterSubmit = new Label();
-		redirectAfterSubmit.setCaption(msg.getMessage("RegistrationFormViewer.redirectAfterSubmit"));
-
 		publiclyAvailable = new Label();
 		publiclyAvailable.setCaption(msg.getMessage("RegistrationFormViewer.publiclyAvailable"));
 		
@@ -407,8 +344,7 @@ public class RegistrationFormViewer extends VerticalLayout
 				msg, msgTempMan);
 		
 		main.addComponents(name, description, publiclyAvailable, publicLink, channel, adminsNotificationGroup,
-				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate, captcha,
-				redirectAfterSubmit, autoAcceptCondition);
+				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate, captcha);
 	}
 	
 	private String toHTMLLabel(OptionalRegistrationParam value)

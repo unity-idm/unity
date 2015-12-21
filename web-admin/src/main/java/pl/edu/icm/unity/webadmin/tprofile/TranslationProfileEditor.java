@@ -18,6 +18,7 @@ import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.translation.AbstractTranslationProfile;
 import pl.edu.icm.unity.server.translation.AbstractTranslationRule;
 import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
@@ -30,6 +31,7 @@ import pl.edu.icm.unity.webadmin.tprofile.StartStopButton.ClickStartEvent;
 import pl.edu.icm.unity.webadmin.tprofile.StartStopButton.ClickStopEvent;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -49,7 +51,7 @@ import com.vaadin.ui.VerticalLayout;
  * @author P. Piernik
  * 
  */
-public abstract class TranslationProfileEditor extends VerticalLayout
+public abstract class TranslationProfileEditor<T extends AbstractTranslationRule<?>> extends VerticalLayout
 {
 	protected UnityMessageSource msg;
 	protected Collection<AttributeType> atTypes;
@@ -80,6 +82,37 @@ public abstract class TranslationProfileEditor extends VerticalLayout
 		initUI(toEdit);
 	}
 
+	public AbstractTranslationProfile<T> getProfile() throws FormValidationException
+	{
+		int nvalidr= 0;
+		for (RuleComponent cr : rules)
+		{
+			if (!cr.validateRule())
+			{
+				nvalidr++;
+			}
+		}	
+		name.setValidationVisible(true);
+		if (!(name.isValid() && nvalidr == 0))
+			throw new FormValidationException();
+		String n = name.getValue();
+		String desc = description.getValue();
+		List<T> trules = new ArrayList<T>();
+		for (RuleComponent cr : rules)
+		{
+			@SuppressWarnings("unchecked")
+			T r = (T) cr.getRule();
+			if (r != null)
+			{
+				trules.add(r);
+			}
+
+		}
+		AbstractTranslationProfile<T> profile = createProfile(n, trules);
+		profile.setDescription(desc);
+		return profile;
+	}
+	
 	private void initData(AttributesManagement attrsMan, IdentitiesManagement idMan, 
 			AuthenticationManagement authnMan, GroupsManagement groupsMan) throws EngineException
 	{
@@ -314,7 +347,7 @@ public abstract class TranslationProfileEditor extends VerticalLayout
 		}
 	}
 	
-	public abstract TranslationProfile getProfile() throws Exception;
+	public abstract AbstractTranslationProfile<T> createProfile(String name, List<T> trules);
 	
 	protected abstract ProfileType getProfileType();
 }

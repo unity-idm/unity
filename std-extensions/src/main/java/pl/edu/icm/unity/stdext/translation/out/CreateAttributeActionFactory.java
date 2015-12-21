@@ -48,7 +48,7 @@ public class CreateAttributeActionFactory extends AbstractOutputTranslationActio
 	}
 	
 	@Override
-	public CreateAttributeAction getInstance(String... parameters) throws EngineException
+	public CreateAttributeAction getInstance(String... parameters)
 	{
 		return new CreateAttributeAction(parameters, this);
 	}
@@ -60,7 +60,6 @@ public class CreateAttributeActionFactory extends AbstractOutputTranslationActio
 		private Serializable valuesExpression;
 
 		public CreateAttributeAction(String[] params, TranslationActionDescription desc) 
-				throws EngineException
 		{
 			super(desc, params);
 			setParameters(params);

@@ -43,7 +43,7 @@ public class ScheduleEntityChangeActionFactory extends AbstractTranslationAction
 	}
 
 	@Override
-	public TranslationAction getInstance(String... parameters) throws EngineException
+	public TranslationAction getInstance(String... parameters)
 	{
 		return new ScheduleEntityChangeAction(this, parameters);
 	}

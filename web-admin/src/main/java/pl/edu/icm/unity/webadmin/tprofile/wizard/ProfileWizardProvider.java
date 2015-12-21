@@ -12,6 +12,7 @@ import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.sandbox.wizard.AbstractSandboxWizardProvider;
 import pl.edu.icm.unity.server.authn.remote.RemoteSandboxAuthnContext;
+import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditDialog.Callback;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditor;
@@ -26,10 +27,10 @@ public class ProfileWizardProvider extends AbstractSandboxWizardProvider
 {
 	private UnityMessageSource msg;
 	private Callback addCallback;
-	private TranslationProfileEditor editor;
+	private TranslationProfileEditor<InputTranslationRule> editor;
 
 	public ProfileWizardProvider(UnityMessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier, 
-			TranslationProfileEditor editor, Callback addCallback)
+			TranslationProfileEditor<InputTranslationRule> editor, Callback addCallback)
 	{
 		super(sandboxURL, sandboxNotifier);
 		this.msg = msg;

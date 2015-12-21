@@ -33,7 +33,7 @@ public class SetCredentialRequirementActionFactory extends AbstractTranslationAc
 	}
 
 	@Override
-	public TranslationAction getInstance(String... parameters) throws EngineException
+	public TranslationAction getInstance(String... parameters)
 	{
 		return new SetCredentialRequirementAction(this, parameters);
 	}

@@ -43,7 +43,7 @@ public class EntityChangeActionFactory extends AbstractInputTranslationActionFac
 	}
 
 	@Override
-	public InputTranslationAction getInstance(String... parameters) throws EngineException
+	public InputTranslationAction getInstance(String... parameters)
 	{
 		return new EntityChangeAction(this, parameters);
 	}

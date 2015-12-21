@@ -40,7 +40,7 @@ public class RedirectActionFactory extends AbstractTranslationActionFactory
 	}
 
 	@Override
-	public TranslationAction getInstance(String... parameters) throws EngineException
+	public TranslationAction getInstance(String... parameters)
 	{
 		return new RedirectAction(this, parameters);
 	}

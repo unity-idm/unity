@@ -45,7 +45,7 @@ public class FilterAttributeValuesActionFactory extends AbstractOutputTranslatio
 	}
 	
 	@Override
-	public FilterAttributeValuesAction getInstance(String... parameters) throws EngineException
+	public FilterAttributeValuesAction getInstance(String... parameters)
 	{
 		return new FilterAttributeValuesAction(parameters, this);
 	}
@@ -57,7 +57,6 @@ public class FilterAttributeValuesActionFactory extends AbstractOutputTranslatio
 		private Pattern pattern;
 
 		public FilterAttributeValuesAction(String[] params, TranslationActionDescription desc) 
-				throws EngineException
 		{
 			super(desc, params);
 			setParameters(params);

@@ -33,7 +33,7 @@ public class AutoProcessActionFactory extends AbstractTranslationActionFactory
 	}
 
 	@Override
-	public TranslationAction getInstance(String... parameters) throws EngineException
+	public TranslationAction getInstance(String... parameters)
 	{
 		return new AutoProcessAction(this, parameters);
 	}

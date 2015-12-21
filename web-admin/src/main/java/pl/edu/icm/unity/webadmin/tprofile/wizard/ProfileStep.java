@@ -8,6 +8,7 @@ import org.vaadin.teemu.wizards.WizardStep;
 
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
+import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditDialog.Callback;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditor;
@@ -23,10 +24,10 @@ public class ProfileStep implements WizardStep
 {
 	private UnityMessageSource msg;
 	private ProfileStepComponent profileComponent;
-	private TranslationProfileEditor editor;
+	private TranslationProfileEditor<InputTranslationRule> editor;
 	private Callback addCallback;
 
-	public ProfileStep(UnityMessageSource msg, TranslationProfileEditor editor, 
+	public ProfileStep(UnityMessageSource msg, TranslationProfileEditor<InputTranslationRule> editor, 
 			Callback addCallback) 
 	{
 		this.msg = msg;

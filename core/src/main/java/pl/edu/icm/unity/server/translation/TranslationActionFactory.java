@@ -18,5 +18,5 @@ public interface TranslationActionFactory extends TranslationActionDescription
 	 * @return configured instance
 	 * @throws EngineException
 	 */
-	public TranslationAction getInstance(String... parameters) throws EngineException;
+	public TranslationAction getInstance(String... parameters);
 }

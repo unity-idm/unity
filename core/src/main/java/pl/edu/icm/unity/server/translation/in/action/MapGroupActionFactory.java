@@ -46,7 +46,7 @@ public class MapGroupActionFactory extends AbstractInputTranslationActionFactory
 	}
 
 	@Override
-	public InputTranslationAction getInstance(String... parameters) throws EngineException
+	public InputTranslationAction getInstance(String... parameters)
 	{
 		return new MapGroupAction(parameters, this);
 	}

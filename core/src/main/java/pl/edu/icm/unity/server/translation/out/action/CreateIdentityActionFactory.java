@@ -43,7 +43,7 @@ public class CreateIdentityActionFactory extends AbstractOutputTranslationAction
 	}
 	
 	@Override
-	public CreateIdentityAction getInstance(String... parameters) throws EngineException
+	public CreateIdentityAction getInstance(String... parameters)
 	{
 		return new CreateIdentityAction(parameters, this);
 	}
@@ -54,7 +54,7 @@ public class CreateIdentityActionFactory extends AbstractOutputTranslationAction
 		private String idTypeString;
 		private Serializable idValueExpression;
 
-		public CreateIdentityAction(String[] params, TranslationActionDescription desc) throws EngineException
+		public CreateIdentityAction(String[] params, TranslationActionDescription desc)
 		{
 			super(desc, params);
 			setParameters(params);

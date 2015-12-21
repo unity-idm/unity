@@ -42,7 +42,7 @@ public class AddAttributeClassActionFactory extends AbstractTranslationActionFac
 	}
 
 	@Override
-	public TranslationAction getInstance(String... parameters) throws EngineException
+	public TranslationAction getInstance(String... parameters)
 	{
 		return new AddAttributeClassAction(this, parameters);
 	}

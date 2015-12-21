@@ -16,19 +16,19 @@ import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.AbstractTranslationProfile;
 import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
-import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
-import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 /**
- * Component to edit or add input translation profile
+ * Component to edit or add a registration form translation profile
  * 
- * @author P. Piernik
+ * @author K. Benedyczak
  * 
  */
-public class InputTranslationProfileEditor extends TranslationProfileEditor<InputTranslationRule>
+public class RegistrationTranslationProfileEditor extends TranslationProfileEditor<RegistrationTranslationRule>
 {
-	public InputTranslationProfileEditor(UnityMessageSource msg,
+	public RegistrationTranslationProfileEditor(UnityMessageSource msg,
 			TranslationActionsRegistry registry, TranslationProfile toEdit,
 			AttributesManagement attrsMan, IdentitiesManagement idMan, AuthenticationManagement authnMan,
 			GroupsManagement groupsMan) throws EngineException
@@ -39,13 +39,13 @@ public class InputTranslationProfileEditor extends TranslationProfileEditor<Inpu
 	@Override
 	protected ProfileType getProfileType()
 	{
-		return ProfileType.INPUT;
+		return ProfileType.REGISTRATION;
 	}
 
 	@Override
-	public AbstractTranslationProfile<InputTranslationRule> createProfile(String name,
-			List<InputTranslationRule> trules)
+	public AbstractTranslationProfile<RegistrationTranslationRule> createProfile(String name,
+			List<RegistrationTranslationRule> trules)
 	{
-		return new InputTranslationProfile(name, trules);
+		return new RegistrationTranslationProfile(name, trules);
 	}
 }

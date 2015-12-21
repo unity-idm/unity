@@ -62,7 +62,7 @@ public class CreatePersistentAttributeActionFactory extends AbstractOutputTransl
 	}
 
 	@Override
-	public CreatePersistentAttributeAction getInstance(String... parameters) throws EngineException
+	public CreatePersistentAttributeAction getInstance(String... parameters)
 	{
 		return new CreatePersistentAttributeAction(parameters, this, attrsMan);
 	}
@@ -76,7 +76,7 @@ public class CreatePersistentAttributeActionFactory extends AbstractOutputTransl
 		private String group;
 
 		public CreatePersistentAttributeAction(String[] params, TranslationActionDescription desc, 
-				AttributesManagement attrsMan) throws EngineException
+				AttributesManagement attrsMan)
 		{
 			super(desc, params);
 			setParameters(params, attrsMan);

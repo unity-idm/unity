@@ -40,7 +40,7 @@ public class UnFilterAttributeActionFactory extends AbstractOutputTranslationAct
 	}
 	
 	@Override
-	public UnFilterAttributeAction getInstance(String... parameters) throws EngineException
+	public UnFilterAttributeAction getInstance(String... parameters)
 	{
 		return new UnFilterAttributeAction(parameters, this);
 	}
@@ -51,7 +51,6 @@ public class UnFilterAttributeActionFactory extends AbstractOutputTranslationAct
 		private Pattern attrPattern;
 
 		public UnFilterAttributeAction(String[] params, TranslationActionDescription desc) 
-				throws EngineException
 		{
 			super(desc, params);
 			setParameters(params);

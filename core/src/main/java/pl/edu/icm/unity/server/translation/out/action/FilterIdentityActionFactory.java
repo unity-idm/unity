@@ -44,7 +44,7 @@ public class FilterIdentityActionFactory extends AbstractOutputTranslationAction
 	}
 
 	@Override
-	public FilterIdentityAction getInstance(String... parameters) throws EngineException
+	public FilterIdentityAction getInstance(String... parameters)
 	{
 		return new FilterIdentityAction(parameters, this);
 	}
@@ -56,7 +56,6 @@ public class FilterIdentityActionFactory extends AbstractOutputTranslationAction
 		private Pattern idValueRegexp;
 
 		public FilterIdentityAction(String[] params, TranslationActionDescription desc) 
-				throws EngineException
 		{
 			super(desc, params);
 			setParameters(params);

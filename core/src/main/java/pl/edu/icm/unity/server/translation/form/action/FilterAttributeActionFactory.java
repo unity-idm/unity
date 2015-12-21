@@ -43,7 +43,7 @@ public class FilterAttributeActionFactory extends AbstractTranslationActionFacto
 	}
 
 	@Override
-	public TranslationAction getInstance(String... parameters) throws EngineException
+	public TranslationAction getInstance(String... parameters)
 	{
 		return new FilterAttributeAction(this, parameters);
 	}

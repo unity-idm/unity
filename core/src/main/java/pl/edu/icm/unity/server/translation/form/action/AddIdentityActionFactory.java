@@ -44,7 +44,7 @@ public class AddIdentityActionFactory extends AbstractTranslationActionFactory
 	}
 
 	@Override
-	public TranslationAction getInstance(String... parameters) throws EngineException
+	public TranslationAction getInstance(String... parameters)
 	{
 		return new AddIdentityAction(this, parameters);
 	}
@@ -57,7 +57,6 @@ public class AddIdentityActionFactory extends AbstractTranslationActionFactory
 		private Serializable expressionCompiled;
 		
 		public AddIdentityAction(TranslationActionDescription description, String[] parameters) 
-				throws EngineException
 		{
 			super(description, parameters);
 			setParameters(parameters);

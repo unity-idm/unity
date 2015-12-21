@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc;
@@ -74,7 +74,7 @@ public class MapAttributeActionFactory extends AbstractInputTranslationActionFac
 	}
 
 	@Override
-	public InputTranslationAction getInstance(String... parameters) throws EngineException
+	public InputTranslationAction getInstance(String... parameters)
 	{
 		return new MapAttributeAction(parameters, this, attrsMan);
 	}
@@ -92,14 +92,19 @@ public class MapAttributeActionFactory extends AbstractInputTranslationActionFac
 		private AttributeType at;
 
 		public MapAttributeAction(String[] params, TranslationActionDescription desc, AttributesManagement attrsMan) 
-				throws EngineException
 		{
 			super(desc, params);
 			setParameters(params);
 			attrMan = attrsMan;
-			at = attrMan.getAttributeTypesAsMap().get(unityAttribute);
+			try
+			{
+				at = attrMan.getAttributeTypesAsMap().get(unityAttribute);
+			} catch (EngineException e)
+			{
+				throw new InternalException("Can't get attribute types", e);
+			}
 			if (at == null)
-				throw new WrongArgumentException("Attribute type " + unityAttribute + " is not known");
+				throw new IllegalArgumentException("Attribute type " + unityAttribute + " is not known");
 		}
 		
 		@Override

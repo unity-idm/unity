@@ -26,6 +26,7 @@ import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
+import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webadmin.WebAdminEndpointFactory;
@@ -205,6 +206,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		hl.setExpandRatio(viewer, 0.7f);
 	}
 	
+	@SuppressWarnings("incomplete-switch")
 	private void refresh()
 	{
 		try
@@ -308,7 +310,8 @@ public class TranslationProfilesComponent extends VerticalLayout
 		}
 	}
 	
-	private TranslationProfileEditor getProfileEditor(TranslationProfile toEdit) throws EngineException
+	@SuppressWarnings("incomplete-switch")
+	private TranslationProfileEditor<?> getProfileEditor(TranslationProfile toEdit) throws EngineException
 	{
 		ProfileType pt = (ProfileType) profileType.getValue();
 		switch (pt)
@@ -319,7 +322,6 @@ public class TranslationProfilesComponent extends VerticalLayout
 		case OUTPUT:
 			return new OutputTranslationProfileEditor(msg, tc, toEdit, attrsMan, 
 					idMan, authnMan, groupsMan);
-TODO			
 		}
 		throw new IllegalStateException("not implemented");
 	}
@@ -335,7 +337,7 @@ TODO
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			TranslationProfileEditor editor;
+			TranslationProfileEditor<?> editor;
 			try
 			{
 				editor = getProfileEditor(null);				
@@ -372,7 +374,7 @@ TODO
 		{
 			@SuppressWarnings("unchecked")
 			GenericItem<TranslationProfile> item = (GenericItem<TranslationProfile>) target;
-			TranslationProfileEditor editor;
+			TranslationProfileEditor<?> editor;
 			
 			try
 			{
@@ -409,7 +411,7 @@ TODO
 		{
 			@SuppressWarnings("unchecked")
 			GenericItem<TranslationProfile> item = (GenericItem<TranslationProfile>) target;
-			TranslationProfileEditor editor;
+			TranslationProfileEditor<?> editor;
 			
 			try
 			{
@@ -491,13 +493,14 @@ TODO
 			};			
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			TranslationProfileEditor editor;
+			TranslationProfileEditor<InputTranslationRule> editor;
 			try
 			{
-				editor = getProfileEditor(null);				
+				editor = (TranslationProfileEditor<InputTranslationRule>) getProfileEditor(null);				
 			} catch (EngineException e)
 			{
 				NotificationPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorReadData"),

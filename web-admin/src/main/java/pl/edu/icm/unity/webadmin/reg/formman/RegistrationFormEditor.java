@@ -9,8 +9,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.mvel2.MVEL;
-
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
@@ -22,16 +20,16 @@ import pl.edu.icm.unity.server.api.registration.AcceptRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
+import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
-import pl.edu.icm.unity.types.registration.AttributeClassAssignment;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
@@ -41,6 +39,8 @@ import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
+import pl.edu.icm.unity.webadmin.tprofile.RegistrationTranslationProfileEditor;
+import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditor;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
@@ -54,15 +54,11 @@ import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.EditorProvider;
 import pl.edu.icm.unity.webui.common.NotNullComboBox;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.URLValidator;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
-import pl.edu.icm.unity.webui.common.attributes.SelectableAttributeEditor;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
 import com.vaadin.data.Validator;
-import com.vaadin.data.validator.AbstractStringValidator;
 import com.vaadin.data.validator.AbstractValidator;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Alignment;
@@ -87,12 +83,10 @@ public class RegistrationFormEditor extends VerticalLayout
 	private NotificationsManagement notificationsMan;
 	private MessageTemplateManagement msgTempMan;
 	private AuthenticationManagement authenticationMan;
-	private AttributeHandlerRegistry attrHandlerRegistry;
 	private Collection<IdentityType> identityTypes;
 	private Collection<AttributeType> attributeTypes;
 	private List<String> groups;
 	private List<String> credentialTypes;
-	private Collection<String> attributeClasses;
 	private boolean editMode;
 	private boolean copyMode;
 	
@@ -109,8 +103,6 @@ public class RegistrationFormEditor extends VerticalLayout
 	private ComboBox channel;
 	private GroupComboBox adminsNotificationGroup;
 	private Slider captcha;
-	private AbstractTextField redirectAfterSubmit;
-	private AbstractTextField autoAcceptCondition;
 	
 	private I18nTextField displayedName;
 	private I18nTextArea formInformation;
@@ -123,31 +115,34 @@ public class RegistrationFormEditor extends VerticalLayout
 	private ListOfEmbeddedElements<CredentialRegistrationParam> credentialParams;
 
 	private ComboBox credentialRequirementAssignment;
-	private EnumComboBox<EntityState> initialState;
-	private ListOfEmbeddedElements<Attribute<?>> attributeAssignments;
-	private ListOfEmbeddedElements<String> groupAssignments;
-	private ListOfEmbeddedElements<AttributeClassAssignment> attributeClassAssignments;
+	private TranslationProfileEditor<RegistrationTranslationRule> profileEditor;
+	private AttributesManagement attributeMan;
+	private IdentitiesManagement identitiesMan;
+	private TranslationActionsRegistry actionsRegistry;
 	
 	public RegistrationFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
 			NotificationsManagement notificationsMan,
 			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
 			AttributesManagement attributeMan,
-			AuthenticationManagement authenticationMan,
-			AttributeHandlerRegistry attrHandlerRegistry) throws EngineException
+			AuthenticationManagement authenticationMan, TranslationActionsRegistry actionsRegistry) 
+					throws EngineException
 	{
 		this(msg, groupsMan, notificationsMan, msgTempMan, identitiesMan, attributeMan, authenticationMan, 
-				attrHandlerRegistry, null, false);
+				actionsRegistry, null, false);
 	}
 
 	public RegistrationFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
 			NotificationsManagement notificationsMan,
 			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
 			AttributesManagement attributeMan,
-			AuthenticationManagement authenticationMan,
-			AttributeHandlerRegistry attrHandlerRegistry, RegistrationForm toEdit, boolean copyMode)
+			AuthenticationManagement authenticationMan, TranslationActionsRegistry actionsRegistry,
+			RegistrationForm toEdit, boolean copyMode)
 			throws EngineException
 	{
 		super();
+		this.identitiesMan = identitiesMan;
+		this.attributeMan = attributeMan;
+		this.actionsRegistry = actionsRegistry;
 		editMode = toEdit != null;
 		this.copyMode = editMode && copyMode;
 		this.msg = msg;
@@ -155,14 +150,12 @@ public class RegistrationFormEditor extends VerticalLayout
 		this.notificationsMan = notificationsMan;
 		this.msgTempMan = msgTempMan;
 		this.authenticationMan = authenticationMan;
-		this.attrHandlerRegistry = attrHandlerRegistry;
 		identityTypes = identitiesMan.getIdentityTypes(); 
 		attributeTypes = attributeMan.getAttributeTypes();
 		Collection<CredentialDefinition> crs = authenticationMan.getCredentialDefinitions();
 		credentialTypes = new ArrayList<>(crs.size());
 		for (CredentialDefinition cred: crs)
 			credentialTypes.add(cred.getName());
-		attributeClasses = attributeMan.getAttributeClasses().keySet(); 
 		initUI(toEdit);
 	}
 
@@ -195,40 +188,27 @@ public class RegistrationFormEditor extends VerticalLayout
 	{
 		try
 		{
-			autoAcceptCondition.validate();
 			publiclyAvailable.validate();
-			redirectAfterSubmit.validate();
 		} catch (Validator.InvalidValueException e)
 		{
 			throw new FormValidationException(e.getMessage(), e);
 		}
 		RegistrationForm ret = new RegistrationForm();	
 		ret.setAgreements(agreements.getElements());
-		ret.setAttributeAssignments(attributeAssignments.getElements());
-		ret.setAttributeClassAssignments(attributeClassAssignments.getElements());
 		ret.setAttributeParams(attributeParams.getElements());
 		ret.setCollectComments(collectComments.getValue());
 		ret.setCredentialParams(credentialParams.getElements());
-		ret.setCredentialRequirementAssignment((String) credentialRequirementAssignment.getValue());
+		ret.setDefaultCredentialRequirement((String) credentialRequirementAssignment.getValue());
+		ret.setTranslationProfile((RegistrationTranslationProfile) profileEditor.getProfile());
 		ret.setDescription(description.getValue());
 		I18nString displayedNameStr = displayedName.getValue();
 		displayedNameStr.setDefaultValue(name.getValue());
 		ret.setDisplayedName(displayedNameStr);
 		ret.setFormInformation(formInformation.getValue());
-		ret.setGroupAssignments(groupAssignments.getElements());
 		ret.setGroupParams(groupParams.getElements());
 		ret.setIdentityParams(identityParams.getElements());
-		ret.setInitialEntityState(initialState.getSelectedValue());
 		ret.setName(name.getValue());
-		ret.setAutoAcceptCondition(autoAcceptCondition.getValue().equals("") ? 
-				"false" : autoAcceptCondition.getValue() );
 		ret.setCaptchaLength(captcha.getValue().intValue());
-		
-		String redirect = redirectAfterSubmit.getValue(); 
-		if (redirect != null && !redirect.isEmpty())
-		{
-			ret.setRedirectAfterSubmit(redirect);
-		}
 		
 		RegistrationFormNotifications notCfg = ret.getNotificationsConfiguration();
 		notCfg.setAcceptedTemplate((String) acceptedTemplate.getValue());
@@ -331,43 +311,9 @@ public class RegistrationFormEditor extends VerticalLayout
 		captcha.setWidth(10, Unit.EM);
 		captcha.setDescription(msg.getMessage("RegistrationFormEditor.captchaDescription"));
 		
-		redirectAfterSubmit = new TextField(msg.getMessage("RegistrationFormViewer.redirectAfterSubmit"));
-		redirectAfterSubmit.setDescription(msg.getMessage(
-				"RegistrationFormEditor.redirectAfterSubmitDesc"));
-		redirectAfterSubmit.setValue("");
-		redirectAfterSubmit.setWidth(100, Unit.PERCENTAGE);
-		redirectAfterSubmit.setNullRepresentation("");
-		redirectAfterSubmit.addValidator(new URLValidator(msg));
-		redirectAfterSubmit.setValidationVisible(true);
-		redirectAfterSubmit.setImmediate(true);
-				
-		autoAcceptCondition = new TextField();
-		autoAcceptCondition.setWidth(100, Unit.PERCENTAGE);
-		autoAcceptCondition.setCaption(msg.getMessage("RegistrationFormViewer.autoAcceptCondition"));
-		autoAcceptCondition.setValue("false");
-		autoAcceptCondition.addValidator(new AbstractStringValidator(msg
-				.getMessage("RegistrationFormEditor.conditionValidationFalse"))
-		{
-			@Override
-			protected boolean isValidValue(String value)
-			{
-				try
-				{
-					MVEL.compileExpression(value);
-				} catch (Exception e)
-				{
-					return false;
-				}
-
-				return true;
-
-			}
-		});
-		autoAcceptCondition.setValidationVisible(true);
-		autoAcceptCondition.setImmediate(true);
 		main.addComponents(name, description, publiclyAvailable, channel, adminsNotificationGroup,
 				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate, 
-				captcha, redirectAfterSubmit, autoAcceptCondition);
+				captcha);
 		
 		if (toEdit != null)
 		{
@@ -380,9 +326,7 @@ public class RegistrationFormEditor extends VerticalLayout
 			updatedTemplate.setValue(notCfg.getUpdatedTemplate());
 			rejectedTemplate.setValue(notCfg.getRejectedTemplate());
 			acceptedTemplate.setValue(notCfg.getAcceptedTemplate());
-			autoAcceptCondition.setValue(toEdit.getAutoAcceptCondition());
 			captcha.setValue(Double.valueOf(toEdit.getCaptchaLength()));
-			redirectAfterSubmit.setValue(toEdit.getRedirectAfterSubmit());
 		}
 	}
 	
@@ -446,28 +390,17 @@ public class RegistrationFormEditor extends VerticalLayout
 			credentialRequirementAssignment.addItem(cr.getName());
 		credentialRequirementAssignment.setNullSelectionAllowed(false);
 		
-		initialState = new EnumComboBox<EntityState>(msg.getMessage("RegistrationFormViewer.initialState"), 
-				msg, "EntityState.", EntityState.class, EntityState.valid);
+		RegistrationTranslationProfile profile = toEdit == null ? 
+				new RegistrationTranslationProfile("form profile", new ArrayList<>()) : 
+				toEdit.getTranslationProfile();
+		profileEditor = new RegistrationTranslationProfileEditor(msg, actionsRegistry, profile, 
+				attributeMan, identitiesMan, authenticationMan, groupsMan);
 		
-		TabSheet tabOfLists = new TabSheet();
-		tabOfLists.setStyleName(Styles.vTabsheetMinimal.toString());
-		attributeAssignments = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.attributeAssignments"),
-				msg, new AttributeAssignmentEditorAndProvider(), 0, 20, true);
-		groupAssignments = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.groupAssignments"),
-				msg, new GroupAssignmentEditorAndProvider(), 0, 20, true);
-		attributeClassAssignments = new ListOfEmbeddedElements<>(
-				msg.getMessage("RegistrationFormEditor.attributeClassAssignments"), msg, 
-				new ACAssignmentEditorAndProvider(), 0, 20, true);
-		main.addComponents(credentialRequirementAssignment, initialState, tabOfLists);
-		tabOfLists.addComponents(attributeAssignments, groupAssignments, attributeClassAssignments);
+		main.addComponents(credentialRequirementAssignment, profileEditor);
 		
 		if (toEdit!= null)
 		{
-			credentialRequirementAssignment.setValue(toEdit.getCredentialRequirementAssignment());
-			initialState.setEnumValue(toEdit.getInitialEntityState());
-			attributeAssignments.setEntries(toEdit.getAttributeAssignments());
-			groupAssignments.setEntries(toEdit.getGroupAssignments());
-			attributeClassAssignments.setEntries(toEdit.getAttributeClassAssignments());
+			credentialRequirementAssignment.setValue(toEdit.getDefaultCredentialRequirement());
 		}
 	}
 	
@@ -757,107 +690,5 @@ public class RegistrationFormEditor extends VerticalLayout
 			v.setOptional(optional.getValue());
 		}
 	}	
-	private class GroupAssignmentEditorAndProvider implements EditorProvider<String>,
-			Editor<String>
-	{
-		private GroupComboBox group;
-
-		@Override
-		public Editor<String> getEditor()
-		{
-			return new GroupAssignmentEditorAndProvider();
-		}
-
-		@Override
-		public ComponentsContainer getEditorComponent(String value, int index)
-		{
-			group = new GroupComboBox(msg.getMessage("RegistrationFormViewer.paramGroup"), groups);
-			group.setInput("/", false);
-			if (value != null)
-				group.setValue(value);
-			return new ComponentsContainer(group);
-		}
-
-		@Override
-		public String getValue() throws FormValidationException
-		{
-			return (String) group.getValue();
-		}
-
-		@Override
-		public void setEditedComponentPosition(int position) {}
-	}
-
-	private class ACAssignmentEditorAndProvider implements EditorProvider<AttributeClassAssignment>,
-				Editor<AttributeClassAssignment>
-	{
-		private GroupComboBox group;
-		private ComboBox ac;
-
-		@Override
-		public Editor<AttributeClassAssignment> getEditor()
-		{
-			return new ACAssignmentEditorAndProvider();
-		}
-
-		@Override
-		public ComponentsContainer getEditorComponent(AttributeClassAssignment value, int index)
-		{
-			group = new GroupComboBox(msg.getMessage("RegistrationFormViewer.paramGroup"), groups);
-			group.setInput("/", true);
-			
-			ac = new NotNullComboBox(msg.getMessage("RegistrationFormViewer.assignedAC")); 
-			for (String a: attributeClasses)
-				ac.addItem(a);
-			if (value != null)
-			{
-				group.setValue(value.getGroup());
-				ac.setValue(value.getAcName());
-			}
-			return new ComponentsContainer(ac, group);
-		}
-
-		@Override
-		public AttributeClassAssignment getValue() throws FormValidationException
-		{
-			AttributeClassAssignment ret = new AttributeClassAssignment();
-			ret.setGroup((String) group.getValue());
-			ret.setAcName((String) ac.getValue());
-			return ret;
-		}
-
-		@Override
-		public void setEditedComponentPosition(int position) {}
-	}
-	
-	private class AttributeAssignmentEditorAndProvider implements EditorProvider<Attribute<?>>,
-			Editor<Attribute<?>>
-	{
-		private SelectableAttributeEditor ae;
-		
-		@Override
-		public Editor<Attribute<?>> getEditor()
-		{
-			return new AttributeAssignmentEditorAndProvider();
-		}
-
-		@Override
-		public ComponentsContainer getEditorComponent(Attribute<?> value, int index)
-		{
-			ae = new SelectableAttributeEditor(msg, attrHandlerRegistry, attributeTypes, true, groups);
-			if (value != null)
-				ae.setInitialAttribute(value);
-			return new ComponentsContainer(ae.getComponent());
-		}
-
-		@Override
-		public Attribute<?> getValue() throws FormValidationException
-		{
-			return ae.getAttribute();
-		}
-
-		@Override
-		public void setEditedComponentPosition(int position) {}
-	}
 
 }

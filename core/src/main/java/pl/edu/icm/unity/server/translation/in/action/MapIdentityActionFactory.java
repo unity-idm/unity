@@ -65,7 +65,7 @@ public class MapIdentityActionFactory extends AbstractInputTranslationActionFact
 	}
 
 	@Override
-	public InputTranslationAction getInstance(String... parameters) throws EngineException
+	public InputTranslationAction getInstance(String... parameters)
 	{
 		return new MapIdentityAction(parameters, this, idsRegistry);
 	}
@@ -81,11 +81,16 @@ public class MapIdentityActionFactory extends AbstractInputTranslationActionFact
 		private IdentityTypeDefinition idTypeResolved;
 
 		public MapIdentityAction(String[] params, TranslationActionDescription desc, IdentityTypesRegistry idsRegistry) 
-				throws IllegalTypeException
 		{
 			super(desc, params);
 			setParameters(params);
-			idTypeResolved = idsRegistry.getByName(unityType);
+			try
+			{
+				idTypeResolved = idsRegistry.getByName(unityType);
+			} catch (IllegalTypeException e)
+			{
+				throw new IllegalArgumentException("Unknown identity type", e);
+			}
 		}
 		
 		@Override
