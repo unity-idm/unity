@@ -51,7 +51,7 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 	public enum RequestSubmitStatus 
 	{
 		submitted,
-		canceled
+		notSubmitted
 	}
 	
 	public enum ContextKey
@@ -131,20 +131,34 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 		return result.getAutoAction();
 	}
 	
-	public String getPostSubmitRedirectURL(RegistrationForm form, RegistrationRequestState request,
-			RequestSubmitStatus status)
+	public String getPostSubmitRedirectURL(RegistrationForm form, RegistrationRequest request,
+			RegistrationContext context)
 	{
-		Map<String, Object> mvelCtx = createMvelContext(form, request.getRequest(), status, 
-				request.getRegistrationContext().triggeringMode, 
-				request.getRegistrationContext().isOnIdpEndpoint);
+		Map<String, Object> mvelCtx = createMvelContext(form, request, RequestSubmitStatus.submitted, 
+				context.triggeringMode, context.isOnIdpEndpoint);
 		TranslatedRegistrationRequest result;
 		try
 		{
-			result = executeFilteredActions(form, 
-					request.getRequest(), mvelCtx, RedirectActionFactory.NAME);
+			result = executeFilteredActions(form, request, mvelCtx, RedirectActionFactory.NAME);
 		} catch (EngineException e)
 		{
-			log.error("Couldn't establish redirect URL from profile", e);
+			log.warn("Couldn't establish redirect URL from profile", e);
+			return null;
+		}
+		return result.getRedirectURL();
+	}
+
+	public String getPostCancelledRedirectURL(RegistrationForm form, RegistrationContext context)
+	{
+		Map<String, Object> mvelCtx = createBaseMvelContext(form, RequestSubmitStatus.notSubmitted, 
+				context.triggeringMode, context.isOnIdpEndpoint);
+		TranslatedRegistrationRequest result;
+		try
+		{
+			result = executeFilteredActions(form, null, mvelCtx, RedirectActionFactory.NAME);
+		} catch (EngineException e)
+		{
+			log.warn("Couldn't establish redirect URL from profile", e);
 			return null;
 		}
 		return result.getRedirectURL();
@@ -196,7 +210,9 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 		try
 		{
 			int i=1;
-			TranslatedRegistrationRequest translationState = initializeTranslationResult(form, request);
+			TranslatedRegistrationRequest translationState = request == null ?
+					new TranslatedRegistrationRequest(form.getDefaultCredentialRequirement()) : 
+					initializeTranslationResult(form, request);
 			for (RegistrationTranslationRule rule: rules)
 			{
 				String actionName = rule.getAction().getActionDescription().getName();
@@ -268,7 +284,7 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 	public static Map<String, Object> createMvelContext(RegistrationForm form, RegistrationRequest request,
 			RequestSubmitStatus status, TriggeringMode triggered, boolean idpEndpoint)
 	{
-		Map<String, Object> ret = new HashMap<>();
+		Map<String, Object> ret = createBaseMvelContext(form, status, triggered, idpEndpoint);
 		
 		ret.put(ContextKey.userLocale.name(), request.getUserLocale());
 		
@@ -370,14 +386,18 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 			agr.add(Boolean.toString(a.isSelected()));
 		}
 		ret.put(ContextKey.agrs.name(), agr);
-		
+		return ret;
+	}
+	
+	public static Map<String, Object> createBaseMvelContext(RegistrationForm form,
+			RequestSubmitStatus status, TriggeringMode triggered, boolean idpEndpoint)
+	{
+		Map<String, Object> ret = new HashMap<>();
 		ret.put(ContextKey.onIdpEndpoint.name(), idpEndpoint);
 		ret.put(ContextKey.triggered.name(), triggered.toString());
 		ret.put(ContextKey.status.name(), status.toString());
 		return ret;
 	}
-	
-	
 	
 	private String contextToString(Map<String, Object> context)
 	{

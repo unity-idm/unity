@@ -30,6 +30,11 @@ public class RegistrationContext
 		 * User entered a well-known registration form link
 		 */
 		manualStandalone, 
+
+		/**
+		 * The form is being filled from the AdminUI
+		 */
+		manualAdmin, 
 		
 		/**
 		 * Form was shown after a successful remote authentication 

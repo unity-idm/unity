@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.sandbox.wizard.SandboxWizardDialog;
+import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
@@ -154,7 +155,7 @@ public class UnknownUserDialog extends AbstractDialog
 		RegistrationRequestEditorDialog dialog;
 		try
 		{
-			dialog = formLauncher.getDialog(form, ctx);
+			dialog = formLauncher.getDialog(form, ctx, TriggeringMode.afterRemoteLogin);
 			dialog.show();
 			close();
 		} catch (AuthenticationException e)

@@ -17,7 +17,9 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
+import pl.edu.icm.unity.server.api.RegistrationContext;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
+import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.server.api.internal.IdPLoginController;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -76,65 +78,67 @@ public class InsecureRegistrationFormLauncher implements RegistrationFormDialogP
 		this.bus = WebSession.getCurrent().getEventBus();
 	}
 
-	protected boolean addRequest(RegistrationRequest request, RegistrationForm form)
+	protected boolean addRequest(RegistrationRequest request, RegistrationForm form, RegistrationContext context)
 	{
 		String id;
 		try
 		{
-			id = registrationsManagement.submitRegistrationRequest(request, true);
+			id = registrationsManagement.submitRegistrationRequest(request, context);
 			bus.fireEvent(new RegistrationRequestChangedEvent(id));
 		} catch (WrongArgumentException e)
 		{
-			new PostRegistrationHandler(idpLoginController, form, msg).submissionError(e);
+			new PostRegistrationHandler(idpLoginController, form, msg).submissionError(e, context);
 			return false;
 		} catch (EngineException e)
 		{
-			new PostRegistrationHandler(idpLoginController, form, msg).submissionError(e);
+			new PostRegistrationHandler(idpLoginController, form, msg).submissionError(e, context);
 			return true;
 		}
 
-		new PostRegistrationHandler(idpLoginController, form, msg).submitted(id, registrationsManagement);
+		new PostRegistrationHandler(idpLoginController, form, msg).submitted(id, registrationsManagement,
+				request, context);
 		return true;
 	}
 	
-	public RegistrationRequestEditorDialog getDialog(String formName, RemotelyAuthenticatedContext remoteContext) 
-			throws EngineException
+	public RegistrationRequestEditorDialog getDialog(String formName, RemotelyAuthenticatedContext remoteContext, 
+			TriggeringMode mode) throws EngineException
 	{
 		List<RegistrationForm> forms = registrationsManagement.getForms();
 		for (RegistrationForm form: forms)
 		{
 			if (formName.equals(form.getName()))
-				return getDialog(form, remoteContext);
+				return getDialog(form, remoteContext, mode);
 		}
 		throw new WrongArgumentException("There is no registration form " + formName);
 	}
 	
 	@Override
 	public RegistrationRequestEditorDialog getDialog(final RegistrationForm form, 
-			RemotelyAuthenticatedContext remoteContext) throws EngineException
+			RemotelyAuthenticatedContext remoteContext, TriggeringMode mode) throws EngineException
 	{
-			RegistrationRequestEditor editor = new RegistrationRequestEditor(msg, form, 
-					remoteContext, identityEditorRegistry, 
-					credentialEditorRegistry, 
-					attributeHandlerRegistry, attrsMan, authnMan, groupsMan);
-			RegistrationRequestEditorDialog dialog = new RegistrationRequestEditorDialog(msg, 
-					msg.getMessage("RegistrationFormsChooserComponent.dialogCaption"), 
-					editor, new RegistrationRequestEditorDialog.Callback()
+		RegistrationContext context = new RegistrationContext(true, 
+				idpLoginController.isLoginInProgress(), mode);
+		RegistrationRequestEditor editor = new RegistrationRequestEditor(msg, form, 
+				remoteContext, identityEditorRegistry, 
+				credentialEditorRegistry, 
+				attributeHandlerRegistry, attrsMan, authnMan, groupsMan);
+		RegistrationRequestEditorDialog dialog = new RegistrationRequestEditorDialog(msg, 
+				msg.getMessage("RegistrationFormsChooserComponent.dialogCaption"), 
+				editor, new RegistrationRequestEditorDialog.Callback()
+				{
+					@Override
+					public boolean newRequest(RegistrationRequest request)
 					{
+						return addRequest(request, form, context);
+					}
 						@Override
-						public boolean newRequest(RegistrationRequest request)
-						{
-							return addRequest(request, form);
-						}
-
-						@Override
-						public void cancelled()
-						{
-							new PostRegistrationHandler(idpLoginController, form, msg).
-								cancelled(false);
-						}
-					});
-			return dialog;
+					public void cancelled()
+					{
+						new PostRegistrationHandler(idpLoginController, form, msg).
+							cancelled(false, context);
+					}
+				});
+		return dialog;
 	}
 
 }

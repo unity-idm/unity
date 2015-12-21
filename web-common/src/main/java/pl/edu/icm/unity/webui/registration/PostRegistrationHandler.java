@@ -8,13 +8,16 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.server.api.RegistrationContext;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.api.internal.IdPLoginController;
 import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder;
 import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder.Status;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -57,7 +60,8 @@ public class PostRegistrationHandler
 	 * @param registrationsManagement
 	 * @throws EngineException
 	 */
-	public void submitted(String requestId, RegistrationsManagement registrationsManagement)
+	public void submitted(String requestId, RegistrationsManagement registrationsManagement, 
+			RegistrationRequest request, RegistrationContext context)
 	{
 		boolean autoAccepted;
 		try
@@ -68,11 +72,11 @@ public class PostRegistrationHandler
 			log.error("Shouldn't happen: can't get request status to check if it was auto accepted", e);
 			autoAccepted = false;
 		}
-
-		String redirect = form.getRedirectAfterSubmit();
+		RegistrationTranslationProfile translationProfile = form.getTranslationProfile();
+		String redirect = translationProfile.getPostSubmitRedirectURL(form, request, context);
 		if (redirect != null)
 		{
-			String finalRedirect = new RegistrationRedirectURLBuilder(form, requestId, 
+			String finalRedirect = new RegistrationRedirectURLBuilder(redirect, form.getName(), requestId, 
 					autoAccepted ? Status.submittedAccepted : Status.submitted).build();
 			redirectOrInform(finalRedirect);
 		} else
@@ -109,12 +113,15 @@ public class PostRegistrationHandler
 	 * and form has redirect URL defined. Otherwise can show a cancellation message or not. 
 	 * @param showCancelMessage used when there is no redirect URL and defines if popup info should be shown.
 	 */
-	public void cancelled(boolean showCancelMessage)
+	public void cancelled(boolean showCancelMessage, RegistrationContext context)
 	{
-		if (form.getRedirectAfterSubmit() != null)
+		RegistrationTranslationProfile translationProfile = form.getTranslationProfile();
+		String redirect = translationProfile.getPostCancelledRedirectURL(form, context);
+		if (redirect != null)
 		{
-			String redirect = new RegistrationRedirectURLBuilder(form, null, Status.cancelled).build();
-			redirectOrInform(redirect);
+			String redirectUpdated = new RegistrationRedirectURLBuilder(redirect, form.getName(), 
+					null, Status.cancelled).build();
+			redirectOrInform(redirectUpdated);
 		} else
 		{
 			if (showCancelMessage)
@@ -123,19 +130,23 @@ public class PostRegistrationHandler
 		}
 	}
 	
-	public void submissionError(Exception e)
+	public void submissionError(Exception e, RegistrationContext context)
 	{
 		if (e instanceof FormValidationException || e instanceof WrongArgumentException)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
 		} else
 		{
-			if (form.getRedirectAfterSubmit() != null)
+			RegistrationTranslationProfile translationProfile = form.getTranslationProfile();
+			String redirect = translationProfile.getPostCancelledRedirectURL(form, context);
+			if (redirect != null)
 			{
-				String redirect = new RegistrationRedirectURLBuilder(form, null, 
+				String redirectUpdated = new RegistrationRedirectURLBuilder(redirect, 
+						form.getName(), null, 
 						Status.submittedWithError).setErrorCode(e.toString()).build();
-				log.warn("Form submission finished with error", e);
-				redirectOrInform(redirect);
+				log.warn("Form submission finished with error, redirecting to " + 
+						redirectUpdated, e);
+				redirectOrInform(redirectUpdated);
 			} else
 			{
 				NotificationPopup.showError(msg,

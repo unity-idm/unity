@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Scope;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
@@ -308,7 +309,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			return null;
 		if (registrationConfiguration.getEnabledForms().size() > 0)
 			formsChooser.setAllowedForms(registrationConfiguration.getEnabledForms());
-		formsChooser.initUI();
+		formsChooser.initUI(TriggeringMode.manualAtLogin);
 		if (formsChooser.getDisplayedForms().size() == 0)
 			return null;
 		
@@ -335,7 +336,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			try
 			{
 				return formLauncher.getDialog(form, new RemotelyAuthenticatedContext("--none--",
-						"--none--"));
+						"--none--"), TriggeringMode.manualAtLogin);
 			} catch (EngineException e)
 			{
 				log.info("Can't initialize registration form '" + form.getName() + "' UI. "

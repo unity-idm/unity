@@ -13,6 +13,8 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
+import pl.edu.icm.unity.server.api.RegistrationContext;
+import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.api.internal.IdPLoginController;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
@@ -74,16 +76,19 @@ public class RegistrationFormLauncher implements RegistrationFormDialogProvider
 		this.bus = WebSession.getCurrent().getEventBus();
 	}
 
-	protected boolean addRequest(RegistrationRequest request, boolean andAccept, RegistrationForm form)
+	protected boolean addRequest(RegistrationRequest request, boolean andAccept, RegistrationForm form, 
+			TriggeringMode mode)
 	{
+		RegistrationContext context = new RegistrationContext(!andAccept, 
+				idpLoginController.isLoginInProgress(), mode);
 		String id;
 		try
 		{
-			id = registrationsManagement.submitRegistrationRequest(request, !andAccept);
+			id = registrationsManagement.submitRegistrationRequest(request, context);
 			bus.fireEvent(new RegistrationRequestChangedEvent(id));
 		} catch (EngineException e)
 		{
-			new PostRegistrationHandler(idpLoginController, form, msg).submissionError(e);
+			new PostRegistrationHandler(idpLoginController, form, msg).submissionError(e, context);
 			return false;
 		}
 
@@ -97,7 +102,7 @@ public class RegistrationFormLauncher implements RegistrationFormDialogProvider
 				bus.fireEvent(new RegistrationRequestChangedEvent(id));
 			}	
 			new PostRegistrationHandler(idpLoginController, form, msg, false).
-				submitted(id, registrationsManagement);
+				submitted(id, registrationsManagement, request, context);
 			
 			return true;
 		} catch (EngineException e)
@@ -110,7 +115,7 @@ public class RegistrationFormLauncher implements RegistrationFormDialogProvider
 	
 	@Override
 	public AdminsRegistrationRequestEditorDialog getDialog(final RegistrationForm form, 
-			RemotelyAuthenticatedContext remoteContext) throws EngineException
+			RemotelyAuthenticatedContext remoteContext, TriggeringMode mode) throws EngineException
 	{
 			RegistrationRequestEditor editor = new RegistrationRequestEditor(msg, form, 
 					remoteContext, identityEditorRegistry, 
@@ -123,14 +128,16 @@ public class RegistrationFormLauncher implements RegistrationFormDialogProvider
 						@Override
 						public boolean newRequest(RegistrationRequest request, boolean autoAccept)
 						{
-							return addRequest(request, autoAccept, form);
+							return addRequest(request, autoAccept, form, mode);
 						}
 
 						@Override
 						public void cancelled()
 						{
+							RegistrationContext context = new RegistrationContext(false, 
+									idpLoginController.isLoginInProgress(), mode);
 							new PostRegistrationHandler(idpLoginController, form, msg).
-								cancelled(false);
+								cancelled(false, context);
 						}
 					});
 			return dialog;

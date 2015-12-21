@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
+import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -59,6 +60,7 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 	protected VerticalLayout main;
 	protected EventsBus bus;
 	private Callback callback;
+	protected TriggeringMode mode;
 	
 	@Autowired
 	public RegistrationFormsChooserComponent(UnityMessageSource msg,
@@ -132,7 +134,7 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 				continue;	
 			Button button = new Button(form.getName());
 			button.setStyleName(Styles.vButtonLink.toString());
-			button.addClickListener(new ButtonListener(form));
+			button.addClickListener(new ButtonListener(form, mode));
 			main.addComponent(button);
 			displayedForms.add(form);
 			available = true;
@@ -142,8 +144,9 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 			main.addComponent(new Label(msg.getMessage("RegistrationFormsChooserComponent.noFormsInfo")));
 	}
 	
-	public void initUI()
+	public void initUI(TriggeringMode mode)
 	{
+		this.mode = mode;
 		addStyleName(Styles.visibleScroll.toString());
 		setCaption(msg.getMessage("RegistrationFormsChooserComponent.caption"));
 		try
@@ -188,10 +191,12 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 	private class ButtonListener implements ClickListener
 	{
 		private RegistrationForm form;
+		private TriggeringMode mode;
 
-		public ButtonListener(RegistrationForm form)
+		public ButtonListener(RegistrationForm form, TriggeringMode mode)
 		{
 			this.form = form;
+			this.mode = mode;
 		}
 		
 		@Override
@@ -200,7 +205,8 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 			try
 			{
 				AbstractDialog dialog = formLauncher.getDialog(form, 
-						new RemotelyAuthenticatedContext("--none--", "--none--"));
+						new RemotelyAuthenticatedContext("--none--", "--none--"), 
+						mode);
 				dialog.show();
 				if (callback != null)
 					callback.closed();
@@ -215,4 +221,5 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 	{
 		void closed();
 	}
+
 }

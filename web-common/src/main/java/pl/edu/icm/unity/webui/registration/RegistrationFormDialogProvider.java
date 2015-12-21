@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webui.registration;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -17,6 +18,6 @@ import pl.edu.icm.unity.webui.common.AbstractDialog;
 public interface RegistrationFormDialogProvider
 {
 	AbstractDialog getDialog(final RegistrationForm form, 
-			RemotelyAuthenticatedContext remoteContext) throws EngineException;
+			RemotelyAuthenticatedContext remoteContext, TriggeringMode mode) throws EngineException;
 
 }

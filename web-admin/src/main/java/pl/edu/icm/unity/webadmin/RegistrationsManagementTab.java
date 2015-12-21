@@ -9,12 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormsComponent;
 import pl.edu.icm.unity.webadmin.reg.reqman.RequestsComponent;
 import pl.edu.icm.unity.webui.registration.RegistrationFormsChooserComponent;
 
 import com.vaadin.ui.VerticalLayout;
+
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
@@ -36,7 +38,7 @@ public class RegistrationsManagementTab  extends VerticalLayout
 		super();
 		this.msg = msg;
 		reqFillComponent.setShowNonPublic(true);
-		reqFillComponent.initUI();
+		reqFillComponent.initUI(TriggeringMode.manualAdmin);
 		this.tabs = new MainTabPanel(requestsComponent, reqFillComponent, regComponent);
 		this.tabs.addStyleName(Styles.vTabsheetMinimal.toString());
 		initUI();

@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
+import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 
@@ -40,8 +41,9 @@ public class InsecureRegistrationFormsChooserComponent extends RegistrationForms
 	}
 
 	@Override
-	public void initUI()
+	public void initUI(TriggeringMode mode)
 	{
+		this.mode = mode;
 		try
 		{
 			removeAllComponents();

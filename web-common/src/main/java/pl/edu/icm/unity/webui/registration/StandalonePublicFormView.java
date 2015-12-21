@@ -8,7 +8,9 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
+import pl.edu.icm.unity.server.api.RegistrationContext;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
+import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.server.api.internal.IdPLoginController;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
@@ -111,7 +113,10 @@ public class StandalonePublicFormView extends CustomComponent implements View
 		
 		Button cancel = new Button(msg.getMessage("cancel"));
 		cancel.addClickListener(event -> {
-			new PostRegistrationHandler(idpLoginController, form, msg).cancelled(true);
+			RegistrationContext context = new RegistrationContext(false, 
+					idpLoginController.isLoginInProgress(), 
+					TriggeringMode.manualStandalone);
+			new PostRegistrationHandler(idpLoginController, form, msg).cancelled(true, context);
 		});
 		buttons.addComponents(cancel, ok);
 		buttons.setSpacing(true);
@@ -125,15 +130,18 @@ public class StandalonePublicFormView extends CustomComponent implements View
 	
 	private void accept(RegistrationRequestEditor editor)
 	{
-		
+		RegistrationContext context = new RegistrationContext(true, 
+				idpLoginController.isLoginInProgress(), 
+				TriggeringMode.manualStandalone);		
 		try
 		{
 			RegistrationRequest request = editor.getRequest();
-			String requestId = regMan.submitRegistrationRequest(request, true);
-			new PostRegistrationHandler(idpLoginController, form, msg).submitted(requestId, regMan);
+			String requestId = regMan.submitRegistrationRequest(request, context);
+			new PostRegistrationHandler(idpLoginController, form, msg).submitted(requestId, regMan,
+					request, context);
 		} catch (Exception e) 
 		{
-			new PostRegistrationHandler(idpLoginController, form, msg).submissionError(e);
+			new PostRegistrationHandler(idpLoginController, form, msg).submissionError(e, context);
 		}
 	}
 
