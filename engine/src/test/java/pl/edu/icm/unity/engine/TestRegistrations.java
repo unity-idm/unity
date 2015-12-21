@@ -74,8 +74,6 @@ public class TestRegistrations extends DBIntegrationTestBase
 		
 		List<RegistrationForm> forms = registrationsMan.getForms();
 		assertEquals(1, forms.size());
-		RegistrationForm read = forms.get(0);
-		form.equals(read);
 		assertEquals(form, forms.get(0));
 		
 		registrationsMan.removeForm("f1", false);

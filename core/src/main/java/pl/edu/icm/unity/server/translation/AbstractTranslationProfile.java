@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.registries.TypesRegistryBase;
 import pl.edu.icm.unity.types.DescribedObjectImpl;
 
@@ -63,14 +62,16 @@ public abstract class AbstractTranslationProfile<T extends AbstractTranslationRu
 	{
 		root.put("ver", "2");
 		root.put("name", getName());
-		root.put("description", getDescription());
+		if (getDescription() != null)
+			root.put("description", getDescription());
 		root.put("type", getProfileType().toString());		
 	}
 
 	protected void loadPreamble(ObjectNode root)
 	{
 		setName(root.get("name").asText());
-		setDescription(root.get("description").asText());
+		if (root.has("description") && !root.get("description").isNull())
+			setDescription(root.get("description").asText());
 		if (root.has("type"))
 		{
 			profileType = ProfileType.valueOf(root.get("type").asText());
@@ -137,7 +138,8 @@ public abstract class AbstractTranslationProfile<T extends AbstractTranslationRu
 		}
 	}
 	
-	protected void fromJson(String json, ObjectMapper jsonMapper, TranslationActionsRegistry registry)
+	protected void fromJson(String json, ObjectMapper jsonMapper, 
+			TypesRegistryBase<? extends TranslationActionFactory> registry)
 	{
 		try
 		{
@@ -189,5 +191,36 @@ public abstract class AbstractTranslationProfile<T extends AbstractTranslationRu
 		for (int j=0; j<jsonAParams.size(); j++)
 			parameters[j] = jsonAParams.get(j).isNull() ? null : jsonAParams.get(j).asText();
 		return parameters;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((profileType == null) ? 0 : profileType.hashCode());
+		result = prime * result + ((rules == null) ? 0 : rules.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AbstractTranslationProfile<?> other = (AbstractTranslationProfile<?>) obj;
+		if (profileType != other.profileType)
+			return false;
+		if (rules == null)
+		{
+			if (other.rules != null)
+				return false;
+		} else if (!rules.equals(other.rules))
+			return false;
+		return true;
 	}
 }

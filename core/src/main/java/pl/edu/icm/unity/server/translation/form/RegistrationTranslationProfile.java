@@ -39,6 +39,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.Selection;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -87,6 +88,12 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 	public RegistrationTranslationProfile(ObjectNode json, RegistrationTranslationActionsRegistry registry)
 	{
 		fromJson(json, registry);
+	}
+	
+	public RegistrationTranslationProfile(String json, ObjectMapper jsonMapper, 
+			RegistrationTranslationActionsRegistry registry)
+	{
+		fromJson(json, jsonMapper, registry);
 	}
 	
 	public RegistrationTranslationProfile(String name, List<RegistrationTranslationRule> rules)
@@ -378,4 +385,6 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 		context.forEach((key, value) -> joiner.add(key + " = " + value));
 		return joiner.toString();
 	}
+	
+	
 }

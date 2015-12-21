@@ -39,4 +39,39 @@ public abstract class AbstractTranslationRule<T extends TranslationAction>
 	{
 		this.condition = condition;
 	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((action == null) ? 0 : action.hashCode());
+		result = prime * result + ((condition == null) ? 0 : condition.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AbstractTranslationRule<?> other = (AbstractTranslationRule<?>) obj;
+		if (action == null)
+		{
+			if (other.action != null)
+				return false;
+		} else if (!action.equals(other.action))
+			return false;
+		if (condition == null)
+		{
+			if (other.condition != null)
+				return false;
+		} else if (!condition.equals(other.condition))
+			return false;
+		return true;
+	}
 }

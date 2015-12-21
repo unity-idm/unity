@@ -19,10 +19,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.db.generic.DefaultEntityHandler;
 import pl.edu.icm.unity.db.model.GenericObjectBean;
+import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.AbstractTranslationProfile;
 import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.translation.in.IdentityEffectMode;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationProfile;
@@ -40,12 +42,15 @@ public class TranslationProfileHandler extends DefaultEntityHandler<TranslationP
 	public static final String TRANSLATION_PROFILE_OBJECT_TYPE = "translationProfile";
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, TranslationProfileHandler.class);
 	private TranslationActionsRegistry actionsRegistry;
+	private RegistrationTranslationActionsRegistry registrationActionsRegistry;
 	
 	@Autowired
-	public TranslationProfileHandler(ObjectMapper jsonMapper, TranslationActionsRegistry actionsRegistry)
+	public TranslationProfileHandler(ObjectMapper jsonMapper, TranslationActionsRegistry actionsRegistry,
+			RegistrationTranslationActionsRegistry registrationActionsRegistry)
 	{
 		super(jsonMapper, TRANSLATION_PROFILE_OBJECT_TYPE, TranslationProfile.class);
 		this.actionsRegistry = actionsRegistry;
+		this.registrationActionsRegistry = registrationActionsRegistry;
 	}
 
 	@Override
@@ -71,6 +76,10 @@ public class TranslationProfileHandler extends DefaultEntityHandler<TranslationP
 		case OUTPUT:
 			return new OutputTranslationProfile(new String(blob.getContents(), StandardCharsets.UTF_8), 
 					jsonMapper, actionsRegistry);
+		case REGISTRATION:
+			return new RegistrationTranslationProfile(
+					new String(blob.getContents(), StandardCharsets.UTF_8), jsonMapper, 
+					registrationActionsRegistry);
 		}
 		throw new IllegalStateException("The stored translation profile with subtype id " + subType + 
 				" has no implemented class representation");
@@ -131,7 +140,8 @@ public class TranslationProfileHandler extends DefaultEntityHandler<TranslationP
 		ObjectNode root = jsonMapper.createObjectNode();
 		root.put("ver", "2");
 		root.put("name", name);
-		root.set("description", old.get("description"));
+		if (old.has("description"))
+			root.set("description", old.get("description"));
 		ArrayNode jsonRules = root.putArray("rules");
 
 		String idMode = (createUserCond != null) ? IdentityEffectMode.CREATE_OR_MATCH.toString() 

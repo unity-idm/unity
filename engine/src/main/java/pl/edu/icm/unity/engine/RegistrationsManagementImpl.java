@@ -241,12 +241,11 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 						notificationsCfg.getSubmittedTemplate(),
 						params,
 						msg.getDefaultLocaleCode());
-				
-				if (context.tryAutoAccept)
-					entityId = internalManagment.autoProcess(form, requestFull, 
-							"Automatic processing of the request  " + 
-							requestFull.getRequestId() + " invoked, action: {0}", sql);
-			}	
+			}
+			if (context.tryAutoAccept)
+				entityId = internalManagment.autoProcess(form, requestFull, 
+						"Automatic processing of the request  " + 
+						requestFull.getRequestId() + " invoked, action: {0}", sql);
 			
 			return entityId;
 		});
