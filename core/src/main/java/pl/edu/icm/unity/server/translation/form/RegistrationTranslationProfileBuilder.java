@@ -7,13 +7,17 @@ package pl.edu.icm.unity.server.translation.form;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.TypesRegistryBase;
+import pl.edu.icm.unity.server.translation.RegistrationTranslationActionFactory;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.server.translation.form.action.AddAttributeActionFactory;
 import pl.edu.icm.unity.server.translation.form.action.AddAttributeClassActionFactory;
 import pl.edu.icm.unity.server.translation.form.action.AddToGroupActionFactory;
 import pl.edu.icm.unity.server.translation.form.action.AutoProcessActionFactory;
+import pl.edu.icm.unity.server.translation.form.action.RedirectActionFactory;
+import pl.edu.icm.unity.server.translation.form.action.SetEntityStateActionFactory;
+import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
 
@@ -25,10 +29,11 @@ public class RegistrationTranslationProfileBuilder
 {
 	private List<RegistrationTranslationRule> rules = new ArrayList<>();
 	private String name;
-	private TranslationActionsRegistry registry;
+	private TypesRegistryBase<RegistrationTranslationActionFactory> registry;
 	
 
-	public RegistrationTranslationProfileBuilder(TranslationActionsRegistry registry, String name)
+	public RegistrationTranslationProfileBuilder(TypesRegistryBase<RegistrationTranslationActionFactory> registry,
+			String name)
 	{
 		this.registry = registry;
 		this.name = name;
@@ -57,6 +62,18 @@ public class RegistrationTranslationProfileBuilder
 			String group, String acExpression)
 	{
 		return withRule(AddAttributeClassActionFactory.NAME, condition, group, acExpression);
+	}
+	
+	public RegistrationTranslationProfileBuilder withInitialState(String condition, 
+			EntityState state)
+	{
+		return withRule(SetEntityStateActionFactory.NAME, condition, state.toString());
+	}
+
+	public RegistrationTranslationProfileBuilder withRedirect(String condition, 
+			String redirectURL)
+	{
+		return withRule(RedirectActionFactory.NAME, condition, redirectURL);
 	}
 	
 	public RegistrationTranslationProfileBuilder withRule(String ruleName, String condition, 

@@ -4,8 +4,10 @@
  */
 package pl.edu.icm.unity.db.generic.reg;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +18,11 @@ import pl.edu.icm.unity.db.model.GenericObjectBean;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfileBuilder;
+import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.server.utils.I18nStringJsonUtil;
+import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
@@ -31,6 +37,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.Lists;
 
 /**
  * Handler for {@link RegistrationForm}
@@ -209,4 +216,103 @@ public class RegistrationFormHandler extends DefaultEntityHandler<RegistrationFo
 			throw new InternalException("Can't deserialize registration form from JSON", e);
 		}
 	}
+	
+	@Override
+	public byte[] updateBeforeImport(String name, JsonNode node) throws JsonProcessingException
+	{
+		if (node == null)
+			return null;
+		if (node.has("InitialEntityState"))
+			updateFromPreTranslationProfileForm((ObjectNode) node);
+		return jsonMapper.writeValueAsBytes(node);
+	}
+
+	
+	/**
+	 * Set of changes is as follows:
+	 * InitialEntityState -> a rule in translation profile if other then 'valid'
+	 * AutoAcceptCondition -> a rule in translation profile if other then 'false'
+	 * RedirectAfterSubmit -> a rule in translation profile if non empty
+	 * CredentialRequirementAssignment -> changed to default credential assignment
+	 * AttributeAssignments, AttributeClassAssignments, GroupAssignments -> all converted to rules in a translation
+	 * profile.
+	 * @param node
+	 */
+	private void updateFromPreTranslationProfileForm(ObjectNode node)
+	{
+		RegistrationTranslationProfileBuilder pBuilder = new RegistrationTranslationProfileBuilder(
+				translationActionsRegistry, "formProfile");
+		
+		String initialState = node.get("InitialEntityState").asText();
+		if (!EntityState.valid.toString().equals(initialState))
+			pBuilder.withInitialState("true", EntityState.valueOf(initialState));
+		
+		String autoAccept = node.get("AutoAcceptCondition").asText("false");
+		if (!autoAccept.equals("false"))
+			pBuilder.withAutoProcess(autoAccept, AutomaticRequestAction.accept);
+
+		String redirect = node.get("RedirectAfterSubmit").asText("");
+		if (!redirect.isEmpty())
+			pBuilder.withRedirect("true", "'" + redirect + "'");
+
+		String credReq = node.get("CredentialRequirementAssignment").asText();
+		node.put("DefaultCredentialRequirement", credReq);
+		
+		
+		ArrayNode attrAssignements = (ArrayNode) node.get("AttributeAssignments");
+		if (attrAssignements != null)
+		{
+			for (JsonNode aa: attrAssignements)
+			{
+				ArrayNode values = (ArrayNode) aa.get("values");
+				StringJoiner joiner = new StringJoiner("', '", "['", "']");
+				values.forEach(v -> {
+					String decoded;
+					try
+					{
+						decoded = new String(v.binaryValue(), StandardCharsets.UTF_8);
+					} catch (Exception e)
+					{
+						throw new IllegalStateException("Can't decode attr value", e);
+					}
+					joiner.add(decoded);
+				});
+				pBuilder.withAddAttribute("true", 
+						aa.get("name").asText(), 
+						aa.get("groupPath").asText(), 
+						joiner.toString(), 
+						AttributeVisibility.valueOf(aa.get("visibility").asText()));
+			}
+		}
+
+		ArrayNode attrClassAssignements = (ArrayNode) node.get("AttributeClassAssignments");
+		if (attrClassAssignements != null)
+		{
+			for (JsonNode ac: attrClassAssignements)
+				pBuilder.withAttributeClass("true", ac.get("group").asText(), 
+						"'" + ac.get("acName").asText() + "'");
+		}
+
+		ArrayNode groupAssignments = (ArrayNode) node.get("GroupAssignments");
+		if (groupAssignments != null)
+		{
+			for (JsonNode group: groupAssignments)
+				pBuilder.withGroupMembership("true", group.asText());
+		}
+
+		RegistrationTranslationProfile profile = pBuilder.build();
+		if (!profile.getRules().isEmpty())
+			node.set("TranslationProfile", profile.toJsonObject(jsonMapper));
+		
+		node.remove(Lists.newArrayList("InitialEntityState",
+				"AutoAcceptCondition",
+				"RedirectAfterSubmit",
+				"CredentialRequirementAssignment",
+				"AttributeAssignments",
+				"AttributeClassAssignments",
+				"GroupAssignments"));
+	}
 }
+
+
+

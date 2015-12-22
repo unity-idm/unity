@@ -11,7 +11,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfileBuilder;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
@@ -37,14 +37,14 @@ public class RegistrationFormsTestContentsInitializer implements ServerInitializ
 	private RegistrationsManagement regMan;
 	private IdentitiesManagement idsMan;
 	private GroupsManagement groupsMan;
-	private TranslationActionsRegistry registry;
+	private RegistrationTranslationActionsRegistry registry;
 
 
 	@Autowired
 	public RegistrationFormsTestContentsInitializer(@Qualifier("insecure") GroupsManagement groupsMan, 
 			@Qualifier("insecure")RegistrationsManagement regMan,
 			@Qualifier("insecure") IdentitiesManagement idsMan,
-			TranslationActionsRegistry registry)
+			RegistrationTranslationActionsRegistry registry)
 	{
 		this.groupsMan = groupsMan;
 		this.regMan = regMan;
