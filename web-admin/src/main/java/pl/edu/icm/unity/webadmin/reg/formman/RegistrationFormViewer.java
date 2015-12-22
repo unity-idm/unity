@@ -24,7 +24,6 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
 import pl.edu.icm.unity.webadmin.msgtemplate.SimpleMessageTemplateViewer;
-import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileViewer;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
@@ -73,7 +72,7 @@ public class RegistrationFormViewer extends VerticalLayout
 	private ListOfElements<CredentialRegistrationParam> credentialParams;	
 	
 	private Label credentialRequirementAssignment;
-	private TranslationProfileViewer translationProfile;
+	private RegistrationTranslationProfileViewer translationProfile;
 	private SharedEndpointManagement sharedEndpointMan;
 	private TranslationActionsRegistry actionsRegistry;
 	
@@ -301,7 +300,7 @@ public class RegistrationFormViewer extends VerticalLayout
 		credentialRequirementAssignment.setCaption(
 				msg.getMessage("RegistrationFormViewer.credentialRequirementAssignment"));
 
-		translationProfile = new TranslationProfileViewer(msg, actionsRegistry);
+		translationProfile = new RegistrationTranslationProfileViewer(msg, actionsRegistry);
 		
 		main.addComponents(credentialRequirementAssignment);
 		wrapper.addComponent(translationProfile);

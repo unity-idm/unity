@@ -59,6 +59,8 @@ public class ContentsUpdater
 		{
 			log.info(" - Updating group attribute statements");
 			groupsIE.updateGroupStatements(sql);
+			log.info(" - Updating registration forms");
+			updateGeneric(sql);
 		}
 	}
 	

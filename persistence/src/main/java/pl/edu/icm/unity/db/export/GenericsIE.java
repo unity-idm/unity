@@ -54,31 +54,35 @@ public class GenericsIE extends AbstractIE
 		
 		jg.writeStartArray();
 		for (String type: types)
-		{
-			List<GenericObjectBean> generics = dbGeneric.getObjectsOfType(type, sql);
-			
-			for (GenericObjectBean generic: generics)
-			{
-				jg.writeStartObject();
-				jg.writeStringField("type", generic.getType());
-				jg.writeStringField("subType", generic.getSubType());
-				jg.writeStringField("name", generic.getName());
-				jg.writeNumberField("lastUpdate", generic.getLastUpdate().getTime());
-				
-				jg.writeFieldName("contents");
-				byte[] contents = generic.getContents();
-				if (contents != null)
-				{
-					JsonNode node = jsonMapper.readTree(contents);
-					jsonMapper.writeTree(jg, node);
-				} else
-				{
-					jg.writeNull();
-				}
-				jg.writeEndObject();
-			}
-		}
+			serializeType(sql, jg, type);
 		jg.writeEndArray();
+	}
+	
+	private void serializeType(SqlSession sql, JsonGenerator jg, String type) throws JsonGenerationException, 
+		IOException, IllegalTypeException
+	{
+		List<GenericObjectBean> generics = dbGeneric.getObjectsOfType(type, sql);
+		
+		for (GenericObjectBean generic: generics)
+		{
+			jg.writeStartObject();
+			jg.writeStringField("type", generic.getType());
+			jg.writeStringField("subType", generic.getSubType());
+			jg.writeStringField("name", generic.getName());
+			jg.writeNumberField("lastUpdate", generic.getLastUpdate().getTime());
+			
+			jg.writeFieldName("contents");
+			byte[] contents = generic.getContents();
+			if (contents != null)
+			{
+				JsonNode node = jsonMapper.readTree(contents);
+				jsonMapper.writeTree(jg, node);
+			} else
+			{
+				jg.writeNull();
+			}
+			jg.writeEndObject();
+		}
 	}
 	
 	public void deserialize(SqlSession sql, JsonParser input) throws IOException, EngineException

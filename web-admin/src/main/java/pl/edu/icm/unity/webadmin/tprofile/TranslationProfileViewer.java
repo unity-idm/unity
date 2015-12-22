@@ -27,8 +27,8 @@ public class TranslationProfileViewer extends VerticalLayout
 {	
 	private UnityMessageSource msg;
 	private TranslationActionsRegistry registry;
-	private Label name;
-	private Label description;
+	protected Label name;
+	protected Label description;
 	private FormLayout rules;
 	private FormLayout main;
 	
