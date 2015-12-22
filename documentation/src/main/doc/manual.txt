@@ -22,6 +22,8 @@ include::configuration.txt[]
 
 include::contents-management.txt[]
 
+include::registration-forms.txt[]
+
 include::branding.txt[]
 
 include::translation.txt[]

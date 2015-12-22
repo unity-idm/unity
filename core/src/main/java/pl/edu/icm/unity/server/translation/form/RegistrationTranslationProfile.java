@@ -108,7 +108,8 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 		Map<String, Object> mvelCtx = createMvelContext(form, request.getRequest(), 
 				RequestSubmitStatus.submitted, 
 				request.getRegistrationContext().triggeringMode, 
-				request.getRegistrationContext().isOnIdpEndpoint);
+				request.getRegistrationContext().isOnIdpEndpoint,
+				request.getRequestId());
 		return executeFilteredActions(form, request.getRequest(), mvelCtx, null);
 	}
 	
@@ -117,7 +118,8 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 	{
 		Map<String, Object> mvelCtx = createMvelContext(form, request.getRequest(), status, 
 				request.getRegistrationContext().triggeringMode, 
-				request.getRegistrationContext().isOnIdpEndpoint);
+				request.getRegistrationContext().isOnIdpEndpoint,
+				request.getRequestId());
 		TranslatedRegistrationRequest result;
 		try
 		{
@@ -132,10 +134,10 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 	}
 	
 	public String getPostSubmitRedirectURL(RegistrationForm form, RegistrationRequest request,
-			RegistrationContext context)
+			RegistrationContext context, String requestId)
 	{
 		Map<String, Object> mvelCtx = createMvelContext(form, request, RequestSubmitStatus.submitted, 
-				context.triggeringMode, context.isOnIdpEndpoint);
+				context.triggeringMode, context.isOnIdpEndpoint, requestId);
 		TranslatedRegistrationRequest result;
 		try
 		{
@@ -165,27 +167,29 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 	}
 
 	public String getPostConfirmationRedirectURL(RegistrationForm form, RegistrationRequestState request,
-			IdentityParam confirmed)
+			IdentityParam confirmed, String requestId)
 	{
 		return getPostConfirmationRedirectURL(form, request.getRequest(), request.getRegistrationContext(),
+				requestId,
 				ConfirmationRedirectURLBuilder.ConfirmedElementType.identity.toString(), 
 				confirmed.getTypeId(), confirmed.getValue());
 	}
 
 	public String getPostConfirmationRedirectURL(RegistrationForm form, RegistrationRequestState request,
-			Attribute<?> confirmed)
+			Attribute<?> confirmed, String requestId)
 	{
 		return getPostConfirmationRedirectURL(form, request.getRequest(), request.getRegistrationContext(),
+				requestId,
 				ConfirmationRedirectURLBuilder.ConfirmedElementType.attribute.toString(), 
 				confirmed.getName(), confirmed.getValues().get(0).toString());
 	}
 	
 	private String getPostConfirmationRedirectURL(RegistrationForm form, RegistrationRequest request,
-			RegistrationContext regContxt, 
+			RegistrationContext regContxt, String requestId, 
 			String cType, String cName, String cValue)
 	{
 		Map<String, Object> mvelCtx = createMvelContext(form, request, RequestSubmitStatus.submitted, 
-				regContxt.triggeringMode, regContxt.isOnIdpEndpoint);
+				regContxt.triggeringMode, regContxt.isOnIdpEndpoint, requestId);
 		addConfirmationContext(mvelCtx, cType, cName, cValue);
 		TranslatedRegistrationRequest result;
 		try
@@ -282,11 +286,12 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 	
 	@SuppressWarnings("unchecked")
 	public static Map<String, Object> createMvelContext(RegistrationForm form, RegistrationRequest request,
-			RequestSubmitStatus status, TriggeringMode triggered, boolean idpEndpoint)
+			RequestSubmitStatus status, TriggeringMode triggered, boolean idpEndpoint, String requestId)
 	{
 		Map<String, Object> ret = createBaseMvelContext(form, status, triggered, idpEndpoint);
 		
 		ret.put(ContextKey.userLocale.name(), request.getUserLocale());
+		ret.put(ContextKey.requestId.name(), requestId);
 		
 		Map<String, Object> attr = new HashMap<>();
 		Map<String, List<Object>> attrs = new HashMap<>();
@@ -396,6 +401,22 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 		ret.put(ContextKey.onIdpEndpoint.name(), idpEndpoint);
 		ret.put(ContextKey.triggered.name(), triggered.toString());
 		ret.put(ContextKey.status.name(), status.toString());
+		ret.put(ContextKey.registrationForm.name(), form.getName());
+		
+		Map<String, List<String>> empty = new HashMap<>();
+		ret.put(ContextKey.attr.name(), empty);
+		ret.put(ContextKey.attrs.name(), empty);
+		ret.put(ContextKey.rattr.name(), empty);
+		ret.put(ContextKey.rattrs.name(), empty);
+		ret.put(ContextKey.idsByType.name(), empty);
+		ret.put(ContextKey.ridsByType.name(), empty);
+		ret.put(ContextKey.idsByTypeObj.name(), empty);
+		ret.put(ContextKey.ridsByTypeObj.name(), empty);
+		
+		List<String> emptyL = new ArrayList<>();
+		ret.put(ContextKey.groups.name(), emptyL);
+		ret.put(ContextKey.rgroups.name(), emptyL);
+		ret.put(ContextKey.agrs.name(), emptyL);
 		return ret;
 	}
 	

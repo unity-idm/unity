@@ -73,7 +73,7 @@ public class PostRegistrationHandler
 			autoAccepted = false;
 		}
 		RegistrationTranslationProfile translationProfile = form.getTranslationProfile();
-		String redirect = translationProfile.getPostSubmitRedirectURL(form, request, context);
+		String redirect = translationProfile.getPostSubmitRedirectURL(form, request, context, requestId);
 		if (redirect != null)
 		{
 			String finalRedirect = new RegistrationRedirectURLBuilder(redirect, form.getName(), requestId, 

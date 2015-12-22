@@ -543,7 +543,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			IdentityParam identity)
 	{
 		RegistrationTranslationProfile translationProfile = form.getTranslationProfile();
-		return translationProfile.getPostConfirmationRedirectURL(form, requestState, identity);
+		return translationProfile.getPostConfirmationRedirectURL(form, requestState, identity, 
+				requestState.getRequestId());
 	}	
 	
 	private String getFormRedirectUrlForAttribute(RegistrationRequestState requestState, RegistrationForm form,
@@ -554,7 +555,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				&& InvocationContext.getCurrent().getLoginSession() == null)
 			current = InvocationContext.getCurrent().getCurrentURLUsed();
 		RegistrationTranslationProfile translationProfile = form.getTranslationProfile();
-		String configured = translationProfile.getPostConfirmationRedirectURL(form, requestState, attr);
+		String configured = translationProfile.getPostConfirmationRedirectURL(form, requestState, attr,
+				requestState.getRequestId());
 		return configured != null ? configured : current;
 	}
 }

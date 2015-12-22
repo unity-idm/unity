@@ -1,0 +1,199 @@
+[[registration]]
+== Registration forms
+
+Unity allows its administrators to define and deploy so called _registration forms_. A registration
+form can be used in three cases:
+
+. To collect registration information from prospective users. This can be seen as a classic
+registration feature use case. Such forms are called as 'public'.
+. To quickly and conveniently create entities with common characteristics. In this case
+administrator can define what data needs to be entered for the created user and also automate 
+actions which should be performed for newly added users.
+. To collect additional information from users who are authenticated by a remote IdP, so the user can be 
+added to the local database.   
+
+After creation a registration form can be tested and also filled (use case no 2 above) directly from 
+the Admin Web UI. If the form is public it can be associated with any endpoint with the Web (Vaadin) binding.
+Then a link to register a new account will appear on the login screen of the endpoint. Additionally all public
+forms get its own public address which can be used to directly launch a form. This address is constructed
+from the form name and can be seen in the form viewer after selecting an existing form in the AdminUI 
+(Registrations management -> Registration forms). 
+
+Finally a form can be associated with a remote authenticator as a "handler" for unknown users who were 
+correctly authenticated remotely. For this last case typically the form should not be public. It is also
+crucial to configure the input translation profile of the authenticator so it _does not_ create a local user 
+automatically. Otherwise the configured form won't be ever launched as the local user will be always present 
+after translation profile execution. 
+
+An example of registration form creation:
+
+image::./figures/regFormMan.png[alt="Definition of registration form in Unity",align="center",scaledwidth="50%"]
+
+A simple registration form in action:
+
+image::./figures/regFormFill1.png[alt="Filling of a registration form in Unity",align="center",scaledwidth="50%"]
+
+Note that the above screenshot is showing the form as activated from the Web Admin UI; the form 
+launched other way will not allow for automatic acceptance.
+
+
+=== Defining a registration form
+
+The form definition consists of three parts:
+
+. General settings as name, notifications configuration and decision whether the form is publicly available.
+. Collected information settings, which define what needs to be provided to the form. This information
+is usually collected interactively by filling a web form, but some data can be also collected from a
+remote IdP. This latter option is possible only if a form is used for unknown remote users.
+. Settings which are automatically assigned for each user whose registration request is accepted.
+For instance this feature may be used to add all users to a specified group.    
+
+The most important are the settings of the 2nd point, i.e. the data collected about the user. Each
+of the identities, group memberships and attributes can be collected in different modes. Some of the modes
+are only relevant for a case when a registration form is presented to an unknown user who 
+was authenticated by a remote IdP. The modes are as follows:
+
+Collected interactively:: A user interface component is displayed to collect the information from a user.
+Provided by remote IdP only and is shown in the form:: The information must be provided by a remote IdP.
+It is then shown to a user in the form, but can not be edited.
+Provided by remote IdP only and is hidden in the form:: As above but the information is 
+not shown on the form filling screen. 
+Can be provided by remote IdP; if not then collected interactively:: In this mode the user can fill the data 
+only if it was not provided by a remote IdP.
+Can be provided by remote IdP and is editable:: The field is always editable, but if a remote IdP provided a value 
+then it is used as a default.
+
+Additionally all pieces of collected information can be made optional. The other types of collected information:
+agreements and credentials can be only collected interactively, therefore there is no mode selection in their case. 
+
+=== Processing a registration request
+
+A submitted request is visible in AdminUI and can be accepted, denied or removed there. Depending on form's 
+configuration notifications are sent upon form arrival and processing.
+
+When a request is accepted all the settings which were requested are applied: a new entity is created with
+specified identities, attributes and group memberships. Administrator can manually disable some of the attributes
+and group membership individually.
+
+What is more, and is a big advantage of Unity, is a possibility to automate requests processing in a very flexible way.
+This automation is described in the subsequent section. 
+
+=== Registration request processing automation
+
+Each registration form can have a translation profile attached to it. The registration translation profile 
+is built using the same approach as the input and output translation profiles: i.e. 
+it consists of a list of rules, where each rule has a MVEL condition and an action taken when the condition is true.
+
+Registration profile is executed primarily when the request is submitted. There are however some rules which are
+consulted also in other corner cases (see below). Upon submission the the profile can perform couple of actions:
+
+. it can remove some of the data requested/provided by the requester (e.g. remove an attribute assigned in a group
+'/staff' if the user didn't request membership in this group). 
+. it can add additional data (e.g. it can add an identity of email type with the same value as the email attribute
+which was entered by the requester)
+. it can configure initial settings of the entity
+. finally it can (conditionally) automatically accept, deny or even drop the request.
+
+ 
+MVEL expression context available in all conditions and value expressions contains the following elements. Note 
+that many of the variables come in a variant prefixed with the +r+ letter. Those variants contain only the 
+elements which were collected automatically, i.e. usually were provided the the registration form by a remote IdP.
+ 
+. +(r)attr+ Map indexed with attribute names. Value of each entry is a single value of the attribute. If the attribute
+is multi-valued then the first value is returned. If the attribute has no value then empty string is returned.
+. +(r)attrs+ Map indexed with attribute names. Value of each entry is a list of the attribute values.
+. +(r)idsByType+ Map of identity values indexed by type.   
+. +(r)idsByTypeObj+ Map of identity objects indexed by type. This map is harder to use then +idsByType+ 
+(which holds strings) but offers access to full information stored in identity as its confirmation state.
+. +(r)groups+ List of selected groups. 
+. +agrs+ List of agreements. Each agreement is boolean type.
+. +triggered+ Tells how the registration was started. Available values are: +manualAtLogin+, 
++manualStandalone+, +manualAdmin+, +afterRemoteLogin+. 
+. +onIdpEndpoint+ If is +true+ then the registration was invoked in the middle of authentication where
+Unity is being used by some service as its remote IdP. Especially useful in case of redirect action. 
+. +userLocale+ Contains the user's locale.
+. +registrationForm+ Name of the registration form (so it can be set in some attribute)
+. +requestId+ Id of the registration request (so it can be set in some attribute)
+
+==== Automatic processing
+
+The rules which contain the +autoProcess+ action are used to automatically accept, deny or drop the request.
+Such rules behave in the same way as all regular rules, with one exception. Namely, those rules are consulted
+not only after the request is submitted, but also after each confirmation of request elements 
+(such as email identity confirmation). Therefore it is possible to automatically accept a request only after 
+its email identity is confirmed.  
+
+==== Redirection
+
+Redirection is useful when a custom web page should be presented to a user who was filling 
+a registration form. What is more the redirect URL can contain custom parameters so that custom actions
+can be invoked when a web browser enters the address. This is useful especially in many
+integration scenarios when registration is launched in a part of bigger process. 
+
+The easiest way to check the resulting redirection URL is to play with filling a form directly from the AdminUI. 
+In such case redirection is not performed but a notification message is presented with a full redirection URL included. 
+
+The redirection can be triggered in three different cases, and this is fundamental difference to other actions:
+
+. When a form was filled, but was cancelled or submission finished with an error (the +redirect+ action).
+. When a form was submitted (this is the regular case, the +redirect+ action)
+. When an attribute or identity from the form request is verified (think about confirmed email), 
+with the +confirmationRedirect+ action.
+
+If one want to trigger redirect only in some special cases (e.g. only when a request was being filled
+but cancelled) there is one special variable: +status+. It contains one of the values: +submitted+ or +notSubmitted+, 
+which allows to make the decision.
+
+Finally it must be noted that in the case of not submitted requests all the variables which are related 
+to the request contents are empty - even if the request was partially filled before cancellation. 
+
+The automatically added query parameters are:
+
+. +status+ one of +submitted+, +submittedAccepted+ (if auto accept condition triggered request acceptance), 
++submittedWithError+, +cancelled+, +elementConfirmed+, +elementConfirmationError+. 
+The last two are used after confirming elements as email of the form.
+. +error_code+ more detailed information about error in case of error status
+. +form_id+ identifier of the form, may be missing in rare cases
+. +request_id+ request identifier, may be missing in rare cases
+. +confirmed_element_type+ one of +identity+ or +attribute+
+. +confirmed_element_name+ 
+. +confirmed_element_value+
+
+
+
+
+==== Example conditions
+
+The full MVEL documentation can be found here 
+https://en.wikisource.org/wiki/MVEL_Language_Guide
+
+
+Example conditions:
+
+Checks if request has an +email+ attribute set (useful if this attribute is collected as optional).
+------
+attrs["email"][0] != null
+------
+
+The same as above but the emial attribute must come from a remote IdP, i.e. must be collected by 
+the form in an automatic mode.
+------
+rattrs["email"][0] != null
+------
+
+Checks if request contains identity of x500Name type.
+------
+idsByType["x500Name"] != null
+------
+
+Checks if request's first agreement was accepted. 
+------
+agrs[0] == true
+------
+
+Checks if the first email type identity is confirmed. 
+------
+idsByTypeObj["email"][0].confirmed == true
+------
+
+

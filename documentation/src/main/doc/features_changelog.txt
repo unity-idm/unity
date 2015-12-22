@@ -10,7 +10,7 @@
 |Identities, entities	| icon:check[role="green"]		|
 |Groups					| icon:check[role="green"]		|
 |Attribute statements	| icon:check[role="green"]		|
-|Attribute classes		| icon:check[role="green"]		| Updates are not yet implemented
+|Attribute classes		| icon:check[role="green"]		|
 |Credentials			| icon:check[role="green"]		|
 |Credential requirements| icon:check[role="green"]		|
 |Upstream IdPs framework| icon:check[role="green"]		|
@@ -40,8 +40,8 @@
 |SAML 2, SOAP binding			| icon:check[role="green"]		| 
 |SAML 2, PAOS binding (for ECP) | icon:check[role="green"]		| 
 |Web admin interface			| icon:check[role="green"]		|
-|REST admin interface			| icon:check[role="green"]		| Base part, read-only, is available, will be extended in future
-|Web user profile management	| icon:check[role="green"]		| Available however more functionality is required
+|REST admin interface			| icon:check[role="green"]		| 
+|Web user profile management	| icon:check[role="green"]		| 
 |SAML 2, Web binding + UNICORE profile | icon:check[role="green"]	|
 |SAML 2, SOAP binding + UNICORE profile	| icon:check[role="green"]	|
 |OpenID Connect					| icon:check[role="green"]		| 
