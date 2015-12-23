@@ -36,4 +36,14 @@
 	<bean class="pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider"/>
 	
 	<bean class="pl.edu.icm.unity.stdext.translation.out.CreateAttributeActionFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.translation.out.CreatePersistentAttributeActionFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.translation.out.CreateIdentityActionFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.translation.out.CreatePersistentIdentityActionFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.translation.out.FilterAttributeActionFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.translation.out.UnFilterAttributeActionFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.translation.out.FilterIdentityActionFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.translation.out.FilterAttributeValuesActionFactory"/>
+	<bean class="pl.edu.icm.unity.stdext.translation.out.FailAuthnActionFactory"/>
+	
+	
 </beans>

@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.server.translation;
+package pl.edu.icm.unity.server.translation.in.action;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -16,6 +16,8 @@ import java.util.Map;
 import org.junit.Test;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.MockAttributeSyntax;
+import pl.edu.icm.unity.server.MockIdentity;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
@@ -30,15 +32,6 @@ import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.translation.in.MappedGroup;
 import pl.edu.icm.unity.server.translation.in.MappedIdentity;
 import pl.edu.icm.unity.server.translation.in.MappingResult;
-import pl.edu.icm.unity.server.translation.in.action.EntityChangeActionFactory;
-import pl.edu.icm.unity.server.translation.in.action.MapAttributeActionFactory;
-import pl.edu.icm.unity.server.translation.in.action.MapGroupActionFactory;
-import pl.edu.icm.unity.server.translation.in.action.MapIdentityActionFactory;
-import pl.edu.icm.unity.server.translation.in.action.MultiMapAttributeActionFactory;
-import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
-import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
-import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
-import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -52,7 +45,7 @@ public class TestInputMapActions
 		AttributesManagement attrsMan = mock(AttributesManagement.class);
 		
 		Map<String, AttributeType> mockAts = new HashMap<String, AttributeType>();
-		AttributeType sA = new AttributeType("stringA", new StringAttributeSyntax());
+		AttributeType sA = new AttributeType("stringA", new MockAttributeSyntax());
 		mockAts.put(sA.getName(), sA);
 		when(attrsMan.getAttributeTypesAsMap()).thenReturn(mockAts);
 		
@@ -80,7 +73,7 @@ public class TestInputMapActions
 		AttributesManagement attrsMan = mock(AttributesManagement.class);
 		
 		Map<String, AttributeType> mockAts = new HashMap<String, AttributeType>();
-		AttributeType sA = new AttributeType("stringA", new StringAttributeSyntax());
+		AttributeType sA = new AttributeType("stringA", new MockAttributeSyntax());
 		mockAts.put(sA.getName(), sA);
 		when(attrsMan.getAttributeTypesAsMap()).thenReturn(mockAts);
 		
@@ -109,65 +102,6 @@ public class TestInputMapActions
 		assertEquals("a2", b.getValues().get(0));
 	}
 
-	
-	@Test
-	public void intAttributeMappingWorks() throws EngineException
-	{
-		AttributesManagement attrsMan = mock(AttributesManagement.class);
-		
-		Map<String, AttributeType> mockAts = new HashMap<String, AttributeType>();
-		AttributeType iA = new AttributeType("intA", new IntegerAttributeSyntax());
-		mockAts.put(iA.getName(), iA);
-		when(attrsMan.getAttributeTypesAsMap()).thenReturn(mockAts);
-		
-		MapAttributeActionFactory factory = new MapAttributeActionFactory(attrsMan);
-		
-		InputTranslationAction intMapAction = factory.getInstance("intA", "/A/B", 
-				"123", 
-				AttributeVisibility.full.toString(), 
-				AttributeEffectMode.CREATE_OR_UPDATE.toString());
-				
-		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
-		input.addIdentity(new RemoteIdentity("idd", "i1"));
-		
-		MappingResult result = intMapAction.invoke(input, 
-				InputTranslationProfile.createMvelContext(input), "testProf");
-		
-		Attribute<?> a = result.getAttributes().get(0).getAttribute();
-		assertEquals("intA", a.getName());
-		((IntegerAttributeSyntax)a.getAttributeSyntax()).validate((Long) a.getValues().get(0));
-		assertEquals(123l, a.getValues().get(0));
-	}
-
-	@Test
-	public void doubleAttributeMappingWorks() throws EngineException
-	{
-		AttributesManagement attrsMan = mock(AttributesManagement.class);
-		
-		Map<String, AttributeType> mockAts = new HashMap<String, AttributeType>();
-		AttributeType doubleA = new AttributeType("doubleA", new FloatingPointAttributeSyntax());
-		mockAts.put(doubleA.getName(), doubleA);
-		when(attrsMan.getAttributeTypesAsMap()).thenReturn(mockAts);
-		
-		MapAttributeActionFactory factory = new MapAttributeActionFactory(attrsMan);
-		
-		InputTranslationAction doubleMapAction = factory.getInstance("doubleA", "/A/B", 
-				"1234.44", 
-				AttributeVisibility.full.toString(), 
-				AttributeEffectMode.CREATE_OR_UPDATE.toString());
-				
-		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
-		input.addIdentity(new RemoteIdentity("idd", "i1"));
-		
-		MappingResult result = doubleMapAction.invoke(input, 
-				InputTranslationProfile.createMvelContext(input), "testProf");
-		
-		Attribute<?> a = result.getAttributes().get(0).getAttribute();
-		assertEquals("doubleA", a.getName());
-		((FloatingPointAttributeSyntax)a.getAttributeSyntax()).validate((Double) a.getValues().get(0));
-		assertEquals(1234.44, a.getValues().get(0));
-	}
-
 
 	@Test
 	public void testMapGroup() throws EngineException
@@ -190,7 +124,7 @@ public class TestInputMapActions
 	public void testMapIdentity() throws EngineException
 	{
 		IdentityTypesRegistry idTypesReg = mock(IdentityTypesRegistry.class);
-		when(idTypesReg.getByName("userName")).thenReturn(new UsernameIdentity());
+		when(idTypesReg.getByName("userName")).thenReturn(new MockIdentity());
 		
 		MapIdentityActionFactory factory = new MapIdentityActionFactory(idTypesReg);
 		InputTranslationAction mapAction = factory.getInstance("userName", 
@@ -206,7 +140,7 @@ public class TestInputMapActions
 		MappedIdentity mi = result.getIdentities().get(0);
 		assertEquals("CR", mi.getCredentialRequirement());
 		assertEquals(IdentityEffectMode.REQUIRE_MATCH, mi.getMode());
-		assertEquals("userName", mi.getIdentity().getTypeId());
+		assertEquals("mockId", mi.getIdentity().getTypeId());
 		assertEquals("a1-a2-idvalue", mi.getIdentity().getValue());
 	}
 	

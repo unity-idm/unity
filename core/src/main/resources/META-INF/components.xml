@@ -52,15 +52,6 @@
 	<bean class="pl.edu.icm.unity.server.translation.in.action.EntityChangeActionFactory"/>
 	<bean class="pl.edu.icm.unity.server.translation.in.action.RemoveStaleDataActionFactory"/>
 	
-	<bean class="pl.edu.icm.unity.server.translation.out.action.CreatePersistentAttributeActionFactory"/>
-	<bean class="pl.edu.icm.unity.server.translation.out.action.CreateIdentityActionFactory"/>
-	<bean class="pl.edu.icm.unity.server.translation.out.action.CreatePersistentIdentityActionFactory"/>
-	<bean class="pl.edu.icm.unity.server.translation.out.action.FilterAttributeActionFactory"/>
-	<bean class="pl.edu.icm.unity.server.translation.out.action.UnFilterAttributeActionFactory"/>
-	<bean class="pl.edu.icm.unity.server.translation.out.action.FilterIdentityActionFactory"/>
-	<bean class="pl.edu.icm.unity.server.translation.out.action.FilterAttributeValuesActionFactory"/>
-	<bean class="pl.edu.icm.unity.server.translation.out.action.FailAuthnActionFactory"/>
-	
 	<bean class="pl.edu.icm.unity.server.translation.form.action.AddIdentityActionFactory"/>
 	<bean class="pl.edu.icm.unity.server.translation.form.action.AddAttributeActionFactory"/>
 	<bean class="pl.edu.icm.unity.server.translation.form.action.AddAttributeClassActionFactory"/>

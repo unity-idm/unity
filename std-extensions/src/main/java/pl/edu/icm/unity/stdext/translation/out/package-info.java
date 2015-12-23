@@ -7,7 +7,7 @@
  */
 
 /**
- * Some of the output translation actions which require types from this module.
+ * Actions for the output translation profile. Not in the core module as depend on some types from this package
  * @author K. Benedyczak
  */
 package pl.edu.icm.unity.stdext.translation.out;

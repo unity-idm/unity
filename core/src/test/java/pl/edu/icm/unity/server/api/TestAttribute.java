@@ -8,9 +8,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import static org.junit.Assert.*;
+
 import org.junit.Test;
 
-
+import pl.edu.icm.unity.server.MockAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
