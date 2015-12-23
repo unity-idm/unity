@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
-import pl.edu.icm.unity.server.translation.TranslationAction;
 import pl.edu.icm.unity.server.translation.TranslationActionDescription;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.server.utils.Log;
 
@@ -42,7 +42,7 @@ public class AddAttributeClassActionFactory extends AbstractTranslationActionFac
 	}
 
 	@Override
-	public TranslationAction getInstance(String... parameters)
+	public RegistrationTranslationAction getInstance(String... parameters)
 	{
 		return new AddAttributeClassAction(this, parameters);
 	}

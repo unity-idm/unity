@@ -20,8 +20,8 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.internal.AttributesInternalProcessing;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
-import pl.edu.icm.unity.server.translation.TranslationAction;
 import pl.edu.icm.unity.server.translation.TranslationActionDescription;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -65,7 +65,7 @@ public class AddAttributeActionFactory extends AbstractTranslationActionFactory
 	}
 
 	@Override
-	public TranslationAction getInstance(String... parameters)
+	public RegistrationTranslationAction getInstance(String... parameters)
 	{
 		return new AddAttributeAction(this, parameters, attrsMan);
 	}
