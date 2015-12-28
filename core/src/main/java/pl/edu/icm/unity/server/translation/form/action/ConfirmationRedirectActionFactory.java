@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
-import pl.edu.icm.unity.server.translation.TranslationAction;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
 
 
 /**
@@ -34,7 +34,7 @@ public class ConfirmationRedirectActionFactory extends AbstractTranslationAction
 	}
 
 	@Override
-	public TranslationAction getInstance(String... parameters)
+	public RegistrationTranslationAction getInstance(String... parameters)
 	{
 		return new RedirectActionFactory.RedirectAction(this, parameters);
 	}
