@@ -7,10 +7,13 @@ package pl.edu.icm.unity.oauth.as.token;
 import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
+import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
@@ -52,6 +55,11 @@ public class OAuthTokenEndpointFactory implements EndpointFactory
 	private NetworkServer server;
 	@Autowired
 	private TransactionalRunner tx;
+	@Autowired
+	@Qualifier("insecure")
+	private AttributesManagement attributesMan;
+	@Autowired
+	private IdentitiesManagement identitiesMan;
 	
 	@Override
 	public EndpointTypeDescription getDescription()
@@ -63,7 +71,7 @@ public class OAuthTokenEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new OAuthTokenEndpoint(msg, sessionMan, server, PATH, tokensMan, pkiMan, coordinator, 
-				authnProcessor, tx);
+				authnProcessor, identitiesMan, attributesMan, tx);
 	}
 
 }

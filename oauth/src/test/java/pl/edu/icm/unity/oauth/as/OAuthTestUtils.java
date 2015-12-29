@@ -127,11 +127,16 @@ public class OAuthTestUtils
 		groupsMan.addMemberFromParent("/oauth-clients", e1);
 		
 		attrsMan.setAttribute(e1, new EnumAttribute(OAuthSystemAttributesProvider.ALLOWED_FLOWS, 
-				"/oauth-clients", AttributeVisibility.local, GrantFlow.authorizationCode.name()), 
+				"/oauth-clients", AttributeVisibility.local, 
+				Lists.newArrayList(GrantFlow.authorizationCode.name(),
+						GrantFlow.client.name())), 
 				false);
 		attrsMan.setAttribute(e1, new StringAttribute(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI, 
 				"/oauth-clients", AttributeVisibility.local, "https://dummy-return.net"), false);
-
+		
+		attrsMan.setAttribute(e1, new StringAttribute(OAuthSystemAttributesProvider.CLIENT_NAME, 
+				"/oauth-clients", AttributeVisibility.local, "clientName"), false);
+		
 		attrsMan.setAttribute(e1, new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE, 
 				"/", AttributeVisibility.local, "Regular User"), false);
 		return clientId;

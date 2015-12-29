@@ -5,10 +5,14 @@
 package pl.edu.icm.unity.oauth.as;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,6 +38,8 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationCodeGrant;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
+import com.nimbusds.oauth2.sdk.ClientCredentialsGrant;
+import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.TokenRequest;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
@@ -161,5 +167,34 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 		Assert.assertEquals("PL", claimSet.getClaim("c"));
 		Assert.assertEquals("example@example.com", claimSet.getClaim("email"));
 		Assert.assertEquals("userA", claimSet.getClaim("sub"));
+	}
+	
+	@Test
+	public void testClientCredentialFlow() throws Exception
+	{
+		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"), new Secret("clientPass"));
+		TokenRequest request = new TokenRequest(new URI("https://localhost:52443/oauth/token"), ca, 
+				new ClientCredentialsGrant(), new Scope("foo"));
+		HTTPRequest bare = request.toHTTPRequest();
+		HTTPRequest wrapped = new CustomHTTPSRequest(bare, pkiMan.getValidator("MAIN"), 
+				ServerHostnameCheckingMode.NONE);
+		
+		HTTPResponse resp2 = wrapped.send();
+
+		AccessTokenResponse parsedResp = AccessTokenResponse.parse(resp2);
+		
+		UserInfoRequest uiRequest = new UserInfoRequest(new URI("https://localhost:52443/oauth/tokeninfo"), 
+				(BearerAccessToken) parsedResp.getAccessToken());
+		HTTPRequest bare2 = uiRequest.toHTTPRequest();
+		HTTPRequest wrapped2 = new CustomHTTPSRequest(bare2, pkiMan.getValidator("MAIN"), 
+				ServerHostnameCheckingMode.NONE);
+		HTTPResponse httpResponse = wrapped2.send();
+		
+		JSONObject parsed = httpResponse.getContentAsJSONObject();
+		System.out.println(parsed);
+		assertEquals("client1", parsed.get("sub"));
+		assertEquals("client1", parsed.get("client_id"));
+		assertEquals("foo", ((JSONArray)parsed.get("scope")).get(0));
+		assertNotNull(parsed.get("exp"));
 	}
 }

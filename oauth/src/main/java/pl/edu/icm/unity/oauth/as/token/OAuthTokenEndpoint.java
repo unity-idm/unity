@@ -12,7 +12,10 @@ import javax.ws.rs.core.Application;
 
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
+import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
 import pl.edu.icm.unity.rest.RESTEndpoint;
+import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
@@ -38,17 +41,27 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	private OAuthASProperties config;
 	private OAuthEndpointsCoordinator coordinator;
 	private TransactionalRunner tx;
+	/**
+	 *  WARNING - this is an insecure instance!
+	 */
+	private AttributesManagement attributesMan;
+	private IdentitiesManagement identitiesMan;
+	
 	
 	public OAuthTokenEndpoint(UnityMessageSource msg, SessionManagement sessionMan,
 			NetworkServer server, String servletPath, TokensManagement tokensMan,
 			PKIManagement pkiManagement, OAuthEndpointsCoordinator coordinator, 
-			AuthenticationProcessor authnProcessor, TransactionalRunner tx)
+			AuthenticationProcessor authnProcessor, IdentitiesManagement identitiesMan,
+			AttributesManagement attributesMan, TransactionalRunner tx)
 	{
 		super(msg, sessionMan, authnProcessor, server, servletPath);
 		this.tokensManagement = tokensMan;
 		this.pkiManagement = pkiManagement;
 		this.coordinator = coordinator;
+		this.identitiesMan = identitiesMan;
+		this.attributesMan = attributesMan;
 		this.tx = tx;
+		
 	}
 	
 	@Override
@@ -75,7 +88,8 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		public Set<Object> getSingletons() 
 		{
 			HashSet<Object> ret = new HashSet<>();
-			ret.add(new AccessTokenResource(tokensManagement, config, tx));
+			ret.add(new AccessTokenResource(tokensManagement, config, 
+					new OAuthRequestValidator(config, identitiesMan, attributesMan), tx));
 			ret.add(new DiscoveryResource(config, coordinator));
 			ret.add(new KeysResource(config));
 			ret.add(new TokenInfoResource(tokensManagement));

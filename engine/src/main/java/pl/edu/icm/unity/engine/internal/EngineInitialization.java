@@ -499,6 +499,10 @@ public class EngineInitialization extends LifecycleBase
 						{
 							log.info("Adding a system attribute type: " + at.getName());
 							dbAttributes.addAttributeType(at, sql);
+						} else if (attrTypesProvider.requiresUpdate(at))
+						{
+							log.info("Updating a system attribute type: " + at.getName());
+							dbAttributes.updateAttributeType(at, sql);
 						}
 					}
 			});

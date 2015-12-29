@@ -9,10 +9,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.ServletException;
@@ -28,6 +27,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
+import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
@@ -83,6 +83,7 @@ public class OAuthParseServlet extends HttpServlet
 	protected ErrorHandler errorHandler;
 	protected IdentitiesManagement identitiesMan;
 	protected AttributesManagement attributesMan;
+	protected OAuthRequestValidator requestValidator;
 	
 	public OAuthParseServlet(OAuthASProperties oauthConfig, String endpointAddress,
 			String oauthUiServletPath, ErrorHandler errorHandler, IdentitiesManagement identitiesMan,
@@ -95,6 +96,7 @@ public class OAuthParseServlet extends HttpServlet
 		this.errorHandler = errorHandler;
 		this.identitiesMan = identitiesMan;
 		this.attributesMan = attributesMan;
+		this.requestValidator = new OAuthRequestValidator(oauthConfig, identitiesMan, attributesMan);
 	}
 
 	/**
@@ -216,53 +218,27 @@ public class OAuthParseServlet extends HttpServlet
 		AuthorizationRequest authzRequest = context.getRequest();
 		String client = authzRequest.getClientID().getValue();
 		EntityParam clientEntity = new EntityParam(new IdentityTaV(UsernameIdentity.ID, client)); 
-		Collection<String> groups;
 		try
 		{
 			Entity clientResolvedEntity = identitiesMan.getEntity(clientEntity);
 			context.setClientEntityId(clientResolvedEntity.getId());
-			groups = identitiesMan.getGroups(clientEntity).keySet();
 		} catch (IllegalIdentityValueException e)
 		{
 			throw new OAuthValidationException("The client '" + client + "' is unknown");
 		} catch (EngineException e)
 		{
-			log.error("Problem retrieving groups of the OAuth client", e);
+			log.error("Problem retrieving identity of the OAuth client", e);
 			throw new OAuthValidationException("Internal error, can not retrieve OAuth client's data");
 		}
+
+		requestValidator.validateGroupMembership(clientEntity, client);
+		Map<String, AttributeExt<?>> attributes = requestValidator.getAttributes(clientEntity);
 		
-		String oauthGroup = oauthConfig.getValue(OAuthASProperties.CLIENTS_GROUP);
-		if (!groups.contains(oauthGroup))
-			throw new OAuthValidationException("The '" + client + "' is not authorized as OAuth client "
-					+ "(not in the clients group)");
-		
-		Collection<AttributeExt<?>> attrs;
-		try
-		{
-			attrs = attributesMan.getAllAttributes(clientEntity, true, oauthGroup, null, false);
-		} catch (EngineException e)
-		{
-			log.error("Problem retrieving attributes of the OAuth client", e);
-			throw new OAuthValidationException("Internal error, can not retrieve OAuth client's data");
-		}
-		AttributeExt<?> allowedUrisA = null;
-		AttributeExt<?> allowedFlowsA = null;
-		AttributeExt<?> nameA = null;
-		AttributeExt<?> logoA = null;
-		AttributeExt<?> groupA = null;
-		for (AttributeExt<?> attr: attrs)
-		{
-			if (attr.getName().equals(OAuthSystemAttributesProvider.ALLOWED_FLOWS))
-				allowedFlowsA = attr;
-			else if (attr.getName().equals(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI))
-				allowedUrisA = attr;
-			else if (attr.getName().equals(OAuthSystemAttributesProvider.CLIENT_LOGO))
-				logoA = attr;
-			else if (attr.getName().equals(OAuthSystemAttributesProvider.CLIENT_NAME))
-				nameA = attr;
-			else if (attr.getName().equals(OAuthSystemAttributesProvider.PER_CLIENT_GROUP))
-				groupA = attr;
-		}
+		AttributeExt<?> allowedUrisA = attributes.get(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI);
+		AttributeExt<?> nameA = attributes.get(OAuthSystemAttributesProvider.CLIENT_NAME);
+		AttributeExt<?> logoA = attributes.get(OAuthSystemAttributesProvider.CLIENT_LOGO);
+		AttributeExt<?> groupA = attributes.get(OAuthSystemAttributesProvider.PER_CLIENT_GROUP);
+
 		if (allowedUrisA == null || allowedUrisA.getValues().isEmpty())
 			throw new OAuthValidationException("The '" + client + 
 					"' has no authorized redirect URI(s) defined");
@@ -270,15 +246,7 @@ public class OAuthParseServlet extends HttpServlet
 		for (Object val: allowedUrisA.getValues())
 			allowedUris.add(val.toString());
 		
-		Set<GrantFlow> allowedFlows = new HashSet<>();
-		if (allowedFlowsA == null)
-		{
-			allowedFlows.add(GrantFlow.authorizationCode);
-		} else
-		{
-			for (Object val: allowedFlowsA.getValues())
-				allowedFlows.add(GrantFlow.valueOf(val.toString()));
-		}
+		Set<GrantFlow> allowedFlows = requestValidator.getAllowedFlows(attributes);
 		
 		validateFlowAndMode(authzRequest, allowedFlows, client, context);
 		
@@ -318,23 +286,9 @@ public class OAuthParseServlet extends HttpServlet
 		
 		context.setTranslationProfile(oauthConfig.getValue(OAuthASProperties.TRANSLATION_PROFILE));
 		
-		Set<String> scopeKeys = oauthConfig.getStructuredListKeys(OAuthASProperties.SCOPES);
 		Scope requestedScopes = authzRequest.getScope();
-		if (requestedScopes != null)
-		{
-			for (String scopeKey: scopeKeys)
-			{
-				String scope = oauthConfig.getValue(scopeKey+OAuthASProperties.SCOPE_NAME);
-
-				if (requestedScopes.contains(scope))
-				{
-					String desc = oauthConfig.getValue(scopeKey+OAuthASProperties.SCOPE_DESCRIPTION);
-					List<String> attributes = oauthConfig.getListOfValues(
-							scopeKey+OAuthASProperties.SCOPE_ATTRIBUTES);
-					context.addScopeInfo(new ScopeInfo(scope, desc, attributes));
-				}
-			}
-		}
+		List<ScopeInfo> validRequestedScopes = requestValidator.getValidRequestedScopes(requestedScopes);
+		validRequestedScopes.forEach(si -> context.addScopeInfo(si));
 	}
 
 	/**

@@ -100,4 +100,10 @@ public class SystemAttributeTypes implements SystemAttributesProvider
 	{
 		return systemAttributes;
 	}
+
+	@Override
+	public boolean requiresUpdate(AttributeType at)
+	{
+		return false;
+	}
 }

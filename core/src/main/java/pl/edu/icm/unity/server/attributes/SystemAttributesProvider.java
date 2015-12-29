@@ -15,5 +15,14 @@ import pl.edu.icm.unity.types.basic.AttributeType;
  */
 public interface SystemAttributesProvider
 {
+	/**
+	 * @return a list of attribute types of this provider 
+	 */
 	List<AttributeType> getSystemAttributes();
+	
+	/**
+	 * @param at existing attribute type
+	 * @return true if the type should be updated
+	 */
+	boolean requiresUpdate(AttributeType at);
 }

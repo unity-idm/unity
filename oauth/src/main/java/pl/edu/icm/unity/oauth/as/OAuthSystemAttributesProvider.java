@@ -36,7 +36,7 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 	public static final String CLIENT_NAME = "sys:oauth:clientName";
 	public static final String CLIENT_LOGO = "sys:oauth:clientLogo";
 	
-	public enum GrantFlow {authorizationCode, implicit, openidHybrid};
+	public enum GrantFlow {authorizationCode, implicit, openidHybrid, client};
 	
 	private UnityMessageSource msg;
 	
@@ -123,5 +123,16 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 	public List<AttributeType> getSystemAttributes()
 	{
 		return oauthAttributes;
+	}
+
+	@Override
+	public boolean requiresUpdate(AttributeType at)
+	{
+		if (at.getName().equals(ALLOWED_FLOWS))
+		{
+			EnumAttributeSyntax valueType = (EnumAttributeSyntax) at.getValueType();
+			return !valueType.getAllowed().contains(GrantFlow.client.toString());
+		}
+		return false;
 	}
 }

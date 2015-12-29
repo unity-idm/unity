@@ -107,8 +107,11 @@ public class TokenInfoResource extends BaseOAuthResource
 		ret.put(SUBJECT, subject);
 		ret.put(CLIENT, clientId);
 		ret.put(EXPIRATION, DateUtils.toSecondsSinceEpoch(expiration));
-		List<String> scopesAsList = Lists.newArrayList(scopes);
-		ret.put(SCOPE, scopesAsList);
+		if (scopes != null)
+		{
+			List<String> scopesAsList = Lists.newArrayList(scopes);
+			ret.put(SCOPE, scopesAsList);
+		}
 		return ret;
 	}
 }

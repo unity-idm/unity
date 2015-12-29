@@ -11,7 +11,7 @@ Exposed paths:: +/token+, +/userinfo+, +/jwk+, +/tokeninfo+, +.well-known/openid
 
 
 The OAuth 2 endpoints expose a functionality of a generic Authorization Server with a support for the OpenID
-Connect specification. The _code_, _implicit_ and _hybrid_ flows are supported.    
+Connect specification. The _code_, _implicit_, _client credentials_ and _hybrid_ flows are supported.    
 
 The functionality is provided by two Unity endpoints, which shouldn't be mixed with endpoints in OAuth sense 
 which are equivalent to particular paths exposed by Unity endpoints. The first Unity endpoint, +OAuth2Authz+,

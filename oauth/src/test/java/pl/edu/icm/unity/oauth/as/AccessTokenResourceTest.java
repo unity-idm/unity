@@ -54,14 +54,16 @@ public class AccessTokenResourceTest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
-		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, tx);
+		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, tx);
 		setupInvocationContext(111);
 		
 		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement,
 				100);
 		
 		Response r = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
-				step1Resp.getAuthorizationCode().getValue(), "https://return.host.com/foo");
+				step1Resp.getAuthorizationCode().getValue(), 
+				null,
+				"https://return.host.com/foo");
 		assertEquals(HTTPResponse.SC_BAD_REQUEST, r.getStatus());
 	}
 	
@@ -70,14 +72,16 @@ public class AccessTokenResourceTest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
-		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, tx);
+		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, tx);
 		setupInvocationContext(100);
 		
 		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement,
 				100);
 		
 		Response r = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
-				step1Resp.getAuthorizationCode().getValue(), "https://wrong.com");
+				step1Resp.getAuthorizationCode().getValue(),
+				null,
+				"https://wrong.com");
 		assertEquals(HTTPResponse.SC_BAD_REQUEST, r.getStatus());
 	}
 	
@@ -86,11 +90,11 @@ public class AccessTokenResourceTest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
-		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, tx);
+		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, tx);
 		setupInvocationContext(100);
 
 		Response resp = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
-				"1234", "https://return.host.com/foo");
+				"1234", null, "https://return.host.com/foo");
 		assertEquals(400, resp.getStatus());
 		JSONObject ret = (JSONObject) JSONValue.parse(resp.getEntity().toString());
 		assertEquals("invalid_grant", ret.get("error"));
@@ -101,14 +105,14 @@ public class AccessTokenResourceTest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
-		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, tx);
+		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, tx);
 		setupInvocationContext(100);
 
 		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement,
 				100);
 		
 		Response resp = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
-				step1Resp.getAuthorizationCode().getValue(), "https://return.host.com/foo");
+				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo");
 
 		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
 		httpResp.setContent(resp.getEntity().toString());
