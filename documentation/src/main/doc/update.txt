@@ -128,6 +128,9 @@ directly in the database dump.
    
 ==== From 1.7.x to 1.8.0
 
+IMPORTANT: version 1.8.0 brings a lot of important changes, please carefully read the following
+information. And don't forget to perform a backup before upgrading.
+
 Version 1.8.0 introduces a completely new group attribute statements feature. During the (automatic) database update
 all legacy attribute statements are updated to the new schema. The same happens when a JSON database dump created 
 with an earlier Unity version is loaded. It is highly advisable to review the converted attribute statements. 
@@ -142,4 +145,17 @@ group with the specified value the attribute is copied or the new one is assigne
 If your statements did use that feature, you have to manually modify the conditions of the converted statements 
 to add proper attribute value based rules. In case of troubles please ask at the mailing list!  
 
+Another big change introduced in the version 1.8.0 is registration form profile (similar to input translation profile,
+see <<registration>> for details). The following former elements of the registration form are
+all handled by a translation profile now:
 
+. auto accept condition 
+. redirect URL
+. initial entity state
+. automatic assignments of attributes, groups and attribute classes
+
+The database update should convert automatically all of the above settings which were used to the correct 
+form profile rules. It is however advised to review the changes.
+
+Additionally one can note that the former 'Initial credential requirement' setting is now called as a 'Default
+credential requirement'. This is minor change, to make clear that this setting can be changed by the profile.
