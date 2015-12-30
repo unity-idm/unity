@@ -12,7 +12,7 @@
 	<description>Unity tests sets</description>
 	<properties>
 		<m.name>integration-tests</m.name>
-		<selenium.version>2.45.0</selenium.version>
+		<selenium.version>2.48.2</selenium.version>
 	</properties>
 
 	<scm>
@@ -33,6 +33,12 @@
 			<version>${selenium.version}</version>
 			<scope>test</scope>
 		</dependency>		
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-chrome-driver</artifactId>
+			<version>${selenium.version}</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
