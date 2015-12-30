@@ -5,8 +5,9 @@
 package pl.edu.icm.unity.engine;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
@@ -99,7 +100,10 @@ public class TestAuthorization extends DBIntegrationTestBase
 			//tests standard deny
 			groupsMan.addGroup(new Group("/B"));
 			fail("addGrp possible for no-role");
-		} catch(AuthorizationException e) {}
+		} catch(AuthorizationException e) 
+		{
+			assertThat(e.toString().contains("addGroup"), is(true));
+		}
 		
 		//tests outdated credential
 		setupUserContext("admin", false);

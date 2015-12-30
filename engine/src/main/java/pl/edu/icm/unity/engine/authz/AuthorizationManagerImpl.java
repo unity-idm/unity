@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
 import pl.edu.icm.unity.engine.transactions.Transactional;
+import pl.edu.icm.unity.engine.transactions.TransactionalAspect;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
@@ -319,12 +320,17 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 		}
 	}
 	
-	private String getCallerMethodName(int backwards)
+	private String getCallerMethodName(int toSkipBackwards)
 	{
 		StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-		if (stackTrace.length < backwards+2)
+		int i = toSkipBackwards+1;
+		while (i < stackTrace.length && 
+				(stackTrace[i].getClassName().equals(TransactionalAspect.class.getName()) || 
+				!stackTrace[i].getClassName().contains("pl.edu.icm.unity.")))
+			i++;
+		if (i >= stackTrace.length)
 			return "UNKNOWN";
-		return stackTrace[backwards+1].getMethodName();
+		return stackTrace[i].getMethodName();
 	}
 
 }
