@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.types.registration;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -20,19 +21,13 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 public class RegistrationRequest
 {
 	private String formId;
-	private List<IdentityParam> identities;
-	private List<Attribute<?>> attributes;
-
-	private List<CredentialParamValue> credentials;
-
-	private List<Selection> groupSelections;
-
-	private List<Selection> agreements;
-
+	private List<IdentityParam> identities = new ArrayList<>();
+	private List<Attribute<?>> attributes = new ArrayList<>();
+	private List<CredentialParamValue> credentials = new ArrayList<>();
+	private List<Selection> groupSelections = new ArrayList<>();
+	private List<Selection> agreements = new ArrayList<>();
 	private String comments;
-
 	private String registrationCode;
-
 	private String userLocale;
 	
 	public String getFormId()
