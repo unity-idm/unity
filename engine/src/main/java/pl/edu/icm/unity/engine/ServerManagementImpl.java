@@ -128,6 +128,11 @@ public class ServerManagementImpl implements ServerManagement
 		{
 			File exportsDirectory = dbDump.getExportDirectory();
 			File[] files = exportsDirectory.listFiles();
+			if (files == null)
+			{
+				log.error("Can not list exports directory " + exportsDirectory + "; cleanup failed");
+				return;
+			}
 			long now = System.currentTimeMillis();
 			
 			for (File file: files)

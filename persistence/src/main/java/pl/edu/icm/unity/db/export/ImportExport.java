@@ -192,7 +192,10 @@ public class ImportExport
 	private File createExportFile() throws IOException
 	{
 		File exportDir = getExportDirectory();
-		if (exportDir.list().length > 1)
+		String[] list = exportDir.list();
+		if (list == null)
+			throw new IOException("Can not list database dumps directory, I/O error");
+		if (list.length > 1)
 			throw new IOException("Maximum number of database dumps was reached. " +
 					"Subsequent dumps can be created in few minutes.");
 		return File.createTempFile(getExportFilePrefix(), getExportFileSuffix(), exportDir);

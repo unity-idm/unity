@@ -285,13 +285,8 @@ public class GroupsManagementImpl implements GroupsManagement
 					" in attribute statement as the attribute type is an internal, system attribute.");
 
 		Attribute<?> fixedAttribute = statement.getFixedAttribute();
-		if (fixedAttribute != null)
-		{
-			if (statement.getConflictResolution() != ConflictResolution.merge && fixedAttribute != null)
-			{
-				AttributeValueChecker.validate(fixedAttribute, at);
-			}
-		}
+		if (statement.getConflictResolution() != ConflictResolution.merge && fixedAttribute != null)
+			AttributeValueChecker.validate(fixedAttribute, at);
 	}
 
 	@Transactional

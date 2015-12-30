@@ -136,7 +136,6 @@ public class GroupsSerializer
 					{
 						//OK - we are ignoring outdated ASes - will be removed by async cleanup
 						outdatedASes++;
-						e.printStackTrace();
 					}
 				}			
 				target.setAttributeStatements(statements.toArray(

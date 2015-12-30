@@ -33,8 +33,8 @@ import pl.edu.icm.unity.server.utils.Log;
 public class TransactionalAspect
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, TransactionalAspect.class);
-	public static final int RETRY_BASE_DELAY = 50;
-	public static final int RETRY_MAX_DELAY = 200;
+	public static final long RETRY_BASE_DELAY = 50;
+	public static final long RETRY_MAX_DELAY = 200;
 	
 	@Autowired
 	private DBSessionManager db;

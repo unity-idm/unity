@@ -39,24 +39,29 @@ public class FileMetadataProvider implements MetadataProvider
 		load();
 		
 		task = () -> {
-			try
-			{
-				if (file.lastModified() > lastModification.getTime())
-				{
-					log.info("Metadata file modification detected, reloading " + file);
-					load();
-				}
-			} catch (IOException e)
-			{
-				log.error("Can not load the metadata from the configured file " + file, e);
-			}
-		
-			reschedule();
+			reloadTask();
 		};
 		
 		reschedule();
 	}
 
+	private synchronized void reloadTask()
+	{
+		try
+		{
+			if (file.lastModified() > lastModification.getTime())
+			{
+				log.info("Metadata file modification detected, reloading " + file);
+				load();
+			}
+		} catch (IOException e)
+		{
+			log.error("Can not load the metadata from the configured file " + file, e);
+		}
+	
+		reschedule();
+	}
+	
 	private synchronized void load() throws IOException
 	{
 		try

@@ -111,8 +111,8 @@ public class AuthenticatorsRegistry
 	public Set<AuthenticatorTypeDescription> getAuthenticators()
 	{
 		Set<AuthenticatorTypeDescription> ret = new HashSet<AuthenticatorTypeDescription>();
-		for (String binding: authenticatorsByBinding.keySet())
-			ret.addAll(authenticatorsByBinding.get(binding));
+		for (Map.Entry<String, Set<AuthenticatorTypeDescription>> entry: authenticatorsByBinding.entrySet())
+			ret.addAll(entry.getValue());
 		return ret;
 	}
 	
