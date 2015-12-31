@@ -129,7 +129,11 @@ directly in the database dump.
 ==== From 1.7.x to 1.8.0
 
 IMPORTANT: version 1.8.0 brings a lot of important changes, please carefully read the following
-information. And don't forget to perform a backup before upgrading.
+information. And don't forget to perform a backup before upgrading. 
+
+IMPORTANT: if you upgrade Unity to 1.8.0 by loading a JSON dump created with older version (instead of
+using the automatic database update) then make sure to restart the server after loading the dump. This
+is required to have the OAuth allowed flows attribute type updated.  
 
 Version 1.8.0 introduces a completely new group attribute statements feature. During the (automatic) database update
 all legacy attribute statements are updated to the new schema. The same happens when a JSON database dump created 
