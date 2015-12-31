@@ -190,7 +190,7 @@ public class AttributeStatementComponent extends CustomComponent
 		if (initial.dynamicAttributeMode())
 		{
 			assignMode.setValue(MODE_DYNAMIC);
-			dynamicAttributeName.setValue(initial.getDynamicAttributeType());
+			dynamicAttributeName.setValue(initial.getDynamicAttributeType().getName());
 			visibilityCombo.setValue(initial.getDynamicAttributeVisibility());
 			dynamicAttributeValue.setValue(initial.getDynamicAttributeExpression());
 		} else
