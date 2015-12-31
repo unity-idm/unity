@@ -243,21 +243,32 @@ public class RegistrationFormHandler extends DefaultEntityHandler<RegistrationFo
 		RegistrationTranslationProfileBuilder pBuilder = new RegistrationTranslationProfileBuilder(
 				translationActionsRegistry, "formProfile");
 		
-		String initialState = node.get("InitialEntityState").asText();
-		if (!EntityState.valid.toString().equals(initialState))
-			pBuilder.withInitialState("true", EntityState.valueOf(initialState));
+		if (node.has("InitialEntityState"))
+		{
+			String initialState = node.get("InitialEntityState").asText();
+			if (!EntityState.valid.toString().equals(initialState))
+				pBuilder.withInitialState("true", EntityState.valueOf(initialState));
+		}
 		
-		String autoAccept = node.get("AutoAcceptCondition").asText("false");
-		if (!autoAccept.equals("false"))
-			pBuilder.withAutoProcess(autoAccept, AutomaticRequestAction.accept);
-
-		String redirect = node.get("RedirectAfterSubmit").asText("");
-		if (!redirect.isEmpty())
-			pBuilder.withRedirect("true", "'" + redirect + "'");
-
-		String credReq = node.get("CredentialRequirementAssignment").asText();
-		node.put("DefaultCredentialRequirement", credReq);
+		if (node.has("AutoAcceptCondition"))
+		{
+			String autoAccept = node.get("AutoAcceptCondition").asText("false");
+			if (!autoAccept.equals("false"))
+				pBuilder.withAutoProcess(autoAccept, AutomaticRequestAction.accept);
+		}
 		
+		if (node.has("RedirectAfterSubmit"))
+		{
+			String redirect = node.get("RedirectAfterSubmit").asText("");
+			if (!redirect.isEmpty())
+				pBuilder.withRedirect("true", "'" + redirect + "'");
+		}
+		
+		if (node.has("CredentialRequirementAssignment"))
+		{
+			String credReq = node.get("CredentialRequirementAssignment").asText();
+			node.put("DefaultCredentialRequirement", credReq);
+		}
 		
 		ArrayNode attrAssignements = (ArrayNode) node.get("AttributeAssignments");
 		if (attrAssignements != null)
