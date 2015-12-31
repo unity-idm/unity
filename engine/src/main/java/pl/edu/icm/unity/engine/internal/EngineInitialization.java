@@ -495,11 +495,12 @@ public class EngineInitialization extends LifecycleBase
 				for (SystemAttributesProvider attrTypesProvider: sysTypeProviders)
 					for (AttributeType at: attrTypesProvider.getSystemAttributes())
 					{
-						if (!existing.containsKey(at.getName()))
+						AttributeType existingAt = existing.get(at.getName());
+						if (existingAt == null)
 						{
 							log.info("Adding a system attribute type: " + at.getName());
 							dbAttributes.addAttributeType(at, sql);
-						} else if (attrTypesProvider.requiresUpdate(at))
+						} else if (attrTypesProvider.requiresUpdate(existingAt))
 						{
 							log.info("Updating a system attribute type: " + at.getName());
 							dbAttributes.updateAttributeType(at, sql);
