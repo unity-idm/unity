@@ -31,7 +31,7 @@ public class FacebookProviderProperties extends CustomProviderProperties
 		properties.setProperty(prefix + ACCESS_TOKEN_ENDPOINT, "https://graph.facebook.com/oauth/access_token");
 		properties.setProperty(prefix + PROFILE_ENDPOINT, "https://graph.facebook.com/me/");
 		properties.setProperty(prefix + SCOPES, "email");
-		properties.setProperty(prefix + ACCESS_TOKEN_FORMAT, "httpParams");
+		properties.setProperty(prefix + ACCESS_TOKEN_FORMAT, AccessTokenFormat.httpParams.toString());
 		return properties;
 	}
 

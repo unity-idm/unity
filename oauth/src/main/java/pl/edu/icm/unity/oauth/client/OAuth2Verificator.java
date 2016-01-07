@@ -73,6 +73,7 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 public class OAuth2Verificator extends AbstractRemoteVerificator implements OAuthExchange
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuth2Verificator.class);
+	public static final String DEFAULT_TOKEN_EXPIRATION = "3600";
 	private OAuthClientProperties config;
 	private String responseConsumerAddress;
 	private OAuthContextsManagement contextManagement;
@@ -401,10 +402,18 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			MultiMap<String> map = new MultiMap<String>();
 			UrlEncoded.decodeTo(response.getContent().trim(), map, "UTF-8");
 			String accessTokenVal = map.getString("access_token");
-			String lifetimeStr = map.getString("expires");
-			if (accessTokenVal == null || lifetimeStr == null)
+			if (accessTokenVal == null)
 				throw new AuthenticationException("Access token answer received doesn't contain "
-						+ "'access_token' or 'expires' parameters.");
+						+ "'access_token' parameter.");
+			String lifetimeStr = map.getString("expires");
+			if (lifetimeStr == null)
+				lifetimeStr = map.getString("expires_in");
+			if (lifetimeStr == null)
+			{
+				log.debug("AS didn't provide expiration time, assuming default value " + 
+						DEFAULT_TOKEN_EXPIRATION);
+				lifetimeStr = DEFAULT_TOKEN_EXPIRATION;
+			}
 			accessToken = new BearerAccessToken(accessTokenVal, Long.parseLong(lifetimeStr), null);
 		}
 		Map<String, String> ret = new HashMap<String, String>();
