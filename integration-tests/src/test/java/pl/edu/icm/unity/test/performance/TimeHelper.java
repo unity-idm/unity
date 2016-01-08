@@ -84,6 +84,7 @@ public class TimeHelper
 
 		pavg = psum / size;
 		oavg = osum / size;
+		count /= size;
 		double ptd = 0l;
 		double otd = 0l;
 		for (SingleResult l : results)
