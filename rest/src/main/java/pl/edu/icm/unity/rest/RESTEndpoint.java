@@ -32,6 +32,7 @@ import pl.edu.icm.unity.rest.exception.EngineExceptionMapper;
 import pl.edu.icm.unity.rest.exception.InternalExceptionMapper;
 import pl.edu.icm.unity.rest.exception.JSONExceptionMapper;
 import pl.edu.icm.unity.rest.exception.JSONParseExceptionMapper;
+import pl.edu.icm.unity.rest.exception.JSONParsingExceptionMapper;
 import pl.edu.icm.unity.rest.exception.NPEExceptionMapper;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
@@ -190,6 +191,7 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 		ret.add(new NPEExceptionMapper());
 		ret.add(new InternalExceptionMapper());
 		ret.add(new JSONParseExceptionMapper());
+		ret.add(new JSONParsingExceptionMapper());
 		ret.add(new JSONExceptionMapper());
 	}
 }

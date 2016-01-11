@@ -32,6 +32,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.json.AttributeTypeSerializer;
+import pl.edu.icm.unity.rest.exception.JSONParsingException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
@@ -52,7 +53,6 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -247,7 +247,7 @@ public class RESTAdmin
 					AttributeParamRepresentation.class);
 		} catch (IOException e)
 		{
-			throw new JsonParseException("Can't parse the attribute input", null, e);
+			throw new JSONParsingException("Can't parse the attribute input", e);
 		}
 		setAttribute(attributeParam, entityId);
 	}
@@ -262,8 +262,7 @@ public class RESTAdmin
 		
 		JsonNode root = mapper.readTree(attributes);
 		if (!root.isArray())
-			throw new JsonParseException("Can't parse the attributes input: root is not an array", 
-					null, null);
+			throw new JSONParsingException("Can't parse the attributes input: root is not an array");
 		ArrayNode rootA = (ArrayNode) root;
 		List<AttributeParamRepresentation> parsedParams = new ArrayList<>(rootA.size());
 		for (JsonNode node: rootA)
@@ -274,7 +273,7 @@ public class RESTAdmin
 						AttributeParamRepresentation.class));
 			} catch (IOException e)
 			{
-				throw new JsonParseException("Can't parse the attribute input", null, e);
+				throw new JSONParsingException("Can't parse the attribute input", e);
 			}
 		}
 		for (AttributeParamRepresentation ap: parsedParams)
@@ -319,21 +318,21 @@ public class RESTAdmin
 			main = mapper.readTree(secretsArray);
 		} catch (IOException e)
 		{
-			throw new JsonParseException("Request body can not be parsed as JSON", null, e);
+			throw new JSONParsingException("Request body can not be parsed as JSON", e);
 		}
 		
 		if (main instanceof ArrayNode)
 		{
 			ArrayNode mainA = (ArrayNode) main;
 			if (mainA.size() < 1)
-				throw new  JsonParseException("Request body JSON array must have at least one element", null);
+				throw new  JSONParsingException("Request body JSON array must have at least one element");
 			String newSecrets = mainA.get(0).asText();
 			String oldSecrets = mainA.size() > 1 ? mainA.get(1).asText() : null;
 			identitiesMan.setEntityCredential(new EntityParam(entityId), credential, 
 					newSecrets, oldSecrets);
 		} else
 		{
-			throw new JsonParseException("Request body must be a JSON array", null);
+			throw new JSONParsingException("Request body must be a JSON array");
 		}
 	}
 
