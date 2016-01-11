@@ -36,6 +36,8 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 	public static final String CLIENT_NAME = "sys:oauth:clientName";
 	public static final String CLIENT_LOGO = "sys:oauth:clientLogo";
 	
+	public static final int MAXIMUM_ALLOWED_URIS = 256;
+	
 	public enum GrantFlow {authorizationCode, implicit, openidHybrid, client};
 	
 	private UnityMessageSource msg;
@@ -70,7 +72,7 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 		AttributeType authorizationAt = new AttributeType(ALLOWED_RETURN_URI, new StringAttributeSyntax(), msg);
 		authorizationAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
 		authorizationAt.setMinElements(1);
-		authorizationAt.setMaxElements(5);
+		authorizationAt.setMaxElements(MAXIMUM_ALLOWED_URIS);
 		authorizationAt.setUniqueValues(false);
 		authorizationAt.setVisibility(AttributeVisibility.local);
 		return authorizationAt;
@@ -133,6 +135,12 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 			EnumAttributeSyntax valueType = (EnumAttributeSyntax) at.getValueType();
 			return !valueType.getAllowed().contains(GrantFlow.client.toString());
 		}
+		
+		if (at.getName().equals(ALLOWED_RETURN_URI))
+		{
+			return at.getMaxElements() != MAXIMUM_ALLOWED_URIS;
+		}
+		
 		return false;
 	}
 }
