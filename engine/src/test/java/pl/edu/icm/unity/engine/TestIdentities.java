@@ -71,7 +71,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		Identity id2 = idsMan.addEntity(idParam2, "crMock", EntityState.valid, false);
 		
 		EntityParam ep1 = new EntityParam(id.getEntityId());
-		Date scheduledTime = new Date(System.currentTimeMillis()+100);
+		Date scheduledTime = new Date(System.currentTimeMillis()+200);
 		idsMan.scheduleEntityChange(ep1, scheduledTime, EntityScheduledOperation.DISABLE);
 		
 		Entity retrieved = idsMan.getEntity(new EntityParam(idParam));
@@ -81,9 +81,9 @@ public class TestIdentities extends DBIntegrationTestBase
 				retrieved.getEntityInformation().getScheduledOperationTime());
 		
 		EntityParam ep2 = new EntityParam(id2.getEntityId());
-		idsMan.scheduleEntityChange(ep2, new Date(System.currentTimeMillis()+100), 
+		idsMan.scheduleEntityChange(ep2, new Date(System.currentTimeMillis()+200), 
 				EntityScheduledOperation.REMOVE);
-		Thread.sleep(200);
+		Thread.sleep(250);
 		entitiesUpdater.updateEntities();
 		
 		Entity updated = idsMan.getEntity(ep1);
