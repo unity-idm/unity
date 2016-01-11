@@ -26,7 +26,7 @@ import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 
 import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
+import com.nimbusds.jwt.JWTClaimsSet;
 
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.util.configuration.ConfigurationException;
@@ -86,7 +86,7 @@ public class JWTVerificator extends AbstractVerificator implements JWTExchange
 		
 		try
 		{
-			ReadOnlyJWTClaimsSet claims = JWTUtils.parseAndValidate(token, signingCred);
+			JWTClaimsSet claims = JWTUtils.parseAndValidate(token, signingCred);
 			String realm = InvocationContext.safeGetRealm();
 			List<String> audiences = claims.getAudience();
 			if (audiences.size() != 1)

@@ -23,10 +23,10 @@ import pl.edu.icm.unity.server.api.internal.TokensManagement;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
+import com.nimbusds.jwt.util.DateUtils;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerTokenError;
-import com.nimbusds.oauth2.sdk.util.DateUtils;
 
 /**
  * Non standard functionality: allows for validation of a given access token.

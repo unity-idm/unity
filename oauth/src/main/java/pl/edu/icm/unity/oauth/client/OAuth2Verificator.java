@@ -57,7 +57,7 @@ import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
-import com.nimbusds.openid.connect.sdk.OIDCAccessTokenResponse;
+import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import eu.unicore.util.configuration.ConfigurationException;
@@ -317,11 +317,11 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		ClientAuthnMode selectedMethod = establishOpenIDAuthnMode(providerMeta, providerCfg);
 		
 		HTTPResponse response = retrieveAccessTokenGeneric(context, tokenEndpoint, selectedMethod);
-		OIDCAccessTokenResponse acResponse = OIDCAccessTokenResponse.parse(response);
+		OIDCTokenResponse acResponse = OIDCTokenResponse.parse(response);
 		BearerAccessToken accessToken = extractAccessToken(acResponse);
 		
 		Map<String, String> ret = new HashMap<String, String>();
-		UserProfileFetcher.toAttributes(acResponse.getIDToken().getJWTClaimsSet(), ret);
+		UserProfileFetcher.toAttributes(acResponse.getOIDCTokens().getIDToken().getJWTClaimsSet(), ret);
 		
 		String userInfoEndpointStr = providerCfg.getValue(CustomProviderProperties.PROFILE_ENDPOINT);
 		URI userInfoEndpoint = userInfoEndpointStr == null ? providerMeta.getUserInfoEndpointURI() : 
@@ -433,7 +433,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	
 	private BearerAccessToken extractAccessToken(AccessTokenResponse atResponse) throws AuthenticationException
 	{
-		AccessToken accessTokenGeneric = atResponse.getAccessToken();
+		AccessToken accessTokenGeneric = atResponse.getTokens().getAccessToken();
 		if (!(accessTokenGeneric instanceof BearerAccessToken))
 		{
 			throw new AuthenticationException("OAuth provider returned an access token which is not "

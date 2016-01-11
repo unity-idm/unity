@@ -268,7 +268,7 @@ public class OAuthProcessor
 		{
 			ret = new SignedJWT(new JWSHeader(JWSAlgorithm.ES256), 
 					idTokenClaims.toJWTClaimsSet());
-			signer = new ECDSASigner(((ECPrivateKey)pk).getS());
+			signer = new ECDSASigner((ECPrivateKey)pk);
 		}
 
 		ret.sign(signer);

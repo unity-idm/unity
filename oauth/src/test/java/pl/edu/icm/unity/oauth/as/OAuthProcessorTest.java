@@ -23,7 +23,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
-import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
@@ -131,7 +131,7 @@ public class OAuthProcessorTest
 		OAuthToken internalToken = OAuthToken.getInstanceFromJson(token.getContents());
 		assertNotNull(internalToken.getOpenidInfo());
 		SignedJWT openidToken = SignedJWT.parse(internalToken.getOpenidInfo());
-		ReadOnlyJWTClaimsSet openidClaims = openidToken.getJWTClaimsSet();
+		JWTClaimsSet openidClaims = openidToken.getJWTClaimsSet();
 		assertEquals("https://localhost:2443/oauth-as", openidClaims.getIssuer());
 		assertEquals("userA", openidClaims.getSubject());
 		assertEquals(1, openidClaims.getAudience().size());

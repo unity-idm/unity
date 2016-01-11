@@ -61,7 +61,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
-import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
+import com.nimbusds.jwt.JWTClaimsSet;
 
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
@@ -158,7 +158,7 @@ public class TestECP extends AbstractTestIdpBase
 		{
 			String resp = EntityUtils.toString(entity);
 			System.out.println(resp);
-			ReadOnlyJWTClaimsSet claims = JWTUtils.parseAndValidate(resp, pkiMan.getCredential("MAIN"));
+			JWTClaimsSet claims = JWTUtils.parseAndValidate(resp, pkiMan.getCredential("MAIN"));
 			System.out.println("GOT:\n" + claims.toJSONObject().toJSONString());
 			Assert.assertTrue(claims.getIssuer().contains("https://localhost:52443"));
 		} else

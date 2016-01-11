@@ -18,7 +18,6 @@ import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.utils.Log;
 
 import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.SerializeException;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
@@ -77,7 +76,7 @@ public class UserProfileFetcher
 		UserInfoSuccessResponse uiResponseS = (UserInfoSuccessResponse) uiResponse;
 		if (uiResponseS.getUserInfoJWT() != null)
 		{
-			ReadOnlyJWTClaimsSet claimSet = uiResponseS.getUserInfoJWT().getJWTClaimsSet();
+			JWTClaimsSet claimSet = uiResponseS.getUserInfoJWT().getJWTClaimsSet();
 			toAttributes(claimSet, ret);
 		} else
 		{
@@ -140,9 +139,9 @@ public class UserProfileFetcher
 	
 
 	
-	public static void toAttributes(ReadOnlyJWTClaimsSet claimSet, Map<String, String> attributes)
+	public static void toAttributes(JWTClaimsSet claimSet, Map<String, String> attributes)
 	{
-		Map<String, Object> claims = claimSet.getAllClaims();
+		Map<String, Object> claims = claimSet.getClaims();
 		for (Map.Entry<String, Object> claim: claims.entrySet())
 		{
 			if (claim.getValue() != null)

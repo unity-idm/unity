@@ -37,7 +37,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 
 import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
+import com.nimbusds.jwt.JWTClaimsSet;
 
 import eu.emi.security.authn.x509.X509Credential;
 
@@ -91,7 +91,7 @@ public class JWTManagement
 	public String refresh(String toRefresh)
 	{	
 		X509Credential signingCred = getCredential();
-		ReadOnlyJWTClaimsSet claims = parseAndValidate(toRefresh, signingCred);
+		JWTClaimsSet claims = parseAndValidate(toRefresh, signingCred);
 		
 		EntityParam entityId = getCurrentEntity();
 		String persistentId = getClientsPersistentIdValidating(entityId, claims.getSubject());
@@ -112,7 +112,7 @@ public class JWTManagement
 	public void invalidate(String toDrop)
 	{
 		X509Credential signingCred = getCredential();
-		ReadOnlyJWTClaimsSet claims = parseAndValidate(toDrop, signingCred);
+		JWTClaimsSet claims = parseAndValidate(toDrop, signingCred);
 		
 		EntityParam entityId = getCurrentEntity();
 		getClientsPersistentIdValidating(entityId, claims.getSubject());
@@ -191,7 +191,7 @@ public class JWTManagement
 		}
 	}
 	
-	private ReadOnlyJWTClaimsSet parseAndValidate(String token, X509Credential signingCred)
+	private JWTClaimsSet parseAndValidate(String token, X509Credential signingCred)
 	{
 		try
 		{

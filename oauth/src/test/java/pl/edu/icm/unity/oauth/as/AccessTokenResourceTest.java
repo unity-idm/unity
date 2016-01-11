@@ -26,11 +26,11 @@ import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 
-import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
-import com.nimbusds.openid.connect.sdk.OIDCAccessTokenResponse;
+import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 
 public class AccessTokenResourceTest 
 {
@@ -117,10 +117,10 @@ public class AccessTokenResourceTest
 		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
 		httpResp.setContent(resp.getEntity().toString());
 		httpResp.setContentType("application/json");
-		OIDCAccessTokenResponse parsed = OIDCAccessTokenResponse.parse(httpResp);
-		assertNotNull(parsed.getAccessToken());
-		assertNotNull(parsed.getIDToken());
-		ReadOnlyJWTClaimsSet idToken = parsed.getIDToken().getJWTClaimsSet();
+		OIDCTokenResponse parsed = OIDCTokenResponse.parse(httpResp);
+		assertNotNull(parsed.getOIDCTokens().getAccessToken());
+		assertNotNull(parsed.getOIDCTokens().getIDToken());
+		JWTClaimsSet idToken = parsed.getOIDCTokens().getIDToken().getJWTClaimsSet();
 		assertEquals("userA", idToken.getSubject());
 		assertTrue(idToken.getAudience().contains("clientC"));
 		assertEquals("https://localhost:2443/oauth-as", idToken.getIssuer());

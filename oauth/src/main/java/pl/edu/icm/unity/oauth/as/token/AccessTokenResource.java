@@ -43,7 +43,9 @@ import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
-import com.nimbusds.openid.connect.sdk.OIDCAccessTokenResponse;
+import com.nimbusds.oauth2.sdk.token.Tokens;
+import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
+import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
 /**
  * RESTful implementation of the access token resource.
@@ -114,7 +116,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		
 		Date expiration = getAccessTokenExpiration(now);
 		
-		AccessTokenResponse oauthResponse = new AccessTokenResponse(accessToken, null);
+		AccessTokenResponse oauthResponse = new AccessTokenResponse(new Tokens(accessToken, null));
 		tokensManagement.addToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN, accessToken.getValue(), 
 				new EntityParam(internalToken.getClientId()), internalToken.getSerialized(), now, expiration);
 		
@@ -181,8 +183,8 @@ public class AccessTokenResource extends BaseOAuthResource
 		
 		JWT signedJWT = decodeIDToken(internalToken);
 		AccessTokenResponse oauthResponse = signedJWT == null ? 
-				new AccessTokenResponse(accessToken, null) : 
-				new OIDCAccessTokenResponse(accessToken, null, signedJWT);
+				new AccessTokenResponse(new Tokens(accessToken, null)) : 
+				new OIDCTokenResponse(new OIDCTokens(signedJWT, accessToken, null));
 		tokensManagement.addToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN, accessToken.getValue(), 
 				new EntityParam(codeToken.getOwner()), internalToken.getSerialized(), now, expiration);
 		

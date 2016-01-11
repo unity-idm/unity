@@ -154,7 +154,7 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 		AccessTokenResponse parsedResp = AccessTokenResponse.parse(resp2);
 		
 		UserInfoRequest uiRequest = new UserInfoRequest(new URI("https://localhost:52443/oauth/userinfo"), 
-				(BearerAccessToken) parsedResp.getAccessToken());
+				(BearerAccessToken) parsedResp.getTokens().getAccessToken());
 		HTTPRequest bare2 = uiRequest.toHTTPRequest();
 		HTTPRequest wrapped2 = new CustomHTTPSRequest(bare2, pkiMan.getValidator("MAIN"), 
 				ServerHostnameCheckingMode.NONE);
@@ -184,7 +184,7 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 		AccessTokenResponse parsedResp = AccessTokenResponse.parse(resp2);
 		
 		UserInfoRequest uiRequest = new UserInfoRequest(new URI("https://localhost:52443/oauth/tokeninfo"), 
-				(BearerAccessToken) parsedResp.getAccessToken());
+				(BearerAccessToken) parsedResp.getTokens().getAccessToken());
 		HTTPRequest bare2 = uiRequest.toHTTPRequest();
 		HTTPRequest wrapped2 = new CustomHTTPSRequest(bare2, pkiMan.getValidator("MAIN"), 
 				ServerHostnameCheckingMode.NONE);

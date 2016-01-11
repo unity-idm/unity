@@ -21,7 +21,6 @@ import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 import eu.emi.security.authn.x509.X509Credential;
@@ -48,13 +47,13 @@ public class JWTUtils
 		else
 			throw new IllegalArgumentException("The credential for signing JWT must be of RSA type.");
 
-		JWTClaimsSet claimsSet = new JWTClaimsSet();
-		claimsSet.setSubject(subject);
-		claimsSet.setIssueTime(new Date());
-		claimsSet.setIssuer(issuer);
-		claimsSet.setAudience(Collections.singletonList(audience));
-		claimsSet.setExpirationTime(expires);
-		claimsSet.setJWTID(id);
+		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().
+				subject(subject).
+				issueTime(new Date()).
+				issuer(issuer).
+				audience(audience).
+				expirationTime(expires).
+				jwtID(id).build();
 
 		SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
 		signedJWT.sign(signer);
@@ -62,14 +61,14 @@ public class JWTUtils
 	}
 	
 	/**
-	 * Parses the JWT token, verifies the signature, validity and claims completness.
+	 * Parses the JWT token, verifies the signature, validity and claims completeness.
 	 * @param token
 	 * @param signingCred
 	 * @return parsed and verified claims
 	 * @throws ParseException
 	 * @throws JOSEException
 	 */
-	public static ReadOnlyJWTClaimsSet parseAndValidate(String token, X509Credential signingCred) 
+	public static JWTClaimsSet parseAndValidate(String token, X509Credential signingCred) 
 			throws ParseException, JOSEException
 	{
 		SignedJWT signedJWT = SignedJWT.parse(token);
@@ -79,7 +78,7 @@ public class JWTUtils
 			throw new JOSEException("JWT signature is invalid");
 		}
 		
-		ReadOnlyJWTClaimsSet claims = signedJWT.getJWTClaimsSet();
+		JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
 		if (new Date().after(claims.getExpirationTime()))
 		{
 			throw new JOSEException("JWT is expired");
@@ -89,9 +88,9 @@ public class JWTUtils
 	}
 	
 	
-	private static void validateClaimsSet(ReadOnlyJWTClaimsSet claims) throws ParseException
+	private static void validateClaimsSet(JWTClaimsSet claims) throws ParseException
 	{
-		Set<String> keys = claims.getAllClaims().keySet();
+		Set<String> keys = claims.getClaims().keySet();
 		if (!keys.containsAll(REQUIRED_CLAIMS))
 			throw new ParseException("The claims in the JWT are incomplete", 0);
 	}
