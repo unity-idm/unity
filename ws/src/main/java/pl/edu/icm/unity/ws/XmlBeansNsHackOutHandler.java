@@ -26,6 +26,6 @@ public class XmlBeansNsHackOutHandler extends AbstractPhaseInterceptor<Message>
 	@Override
 	public void handleMessage(Message message) throws Fault
 	{
-		message.setContextualProperty(XmlBeansDataBinding.XMLBEANS_NAMESPACE_HACK, Boolean.TRUE);
+		message.put(XmlBeansDataBinding.XMLBEANS_NAMESPACE_HACK, Boolean.TRUE);
 	}
 }
