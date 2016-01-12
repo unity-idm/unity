@@ -7,7 +7,7 @@ Exposed paths:: +/oauth2-authz+
 
 Endpoint 2 type:: +OAuth2Token+
 Binding:: RESTful (CXF)
-Exposed paths:: +/token+, +/userinfo+, +/jwk+, +/tokeninfo+, +.well-known/openid-configuration+
+Exposed paths:: +/token+, +/userinfo+, +/jwk+, +/tokeninfo+, +.well-known/openid-configuration+, +/revoke+
 
 
 The OAuth 2 endpoints expose a functionality of a generic Authorization Server with a support for the OpenID
@@ -123,4 +123,25 @@ This Unity endpoint can be also used to issue an access token which subsequently
 and <<endp-rest-jwt>>. The differences are that the Unity's JWT tokens can be obtained in a much
 easier way then an OAuth access token. On the other hand JWT tokens can be used only with Unity, 
 other services will neither issue nor validate them.
- 
+
+==== Revocation
+
+The path +/revoke+ can be used to revoke an access token which was previously issued. This endpoint
+is implemented according to the RFC 7009. 
+
+Limitations: 
+
+. Refresh tokens revocation is not implemented (as Unity doesn't support yet refresh tokens at all). 
+. The endpoint access is not authenticated - or better said the access is authorized implicitly by providing
+  a valid access token to be revoked. The +user_id+ must be always given.
+   
+Typical usage:
+
+----
+POST /.../revoke HTTP/1.1
+Host: ... 
+Content-Type: application/x-www-form-urlencoded
+   
+token=45ghiukldjahdnhzdauz&user_id=oauth-client
+----
+

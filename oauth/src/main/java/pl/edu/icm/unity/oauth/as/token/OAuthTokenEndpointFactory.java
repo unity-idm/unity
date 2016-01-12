@@ -15,6 +15,7 @@ import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
+import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
@@ -60,6 +61,8 @@ public class OAuthTokenEndpointFactory implements EndpointFactory
 	private AttributesManagement attributesMan;
 	@Autowired
 	private IdentitiesManagement identitiesMan;
+	@Autowired
+	private IdPEngine idpEngine;
 	
 	@Override
 	public EndpointTypeDescription getDescription()
@@ -71,7 +74,7 @@ public class OAuthTokenEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new OAuthTokenEndpoint(msg, sessionMan, server, PATH, tokensMan, pkiMan, coordinator, 
-				authnProcessor, identitiesMan, attributesMan, tx);
+				authnProcessor, identitiesMan, attributesMan, tx, idpEngine);
 	}
 
 }

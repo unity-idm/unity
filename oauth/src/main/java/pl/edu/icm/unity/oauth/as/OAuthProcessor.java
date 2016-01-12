@@ -65,9 +65,9 @@ public class OAuthProcessor
 	 * @return
 	 */
 	public Set<Attribute<?>> filterAttributes(TranslationResult userInfo, 
-			OAuthAuthzContext ctx)
+			Set<String> requestedAttributes)
 	{
-		Set<Attribute<?>> ret = filterNotRequestedAttributes(userInfo, ctx);
+		Set<Attribute<?>> ret = filterNotRequestedAttributes(userInfo, requestedAttributes);
 		return filterUnsupportedAttributes(ret);
 	}
 
@@ -197,13 +197,13 @@ public class OAuthProcessor
 	
 	
 	private Set<Attribute<?>> filterNotRequestedAttributes(TranslationResult translationResult, 
-			OAuthAuthzContext ctx)
+			Set<String> requestedAttributes)
 	{
 		Collection<Attribute<?>> allAttrs = translationResult.getAttributes();
 		Set<Attribute<?>> filteredAttrs = new HashSet<Attribute<?>>();
 		
 		for (Attribute<?> attr: allAttrs)
-			if (ctx.getRequestedAttrs().contains(attr.getName()))
+			if (requestedAttributes.contains(attr.getName()))
 				filteredAttrs.add(attr);
 		return filteredAttrs;
 	}
@@ -234,7 +234,7 @@ public class OAuthProcessor
 		return idToken;
 	}
 	
-	private UserInfo prepareUserInfoClaimSet(String userIdentity, Collection<Attribute<?>> attributes)
+	public UserInfo prepareUserInfoClaimSet(String userIdentity, Collection<Attribute<?>> attributes)
 	{
 		UserInfo userInfo = new UserInfo(new Subject(userIdentity));
 		

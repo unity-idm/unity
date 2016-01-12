@@ -126,6 +126,9 @@ public class OAuthTestUtils
 		groupsMan.addGroup(new Group("/oauth-clients"));
 		groupsMan.addMemberFromParent("/oauth-clients", e1);
 		
+		groupsMan.addGroup(new Group("/oauth-users"));
+		groupsMan.addMemberFromParent("/oauth-users", e1);
+		
 		attrsMan.setAttribute(e1, new EnumAttribute(OAuthSystemAttributesProvider.ALLOWED_FLOWS, 
 				"/oauth-clients", AttributeVisibility.local, 
 				Lists.newArrayList(GrantFlow.authorizationCode.name(),
