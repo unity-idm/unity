@@ -61,23 +61,35 @@ public class GroupMembersIE extends AbstractIE
 		for (Map.Entry<String, GroupBean> entry: sortedGroups.entrySet())
 		{
 			List<GroupElementBean> members = mapper.getMembers(entry.getValue().getId());
-			
-			jg.writeStartObject();
-			jg.writeStringField("groupPath", entry.getKey());
-			jg.writeFieldName("members");
-			jg.writeStartArray();
-			for (GroupElementBean member: members)
-			{
-				jg.writeStartObject();				
-				jg.writeNumberField("entity", member.getElementId());
-				jg.writeNumberField("groupId", member.getGroupId());
-				jg.writeBinaryField("contents", member.getContents());
-				jg.writeEndObject();
-			}
-			jg.writeEndArray();
-			jg.writeEndObject();
+			serializeGroupElementBeans(jg, entry.getKey(), members);
 		}
 		jg.writeEndArray();
+	}
+	
+	private void serializeGroupElementBeans(JsonGenerator jg, String groupPath, List<GroupElementBean> members)
+			throws IOException
+	{
+		jg.writeStartObject();
+		jg.writeStringField("groupPath", groupPath);
+		jg.writeFieldName("members");
+		jg.writeStartArray();
+		for (GroupElementBean member: members)
+			serializeGroupElementBean(jg, groupPath, member);
+		jg.writeEndArray();
+		jg.writeEndObject();
+	}
+
+	void serializeGroupElementBean(JsonGenerator jg, String groupPath, GroupElementBean member)
+			throws IOException
+	{
+		jg.writeStartObject();				
+		jg.writeNumberField("entity", member.getElementId());
+		jg.writeNumberField("groupId", member.getGroupId());
+		if (member.getContents() == null)
+			jg.writeNullField("contents");
+		else
+			jg.writeBinaryField("contents", member.getContents());
+		jg.writeEndObject();
 	}
 	
 	public void deserialize(SqlSession sql, JsonParser input) throws IOException, EngineException
@@ -108,17 +120,23 @@ public class GroupMembersIE extends AbstractIE
 		JsonUtils.expect(input, JsonToken.END_ARRAY);
 	}
 	
-	private void handleNewMembership(String path, SqlSession sql, JsonParser input)
-			throws IOException, EngineException
+	GroupMembership deserializeMembershipInformation(String path, JsonParser input) throws IOException
 	{
 		JsonUtils.nextExpect(input, "entity");
 		long entityId = input.getLongValue();
 		JsonUtils.nextExpect(input, "groupId");
 		input.getLongValue(); //we ignore this
 		JsonUtils.nextExpect(input, "contents");
-		byte[] contents = input.getBinaryValue();
-		GroupMembership parsed = groupMembershipSerializer.fromJson(contents, entityId, path);
-		dbGroups.addMemberFromParent(path, new EntityParam(entityId), parsed.getRemoteIdp(), 
+		
+		byte[] contents = (input.getCurrentToken() == JsonToken.VALUE_NULL) ? null : input.getBinaryValue();
+		return groupMembershipSerializer.fromJson(contents, entityId, path);
+	}
+	
+	private void handleNewMembership(String path, SqlSession sql, JsonParser input)
+			throws IOException, EngineException
+	{
+		GroupMembership parsed = deserializeMembershipInformation(path, input);
+		dbGroups.addMemberFromParent(path, new EntityParam(parsed.getEntityId()), parsed.getRemoteIdp(), 
 				parsed.getTranslationProfile(), parsed.getCreationTs(), sql);
 		JsonUtils.nextExpect(input, JsonToken.END_OBJECT);
 	}
