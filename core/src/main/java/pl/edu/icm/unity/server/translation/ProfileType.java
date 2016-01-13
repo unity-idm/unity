@@ -6,5 +6,5 @@ package pl.edu.icm.unity.server.translation;
 
 public enum ProfileType
 {
-	INPUT, OUTPUT, REGISTRATION
+	INPUT, OUTPUT, REGISTRATION, BULK_ENTITY_OPS
 }

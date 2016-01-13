@@ -9,6 +9,10 @@
 	<bean class="pl.edu.icm.unity.server.utils.ExecutorsService"/>
 	<bean class="pl.edu.icm.unity.server.utils.CacheProvider"/>
 	<bean class="pl.edu.icm.unity.server.utils.UnityMessageSource"/>
+	<bean class="pl.edu.icm.unity.utils.QuartzSchedulerFactory"/>
+	<bean class="org.quartz.Scheduler" 
+		factory-bean="pl.edu.icm.unity.utils.QuartzSchedulerFactory"
+    	factory-method="getInstance"/>
 	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
 		<property name="bundle" value="pl/edu/icm/unity/server/core/messages/messages"/>
 	</bean>
@@ -44,6 +48,8 @@
 	
 	<bean class="pl.edu.icm.unity.json.AttributeTypeSerializer"/>
 	
+	<bean class="pl.edu.icm.unity.server.bulkops.action.ChangeStatusActionFactory"/>
+	<bean class="pl.edu.icm.unity.server.bulkops.action.RemoveEntityActionFactory"/>
 		
 	<bean class="pl.edu.icm.unity.server.translation.in.action.MapIdentityActionFactory"/>
 	<bean class="pl.edu.icm.unity.server.translation.in.action.MapGroupActionFactory"/>
@@ -66,6 +72,7 @@
 	<bean class="pl.edu.icm.unity.server.translation.form.action.SetCredentialRequirementActionFactory"/>
 	<bean class="pl.edu.icm.unity.server.translation.form.action.SetEntityStateActionFactory"/>
 	
+
 	
 	<beans profile="production">
 		<bean class="pl.edu.icm.unity.server.utils.DefaultConfigurationLocation"/>
