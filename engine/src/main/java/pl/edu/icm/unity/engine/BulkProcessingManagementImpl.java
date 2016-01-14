@@ -5,23 +5,37 @@
 package pl.edu.icm.unity.engine;
 
 import java.util.Collection;
-import java.util.Properties;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import org.quartz.CronExpression;
 import org.quartz.CronScheduleBuilder;
-import org.quartz.CronTrigger;
+import org.quartz.Job;
 import org.quartz.JobBuilder;
+import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerFactory;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.quartz.JobKey;
+import org.quartz.SchedulerException;
+import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
-import org.quartz.impl.DirectSchedulerFactory;
-import org.quartz.impl.StdSchedulerFactory;
-import org.quartz.impl.jdbcjobstore.JobStoreTX;
+import org.quartz.core.QuartzScheduler;
+import org.quartz.utils.Key;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.db.generic.bulk.ProcessingRuleDB;
+import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.internal.BulkProcessingExecutor;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
+import pl.edu.icm.unity.engine.transactions.Transactional;
+import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.BulkProcessingManagement;
+import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
 import pl.edu.icm.unity.server.bulkops.ProcessingRule;
 import pl.edu.icm.unity.server.bulkops.ScheduledProcessingRule;
 import pl.edu.icm.unity.server.bulkops.ScheduledProcessingRuleParam;
@@ -33,48 +47,140 @@ import pl.edu.icm.unity.server.bulkops.ScheduledProcessingRuleParam;
 @Component
 public class BulkProcessingManagementImpl implements BulkProcessingManagement
 {
-/*
-	{
-		// TODO Auto-generated method stub
-		CronExpression expression = new CronExpression(cronExpression)
-		Trigger trigger = TriggerBuilder.newTrigger().withSchedule(CronScheduleBuilder.cronSchedule(cronExpression)).build();
-		JobDetail job = JobBuilder.newJob().ofType(jobClazz).build();
-		sched.scheduleJob(job, trigger);
-	}
-*/
+	private static final String RULE_KEY = "rule";
+	private static final String JOB_GROUP = "bulkEntityProcessing";
+	
+	@Autowired
+	private QuartzScheduler scheduler;
+	@Autowired
+	private ProcessingRuleDB db;
+	@Autowired
+	private AuthorizationManager authz;
+	@Autowired
+	private TransactionalRunner tx;
+	@Autowired
+	private BulkProcessingExecutor executor;
+	
 	@Override
 	public void applyRule(ProcessingRule rule)
 	{
-		// TODO Auto-generated method stub
+		JobDetail job = createJob(rule);
+
+		Trigger trigger = TriggerBuilder.newTrigger()
+				.startNow()
+				.withSchedule(SimpleScheduleBuilder.simpleSchedule())
+				.build();
+
+		try
+		{
+			scheduler.scheduleJob(job, trigger);
+		} catch (SchedulerException e)
+		{
+			throw new InternalException("Can not schedule rule execution", e);
+		}
+	}
+	
+	@Transactional
+	@Override
+	public void scheduleRule(ScheduledProcessingRuleParam rule) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		JobDetail job = createJob(rule);
+		Trigger trigger = createCronTrigger(rule);
 		
+		ScheduledProcessingRule fullRule = new ScheduledProcessingRule(rule.getCondition(), rule.getAction(), 
+				rule.getCronExpression(), job.getKey().getName());
+		db.insert(fullRule.getId(), fullRule, SqlSessionTL.get());
+		
+		scheduleJob(job, trigger);
+	}
+
+	@Transactional
+	@Override
+	public void removeScheduledRule(String id) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		undeployJob(id);
+		db.remove(id, SqlSessionTL.get());
+	}
+
+	@Transactional
+	@Override
+	public void updateScheduledRule(ScheduledProcessingRule rule) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		
+		undeployJob(rule.getId());
+		JobDetail job = createJob(rule);
+		Trigger trigger = createCronTrigger(rule);
+		db.update(rule.getId(), rule, SqlSessionTL.get());
+		
+		scheduleJob(job, trigger);
 	}
 
 	@Override
-	public void scheduleRule(ScheduledProcessingRuleParam rule)
+	public Collection<ScheduledProcessingRule> getScheduledRules() throws AuthorizationException
 	{
-		// TODO Auto-generated method stub
-		
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		List<JobExecutionContext> jobs = scheduler.getCurrentlyExecutingJobs();
+		return jobs.stream().
+			filter(context -> context.getJobDetail().getKey().getGroup().equals(JOB_GROUP) && 
+					context.get(RULE_KEY) instanceof ScheduledProcessingRule).
+			map(context -> {
+				ScheduledProcessingRule rule = (ScheduledProcessingRule) context.get(RULE_KEY);
+				return new ScheduledProcessingRule(rule.getCondition(), rule.getAction(), 
+					rule.getCronExpression(), rule.getId());	
+			}).
+			collect(Collectors.toList());
 	}
 
-	@Override
-	public void removeScheduledRule(String id)
+	private JobDetail createJob(ProcessingRule rule)
 	{
-		// TODO Auto-generated method stub
-		
+		JobDataMap dataMap = new JobDataMap();
+		dataMap.put(RULE_KEY, rule);
+		JobDetail job = JobBuilder.newJob(EntityRuleJob.class)
+				.withIdentity(Key.createUniqueName(null), JOB_GROUP)
+				.usingJobData(dataMap)
+				.build();
+		return job;
 	}
-
-	@Override
-	public void updateScheduledRule(ScheduledProcessingRule rule)
+	
+	private Trigger createCronTrigger(ScheduledProcessingRuleParam rule)
 	{
-		// TODO Auto-generated method stub
-		
+		return TriggerBuilder.newTrigger()
+				.withSchedule(CronScheduleBuilder.cronSchedule(rule.getCronExpression()))
+				.build();
 	}
-
-	@Override
-	public Collection<ScheduledProcessingRule> getScheduledRules()
+	
+	private void scheduleJob(JobDetail job, Trigger trigger)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		try
+		{
+			scheduler.scheduleJob(job, trigger);
+		} catch (SchedulerException e)
+		{
+			throw new InternalException("Can't schedule processing rule", e);
+		}
 	}
-
+	
+	private void undeployJob(String id)
+	{
+		try
+		{
+			scheduler.deleteJob(new JobKey(id, JOB_GROUP));
+		} catch (SchedulerException e)
+		{
+			throw new InternalException("Can't undeploy a rule with id " + id, e);
+		}
+	}
+	
+	private class EntityRuleJob implements Job 
+	{
+		@Override
+		public void execute(JobExecutionContext context) throws JobExecutionException
+		{
+			ProcessingRule rule = (ProcessingRule) context.get(RULE_KEY);
+			executor.execute(rule);
+		}
+	}
 }

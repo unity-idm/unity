@@ -6,6 +6,7 @@ package pl.edu.icm.unity.server.bulkops.action;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
@@ -30,7 +31,7 @@ public class ChangeStatusActionFactory extends AbstractEntityActionFactory
 	private IdentitiesManagement idsMan;
 	
 	@Autowired
-	public ChangeStatusActionFactory(IdentitiesManagement idsMan)
+	public ChangeStatusActionFactory(@Qualifier("insecure") IdentitiesManagement idsMan)
 	{
 		super(NAME, new ActionParameterDesc[] {
 				new ActionParameterDesc(

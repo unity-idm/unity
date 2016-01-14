@@ -38,6 +38,11 @@ public class TranslationCondition
 
 	public boolean evaluate(Object input) throws EngineException
 	{
+		return evaluateCondition(compiled, input, log);
+	}
+
+	public static boolean evaluateCondition(Serializable compiled, Object input, Logger log) throws EngineException
+	{
 		Boolean result = null;
 		try
 		{
