@@ -44,6 +44,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
+import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
@@ -70,8 +71,9 @@ public class TestAuthentication extends DBIntegrationTestBase
 		authnMan.createAuthenticator("auth1", authType.getId(), "6", "bbb", "credential1");
 		
 		AuthenticationOptionDescription authSet = new AuthenticationOptionDescription("auth1");
-		endpointMan.deploy(MockEndpointFactory.NAME, "endpoint1", new I18nString("endpoint1"), "/foo", "desc", 
+		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), "desc", 
 				Collections.singletonList(authSet), "", realm.getName());
+		endpointMan.deploy(MockEndpointFactory.NAME, "endpoint1", "/foo", cfg);
 
 		//set wrong password 
 		EntityParam entityP = new EntityParam(id);
@@ -138,16 +140,16 @@ public class TestAuthentication extends DBIntegrationTestBase
 		assertEquals(1, endpointTypes.size());
 		EndpointTypeDescription type = endpointTypes.get(0);
 		
-		endpointMan.deploy(type.getName(), "endpoint1", new I18nString("endpoint1"),
-				"/foo", "desc", new ArrayList<AuthenticationOptionDescription>(), "", 
-				realm.getName());
+		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"),
+				"desc", new ArrayList<AuthenticationOptionDescription>(), "", realm.getName());
+		endpointMan.deploy(type.getName(), "endpoint1", "/foo", cfg);
 		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
 
 		//and assign the authenticator to it
 		AuthenticationOptionDescription authSet = new AuthenticationOptionDescription("auth1");
-		endpointMan.updateEndpoint(endpoints.get(0).getId(), new I18nString("ada"), 
-				"ada", Collections.singletonList(authSet), "", realm.getName());
+		endpointMan.updateEndpoint(endpoints.get(0).getId(), new EndpointConfiguration(new I18nString("ada"), 
+				"ada", Collections.singletonList(authSet), "", realm.getName()));
 
 		//check if is returned
 		List<AuthenticationOptionDescription> authSets = endpointMan.getEndpoints().get(0).getAuthenticatorSets();
@@ -162,9 +164,9 @@ public class TestAuthentication extends DBIntegrationTestBase
 		} catch (IllegalArgumentException e) {}
 		
 		//remove it from endpoint
-		endpointMan.updateEndpoint(endpoints.get(0).getId(), new I18nString("ada"), 
+		endpointMan.updateEndpoint(endpoints.get(0).getId(), new EndpointConfiguration(new I18nString("ada"), 
 				"ada", new ArrayList<AuthenticationOptionDescription>(), "",
-				realm.getName());
+				realm.getName()));
 		
 		//remove again
 		authnMan.removeAuthenticator(authInstance.getId());

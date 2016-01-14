@@ -21,6 +21,7 @@ import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
 /**
@@ -41,9 +42,9 @@ public class TestRESTCore extends TestRESTBase
 		
 		List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
 		authnCfg.add(new AuthenticationOptionDescription(AUTHENTICATOR_REST_PASS));
-		endpointMan.deploy(MockRESTEndpointFactory.NAME, 
-				"endpoint1", new I18nString("endpoint1"),
-				"/mock", "desc", authnCfg, "", realm.getName());
+		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"),
+				"desc", authnCfg, "", realm.getName());
+		endpointMan.deploy(MockRESTEndpointFactory.NAME, "endpoint1", "/mock", cfg);
 		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
 

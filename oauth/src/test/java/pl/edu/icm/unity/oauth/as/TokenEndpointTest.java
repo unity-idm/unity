@@ -32,6 +32,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -103,9 +104,9 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 			realmsMan.addRealm(realm);
 			List<AuthenticationOptionDescription> authnCfg = new ArrayList<>();
 			authnCfg.add(new AuthenticationOptionDescription("Apass"));
-			endpointMan.deploy(OAuthTokenEndpointFactory.NAME, "endpointIDP", new I18nString("endpointIDP"),
-					"/oauth", "desc", 
-					authnCfg, OAUTH_ENDP_CFG, REALM_NAME);
+			EndpointConfiguration config = new EndpointConfiguration(new I18nString("endpointIDP"),
+					"desc",	authnCfg, OAUTH_ENDP_CFG, REALM_NAME);
+			endpointMan.deploy(OAuthTokenEndpointFactory.NAME, "endpointIDP", "/oauth", config);
 			List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 			assertEquals(1, endpoints.size());
 

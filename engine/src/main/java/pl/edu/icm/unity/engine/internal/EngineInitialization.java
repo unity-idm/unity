@@ -98,6 +98,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
+import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.utils.LifecycleBase;
 
@@ -764,8 +765,9 @@ public class EngineInitialization extends LifecycleBase
 			String jsonConfiguration = FileUtils.readFileToString(configFile);
 
 			log.info(" - " + name + ": " + type + " " + description);
-			endpointManager.deploy(type, name, displayedName, address, description, endpointAuthn, 
-					jsonConfiguration, realmName);
+			EndpointConfiguration endpointConfiguration = new EndpointConfiguration(
+					displayedName, description, endpointAuthn, jsonConfiguration, realmName);
+			endpointManager.deploy(type, name, address, endpointConfiguration);
 		}
 	}
 

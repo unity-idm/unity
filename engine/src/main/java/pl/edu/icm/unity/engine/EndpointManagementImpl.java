@@ -31,9 +31,9 @@ import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.registries.EndpointFactoriesRegistry;
-import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
@@ -92,21 +92,18 @@ public class EndpointManagementImpl implements EndpointManagement
 	 */
 	@Override
 	@Transactional
-	public EndpointDescription deploy(String typeId, String endpointName, I18nString displayedName, 
-			String address, String description,
-			List<AuthenticationOptionDescription> authn, String jsonConfiguration, String realm) throws EngineException 
+	public EndpointDescription deploy(String typeId, String endpointName, 
+			String address, EndpointConfiguration configuration) throws EngineException 
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		synchronized(internalManagement)
 		{
-			return deployInt(typeId, endpointName, displayedName, address, description, authn, 
-					realm, jsonConfiguration);
+			return deployInt(typeId, endpointName, address, configuration);
 		}
 	}
 
-	private EndpointDescription deployInt(String typeId, String endpointName, I18nString displayedName, 
-			String address, String description, List<AuthenticationOptionDescription> authenticatorsInfo, 
-			String realmName, String jsonConfiguration) throws EngineException 
+	private EndpointDescription deployInt(String typeId, String endpointName, 
+			String address, EndpointConfiguration configuration) throws EngineException 
 	{
 		EndpointFactory factory = endpointFactoriesReg.getById(typeId);
 		if (factory == null)
@@ -116,15 +113,16 @@ public class EndpointManagementImpl implements EndpointManagement
 		try
 		{
 			List<AuthenticationOption> authenticators = authnLoader.getAuthenticators(
-					authenticatorsInfo, sql);
+					configuration.getAuthenticationOptions(), sql);
 			verifyAuthenticators(authenticators, factory.getDescription().getSupportedBindings());
-			AuthenticationRealm realm = realmDB.get(realmName, sql);
+			AuthenticationRealm realm = realmDB.get(configuration.getRealm(), sql);
 			
 			EndpointDescription endpDescription = new EndpointDescription(
-					endpointName, displayedName, address, description, realm, 
-					factory.getDescription(), authenticatorsInfo);
+					endpointName, configuration.getDisplayedName(), address, 
+					configuration.getDescription(), realm, 
+					factory.getDescription(), configuration.getAuthenticationOptions());
 			
-			instance.initialize(endpDescription, authenticators, jsonConfiguration);
+			instance.initialize(endpDescription, authenticators, configuration.getConfiguration());
 			endpointDB.insert(endpointName, instance, sql);
 			internalManagement.deploy(instance);
 		} catch (Exception e)
@@ -178,13 +176,12 @@ public class EndpointManagementImpl implements EndpointManagement
 	}	
 	
 	@Override
-	public void updateEndpoint(String id, I18nString displayedName, String description, 
-			List<AuthenticationOptionDescription> authn, String jsonConfiguration, String realm) throws EngineException
+	public void updateEndpoint(String id, EndpointConfiguration configuration) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		synchronized(internalManagement)
 		{
-			updateEndpointInt(id, displayedName, description, jsonConfiguration, authn, realm);
+			updateEndpointInt(id, configuration);
 		}
 	}
 
@@ -195,14 +192,10 @@ public class EndpointManagementImpl implements EndpointManagement
 	 * -) serialize and store in db
 	 * -) trigger runtime system update.
 	 * @param id
-	 * @param description
-	 * @param jsonConfiguration
-	 * @param authn
+	 * @param configuration
 	 * @throws EngineException
 	 */
-	private void updateEndpointInt(String id, I18nString displayedName, String description, 
-			String jsonConfiguration, 
-			List<AuthenticationOptionDescription> authn, String realmName) throws EngineException
+	private void updateEndpointInt(String id, EndpointConfiguration configuration) throws EngineException
 	{
 		tx.runInTransaciton(() -> {
 			SqlSession sql = SqlSessionTL.get();
@@ -213,26 +206,28 @@ public class EndpointManagementImpl implements EndpointManagement
 				EndpointFactory factory = endpointFactoriesReg.getById(endpointTypeId);
 				EndpointInstance newInstance = factory.newInstance();
 				
-				String jsonConf = (jsonConfiguration != null) ? jsonConfiguration : 
+				String jsonConf = (configuration.getConfiguration() != null) ? 
+						configuration.getConfiguration() : 
 					instance.getSerializedConfiguration();
-				String newDesc = (description != null) ? description : 
+				String newDesc = (configuration.getDescription() != null) ? 
+						configuration.getDescription() : 
 					instance.getEndpointDescription().getDescription();
 				
 				List<AuthenticationOption> authenticators;
 				List<AuthenticationOptionDescription> newAuthn;
-				if (authn != null)
+				if (configuration.getAuthenticationOptions() != null)
 				{
-					newAuthn = authn;
-					authenticators = authnLoader.getAuthenticators(authn, sql);
+					newAuthn = configuration.getAuthenticationOptions();
+					authenticators = authnLoader.getAuthenticators(newAuthn, sql);
 				} else
 				{
 					newAuthn = instance.getEndpointDescription().getAuthenticatorSets();
 					authenticators = authnLoader.getAuthenticators(newAuthn, sql);
 				}
-				AuthenticationRealm realm = realmDB.get(realmName, sql);
+				AuthenticationRealm realm = realmDB.get(configuration.getRealm(), sql);
 				
 				EndpointDescription endpDescription = new EndpointDescription(
-						id, displayedName, 
+						id, configuration.getDisplayedName(), 
 						instance.getEndpointDescription().getContextAddress(), 
 						newDesc, realm, 
 						factory.getDescription(), newAuthn);

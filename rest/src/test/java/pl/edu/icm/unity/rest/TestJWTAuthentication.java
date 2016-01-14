@@ -23,6 +23,7 @@ import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpointFactory;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
 /**
@@ -48,9 +49,9 @@ public class TestJWTAuthentication extends TestRESTBase
 		List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
 		authnCfg.add(new AuthenticationOptionDescription(AUTHENTICATOR_REST_PASS));
 		authnCfg.add(new AuthenticationOptionDescription("Ajwt"));
-		endpointMan.deploy(JWTManagementEndpointFactory.NAME, 
-				"jwtMan", new I18nString("jwtMan"), "/jwt", "desc", authnCfg, 
+		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("jwtMan"), "desc", authnCfg, 
 				JWT_CONFIG, realm.getName());
+		endpointMan.deploy(JWTManagementEndpointFactory.NAME, "jwtMan", "/jwt", cfg);
 		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
 

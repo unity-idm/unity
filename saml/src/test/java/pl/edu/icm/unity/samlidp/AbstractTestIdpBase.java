@@ -55,6 +55,7 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
 public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
@@ -93,9 +94,9 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 			List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
 			authnCfg.add(new AuthenticationOptionDescription("Apass"));
 			authnCfg.add(new AuthenticationOptionDescription("Acert"));
-			endpointMan.deploy(SamlIdPSoapEndpointFactory.NAME, "endpointIDP", 
-					new I18nString("endpointIDP"), "/saml", "desc", 
+			EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpointIDP"), "desc", 
 					authnCfg, SAML_ENDP_CFG, REALM_NAME);
+			endpointMan.deploy(SamlIdPSoapEndpointFactory.NAME, "endpointIDP", "/saml", cfg);
 			List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 			assertEquals(1, endpoints.size());
 
