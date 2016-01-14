@@ -14,9 +14,9 @@ import org.mvel2.MVEL;
  */
 public class ProcessingRule
 {
-	private String condition;
-	private Serializable compiledCondition;
-	private EntityAction action;
+	protected String condition;
+	protected Serializable compiledCondition;
+	protected EntityAction action;
 	
 	public ProcessingRule(String condition, EntityAction action)
 	{
@@ -25,6 +25,10 @@ public class ProcessingRule
 		this.compiledCondition = MVEL.compileExpression(condition);
 	}
 
+	protected ProcessingRule()
+	{
+	}
+	
 	public String getCondition()
 	{
 		return condition;

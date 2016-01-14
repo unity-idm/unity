@@ -52,6 +52,8 @@
 	<bean class="pl.edu.icm.unity.db.generic.reg.RegistrationRequestHandler"/>
 	<bean class="pl.edu.icm.unity.db.generic.tprofile.TranslationProfileDB"/>
 	<bean class="pl.edu.icm.unity.db.generic.tprofile.TranslationProfileHandler"/>
+	<bean class="pl.edu.icm.unity.db.generic.bulk.ProcessingRuleDB"/>
+	<bean class="pl.edu.icm.unity.db.generic.bulk.ProcessingRuleHandler"/>
 	<bean class="pl.edu.icm.unity.db.generic.realm.RealmDB"/>
 	<bean class="pl.edu.icm.unity.db.generic.realm.RealmHandler"/>
 	<bean class="pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateDB"/>

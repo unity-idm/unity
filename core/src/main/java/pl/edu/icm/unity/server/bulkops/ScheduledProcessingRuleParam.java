@@ -11,7 +11,7 @@ package pl.edu.icm.unity.server.bulkops;
  */
 public class ScheduledProcessingRuleParam extends ProcessingRule
 {
-	private String cronExpression;
+	protected String cronExpression;
 
 	public ScheduledProcessingRuleParam(String condition, EntityAction action, String cronExpression)
 	{
@@ -19,6 +19,10 @@ public class ScheduledProcessingRuleParam extends ProcessingRule
 		this.cronExpression = cronExpression;
 	}
 
+	protected ScheduledProcessingRuleParam()
+	{
+	}
+	
 	public String getCronExpression()
 	{
 		return cronExpression;

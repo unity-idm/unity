@@ -61,6 +61,7 @@ public class TranslationProfileHandler extends DefaultEntityHandler<TranslationP
 				value.getProfileType().toString());
 	}
 
+	@SuppressWarnings("incomplete-switch")
 	@Override
 	public TranslationProfile fromBlob(GenericObjectBean blob, SqlSession sql)
 	{

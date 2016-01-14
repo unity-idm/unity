@@ -4,6 +4,15 @@
  */
 package pl.edu.icm.unity.server.bulkops;
 
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.translation.TranslationActionFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 /**
  * Represents an installed scheduled processing rule.
  * Internally extends {@link ScheduledProcessingRuleParam} by introducing an id, which is assigned by the system
@@ -13,7 +22,6 @@ package pl.edu.icm.unity.server.bulkops;
  */
 public class ScheduledProcessingRule extends ScheduledProcessingRuleParam
 {
-	private String cronExpression;
 	private String id;
 
 	public ScheduledProcessingRule(String condition, EntityAction action, String cronExpression, String id)
@@ -22,13 +30,50 @@ public class ScheduledProcessingRule extends ScheduledProcessingRuleParam
 		this.id = id;
 	}
 
-	public String getCronExpression()
+	public ScheduledProcessingRule(ObjectNode json, TranslationActionsRegistry actionRegistry)
 	{
-		return cronExpression;
+		fromJson(json, actionRegistry);
 	}
 
 	public String getId()
 	{
 		return id;
+	}
+	
+	public ObjectNode toJson(ObjectMapper mapper)
+	{
+		ObjectNode root = mapper.createObjectNode();
+		
+		root.put("id", id);
+		root.put("cronExpression", getCronExpression());
+		root.put("condition", getCondition());
+		root.put("action", getAction().getActionDescription().getName());
+		ArrayNode actionParams = root.withArray("actionParams");
+		for (String param: getAction().getParameters())
+			actionParams.add(param);
+		
+		return root;
+	}
+	
+	private void fromJson(ObjectNode json, TranslationActionsRegistry actionRegistry)
+	{
+		id = json.get("id").asText();
+		cronExpression = json.get("cronExpression").asText();
+		condition = json.get("condition").asText();
+		String actionName = json.get("action").asText();
+		ArrayNode paramsN = (ArrayNode) json.get("actionParams");
+		String[] params = new String[paramsN.size()];
+		for (int i=0; i<paramsN.size(); i++)
+			params[i] = paramsN.get(i).asText();
+		
+		TranslationActionFactory actionFactory;
+		try
+		{
+			actionFactory = actionRegistry.getByName(actionName);
+		} catch (IllegalTypeException e)
+		{
+			throw new InternalException("Can not find entity action impl for " + actionName, e);
+		}
+		action = (EntityAction) actionFactory.getInstance(params);
 	}
 }
