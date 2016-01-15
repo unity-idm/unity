@@ -19,24 +19,19 @@ import java.util.List;
 
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
-import org.junit.Before;
 import org.junit.Test;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.rest.TestRESTBase;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
@@ -66,39 +61,13 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 
 
-public class TestWrite extends TestRESTBase
+public class TestWrite extends RESTAdminTestBase
 {
-	private HttpContext localcontext;
-	
-	private ObjectMapper m = new ObjectMapper();
-
-	private HttpHost host;
-
-	private HttpClient client;
-	
-	{
-		m.enable(SerializationFeature.INDENT_OUTPUT);
-	}
-
-	@Before
-	public void setup() throws Exception
-	{
-		setupPasswordAuthn();
-		createUsernameUser("System Manager");
-		super.deployEndpoint(RESTAdminEndpointFactory.NAME, 
-				"restAdmin", "/restadm");		
-		client = getClient();
-		host = new HttpHost("localhost", 53456, "https");
-		localcontext = getClientContext(client, host);
-	}
-	
 	@Test
 	public void setRemoveAttribute() throws Exception
 	{

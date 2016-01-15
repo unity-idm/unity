@@ -9,6 +9,10 @@ import java.util.Map;
 
 import pl.edu.icm.unity.MessageSource;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.JsonNode;
+
 
 /**
  * String in several languages. Besides localized versions can store also a default value which is returned when there
@@ -31,6 +35,18 @@ public class I18nString
 		this.defaultValue = defaultValue;
 	}
 
+	@JsonCreator
+	public static I18nString fromJson(JsonNode json)
+	{
+		return I18nStringJsonUtil.fromJson(json);
+	}
+	
+	@JsonValue
+	public JsonNode toJson()
+	{
+		return I18nStringJsonUtil.toJson(this);
+	}
+	
 	public String getValue(MessageSource msg)
 	{
 		return getValue(msg.getLocaleCode(), msg.getDefaultLocaleCode());

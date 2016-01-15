@@ -1,0 +1,51 @@
+/**********************************************************************
+ *                     Copyright (c) 2015, Jirav
+ *                        All Rights Reserved
+ *
+ *         This is unpublished proprietary source code of Jirav.
+ *    Reproduction or distribution, in whole or in part, is forbidden
+ *          except by express written permission of Jirav, Inc.
+ **********************************************************************/
+package pl.edu.icm.unity.restadm;
+
+import org.apache.http.HttpHost;
+import org.apache.http.client.HttpClient;
+import org.apache.http.protocol.HttpContext;
+import org.junit.Before;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
+import pl.edu.icm.unity.rest.TestRESTBase;
+
+/**
+ *
+ * @author Krzysztof Benedyczak
+ */
+public class RESTAdminTestBase extends TestRESTBase
+{
+	protected HttpContext localcontext;
+	
+	protected ObjectMapper m = new ObjectMapper();
+
+	protected HttpHost host;
+
+	protected HttpClient client;
+	
+	{
+		m.enable(SerializationFeature.INDENT_OUTPUT);
+	}
+
+	@Before
+	public void setup() throws Exception
+	{
+		setupPasswordAuthn();
+		createUsernameUser("System Manager");
+		super.deployEndpoint(RESTAdminEndpointFactory.NAME, 
+				"restAdmin", "/restadm");		
+		client = getClient();
+		host = new HttpHost("localhost", 53456, "https");
+		localcontext = getClientContext(client, host);
+	}
+
+}

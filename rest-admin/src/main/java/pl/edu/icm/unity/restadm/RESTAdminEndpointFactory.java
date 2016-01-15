@@ -7,12 +7,14 @@ package pl.edu.icm.unity.restadm;
 import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.json.AttributeTypeSerializer;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
 import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
@@ -62,6 +64,14 @@ public class RESTAdminEndpointFactory implements EndpointFactory
 	@Autowired
 	private NetworkServer server;
 	
+	/**
+	 * We depend on app context in order to work around of the dependency cycle. 
+	 * We do depend on EndpointsManagement, however it requires this factory to be instantiated first 
+	 * and registered. Therefore EndpointsManagement is retrieved only on endpoint creation.
+	 */
+	@Autowired
+	private ApplicationContext appContext;
+	
 	@Override
 	public EndpointTypeDescription getDescription()
 	{
@@ -71,9 +81,10 @@ public class RESTAdminEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
+		EndpointManagement endpointManagement = appContext.getBean(EndpointManagement.class);
 		return new RESTAdminEndpoint(msg, sessionMan, server, "", identitiesMan, groupsMan, attributesMan,
 				authnProcessor, identityTypesRegistry, attributeTypeSerializer,
-				attributeSyntaxFactoriesRegistry, cofirmationManager);
+				attributeSyntaxFactoriesRegistry, cofirmationManager, endpointManagement);
 	}
 
 }

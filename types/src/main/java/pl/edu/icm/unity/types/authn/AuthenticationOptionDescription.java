@@ -12,6 +12,8 @@ import java.util.List;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.InternalException;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -27,6 +29,7 @@ public class AuthenticationOptionDescription
 	private String primaryAuthenticator;
 	private String mandatory2ndAuthenticator;
 	
+	@JsonCreator
 	public AuthenticationOptionDescription(ObjectNode json)
 	{
 		fromJson(json);
@@ -37,14 +40,12 @@ public class AuthenticationOptionDescription
 		this.primaryAuthenticator = primaryAuthenticator;
 	}
 
-	public AuthenticationOptionDescription(String primaryAuthenticator,
-			String mandatory2ndAuthenticator)
+	public AuthenticationOptionDescription(String primaryAuthenticator, String mandatory2ndAuthenticator)
 	{
 		this.primaryAuthenticator = primaryAuthenticator;
 		this.mandatory2ndAuthenticator = mandatory2ndAuthenticator;
 	}
 
-	
 	
 	public boolean contains(String id)
 	{
@@ -61,6 +62,7 @@ public class AuthenticationOptionDescription
 		return mandatory2ndAuthenticator;
 	}
 
+	@JsonValue
 	public ObjectNode toJson()
 	{
 		ObjectNode ret = Constants.MAPPER.createObjectNode();
@@ -108,5 +110,46 @@ public class AuthenticationOptionDescription
 	{
 		return mandatory2ndAuthenticator == null ? primaryAuthenticator : 
 			primaryAuthenticator + "," + mandatory2ndAuthenticator;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime
+				* result
+				+ ((mandatory2ndAuthenticator == null) ? 0
+						: mandatory2ndAuthenticator.hashCode());
+		result = prime
+				* result
+				+ ((primaryAuthenticator == null) ? 0 : primaryAuthenticator
+						.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AuthenticationOptionDescription other = (AuthenticationOptionDescription) obj;
+		if (mandatory2ndAuthenticator == null)
+		{
+			if (other.mandatory2ndAuthenticator != null)
+				return false;
+		} else if (!mandatory2ndAuthenticator.equals(other.mandatory2ndAuthenticator))
+			return false;
+		if (primaryAuthenticator == null)
+		{
+			if (other.primaryAuthenticator != null)
+				return false;
+		} else if (!primaryAuthenticator.equals(other.primaryAuthenticator))
+			return false;
+		return true;
 	}
 }

@@ -8,10 +8,19 @@
  **********************************************************************/
 package pl.edu.icm.unity.types.endpoint;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Base endpoint configuration. Useful when deploying a new endpoint and when updating it. 
@@ -37,6 +46,40 @@ public class EndpointConfiguration
 		this.realm = realm;
 	}
 
+	@JsonCreator
+	public EndpointConfiguration(ObjectNode json)
+	{
+		if (json.has("displayedName"))
+			displayedName = I18nStringJsonUtil.fromJson(json.get("displayedName"));
+		if (json.has("description"))
+			description = json.get("description").asText();
+		if (json.has("configuration"))
+			configuration = json.get("configuration").asText();
+		if (json.has("realm"))
+			realm = json.get("realm").asText();
+		if (json.has("authenticationOptions"))
+		{
+			ArrayNode aopts = (ArrayNode) json.get("authenticationOptions");
+			authenticationOptions = new ArrayList<>();
+			for (JsonNode node: aopts)
+				authenticationOptions.add(new AuthenticationOptionDescription((ObjectNode) node));
+		}
+	}
+	
+	@JsonValue
+	public ObjectNode toJson(ObjectMapper mapper)
+	{
+		ObjectNode root = mapper.createObjectNode();
+		root.set("displayedName", I18nStringJsonUtil.toJson(displayedName));
+		root.put("description", description);
+		root.put("configuration", configuration);
+		root.put("realm", realm);
+		ArrayNode aopts = root.withArray("authenticationOptions");
+		for (AuthenticationOptionDescription aod: authenticationOptions)
+			aopts.add(aod.toJson());
+		return root;
+	}
+	
 	public I18nString getDisplayedName()
 	{
 		return displayedName;
@@ -60,5 +103,13 @@ public class EndpointConfiguration
 	public String getRealm()
 	{
 		return realm;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "EndpointConfiguration [displayedName=" + displayedName + ", description="
+				+ description + ", authenticationOptions=" + authenticationOptions
+				+ ", configuration=" + configuration + ", realm=" + realm + "]";
 	}
 }

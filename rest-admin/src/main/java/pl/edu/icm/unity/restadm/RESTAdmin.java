@@ -34,10 +34,12 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.json.AttributeTypeSerializer;
 import pl.edu.icm.unity.rest.exception.JSONParsingException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
+import pl.edu.icm.unity.server.utils.JsonUtil;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.EntityState;
@@ -52,6 +54,8 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
+import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
+import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -77,12 +81,13 @@ public class RESTAdmin
 	private AttributeTypeSerializer attrTypeSerializer;
 	private AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
 	private ConfirmationManager confirmationManager;
+	private EndpointManagement endpointManagement;
 	
 	public RESTAdmin(IdentitiesManagement identitiesMan, GroupsManagement groupsMan,
 			AttributesManagement attributesMan, IdentityTypesRegistry identityTypesRegistry,
 			AttributeTypeSerializer attrTypeSerializer,
 			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry,
-			ConfirmationManager confirmationManager)
+			ConfirmationManager confirmationManager, EndpointManagement endpointManagement)
 	{
 		super();
 		this.identitiesMan = identitiesMan;
@@ -92,6 +97,7 @@ public class RESTAdmin
 		this.attrTypeSerializer = attrTypeSerializer;
 		this.attributeSyntaxFactoriesRegistry = attributeSyntaxFactoriesRegistry;
 		this.confirmationManager = confirmationManager;
+		this.endpointManagement = endpointManagement;
 	}
 
 	@Path("/resolve/{identityType}/{identityValue}")
@@ -446,5 +452,43 @@ public class RESTAdmin
 
 		throw new WrongArgumentException("Identity is unknown");
 	}
+	
+	
+	@Path("/endpoints")
+	@GET
+	public String getEndpoints() throws EngineException, JsonProcessingException
+	{
+		List<EndpointDescription> endpoints = endpointManagement.getEndpoints();
+		return mapper.writeValueAsString(endpoints);
+	}
+	
+	@Path("/endpoint/{id}")
+	@DELETE
+	public void undeployEndpoint(@PathParam("id") String id) throws EngineException
+	{
+		endpointManagement.undeploy(id);
+	}
+	
+	@Path("/endpoint/{id}")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	public String deployEndpoint(@QueryParam("typeId") String typeId, 
+			@PathParam("id") String id, 
+			@QueryParam("address") String address, 
+			String configurationJson) throws EngineException, IOException
+	{
+		EndpointConfiguration configuration = new EndpointConfiguration(JsonUtil.parse(configurationJson));
+		EndpointDescription deployed = endpointManagement.deploy(typeId, id, address, configuration);
+		return mapper.writeValueAsString(deployed);
+	}
 
+	@Path("/endpoint/{id}")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void updateEndpoint(@PathParam("id") String id, 
+			String configurationJson) throws EngineException, IOException
+	{
+		EndpointConfiguration configuration = new EndpointConfiguration(JsonUtil.parse(configurationJson));
+		endpointManagement.updateEndpoint(id, configuration);
+	}
 }

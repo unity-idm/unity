@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +32,8 @@ import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.registries.EndpointFactoriesRegistry;
+import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
@@ -45,6 +48,7 @@ import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 @InvocationEventProducer
 public class EndpointManagementImpl implements EndpointManagement
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, EndpointManagementImpl.class);
 	private EndpointFactoriesRegistry endpointFactoriesReg;
 	private AuthenticatorLoader authnLoader;
 	private InternalEndpointManagement internalManagement;
@@ -105,6 +109,9 @@ public class EndpointManagementImpl implements EndpointManagement
 	private EndpointDescription deployInt(String typeId, String endpointName, 
 			String address, EndpointConfiguration configuration) throws EngineException 
 	{
+		log.info("Will deploy endpoint " + endpointName + " [" + typeId +"] at " + address);
+		if (log.isTraceEnabled())
+			log.trace("New endpoint configuration: " + configuration);
 		EndpointFactory factory = endpointFactoriesReg.getById(typeId);
 		if (factory == null)
 			throw new WrongArgumentException("Endpoint type " + typeId + " is unknown");
@@ -125,6 +132,7 @@ public class EndpointManagementImpl implements EndpointManagement
 			instance.initialize(endpDescription, authenticators, configuration.getConfiguration());
 			endpointDB.insert(endpointName, instance, sql);
 			internalManagement.deploy(instance);
+			log.info("Endpoint " + endpointName + " successfully deployed");
 		} catch (Exception e)
 		{
 			internalManagement.undeploy(instance.getEndpointDescription().getId());
@@ -163,6 +171,7 @@ public class EndpointManagementImpl implements EndpointManagement
 
 	private void undeployInt(String id) throws EngineException
 	{
+		log.info("Will undeploy endpoint " + id);
 		tx.runInTransaciton(() -> {
 			try
 			{
@@ -197,6 +206,9 @@ public class EndpointManagementImpl implements EndpointManagement
 	 */
 	private void updateEndpointInt(String id, EndpointConfiguration configuration) throws EngineException
 	{
+		log.info("Will update configuration of endpoint " + id);
+		if (log.isTraceEnabled())
+			log.trace("Updated endpoint configuration: " + configuration);
 		tx.runInTransaciton(() -> {
 			SqlSession sql = SqlSessionTL.get();
 			try
@@ -224,16 +236,25 @@ public class EndpointManagementImpl implements EndpointManagement
 					newAuthn = instance.getEndpointDescription().getAuthenticatorSets();
 					authenticators = authnLoader.getAuthenticators(newAuthn, sql);
 				}
-				AuthenticationRealm realm = realmDB.get(configuration.getRealm(), sql);
+				String newRealm = (configuration.getRealm() != null) ?
+						configuration.getRealm() : 
+						instance.getEndpointDescription().getRealm().getName();
+				
+				AuthenticationRealm realm = realmDB.get(newRealm, sql);
+				
+				I18nString newDisplayedName = configuration.getDisplayedName() != null ? 
+						configuration.getDisplayedName() :
+						instance.getEndpointDescription().getDisplayedName();
 				
 				EndpointDescription endpDescription = new EndpointDescription(
-						id, configuration.getDisplayedName(), 
+						id, newDisplayedName, 
 						instance.getEndpointDescription().getContextAddress(), 
 						newDesc, realm, 
 						factory.getDescription(), newAuthn);
 				
 				newInstance.initialize(endpDescription, authenticators, jsonConf);
 				endpointDB.update(id, newInstance, sql);
+				log.info("Endpoint " + id + " successfully updated");
 			} catch (Exception e)
 			{
 				throw new EngineException("Unable to reconfigure an endpoint: " + e.getMessage(), e);
