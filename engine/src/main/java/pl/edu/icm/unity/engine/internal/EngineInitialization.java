@@ -42,6 +42,7 @@ import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.InitDB;
 import pl.edu.icm.unity.engine.SharedEndpointManagementImpl;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
+import pl.edu.icm.unity.engine.bulkops.BulkOperationsUpdater;
 import pl.edu.icm.unity.engine.endpoints.EndpointsUpdater;
 import pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.notifications.EmailFacility;
@@ -161,7 +162,9 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	private ExecutorsService executors;
 	@Autowired
-	private EndpointsUpdater updater;
+	private EndpointsUpdater endpointsUpdater;
+	@Autowired
+	private BulkOperationsUpdater bulkOperationsUpdater;
 	@Autowired
 	EntitiesScheduledUpdater entitiesUpdater;
 	@Autowired
@@ -239,29 +242,14 @@ public class EngineInitialization extends LifecycleBase
 	
 	private void initializeBackgroundTasks()
 	{
-		Runnable endpointsUpdater = new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				try
-				{
-					updater.updateEndpoints();
-				} catch (Exception e)
-				{
-					log.error("Can't synchronize runtime state of endpoints " +
-							"with the persisted endpoints state", e);
-				}
-			}
-		};
 		int interval = config.getIntValue(UnityServerConfiguration.UPDATE_INTERVAL);
-		updater.setLastUpdate(endpointsLoadTime + 1000); //hack. We set the last update to +1s then the 
-		//real value is, to ensure that no immediate endpoint update will take place. This is due to fact that
-		//the update precision is stored with 1s granularity. The negative outcome is that any endpoint update
-		//in the very first second won't be found. Though chances are minimal (server is still starting...)
+		endpointsUpdater.setInitialUpdate(endpointsLoadTime);
 		executors.getService().scheduleWithFixedDelay(endpointsUpdater, interval+interval/10, 
 				interval, TimeUnit.SECONDS);
 
+		executors.getService().scheduleWithFixedDelay(bulkOperationsUpdater, 2500, 
+				interval, TimeUnit.SECONDS);
+		
 		Runnable attributeStatementsUpdater = new Runnable()
 		{
 			@Override
@@ -712,7 +700,7 @@ public class EngineInitialization extends LifecycleBase
 			throw new InternalException("Can't add realms which are defined in configuration", e);
 		}
 	}
-	
+
 	private void initializeEndpoints()
 	{
 		try

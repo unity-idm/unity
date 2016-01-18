@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.db.generic.bulk;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.DBGeneric;
@@ -19,7 +20,7 @@ import pl.edu.icm.unity.server.translation.AbstractTranslationProfile;
 @Component
 public class ProcessingRuleDB extends GenericObjectsDB<ScheduledProcessingRule>
 {
-
+	@Autowired
 	public ProcessingRuleDB(ProcessingRuleHandler handler,
 			DBGeneric dbGeneric, DependencyNotificationManager notificationManager)
 	{

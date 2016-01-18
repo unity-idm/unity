@@ -21,8 +21,9 @@ public interface BulkProcessingManagement
 	/**
 	 * Schedule a rule to be invoked immediately.
 	 * @param rule
+	 * @throws AuthorizationException 
 	 */
-	void applyRule(ProcessingRule rule);
+	void applyRule(ProcessingRule rule) throws AuthorizationException;
 	
 	void scheduleRule(ScheduledProcessingRuleParam rule) throws EngineException;
 	

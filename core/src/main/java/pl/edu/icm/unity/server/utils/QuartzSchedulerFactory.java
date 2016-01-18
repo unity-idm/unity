@@ -9,8 +9,9 @@ import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
 import org.quartz.impl.DirectSchedulerFactory;
 import org.quartz.impl.StdSchedulerFactory;
-import org.quartz.impl.jdbcjobstore.JobStoreTX;
+import org.quartz.simpl.RAMJobStore;
 import org.quartz.simpl.SimpleThreadPool;
+import org.quartz.spi.JobStore;
 import org.quartz.spi.ThreadPool;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,11 +24,11 @@ import org.springframework.context.annotation.Configuration;
 public class QuartzSchedulerFactory
 {
 	public static final String NAME = "UNITY actions scheduler";
-	
+
 	@Bean
 	public Scheduler getInstance() throws SchedulerException
 	{
-		JobStoreTX jobStore = new JobStoreTX();
+		JobStore jobStore = new RAMJobStore();
 		DirectSchedulerFactory f = DirectSchedulerFactory.getInstance();
 		ThreadPool threadPool = new SimpleThreadPool(3, Thread.NORM_PRIORITY-1);
 		f.createScheduler(NAME, "default", threadPool, jobStore);

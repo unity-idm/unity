@@ -33,10 +33,9 @@ public class ProcessingRuleHandler extends DefaultEntityHandler<ScheduledProcess
 	private TranslationActionsRegistry actionsRegistry;
 	
 	@Autowired
-	public ProcessingRuleHandler(ObjectMapper jsonMapper, Class<ScheduledProcessingRule> clazz,
-			TranslationActionsRegistry actionsRegistry)
+	public ProcessingRuleHandler(ObjectMapper jsonMapper, TranslationActionsRegistry actionsRegistry)
 	{
-		super(jsonMapper, PROCESSING_RULE_OBJECT_TYPE, clazz);
+		super(jsonMapper, PROCESSING_RULE_OBJECT_TYPE, ScheduledProcessingRule.class);
 		this.actionsRegistry = actionsRegistry;
 	}
 

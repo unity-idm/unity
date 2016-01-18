@@ -9,10 +9,7 @@
 	<bean class="pl.edu.icm.unity.server.utils.ExecutorsService"/>
 	<bean class="pl.edu.icm.unity.server.utils.CacheProvider"/>
 	<bean class="pl.edu.icm.unity.server.utils.UnityMessageSource"/>
-	<bean class="pl.edu.icm.unity.utils.QuartzSchedulerFactory"/>
-	<bean class="org.quartz.Scheduler" 
-		factory-bean="pl.edu.icm.unity.utils.QuartzSchedulerFactory"
-    	factory-method="getInstance"/>
+	<bean class="pl.edu.icm.unity.server.utils.QuartzSchedulerFactory"/>
 	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
 		<property name="bundle" value="pl/edu/icm/unity/server/core/messages/messages"/>
 	</bean>

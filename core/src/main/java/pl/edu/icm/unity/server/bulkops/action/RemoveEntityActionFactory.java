@@ -25,7 +25,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 @Component
 public class RemoveEntityActionFactory extends AbstractEntityActionFactory
 {
-	public static final String NAME = "removeEntity";
+	public static final String NAME = "bulkRemoveEntity";
 	private IdentitiesManagement idsMan;
 	
 	@Autowired

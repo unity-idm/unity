@@ -181,7 +181,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 			current.updateConfiguration(jsonRetrievalConfig, verificatorConfig, localCredential);
 			authenticatorDB.update(id, current.getAuthenticatorInstance(), sql);
 		});
-		endpointsUpdater.updateEndpointsManual();
+		endpointsUpdater.updateManual();
 	}
 
 	private void verifyIfLocalCredentialMatchesVerificator(AuthenticatorImpl authenticator,
