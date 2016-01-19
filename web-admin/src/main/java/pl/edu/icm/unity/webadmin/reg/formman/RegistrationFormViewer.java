@@ -4,13 +4,9 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formman;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
-import pl.edu.icm.unity.server.api.internal.PublicWellKnownURLServlet;
 import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
+import pl.edu.icm.unity.server.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
@@ -29,7 +25,6 @@ import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
-import pl.edu.icm.unity.webui.registration.PublicRegistrationURLProvider;
 
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
@@ -104,7 +99,8 @@ public class RegistrationFormViewer extends VerticalLayout
 				msg.getMessage("no"));
 		publiclyAvailable.setValue(msg.getYesNo(form.isPubliclyAvailable()));
 		
-		publicLink.setValue(form.isPubliclyAvailable() ? getPublicLink(form) : "-");
+		publicLink.setValue(form.isPubliclyAvailable() ? 
+				PublicRegistrationURLSupport.getPublicLink(form.getName(), sharedEndpointMan) : "-");
 		
 		RegistrationFormNotifications notCfg = form.getNotificationsConfiguration();
 		if (notCfg != null)
@@ -138,19 +134,6 @@ public class RegistrationFormViewer extends VerticalLayout
 		translationProfile.setInput(form.getTranslationProfile());
 	}
 	
-	private String getPublicLink(RegistrationForm form)
-	{
-		try
-		{
-			return sharedEndpointMan.getServletUrl(PublicWellKnownURLServlet.SERVLET_PATH) + 
-				"#!" + PublicRegistrationURLProvider.FRAGMENT_PREFIX + URLEncoder.encode(form.getName(), 
-						StandardCharsets.UTF_8.name());
-		} catch (UnsupportedEncodingException e)
-		{
-			throw new IllegalStateException(e);
-		}
-	}
-
 	private void setEmpty()
 	{
 		name.setValue("");

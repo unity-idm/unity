@@ -46,9 +46,12 @@ import pl.edu.icm.unity.notifications.NotificationProducer;
 import pl.edu.icm.unity.server.api.RegistrationContext;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
+import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
 import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
 import pl.edu.icm.unity.server.api.registration.AcceptRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.BaseRegistrationTemplateDef;
+import pl.edu.icm.unity.server.api.registration.InvitationTemplateDef;
+import pl.edu.icm.unity.server.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
@@ -101,6 +104,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private TransactionalRunner tx;
 	private RegistrationRequestValidator registrationRequestValidator;
 	private InvitationWithCodeDB invitationDB;
+	private SharedEndpointManagement sharedEndpointMan;
 
 	@Autowired
 	public RegistrationsManagementImpl(RegistrationFormDB formsDB,
@@ -113,7 +117,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			InternalRegistrationManagment internalManagment, UnityMessageSource msg,
 			TransactionalRunner tx,
 			RegistrationRequestValidator registrationRequestValidator,
-			InvitationWithCodeDB invitationDB)
+			InvitationWithCodeDB invitationDB,
+			SharedEndpointManagement endpointMan)
 	{
 		this.formsDB = formsDB;
 		this.requestDB = requestDB;
@@ -131,6 +136,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		this.tx = tx;
 		this.registrationRequestValidator = registrationRequestValidator;
 		this.invitationDB = invitationDB;
+		this.sharedEndpointMan = endpointMan;
 	}
 
 	@Override
@@ -439,7 +445,9 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				sql, "submitted registration request");
 		checkTemplate(notCfg.getUpdatedTemplate(), UpdateRegistrationTemplateDef.NAME,
 				sql, "updated registration request");
-
+		checkTemplate(notCfg.getInvitationTemplate(), InvitationTemplateDef.NAME,
+				sql, "invitation");
+		
 		if (form.getAgreements() != null)
 		{
 			for (AgreementRegistrationParam o: form.getAgreements())
@@ -573,9 +581,13 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	public String addInvitation(InvitationParam invitation) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
+		SqlSession sql = SqlSessionTL.get();
+		RegistrationForm form = formsDB.get(invitation.getFormId(), sql);
+		if (!form.isPubliclyAvailable())
+			throw new WrongArgumentException("Invitations can be attached to public forms only");
 		String randomUUID = UUID.randomUUID().toString();
 		InvitationWithCode withCode = new InvitationWithCode(invitation, randomUUID);
-		invitationDB.insert(randomUUID, withCode, SqlSessionTL.get());
+		invitationDB.insert(randomUUID, withCode, sql);
 		return randomUUID;
 	}
 
@@ -583,21 +595,26 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	@Transactional
 	public void sendInvitation(String code) throws EngineException
 	{
-		/* TODO
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		String userLocale = msg.getDefaultLocaleCode();
-		InvitationWithCode invitation = invitationDB.get(code, SqlSessionTL.get());
+		SqlSession sql = SqlSessionTL.get();
+		
+		InvitationWithCode invitation = invitationDB.get(code, sql);
 		if (invitation.getContactAddress() == null || invitation.getFacilityId() == null)
 			throw new WrongArgumentException("The invitation with the given code has no contact address configured");
 		
+		RegistrationForm form = formsDB.get(invitation.getFormId(), sql);
+		
 		Map<String, String> notifyParams = new HashMap<>();
-		notifyParams.put(BaseRegistrationTemplateDef.FORM_NAME, invitation.getFormId());
-		notifyParams.put(key, );
+		notifyParams.put(BaseRegistrationTemplateDef.FORM_NAME, form.getDisplayedName().getValue(
+				userLocale, msg.getDefaultLocaleCode()));
+		notifyParams.put(InvitationTemplateDef.CODE, invitation.getRegistrationCode());
+		notifyParams.put(InvitationTemplateDef.URL, 
+				PublicRegistrationURLSupport.getPublicLink(invitation.getFormId(), code, sharedEndpointMan));
 		
 		notificationProducer.sendNotification(invitation.getContactAddress(),
-				invitation.getFacilityId(), templateId,
+				invitation.getFacilityId(), form.getNotificationsConfiguration().getInvitationTemplate(),
 				notifyParams, userLocale);
-				*/
 	}
 
 	@Override

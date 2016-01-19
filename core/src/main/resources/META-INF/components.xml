@@ -31,6 +31,7 @@
 	<bean class="pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef"/>
 	<bean class="pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef"/>
 	<bean class="pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef"/>
+	<bean class="pl.edu.icm.unity.server.api.registration.InvitationTemplateDef"/>
 
 	<bean class="pl.edu.icm.unity.confirmations.ConfirmationTemplateDef"/>
 

@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.registration;
 
+import static pl.edu.icm.unity.server.api.registration.PublicRegistrationURLSupport.FRAGMENT_PREFIX;
+
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -35,8 +37,6 @@ import com.vaadin.navigator.View;
 @Component
 public class PublicRegistrationURLProvider implements PublicViewProvider
 {
-	public static final String FRAGMENT_PREFIX = "registration-";
-	
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			PublicRegistrationURLProvider.class);
 	private RegistrationsManagement regMan;

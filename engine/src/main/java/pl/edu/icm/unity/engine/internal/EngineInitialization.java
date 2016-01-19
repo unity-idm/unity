@@ -432,8 +432,8 @@ public class EngineInitialization extends LifecycleBase
 			}
 			try
 			{
-					MessageTemplate templ = loadTemplate(props, key);
-					msgTemplatesManagement.addTemplate(templ);
+				MessageTemplate templ = loadTemplate(props, key);
+				msgTemplatesManagement.addTemplate(templ);
 			} catch (WrongArgumentException e)
 			{
 				log.error("Template with id " + key + "not exists", e);

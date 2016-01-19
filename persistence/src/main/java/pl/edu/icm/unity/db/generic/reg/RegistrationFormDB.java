@@ -23,6 +23,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.server.api.registration.AcceptRegistrationTemplateDef;
+import pl.edu.icm.unity.server.api.registration.InvitationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
@@ -224,6 +225,12 @@ public class RegistrationFormDB extends GenericObjectsDB<RegistrationForm>
 					throw new SchemaConsistencyException("The message template is used by a registration form " 
 							+ form.getName() + " and the template's type change would render the template incompatible with it");
 				}
+				if (oldObject.getName().equals(notCfg.getInvitationTemplate()) && 
+						!updatedObject.getConsumer().equals(InvitationTemplateDef.NAME))
+				{
+					throw new SchemaConsistencyException("The message template is used by a registration form " 
+							+ form.getName() + " and the template's type change would render the template incompatible with it");
+				}
 			}
 			
 		}
@@ -246,6 +253,9 @@ public class RegistrationFormDB extends GenericObjectsDB<RegistrationForm>
 					throw new SchemaConsistencyException("The message template is used by a registration form " 
 							+ form.getName());
 				if (removedObject.getName().equals(notCfg.getUpdatedTemplate()))
+					throw new SchemaConsistencyException("The message template is used by a registration form " 
+							+ form.getName());
+				if (removedObject.getName().equals(notCfg.getInvitationTemplate()))
 					throw new SchemaConsistencyException("The message template is used by a registration form " 
 							+ form.getName());
 			}
