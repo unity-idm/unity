@@ -15,6 +15,7 @@ public class RegistrationFormNotifications
 	private String updatedTemplate;
 	private String rejectedTemplate;
 	private String acceptedTemplate;
+	private String invitationTemplate;
 	
 	private String channel;
 	private String adminsNotificationGroup;
@@ -67,6 +68,14 @@ public class RegistrationFormNotifications
 	{
 		this.adminsNotificationGroup = adminsNotificationGroup;
 	}
+	public String getInvitationTemplate()
+	{
+		return invitationTemplate;
+	}
+	public void setInvitationTemplate(String invitationTemplate)
+	{
+		this.invitationTemplate = invitationTemplate;
+	}
 	@Override
 	public int hashCode()
 	{
@@ -79,6 +88,9 @@ public class RegistrationFormNotifications
 				+ ((adminsNotificationGroup == null) ? 0 : adminsNotificationGroup
 						.hashCode());
 		result = prime * result + ((channel == null) ? 0 : channel.hashCode());
+		result = prime
+				* result
+				+ ((invitationTemplate == null) ? 0 : invitationTemplate.hashCode());
 		result = prime * result
 				+ ((rejectedTemplate == null) ? 0 : rejectedTemplate.hashCode());
 		result = prime * result
@@ -114,6 +126,12 @@ public class RegistrationFormNotifications
 			if (other.channel != null)
 				return false;
 		} else if (!channel.equals(other.channel))
+			return false;
+		if (invitationTemplate == null)
+		{
+			if (other.invitationTemplate != null)
+				return false;
+		} else if (!invitationTemplate.equals(other.invitationTemplate))
 			return false;
 		if (rejectedTemplate == null)
 		{

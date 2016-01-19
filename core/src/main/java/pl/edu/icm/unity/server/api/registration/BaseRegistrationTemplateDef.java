@@ -7,8 +7,6 @@ package pl.edu.icm.unity.server.api.registration;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.msgtemplates.MessageTemplateVariable;
 
@@ -18,7 +16,6 @@ import pl.edu.icm.unity.msgtemplates.MessageTemplateVariable;
  *   
  * @author P. Piernik
  */
-@Component
 public abstract class BaseRegistrationTemplateDef implements MessageTemplateDefinition
 {
 	public static final String FORM_NAME = "formName";
@@ -48,9 +45,11 @@ public abstract class BaseRegistrationTemplateDef implements MessageTemplateDefi
 	@Override
 	public Map<String, MessageTemplateVariable> getVariables()
 	{
-		Map<String, MessageTemplateVariable> vars = new HashMap<String, MessageTemplateVariable>();
-		vars.put(FORM_NAME, new MessageTemplateVariable(FORM_NAME , "MessageTemplateConsumer.BaseForm.var.formName", false));
-		vars.put(REQUEST_ID, new MessageTemplateVariable(REQUEST_ID, "MessageTemplateConsumer.BaseForm.var.requestId", false));
+		Map<String, MessageTemplateVariable> vars = new HashMap<>();
+		vars.put(FORM_NAME, new MessageTemplateVariable(FORM_NAME , 
+				"MessageTemplateConsumer.BaseForm.var.formName", false));
+		vars.put(REQUEST_ID, new MessageTemplateVariable(REQUEST_ID, 
+				"MessageTemplateConsumer.BaseForm.var.requestId", false));
 		return vars;
 	}
 }
