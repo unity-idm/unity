@@ -11,6 +11,8 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam;
+import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 
 /**
  * Registrations support: forms, submissions of requests and their processing.
@@ -23,7 +25,7 @@ public interface RegistrationsManagement
 	 * @param form
 	 * @throws EngineException
 	 */
-	public void addForm(RegistrationForm form) throws EngineException;
+	void addForm(RegistrationForm form) throws EngineException;
 	
 	/**
 	 * Remove an existing registration form.
@@ -32,7 +34,7 @@ public interface RegistrationsManagement
 	 * will throw exception if there are any forms for the form.
 	 * @throws EngineException
 	 */
-	public void removeForm(String formId, boolean dropRequests) throws EngineException;
+	void removeForm(String formId, boolean dropRequests) throws EngineException;
 	
 	/**
 	 * Updates an existing form.
@@ -41,14 +43,14 @@ public interface RegistrationsManagement
 	 * are any pending requests of the form.
 	 * @throws EngineException
 	 */
-	public void updateForm(RegistrationForm updatedForm, boolean ignoreRequests) throws EngineException;
+	void updateForm(RegistrationForm updatedForm, boolean ignoreRequests) throws EngineException;
 	
 	/**
 	 * 
 	 * @return all available forms.
 	 * @throws EngineException
 	 */
-	public List<RegistrationForm> getForms() throws EngineException;
+	List<RegistrationForm> getForms() throws EngineException;
 	
 	/**
 	 * Submits a new registration request. It gets a pending state unless automatically processed by the 
@@ -60,7 +62,7 @@ public interface RegistrationsManagement
 	 * @return automatically asigned identifier of the request
 	 * @throws EngineException
 	 */
-	public String submitRegistrationRequest(RegistrationRequest request, RegistrationContext context) 
+	String submitRegistrationRequest(RegistrationRequest request, RegistrationContext context) 
 			throws EngineException;
 	
 	/**
@@ -68,7 +70,7 @@ public interface RegistrationsManagement
 	 * @return
 	 * @throws EngineException
 	 */
-	public List<RegistrationRequestState> getRegistrationRequests() throws EngineException;
+	List<RegistrationRequestState> getRegistrationRequests() throws EngineException;
 	
 	/**
 	 * Accepts, deletes or rejects a given registration request. The request can be freely modified at this time
@@ -80,7 +82,26 @@ public interface RegistrationsManagement
 	 * @param privateComment comment to be internally recored only.
 	 * @throws EngineException
 	 */
-	public void processRegistrationRequest(String id, RegistrationRequest finalRequest, 
+	void processRegistrationRequest(String id, RegistrationRequest finalRequest, 
 			RegistrationRequestAction action, String publicComment, 
 			String privateComment) throws EngineException;
+	
+	/**
+	 * Associates a new invitation with a form. The invitation code is auto generated and returned
+	 * @param invitation invitation to be added
+	 * @return code assigned to the invitation
+	 */
+	String addInvitation(InvitationParam invitation) throws EngineException;
+
+	/**
+	 * Sends an invitation message to the invitation specified by the code. In case when there is 
+	 * no such invitation, it has missing or invalid contact address or when the associated form has no message
+	 * template for invitation this method throws exception. 
+	 * @param code
+	 */
+	void sendInvitation(String code) throws EngineException;
+	
+	void removeInvitation(String code) throws EngineException;
+	
+	List<InvitationWithCode> getInvitations() throws EngineException;
 }

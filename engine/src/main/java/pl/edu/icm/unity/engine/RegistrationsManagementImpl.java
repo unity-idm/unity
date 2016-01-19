@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.generic.cred.CredentialDB;
 import pl.edu.icm.unity.db.generic.credreq.CredentialRequirementDB;
 import pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateDB;
+import pl.edu.icm.unity.db.generic.reg.InvitationWithCodeDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
 import pl.edu.icm.unity.db.mapper.GroupsMapper;
@@ -46,6 +48,7 @@ import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
 import pl.edu.icm.unity.server.api.registration.AcceptRegistrationTemplateDef;
+import pl.edu.icm.unity.server.api.registration.BaseRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
@@ -70,6 +73,8 @@ import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam;
+import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 
 /**
  * Implementation of registrations subsystem.
@@ -95,6 +100,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private UnityMessageSource msg;
 	private TransactionalRunner tx;
 	private RegistrationRequestValidator registrationRequestValidator;
+	private InvitationWithCodeDB invitationDB;
 
 	@Autowired
 	public RegistrationsManagementImpl(RegistrationFormDB formsDB,
@@ -106,7 +112,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			ConfirmationManager confirmationManager,
 			InternalRegistrationManagment internalManagment, UnityMessageSource msg,
 			TransactionalRunner tx,
-			RegistrationRequestValidator registrationRequestValidator)
+			RegistrationRequestValidator registrationRequestValidator,
+			InvitationWithCodeDB invitationDB)
 	{
 		this.formsDB = formsDB;
 		this.requestDB = requestDB;
@@ -123,6 +130,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		this.msg = msg;
 		this.tx = tx;
 		this.registrationRequestValidator = registrationRequestValidator;
+		this.invitationDB = invitationDB;
 	}
 
 	@Override
@@ -558,5 +566,53 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		String configured = translationProfile.getPostConfirmationRedirectURL(form, requestState, attr,
 				requestState.getRequestId());
 		return configured != null ? configured : current;
+	}
+
+	@Override
+	@Transactional
+	public String addInvitation(InvitationParam invitation) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		String randomUUID = UUID.randomUUID().toString();
+		InvitationWithCode withCode = new InvitationWithCode(invitation, randomUUID);
+		invitationDB.insert(randomUUID, withCode, SqlSessionTL.get());
+		return randomUUID;
+	}
+
+	@Override
+	@Transactional
+	public void sendInvitation(String code) throws EngineException
+	{
+		/* TODO
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		String userLocale = msg.getDefaultLocaleCode();
+		InvitationWithCode invitation = invitationDB.get(code, SqlSessionTL.get());
+		if (invitation.getContactAddress() == null || invitation.getFacilityId() == null)
+			throw new WrongArgumentException("The invitation with the given code has no contact address configured");
+		
+		Map<String, String> notifyParams = new HashMap<>();
+		notifyParams.put(BaseRegistrationTemplateDef.FORM_NAME, invitation.getFormId());
+		notifyParams.put(key, );
+		
+		notificationProducer.sendNotification(invitation.getContactAddress(),
+				invitation.getFacilityId(), templateId,
+				notifyParams, userLocale);
+				*/
+	}
+
+	@Override
+	@Transactional
+	public void removeInvitation(String code) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		invitationDB.remove(code, SqlSessionTL.get());
+	}
+
+	@Override
+	@Transactional
+	public List<InvitationWithCode> getInvitations() throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		return invitationDB.getAll(SqlSessionTL.get());
 	}
 }
