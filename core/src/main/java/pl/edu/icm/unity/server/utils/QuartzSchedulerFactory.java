@@ -31,6 +31,7 @@ public class QuartzSchedulerFactory
 		JobStore jobStore = new RAMJobStore();
 		DirectSchedulerFactory f = DirectSchedulerFactory.getInstance();
 		ThreadPool threadPool = new SimpleThreadPool(3, Thread.NORM_PRIORITY-1);
+		threadPool.setInstanceName("Quartz");
 		f.createScheduler(NAME, "default", threadPool, jobStore);
 		SchedulerFactory schedFact = new StdSchedulerFactory();
 		Scheduler sched = schedFact.getScheduler(NAME);

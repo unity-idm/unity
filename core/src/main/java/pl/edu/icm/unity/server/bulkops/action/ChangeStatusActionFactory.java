@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.bulkops.EntityAction;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.TranslationAction;
 import pl.edu.icm.unity.server.translation.TranslationActionDescription;
 import pl.edu.icm.unity.server.translation.form.action.SetEntityStateActionFactory.EntityStateLimited;
 import pl.edu.icm.unity.server.utils.Log;
@@ -43,7 +43,7 @@ public class ChangeStatusActionFactory extends AbstractEntityActionFactory
 	}
 
 	@Override
-	public TranslationAction getInstance(String... parameters)
+	public EntityAction getInstance(String... parameters)
 	{
 		return new ChangeStatusAction(idsMan, this, parameters);
 	}
@@ -59,6 +59,7 @@ public class ChangeStatusActionFactory extends AbstractEntityActionFactory
 				TranslationActionDescription description, String[] params)
 		{
 			super(description, params);
+			this.idsMan = idsMan;
 			setParameters(params);
 		}
 

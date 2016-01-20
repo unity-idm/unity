@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.engine;
 
-import java.util.Collection;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -54,7 +54,7 @@ public class BulkProcessingManagementImpl implements BulkProcessingManagement
 	
 	@Transactional
 	@Override
-	public void scheduleRule(ScheduledProcessingRuleParam rule) throws EngineException
+	public String scheduleRule(ScheduledProcessingRuleParam rule) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		ScheduledProcessingRule fullRule = new ScheduledProcessingRule(rule.getCondition(), rule.getAction(), 
@@ -67,7 +67,7 @@ public class BulkProcessingManagementImpl implements BulkProcessingManagement
 		{
 			throw e;
 		}
-		
+		return fullRule.getId();
 	}
 
 	@Transactional
@@ -87,11 +87,12 @@ public class BulkProcessingManagementImpl implements BulkProcessingManagement
 		db.update(rule.getId(), rule, SqlSessionTL.get());
 		updater.updateManual();
 	}
-
+	
+	@Transactional
 	@Override
-	public Collection<ScheduledProcessingRule> getScheduledRules() throws AuthorizationException
+	public List<ScheduledProcessingRule> getScheduledRules() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		return bulkProcessingSupport.getScheduledRules();
+		return db.getAll(SqlSessionTL.get());
 	}
 }

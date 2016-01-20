@@ -6,7 +6,7 @@ package pl.edu.icm.unity.engine.bulkops;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
@@ -23,6 +23,7 @@ import org.quartz.SchedulerException;
 import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
+import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.utils.Key;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -42,6 +43,7 @@ public class BulkProcessingSupport
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, BulkProcessingSupport.class);
 	public static final String RULE_KEY = "rule";
+	public static final String EXECUTOR_KEY = "executor";
 	public static final String TS_KEY = "timeStamp";
 	public static final String JOB_GROUP = "bulkEntityProcessing";
 	
@@ -52,31 +54,34 @@ public class BulkProcessingSupport
 	
 	public synchronized Collection<ScheduledProcessingRule> getScheduledRules()
 	{
-		List<JobExecutionContext> jobs = getCurrentJobs();
+		Set<JobKey> jobs = getCurrentJobs();
 		return jobs.stream().
+			map(this::getJobDetail).
 			filter(this::filterProcessingJobs).
-			map(context -> (ScheduledProcessingRule) context.get(RULE_KEY)).
+			map(job -> (ScheduledProcessingRule) job.getJobDataMap().get(RULE_KEY)).
 			collect(Collectors.toList());
 	}
 	
 	public synchronized Collection<RuleWithTS> getScheduledRulesWithTS()
 	{
-		List<JobExecutionContext> jobs = getCurrentJobs();
+		Set<JobKey> jobs = getCurrentJobs();
 		return jobs.stream().
+			map(this::getJobDetail).
 			filter(this::filterProcessingJobs).
-			map(context -> {
-				ScheduledProcessingRule rule = (ScheduledProcessingRule) context.get(RULE_KEY);
-				Date ts = (Date) context.get(TS_KEY);
+			map(job -> {
+				ScheduledProcessingRule rule = (ScheduledProcessingRule) 
+						job.getJobDataMap().get(RULE_KEY);
+				Date ts = (Date) job.getJobDataMap().get(TS_KEY);
 				return new RuleWithTS(rule, ts);
 			}).
 			collect(Collectors.toList());
 	}
 
-	private List<JobExecutionContext> getCurrentJobs()
+	private Set<JobKey> getCurrentJobs()
 	{
 		try
 		{
-			return scheduler.getCurrentlyExecutingJobs();
+			return scheduler.getJobKeys(GroupMatcher.jobGroupEquals(JOB_GROUP));
 		} catch (SchedulerException e)
 		{
 			throw new InternalException("Error retrieving scheduled jobs from Quartz", e);
@@ -125,6 +130,7 @@ public class BulkProcessingSupport
 		JobDataMap dataMap = new JobDataMap();
 		dataMap.put(RULE_KEY, rule);
 		dataMap.put(TS_KEY, ts);
+		dataMap.put(EXECUTOR_KEY, executor);
 		JobDetail job = JobBuilder.newJob(EntityRuleJob.class)
 				.withIdentity(id, JOB_GROUP)
 				.usingJobData(dataMap)
@@ -160,18 +166,30 @@ public class BulkProcessingSupport
 		}
 	}
 	
-	private boolean filterProcessingJobs(JobExecutionContext context)
+	private boolean filterProcessingJobs(JobDetail job)
 	{
-		return context.getJobDetail().getKey().getGroup().equals(JOB_GROUP) && 
-				context.get(RULE_KEY) instanceof ScheduledProcessingRule;
+		return job.getJobDataMap().get(RULE_KEY) instanceof ScheduledProcessingRule;
 	}
 	
-	private class EntityRuleJob implements Job 
+	private JobDetail getJobDetail(JobKey key)
+	{
+		try
+		{
+			return scheduler.getJobDetail(key);
+		} catch (SchedulerException e)
+		{
+			throw new InternalException("Can't retrieve job detail", e);
+		}
+	}	
+	
+	public static class EntityRuleJob implements Job 
 	{
 		@Override
 		public void execute(JobExecutionContext context) throws JobExecutionException
 		{
-			ProcessingRule rule = (ProcessingRule) context.get(RULE_KEY);
+			JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
+			ProcessingRule rule = (ProcessingRule) jobDataMap.get(RULE_KEY);
+			BulkProcessingExecutor executor = (BulkProcessingExecutor) jobDataMap.get(EXECUTOR_KEY);
 			executor.execute(rule);
 		}
 	}

@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.server.api;
 
-import java.util.Collection;
+import java.util.List;
 
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -25,11 +25,11 @@ public interface BulkProcessingManagement
 	 */
 	void applyRule(ProcessingRule rule) throws AuthorizationException;
 	
-	void scheduleRule(ScheduledProcessingRuleParam rule) throws EngineException;
+	String scheduleRule(ScheduledProcessingRuleParam rule) throws EngineException;
 	
 	void removeScheduledRule(String id) throws EngineException;
 	
 	void updateScheduledRule(ScheduledProcessingRule rule) throws EngineException;
 	
-	Collection<ScheduledProcessingRule> getScheduledRules() throws AuthorizationException;
+	List<ScheduledProcessingRule> getScheduledRules() throws EngineException;
 }

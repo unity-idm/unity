@@ -14,15 +14,14 @@ import org.mvel2.MVEL;
  */
 public class ProcessingRule
 {
-	protected String condition;
-	protected Serializable compiledCondition;
-	protected EntityAction action;
+	private String condition;
+	private Serializable compiledCondition;
+	private EntityAction action;
 	
 	public ProcessingRule(String condition, EntityAction action)
 	{
-		this.condition = condition;
 		this.action = action;
-		this.compiledCondition = MVEL.compileExpression(condition);
+		setCondition(condition);
 	}
 
 	protected ProcessingRule()
@@ -44,6 +43,17 @@ public class ProcessingRule
 		return action;
 	}
 
+	protected void setCondition(String condition)
+	{
+		this.condition = condition;
+		this.compiledCondition = MVEL.compileExpression(condition);
+	}
+
+	protected void setAction(EntityAction action)
+	{
+		this.action = action;
+	}
+	
 	@Override
 	public String toString()
 	{

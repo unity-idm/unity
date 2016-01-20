@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.server.bulkops;
 
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
@@ -59,7 +60,7 @@ public class ScheduledProcessingRule extends ScheduledProcessingRuleParam
 	{
 		id = json.get("id").asText();
 		cronExpression = json.get("cronExpression").asText();
-		condition = json.get("condition").asText();
+		setCondition(json.get("condition").asText());
 		String actionName = json.get("action").asText();
 		ArrayNode paramsN = (ArrayNode) json.get("actionParams");
 		String[] params = new String[paramsN.size()];
@@ -74,6 +75,33 @@ public class ScheduledProcessingRule extends ScheduledProcessingRuleParam
 		{
 			throw new InternalException("Can not find entity action impl for " + actionName, e);
 		}
-		action = (EntityAction) actionFactory.getInstance(params);
+		setAction((EntityAction) actionFactory.getInstance(params));
 	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ScheduledProcessingRule other = (ScheduledProcessingRule) obj;
+		
+		ObjectNode json1 = toJson(Constants.MAPPER);
+		ObjectNode json2 = other.toJson(Constants.MAPPER);
+		return json1.equals(json2);
+	}
+	
+	
 }
