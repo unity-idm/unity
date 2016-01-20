@@ -5,11 +5,14 @@
 package pl.edu.icm.unity.rest;
 
 import java.io.StringReader;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.StringJoiner;
 
+import javax.servlet.DispatcherType;
 import javax.ws.rs.core.Application;
 
 import org.apache.cxf.Bus;
@@ -23,8 +26,11 @@ import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.utils.ResourceUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
+import org.apache.log4j.Logger;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
@@ -41,6 +47,7 @@ import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import eu.unicore.util.configuration.ConfigurationException;
@@ -57,6 +64,7 @@ import eu.unicore.util.configuration.ConfigurationException;
  */
 public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, RESTEndpoint.class);
 	private AuthenticationProcessor authenticationProcessor;
 	protected RESTEndpointProperties genericEndpointProperties;
 	protected String servletPath;
@@ -134,9 +142,29 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 		servlet.setName("services");
 		servlet.setForcedPath("services");
 		context.addServlet(servlet, servletPath + "/*");
+
+		if (!genericEndpointProperties.getListOfValues(RESTEndpointProperties.ENABLED_CORS_ORIGINS).isEmpty())
+			context.addFilter(getCorsFilter(), servletPath + "/*", EnumSet.of(DispatcherType.REQUEST));
 		
 		deployResources(bus);
 		return context;
+	}
+	
+	protected FilterHolder getCorsFilter()
+	{
+		CrossOriginFilter filter = new CrossOriginFilter();
+		FilterHolder filterHolder = new FilterHolder(filter);
+		List<String> allowedOrigins = 
+				genericEndpointProperties.getListOfValues(RESTEndpointProperties.ENABLED_CORS_ORIGINS);
+		StringJoiner stringJoiner = new StringJoiner(",");
+		allowedOrigins.forEach(origin -> stringJoiner.add(origin));
+		
+		filterHolder.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, stringJoiner.toString());
+		filterHolder.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET,POST,HEAD,DELETE,PUT,OPTIONS");
+		
+		log.debug("Will allow CORS for the following origins: " + stringJoiner.toString());
+		
+		return filterHolder;
 	}
 	
 	@Override
