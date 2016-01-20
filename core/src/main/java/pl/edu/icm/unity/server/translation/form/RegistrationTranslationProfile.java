@@ -247,15 +247,17 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 		TranslatedRegistrationRequest initial = new TranslatedRegistrationRequest(
 				form.getDefaultCredentialRequirement());
 
-		request.getAttributes().
+		request.getAttributes().stream().
+			filter(a -> a != null).
 			forEach(a -> initial.addAttribute(a));
-		request.getIdentities().
+		request.getIdentities().stream().
+			filter(i -> i != null).
 			forEach(i -> initial.addIdentity(i));
 		for (int i = 0; i<request.getGroupSelections().size(); i++)
 		{
 			GroupRegistrationParam groupRegistrationParam = form.getGroupParams().get(i);
 			Selection selection = request.getGroupSelections().get(i);
-			if (selection.isSelected())
+			if (selection != null && selection.isSelected())
 				initial.addMembership(new GroupParam(groupRegistrationParam.getGroupPath(), 
 					selection.getExternalIdp(), selection.getTranslationProfile()));			
 		}
@@ -302,6 +304,8 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 		{
 			AttributeRegistrationParam attributeRegistrationParam = form.getAttributeParams().get(i);
 			Attribute<?> attribute = request.getAttributes().get(i);
+			if (attribute == null)
+				continue;
 			Object v = attribute.getValues().isEmpty() ? "" : attribute.getValues().get(0);
 			attr.put(attribute.getName(), v);
 			attrs.put(attribute.getName(), (List<Object>) attribute.getValues());
@@ -326,7 +330,8 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 		{
 			IdentityRegistrationParam identityRegistrationParam = form.getIdentityParams().get(i);
 			IdentityParam identityParam = request.getIdentities().get(i);
-
+			if (identityParam == null)
+				continue;
 			List<String> vals = idsByType.get(identityParam.getTypeId());
 			if (vals == null)
 			{
@@ -375,7 +380,8 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 		{
 			GroupRegistrationParam groupRegistrationParam = form.getGroupParams().get(i);
 			Selection selection = request.getGroupSelections().get(i);
-			if (selection.isSelected())
+				
+			if (selection != null && selection.isSelected())
 			{
 				groups.add(groupRegistrationParam.getGroupPath());
 				if (groupRegistrationParam.getRetrievalSettings().isAutomaticOnly())
