@@ -16,6 +16,8 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.Lists;
+
 import pl.edu.icm.unity.engine.builders.RegistrationFormBuilder;
 import pl.edu.icm.unity.engine.builders.RegistrationRequestBuilder;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
@@ -132,13 +134,13 @@ public class TestRegistrations extends DBIntegrationTestBase
 		
 		try
 		{
-			registrationsMan.updateForm(getForm(false, null), false);
+			registrationsMan.updateForm(getForm(false, null, true), false);
 		} catch (SchemaConsistencyException e)
 		{
 			//OK
 		}
 		
-		registrationsMan.updateForm(getForm(false, null), true);
+		registrationsMan.updateForm(getForm(false, null, true), true);
 		
 		try
 		{
@@ -288,14 +290,16 @@ public class TestRegistrations extends DBIntegrationTestBase
 		
 		
 		// accept with updates -> check if results are fine
+		IdentityParam userIp = new IdentityParam(UsernameIdentity.ID, "some-user");
+
 		request = getRequest();
 		IdentityParam ip = new IdentityParam(X500Identity.ID, "CN=registration test2");
-		request.setIdentities(Collections.singletonList(ip));		
+		request.setIdentities(Lists.newArrayList(ip, userIp));
 		String id4 = registrationsMan.submitRegistrationRequest(request, defContext);
 		
 		request = getRequest();
 		ip = new IdentityParam(X500Identity.ID, "CN=registration test updated");
-		request.setIdentities(Collections.singletonList(ip));
+		request.setIdentities(Lists.newArrayList(ip, userIp));
 		registrationsMan.processRegistrationRequest(id4, request, 
 				RegistrationRequestAction.accept, "a2", "p2");
 		idsMan.getEntity(new EntityParam(new IdentityTaV(X500Identity.ID, "CN=registration test updated")));
@@ -358,18 +362,37 @@ public class TestRegistrations extends DBIntegrationTestBase
 		assertEquals(RegistrationRequestStatus.pending, fromDb.getStatus());
 		clearDB();		
 	}
-		
-	private RegistrationForm getForm(boolean nullCode, String autoAcceptCondition)
+
+	
+	@Test
+	public void requestWithoutOptionalFieldsIsAccepted() throws EngineException
 	{
-		RegistrationTranslationProfile translationProfile = new RegistrationTranslationProfileBuilder(
+		RegistrationContext defContext = new RegistrationContext(true, false, TriggeringMode.manualAtLogin);
+		initAndCreateForm(true, "true", false);
+		RegistrationRequest request = getRequestWithoutOptionalElements();
+		String id1 = registrationsMan.submitRegistrationRequest(request, defContext);
+		
+		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
+		assertEquals(request, fromDb.getRequest());
+		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
+		assertEquals(id1, fromDb.getRequestId());
+		assertNotNull(fromDb.getTimestamp());
+	}
+	
+	private RegistrationForm getForm(boolean nullCode, String autoAcceptCondition, boolean addEmailAC)
+	{
+		RegistrationTranslationProfileBuilder profileBuilder = new RegistrationTranslationProfileBuilder(
 				registry, "form").
 				withAutoProcess(autoAcceptCondition == null ? "false"
 						: autoAcceptCondition, 
 						AutomaticRequestAction.accept).
 				withAddAttribute("true", "cn", "/", "'val'", AttributeVisibility.full).
-				withGroupMembership("true", "'/A'").
-				withAttributeClass("true", "/", "'" + InitializerCommon.NAMING_AC + "'").
-				build();
+				withGroupMembership("true", "'/A'");
+		if (addEmailAC)
+			profileBuilder.withAttributeClass("true", "/", "'" + InitializerCommon.NAMING_AC + "'");
+		
+		RegistrationTranslationProfile translationProfile = profileBuilder.build();
+		
 		return RegistrationFormBuilder
 				.registrationForm()
 				.withName("f1")
@@ -388,6 +411,10 @@ public class TestRegistrations extends DBIntegrationTestBase
 				.withAddedIdentityParam()
 				.withIdentityType(X500Identity.ID)
 				.withOptional(true)
+				.withRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
+				.endIdentityParam()
+				.withAddedIdentityParam()
+				.withIdentityType(UsernameIdentity.ID)
 				.withRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
 				.endIdentityParam()
 				.withAddedAttributeParam()
@@ -422,8 +449,36 @@ public class TestRegistrations extends DBIntegrationTestBase
 				.withCredentialId(EngineInitialization.DEFAULT_CREDENTIAL)
 				.withSecrets(new PasswordToken("abc").toJson()).endCredential()
 				.withAddedGroupSelection().withSelected(true).endGroupSelection()
-				.withAddedIdentity().withTypeId(X500Identity.ID)
-				.withValue("CN=registration test").endIdentity()
+				.withAddedIdentity()
+					.withTypeId(X500Identity.ID)
+					.withValue("CN=registration test")
+				.endIdentity()
+				.withAddedIdentity()
+					.withTypeId(UsernameIdentity.ID)
+					.withValue("test-user")
+				.endIdentity()
+				.build();
+	}
+
+	private RegistrationRequest getRequestWithoutOptionalElements()
+	{
+		return RegistrationRequestBuilder
+				.registrationRequest()
+				.withFormId("f1")
+				.withComments("comments")
+				.withAddedAgreement()
+				.withSelected(true)
+				.endAgreement()
+				.withAddedCredential()
+				.withCredentialId(EngineInitialization.DEFAULT_CREDENTIAL)
+				.withSecrets(new PasswordToken("abc").toJson()).endCredential()
+				.withAddedAttribute(null)
+				.withAddedIdentity(null)
+				.withAddedIdentity()
+					.withTypeId(UsernameIdentity.ID)
+					.withValue("test-user")
+				.endIdentity()
+				.withAddedGroupSelection(null)
 				.build();
 	}
 	
@@ -446,15 +501,20 @@ public class TestRegistrations extends DBIntegrationTestBase
 			assertTrue(e.toString(), e.getClass().isAssignableFrom(exception));
 		}
 	}
-	
 	private RegistrationForm initAndCreateForm(boolean nullCode, String autoAcceptCondition) throws EngineException
+	{
+		return initAndCreateForm(nullCode, autoAcceptCondition, true);
+	}
+	
+	private RegistrationForm initAndCreateForm(boolean nullCode, String autoAcceptCondition, 
+			boolean addEmailAC) throws EngineException
 	{
 		commonInitializer.initializeCommonAttributeTypes();
 		commonInitializer.initializeMainAttributeClass();
 		groupsMan.addGroup(new Group("/A"));
 		groupsMan.addGroup(new Group("/B"));
 		
-		RegistrationForm form = getForm(nullCode, autoAcceptCondition);
+		RegistrationForm form = getForm(nullCode, autoAcceptCondition, addEmailAC);
 
 		registrationsMan.addForm(form);
 		return form;
@@ -468,7 +528,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		groupsMan.removeGroup("/B", true);
 		try
 		{
-			idsMan.removeIdentity(new IdentityTaV(X500Identity.ID, "CN=registration test"));
+			idsMan.removeEntity(new EntityParam(new IdentityTaV(X500Identity.ID, "CN=registration test")));
 		} catch (IllegalIdentityValueException e)
 		{
 			//ok
