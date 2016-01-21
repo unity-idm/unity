@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.types.registration;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
@@ -27,11 +28,11 @@ public class RegistrationForm extends DescribedObjectImpl
 	private boolean publiclyAvailable;
 	private RegistrationFormNotifications notificationsConfiguration = new RegistrationFormNotifications();
 	
-	private List<IdentityRegistrationParam> identityParams;
-	private List<AttributeRegistrationParam> attributeParams;	
-	private List<GroupRegistrationParam> groupParams;
-	private List<CredentialRegistrationParam> credentialParams;
-	private List<AgreementRegistrationParam> agreements;
+	private List<IdentityRegistrationParam> identityParams = new ArrayList<>();
+	private List<AttributeRegistrationParam> attributeParams = new ArrayList<>();
+	private List<GroupRegistrationParam> groupParams = new ArrayList<>();
+	private List<CredentialRegistrationParam> credentialParams = new ArrayList<>();
+	private List<AgreementRegistrationParam> agreements = new ArrayList<>();
 	private boolean collectComments;
 	private int captchaLength;
 	private I18nString displayedName;

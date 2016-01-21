@@ -27,6 +27,7 @@ public class InvitationTemplateDef implements MessageTemplateDefinition
 	public static final String FORM_NAME = "formName";
 	public static final String CODE = "code";
 	public static final String URL = "url";
+	public static final String EXPIRES = "expires";
 	
 	@Override
 	public String getDescriptionKey()
@@ -50,6 +51,8 @@ public class InvitationTemplateDef implements MessageTemplateDefinition
 				"MessageTemplateConsumer.InvitationWithCode.var.code", false));
 		vars.put(URL, new MessageTemplateVariable(URL, 
 				"MessageTemplateConsumer.InvitationWithCode.var.url", false));
+		vars.put(EXPIRES, new MessageTemplateVariable(EXPIRES, 
+				"MessageTemplateConsumer.InvitationWithCode.var.expires", false));
 		return vars;
 	}
 

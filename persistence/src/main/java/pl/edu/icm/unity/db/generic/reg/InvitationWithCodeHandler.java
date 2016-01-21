@@ -30,7 +30,6 @@ import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -84,27 +83,21 @@ public class InvitationWithCodeHandler extends DefaultEntityHandler<InvitationWi
 				addr, facility, registrationCode);
 		
 		JsonNode n;
-		String v;
 		n = json.get("identities");
-		v = jsonMapper.writeValueAsString(n);
-		Map<Integer, PrefilledEntry<IdentityParam>> idMap = jsonMapper.readValue(v, 
-				new TypeReference<Map<Integer, PrefilledEntry<IdentityParam>>>(){});
-		invitation.getIdentities().putAll(idMap);
+		fillIdentities((ObjectNode) n, invitation.getIdentities(), sql);
 
 		n = json.get("groupSelections");
-		v = jsonMapper.writeValueAsString(n);
-		Map<Integer, PrefilledEntry<Selection>> grMap = jsonMapper.readValue(v, 
-				new TypeReference<Map<Integer, PrefilledEntry<Selection>>>(){});
-		invitation.getGroupSelections().putAll(grMap);
+		fillGroups((ObjectNode) n, invitation.getGroupSelections(), sql);
 		
-		fillAttributes(json, invitation.getAttributes(), sql);
+		n = json.get("attributes");
+		fillAttributes((ObjectNode) n, invitation.getAttributes(), sql);
 		
 		return invitation;
 	}
 
 	private void addAttributes(ObjectNode root, Map<Integer, PrefilledEntry<Attribute<?>>> attributes)
 	{
-		ObjectNode jsonAttrs = root.putObject("Attributes");
+		ObjectNode jsonAttrs = root.putObject("attributes");
 		for (Map.Entry<Integer, PrefilledEntry<Attribute<?>>> ae: attributes.entrySet())
 		{
 			ObjectNode entry = jsonMapper.createObjectNode();
@@ -131,6 +124,48 @@ public class InvitationWithCodeHandler extends DefaultEntityHandler<InvitationWi
 			}
 			PrefilledEntryMode mode = PrefilledEntryMode.valueOf(el.get("mode").asText());
 			attributes.put(Integer.parseInt(field.getKey()), new PrefilledEntry<Attribute<?>>(a, mode));
+		});
+	}
+
+	private void fillIdentities(ObjectNode root, Map<Integer, PrefilledEntry<IdentityParam>> identities, 
+			SqlSession sql)
+	{
+		root.fields().forEachRemaining(field ->
+		{
+			ObjectNode el = (ObjectNode) field.getValue();
+			IdentityParam identity;
+			try
+			{
+				byte[] contents = jsonMapper.writeValueAsBytes(el.get("entry"));
+				identity = jsonMapper.readValue(contents, IdentityParam.class);
+			} catch (Exception e)
+			{
+				log.warn("Can not deserialize identity stored with invitation, ignoring it", e);
+				return;
+			}
+			PrefilledEntryMode mode = PrefilledEntryMode.valueOf(el.get("mode").asText());
+			identities.put(Integer.parseInt(field.getKey()), new PrefilledEntry<>(identity, mode));
+		});
+	}
+
+	private void fillGroups(ObjectNode root, Map<Integer, PrefilledEntry<Selection>> groups, 
+			SqlSession sql)
+	{
+		root.fields().forEachRemaining(field ->
+		{
+			ObjectNode el = (ObjectNode) field.getValue();
+			Selection selection;
+			try
+			{
+				byte[] contents = jsonMapper.writeValueAsBytes(el.get("entry"));
+				selection = jsonMapper.readValue(contents, Selection.class);
+			} catch (Exception e)
+			{
+				log.warn("Can not deserialize group stored with invitation, ignoring it", e);
+				return;
+			}
+			PrefilledEntryMode mode = PrefilledEntryMode.valueOf(el.get("mode").asText());
+			groups.put(Integer.parseInt(field.getKey()), new PrefilledEntry<>(selection, mode));
 		});
 	}
 	

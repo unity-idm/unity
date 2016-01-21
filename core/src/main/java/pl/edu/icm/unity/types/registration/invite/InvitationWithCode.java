@@ -39,6 +39,41 @@ public class InvitationWithCode extends InvitationParam
 	{
 		return registrationCode;
 	}
+
+	@Override
+	public String toString()
+	{
+		return super.toString() + " [registrationCode=" + registrationCode + "]";
+	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result
+				+ ((registrationCode == null) ? 0 : registrationCode.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		InvitationWithCode other = (InvitationWithCode) obj;
+		if (registrationCode == null)
+		{
+			if (other.registrationCode != null)
+				return false;
+		} else if (!registrationCode.equals(other.registrationCode))
+			return false;
+		return true;
+	}
 }
 
 

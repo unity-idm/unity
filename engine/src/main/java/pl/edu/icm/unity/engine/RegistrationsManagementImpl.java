@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.engine;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -585,6 +588,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		RegistrationForm form = formsDB.get(invitation.getFormId(), sql);
 		if (!form.isPubliclyAvailable())
 			throw new WrongArgumentException("Invitations can be attached to public forms only");
+		if (form.getRegistrationCode() != null)
+			throw new WrongArgumentException("Invitations can not be attached to forms with a fixed registration code");
 		String randomUUID = UUID.randomUUID().toString();
 		InvitationWithCode withCode = new InvitationWithCode(invitation, randomUUID);
 		invitationDB.insert(randomUUID, withCode, sql);
@@ -611,6 +616,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		notifyParams.put(InvitationTemplateDef.CODE, invitation.getRegistrationCode());
 		notifyParams.put(InvitationTemplateDef.URL, 
 				PublicRegistrationURLSupport.getPublicLink(invitation.getFormId(), code, sharedEndpointMan));
+		ZonedDateTime expiry = invitation.getExpiration().atZone(ZoneId.systemDefault());
+		notifyParams.put(InvitationTemplateDef.EXPIRES, expiry.format(DateTimeFormatter.RFC_1123_DATE_TIME));
 		
 		notificationProducer.sendNotification(invitation.getContactAddress(),
 				invitation.getFacilityId(), form.getNotificationsConfiguration().getInvitationTemplate(),

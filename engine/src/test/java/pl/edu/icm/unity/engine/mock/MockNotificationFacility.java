@@ -15,11 +15,12 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 
 public class MockNotificationFacility implements NotificationFacility
 {
-
+	public static final String NAME = "test";
+	
 	@Override
 	public String getName()
 	{
-		return "test";
+		return NAME;
 	}
 
 	@Override
