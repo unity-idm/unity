@@ -45,7 +45,6 @@ import pl.edu.icm.unity.utils.ScheduledUpdaterBase;
 public class EndpointsUpdater extends ScheduledUpdaterBase
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, EndpointsUpdater.class);
-	private long lastUpdate = 0;
 	private InternalEndpointManagement endpointMan;
 	private EndpointDB endpointDB;
 	private AuthenticatorInstanceDB authnDB;
@@ -87,8 +86,8 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 				endpointsInDb.add(name);
 				long endpointLastChange = roundToS(instanceWithDate.getValue().getTime());
 				log.trace("Update timestampses: " + roundedUpdateTime + " " + 
-						lastUpdate + " " + name + ": " + endpointLastChange);
-				if (endpointLastChange >= lastUpdate)
+						getLastUpdate() + " " + name + ": " + endpointLastChange);
+				if (endpointLastChange >= getLastUpdate())
 				{
 					if (endpointLastChange == roundedUpdateTime)
 					{
@@ -144,8 +143,8 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 		{
 			long authenticatorChangedAt = roundToS(authn.getValue().getTime());
 			log.trace("Authenticator update timestampses: " + roundedUpdateTime + " " + 
-					lastUpdate + " " + authn.getKey() + ": " + authenticatorChangedAt);
-			if (authenticatorChangedAt >= lastUpdate && roundedUpdateTime != authenticatorChangedAt)
+					getLastUpdate() + " " + authn.getKey() + ": " + authenticatorChangedAt);
+			if (authenticatorChangedAt >= getLastUpdate() && roundedUpdateTime != authenticatorChangedAt)
 				changedAuthenticators.add(authn.getKey());
 		}
 		log.trace("Changed authenticators" + changedAuthenticators);
