@@ -4,11 +4,8 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.AbstractTranslationRule;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -74,37 +71,13 @@ public class TranslationProfileViewer extends VerticalLayout
 		int i=0;
 		for (AbstractTranslationRule<?> rule : profile.getRules())
 		{
-			ActionParameterDesc[] pd = null;
-			try 
-			{
-				TranslationActionFactory f = registry.getByName(rule.getAction().
-						getActionDescription().getName());
-				pd = f.getParameters();
-			} catch (IllegalTypeException e)
-			{
-				
-			}
 			i++;     
 			addField(msg.getMessage("TranslationProfileViewer.ruleCondition", i),
 					"TranslationProfileViewer.codeValue", 
 					rule.getCondition().getCondition());
-			addField(msg.getMessage("TranslationProfileViewer.ruleAction"),
-					"TranslationProfileViewer.codeValue", 
-					rule.getAction().getActionDescription().getName());
-			String[] par = rule.getAction().getParameters();
-			for (int j = 0; j < par.length; j++)
-			{
-				if (j == 0)
-				{
-					addField(msg.getMessage("TranslationProfileViewer.ruleActionParameters"),
-						"TranslationProfileViewer.ruleActionParameter",
-								pd[j].getName(), getParamValue(pd[j], par[j]));
-				}else
-				{
-					addField("", "TranslationProfileViewer.ruleActionParameter",
-							pd[j].getName(), getParamValue(pd[j], par[j]));
-				}
-			}		
+			TranslationActionPresenter action = new TranslationActionPresenter(msg, registry, 
+					rule.getAction());
+			action.iterator().forEachRemaining(c -> rules.addComponents(c));
 		}
 
 	}
@@ -122,12 +95,5 @@ public class TranslationProfileViewer extends VerticalLayout
 		rules.removeAllComponents();
 		name.setValue("");
 		description.setValue("");
-	}
-
-	private Object getParamValue(ActionParameterDesc desc, String value)
-	{
-		if (value == null)
-			return "";
-		return value.replace("\n", " | ");
 	}
 }

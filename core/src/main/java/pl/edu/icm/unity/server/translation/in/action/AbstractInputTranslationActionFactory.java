@@ -6,13 +6,13 @@ package pl.edu.icm.unity.server.translation.in.action;
 
 import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.translation.ProfileType;
-import pl.edu.icm.unity.server.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.translation.in.InputTranslationActionFactory;
 
 /**
- * Boilerplate code for the input profile's {@link TranslationActionFactory} implementations.
+ * Boilerplate code for the input profile's {@link InputTranslationActionFactory} implementations.
  * @author K. Benedyczak
  */
-public abstract class AbstractInputTranslationActionFactory implements TranslationActionFactory
+public abstract class AbstractInputTranslationActionFactory implements InputTranslationActionFactory
 {
 	private final String name;
 	private final ActionParameterDesc[] parameters;

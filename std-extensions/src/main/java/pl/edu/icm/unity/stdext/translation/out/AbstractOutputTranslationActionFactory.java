@@ -7,12 +7,13 @@ package pl.edu.icm.unity.stdext.translation.out;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationActionFactory;
 
 /**
  * Boilerplate code for the output profile's {@link TranslationActionFactory} implementations.
  * @author K. Benedyczak
  */
-public abstract class AbstractOutputTranslationActionFactory implements TranslationActionFactory
+public abstract class AbstractOutputTranslationActionFactory implements OutputTranslationActionFactory
 {
 	private final String name;
 	private final ActionParameterDesc[] parameters;

@@ -27,7 +27,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 @Component
 public class ChangeStatusActionFactory extends AbstractEntityActionFactory
 {
-	public static final String NAME = "bulkChangeStatus";
+	public static final String NAME = "changeStatus";
 	private IdentitiesManagement idsMan;
 	
 	@Autowired
