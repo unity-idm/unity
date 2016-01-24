@@ -78,7 +78,7 @@ public class OAuthTestUtils
 				credential,
 				false);
 		ctx.setClientEntityId(clientEntityId);
-		ctx.setClientName("clientC");
+		ctx.setClientUsername("clientC");
 		ctx.setFlow(grant);
 		ctx.setOpenIdMode(true);
 		ctx.setReturnURI(new URI("https://return.host.com/foo"));

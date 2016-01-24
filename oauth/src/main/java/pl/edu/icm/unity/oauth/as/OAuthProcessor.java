@@ -96,6 +96,7 @@ public class OAuthProcessor
 		internalToken.setClientId(ctx.getClientEntityId());
 		internalToken.setRedirectUri(ctx.getReturnURI().toASCIIString());
 		internalToken.setClientName(ctx.getClientName());
+		internalToken.setClientUsername(ctx.getClientUsername());
 		internalToken.setSubject(identity.getValue());
 		Date now = new Date();
 		

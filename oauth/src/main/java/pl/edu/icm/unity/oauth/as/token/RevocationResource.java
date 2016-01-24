@@ -91,7 +91,7 @@ public class RevocationResource extends BaseOAuthResource
 		
 		OAuthToken parsedAccessToken = parseInternalToken(internalAccessToken);
 		
-		if (!clientId.equals(parsedAccessToken.getClientName()))
+		if (!clientId.equals(parsedAccessToken.getClientUsername()))
 			return makeError(OAuth2Error.INVALID_CLIENT, "Wrong client/token");
 				
 		try

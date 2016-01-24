@@ -84,7 +84,7 @@ public class RevocationResourceTest
 	{
 		OAuthToken token = new OAuthToken();
 		token.setAccessToken("ac");
-		token.setClientName("clientId");
+		token.setClientUsername("clientId");
 		tokensManagement.addToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN, token.getAccessToken(), 
 				new EntityParam(123l), token.getSerialized(), new Date(), new Date());
 	}

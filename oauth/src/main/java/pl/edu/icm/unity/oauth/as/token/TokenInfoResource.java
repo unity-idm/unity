@@ -94,7 +94,7 @@ public class TokenInfoResource extends BaseOAuthResource
 		
 		OAuthToken parsedAccessToken = parseInternalToken(internalAccessToken);
 		
-		JSONObject contents = toJSON(parsedAccessToken.getSubject(), parsedAccessToken.getClientName(), 
+		JSONObject contents = toJSON(parsedAccessToken.getSubject(), parsedAccessToken.getClientUsername(), 
 				internalAccessToken.getExpires(), 
 				parsedAccessToken.getScope());
 		return toResponse(Response.ok(contents.toJSONString()));

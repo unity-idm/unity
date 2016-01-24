@@ -30,6 +30,7 @@ public class OAuthAuthzContext
 	private Date timestamp;
 	private URI returnURI;
 	private String clientName;
+	private String clientUsername;
 	private long clientEntityId;
 	private Attribute<BufferedImage> clientLogo;
 	private String translationProfile;
@@ -93,6 +94,16 @@ public class OAuthAuthzContext
 	public void setClientName(String clientName)
 	{
 		this.clientName = clientName;
+	}
+
+	public String getClientUsername()
+	{
+		return clientUsername;
+	}
+
+	public void setClientUsername(String clientUsername)
+	{
+		this.clientUsername = clientUsername;
 	}
 
 	public Attribute<BufferedImage> getClientLogo()
