@@ -52,6 +52,7 @@ public class RegistrationFormViewer extends VerticalLayout
 	private SimpleMessageTemplateViewer updatedTemplate;
 	private SimpleMessageTemplateViewer rejectedTemplate;
 	private SimpleMessageTemplateViewer acceptedTemplate;
+	private SimpleMessageTemplateViewer invitationTemplate;
 	private Label channel;
 	private Label adminsNotificationGroup;
 	private Label captcha;
@@ -109,6 +110,7 @@ public class RegistrationFormViewer extends VerticalLayout
 			updatedTemplate.setInput(notCfg.getUpdatedTemplate());
 			rejectedTemplate.setInput(notCfg.getRejectedTemplate());
 			acceptedTemplate.setInput(notCfg.getAcceptedTemplate());
+			invitationTemplate.setInput(notCfg.getInvitationTemplate());
 			channel.setValue(notCfg.getChannel());
 			adminsNotificationGroup.setValue(notCfg.getAdminsNotificationGroup());
 		}
@@ -146,6 +148,7 @@ public class RegistrationFormViewer extends VerticalLayout
 		updatedTemplate.setInput(null);
 		rejectedTemplate.setInput(null);
 		acceptedTemplate.setInput(null);
+		invitationTemplate.setInput(null);
 		channel.setValue("");
 		adminsNotificationGroup.setValue("");
 		
@@ -325,9 +328,11 @@ public class RegistrationFormViewer extends VerticalLayout
 				msg, msgTempMan);
 		acceptedTemplate = new SimpleMessageTemplateViewer(msg.getMessage("RegistrationFormViewer.acceptedTemplate"),
 				msg, msgTempMan);
-		
+		invitationTemplate = new SimpleMessageTemplateViewer(msg.getMessage("RegistrationFormViewer.invitationTemplate"),
+				msg, msgTempMan);
 		main.addComponents(name, description, publiclyAvailable, publicLink, channel, adminsNotificationGroup,
-				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate, captcha);
+				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate, invitationTemplate, 
+				captcha);
 	}
 	
 	private String toHTMLLabel(OptionalRegistrationParam value)

@@ -17,6 +17,7 @@ import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.registration.AcceptRegistrationTemplateDef;
+import pl.edu.icm.unity.server.api.registration.InvitationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
@@ -100,6 +101,7 @@ public class RegistrationFormEditor extends VerticalLayout
 	private ComboBox updatedTemplate;
 	private ComboBox rejectedTemplate;
 	private ComboBox acceptedTemplate;
+	private ComboBox invitationTemplate;
 	private ComboBox channel;
 	private GroupComboBox adminsNotificationGroup;
 	private Slider captcha;
@@ -217,6 +219,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		notCfg.setRejectedTemplate((String) rejectedTemplate.getValue());
 		notCfg.setSubmittedTemplate((String) submittedTemplate.getValue());
 		notCfg.setUpdatedTemplate((String) updatedTemplate.getValue());
+		notCfg.setInvitationTemplate((String) invitationTemplate.getValue());
 		ret.setPubliclyAvailable(publiclyAvailable.getValue());
 		
 		String code = registrationCode.getValue();
@@ -306,6 +309,8 @@ public class RegistrationFormEditor extends VerticalLayout
 		rejectedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.rejectedTemplate"));
 		acceptedTemplate =  new CompatibleTemplatesComboBox(AcceptRegistrationTemplateDef.NAME, msgTempMan);
 		acceptedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.acceptedTemplate"));
+		invitationTemplate =  new CompatibleTemplatesComboBox(InvitationTemplateDef.NAME, msgTempMan);
+		invitationTemplate.setCaption(msg.getMessage("RegistrationFormViewer.invitationTemplate"));
 		
 		captcha = new Slider(msg.getMessage("RegistrationFormViewer.captcha"), 0, 8);
 		captcha.setWidth(10, Unit.EM);
@@ -313,7 +318,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		
 		main.addComponents(name, description, publiclyAvailable, channel, adminsNotificationGroup,
 				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate, 
-				captcha);
+				invitationTemplate, captcha);
 		
 		if (toEdit != null)
 		{
@@ -326,6 +331,7 @@ public class RegistrationFormEditor extends VerticalLayout
 			updatedTemplate.setValue(notCfg.getUpdatedTemplate());
 			rejectedTemplate.setValue(notCfg.getRejectedTemplate());
 			acceptedTemplate.setValue(notCfg.getAcceptedTemplate());
+			invitationTemplate.setValue(notCfg.getInvitationTemplate());
 			captcha.setValue(Double.valueOf(toEdit.getCaptchaLength()));
 		}
 	}
