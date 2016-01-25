@@ -10,18 +10,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.translation.RegistrationTranslationActionFactory;
-import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 
 /**
- * Maintains a simple registry of available {@link TranslationActionFactory}ies.
+ * Maintains a simple registry of available {@link RegistrationTranslationActionFactory}ies.
  * 
  * @author K. Benedyczak
  */
 @Component
-public class RegistrationTranslationActionsRegistry extends TypesRegistryBase<RegistrationTranslationActionFactory>
+public class RegistrationActionsRegistry extends TypesRegistryBase<RegistrationTranslationActionFactory>
 {
 	@Autowired
-	public RegistrationTranslationActionsRegistry(List<RegistrationTranslationActionFactory> typeElements)
+	public RegistrationActionsRegistry(List<RegistrationTranslationActionFactory> typeElements)
 	{
 		super(typeElements);
 	}

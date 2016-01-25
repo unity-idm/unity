@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.internal.PublicWellKnownURLServlet;
 import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
@@ -74,11 +74,11 @@ public class RegistrationFormViewer extends VerticalLayout
 	private Label credentialRequirementAssignment;
 	private RegistrationTranslationProfileViewer translationProfile;
 	private SharedEndpointManagement sharedEndpointMan;
-	private TranslationActionsRegistry actionsRegistry;
+	private RegistrationActionsRegistry actionsRegistry;
 	
 	public RegistrationFormViewer(UnityMessageSource msg, 
 			MessageTemplateManagement msgTempMan, SharedEndpointManagement sharedEndpointMan, 
-			TranslationActionsRegistry registry)
+			RegistrationActionsRegistry registry)
 	{
 		this.msg = msg;
 		this.msgTempMan = msgTempMan;

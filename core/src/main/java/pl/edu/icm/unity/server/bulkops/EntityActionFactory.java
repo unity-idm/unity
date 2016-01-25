@@ -2,14 +2,15 @@
  * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.server.translation.out;
+package pl.edu.icm.unity.server.bulkops;
 
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 
 /**
- * Factory of {@link OutputTranslationAction}
+ * Common interface for {@link EntityAction} factories
  * @author K. Benedyczak
  */
-public interface OutputTranslationActionFactory extends TranslationActionFactory<OutputTranslationAction>
+public interface EntityActionFactory extends TranslationActionFactory<EntityAction>
 {
+
 }

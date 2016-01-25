@@ -7,8 +7,7 @@ package pl.edu.icm.unity.server.bulkops;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
-import pl.edu.icm.unity.server.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.registries.EntityActionsRegistry;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -31,7 +30,7 @@ public class ScheduledProcessingRule extends ScheduledProcessingRuleParam
 		this.id = id;
 	}
 
-	public ScheduledProcessingRule(ObjectNode json, TranslationActionsRegistry actionRegistry)
+	public ScheduledProcessingRule(ObjectNode json, EntityActionsRegistry actionRegistry)
 	{
 		fromJson(json, actionRegistry);
 	}
@@ -56,7 +55,7 @@ public class ScheduledProcessingRule extends ScheduledProcessingRuleParam
 		return root;
 	}
 	
-	private void fromJson(ObjectNode json, TranslationActionsRegistry actionRegistry)
+	private void fromJson(ObjectNode json, EntityActionsRegistry actionRegistry)
 	{
 		id = json.get("id").asText();
 		cronExpression = json.get("cronExpression").asText();
@@ -67,7 +66,7 @@ public class ScheduledProcessingRule extends ScheduledProcessingRuleParam
 		for (int i=0; i<paramsN.size(); i++)
 			params[i] = paramsN.get(i).asText();
 		
-		TranslationActionFactory actionFactory;
+		EntityActionFactory actionFactory;
 		try
 		{
 			actionFactory = actionRegistry.getByName(actionName);

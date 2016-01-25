@@ -22,11 +22,11 @@ import com.vaadin.ui.VerticalLayout;
  */
 public class TranslationProfileEditDialog extends AbstractDialog
 {
-	private TranslationProfileEditor<?> editor;
+	private TranslationProfileEditor<?, ?> editor;
 	private Callback callback;
 	
 	public TranslationProfileEditDialog(UnityMessageSource msg, String caption,
-			Callback callback, TranslationProfileEditor<?> editor)
+			Callback callback, TranslationProfileEditor<?, ?> editor)
 	{
 		super(msg, caption);
 		this.editor = editor;

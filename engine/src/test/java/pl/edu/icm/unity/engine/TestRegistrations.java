@@ -27,7 +27,7 @@ import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.RegistrationContext;
 import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
-import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfileBuilder;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
@@ -65,7 +65,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 	private InitializerCommon commonInitializer;
 	
 	@Autowired
-	private RegistrationTranslationActionsRegistry registry;
+	private RegistrationActionsRegistry registry;
 	
 	@Test
 	public void testRegistrationForms() throws Exception

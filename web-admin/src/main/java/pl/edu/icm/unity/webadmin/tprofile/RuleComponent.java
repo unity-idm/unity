@@ -14,21 +14,17 @@ import org.mvel2.MVEL;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.TypesRegistryBase;
 import pl.edu.icm.unity.server.translation.AbstractTranslationRule;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ProfileType;
+import pl.edu.icm.unity.server.translation.RuleFactory;
 import pl.edu.icm.unity.server.translation.TranslationAction;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationRule;
 import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
 import pl.edu.icm.unity.server.translation.in.MappingResult;
-import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
-import pl.edu.icm.unity.server.translation.out.OutputTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -62,11 +58,10 @@ import com.vaadin.ui.VerticalLayout;
  * @contributor Roman Krysinski
  * 
  */
-public class RuleComponent extends VerticalLayout
+public class RuleComponent<T extends TranslationAction> extends VerticalLayout
 {
 	private UnityMessageSource msg;
-	private ProfileType profileType;
-	private TranslationActionsRegistry tc;
+	private TypesRegistryBase<? extends TranslationActionFactory<T>> tc;
 	private Collection<AttributeType> attributeTypes;
 	private Collection<String> groups;
 	private Collection<String> credReqs;
@@ -75,7 +70,7 @@ public class RuleComponent extends VerticalLayout
 	private AbstractTextField condition;
 	private FormLayout paramsList;
 	private MappingResultComponent mappingResultComponent;
-	private Callback callback;
+	private Callback<T> callback;
 	private Button up;
 	private Button top;
 	private Button down;
@@ -83,15 +78,19 @@ public class RuleComponent extends VerticalLayout
 	private Label actionParams;
 	private boolean editMode;
 	private Image helpAction;
+	private RuleFactory<T> ruleFactory;
 
-	public RuleComponent(ProfileType profileType, UnityMessageSource msg, TranslationActionsRegistry tc,
-			AbstractTranslationRule<?> toEdit, Collection<AttributeType> attributeTypes, Collection<String> groups,
-			Collection<String> credReqs, Collection<String> idTypes, Callback callback)
+	public RuleComponent(UnityMessageSource msg, 
+			TypesRegistryBase<? extends TranslationActionFactory<T>> tc,
+			AbstractTranslationRule<?> toEdit, Collection<AttributeType> attributeTypes, 
+			Collection<String> groups,
+			Collection<String> credReqs, Collection<String> idTypes, Callback<T> callback,
+			RuleFactory<T> ruleFactory)
 	{
-		this.profileType = profileType;
 		this.callback = callback;
 		this.msg = msg;
 		this.tc = tc;
+		this.ruleFactory = ruleFactory;
 		editMode = toEdit != null;
 		this.attributeTypes = attributeTypes;
 		this.groups = groups;
@@ -219,11 +218,8 @@ public class RuleComponent extends VerticalLayout
 		condition.setImmediate(true);
 
 		actions = new RequiredComboBox(msg.getMessage("TranslationProfileEditor.ruleAction"), msg);
-		for (TranslationActionFactory a : tc.getAll())
-		{
-			if (a.getSupportedProfileType() == profileType)
-				actions.addItem(a.getName());
-		}
+		for (TranslationActionFactory<T> a : tc.getAll())
+			actions.addItem(a.getName());
 		actions.setImmediate(true);
 		actions.setValidationVisible(false);
 		actions.setNullSelectionAllowed(false);
@@ -296,7 +292,7 @@ public class RuleComponent extends VerticalLayout
 			return;
 		}
 		
-		TranslationActionFactory factory = getActionFactory(action);
+		TranslationActionFactory<T> factory = getActionFactory(action);
 		if (factory == null)
 		{	
 			return;
@@ -342,27 +338,18 @@ public class RuleComponent extends VerticalLayout
 		}
 	}
 	
-	public AbstractTranslationRule<?> getRule()
+	public AbstractTranslationRule<T> getRule()
 	{
 		String ac = (String) actions.getValue();
 		if (ac == null)
 			return null;
 
-		TranslationActionFactory factory = getActionFactory(ac);	
-		TranslationAction action = factory.getInstance(getActionParams());
+		TranslationActionFactory<T> factory = getActionFactory(ac);	
+		T action = factory.getInstance(getActionParams());
 		TranslationCondition cnd = new TranslationCondition();
 		cnd.setCondition(condition.getValue());			
 		
-		switch (profileType)
-		{
-		case INPUT:
-			return new InputTranslationRule((InputTranslationAction) action, cnd);
-		case OUTPUT:
-			return new OutputTranslationRule((OutputTranslationAction) action, cnd);
-		case REGISTRATION:
-			return new RegistrationTranslationRule((RegistrationTranslationAction) action, cnd);
-		}
-		throw new IllegalStateException("Not implemented");
+		return ruleFactory.createRule(action, cnd);
 	}
 	
 	private String[] getActionParams()
@@ -379,9 +366,9 @@ public class RuleComponent extends VerticalLayout
 		return params.toArray(wrapper);
 	}
 	
-	private TranslationActionFactory getActionFactory(String action)
+	private TranslationActionFactory<T> getActionFactory(String action)
 	{
-		TranslationActionFactory factory = null;
+		TranslationActionFactory<T> factory = null;
 		try
 		{
 			factory = tc.getByName(action);
@@ -429,7 +416,7 @@ public class RuleComponent extends VerticalLayout
 			return false;
 		boolean ok = true;
 		
-		TranslationActionFactory factory = getActionFactory(ac);	
+		TranslationActionFactory<T> factory = getActionFactory(ac);	
 		try
 		{
 			factory.getInstance(getActionParams());
@@ -602,14 +589,12 @@ public class RuleComponent extends VerticalLayout
 		}			
 	}
 
-	public interface Callback
+	public interface Callback<T extends TranslationAction>
 	{
-		public boolean moveUp(RuleComponent rule);
-		public boolean moveDown(RuleComponent rule);
-		public boolean remove(RuleComponent rule);
-		public boolean moveTop(RuleComponent rule);
-		public boolean moveBottom(RuleComponent rule);
+		public boolean moveUp(RuleComponent<T> rule);
+		public boolean moveDown(RuleComponent<T> rule);
+		public boolean remove(RuleComponent<T> rule);
+		public boolean moveTop(RuleComponent<T> rule);
+		public boolean moveBottom(RuleComponent<T> rule);
 	}
-
-
 }

@@ -12,10 +12,9 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
-import pl.edu.icm.unity.server.translation.AbstractTranslationProfile;
-import pl.edu.icm.unity.server.translation.ProfileType;
+import pl.edu.icm.unity.server.registries.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationProfile;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -26,25 +25,18 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
  * @author P. Piernik
  * 
  */
-public class OutputTranslationProfileEditor extends TranslationProfileEditor<OutputTranslationRule>
+public class OutputTranslationProfileEditor extends TranslationProfileEditor<OutputTranslationAction, OutputTranslationRule>
 {
 	public OutputTranslationProfileEditor(UnityMessageSource msg,
-			TranslationActionsRegistry registry, TranslationProfile toEdit,
+			OutputTranslationActionsRegistry registry, TranslationProfile toEdit,
 			AttributesManagement attrsMan, IdentitiesManagement idMan, AuthenticationManagement authnMan,
 			GroupsManagement groupsMan) throws EngineException
 	{
-		super(msg, registry, toEdit, attrsMan, idMan, authnMan, groupsMan);
+		super(msg, registry, toEdit, attrsMan, idMan, authnMan, groupsMan, OutputTranslationRule.FACTORY);
 	}
 
 	@Override
-	protected ProfileType getProfileType()
-	{
-		return ProfileType.OUTPUT;
-	}
-
-	@Override
-	public AbstractTranslationProfile<OutputTranslationRule> createProfile(String name,
-			List<OutputTranslationRule> trules)
+	public OutputTranslationProfile createProfile(String name, List<OutputTranslationRule> trules)
 	{
 		return new OutputTranslationProfile(name, trules);
 	}

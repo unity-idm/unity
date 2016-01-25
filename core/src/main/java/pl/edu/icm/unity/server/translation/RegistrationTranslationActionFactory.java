@@ -4,11 +4,13 @@
  */
 package pl.edu.icm.unity.server.translation;
 
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
+
 
 /**
  * Marker interface of actions related to translation profiles.
  * @author K. Benedyczak
  */
-public interface RegistrationTranslationActionFactory extends TranslationActionFactory
+public interface RegistrationTranslationActionFactory extends TranslationActionFactory<RegistrationTranslationAction>
 {
 }

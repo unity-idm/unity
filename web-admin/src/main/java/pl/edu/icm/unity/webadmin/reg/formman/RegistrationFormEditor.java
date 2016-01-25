@@ -20,7 +20,8 @@ import pl.edu.icm.unity.server.api.registration.AcceptRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -115,16 +116,16 @@ public class RegistrationFormEditor extends VerticalLayout
 	private ListOfEmbeddedElements<CredentialRegistrationParam> credentialParams;
 
 	private ComboBox credentialRequirementAssignment;
-	private TranslationProfileEditor<RegistrationTranslationRule> profileEditor;
+	private TranslationProfileEditor<RegistrationTranslationAction, RegistrationTranslationRule> profileEditor;
 	private AttributesManagement attributeMan;
 	private IdentitiesManagement identitiesMan;
-	private TranslationActionsRegistry actionsRegistry;
+	private RegistrationActionsRegistry actionsRegistry;
 	
 	public RegistrationFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
 			NotificationsManagement notificationsMan,
 			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
 			AttributesManagement attributeMan,
-			AuthenticationManagement authenticationMan, TranslationActionsRegistry actionsRegistry) 
+			AuthenticationManagement authenticationMan, RegistrationActionsRegistry actionsRegistry) 
 					throws EngineException
 	{
 		this(msg, groupsMan, notificationsMan, msgTempMan, identitiesMan, attributeMan, authenticationMan, 
@@ -135,7 +136,7 @@ public class RegistrationFormEditor extends VerticalLayout
 			NotificationsManagement notificationsMan,
 			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
 			AttributesManagement attributeMan,
-			AuthenticationManagement authenticationMan, TranslationActionsRegistry actionsRegistry,
+			AuthenticationManagement authenticationMan, RegistrationActionsRegistry actionsRegistry,
 			RegistrationForm toEdit, boolean copyMode)
 			throws EngineException
 	{

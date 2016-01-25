@@ -18,7 +18,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.AbstractTranslationProfile;
 import pl.edu.icm.unity.server.translation.ExecutionBreakException;
 import pl.edu.icm.unity.server.translation.ProfileType;
@@ -32,7 +32,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Entry point: input translation profile, a list of translation rules annotated with a name and description.
  * @author K. Benedyczak
  */
-public class InputTranslationProfile extends AbstractTranslationProfile<InputTranslationRule>
+public class InputTranslationProfile extends AbstractTranslationProfile<InputTranslationAction, InputTranslationRule>
 {
 	public enum ContextKey
 	{
@@ -53,7 +53,7 @@ public class InputTranslationProfile extends AbstractTranslationProfile<InputTra
 		super(name, ProfileType.INPUT, rules);
 	}
 
-	public InputTranslationProfile(String json, ObjectMapper jsonMapper, TranslationActionsRegistry registry)
+	public InputTranslationProfile(String json, ObjectMapper jsonMapper, InputTranslationActionsRegistry registry)
 	{
 		fromJson(json, jsonMapper, registry);
 	}

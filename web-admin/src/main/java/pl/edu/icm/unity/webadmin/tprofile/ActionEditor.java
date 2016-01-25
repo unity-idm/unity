@@ -10,9 +10,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.TypesRegistryBase;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.TranslationAction;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -35,11 +34,10 @@ import com.vaadin.ui.Label;
  * Responsible for editing of a single {@link TranslationAction}
  * 
  */
-public class ActionEditor implements Iterable<Component>
+public class ActionEditor<T extends TranslationAction> implements Iterable<Component>
 {
 	private UnityMessageSource msg;
-	private ProfileType profileType;
-	private TranslationActionsRegistry tc;
+	private TypesRegistryBase<? extends TranslationActionFactory<T>> tc;
 	
 	private List<Component> contents = new ArrayList<>();
 	private ComboBox actions;
@@ -47,10 +45,9 @@ public class ActionEditor implements Iterable<Component>
 	private Label actionParams;
 	private Provider actionComponentProvider;
 
-	public ActionEditor(ProfileType profileType, UnityMessageSource msg, TranslationActionsRegistry tc,
+	public ActionEditor(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<T>> tc,
 			TranslationAction toEdit, ActionParameterComponentFactory.Provider actionComponentProvider)
 	{
-		this.profileType = profileType;
 		this.msg = msg;
 		this.tc = tc;
 		this.actionComponentProvider = actionComponentProvider;
@@ -63,11 +60,8 @@ public class ActionEditor implements Iterable<Component>
 		paramsList.setSpacing(true);
 
 		actions = new RequiredComboBox(msg.getMessage("ActionEditor.ruleAction"), msg);
-		for (TranslationActionFactory a : tc.getAll())
-		{
-			if (a.getSupportedProfileType() == profileType)
-				actions.addItem(a.getName());
-		}
+		for (TranslationActionFactory<T> a : tc.getAll())
+			actions.addItem(a.getName());
 		actions.setValidationVisible(false);
 		actions.setNullSelectionAllowed(false);
 		actions.addValueChangeListener(new ValueChangeListener()
@@ -105,7 +99,7 @@ public class ActionEditor implements Iterable<Component>
 	{
 		paramsList.removeAllComponents();
 		
-		TranslationActionFactory factory = getActionFactory(action);
+		TranslationActionFactory<T> factory = getActionFactory(action);
 		if (factory == null)
 		{	
 			return;
@@ -140,9 +134,9 @@ public class ActionEditor implements Iterable<Component>
 		return params.toArray(wrapper);
 	}
 	
-	private TranslationActionFactory getActionFactory(String action)
+	private TranslationActionFactory<T> getActionFactory(String action)
 	{
-		TranslationActionFactory factory = null;
+		TranslationActionFactory<T> factory = null;
 		try
 		{
 			factory = tc.getByName(action);
@@ -158,7 +152,7 @@ public class ActionEditor implements Iterable<Component>
 	public TranslationAction getAction() throws FormValidationException
 	{
 		String ac = (String) actions.getValue();
-		TranslationActionFactory factory = getActionFactory(ac);
+		TranslationActionFactory<T> factory = getActionFactory(ac);
 		try
 		{
 			return factory.getInstance(getActionParams());

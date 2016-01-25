@@ -6,15 +6,15 @@ package pl.edu.icm.unity.webadmin.tprofile.dryrun;
 
 import org.vaadin.teemu.wizards.Wizard;
 
-import com.vaadin.ui.UI;
-
 import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.sandbox.wizard.AbstractSandboxWizardProvider;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.association.IntroStep;
+
+import com.vaadin.ui.UI;
 
 /**
  * Configures profile dry run wizard 
@@ -23,11 +23,11 @@ import pl.edu.icm.unity.webui.association.IntroStep;
 public class DryRunWizardProvider extends AbstractSandboxWizardProvider
 {
 	private UnityMessageSource msg;
-	private TranslationActionsRegistry registry;
+	private InputTranslationActionsRegistry registry;
 	private TranslationProfileManagement tpMan;
 
 	public DryRunWizardProvider(UnityMessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier, 
-			TranslationActionsRegistry registry, TranslationProfileManagement tpMan)
+			InputTranslationActionsRegistry registry, TranslationProfileManagement tpMan)
 	{
 		super(sandboxURL, sandboxNotifier);
 		this.msg = msg;

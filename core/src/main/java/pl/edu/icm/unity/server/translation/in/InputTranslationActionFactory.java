@@ -4,13 +4,12 @@
  */
 package pl.edu.icm.unity.server.translation.in;
 
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
+import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 
 /**
  * Factory of {@link InputTranslationAction}
  * @author K. Benedyczak
  */
-public interface InputTranslationActionFactory extends TranslationActionDescription
+public interface InputTranslationActionFactory extends TranslationActionFactory<InputTranslationAction>
 {
-	InputTranslationAction getInstance(String... parameters);
 }

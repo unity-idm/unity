@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -49,7 +50,7 @@ public class ProfileStepComponent extends CustomComponent
 	private VerticalLayout rightPanel;
 	private static final float DEFAULT_SIZE_OF_SPLIT_POS = 50;
 	private UnityMessageSource msg;
-	private TranslationProfileEditor<InputTranslationRule> editor;
+	private TranslationProfileEditor<InputTranslationAction, InputTranslationRule> editor;
 	/**
 	 * The constructor should first build the main layout, set the
 	 * composition root and then do any custom initialization.
@@ -59,7 +60,8 @@ public class ProfileStepComponent extends CustomComponent
 	 * @param editor 
 	 * @param msg 
 	 */
-	public ProfileStepComponent(UnityMessageSource msg, TranslationProfileEditor<InputTranslationRule> editor) 
+	public ProfileStepComponent(UnityMessageSource msg, 
+			TranslationProfileEditor<InputTranslationAction, InputTranslationRule> editor) 
 	{
 		this.msg = msg;
 		this.editor = editor;

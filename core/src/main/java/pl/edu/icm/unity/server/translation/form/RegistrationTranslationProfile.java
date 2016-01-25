@@ -18,7 +18,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.RegistrationContext;
 import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
-import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.AbstractTranslationProfile;
 import pl.edu.icm.unity.server.translation.ExecutionBreakException;
 import pl.edu.icm.unity.server.translation.ProfileType;
@@ -46,7 +46,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * Classic translation profile used for post-processing registration requests.
  * @author K. Benedyczak
  */
-public class RegistrationTranslationProfile extends AbstractTranslationProfile<RegistrationTranslationRule>
+public class RegistrationTranslationProfile extends AbstractTranslationProfile<RegistrationTranslationAction,
+	RegistrationTranslationRule>
 {
 	public enum RequestSubmitStatus 
 	{
@@ -85,13 +86,13 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, RegistrationTranslationProfile.class);
 	
-	public RegistrationTranslationProfile(ObjectNode json, RegistrationTranslationActionsRegistry registry)
+	public RegistrationTranslationProfile(ObjectNode json, RegistrationActionsRegistry registry)
 	{
 		fromJson(json, registry);
 	}
 	
 	public RegistrationTranslationProfile(String json, ObjectMapper jsonMapper, 
-			RegistrationTranslationActionsRegistry registry)
+			RegistrationActionsRegistry registry)
 	{
 		fromJson(json, jsonMapper, registry);
 	}

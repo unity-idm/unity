@@ -22,7 +22,7 @@ import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
@@ -43,17 +43,17 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 {
 	private AuthorizationManager authz;
 	private TranslationProfileDB tpDB;
-	private TranslationActionsRegistry tactionReg;
+	private OutputTranslationActionsRegistry outtactionReg;
 	private OutputTranslationProfile defaultProfile;
 	
 	@Autowired
 	public TranslationProfileManagementImpl(AuthorizationManager authz,
-			TranslationProfileDB tpDB, TranslationActionsRegistry tactionReg) 
+			TranslationProfileDB tpDB, OutputTranslationActionsRegistry outtactionReg) 
 					throws IllegalTypeException, EngineException
 	{
 		this.authz = authz;
 		this.tpDB = tpDB;
-		this.tactionReg = tactionReg;
+		this.outtactionReg = outtactionReg;
 		
 		this.defaultProfile = createDefaultOutputProfile();
 	}
@@ -124,7 +124,7 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	private OutputTranslationProfile createDefaultOutputProfile() throws IllegalTypeException, EngineException
 	{
 		List<OutputTranslationRule> rules = new ArrayList<>();
-		OutputTranslationAction action1 = (OutputTranslationAction) tactionReg.getByName(
+		OutputTranslationAction action1 = outtactionReg.getByName(
 				CreateAttributeActionFactory.NAME).getInstance(
 				"memberOf", 
 				"groups");

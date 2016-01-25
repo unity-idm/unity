@@ -22,7 +22,6 @@ import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.ServerManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
@@ -59,7 +58,7 @@ public class EndpointsComponent extends VerticalLayout
 	public EndpointsComponent(UnityMessageSource msg, EndpointManagement endpointMan,
 			AuthenticationManagement authMan, ServerManagement serverMan,
 			TranslationProfileManagement profilesMan,
-			TranslationActionsRegistry tactionsRegistry, ObjectMapper jsonMapper,
+			ObjectMapper jsonMapper,
 			UnityServerConfiguration config, NetworkServer networkServer)
 	{
 		this.config = config;

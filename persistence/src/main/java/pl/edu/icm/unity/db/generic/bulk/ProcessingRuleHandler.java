@@ -14,7 +14,7 @@ import pl.edu.icm.unity.db.generic.DefaultEntityHandler;
 import pl.edu.icm.unity.db.model.GenericObjectBean;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.bulkops.ScheduledProcessingRule;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.EntityActionsRegistry;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -30,10 +30,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class ProcessingRuleHandler extends DefaultEntityHandler<ScheduledProcessingRule> 
 {
 	public static final String PROCESSING_RULE_OBJECT_TYPE = "processingRule";
-	private TranslationActionsRegistry actionsRegistry;
+	private EntityActionsRegistry actionsRegistry;
 	
 	@Autowired
-	public ProcessingRuleHandler(ObjectMapper jsonMapper, TranslationActionsRegistry actionsRegistry)
+	public ProcessingRuleHandler(ObjectMapper jsonMapper, EntityActionsRegistry actionsRegistry)
 	{
 		super(jsonMapper, PROCESSING_RULE_OBJECT_TYPE, ScheduledProcessingRule.class);
 		this.actionsRegistry = actionsRegistry;

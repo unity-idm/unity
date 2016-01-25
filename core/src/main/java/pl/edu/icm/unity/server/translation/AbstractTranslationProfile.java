@@ -21,13 +21,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * in the first place. 
  * @author K. Benedyczak
  */
-public abstract class AbstractTranslationProfile<T extends AbstractTranslationRule<?>> extends DescribedObjectImpl 
-	implements TranslationProfile
+public abstract class AbstractTranslationProfile<A extends TranslationAction, R extends AbstractTranslationRule<A>> 
+	extends DescribedObjectImpl implements TranslationProfile
 {
-	protected List<T> rules;
+	protected List<R> rules;
 	private ProfileType profileType;
 
-	public AbstractTranslationProfile(String name, ProfileType profileType, List<T> rules)
+	public AbstractTranslationProfile(String name, ProfileType profileType, List<R> rules)
 	{
 		this.rules = rules;
 		this.profileType = profileType;
@@ -39,12 +39,12 @@ public abstract class AbstractTranslationProfile<T extends AbstractTranslationRu
 	}
 
 	@Override
-	public List<T> getRules()
+	public List<R> getRules()
 	{
 		return rules;
 	}
 
-	public void setRules(List<T> rules)
+	public void setRules(List<R> rules)
 	{
 		this.rules = rules;
 	}
@@ -114,7 +114,7 @@ public abstract class AbstractTranslationProfile<T extends AbstractTranslationRu
 		return root;
 	}
 	
-	protected void fromJson(ObjectNode root, TypesRegistryBase<? extends TranslationActionFactory> registry)
+	protected void fromJson(ObjectNode root, TypesRegistryBase<? extends TranslationActionFactory<A>> registry)
 	{
 		try
 		{
@@ -127,7 +127,7 @@ public abstract class AbstractTranslationProfile<T extends AbstractTranslationRu
 				String condition = jsonRule.get("condition").get("conditionValue").asText();
 				ObjectNode jsonAction = (ObjectNode) jsonRule.get("action");
 				String actionName = jsonAction.get("name").asText();
-				TranslationActionFactory fact = registry.getByName(actionName);
+				TranslationActionFactory<A> fact = registry.getByName(actionName);
 				String[] parameters = extractParams(jsonAction);
 				TranslationAction action = fact.getInstance(parameters);
 				rules.add(createRule(action, new TranslationCondition(condition)));
@@ -139,7 +139,7 @@ public abstract class AbstractTranslationProfile<T extends AbstractTranslationRu
 	}
 	
 	protected void fromJson(String json, ObjectMapper jsonMapper, 
-			TypesRegistryBase<? extends TranslationActionFactory> registry)
+			TypesRegistryBase<? extends TranslationActionFactory<A>> registry)
 	{
 		try
 		{
@@ -157,7 +157,7 @@ public abstract class AbstractTranslationProfile<T extends AbstractTranslationRu
 	 * @param condition
 	 * @return
 	 */
-	protected abstract T createRule(TranslationAction action, TranslationCondition condition);
+	protected abstract R createRule(TranslationAction action, TranslationCondition condition);
 	
 	
 	/**
@@ -212,7 +212,7 @@ public abstract class AbstractTranslationProfile<T extends AbstractTranslationRu
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AbstractTranslationProfile<?> other = (AbstractTranslationProfile<?>) obj;
+		AbstractTranslationProfile<?, ?> other = (AbstractTranslationProfile<?, ?>) obj;
 		if (profileType != other.profileType)
 			return false;
 		if (rules == null)

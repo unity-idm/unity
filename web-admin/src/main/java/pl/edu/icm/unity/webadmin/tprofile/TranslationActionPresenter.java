@@ -6,7 +6,7 @@ package pl.edu.icm.unity.webadmin.tprofile;
 
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.TypesRegistryBase;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.translation.TranslationAction;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
@@ -22,12 +22,12 @@ import com.vaadin.ui.FormLayout;
  * to a parent component.
  * @author K. Benedyczak
  */
-public class TranslationActionPresenter extends FormLayout
+public class TranslationActionPresenter<T extends TranslationAction> extends FormLayout
 {	
 	private UnityMessageSource msg;
-	private TranslationActionsRegistry registry;
+	private TypesRegistryBase<? extends TranslationActionFactory<T>> registry;
 	
-	public TranslationActionPresenter(UnityMessageSource msg, TranslationActionsRegistry registry,
+	public TranslationActionPresenter(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<T>> registry,
 			TranslationAction action)
 	{
 		this.msg = msg;
@@ -41,7 +41,7 @@ public class TranslationActionPresenter extends FormLayout
 		ActionParameterDesc[] pd = null;
 		try 
 		{
-			TranslationActionFactory f = registry.getByName(actionName);
+			TranslationActionFactory<T> f = registry.getByName(actionName);
 			pd = f.getParameters();
 		} catch (IllegalTypeException e)
 		{

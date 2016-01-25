@@ -12,10 +12,9 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
-import pl.edu.icm.unity.server.translation.AbstractTranslationProfile;
-import pl.edu.icm.unity.server.translation.ProfileType;
+import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -26,25 +25,19 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
  * @author K. Benedyczak
  * 
  */
-public class RegistrationTranslationProfileEditor extends TranslationProfileEditor<RegistrationTranslationRule>
+public class RegistrationTranslationProfileEditor extends TranslationProfileEditor<RegistrationTranslationAction, 
+			RegistrationTranslationRule>
 {
 	public RegistrationTranslationProfileEditor(UnityMessageSource msg,
-			TranslationActionsRegistry registry, TranslationProfile toEdit,
+			RegistrationActionsRegistry registry, TranslationProfile toEdit,
 			AttributesManagement attrsMan, IdentitiesManagement idMan, AuthenticationManagement authnMan,
 			GroupsManagement groupsMan) throws EngineException
 	{
-		super(msg, registry, toEdit, attrsMan, idMan, authnMan, groupsMan);
+		super(msg, registry, toEdit, attrsMan, idMan, authnMan, groupsMan, RegistrationTranslationRule.FACTORY);
 	}
 
 	@Override
-	protected ProfileType getProfileType()
-	{
-		return ProfileType.REGISTRATION;
-	}
-
-	@Override
-	public AbstractTranslationProfile<RegistrationTranslationRule> createProfile(String name,
-			List<RegistrationTranslationRule> trules)
+	public RegistrationTranslationProfile createProfile(String name, List<RegistrationTranslationRule> trules)
 	{
 		return new RegistrationTranslationProfile(name, trules);
 	}

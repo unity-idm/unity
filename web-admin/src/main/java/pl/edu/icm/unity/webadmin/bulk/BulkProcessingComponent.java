@@ -16,10 +16,10 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.BulkProcessingManagement;
+import pl.edu.icm.unity.server.bulkops.EntityAction;
 import pl.edu.icm.unity.server.bulkops.ScheduledProcessingRule;
 import pl.edu.icm.unity.server.bulkops.ScheduledProcessingRuleParam;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
-import pl.edu.icm.unity.server.translation.ProfileType;
+import pl.edu.icm.unity.server.registries.EntityActionsRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.tprofile.ActionEditor;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory;
@@ -28,11 +28,11 @@ import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
-import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -54,7 +54,7 @@ public class BulkProcessingComponent extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private BulkProcessingManagement bulkManagement;
-	private TranslationActionsRegistry registry;
+	private EntityActionsRegistry registry;
 	private ActionParameterComponentFactory parameterFactory;
 
 	private GenericElementsTable<ScheduledProcessingRule> table;
@@ -63,7 +63,7 @@ public class BulkProcessingComponent extends CustomComponent
 	
 	@Autowired
 	public BulkProcessingComponent(UnityMessageSource msg,
-			BulkProcessingManagement bulkManagement, TranslationActionsRegistry registry,
+			BulkProcessingManagement bulkManagement, EntityActionsRegistry registry,
 			ActionParameterComponentFactory parameterFactory)
 	{
 		this.msg = msg;
@@ -237,7 +237,7 @@ public class BulkProcessingComponent extends CustomComponent
 						msg.getMessage("BulkProcessingComponent.errorCreateActions"), e);
 				return;
 			}
-			ActionEditor actionEditor = new ActionEditor(ProfileType.BULK_ENTITY_OPS, msg, registry, null, 
+			ActionEditor<EntityAction> actionEditor = new ActionEditor<>(msg, registry, null, 
 					componentProvider);
 			ScheduledRuleParamEditorImpl editor = new ScheduledRuleParamEditorImpl(msg, actionEditor);
 			RuleEditDialog<ScheduledProcessingRuleParam> dialog = new RuleEditDialog<>(msg, 

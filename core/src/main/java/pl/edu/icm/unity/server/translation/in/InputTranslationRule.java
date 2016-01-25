@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.translation.AbstractTranslationRule;
+import pl.edu.icm.unity.server.translation.RuleFactory;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
 import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.server.utils.Log;
@@ -21,6 +22,15 @@ import pl.edu.icm.unity.server.utils.Log;
 public class InputTranslationRule extends AbstractTranslationRule<InputTranslationAction>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, InputTranslationRule.class);
+
+	public static final RuleFactory<InputTranslationAction> FACTORY = new RuleFactory<InputTranslationAction>()
+	{
+		@Override
+		public InputTranslationRule createRule(InputTranslationAction action, TranslationCondition cnd)
+		{
+			return new InputTranslationRule(action, cnd);
+		}
+	};
 	
 	public InputTranslationRule(InputTranslationAction action, TranslationCondition condition)
 	{

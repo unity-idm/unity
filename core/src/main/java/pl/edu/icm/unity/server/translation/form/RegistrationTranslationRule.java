@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.translation.AbstractTranslationRule;
+import pl.edu.icm.unity.server.translation.RuleFactory;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
 import pl.edu.icm.unity.server.utils.Log;
 
@@ -19,6 +20,15 @@ public class RegistrationTranslationRule extends AbstractTranslationRule<Registr
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, RegistrationTranslationRule.class);
 
+	public static final RuleFactory<RegistrationTranslationAction> FACTORY = new RuleFactory<RegistrationTranslationAction>()
+	{
+		@Override
+		public RegistrationTranslationRule createRule(RegistrationTranslationAction action, TranslationCondition cnd)
+		{
+			return new RegistrationTranslationRule(action, cnd);
+		}
+	};
+	
 	public RegistrationTranslationRule(RegistrationTranslationAction action,
 			TranslationCondition condition)
 	{

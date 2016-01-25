@@ -68,7 +68,7 @@ import pl.edu.icm.unity.server.api.internal.PublicWellKnownURLServlet;
 import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
 import pl.edu.icm.unity.server.attributes.SystemAttributesProvider;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.FileWatcher;
@@ -179,7 +179,7 @@ public class EngineInitialization extends LifecycleBase
 	private RealmsManagement realmManagement;
 	
 	@Autowired
-	private TranslationActionsRegistry tactionsRegistry;
+	private InputTranslationActionsRegistry tactionsRegistry;
 	@Autowired
 	private ObjectMapper jsonMapper;
 	@Autowired

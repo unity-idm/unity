@@ -24,11 +24,11 @@ public class ScheduledRuleParamEditorImpl extends CustomComponent implements Rul
 	protected UnityMessageSource msg;
 
 	protected MVELExpressionField condition;
-	protected ActionEditor actionEditor;
+	protected ActionEditor<EntityAction> actionEditor;
 	protected TextField cronExpression;
 	
 	
-	public ScheduledRuleParamEditorImpl(UnityMessageSource msg, ActionEditor actionEditor)
+	public ScheduledRuleParamEditorImpl(UnityMessageSource msg, ActionEditor<EntityAction> actionEditor)
 	{
 		this.msg = msg;
 		this.actionEditor = actionEditor;

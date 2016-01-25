@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.server.bulkops.action;
 
 import pl.edu.icm.unity.server.bulkops.EntityAction;
+import pl.edu.icm.unity.server.bulkops.EntityActionFactory;
 import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
@@ -13,7 +14,7 @@ import pl.edu.icm.unity.server.translation.TranslationActionFactory;
  * Boilerplate code for the {@link TranslationActionFactory} implementations producing {@link EntityAction}s.
  * @author K. Benedyczak
  */
-public abstract class AbstractEntityActionFactory implements TranslationActionFactory
+public abstract class AbstractEntityActionFactory implements EntityActionFactory
 {
 	private final String name;
 	private final ActionParameterDesc[] parameters;

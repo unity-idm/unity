@@ -17,10 +17,12 @@ import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.TypesRegistryBase;
 import pl.edu.icm.unity.server.translation.AbstractTranslationProfile;
 import pl.edu.icm.unity.server.translation.AbstractTranslationRule;
-import pl.edu.icm.unity.server.translation.ProfileType;
+import pl.edu.icm.unity.server.translation.RuleFactory;
+import pl.edu.icm.unity.server.translation.TranslationAction;
+import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -51,41 +53,44 @@ import com.vaadin.ui.VerticalLayout;
  * @author P. Piernik
  * 
  */
-public abstract class TranslationProfileEditor<T extends AbstractTranslationRule<?>> extends VerticalLayout
+public abstract class TranslationProfileEditor<T extends TranslationAction, R extends AbstractTranslationRule<T>> 
+	extends VerticalLayout
 {
 	protected UnityMessageSource msg;
 	protected Collection<AttributeType> atTypes;
 	protected List<String> groups;
 	protected Collection<String> credReqs;
 	protected Collection<String> idTypes;
-	protected TranslationActionsRegistry registry;
+	protected TypesRegistryBase<? extends TranslationActionFactory<T>> registry;
 	protected boolean editMode;
 	protected AbstractTextField name;
 	protected DescriptionTextArea description;
 	protected FormLayout rulesLayout;
-	protected List<RuleComponent> rules;
+	protected List<RuleComponent<T>> rules;
 	
 	private RemotelyAuthenticatedInput remoteAuthnInput;
 	private StartStopButton testProfileButton;
+	private RuleFactory<T> ruleFactory;
 	
 	public TranslationProfileEditor(UnityMessageSource msg,
-			TranslationActionsRegistry registry, TranslationProfile toEdit,
+			TypesRegistryBase<? extends TranslationActionFactory<T>> registry, TranslationProfile toEdit,
 			AttributesManagement attrsMan, IdentitiesManagement idMan, AuthenticationManagement authnMan,
-			GroupsManagement groupsMan) throws EngineException
+			GroupsManagement groupsMan, RuleFactory<T> ruleFactory) throws EngineException
 	{
 		super();
 		this.msg = msg;
 		this.registry = registry;
-		this.rules = new ArrayList<RuleComponent>();
+		this.ruleFactory = ruleFactory;
+		this.rules = new ArrayList<RuleComponent<T>>();
 		editMode = toEdit != null;
 		initData(attrsMan, idMan, authnMan, groupsMan);
 		initUI(toEdit);
 	}
 
-	public AbstractTranslationProfile<T> getProfile() throws FormValidationException
+	public AbstractTranslationProfile<T, R> getProfile() throws FormValidationException
 	{
 		int nvalidr= 0;
-		for (RuleComponent cr : rules)
+		for (RuleComponent<T> cr : rules)
 		{
 			if (!cr.validateRule())
 			{
@@ -97,18 +102,18 @@ public abstract class TranslationProfileEditor<T extends AbstractTranslationRule
 			throw new FormValidationException();
 		String n = name.getValue();
 		String desc = description.getValue();
-		List<T> trules = new ArrayList<T>();
-		for (RuleComponent cr : rules)
+		List<R> trules = new ArrayList<>();
+		for (RuleComponent<T> cr : rules)
 		{
 			@SuppressWarnings("unchecked")
-			T r = (T) cr.getRule();
+			R r = (R) cr.getRule();
 			if (r != null)
 			{
 				trules.add(r);
 			}
 
 		}
-		AbstractTranslationProfile<T> profile = createProfile(n, trules);
+		AbstractTranslationProfile<T, R> profile = createProfile(n, trules);
 		profile.setDescription(desc);
 		return profile;
 	}
@@ -211,7 +216,7 @@ public abstract class TranslationProfileEditor<T extends AbstractTranslationRule
 
 	protected void testRules() 
 	{
-		for (RuleComponent rule : rules)
+		for (RuleComponent<T> rule : rules)
 		{
 			rule.test(remoteAuthnInput);
 		}
@@ -219,7 +224,7 @@ public abstract class TranslationProfileEditor<T extends AbstractTranslationRule
 
 	protected void clearTestResults() 
 	{
-		for (RuleComponent rule : rules)
+		for (RuleComponent<T> rule : rules)
 		{
 			rule.clearTestResult();
 		}		
@@ -227,64 +232,9 @@ public abstract class TranslationProfileEditor<T extends AbstractTranslationRule
 
 	private void addRuleComponent(AbstractTranslationRule<?> trule)
 	{
-		RuleComponent r = new RuleComponent(getProfileType(), msg, registry, 
-				trule, atTypes, groups, credReqs, idTypes, new Callback()
-		{
-
-			@Override
-			public boolean moveUp(RuleComponent rule)
-			{
-
-				int position = getRulePosition(rule);
-				if (position != 0)
-				{
-					Collections.swap(rules, position, position - 1);
-				}
-
-				refreshRules();
-				return true;
-			}
-
-			@Override
-			public boolean moveDown(RuleComponent rule)
-			{
-				int position = getRulePosition(rule);
-				if (position != rules.size() - 1)
-				{
-					Collections.swap(rules, position, position + 1);
-				}
-				refreshRules();
-				return true;
-			}
-
-			@Override
-			public boolean remove(RuleComponent rule)
-			{
-				rules.remove(rule);
-				refreshRules();
-				return true;
-			}
-
-			@Override
-			public boolean moveTop(RuleComponent rule)
-			{
-				int position = getRulePosition(rule);
-				rules.remove(position);
-				rules.add(0, rule);
-				refreshRules();
-				return true;
-			}
-
-			@Override
-			public boolean moveBottom(RuleComponent rule)
-			{
-				int position = getRulePosition(rule);
-				rules.remove(position);
-				rules.add(rule);
-				refreshRules();
-				return true;
-			}
-		});
+		RuleComponent<T> r = new RuleComponent<T>(msg, registry, 
+				trule, atTypes, groups, credReqs, idTypes, 
+				new CallbackImplementation(), ruleFactory);
 		
 		rules.add(r);
 		if (trule == null)
@@ -295,7 +245,7 @@ public abstract class TranslationProfileEditor<T extends AbstractTranslationRule
 		refreshRules();
 	}
 
-	private int getRulePosition(RuleComponent toCheck)
+	private int getRulePosition(RuleComponent<T> toCheck)
 	{
 		return rules.indexOf(toCheck);
 	}
@@ -306,7 +256,7 @@ public abstract class TranslationProfileEditor<T extends AbstractTranslationRule
 		if (rules.size() == 0)
 			return;
 
-		for (RuleComponent r : rules)
+		for (RuleComponent<T> r : rules)
 		{
 			r.setUpVisible(true);
 			r.setDownVisible(true);
@@ -324,7 +274,7 @@ public abstract class TranslationProfileEditor<T extends AbstractTranslationRule
 		rules.get(0).setTopVisible(false);
 		rules.get(rules.size() - 1).setDownVisible(false);
 		rules.get(rules.size() - 1).setBottomVisible(false);		
-		for (RuleComponent r : rules)
+		for (RuleComponent<T> r : rules)
 		{
 			rulesLayout.addComponent(r);
 		}
@@ -347,7 +297,62 @@ public abstract class TranslationProfileEditor<T extends AbstractTranslationRule
 		}
 	}
 	
-	public abstract AbstractTranslationProfile<T> createProfile(String name, List<T> trules);
+	public abstract AbstractTranslationProfile<T, R> createProfile(String name, List<R> trules);
 	
-	protected abstract ProfileType getProfileType();
+	private final class CallbackImplementation implements Callback<T>
+	{
+		@Override
+		public boolean moveUp(RuleComponent<T> rule)
+		{
+
+			int position = getRulePosition(rule);
+			if (position != 0)
+			{
+				Collections.swap(rules, position, position - 1);
+			}
+
+			refreshRules();
+			return true;
+		}
+
+		@Override
+		public boolean moveDown(RuleComponent<T> rule)
+		{
+			int position = getRulePosition(rule);
+			if (position != rules.size() - 1)
+			{
+				Collections.swap(rules, position, position + 1);
+			}
+			refreshRules();
+			return true;
+		}
+
+		@Override
+		public boolean remove(RuleComponent<T> rule)
+		{
+			rules.remove(rule);
+			refreshRules();
+			return true;
+		}
+
+		@Override
+		public boolean moveTop(RuleComponent<T> rule)
+		{
+			int position = getRulePosition(rule);
+			rules.remove(position);
+			rules.add(0, rule);
+			refreshRules();
+			return true;
+		}
+
+		@Override
+		public boolean moveBottom(RuleComponent<T> rule)
+		{
+			int position = getRulePosition(rule);
+			rules.remove(position);
+			rules.add(rule);
+			refreshRules();
+			return true;
+		}
+	}
 }

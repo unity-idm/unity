@@ -9,24 +9,24 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationActionFactory;
 
 /**
- * Maintains a simple registry of available {@link TranslationActionFactory}ies.
+ * Maintains a simple registry of available {@link OutputTranslationActionFactory}ies.
  * 
  * @author K. Benedyczak
  */
 @Component
-public class TranslationActionsRegistry extends TypesRegistryBase<TranslationActionFactory>
+public class OutputTranslationActionsRegistry extends TypesRegistryBase<OutputTranslationActionFactory>
 {
 	@Autowired
-	public TranslationActionsRegistry(List<TranslationActionFactory> typeElements)
+	public OutputTranslationActionsRegistry(List<OutputTranslationActionFactory> typeElements)
 	{
 		super(typeElements);
 	}
 
 	@Override
-	protected String getId(TranslationActionFactory from)
+	protected String getId(OutputTranslationActionFactory from)
 	{
 		return from.getName();
 	}

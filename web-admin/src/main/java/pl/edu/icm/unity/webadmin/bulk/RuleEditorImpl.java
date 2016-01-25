@@ -23,9 +23,9 @@ public class RuleEditorImpl extends CustomComponent implements RuleEditor<Proces
 	protected UnityMessageSource msg;
 
 	protected MVELExpressionField condition;
-	protected ActionEditor actionEditor;
+	protected ActionEditor<EntityAction> actionEditor;
 	
-	public RuleEditorImpl(UnityMessageSource msg, ActionEditor actionEditor)
+	public RuleEditorImpl(UnityMessageSource msg, ActionEditor<EntityAction> actionEditor)
 	{
 		this.msg = msg;
 		this.actionEditor = actionEditor;

@@ -17,7 +17,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.AbstractTranslationProfile;
 import pl.edu.icm.unity.server.translation.ExecutionBreakException;
 import pl.edu.icm.unity.server.translation.ProfileType;
@@ -34,7 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Entry point: output translation profile, a list of translation rules annotated with a name and description.
  * @author K. Benedyczak
  */
-public class OutputTranslationProfile extends AbstractTranslationProfile<OutputTranslationRule>
+public class OutputTranslationProfile extends AbstractTranslationProfile<OutputTranslationAction, OutputTranslationRule>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, OutputTranslationProfile.class);
 	
@@ -43,7 +43,7 @@ public class OutputTranslationProfile extends AbstractTranslationProfile<OutputT
 		super(name, ProfileType.OUTPUT, rules);
 	}
 
-	public OutputTranslationProfile(String json, ObjectMapper jsonMapper, TranslationActionsRegistry registry)
+	public OutputTranslationProfile(String json, ObjectMapper jsonMapper, OutputTranslationActionsRegistry registry)
 	{
 		fromJson(json, jsonMapper, registry);
 	}

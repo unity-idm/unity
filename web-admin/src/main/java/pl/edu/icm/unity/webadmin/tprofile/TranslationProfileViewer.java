@@ -4,8 +4,10 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.TypesRegistryBase;
 import pl.edu.icm.unity.server.translation.AbstractTranslationRule;
+import pl.edu.icm.unity.server.translation.TranslationAction;
+import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -20,17 +22,17 @@ import com.vaadin.ui.VerticalLayout;
  * @author P. Piernik
  * 
  */
-public class TranslationProfileViewer extends VerticalLayout
+public class TranslationProfileViewer<T extends TranslationAction> extends VerticalLayout
 {	
 	private UnityMessageSource msg;
-	private TranslationActionsRegistry registry;
+	private TypesRegistryBase<? extends TranslationActionFactory<T>> registry;
 	protected Label name;
 	protected Label description;
 	private FormLayout rules;
 	private FormLayout main;
 	
 	
-	public TranslationProfileViewer(UnityMessageSource msg, TranslationActionsRegistry registry)
+	public TranslationProfileViewer(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<T>> registry)
 	{
 		super();
 		this.msg = msg;
@@ -75,7 +77,7 @@ public class TranslationProfileViewer extends VerticalLayout
 			addField(msg.getMessage("TranslationProfileViewer.ruleCondition", i),
 					"TranslationProfileViewer.codeValue", 
 					rule.getCondition().getCondition());
-			TranslationActionPresenter action = new TranslationActionPresenter(msg, registry, 
+			TranslationActionPresenter<T> action = new TranslationActionPresenter<T>(msg, registry, 
 					rule.getAction());
 			action.iterator().forEachRemaining(c -> rules.addComponents(c));
 		}

@@ -4,8 +4,9 @@
  */
 package pl.edu.icm.unity.webadmin.bulk;
 
+import pl.edu.icm.unity.server.bulkops.EntityAction;
 import pl.edu.icm.unity.server.bulkops.ScheduledProcessingRule;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.EntityActionsRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationActionPresenter;
 
@@ -20,12 +21,12 @@ import com.vaadin.ui.Label;
 public class ScheduledRuleViewerPanel extends CustomComponent
 {
 	private UnityMessageSource msg;
-	private TranslationActionsRegistry registry;
+	private EntityActionsRegistry registry;
 	
 	private FormLayout main;
 	
 	
-	public ScheduledRuleViewerPanel(UnityMessageSource msg, TranslationActionsRegistry registry)
+	public ScheduledRuleViewerPanel(UnityMessageSource msg, EntityActionsRegistry registry)
 	{
 		this.msg = msg;
 		this.registry = registry;
@@ -50,7 +51,8 @@ public class ScheduledRuleViewerPanel extends CustomComponent
 		condition.setCaption(msg.getMessage("ScheduledRuleViewerPanel.condition"));
 		main.addComponent(schedule);
 		
-		TranslationActionPresenter action = new TranslationActionPresenter(msg, registry, rule.getAction());
+		TranslationActionPresenter<EntityAction> action = new TranslationActionPresenter<>(
+				msg, registry, rule.getAction());
 		action.iterator().forEachRemaining(c -> main.addComponent(c));
 	}
 }
