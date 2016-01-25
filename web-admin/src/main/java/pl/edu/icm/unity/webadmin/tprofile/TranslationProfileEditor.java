@@ -6,16 +6,10 @@
 package pl.edu.icm.unity.webadmin.tprofile;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.TreeSet;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.registries.TypesRegistryBase;
 import pl.edu.icm.unity.server.translation.AbstractTranslationProfile;
@@ -25,9 +19,7 @@ import pl.edu.icm.unity.server.translation.TranslationAction;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
 import pl.edu.icm.unity.webadmin.tprofile.RuleComponent.Callback;
 import pl.edu.icm.unity.webadmin.tprofile.StartStopButton.ClickStartEvent;
 import pl.edu.icm.unity.webadmin.tprofile.StartStopButton.ClickStopEvent;
@@ -57,10 +49,6 @@ public abstract class TranslationProfileEditor<T extends TranslationAction, R ex
 	extends VerticalLayout
 {
 	protected UnityMessageSource msg;
-	protected Collection<AttributeType> atTypes;
-	protected List<String> groups;
-	protected Collection<String> credReqs;
-	protected Collection<String> idTypes;
 	protected TypesRegistryBase<? extends TranslationActionFactory<T>> registry;
 	protected boolean editMode;
 	protected AbstractTextField name;
@@ -71,19 +59,20 @@ public abstract class TranslationProfileEditor<T extends TranslationAction, R ex
 	private RemotelyAuthenticatedInput remoteAuthnInput;
 	private StartStopButton testProfileButton;
 	private RuleFactory<T> ruleFactory;
+	private Provider actionComponentProvider;
 	
 	public TranslationProfileEditor(UnityMessageSource msg,
-			TypesRegistryBase<? extends TranslationActionFactory<T>> registry, TranslationProfile toEdit,
-			AttributesManagement attrsMan, IdentitiesManagement idMan, AuthenticationManagement authnMan,
-			GroupsManagement groupsMan, RuleFactory<T> ruleFactory) throws EngineException
+			TypesRegistryBase<? extends TranslationActionFactory<T>> registry, TranslationProfile<T> toEdit,
+			RuleFactory<T> ruleFactory, 
+			ActionParameterComponentFactory.Provider actionComponentProvider) throws EngineException
 	{
 		super();
 		this.msg = msg;
 		this.registry = registry;
 		this.ruleFactory = ruleFactory;
+		this.actionComponentProvider = actionComponentProvider;
 		this.rules = new ArrayList<RuleComponent<T>>();
 		editMode = toEdit != null;
-		initData(attrsMan, idMan, authnMan, groupsMan);
 		initUI(toEdit);
 	}
 
@@ -118,24 +107,7 @@ public abstract class TranslationProfileEditor<T extends TranslationAction, R ex
 		return profile;
 	}
 	
-	private void initData(AttributesManagement attrsMan, IdentitiesManagement idMan, 
-			AuthenticationManagement authnMan, GroupsManagement groupsMan) throws EngineException
-	{
-		this.atTypes = attrsMan.getAttributeTypes();
-		this.groups = new ArrayList<>(groupsMan.getChildGroups("/"));
-		Collections.sort(groups);
-		Collection<CredentialRequirements> crs = authnMan.getCredentialRequirements();
-		credReqs = new TreeSet<String>();
-		for (CredentialRequirements cr: crs)
-			credReqs.add(cr.getName());
-		Collection<IdentityType> idTypesF = idMan.getIdentityTypes();
-		idTypes = new TreeSet<String>();
-		for (IdentityType it: idTypesF)
-			if (!it.getIdentityTypeProvider().isDynamic())
-				idTypes.add(it.getIdentityTypeProvider().getId());
-	}
-	
-	protected void initUI(TranslationProfile toEdit)
+	protected void initUI(TranslationProfile<T> toEdit)
 	{
 		rulesLayout = new CompactFormLayout();
 		rulesLayout.setImmediate(true);
@@ -154,7 +126,7 @@ public abstract class TranslationProfileEditor<T extends TranslationAction, R ex
 			name.setValue(toEdit.getName());
 			name.setReadOnly(true);
 			description.setValue(toEdit.getDescription());
-			for (AbstractTranslationRule<?> trule : toEdit.getRules())
+			for (AbstractTranslationRule<T> trule : toEdit.getRules())
 			{
 				addRuleComponent(trule);
 			}
@@ -230,11 +202,10 @@ public abstract class TranslationProfileEditor<T extends TranslationAction, R ex
 		}		
 	}
 
-	private void addRuleComponent(AbstractTranslationRule<?> trule)
+	private void addRuleComponent(AbstractTranslationRule<T> trule)
 	{
 		RuleComponent<T> r = new RuleComponent<T>(msg, registry, 
-				trule, atTypes, groups, credReqs, idTypes, 
-				new CallbackImplementation(), ruleFactory);
+				trule, new CallbackImplementation(), ruleFactory, actionComponentProvider);
 		
 		rules.add(r);
 		if (trule == null)

@@ -60,7 +60,7 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 
 	@Override
 	@Transactional
-	public void addProfile(TranslationProfile toAdd) throws EngineException
+	public void addProfile(TranslationProfile<?> toAdd) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		SqlSession sql = SqlSessionTL.get();
@@ -78,7 +78,7 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 
 	@Override
 	@Transactional
-	public void updateProfile(TranslationProfile updated) throws EngineException
+	public void updateProfile(TranslationProfile<?> updated) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		SqlSession sql = SqlSessionTL.get();
@@ -106,7 +106,7 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		SqlSession sql = SqlSessionTL.get();
-		Map<String, TranslationProfile> all = tpDB.getAllAsMap(sql);
+		Map<String, TranslationProfile<?>> all = tpDB.getAllAsMap(sql);
 		sql.commit();
 		Map<String, T> ret = new HashMap<String, T>();
 		for (Map.Entry<String, TranslationProfile> e: all.entrySet())

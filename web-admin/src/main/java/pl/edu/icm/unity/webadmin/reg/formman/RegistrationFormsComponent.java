@@ -26,6 +26,8 @@ import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormEditDialog.Callback;
+import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory;
+import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -74,6 +76,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 	private RegistrationFormViewer viewer;
 	private com.vaadin.ui.Component main;
 	private RegistrationActionsRegistry actionsRegistry;
+	private Provider actionComponentProvider;
 	
 	
 	@Autowired
@@ -83,7 +86,8 @@ public class RegistrationFormsComponent extends VerticalLayout
 			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
 			AttributesManagement attributeMan, AuthenticationManagement authenticationMan,
 			SharedEndpointManagement sharedEndpointMan,
-			RegistrationActionsRegistry actionsRegistry)
+			RegistrationActionsRegistry actionsRegistry, 
+			ActionParameterComponentFactory.Provider actionComponentProvider)
 	{
 		this.msg = msg;
 		this.registrationsManagement = registrationsManagement;
@@ -94,6 +98,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 		this.msgTempMan = msgTempMan;
 		this.attributeMan = attributeMan;
 		this.actionsRegistry = actionsRegistry;
+		this.actionComponentProvider = actionComponentProvider;
 		this.bus = WebSession.getCurrent().getEventBus();
 		
 		addStyleName(Styles.visibleScroll.toString());
@@ -255,7 +260,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 			{
 				editor = new RegistrationFormEditor(msg, groupsMan, notificationsMan,
 						msgTempMan, identitiesMan, attributeMan, authenticationMan,
-						actionsRegistry);
+						actionsRegistry, actionComponentProvider);
 			} catch (EngineException e)
 			{
 				NotificationPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
@@ -316,7 +321,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 			{		
 				editor = new RegistrationFormEditor(msg, groupsMan, notificationsMan,
 						msgTempMan, identitiesMan, attributeMan, authenticationMan,
-						actionsRegistry, form, copyMode);
+						actionsRegistry, actionComponentProvider, form, copyMode);
 			} catch (Exception e)
 			{
 				NotificationPopup.showError(msg, msg.getMessage(

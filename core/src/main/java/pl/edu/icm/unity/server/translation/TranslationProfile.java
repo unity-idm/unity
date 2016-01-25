@@ -16,9 +16,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * causes problems with persistence. 
  * @author K. Benedyczak
  */
-public interface TranslationProfile extends DescribedObject
+public interface TranslationProfile<T extends TranslationAction> extends DescribedObject
 {
-	List<? extends AbstractTranslationRule<?>> getRules();
+	List<? extends AbstractTranslationRule<T>> getRules();
 	
 	String toJson(ObjectMapper jsonMapper);
 	

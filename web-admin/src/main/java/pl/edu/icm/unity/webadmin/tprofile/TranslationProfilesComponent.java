@@ -28,11 +28,14 @@ import pl.edu.icm.unity.server.registries.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
+import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webadmin.WebAdminEndpointFactory;
+import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
 import pl.edu.icm.unity.webadmin.tprofile.dryrun.DryRunWizardProvider;
 import pl.edu.icm.unity.webadmin.tprofile.wizard.ProfileWizardProvider;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
@@ -67,7 +70,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
 	private TranslationProfileManagement profileMan;
-	private GenericElementsTable<TranslationProfile> table;
+	private GenericElementsTable<TranslationProfile<?>> table;
 	private TranslationProfileViewer<InputTranslationAction> inViewer;
 	private TranslationProfileViewer<OutputTranslationAction> outViewer;
 	private VerticalLayout viewerWrapper;
@@ -83,13 +86,15 @@ public class TranslationProfilesComponent extends VerticalLayout
 
 	private SandboxAuthnNotifier sandboxNotifier;
 	private String sandboxURL;
+	private Provider actionComponentProvider;
 	
 	@Autowired
 	public TranslationProfilesComponent(UnityMessageSource msg, TranslationProfileManagement profileMan,
 			AttributesManagement attrsMan, IdentitiesManagement idMan, 
 			AuthenticationManagement authnMan, GroupsManagement groupsMan, EndpointManagement endpointMan,
 			InputTranslationActionsRegistry inputTranslationActionsRegistry,
-			OutputTranslationActionsRegistry outputTranslationActionsRegistry)
+			OutputTranslationActionsRegistry outputTranslationActionsRegistry,
+			ActionParameterComponentFactory.Provider actionComponentProvider)
 	{
 		this.msg = msg;
 		this.profileMan = profileMan;
@@ -99,6 +104,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		this.authnMan = authnMan;
 		this.groupsMan = groupsMan;
 		outputActionsRegistry = outputTranslationActionsRegistry;
+		this.actionComponentProvider = actionComponentProvider;
 
 		setCaption(msg.getMessage("TranslationProfilesComponent.capion"));		
 		
@@ -158,7 +164,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 			public void valueChange(ValueChangeEvent event)
 			{
 				
-				Collection<TranslationProfile> items = getItems(table.getValue());
+				Collection<TranslationProfile<?>> items = getItems(table.getValue());
 				if (items.size() > 1 || items.isEmpty())
 				{
 					getSelectedViewer().setInput(null);
@@ -224,7 +230,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		try
 		{
 			ProfileType pt = getSelectedProfileType();
-			Collection<? extends TranslationProfile> profiles = null;
+			Collection<? extends TranslationProfile<?>> profiles = null;
 			viewerWrapper.removeAllComponents();
 			switch (pt)
 			{
@@ -264,7 +270,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		return getSelectedProfileType() == ProfileType.INPUT ? inViewer : outViewer;
 	}
 
-	private boolean updateProfile(TranslationProfile updatedProfile)
+	private boolean updateProfile(TranslationProfile<?> updatedProfile)
 	{
 		try
 		{
@@ -278,7 +284,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		}
 	}
 		
-	private boolean addProfile(TranslationProfile profile)
+	private boolean addProfile(TranslationProfile<?> profile)
 	{
 		try
 		{
@@ -306,14 +312,14 @@ public class TranslationProfilesComponent extends VerticalLayout
 		}
 	}
 	
-	private Collection<TranslationProfile> getItems(Object target)
+	private Collection<TranslationProfile<?>> getItems(Object target)
 	{
 		Collection<?> c = (Collection<?>) target;
-		Collection<TranslationProfile> items = new ArrayList<TranslationProfile>();
+		Collection<TranslationProfile<?>> items = new ArrayList<>();
 		for (Object o: c)
 		{
 			GenericItem<?> i = (GenericItem<?>) o;
-			items.add((TranslationProfile) i.getElement());	
+			items.add((TranslationProfile<?>) i.getElement());	
 		}	
 		return items;
 	}
@@ -334,17 +340,17 @@ public class TranslationProfilesComponent extends VerticalLayout
 	}
 	
 	@SuppressWarnings("incomplete-switch")
-	private TranslationProfileEditor<?, ?> getProfileEditor(TranslationProfile toEdit) throws EngineException
+	private TranslationProfileEditor<?, ?> getProfileEditor(TranslationProfile<?> toEdit) throws EngineException
 	{
 		ProfileType pt = getSelectedProfileType();
 		switch (pt)
 		{
 		case INPUT:
-			return new InputTranslationProfileEditor(msg, inputActionsRegistry, toEdit, attrsMan, 
-					idMan, authnMan, groupsMan);
+			return new InputTranslationProfileEditor(msg, inputActionsRegistry, 
+					(InputTranslationProfile)toEdit, actionComponentProvider);
 		case OUTPUT:
-			return new OutputTranslationProfileEditor(msg, outputActionsRegistry, toEdit, attrsMan, 
-					idMan, authnMan, groupsMan);
+			return new OutputTranslationProfileEditor(msg, outputActionsRegistry, 
+					(OutputTranslationProfile)toEdit, actionComponentProvider);
 		}
 		throw new IllegalStateException("not implemented");
 	}
@@ -376,7 +382,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 					new TranslationProfileEditDialog.Callback()
 					{
 						@Override
-						public boolean handleProfile(TranslationProfile profile)
+						public boolean handleProfile(TranslationProfile<?> profile)
 						{
 							return addProfile(profile);
 						}
@@ -396,7 +402,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		public void handleAction(Object sender, final Object target)
 		{
 			@SuppressWarnings("unchecked")
-			GenericItem<TranslationProfile> item = (GenericItem<TranslationProfile>) target;
+			GenericItem<TranslationProfile<?>> item = (GenericItem<TranslationProfile<?>>) target;
 			TranslationProfileEditor<?, ?> editor;
 			
 			try
@@ -413,7 +419,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 					new TranslationProfileEditDialog.Callback()
 					{
 						@Override
-						public boolean handleProfile(TranslationProfile profile)
+						public boolean handleProfile(TranslationProfile<?> profile)
 						{
 							return updateProfile(profile);
 						}
@@ -433,7 +439,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		public void handleAction(Object sender, final Object target)
 		{
 			@SuppressWarnings("unchecked")
-			GenericItem<TranslationProfile> item = (GenericItem<TranslationProfile>) target;
+			GenericItem<TranslationProfile<?>> item = (GenericItem<TranslationProfile<?>>) target;
 			TranslationProfileEditor<?, ?> editor;
 			
 			try
@@ -451,7 +457,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 					new TranslationProfileEditDialog.Callback()
 					{
 						@Override
-						public boolean handleProfile(TranslationProfile profile)
+						public boolean handleProfile(TranslationProfile<?> profile)
 						{
 							return addProfile(profile);
 						}
@@ -471,7 +477,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final Collection<TranslationProfile> items = getItems(target);
+			final Collection<TranslationProfile<?>> items = getItems(target);
 			String confirmText = MessageUtils.createConfirmFromNames(msg, items);
 			new ConfirmDialog(msg, msg.getMessage(
 					"TranslationProfilesComponent.confirmDelete",
@@ -480,7 +486,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 				@Override
 				public void onConfirm()
 				{
-					for (TranslationProfile item : items)
+					for (TranslationProfile<?> item : items)
 					{
 						removeProfile(item.getName());
 					}
@@ -509,7 +515,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 			addCallback = new TranslationProfileEditDialog.Callback()
 			{
 				@Override
-				public boolean handleProfile(TranslationProfile profile)
+				public boolean handleProfile(TranslationProfile<?> profile)
 				{
 					return addProfile(profile);
 				}

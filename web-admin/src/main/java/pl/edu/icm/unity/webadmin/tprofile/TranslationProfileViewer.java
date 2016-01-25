@@ -58,7 +58,7 @@ public class TranslationProfileViewer<T extends TranslationAction> extends Verti
 		setSizeFull();
 	}
 
-	public void setInput(TranslationProfile profile)
+	public void setInput(TranslationProfile<T> profile)
 	{       
 		setEmpty();
 		if (profile == null)
@@ -71,11 +71,11 @@ public class TranslationProfileViewer<T extends TranslationAction> extends Verti
 		name.setValue(profile.getName());
 		description.setValue(profile.getDescription());
 		int i=0;
-		for (AbstractTranslationRule<?> rule : profile.getRules())
+		for (AbstractTranslationRule<T> rule : profile.getRules())
 		{
 			i++;     
 			addField(msg.getMessage("TranslationProfileViewer.ruleCondition", i),
-					"TranslationProfileViewer.codeValue", 
+					"TranslationActionPresenter.codeValue", 
 					rule.getCondition().getCondition());
 			TranslationActionPresenter<T> action = new TranslationActionPresenter<T>(msg, registry, 
 					rule.getAction());

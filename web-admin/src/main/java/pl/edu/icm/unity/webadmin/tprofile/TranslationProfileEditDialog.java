@@ -46,7 +46,7 @@ public class TranslationProfileEditDialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
-		TranslationProfile profile;
+		TranslationProfile<?> profile;
 		try
 		{
 			profile = editor.getProfile();
@@ -67,7 +67,7 @@ public class TranslationProfileEditDialog extends AbstractDialog
 	
 	public interface Callback
 	{
-		public boolean handleProfile(TranslationProfile profile);
+		public boolean handleProfile(TranslationProfile<?> profile);
 	}
 	
 }

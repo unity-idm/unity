@@ -25,6 +25,7 @@ import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 
 /**
@@ -159,5 +160,12 @@ public class ActionEditor<T extends TranslationAction> extends LayoutEmbeddable
 				((AbstractComponent)tc).setComponentError(ue);
 			throw new FormValidationException(error);
 		}
+	}
+	
+	public void setReadOnlyStyle(boolean readOnly)
+	{
+		actions.setReadOnly(readOnly);
+		for (Component param: paramComponents)
+			param.setReadOnly(readOnly);
 	}
 }

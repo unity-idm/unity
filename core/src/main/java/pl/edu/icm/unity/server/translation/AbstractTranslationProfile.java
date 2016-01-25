@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * @author K. Benedyczak
  */
 public abstract class AbstractTranslationProfile<A extends TranslationAction, R extends AbstractTranslationRule<A>> 
-	extends DescribedObjectImpl implements TranslationProfile
+	extends DescribedObjectImpl implements TranslationProfile<A>
 {
 	protected List<R> rules;
 	private ProfileType profileType;

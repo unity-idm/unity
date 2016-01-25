@@ -21,11 +21,11 @@ import pl.edu.icm.unity.server.translation.out.OutputTranslationProfile;
  */
 public interface TranslationProfileManagement
 {
-	void addProfile(TranslationProfile toAdd) throws EngineException;
+	void addProfile(TranslationProfile<?> toAdd) throws EngineException;
 	
 	void removeProfile(String name) throws EngineException;
 	
-	void updateProfile(TranslationProfile updated) throws EngineException;
+	void updateProfile(TranslationProfile<?> updated) throws EngineException;
 	
 	Map<String, InputTranslationProfile> listInputProfiles() throws EngineException;
 

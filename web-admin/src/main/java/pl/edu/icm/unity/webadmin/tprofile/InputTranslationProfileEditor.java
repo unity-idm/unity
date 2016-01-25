@@ -8,12 +8,7 @@ package pl.edu.icm.unity.webadmin.tprofile;
 import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.registries.InputTranslationActionsRegistry;
-import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
@@ -28,11 +23,10 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 public class InputTranslationProfileEditor extends TranslationProfileEditor<InputTranslationAction, InputTranslationRule>
 {
 	public InputTranslationProfileEditor(UnityMessageSource msg,
-			InputTranslationActionsRegistry registry, TranslationProfile toEdit,
-			AttributesManagement attrsMan, IdentitiesManagement idMan, AuthenticationManagement authnMan,
-			GroupsManagement groupsMan) throws EngineException
+			InputTranslationActionsRegistry registry, InputTranslationProfile toEdit, 
+			ActionParameterComponentFactory.Provider actionComponentProvider) throws EngineException
 	{
-		super(msg, registry, toEdit, attrsMan, idMan, authnMan, groupsMan, InputTranslationRule.FACTORY);
+		super(msg, registry, toEdit, InputTranslationRule.FACTORY, actionComponentProvider);
 	}
 
 	@Override

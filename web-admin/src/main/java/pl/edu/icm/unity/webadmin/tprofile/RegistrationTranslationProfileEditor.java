@@ -8,10 +8,6 @@ package pl.edu.icm.unity.webadmin.tprofile;
 import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
@@ -29,11 +25,10 @@ public class RegistrationTranslationProfileEditor extends TranslationProfileEdit
 			RegistrationTranslationRule>
 {
 	public RegistrationTranslationProfileEditor(UnityMessageSource msg,
-			RegistrationActionsRegistry registry, TranslationProfile toEdit,
-			AttributesManagement attrsMan, IdentitiesManagement idMan, AuthenticationManagement authnMan,
-			GroupsManagement groupsMan) throws EngineException
+			RegistrationActionsRegistry registry, RegistrationTranslationProfile toEdit, 
+			ActionParameterComponentFactory.Provider actionComponentProvider) throws EngineException
 	{
-		super(msg, registry, toEdit, attrsMan, idMan, authnMan, groupsMan, RegistrationTranslationRule.FACTORY);
+		super(msg, registry, toEdit, RegistrationTranslationRule.FACTORY, actionComponentProvider);
 	}
 
 	@Override
@@ -42,7 +37,8 @@ public class RegistrationTranslationProfileEditor extends TranslationProfileEdit
 		return new RegistrationTranslationProfile(name, trules);
 	}
 	
-	protected void initUI(TranslationProfile toEdit)
+	@Override
+	protected void initUI(TranslationProfile<RegistrationTranslationAction> toEdit)
 	{
 		super.initUI(toEdit);
 		name.setVisible(false);
