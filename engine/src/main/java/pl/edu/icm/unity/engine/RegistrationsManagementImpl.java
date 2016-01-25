@@ -640,4 +640,11 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		return invitationDB.getAll(SqlSessionTL.get());
 	}
+
+	@Override
+	public InvitationWithCode getInvitation(String code) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		return invitationDB.get(code, SqlSessionTL.get());
+	}
 }

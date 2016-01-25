@@ -7,6 +7,7 @@ package pl.edu.icm.unity.server.api;
 import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
@@ -101,7 +102,25 @@ public interface RegistrationsManagement
 	 */
 	void sendInvitation(String code) throws EngineException;
 	
+	/**
+	 * Removes a single invitation
+	 * @param code
+	 * @throws EngineException
+	 */
 	void removeInvitation(String code) throws EngineException;
 	
+	/**
+	 * @return a list with all invitations
+	 * @throws EngineException
+	 */
 	List<InvitationWithCode> getInvitations() throws EngineException;
+	
+	/**
+	 * Retrieves an invitation by code
+	 * @param code invitation code
+	 * @return an invitation with the given code. Note that the returned invitation may happen to be expired.
+	 * @throws EngineException More specifically {@link WrongArgumentException} is thrown when 
+	 * there is no invitation with such code.
+	 */
+	InvitationWithCode getInvitation(String code) throws EngineException;
 }
