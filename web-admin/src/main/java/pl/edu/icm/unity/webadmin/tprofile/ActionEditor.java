@@ -6,7 +6,6 @@
 package pl.edu.icm.unity.webadmin.tprofile;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -16,8 +15,8 @@ import pl.edu.icm.unity.server.translation.TranslationAction;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.LayoutEmbeddable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.RequiredComboBox;
 
@@ -26,24 +25,21 @@ import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
 /**
  * Responsible for editing of a single {@link TranslationAction}
  * 
  */
-public class ActionEditor<T extends TranslationAction> implements Iterable<Component>
+public class ActionEditor<T extends TranslationAction> extends LayoutEmbeddable
 {
 	private UnityMessageSource msg;
 	private TypesRegistryBase<? extends TranslationActionFactory<T>> tc;
 	
-	private List<Component> contents = new ArrayList<>();
 	private ComboBox actions;
-	private FormLayout paramsList;
 	private Label actionParams;
 	private Provider actionComponentProvider;
+	private List<ActionParameterComponent> paramComponents = new ArrayList<>();
 
 	public ActionEditor(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<T>> tc,
 			TranslationAction toEdit, ActionParameterComponentFactory.Provider actionComponentProvider)
@@ -56,9 +52,6 @@ public class ActionEditor<T extends TranslationAction> implements Iterable<Compo
 
 	private void initUI(TranslationAction toEdit)
 	{
-		paramsList = new CompactFormLayout();
-		paramsList.setSpacing(true);
-
 		actions = new RequiredComboBox(msg.getMessage("ActionEditor.ruleAction"), msg);
 		for (TranslationActionFactory<T> a : tc.getAll())
 			actions.addItem(a.getName());
@@ -78,26 +71,28 @@ public class ActionEditor<T extends TranslationAction> implements Iterable<Compo
 
 		actionParams = new Label();
 		actionParams.setCaption(msg.getMessage("ActionEditor.actionParameters"));
-		
-		contents.add(actions);
-		contents.add(actionParams);
-		contents.add(paramsList);
 
+		addComponents(actions, actionParams);
+		
 		if (toEdit != null)
 		{
 			actions.setValue(toEdit.getActionDescription().getName());
 			setParams(actions.getValue().toString(), toEdit.getParameters());
 		} else
 		{
-			actionParams.setVisible(false);
-			if (!actions.isEmpty())
-				actions.setValue(actions.getItemIds().iterator().next());
+			if (!actions.getItemIds().isEmpty())
+			{
+				Object firstItem = actions.getItemIds().iterator().next();
+				actions.setValue(firstItem);
+				setParams((String) actions.getValue(), null);
+			}
 		}
 	}
 
 	private void setParams(String action, String[] values)
 	{
-		paramsList.removeAllComponents();
+		removeComponents(paramComponents);
+		paramComponents.clear();
 		
 		TranslationActionFactory<T> factory = getActionFactory(action);
 		if (factory == null)
@@ -115,17 +110,17 @@ public class ActionEditor<T extends TranslationAction> implements Iterable<Compo
 			{
 				p.setActionValue(values[i]);
 			}		
-			paramsList.addComponent(p);
+			paramComponents.add(p);
+			addComponent(p);
 		}
-		actionParams.setVisible(paramsList.getComponentCount() != 0);
+		actionParams.setVisible(!paramComponents.isEmpty());
 	}
 
 	private String[] getActionParams()
 	{
 		ArrayList<String> params = new ArrayList<String>();
-		for (int i = 0; i < paramsList.getComponentCount(); i++)
+		for (ActionParameterComponent tc: paramComponents)
 		{
-			ActionParameterComponent tc = (ActionParameterComponent) paramsList.getComponent(i);
 			((AbstractComponent)tc).setComponentError(null);
 			String val = tc.getActionValue();
 			params.add(val);
@@ -149,7 +144,7 @@ public class ActionEditor<T extends TranslationAction> implements Iterable<Compo
 	}
 	
 
-	public TranslationAction getAction() throws FormValidationException
+	public T getAction() throws FormValidationException
 	{
 		String ac = (String) actions.getValue();
 		TranslationActionFactory<T> factory = getActionFactory(ac);
@@ -160,15 +155,9 @@ public class ActionEditor<T extends TranslationAction> implements Iterable<Compo
 		{
 			String error = msg.getMessage("ActionEditor.parametersError", e.getMessage());
 			UserError ue = new UserError(error);
-			for (int i = 0; i < paramsList.getComponentCount(); i++)
-				((AbstractComponent)paramsList.getComponent(i)).setComponentError(ue);
+			for (ActionParameterComponent tc: paramComponents)
+				((AbstractComponent)tc).setComponentError(ue);
 			throw new FormValidationException(error);
 		}
-	}
-
-	@Override
-	public Iterator<Component> iterator()
-	{
-		return contents.iterator();
 	}
 }

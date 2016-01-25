@@ -11,18 +11,15 @@ import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.translation.TranslationAction;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.LayoutEmbeddable;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
-import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.FormLayout;
-
 /**
- * {@link FormLayout} presenting a {@link TranslationAction}.
- * Can be treated as {@link ComponentContainer} to retrieve a list of member elements to be added individually
- * to a parent component.
+ * Presents a {@link TranslationAction}.
+ * 
  * @author K. Benedyczak
  */
-public class TranslationActionPresenter<T extends TranslationAction> extends FormLayout
+public class TranslationActionPresenter<T extends TranslationAction> extends LayoutEmbeddable
 {	
 	private UnityMessageSource msg;
 	private TypesRegistryBase<? extends TranslationActionFactory<T>> registry;

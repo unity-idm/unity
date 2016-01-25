@@ -37,14 +37,15 @@ public class RuleEditorImpl extends CustomComponent implements RuleEditor<Proces
 		FormLayout main = new FormLayout();
 		setCompositionRoot(main);
 		
-		condition = new MVELExpressionField(msg, msg.getMessage("RuleEditor.condition"));
+		condition = new MVELExpressionField(msg, msg.getMessage("RuleEditor.condition"),
+				msg.getMessage("MVELExpressionField.conditionDesc"));
 		main.addComponents(condition);
-		actionEditor.iterator().forEachRemaining(c -> main.addComponent(c));
+		actionEditor.addToLayout(main);
 	}
 
 	@Override
 	public ProcessingRule getRule() throws FormValidationException
 	{
-		return new ProcessingRule(condition.getValue(), (EntityAction) actionEditor.getAction());
+		return new ProcessingRule(condition.getValue(), actionEditor.getAction());
 	}
 }

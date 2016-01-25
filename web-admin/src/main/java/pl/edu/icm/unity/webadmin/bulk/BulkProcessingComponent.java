@@ -144,9 +144,11 @@ public class BulkProcessingComponent extends CustomComponent
 			{
 				NotificationPopup.showError(msg, 
 						msg.getMessage("BulkProcessingComponent.errorRemoving", id), e);
+				refresh();
 				return;
 			}
 		}
+		refresh();
 	}
 	
 	private void refresh()
@@ -169,6 +171,7 @@ public class BulkProcessingComponent extends CustomComponent
 		try
 		{
 			bulkManagement.scheduleRule(rule);
+			refresh();
 		} catch (EngineException e)
 		{
 			NotificationPopup.showError(msg, 

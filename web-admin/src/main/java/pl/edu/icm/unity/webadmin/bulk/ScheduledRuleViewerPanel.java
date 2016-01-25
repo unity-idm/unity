@@ -53,6 +53,6 @@ public class ScheduledRuleViewerPanel extends CustomComponent
 		
 		TranslationActionPresenter<EntityAction> action = new TranslationActionPresenter<>(
 				msg, registry, rule.getAction());
-		action.iterator().forEachRemaining(c -> main.addComponent(c));
+		action.addToLayout(main);
 	}
 }

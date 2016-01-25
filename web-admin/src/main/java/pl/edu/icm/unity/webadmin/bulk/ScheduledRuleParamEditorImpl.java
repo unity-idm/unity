@@ -10,6 +10,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.tprofile.ActionEditor;
 import pl.edu.icm.unity.webadmin.tprofile.MVELExpressionField;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.RequiredTextField;
 
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
@@ -40,13 +41,16 @@ public class ScheduledRuleParamEditorImpl extends CustomComponent implements Rul
 		FormLayout main = new FormLayout();
 		setCompositionRoot(main);
 		
-		cronExpression = new TextField(msg.getMessage("RuleEditor.cronExpression"));
+		cronExpression = new RequiredTextField(msg.getMessage("RuleEditor.cronExpression"), msg);
+		cronExpression.setValue("0 0 6 * * ?");
+		cronExpression.setDescription(msg.getMessage("RuleEditor.cronExpressionDescription"));
 		
-		condition = new MVELExpressionField(msg, msg.getMessage("RuleEditor.condition"));
+		condition = new MVELExpressionField(msg, msg.getMessage("RuleEditor.condition"),
+				msg.getMessage("MVELExpressionField.conditionDesc"));
 		
 		main.addComponents(cronExpression, condition);
 		
-		actionEditor.iterator().forEachRemaining(c -> main.addComponent(c));
+		actionEditor.addToLayout(main);
 	}
 
 	@Override

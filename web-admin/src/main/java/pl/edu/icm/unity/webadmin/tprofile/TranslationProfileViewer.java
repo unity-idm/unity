@@ -79,7 +79,7 @@ public class TranslationProfileViewer<T extends TranslationAction> extends Verti
 					rule.getCondition().getCondition());
 			TranslationActionPresenter<T> action = new TranslationActionPresenter<T>(msg, registry, 
 					rule.getAction());
-			action.iterator().forEachRemaining(c -> rules.addComponents(c));
+			action.addToLayout(rules);
 		}
 
 	}

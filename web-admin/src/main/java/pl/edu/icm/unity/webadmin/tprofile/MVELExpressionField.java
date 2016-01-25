@@ -19,10 +19,11 @@ public class MVELExpressionField extends RequiredTextField
 {
 	private UnityMessageSource msg;
 	
-	public MVELExpressionField(UnityMessageSource msg, String caption)
+	public MVELExpressionField(UnityMessageSource msg, String caption, String description)
 	{
 		super(caption, msg);
 		this.msg = msg;
+		setDescription(description);
 		initUI();
 	}
 
