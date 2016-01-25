@@ -501,6 +501,14 @@ class RegistrationFormBuilderBase<GeneratorT extends RegistrationFormBuilderBase
 		}
 
 		@SuppressWarnings("unchecked")
+		public GeneratorT withInvitationTemplate(String aValue)
+		{
+			instance.setInvitationTemplate(aValue);
+
+			return (GeneratorT) this;
+		}
+
+		@SuppressWarnings("unchecked")
 		public GeneratorT withChannel(String aValue)
 		{
 			instance.setChannel(aValue);

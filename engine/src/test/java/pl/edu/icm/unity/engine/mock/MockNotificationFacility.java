@@ -1,5 +1,7 @@
 package pl.edu.icm.unity.engine.mock;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Future;
 
 import org.apache.ibatis.session.SqlSession;
@@ -13,9 +15,12 @@ import pl.edu.icm.unity.notifications.NotificationStatus;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 
+
 public class MockNotificationFacility implements NotificationFacility
 {
 	public static final String NAME = "test";
+
+	private List<Message> sent = new ArrayList<>();
 	
 	@Override
 	public String getName()
@@ -44,7 +49,7 @@ public class MockNotificationFacility implements NotificationFacility
 			public Future<NotificationStatus> sendNotification(String recipientAddress,
 					String msgSubject, String message)
 			{
-				
+				sent.add(new Message(recipientAddress, msgSubject, message));
 				return null;
 			}
 			
@@ -70,4 +75,28 @@ public class MockNotificationFacility implements NotificationFacility
 		return null;
 	}
 
+	
+	public List<Message> getSent()
+	{
+		return sent;
+	}
+
+	public static class Message
+	{
+		public final String address;
+		public final String subject;
+		public final String message;
+		/**
+		 * @param address
+		 * @param subject
+		 * @param message
+		 */
+		public Message(String address, String subject, String message)
+		{
+			super();
+			this.address = address;
+			this.subject = subject;
+			this.message = message;
+		}
+	}
 }

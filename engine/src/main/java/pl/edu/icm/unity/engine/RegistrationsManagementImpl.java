@@ -607,8 +607,9 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		InvitationWithCode invitation = invitationDB.get(code, sql);
 		if (invitation.getContactAddress() == null || invitation.getFacilityId() == null)
 			throw new WrongArgumentException("The invitation with the given code has no contact address configured");
-		
 		RegistrationForm form = formsDB.get(invitation.getFormId(), sql);
+		if (form.getNotificationsConfiguration().getInvitationTemplate() == null)
+			throw new WrongArgumentException("The form of the invitation has no invitation message template configured");
 		
 		Map<String, String> notifyParams = new HashMap<>();
 		notifyParams.put(BaseRegistrationTemplateDef.FORM_NAME, form.getDisplayedName().getValue(

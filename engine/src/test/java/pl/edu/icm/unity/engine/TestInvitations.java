@@ -16,7 +16,6 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -29,6 +28,7 @@ import pl.edu.icm.unity.engine.builders.RegistrationFormBuilder;
 import pl.edu.icm.unity.engine.builders.RegistrationRequestBuilder;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.engine.mock.MockNotificationFacility;
+import pl.edu.icm.unity.engine.mock.MockNotificationFacility.Message;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.RegistrationContext;
@@ -71,6 +71,9 @@ public class TestInvitations  extends DBIntegrationTestBase
 	@Autowired
 	private InitializerCommon commonInitializer;
 	
+	@Autowired
+	private MockNotificationFacility mockNotificationFacility;
+	
 	@Test
 	public void addedInvitationIsReturned() throws Exception
 	{
@@ -109,8 +112,10 @@ public class TestInvitations  extends DBIntegrationTestBase
 		
 		registrationsMan.sendInvitation(code);
 		
-		
-		fail("TODO");
+		List<Message> sent = mockNotificationFacility.getSent();
+		assertThat(sent.size(), is(1));
+		assertThat(sent.get(0).address, is("someAddr"));
+		assertThat(sent.get(0).subject, is("Registration invitation"));
 	}
 
 	@Test
@@ -310,6 +315,9 @@ public class TestInvitations  extends DBIntegrationTestBase
 					.withRetrievalSettings(ParameterRetrievalSettings.interactive)
 				.endGroupParam()
 				.withRegistrationCode(nullCode ? null : "123")
+				.withNotificationsConfiguration()
+					.withInvitationTemplate("invitationWithCode")
+				.endNotificationsConfiguration()
 				.build();
 	}
 	
