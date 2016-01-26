@@ -66,7 +66,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 		HorizontalLayout hl = new HorizontalLayout();
 		setCaption(msg.getMessage("MessageTemplatesComponent.capion"));
 		table = new GenericElementsTable<MessageTemplate>(msg.getMessage("MessageTemplatesComponent.templatesTable"),
-				MessageTemplate.class,new GenericElementsTable.NameProvider<MessageTemplate>()
+				new GenericElementsTable.NameProvider<MessageTemplate>()
 				{
 					@Override
 					public Label toRepresentation(MessageTemplate element)

@@ -100,7 +100,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 		HorizontalLayout hl = new HorizontalLayout();
 		setCaption(msg.getMessage("RegistrationFormsComponent.caption"));
 		table = new GenericElementsTable<RegistrationForm>(msg.getMessage("RegistrationFormsComponent.formsTable"), 
-				RegistrationForm.class, new GenericElementsTable.NameProvider<RegistrationForm>()
+				new GenericElementsTable.NameProvider<RegistrationForm>()
 				{
 					@Override
 					public Label toRepresentation(RegistrationForm element)

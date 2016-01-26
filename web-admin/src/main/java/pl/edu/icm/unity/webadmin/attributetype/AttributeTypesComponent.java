@@ -77,7 +77,7 @@ public class AttributeTypesComponent extends VerticalLayout
 		addStyleName(Styles.visibleScroll.toString());
 		setCaption(msg.getMessage("AttributeTypes.caption"));
 		table = new GenericElementsTable<AttributeType>(msg.getMessage("AttributeTypes.types"), 
-				AttributeType.class, new GenericElementsTable.NameProvider<AttributeType>()
+				new GenericElementsTable.NameProvider<AttributeType>()
 				{
 					@Override
 					public Label toRepresentation(AttributeType element)

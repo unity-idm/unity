@@ -71,8 +71,7 @@ public class AttributesClassesComponent extends VerticalLayout
 		setCaption(msg.getMessage("AttributesClass.caption"));
 		viewer = new AttributesClassViewer(msg);
 		table =  new GenericElementsTable<String>(
-				msg.getMessage("AttributesClass.attributesClassesHeader"), 
-				String.class);
+				msg.getMessage("AttributesClass.attributesClassesHeader"));
 		table.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override

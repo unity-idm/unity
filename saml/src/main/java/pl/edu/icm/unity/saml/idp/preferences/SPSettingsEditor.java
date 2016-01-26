@@ -162,8 +162,7 @@ public class SPSettingsEditor extends FormLayout
 		for (Identity id: identities)
 			identity.addItem(id.toPrettyString());
 		
-		hidden = new GenericElementsTable<TableEntry>(msg.getMessage("SAMLPreferences.hidden"), 
-				TableEntry.class);
+		hidden = new GenericElementsTable<TableEntry>(msg.getMessage("SAMLPreferences.hidden"));
 		hidden.setHeight(200, Unit.PIXELS);
 		hidden.addActionHandler(new AddActionHandler());
 		hidden.addActionHandler(new DeleteActionHandler());

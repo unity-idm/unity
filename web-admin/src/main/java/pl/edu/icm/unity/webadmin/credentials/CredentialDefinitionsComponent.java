@@ -76,7 +76,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 		viewer = new CredentialDefinitionViewer(msg);
 		table =  new GenericElementsTable<CredentialDefinition>(
 				msg.getMessage("CredentialDefinitions.credentialDefinitionsHeader"), 
-				CredentialDefinition.class, new GenericElementsTable.NameProvider<CredentialDefinition>()
+				new GenericElementsTable.NameProvider<CredentialDefinition>()
 				{
 					@Override
 					public String toRepresentation(CredentialDefinition element)

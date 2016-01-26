@@ -26,12 +26,12 @@ public class GenericElementsTable<T> extends SmallTable
 	private List<SingleActionHandler> actionHandlers;
 	
 	
-	public GenericElementsTable(String columnHeader, Class<T> clazz)
+	public GenericElementsTable(String columnHeader)
 	{
-		this(columnHeader, clazz, new DefaultNameProvider<T>());
+		this(columnHeader, new DefaultNameProvider<T>());
 	}
 	
-	public GenericElementsTable(String columnHeader, Class<T> clazz, NameProvider<T> nameProvider)
+	public GenericElementsTable(String columnHeader, NameProvider<T> nameProvider)
 	{
 		this.nameProvider = nameProvider;
 		this.actionHandlers = new ArrayList<>();

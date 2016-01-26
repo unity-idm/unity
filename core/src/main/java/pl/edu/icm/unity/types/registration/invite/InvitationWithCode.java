@@ -28,7 +28,7 @@ public class InvitationWithCode extends InvitationParam
 
 	public InvitationWithCode(InvitationParam base, String registrationCode)
 	{
-		super(base.getFormId(), base.getExpiration(), base.getContactAddress(), base.getFacilityId());
+		super(base.getFormId(), base.getExpiration(), base.getContactAddress(), base.getChannelId());
 		this.registrationCode = registrationCode;
 		this.getAttributes().putAll(base.getAttributes());
 		this.getIdentities().putAll(base.getIdentities());

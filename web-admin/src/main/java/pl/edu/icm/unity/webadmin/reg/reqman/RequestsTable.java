@@ -271,6 +271,6 @@ public class RequestsTable extends CustomComponent
 	
 	public interface RequestSelectionListener
 	{
-		public void requestChanged(RegistrationRequestState request);
+		void requestChanged(RegistrationRequestState request);
 	}
 }

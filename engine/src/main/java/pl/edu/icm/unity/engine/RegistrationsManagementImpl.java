@@ -605,7 +605,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		SqlSession sql = SqlSessionTL.get();
 		
 		InvitationWithCode invitation = invitationDB.get(code, sql);
-		if (invitation.getContactAddress() == null || invitation.getFacilityId() == null)
+		if (invitation.getContactAddress() == null || invitation.getChannelId() == null)
 			throw new WrongArgumentException("The invitation with the given code has no contact address configured");
 		RegistrationForm form = formsDB.get(invitation.getFormId(), sql);
 		if (form.getNotificationsConfiguration().getInvitationTemplate() == null)
@@ -621,7 +621,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		notifyParams.put(InvitationTemplateDef.EXPIRES, expiry.format(DateTimeFormatter.RFC_1123_DATE_TIME));
 		
 		notificationProducer.sendNotification(invitation.getContactAddress(),
-				invitation.getFacilityId(), form.getNotificationsConfiguration().getInvitationTemplate(),
+				invitation.getChannelId(), form.getNotificationsConfiguration().getInvitationTemplate(),
 				notifyParams, userLocale);
 	}
 

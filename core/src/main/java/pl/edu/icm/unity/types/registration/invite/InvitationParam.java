@@ -27,17 +27,17 @@ public class InvitationParam
 	private String formId;
 	private Instant expiration;
 	private String contactAddress;
-	private String facilityId;
+	private String channelId;
 	
 	private Map<Integer, PrefilledEntry<IdentityParam>> identities = new HashMap<>();
 	private Map<Integer, PrefilledEntry<Attribute<?>>> attributes = new HashMap<>();
 	private Map<Integer, PrefilledEntry<Selection>> groupSelections = new HashMap<>();
 	
-	public InvitationParam(String formId, Instant expiration, String contactAddress, String facilityId)
+	public InvitationParam(String formId, Instant expiration, String contactAddress, String channelId)
 	{
 		this(formId, expiration);
 		this.contactAddress = contactAddress;
-		this.facilityId = facilityId;
+		this.channelId = channelId;
 	}
 
 	public InvitationParam(String formId, Instant expiration)
@@ -61,9 +61,9 @@ public class InvitationParam
 		return contactAddress;
 	}
 
-	public String getFacilityId()
+	public String getChannelId()
 	{
-		return facilityId;
+		return channelId;
 	}
 
 	public Map<Integer, PrefilledEntry<IdentityParam>> getIdentities()
@@ -90,8 +90,8 @@ public class InvitationParam
 	public String toString()
 	{
 		return "InvitationParam [formId=" + formId + ", expiration=" + expiration
-				+ ", contactAddress=" + contactAddress + ", facilityId="
-				+ facilityId + "]";
+				+ ", contactAddress=" + contactAddress + ", channelId="
+				+ channelId + "]";
 	}
 
 	@Override
@@ -103,7 +103,7 @@ public class InvitationParam
 		result = prime * result
 				+ ((contactAddress == null) ? 0 : contactAddress.hashCode());
 		result = prime * result + ((expiration == null) ? 0 : expiration.hashCode());
-		result = prime * result + ((facilityId == null) ? 0 : facilityId.hashCode());
+		result = prime * result + ((channelId == null) ? 0 : channelId.hashCode());
 		result = prime * result + ((formId == null) ? 0 : formId.hashCode());
 		result = prime * result
 				+ ((groupSelections == null) ? 0 : groupSelections.hashCode());
@@ -139,11 +139,11 @@ public class InvitationParam
 				return false;
 		} else if (!expiration.equals(other.expiration))
 			return false;
-		if (facilityId == null)
+		if (channelId == null)
 		{
-			if (other.facilityId != null)
+			if (other.channelId != null)
 				return false;
-		} else if (!facilityId.equals(other.facilityId))
+		} else if (!channelId.equals(other.channelId))
 			return false;
 		if (formId == null)
 		{

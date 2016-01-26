@@ -72,7 +72,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 		viewer = new CredentialRequirementViewer(msg);
 		table =  new GenericElementsTable<CredentialRequirements>(
 				msg.getMessage("CredentialRequirements.credentialRequirementsHeader"), 
-				CredentialRequirements.class, new GenericElementsTable.NameProvider<CredentialRequirements>()
+				new GenericElementsTable.NameProvider<CredentialRequirements>()
 				{
 					@Override
 					public String toRepresentation(CredentialRequirements element)

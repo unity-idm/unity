@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormsComponent;
+import pl.edu.icm.unity.webadmin.reg.invitation.InvitationsComponent;
 import pl.edu.icm.unity.webadmin.reg.reqman.RequestsComponent;
 import pl.edu.icm.unity.webui.registration.RegistrationFormsChooserComponent;
 
@@ -33,13 +34,14 @@ public class RegistrationsManagementTab  extends VerticalLayout
 
 	@Autowired
 	public RegistrationsManagementTab(UnityMessageSource msg, RegistrationFormsComponent regComponent,
-			RequestsComponent requestsComponent, RegistrationFormsChooserComponent reqFillComponent)
+			RequestsComponent requestsComponent, RegistrationFormsChooserComponent reqFillComponent,
+			InvitationsComponent invitationsComponent)
 	{
 		super();
 		this.msg = msg;
 		reqFillComponent.setShowNonPublic(true);
 		reqFillComponent.initUI(TriggeringMode.manualAdmin);
-		this.tabs = new MainTabPanel(requestsComponent, reqFillComponent, regComponent);
+		this.tabs = new MainTabPanel(requestsComponent, reqFillComponent, invitationsComponent, regComponent);
 		this.tabs.addStyleName(Styles.vTabsheetMinimal.toString());
 		initUI();
 	}

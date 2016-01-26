@@ -76,7 +76,7 @@ public class SamlPreferencesEditor implements PreferencesEditor
 	{
 		main = new HorizontalLayout();
 		
-		table = new GenericElementsTable<String>(msg.getMessage("SAMLPreferences.spSettings"), String.class,
+		table = new GenericElementsTable<String>(msg.getMessage("SAMLPreferences.spSettings"), 
 				new GenericElementsTable.NameProvider<String>()
 				{
 					public Object toRepresentation(String element)

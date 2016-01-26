@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity;
 
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -16,4 +19,7 @@ public class Constants
 	
 	//TODO - remove this, use injected instance
 	public static final ObjectMapper MAPPER = new ObjectMapper();
+	
+	public static final DateTimeFormatter DT_FORMATTER_MEDIUM = 
+			DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
 }

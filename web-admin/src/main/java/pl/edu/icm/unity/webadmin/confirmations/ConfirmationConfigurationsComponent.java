@@ -89,7 +89,6 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 		setCaption(msg.getMessage("ConfirmationConfigurationsComponent.capion"));
 		table = new GenericElementsTable<ConfirmationConfiguration>(
 				msg.getMessage("ConfirmationConfigurationsComponent.configurationTable"),
-				ConfirmationConfiguration.class,
 				new GenericElementsTable.NameProvider<ConfirmationConfiguration>()
 				{
 					@Override

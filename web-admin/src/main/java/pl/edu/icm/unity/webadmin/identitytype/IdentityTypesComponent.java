@@ -66,7 +66,7 @@ public class IdentityTypesComponent extends VerticalLayout
 		addStyleName(Styles.visibleScroll.toString());
 		setCaption(msg.getMessage("IdentityTypes.caption"));
 		table = new GenericElementsTable<IdentityType>(msg.getMessage("IdentityTypes.types"), 
-				IdentityType.class, new GenericElementsTable.NameProvider<IdentityType>()
+				new GenericElementsTable.NameProvider<IdentityType>()
 				{
 					@Override
 					public Label toRepresentation(IdentityType element)

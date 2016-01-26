@@ -62,8 +62,8 @@ public class InvitationWithCodeHandler extends DefaultEntityHandler<InvitationWi
 		json.put("expiration", value.getExpiration().getEpochSecond());
 		if (value.getContactAddress() != null)
 			json.put("contactAddress", value.getContactAddress());
-		if (value.getFacilityId() != null)
-			json.put("facilityId", value.getFacilityId());
+		if (value.getChannelId() != null)
+			json.put("channelId", value.getChannelId());
 		json.set("identities", jsonMapper.valueToTree(value.getIdentities()));
 		json.set("groupSelections", jsonMapper.valueToTree(value.getGroupSelections()));
 		
@@ -78,9 +78,9 @@ public class InvitationWithCodeHandler extends DefaultEntityHandler<InvitationWi
 		String registrationCode = json.get("registrationCode").asText();
 		Instant expiration = Instant.ofEpochSecond(json.get("expiration").asLong());
 		String addr = json.has("contactAddress") ? json.get("contactAddress").asText() : null;
-		String facility = json.has("facilityId") ? json.get("facilityId").asText() : null;
+		String channelId = json.has("channelId") ? json.get("channelId").asText() : null;
 		InvitationWithCode invitation = new InvitationWithCode(formId, expiration,
-				addr, facility, registrationCode);
+				addr, channelId, registrationCode);
 		
 		JsonNode n;
 		n = json.get("identities");

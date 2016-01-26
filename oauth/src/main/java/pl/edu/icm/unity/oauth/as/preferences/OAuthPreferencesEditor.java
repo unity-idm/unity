@@ -64,7 +64,7 @@ public class OAuthPreferencesEditor implements PreferencesEditor
 	{
 		main = new HorizontalLayout();
 		
-		table = new GenericElementsTable<String>(msg.getMessage("OAuthPreferences.spSettings"), String.class,
+		table = new GenericElementsTable<String>(msg.getMessage("OAuthPreferences.spSettings"), 
 				new GenericElementsTable.NameProvider<String>()
 				{
 					public Object toRepresentation(String element)

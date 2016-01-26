@@ -36,4 +36,10 @@ public class PrefilledEntry<T>
 	{
 		return mode;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "[" + mode.name() + "] " + entry.toString(); 
+	}
 }

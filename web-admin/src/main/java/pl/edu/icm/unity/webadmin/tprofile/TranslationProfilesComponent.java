@@ -129,7 +129,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		addStyleName(Styles.visibleScroll.toString());
 		HorizontalLayout hl = new HorizontalLayout();
 		table = new GenericElementsTable<TranslationProfile>(msg.getMessage("TranslationProfilesComponent.profilesTable"),
-				TranslationProfile.class, new GenericElementsTable.NameProvider<TranslationProfile>()
+				new GenericElementsTable.NameProvider<TranslationProfile>()
 				{
 					@Override
 					public Label toRepresentation(TranslationProfile element)
