@@ -272,7 +272,7 @@ public class RegistrationFormEditor extends VerticalLayout
 					return false;
 				}
 
-				if (value == true && empty.containsAutomaticAndMandatoryParams())
+				if (value == true && empty.containsRemoteMandatoryParams())
 					return false;
 				return true;
 			}

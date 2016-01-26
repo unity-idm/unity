@@ -130,7 +130,7 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 				continue;
 			if (allowedForms != null && !allowedForms.contains(form.getName()))
 				continue;
-			if (!showWithAutomaticParams && form.containsAutomaticAndMandatoryParams())
+			if (!showWithAutomaticParams && form.containsRemoteMandatoryParams())
 				continue;	
 			Button button = new Button(form.getName());
 			button.setStyleName(Styles.vButtonLink.toString());

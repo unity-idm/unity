@@ -191,13 +191,15 @@ public class RegistrationForm extends DescribedObjectImpl
 	}
 	
 	
-	public boolean containsAutomaticAndMandatoryParams()
+	public boolean containsRemoteMandatoryParams()
 	{
 		if (identityParams != null)
 		{
 			for (IdentityRegistrationParam id : identityParams)
 			{
-				if (checkAutoParam(id))
+				//FIXME this way we allow for x500Name as automatic and not 
+				//remote as it can be obtained from TLS. A better solution is needed.
+				if (checkAutoParam(id) && !id.getIdentityType().equals("x500Name"))
 					return true;
 			}
 		}
