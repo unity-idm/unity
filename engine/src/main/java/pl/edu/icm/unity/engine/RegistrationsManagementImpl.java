@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -606,7 +607,10 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		
 		InvitationWithCode invitation = invitationDB.get(code, sql);
 		if (invitation.getContactAddress() == null || invitation.getChannelId() == null)
-			throw new WrongArgumentException("The invitation with the given code has no contact address configured");
+			throw new WrongArgumentException("The invitation has no contact address configured");
+		if (invitation.getExpiration().isBefore(Instant.now()))
+			throw new WrongArgumentException("The invitation with the is expired");
+		
 		RegistrationForm form = formsDB.get(invitation.getFormId(), sql);
 		if (form.getNotificationsConfiguration().getInvitationTemplate() == null)
 			throw new WrongArgumentException("The form of the invitation has no invitation message template configured");
@@ -620,9 +624,14 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		ZonedDateTime expiry = invitation.getExpiration().atZone(ZoneId.systemDefault());
 		notifyParams.put(InvitationTemplateDef.EXPIRES, expiry.format(DateTimeFormatter.RFC_1123_DATE_TIME));
 		
+		Instant sentTime = Instant.now();
 		notificationProducer.sendNotification(invitation.getContactAddress(),
 				invitation.getChannelId(), form.getNotificationsConfiguration().getInvitationTemplate(),
 				notifyParams, userLocale);
+		
+		invitation.setLastSentTime(sentTime);
+		invitation.setNumberOfSends(invitation.getNumberOfSends() + 1);
+		invitationDB.update(code, invitation, sql);
 	}
 
 	@Override
@@ -642,6 +651,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	}
 
 	@Override
+	@Transactional
 	public InvitationWithCode getInvitation(String code) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);

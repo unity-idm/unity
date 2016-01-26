@@ -11,13 +11,17 @@ package pl.edu.icm.unity.types.registration.invite;
 import java.time.Instant;
 
 /**
- * Stores a registration code associated with an {@link InvitationParam}.
+ * Complete invitation as stored in the system. 
+ * In the first place contains a registration code associated with an {@link InvitationParam}. 
+ * What's more information on sent invitations is maintained.
  *   
  * @author Krzysztof Benedyczak
  */
 public class InvitationWithCode extends InvitationParam
 {
 	private String registrationCode;
+	private Instant lastSentTime;
+	private int numberOfSends;
 
 	public InvitationWithCode(String formId, Instant expiration, String contactAddress,
 			String facilityId, String registrationCode)
@@ -40,6 +44,26 @@ public class InvitationWithCode extends InvitationParam
 		return registrationCode;
 	}
 
+	public Instant getLastSentTime()
+	{
+		return lastSentTime;
+	}
+
+	public int getNumberOfSends()
+	{
+		return numberOfSends;
+	}
+	
+	public void setLastSentTime(Instant lastSentTime)
+	{
+		this.lastSentTime = lastSentTime;
+	}
+
+	public void setNumberOfSends(int numberOfSends)
+	{
+		this.numberOfSends = numberOfSends;
+	}
+
 	@Override
 	public String toString()
 	{
@@ -51,6 +75,8 @@ public class InvitationWithCode extends InvitationParam
 	{
 		final int prime = 31;
 		int result = super.hashCode();
+		result = prime * result + ((lastSentTime == null) ? 0 : lastSentTime.hashCode());
+		result = prime * result + numberOfSends;
 		result = prime * result
 				+ ((registrationCode == null) ? 0 : registrationCode.hashCode());
 		return result;
@@ -66,6 +92,14 @@ public class InvitationWithCode extends InvitationParam
 		if (getClass() != obj.getClass())
 			return false;
 		InvitationWithCode other = (InvitationWithCode) obj;
+		if (lastSentTime == null)
+		{
+			if (other.lastSentTime != null)
+				return false;
+		} else if (!lastSentTime.equals(other.lastSentTime))
+			return false;
+		if (numberOfSends != other.numberOfSends)
+			return false;
 		if (registrationCode == null)
 		{
 			if (other.registrationCode != null)

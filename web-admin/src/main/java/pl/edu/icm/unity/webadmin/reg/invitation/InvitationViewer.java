@@ -8,12 +8,10 @@
  **********************************************************************/
 package pl.edu.icm.unity.webadmin.reg.invitation;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.AbstractMap;
 import java.util.Map;
 
-import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.server.utils.TimeUtil;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -46,6 +44,8 @@ public class InvitationViewer extends CustomComponent
 	private Label expiration;
 	private Label contactAddress;
 	private Label channelId;
+	private Label lastSentTime;
+	private Label notificationsSent;
 	private ListOfElements<PrefilledEntry<IdentityParam>> identities;
 	private ListOfElements<PrefilledEntry<Attribute<?>>> attributes;
 	private ListOfElements<Map.Entry<String, PrefilledEntry<Selection>>> groups;
@@ -74,11 +74,17 @@ public class InvitationViewer extends CustomComponent
 		expiration = new Label();
 		expiration.setCaption(msg.getMessage("InvitationViewer.expiration"));
 
-		contactAddress = new Label();
-		contactAddress.setCaption(msg.getMessage("InvitationViewer.contactAddress"));
-
 		channelId = new Label();
 		channelId.setCaption(msg.getMessage("InvitationViewer.channelId"));
+
+		contactAddress = new Label();
+		contactAddress.setCaption(msg.getMessage("InvitationViewer.contactAddress"));
+		
+		lastSentTime = new Label();
+		lastSentTime.setCaption(msg.getMessage("InvitationViewer.lastSentTime"));
+
+		notificationsSent = new Label();
+		notificationsSent.setCaption(msg.getMessage("InvitationViewer.notificationsSent"));
 		
 		identities = new ListOfElements<>(msg);
 		identities.setMargin(true);
@@ -103,7 +109,7 @@ public class InvitationViewer extends CustomComponent
 		groupsPanel = new SafePanel(msg.getMessage("InvitationViewer.groups"), groups);
 
 		
-		main.addComponents(formId, expiration, contactAddress, channelId,
+		main.addComponents(formId, expiration, channelId, contactAddress, lastSentTime, notificationsSent,
 				identitiesPanel, attributesPanel);
 		setInput(null, null);
 	}
@@ -130,10 +136,12 @@ public class InvitationViewer extends CustomComponent
 		}
 		
 		formId.setValue(invitation.getFormId());
-		expiration.setValue(Constants.DT_FORMATTER_MEDIUM.format(
-				LocalDateTime.ofInstant(invitation.getExpiration(), ZoneId.systemDefault())));
+		expiration.setValue(TimeUtil.formatMediumInstant(invitation.getExpiration()));
 		contactAddress.setValue(invitation.getContactAddress());
 		channelId.setValue(invitation.getChannelId());
+		notificationsSent.setValue(String.valueOf(invitation.getNumberOfSends()));
+		lastSentTime.setValue(invitation.getLastSentTime() != null ? 
+				TimeUtil.formatMediumInstant(invitation.getLastSentTime()) : "-");
 		
 		identitiesPanel.setVisible(!invitation.getIdentities().isEmpty());
 		identities.clearContents();

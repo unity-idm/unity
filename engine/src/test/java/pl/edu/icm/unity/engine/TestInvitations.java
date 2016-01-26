@@ -15,6 +15,7 @@ import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import java.time.Instant;
@@ -116,6 +117,10 @@ public class TestInvitations  extends DBIntegrationTestBase
 		assertThat(sent.size(), is(1));
 		assertThat(sent.get(0).address, is("someAddr"));
 		assertThat(sent.get(0).subject, is("Registration invitation"));
+		
+		InvitationWithCode invitation2 = registrationsMan.getInvitation(code);
+		assertThat(invitation2.getLastSentTime(), is(notNullValue()));
+		assertThat(invitation2.getNumberOfSends(), is(1));
 	}
 
 	@Test

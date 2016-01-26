@@ -98,6 +98,7 @@ public class AdminsRegistrationRequestEditorDialog extends AbstractDialog
 		void cancelled();
 	}
 	
+	@Override
 	public void buttonClick(ClickEvent event) {
 		if (event.getSource() == submitAndAccept)
 			onSubmitAndAccept();

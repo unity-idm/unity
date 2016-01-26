@@ -64,6 +64,9 @@ public class InvitationWithCodeHandler extends DefaultEntityHandler<InvitationWi
 			json.put("contactAddress", value.getContactAddress());
 		if (value.getChannelId() != null)
 			json.put("channelId", value.getChannelId());
+		if (value.getLastSentTime() != null)
+			json.put("lastSentTime", value.getLastSentTime().getEpochSecond());
+		json.put("numberOfSends", value.getNumberOfSends());
 		json.set("identities", jsonMapper.valueToTree(value.getIdentities()));
 		json.set("groupSelections", jsonMapper.valueToTree(value.getGroupSelections()));
 		
@@ -83,6 +86,14 @@ public class InvitationWithCodeHandler extends DefaultEntityHandler<InvitationWi
 				addr, channelId, registrationCode);
 		
 		JsonNode n;
+		
+		if (json.has("lastSentTime"))
+		{
+			Instant lastSent = Instant.ofEpochSecond(json.get("lastSentTime").asLong());
+			invitation.setLastSentTime(lastSent);
+		}
+		invitation.setNumberOfSends(json.get("numberOfSends").asInt());
+		
 		n = json.get("identities");
 		fillIdentities((ObjectNode) n, invitation.getIdentities(), sql);
 

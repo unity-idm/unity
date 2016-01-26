@@ -8,16 +8,15 @@
  **********************************************************************/
 package pl.edu.icm.unity.webadmin.reg.invitation;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
+import pl.edu.icm.unity.server.utils.TimeUtil;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
@@ -29,6 +28,7 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.SmallTable;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 
 import com.google.common.collect.Lists;
@@ -37,6 +37,7 @@ import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 
 /**
@@ -71,9 +72,10 @@ public class InvitationsTable extends CustomComponent
 		invitationsTable.setSelectable(true);
 		invitationsTable.setMultiSelect(true);
 		invitationsTable.setContainerDataSource(tableContainer);
-		invitationsTable.setVisibleColumns(new Object[] {"form", "code", "expiration"});
+		invitationsTable.setVisibleColumns(new Object[] {"form", "address", "code", "expiration"});
 		invitationsTable.setColumnHeaders(new String[] {
 				msg.getMessage("InvitationsTable.form"),
+				msg.getMessage("InvitationsTable.contactAddress"),
 				msg.getMessage("InvitationsTable.code"),
 				msg.getMessage("InvitationsTable.expiration")});
 		invitationsTable.setSortContainerPropertyId(invitationsTable.getContainerPropertyIds().iterator().next());
@@ -122,11 +124,13 @@ public class InvitationsTable extends CustomComponent
 				null : ((TableInvitationBean)beans.iterator().next());
 	}
 	
-	private boolean addInvitation(InvitationParam invitation)
+	private boolean addInvitation(InvitationParam invitation, boolean send)
 	{
 		try
 		{
-			registrationManagement.addInvitation(invitation);
+			String code = registrationManagement.addInvitation(invitation);
+			if (send)
+				registrationManagement.sendInvitation(code);
 			refresh();
 			return true;
 		} catch (Exception e)
@@ -163,6 +167,7 @@ public class InvitationsTable extends CustomComponent
 				TableInvitationBean bean = (TableInvitationBean) item;
 				registrationManagement.sendInvitation(bean.getCode());
 			}
+			refresh();
 		} catch (Exception e)
 		{
 			String info = msg.getMessage("InvitationsTable.errorSend");
@@ -245,7 +250,7 @@ public class InvitationsTable extends CustomComponent
 			}
 			InvitationEditDialog dialog = new InvitationEditDialog(msg, 
 					msg.getMessage("InvitationsTable.addInvitationAction"), editor, 
-					invitation -> addInvitation(invitation));
+					(invitation, sendInvitation) -> addInvitation(invitation, sendInvitation));
 			dialog.show();
 		}
 	}
@@ -311,10 +316,17 @@ public class InvitationsTable extends CustomComponent
 			return invitation.getRegistrationCode();
 		}
 		
-		public String getExpiration()
+		public Label getExpiration()
 		{
-			return Constants.DT_FORMATTER_MEDIUM.format(LocalDateTime.ofInstant(
-					invitation.getExpiration(), ZoneId.systemDefault()));
+			Label ret = new Label(TimeUtil.formatMediumInstant(invitation.getExpiration()));
+			if (Instant.now().isAfter(invitation.getExpiration()))
+				ret.addStyleName(Styles.error.toString());
+			return ret;
+		}
+		
+		public String getAddress()
+		{
+			return invitation.getContactAddress() == null ? "-" : invitation.getContactAddress();
 		}
 	}
 	

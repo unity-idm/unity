@@ -14,7 +14,10 @@ import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
+import com.vaadin.ui.AbstractOrderedLayout;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.Button.ClickEvent;
 
 /**
  * Dialog for {@link InvitationEditor}
@@ -24,29 +27,46 @@ public class InvitationEditDialog extends AbstractDialog
 {
 	private InvitationEditor editor;
 	private Callback callback;
+	private Button createAndSend;
 	
 	public InvitationEditDialog(UnityMessageSource msg, String caption, 
 			InvitationEditor editor, Callback callback)
 	{
-		super(msg, caption);
+		super(msg, caption, msg.getMessage("InvitationEditDialog.createInvitation"), 
+				msg.getMessage("cancel"));
 		this.editor = editor;
 		this.callback = callback;
 		setSizeMode(SizeMode.LARGE);
+		createAndSend = new Button(msg.getMessage("InvitationEditDialog.createAndSend"), this);
 	}
-
+	
+	@Override
+	protected AbstractOrderedLayout getButtonsBar()
+	{
+		AbstractOrderedLayout ret = super.getButtonsBar();
+		ret.addComponent(createAndSend, 0);
+		return ret;
+	}
+	
+	@Override
+	public void buttonClick(ClickEvent event) {
+		if (event.getSource() == createAndSend)
+			onConfirm(true);
+		super.buttonClick(event);
+	}
+	
 	@Override
 	protected Component getContents() throws Exception
 	{
 		return editor;
 	}
-
-	@Override
-	protected void onConfirm()
+	
+	protected void onConfirm(boolean send)
 	{
 		try
 		{
 			InvitationParam invitation = editor.getInvitation();
-			if (callback.onInvitation(invitation))
+			if (callback.onInvitation(invitation, send))
 				close();
 		} catch (FormValidationException e) 
 		{
@@ -55,8 +75,15 @@ public class InvitationEditDialog extends AbstractDialog
 		}
 	}
 
+	
+	@Override
+	protected void onConfirm()
+	{
+		onConfirm(false);
+	}
+
 	public interface Callback
 	{
-		public boolean onInvitation(InvitationParam invitation);
+		public boolean onInvitation(InvitationParam invitation, boolean sendInvitation);
 	}
 }
