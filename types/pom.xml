@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
 		<groupId>pl.edu.icm.unity</groupId>
 		<artifactId>unity-server-parent</artifactId>
@@ -11,7 +12,7 @@
 	<name>UNITY Server ${m.name} module</name>
 	<description>Module with classes useful for both server and client side, 
 	basically everything should depend on this module.</description>
-	
+
 	<properties>
 		<m.name>types</m.name>
 	</properties>
@@ -22,13 +23,26 @@
 		<tag>HEAD</tag>
 	</scm>
 
+	<distributionManagement>
+		<repository>
+			<id>unicore.eu</id>
+			<name>UNICORE repository</name>
+			<url>dav:https://unicore-dev.zam.kfa-juelich.de/maven</url>
+		</repository>
+		<snapshotRepository>
+			<id>unicore.eu</id>
+			<name>UNICORE SNAPSHOT Repository</name>
+			<url>dav:https://unicore-dev.zam.kfa-juelich.de/maven</url>
+		</snapshotRepository>
+	</distributionManagement>
+
 	<dependencies>
 		<!-- test -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 		</dependency>
-		
+
 		<!-- compile -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -42,13 +56,13 @@
 			<groupId>org.mvel</groupId>
 			<artifactId>mvel2</artifactId>
 		</dependency>
-		
-		<!-- We use some spring annotations. However only for spring aware containers,
-		the classes can be used without spring as well. -->
+
+		<!-- We use some spring annotations. However only for spring aware containers, 
+			the classes can be used without spring as well. -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
 			<optional>true</optional>
-		</dependency>		
+		</dependency>
 	</dependencies>
 </project>
