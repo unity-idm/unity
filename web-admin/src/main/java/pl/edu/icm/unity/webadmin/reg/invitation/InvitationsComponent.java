@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.utils.Log;
@@ -27,6 +28,7 @@ import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
 import com.vaadin.ui.CustomComponent;
 
@@ -44,24 +46,33 @@ public class InvitationsComponent extends CustomComponent
 	private RegistrationsManagement registrationManagement;
 	private NotificationsManagement notificationsManagement;
 	private AttributeHandlerRegistry attrHandlersRegistry;
+	private IdentityEditorRegistry identityEditorRegistry;
+
+	private AttributesManagement attributesManagement;
 	
 	@Autowired
 	public InvitationsComponent(UnityMessageSource msg,
 			RegistrationsManagement registrationManagement,
 			NotificationsManagement notificationsManagement,
-			AttributeHandlerRegistry attrHandlersRegistry)
+			AttributesManagement attributesManagement,
+			AttributeHandlerRegistry attrHandlersRegistry,
+			IdentityEditorRegistry identityEditorRegistry)
 	{
 		this.msg = msg;
 		this.registrationManagement = registrationManagement;
 		this.notificationsManagement = notificationsManagement;
+		this.attributesManagement = attributesManagement;
 		this.attrHandlersRegistry = attrHandlersRegistry;
+		this.identityEditorRegistry = identityEditorRegistry;
 		initUI();
 	}
 
 	private void initUI()
 	{
 		addStyleName(Styles.visibleScroll.toString());
-		InvitationsTable invitationsTable = new InvitationsTable(msg, registrationManagement, notificationsManagement);
+		InvitationsTable invitationsTable = new InvitationsTable(msg, registrationManagement, 
+				notificationsManagement, attributesManagement, identityEditorRegistry, 
+				attrHandlersRegistry);
 		InvitationViewer viewer = new InvitationViewer(msg, attrHandlersRegistry);
 		
 		invitationsTable.addValueChangeListener(invitation -> 

@@ -14,6 +14,7 @@ import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.utils.TimeUtil;
@@ -30,6 +31,8 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.SmallTable;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
 import com.google.common.collect.Lists;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -50,15 +53,23 @@ public class InvitationsTable extends CustomComponent
 	private Table invitationsTable;
 	private RegistrationsManagement registrationManagement;
 	private NotificationsManagement notificationsManagement;
-	
+	private IdentityEditorRegistry identityEditorRegistry;
+	private AttributeHandlerRegistry attrHandlersRegistry;
+	private AttributesManagement attributesManagement;
 	
 	public InvitationsTable(UnityMessageSource msg,
 			RegistrationsManagement registrationManagement,
-			NotificationsManagement notificationsManagement)
+			NotificationsManagement notificationsManagement,
+			AttributesManagement attributesManagement,
+			IdentityEditorRegistry identityEditorRegistry,
+			AttributeHandlerRegistry attrHandlersRegistry)
 	{
 		this.msg = msg;
 		this.registrationManagement = registrationManagement;
 		this.notificationsManagement = notificationsManagement;
+		this.attributesManagement = attributesManagement;
+		this.identityEditorRegistry = identityEditorRegistry;
+		this.attrHandlersRegistry = attrHandlersRegistry;
 		initUI();
 	}
 
@@ -237,7 +248,8 @@ public class InvitationsTable extends CustomComponent
 			InvitationEditor editor;
 			try
 			{
-				editor = new InvitationEditor(msg, getForms(), getChannels());
+				editor = new InvitationEditor(msg, identityEditorRegistry, attrHandlersRegistry, 
+						getForms(), getChannels(), attributesManagement.getAttributeTypesAsMap());
 			} catch (WrongArgumentException e)
 			{
 				NotificationPopup.showError(msg, msg.getMessage("InvitationsTable.noValidForms"), 

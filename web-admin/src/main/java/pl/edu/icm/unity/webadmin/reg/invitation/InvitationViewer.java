@@ -110,7 +110,7 @@ public class InvitationViewer extends CustomComponent
 
 		
 		main.addComponents(formId, expiration, channelId, contactAddress, lastSentTime, notificationsSent,
-				identitiesPanel, attributesPanel);
+				identitiesPanel, attributesPanel, groupsPanel);
 		setInput(null, null);
 	}
 	
