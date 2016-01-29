@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.types;
 
+import java.util.List;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import pl.edu.icm.unity.Constants;
@@ -23,6 +25,18 @@ public class UnityTypesFactory
 		try
 		{
 			return Constants.MAPPER.readValue(contents, clazz);
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't perform JSON deserialization", e);
+		}
+	}
+
+	public static <T> List<T> parseToList(String contents, Class<T> clazz)
+	{
+		try
+		{
+			return Constants.MAPPER.readValue(contents,
+					Constants.MAPPER.getTypeFactory().constructCollectionType(List.class, clazz));
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't perform JSON deserialization", e);

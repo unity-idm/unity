@@ -5,9 +5,11 @@
 package pl.edu.icm.unity.types;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -46,5 +48,25 @@ public class UnityTypesFactoryTest
 
 		// then
 		assertThat(authn, equalTo(new AuthenticationOptionDescription("one", "two")));
+	}
+
+	@Test
+	public void shouldConvertToList()
+	{
+		// given
+		String jsonString = "["
+				+ "{\"primaryAuthenticator\":\"one\",\"mandatory2ndAuthenticator\":\"two\"},"
+				+ "{\"primaryAuthenticator\":\"1\",\"mandatory2ndAuthenticator\":\"2\"}"
+				+ "]";
+
+		// when
+		List<AuthenticationOptionDescription> authn = UnityTypesFactory.parseToList(
+				jsonString, AuthenticationOptionDescription.class
+		);
+
+		// then
+		assertThat(authn.size(), equalTo(2));
+		assertThat(authn,
+				hasItems(new AuthenticationOptionDescription("one", "two"), new AuthenticationOptionDescription("1", "2")));
 	}
 }
