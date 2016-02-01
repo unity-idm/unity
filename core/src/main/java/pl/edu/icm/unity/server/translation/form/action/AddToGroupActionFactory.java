@@ -26,7 +26,7 @@ import pl.edu.icm.unity.server.utils.Log;
  * @author K. Benedyczak
  */
 @Component
-public class AddToGroupActionFactory extends AbstractTranslationActionFactory
+public class AddToGroupActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	public static final String NAME = "addToGroup";
 	

@@ -35,7 +35,7 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
  * @author K. Benedyczak
  */
 @Component
-public class AddAttributeActionFactory extends AbstractTranslationActionFactory
+public class AddAttributeActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	public static final String NAME = "addAttribute";
 	private AttributesInternalProcessing attrsMan;

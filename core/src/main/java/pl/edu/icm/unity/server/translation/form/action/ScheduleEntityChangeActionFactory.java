@@ -24,7 +24,7 @@ import pl.edu.icm.unity.types.EntityScheduledOperation;
  * @author K. Benedyczak
  */
 @Component
-public class ScheduleEntityChangeActionFactory extends AbstractTranslationActionFactory
+public class ScheduleEntityChangeActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	public static final String NAME = "scheduleChange";
 

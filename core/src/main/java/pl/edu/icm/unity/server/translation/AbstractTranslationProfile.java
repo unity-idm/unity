@@ -5,10 +5,14 @@
 package pl.edu.icm.unity.server.translation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.registries.TypesRegistryBase;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.DescribedObjectImpl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -24,6 +28,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public abstract class AbstractTranslationProfile<T extends AbstractTranslationRule<?>> extends DescribedObjectImpl 
 	implements TranslationProfile
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, AbstractTranslationProfile.class);
 	protected List<T> rules;
 	private ProfileType profileType;
 
@@ -129,12 +134,29 @@ public abstract class AbstractTranslationProfile<T extends AbstractTranslationRu
 				String actionName = jsonAction.get("name").asText();
 				TranslationActionFactory fact = registry.getByName(actionName);
 				String[] parameters = extractParams(jsonAction);
-				TranslationAction action = fact.getInstance(parameters);
+				TranslationAction action = loadAction(fact, parameters);
 				rules.add(createRule(action, new TranslationCondition(condition)));
 			}
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't deserialize translation profile from JSON", e);
+		}
+	}
+	
+	private TranslationAction loadAction(TranslationActionFactory fact, String[] parameters)
+	{
+		try
+		{
+			return fact.getInstance(parameters);
+		} catch (Exception e)
+		{
+			log.error("Can not load action " + fact.getName() + " with parameters: " +
+					Arrays.toString(parameters) + 
+					". This action will be ignored during profile's execution. "
+					+ "Fix the action definition. This problem can occur after system "
+					+ "reconfiguration when action definition becomes obsolete "
+					+ "(e.g. using not existing attribute)", e);
+			return fact.getBlindInstance(parameters);
 		}
 	}
 	

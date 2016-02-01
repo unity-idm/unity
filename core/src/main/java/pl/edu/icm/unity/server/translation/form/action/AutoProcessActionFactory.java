@@ -19,7 +19,7 @@ import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.Au
  * @author K. Benedyczak
  */
 @Component
-public class AutoProcessActionFactory extends AbstractTranslationActionFactory
+public class AutoProcessActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	public static final String NAME = "autoProcess";
 	

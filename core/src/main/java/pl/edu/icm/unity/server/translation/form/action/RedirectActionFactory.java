@@ -26,7 +26,7 @@ import pl.edu.icm.unity.server.utils.Log;
  * @author K. Benedyczak
  */
 @Component
-public class RedirectActionFactory extends AbstractTranslationActionFactory
+public class RedirectActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	public static final String NAME = "redirect";
 	

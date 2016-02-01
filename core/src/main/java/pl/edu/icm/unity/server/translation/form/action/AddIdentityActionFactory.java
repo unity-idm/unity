@@ -25,7 +25,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
  * @author K. Benedyczak
  */
 @Component
-public class AddIdentityActionFactory extends AbstractTranslationActionFactory
+public class AddIdentityActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	public static final String NAME = "addIdentity";
 	

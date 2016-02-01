@@ -18,7 +18,7 @@ import pl.edu.icm.unity.types.EntityState;
  * @author K. Benedyczak
  */
 @Component
-public class SetEntityStateActionFactory extends AbstractTranslationActionFactory
+public class SetEntityStateActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	public static final String NAME = "setState";
 
