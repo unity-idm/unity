@@ -18,7 +18,7 @@ import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest;
  * @author K. Benedyczak
  */
 @Component
-public class SetCredentialRequirementActionFactory extends AbstractTranslationActionFactory
+public class SetCredentialRequirementActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	public static final String NAME = "setCredReq";
 	

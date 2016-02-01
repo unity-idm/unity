@@ -6,6 +6,7 @@ package pl.edu.icm.unity.stdext.translation.out;
 
 import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.translation.ProfileType;
+import pl.edu.icm.unity.server.translation.TranslationAction;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 
 /**
@@ -22,7 +23,7 @@ public abstract class AbstractOutputTranslationActionFactory implements Translat
 		this.name = name;
 		this.parameters = parameters;
 	}
-
+		
 	@Override
 	public ProfileType getSupportedProfileType()
 	{
@@ -45,5 +46,11 @@ public abstract class AbstractOutputTranslationActionFactory implements Translat
 	public ActionParameterDesc[] getParameters()
 	{
 		return parameters;
+	}
+	
+	@Override
+	public TranslationAction getBlindInstance(String... parameters)
+	{
+		return new BlindStopperOutputAction(this, parameters);
 	}
 }

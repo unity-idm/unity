@@ -25,7 +25,7 @@ import pl.edu.icm.unity.server.utils.Log;
  * @author K. Benedyczak
  */
 @Component
-public class AddAttributeClassActionFactory extends AbstractTranslationActionFactory
+public class AddAttributeClassActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	public static final String NAME = "addAttributeClass";
 	

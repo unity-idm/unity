@@ -19,7 +19,7 @@ import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
  * @author K. Benedyczak
  */
 @Component
-public class ConfirmationRedirectActionFactory extends AbstractTranslationActionFactory
+public class ConfirmationRedirectActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	
 	public static final String NAME = "confirmationRedirect";

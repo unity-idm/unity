@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -47,6 +48,7 @@ import pl.edu.icm.unity.server.translation.in.MappedAttribute;
 import pl.edu.icm.unity.server.translation.in.MappedGroup;
 import pl.edu.icm.unity.server.translation.in.MappedIdentity;
 import pl.edu.icm.unity.server.translation.in.MappingResult;
+import pl.edu.icm.unity.server.translation.in.action.BlindStopperInputAction;
 import pl.edu.icm.unity.server.translation.in.action.EntityChangeActionFactory;
 import pl.edu.icm.unity.server.translation.in.action.MapAttributeActionFactory;
 import pl.edu.icm.unity.server.translation.in.action.MapGroupActionFactory;
@@ -704,6 +706,34 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		List<?> values = attrs.iterator().next().getValues();
 		assertThat(values.size(), is(1));
 		assertThat(((VerifiableEmail)values.get(0)).getValue(), is("b+tag@example.com"));
+	}
+	
+	
+	@Test
+	public void profileWithStaleActionsIsLoaded() throws Exception
+	{
+		attrsMan.addAttributeType(new AttributeType("someAttr", new StringAttributeSyntax()));
+		List<InputTranslationRule> rules = new ArrayList<>();
+		InputTranslationAction action = (InputTranslationAction) tactionReg.getByName(
+				MapAttributeActionFactory.NAME).getInstance("someAttr", "/", "'val'", "full", 
+						"CREATE_ONLY"); 
+		rules.add(new InputTranslationRule(action, new TranslationCondition()));
+		
+		InputTranslationProfile toAdd = new InputTranslationProfile("p1", rules);
+		tprofMan.addProfile(toAdd);
+		
+		Map<String, InputTranslationProfile> profiles = tprofMan.listInputProfiles();
+		assertNotNull(profiles.get("p1"));
+		
+		attrsMan.removeAttributeType("someAttr", true);
+		
+		profiles = tprofMan.listInputProfiles();
+		InputTranslationProfile retProfile = profiles.get("p1");
+		assertNotNull(retProfile);
+		assertEquals(1, retProfile.getRules().size());
+		InputTranslationAction firstAction = retProfile.getRules().get(0).getAction();
+		assertEquals(MapAttributeActionFactory.NAME, firstAction.getActionDescription().getName());
+		assertThat(firstAction, is(instanceOf(BlindStopperInputAction.class)));
 	}
 }
 
