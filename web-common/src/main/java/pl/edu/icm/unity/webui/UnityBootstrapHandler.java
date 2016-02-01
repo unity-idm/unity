@@ -12,7 +12,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
@@ -74,12 +73,15 @@ public class UnityBootstrapHandler extends SynchronizedRequestHandler
 	{
 		ClassTemplateLoader fallbackLoader = new ClassTemplateLoader(getClass(), TEMPLATES_ROOT);
 		FileTemplateLoader primaryLoader;
+		File webContents = new File(webContentsDirectory, TEMPLATES_ROOT);
 		try
 		{
-			primaryLoader = new FileTemplateLoader(new File(webContentsDirectory, TEMPLATES_ROOT));
+			primaryLoader = new FileTemplateLoader(webContents);
 		} catch (IOException e)
 		{
-			throw new InternalException("The Freemarker templates directory can not be accessed", e);
+			log.warn("Templates directory " + webContentsDirectory + 
+					" can not be read. Will use the default bundled templates only.");
+			return fallbackLoader;
 		}
 		return new MultiTemplateLoader(new TemplateLoader [] {primaryLoader, fallbackLoader});
 	}
