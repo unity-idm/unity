@@ -22,7 +22,7 @@ import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormEditDialog.Callback;
@@ -73,7 +73,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 	private GenericElementsTable<RegistrationForm> table;
 	private RegistrationFormViewer viewer;
 	private com.vaadin.ui.Component main;
-	private TranslationActionsRegistry actionsRegistry;
+	private RegistrationTranslationActionsRegistry actionsRegistry;
 	
 	
 	@Autowired
@@ -83,7 +83,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
 			AttributesManagement attributeMan, AuthenticationManagement authenticationMan,
 			SharedEndpointManagement sharedEndpointMan,
-			TranslationActionsRegistry actionsRegistry)
+			RegistrationTranslationActionsRegistry actionsRegistry)
 	{
 		this.msg = msg;
 		this.registrationsManagement = registrationsManagement;
@@ -110,7 +110,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 				});
 		table.setWidth(90, Unit.PERCENTAGE);
 		table.setMultiSelect(true);
-		viewer = new RegistrationFormViewer(msg, msgTempMan, sharedEndpointMan, actionsRegistry);
+		viewer = new RegistrationFormViewer(msg, actionsRegistry, msgTempMan, sharedEndpointMan);
 		viewer.setInput(null);
 		table.addValueChangeListener(new ValueChangeListener()
 		{

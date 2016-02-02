@@ -36,19 +36,22 @@ public class PostRegistrationHandler
 	private UnityMessageSource msg;
 	private boolean doRedirect;
 	private IdPLoginController loginController;
+	private RegistrationTranslationProfile translationProfile;
 	
 	public PostRegistrationHandler(IdPLoginController loginController, 
-			RegistrationForm form, UnityMessageSource msg)
+			RegistrationForm form, UnityMessageSource msg, RegistrationTranslationProfile profile)
 	{
-		this(loginController, form, msg, true);
+		this(loginController, form, msg, profile, true);
 	}
 
 	public PostRegistrationHandler(IdPLoginController loginController, 
-			RegistrationForm form, UnityMessageSource msg, boolean doRedirect)
+			RegistrationForm form, UnityMessageSource msg, RegistrationTranslationProfile profile, 
+			boolean doRedirect)
 	{
 		this.loginController = loginController;
 		this.form = form;
 		this.msg = msg;
+		this.translationProfile = profile;
 		this.doRedirect = doRedirect;
 	}
 
@@ -72,7 +75,6 @@ public class PostRegistrationHandler
 			log.error("Shouldn't happen: can't get request status to check if it was auto accepted", e);
 			autoAccepted = false;
 		}
-		RegistrationTranslationProfile translationProfile = form.getTranslationProfile();
 		String redirect = translationProfile.getPostSubmitRedirectURL(form, request, context, requestId);
 		if (redirect != null)
 		{
@@ -115,7 +117,6 @@ public class PostRegistrationHandler
 	 */
 	public void cancelled(boolean showCancelMessage, RegistrationContext context)
 	{
-		RegistrationTranslationProfile translationProfile = form.getTranslationProfile();
 		String redirect = translationProfile.getPostCancelledRedirectURL(form, context);
 		if (redirect != null)
 		{
@@ -137,7 +138,6 @@ public class PostRegistrationHandler
 			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
 		} else
 		{
-			RegistrationTranslationProfile translationProfile = form.getTranslationProfile();
 			String redirect = translationProfile.getPostCancelledRedirectURL(form, context);
 			if (redirect != null)
 			{

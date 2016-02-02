@@ -6,9 +6,10 @@ package pl.edu.icm.unity.types.registration;
 
 import java.util.List;
 
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.types.DescribedObjectImpl;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Configuration of a registration form. Registration form data contains:
@@ -39,7 +40,7 @@ public class RegistrationForm extends DescribedObjectImpl
 	private String registrationCode;
 	
 	private String defaultCredentialRequirement;
-	private RegistrationTranslationProfile translationProfile; 
+	private TranslationProfile translationProfile; 
 		
 	public RegistrationFormNotifications getNotificationsConfiguration()
 	{
@@ -180,13 +181,15 @@ public class RegistrationForm extends DescribedObjectImpl
 		this.defaultCredentialRequirement = defaultCredentialRequirement;
 	}
 
-	public RegistrationTranslationProfile getTranslationProfile()
+	public TranslationProfile getTranslationProfile()
 	{
 		return translationProfile;
 	}
 
-	public void setTranslationProfile(RegistrationTranslationProfile translationProfile)
+	public void setTranslationProfile(TranslationProfile translationProfile)
 	{
+		if (translationProfile.getProfileType() != ProfileType.REGISTRATION)
+			throw new IllegalArgumentException("Only a registration profile can be used with registration form");
 		this.translationProfile = translationProfile;
 	}
 	

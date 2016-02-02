@@ -20,9 +20,8 @@ import pl.edu.icm.unity.server.api.registration.AcceptRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -115,16 +114,16 @@ public class RegistrationFormEditor extends VerticalLayout
 	private ListOfEmbeddedElements<CredentialRegistrationParam> credentialParams;
 
 	private ComboBox credentialRequirementAssignment;
-	private TranslationProfileEditor<RegistrationTranslationRule> profileEditor;
+	private TranslationProfileEditor profileEditor;
 	private AttributesManagement attributeMan;
 	private IdentitiesManagement identitiesMan;
-	private TranslationActionsRegistry actionsRegistry;
+	private RegistrationTranslationActionsRegistry actionsRegistry;
 	
 	public RegistrationFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
 			NotificationsManagement notificationsMan,
 			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
 			AttributesManagement attributeMan,
-			AuthenticationManagement authenticationMan, TranslationActionsRegistry actionsRegistry) 
+			AuthenticationManagement authenticationMan, RegistrationTranslationActionsRegistry actionsRegistry) 
 					throws EngineException
 	{
 		this(msg, groupsMan, notificationsMan, msgTempMan, identitiesMan, attributeMan, authenticationMan, 
@@ -135,7 +134,7 @@ public class RegistrationFormEditor extends VerticalLayout
 			NotificationsManagement notificationsMan,
 			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
 			AttributesManagement attributeMan,
-			AuthenticationManagement authenticationMan, TranslationActionsRegistry actionsRegistry,
+			AuthenticationManagement authenticationMan, RegistrationTranslationActionsRegistry actionsRegistry,
 			RegistrationForm toEdit, boolean copyMode)
 			throws EngineException
 	{
@@ -199,7 +198,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		ret.setCollectComments(collectComments.getValue());
 		ret.setCredentialParams(credentialParams.getElements());
 		ret.setDefaultCredentialRequirement((String) credentialRequirementAssignment.getValue());
-		ret.setTranslationProfile((RegistrationTranslationProfile) profileEditor.getProfile());
+		ret.setTranslationProfile(profileEditor.getProfile());
 		ret.setDescription(description.getValue());
 		I18nString displayedNameStr = displayedName.getValue();
 		displayedNameStr.setDefaultValue(name.getValue());
@@ -391,8 +390,9 @@ public class RegistrationFormEditor extends VerticalLayout
 		credentialRequirementAssignment.setNullSelectionAllowed(false);
 		
 		RegistrationTranslationProfile profile = toEdit == null ? 
-				new RegistrationTranslationProfile("form profile", new ArrayList<>()) : 
-				toEdit.getTranslationProfile();
+				new RegistrationTranslationProfile("form profile", new ArrayList<>(), actionsRegistry) : 
+				new RegistrationTranslationProfile(toEdit.getTranslationProfile().getName(), 
+						toEdit.getTranslationProfile().getRules(), actionsRegistry);
 		profileEditor = new RegistrationTranslationProfileEditor(msg, actionsRegistry, profile, 
 				attributeMan, identitiesMan, authenticationMan, groupsMan);
 		

@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 
 import com.vaadin.ui.ComboBox;
 
@@ -15,7 +15,7 @@ import com.vaadin.ui.ComboBox;
  */
 public class EnumActionParameterComponent extends BaseEnumActionParameterComponent implements ActionParameterComponent
 {
-	public EnumActionParameterComponent(ActionParameterDesc desc, UnityMessageSource msg)
+	public EnumActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg)
 	{
 		super(desc, msg, desc.getEnumClass().getEnumConstants());
 	}

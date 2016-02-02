@@ -6,8 +6,8 @@ package pl.edu.icm.unity.webadmin.tprofile;
 
 import java.util.Collection;
 
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 
 import com.vaadin.server.UserError;
 import com.vaadin.ui.ComboBox;
@@ -19,9 +19,9 @@ import com.vaadin.ui.ComboBox;
 public class BaseEnumActionParameterComponent extends ComboBox implements ActionParameterComponent
 {
 	private UnityMessageSource msg;
-	private ActionParameterDesc desc;
+	private ActionParameterDefinition desc;
 	
-	public BaseEnumActionParameterComponent(ActionParameterDesc desc, UnityMessageSource msg, 
+	public BaseEnumActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg, 
 			Collection<?> values)
 	{
 		for (Object o: values)
@@ -30,7 +30,7 @@ public class BaseEnumActionParameterComponent extends ComboBox implements Action
 		initCommon(desc, msg, def);
 	}
 
-	public BaseEnumActionParameterComponent(ActionParameterDesc desc, UnityMessageSource msg, 
+	public BaseEnumActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg, 
 			Object[] values)
 	{
 		for (Object o: values)
@@ -39,7 +39,7 @@ public class BaseEnumActionParameterComponent extends ComboBox implements Action
 		initCommon(desc, msg, def);
 	}
 	
-	protected final void initCommon(ActionParameterDesc desc, UnityMessageSource msg, String def)
+	protected final void initCommon(ActionParameterDefinition desc, UnityMessageSource msg, String def)
 	{
 		this.msg = msg;
 		this.desc = desc;

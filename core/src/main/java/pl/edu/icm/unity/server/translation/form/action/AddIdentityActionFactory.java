@@ -11,13 +11,13 @@ import org.mvel2.MVEL;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Allows for adding an additional identity to the requester
@@ -25,19 +25,19 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
  * @author K. Benedyczak
  */
 @Component
-public class AddIdentityActionFactory extends AbstractTranslationActionFactory
+public class AddIdentityActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	public static final String NAME = "addIdentity";
 	
 	public AddIdentityActionFactory()
 	{
-		super(NAME, new ActionParameterDesc[] {
-				new ActionParameterDesc(
+		super(NAME, new ActionParameterDefinition[] {
+				new ActionParameterDefinition(
 						"identityType",
 						"RegTranslationAction.addIdentity.paramDesc.identityType",
 						Type.UNITY_ID_TYPE),
-				new ActionParameterDesc(
-						"group",
+				new ActionParameterDefinition(
+						"identity",
 						"RegTranslationAction.addIdentity.paramDesc.identity",
 						Type.EXPRESSION)
 		});
@@ -46,17 +46,17 @@ public class AddIdentityActionFactory extends AbstractTranslationActionFactory
 	@Override
 	public RegistrationTranslationAction getInstance(String... parameters)
 	{
-		return new AddIdentityAction(this, parameters);
+		return new AddIdentityAction(getActionType(), parameters);
 	}
 	
-	public static class AddIdentityAction extends AbstractRegistrationTranslationAction
+	public static class AddIdentityAction extends RegistrationTranslationAction
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION,
 				AddIdentityActionFactory.AddIdentityAction.class);
 		private String identityType;
 		private Serializable expressionCompiled;
 		
-		public AddIdentityAction(TranslationActionDescription description, String[] parameters) 
+		public AddIdentityAction(TranslationActionType description, String[] parameters) 
 		{
 			super(description, parameters);
 			setParameters(parameters);

@@ -71,6 +71,7 @@ import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.FileWatcher;
+import pl.edu.icm.unity.server.utils.JsonUtil;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.ServerInitializer;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -103,6 +104,7 @@ import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.utils.LifecycleBase;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.FilePropertiesHelper;
@@ -943,16 +945,17 @@ public class EngineInitialization extends LifecycleBase
 		log.info("Loading configured translation profiles");
 		for (String profileFile: profileFiles)
 		{
-			String json;
+			ObjectNode json;
 			try
 			{
-				json = FileUtils.readFileToString(new File(profileFile));
+				String source = FileUtils.readFileToString(new File(profileFile));
+				json = JsonUtil.parse(source);
 			} catch (IOException e)
 			{
 				throw new ConfigurationException("Problem loading translation profile from file: " +
 						profileFile, e);
 			}
-			InputTranslationProfile tp = new InputTranslationProfile(json, jsonMapper, tactionsRegistry);
+			InputTranslationProfile tp = new InputTranslationProfile(json, tactionsRegistry);
 			try
 			{
 				if (existingProfiles.containsKey(tp.getName()))

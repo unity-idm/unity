@@ -88,7 +88,8 @@ public class RegistrationFormLauncher implements RegistrationFormDialogProvider
 			bus.fireEvent(new RegistrationRequestChangedEvent(id));
 		} catch (EngineException e)
 		{
-			new PostRegistrationHandler(idpLoginController, form, msg).submissionError(e, context);
+			new PostRegistrationHandler(idpLoginController, form, msg, 
+					registrationsManagement.getProfileInstance(form)).submissionError(e, context);
 			return false;
 		}
 
@@ -101,7 +102,8 @@ public class RegistrationFormLauncher implements RegistrationFormDialogProvider
 						msg.getMessage("RegistrationFormsChooserComponent.autoAccept"));
 				bus.fireEvent(new RegistrationRequestChangedEvent(id));
 			}	
-			new PostRegistrationHandler(idpLoginController, form, msg, false).
+			new PostRegistrationHandler(idpLoginController, form, msg, 
+					registrationsManagement.getProfileInstance(form), false).
 				submitted(id, registrationsManagement, request, context);
 			
 			return true;
@@ -136,7 +138,8 @@ public class RegistrationFormLauncher implements RegistrationFormDialogProvider
 						{
 							RegistrationContext context = new RegistrationContext(false, 
 									idpLoginController.isLoginInProgress(), mode);
-							new PostRegistrationHandler(idpLoginController, form, msg).
+							new PostRegistrationHandler(idpLoginController, form, msg, 
+									registrationsManagement.getProfileInstance(form)).
 								cancelled(false, context);
 						}
 					});

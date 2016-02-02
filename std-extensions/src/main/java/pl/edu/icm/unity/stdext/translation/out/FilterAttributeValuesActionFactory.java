@@ -13,14 +13,14 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
-import pl.edu.icm.unity.server.translation.out.AbstractOutputTranslationAction;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.TranslationInput;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Filter outgoing attribute values.
@@ -34,11 +34,11 @@ public class FilterAttributeValuesActionFactory extends AbstractOutputTranslatio
 	
 	public FilterAttributeValuesActionFactory()
 	{
-		super(NAME, new ActionParameterDesc(
+		super(NAME, new ActionParameterDefinition(
 				"attribute",
 				"TranslationAction.filterAttributeValue.paramDesc.attribute",
 				Type.UNITY_ATTRIBUTE),
-		new ActionParameterDesc(
+		new ActionParameterDefinition(
 				"attributeValueRegexp",
 				"TranslationAction.filterAttributeValue.paramDesc.attributeValueRegexp",
 				Type.EXPRESSION));
@@ -47,16 +47,16 @@ public class FilterAttributeValuesActionFactory extends AbstractOutputTranslatio
 	@Override
 	public FilterAttributeValuesAction getInstance(String... parameters)
 	{
-		return new FilterAttributeValuesAction(parameters, this);
+		return new FilterAttributeValuesAction(parameters, getActionType());
 	}
 	
-	public static class FilterAttributeValuesAction extends AbstractOutputTranslationAction
+	public static class FilterAttributeValuesAction extends OutputTranslationAction
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, FilterAttributeValuesAction.class);
 		private String attr;
 		private Pattern pattern;
 
-		public FilterAttributeValuesAction(String[] params, TranslationActionDescription desc) 
+		public FilterAttributeValuesAction(String[] params, TranslationActionType desc) 
 		{
 			super(desc, params);
 			setParameters(params);

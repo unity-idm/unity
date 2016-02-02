@@ -116,7 +116,8 @@ public class StandalonePublicFormView extends CustomComponent implements View
 			RegistrationContext context = new RegistrationContext(false, 
 					idpLoginController.isLoginInProgress(), 
 					TriggeringMode.manualStandalone);
-			new PostRegistrationHandler(idpLoginController, form, msg).cancelled(true, context);
+			new PostRegistrationHandler(idpLoginController, form, msg, regMan.getProfileInstance(form))
+				.cancelled(true, context);
 		});
 		buttons.addComponents(cancel, ok);
 		buttons.setSpacing(true);
@@ -137,11 +138,12 @@ public class StandalonePublicFormView extends CustomComponent implements View
 		{
 			RegistrationRequest request = editor.getRequest();
 			String requestId = regMan.submitRegistrationRequest(request, context);
-			new PostRegistrationHandler(idpLoginController, form, msg).submitted(requestId, regMan,
-					request, context);
+			new PostRegistrationHandler(idpLoginController, form, msg, regMan.getProfileInstance(form))
+				.submitted(requestId, regMan, request, context);
 		} catch (Exception e) 
 		{
-			new PostRegistrationHandler(idpLoginController, form, msg).submissionError(e, context);
+			new PostRegistrationHandler(idpLoginController, form, msg, regMan.getProfileInstance(form))
+				.submissionError(e, context);
 		}
 	}
 

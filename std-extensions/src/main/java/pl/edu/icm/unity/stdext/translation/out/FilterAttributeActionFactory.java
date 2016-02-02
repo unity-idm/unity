@@ -12,14 +12,14 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
-import pl.edu.icm.unity.server.translation.out.AbstractOutputTranslationAction;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.TranslationInput;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Filter outgoing attributes by name
@@ -33,7 +33,7 @@ public class FilterAttributeActionFactory extends AbstractOutputTranslationActio
 	
 	public FilterAttributeActionFactory()
 	{
-		super(NAME, new ActionParameterDesc(
+		super(NAME, new ActionParameterDefinition(
 				"attribute",
 				"TranslationAction.filterAttribute.paramDesc.attributeRegexp",
 				Type.EXPRESSION));
@@ -42,15 +42,15 @@ public class FilterAttributeActionFactory extends AbstractOutputTranslationActio
 	@Override
 	public FilterAttributeAction getInstance(String... parameters)
 	{
-		return new FilterAttributeAction(parameters, this);
+		return new FilterAttributeAction(parameters, getActionType());
 	}
 	
-	public static class FilterAttributeAction extends AbstractOutputTranslationAction
+	public static class FilterAttributeAction extends OutputTranslationAction
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, FilterAttributeAction.class);
 		private Pattern attrPattern;
 
-		public FilterAttributeAction(String[] params, TranslationActionDescription desc) 
+		public FilterAttributeAction(String[] params, TranslationActionType desc) 
 		{
 			super(desc, params);
 			setParameters(params);

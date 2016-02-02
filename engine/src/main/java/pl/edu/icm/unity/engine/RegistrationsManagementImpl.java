@@ -51,6 +51,7 @@ import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -70,6 +71,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Implementation of registrations subsystem.
@@ -95,6 +97,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private UnityMessageSource msg;
 	private TransactionalRunner tx;
 	private RegistrationRequestValidator registrationRequestValidator;
+	private RegistrationTranslationActionsRegistry registrationTranslationActionsRegistry;
 
 	@Autowired
 	public RegistrationsManagementImpl(RegistrationFormDB formsDB,
@@ -106,7 +109,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			ConfirmationManager confirmationManager,
 			InternalRegistrationManagment internalManagment, UnityMessageSource msg,
 			TransactionalRunner tx,
-			RegistrationRequestValidator registrationRequestValidator)
+			RegistrationRequestValidator registrationRequestValidator,
+			RegistrationTranslationActionsRegistry registrationTranslationActionsRegistry)
 	{
 		this.formsDB = formsDB;
 		this.requestDB = requestDB;
@@ -123,6 +127,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		this.msg = msg;
 		this.tx = tx;
 		this.registrationRequestValidator = registrationRequestValidator;
+		this.registrationTranslationActionsRegistry = registrationTranslationActionsRegistry;
 	}
 
 	@Override
@@ -542,8 +547,10 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private String getFormRedirectUrlForIdentity(RegistrationRequestState requestState, RegistrationForm form,
 			IdentityParam identity)
 	{
-		RegistrationTranslationProfile translationProfile = form.getTranslationProfile();
-		return translationProfile.getPostConfirmationRedirectURL(form, requestState, identity, 
+		TranslationProfile translationProfile = form.getTranslationProfile();
+		RegistrationTranslationProfile regProfile = new RegistrationTranslationProfile(translationProfile.getName(), 
+				translationProfile.getRules(), registrationTranslationActionsRegistry);
+		return regProfile.getPostConfirmationRedirectURL(form, requestState, identity, 
 				requestState.getRequestId());
 	}	
 	
@@ -554,9 +561,18 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		if (InvocationContext.getCurrent().getCurrentURLUsed() != null
 				&& InvocationContext.getCurrent().getLoginSession() == null)
 			current = InvocationContext.getCurrent().getCurrentURLUsed();
-		RegistrationTranslationProfile translationProfile = form.getTranslationProfile();
-		String configured = translationProfile.getPostConfirmationRedirectURL(form, requestState, attr,
+		TranslationProfile translationProfile = form.getTranslationProfile();
+		RegistrationTranslationProfile regProfile = new RegistrationTranslationProfile(translationProfile.getName(), 
+				translationProfile.getRules(), registrationTranslationActionsRegistry);
+		String configured = regProfile.getPostConfirmationRedirectURL(form, requestState, attr,
 				requestState.getRequestId());
 		return configured != null ? configured : current;
+	}
+
+	@Override
+	public RegistrationTranslationProfile getProfileInstance(RegistrationForm form)
+	{
+		return new RegistrationTranslationProfile(form.getTranslationProfile().getName(), 
+				form.getTranslationProfile().getRules(), registrationTranslationActionsRegistry);
 	}
 }

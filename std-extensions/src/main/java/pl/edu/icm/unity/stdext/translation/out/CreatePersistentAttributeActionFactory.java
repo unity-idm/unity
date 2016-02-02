@@ -16,11 +16,8 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
 import pl.edu.icm.unity.server.translation.in.action.MapAttributeActionFactory;
-import pl.edu.icm.unity.server.translation.out.AbstractOutputTranslationAction;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.TranslationInput;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
@@ -29,6 +26,9 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Creates new outgoing attributes.
@@ -44,16 +44,16 @@ public class CreatePersistentAttributeActionFactory extends AbstractOutputTransl
 	@Autowired
 	public CreatePersistentAttributeActionFactory(@Qualifier("insecure") AttributesManagement attrsMan)
 	{
-		super(NAME, new ActionParameterDesc[] {
-				new ActionParameterDesc(
+		super(NAME, new ActionParameterDefinition[] {
+				new ActionParameterDefinition(
 						"attributeName",
 						"TranslationAction.createPersistentAttribute.paramDesc.attributeName",
 						Type.UNITY_ATTRIBUTE),
-				new ActionParameterDesc(
+				new ActionParameterDefinition(
 						"expression",
 						"TranslationAction.createPersistentAttribute.paramDesc.expression",
 						Type.EXPRESSION),
-				new ActionParameterDesc(
+				new ActionParameterDefinition(
 						"group",
 						"TranslationAction.createPersistentAttribute.paramDesc.group",
 						Type.UNITY_GROUP)
@@ -64,10 +64,10 @@ public class CreatePersistentAttributeActionFactory extends AbstractOutputTransl
 	@Override
 	public CreatePersistentAttributeAction getInstance(String... parameters)
 	{
-		return new CreatePersistentAttributeAction(parameters, this, attrsMan);
+		return new CreatePersistentAttributeAction(parameters, getActionType(), attrsMan);
 	}
 	
-	public static class CreatePersistentAttributeAction extends AbstractOutputTranslationAction
+	public static class CreatePersistentAttributeAction extends OutputTranslationAction
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, CreatePersistentAttributeAction.class);
 		private String attrNameString;
@@ -75,7 +75,7 @@ public class CreatePersistentAttributeActionFactory extends AbstractOutputTransl
 		private Serializable valuesExpression;
 		private String group;
 
-		public CreatePersistentAttributeAction(String[] params, TranslationActionDescription desc, 
+		public CreatePersistentAttributeAction(String[] params, TranslationActionType desc, 
 				AttributesManagement attrsMan)
 		{
 			super(desc, params);

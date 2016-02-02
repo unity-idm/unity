@@ -4,13 +4,11 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
-import pl.edu.icm.unity.server.translation.AbstractTranslationRule;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.TranslationActionFactory;
-import pl.edu.icm.unity.server.translation.TranslationProfile;
+import pl.edu.icm.unity.server.translation.TranslationActionInstance;
+import pl.edu.icm.unity.server.translation.TranslationProfileInstance;
+import pl.edu.icm.unity.server.translation.TranslationRuleInstance;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
@@ -26,18 +24,16 @@ import com.vaadin.ui.VerticalLayout;
 public class TranslationProfileViewer extends VerticalLayout
 {	
 	private UnityMessageSource msg;
-	private TranslationActionsRegistry registry;
 	protected Label name;
 	protected Label description;
 	private FormLayout rules;
 	private FormLayout main;
 	
 	
-	public TranslationProfileViewer(UnityMessageSource msg, TranslationActionsRegistry registry)
+	public TranslationProfileViewer(UnityMessageSource msg)
 	{
 		super();
 		this.msg = msg;
-		this.registry = registry;
 		initUI();
 	}
 
@@ -59,7 +55,8 @@ public class TranslationProfileViewer extends VerticalLayout
 		setSizeFull();
 	}
 
-	public void setInput(TranslationProfile profile)
+	public <T extends TranslationActionInstance, R extends TranslationRuleInstance<T>> 
+			void setInput(TranslationProfileInstance<T, R> profile)
 	{       
 		setEmpty();
 		if (profile == null)
@@ -72,25 +69,16 @@ public class TranslationProfileViewer extends VerticalLayout
 		name.setValue(profile.getName());
 		description.setValue(profile.getDescription());
 		int i=0;
-		for (AbstractTranslationRule<?> rule : profile.getRules())
+		for (R rule : profile.getRuleInstances())
 		{
-			ActionParameterDesc[] pd = null;
-			try 
-			{
-				TranslationActionFactory f = registry.getByName(rule.getAction().
-						getActionDescription().getName());
-				pd = f.getParameters();
-			} catch (IllegalTypeException e)
-			{
-				
-			}
+			ActionParameterDefinition[] pd = rule.getActionInstance().getActionType().getParameters();
 			i++;     
 			addField(msg.getMessage("TranslationProfileViewer.ruleCondition", i),
 					"TranslationProfileViewer.codeValue", 
-					rule.getCondition().getCondition());
+					rule.getCondition());
 			addField(msg.getMessage("TranslationProfileViewer.ruleAction"),
 					"TranslationProfileViewer.codeValue", 
-					rule.getAction().getActionDescription().getName());
+					rule.getAction().getName());
 			String[] par = rule.getAction().getParameters();
 			for (int j = 0; j < par.length; j++)
 			{
@@ -98,11 +86,11 @@ public class TranslationProfileViewer extends VerticalLayout
 				{
 					addField(msg.getMessage("TranslationProfileViewer.ruleActionParameters"),
 						"TranslationProfileViewer.ruleActionParameter",
-								pd[j].getName(), getParamValue(pd[j], par[j]));
+								pd[j].getName(), getParamValue(par[j]));
 				}else
 				{
 					addField("", "TranslationProfileViewer.ruleActionParameter",
-							pd[j].getName(), getParamValue(pd[j], par[j]));
+							pd[j].getName(), getParamValue(par[j]));
 				}
 			}		
 		}
@@ -124,7 +112,7 @@ public class TranslationProfileViewer extends VerticalLayout
 		description.setValue("");
 	}
 
-	private Object getParamValue(ActionParameterDesc desc, String value)
+	private Object getParamValue(String value)
 	{
 		if (value == null)
 			return "";

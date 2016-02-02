@@ -17,10 +17,6 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
-import pl.edu.icm.unity.server.translation.in.AbstractInputTranslationAction;
 import pl.edu.icm.unity.server.translation.in.IdentityEffectMode;
 import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.server.translation.in.MappedIdentity;
@@ -28,6 +24,9 @@ import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Factory for identity mapping action.
@@ -44,20 +43,20 @@ public class MapIdentityActionFactory extends AbstractInputTranslationActionFact
 	@Autowired
 	public MapIdentityActionFactory(IdentityTypesRegistry idsRegistry)
 	{
-		super(NAME, new ActionParameterDesc[] {
-				new ActionParameterDesc(
+		super(NAME, new ActionParameterDefinition[] {
+				new ActionParameterDefinition(
 						"unityIdentityType",
 						"TranslationAction.mapIdentity.paramDesc.unityIdentityType",
 						Type.UNITY_ID_TYPE),
-				new ActionParameterDesc(
+				new ActionParameterDefinition(
 						"expression",
 						"TranslationAction.mapIdentity.paramDesc.expression",
 						Type.EXPRESSION),
-				new ActionParameterDesc(
+				new ActionParameterDefinition(
 						"credential requirement",
 						"TranslationAction.mapIdentity.paramDesc.credentialRequirement",
 						Type.UNITY_CRED_REQ),
-				new ActionParameterDesc(
+				new ActionParameterDefinition(
 						"effect",
 						"TranslationAction.mapIdentity.paramDesc.effect",
 						IdentityEffectMode.class)});
@@ -67,11 +66,11 @@ public class MapIdentityActionFactory extends AbstractInputTranslationActionFact
 	@Override
 	public InputTranslationAction getInstance(String... parameters)
 	{
-		return new MapIdentityAction(parameters, this, idsRegistry);
+		return new MapIdentityAction(parameters, getActionType(), idsRegistry);
 	}
 	
 	
-	public static class MapIdentityAction extends AbstractInputTranslationAction
+	public static class MapIdentityAction extends InputTranslationAction
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, MapIdentityAction.class);
 		private String unityType;
@@ -80,7 +79,7 @@ public class MapIdentityActionFactory extends AbstractInputTranslationActionFact
 		private IdentityEffectMode mode;
 		private IdentityTypeDefinition idTypeResolved;
 
-		public MapIdentityAction(String[] params, TranslationActionDescription desc, IdentityTypesRegistry idsRegistry) 
+		public MapIdentityAction(String[] params, TranslationActionType desc, IdentityTypesRegistry idsRegistry) 
 		{
 			super(desc, params);
 			setParameters(params);

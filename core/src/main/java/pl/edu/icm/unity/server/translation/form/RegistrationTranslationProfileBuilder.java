@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pl.edu.icm.unity.server.registries.TypesRegistryBase;
-import pl.edu.icm.unity.server.translation.RegistrationTranslationActionFactory;
-import pl.edu.icm.unity.server.translation.TranslationCondition;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.server.translation.form.action.AddAttributeActionFactory;
 import pl.edu.icm.unity.server.translation.form.action.AddAttributeClassActionFactory;
@@ -19,6 +17,8 @@ import pl.edu.icm.unity.server.translation.form.action.RedirectActionFactory;
 import pl.edu.icm.unity.server.translation.form.action.SetEntityStateActionFactory;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.translation.TranslationAction;
+import pl.edu.icm.unity.types.translation.TranslationRule;
 
 
 /**
@@ -27,7 +27,7 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
  */
 public class RegistrationTranslationProfileBuilder
 {
-	private List<RegistrationTranslationRule> rules = new ArrayList<>();
+	private List<TranslationRule> rules = new ArrayList<>();
 	private String name;
 	private TypesRegistryBase<RegistrationTranslationActionFactory> registry;
 	
@@ -76,27 +76,15 @@ public class RegistrationTranslationProfileBuilder
 		return withRule(RedirectActionFactory.NAME, condition, redirectURL);
 	}
 	
-	public RegistrationTranslationProfileBuilder withRule(String ruleName, String condition, 
+	public RegistrationTranslationProfileBuilder withRule(String actionName, String condition, 
 			String... parameters)
 	{
-		RegistrationTranslationAction action;
-		try
-		{
-			action = (RegistrationTranslationAction) registry.getByName(
-					ruleName).getInstance(parameters);
-		} catch (Exception e)
-		{
-			throw new IllegalArgumentException(e);
-		}
-		rules.add(new RegistrationTranslationRule(
-				action, 
-				new TranslationCondition(condition)));
-		
+		rules.add(new TranslationRule(condition, new TranslationAction(actionName, parameters)));
 		return this;
 	}
 
 	public RegistrationTranslationProfile build()
 	{
-		return new RegistrationTranslationProfile(name, rules);
+		return new RegistrationTranslationProfile(name, rules, registry);
 	}
 }

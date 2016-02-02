@@ -19,11 +19,12 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.RegistrationContext;
 import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
-import pl.edu.icm.unity.server.translation.AbstractTranslationProfile;
+import pl.edu.icm.unity.server.registries.TypesRegistryBase;
 import pl.edu.icm.unity.server.translation.ExecutionBreakException;
-import pl.edu.icm.unity.server.translation.ProfileType;
-import pl.edu.icm.unity.server.translation.TranslationAction;
+import pl.edu.icm.unity.server.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.translation.TranslationActionInstance;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
+import pl.edu.icm.unity.server.translation.TranslationProfileInstance;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.server.translation.form.action.AutoProcessActionFactory;
 import pl.edu.icm.unity.server.translation.form.action.ConfirmationRedirectActionFactory;
@@ -38,15 +39,17 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.Selection;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.types.translation.TranslationRule;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Classic translation profile used for post-processing registration requests.
  * @author K. Benedyczak
  */
-public class RegistrationTranslationProfile extends AbstractTranslationProfile<RegistrationTranslationRule>
+public class RegistrationTranslationProfile extends TranslationProfileInstance
+						<RegistrationTranslationAction, RegistrationTranslationRule>
 {
 	public enum RequestSubmitStatus 
 	{
@@ -87,18 +90,13 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 	
 	public RegistrationTranslationProfile(ObjectNode json, RegistrationTranslationActionsRegistry registry)
 	{
-		fromJson(json, registry);
+		super(json, registry);
 	}
 	
-	public RegistrationTranslationProfile(String json, ObjectMapper jsonMapper, 
-			RegistrationTranslationActionsRegistry registry)
+	public RegistrationTranslationProfile(String name, List<? extends TranslationRule> rules, 
+			TypesRegistryBase<? extends TranslationActionFactory> registry)
 	{
-		fromJson(json, jsonMapper, registry);
-	}
-	
-	public RegistrationTranslationProfile(String name, List<RegistrationTranslationRule> rules)
-	{
-		super(name, ProfileType.REGISTRATION, rules);
+		super(name, "", ProfileType.REGISTRATION, rules, registry);
 	}
 	
 	public TranslatedRegistrationRequest translate(RegistrationForm form, RegistrationRequestState request) 
@@ -217,9 +215,9 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 			TranslatedRegistrationRequest translationState = request == null ?
 					new TranslatedRegistrationRequest(form.getDefaultCredentialRequirement()) : 
 					initializeTranslationResult(form, request);
-			for (RegistrationTranslationRule rule: rules)
+			for (RegistrationTranslationRule rule: ruleInstances)
 			{
-				String actionName = rule.getAction().getActionDescription().getName();
+				String actionName = rule.getAction().getName();
 				if (actionNameFilter != null && !actionNameFilter.equals(actionName))
 					continue;
 				NDC.push("[r: " + (i++) + "]");
@@ -266,7 +264,7 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 	}
 	
 	@Override
-	protected RegistrationTranslationRule createRule(TranslationAction action,
+	protected RegistrationTranslationRule createRule(TranslationActionInstance action,
 			TranslationCondition condition)
 	{
 		if (!(action instanceof RegistrationTranslationAction))

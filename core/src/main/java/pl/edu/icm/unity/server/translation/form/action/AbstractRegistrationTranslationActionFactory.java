@@ -2,25 +2,26 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.stdext.translation.out;
+package pl.edu.icm.unity.server.translation.form.action;
 
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationActionFactory;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
- * Boilerplate code for the output profile's {@link TranslationActionFactory} implementations.
+ * Boilerplate code for the {@link TranslationActionFactory} implementations.
  * @author K. Benedyczak
  */
-public abstract class AbstractOutputTranslationActionFactory implements TranslationActionFactory
+public abstract class AbstractRegistrationTranslationActionFactory implements RegistrationTranslationActionFactory
 {
 	private TranslationActionType actionType;
 	
-	public AbstractOutputTranslationActionFactory(String name, ActionParameterDefinition... parameters)
+	public AbstractRegistrationTranslationActionFactory(String name, ActionParameterDefinition... parameters)
 	{
-		actionType = new TranslationActionType(ProfileType.OUTPUT, 
-				"TranslationAction." + name + ".desc", 
+		actionType = new TranslationActionType(ProfileType.REGISTRATION, 
+				"RegTranslationAction." + name + ".desc", 
 				name, 
 				parameters);
 	}

@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 
 import com.vaadin.ui.TextArea;
 
@@ -15,7 +15,7 @@ import com.vaadin.ui.TextArea;
  */
 public class TextAreaActionParameterComponent extends TextArea implements ActionParameterComponent
 {
-	public TextAreaActionParameterComponent(ActionParameterDesc desc, UnityMessageSource msg)
+	public TextAreaActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg)
 	{
 		super(desc.getName() + ":");
 		setDescription(msg.getMessage(desc.getDescriptionKey()));

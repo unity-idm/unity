@@ -87,15 +87,18 @@ public class InsecureRegistrationFormLauncher implements RegistrationFormDialogP
 			bus.fireEvent(new RegistrationRequestChangedEvent(id));
 		} catch (WrongArgumentException e)
 		{
-			new PostRegistrationHandler(idpLoginController, form, msg).submissionError(e, context);
+			new PostRegistrationHandler(idpLoginController, form, msg, 
+					registrationsManagement.getProfileInstance(form)).submissionError(e, context);
 			return false;
 		} catch (EngineException e)
 		{
-			new PostRegistrationHandler(idpLoginController, form, msg).submissionError(e, context);
+			new PostRegistrationHandler(idpLoginController, form, msg, 
+					registrationsManagement.getProfileInstance(form)).submissionError(e, context);
 			return true;
 		}
 
-		new PostRegistrationHandler(idpLoginController, form, msg).submitted(id, registrationsManagement,
+		new PostRegistrationHandler(idpLoginController, form, msg, 
+				registrationsManagement.getProfileInstance(form)).submitted(id, registrationsManagement,
 				request, context);
 		return true;
 	}
@@ -134,7 +137,8 @@ public class InsecureRegistrationFormLauncher implements RegistrationFormDialogP
 						@Override
 					public void cancelled()
 					{
-						new PostRegistrationHandler(idpLoginController, form, msg).
+						new PostRegistrationHandler(idpLoginController, form, msg, 
+								registrationsManagement.getProfileInstance(form)).
 							cancelled(false, context);
 					}
 				});

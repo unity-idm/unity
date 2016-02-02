@@ -8,14 +8,14 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
 import pl.edu.icm.unity.server.translation.ExecutionFailException;
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
-import pl.edu.icm.unity.server.translation.out.AbstractOutputTranslationAction;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.TranslationInput;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Fails the authentication. Allows for implementing poorman's authZ. 
@@ -29,7 +29,7 @@ public class FailAuthnActionFactory extends AbstractOutputTranslationActionFacto
 	
 	public FailAuthnActionFactory()
 	{
-		super(NAME, new ActionParameterDesc(
+		super(NAME, new ActionParameterDefinition(
 				"message",
 				"TranslationAction.failAuthentication.paramDesc.message",
 				Type.LARGE_TEXT));
@@ -38,15 +38,15 @@ public class FailAuthnActionFactory extends AbstractOutputTranslationActionFacto
 	@Override
 	public FailAuthnAction getInstance(String... parameters)
 	{
-		return new FailAuthnAction(parameters, this);
+		return new FailAuthnAction(parameters, getActionType());
 	}
 	
-	public static class FailAuthnAction extends AbstractOutputTranslationAction
+	public static class FailAuthnAction extends OutputTranslationAction
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, FailAuthnAction.class);
 		private String error;
 
-		public FailAuthnAction(String[] params, TranslationActionDescription desc) 
+		public FailAuthnAction(String[] params, TranslationActionType desc) 
 		{
 			super(desc, params);
 			setParameters(params);

@@ -130,7 +130,7 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 				"unity:identity:persistent", 
 				"idsByType['persistent']");
 		rules.add(new OutputTranslationRule(action4, new TranslationCondition("idsByType['persistent'] != null")));
-		return new OutputTranslationProfile("testOutProfile", rules);
+		return new OutputTranslationProfile("testOutProfile", rules, tactionReg);
 	}
 	
 	protected DefaultClientConfiguration getClientCfg() throws KeyStoreException, IOException

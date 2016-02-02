@@ -9,11 +9,10 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
-import pl.edu.icm.unity.server.translation.in.AbstractInputTranslationAction;
 import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Maps multiple attributes only by providing new names, values are unchanged.
@@ -32,14 +31,14 @@ public class RemoveStaleDataActionFactory extends AbstractInputTranslationAction
 	@Override
 	public InputTranslationAction getInstance(String... parameters)
 	{
-		return new RemoveStaleDataAction(this, parameters);
+		return new RemoveStaleDataAction(getActionType(), parameters);
 	}
 	
-	public static class RemoveStaleDataAction extends AbstractInputTranslationAction
+	public static class RemoveStaleDataAction extends InputTranslationAction
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, RemoveStaleDataAction.class);
 		
-		public RemoveStaleDataAction(TranslationActionDescription description, String[] params)
+		public RemoveStaleDataAction(TranslationActionType description, String[] params)
 		{
 			super(description, params);
 			setParameters(params);

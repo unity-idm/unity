@@ -4,16 +4,30 @@
  */
 package pl.edu.icm.unity.server.translation.form;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.NDC;
+
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.translation.ExecutionBreakException;
-import pl.edu.icm.unity.server.translation.TranslationAction;
+import pl.edu.icm.unity.server.translation.TranslationActionInstance;
+import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
- * Instance operates on a contents of a registration request submitted by a prospective user. 
+ * Base of all actions operating on a contents of a registration request submitted by a prospective user. 
+ * Wraps of invocation with logging and exception protection.
  * @author K. Benedyczak
  */
-public interface RegistrationTranslationAction extends TranslationAction 
+public abstract class RegistrationTranslationAction extends TranslationActionInstance 
 {
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_TRANSLATION, 
+			RegistrationTranslationAction.class);
+	
+	public RegistrationTranslationAction(TranslationActionType actionType, String[] parameters)
+	{
+		super(actionType, parameters);
+	}
+
 	/**
 	 * Performs the translation.
 	 * @param state
@@ -23,6 +37,29 @@ public interface RegistrationTranslationAction extends TranslationAction
 	 * @throws EngineException when an error occurs. You can throw {@link ExecutionBreakException}
 	 * to gently stop the processing of further rules.
 	 */
-	public void invoke(TranslatedRegistrationRequest state,
+	public final void invoke(TranslatedRegistrationRequest state,
+			Object mvelCtx,	String currentProfile) throws EngineException
+	{
+		try
+		{
+			String identity = state.getIdentities().isEmpty() ? "unknown" : 
+				state.getIdentities().iterator().next().toString();
+			NDC.push("[" + identity + "]");
+			invokeWrapped(state, mvelCtx, currentProfile);
+		} catch (Exception e)
+		{
+			if (LOG.isDebugEnabled())
+			{
+				LOG.debug("Error performing translation action", e);
+			}			
+			throw new EngineException(e);
+		} finally
+		{
+			NDC.pop();			
+		}
+	}
+	
+	protected abstract void invokeWrapped(TranslatedRegistrationRequest state,
 			Object mvelCtx,	String currentProfile) throws EngineException;
+
 }

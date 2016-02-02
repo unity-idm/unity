@@ -7,25 +7,25 @@ package pl.edu.icm.unity.server.translation.form.action;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Sets a non-default credential requirement for the requester.
  * @author K. Benedyczak
  */
 @Component
-public class SetCredentialRequirementActionFactory extends AbstractTranslationActionFactory
+public class SetCredentialRequirementActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	public static final String NAME = "setCredReq";
 	
 	public SetCredentialRequirementActionFactory()
 	{
-		super(NAME, new ActionParameterDesc[] {
-				new ActionParameterDesc(
+		super(NAME, new ActionParameterDefinition[] {
+				new ActionParameterDefinition(
 						"credential requirement",
 						"RegTranslationAction.setCredReq.paramDesc.credentialRequirement",
 						Type.UNITY_CRED_REQ)
@@ -35,14 +35,14 @@ public class SetCredentialRequirementActionFactory extends AbstractTranslationAc
 	@Override
 	public RegistrationTranslationAction getInstance(String... parameters)
 	{
-		return new SetCredentialRequirementAction(this, parameters);
+		return new SetCredentialRequirementAction(getActionType(), parameters);
 	}
 	
-	public static class SetCredentialRequirementAction extends AbstractRegistrationTranslationAction
+	public static class SetCredentialRequirementAction extends RegistrationTranslationAction
 	{
 		private String credReq;
 		
-		public SetCredentialRequirementAction(TranslationActionDescription description, String[] parameters)
+		public SetCredentialRequirementAction(TranslationActionType description, String[] parameters)
 		{
 			super(description, parameters);
 			setParameters(parameters);
