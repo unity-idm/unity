@@ -4,12 +4,24 @@
  */
 package pl.edu.icm.unity.types.registration;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.DescribedObjectImpl;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Configuration of a registration form. Registration form data contains:
@@ -41,7 +53,17 @@ public class RegistrationForm extends DescribedObjectImpl
 	
 	private String defaultCredentialRequirement;
 	private TranslationProfile translationProfile; 
-		
+
+	@JsonCreator
+	public RegistrationForm(ObjectNode json)
+	{
+		fromJson(json);
+	}
+	
+	public RegistrationForm()
+	{
+	}
+	
 	public RegistrationFormNotifications getNotificationsConfiguration()
 	{
 		return notificationsConfiguration;
@@ -231,6 +253,154 @@ public class RegistrationForm extends DescribedObjectImpl
 		return false;
 	}
 
+	@JsonValue
+	public ObjectNode toJson(ObjectMapper jsonMapper)
+	{
+		ObjectNode root = jsonMapper.createObjectNode();
+		root.set("Agreements", serializeAgreements(jsonMapper, getAgreements()));
+		root.set("AttributeParams", jsonMapper.valueToTree(getAttributeParams()));
+		root.put("CollectComments", isCollectComments());
+		root.set("CredentialParams", jsonMapper.valueToTree(getCredentialParams()));
+		root.put("DefaultCredentialRequirement", getDefaultCredentialRequirement());
+		root.put("Description", getDescription());
+		root.set("i18nFormInformation", I18nStringJsonUtil.toJson(getFormInformation()));
+		root.set("GroupParams", jsonMapper.valueToTree(getGroupParams()));
+		root.set("IdentityParams", jsonMapper.valueToTree(getIdentityParams()));
+		root.put("Name", getName());
+		root.set("DisplayedName", I18nStringJsonUtil.toJson(getDisplayedName()));
+		root.set("NotificationsConfiguration", jsonMapper.valueToTree(getNotificationsConfiguration()));
+		root.put("PubliclyAvailable", isPubliclyAvailable());
+		root.put("RegistrationCode", getRegistrationCode());
+		root.put("CaptchaLength", getCaptchaLength());
+		root.set("TranslationProfile", getTranslationProfile().toJsonObject(jsonMapper));
+		return root;
+	}
+
+	private JsonNode serializeAgreements(ObjectMapper jsonMapper, List<AgreementRegistrationParam> agreements)
+	{
+		ArrayNode root = jsonMapper.createArrayNode();
+		for (AgreementRegistrationParam agreement: agreements)
+		{
+			ObjectNode node = root.addObject();
+			node.set("i18nText", I18nStringJsonUtil.toJson(agreement.getText()));
+			node.put("manatory", agreement.isManatory());
+		}
+		return root;
+	}
+
+	private List<AgreementRegistrationParam> loadAgreements(ArrayNode root)
+	{
+		List<AgreementRegistrationParam> ret = new ArrayList<AgreementRegistrationParam>();
+		
+		for (JsonNode nodeR: root)
+		{
+			ObjectNode node = (ObjectNode) nodeR;
+			AgreementRegistrationParam param = new AgreementRegistrationParam();
+			ret.add(param);
+			
+			param.setText(I18nStringJsonUtil.fromJson(node.get("i18nText"), node.get("text")));
+			param.setManatory(node.get("manatory").asBoolean());
+		}
+		
+		return ret;
+	}
+	
+	private void fromJson(ObjectNode root)
+	{
+		ObjectMapper jsonMapper = Constants.MAPPER;
+		try
+		{
+			JsonNode n = root.get("Agreements");
+			if (n != null)
+			{
+				setAgreements(loadAgreements((ArrayNode) n));
+			}
+			
+			n = root.get("AttributeParams");
+			if (n != null)
+			{
+				String v = jsonMapper.writeValueAsString(n);
+				List<AttributeRegistrationParam> r = jsonMapper.readValue(v, 
+						new TypeReference<List<AttributeRegistrationParam>>(){});
+				setAttributeParams(r);
+			}
+			n = root.get("CollectComments");
+			setCollectComments(n.asBoolean());
+			n = root.get("CredentialParams");
+			if (n != null)
+			{
+				String v = jsonMapper.writeValueAsString(n);
+				List<CredentialRegistrationParam> r = jsonMapper.readValue(v, 
+						new TypeReference<List<CredentialRegistrationParam>>(){});
+				setCredentialParams(r);
+			}
+			n = root.get("DefaultCredentialRequirement");
+			setDefaultCredentialRequirement(n == null ? null : n.asText());
+			n = root.get("Description");
+			setDescription(n == null ? null : n.asText());
+			
+			setFormInformation(I18nStringJsonUtil.fromJson(root.get("i18nFormInformation"), 
+					root.get("FormInformation")));
+			
+			n = root.get("GroupParams");
+			if (n != null)
+			{
+				String v = jsonMapper.writeValueAsString(n);
+				List<GroupRegistrationParam> r = jsonMapper.readValue(v, 
+						new TypeReference<List<GroupRegistrationParam>>(){});
+				setGroupParams(r);
+			}
+
+			n = root.get("IdentityParams");
+			if (n != null)
+			{
+				String v = jsonMapper.writeValueAsString(n);
+				List<IdentityRegistrationParam> r = jsonMapper.readValue(v, 
+						new TypeReference<List<IdentityRegistrationParam>>(){});
+				setIdentityParams(r);
+			}
+
+			n = root.get("Name");
+			setName(n.asText());
+			
+			if (root.has("DisplayedName"))
+				setDisplayedName(I18nStringJsonUtil.fromJson(root.get("DisplayedName")));
+			
+			n = root.get("NotificationsConfiguration");
+			if (n != null)
+			{
+				String v = jsonMapper.writeValueAsString(n);
+				RegistrationFormNotifications r = jsonMapper.readValue(v, 
+						new TypeReference<RegistrationFormNotifications>(){});
+				setNotificationsConfiguration(r);
+			}
+
+			n = root.get("PubliclyAvailable");
+			setPubliclyAvailable(n.asBoolean());
+			n = root.get("RegistrationCode");
+			setRegistrationCode((n == null || n.isNull()) ? null : n.asText());
+			
+			if (root.has("CaptchaLength"))
+			{
+				n = root.get("CaptchaLength");
+				setCaptchaLength(n.asInt());
+			} else
+			{
+				setCaptchaLength(0);
+			}
+
+			n = root.get("TranslationProfile");
+			if (n != null)
+			{
+				setTranslationProfile(new TranslationProfile((ObjectNode) n));
+			}
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't deserialize registration form from JSON", e);
+		}
+	}
+
+	
 	@Override
 	public int hashCode()
 	{
