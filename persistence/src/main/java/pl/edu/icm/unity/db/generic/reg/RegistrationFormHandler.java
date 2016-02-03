@@ -15,12 +15,12 @@ import pl.edu.icm.unity.db.generic.DefaultEntityHandler;
 import pl.edu.icm.unity.db.model.GenericObjectBean;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfileBuilder;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -52,7 +52,7 @@ public class RegistrationFormHandler extends DefaultEntityHandler<RegistrationFo
 	{
 		try
 		{
-			ObjectNode root = value.toJson(jsonMapper);
+			ObjectNode root = value.toJson();
 			byte[] contents = jsonMapper.writeValueAsBytes(root);
 			return new GenericObjectBean(value.getName(), contents, supportedType);
 		} catch (JsonProcessingException e)
@@ -168,9 +168,9 @@ public class RegistrationFormHandler extends DefaultEntityHandler<RegistrationFo
 				pBuilder.withGroupMembership("true", group.asText());
 		}
 
-		RegistrationTranslationProfile profile = pBuilder.build();
+		TranslationProfile profile = pBuilder.build();
 		if (!profile.getRules().isEmpty())
-			node.set("TranslationProfile", profile.toJsonObject(jsonMapper));
+			node.set("TranslationProfile", profile.toJsonObject());
 		
 		node.remove(Lists.newArrayList("InitialEntityState",
 				"AutoAcceptCondition",

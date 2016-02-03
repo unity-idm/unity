@@ -11,12 +11,12 @@ package pl.edu.icm.unity.types.translation;
 import java.util.ArrayList;
 import java.util.List;
 
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.DescribedObjectROImpl;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -53,9 +53,9 @@ public class TranslationProfile extends DescribedObjectROImpl
 	}
 
 	@JsonValue
-	public ObjectNode toJsonObject(ObjectMapper jsonMapper)
+	public ObjectNode toJsonObject()
 	{
-		ObjectNode root = jsonMapper.createObjectNode();
+		ObjectNode root = Constants.MAPPER.createObjectNode();
 		storePreable(root);
 		storeRules(root);
 		return root;

@@ -2,22 +2,12 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.builders;
+package pl.edu.icm.unity.types.registration;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
-import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
-import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
-import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
-import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
-import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
@@ -50,12 +40,11 @@ class RegistrationFormBuilderBase<GeneratorT extends RegistrationFormBuilderBase
 	protected RegistrationFormBuilderBase(RegistrationForm aInstance)
 	{
 		instance = aInstance;
-		instance.setTranslationProfile(new TranslationProfile("registrationProfile", "", ProfileType.REGISTRATION,
-				new ArrayList<>()));
 	}
 
 	protected RegistrationForm getInstance()
 	{
+		instance.validate();
 		return instance;
 	}
 
@@ -68,7 +57,7 @@ class RegistrationFormBuilderBase<GeneratorT extends RegistrationFormBuilderBase
 	}
 
 	@SuppressWarnings("unchecked")
-	public GeneratorT withTranslationProfile(RegistrationTranslationProfile profile)
+	public GeneratorT withTranslationProfile(TranslationProfile profile)
 	{
 		instance.setTranslationProfile(profile);
 		return (GeneratorT) this;

@@ -22,7 +22,6 @@ import pl.edu.icm.unity.confirmations.states.UserConfirmationState;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.builders.ConfirmationConfigurationBuilder;
 import pl.edu.icm.unity.engine.builders.NotificationChannelBuilder;
-import pl.edu.icm.unity.engine.builders.RegistrationFormBuilder;
 import pl.edu.icm.unity.engine.builders.RegistrationRequestBuilder;
 import pl.edu.icm.unity.engine.confirmations.ConfirmationManagerImpl;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
@@ -36,7 +35,6 @@ import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfileBuilder;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
@@ -62,12 +60,14 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
+import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
-import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * 
@@ -596,7 +596,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 		groupsMan.addGroup(new Group("/A"));
 		groupsMan.addGroup(new Group("/B"));
 
-		RegistrationTranslationProfile translationProfile = new RegistrationTranslationProfileBuilder(
+		TranslationProfile translationProfile = new RegistrationTranslationProfileBuilder(
 				registry, "form").
 				withAutoProcess("attr[\"email\"].confirmed ==  true", AutomaticRequestAction.accept).
 				build();
@@ -799,7 +799,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 		groupsMan.addGroup(new Group("/A"));
 		groupsMan.addGroup(new Group("/B"));
 
-		RegistrationTranslationProfile translationProfile = new RegistrationTranslationProfileBuilder(
+		TranslationProfile translationProfile = new RegistrationTranslationProfileBuilder(
 				registry, "form").
 				withAutoProcess("attr[\"email\"].confirmed ==  true", AutomaticRequestAction.accept).
 				build();

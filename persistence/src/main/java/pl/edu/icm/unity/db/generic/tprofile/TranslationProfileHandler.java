@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.db.generic.DefaultEntityHandler;
 import pl.edu.icm.unity.db.model.GenericObjectBean;
 import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
@@ -19,7 +20,6 @@ import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.translation.in.IdentityEffectMode;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationProfile;
-import pl.edu.icm.unity.server.utils.JsonUtil;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.translation.ProfileType;
@@ -58,7 +58,7 @@ public class TranslationProfileHandler extends DefaultEntityHandler<TranslationP
 	@Override
 	public GenericObjectBean toBlob(TranslationProfile value, SqlSession sql)
 	{
-		ObjectNode jsonObject = value.toJsonObject(jsonMapper);
+		ObjectNode jsonObject = value.toJsonObject();
 		String json = JsonUtil.serialize(jsonObject);
 		return new GenericObjectBean(value.getName(), json.getBytes(StandardCharsets.UTF_8), supportedType, 
 				value.getProfileType().toString());

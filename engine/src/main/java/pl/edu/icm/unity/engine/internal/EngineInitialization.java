@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.confirmations.ConfirmationServlet;
 import pl.edu.icm.unity.db.ContentsUpdater;
 import pl.edu.icm.unity.db.DBAttributes;
@@ -71,7 +72,6 @@ import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.FileWatcher;
-import pl.edu.icm.unity.server.utils.JsonUtil;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.ServerInitializer;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;

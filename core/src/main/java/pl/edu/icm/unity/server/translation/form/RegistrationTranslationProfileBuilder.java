@@ -17,7 +17,9 @@ import pl.edu.icm.unity.server.translation.form.action.RedirectActionFactory;
 import pl.edu.icm.unity.server.translation.form.action.SetEntityStateActionFactory;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationAction;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 
 
@@ -83,8 +85,13 @@ public class RegistrationTranslationProfileBuilder
 		return this;
 	}
 
-	public RegistrationTranslationProfile build()
+	public RegistrationTranslationProfile buildInstance()
 	{
 		return new RegistrationTranslationProfile(name, rules, registry);
+	}
+
+	public TranslationProfile build()
+	{
+		return new TranslationProfile(name, "", ProfileType.REGISTRATION, rules);
 	}
 }

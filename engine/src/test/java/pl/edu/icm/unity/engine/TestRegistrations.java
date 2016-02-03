@@ -16,9 +16,6 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.google.common.collect.Lists;
-
-import pl.edu.icm.unity.engine.builders.RegistrationFormBuilder;
 import pl.edu.icm.unity.engine.builders.RegistrationRequestBuilder;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -28,7 +25,6 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfileBuilder;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
@@ -54,12 +50,16 @@ import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
+import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
-import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
+
+import com.google.common.collect.Lists;
 
 public class TestRegistrations extends DBIntegrationTestBase
 {
@@ -391,7 +391,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		if (addEmailAC)
 			profileBuilder.withAttributeClass("true", "/", "'" + InitializerCommon.NAMING_AC + "'");
 		
-		RegistrationTranslationProfile translationProfile = profileBuilder.build();
+		TranslationProfile translationProfile = profileBuilder.build();
 		
 		return RegistrationFormBuilder
 				.registrationForm()

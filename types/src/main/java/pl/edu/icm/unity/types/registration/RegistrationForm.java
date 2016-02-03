@@ -40,19 +40,20 @@ public class RegistrationForm extends DescribedObjectImpl
 	private boolean publiclyAvailable;
 	private RegistrationFormNotifications notificationsConfiguration = new RegistrationFormNotifications();
 	
-	private List<IdentityRegistrationParam> identityParams;
-	private List<AttributeRegistrationParam> attributeParams;	
-	private List<GroupRegistrationParam> groupParams;
-	private List<CredentialRegistrationParam> credentialParams;
-	private List<AgreementRegistrationParam> agreements;
+	private List<IdentityRegistrationParam> identityParams = new ArrayList<>();
+	private List<AttributeRegistrationParam> attributeParams = new ArrayList<>();	
+	private List<GroupRegistrationParam> groupParams = new ArrayList<>();
+	private List<CredentialRegistrationParam> credentialParams = new ArrayList<>();
+	private List<AgreementRegistrationParam> agreements = new ArrayList<>();
 	private boolean collectComments;
 	private int captchaLength;
-	private I18nString displayedName;
-	private I18nString formInformation;
+	private I18nString displayedName = new I18nString();
+	private I18nString formInformation = new I18nString();
 	private String registrationCode;
 	
 	private String defaultCredentialRequirement;
-	private TranslationProfile translationProfile; 
+	private TranslationProfile translationProfile = 
+			new TranslationProfile("registrationProfile", "", ProfileType.REGISTRATION, new ArrayList<>()); 
 
 	@JsonCreator
 	public RegistrationForm(ObjectNode json)
@@ -215,7 +216,12 @@ public class RegistrationForm extends DescribedObjectImpl
 		this.translationProfile = translationProfile;
 	}
 	
-	
+	@Override
+	public String toString()
+	{
+		return "RegistrationForm [name=" + name + "]";
+	}
+
 	public boolean containsAutomaticAndMandatoryParams()
 	{
 		if (identityParams != null)
@@ -253,9 +259,32 @@ public class RegistrationForm extends DescribedObjectImpl
 		return false;
 	}
 
-	@JsonValue
-	public ObjectNode toJson(ObjectMapper jsonMapper)
+	public void validate()
 	{
+		if (identityParams == null || groupParams == null || agreements == null 
+				|| credentialParams == null || attributeParams == null)
+			throw new IllegalStateException("All lists must be not-null in RegistrationForm");
+		if (defaultCredentialRequirement == null)
+			throw new IllegalStateException("Default credential requirement must be not-null "
+					+ "in RegistrationForm");
+		if (translationProfile == null)
+			throw new IllegalStateException("Translation profile must be not-null "
+					+ "in RegistrationForm");
+		if (name == null)
+			throw new IllegalStateException("Name must be not-null "
+					+ "in RegistrationForm");
+		if (displayedName == null)
+			throw new IllegalStateException("Displayed name must be not-null "
+					+ "in RegistrationForm (but it contents can be empty)");
+		if (formInformation == null)
+			throw new IllegalStateException("Form information must be not-null "
+					+ "in RegistrationForm (but it contents can be empty)");
+	}
+	
+	@JsonValue
+	public ObjectNode toJson()
+	{
+		ObjectMapper jsonMapper = Constants.MAPPER;
 		ObjectNode root = jsonMapper.createObjectNode();
 		root.set("Agreements", serializeAgreements(jsonMapper, getAgreements()));
 		root.set("AttributeParams", jsonMapper.valueToTree(getAttributeParams()));
@@ -272,7 +301,7 @@ public class RegistrationForm extends DescribedObjectImpl
 		root.put("PubliclyAvailable", isPubliclyAvailable());
 		root.put("RegistrationCode", getRegistrationCode());
 		root.put("CaptchaLength", getCaptchaLength());
-		root.set("TranslationProfile", getTranslationProfile().toJsonObject(jsonMapper));
+		root.set("TranslationProfile", getTranslationProfile().toJsonObject());
 		return root;
 	}
 
@@ -337,7 +366,7 @@ public class RegistrationForm extends DescribedObjectImpl
 			n = root.get("DefaultCredentialRequirement");
 			setDefaultCredentialRequirement(n == null ? null : n.asText());
 			n = root.get("Description");
-			setDescription(n == null ? null : n.asText());
+			setDescription((n == null || n.isNull()) ? null : n.asText());
 			
 			setFormInformation(I18nStringJsonUtil.fromJson(root.get("i18nFormInformation"), 
 					root.get("FormInformation")));

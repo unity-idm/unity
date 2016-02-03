@@ -12,7 +12,6 @@ import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfileBuilder;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.server.utils.ServerInitializer;
@@ -29,6 +28,7 @@ import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 @Component
 public class RegistrationFormsTestContentsInitializer implements ServerInitializer
@@ -109,7 +109,7 @@ public class RegistrationFormsTestContentsInitializer implements ServerInitializ
 			
 			form.setCredentialParams(null);
 						
-			RegistrationTranslationProfile translationProfile = new RegistrationTranslationProfileBuilder(
+			TranslationProfile translationProfile = new RegistrationTranslationProfileBuilder(
 					registry, "form").
 					withAddAttribute("true", "cn", "/", "'val'", AttributeVisibility.full).
 					withAutoProcess("true", AutomaticRequestAction.accept).

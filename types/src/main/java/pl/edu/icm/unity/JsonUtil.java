@@ -2,9 +2,8 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.server.utils;
+package pl.edu.icm.unity;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.InternalException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
