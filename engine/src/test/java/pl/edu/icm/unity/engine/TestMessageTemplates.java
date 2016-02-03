@@ -24,7 +24,7 @@ public class TestMessageTemplates extends DBIntegrationTestBase
 	@Test
 	public void testPersistence() throws Exception
 	{
-		assertEquals(1, msgTempMan.listTemplates().size());
+		assertEquals(2, msgTempMan.listTemplates().size());
 		I18nString subject = new I18nString("stest");
 		subject.addValue("pl", "Tytuł");
 		subject.addValue("en", "Title");
@@ -33,7 +33,7 @@ public class TestMessageTemplates extends DBIntegrationTestBase
 		I18nMessage imsg = new I18nMessage(subject, body);
 		MessageTemplate template = new MessageTemplate("tName", "tDesc", imsg, "PasswordResetCode");
 		msgTempMan.addTemplate(template);
-		assertEquals(2, msgTempMan.listTemplates().size());
+		assertEquals(3, msgTempMan.listTemplates().size());
 		MessageTemplate added = msgTempMan.getTemplate("tName");
 		assertEquals("tName", added.getName());
 		assertEquals("tDesc", added.getDescription());
@@ -52,7 +52,7 @@ public class TestMessageTemplates extends DBIntegrationTestBase
 		assertEquals("btestsvalue", added.getMessage(null, "en", params).getBody());
 		
 		msgTempMan.removeTemplate("tName");
-		assertEquals(1, msgTempMan.listTemplates().size());		
+		assertEquals(2, msgTempMan.listTemplates().size());		
 	}
 	
 	@Test

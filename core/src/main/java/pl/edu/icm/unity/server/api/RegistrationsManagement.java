@@ -8,6 +8,8 @@ import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
+import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
@@ -123,4 +125,10 @@ public interface RegistrationsManagement
 	 * there is no invitation with such code.
 	 */
 	InvitationWithCode getInvitation(String code) throws EngineException;
+	
+	/**
+	 * @param form
+	 * @return translation profile instance for the form 
+	 */
+	public RegistrationTranslationProfile getProfileInstance(RegistrationForm form);
 }

@@ -231,6 +231,8 @@ public class OAuthParseServlet extends HttpServlet
 			throw new OAuthValidationException("Internal error, can not retrieve OAuth client's data");
 		}
 
+		context.setClientUsername(client);
+		
 		requestValidator.validateGroupMembership(clientEntity, client);
 		Map<String, AttributeExt<?>> attributes = requestValidator.getAttributes(clientEntity);
 		

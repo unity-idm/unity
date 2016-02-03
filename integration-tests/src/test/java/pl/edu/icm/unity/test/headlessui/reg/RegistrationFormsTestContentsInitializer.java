@@ -1,7 +1,5 @@
 package pl.edu.icm.unity.test.headlessui.reg;
 
-import java.util.Collections;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -12,7 +10,6 @@ import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfileBuilder;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.server.utils.ServerInitializer;
@@ -29,6 +26,10 @@ import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
+
+import com.google.gwt.thirdparty.guava.common.collect.Lists;
 
 @Component
 public class RegistrationFormsTestContentsInitializer implements ServerInitializer
@@ -79,11 +80,6 @@ public class RegistrationFormsTestContentsInitializer implements ServerInitializ
 	{
 		try
 		{
-			RegistrationForm form = new RegistrationForm();
-			form.setName("Test");
-			form.setDefaultCredentialRequirement(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT);
-			form.setPubliclyAvailable(true);
-			
 			AttributeRegistrationParam attrReg = new AttributeRegistrationParam();
 			attrReg.setAttributeType("email");
 			attrReg.setDescription("description");
@@ -92,32 +88,34 @@ public class RegistrationFormsTestContentsInitializer implements ServerInitializ
 			attrReg.setOptional(true);
 			attrReg.setRetrievalSettings(ParameterRetrievalSettings.automaticAndInteractive);
 			attrReg.setShowGroups(true);
-			form.setAttributeParams(Collections.singletonList(attrReg));
-			
+
 			IdentityRegistrationParam idParam = new IdentityRegistrationParam();
 			idParam.setDescription("description");
 			idParam.setIdentityType(UsernameIdentity.ID);
 			idParam.setLabel("Username");
 			idParam.setOptional(true);
 			idParam.setRetrievalSettings(ParameterRetrievalSettings.automaticOrInteractive);
-			form.setIdentityParams(Collections.singletonList(idParam));
-			
+
 			AgreementRegistrationParam agreement = new AgreementRegistrationParam();
 			agreement.setManatory(false);
 			agreement.setText(new I18nString("a"));
-			form.setAgreements(Collections.singletonList(agreement));
-			
-			form.setCredentialParams(null);
-						
-			RegistrationTranslationProfile translationProfile = new RegistrationTranslationProfileBuilder(
+
+			TranslationProfile translationProfile = new RegistrationTranslationProfileBuilder(
 					registry, "form").
 					withAddAttribute("true", "cn", "/", "'val'", AttributeVisibility.full).
 					withAutoProcess("true", AutomaticRequestAction.accept).
 					build();
 			
-			form.setTranslationProfile(translationProfile);
-			
-			
+			RegistrationForm form = new RegistrationFormBuilder()
+				.withName("Test")
+				.withDefaultCredentialRequirement(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
+				.withPubliclyAvailable(true)
+				.withAttributeParams(Lists.newArrayList(attrReg))
+				.withIdentityParams(Lists.newArrayList(idParam))
+				.withAgreements(Lists.newArrayList(agreement))
+				.withTranslationProfile(translationProfile)
+				.build();
+
 			regMan.addForm(form);
 		} catch (EngineException e)
 		{

@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.confirmations.ConfirmationServlet;
 import pl.edu.icm.unity.db.ContentsUpdater;
 import pl.edu.icm.unity.db.DBAttributes;
@@ -103,6 +104,7 @@ import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.utils.LifecycleBase;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.FilePropertiesHelper;
@@ -943,16 +945,17 @@ public class EngineInitialization extends LifecycleBase
 		log.info("Loading configured translation profiles");
 		for (String profileFile: profileFiles)
 		{
-			String json;
+			ObjectNode json;
 			try
 			{
-				json = FileUtils.readFileToString(new File(profileFile));
+				String source = FileUtils.readFileToString(new File(profileFile));
+				json = JsonUtil.parse(source);
 			} catch (IOException e)
 			{
 				throw new ConfigurationException("Problem loading translation profile from file: " +
 						profileFile, e);
 			}
-			InputTranslationProfile tp = new InputTranslationProfile(json, jsonMapper, tactionsRegistry);
+			InputTranslationProfile tp = new InputTranslationProfile(json, tactionsRegistry);
 			try
 			{
 				if (existingProfiles.containsKey(tp.getName()))

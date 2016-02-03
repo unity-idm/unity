@@ -30,6 +30,7 @@ public class OAuthToken
 	private String redirectUri;
 	private String subject;
 	private String clientName;
+	private String clientUsername;
 	
 	public OAuthToken()
 	{
@@ -49,6 +50,7 @@ public class OAuthToken
 		setScope(source.getScope());
 		setUserInfo(source.getUserInfo());
 		setClientName(source.getClientName());
+		setClientUsername(source.getClientUsername());
 		setSubject(source.getSubject());
 	}
 	
@@ -153,13 +155,37 @@ public class OAuthToken
 		this.subject = subject;
 	}
 
+	/**
+	 * @return displayed name of the client or null if not defined
+	 */
 	public String getClientName()
 	{
 		return clientName;
 	}
 
+	/**
+	 * Sets displayed name of the client
+	 * @param clientName
+	 */
 	public void setClientName(String clientName)
 	{
 		this.clientName = clientName;
+	}
+
+	/**
+	 * @return identity of the OAuth client, generally username identity.
+	 */
+	public String getClientUsername()
+	{
+		return clientUsername;
+	}
+
+	/**
+	 * Sets the identity (username) of the OAuth client
+	 * @param clientUsername
+	 */
+	public void setClientUsername(String clientUsername)
+	{
+		this.clientUsername = clientUsername;
 	}
 }

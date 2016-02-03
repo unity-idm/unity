@@ -22,15 +22,16 @@ import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
 import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
-import pl.edu.icm.unity.server.translation.ProfileType;
-import pl.edu.icm.unity.server.translation.TranslationCondition;
-import pl.edu.icm.unity.server.translation.TranslationProfile;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
-import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationProfile;
-import pl.edu.icm.unity.server.translation.out.OutputTranslationRule;
 import pl.edu.icm.unity.stdext.translation.out.CreateAttributeActionFactory;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.types.translation.TranslationAction;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
+import pl.edu.icm.unity.types.translation.TranslationRule;
 
 /**
  * Implementation of {@link TranslationProfileManagement}
@@ -44,16 +45,19 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	private AuthorizationManager authz;
 	private TranslationProfileDB tpDB;
 	private TranslationActionsRegistry tactionReg;
+	private RegistrationTranslationActionsRegistry registrationActionsRegistry;
 	private OutputTranslationProfile defaultProfile;
 	
 	@Autowired
 	public TranslationProfileManagementImpl(AuthorizationManager authz,
-			TranslationProfileDB tpDB, TranslationActionsRegistry tactionReg) 
+			TranslationProfileDB tpDB, TranslationActionsRegistry tactionReg,
+			 RegistrationTranslationActionsRegistry registrationActionsRegistry) 
 					throws IllegalTypeException, EngineException
 	{
 		this.authz = authz;
 		this.tpDB = tpDB;
 		this.tactionReg = tactionReg;
+		this.registrationActionsRegistry = registrationActionsRegistry;
 		
 		this.defaultProfile = createDefaultOutputProfile();
 	}
@@ -100,7 +104,6 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	}
 	
 
-	@SuppressWarnings("unchecked")
 	private <T extends TranslationProfile> Map<String, T> listProfiles(Class<T> clazz,
 			ProfileType type) throws EngineException
 	{
@@ -111,8 +114,27 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 		Map<String, T> ret = new HashMap<String, T>();
 		for (Map.Entry<String, TranslationProfile> e: all.entrySet())
 			if (e.getValue().getProfileType().equals(type))
-				ret.put(e.getKey(), (T) e.getValue());
+				ret.put(e.getKey(), makeInstance(e.getValue()));
 		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T extends TranslationProfile> T makeInstance(TranslationProfile core)
+	{
+		switch (core.getProfileType())
+		{
+		case INPUT:
+			return (T)new InputTranslationProfile(core.getName(), core.getDescription(), 
+					core.getRules(), tactionReg);
+		case OUTPUT:
+			return (T)new OutputTranslationProfile(core.getName(), core.getDescription(), 
+					core.getRules(), tactionReg);
+		case REGISTRATION:
+			return (T)new RegistrationTranslationProfile(core.getName(), core.getRules(), 
+					registrationActionsRegistry);
+		}
+		throw new IllegalStateException("The stored translation profile with type id " + core.getProfileType() + 
+				" has no implemented class representation");
 	}
 
 	@Override
@@ -123,12 +145,10 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 
 	private OutputTranslationProfile createDefaultOutputProfile() throws IllegalTypeException, EngineException
 	{
-		List<OutputTranslationRule> rules = new ArrayList<>();
-		OutputTranslationAction action1 = (OutputTranslationAction) tactionReg.getByName(
-				CreateAttributeActionFactory.NAME).getInstance(
-				"memberOf", 
-				"groups");
-		rules.add(new OutputTranslationRule(action1, new TranslationCondition()));
-		return new OutputTranslationProfile("DEFAULT OUTPUT PROFILE", rules);
+		List<TranslationRule> rules = new ArrayList<>();
+		TranslationAction action1 = new TranslationAction(CreateAttributeActionFactory.NAME, 
+				new String[] {"memberOf", "groups"});
+		rules.add(new TranslationRule("true", action1));
+		return new OutputTranslationProfile("DEFAULT OUTPUT PROFILE", "", rules, tactionReg);
 	}
 }

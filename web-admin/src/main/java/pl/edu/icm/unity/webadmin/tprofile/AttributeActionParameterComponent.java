@@ -6,9 +6,9 @@ package pl.edu.icm.unity.webadmin.tprofile;
 
 import java.util.Collection;
 
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 
 import com.vaadin.server.UserError;
@@ -21,9 +21,9 @@ import com.vaadin.ui.ComboBox;
 public class AttributeActionParameterComponent extends AttributeSelectionComboBox implements ActionParameterComponent
 {
 	private UnityMessageSource msg;
-	private ActionParameterDesc desc;
+	private ActionParameterDefinition desc;
 	
-	public AttributeActionParameterComponent(ActionParameterDesc desc, UnityMessageSource msg, 
+	public AttributeActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg, 
 			Collection<AttributeType> attributeTypes)
 	{
 		super(desc.getName() + ":", attributeTypes);

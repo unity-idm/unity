@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import pl.edu.icm.unity.server.api.RegistrationContext;
 
 /**
  * Records an information about registration request state. The objects of this class are fully managed by the 

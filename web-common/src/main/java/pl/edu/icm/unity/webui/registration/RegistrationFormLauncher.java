@@ -13,15 +13,15 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.RegistrationContext;
-import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.api.internal.IdPLoginController;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
+import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -88,7 +88,8 @@ public class RegistrationFormLauncher implements RegistrationFormDialogProvider
 			bus.fireEvent(new RegistrationRequestChangedEvent(id));
 		} catch (EngineException e)
 		{
-			new PostRegistrationHandler(idpLoginController, form, msg).submissionError(e, context);
+			new PostRegistrationHandler(idpLoginController, form, msg, 
+					registrationsManagement.getProfileInstance(form)).submissionError(e, context);
 			return false;
 		}
 
@@ -101,7 +102,8 @@ public class RegistrationFormLauncher implements RegistrationFormDialogProvider
 						msg.getMessage("RegistrationFormsChooserComponent.autoAccept"));
 				bus.fireEvent(new RegistrationRequestChangedEvent(id));
 			}	
-			new PostRegistrationHandler(idpLoginController, form, msg, false).
+			new PostRegistrationHandler(idpLoginController, form, msg, 
+					registrationsManagement.getProfileInstance(form), false).
 				submitted(id, registrationsManagement, request, context);
 			
 			return true;
@@ -136,7 +138,8 @@ public class RegistrationFormLauncher implements RegistrationFormDialogProvider
 						{
 							RegistrationContext context = new RegistrationContext(false, 
 									idpLoginController.isLoginInProgress(), mode);
-							new PostRegistrationHandler(idpLoginController, form, msg).
+							new PostRegistrationHandler(idpLoginController, form, msg, 
+									registrationsManagement.getProfileInstance(form)).
 								cancelled(false, context);
 						}
 					});

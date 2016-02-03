@@ -147,6 +147,8 @@ public class MessageTemplate extends DescribedObjectImpl
 		Message ret = new Message(subject, body);
 		for (Map.Entry<String, String> paramE: params.entrySet())
 		{
+			if (paramE.getValue() == null)
+				continue;
 			ret.setSubject(ret.getSubject().replace("${" + paramE.getKey() + "}", paramE.getValue()));
 		        ret.setBody(ret.getBody().replace("${" + paramE.getKey() + "}", paramE.getValue()));
 		}

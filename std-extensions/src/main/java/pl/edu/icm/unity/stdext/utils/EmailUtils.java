@@ -71,7 +71,10 @@ public class EmailUtils
 
 	public static List<String> extractTags(String address)
 	{
-		String local = address.substring(0, address.indexOf('@'));
+		int atPosition = address.indexOf('@');
+		if (atPosition == -1)
+			return Collections.emptyList();
+		String local = address.substring(0, atPosition);
 		
 		String[] parts = local.split("\\+");
 		if (parts.length > 1)

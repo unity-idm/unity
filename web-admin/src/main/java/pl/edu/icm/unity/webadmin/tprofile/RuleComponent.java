@@ -14,13 +14,10 @@ import org.mvel2.MVEL;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
-import pl.edu.icm.unity.server.translation.AbstractTranslationRule;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ProfileType;
-import pl.edu.icm.unity.server.translation.TranslationAction;
+import pl.edu.icm.unity.server.registries.TypesRegistryBase;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
+import pl.edu.icm.unity.server.translation.TranslationRuleInstance;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationRule;
 import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
@@ -31,6 +28,9 @@ import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -66,7 +66,7 @@ public class RuleComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
 	private ProfileType profileType;
-	private TranslationActionsRegistry tc;
+	private TypesRegistryBase<? extends TranslationActionFactory> tc;
 	private Collection<AttributeType> attributeTypes;
 	private Collection<String> groups;
 	private Collection<String> credReqs;
@@ -84,8 +84,8 @@ public class RuleComponent extends VerticalLayout
 	private boolean editMode;
 	private Image helpAction;
 
-	public RuleComponent(ProfileType profileType, UnityMessageSource msg, TranslationActionsRegistry tc,
-			AbstractTranslationRule<?> toEdit, Collection<AttributeType> attributeTypes, Collection<String> groups,
+	public RuleComponent(ProfileType profileType, UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory> tc,
+			TranslationRuleInstance<?> toEdit, Collection<AttributeType> attributeTypes, Collection<String> groups,
 			Collection<String> credReqs, Collection<String> idTypes, Callback callback)
 	{
 		this.profileType = profileType;
@@ -100,7 +100,7 @@ public class RuleComponent extends VerticalLayout
 		initUI(toEdit);
 	}
 
-	private void initUI(AbstractTranslationRule<?> toEdit)
+	private void initUI(TranslationRuleInstance<?> toEdit)
 	{
 		up = new Button();
 		up.setDescription(msg.getMessage("TranslationProfileEditor.moveUp"));
@@ -221,8 +221,8 @@ public class RuleComponent extends VerticalLayout
 		actions = new RequiredComboBox(msg.getMessage("TranslationProfileEditor.ruleAction"), msg);
 		for (TranslationActionFactory a : tc.getAll())
 		{
-			if (a.getSupportedProfileType() == profileType)
-				actions.addItem(a.getName());
+			if (a.getActionType().getSupportedProfileType() == profileType)
+				actions.addItem(a.getActionType().getName());
 		}
 		actions.setImmediate(true);
 		actions.setValidationVisible(false);
@@ -271,8 +271,8 @@ public class RuleComponent extends VerticalLayout
 
 		if (editMode)
 		{
-			condition.setValue(toEdit.getCondition().getCondition());
-			actions.setValue(toEdit.getAction().getActionDescription().getName());
+			condition.setValue(toEdit.getCondition());
+			actions.setValue(toEdit.getAction().getName());
 			setParams(actions.getValue().toString(), toEdit.getAction().getParameters());
 		} else
 		{
@@ -302,8 +302,8 @@ public class RuleComponent extends VerticalLayout
 			return;
 		}
 		
-		helpAction.setDescription(msg.getMessage(factory.getDescriptionKey()));
-		ActionParameterDesc[] params = factory.getParameters();	
+		helpAction.setDescription(msg.getMessage(factory.getActionType().getDescriptionKey()));
+		ActionParameterDefinition[] params = factory.getActionType().getParameters();	
 		for (int i = 0; i < params.length; i++)
 		{
 			ActionParameterComponent p = getParameterComponent(params[i]);
@@ -317,7 +317,7 @@ public class RuleComponent extends VerticalLayout
 		actionParams.setVisible(paramsList.getComponentCount() != 0);
 	}
 
-	private ActionParameterComponent getParameterComponent(ActionParameterDesc param)
+	private ActionParameterComponent getParameterComponent(ActionParameterDefinition param)
 	{
 		switch (param.getType())
 		{
@@ -342,7 +342,7 @@ public class RuleComponent extends VerticalLayout
 		}
 	}
 	
-	public AbstractTranslationRule<?> getRule()
+	public TranslationRuleInstance<?> getRule()
 	{
 		String ac = (String) actions.getValue();
 		if (ac == null)
@@ -471,7 +471,7 @@ public class RuleComponent extends VerticalLayout
 		}
 		
 		Map<String, Object> mvelCtx = InputTranslationProfile.createMvelContext(remoteAuthnInput);
-		TranslationCondition conditionRule = rule.getCondition();
+		TranslationCondition conditionRule = rule.getConditionInstance();
 		try 
 		{
 			boolean result = conditionRule.evaluate(mvelCtx);
@@ -481,7 +481,7 @@ public class RuleComponent extends VerticalLayout
 			indicateConditionError(e);
 		}
 		
-		InputTranslationAction action = rule.getAction();
+		InputTranslationAction action = rule.getActionInstance();
 		try 
 		{
 			MappingResult mappingResult = action.invoke(remoteAuthnInput, mvelCtx, null);

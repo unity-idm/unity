@@ -20,10 +20,6 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
-import pl.edu.icm.unity.server.translation.in.AbstractInputTranslationAction;
 import pl.edu.icm.unity.server.translation.in.AttributeEffectMode;
 import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.server.translation.in.MappedAttribute;
@@ -33,6 +29,9 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Factory for {@link MapAttributeAction}.
@@ -49,23 +48,23 @@ public class MapAttributeActionFactory extends AbstractInputTranslationActionFac
 	public MapAttributeActionFactory(@Qualifier("insecure") AttributesManagement attrsMan)
 	{
 		super(NAME, 
-			new ActionParameterDesc(
+			new ActionParameterDefinition(
 				"unityAttribute",
 				"TranslationAction.mapAttribute.paramDesc.unityAttribute",
 				Type.UNITY_ATTRIBUTE),
-			new ActionParameterDesc(
+			new ActionParameterDefinition(
 				"group",
 				"TranslationAction.mapAttribute.paramDesc.group",
 				Type.UNITY_GROUP),
-			new ActionParameterDesc(
+			new ActionParameterDefinition(
 				"expression",
 				"TranslationAction.mapAttribute.paramDesc.expression",
 				Type.EXPRESSION),
-			new ActionParameterDesc(
+			new ActionParameterDefinition(
 				"visibility",
 				"TranslationAction.mapAttribute.paramDesc.visibility",
 				AttributeVisibility.class),
-			new ActionParameterDesc(
+			new ActionParameterDefinition(
 				"effect",
 				"TranslationAction.mapAttribute.paramDesc.effect",
 				AttributeEffectMode.class));
@@ -76,11 +75,11 @@ public class MapAttributeActionFactory extends AbstractInputTranslationActionFac
 	@Override
 	public InputTranslationAction getInstance(String... parameters)
 	{
-		return new MapAttributeAction(parameters, this, attrsMan);
+		return new MapAttributeAction(parameters, getActionType(), attrsMan);
 	}
 	
 	
-	public static class MapAttributeAction extends AbstractInputTranslationAction
+	public static class MapAttributeAction extends InputTranslationAction
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, MapAttributeAction.class);
 		private final AttributesManagement attrMan;
@@ -91,7 +90,7 @@ public class MapAttributeActionFactory extends AbstractInputTranslationActionFac
 		private AttributeEffectMode mode;
 		private AttributeType at;
 
-		public MapAttributeAction(String[] params, TranslationActionDescription desc, AttributesManagement attrsMan) 
+		public MapAttributeAction(String[] params, TranslationActionType desc, AttributesManagement attrsMan) 
 		{
 			super(desc, params);
 			setParameters(params);

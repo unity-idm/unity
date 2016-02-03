@@ -7,9 +7,9 @@ package pl.edu.icm.unity.server.api;
 import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationProfile;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * This interface allows clients to manipulate translation profiles. Translation profiles are 

@@ -28,6 +28,6 @@ public class TranslationActionsRegistry extends TypesRegistryBase<TranslationAct
 	@Override
 	protected String getId(TranslationActionFactory from)
 	{
-		return from.getName();
+		return from.getActionType().getName();
 	}
 }

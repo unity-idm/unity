@@ -9,8 +9,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.translation.RegistrationTranslationActionFactory;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationActionFactory;
 
 /**
  * Maintains a simple registry of available {@link TranslationActionFactory}ies.
@@ -29,6 +29,6 @@ public class RegistrationTranslationActionsRegistry extends TypesRegistryBase<Re
 	@Override
 	protected String getId(RegistrationTranslationActionFactory from)
 	{
-		return from.getName();
+		return from.getActionType().getName();
 	}
 }

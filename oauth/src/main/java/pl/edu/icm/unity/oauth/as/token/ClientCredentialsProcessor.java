@@ -83,7 +83,7 @@ public class ClientCredentialsProcessor
 		Set<String> requestedAttributes = establishFlowsAndAttributes(internalToken, scope);
 		
 		internalToken.setClientId(loginSession.getEntityId());
-		internalToken.setClientName(client);
+		internalToken.setClientUsername(client);
 		internalToken.setSubject(client);
 		
 		OAuthProcessor oauthProcessor = new OAuthProcessor();

@@ -16,9 +16,6 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.google.common.collect.Lists;
-
-import pl.edu.icm.unity.engine.builders.RegistrationFormBuilder;
 import pl.edu.icm.unity.engine.builders.RegistrationRequestBuilder;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -27,10 +24,7 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.server.api.RegistrationContext;
-import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfileBuilder;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
@@ -55,11 +49,17 @@ import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
+import pl.edu.icm.unity.types.registration.RegistrationContext;
+import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
+
+import com.google.common.collect.Lists;
 
 public class TestRegistrations extends DBIntegrationTestBase
 {
@@ -68,79 +68,141 @@ public class TestRegistrations extends DBIntegrationTestBase
 	
 	@Autowired
 	private RegistrationTranslationActionsRegistry registry;
-	
-	@Test
-	public void testRegistrationForms() throws Exception
+
+	@Test 
+	public void addedFormIsReturned() throws Exception
 	{
 		RegistrationForm form = initAndCreateForm(false, null);
-		
 		List<RegistrationForm> forms = registrationsMan.getForms();
 		assertEquals(1, forms.size());
 		assertEquals(form, forms.get(0));
+	}
+	
+	@Test 
+	public void removedFormIsNotReturned() throws Exception
+	{
+		initAndCreateForm(false, null);
 		
 		registrationsMan.removeForm("f1", false);
+		
 		assertEquals(0, registrationsMan.getForms().size());
+	}
+
+	@Test 
+	public void missingFormCantBeRemoved() throws Exception
+	{
 		try
 		{
-			registrationsMan.removeForm("f1", true);
-			fail("Removed the same form twice");
+			registrationsMan.removeForm("mising", true);
+			fail("Removed non existing form");
 		} catch (WrongArgumentException e) {/*ok*/}
-		
-		registrationsMan.addForm(form);
-		
+	}
+	
+	@Test 
+	public void formWithDuplicateNameCantBeAdded() throws Exception
+	{
+		RegistrationForm form = initAndCreateForm(false, null);
 		try
 		{
 			registrationsMan.addForm(form);
 			fail("Added the same form twice");
 		} catch (WrongArgumentException e) {/*ok*/}
-		
-		
+	}
+	
+	@Test 
+	public void formWithMissingAttributeCantBeAdded() throws Exception
+	{
+		RegistrationForm form = initAndCreateForm(false, null);
+		RegistrationFormBuilder testFormBuilder = getFormBuilder(false, null, true);
+
 		AttributeRegistrationParam attrReg = form.getAttributeParams().get(0);
 		attrReg.setAttributeType("missing");
-		form.setAttributeParams(Collections.singletonList(attrReg));
-		checkUpdateOrAdd(form, "attr(2)", WrongArgumentException.class);
-		form.setAttributeParams(null);
+		testFormBuilder.withAttributeParams(Collections.singletonList(attrReg));
 		
+		checkUpdateOrAdd(testFormBuilder.build(), "attr(2)", WrongArgumentException.class);
+	}
+	
+	@Test 
+	public void formWithMissingCredentialCantBeAdded() throws Exception
+	{
+		RegistrationForm form = initAndCreateForm(false, null);
+		RegistrationFormBuilder testFormBuilder = getFormBuilder(false, null, true);
+
 		CredentialRegistrationParam credParam = form.getCredentialParams().get(0);
 		credParam.setCredentialName("missing");
-		form.setCredentialParams(Collections.singletonList(credParam));
-		checkUpdateOrAdd(form, "cred", WrongArgumentException.class);
-		form.setCredentialParams(null);
+		testFormBuilder.withCredentialParams(Collections.singletonList(credParam));
 		
-		form.setDefaultCredentialRequirement("missing");
-		checkUpdateOrAdd(form, "cred req", WrongArgumentException.class);
-		form.setDefaultCredentialRequirement(null);
-		checkUpdateOrAdd(form, "credential req (2)", WrongArgumentException.class);
-		
-		form.setDefaultCredentialRequirement(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT);
-		
+		checkUpdateOrAdd(testFormBuilder.build(), "cred", WrongArgumentException.class);
+	}
+
+	
+	@Test 
+	public void formWithMissingCredentialReqCantBeAdded() throws Exception
+	{
+		initAndCreateForm(false, null);
+		RegistrationFormBuilder testFormBuilder = getFormBuilder(false, null, true);
+		testFormBuilder.withDefaultCredentialRequirement("missing");
+		checkUpdateOrAdd(testFormBuilder.build(), "cred req", WrongArgumentException.class);
+	}
+	
+	@Test 
+	public void formWithMissingGroupCantBeAdded() throws Exception
+	{
+		RegistrationForm form = initAndCreateForm(false, null);
+		RegistrationFormBuilder testFormBuilder = getFormBuilder(false, null, true);
+
 		GroupRegistrationParam groupParam = form.getGroupParams().get(0);
 		groupParam.setGroupPath("/missing");
-		form.setGroupParams(Collections.singletonList(groupParam));
-		checkUpdateOrAdd(form, "group", IllegalGroupValueException.class);
-		form.setGroupParams(null);
-		
+		testFormBuilder.withGroupParams(Collections.singletonList(groupParam));
+		checkUpdateOrAdd(testFormBuilder.build(), "group", IllegalGroupValueException.class);
+	}
+
+	@Test 
+	public void formWithMissingIdentityCantBeAdded() throws Exception
+	{
+		RegistrationForm form = initAndCreateForm(false, null);
+		RegistrationFormBuilder testFormBuilder = getFormBuilder(false, null, true);
 		IdentityRegistrationParam idParam = form.getIdentityParams().get(0);
 		idParam.setIdentityType("missing");
-		form.setIdentityParams(Collections.singletonList(idParam));
-		checkUpdateOrAdd(form, "id", IllegalTypeException.class);
-		idParam.setIdentityType(UsernameIdentity.ID);
-		form.setIdentityParams(Collections.singletonList(idParam));
+		testFormBuilder.withIdentityParams(Collections.singletonList(idParam));
+		checkUpdateOrAdd(testFormBuilder.build(), "id", IllegalTypeException.class);
+	}
+
+	@Test
+	public void formWithRequestCantBeUpdated() throws Exception
+	{
+		initAndCreateForm(false, null);
 		
-		RegistrationRequest request = getRequest();
-		registrationsMan.submitRegistrationRequest(request, 
+		registrationsMan.submitRegistrationRequest(getRequest(), 
 				new RegistrationContext(false, false, TriggeringMode.manualAtLogin));
-		assertEquals(1, registrationsMan.getRegistrationRequests().size());
 		
 		try
 		{
-			registrationsMan.updateForm(getForm(false, null, true), false);
+			registrationsMan.updateForm(getFormBuilder(false, null, true).build(), false);
 		} catch (SchemaConsistencyException e)
 		{
 			//OK
 		}
+	}
+
+	@Test
+	public void formWithRequestCanBeForcedToBeUpdated() throws Exception
+	{
+		initAndCreateForm(false, null);
 		
-		registrationsMan.updateForm(getForm(false, null, true), true);
+		registrationsMan.submitRegistrationRequest(getRequest(), 
+				new RegistrationContext(false, false, TriggeringMode.manualAtLogin));
+		
+		registrationsMan.updateForm(getFormBuilder(false, null, true).build(), true);
+	}
+
+	@Test
+	public void formWithRequestCantBeRemoved() throws Exception
+	{
+		RegistrationForm form = initAndCreateForm(false, null);
+		
+		registrationsMan.submitRegistrationRequest(getRequest(), 
+				new RegistrationContext(false, false, TriggeringMode.manualAtLogin));
 		
 		try
 		{
@@ -149,12 +211,26 @@ public class TestRegistrations extends DBIntegrationTestBase
 		{
 			//OK
 		}
+		assertEquals(1, registrationsMan.getRegistrationRequests().size());
+	}
+
+	@Test
+	public void formWithRequestCanBeForcedToBeRemoved() throws Exception
+	{
+		RegistrationForm form = initAndCreateForm(false, null);
+		
+		registrationsMan.submitRegistrationRequest(getRequest(), 
+				new RegistrationContext(false, false, TriggeringMode.manualAtLogin));
+		
 		registrationsMan.removeForm(form.getName(), true);
-		
 		assertEquals(0, registrationsMan.getRegistrationRequests().size());
+	}
+	
+	@Test
+	public void artefactsPresentInFormCantBeRemoved() throws Exception
+	{
+		initAndCreateForm(false, null);
 		
-		
-		//test consistency
 		try
 		{
 			attrsMan.removeAttributeClass(InitializerCommon.NAMING_AC);
@@ -186,7 +262,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 			//OK
 		}
 	}
-
+	
 	@Test
 	public void testRequestWithNull() throws EngineException
 	{
@@ -379,7 +455,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		assertNotNull(fromDb.getTimestamp());
 	}
 	
-	private RegistrationForm getForm(boolean nullCode, String autoAcceptCondition, boolean addEmailAC)
+	private RegistrationFormBuilder getFormBuilder(boolean nullCode, String autoAcceptCondition, boolean addEmailAC)
 	{
 		RegistrationTranslationProfileBuilder profileBuilder = new RegistrationTranslationProfileBuilder(
 				registry, "form").
@@ -391,7 +467,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		if (addEmailAC)
 			profileBuilder.withAttributeClass("true", "/", "'" + InitializerCommon.NAMING_AC + "'");
 		
-		RegistrationTranslationProfile translationProfile = profileBuilder.build();
+		TranslationProfile translationProfile = profileBuilder.build();
 		
 		return RegistrationFormBuilder
 				.registrationForm()
@@ -426,8 +502,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 				.withGroupPath("/B")
 				.withRetrievalSettings(ParameterRetrievalSettings.automatic)
 				.endGroupParam()
-				.withRegistrationCode(nullCode ? null : "123")
-				.build();
+				.withRegistrationCode(nullCode ? null : "123");
 
 	}
 	
@@ -514,7 +589,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		groupsMan.addGroup(new Group("/A"));
 		groupsMan.addGroup(new Group("/B"));
 		
-		RegistrationForm form = getForm(nullCode, autoAcceptCondition, addEmailAC);
+		RegistrationForm form = getFormBuilder(nullCode, autoAcceptCondition, addEmailAC).build();
 
 		registrationsMan.addForm(form);
 		return form;

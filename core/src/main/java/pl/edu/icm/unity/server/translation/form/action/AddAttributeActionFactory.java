@@ -18,9 +18,6 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.internal.AttributesInternalProcessing;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.server.utils.Log;
@@ -28,6 +25,9 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Allows for adding an additional attribute to for the requester
@@ -35,7 +35,7 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
  * @author K. Benedyczak
  */
 @Component
-public class AddAttributeActionFactory extends AbstractTranslationActionFactory
+public class AddAttributeActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	public static final String NAME = "addAttribute";
 	private AttributesInternalProcessing attrsMan;
@@ -43,20 +43,20 @@ public class AddAttributeActionFactory extends AbstractTranslationActionFactory
 	@Autowired
 	public AddAttributeActionFactory(AttributesInternalProcessing attrsMan)
 	{
-		super(NAME, new ActionParameterDesc[] {
-				new ActionParameterDesc(
+		super(NAME, new ActionParameterDefinition[] {
+				new ActionParameterDefinition(
 						"attributeName",
 						"RegTranslationAction.addAttribute.paramDesc.attributeName",
 						Type.UNITY_ATTRIBUTE),
-				new ActionParameterDesc(
+				new ActionParameterDefinition(
 						"group",
 						"RegTranslationAction.addAttribute.paramDesc.group",
 						Type.UNITY_GROUP),
-				new ActionParameterDesc(
+				new ActionParameterDefinition(
 						"expression",
 						"RegTranslationAction.addAttribute.paramDesc.expression",
 						Type.EXPRESSION),
-				new ActionParameterDesc(
+				new ActionParameterDefinition(
 						"visibility",
 						"RegTranslationAction.addAttribute.paramDesc.visibility",
 						AttributeVisibility.class)
@@ -67,10 +67,10 @@ public class AddAttributeActionFactory extends AbstractTranslationActionFactory
 	@Override
 	public RegistrationTranslationAction getInstance(String... parameters)
 	{
-		return new AddAttributeAction(this, parameters, attrsMan);
+		return new AddAttributeAction(getActionType(), parameters, attrsMan);
 	}
 	
-	public static class AddAttributeAction extends AbstractRegistrationTranslationAction
+	public static class AddAttributeAction extends RegistrationTranslationAction
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION,
 				AddAttributeActionFactory.AddAttributeAction.class);
@@ -80,7 +80,7 @@ public class AddAttributeActionFactory extends AbstractTranslationActionFactory
 		private Serializable expressionCompiled;
 		private AttributeType at;
 		
-		public AddAttributeAction(TranslationActionDescription description, String[] parameters, 
+		public AddAttributeAction(TranslationActionType description, String[] parameters, 
 				AttributesInternalProcessing attrsMan)
 		{
 			super(description, parameters);

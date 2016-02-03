@@ -19,10 +19,6 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
-import pl.edu.icm.unity.server.translation.in.AbstractInputTranslationAction;
 import pl.edu.icm.unity.server.translation.in.AttributeEffectMode;
 import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.server.translation.in.MappedAttribute;
@@ -31,6 +27,9 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Maps multiple attributes only by providing new names, values are unchanged.
@@ -46,16 +45,16 @@ public class MultiMapAttributeActionFactory extends AbstractInputTranslationActi
 	@Autowired
 	public MultiMapAttributeActionFactory(@Qualifier("insecure") AttributesManagement attrsMan)
 	{
-		super(NAME, new ActionParameterDesc[] {
-				new ActionParameterDesc(
+		super(NAME, new ActionParameterDefinition[] {
+				new ActionParameterDefinition(
 						"mapping",
 						"TranslationAction.multiMapAttribute.paramDesc.mapping",
 						Type.LARGE_TEXT),
-				new ActionParameterDesc(
+				new ActionParameterDefinition(
 						"visibility",
 						"TranslationAction.mapAttribute.paramDesc.visibility",
 						AttributeVisibility.class),
-				new ActionParameterDesc(
+				new ActionParameterDefinition(
 						"effect",
 						"TranslationAction.mapAttribute.paramDesc.effect",
 						AttributeEffectMode.class)});
@@ -65,10 +64,10 @@ public class MultiMapAttributeActionFactory extends AbstractInputTranslationActi
 	@Override
 	public InputTranslationAction getInstance(String... parameters)
 	{
-		return new MultiMapAttributeAction(parameters, this, attrsMan);
+		return new MultiMapAttributeAction(parameters, getActionType(), attrsMan);
 	}
 	
-	public static class MultiMapAttributeAction extends AbstractInputTranslationAction
+	public static class MultiMapAttributeAction extends InputTranslationAction
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, MultiMapAttributeAction.class);
 		private final AttributesManagement attrMan;
@@ -77,7 +76,7 @@ public class MultiMapAttributeActionFactory extends AbstractInputTranslationActi
 		private AttributeEffectMode mode;
 		private List<Mapping> mappings;
 
-		public MultiMapAttributeAction(String[] params, TranslationActionDescription desc, AttributesManagement attrsMan) 
+		public MultiMapAttributeAction(String[] params, TranslationActionType desc, AttributesManagement attrsMan) 
 		{
 			super(desc, params);
 			setParameters(params);

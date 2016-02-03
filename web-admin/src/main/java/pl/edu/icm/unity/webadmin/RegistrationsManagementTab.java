@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormsComponent;
 import pl.edu.icm.unity.webadmin.reg.invitation.InvitationsComponent;
 import pl.edu.icm.unity.webadmin.reg.reqman.RequestsComponent;

@@ -41,6 +41,7 @@ import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.api.registration.BaseRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.RegistrationWithCommentsTemplateDef;
+import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.GroupParam;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest;
@@ -60,6 +61,7 @@ import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Implementation of the internal registration management. This is used
@@ -97,6 +99,8 @@ public class InternalRegistrationManagment
 	private InternalFacilitiesManagement facilitiesManagement;
 	@Autowired
 	private RegistrationRequestValidator registrationRequestValidator;
+	@Autowired
+	private RegistrationTranslationActionsRegistry registrationTranslationActionsRegistry;
 
 
 	public List<RegistrationForm> getForms(SqlSession sql) throws EngineException
@@ -122,7 +126,7 @@ public class InternalRegistrationManagment
 	{
 		currentRequest.setStatus(RegistrationRequestStatus.accepted);
 
-		RegistrationTranslationProfile translationProfile = form.getTranslationProfile();
+		RegistrationTranslationProfile translationProfile = getProfileInstance(form.getTranslationProfile());
 		TranslatedRegistrationRequest translatedRequest = translationProfile.translate(form, currentRequest);
 		
 		registrationRequestValidator.validateTranslatedRequest(form, currentRequest.getRequest(), 
@@ -254,7 +258,7 @@ public class InternalRegistrationManagment
 	public Long autoProcess(RegistrationForm form, RegistrationRequestState requestFull, String logMessageTemplate,
 			SqlSession sql)	throws EngineException
 	{
-		RegistrationTranslationProfile translationProfile = form.getTranslationProfile();
+		RegistrationTranslationProfile translationProfile = getProfileInstance(form.getTranslationProfile());
 		
 		AutomaticRequestAction autoProcessAction = translationProfile.getAutoProcessAction(
 				form, requestFull, RequestSubmitStatus.submitted);
@@ -452,5 +456,11 @@ public class InternalRegistrationManagment
 					.getBytes(StandardCharsets.UTF_8), tk.getCreated(), tk
 					.getExpires());
 		}
+	}
+	
+	private RegistrationTranslationProfile getProfileInstance(TranslationProfile profile)
+	{
+		return new RegistrationTranslationProfile(profile.getName(), profile.getRules(), 
+				registrationTranslationActionsRegistry);
 	}
 }

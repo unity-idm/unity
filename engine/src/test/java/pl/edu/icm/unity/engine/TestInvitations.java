@@ -25,17 +25,13 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.engine.builders.RegistrationFormBuilder;
 import pl.edu.icm.unity.engine.builders.RegistrationRequestBuilder;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.engine.mock.MockNotificationFacility;
 import pl.edu.icm.unity.engine.mock.MockNotificationFacility.Message;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.server.api.RegistrationContext;
-import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfileBuilder;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
@@ -46,7 +42,10 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
+import pl.edu.icm.unity.types.registration.RegistrationContext;
+import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.Selection;
@@ -54,6 +53,7 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  *
@@ -295,7 +295,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 	
 	private RegistrationForm getForm(boolean nullCode)
 	{
-		RegistrationTranslationProfile translationProfile = new RegistrationTranslationProfileBuilder(
+		TranslationProfile translationProfile = new RegistrationTranslationProfileBuilder(
 				regActionsRegistry, "form").build();
 		return RegistrationFormBuilder
 				.registrationForm()

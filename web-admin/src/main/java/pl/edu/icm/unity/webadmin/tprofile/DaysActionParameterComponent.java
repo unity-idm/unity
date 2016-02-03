@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 
 import com.vaadin.data.util.converter.StringToIntegerConverter;
 import com.vaadin.data.validator.IntegerRangeValidator;
@@ -16,7 +16,7 @@ import com.vaadin.data.validator.IntegerRangeValidator;
  */
 public class DaysActionParameterComponent extends DefaultActionParameterComponent
 {	
-	public DaysActionParameterComponent(ActionParameterDesc desc, UnityMessageSource msg)
+	public DaysActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg)
 	{
 		super(desc, msg);
 		setColumns(4);

@@ -7,7 +7,8 @@ package pl.edu.icm.unity.webadmin.reg.formman;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
 import pl.edu.icm.unity.server.api.registration.PublicRegistrationURLSupport;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
@@ -70,16 +71,15 @@ public class RegistrationFormViewer extends VerticalLayout
 	private Label credentialRequirementAssignment;
 	private RegistrationTranslationProfileViewer translationProfile;
 	private SharedEndpointManagement sharedEndpointMan;
-	private TranslationActionsRegistry actionsRegistry;
+	private RegistrationTranslationActionsRegistry registrationActionsRegistry;
 	
-	public RegistrationFormViewer(UnityMessageSource msg, 
-			MessageTemplateManagement msgTempMan, SharedEndpointManagement sharedEndpointMan, 
-			TranslationActionsRegistry registry)
+	public RegistrationFormViewer(UnityMessageSource msg, RegistrationTranslationActionsRegistry registrationActionsRegistry,
+			MessageTemplateManagement msgTempMan, SharedEndpointManagement sharedEndpointMan)
 	{
 		this.msg = msg;
+		this.registrationActionsRegistry = registrationActionsRegistry;
 		this.msgTempMan = msgTempMan;
 		this.sharedEndpointMan = sharedEndpointMan;
-		this.actionsRegistry = registry;
 		initUI();
 	}
 	
@@ -133,7 +133,8 @@ public class RegistrationFormViewer extends VerticalLayout
 			credentialParams.addEntry(cp);
 		
 		credentialRequirementAssignment.setValue(form.getDefaultCredentialRequirement());
-		translationProfile.setInput(form.getTranslationProfile());
+		translationProfile.setInput(new RegistrationTranslationProfile(form.getTranslationProfile().getName(), 
+				form.getTranslationProfile().getRules(), registrationActionsRegistry));
 	}
 	
 	private void setEmpty()
@@ -286,7 +287,7 @@ public class RegistrationFormViewer extends VerticalLayout
 		credentialRequirementAssignment.setCaption(
 				msg.getMessage("RegistrationFormViewer.credentialRequirementAssignment"));
 
-		translationProfile = new RegistrationTranslationProfileViewer(msg, actionsRegistry);
+		translationProfile = new RegistrationTranslationProfileViewer(msg);
 		
 		main.addComponents(credentialRequirementAssignment);
 		wrapper.addComponent(translationProfile);
