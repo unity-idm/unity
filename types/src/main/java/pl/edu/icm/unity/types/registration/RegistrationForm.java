@@ -9,7 +9,7 @@ import java.util.List;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.DescribedObjectImpl;
+import pl.edu.icm.unity.types.DescribedObjectROImpl;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.translation.ProfileType;
@@ -33,9 +33,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  *  <li> extra information to be presented to the user
  *  <li> translation profile which can modify the data collected by the form
  * </ol>
+ * <p>
+ * Instances of this class can be built either from JSON or using a {@link RegistrationFormBuilder}.
+ * 
  * @author K. Benedyczak
  */
-public class RegistrationForm extends DescribedObjectImpl
+public class RegistrationForm extends DescribedObjectROImpl
 {
 	private boolean publiclyAvailable;
 	private RegistrationFormNotifications notificationsConfiguration = new RegistrationFormNotifications();
@@ -59,9 +62,10 @@ public class RegistrationForm extends DescribedObjectImpl
 	public RegistrationForm(ObjectNode json)
 	{
 		fromJson(json);
+		validate();
 	}
 	
-	public RegistrationForm()
+	RegistrationForm()
 	{
 	}
 	
@@ -70,7 +74,7 @@ public class RegistrationForm extends DescribedObjectImpl
 		return notificationsConfiguration;
 	}
 
-	public void setNotificationsConfiguration(RegistrationFormNotifications notificationsConfiguration)
+	void setNotificationsConfiguration(RegistrationFormNotifications notificationsConfiguration)
 	{
 		this.notificationsConfiguration = notificationsConfiguration;
 	}
@@ -80,7 +84,7 @@ public class RegistrationForm extends DescribedObjectImpl
 		return identityParams;
 	}
 
-	public void setIdentityParams(List<IdentityRegistrationParam> identityParams)
+	void setIdentityParams(List<IdentityRegistrationParam> identityParams)
 	{
 		this.identityParams = identityParams;
 	}
@@ -90,7 +94,7 @@ public class RegistrationForm extends DescribedObjectImpl
 		return attributeParams;
 	}
 
-	public void setAttributeParams(List<AttributeRegistrationParam> attributeParams)
+	void setAttributeParams(List<AttributeRegistrationParam> attributeParams)
 	{
 		this.attributeParams = attributeParams;
 	}
@@ -100,7 +104,7 @@ public class RegistrationForm extends DescribedObjectImpl
 		return groupParams;
 	}
 
-	public void setGroupParams(List<GroupRegistrationParam> groupParams)
+	void setGroupParams(List<GroupRegistrationParam> groupParams)
 	{
 		this.groupParams = groupParams;
 	}
@@ -110,7 +114,7 @@ public class RegistrationForm extends DescribedObjectImpl
 		return credentialParams;
 	}
 
-	public void setCredentialParams(List<CredentialRegistrationParam> credentialParams)
+	void setCredentialParams(List<CredentialRegistrationParam> credentialParams)
 	{
 		this.credentialParams = credentialParams;
 	}
@@ -120,7 +124,7 @@ public class RegistrationForm extends DescribedObjectImpl
 		return agreements;
 	}
 
-	public void setAgreements(List<AgreementRegistrationParam> agreements)
+	void setAgreements(List<AgreementRegistrationParam> agreements)
 	{
 		this.agreements = agreements;
 	}
@@ -130,7 +134,7 @@ public class RegistrationForm extends DescribedObjectImpl
 		return collectComments;
 	}
 
-	public void setCollectComments(boolean collectComments)
+	void setCollectComments(boolean collectComments)
 	{
 		this.collectComments = collectComments;
 	}
@@ -140,7 +144,7 @@ public class RegistrationForm extends DescribedObjectImpl
 		return formInformation;
 	}
 
-	public void setFormInformation(I18nString formInformation)
+	void setFormInformation(I18nString formInformation)
 	{
 		this.formInformation = formInformation;
 	}
@@ -150,7 +154,7 @@ public class RegistrationForm extends DescribedObjectImpl
 		return displayedName == null ? new I18nString(getName()) : displayedName;
 	}
 
-	public void setDisplayedName(I18nString displayedName)
+	void setDisplayedName(I18nString displayedName)
 	{
 		this.displayedName = displayedName;
 	}
@@ -160,7 +164,7 @@ public class RegistrationForm extends DescribedObjectImpl
 		return registrationCode;
 	}
 
-	public void setRegistrationCode(String registrationCode)
+	void setRegistrationCode(String registrationCode)
 	{
 		this.registrationCode = registrationCode;
 	}
@@ -170,7 +174,7 @@ public class RegistrationForm extends DescribedObjectImpl
 		return publiclyAvailable;
 	}
 
-	public void setPubliclyAvailable(boolean publiclyAvailable)
+	void setPubliclyAvailable(boolean publiclyAvailable)
 	{
 		this.publiclyAvailable = publiclyAvailable;
 	}
@@ -181,25 +185,29 @@ public class RegistrationForm extends DescribedObjectImpl
 		return captchaLength;
 	}
 
-	public void setCaptchaLength(int captchaLength)
+	void setCaptchaLength(int captchaLength)
 	{
 		this.captchaLength = captchaLength;
 	}
 
-	@Override
-	public void setName(String name)
+	void setName(String name)
 	{
-		super.setName(name);
+		this.name = name;
 		if (displayedName == null)
 			displayedName = new I18nString(name);
 	}
-
+	
+	void setDescription(String description)
+	{
+		this.description = description;
+	}
+	
 	public String getDefaultCredentialRequirement()
 	{
 		return defaultCredentialRequirement;
 	}
 
-	public void setDefaultCredentialRequirement(String defaultCredentialRequirement)
+	void setDefaultCredentialRequirement(String defaultCredentialRequirement)
 	{
 		this.defaultCredentialRequirement = defaultCredentialRequirement;
 	}
@@ -209,7 +217,7 @@ public class RegistrationForm extends DescribedObjectImpl
 		return translationProfile;
 	}
 
-	public void setTranslationProfile(TranslationProfile translationProfile)
+	void setTranslationProfile(TranslationProfile translationProfile)
 	{
 		if (translationProfile.getProfileType() != ProfileType.REGISTRATION)
 			throw new IllegalArgumentException("Only a registration profile can be used with registration form");
@@ -259,7 +267,7 @@ public class RegistrationForm extends DescribedObjectImpl
 		return false;
 	}
 
-	public void validate()
+	void validate()
 	{
 		if (identityParams == null || groupParams == null || agreements == null 
 				|| credentialParams == null || attributeParams == null)

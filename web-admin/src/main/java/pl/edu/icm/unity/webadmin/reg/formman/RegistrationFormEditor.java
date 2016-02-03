@@ -36,6 +36,7 @@ import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.OptionalRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
 import pl.edu.icm.unity.webadmin.tprofile.RegistrationTranslationProfileEditor;
@@ -192,37 +193,38 @@ public class RegistrationFormEditor extends VerticalLayout
 		{
 			throw new FormValidationException(e.getMessage(), e);
 		}
-		RegistrationForm ret = new RegistrationForm();	
-		ret.setAgreements(agreements.getElements());
-		ret.setAttributeParams(attributeParams.getElements());
-		ret.setCollectComments(collectComments.getValue());
-		ret.setCredentialParams(credentialParams.getElements());
-		ret.setDefaultCredentialRequirement((String) credentialRequirementAssignment.getValue());
-		ret.setTranslationProfile(profileEditor.getProfile());
-		ret.setDescription(description.getValue());
+		RegistrationFormBuilder builder = new RegistrationFormBuilder();	
+		builder.withAgreements(agreements.getElements());
+		builder.withAttributeParams(attributeParams.getElements());
+		builder.withCollectComments(collectComments.getValue());
+		builder.withCredentialParams(credentialParams.getElements());
+		builder.withDefaultCredentialRequirement((String) credentialRequirementAssignment.getValue());
+		builder.withTranslationProfile(profileEditor.getProfile());
+		builder.withDescription(description.getValue());
 		I18nString displayedNameStr = displayedName.getValue();
 		displayedNameStr.setDefaultValue(name.getValue());
-		ret.setDisplayedName(displayedNameStr);
-		ret.setFormInformation(formInformation.getValue());
-		ret.setGroupParams(groupParams.getElements());
-		ret.setIdentityParams(identityParams.getElements());
-		ret.setName(name.getValue());
-		ret.setCaptchaLength(captcha.getValue().intValue());
+		builder.withDisplayedName(displayedNameStr);
+		builder.withFormInformation(formInformation.getValue());
+		builder.withGroupParams(groupParams.getElements());
+		builder.withIdentityParams(identityParams.getElements());
+		builder.withName(name.getValue());
+		builder.withCaptchaLength(captcha.getValue().intValue());
+		builder.withPubliclyAvailable(publiclyAvailable.getValue());
 		
-		RegistrationFormNotifications notCfg = ret.getNotificationsConfiguration();
+		RegistrationFormNotifications notCfg = new RegistrationFormNotifications();
 		notCfg.setAcceptedTemplate((String) acceptedTemplate.getValue());
 		notCfg.setAdminsNotificationGroup((String) adminsNotificationGroup.getValue());
 		notCfg.setChannel((String) channel.getValue());
 		notCfg.setRejectedTemplate((String) rejectedTemplate.getValue());
 		notCfg.setSubmittedTemplate((String) submittedTemplate.getValue());
 		notCfg.setUpdatedTemplate((String) updatedTemplate.getValue());
-		ret.setPubliclyAvailable(publiclyAvailable.getValue());
+		builder.withNotificationsConfiguration(notCfg);
 		
 		String code = registrationCode.getValue();
 		if (code != null && !code.equals(""))
-			ret.setRegistrationCode(code);
+			builder.withRegistrationCode(code);
 		
-		return ret;
+		return builder.build();
 	}
 	
 	private void initMainTab(RegistrationForm toEdit) throws EngineException
@@ -260,12 +262,15 @@ public class RegistrationFormEditor extends VerticalLayout
 			@Override
 			protected boolean isValidValue(Boolean value)
 			{
-				RegistrationForm empty = new RegistrationForm();
+				RegistrationForm empty;
 				try
 				{
-					empty.setGroupParams(groupParams.getElements());
-					empty.setAttributeParams(attributeParams.getElements());
-					empty.setIdentityParams(identityParams.getElements());
+					RegistrationFormBuilder formBuilder = new RegistrationFormBuilder();
+					formBuilder.withGroupParams(groupParams.getElements());
+					formBuilder.withAttributeParams(attributeParams.getElements());
+					formBuilder.withIdentityParams(identityParams.getElements());
+					formBuilder.withName("test").withDefaultCredentialRequirement("testcr");
+					empty = formBuilder.build();
 				} catch (FormValidationException e)
 				{
 					return false;
