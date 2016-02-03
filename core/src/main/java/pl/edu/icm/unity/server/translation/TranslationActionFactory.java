@@ -24,5 +24,14 @@ public interface TranslationActionFactory
 	 * @return configured instance
 	 * @throws EngineException
 	 */
-	public TranslationActionInstance getInstance(String... parameters);
+	TranslationActionInstance getInstance(String... parameters);
+	
+	/**
+	 * Used when an exception is thrown by the base {@link #getInstance(String...)} method. 
+	 * Must not throw any exception (naturally besides {@link Error} ;-)). The returned action 
+	 * should generally do nothing besides logging that it is a blind stopper of the real action.
+	 * @param parameters
+	 * @return
+	 */
+	TranslationActionInstance getBlindInstance(String... parameters);
 }

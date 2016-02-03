@@ -68,7 +68,8 @@ public class SimpleVaadinServletFactory
 		String template = config.getValue(templateConfigKey);
 		boolean productionMode = true;
 		String theme = config.getConfiguredTheme(themeConfigKey, VaadinEndpoint.DEFAULT_THEME);
-		return new UnityBootstrapHandler(template, msg, theme, productionMode, 
+		String webContents = config.getValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH);
+		return new UnityBootstrapHandler(webContents, template, msg, theme, productionMode, 
 				VaadinEndpoint.DEFAULT_HEARTBEAT, uiPath);
 	}
 }

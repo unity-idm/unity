@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.stdext.translation.out;
 
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.translation.TranslationActionInstance;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationActionType;
@@ -24,10 +25,16 @@ public abstract class AbstractOutputTranslationActionFactory implements Translat
 				name, 
 				parameters);
 	}
-
+		
 	@Override
 	public TranslationActionType getActionType()
 	{
 		return actionType;
+	}
+	
+	@Override
+	public TranslationActionInstance getBlindInstance(String... parameters)
+	{
+		return new BlindStopperOutputAction(getActionType(), parameters);
 	}
 }
