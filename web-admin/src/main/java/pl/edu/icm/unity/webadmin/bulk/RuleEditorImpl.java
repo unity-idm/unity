@@ -23,9 +23,9 @@ public class RuleEditorImpl extends CustomComponent implements RuleEditor<Proces
 	protected UnityMessageSource msg;
 
 	protected MVELExpressionField condition;
-	protected ActionEditor<EntityAction> actionEditor;
+	protected ActionEditor actionEditor;
 	
-	public RuleEditorImpl(UnityMessageSource msg, ActionEditor<EntityAction> actionEditor)
+	public RuleEditorImpl(UnityMessageSource msg, ActionEditor actionEditor)
 	{
 		this.msg = msg;
 		this.actionEditor = actionEditor;
@@ -46,6 +46,6 @@ public class RuleEditorImpl extends CustomComponent implements RuleEditor<Proces
 	@Override
 	public ProcessingRule getRule() throws FormValidationException
 	{
-		return new ProcessingRule(condition.getValue(), actionEditor.getAction());
+		return new ProcessingRule(condition.getValue(), (EntityAction) actionEditor.getAction());
 	}
 }

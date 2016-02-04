@@ -5,9 +5,6 @@
 package pl.edu.icm.unity.oauth.as.token;
 
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
@@ -22,17 +19,14 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
-import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
-import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext.ScopeInfo;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
+import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -40,7 +34,6 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
-import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.Tokens;
@@ -60,19 +53,19 @@ public class AccessTokenResource extends BaseOAuthResource
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, AccessTokenResource.class);
 	
-	private OAuthRequestValidator requestValidator;
 	private TokensManagement tokensManagement;
 	private OAuthASProperties config;
 	private TransactionalRunner tx;
+	private ClientCredentialsProcessor clientGrantProcessor;
 	
 	public AccessTokenResource(TokensManagement tokensManagement, OAuthASProperties config, 
-			OAuthRequestValidator requestValidator,
+			OAuthRequestValidator requestValidator, IdPEngine idpEngine,
 			TransactionalRunner tx)
 	{
 		this.tokensManagement = tokensManagement;
 		this.config = config;
-		this.requestValidator = requestValidator;
 		this.tx = tx;
+		this.clientGrantProcessor = new ClientCredentialsProcessor(requestValidator, idpEngine, config);
 	}
 
 	@Path("/")
@@ -104,11 +97,10 @@ public class AccessTokenResource extends BaseOAuthResource
 	{
 		Date now = new Date();
 		AccessToken accessToken = new BearerAccessToken();
-		OAuthToken internalToken = new OAuthToken();
-		internalToken.setAccessToken(accessToken.getValue());
+		OAuthToken internalToken;
 		try
 		{
-			validateClientFlowRequest(internalToken, scope);
+			internalToken = clientGrantProcessor.processClientFlowRequest(accessToken.getValue(), scope);
 		} catch (OAuthValidationException e)
 		{
 			return makeError(OAuth2Error.INVALID_REQUEST, e.getMessage());
@@ -123,34 +115,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		return toResponse(Response.ok(getResponseContent(oauthResponse)));
 	}
 	
-	private void validateClientFlowRequest(OAuthToken internalToken, String scope) throws OAuthValidationException
-	{
-		LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
-		EntityParam clientEntity = new EntityParam(loginSession.getEntityId());
-		String client = loginSession.getAuthenticatedIdentities().iterator().next();
-		
-		requestValidator.validateGroupMembership(clientEntity, client);
-		Map<String, AttributeExt<?>> attributes = requestValidator.getAttributes(clientEntity);
-		
-		Set<GrantFlow> allowedFlows = requestValidator.getAllowedFlows(attributes);
-		if (!allowedFlows.contains(GrantFlow.client))
-			throw new OAuthValidationException("The '" + client + 
-					"' is not authorized to use the '" + GrantFlow.client + "' grant flow.");
-		if (scope != null && !scope.isEmpty())
-		{
-			Scope parsed = Scope.parse(scope);
-			List<ScopeInfo> validRequestedScopes = requestValidator.getValidRequestedScopes(parsed);
-			String[] array = validRequestedScopes.stream().
-					map(si -> si.getName()).
-					toArray(String[]::new);
-			internalToken.setScope(array);
-		}
-		
-		internalToken.setClientId(loginSession.getEntityId());
-		internalToken.setClientName(client);
-		internalToken.setSubject(client);
-	}
-	
+
 	private Response handleAuthzCodeFlow(String code, String redirectUri) 
 			throws EngineException, JsonProcessingException
 	{

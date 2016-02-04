@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.confirmations.facilities;
 import org.apache.ibatis.session.SqlSession;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder.ConfirmedElementType;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.states.RegistrationConfirmationState;
@@ -16,7 +17,6 @@ import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder;
 import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder.Status;
-import pl.edu.icm.unity.server.utils.JsonUtil;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;

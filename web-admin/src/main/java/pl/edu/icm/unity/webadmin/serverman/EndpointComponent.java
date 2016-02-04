@@ -19,6 +19,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -112,7 +113,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 
 	private boolean deployEndpoint(String id)
 	{
-		EndpointConfig data = getEndpointConfig(id);
+		EndpointConfigExt data = getEndpointConfig(id);
 		if (data == null)
 		{
 			return false;
@@ -120,9 +121,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		
 		try
 		{
-			this.endpoint = endpointMan.deploy(data.type, id, data.displayedName, data.address, 
-					data.description, data.authenticators, 
-					data.jsonConfiguration, data.realm);
+			this.endpoint = endpointMan.deploy(data.type, id, data.address,	data.basicConfig);
 		} catch (Exception e)
 		{
 			log.error("Cannot deploy endpoint", e);
@@ -172,7 +171,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 	
 	private boolean reloadEndpoint(String id)
 	{
-		EndpointConfig data = getEndpointConfig(id);
+		EndpointConfigExt data = getEndpointConfig(id);
 		if (data == null)
 		{
 			return false;		
@@ -180,10 +179,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		
 		try
 		{
-			endpointMan.updateEndpoint(id, data.displayedName, data.description,
-					data.authenticators, data.jsonConfiguration, data.realm);
-				
-			
+			endpointMan.updateEndpoint(id, data.basicConfig);
 		} catch (Exception e)
 		{
 			log.error("Cannot update endpoint", e);
@@ -285,7 +281,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		content.addComponent(au);
 	}
 	
-	private EndpointConfig getEndpointConfig(String name)
+	private EndpointConfigExt getEndpointConfig(String name)
 	{
 		String endpointKey = null;
 		Set<String> endpointsList = config.getStructuredListKeys(UnityServerConfiguration.ENDPOINTS);
@@ -303,24 +299,26 @@ public class EndpointComponent extends DeployableComponentViewBase
 			return null;
 		}
 
-		EndpointConfig ret = new EndpointConfig();
+		EndpointConfigExt ret = new EndpointConfigExt();
 		
-		ret.description = config.getValue(endpointKey
+		
+		String description = config.getValue(endpointKey
 				+ UnityServerConfiguration.ENDPOINT_DESCRIPTION);
-		ret.authenticators = config.getEndpointAuth(endpointKey);
+		List<AuthenticationOptionDescription> authn = config.getEndpointAuth(endpointKey);
 		ret.type = config.getValue(endpointKey
 						+ UnityServerConfiguration.ENDPOINT_TYPE);
 		ret.address = config.getValue(endpointKey
 				+ UnityServerConfiguration.ENDPOINT_ADDRESS);
-		ret.realm = config.getValue(endpointKey
+		String realm = config.getValue(endpointKey
 				+ UnityServerConfiguration.ENDPOINT_REALM);
-		ret.displayedName = config.getLocalizedString(msg, endpointKey
+		I18nString displayedName = config.getLocalizedString(msg, endpointKey
 				+ UnityServerConfiguration.ENDPOINT_DISPLAYED_NAME);
-		if (ret.displayedName.isEmpty())
-			ret.displayedName.setDefaultValue(name);
+		if (displayedName.isEmpty())
+			displayedName.setDefaultValue(name);
+		String jsonConfig;
 		try
 		{
-			ret.jsonConfiguration = serverMan.loadConfigurationFile(config.getValue(endpointKey
+			jsonConfig = serverMan.loadConfigurationFile(config.getValue(endpointKey
 					                           + UnityServerConfiguration.ENDPOINT_CONFIGURATION));
 		} catch (Exception e)
 		{
@@ -329,18 +327,16 @@ public class EndpointComponent extends DeployableComponentViewBase
 					e);
 			return null;
 		}
+		
+		ret.basicConfig = new EndpointConfiguration(displayedName, description, authn, jsonConfig, realm);
 		return ret;
 		
 	}
 	
-	private static class EndpointConfig
+	private static class EndpointConfigExt
 	{
-		private String description;
-		private List<AuthenticationOptionDescription> authenticators;
 		private String type;
 		private String address;
-		private String realm;
-		private String jsonConfiguration;
-		private I18nString displayedName;
+		private EndpointConfiguration basicConfig;
 	}
 }

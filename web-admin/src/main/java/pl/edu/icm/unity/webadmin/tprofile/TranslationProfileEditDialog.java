@@ -5,8 +5,8 @@
 
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 
 import com.vaadin.ui.Alignment;
@@ -22,11 +22,11 @@ import com.vaadin.ui.VerticalLayout;
  */
 public class TranslationProfileEditDialog extends AbstractDialog
 {
-	private TranslationProfileEditor<?, ?> editor;
+	private TranslationProfileEditor editor;
 	private Callback callback;
 	
 	public TranslationProfileEditDialog(UnityMessageSource msg, String caption,
-			Callback callback, TranslationProfileEditor<?, ?> editor)
+			Callback callback, TranslationProfileEditor editor)
 	{
 		super(msg, caption);
 		this.editor = editor;
@@ -46,7 +46,7 @@ public class TranslationProfileEditDialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
-		TranslationProfile<?> profile;
+		TranslationProfile profile;
 		try
 		{
 			profile = editor.getProfile();
@@ -67,7 +67,7 @@ public class TranslationProfileEditDialog extends AbstractDialog
 	
 	public interface Callback
 	{
-		public boolean handleProfile(TranslationProfile<?> profile);
+		public boolean handleProfile(TranslationProfile profile);
 	}
 	
 }

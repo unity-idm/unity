@@ -12,13 +12,13 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
 import pl.edu.icm.unity.server.translation.form.GroupParam;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Allows for removing a requested group membership from the request
@@ -26,14 +26,14 @@ import pl.edu.icm.unity.server.utils.Log;
  * @author K. Benedyczak
  */
 @Component
-public class FilterGroupActionFactory extends AbstractTranslationActionFactory
+public class FilterGroupActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	public static final String NAME = "regFilterGroup";
 	
 	public FilterGroupActionFactory()
 	{
-		super(NAME, new ActionParameterDesc[] {
-				new ActionParameterDesc("group", 
+		super(NAME, new ActionParameterDefinition[] {
+				new ActionParameterDefinition("group", 
 						"RegTranslationAction.regFilterGroup.paramDesc.group",
 						Type.EXPRESSION)
 		});
@@ -42,16 +42,16 @@ public class FilterGroupActionFactory extends AbstractTranslationActionFactory
 	@Override
 	public RegistrationTranslationAction getInstance(String... parameters)
 	{
-		return new FilterGroupAction(this, parameters);
+		return new FilterGroupAction(getActionType(), parameters);
 	}
 	
-	public static class FilterGroupAction extends AbstractRegistrationTranslationAction
+	public static class FilterGroupAction extends RegistrationTranslationAction
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION,
 				FilterGroupActionFactory.FilterGroupAction.class);
 		private Pattern groupPattern;
 		
-		public FilterGroupAction(TranslationActionDescription description, String[] parameters)
+		public FilterGroupAction(TranslationActionType description, String[] parameters)
 		{
 			super(description, parameters);
 			setParameters(parameters);

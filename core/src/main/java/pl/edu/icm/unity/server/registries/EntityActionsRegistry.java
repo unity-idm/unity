@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.bulkops.EntityActionFactory;
 
+
 /**
  * Maintains a simple registry of available {@link EntityActionFactory}ies.
  * 
@@ -28,6 +29,6 @@ public class EntityActionsRegistry extends TypesRegistryBase<EntityActionFactory
 	@Override
 	protected String getId(EntityActionFactory from)
 	{
-		return from.getName();
+		return from.getActionType().getName();
 	}
 }

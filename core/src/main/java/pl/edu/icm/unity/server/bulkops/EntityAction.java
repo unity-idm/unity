@@ -4,18 +4,24 @@
  */
 package pl.edu.icm.unity.server.bulkops;
 
-import pl.edu.icm.unity.server.translation.TranslationAction;
+import pl.edu.icm.unity.server.translation.TranslationActionInstance;
 import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Implementation performs an action on a given entity.
  * @author K. Benedyczak
  */
-public interface EntityAction extends TranslationAction
+public abstract class EntityAction extends TranslationActionInstance
 {
+	public EntityAction(TranslationActionType actionType, String[] parameters)
+	{
+		super(actionType, parameters);
+	}
+	
 	/**
 	 * Performs an implementation specific action.
 	 * @param entity entity to operate on.
 	 */
-	void invoke(Entity entity);
+	public abstract void invoke(Entity entity);
 }

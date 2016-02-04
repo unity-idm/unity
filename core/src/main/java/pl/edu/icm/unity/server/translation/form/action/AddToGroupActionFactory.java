@@ -12,13 +12,13 @@ import org.mvel2.MVEL;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
 import pl.edu.icm.unity.server.translation.form.GroupParam;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Allows for adding a requester to additional group
@@ -26,14 +26,14 @@ import pl.edu.icm.unity.server.utils.Log;
  * @author K. Benedyczak
  */
 @Component
-public class AddToGroupActionFactory extends AbstractTranslationActionFactory
+public class AddToGroupActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	public static final String NAME = "addToGroup";
 	
 	public AddToGroupActionFactory()
 	{
-		super(NAME, new ActionParameterDesc[] {
-				new ActionParameterDesc("group", 
+		super(NAME, new ActionParameterDefinition[] {
+				new ActionParameterDefinition("group", 
 						"RegTranslationAction.addToGroup.paramDesc.group", 
 						Type.EXPRESSION)
 		});
@@ -42,16 +42,16 @@ public class AddToGroupActionFactory extends AbstractTranslationActionFactory
 	@Override
 	public RegistrationTranslationAction getInstance(String... parameters)
 	{
-		return new AddToGroupAction(this, parameters);
+		return new AddToGroupAction(getActionType(), parameters);
 	}
 	
-	public static class AddToGroupAction extends AbstractRegistrationTranslationAction
+	public static class AddToGroupAction extends RegistrationTranslationAction
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION,
 				AddToGroupActionFactory.AddToGroupAction.class);
 		private Serializable expression;
 		
-		public AddToGroupAction(TranslationActionDescription description, String[] parameters)
+		public AddToGroupAction(TranslationActionType description, String[] parameters)
 		{
 			super(description, parameters);
 			setParameters(parameters);

@@ -47,7 +47,7 @@ public class ScheduledProcessingRule extends ScheduledProcessingRuleParam
 		root.put("id", id);
 		root.put("cronExpression", getCronExpression());
 		root.put("condition", getCondition());
-		root.put("action", getAction().getActionDescription().getName());
+		root.put("action", getAction().getName());
 		ArrayNode actionParams = root.withArray("actionParams");
 		for (String param: getAction().getParameters())
 			actionParams.add(param);

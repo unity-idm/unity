@@ -18,6 +18,7 @@ import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.ws.mock.MockWSEndpointFactory;
 import pl.edu.icm.unity.ws.mock.MockWSSEI;
@@ -44,8 +45,9 @@ public class TestWSCore extends DBIntegrationTestBase
 		
 		List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
 		authnCfg.add(new AuthenticationOptionDescription(AUTHENTICATOR_WS_PASS));
-		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint1", new I18nString("endpoint1"), 
-				"/mock", "desc", authnCfg, "", realm.getName());
+		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
+				"desc", authnCfg, "", realm.getName());
+		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint1", "/mock", cfg);
 
 		httpServer.start();
 		
@@ -127,8 +129,9 @@ public class TestWSCore extends DBIntegrationTestBase
 		List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
 		authnCfg.add(new AuthenticationOptionDescription(AUTHENTICATOR_WS_PASS));
 		authnCfg.add(new AuthenticationOptionDescription(AUTHENTICATOR_WS_CERT));
-		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint1", new I18nString("endpoint1"), 
-				"/mock", "desc", authnCfg, "", realm.getName());
+		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
+				"desc", authnCfg, "", realm.getName());
+		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint1", "/mock", cfg);
 		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
 
@@ -194,8 +197,9 @@ public class TestWSCore extends DBIntegrationTestBase
 
 		List<AuthenticationOptionDescription> authnCfg2 = new ArrayList<AuthenticationOptionDescription>();
 		authnCfg2.add(new AuthenticationOptionDescription(AUTHENTICATOR_WS_PASS, AUTHENTICATOR_WS_CERT));
-		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint2", new I18nString("endpoint2"),
-				"/mock2", "desc", authnCfg2, "", realm.getName());
+		EndpointConfiguration cfg2 = new EndpointConfiguration(new I18nString("endpoint2"),
+				"desc", authnCfg2, "", realm.getName());
+		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint2", "/mock2", cfg2);
 		
 		clientCfg.setSslAuthn(true);
 		clientCfg.setHttpAuthn(true);

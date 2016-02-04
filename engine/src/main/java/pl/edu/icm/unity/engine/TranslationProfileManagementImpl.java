@@ -22,15 +22,15 @@ import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.registries.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.server.registries.OutputTranslationActionsRegistry;
-import pl.edu.icm.unity.server.translation.ProfileType;
-import pl.edu.icm.unity.server.translation.TranslationCondition;
-import pl.edu.icm.unity.server.translation.TranslationProfile;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
-import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationProfile;
-import pl.edu.icm.unity.server.translation.out.OutputTranslationRule;
 import pl.edu.icm.unity.stdext.translation.out.CreateAttributeActionFactory;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.types.translation.TranslationAction;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
+import pl.edu.icm.unity.types.translation.TranslationRule;
 
 /**
  * Implementation of {@link TranslationProfileManagement}
@@ -43,24 +43,27 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 {
 	private AuthorizationManager authz;
 	private TranslationProfileDB tpDB;
-	private OutputTranslationActionsRegistry outtactionReg;
+	private InputTranslationActionsRegistry inputActionReg;
+	private OutputTranslationActionsRegistry outputActionReg;
 	private OutputTranslationProfile defaultProfile;
 	
 	@Autowired
 	public TranslationProfileManagementImpl(AuthorizationManager authz,
-			TranslationProfileDB tpDB, OutputTranslationActionsRegistry outtactionReg) 
+			TranslationProfileDB tpDB, InputTranslationActionsRegistry inputActionReg,
+			OutputTranslationActionsRegistry outputActionReg) 
 					throws IllegalTypeException, EngineException
 	{
 		this.authz = authz;
 		this.tpDB = tpDB;
-		this.outtactionReg = outtactionReg;
-		
+		this.inputActionReg = inputActionReg;
+		this.outputActionReg = outputActionReg;
+
 		this.defaultProfile = createDefaultOutputProfile();
 	}
 
 	@Override
 	@Transactional
-	public void addProfile(TranslationProfile<?> toAdd) throws EngineException
+	public void addProfile(TranslationProfile toAdd) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		SqlSession sql = SqlSessionTL.get();
@@ -78,7 +81,7 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 
 	@Override
 	@Transactional
-	public void updateProfile(TranslationProfile<?> updated) throws EngineException
+	public void updateProfile(TranslationProfile updated) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		SqlSession sql = SqlSessionTL.get();
@@ -100,19 +103,35 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	}
 	
 
-	@SuppressWarnings("unchecked")
 	private <T extends TranslationProfile> Map<String, T> listProfiles(Class<T> clazz,
 			ProfileType type) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		SqlSession sql = SqlSessionTL.get();
-		Map<String, TranslationProfile<?>> all = tpDB.getAllAsMap(sql);
+		Map<String, TranslationProfile> all = tpDB.getAllAsMap(sql);
 		sql.commit();
 		Map<String, T> ret = new HashMap<String, T>();
 		for (Map.Entry<String, TranslationProfile> e: all.entrySet())
 			if (e.getValue().getProfileType().equals(type))
-				ret.put(e.getKey(), (T) e.getValue());
+				ret.put(e.getKey(), makeInstance(e.getValue()));
 		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T extends TranslationProfile> T makeInstance(TranslationProfile core)
+	{
+		switch (core.getProfileType())
+		{
+		case INPUT:
+			return (T)new InputTranslationProfile(core.getName(), core.getDescription(), 
+					core.getRules(), inputActionReg);
+		case OUTPUT:
+			return (T)new OutputTranslationProfile(core.getName(), core.getDescription(), 
+					core.getRules(), outputActionReg);
+		default:
+			throw new IllegalStateException("The stored translation profile with type id " + 
+					core.getProfileType() + " is not accessible as a standalone profile");
+		}
 	}
 
 	@Override
@@ -123,12 +142,10 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 
 	private OutputTranslationProfile createDefaultOutputProfile() throws IllegalTypeException, EngineException
 	{
-		List<OutputTranslationRule> rules = new ArrayList<>();
-		OutputTranslationAction action1 = outtactionReg.getByName(
-				CreateAttributeActionFactory.NAME).getInstance(
-				"memberOf", 
-				"groups");
-		rules.add(new OutputTranslationRule(action1, new TranslationCondition()));
-		return new OutputTranslationProfile("DEFAULT OUTPUT PROFILE", rules);
+		List<TranslationRule> rules = new ArrayList<>();
+		TranslationAction action1 = new TranslationAction(CreateAttributeActionFactory.NAME, 
+				new String[] {"memberOf", "groups"});
+		rules.add(new TranslationRule("true", action1));
+		return new OutputTranslationProfile("DEFAULT OUTPUT PROFILE", "", rules, outputActionReg);
 	}
 }

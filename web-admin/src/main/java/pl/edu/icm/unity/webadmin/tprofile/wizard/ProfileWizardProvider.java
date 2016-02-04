@@ -6,19 +6,17 @@ package pl.edu.icm.unity.webadmin.tprofile.wizard;
 
 import org.vaadin.teemu.wizards.Wizard;
 
-import com.vaadin.ui.UI;
-
 import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.sandbox.wizard.AbstractSandboxWizardProvider;
 import pl.edu.icm.unity.server.authn.remote.RemoteSandboxAuthnContext;
-import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
-import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditDialog.Callback;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditor;
 import pl.edu.icm.unity.webui.association.IntroStep;
 import pl.edu.icm.unity.webui.association.SandboxStep;
+
+import com.vaadin.ui.UI;
 
 /**
  * Creates input profile creation wizard
@@ -28,10 +26,10 @@ public class ProfileWizardProvider extends AbstractSandboxWizardProvider
 {
 	private UnityMessageSource msg;
 	private Callback addCallback;
-	private TranslationProfileEditor<InputTranslationAction, InputTranslationRule> editor;
+	private TranslationProfileEditor editor;
 
 	public ProfileWizardProvider(UnityMessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier, 
-			TranslationProfileEditor<InputTranslationAction, InputTranslationRule> editor, Callback addCallback)
+			TranslationProfileEditor editor, Callback addCallback)
 	{
 		super(sandboxURL, sandboxNotifier);
 		this.msg = msg;

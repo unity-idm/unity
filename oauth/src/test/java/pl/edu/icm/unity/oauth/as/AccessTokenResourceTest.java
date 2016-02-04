@@ -54,7 +54,7 @@ public class AccessTokenResourceTest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
-		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, tx);
+		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, tx);
 		setupInvocationContext(111);
 		
 		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement,
@@ -72,7 +72,7 @@ public class AccessTokenResourceTest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
-		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, tx);
+		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, tx);
 		setupInvocationContext(100);
 		
 		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement,
@@ -90,7 +90,7 @@ public class AccessTokenResourceTest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
-		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, tx);
+		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, tx);
 		setupInvocationContext(100);
 
 		Response resp = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
@@ -105,7 +105,7 @@ public class AccessTokenResourceTest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
-		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, tx);
+		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, tx);
 		setupInvocationContext(100);
 
 		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement,

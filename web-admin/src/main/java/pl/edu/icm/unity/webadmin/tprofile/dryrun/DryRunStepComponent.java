@@ -15,8 +15,7 @@ import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.authn.remote.RemoteSandboxAuthnContext;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.registries.InputTranslationActionsRegistry;
-import pl.edu.icm.unity.server.translation.TranslationProfile;
-import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
+import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.tprofile.MappingResultComponent;
@@ -70,7 +69,7 @@ public class DryRunStepComponent extends CustomComponent
 	private UnityMessageSource msg;
 	private MappingResultComponent mappingResult;
 	private RemotelyAuthenticatedInputComponent remoteIdpInput;
-	private TranslationProfileViewer<InputTranslationAction> profileViewer;
+	private TranslationProfileViewer profileViewer;
 	
 	/**
 	 * The constructor should first build the main layout, set the
@@ -81,12 +80,12 @@ public class DryRunStepComponent extends CustomComponent
 	 * @param msg 
 	 * @param sandboxURL 
 	 */
-	public DryRunStepComponent(UnityMessageSource msg, String sandboxURL, InputTranslationActionsRegistry registry,
-			TranslationProfileManagement tpMan) 
+	public DryRunStepComponent(UnityMessageSource msg, String sandboxURL, 
+			TranslationProfileManagement tpMan, InputTranslationActionsRegistry taRegistry) 
 	{
 		this.msg = msg;
-		this.taRegistry = registry;
 		this.tpMan = tpMan;
+		this.taRegistry = taRegistry;
 		
 		setCompositionRoot(buildMainLayout());
 		
@@ -160,7 +159,7 @@ public class DryRunStepComponent extends CustomComponent
 		boolean isHRVisible = (profile != null);
 		try
 		{
-			TranslationProfile tp = tpMan.listInputProfiles().get(profile);
+			InputTranslationProfile tp = tpMan.listInputProfiles().get(profile);
 			profileViewer.setInput(tp);
 			profileViewer.setVisible(true);
 		} catch (EngineException e)
@@ -239,7 +238,7 @@ public class DryRunStepComponent extends CustomComponent
 		hr_1 = HtmlTag.hr();
 		resultWrapper.addComponent(hr_1);
 		
-		profileViewer = new TranslationProfileViewer<>(msg, taRegistry);
+		profileViewer = new TranslationProfileViewer(msg, taRegistry);
 		
 		resultWrapper.addComponent(profileViewer);
 		

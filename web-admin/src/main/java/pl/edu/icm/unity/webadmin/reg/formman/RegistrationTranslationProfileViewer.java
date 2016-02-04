@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.webadmin.reg.formman;
 
 import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileViewer;
 
@@ -14,13 +13,12 @@ import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileViewer;
  * of the profile, which is not relevant in the profile used in a registration form.
  * @author K. Benedyczak
  */
-public class RegistrationTranslationProfileViewer extends TranslationProfileViewer<RegistrationTranslationAction>
+public class RegistrationTranslationProfileViewer extends TranslationProfileViewer
 {
 
-	public RegistrationTranslationProfileViewer(UnityMessageSource msg,
-			RegistrationActionsRegistry registry)
+	public RegistrationTranslationProfileViewer(UnityMessageSource msg, RegistrationActionsRegistry actionsRegistry)
 	{
-		super(msg, registry);
+		super(msg, actionsRegistry);
 	}
 
 	protected void initUI()

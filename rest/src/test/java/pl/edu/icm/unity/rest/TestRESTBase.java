@@ -25,6 +25,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
@@ -90,9 +91,9 @@ public abstract class TestRESTBase extends DBIntegrationTestBase
 
 		List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
 		authnCfg.add(new AuthenticationOptionDescription("ApassREST"));
-		endpointMan.deploy(endpointTypeName, 
-				name, new I18nString(name),
-				context, "desc", authnCfg, "", realm.getName());
+		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString(name),
+				"desc", authnCfg, "", realm.getName());
+		endpointMan.deploy(endpointTypeName, name, context, cfg);
 		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
 

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,9 +32,11 @@ import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.registries.EndpointFactoriesRegistry;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
@@ -45,6 +48,7 @@ import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 @InvocationEventProducer
 public class EndpointManagementImpl implements EndpointManagement
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, EndpointManagementImpl.class);
 	private EndpointFactoriesRegistry endpointFactoriesReg;
 	private AuthenticatorLoader authnLoader;
 	private InternalEndpointManagement internalManagement;
@@ -92,22 +96,22 @@ public class EndpointManagementImpl implements EndpointManagement
 	 */
 	@Override
 	@Transactional
-	public EndpointDescription deploy(String typeId, String endpointName, I18nString displayedName, 
-			String address, String description,
-			List<AuthenticationOptionDescription> authn, String jsonConfiguration, String realm) throws EngineException 
+	public EndpointDescription deploy(String typeId, String endpointName, 
+			String address, EndpointConfiguration configuration) throws EngineException 
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		synchronized(internalManagement)
 		{
-			return deployInt(typeId, endpointName, displayedName, address, description, authn, 
-					realm, jsonConfiguration);
+			return deployInt(typeId, endpointName, address, configuration);
 		}
 	}
 
-	private EndpointDescription deployInt(String typeId, String endpointName, I18nString displayedName, 
-			String address, String description, List<AuthenticationOptionDescription> authenticatorsInfo, 
-			String realmName, String jsonConfiguration) throws EngineException 
+	private EndpointDescription deployInt(String typeId, String endpointName, 
+			String address, EndpointConfiguration configuration) throws EngineException 
 	{
+		log.info("Will deploy endpoint " + endpointName + " [" + typeId +"] at " + address);
+		if (log.isTraceEnabled())
+			log.trace("New endpoint configuration: " + configuration);
 		EndpointFactory factory = endpointFactoriesReg.getById(typeId);
 		if (factory == null)
 			throw new WrongArgumentException("Endpoint type " + typeId + " is unknown");
@@ -116,17 +120,19 @@ public class EndpointManagementImpl implements EndpointManagement
 		try
 		{
 			List<AuthenticationOption> authenticators = authnLoader.getAuthenticators(
-					authenticatorsInfo, sql);
+					configuration.getAuthenticationOptions(), sql);
 			verifyAuthenticators(authenticators, factory.getDescription().getSupportedBindings());
-			AuthenticationRealm realm = realmDB.get(realmName, sql);
+			AuthenticationRealm realm = realmDB.get(configuration.getRealm(), sql);
 			
 			EndpointDescription endpDescription = new EndpointDescription(
-					endpointName, displayedName, address, description, realm, 
-					factory.getDescription(), authenticatorsInfo);
+					endpointName, configuration.getDisplayedName(), address, 
+					configuration.getDescription(), realm, 
+					factory.getDescription(), configuration.getAuthenticationOptions());
 			
-			instance.initialize(endpDescription, authenticators, jsonConfiguration);
+			instance.initialize(endpDescription, authenticators, configuration.getConfiguration());
 			endpointDB.insert(endpointName, instance, sql);
 			internalManagement.deploy(instance);
+			log.info("Endpoint " + endpointName + " successfully deployed");
 		} catch (Exception e)
 		{
 			internalManagement.undeploy(instance.getEndpointDescription().getId());
@@ -165,6 +171,7 @@ public class EndpointManagementImpl implements EndpointManagement
 
 	private void undeployInt(String id) throws EngineException
 	{
+		log.info("Will undeploy endpoint " + id);
 		tx.runInTransaciton(() -> {
 			try
 			{
@@ -178,13 +185,12 @@ public class EndpointManagementImpl implements EndpointManagement
 	}	
 	
 	@Override
-	public void updateEndpoint(String id, I18nString displayedName, String description, 
-			List<AuthenticationOptionDescription> authn, String jsonConfiguration, String realm) throws EngineException
+	public void updateEndpoint(String id, EndpointConfiguration configuration) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		synchronized(internalManagement)
 		{
-			updateEndpointInt(id, displayedName, description, jsonConfiguration, authn, realm);
+			updateEndpointInt(id, configuration);
 		}
 	}
 
@@ -195,15 +201,14 @@ public class EndpointManagementImpl implements EndpointManagement
 	 * -) serialize and store in db
 	 * -) trigger runtime system update.
 	 * @param id
-	 * @param description
-	 * @param jsonConfiguration
-	 * @param authn
+	 * @param configuration
 	 * @throws EngineException
 	 */
-	private void updateEndpointInt(String id, I18nString displayedName, String description, 
-			String jsonConfiguration, 
-			List<AuthenticationOptionDescription> authn, String realmName) throws EngineException
+	private void updateEndpointInt(String id, EndpointConfiguration configuration) throws EngineException
 	{
+		log.info("Will update configuration of endpoint " + id);
+		if (log.isTraceEnabled())
+			log.trace("Updated endpoint configuration: " + configuration);
 		tx.runInTransaciton(() -> {
 			SqlSession sql = SqlSessionTL.get();
 			try
@@ -213,32 +218,43 @@ public class EndpointManagementImpl implements EndpointManagement
 				EndpointFactory factory = endpointFactoriesReg.getById(endpointTypeId);
 				EndpointInstance newInstance = factory.newInstance();
 				
-				String jsonConf = (jsonConfiguration != null) ? jsonConfiguration : 
+				String jsonConf = (configuration.getConfiguration() != null) ? 
+						configuration.getConfiguration() : 
 					instance.getSerializedConfiguration();
-				String newDesc = (description != null) ? description : 
+				String newDesc = (configuration.getDescription() != null) ? 
+						configuration.getDescription() : 
 					instance.getEndpointDescription().getDescription();
 				
 				List<AuthenticationOption> authenticators;
 				List<AuthenticationOptionDescription> newAuthn;
-				if (authn != null)
+				if (configuration.getAuthenticationOptions() != null)
 				{
-					newAuthn = authn;
-					authenticators = authnLoader.getAuthenticators(authn, sql);
+					newAuthn = configuration.getAuthenticationOptions();
+					authenticators = authnLoader.getAuthenticators(newAuthn, sql);
 				} else
 				{
 					newAuthn = instance.getEndpointDescription().getAuthenticatorSets();
 					authenticators = authnLoader.getAuthenticators(newAuthn, sql);
 				}
-				AuthenticationRealm realm = realmDB.get(realmName, sql);
+				String newRealm = (configuration.getRealm() != null) ?
+						configuration.getRealm() : 
+						instance.getEndpointDescription().getRealm().getName();
+				
+				AuthenticationRealm realm = realmDB.get(newRealm, sql);
+				
+				I18nString newDisplayedName = configuration.getDisplayedName() != null ? 
+						configuration.getDisplayedName() :
+						instance.getEndpointDescription().getDisplayedName();
 				
 				EndpointDescription endpDescription = new EndpointDescription(
-						id, displayedName, 
+						id, newDisplayedName, 
 						instance.getEndpointDescription().getContextAddress(), 
 						newDesc, realm, 
 						factory.getDescription(), newAuthn);
 				
 				newInstance.initialize(endpDescription, authenticators, jsonConf);
 				endpointDB.update(id, newInstance, sql);
+				log.info("Endpoint " + id + " successfully updated");
 			} catch (Exception e)
 			{
 				throw new EngineException("Unable to reconfigure an endpoint: " + e.getMessage(), e);

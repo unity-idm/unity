@@ -25,11 +25,11 @@ public class DryRunStep implements WizardStep
 	private DryRunStepComponent dryRunComponent;
 
 	
-	public DryRunStep(UnityMessageSource msg, String sandboxURL, InputTranslationActionsRegistry registry,
-			TranslationProfileManagement tpMan) 
+	public DryRunStep(UnityMessageSource msg, String sandboxURL, 
+			TranslationProfileManagement tpMan, InputTranslationActionsRegistry taRegistry) 
 	{
 		this.msg = msg;
-		dryRunComponent = new DryRunStepComponent(msg, sandboxURL, registry, tpMan);
+		dryRunComponent = new DryRunStepComponent(msg, sandboxURL, tpMan, taRegistry);
 	}
 
 	public void handle(SandboxAuthnEvent event) 

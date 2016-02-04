@@ -13,16 +13,16 @@ import org.mvel2.MVEL;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
-import pl.edu.icm.unity.server.translation.out.AbstractOutputTranslationAction;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.TranslationInput;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Creates new outgoing attributes which are not persisted locally.
@@ -36,11 +36,11 @@ public class CreateAttributeActionFactory extends AbstractOutputTranslationActio
 	
 	public CreateAttributeActionFactory()
 	{
-		super(NAME, new ActionParameterDesc(
+		super(NAME, new ActionParameterDefinition(
 				"attributeName",
 				"TranslationAction.createAttribute.paramDesc.attributeName",
 				Type.EXPRESSION),
-		new ActionParameterDesc(
+		new ActionParameterDefinition(
 				"expression",
 				"TranslationAction.createAttribute.paramDesc.expression",
 				Type.EXPRESSION));
@@ -49,16 +49,16 @@ public class CreateAttributeActionFactory extends AbstractOutputTranslationActio
 	@Override
 	public CreateAttributeAction getInstance(String... parameters)
 	{
-		return new CreateAttributeAction(parameters, this);
+		return new CreateAttributeAction(parameters, getActionType());
 	}
 	
-	public static class CreateAttributeAction extends AbstractOutputTranslationAction
+	public static class CreateAttributeAction extends OutputTranslationAction
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, CreateAttributeAction.class);
 		private String attrNameString;
 		private Serializable valuesExpression;
 
-		public CreateAttributeAction(String[] params, TranslationActionDescription desc) 
+		public CreateAttributeAction(String[] params, TranslationActionType desc) 
 		{
 			super(desc, params);
 			setParameters(params);

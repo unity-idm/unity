@@ -12,13 +12,13 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Allows for removing a requested attribute from the request
@@ -26,17 +26,17 @@ import pl.edu.icm.unity.types.basic.Attribute;
  * @author K. Benedyczak
  */
 @Component
-public class FilterAttributeActionFactory extends AbstractTranslationActionFactory
+public class FilterAttributeActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	public static final String NAME = "regFilterAttribute";
 	
 	public FilterAttributeActionFactory()
 	{
-		super(NAME, new ActionParameterDesc[] {
-				new ActionParameterDesc("attribute", 
+		super(NAME, new ActionParameterDefinition[] {
+				new ActionParameterDefinition("attribute", 
 						"RegTranslationAction.regFilterAttribute.paramDesc.attribute",
 						Type.EXPRESSION),
-				new ActionParameterDesc("group", 
+				new ActionParameterDefinition("group", 
 						"RegTranslationAction.regFilterAttribute.paramDesc.group",
 						Type.UNITY_GROUP)
 		});
@@ -45,17 +45,17 @@ public class FilterAttributeActionFactory extends AbstractTranslationActionFacto
 	@Override
 	public RegistrationTranslationAction getInstance(String... parameters)
 	{
-		return new FilterAttributeAction(this, parameters);
+		return new FilterAttributeAction(getActionType(), parameters);
 	}
 	
-	public static class FilterAttributeAction extends AbstractRegistrationTranslationAction
+	public static class FilterAttributeAction extends RegistrationTranslationAction
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION,
 				FilterAttributeActionFactory.FilterAttributeAction.class);
 		private Pattern attributePattern;
 		private String group;
 		
-		public FilterAttributeAction(TranslationActionDescription description, String[] parameters)
+		public FilterAttributeAction(TranslationActionType description, String[] parameters)
 		{
 			super(description, parameters);
 			setParameters(parameters);

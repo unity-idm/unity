@@ -155,7 +155,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 			TranslationResult userInfo = getUserInfo(oauthCtx);
 			IdentityParam selectedIdentity = getIdentity(userInfo);
 			log.debug("Authentication of " + selectedIdentity);
-			Collection<Attribute<?>> attributes = processor.filterAttributes(userInfo, oauthCtx);
+			Collection<Attribute<?>> attributes = processor.filterAttributes(userInfo, oauthCtx.getRequestedAttrs());
 			respDoc = processor.prepareAuthzResponseAndRecordInternalState(attributes, selectedIdentity, 
 					oauthCtx, tokensMan);
 		} catch (ExecutionFailException e)

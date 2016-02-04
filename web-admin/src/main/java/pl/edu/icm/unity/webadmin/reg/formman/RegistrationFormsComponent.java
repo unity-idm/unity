@@ -27,7 +27,6 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormEditDialog.Callback;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory;
-import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -70,13 +69,12 @@ public class RegistrationFormsComponent extends VerticalLayout
 	private IdentitiesManagement identitiesMan;
 	private AttributesManagement attributeMan;
 	private EventsBus bus;
-
+	private ActionParameterComponentFactory actionComponentFactory;
 	
 	private GenericElementsTable<RegistrationForm> table;
 	private RegistrationFormViewer viewer;
 	private com.vaadin.ui.Component main;
 	private RegistrationActionsRegistry actionsRegistry;
-	private Provider actionComponentProvider;
 	
 	
 	@Autowired
@@ -86,8 +84,8 @@ public class RegistrationFormsComponent extends VerticalLayout
 			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
 			AttributesManagement attributeMan, AuthenticationManagement authenticationMan,
 			SharedEndpointManagement sharedEndpointMan,
-			RegistrationActionsRegistry actionsRegistry, 
-			ActionParameterComponentFactory.Provider actionComponentProvider)
+			RegistrationActionsRegistry actionsRegistry,
+			ActionParameterComponentFactory actionComponentFactory)
 	{
 		this.msg = msg;
 		this.registrationsManagement = registrationsManagement;
@@ -98,7 +96,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 		this.msgTempMan = msgTempMan;
 		this.attributeMan = attributeMan;
 		this.actionsRegistry = actionsRegistry;
-		this.actionComponentProvider = actionComponentProvider;
+		this.actionComponentFactory = actionComponentFactory;
 		this.bus = WebSession.getCurrent().getEventBus();
 		
 		addStyleName(Styles.visibleScroll.toString());
@@ -115,7 +113,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 				});
 		table.setWidth(90, Unit.PERCENTAGE);
 		table.setMultiSelect(true);
-		viewer = new RegistrationFormViewer(msg, msgTempMan, sharedEndpointMan, actionsRegistry);
+		viewer = new RegistrationFormViewer(msg, actionsRegistry, msgTempMan, sharedEndpointMan);
 		viewer.setInput(null);
 		table.addValueChangeListener(new ValueChangeListener()
 		{
@@ -260,7 +258,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 			{
 				editor = new RegistrationFormEditor(msg, groupsMan, notificationsMan,
 						msgTempMan, identitiesMan, attributeMan, authenticationMan,
-						actionsRegistry, actionComponentProvider);
+						actionsRegistry, actionComponentFactory.getComponentProvider());
 			} catch (EngineException e)
 			{
 				NotificationPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
@@ -321,7 +319,8 @@ public class RegistrationFormsComponent extends VerticalLayout
 			{		
 				editor = new RegistrationFormEditor(msg, groupsMan, notificationsMan,
 						msgTempMan, identitiesMan, attributeMan, authenticationMan,
-						actionsRegistry, actionComponentProvider, form, copyMode);
+						actionsRegistry, actionComponentFactory.getComponentProvider(), 
+						form, copyMode);
 			} catch (Exception e)
 			{
 				NotificationPopup.showError(msg, msg.getMessage(

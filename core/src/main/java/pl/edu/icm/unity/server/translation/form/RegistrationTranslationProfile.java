@@ -16,14 +16,13 @@ import org.apache.log4j.NDC;
 import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.api.RegistrationContext;
-import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
-import pl.edu.icm.unity.server.translation.AbstractTranslationProfile;
+import pl.edu.icm.unity.server.registries.TypesRegistryBase;
 import pl.edu.icm.unity.server.translation.ExecutionBreakException;
-import pl.edu.icm.unity.server.translation.ProfileType;
-import pl.edu.icm.unity.server.translation.TranslationAction;
+import pl.edu.icm.unity.server.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.translation.TranslationActionInstance;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
+import pl.edu.icm.unity.server.translation.TranslationProfileInstance;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.server.translation.form.action.AutoProcessActionFactory;
 import pl.edu.icm.unity.server.translation.form.action.ConfirmationRedirectActionFactory;
@@ -34,20 +33,23 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
+import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.Selection;
+import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.types.translation.TranslationRule;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Classic translation profile used for post-processing registration requests.
  * @author K. Benedyczak
  */
-public class RegistrationTranslationProfile extends AbstractTranslationProfile<RegistrationTranslationAction,
-	RegistrationTranslationRule>
+public class RegistrationTranslationProfile extends TranslationProfileInstance
+						<RegistrationTranslationAction, RegistrationTranslationRule>
 {
 	public enum RequestSubmitStatus 
 	{
@@ -88,18 +90,13 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 	
 	public RegistrationTranslationProfile(ObjectNode json, RegistrationActionsRegistry registry)
 	{
-		fromJson(json, registry);
+		super(json, registry);
 	}
 	
-	public RegistrationTranslationProfile(String json, ObjectMapper jsonMapper, 
-			RegistrationActionsRegistry registry)
+	public RegistrationTranslationProfile(String name, List<? extends TranslationRule> rules, 
+			TypesRegistryBase<? extends TranslationActionFactory> registry)
 	{
-		fromJson(json, jsonMapper, registry);
-	}
-	
-	public RegistrationTranslationProfile(String name, List<RegistrationTranslationRule> rules)
-	{
-		super(name, ProfileType.REGISTRATION, rules);
+		super(name, "", ProfileType.REGISTRATION, rules, registry);
 	}
 	
 	public TranslatedRegistrationRequest translate(RegistrationForm form, RegistrationRequestState request) 
@@ -218,9 +215,9 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 			TranslatedRegistrationRequest translationState = request == null ?
 					new TranslatedRegistrationRequest(form.getDefaultCredentialRequirement()) : 
 					initializeTranslationResult(form, request);
-			for (RegistrationTranslationRule rule: rules)
+			for (RegistrationTranslationRule rule: ruleInstances)
 			{
-				String actionName = rule.getAction().getActionDescription().getName();
+				String actionName = rule.getAction().getName();
 				if (actionNameFilter != null && !actionNameFilter.equals(actionName))
 					continue;
 				NDC.push("[r: " + (i++) + "]");
@@ -248,15 +245,17 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 		TranslatedRegistrationRequest initial = new TranslatedRegistrationRequest(
 				form.getDefaultCredentialRequirement());
 
-		request.getAttributes().
+		request.getAttributes().stream().
+			filter(a -> a != null).
 			forEach(a -> initial.addAttribute(a));
-		request.getIdentities().
+		request.getIdentities().stream().
+			filter(i -> i != null).
 			forEach(i -> initial.addIdentity(i));
 		for (int i = 0; i<request.getGroupSelections().size(); i++)
 		{
 			GroupRegistrationParam groupRegistrationParam = form.getGroupParams().get(i);
 			Selection selection = request.getGroupSelections().get(i);
-			if (selection.isSelected())
+			if (selection != null && selection.isSelected())
 				initial.addMembership(new GroupParam(groupRegistrationParam.getGroupPath(), 
 					selection.getExternalIdp(), selection.getTranslationProfile()));			
 		}
@@ -265,7 +264,7 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 	}
 	
 	@Override
-	protected RegistrationTranslationRule createRule(TranslationAction action,
+	protected RegistrationTranslationRule createRule(TranslationActionInstance action,
 			TranslationCondition condition)
 	{
 		if (!(action instanceof RegistrationTranslationAction))
@@ -303,6 +302,8 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 		{
 			AttributeRegistrationParam attributeRegistrationParam = form.getAttributeParams().get(i);
 			Attribute<?> attribute = request.getAttributes().get(i);
+			if (attribute == null)
+				continue;
 			Object v = attribute.getValues().isEmpty() ? "" : attribute.getValues().get(0);
 			attr.put(attribute.getName(), v);
 			attrs.put(attribute.getName(), (List<Object>) attribute.getValues());
@@ -327,7 +328,8 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 		{
 			IdentityRegistrationParam identityRegistrationParam = form.getIdentityParams().get(i);
 			IdentityParam identityParam = request.getIdentities().get(i);
-
+			if (identityParam == null)
+				continue;
 			List<String> vals = idsByType.get(identityParam.getTypeId());
 			if (vals == null)
 			{
@@ -376,7 +378,8 @@ public class RegistrationTranslationProfile extends AbstractTranslationProfile<R
 		{
 			GroupRegistrationParam groupRegistrationParam = form.getGroupParams().get(i);
 			Selection selection = request.getGroupSelections().get(i);
-			if (selection.isSelected())
+				
+			if (selection != null && selection.isSelected())
 			{
 				groups.add(groupRegistrationParam.getGroupPath());
 				if (groupRegistrationParam.getRetrievalSettings().isAutomaticOnly())

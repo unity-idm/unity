@@ -7,10 +7,10 @@ package pl.edu.icm.unity.webadmin.tprofile;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.registries.TypesRegistryBase;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.TranslationAction;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.webui.common.LayoutEmbeddable;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
@@ -22,9 +22,10 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 public class TranslationActionPresenter<T extends TranslationAction> extends LayoutEmbeddable
 {	
 	private UnityMessageSource msg;
-	private TypesRegistryBase<? extends TranslationActionFactory<T>> registry;
+	private TypesRegistryBase<? extends TranslationActionFactory> registry;
 	
-	public TranslationActionPresenter(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<T>> registry,
+	public TranslationActionPresenter(UnityMessageSource msg, 
+			TypesRegistryBase<? extends TranslationActionFactory> registry,
 			TranslationAction action)
 	{
 		this.msg = msg;
@@ -34,12 +35,12 @@ public class TranslationActionPresenter<T extends TranslationAction> extends Lay
 
 	private void setInput(TranslationAction action)
 	{       
-		String actionName = action.getActionDescription().getName();
-		ActionParameterDesc[] pd = null;
+		String actionName = action.getName();
+		ActionParameterDefinition[] pd = null;
 		try 
 		{
-			TranslationActionFactory<T> f = registry.getByName(actionName);
-			pd = f.getParameters();
+			TranslationActionFactory f = registry.getByName(actionName);
+			pd = f.getActionType().getParameters();
 		} catch (IllegalTypeException e)
 		{
 			throw new InternalException("The action " + actionName + 
@@ -72,7 +73,7 @@ public class TranslationActionPresenter<T extends TranslationAction> extends Lay
 		addComponent(val);
 	}
 	
-	private Object getParamValue(ActionParameterDesc desc, String value)
+	private Object getParamValue(ActionParameterDefinition desc, String value)
 	{
 		if (value == null)
 			return "";

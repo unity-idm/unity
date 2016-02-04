@@ -10,15 +10,17 @@ import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.registries.TypesRegistryBase;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.TranslationAction;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.translation.TranslationActionInstance;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.LayoutEmbeddable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.RequiredComboBox;
+import pl.edu.icm.unity.webui.common.Styles;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -32,17 +34,17 @@ import com.vaadin.ui.Label;
  * Responsible for editing of a single {@link TranslationAction}
  * 
  */
-public class ActionEditor<T extends TranslationAction> extends LayoutEmbeddable
+public class ActionEditor extends LayoutEmbeddable
 {
 	private UnityMessageSource msg;
-	private TypesRegistryBase<? extends TranslationActionFactory<T>> tc;
+	private TypesRegistryBase<? extends TranslationActionFactory> tc;
 	
 	private ComboBox actions;
 	private Label actionParams;
 	private Provider actionComponentProvider;
 	private List<ActionParameterComponent> paramComponents = new ArrayList<>();
 
-	public ActionEditor(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<T>> tc,
+	public ActionEditor(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory> tc,
 			TranslationAction toEdit, ActionParameterComponentFactory.Provider actionComponentProvider)
 	{
 		this.msg = msg;
@@ -54,8 +56,8 @@ public class ActionEditor<T extends TranslationAction> extends LayoutEmbeddable
 	private void initUI(TranslationAction toEdit)
 	{
 		actions = new RequiredComboBox(msg.getMessage("ActionEditor.ruleAction"), msg);
-		for (TranslationActionFactory<T> a : tc.getAll())
-			actions.addItem(a.getName());
+		for (TranslationActionFactory a : tc.getAll())
+			actions.addItem(a.getActionType().getName());
 		actions.setValidationVisible(false);
 		actions.setNullSelectionAllowed(false);
 		actions.addValueChangeListener(new ValueChangeListener()
@@ -77,7 +79,7 @@ public class ActionEditor<T extends TranslationAction> extends LayoutEmbeddable
 		
 		if (toEdit != null)
 		{
-			actions.setValue(toEdit.getActionDescription().getName());
+			actions.setValue(toEdit.getName());
 			setParams(actions.getValue().toString(), toEdit.getParameters());
 		} else
 		{
@@ -95,14 +97,14 @@ public class ActionEditor<T extends TranslationAction> extends LayoutEmbeddable
 		removeComponents(paramComponents);
 		paramComponents.clear();
 		
-		TranslationActionFactory<T> factory = getActionFactory(action);
+		TranslationActionFactory factory = getActionFactory(action);
 		if (factory == null)
 		{	
 			return;
 		}
 		
-		actions.setDescription(msg.getMessage(factory.getDescriptionKey()));
-		ActionParameterDesc[] params = factory.getParameters();	
+		actions.setDescription(msg.getMessage(factory.getActionType().getDescriptionKey()));
+		ActionParameterDefinition[] params = factory.getActionType().getParameters();	
 		for (int i = 0; i < params.length; i++)
 		{
 			ActionParameterComponent p = actionComponentProvider.getParameterComponent(params[i]);
@@ -130,9 +132,9 @@ public class ActionEditor<T extends TranslationAction> extends LayoutEmbeddable
 		return params.toArray(wrapper);
 	}
 	
-	private TranslationActionFactory<T> getActionFactory(String action)
+	private TranslationActionFactory getActionFactory(String action)
 	{
-		TranslationActionFactory<T> factory = null;
+		TranslationActionFactory factory = null;
 		try
 		{
 			factory = tc.getByName(action);
@@ -145,10 +147,10 @@ public class ActionEditor<T extends TranslationAction> extends LayoutEmbeddable
 	}
 	
 
-	public T getAction() throws FormValidationException
+	public TranslationActionInstance getAction() throws FormValidationException
 	{
 		String ac = (String) actions.getValue();
-		TranslationActionFactory<T> factory = getActionFactory(ac);
+		TranslationActionFactory factory = getActionFactory(ac);
 		try
 		{
 			return factory.getInstance(getActionParams());
@@ -168,4 +170,48 @@ public class ActionEditor<T extends TranslationAction> extends LayoutEmbeddable
 		for (Component param: paramComponents)
 			param.setReadOnly(readOnly);
 	}
+	
+	
+	public void indicateExtensionError(Exception e) 
+	{
+		for (ActionParameterComponent c: paramComponents)
+		{
+			if (c instanceof ExtensionActionParameterComponent)
+			{
+				ExtensionActionParameterComponent extension = (ExtensionActionParameterComponent) c;
+				extension.setStyleName(Styles.errorBackground.toString());
+				extension.setComponentError(new UserError(NotificationPopup.getHumanMessage(e)));
+				extension.setValidationVisible(true);
+				break;
+			}
+		}	
+	}
+	
+	
+	public void setStyle(String style)
+	{
+		actions.setStyleName(style);
+		for (ActionParameterComponent c: paramComponents)
+			c.setStyleName(style);
+	}
+	
+	public void removeComponentEvaluationStyle()
+	{
+		actions.removeStyleName(Styles.falseConditionBackground.toString());
+		actions.removeStyleName(Styles.trueConditionBackground.toString());
+		
+		for (ActionParameterComponent c: paramComponents)
+		{
+			c.removeStyleName(Styles.falseConditionBackground.toString());
+			c.removeStyleName(Styles.trueConditionBackground.toString());
+			c.removeStyleName(Styles.errorBackground.toString());
+			if (c instanceof ExtensionActionParameterComponent)
+			{
+				ExtensionActionParameterComponent extension = (ExtensionActionParameterComponent) c;
+				extension.setComponentError(null);
+				extension.setValidationVisible(false);
+			}			
+		}	
+	}
+
 }

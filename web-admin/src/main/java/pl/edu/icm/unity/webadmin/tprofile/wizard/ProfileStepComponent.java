@@ -9,9 +9,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
-import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditor;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
@@ -50,7 +48,7 @@ public class ProfileStepComponent extends CustomComponent
 	private VerticalLayout rightPanel;
 	private static final float DEFAULT_SIZE_OF_SPLIT_POS = 50;
 	private UnityMessageSource msg;
-	private TranslationProfileEditor<InputTranslationAction, InputTranslationRule> editor;
+	private TranslationProfileEditor editor;
 	/**
 	 * The constructor should first build the main layout, set the
 	 * composition root and then do any custom initialization.
@@ -60,8 +58,7 @@ public class ProfileStepComponent extends CustomComponent
 	 * @param editor 
 	 * @param msg 
 	 */
-	public ProfileStepComponent(UnityMessageSource msg, 
-			TranslationProfileEditor<InputTranslationAction, InputTranslationRule> editor) 
+	public ProfileStepComponent(UnityMessageSource msg, TranslationProfileEditor editor) 
 	{
 		this.msg = msg;
 		this.editor = editor;
@@ -124,12 +121,10 @@ public class ProfileStepComponent extends CustomComponent
 		mainLayout = new HorizontalLayout();
 		mainLayout.setImmediate(false);
 		mainLayout.setWidth("100%");
-		mainLayout.setHeight("100%");
 		mainLayout.setMargin(true);
 		
 		// top-level component properties
 		setWidth("100.0%");
-		setHeight("100.0%");
 		
 		// splitPanelLayout
 		splitPanelLayout = buildSplitPanelLayout();
@@ -151,7 +146,6 @@ public class ProfileStepComponent extends CustomComponent
 		rightPanel = new VerticalLayout();
 		rightPanel.setImmediate(false);
 		rightPanel.setWidth("100.0%");
-		rightPanel.setHeight("100.0%");
 		rightPanel.setMargin(false);
 		splitPanelLayout.addComponent(rightPanel);
 		
@@ -168,7 +162,6 @@ public class ProfileStepComponent extends CustomComponent
 		leftPanel = new VerticalLayout();
 		leftPanel.setImmediate(false);
 		leftPanel.setWidth("100.0%");
-		leftPanel.setHeight("100.0%");
 		leftPanel.setMargin(true);
 		leftPanel.setSpacing(true);
 		

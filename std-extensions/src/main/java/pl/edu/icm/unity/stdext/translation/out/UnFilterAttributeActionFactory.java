@@ -12,14 +12,14 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
-import pl.edu.icm.unity.server.translation.out.AbstractOutputTranslationAction;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.TranslationInput;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Inserts previously filtered outgoing attributes by name
@@ -33,7 +33,7 @@ public class UnFilterAttributeActionFactory extends AbstractOutputTranslationAct
 	
 	public UnFilterAttributeActionFactory()
 	{
-		super(NAME, new ActionParameterDesc(
+		super(NAME, new ActionParameterDefinition(
 				"attribute",
 				"TranslationAction.unfilterAttribute.paramDesc.attributeRegexp",
 				Type.EXPRESSION));
@@ -42,15 +42,15 @@ public class UnFilterAttributeActionFactory extends AbstractOutputTranslationAct
 	@Override
 	public UnFilterAttributeAction getInstance(String... parameters)
 	{
-		return new UnFilterAttributeAction(parameters, this);
+		return new UnFilterAttributeAction(parameters, getActionType());
 	}
 
-	public static class UnFilterAttributeAction extends AbstractOutputTranslationAction
+	public static class UnFilterAttributeAction extends OutputTranslationAction
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, UnFilterAttributeAction.class);
 		private Pattern attrPattern;
 
-		public UnFilterAttributeAction(String[] params, TranslationActionDescription desc) 
+		public UnFilterAttributeAction(String[] params, TranslationActionType desc) 
 		{
 			super(desc, params);
 			setParameters(params);

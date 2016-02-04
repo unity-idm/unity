@@ -17,6 +17,7 @@ import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
+import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
@@ -35,12 +36,14 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	public static final String USER_INFO_PATH = "/userinfo";
 	public static final String JWK_PATH = "/jwk";
 	public static final String TOKEN_INFO_PATH = "/tokeninfo";
+	public static final String TOKEN_REVOCATION_PATH = "/revoke";
 	
 	private TokensManagement tokensManagement;
 	private PKIManagement pkiManagement;
 	private OAuthASProperties config;
 	private OAuthEndpointsCoordinator coordinator;
 	private TransactionalRunner tx;
+	private IdPEngine idPEngine;
 	/**
 	 *  WARNING - this is an insecure instance!
 	 */
@@ -52,7 +55,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 			NetworkServer server, String servletPath, TokensManagement tokensMan,
 			PKIManagement pkiManagement, OAuthEndpointsCoordinator coordinator, 
 			AuthenticationProcessor authnProcessor, IdentitiesManagement identitiesMan,
-			AttributesManagement attributesMan, TransactionalRunner tx)
+			AttributesManagement attributesMan, TransactionalRunner tx, IdPEngine idPEngine)
 	{
 		super(msg, sessionMan, authnProcessor, server, servletPath);
 		this.tokensManagement = tokensMan;
@@ -61,6 +64,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		this.identitiesMan = identitiesMan;
 		this.attributesMan = attributesMan;
 		this.tx = tx;
+		this.idPEngine = idPEngine;
 		
 	}
 	
@@ -72,7 +76,8 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 				getServletUrl(OAuthTokenEndpointFactory.PATH));
 		coordinator.registerTokenEndpoint(config.getValue(OAuthASProperties.ISSUER_URI), 
 				getServletUrl(""));
-		addNotProtectedPaths(JWK_PATH, "/.well-known/openid-configuration", TOKEN_INFO_PATH, USER_INFO_PATH);
+		addNotProtectedPaths(JWK_PATH, "/.well-known/openid-configuration", TOKEN_INFO_PATH, USER_INFO_PATH,
+				TOKEN_REVOCATION_PATH);
 	}
 	
 	@Override
@@ -89,11 +94,12 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		{
 			HashSet<Object> ret = new HashSet<>();
 			ret.add(new AccessTokenResource(tokensManagement, config, 
-					new OAuthRequestValidator(config, identitiesMan, attributesMan), tx));
+					new OAuthRequestValidator(config, identitiesMan, attributesMan), idPEngine, tx));
 			ret.add(new DiscoveryResource(config, coordinator));
 			ret.add(new KeysResource(config));
 			ret.add(new TokenInfoResource(tokensManagement));
 			ret.add(new UserInfoResource(tokensManagement));
+			ret.add(new RevocationResource(tokensManagement));
 			installExceptionHandlers(ret);
 			return ret;
 		}

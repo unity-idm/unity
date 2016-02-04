@@ -43,6 +43,7 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
 /**
@@ -75,9 +76,9 @@ public class TestSoapETD extends DBIntegrationTestBase
 			realmsMan.addRealm(realm);
 			List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
 			authnCfg.add(new AuthenticationOptionDescription("Acert"));
-			endpointMan.deploy(SamlUnicoreIdPSoapEndpointFactory.NAME, "endpoint1", 
-					new I18nString("endpoint1"), "/saml", "desc",
+			EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), "desc",
 					authnCfg, SAML_ENDP_CFG, realm.getName());
+			endpointMan.deploy(SamlUnicoreIdPSoapEndpointFactory.NAME, "endpoint1", "/saml", cfg);
 			List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 			assertEquals(1, endpoints.size());
 

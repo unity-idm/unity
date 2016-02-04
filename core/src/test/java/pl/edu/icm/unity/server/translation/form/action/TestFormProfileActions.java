@@ -21,7 +21,6 @@ import org.junit.Test;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.MockAttributeSyntax;
-import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.server.api.internal.AttributesInternalProcessing;
 import pl.edu.icm.unity.server.translation.form.GroupParam;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
@@ -44,6 +43,7 @@ import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.Selection;
+import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 
 import com.google.common.collect.Lists;
 

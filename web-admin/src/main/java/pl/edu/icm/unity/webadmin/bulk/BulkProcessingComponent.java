@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.BulkProcessingManagement;
-import pl.edu.icm.unity.server.bulkops.EntityAction;
 import pl.edu.icm.unity.server.bulkops.ScheduledProcessingRule;
 import pl.edu.icm.unity.server.bulkops.ScheduledProcessingRuleParam;
 import pl.edu.icm.unity.server.registries.EntityActionsRegistry;
@@ -121,8 +120,7 @@ public class BulkProcessingComponent extends CustomComponent
 	
 	private String getCompactName(ScheduledProcessingRule rule)
 	{
-		return rule.getCronExpression() + " - " +
-				rule.getAction().getActionDescription().getName();
+		return rule.getCronExpression() + " - " + rule.getAction().getName();
 	}
 	
 	private Collection<ScheduledProcessingRule> getItems(Object target)
@@ -240,8 +238,7 @@ public class BulkProcessingComponent extends CustomComponent
 						msg.getMessage("BulkProcessingComponent.errorCreateActions"), e);
 				return;
 			}
-			ActionEditor<EntityAction> actionEditor = new ActionEditor<>(msg, registry, null, 
-					componentProvider);
+			ActionEditor actionEditor = new ActionEditor(msg, registry, null, componentProvider);
 			ScheduledRuleParamEditorImpl editor = new ScheduledRuleParamEditorImpl(msg, actionEditor);
 			RuleEditDialog<ScheduledProcessingRuleParam> dialog = new RuleEditDialog<>(msg, 
 					msg.getMessage("BulkProcessingComponent.addAction"), editor, 

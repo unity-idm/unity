@@ -388,3 +388,86 @@ Triggers sending of confirmation message of identity. Nearly always it is a re-s
 
 Triggers sending of confirmation message for an attribute. Nearly always it is a re-send.
 
+
+'''
+
++@Path("/endpoints")+ +
++@GET+ +
+
+Returns all deployed endpoints. Example response with a single endpoint:
+
+----
+[{
+  "id":"restAdmin",
+  "displayedName": {
+    "DefaultValue":"restAdmin",
+    "Map":{}
+  },
+  "contextAddress":"/restadm",
+  "description":"description",
+  "realm": {
+    "name":"authnRealm",
+    "description":"",
+    "blockAfterUnsuccessfulLogins":10,
+    "blockFor":100,
+    "allowForRememberMeDays":-1,
+    "maxInactivity":600
+  },
+  "type": {
+    "name":"RESTAdmin",
+    "description":"A RESTful endpoint exposing Unity management API.",
+    "supportedBindings":["jaxrs2"],
+    "paths":{
+      "/v1":"The REST management base path"}
+    },
+  "authenticatorSets": [{
+    "primaryAuthenticator":"ApassREST"
+  }]
+}]
+----
+	
+
+'''
+
++@Path("/endpoint/{id}")+ +
++@DELETE+ +
+
+Undeploys a deployed endpoint. 
+
+
+'''
+
++@Path("/endpoint/{id}")+ +
++@QueryParam("typeId")+ + 
++@QueryParam("address")+ + 
++@POST+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Instantiates a new endpoint with a given configuration. Type and context path are specified as query parameters. The 
+overall configuration is given in JSON document sent in the request body. Example:
+
+----
+{
+  "displayedName" : {
+    "DefaultValue" : "endpointName",
+    "Map" : { }
+  },
+  "description" : "endpoint description",
+  "authenticationOptions" : [ {
+    "primaryAuthenticator" : "ApassREST"
+  } ],
+  "configuration" : "here comes endpoint configuration, typically in Java properties format",
+  "realm" : "authnRealm"
+}
+----  
+
+
+'''
+
++@Path("/endpoint/{id}")+ +
++@PUT+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Updates the given endpoint's configuration. The configuration is provided in request body (see POST method for example).
+If some of the elements are missing, then existing values remain unchanged.
+

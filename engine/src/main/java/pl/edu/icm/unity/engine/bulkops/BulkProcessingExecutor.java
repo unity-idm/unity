@@ -68,7 +68,7 @@ public class BulkProcessingExecutor
 	
 	public void execute(ProcessingRule rule)
 	{
-		NDC.push("[EntityAction " + rule.getAction().getActionDescription().getName() + "]");
+		NDC.push("[EntityAction " + rule.getAction().getName() + "]");
 		try
 		{
 			log.info("Starting bulk entities processing rule");

@@ -170,7 +170,8 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		String template = genericEndpointProperties.getValue(VaadinEndpointProperties.TEMPLATE);
 		boolean productionMode = genericEndpointProperties.getBooleanValue(
 				VaadinEndpointProperties.PRODUCTION_MODE);
-		return new UnityBootstrapHandler(template, msg, getConfiguredTheme(themeKey), !productionMode, 
+		return new UnityBootstrapHandler(getWebContentsDir(), template, msg, 
+				getConfiguredTheme(themeKey), !productionMode, 
 				heartBeat, uiPath);
 	}
 	
@@ -185,7 +186,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 	{
 		context = getServletContextHandlerOverridable();
 		
-		String webContentDir = getWebContentsDir(serverConfig);
+		String webContentDir = getWebContentsDir();
 		if (webContentDir != null)
 			context.setResourceBase(webContentDir);
 		
@@ -201,12 +202,12 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		return context;
 	}
 
-	protected String getWebContentsDir(UnityServerConfiguration config)
+	protected String getWebContentsDir()
 	{
 		if (genericEndpointProperties.isSet(VaadinEndpointProperties.WEB_CONTENT_PATH))
 			return genericEndpointProperties.getValue(VaadinEndpointProperties.WEB_CONTENT_PATH);
-		if (config.isSet(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH))
-			return config.getValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH);
+		if (serverConfig.isSet(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH))
+			return serverConfig.getValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH);
 		return null;
 	}
 	

@@ -19,7 +19,7 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.attributes.AttributeValueSyntaxFactory;
 import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
-import pl.edu.icm.unity.server.utils.I18nStringJsonUtil;
+import pl.edu.icm.unity.types.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 

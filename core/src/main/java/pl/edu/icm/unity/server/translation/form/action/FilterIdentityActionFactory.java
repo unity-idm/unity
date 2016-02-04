@@ -12,13 +12,13 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Allows for removing a requested identity from the request
@@ -26,17 +26,17 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
  * @author K. Benedyczak
  */
 @Component
-public class FilterIdentityActionFactory extends AbstractTranslationActionFactory
+public class FilterIdentityActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	public static final String NAME = "regFilterIdentity";
 	
 	public FilterIdentityActionFactory()
 	{
-		super(NAME, new ActionParameterDesc[] {
-				new ActionParameterDesc("identity", 
+		super(NAME, new ActionParameterDefinition[] {
+				new ActionParameterDefinition("identity", 
 						"RegTranslationAction.regFilterIdentity.paramDesc.identity",
 						Type.EXPRESSION),
-				new ActionParameterDesc("type", 
+				new ActionParameterDefinition("type", 
 						"RegTranslationAction.regFilterIdentity.paramDesc.identityType",
 						Type.UNITY_ID_TYPE)
 		});
@@ -45,17 +45,17 @@ public class FilterIdentityActionFactory extends AbstractTranslationActionFactor
 	@Override
 	public RegistrationTranslationAction getInstance(String... parameters)
 	{
-		return new FilterIdentityAction(this, parameters);
+		return new FilterIdentityAction(getActionType(), parameters);
 	}
 	
-	public static class FilterIdentityAction extends AbstractRegistrationTranslationAction
+	public static class FilterIdentityAction extends RegistrationTranslationAction
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION,
 				FilterIdentityActionFactory.FilterIdentityAction.class);
 		private Pattern identityPattern;
 		private String type;
 		
-		public FilterIdentityAction(TranslationActionDescription description, String[] parameters)
+		public FilterIdentityAction(TranslationActionType description, String[] parameters)
 		{
 			super(description, parameters);
 			setParameters(parameters);

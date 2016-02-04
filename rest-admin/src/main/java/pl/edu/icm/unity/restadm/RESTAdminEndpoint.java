@@ -14,8 +14,10 @@ import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.json.AttributeTypeSerializer;
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
@@ -37,6 +39,8 @@ public class RESTAdminEndpoint extends RESTEndpoint
 	private AttributeTypeSerializer attributeTypeSerializer;
 	private AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
 	private ConfirmationManager confirmationManager;
+	private EndpointManagement endpointManagement;
+	private RegistrationsManagement registrationManagement;
 	
 	public RESTAdminEndpoint(UnityMessageSource msg, SessionManagement sessionMan,
 			NetworkServer server, String servletPath, IdentitiesManagement identitiesMan,
@@ -44,7 +48,9 @@ public class RESTAdminEndpoint extends RESTEndpoint
 			AuthenticationProcessor authnProcessor, IdentityTypesRegistry identityTypesRegistry,
 			AttributeTypeSerializer attributeTypeSerializer,
 			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry,
-			ConfirmationManager confirmationManager)
+			ConfirmationManager confirmationManager,
+			EndpointManagement endpointManagement,
+			RegistrationsManagement registrationManagement)
 	{
 		super(msg, sessionMan, authnProcessor, server, servletPath);
 		this.identitiesMan = identitiesMan;
@@ -54,6 +60,8 @@ public class RESTAdminEndpoint extends RESTEndpoint
 		this.attributeTypeSerializer = attributeTypeSerializer;
 		this.attributeSyntaxFactoriesRegistry = attributeSyntaxFactoriesRegistry;
 		this.confirmationManager = confirmationManager;
+		this.endpointManagement = endpointManagement;
+		this.registrationManagement = registrationManagement;
 	}
 
 	@Override
@@ -71,7 +79,7 @@ public class RESTAdminEndpoint extends RESTEndpoint
 			HashSet<Object> ret = new HashSet<>();
 			ret.add(new RESTAdmin(identitiesMan, groupsMan, attributesMan, identityTypesRegistry, 
 					attributeTypeSerializer, attributeSyntaxFactoriesRegistry,
-					confirmationManager));
+					confirmationManager, endpointManagement, registrationManagement));
 			installExceptionHandlers(ret);
 			return ret;
 		}

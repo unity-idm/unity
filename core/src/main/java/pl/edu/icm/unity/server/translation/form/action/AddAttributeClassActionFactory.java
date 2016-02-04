@@ -12,12 +12,12 @@ import org.mvel2.MVEL;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Allows for assigning an attribute class to requester
@@ -25,17 +25,17 @@ import pl.edu.icm.unity.server.utils.Log;
  * @author K. Benedyczak
  */
 @Component
-public class AddAttributeClassActionFactory extends AbstractTranslationActionFactory
+public class AddAttributeClassActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	public static final String NAME = "addAttributeClass";
 	
 	public AddAttributeClassActionFactory()
 	{
-		super(NAME, new ActionParameterDesc[] {
-				new ActionParameterDesc("group", 
+		super(NAME, new ActionParameterDefinition[] {
+				new ActionParameterDefinition("group", 
 						"RegTranslationAction.addAttributeClass.paramDesc.group", 
 						Type.UNITY_GROUP),
-				new ActionParameterDesc("attribute class", 
+				new ActionParameterDefinition("attribute class", 
 						"RegTranslationAction.addAttributeClass.paramDesc.ac", 
 						Type.EXPRESSION)
 		});
@@ -44,17 +44,17 @@ public class AddAttributeClassActionFactory extends AbstractTranslationActionFac
 	@Override
 	public RegistrationTranslationAction getInstance(String... parameters)
 	{
-		return new AddAttributeClassAction(this, parameters);
+		return new AddAttributeClassAction(getActionType(), parameters);
 	}
 	
-	public static class AddAttributeClassAction extends AbstractRegistrationTranslationAction
+	public static class AddAttributeClassAction extends RegistrationTranslationAction
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION,
 				AddAttributeClassActionFactory.AddAttributeClassAction.class);
 		private Serializable expression;
 		private String group;
 		
-		public AddAttributeClassAction(TranslationActionDescription description, String[] parameters)
+		public AddAttributeClassAction(TranslationActionType description, String[] parameters)
 		{
 			super(description, parameters);
 			setParameters(parameters);

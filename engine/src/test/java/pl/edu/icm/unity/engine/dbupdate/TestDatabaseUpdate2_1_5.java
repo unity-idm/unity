@@ -26,8 +26,6 @@ import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.api.internal.IdentityResolver;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationRule;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.server.translation.form.action.AddAttributeActionFactory;
 import pl.edu.icm.unity.server.translation.form.action.AddAttributeClassActionFactory;
@@ -37,10 +35,12 @@ import pl.edu.icm.unity.server.translation.form.action.RedirectActionFactory;
 import pl.edu.icm.unity.server.translation.form.action.SetEntityStateActionFactory;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.AttributeStatement2;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.AttributeStatement2.ConflictResolution;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
+import pl.edu.icm.unity.types.translation.TranslationRule;
 
 /**
  * @author K. Benedyczak
@@ -89,29 +89,29 @@ public class TestDatabaseUpdate2_1_5
 		
 		assertThat(form.getDefaultCredentialRequirement(), is("certificate"));
 		
-		RegistrationTranslationProfile profile = form.getTranslationProfile();
-		List<RegistrationTranslationRule> rules = profile.getRules();
+		TranslationProfile profile = form.getTranslationProfile();
+		List<? extends TranslationRule> rules = profile.getRules();
 		
-		assertThat(rules.get(0).getCondition().getCondition(), is("true"));
-		assertThat(rules.get(0).getAction().getActionDescription().getName(), 
+		assertThat(rules.get(0).getCondition(), is("true"));
+		assertThat(rules.get(0).getAction().getName(), 
 				is(SetEntityStateActionFactory.NAME));
 		assertThat(rules.get(0).getAction().getParameters()[0], 
 				is(EntityState.authenticationDisabled.toString()));
 
-		assertThat(rules.get(1).getCondition().getCondition(), is("true"));
-		assertThat(rules.get(1).getAction().getActionDescription().getName(), 
+		assertThat(rules.get(1).getCondition(), is("true"));
+		assertThat(rules.get(1).getAction().getName(), 
 				is(AutoProcessActionFactory.NAME));
 		assertThat(rules.get(1).getAction().getParameters()[0], 
 				is(AutomaticRequestAction.accept.toString()));
 
-		assertThat(rules.get(2).getCondition().getCondition(), is("true"));
-		assertThat(rules.get(2).getAction().getActionDescription().getName(), 
+		assertThat(rules.get(2).getCondition(), is("true"));
+		assertThat(rules.get(2).getAction().getName(), 
 				is(RedirectActionFactory.NAME));
 		assertThat(rules.get(2).getAction().getParameters()[0], 
 				is("'http://example.com/foo?haha=true'"));
 
-		assertThat(rules.get(3).getCondition().getCondition(), is("true"));
-		assertThat(rules.get(3).getAction().getActionDescription().getName(), 
+		assertThat(rules.get(3).getCondition(), is("true"));
+		assertThat(rules.get(3).getAction().getName(), 
 				is(AddAttributeActionFactory.NAME));
 		assertThat(rules.get(3).getAction().getParameters()[0], 
 				is("o"));
@@ -122,8 +122,8 @@ public class TestDatabaseUpdate2_1_5
 		assertThat(rules.get(3).getAction().getParameters()[3], 
 				is(AttributeVisibility.full.toString()));
 
-		assertThat(rules.get(4).getCondition().getCondition(), is("true"));
-		assertThat(rules.get(4).getAction().getActionDescription().getName(), 
+		assertThat(rules.get(4).getCondition(), is("true"));
+		assertThat(rules.get(4).getAction().getName(), 
 				is(AddAttributeActionFactory.NAME));
 		assertThat(rules.get(4).getAction().getParameters()[0], 
 				is("postalcode"));
@@ -134,22 +134,22 @@ public class TestDatabaseUpdate2_1_5
 		assertThat(rules.get(4).getAction().getParameters()[3], 
 				is(AttributeVisibility.local.toString()));
 		
-		assertThat(rules.get(5).getCondition().getCondition(), is("true"));
-		assertThat(rules.get(5).getAction().getActionDescription().getName(), 
+		assertThat(rules.get(5).getCondition(), is("true"));
+		assertThat(rules.get(5).getAction().getName(), 
 				is(AddAttributeClassActionFactory.NAME));
 		assertThat(rules.get(5).getAction().getParameters()[0], 
 				is("/"));
 		assertThat(rules.get(5).getAction().getParameters()[1], 
 				is("'Common attributes'"));
 		
-		assertThat(rules.get(6).getCondition().getCondition(), is("true"));
-		assertThat(rules.get(6).getAction().getActionDescription().getName(), 
+		assertThat(rules.get(6).getCondition(), is("true"));
+		assertThat(rules.get(6).getAction().getName(), 
 				is(AddToGroupActionFactory.NAME));
 		assertThat(rules.get(6).getAction().getParameters()[0], 
 				is("/A/B"));
 
-		assertThat(rules.get(7).getCondition().getCondition(), is("true"));
-		assertThat(rules.get(7).getAction().getActionDescription().getName(), 
+		assertThat(rules.get(7).getCondition(), is("true"));
+		assertThat(rules.get(7).getAction().getName(), 
 				is(AddToGroupActionFactory.NAME));
 		assertThat(rules.get(7).getAction().getParameters()[0], 
 				is("/D"));

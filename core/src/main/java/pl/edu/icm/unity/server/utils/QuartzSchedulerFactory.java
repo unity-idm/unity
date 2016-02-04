@@ -28,8 +28,13 @@ public class QuartzSchedulerFactory
 	@Bean
 	public Scheduler getInstance() throws SchedulerException
 	{
-		JobStore jobStore = new RAMJobStore();
+		//Unfortunately Quartz factory uses static singleton... 
 		DirectSchedulerFactory f = DirectSchedulerFactory.getInstance();
+		Scheduler scheduler = f.getScheduler(NAME);
+		if (scheduler != null)
+			return scheduler;
+		
+		JobStore jobStore = new RAMJobStore();
 		ThreadPool threadPool = new SimpleThreadPool(3, Thread.NORM_PRIORITY-1);
 		threadPool.setInstanceName("Quartz");
 		f.createScheduler(NAME, "default", threadPool, jobStore);

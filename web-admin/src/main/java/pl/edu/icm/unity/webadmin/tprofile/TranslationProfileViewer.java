@@ -5,10 +5,10 @@
 package pl.edu.icm.unity.webadmin.tprofile;
 
 import pl.edu.icm.unity.server.registries.TypesRegistryBase;
-import pl.edu.icm.unity.server.translation.AbstractTranslationRule;
-import pl.edu.icm.unity.server.translation.TranslationAction;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
-import pl.edu.icm.unity.server.translation.TranslationProfile;
+import pl.edu.icm.unity.server.translation.TranslationActionInstance;
+import pl.edu.icm.unity.server.translation.TranslationProfileInstance;
+import pl.edu.icm.unity.server.translation.TranslationRuleInstance;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
@@ -22,17 +22,18 @@ import com.vaadin.ui.VerticalLayout;
  * @author P. Piernik
  * 
  */
-public class TranslationProfileViewer<T extends TranslationAction> extends VerticalLayout
+public class TranslationProfileViewer extends VerticalLayout
 {	
 	private UnityMessageSource msg;
-	private TypesRegistryBase<? extends TranslationActionFactory<T>> registry;
+	private TypesRegistryBase<? extends TranslationActionFactory> registry;
 	protected Label name;
 	protected Label description;
 	private FormLayout rules;
 	private FormLayout main;
 	
 	
-	public TranslationProfileViewer(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<T>> registry)
+	public TranslationProfileViewer(UnityMessageSource msg, 
+			TypesRegistryBase<? extends TranslationActionFactory> registry)
 	{
 		super();
 		this.msg = msg;
@@ -58,7 +59,8 @@ public class TranslationProfileViewer<T extends TranslationAction> extends Verti
 		setSizeFull();
 	}
 
-	public void setInput(TranslationProfile<T> profile)
+	public <T extends TranslationActionInstance, R extends TranslationRuleInstance<T>> 
+			void setInput(TranslationProfileInstance<T, R> profile)
 	{       
 		setEmpty();
 		if (profile == null)
@@ -71,17 +73,16 @@ public class TranslationProfileViewer<T extends TranslationAction> extends Verti
 		name.setValue(profile.getName());
 		description.setValue(profile.getDescription());
 		int i=0;
-		for (AbstractTranslationRule<T> rule : profile.getRules())
+		for (R rule : profile.getRuleInstances())
 		{
 			i++;     
 			addField(msg.getMessage("TranslationProfileViewer.ruleCondition", i),
 					"TranslationActionPresenter.codeValue", 
-					rule.getCondition().getCondition());
+					rule.getCondition());
 			TranslationActionPresenter<T> action = new TranslationActionPresenter<T>(msg, registry, 
 					rule.getAction());
 			action.addToLayout(rules);
 		}
-
 	}
 
 	protected void addField(String name, String msgKey, Object... unsafeArgs)

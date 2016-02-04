@@ -5,15 +5,13 @@
 
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import java.util.List;
-
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
-import pl.edu.icm.unity.server.translation.TranslationProfile;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
+import pl.edu.icm.unity.server.translation.TranslationProfileInstance;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
 
 /**
  * Component to edit or add a registration form translation profile
@@ -21,24 +19,17 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
  * @author K. Benedyczak
  * 
  */
-public class RegistrationTranslationProfileEditor extends TranslationProfileEditor<RegistrationTranslationAction, 
-			RegistrationTranslationRule>
+public class RegistrationTranslationProfileEditor extends TranslationProfileEditor
 {
 	public RegistrationTranslationProfileEditor(UnityMessageSource msg,
-			RegistrationActionsRegistry registry, RegistrationTranslationProfile toEdit, 
-			ActionParameterComponentFactory.Provider actionComponentProvider) throws EngineException
+			RegistrationActionsRegistry registry, Provider actionComponentProvider,
+			RegistrationTranslationProfile toEdit) throws EngineException
 	{
-		super(msg, registry, toEdit, RegistrationTranslationRule.FACTORY, actionComponentProvider);
+		super(msg, registry, ProfileType.REGISTRATION, actionComponentProvider, toEdit);
 	}
 
 	@Override
-	public RegistrationTranslationProfile createProfile(String name, List<RegistrationTranslationRule> trules)
-	{
-		return new RegistrationTranslationProfile(name, trules);
-	}
-	
-	@Override
-	protected void initUI(TranslationProfile<RegistrationTranslationAction> toEdit)
+	protected void initUI(TranslationProfileInstance<?, ?> toEdit)
 	{
 		super.initUI(toEdit);
 		name.setVisible(false);

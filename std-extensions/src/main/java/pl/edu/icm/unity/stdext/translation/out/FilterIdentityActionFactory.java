@@ -12,14 +12,14 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
-import pl.edu.icm.unity.server.translation.out.AbstractOutputTranslationAction;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.TranslationInput;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Filter outgoing identities by name and or type. Name filter is specified using regular expressions
@@ -33,11 +33,11 @@ public class FilterIdentityActionFactory extends AbstractOutputTranslationAction
 	
 	public FilterIdentityActionFactory()
 	{
-		super(NAME, new ActionParameterDesc(
+		super(NAME, new ActionParameterDefinition(
 				"identity",
 				"TranslationAction.filterIdentity.paramDesc.idType",
 				Type.UNITY_ID_TYPE),
-		new ActionParameterDesc(
+		new ActionParameterDefinition(
 				"identityValueRegexp",
 				"TranslationAction.filterIdentity.paramDesc.idValueReqexp",
 				Type.EXPRESSION));
@@ -46,16 +46,16 @@ public class FilterIdentityActionFactory extends AbstractOutputTranslationAction
 	@Override
 	public FilterIdentityAction getInstance(String... parameters)
 	{
-		return new FilterIdentityAction(parameters, this);
+		return new FilterIdentityAction(parameters, getActionType());
 	}
 	
-	public static class FilterIdentityAction extends AbstractOutputTranslationAction
+	public static class FilterIdentityAction extends OutputTranslationAction
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, FilterIdentityAction.class);
 		private String identity;
 		private Pattern idValueRegexp;
 
-		public FilterIdentityAction(String[] params, TranslationActionDescription desc) 
+		public FilterIdentityAction(String[] params, TranslationActionType desc) 
 		{
 			super(desc, params);
 			setParameters(params);

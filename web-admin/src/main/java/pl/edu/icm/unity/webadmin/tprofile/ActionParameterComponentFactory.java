@@ -18,11 +18,11 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 
 /**
  * Responsible for creating {@link ActionParameterComponent}s.
@@ -74,7 +74,7 @@ public class ActionParameterComponentFactory
 					idTypes.add(it.getIdentityTypeProvider().getId());
 		}
 		
-		public ActionParameterComponent getParameterComponent(ActionParameterDesc param)
+		public ActionParameterComponent getParameterComponent(ActionParameterDefinition param)
 		{
 			switch (param.getType())
 			{

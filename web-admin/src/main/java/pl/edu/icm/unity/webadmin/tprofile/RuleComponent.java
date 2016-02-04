@@ -5,47 +5,33 @@
 
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.registries.TypesRegistryBase;
-import pl.edu.icm.unity.server.translation.AbstractTranslationRule;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.RuleFactory;
-import pl.edu.icm.unity.server.translation.TranslationAction;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.translation.TranslationActionInstance;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
+import pl.edu.icm.unity.server.translation.TranslationRuleInstance;
 import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
-import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
 import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.RequiredComboBox;
 import pl.edu.icm.unity.webui.common.Styles;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.UserError;
-import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.AbstractTextField;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
@@ -56,37 +42,33 @@ import com.vaadin.ui.VerticalLayout;
  * @contributor Roman Krysinski
  * 
  */
-public class RuleComponent<T extends TranslationAction> extends VerticalLayout
+public class RuleComponent extends CustomComponent
 {
 	private UnityMessageSource msg;
-	private TypesRegistryBase<? extends TranslationActionFactory<T>> tc;
-	private ActionEditor<T> actionEditor;
+	private TypesRegistryBase<? extends TranslationActionFactory> tc;
+	private ActionEditor actionEditor;
 	private AbstractTextField condition;
 	private MappingResultComponent mappingResultComponent;
-	private Callback<T> callback;
+	private Callback callback;
 	private Button up;
 	private Button top;
 	private Button down;
 	private Button bottom;
 	private boolean editMode;
-	private RuleFactory<T> ruleFactory;
 	private Provider actionComponentProvider;
 
-	public RuleComponent(UnityMessageSource msg, 
-			TypesRegistryBase<? extends TranslationActionFactory<T>> tc,
-			AbstractTranslationRule<T> toEdit, Callback<T> callback,
-			RuleFactory<T> ruleFactory, ActionParameterComponentFactory.Provider actionComponentProvider)
+	public RuleComponent(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory> tc,
+			TranslationRuleInstance<?> toEdit, Provider actionComponentProvider, Callback callback)
 	{
 		this.callback = callback;
 		this.msg = msg;
 		this.tc = tc;
-		this.ruleFactory = ruleFactory;
 		this.actionComponentProvider = actionComponentProvider;
 		editMode = toEdit != null;
 		initUI(toEdit);
 	}
 
-	private void initUI(AbstractTranslationRule<T> toEdit)
+	private void initUI(TranslationRuleInstance<?> toEdit)
 	{
 		up = new Button();
 		up.setDescription(msg.getMessage("TranslationProfileEditor.moveUp"));
@@ -182,35 +164,45 @@ public class RuleComponent<T extends TranslationAction> extends VerticalLayout
 		condition = new MVELExpressionField(msg, msg.getMessage("TranslationProfileEditor.ruleCondition"), 
 				msg.getMessage("MVELExpressionField.conditionDesc"));
 
-		actionEditor = new ActionEditor<T>(msg, tc, toEdit.getAction(), actionComponentProvider);
+		actionEditor = new ActionEditor(msg, tc, toEdit == null ? null : toEdit.getAction(), 
+				actionComponentProvider);
 
 		Label separator = new Label();
 		separator.addStyleName(Styles.horizontalLine.toString());
 
 		mappingResultComponent = new MappingResultComponent(msg);
 
-		addComponents(separator, toolbar);
-		actionEditor.addToLayout(this);
-		addComponents(mappingResultComponent);
-		setSpacing(false);
-		setMargin(false);
-
+		VerticalLayout main = new VerticalLayout();
+		FormLayout contents = new FormLayout();
+		
+		main.addComponents(separator, toolbar);
+		
+		contents.addComponent(condition);
+		actionEditor.addToLayout(contents);
+		contents.addComponents(mappingResultComponent);
+		
+		main.addComponent(contents);
+		
+		main.setSpacing(false);
+		main.setMargin(false);
+		setCompositionRoot(main);
+		
 		if (editMode)
 		{
-			condition.setValue(toEdit.getCondition().getCondition());
+			condition.setValue(toEdit.getCondition());
 		} else
 		{
 			condition.setValue("true");
 		}
 	}
 
-	public AbstractTranslationRule<T> getRule() throws FormValidationException
+	public TranslationRule getRule() throws FormValidationException
 	{
-		T action = actionEditor.getAction();
+		TranslationActionInstance action = actionEditor.getAction();
 		TranslationCondition cnd = new TranslationCondition();
 		cnd.setCondition(condition.getValue());			
 		
-		return ruleFactory.createRule(action, cnd);
+		return new TranslationRule(condition.getValue(), action);
 	}
 	
 	public void setUpVisible(boolean v)
@@ -267,18 +259,18 @@ public class RuleComponent<T extends TranslationAction> extends VerticalLayout
 	public void test(RemotelyAuthenticatedInput remoteAuthnInput) 
 	{
 		setReadOnlyStyle(true);
-		InputTranslationRule rule = null;
+		TranslationRule rule = null;
 		try 
 		{
-			rule = (InputTranslationRule) getRule();
+			rule = getRule();
 		} catch (Exception e)
 		{
-			indicateExtensionError(e);
+			actionEditor.indicateExtensionError(e);
 			return;
 		}
 		
 		Map<String, Object> mvelCtx = InputTranslationProfile.createMvelContext(remoteAuthnInput);
-		TranslationCondition conditionRule = rule.getCondition();
+		TranslationCondition conditionRule = new TranslationCondition(rule.getCondition());
 		try 
 		{
 			boolean result = conditionRule.evaluate(mvelCtx);
@@ -288,14 +280,14 @@ public class RuleComponent<T extends TranslationAction> extends VerticalLayout
 			indicateConditionError(e);
 		}
 		
-		InputTranslationAction action = rule.getAction();
+		InputTranslationAction action = (InputTranslationAction) rule.getAction();
 		try 
 		{
 			MappingResult mappingResult = action.invoke(remoteAuthnInput, mvelCtx, null);
 			displayMappingResult(mappingResult);
 		} catch (EngineException e) 
 		{
-			indicateExtensionError(e);
+			actionEditor.indicateExtensionError(e);
 		}
 	}
 	
@@ -323,23 +315,7 @@ public class RuleComponent<T extends TranslationAction> extends VerticalLayout
 		condition.setComponentError(new UserError(NotificationPopup.getHumanMessage(e)));
 		condition.setValidationVisible(true);
 	}
-	
-	private void indicateExtensionError(Exception e) 
-	{
-		Iterator<Component> iter = paramsList.iterator();
-		while (iter.hasNext())
-		{
-			Component c = iter.next();
-			if (c instanceof ExtensionActionParameterComponent)
-			{
-				ExtensionActionParameterComponent extension = (ExtensionActionParameterComponent) c;
-				extension.setStyleName(Styles.errorBackground.toString());
-				extension.setComponentError(new UserError(NotificationPopup.getHumanMessage(e)));
-				extension.setValidationVisible(true);
-				break;
-			}
-		}	
-	}
+
 
 	public void clearTestResult() 
 	{
@@ -348,21 +324,10 @@ public class RuleComponent<T extends TranslationAction> extends VerticalLayout
 		setReadOnlyStyle(false);
 	}
 	
-	private void setColorForInputComponents(String color)
+	private void setColorForInputComponents(String style)
 	{
-		condition.setStyleName(color);
-		actionEditor.setStyleName(color);
-		setColorForParamList(color);
-	}
-	
-	private void setColorForParamList(String color)
-	{
-		Iterator<Component> iter = paramsList.iterator();
-		while (iter.hasNext())
-		{
-			Component c = iter.next();
-			c.setStyleName(color);
-		}		
+		condition.setStyleName(style);
+		actionEditor.setStyle(style);
 	}
 	
 	private void removeRuleComponentEvaluationStyle()
@@ -373,23 +338,7 @@ public class RuleComponent<T extends TranslationAction> extends VerticalLayout
 		condition.setComponentError(null);
 		condition.setValidationVisible(false);
 		
-		actionEditor.removeStyleName(Styles.falseConditionBackground.toString());
-		actionEditor.removeStyleName(Styles.trueConditionBackground.toString());
-		
-		Iterator<Component> iter = paramsList.iterator();
-		while (iter.hasNext())
-		{
-			Component c = iter.next();
-			c.removeStyleName(Styles.falseConditionBackground.toString());
-			c.removeStyleName(Styles.trueConditionBackground.toString());
-			c.removeStyleName(Styles.errorBackground.toString());
-			if (c instanceof ExtensionActionParameterComponent)
-			{
-				ExtensionActionParameterComponent extension = (ExtensionActionParameterComponent) c;
-				extension.setComponentError(null);
-				extension.setValidationVisible(false);
-			}			
-		}	
+		actionEditor.removeComponentEvaluationStyle();
 	}
 	
 	private void hideMappingResultComponent() 
@@ -403,12 +352,12 @@ public class RuleComponent<T extends TranslationAction> extends VerticalLayout
 		actionEditor.setReadOnlyStyle(readOnly);
 	}
 
-	public interface Callback<T extends TranslationAction>
+	public interface Callback
 	{
-		public boolean moveUp(RuleComponent<T> rule);
-		public boolean moveDown(RuleComponent<T> rule);
-		public boolean remove(RuleComponent<T> rule);
-		public boolean moveTop(RuleComponent<T> rule);
-		public boolean moveBottom(RuleComponent<T> rule);
+		public boolean moveUp(RuleComponent rule);
+		public boolean moveDown(RuleComponent rule);
+		public boolean remove(RuleComponent rule);
+		public boolean moveTop(RuleComponent rule);
+		public boolean moveBottom(RuleComponent rule);
 	}
 }

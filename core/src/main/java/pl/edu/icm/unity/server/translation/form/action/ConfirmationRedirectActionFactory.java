@@ -6,9 +6,9 @@ package pl.edu.icm.unity.server.translation.form.action;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
 
 
 /**
@@ -19,15 +19,15 @@ import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
  * @author K. Benedyczak
  */
 @Component
-public class ConfirmationRedirectActionFactory extends AbstractTranslationActionFactory
+public class ConfirmationRedirectActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	
 	public static final String NAME = "confirmationRedirect";
 	
 	public ConfirmationRedirectActionFactory()
 	{
-		super(NAME, new ActionParameterDesc[] {
-				new ActionParameterDesc("URL", 
+		super(NAME, new ActionParameterDefinition[] {
+				new ActionParameterDefinition("URL", 
 						"RegTranslationAction.confirmationRedirect.paramDesc.URL",
 						Type.EXPRESSION)
 		});
@@ -36,7 +36,7 @@ public class ConfirmationRedirectActionFactory extends AbstractTranslationAction
 	@Override
 	public RegistrationTranslationAction getInstance(String... parameters)
 	{
-		return new RedirectActionFactory.RedirectAction(this, parameters);
+		return new RedirectActionFactory.RedirectAction(getActionType(), parameters);
 	}
 }
 

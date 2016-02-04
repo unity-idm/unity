@@ -14,16 +14,16 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
-import pl.edu.icm.unity.server.translation.out.AbstractOutputTranslationAction;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.TranslationInput;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Creates new outgoing identities.
@@ -40,11 +40,11 @@ public class CreatePersistentIdentityActionFactory extends AbstractOutputTransla
 	@Autowired
 	public CreatePersistentIdentityActionFactory(IdentityTypesRegistry idTypesReg)
 	{
-		super(NAME, new ActionParameterDesc(
+		super(NAME, new ActionParameterDefinition(
 				"identityType",
 				"TranslationAction.createPersistedIdentity.paramDesc.idType",
 				Type.UNITY_ID_TYPE),
-		new ActionParameterDesc(
+		new ActionParameterDefinition(
 				"expression",
 				"TranslationAction.createPersistedIdentity.paramDesc.idValueExpression",
 				Type.EXPRESSION));
@@ -54,16 +54,16 @@ public class CreatePersistentIdentityActionFactory extends AbstractOutputTransla
 	@Override
 	public CreatePersistentIdentityAction getInstance(String... parameters)
 	{
-		return new CreatePersistentIdentityAction(parameters, this, idTypesReg);
+		return new CreatePersistentIdentityAction(parameters, getActionType(), idTypesReg);
 	}
 
-	public static class CreatePersistentIdentityAction extends AbstractOutputTranslationAction
+	public static class CreatePersistentIdentityAction extends OutputTranslationAction
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, CreatePersistentIdentityAction.class);
 		private IdentityTypeDefinition idType;
 		private Serializable idValueExpression;
 
-		public CreatePersistentIdentityAction(String[] params, TranslationActionDescription desc,
+		public CreatePersistentIdentityAction(String[] params, TranslationActionType desc,
 				IdentityTypesRegistry idTypesReg)
 		{
 			super(desc, params);

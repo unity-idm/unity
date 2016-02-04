@@ -10,32 +10,32 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.server.translation.in.EntityChange;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.EntityScheduledOperation;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Schedules an entity operation.
  * @author K. Benedyczak
  */
 @Component
-public class ScheduleEntityChangeActionFactory extends AbstractTranslationActionFactory
+public class ScheduleEntityChangeActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	public static final String NAME = "scheduleChange";
 
 	public ScheduleEntityChangeActionFactory()
 	{
-		super(NAME, new ActionParameterDesc[] {
-				new ActionParameterDesc(
+		super(NAME, new ActionParameterDefinition[] {
+				new ActionParameterDefinition(
 						"schedule change",
 						"RegTranslationAction.scheduleChange.paramDesc.scheduleChange",
 						EntityScheduledOperation.class),
-				new ActionParameterDesc(
+				new ActionParameterDefinition(
 						"scheduled after days",
 						"RegTranslationAction.scheduleChange.paramDesc.scheduledTime",
 						Type.DAYS)
@@ -45,17 +45,17 @@ public class ScheduleEntityChangeActionFactory extends AbstractTranslationAction
 	@Override
 	public RegistrationTranslationAction getInstance(String... parameters)
 	{
-		return new ScheduleEntityChangeAction(this, parameters);
+		return new ScheduleEntityChangeAction(getActionType(), parameters);
 	}
 	
-	public static class ScheduleEntityChangeAction extends AbstractRegistrationTranslationAction
+	public static class ScheduleEntityChangeAction extends RegistrationTranslationAction
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION,
 				ScheduleEntityChangeActionFactory.ScheduleEntityChangeAction.class);
 		private Date changeDate;
 		private EntityScheduledOperation scheduledOp;
 		
-		public ScheduleEntityChangeAction(TranslationActionDescription description, String[] parameters)
+		public ScheduleEntityChangeAction(TranslationActionType description, String[] parameters)
 		{
 			super(description, parameters);
 			setParameters(parameters);

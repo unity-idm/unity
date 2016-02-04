@@ -6,9 +6,11 @@ package pl.edu.icm.unity.server.bulkops.action;
 
 import pl.edu.icm.unity.server.bulkops.EntityAction;
 import pl.edu.icm.unity.server.bulkops.EntityActionFactory;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ProfileType;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.translation.TranslationActionInstance;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Boilerplate code for the {@link TranslationActionFactory} implementations producing {@link EntityAction}s.
@@ -16,36 +18,25 @@ import pl.edu.icm.unity.server.translation.TranslationActionFactory;
  */
 public abstract class AbstractEntityActionFactory implements EntityActionFactory
 {
-	private final String name;
-	private final ActionParameterDesc[] parameters;
+	private TranslationActionType actionType;
 	
-	public AbstractEntityActionFactory(String name, ActionParameterDesc... parameters)
+	public AbstractEntityActionFactory(String name, ActionParameterDefinition... parameters)
 	{
-		this.name = name;
-		this.parameters = parameters;
+		actionType = new TranslationActionType(ProfileType.BULK_ENTITY_OPS,
+				"EntityAction." + name + ".desc",
+				name,
+				parameters);
 	}
 
 	@Override
-	public ProfileType getSupportedProfileType()
+	public TranslationActionType getActionType()
 	{
-		return ProfileType.BULK_ENTITY_OPS;
+		return actionType;
 	}
 
 	@Override
-	public String getDescriptionKey()
+	public TranslationActionInstance getBlindInstance(String... parameters)
 	{
-		return "EntityAction." + name + ".desc";
-	}
-
-	@Override
-	public String getName()
-	{
-		return name;
-	}
-
-	@Override
-	public ActionParameterDesc[] getParameters()
-	{
-		return parameters;
+		return new BlindStopperEntityAction(getActionType(), parameters);
 	}
 }

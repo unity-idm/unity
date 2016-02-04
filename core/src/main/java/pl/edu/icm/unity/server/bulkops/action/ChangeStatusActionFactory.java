@@ -11,13 +11,13 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.bulkops.EntityAction;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
 import pl.edu.icm.unity.server.translation.form.action.SetEntityStateActionFactory.EntityStateLimited;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Allows for changing entity status.
@@ -33,8 +33,8 @@ public class ChangeStatusActionFactory extends AbstractEntityActionFactory
 	@Autowired
 	public ChangeStatusActionFactory(@Qualifier("insecure") IdentitiesManagement idsMan)
 	{
-		super(NAME, new ActionParameterDesc[] {
-				new ActionParameterDesc(
+		super(NAME, new ActionParameterDefinition[] {
+				new ActionParameterDefinition(
 						"status",
 						"EntityAction.changeStatus.paramDesc.status",
 						EntityStateLimited.class)
@@ -45,10 +45,10 @@ public class ChangeStatusActionFactory extends AbstractEntityActionFactory
 	@Override
 	public EntityAction getInstance(String... parameters)
 	{
-		return new ChangeStatusAction(idsMan, this, parameters);
+		return new ChangeStatusAction(idsMan, getActionType(), parameters);
 	}
 
-	public static class ChangeStatusAction extends AbstractEntityAction
+	public static class ChangeStatusAction extends EntityAction
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER,
 				ChangeStatusActionFactory.ChangeStatusAction.class);
@@ -56,7 +56,7 @@ public class ChangeStatusActionFactory extends AbstractEntityActionFactory
 		private EntityState state;
 		
 		public ChangeStatusAction(IdentitiesManagement idsMan,
-				TranslationActionDescription description, String[] params)
+				TranslationActionType description, String[] params)
 		{
 			super(description, params);
 			this.idsMan = idsMan;

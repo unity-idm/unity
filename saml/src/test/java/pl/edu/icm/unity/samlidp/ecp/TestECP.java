@@ -54,12 +54,14 @@ import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
 import pl.edu.icm.unity.server.translation.in.IdentityEffectMode;
-import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
 import pl.edu.icm.unity.server.translation.in.action.MapIdentityActionFactory;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 
@@ -93,9 +95,9 @@ public class TestECP extends AbstractTestIdpBase
 		try
 		{
 			List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
-			endpointMan.deploy(ECPEndpointFactory.NAME, "endpointECP", new I18nString("endpointECP"),
-					"/ecp", "desc", 
-					authnCfg, ECP_ENDP_CFG, REALM_NAME);
+			EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpointECP"),
+					"desc",	authnCfg, ECP_ENDP_CFG, REALM_NAME);
+			endpointMan.deploy(ECPEndpointFactory.NAME, "endpointECP", "/ecp", cfg);
 			List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 			assertEquals(2, endpoints.size());
 			
@@ -107,7 +109,7 @@ public class TestECP extends AbstractTestIdpBase
 							"cr-pass", IdentityEffectMode.CREATE_OR_MATCH.toString()), 
 					new TranslationCondition());
 			rules.add(mapId);
-			InputTranslationProfile testP = new InputTranslationProfile("testP", rules);
+			TranslationProfile testP = new TranslationProfile("testP", "", ProfileType.INPUT, rules);
 			profilesMan.addProfile(testP);
 			
 		} catch (Exception e)

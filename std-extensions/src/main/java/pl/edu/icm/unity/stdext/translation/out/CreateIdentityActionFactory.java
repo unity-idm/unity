@@ -11,14 +11,14 @@ import org.mvel2.MVEL;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc.Type;
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
-import pl.edu.icm.unity.server.translation.out.AbstractOutputTranslationAction;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.TranslationInput;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Creates new outgoing identities.
@@ -32,11 +32,11 @@ public class CreateIdentityActionFactory extends AbstractOutputTranslationAction
 	
 	public CreateIdentityActionFactory()
 	{
-		super(NAME, new ActionParameterDesc(
+		super(NAME, new ActionParameterDefinition(
 				"identityType",
 				"TranslationAction.createIdentity.paramDesc.idType",
 				Type.EXPRESSION),
-		new ActionParameterDesc(
+		new ActionParameterDefinition(
 				"expression",
 				"TranslationAction.createIdentity.paramDesc.idValueExpression",
 				Type.EXPRESSION));
@@ -45,16 +45,16 @@ public class CreateIdentityActionFactory extends AbstractOutputTranslationAction
 	@Override
 	public CreateIdentityAction getInstance(String... parameters)
 	{
-		return new CreateIdentityAction(parameters, this);
+		return new CreateIdentityAction(parameters, getActionType());
 	}
 	
-	public static class CreateIdentityAction extends AbstractOutputTranslationAction
+	public static class CreateIdentityAction extends OutputTranslationAction
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, CreateIdentityAction.class);
 		private String idTypeString;
 		private Serializable idValueExpression;
 
-		public CreateIdentityAction(String[] params, TranslationActionDescription desc)
+		public CreateIdentityAction(String[] params, TranslationActionType desc)
 		{
 			super(desc, params);
 			setParameters(params);

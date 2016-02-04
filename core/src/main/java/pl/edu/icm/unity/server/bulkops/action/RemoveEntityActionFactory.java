@@ -11,11 +11,11 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.bulkops.EntityAction;
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.TranslationActionDescription;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Allows for removing an entity.
@@ -31,24 +31,24 @@ public class RemoveEntityActionFactory extends AbstractEntityActionFactory
 	@Autowired
 	public RemoveEntityActionFactory(@Qualifier("insecure") IdentitiesManagement idsMan)
 	{
-		super(NAME, new ActionParameterDesc[] {});
+		super(NAME, new ActionParameterDefinition[] {});
 		this.idsMan = idsMan;
 	}
 
 	@Override
 	public EntityAction getInstance(String... parameters)
 	{
-		return new RemoveEntityAction(idsMan, this, parameters);
+		return new RemoveEntityAction(idsMan, getActionType(), parameters);
 	}
 
-	public static class RemoveEntityAction extends AbstractEntityAction
+	public static class RemoveEntityAction extends EntityAction
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER,
 				RemoveEntityActionFactory.RemoveEntityAction.class);
 		private IdentitiesManagement idsMan;
 		
 		public RemoveEntityAction(IdentitiesManagement idsMan,
-				TranslationActionDescription description, String[] params)
+				TranslationActionType description, String[] params)
 		{
 			super(description, params);
 			this.idsMan = idsMan;

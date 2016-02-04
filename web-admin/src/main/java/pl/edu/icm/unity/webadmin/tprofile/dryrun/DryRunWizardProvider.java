@@ -23,16 +23,16 @@ import com.vaadin.ui.UI;
 public class DryRunWizardProvider extends AbstractSandboxWizardProvider
 {
 	private UnityMessageSource msg;
-	private InputTranslationActionsRegistry registry;
 	private TranslationProfileManagement tpMan;
+	private InputTranslationActionsRegistry taRegistry;
 
 	public DryRunWizardProvider(UnityMessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier, 
-			InputTranslationActionsRegistry registry, TranslationProfileManagement tpMan)
+			TranslationProfileManagement tpMan, InputTranslationActionsRegistry taRegistry)
 	{
 		super(sandboxURL, sandboxNotifier);
 		this.msg = msg;
-		this.registry = registry;
 		this.tpMan = tpMan;
+		this.taRegistry = taRegistry;
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class DryRunWizardProvider extends AbstractSandboxWizardProvider
 	{
 		final Wizard wizard = new Wizard();
 		wizard.setSizeFull();
-		final DryRunStep dryrunStep = new DryRunStep(msg, sandboxURL, registry, tpMan);
+		final DryRunStep dryrunStep = new DryRunStep(msg, sandboxURL, tpMan, taRegistry);
 		wizard.addStep(new IntroStep(msg, "DryRun.IntroStepComponent.introLabel"));
 		wizard.addStep(dryrunStep);
 		
