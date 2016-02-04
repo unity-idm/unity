@@ -506,7 +506,7 @@ public class RESTAdmin
 		return mapper.writeValueAsString(forms);
 	}
 	
-	@Path("registrationForm/{formId}")
+	@Path("/registrationForm/{formId}")
 	@DELETE
 	public void removeRegistrationForm(@PathParam("formId") String formId, 
 			@QueryParam("dropRequests") Boolean dropRequests) throws EngineException
@@ -516,7 +516,7 @@ public class RESTAdmin
 		registrationManagement.removeForm(formId, dropRequests);
 	}
 	
-	@Path("registrationForm")
+	@Path("/registrationForm")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void addForm(String json) throws EngineException, IOException
@@ -525,7 +525,7 @@ public class RESTAdmin
 		registrationManagement.addForm(form);
 	}
 	
-	@Path("registrationForm")
+	@Path("/registrationForm")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void updateForm(@QueryParam("ignoreRequests") Boolean ignoreRequests,

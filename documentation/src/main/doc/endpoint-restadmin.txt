@@ -471,3 +471,50 @@ overall configuration is given in JSON document sent in the request body. Exampl
 Updates the given endpoint's configuration. The configuration is provided in request body (see POST method for example).
 If some of the elements are missing, then existing values remain unchanged.
 
+
+'''
+
++@Path("/registrationForms")+ +
++@GET+ +
+
+Returns a JSON array with registration forms defined in the system. The syntax is complex
+and is not provided here.
+
+
+'''
+
++@Path("/registrationForm/{formId}")+ +
++@QueryParam("dropRequests")+ +
++@DELETE+ +
+
+Removes registration form with the given id. An optional query parameter +dropRequests+ can be 
+provided with a boolean value, to control whether the form should be removed also if it
+has pending requests (the requests will be removed with the form).  
+
+
+'''
+	
++@Path("/registrationForm")+ +
++@POST+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Creates a new registration form specified by the JSON object passed as request body.
+The form description is quite complex. The easiest way is to create a registration form using the AdminUI
+and then check the resulting JSON (GET on +/registrationForms+).
+
+
+'''
+
++@Path("/registrationForm")+ +
++@QueryParam("ignoreRequests")+ +
++@PUT+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Updates an existing registration form. The body of the request should include 
+a JSON description of a form, as during form creation. The only difference is
+that this method expects existing form id. 
+The optional boolean +ignoreRequests+ query parameter can be used to force form
+update even if it has attached pending requests. Beware, however, that those
+requests can easily become invalid.
+ 
+
