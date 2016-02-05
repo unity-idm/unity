@@ -471,3 +471,68 @@ overall configuration is given in JSON document sent in the request body. Exampl
 Updates the given endpoint's configuration. The configuration is provided in request body (see POST method for example).
 If some of the elements are missing, then existing values remain unchanged.
 
+
+'''
+
++@Path("/invitations")+ +
++@GET+ +
+
+Returns a JSON array with all existing invitations.
+
+
+'''
+
++@Path("/invitation/{code}")+ +
++@GET+ +
+
+Returns a JSON encoded invitation with the specified code.
+
+
+'''
+
++@Path("invitation/{code}")+ +
++@DELETE+ +
+
+Removes an invitation with a specified code.
+
+
+'''
+
++@Path("invitation/{code}/send")+ +
++@POST+ +
+
+Triggers sending a message with an invitation. The registration form of the invitation
+must have an invitation template defined, and the invitation must have contact address and channel
+set.
+
+
+'''
+
++@Path("invitation")+ +
++@POST+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
++@Produces(MediaType.TEXT_PLAIN)+ +
+
+Creates a new invitation. Returned string is the unique code of the newly created invitation.
+Example invitation definition:
+
+----
+{
+  "formId" : "exForm",
+  "expiration" : 1454703788,
+  "contactAddress" : "someAddr@example.com",
+  "channelId" : "channelId",
+  "identities" : {},
+  "groupSelections" : {},
+  "attributes" : {}
+}
+---- 
+
+Syntax of prefilled parameters, can be seen in the result of retrieving an AdminUI defined invitation
+via the REST GET methods.
+
+
+
+
+
+

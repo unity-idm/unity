@@ -601,7 +601,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		if (form.getRegistrationCode() != null)
 			throw new WrongArgumentException("Invitations can not be attached to forms with a fixed registration code");
 		String randomUUID = UUID.randomUUID().toString();
-		InvitationWithCode withCode = new InvitationWithCode(invitation, randomUUID);
+		InvitationWithCode withCode = new InvitationWithCode(invitation, randomUUID, null, 0);
 		invitationDB.insert(randomUUID, withCode, sql);
 		return randomUUID;
 	}
@@ -618,7 +618,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		if (invitation.getContactAddress() == null || invitation.getChannelId() == null)
 			throw new WrongArgumentException("The invitation has no contact address configured");
 		if (invitation.getExpiration().isBefore(Instant.now()))
-			throw new WrongArgumentException("The invitation with the is expired");
+			throw new WrongArgumentException("The invitation is expired");
 		
 		RegistrationForm form = formsDB.get(invitation.getFormId(), sql);
 		if (form.getNotificationsConfiguration().getInvitationTemplate() == null)

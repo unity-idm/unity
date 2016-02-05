@@ -12,41 +12,61 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeParamRepresentation;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Stores pre-filled input for the form which is a base of invitation of a user.
  * Invitation can optionally hold a contact address where the invitation link shall be sent.
+ * <p>
+ * This variant is intended for usage with REST API and is serializable to/from JSON.
+ * 
  * @author Krzysztof Benedyczak
  */
-public class InvitationParam extends InvitationParamBase
+public class RESTInvitationParam extends InvitationParamBase
 {
-	private Map<Integer, PrefilledEntry<Attribute<?>>> attributes = new HashMap<>();
+	private Map<Integer, PrefilledEntry<AttributeParamRepresentation>> attributes = new HashMap<>();
 	
-	public InvitationParam(InvitationParamBase source, Map<Integer, PrefilledEntry<Attribute<?>>> attributes)
-	{
-		super(source.getFormId(), source.getExpiration(), source.getContactAddress(), 
-				source.getChannelId());
-		getIdentities().putAll(source.getIdentities());
-		getGroupSelections().putAll(source.getGroupSelections());
-		this.attributes.putAll(attributes);
-	}
-
-	public InvitationParam(String formId, Instant expiration, String contactAddress, String channelId)
+	public RESTInvitationParam(String formId, Instant expiration, String contactAddress, String channelId)
 	{
 		super(formId, expiration, contactAddress, channelId);
 	}
 
-	public InvitationParam(String formId, Instant expiration)
+	public RESTInvitationParam(String formId, Instant expiration)
 	{
 		super(formId, expiration);
 	}
 
-	public Map<Integer, PrefilledEntry<Attribute<?>>> getAttributes()
+	@JsonCreator
+	public RESTInvitationParam(ObjectNode json)
+	{
+		super(json);
+		fromJson(json);
+	}
+	
+	public Map<Integer, PrefilledEntry<AttributeParamRepresentation>> getAttributes()
 	{
 		return attributes;
 	}
 
+	@JsonValue
+	public ObjectNode toJson()
+	{
+		ObjectNode json = super.toJson();
+		json.putPOJO("attributes", getAttributes());
+		return json;
+	}
+
+	private void fromJson(ObjectNode json)
+	{
+		JsonNode n = json.get("attributes");
+		fill((ObjectNode) n, getAttributes(), AttributeParamRepresentation.class);
+	}
+	
 	@Override
 	public int hashCode()
 	{
@@ -65,7 +85,7 @@ public class InvitationParam extends InvitationParamBase
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		InvitationParam other = (InvitationParam) obj;
+		RESTInvitationParam other = (RESTInvitationParam) obj;
 		if (attributes == null)
 		{
 			if (other.attributes != null)

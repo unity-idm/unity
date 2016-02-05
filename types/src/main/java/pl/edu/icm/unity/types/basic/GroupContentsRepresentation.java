@@ -2,13 +2,10 @@
  * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.restadm;
+package pl.edu.icm.unity.types.basic;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import pl.edu.icm.unity.types.basic.GroupContents;
-import pl.edu.icm.unity.types.basic.GroupMembership;
 
 /**
  * Simple wrapper removing information which is not exposed yet. Will be removed in future.

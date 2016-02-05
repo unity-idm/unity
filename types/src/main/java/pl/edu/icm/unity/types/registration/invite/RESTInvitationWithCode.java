@@ -12,58 +12,70 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeParamRepresentation;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Complete invitation as stored in the system. 
  * In the first place contains a registration code associated with an {@link InvitationParam}. 
  * What's more information on sent invitations is maintained.
- *   
+ * <p>
+ * This variant is intended for use with REST API and is JSON serializable
  * @author Krzysztof Benedyczak
  */
-public class InvitationWithCode extends InvitationWithCodeBase
+public class RESTInvitationWithCode extends InvitationWithCodeBase
 {
-	private Map<Integer, PrefilledEntry<Attribute<?>>> attributes = new HashMap<>();
+	private Map<Integer, PrefilledEntry<AttributeParamRepresentation>> attributes = new HashMap<>();
 
-	public InvitationWithCode(String formId, Instant expiration, String contactAddress,
+	public RESTInvitationWithCode(String formId, Instant expiration, String contactAddress,
 			String facilityId, String registrationCode)
 	{
 		super(formId, expiration, contactAddress, facilityId, registrationCode);
 	}
 
-	public InvitationWithCode(InvitationParam base, String registrationCode,
+	public RESTInvitationWithCode(RESTInvitationParam base, String registrationCode,
 			Instant lastSentTime, int numberOfSends)
 	{
 		super(base, registrationCode, lastSentTime, numberOfSends);
 		this.getAttributes().putAll(base.getAttributes());
 	}
 
-	public InvitationWithCode(ObjectNode json, Map<Integer, PrefilledEntry<Attribute<?>>> attributes)
+	public RESTInvitationWithCode(InvitationWithCodeBase base,
+			Map<Integer, PrefilledEntry<AttributeParamRepresentation>> attributes)
 	{
-		super(json);
-		this.attributes.putAll(attributes);
+		super(base, base.getRegistrationCode(), base.getLastSentTime(), base.getNumberOfSends());
+		this.getAttributes().putAll(attributes);
 	}
 	
-	public Map<Integer, PrefilledEntry<Attribute<?>>> getAttributes()
+	@JsonCreator
+	public RESTInvitationWithCode(ObjectNode json)
+	{
+		super(json);
+		fromJson(json);
+	}
+	
+	
+	public Map<Integer, PrefilledEntry<AttributeParamRepresentation>> getAttributes()
 	{
 		return attributes;
 	}
 
-	public RESTInvitationWithCode toRESTVariant()
+	@JsonValue
+	public ObjectNode toJson()
 	{
-		Map<Integer, PrefilledEntry<AttributeParamRepresentation>> attributes = new HashMap<>(this.attributes.size());
-		for (Map.Entry<Integer, PrefilledEntry<Attribute<?>>> entry: this.attributes.entrySet())
-		{
-			PrefilledEntry<Attribute<?>> value = entry.getValue();
-			AttributeParamRepresentation convertedAttribute = 
-					new AttributeParamRepresentation(value.getEntry()); 
-			attributes.put(entry.getKey(), new PrefilledEntry<AttributeParamRepresentation>(
-					convertedAttribute, value.getMode()));
-		}
-		return new RESTInvitationWithCode(this, attributes);
+		ObjectNode json = super.toJson();
+		json.putPOJO("attributes", getAttributes());
+		return json;
+	}
+
+	private void fromJson(ObjectNode json)
+	{
+		JsonNode n = json.get("attributes");
+		fill((ObjectNode) n, getAttributes(), AttributeParamRepresentation.class);
 	}
 	
 	@Override
@@ -84,7 +96,7 @@ public class InvitationWithCode extends InvitationWithCodeBase
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		InvitationWithCode other = (InvitationWithCode) obj;
+		RESTInvitationWithCode other = (RESTInvitationWithCode) obj;
 		if (attributes == null)
 		{
 			if (other.attributes != null)

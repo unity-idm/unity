@@ -10,8 +10,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -46,10 +48,13 @@ import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.AttributeParamRepresentation;
+import pl.edu.icm.unity.types.basic.AttributeRepresentation;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.GroupContentsRepresentation;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -58,6 +63,11 @@ import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam;
+import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
+import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
+import pl.edu.icm.unity.types.registration.invite.RESTInvitationParam;
+import pl.edu.icm.unity.types.registration.invite.RESTInvitationWithCode;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -70,7 +80,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * 
  * @author K. Benedyczak
  */
-@Produces("application/json")
+@Produces(MediaType.APPLICATION_JSON)
 @Path(RESTAdminEndpointFactory.V1_PATH)
 public class RESTAdmin
 {
@@ -288,21 +298,26 @@ public class RESTAdmin
 			}
 		}
 		for (AttributeParamRepresentation ap: parsedParams)
-			setAttribute(ap, entityId);;
+			setAttribute(ap, entityId);
 	}
 
 	private void setAttribute(AttributeParamRepresentation attributeParam, long entityId) throws EngineException
 	{
 		log.debug("setAttribute: " + attributeParam.getName() + " in " + attributeParam.getGroupPath());
 		Map<String, AttributeType> attributeTypesAsMap = attributesMan.getAttributeTypesAsMap();
+		Attribute<?> apiAttribute = toAPIAttribute(attributeParam, attributeTypesAsMap);
+		attributesMan.setAttribute(new EntityParam(entityId), apiAttribute, true);
+	}
+	
+	private Attribute<?> toAPIAttribute(AttributeParamRepresentation attributeParam,
+			Map<String, AttributeType> attributeTypesAsMap) throws IllegalAttributeTypeException
+	{
 		AttributeType aType = attributeTypesAsMap.get(attributeParam.getName());
 		if (aType == null)
 			throw new IllegalAttributeTypeException("Attribute type " + attributeParam.getName() + 
 					" does not exist");
-		Attribute<?> apiAttribute = attributeParam.toAPIAttribute(aType.getValueType());
-		attributesMan.setAttribute(new EntityParam(entityId), apiAttribute, true);
+		return attributeParam.toAPIAttribute(aType.getValueType());
 	}
-	
 	
 	@Path("/entity/{entityId}/credential-adm/{credential}")
 	@PUT
@@ -536,4 +551,75 @@ public class RESTAdmin
 		RegistrationForm form = new RegistrationForm(JsonUtil.parse(json));
 		registrationManagement.updateForm(form, ignoreRequests);
 	}
+	
+	
+	@Path("/invitations")
+	@GET
+	public String getInvitations() throws EngineException, JsonProcessingException
+	{
+		List<InvitationWithCode> invitations = registrationManagement.getInvitations();
+		List<RESTInvitationWithCode> restInvitations = invitations.stream()
+				.map(InvitationWithCode::toRESTVariant)
+				.collect(Collectors.toList());
+		return mapper.writeValueAsString(restInvitations);
+	}
+
+	@Path("/invitation/{code}")
+	@GET
+	public String getInvitation(@PathParam("code") String code) throws EngineException, JsonProcessingException
+	{
+		InvitationWithCode invitation = registrationManagement.getInvitation(code);
+		return mapper.writeValueAsString(invitation.toRESTVariant());
+	}
+	
+	@Path("invitation/{code}")
+	@DELETE
+	public void removeInvitation(@PathParam("code") String code) throws EngineException
+	{
+		registrationManagement.removeInvitation(code);
+	}
+
+	@Path("invitation/{code}/send")
+	@POST
+	public void sendInvitation(@PathParam("code") String code) throws EngineException, IOException
+	{
+		registrationManagement.sendInvitation(code);
+	}
+
+	@Path("invitation")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
+	public String addInvitation(String jsonInvitation) throws EngineException, IOException
+	{
+		ObjectNode json = JsonUtil.parse(jsonInvitation);
+		RESTInvitationParam restInvitationParam = new RESTInvitationParam(json);
+
+		Map<Integer, PrefilledEntry<Attribute<?>>> apiPrefilledAttributes = 
+				toAPIPrefilledAttributes(restInvitationParam.getAttributes());
+		
+		InvitationParam invitationParam = new InvitationParam(restInvitationParam, apiPrefilledAttributes);
+		return registrationManagement.addInvitation(invitationParam);
+	}
+	
+	private Map<Integer, PrefilledEntry<Attribute<?>>> toAPIPrefilledAttributes(
+			Map<Integer, PrefilledEntry<AttributeParamRepresentation>> restAttributes) 
+					throws EngineException
+	{
+		Map<String, AttributeType> attributeTypesAsMap = attributesMan.getAttributeTypesAsMap();
+		Map<Integer, PrefilledEntry<Attribute<?>>> ret = new HashMap<>(restAttributes.size());
+		
+		for (Map.Entry<Integer, PrefilledEntry<AttributeParamRepresentation>> restAE: restAttributes.entrySet())
+		{
+			PrefilledEntry<AttributeParamRepresentation> value = restAE.getValue();
+			Attribute<?> apiAttribute = toAPIAttribute(value.getEntry(), attributeTypesAsMap);
+			ret.put(restAE.getKey(), new PrefilledEntry<Attribute<?>>(apiAttribute, value.getMode()));
+		}
+		
+		return ret;
+	}
 }
+
+
+
+

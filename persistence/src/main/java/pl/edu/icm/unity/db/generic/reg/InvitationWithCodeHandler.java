@@ -9,7 +9,7 @@
 package pl.edu.icm.unity.db.generic.reg;
 
 import java.io.IOException;
-import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
@@ -23,8 +23,6 @@ import pl.edu.icm.unity.db.model.GenericObjectBean;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.registration.Selection;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
@@ -55,55 +53,16 @@ public class InvitationWithCodeHandler extends DefaultEntityHandler<InvitationWi
 
 	private ObjectNode toJson(InvitationWithCode value, ObjectMapper mapper)
 	{
-		ObjectNode json = mapper.createObjectNode();
-		
-		json.put("formId", value.getFormId());
-		json.put("registrationCode", value.getRegistrationCode());
-		json.put("expiration", value.getExpiration().getEpochSecond());
-		if (value.getContactAddress() != null)
-			json.put("contactAddress", value.getContactAddress());
-		if (value.getChannelId() != null)
-			json.put("channelId", value.getChannelId());
-		if (value.getLastSentTime() != null)
-			json.put("lastSentTime", value.getLastSentTime().getEpochSecond());
-		json.put("numberOfSends", value.getNumberOfSends());
-		json.set("identities", jsonMapper.valueToTree(value.getIdentities()));
-		json.set("groupSelections", jsonMapper.valueToTree(value.getGroupSelections()));
-		
+		ObjectNode json = value.toJson();
 		addAttributes(json, value.getAttributes());
-
 		return json;
 	}
 	
 	private InvitationWithCode fromJson(ObjectNode json, SqlSession sql) throws IOException
 	{
-		String formId = json.get("formId").asText();
-		String registrationCode = json.get("registrationCode").asText();
-		Instant expiration = Instant.ofEpochSecond(json.get("expiration").asLong());
-		String addr = json.has("contactAddress") ? json.get("contactAddress").asText() : null;
-		String channelId = json.has("channelId") ? json.get("channelId").asText() : null;
-		InvitationWithCode invitation = new InvitationWithCode(formId, expiration,
-				addr, channelId, registrationCode);
-		
-		JsonNode n;
-		
-		if (json.has("lastSentTime"))
-		{
-			Instant lastSent = Instant.ofEpochSecond(json.get("lastSentTime").asLong());
-			invitation.setLastSentTime(lastSent);
-		}
-		invitation.setNumberOfSends(json.get("numberOfSends").asInt());
-		
-		n = json.get("identities");
-		fillIdentities((ObjectNode) n, invitation.getIdentities(), sql);
-
-		n = json.get("groupSelections");
-		fillGroups((ObjectNode) n, invitation.getGroupSelections(), sql);
-		
-		n = json.get("attributes");
-		fillAttributes((ObjectNode) n, invitation.getAttributes(), sql);
-		
-		return invitation;
+		JsonNode n = json.get("attributes");
+		Map<Integer, PrefilledEntry<Attribute<?>>> attributes = readAttributes((ObjectNode) n, sql);
+		return new InvitationWithCode(json, attributes);
 	}
 
 	private void addAttributes(ObjectNode root, Map<Integer, PrefilledEntry<Attribute<?>>> attributes)
@@ -118,9 +77,9 @@ public class InvitationWithCodeHandler extends DefaultEntityHandler<InvitationWi
 		}
 	}
 	
-	private void fillAttributes(ObjectNode root, Map<Integer, PrefilledEntry<Attribute<?>>> attributes, 
-			SqlSession sql)
+	private Map<Integer, PrefilledEntry<Attribute<?>>> readAttributes(ObjectNode root, SqlSession sql)
 	{
+		Map<Integer, PrefilledEntry<Attribute<?>>> attributes = new HashMap<>();
 		root.fields().forEachRemaining(field ->
 		{
 			ObjectNode el = (ObjectNode) field.getValue();
@@ -136,50 +95,9 @@ public class InvitationWithCodeHandler extends DefaultEntityHandler<InvitationWi
 			PrefilledEntryMode mode = PrefilledEntryMode.valueOf(el.get("mode").asText());
 			attributes.put(Integer.parseInt(field.getKey()), new PrefilledEntry<Attribute<?>>(a, mode));
 		});
+		return attributes;
 	}
 
-	private void fillIdentities(ObjectNode root, Map<Integer, PrefilledEntry<IdentityParam>> identities, 
-			SqlSession sql)
-	{
-		root.fields().forEachRemaining(field ->
-		{
-			ObjectNode el = (ObjectNode) field.getValue();
-			IdentityParam identity;
-			try
-			{
-				byte[] contents = jsonMapper.writeValueAsBytes(el.get("entry"));
-				identity = jsonMapper.readValue(contents, IdentityParam.class);
-			} catch (Exception e)
-			{
-				log.warn("Can not deserialize identity stored with invitation, ignoring it", e);
-				return;
-			}
-			PrefilledEntryMode mode = PrefilledEntryMode.valueOf(el.get("mode").asText());
-			identities.put(Integer.parseInt(field.getKey()), new PrefilledEntry<>(identity, mode));
-		});
-	}
-
-	private void fillGroups(ObjectNode root, Map<Integer, PrefilledEntry<Selection>> groups, 
-			SqlSession sql)
-	{
-		root.fields().forEachRemaining(field ->
-		{
-			ObjectNode el = (ObjectNode) field.getValue();
-			Selection selection;
-			try
-			{
-				byte[] contents = jsonMapper.writeValueAsBytes(el.get("entry"));
-				selection = jsonMapper.readValue(contents, Selection.class);
-			} catch (Exception e)
-			{
-				log.warn("Can not deserialize group stored with invitation, ignoring it", e);
-				return;
-			}
-			PrefilledEntryMode mode = PrefilledEntryMode.valueOf(el.get("mode").asText());
-			groups.put(Integer.parseInt(field.getKey()), new PrefilledEntry<>(selection, mode));
-		});
-	}
-	
 	@Override
 	public GenericObjectBean toBlob(InvitationWithCode value, SqlSession sql)
 	{

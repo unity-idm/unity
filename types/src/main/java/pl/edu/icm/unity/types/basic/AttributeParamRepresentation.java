@@ -2,14 +2,10 @@
  * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.restadm;
+package pl.edu.icm.unity.types.basic;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
 /**
  * {@link Attribute} wrapper, preparing it for JSON serialization. Used when attribute must be set.
@@ -88,5 +84,50 @@ public class AttributeParamRepresentation
 	public void setVisibility(AttributeVisibility visibility)
 	{
 		this.visibility = visibility;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((groupPath == null) ? 0 : groupPath.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((values == null) ? 0 : values.hashCode());
+		result = prime * result + ((visibility == null) ? 0 : visibility.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AttributeParamRepresentation other = (AttributeParamRepresentation) obj;
+		if (groupPath == null)
+		{
+			if (other.groupPath != null)
+				return false;
+		} else if (!groupPath.equals(other.groupPath))
+			return false;
+		if (name == null)
+		{
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (values == null)
+		{
+			if (other.values != null)
+				return false;
+		} else if (!values.equals(other.values))
+			return false;
+		if (visibility != other.visibility)
+			return false;
+		return true;
 	}
 }

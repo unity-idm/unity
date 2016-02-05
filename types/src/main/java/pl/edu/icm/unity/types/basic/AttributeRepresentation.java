@@ -2,9 +2,8 @@
  * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.restadm;
+package pl.edu.icm.unity.types.basic;
 
-import pl.edu.icm.unity.types.basic.AttributeExt;
 
 /**
  * AttributeExt wrapper, preparing it for JSON serialization. Type details are removed, 

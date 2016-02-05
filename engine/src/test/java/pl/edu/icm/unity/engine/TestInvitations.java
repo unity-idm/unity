@@ -82,7 +82,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 		InvitationParam invitation = new InvitationParam(TEST_FORM, Instant.now().plusSeconds(100).
 				truncatedTo(ChronoUnit.SECONDS));
 		String code = registrationsMan.addInvitation(invitation);
-		InvitationWithCode invitationEnh = new InvitationWithCode(invitation, code);
+		InvitationWithCode invitationEnh = new InvitationWithCode(invitation, code, null, 0);
 		
 		List<InvitationWithCode> invitations = registrationsMan.getInvitations();
 		assertThat(invitations.size(), is(1));

@@ -7,8 +7,12 @@ package pl.edu.icm.unity.types.basic;
 import java.util.Collections;
 import java.util.List;
 
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.types.InitializationValidator;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Represents an attribute instance.
@@ -110,6 +114,13 @@ public class Attribute<T> implements InitializationValidator
 		this.remoteIdp = remoteIdp;
 	}
 
+	@JsonValue
+	public ObjectNode toJson()
+	{
+		AttributeParamRepresentation cutDown = new AttributeParamRepresentation(this);
+		return Constants.MAPPER.valueToTree(cutDown);
+	}
+	
 	@Override
 	public String toString()
 	{
