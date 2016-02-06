@@ -57,7 +57,7 @@ public class EndpointManagementImpl implements EndpointManagement
 	private EndpointDB endpointDB;
 	private RealmDB realmDB;
 	private TransactionalRunner tx;
-	
+
 	@Autowired
 	public EndpointManagementImpl(EndpointFactoriesRegistry endpointFactoriesReg,
 			TransactionalRunner tx, AuthenticatorLoader authnLoader,
@@ -96,8 +96,8 @@ public class EndpointManagementImpl implements EndpointManagement
 	 */
 	@Override
 	@Transactional
-	public EndpointDescription deploy(String typeId, String endpointName, 
-			String address, EndpointConfiguration configuration) throws EngineException 
+	public EndpointDescription deploy(String typeId, String endpointName,
+			String address, EndpointConfiguration configuration) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		synchronized(internalManagement)
@@ -106,8 +106,8 @@ public class EndpointManagementImpl implements EndpointManagement
 		}
 	}
 
-	private EndpointDescription deployInt(String typeId, String endpointName, 
-			String address, EndpointConfiguration configuration) throws EngineException 
+	private EndpointDescription deployInt(String typeId, String endpointName,
+			String address, EndpointConfiguration configuration) throws EngineException
 	{
 		log.info("Will deploy endpoint " + endpointName + " [" + typeId +"] at " + address);
 		if (log.isTraceEnabled())
@@ -123,31 +123,32 @@ public class EndpointManagementImpl implements EndpointManagement
 					configuration.getAuthenticationOptions(), sql);
 			verifyAuthenticators(authenticators, factory.getDescription().getSupportedBindings());
 			AuthenticationRealm realm = realmDB.get(configuration.getRealm(), sql);
-			
+
 			EndpointDescription endpDescription = new EndpointDescription(
-					endpointName, configuration.getDisplayedName(), address, 
-					configuration.getDescription(), realm, 
+					endpointName, configuration.getDisplayedName(), address,
+					configuration.getDescription(), realm,
 					factory.getDescription(), configuration.getAuthenticationOptions());
-			
+
 			instance.initialize(endpDescription, authenticators, configuration.getConfiguration());
 			endpointDB.insert(endpointName, instance, sql);
 			internalManagement.deploy(instance);
 			log.info("Endpoint " + endpointName + " successfully deployed");
 		} catch (Exception e)
 		{
-			internalManagement.undeploy(instance.getEndpointDescription().getId());
+			if (instance.getEndpointDescription() != null)
+				internalManagement.undeploy(instance.getEndpointDescription().getId());
 			throw new EngineException("Unable to deploy an endpoint: " + e.getMessage(), e);
 		}
 		return instance.getEndpointDescription();
 	}
-	
-	private void verifyAuthenticators(List<AuthenticationOption> authenticators, 
+
+	private void verifyAuthenticators(List<AuthenticationOption> authenticators,
 			Set<String> supported) throws WrongArgumentException
 	{
 		for (AuthenticationOption auths: authenticators)
 			auths.checkIfAuthenticatorsAreAmongSupported(supported);
 	}
-	
+
 	@Override
 	public List<EndpointDescription> getEndpoints() throws AuthorizationException
 	{
@@ -182,8 +183,8 @@ public class EndpointManagementImpl implements EndpointManagement
 			}
 		});
 		endpointsUpdater.updateEndpoints();
-	}	
-	
+	}
+
 	@Override
 	public void updateEndpoint(String id, EndpointConfiguration configuration) throws EngineException
 	{
@@ -213,18 +214,18 @@ public class EndpointManagementImpl implements EndpointManagement
 			SqlSession sql = SqlSessionTL.get();
 			try
 			{
-				EndpointInstance instance = endpointDB.get(id, sql); 
+				EndpointInstance instance = endpointDB.get(id, sql);
 				String endpointTypeId = instance.getEndpointDescription().getType().getName();
 				EndpointFactory factory = endpointFactoriesReg.getById(endpointTypeId);
 				EndpointInstance newInstance = factory.newInstance();
-				
-				String jsonConf = (configuration.getConfiguration() != null) ? 
-						configuration.getConfiguration() : 
+
+				String jsonConf = (configuration.getConfiguration() != null) ?
+						configuration.getConfiguration() :
 					instance.getSerializedConfiguration();
-				String newDesc = (configuration.getDescription() != null) ? 
-						configuration.getDescription() : 
+				String newDesc = (configuration.getDescription() != null) ?
+						configuration.getDescription() :
 					instance.getEndpointDescription().getDescription();
-				
+
 				List<AuthenticationOption> authenticators;
 				List<AuthenticationOptionDescription> newAuthn;
 				if (configuration.getAuthenticationOptions() != null)
@@ -237,21 +238,21 @@ public class EndpointManagementImpl implements EndpointManagement
 					authenticators = authnLoader.getAuthenticators(newAuthn, sql);
 				}
 				String newRealm = (configuration.getRealm() != null) ?
-						configuration.getRealm() : 
+						configuration.getRealm() :
 						instance.getEndpointDescription().getRealm().getName();
-				
+
 				AuthenticationRealm realm = realmDB.get(newRealm, sql);
-				
-				I18nString newDisplayedName = configuration.getDisplayedName() != null ? 
+
+				I18nString newDisplayedName = configuration.getDisplayedName() != null ?
 						configuration.getDisplayedName() :
 						instance.getEndpointDescription().getDisplayedName();
-				
+
 				EndpointDescription endpDescription = new EndpointDescription(
-						id, newDisplayedName, 
-						instance.getEndpointDescription().getContextAddress(), 
-						newDesc, realm, 
+						id, newDisplayedName,
+						instance.getEndpointDescription().getContextAddress(),
+						newDesc, realm,
 						factory.getDescription(), newAuthn);
-				
+
 				newInstance.initialize(endpDescription, authenticators, jsonConf);
 				endpointDB.update(id, newInstance, sql);
 				log.info("Endpoint " + id + " successfully updated");
