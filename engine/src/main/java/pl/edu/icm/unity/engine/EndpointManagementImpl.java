@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -115,6 +117,7 @@ public class EndpointManagementImpl implements EndpointManagement
 		EndpointFactory factory = endpointFactoriesReg.getById(typeId);
 		if (factory == null)
 			throw new WrongArgumentException("Endpoint type " + typeId + " is unknown");
+		validateEndpointPath(address);
 		EndpointInstance instance = factory.newInstance();
 		SqlSession sql = SqlSessionTL.get();
 		try
@@ -149,6 +152,23 @@ public class EndpointManagementImpl implements EndpointManagement
 		return instance.getEndpointDescription();
 	}
 
+	private void validateEndpointPath(String contextPath) throws WrongArgumentException
+	{
+		if (!contextPath.startsWith("/"))
+			throw new WrongArgumentException("Context path must start with a leading '/'");
+		if (contextPath.indexOf("/", 1) != -1)
+			throw new WrongArgumentException("Context path must not possess more then one '/'");
+		try
+		{
+			URL tested = new URL("https://localhost:8080" + contextPath);
+			if (!contextPath.equals(tested.getPath()))
+				throw new WrongArgumentException("Context path must be a valid path element of a URL");
+		} catch (MalformedURLException e)
+		{
+			throw new WrongArgumentException("Context path must be a valid path element of a URL", e);
+		}
+	}
+	
 	private void verifyAuthenticators(List<AuthenticationOption> authenticators,
 			Set<String> supported) throws WrongArgumentException
 	{

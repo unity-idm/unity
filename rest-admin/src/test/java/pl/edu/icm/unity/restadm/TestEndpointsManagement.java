@@ -165,7 +165,6 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 		assertThat(returned.getId(), is("newEndpoint"));
 		assertThat(returned.getRealm().getName(), is("testr"));
 		assertThat(returned.getType().getName(), is(RESTAdminEndpointFactory.NAME));
-
 	}
 
 	@Test

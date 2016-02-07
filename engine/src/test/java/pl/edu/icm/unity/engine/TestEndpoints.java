@@ -144,6 +144,41 @@ public class TestEndpoints extends DBIntegrationTestBase
 	}
 	
 	@Test
+	public void endpointWithWrongPathIsNotDeployed() throws Exception
+	{
+		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
+				"desc", new ArrayList<AuthenticationOptionDescription>(), 
+				"", REALM_NAME);
+		try
+		{
+			endpointMan.deploy(MockEndpointFactory.NAME, "endpoint1", "MISSING_LEADING_SLASH", cfg);
+			fail("Should get an exception");
+		} catch (EngineException e)
+		{
+			assertThat(e.getMessage(), containsString("path"));
+		}
+		try
+		{
+			endpointMan.deploy(MockEndpointFactory.NAME, "endpoint1", "/two/slashes", cfg);
+			fail("Should get an exception");
+		} catch (EngineException e)
+		{
+			assertThat(e.getMessage(), containsString("path"));
+		}
+		try
+		{
+			endpointMan.deploy(MockEndpointFactory.NAME, "endpoint1", "/illegal?query", cfg);
+			fail("Should get an exception");
+		} catch (EngineException e)
+		{
+			assertThat(e.getMessage(), containsString("path"));
+		}
+
+		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
+		assertThat(endpoints.isEmpty(), is(true));
+	}
+	
+	@Test
 	public void testInitializationOfEndpointsAtStartup() throws Exception
 	{
 		//test initial loading from DB: create, remove from the server, load
