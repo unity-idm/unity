@@ -131,6 +131,13 @@ public class EndpointManagementImpl implements EndpointManagement
 
 			instance.initialize(endpDescription, authenticators, configuration.getConfiguration());
 			endpointDB.insert(endpointName, instance, sql);
+		} catch (Exception e)
+		{
+			throw new EngineException("Unable to deploy an endpoint: " + e.getMessage(), e);
+		}
+
+		try
+		{
 			internalManagement.deploy(instance);
 			log.info("Endpoint " + endpointName + " successfully deployed");
 		} catch (Exception e)
