@@ -17,13 +17,12 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.sandbox.wizard.SandboxWizardDialog;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.InputTranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.OutputTranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.TypesRegistryBase;
+import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 import pl.edu.icm.unity.server.translation.TranslationProfileInstance;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationProfile;
@@ -72,27 +71,25 @@ public class TranslationProfilesComponent extends VerticalLayout
 	private com.vaadin.ui.Component main;
 	private OptionGroup profileType;
 	
-	private TranslationActionsRegistry tc;
-	private AttributesManagement attrsMan;
-	private IdentitiesManagement idMan;
-	private AuthenticationManagement authnMan;
-	private GroupsManagement groupsMan;
+	private InputTranslationActionsRegistry inputActionsRegistry;
+	private OutputTranslationActionsRegistry outputActionsRegistry;
 
 	private SandboxAuthnNotifier sandboxNotifier;
 	private String sandboxURL;
+	private ActionParameterComponentFactory actionComponentFactory;
 	
 	@Autowired
 	public TranslationProfilesComponent(UnityMessageSource msg, TranslationProfileManagement profileMan,
-			TranslationActionsRegistry tc, AttributesManagement attrsMan, IdentitiesManagement idMan, 
-			AuthenticationManagement authnMan, GroupsManagement groupsMan, EndpointManagement endpointMan)
+			EndpointManagement endpointMan,
+			InputTranslationActionsRegistry inputTranslationActionsRegistry,
+			OutputTranslationActionsRegistry outputTranslationActionsRegistry,
+			ActionParameterComponentFactory actionComponentFactory)
 	{
 		this.msg = msg;
 		this.profileMan = profileMan;
-		this.tc = tc;
-		this.attrsMan = attrsMan;
-		this.idMan = idMan;
-		this.authnMan = authnMan;
-		this.groupsMan = groupsMan;
+		inputActionsRegistry = inputTranslationActionsRegistry;
+		outputActionsRegistry = outputTranslationActionsRegistry;
+		this.actionComponentFactory = actionComponentFactory;
 
 		setCaption(msg.getMessage("TranslationProfilesComponent.capion"));		
 		
@@ -173,10 +170,8 @@ public class TranslationProfilesComponent extends VerticalLayout
 		addStyleName(Styles.visibleScroll.toString());
 		HorizontalLayout hl = new HorizontalLayout();
 		table = createTable();
-		viewer = new TranslationProfileViewer(msg);
 		
 		profileType = new OptionGroup();
-		profileType.setImmediate(true);
 		profileType.addItem(ProfileType.INPUT);
 		profileType.setItemCaption(ProfileType.INPUT, 
 				msg.getMessage("TranslationProfilesComponent.inputProfileType"));
@@ -200,6 +195,8 @@ public class TranslationProfilesComponent extends VerticalLayout
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
 		profileType.addValueChangeListener(toolbar.getValueChangeListener());
+
+		viewer = new TranslationProfileViewer(msg, getCurrentActionsRegistry());
 		
 		VerticalLayout left = new VerticalLayout();
 		left.setSpacing(true);
@@ -319,8 +316,14 @@ public class TranslationProfilesComponent extends VerticalLayout
 	private TranslationProfileEditor getProfileEditor(TranslationProfileInstance<?, ?> toEdit) throws EngineException
 	{
 		ProfileType pt = (ProfileType) profileType.getValue();
-		return new TranslationProfileEditor(msg, tc, pt, toEdit, attrsMan, 
-					idMan, authnMan, groupsMan);
+		return new TranslationProfileEditor(msg, getCurrentActionsRegistry(), pt, 
+				actionComponentFactory.getComponentProvider(), toEdit);
+	}
+	
+	private TypesRegistryBase<? extends TranslationActionFactory> getCurrentActionsRegistry()
+	{
+		ProfileType pt = (ProfileType) profileType.getValue();
+		return pt == ProfileType.INPUT ? inputActionsRegistry : outputActionsRegistry;
 	}
 	
 	private class AddActionHandler extends SingleActionHandler
@@ -532,7 +535,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		public void handleAction(Object sender, final Object target)
 		{
 			DryRunWizardProvider provider = new DryRunWizardProvider(msg, sandboxURL, sandboxNotifier, 
-					profileMan);
+					profileMan, inputActionsRegistry);
 			SandboxWizardDialog dialog = new SandboxWizardDialog(provider.getWizardInstance(),
 					provider.getCaption());
 			dialog.show();

@@ -6,15 +6,12 @@
 package pl.edu.icm.unity.webadmin.tprofile;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.TranslationProfileInstance;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
 
 /**
  * Component to edit or add a registration form translation profile
@@ -25,11 +22,10 @@ import pl.edu.icm.unity.types.translation.ProfileType;
 public class RegistrationTranslationProfileEditor extends TranslationProfileEditor
 {
 	public RegistrationTranslationProfileEditor(UnityMessageSource msg,
-			RegistrationTranslationActionsRegistry registry, RegistrationTranslationProfile toEdit,
-			AttributesManagement attrsMan, IdentitiesManagement idMan, AuthenticationManagement authnMan,
-			GroupsManagement groupsMan) throws EngineException
+			RegistrationActionsRegistry registry, Provider actionComponentProvider,
+			RegistrationTranslationProfile toEdit) throws EngineException
 	{
-		super(msg, registry, ProfileType.REGISTRATION, toEdit, attrsMan, idMan, authnMan, groupsMan);
+		super(msg, registry, ProfileType.REGISTRATION, actionComponentProvider, toEdit);
 	}
 
 	@Override

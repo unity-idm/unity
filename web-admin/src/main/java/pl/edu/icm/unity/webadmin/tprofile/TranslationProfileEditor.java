@@ -6,28 +6,20 @@
 package pl.edu.icm.unity.webadmin.tprofile;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.TreeSet;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.server.registries.TypesRegistryBase;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 import pl.edu.icm.unity.server.translation.TranslationProfileInstance;
 import pl.edu.icm.unity.server.translation.TranslationRuleInstance;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.types.translation.TranslationRule;
+import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
 import pl.edu.icm.unity.webadmin.tprofile.RuleComponent.Callback;
 import pl.edu.icm.unity.webadmin.tprofile.StartStopButton.ClickStartEvent;
 import pl.edu.icm.unity.webadmin.tprofile.StartStopButton.ClickStopEvent;
@@ -57,10 +49,6 @@ public class TranslationProfileEditor extends VerticalLayout
 {
 	protected UnityMessageSource msg;
 	protected ProfileType type;
-	protected Collection<AttributeType> atTypes;
-	protected List<String> groups;
-	protected Collection<String> credReqs;
-	protected Collection<String> idTypes;
 	protected TypesRegistryBase<? extends TranslationActionFactory> registry;
 	protected boolean editMode;
 	protected AbstractTextField name;
@@ -70,19 +58,20 @@ public class TranslationProfileEditor extends VerticalLayout
 	
 	private RemotelyAuthenticatedInput remoteAuthnInput;
 	private StartStopButton testProfileButton;
+	private Provider actionComponentProvider;
 	
 	public TranslationProfileEditor(UnityMessageSource msg,
-			TypesRegistryBase<? extends TranslationActionFactory> registry, ProfileType type, TranslationProfileInstance<?, ?> toEdit,
-			AttributesManagement attrsMan, IdentitiesManagement idMan, AuthenticationManagement authnMan,
-			GroupsManagement groupsMan) throws EngineException
+			TypesRegistryBase<? extends TranslationActionFactory> registry, ProfileType type, 
+			Provider actionComponentProvider,
+			TranslationProfileInstance<?, ?> toEdit) throws EngineException
 	{
 		super();
 		this.msg = msg;
 		this.registry = registry;
 		this.type = type;
-		this.rules = new ArrayList<RuleComponent>();
+		this.actionComponentProvider = actionComponentProvider;
+		this.rules = new ArrayList<>();
 		editMode = toEdit != null;
-		initData(attrsMan, idMan, authnMan, groupsMan);
 		initUI(toEdit);
 	}
 
@@ -106,23 +95,6 @@ public class TranslationProfileEditor extends VerticalLayout
 		}
 		return new TranslationProfile(name.getValue(), description.getValue(), 
 				type, trules);
-	}
-	
-	private void initData(AttributesManagement attrsMan, IdentitiesManagement idMan, 
-			AuthenticationManagement authnMan, GroupsManagement groupsMan) throws EngineException
-	{
-		this.atTypes = attrsMan.getAttributeTypes();
-		this.groups = new ArrayList<>(groupsMan.getChildGroups("/"));
-		Collections.sort(groups);
-		Collection<CredentialRequirements> crs = authnMan.getCredentialRequirements();
-		credReqs = new TreeSet<String>();
-		for (CredentialRequirements cr: crs)
-			credReqs.add(cr.getName());
-		Collection<IdentityType> idTypesF = idMan.getIdentityTypes();
-		idTypes = new TreeSet<String>();
-		for (IdentityType it: idTypesF)
-			if (!it.getIdentityTypeProvider().isDynamic())
-				idTypes.add(it.getIdentityTypeProvider().getId());
 	}
 	
 	protected void initUI(TranslationProfileInstance<?, ?> toEdit)
@@ -222,64 +194,8 @@ public class TranslationProfileEditor extends VerticalLayout
 
 	private void addRuleComponent(TranslationRuleInstance<?> trule)
 	{
-		RuleComponent r = new RuleComponent(type, msg, registry, 
-				trule, atTypes, groups, credReqs, idTypes, new Callback()
-		{
-
-			@Override
-			public boolean moveUp(RuleComponent rule)
-			{
-
-				int position = getRulePosition(rule);
-				if (position != 0)
-				{
-					Collections.swap(rules, position, position - 1);
-				}
-
-				refreshRules();
-				return true;
-			}
-
-			@Override
-			public boolean moveDown(RuleComponent rule)
-			{
-				int position = getRulePosition(rule);
-				if (position != rules.size() - 1)
-				{
-					Collections.swap(rules, position, position + 1);
-				}
-				refreshRules();
-				return true;
-			}
-
-			@Override
-			public boolean remove(RuleComponent rule)
-			{
-				rules.remove(rule);
-				refreshRules();
-				return true;
-			}
-
-			@Override
-			public boolean moveTop(RuleComponent rule)
-			{
-				int position = getRulePosition(rule);
-				rules.remove(position);
-				rules.add(0, rule);
-				refreshRules();
-				return true;
-			}
-
-			@Override
-			public boolean moveBottom(RuleComponent rule)
-			{
-				int position = getRulePosition(rule);
-				rules.remove(position);
-				rules.add(rule);
-				refreshRules();
-				return true;
-			}
-		});
+		RuleComponent r = new RuleComponent(msg, registry, 
+				trule, actionComponentProvider, new CallbackImplementation());
 		
 		rules.add(r);
 		if (trule == null)
@@ -339,6 +255,63 @@ public class TranslationProfileEditor extends VerticalLayout
 			String old = name.getValue();
 			name.setValue(msg.getMessage("TranslationProfileEditor.nameCopy", old));
 			name.setReadOnly(true);
+		}
+	}
+	
+	private final class CallbackImplementation implements Callback
+	{
+		@Override
+		public boolean moveUp(RuleComponent rule)
+		{
+
+			int position = getRulePosition(rule);
+			if (position != 0)
+			{
+				Collections.swap(rules, position, position - 1);
+			}
+
+			refreshRules();
+			return true;
+		}
+
+		@Override
+		public boolean moveDown(RuleComponent rule)
+		{
+			int position = getRulePosition(rule);
+			if (position != rules.size() - 1)
+			{
+				Collections.swap(rules, position, position + 1);
+			}
+			refreshRules();
+			return true;
+		}
+
+		@Override
+		public boolean remove(RuleComponent rule)
+		{
+			rules.remove(rule);
+			refreshRules();
+			return true;
+		}
+
+		@Override
+		public boolean moveTop(RuleComponent rule)
+		{
+			int position = getRulePosition(rule);
+			rules.remove(position);
+			rules.add(0, rule);
+			refreshRules();
+			return true;
+		}
+
+		@Override
+		public boolean moveBottom(RuleComponent rule)
+		{
+			int position = getRulePosition(rule);
+			rules.remove(position);
+			rules.add(rule);
+			refreshRules();
+			return true;
 		}
 	}
 }

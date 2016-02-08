@@ -24,19 +24,27 @@ import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.utils.ScheduledUpdaterBase;
 
 
 /**
  * Allows for scanning the DB endpoints state. If it is detected during the scan that runtime configuration 
  * is outdated wrt DB contents, then the reconfiguration is done: existing endpoints are undeployed,
  * and redeployed from configuration.
+ * <p>
+ * To ensure synchronization this class is used by two components: periodically (to refresh state changes 
+ * by another Unity instance) and manually by endpoints management (to refresh the state after local changes 
+ * without waiting for the periodic update).
+ * <p>
+ * Implementation note: this class uses bit complicated logic related to time when the update takes place.
+ * This is related to the fact that some DB engines stores the update timestamp with a second precision.
+ * This situation is properly handled without 'loosing' updates.
  * @author K. Benedyczak
  */
 @Component
-public class EndpointsUpdater
+public class EndpointsUpdater extends ScheduledUpdaterBase
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, EndpointsUpdater.class);
-	private long lastUpdate = 0;
 	private InternalEndpointManagement endpointMan;
 	private EndpointDB endpointDB;
 	private AuthenticatorInstanceDB authnDB;
@@ -47,52 +55,14 @@ public class EndpointsUpdater
 			InternalEndpointManagement endpointMan, EndpointDB endpointDB,
 			AuthenticatorInstanceDB authnDB)
 	{
+		super("endpoints");
 		this.tx = tx;
 		this.endpointMan = endpointMan;
 		this.endpointDB = endpointDB;
 		this.authnDB = authnDB;
 	}
 
-	/**
-	 * Invokes refresh of endpoints, ensuring that endpoints updated at the time of the call are
-	 * included in update. The method invocation can wait up to 1s. 
-	 * @throws EngineException
-	 */
-	public void updateEndpointsManual() throws EngineException
-	{
-		long start = roundToS(System.currentTimeMillis());
-		while (roundToS(System.currentTimeMillis()) == start)
-		{
-			try
-			{
-				Thread.sleep(100);
-			} catch (InterruptedException e)
-			{
-				//ok
-			}
-		}
-		updateEndpoints();
-	}
-	
-	public void updateEndpoints() throws EngineException
-	{
-		synchronized(endpointMan)
-		{
-			updateEndpointsInt();
-		}
-	}
-
-	private long roundToS(long ts)
-	{
-		return (ts/1000)*1000;
-	}
-	
-	public void setLastUpdate(long lastUpdate)
-	{
-		this.lastUpdate = roundToS(lastUpdate);
-	}
-
-	private void updateEndpointsInt() throws EngineException
+	protected void updateInternal() throws EngineException
 	{
 		List<EndpointInstance> deployedEndpoints = endpointMan.getDeployedEndpoints();
 		Set<String> endpointsInDb = new HashSet<String>();
@@ -116,8 +86,8 @@ public class EndpointsUpdater
 				endpointsInDb.add(name);
 				long endpointLastChange = roundToS(instanceWithDate.getValue().getTime());
 				log.trace("Update timestampses: " + roundedUpdateTime + " " + 
-						lastUpdate + " " + name + ": " + endpointLastChange);
-				if (endpointLastChange >= lastUpdate)
+						getLastUpdate() + " " + name + ": " + endpointLastChange);
+				if (endpointLastChange >= getLastUpdate())
 				{
 					if (endpointLastChange == roundedUpdateTime)
 					{
@@ -173,8 +143,8 @@ public class EndpointsUpdater
 		{
 			long authenticatorChangedAt = roundToS(authn.getValue().getTime());
 			log.trace("Authenticator update timestampses: " + roundedUpdateTime + " " + 
-					lastUpdate + " " + authn.getKey() + ": " + authenticatorChangedAt);
-			if (authenticatorChangedAt >= lastUpdate && roundedUpdateTime != authenticatorChangedAt)
+					getLastUpdate() + " " + authn.getKey() + ": " + authenticatorChangedAt);
+			if (authenticatorChangedAt >= getLastUpdate() && roundedUpdateTime != authenticatorChangedAt)
 				changedAuthenticators.add(authn.getKey());
 		}
 		log.trace("Changed authenticators" + changedAuthenticators);

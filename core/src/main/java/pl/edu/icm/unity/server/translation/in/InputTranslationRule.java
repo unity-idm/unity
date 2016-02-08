@@ -21,7 +21,7 @@ import pl.edu.icm.unity.server.utils.Log;
 public class InputTranslationRule extends TranslationRuleInstance<InputTranslationAction>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, InputTranslationRule.class);
-	
+
 	public InputTranslationRule(InputTranslationAction action, TranslationCondition condition)
 	{
 		super(action, condition);

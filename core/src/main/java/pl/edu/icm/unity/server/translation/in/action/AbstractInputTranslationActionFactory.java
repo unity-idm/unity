@@ -4,17 +4,17 @@
  */
 package pl.edu.icm.unity.server.translation.in.action;
 
-import pl.edu.icm.unity.server.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
+import pl.edu.icm.unity.server.translation.in.InputTranslationActionFactory;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationActionType;
-import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
 
 /**
- * Boilerplate code for the input profile's {@link TranslationActionFactory} implementations.
+ * Boilerplate code for the input profile's {@link InputTranslationActionFactory} implementations.
  * @author K. Benedyczak
  */
-public abstract class AbstractInputTranslationActionFactory implements TranslationActionFactory
+public abstract class AbstractInputTranslationActionFactory implements InputTranslationActionFactory
 {
 	private TranslationActionType actionType;
 

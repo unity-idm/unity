@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webadmin.bulk.BulkProcessingComponent;
 import pl.edu.icm.unity.webadmin.confirmations.ConfirmationConfigurationsComponent;
 import pl.edu.icm.unity.webadmin.msgtemplate.MessageTemplatesComponent;
 import pl.edu.icm.unity.webadmin.serverman.AuthenticatorsComponent;
@@ -19,6 +20,7 @@ import pl.edu.icm.unity.webadmin.serverman.ImportExportComponent;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfilesComponent;
 
 import com.vaadin.ui.VerticalLayout;
+
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
@@ -38,12 +40,14 @@ public class ServerManagementTab  extends VerticalLayout
 	public ServerManagementTab(UnityMessageSource msg, ImportExportComponent ieComponent,
 			EndpointsComponent eComponent, AuthenticatorsComponent aComponent,
 			TranslationProfilesComponent tComponent, MessageTemplatesComponent msgComponent, 
-			ConfirmationConfigurationsComponent confirmCfgComponent)
+			ConfirmationConfigurationsComponent confirmCfgComponent,
+			BulkProcessingComponent bulkProcessingComponent)
 	{
 		super();
 		this.msg = msg;
 		this.tComponent = tComponent;
-		this.tabs = new MainTabPanel(eComponent, aComponent, tComponent, msgComponent, ieComponent, confirmCfgComponent);
+		this.tabs = new MainTabPanel(eComponent, aComponent, tComponent, 
+				msgComponent, ieComponent, confirmCfgComponent, bulkProcessingComponent);
 		this.tabs.addStyleName(Styles.vTabsheetMinimal.toString());
 		initUI();
 	}

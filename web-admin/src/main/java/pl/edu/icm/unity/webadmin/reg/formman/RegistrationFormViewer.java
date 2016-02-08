@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.internal.PublicWellKnownURLServlet;
 import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
-import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
@@ -75,9 +75,9 @@ public class RegistrationFormViewer extends VerticalLayout
 	private Label credentialRequirementAssignment;
 	private RegistrationTranslationProfileViewer translationProfile;
 	private SharedEndpointManagement sharedEndpointMan;
-	private RegistrationTranslationActionsRegistry registrationActionsRegistry;
+	private RegistrationActionsRegistry registrationActionsRegistry;
 	
-	public RegistrationFormViewer(UnityMessageSource msg, RegistrationTranslationActionsRegistry registrationActionsRegistry,
+	public RegistrationFormViewer(UnityMessageSource msg, RegistrationActionsRegistry registrationActionsRegistry,
 			MessageTemplateManagement msgTempMan, SharedEndpointManagement sharedEndpointMan)
 	{
 		this.msg = msg;
@@ -301,7 +301,7 @@ public class RegistrationFormViewer extends VerticalLayout
 		credentialRequirementAssignment.setCaption(
 				msg.getMessage("RegistrationFormViewer.credentialRequirementAssignment"));
 
-		translationProfile = new RegistrationTranslationProfileViewer(msg);
+		translationProfile = new RegistrationTranslationProfileViewer(msg, registrationActionsRegistry);
 		
 		main.addComponents(credentialRequirementAssignment);
 		wrapper.addComponent(translationProfile);

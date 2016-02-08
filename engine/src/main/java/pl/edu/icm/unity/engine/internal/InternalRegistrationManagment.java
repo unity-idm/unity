@@ -41,11 +41,11 @@ import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.api.registration.BaseRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.RegistrationWithCommentsTemplateDef;
-import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.GroupParam;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
-import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile.RequestSubmitStatus;
+import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -100,7 +100,7 @@ public class InternalRegistrationManagment
 	@Autowired
 	private RegistrationRequestValidator registrationRequestValidator;
 	@Autowired
-	private RegistrationTranslationActionsRegistry registrationTranslationActionsRegistry;
+	private RegistrationActionsRegistry registrationTranslationActionsRegistry;
 
 
 	public List<RegistrationForm> getForms(SqlSession sql) throws EngineException

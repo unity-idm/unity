@@ -16,7 +16,7 @@ import org.apache.log4j.NDC;
 import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.registries.TypesRegistryBase;
 import pl.edu.icm.unity.server.translation.ExecutionBreakException;
 import pl.edu.icm.unity.server.translation.TranslationActionFactory;
@@ -88,7 +88,7 @@ public class RegistrationTranslationProfile extends TranslationProfileInstance
 
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, RegistrationTranslationProfile.class);
 	
-	public RegistrationTranslationProfile(ObjectNode json, RegistrationTranslationActionsRegistry registry)
+	public RegistrationTranslationProfile(ObjectNode json, RegistrationActionsRegistry registry)
 	{
 		super(json, registry);
 	}

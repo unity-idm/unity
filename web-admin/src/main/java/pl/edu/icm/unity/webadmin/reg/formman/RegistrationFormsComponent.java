@@ -22,10 +22,11 @@ import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
-import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormEditDialog.Callback;
+import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -68,12 +69,12 @@ public class RegistrationFormsComponent extends VerticalLayout
 	private IdentitiesManagement identitiesMan;
 	private AttributesManagement attributeMan;
 	private EventsBus bus;
-
+	private ActionParameterComponentFactory actionComponentFactory;
 	
 	private GenericElementsTable<RegistrationForm> table;
 	private RegistrationFormViewer viewer;
 	private com.vaadin.ui.Component main;
-	private RegistrationTranslationActionsRegistry actionsRegistry;
+	private RegistrationActionsRegistry actionsRegistry;
 	
 	
 	@Autowired
@@ -83,7 +84,8 @@ public class RegistrationFormsComponent extends VerticalLayout
 			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
 			AttributesManagement attributeMan, AuthenticationManagement authenticationMan,
 			SharedEndpointManagement sharedEndpointMan,
-			RegistrationTranslationActionsRegistry actionsRegistry)
+			RegistrationActionsRegistry actionsRegistry,
+			ActionParameterComponentFactory actionComponentFactory)
 	{
 		this.msg = msg;
 		this.registrationsManagement = registrationsManagement;
@@ -94,6 +96,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 		this.msgTempMan = msgTempMan;
 		this.attributeMan = attributeMan;
 		this.actionsRegistry = actionsRegistry;
+		this.actionComponentFactory = actionComponentFactory;
 		this.bus = WebSession.getCurrent().getEventBus();
 		
 		addStyleName(Styles.visibleScroll.toString());
@@ -255,7 +258,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 			{
 				editor = new RegistrationFormEditor(msg, groupsMan, notificationsMan,
 						msgTempMan, identitiesMan, attributeMan, authenticationMan,
-						actionsRegistry);
+						actionsRegistry, actionComponentFactory.getComponentProvider());
 			} catch (EngineException e)
 			{
 				NotificationPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
@@ -316,7 +319,8 @@ public class RegistrationFormsComponent extends VerticalLayout
 			{		
 				editor = new RegistrationFormEditor(msg, groupsMan, notificationsMan,
 						msgTempMan, identitiesMan, attributeMan, authenticationMan,
-						actionsRegistry, form, copyMode);
+						actionsRegistry, actionComponentFactory.getComponentProvider(), 
+						form, copyMode);
 			} catch (Exception e)
 			{
 				NotificationPopup.showError(msg, msg.getMessage(

@@ -209,9 +209,9 @@ public class EndpointManagementImpl implements EndpointManagement
 				throw new EngineException("Unable to undeploy an endpoint: " + e.getMessage(), e);
 			}
 		});
-		endpointsUpdater.updateEndpoints();
-	}
-
+		endpointsUpdater.update();
+	}	
+	
 	@Override
 	public void updateEndpoint(String id, EndpointConfiguration configuration) throws EngineException
 	{
@@ -289,6 +289,6 @@ public class EndpointManagementImpl implements EndpointManagement
 			}
 
 		});
-		endpointsUpdater.updateEndpointsManual();
+		endpointsUpdater.updateManual();
 	}
 }

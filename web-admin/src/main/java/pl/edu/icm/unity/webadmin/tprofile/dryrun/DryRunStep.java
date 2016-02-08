@@ -8,6 +8,7 @@ import org.vaadin.teemu.wizards.WizardStep;
 
 import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.registries.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 import com.vaadin.ui.Component;
@@ -25,10 +26,10 @@ public class DryRunStep implements WizardStep
 
 	
 	public DryRunStep(UnityMessageSource msg, String sandboxURL, 
-			TranslationProfileManagement tpMan) 
+			TranslationProfileManagement tpMan, InputTranslationActionsRegistry taRegistry) 
 	{
 		this.msg = msg;
-		dryRunComponent = new DryRunStepComponent(msg, sandboxURL, tpMan);
+		dryRunComponent = new DryRunStepComponent(msg, sandboxURL, tpMan, taRegistry);
 	}
 
 	public void handle(SandboxAuthnEvent event) 

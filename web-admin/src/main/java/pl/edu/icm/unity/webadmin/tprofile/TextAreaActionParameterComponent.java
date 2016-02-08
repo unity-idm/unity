@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webadmin.tprofile;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.webui.common.Styles;
 
 import com.vaadin.ui.TextArea;
 
@@ -19,7 +20,7 @@ public class TextAreaActionParameterComponent extends TextArea implements Action
 	{
 		super(desc.getName() + ":");
 		setDescription(msg.getMessage(desc.getDescriptionKey()));
-		setColumns(80);
+		setColumns(Styles.WIDE_TEXT_FIELD);
 	}
 	
 	@Override

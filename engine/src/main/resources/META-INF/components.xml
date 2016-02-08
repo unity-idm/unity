@@ -37,7 +37,8 @@
 	<bean primary="true" class="pl.edu.icm.unity.engine.RealmsManagementImpl"/>
 	<bean primary="true" class="pl.edu.icm.unity.engine.MessageTemplateManagementImpl"/>
 	<bean primary="true" class="pl.edu.icm.unity.engine.ConfirmationConfigurationManagementImpl"/>
-	
+	<bean primary="true" class="pl.edu.icm.unity.engine.BulkProcessingManagementImpl"/>
+
 	<!-- Those beans are the same as the 'primary' beans above, but do not perform authorization. 
 	Must be used with qualifier. -->
 	<bean primary="false" class="pl.edu.icm.unity.engine.GroupsManagementImpl">
@@ -92,7 +93,10 @@
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
-	
+	<bean primary="false" class="pl.edu.icm.unity.engine.BulkProcessingManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
 
 	<!-- Currently simplistic -->
 	<bean class="pl.edu.icm.unity.engine.PKIManagementImpl"/>
@@ -133,6 +137,11 @@
 	<bean class="pl.edu.icm.unity.engine.endpoints.EndpointHandler"/>
 	<bean class="pl.edu.icm.unity.engine.endpoints.EndpointDB"/>
 	<bean class="pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement"/>
+
+	<bean class="pl.edu.icm.unity.engine.bulkops.BulkOperationsUpdater"/>
+	<bean class="pl.edu.icm.unity.engine.bulkops.BulkProcessingExecutor"/>
+	<bean class="pl.edu.icm.unity.engine.bulkops.BulkProcessingSupport"/>
+
 	
 	<bean class="pl.edu.icm.unity.engine.confirmations.facilities.AttributeFacility" />
 	<bean class="pl.edu.icm.unity.engine.confirmations.facilities.IdentityFacility" />

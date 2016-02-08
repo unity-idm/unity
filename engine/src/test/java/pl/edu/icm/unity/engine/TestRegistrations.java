@@ -24,7 +24,7 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfileBuilder;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
@@ -67,7 +67,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 	private InitializerCommon commonInitializer;
 	
 	@Autowired
-	private RegistrationTranslationActionsRegistry registry;
+	private RegistrationActionsRegistry registry;
 
 	@Test 
 	public void addedFormIsReturned() throws Exception

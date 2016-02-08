@@ -10,6 +10,7 @@ import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.sandbox.wizard.AbstractSandboxWizardProvider;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.registries.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.association.IntroStep;
 
@@ -23,13 +24,15 @@ public class DryRunWizardProvider extends AbstractSandboxWizardProvider
 {
 	private UnityMessageSource msg;
 	private TranslationProfileManagement tpMan;
+	private InputTranslationActionsRegistry taRegistry;
 
 	public DryRunWizardProvider(UnityMessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier, 
-			TranslationProfileManagement tpMan)
+			TranslationProfileManagement tpMan, InputTranslationActionsRegistry taRegistry)
 	{
 		super(sandboxURL, sandboxNotifier);
 		this.msg = msg;
 		this.tpMan = tpMan;
+		this.taRegistry = taRegistry;
 	}
 
 	@Override
@@ -37,7 +40,7 @@ public class DryRunWizardProvider extends AbstractSandboxWizardProvider
 	{
 		final Wizard wizard = new Wizard();
 		wizard.setSizeFull();
-		final DryRunStep dryrunStep = new DryRunStep(msg, sandboxURL, tpMan);
+		final DryRunStep dryrunStep = new DryRunStep(msg, sandboxURL, tpMan, taRegistry);
 		wizard.addStep(new IntroStep(msg, "DryRun.IntroStepComponent.introLabel"));
 		wizard.addStep(dryrunStep);
 		

@@ -34,7 +34,7 @@ import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfileBuilder;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
@@ -91,7 +91,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 	@Autowired
 	private UnityServerConfiguration mainConfig;
 	@Autowired
-	private RegistrationTranslationActionsRegistry registry;
+	private RegistrationActionsRegistry registry;
 
 	@Test
 	public void shouldNotPreservedConfirmationStateIfChangedByAdmin() throws Exception

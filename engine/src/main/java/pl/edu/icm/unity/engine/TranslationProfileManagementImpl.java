@@ -22,9 +22,8 @@ import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
-import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
+import pl.edu.icm.unity.server.registries.InputTranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationProfile;
 import pl.edu.icm.unity.stdext.translation.out.CreateAttributeActionFactory;
@@ -44,21 +43,21 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 {
 	private AuthorizationManager authz;
 	private TranslationProfileDB tpDB;
-	private TranslationActionsRegistry tactionReg;
-	private RegistrationTranslationActionsRegistry registrationActionsRegistry;
+	private InputTranslationActionsRegistry inputActionReg;
+	private OutputTranslationActionsRegistry outputActionReg;
 	private OutputTranslationProfile defaultProfile;
 	
 	@Autowired
 	public TranslationProfileManagementImpl(AuthorizationManager authz,
-			TranslationProfileDB tpDB, TranslationActionsRegistry tactionReg,
-			 RegistrationTranslationActionsRegistry registrationActionsRegistry) 
+			TranslationProfileDB tpDB, InputTranslationActionsRegistry inputActionReg,
+			OutputTranslationActionsRegistry outputActionReg) 
 					throws IllegalTypeException, EngineException
 	{
 		this.authz = authz;
 		this.tpDB = tpDB;
-		this.tactionReg = tactionReg;
-		this.registrationActionsRegistry = registrationActionsRegistry;
-		
+		this.inputActionReg = inputActionReg;
+		this.outputActionReg = outputActionReg;
+
 		this.defaultProfile = createDefaultOutputProfile();
 	}
 
@@ -125,16 +124,14 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 		{
 		case INPUT:
 			return (T)new InputTranslationProfile(core.getName(), core.getDescription(), 
-					core.getRules(), tactionReg);
+					core.getRules(), inputActionReg);
 		case OUTPUT:
 			return (T)new OutputTranslationProfile(core.getName(), core.getDescription(), 
-					core.getRules(), tactionReg);
-		case REGISTRATION:
-			return (T)new RegistrationTranslationProfile(core.getName(), core.getRules(), 
-					registrationActionsRegistry);
+					core.getRules(), outputActionReg);
+		default:
+			throw new IllegalStateException("The stored translation profile with type id " + 
+					core.getProfileType() + " is not accessible as a standalone profile");
 		}
-		throw new IllegalStateException("The stored translation profile with type id " + core.getProfileType() + 
-				" has no implemented class representation");
 	}
 
 	@Override
@@ -149,6 +146,6 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 		TranslationAction action1 = new TranslationAction(CreateAttributeActionFactory.NAME, 
 				new String[] {"memberOf", "groups"});
 		rules.add(new TranslationRule("true", action1));
-		return new OutputTranslationProfile("DEFAULT OUTPUT PROFILE", "", rules, tactionReg);
+		return new OutputTranslationProfile("DEFAULT OUTPUT PROFILE", "", rules, outputActionReg);
 	}
 }

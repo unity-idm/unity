@@ -20,7 +20,7 @@ import pl.edu.icm.unity.server.api.registration.AcceptRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
-import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
@@ -39,6 +39,7 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
+import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
 import pl.edu.icm.unity.webadmin.tprofile.RegistrationTranslationProfileEditor;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditor;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -116,33 +117,33 @@ public class RegistrationFormEditor extends VerticalLayout
 
 	private ComboBox credentialRequirementAssignment;
 	private TranslationProfileEditor profileEditor;
-	private AttributesManagement attributeMan;
-	private IdentitiesManagement identitiesMan;
-	private RegistrationTranslationActionsRegistry actionsRegistry;
+	private RegistrationActionsRegistry actionsRegistry;
+	private Provider actionComponentProvider;
 	
 	public RegistrationFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
 			NotificationsManagement notificationsMan,
 			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
 			AttributesManagement attributeMan,
-			AuthenticationManagement authenticationMan, RegistrationTranslationActionsRegistry actionsRegistry) 
+			AuthenticationManagement authenticationMan, RegistrationActionsRegistry actionsRegistry,
+			Provider actionComponentProvider) 
 					throws EngineException
 	{
 		this(msg, groupsMan, notificationsMan, msgTempMan, identitiesMan, attributeMan, authenticationMan, 
-				actionsRegistry, null, false);
+				actionsRegistry, actionComponentProvider, null, false);
 	}
 
 	public RegistrationFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
 			NotificationsManagement notificationsMan,
 			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
 			AttributesManagement attributeMan,
-			AuthenticationManagement authenticationMan, RegistrationTranslationActionsRegistry actionsRegistry,
+			AuthenticationManagement authenticationMan, RegistrationActionsRegistry actionsRegistry,
+			Provider actionComponentProvider,
 			RegistrationForm toEdit, boolean copyMode)
 			throws EngineException
 	{
 		super();
-		this.identitiesMan = identitiesMan;
-		this.attributeMan = attributeMan;
 		this.actionsRegistry = actionsRegistry;
+		this.actionComponentProvider = actionComponentProvider;
 		editMode = toEdit != null;
 		this.copyMode = editMode && copyMode;
 		this.msg = msg;
@@ -398,8 +399,8 @@ public class RegistrationFormEditor extends VerticalLayout
 				new RegistrationTranslationProfile("form profile", new ArrayList<>(), actionsRegistry) : 
 				new RegistrationTranslationProfile(toEdit.getTranslationProfile().getName(), 
 						toEdit.getTranslationProfile().getRules(), actionsRegistry);
-		profileEditor = new RegistrationTranslationProfileEditor(msg, actionsRegistry, profile, 
-				attributeMan, identitiesMan, authenticationMan, groupsMan);
+		profileEditor = new RegistrationTranslationProfileEditor(msg, actionsRegistry, 
+				actionComponentProvider, profile);
 		
 		main.addComponents(credentialRequirementAssignment);
 		wrapper.addComponent(profileEditor);

@@ -50,7 +50,7 @@ import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -97,7 +97,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private UnityMessageSource msg;
 	private TransactionalRunner tx;
 	private RegistrationRequestValidator registrationRequestValidator;
-	private RegistrationTranslationActionsRegistry registrationTranslationActionsRegistry;
+	private RegistrationActionsRegistry registrationTranslationActionsRegistry;
 
 	@Autowired
 	public RegistrationsManagementImpl(RegistrationFormDB formsDB,
@@ -110,7 +110,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			InternalRegistrationManagment internalManagment, UnityMessageSource msg,
 			TransactionalRunner tx,
 			RegistrationRequestValidator registrationRequestValidator,
-			RegistrationTranslationActionsRegistry registrationTranslationActionsRegistry)
+			RegistrationActionsRegistry registrationTranslationActionsRegistry)
 	{
 		this.formsDB = formsDB;
 		this.requestDB = requestDB;

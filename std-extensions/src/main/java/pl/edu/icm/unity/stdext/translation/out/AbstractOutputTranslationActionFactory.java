@@ -4,17 +4,17 @@
  */
 package pl.edu.icm.unity.stdext.translation.out;
 
-import pl.edu.icm.unity.server.translation.TranslationActionFactory;
-import pl.edu.icm.unity.server.translation.TranslationActionInstance;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationActionFactory;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
- * Boilerplate code for the output profile's {@link TranslationActionFactory} implementations.
+ * Boilerplate code for the output profile's {@link OutputTranslationActionFactory} implementations.
  * @author K. Benedyczak
  */
-public abstract class AbstractOutputTranslationActionFactory implements TranslationActionFactory
+public abstract class AbstractOutputTranslationActionFactory implements OutputTranslationActionFactory
 {
 	private TranslationActionType actionType;
 	
@@ -33,7 +33,7 @@ public abstract class AbstractOutputTranslationActionFactory implements Translat
 	}
 	
 	@Override
-	public TranslationActionInstance getBlindInstance(String... parameters)
+	public OutputTranslationAction getBlindInstance(String... parameters)
 	{
 		return new BlindStopperOutputAction(getActionType(), parameters);
 	}
