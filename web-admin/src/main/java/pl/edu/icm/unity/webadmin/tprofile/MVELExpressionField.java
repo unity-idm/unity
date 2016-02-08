@@ -8,6 +8,7 @@ import org.mvel2.MVEL;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
+import pl.edu.icm.unity.webui.common.Styles;
 
 import com.vaadin.data.validator.AbstractStringValidator;
 
@@ -49,5 +50,6 @@ public class MVELExpressionField extends RequiredTextField
 			}
 		});
 		setValidationVisible(false);
+		setColumns(Styles.WIDE_TEXT_FIELD);
 	}
 }

@@ -13,6 +13,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.tprofile.ActionEditor;
 import pl.edu.icm.unity.webadmin.tprofile.MVELExpressionField;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.FormValidator;
 
 /**
  * Edit component of an immediate {@link ProcessingRule}
@@ -24,6 +25,8 @@ public class RuleEditorImpl extends CustomComponent implements RuleEditor<Proces
 
 	protected MVELExpressionField condition;
 	protected ActionEditor actionEditor;
+
+	private FormLayout main;
 	
 	public RuleEditorImpl(UnityMessageSource msg, ActionEditor actionEditor)
 	{
@@ -31,14 +34,23 @@ public class RuleEditorImpl extends CustomComponent implements RuleEditor<Proces
 		this.actionEditor = actionEditor;
 		initUI();
 	}
+	
+	public void setInput(ProcessingRule rule)
+	{
+		condition.setValue(rule.getCondition());
+		actionEditor.setInput(rule.getAction());
+	}
 
 	protected void initUI()
 	{
-		FormLayout main = new FormLayout();
+		main = new FormLayout();
 		setCompositionRoot(main);
 		
 		condition = new MVELExpressionField(msg, msg.getMessage("RuleEditor.condition"),
 				msg.getMessage("MVELExpressionField.conditionDesc"));
+		condition.setValue("status == 'DISABLED'");
+		condition.setValidationVisible(true);
+		
 		main.addComponents(condition);
 		actionEditor.addToLayout(main);
 	}
@@ -46,6 +58,7 @@ public class RuleEditorImpl extends CustomComponent implements RuleEditor<Proces
 	@Override
 	public ProcessingRule getRule() throws FormValidationException
 	{
+		new FormValidator(main).validate();
 		return new ProcessingRule(condition.getValue(), (EntityAction) actionEditor.getAction());
 	}
 }

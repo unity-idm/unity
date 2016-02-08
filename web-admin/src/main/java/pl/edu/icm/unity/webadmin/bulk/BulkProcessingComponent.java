@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.BulkProcessingManagement;
+import pl.edu.icm.unity.server.bulkops.ProcessingRule;
 import pl.edu.icm.unity.server.bulkops.ScheduledProcessingRule;
 import pl.edu.icm.unity.server.bulkops.ScheduledProcessingRuleParam;
 import pl.edu.icm.unity.server.registries.EntityActionsRegistry;
@@ -38,6 +39,7 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
@@ -77,9 +79,16 @@ public class BulkProcessingComponent extends CustomComponent
 	private void init()
 	{
 		main = new VerticalLayout();
+		main.setSpacing(true);
+		main.setMargin(new MarginInfo(true, false, false, false));
 		main.addStyleName(Styles.visibleScroll.toString());
 		setCompositionRoot(main);
 		setCaption(msg.getMessage("BulkProcessingComponent.caption"));
+		
+		Button invokeSingle = new Button(msg.getMessage("BulkProcessingComponent.performAction"));
+		invokeSingle.setDescription(msg.getMessage("BulkProcessingComponent.invokeSingleDesc"));
+		invokeSingle.addClickListener(event -> showImmediateProcessingDialog(null));
+		main.addComponent(invokeSingle);
 		
 		viewer = new ScheduledRuleViewerPanel(msg, registry);
 		table = new GenericElementsTable<>(msg.getMessage("BulkProcessingComponent.tableCaption"), 
@@ -100,6 +109,7 @@ public class BulkProcessingComponent extends CustomComponent
 		});
 		table.addActionHandler(new RefreshActionHandler());
 		table.addActionHandler(new AddActionHandler());
+		table.addActionHandler(new RunScheduledHandler());
 		table.addActionHandler(new DeleteActionHandler());
 		table.setWidth(90, Unit.PERCENTAGE);
 		table.setMultiSelect(true);
@@ -176,6 +186,20 @@ public class BulkProcessingComponent extends CustomComponent
 					msg.getMessage("BulkProcessingComponent.errorAdd"), e);
 		}
 	}
+
+	private void invoke(ProcessingRule rule)
+	{
+		try
+		{
+			bulkManagement.applyRule(rule);
+			NotificationPopup.showSuccess(msg, msg.getMessage("BulkProcessingComponent.actionInvoked"), "");
+			refresh();
+		} catch (Exception e)
+		{
+			NotificationPopup.showError(msg, 
+					msg.getMessage("BulkProcessingComponent.errorPerform"), e);
+		}
+	}
 	
 	private class DeleteActionHandler extends SingleActionHandler
 	{
@@ -228,17 +252,16 @@ public class BulkProcessingComponent extends CustomComponent
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			Provider componentProvider;
+			ActionEditor actionEditor;
 			try
 			{
-				componentProvider = parameterFactory.getComponentProvider();
+				actionEditor = getActionEditor();
 			} catch (EngineException e)
 			{
 				NotificationPopup.showError(msg, 
 						msg.getMessage("BulkProcessingComponent.errorCreateActions"), e);
 				return;
 			}
-			ActionEditor actionEditor = new ActionEditor(msg, registry, null, componentProvider);
 			ScheduledRuleParamEditorImpl editor = new ScheduledRuleParamEditorImpl(msg, actionEditor);
 			RuleEditDialog<ScheduledProcessingRuleParam> dialog = new RuleEditDialog<>(msg, 
 					msg.getMessage("BulkProcessingComponent.addAction"), editor, 
@@ -248,5 +271,50 @@ public class BulkProcessingComponent extends CustomComponent
 					});
 			dialog.show();
 		}
+	}
+
+	private class RunScheduledHandler extends SingleActionHandler
+	{
+		public RunScheduledHandler()
+		{
+			super(msg.getMessage("BulkProcessingComponent.runNowAction"), Images.play.getResource());
+		}
+
+		@Override
+		public void handleAction(Object sender, final Object target)
+		{
+			ScheduledProcessingRule rule = (ScheduledProcessingRule)(((GenericItem<?>)target).getElement());
+			showImmediateProcessingDialog(rule);
+		}
+	}
+	
+	private void showImmediateProcessingDialog(ProcessingRule orig)
+	{
+		ActionEditor actionEditor;
+		try
+		{
+			actionEditor = getActionEditor();
+		} catch (EngineException e)
+		{
+			NotificationPopup.showError(msg, 
+					msg.getMessage("BulkProcessingComponent.errorCreateActions"), e);
+			return;
+		}
+		RuleEditorImpl editor = new RuleEditorImpl(msg, actionEditor);
+		if (orig != null)
+			editor.setInput(orig);
+		RuleEditDialog<ProcessingRule> dialog = new RuleEditDialog<>(msg, 
+				msg.getMessage("BulkProcessingComponent.performAction"), editor, 
+				rule -> 
+				{
+					invoke(rule);
+				});
+		dialog.show();
+	}
+	
+	private ActionEditor getActionEditor() throws EngineException
+	{
+		Provider componentProvider = parameterFactory.getComponentProvider();
+		return new ActionEditor(msg, registry, null, componentProvider);
 	}
 }

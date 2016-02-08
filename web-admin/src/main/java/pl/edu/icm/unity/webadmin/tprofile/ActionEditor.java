@@ -79,8 +79,7 @@ public class ActionEditor extends LayoutEmbeddable
 		
 		if (toEdit != null)
 		{
-			actions.setValue(toEdit.getName());
-			setParams(actions.getValue().toString(), toEdit.getParameters());
+			setInput(toEdit);
 		} else
 		{
 			if (!actions.getItemIds().isEmpty())
@@ -92,6 +91,12 @@ public class ActionEditor extends LayoutEmbeddable
 		}
 	}
 
+	public void setInput(TranslationAction toEdit)
+	{
+		actions.setValue(toEdit.getName());
+		setParams(actions.getValue().toString(), toEdit.getParameters());
+	}
+	
 	private void setParams(String action, String[] values)
 	{
 		removeComponents(paramComponents);
