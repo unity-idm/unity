@@ -10,6 +10,7 @@ import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.api.internal.IdPLoginController;
+import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
@@ -80,7 +81,8 @@ public class StandalonePublicFormView extends CustomComponent implements View
 		try
 		{
 			editor = new RegistrationRequestEditor(msg, form, 
-					null, identityEditorRegistry, 
+					new RemotelyAuthenticatedContext("--none--", "--none--"), 
+					identityEditorRegistry, 
 					credentialEditorRegistry, 
 					attributeHandlerRegistry, attrsMan, authnMan, groupsMan);
 		} catch (EngineException e)
