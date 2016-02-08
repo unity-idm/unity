@@ -230,7 +230,15 @@ class RegistrationFormBuilderBase<GeneratorT extends RegistrationFormBuilderBase
 
 		return (GeneratorT) this;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public GeneratorT withByInvitationOnly(boolean aValue)
+	{
+		instance.setByInvitationOnly(aValue);
 
+		return (GeneratorT) this;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public GeneratorT withFormInformation(I18nString aValue)
 	{

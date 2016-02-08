@@ -53,6 +53,7 @@ public class RegistrationForm extends DescribedObjectROImpl
 	private I18nString displayedName = new I18nString();
 	private I18nString formInformation = new I18nString();
 	private String registrationCode;
+	private boolean byInvitationOnly;
 	
 	private String defaultCredentialRequirement;
 	private TranslationProfile translationProfile = 
@@ -137,6 +138,16 @@ public class RegistrationForm extends DescribedObjectROImpl
 	void setCollectComments(boolean collectComments)
 	{
 		this.collectComments = collectComments;
+	}
+
+	public boolean isByInvitationOnly()
+	{
+		return byInvitationOnly;
+	}
+
+	public void setByInvitationOnly(boolean byInvitationOnly)
+	{
+		this.byInvitationOnly = byInvitationOnly;
 	}
 
 	public I18nString getFormInformation()
@@ -310,6 +321,7 @@ public class RegistrationForm extends DescribedObjectROImpl
 		root.put("RegistrationCode", getRegistrationCode());
 		root.put("CaptchaLength", getCaptchaLength());
 		root.set("TranslationProfile", getTranslationProfile().toJsonObject());
+		root.put("ByInvitationOnly", isByInvitationOnly());
 		return root;
 	}
 
@@ -431,6 +443,11 @@ public class RegistrationForm extends DescribedObjectROImpl
 			{
 				setTranslationProfile(new TranslationProfile((ObjectNode) n));
 			}
+			
+			n = root.get("ByInvitationOnly");
+			if (n != null && !n.isNull())
+				setByInvitationOnly(n.asBoolean());
+			
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't deserialize registration form from JSON", e);
@@ -542,6 +559,8 @@ public class RegistrationForm extends DescribedObjectROImpl
 		} else if (!notificationsConfiguration.equals(other.notificationsConfiguration))
 			return false;
 		if (publiclyAvailable != other.publiclyAvailable)
+			return false;
+		if (byInvitationOnly != other.byInvitationOnly)
 			return false;
 		if (registrationCode == null)
 		{

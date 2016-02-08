@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
@@ -18,8 +20,10 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
+import pl.edu.icm.unity.server.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -38,6 +42,7 @@ import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.Selection;
+import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.webui.common.CaptchaComponent;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -54,6 +59,8 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 import com.google.common.html.HtmlEscapers;
 import com.vaadin.server.UserError;
+import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinService;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CustomComponent;
@@ -72,6 +79,7 @@ import com.vaadin.ui.VerticalLayout;
  */
 public class RegistrationRequestEditor extends CustomComponent
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RegistrationRequestEditor.class);
 	private UnityMessageSource msg;
 	private RegistrationForm form;
 	private RemotelyAuthenticatedContext remotelyAuthenticated;
@@ -93,6 +101,8 @@ public class RegistrationRequestEditor extends CustomComponent
 	private TextArea comment;
 	private TextField registrationCode;
 	private CaptchaComponent captcha;
+	private String regCodeFromURL;
+	private InvitationWithCode invitation;
 
 	/**
 	 * Note - the two managers must be insecure, if the form is used in not-authenticated context, 
@@ -204,14 +214,20 @@ public class RegistrationRequestEditor extends CustomComponent
 		
 		if (form.isCollectComments())
 			ret.setComments(comment.getValue());
-		if (form.getRegistrationCode() != null)
+		if (form.getRegistrationCode() != null && regCodeFromURL == null)
 		{
 			ret.setRegistrationCode(registrationCode.getValue());
 			if (registrationCode.getValue().isEmpty())
+			{
 				registrationCode.setComponentError(new UserError(msg.getMessage("fieldRequired")));
-			else
+				status.hasFormException = true;
+			} else
 				registrationCode.setComponentError(null);
 		}
+		
+		if (invitation != null)
+			ret.setRegistrationCode(regCodeFromURL);
+		
 		
 		if (captcha != null)
 		{
@@ -388,6 +404,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		VerticalLayout main = new VerticalLayout();
 		main.setSpacing(true);
 		main.setWidth(80, Unit.PERCENTAGE);
+		setCompositionRoot(main);
 		
 		Label formName = new Label(form.getDisplayedName().getValue(msg));
 		formName.addStyleName(Styles.vLabelH1.toString());
@@ -403,7 +420,9 @@ public class RegistrationRequestEditor extends CustomComponent
 		FormLayout mainFormLayout = new FormLayout();
 		main.addComponent(mainFormLayout);
 		
-		if (form.getRegistrationCode() != null)
+		setupInvitationByCode();
+		
+		if (form.getRegistrationCode() != null && regCodeFromURL == null)
 		{
 			registrationCode = new TextField(msg.getMessage("RegistrationRequest.registrationCode"));
 			registrationCode.setRequired(true);
@@ -448,8 +467,6 @@ public class RegistrationRequestEditor extends CustomComponent
 			mainFormLayout.addComponent(HtmlTag.br());
 			mainFormLayout.addComponent(captcha.getAsComponent());
 		}
-		
-		setCompositionRoot(main);
 	}
 	
 	private void createIdentityUI(Layout layout)
@@ -729,6 +746,44 @@ public class RegistrationRequestEditor extends CustomComponent
 			titleL.addStyleName(Styles.emphasized.toString());
 			layout.addComponent(titleL);
 			layout.addComponent(groupsList);
+		}
+	}
+	
+	private void setupInvitationByCode()
+	{
+		regCodeFromURL = getCodeFromURL();
+		if (regCodeFromURL != null)
+			invitation = getInvitation(regCodeFromURL);
+		
+		if (form.isByInvitationOnly() && regCodeFromURL == null)
+			throw new IllegalStateException(msg.getMessage("RegistrationRequest.errorMissingCode"));
+		if (form.isByInvitationOnly() &&  invitation == null)
+			throw new IllegalStateException(msg.getMessage("RegistrationRequest.errorWrongCode"));
+		if (form.isByInvitationOnly() &&  invitation.isExpired())
+			throw new IllegalStateException(msg.getMessage("RegistrationRequest.errorExpiredCode"));
+	}
+	
+	private String getCodeFromURL()
+	{
+		VaadinRequest currentRequest = VaadinService.getCurrentRequest();
+		if (currentRequest == null)
+			return null;
+		return currentRequest.getParameter(PublicRegistrationURLSupport.CODE_PARAM);
+	}
+	
+	private InvitationWithCode getInvitation(String code)
+	{
+		try
+		{
+			return registrationsMan.getInvitation(code);
+		} catch (WrongArgumentException e)
+		{
+			//ok
+			return null;
+		} catch (EngineException e)
+		{
+			log.warn("Error trying to check invitation with user provided code", e);
+			return null;
 		}
 	}
 	

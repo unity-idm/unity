@@ -97,6 +97,7 @@ public class RegistrationFormEditor extends VerticalLayout
 	private AbstractTextField name;
 	private DescriptionTextArea description;
 	private CheckBox publiclyAvailable;
+	private CheckBox byInvitationOnly;
 	private ComboBox submittedTemplate;
 	private ComboBox updatedTemplate;
 	private ComboBox rejectedTemplate;
@@ -212,6 +213,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		builder.withName(name.getValue());
 		builder.withCaptchaLength(captcha.getValue().intValue());
 		builder.withPubliclyAvailable(publiclyAvailable.getValue());
+		builder.withByInvitationOnly(byInvitationOnly.getValue());
 		
 		RegistrationFormNotifications notCfg = new RegistrationFormNotifications();
 		notCfg.setAcceptedTemplate((String) acceptedTemplate.getValue());
@@ -292,6 +294,12 @@ public class RegistrationFormEditor extends VerticalLayout
 		});
 		publiclyAvailable.setValidationVisible(true);
 		publiclyAvailable.setImmediate(true);
+		publiclyAvailable.addValueChangeListener(event -> {
+			byInvitationOnly.setEnabled(publiclyAvailable.getValue());
+		});
+		
+		byInvitationOnly = new CheckBox(msg.getMessage("RegistrationFormEditor.byInvitationOnly"));
+		byInvitationOnly.setEnabled(false);
 		
 		channel = new ComboBox(msg.getMessage("RegistrationFormViewer.channel"));
 		Set<String> channels = notificationsMan.getNotificationChannels().keySet();
@@ -320,14 +328,15 @@ public class RegistrationFormEditor extends VerticalLayout
 		captcha.setWidth(10, Unit.EM);
 		captcha.setDescription(msg.getMessage("RegistrationFormEditor.captchaDescription"));
 		
-		main.addComponents(name, description, publiclyAvailable, channel, adminsNotificationGroup,
+		main.addComponents(name, description, publiclyAvailable, byInvitationOnly, channel, adminsNotificationGroup,
 				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate, 
 				invitationTemplate, captcha);
 		
 		if (toEdit != null)
 		{
-			description.setValue(toEdit.getDescription());
+			description.setValue(toEdit.getDescription() != null ? toEdit.getDescription() : "");
 			publiclyAvailable.setValue(toEdit.isPubliclyAvailable());
+			byInvitationOnly.setValue(toEdit.isByInvitationOnly());
 			RegistrationFormNotifications notCfg = toEdit.getNotificationsConfiguration();
 			adminsNotificationGroup.setValue(notCfg.getAdminsNotificationGroup());
 			channel.setValue(notCfg.getChannel());

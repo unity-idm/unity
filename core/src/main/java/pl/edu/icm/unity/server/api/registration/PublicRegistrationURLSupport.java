@@ -35,16 +35,8 @@ public class PublicRegistrationURLSupport
 	 */
 	public static String getPublicLink(String formName, SharedEndpointManagement sharedEndpointMan)
 	{
-		try
-		{
-			String pathURLEncoded = URLEncoder.encode(formName, StandardCharsets.UTF_8.name()).
-					replaceAll("\\+", "%20");
-			return sharedEndpointMan.getServletUrl(PublicWellKnownURLServlet.SERVLET_PATH) + 
-				"#!" + FRAGMENT_PREFIX + pathURLEncoded;
-		} catch (UnsupportedEncodingException e)
-		{
-			throw new IllegalStateException(e);
-		}
+		return sharedEndpointMan.getServletUrl(PublicWellKnownURLServlet.SERVLET_PATH) + 
+				"#!" + FRAGMENT_PREFIX + urlEncodePath(formName);
 	}
 
 	/**
@@ -54,12 +46,17 @@ public class PublicRegistrationURLSupport
 	 */
 	public static String getPublicLink(String formName, String code, SharedEndpointManagement sharedEndpointMan)
 	{
+		return sharedEndpointMan.getServletUrl(PublicWellKnownURLServlet.SERVLET_PATH) +
+				"?" + CODE_PARAM + "=" + code +
+				"#!" + FRAGMENT_PREFIX + urlEncodePath(formName);
+	}
+	
+	private static String urlEncodePath(String pathElement)
+	{
 		try
 		{
-			return sharedEndpointMan.getServletUrl(PublicWellKnownURLServlet.SERVLET_PATH) +
-				"?" + CODE_PARAM + "=" + code +
-				"#!" + FRAGMENT_PREFIX + 
-				URLEncoder.encode(formName, StandardCharsets.UTF_8.name());
+			return URLEncoder.encode(pathElement, StandardCharsets.UTF_8.name()).
+					replaceAll("\\+", "%20");
 		} catch (UnsupportedEncodingException e)
 		{
 			throw new IllegalStateException(e);

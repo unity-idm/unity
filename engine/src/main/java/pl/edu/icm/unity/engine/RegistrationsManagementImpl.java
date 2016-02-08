@@ -360,9 +360,6 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				publicComment, internalComment,	notificationsCfg, sql);
 	}
 	
-	
-	
-
 	private void validateFormContents(RegistrationForm form, SqlSession sql) throws EngineException
 	{
 		GroupsMapper gm = sql.getMapper(GroupsMapper.class);
@@ -371,6 +368,16 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 
 		if (form.getTranslationProfile() == null)
 			throw new WrongArgumentException("Translation profile is not set.");
+		
+		if (form.isByInvitationOnly())
+		{
+			if (!form.isPubliclyAvailable())
+				throw new WrongArgumentException("Registration form which "
+						+ "is by invitation only must be public");
+			if (form.getRegistrationCode() != null)
+				throw new WrongArgumentException("Registration form which "
+						+ "is by invitation only must not have a static registration code");
+		}
 		
 		if (form.getAttributeParams() != null)
 		{

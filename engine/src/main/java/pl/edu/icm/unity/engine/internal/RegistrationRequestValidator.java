@@ -116,12 +116,17 @@ public class RegistrationRequestValidator
 			SqlSession sql) throws EngineException
 	{
 		String codeFromRequest = request.getRegistrationCode();
+
+		if (codeFromRequest == null && form.isByInvitationOnly())
+			throw new WrongArgumentException("This registration form is available "
+					+ "only by invitation with correct code");
+		
 		if (codeFromRequest == null || form.getRegistrationCode() != null)
 		{
 			validateRequestCode(form, request);
 			return;
 		}
-		
+				
 		InvitationWithCode invitation = getInvitation(codeFromRequest, sql);
 		
 		if (invitation.isExpired())

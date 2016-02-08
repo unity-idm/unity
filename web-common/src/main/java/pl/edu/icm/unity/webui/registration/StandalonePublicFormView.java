@@ -85,6 +85,12 @@ public class StandalonePublicFormView extends CustomComponent implements View
 					identityEditorRegistry, 
 					credentialEditorRegistry, 
 					attributeHandlerRegistry, attrsMan, authnMan, groupsMan, regMan);
+		} catch (IllegalStateException e)
+		{
+			ErrorComponent ec = new ErrorComponent();
+			ec.setError(e.getMessage());
+			setCompositionRoot(ec);
+			return;
 		} catch (EngineException e)
 		{
 			ErrorComponent ec = new ErrorComponent();

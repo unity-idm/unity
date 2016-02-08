@@ -48,6 +48,7 @@ public class RegistrationFormViewer extends VerticalLayout
 	private Label name;
 	private Label description;
 	private Label publiclyAvailable;
+	private Label byInvitationOnly;
 	private Label publicLink;
 	private SimpleMessageTemplateViewer submittedTemplate;
 	private SimpleMessageTemplateViewer updatedTemplate;
@@ -99,6 +100,7 @@ public class RegistrationFormViewer extends VerticalLayout
 				msg.getMessage("RegistrationFormViewer.captchaLength", form.getCaptchaLength()) : 
 				msg.getMessage("no"));
 		publiclyAvailable.setValue(msg.getYesNo(form.isPubliclyAvailable()));
+		byInvitationOnly.setValue(msg.getYesNo(form.isByInvitationOnly()));
 		
 		publicLink.setValue(form.isPubliclyAvailable() ? 
 				PublicRegistrationURLSupport.getPublicLink(form.getName(), sharedEndpointMan) : "-");
@@ -142,6 +144,7 @@ public class RegistrationFormViewer extends VerticalLayout
 		name.setValue("");
 		description.setValue("");
 		publiclyAvailable.setValue("");
+		byInvitationOnly.setValue("");
 		publicLink.setValue("");
 		captcha.setValue("");
 		
@@ -312,6 +315,9 @@ public class RegistrationFormViewer extends VerticalLayout
 		publiclyAvailable = new Label();
 		publiclyAvailable.setCaption(msg.getMessage("RegistrationFormViewer.publiclyAvailable"));
 		
+		byInvitationOnly = new Label();
+		byInvitationOnly.setCaption(msg.getMessage("RegistrationFormViewer.byInvitationOnly"));
+		
 		publicLink = new Label();
 		publicLink.setCaption(msg.getMessage("RegistrationFormViewer.publicLink"));
 		
@@ -331,7 +337,8 @@ public class RegistrationFormViewer extends VerticalLayout
 				msg, msgTempMan);
 		invitationTemplate = new SimpleMessageTemplateViewer(msg.getMessage("RegistrationFormViewer.invitationTemplate"),
 				msg, msgTempMan);
-		main.addComponents(name, description, publiclyAvailable, publicLink, channel, adminsNotificationGroup,
+		main.addComponents(name, description, publiclyAvailable, byInvitationOnly, 
+				publicLink, channel, adminsNotificationGroup,
 				submittedTemplate, updatedTemplate, rejectedTemplate, acceptedTemplate, invitationTemplate, 
 				captcha);
 	}
