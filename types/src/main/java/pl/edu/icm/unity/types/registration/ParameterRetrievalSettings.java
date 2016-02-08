@@ -52,4 +52,10 @@ public enum ParameterRetrievalSettings
 		return this == automatic || this == automaticOrInteractive;
 	}
 	
+	public boolean isInteractivelyEntered(boolean hasRemoteValue)
+	{
+		return this == interactive
+				|| this == automaticAndInteractive
+				|| (this == automaticOrInteractive && !hasRemoteValue);
+	}
 }

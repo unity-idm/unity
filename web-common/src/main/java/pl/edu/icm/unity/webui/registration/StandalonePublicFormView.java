@@ -84,7 +84,7 @@ public class StandalonePublicFormView extends CustomComponent implements View
 					new RemotelyAuthenticatedContext("--none--", "--none--"), 
 					identityEditorRegistry, 
 					credentialEditorRegistry, 
-					attributeHandlerRegistry, attrsMan, authnMan, groupsMan);
+					attributeHandlerRegistry, attrsMan, authnMan, groupsMan, regMan);
 		} catch (EngineException e)
 		{
 			ErrorComponent ec = new ErrorComponent();

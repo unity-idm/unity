@@ -124,7 +124,7 @@ public class InsecureRegistrationFormLauncher implements RegistrationFormDialogP
 		RegistrationRequestEditor editor = new RegistrationRequestEditor(msg, form, 
 				remoteContext, identityEditorRegistry, 
 				credentialEditorRegistry, 
-				attributeHandlerRegistry, attrsMan, authnMan, groupsMan);
+				attributeHandlerRegistry, attrsMan, authnMan, groupsMan, registrationsManagement);
 		RegistrationRequestEditorDialog dialog = new RegistrationRequestEditorDialog(msg, 
 				msg.getMessage("RegistrationFormsChooserComponent.dialogCaption"), 
 				editor, new RegistrationRequestEditorDialog.Callback()

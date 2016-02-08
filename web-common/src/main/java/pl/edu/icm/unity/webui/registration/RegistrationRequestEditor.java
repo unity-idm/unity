@@ -17,6 +17,7 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
+import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -77,6 +78,7 @@ public class RegistrationRequestEditor extends CustomComponent
 	private IdentityEditorRegistry identityEditorRegistry;
 	private CredentialEditorRegistry credentialEditorRegistry;
 	private AttributeHandlerRegistry attributeHandlerRegistry;
+	private RegistrationsManagement registrationsMan;
 	private AttributesManagement attrsMan;
 	private GroupsManagement groupsMan;
 	private AuthenticationManagement authnMan;
@@ -112,7 +114,7 @@ public class RegistrationRequestEditor extends CustomComponent
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributesManagement attrsMan, AuthenticationManagement authnMan,
-			GroupsManagement groupsMan) throws EngineException
+			GroupsManagement groupsMan, RegistrationsManagement registrationsMan) throws EngineException
 	{
 		this.msg = msg;
 		this.form = form;
@@ -123,6 +125,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		this.attrsMan = attrsMan;
 		this.authnMan = authnMan;
 		this.groupsMan = groupsMan;
+		this.registrationsMan = registrationsMan;
 		checkRemotelyObtainedData();
 		initUI();
 	}
@@ -191,8 +194,46 @@ public class RegistrationRequestEditor extends CustomComponent
 		
 		ret.setFormId(form.getName());
 
-		boolean hasFormException = false;
+		FormErrorStatus status = new FormErrorStatus();
 		
+		setRequestIdentities(ret, status);
+		setRequestCredentials(ret, status);
+		setRequestAttributes(ret, status);
+		setRequestGroups(ret, status);
+		setRequestAgreements(ret, status);
+		
+		if (form.isCollectComments())
+			ret.setComments(comment.getValue());
+		if (form.getRegistrationCode() != null)
+		{
+			ret.setRegistrationCode(registrationCode.getValue());
+			if (registrationCode.getValue().isEmpty())
+				registrationCode.setComponentError(new UserError(msg.getMessage("fieldRequired")));
+			else
+				registrationCode.setComponentError(null);
+		}
+		
+		if (captcha != null)
+		{
+			try
+			{
+				captcha.verify();
+			} catch (WrongArgumentException e)
+			{
+				status.hasFormException = true;
+			}
+		}
+		
+		ret.setUserLocale(msg.getLocaleCode());
+		
+		if (status.hasFormException)
+			throw new FormValidationException();
+		
+		return ret;
+	}
+	
+	private void setRequestIdentities(RegistrationRequest ret, FormErrorStatus status)
+	{
 		List<IdentityParam> identities = new ArrayList<>();
 		IdentityParam ip;
 		int j=0;
@@ -200,9 +241,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		{
 			IdentityRegistrationParam regParam = form.getIdentityParams().get(i);
 			IdentityTaV rid = remoteIdentitiesByType.get(regParam.getIdentityType());
-			if (regParam.getRetrievalSettings() == ParameterRetrievalSettings.interactive
-					|| regParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive
-					|| (regParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticOrInteractive && rid == null))
+			if (regParam.getRetrievalSettings().isInteractivelyEntered(rid != null))
 			{
 				IdentityEditor editor = identityParamEditors.get(j++);
 				try
@@ -210,7 +249,7 @@ public class RegistrationRequestEditor extends CustomComponent
 					ip = editor.getValue();
 				} catch (IllegalIdentityValueException e)
 				{
-					hasFormException = true;
+					status.hasFormException = true;
 					continue;
 				}
 			} else
@@ -229,7 +268,10 @@ public class RegistrationRequestEditor extends CustomComponent
 			identities.add(ip);
 		}
 		ret.setIdentities(identities);
-		
+	}
+
+	private void setRequestCredentials(RegistrationRequest ret, FormErrorStatus status)
+	{
 		if (form.getCredentialParams() != null)
 		{
 			List<CredentialParamValue> credentials = new ArrayList<>();
@@ -245,12 +287,16 @@ public class RegistrationRequestEditor extends CustomComponent
 					credentials.add(cp);
 				} catch (IllegalCredentialException e)
 				{
-					hasFormException = true;
+					status.hasFormException = true;
 					continue;
 				}
 			}
 			ret.setCredentials(credentials);
 		}
+	}
+	
+	private void setRequestAttributes(RegistrationRequest ret, FormErrorStatus status)
+	{
 		if (form.getAttributeParams() != null)
 		{
 			List<Attribute<?>> a = new ArrayList<>();
@@ -261,9 +307,7 @@ public class RegistrationRequestEditor extends CustomComponent
 				
 				Attribute<?> attr;
 				Attribute<?> rattr = remoteAttributes.get(aparam.getGroup()+ "//" + aparam.getAttributeType());
-				if (aparam.getRetrievalSettings() == ParameterRetrievalSettings.interactive
-						|| aparam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive
-						|| (aparam.getRetrievalSettings() == ParameterRetrievalSettings.automaticOrInteractive && rattr == null))
+				if (aparam.getRetrievalSettings().isInteractivelyEntered(rattr != null))
 				{
 					FixedAttributeEditor ae = attributeEditor.get(interactiveIndex++);
 					try
@@ -271,7 +315,7 @@ public class RegistrationRequestEditor extends CustomComponent
 						attr = ae.getAttribute();
 					} catch (FormValidationException e)
 					{
-						hasFormException = true;
+						status.hasFormException = true;
 						continue;
 					}
 				} else
@@ -294,6 +338,10 @@ public class RegistrationRequestEditor extends CustomComponent
 			}
 			ret.setAttributes(a);
 		}
+	}
+	
+	private void setRequestGroups(RegistrationRequest ret, FormErrorStatus status)
+	{
 		if (form.getGroupParams() != null)
 		{
 			List<Selection> g = new ArrayList<>();
@@ -301,10 +349,8 @@ public class RegistrationRequestEditor extends CustomComponent
 			for (int i=0; i<form.getGroupParams().size(); i++)
 			{
 				GroupRegistrationParam gp = form.getGroupParams().get(i);
-				if (gp.getRetrievalSettings() == ParameterRetrievalSettings.interactive
-						|| gp.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive
-						|| (gp.getRetrievalSettings() == ParameterRetrievalSettings.automaticOrInteractive && !remotelyAuthenticated
-								.getGroups().contains(gp.getGroupPath())))
+				boolean hasRemoteGroup = remotelyAuthenticated.getGroups().contains(gp.getGroupPath());
+				if (gp.getRetrievalSettings().isInteractivelyEntered(hasRemoteGroup))
 				{
 					g.add(new Selection(groupSelectors.get(interactiveIndex++).getValue()));
 				} else
@@ -316,6 +362,10 @@ public class RegistrationRequestEditor extends CustomComponent
 			}
 			ret.setGroupSelections(g);
 		}
+	}
+
+	private void setRequestAgreements(RegistrationRequest ret, FormErrorStatus status)
+	{
 		if (form.getAgreements() != null)
 		{
 			List<Selection> a = new ArrayList<>();
@@ -330,35 +380,8 @@ public class RegistrationRequestEditor extends CustomComponent
 			}
 			ret.setAgreements(a);
 		}
-		if (form.isCollectComments())
-			ret.setComments(comment.getValue());
-		if (form.getRegistrationCode() != null)
-		{
-			ret.setRegistrationCode(registrationCode.getValue());
-			if (registrationCode.getValue().isEmpty())
-				registrationCode.setComponentError(new UserError(msg.getMessage("fieldRequired")));
-			else
-				registrationCode.setComponentError(null);
-		}
-		
-		if (captcha != null)
-		{
-			try
-			{
-				captcha.verify();
-			} catch (WrongArgumentException e)
-			{
-				hasFormException = true;
-			}
-		}
-		
-		ret.setUserLocale(msg.getLocaleCode());
-		
-		if (hasFormException)
-			throw new FormValidationException();
-		
-		return ret;
 	}
+
 	
 	private void initUI() throws EngineException
 	{
@@ -712,6 +735,11 @@ public class RegistrationRequestEditor extends CustomComponent
 	private boolean isEmpty(String str)
 	{
 		return str == null || str.equals("");
+	}
+	
+	private class FormErrorStatus
+	{
+		boolean hasFormException = false;
 	}
 }
 

@@ -122,7 +122,7 @@ public class RegistrationFormLauncher implements RegistrationFormDialogProvider
 			RegistrationRequestEditor editor = new RegistrationRequestEditor(msg, form, 
 					remoteContext, identityEditorRegistry, 
 					credentialEditorRegistry, 
-					attributeHandlerRegistry, attrsMan, authnMan, groupsMan);
+					attributeHandlerRegistry, attrsMan, authnMan, groupsMan, registrationsManagement);
 			AdminsRegistrationRequestEditorDialog dialog = new AdminsRegistrationRequestEditorDialog(msg, 
 					msg.getMessage("RegistrationFormsChooserComponent.dialogCaption"), 
 					editor, new AdminsRegistrationRequestEditorDialog.Callback()
