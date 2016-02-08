@@ -33,6 +33,7 @@ public class SystemAttributeTypes implements SystemAttributesProvider
 	public static final String CREDENTIAL_PREFIX = "sys:Credential:";
 	public static final String AUTHORIZATION_ROLE = "sys:AuthorizationRole";
 	public static final String PREFERENCES = "sys:Preferences";
+	public static final String LAST_AUTHENTICATION = "sys:LastAuthentication";
 	
 	private AuthorizationManager authz;
 	private UnityMessageSource msg;
@@ -48,6 +49,7 @@ public class SystemAttributeTypes implements SystemAttributesProvider
 		systemAttributes.add(getAuthozationRoleAT());
 		systemAttributes.add(getPreferenceAT());
 		systemAttributes.add(getAttributeClassesAT());
+		systemAttributes.add(getLastAuthenticationAT());
 	}
 	
 	private AttributeType getCredentialRequirementsAT()
@@ -92,6 +94,16 @@ public class SystemAttributeTypes implements SystemAttributesProvider
 		preferenceAt.setMinElements(0);
 		preferenceAt.setMaxElements(AttributeClassHelper.MAX_CLASSES_PER_ENTITY);
 		preferenceAt.setUniqueValues(true);
+		preferenceAt.setVisibility(AttributeVisibility.local);
+		return preferenceAt;
+	}
+	
+	private AttributeType getLastAuthenticationAT()
+	{
+		AttributeType preferenceAt = new AttributeType(LAST_AUTHENTICATION, new StringAttributeSyntax(), msg);
+		preferenceAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG | AttributeType.INSTANCES_IMMUTABLE_FLAG);
+		preferenceAt.setMinElements(0);
+		preferenceAt.setMaxElements(1);
 		preferenceAt.setVisibility(AttributeVisibility.local);
 		return preferenceAt;
 	}

@@ -48,7 +48,7 @@ public class ScheduledRuleViewerPanel extends CustomComponent
 		schedule.setCaption(msg.getMessage("ScheduledRuleViewerPanel.schedule"));
 		main.addComponent(schedule);
 		
-		Label condition = new HtmlLabel(msg, msg.getMessage("preformatted"), rule.getCondition());
+		Label condition = new HtmlLabel(msg, "preformatted", rule.getCondition());
 		condition.setCaption(msg.getMessage("ScheduledRuleViewerPanel.condition"));
 		main.addComponent(condition);
 		
