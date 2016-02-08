@@ -77,7 +77,7 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 
 		assertThat(returned.getAuthenticatorSets(), is(
 				Lists.newArrayList(new AuthenticationOptionDescription("ApassREST"))));
-		assertThat(returned.getContextAddress(), is("contextA"));
+		assertThat(returned.getContextAddress(), is("/contextA"));
 		assertThat(returned.getDescription(), is("desc"));
 		assertThat(returned.getDisplayedName(), is(new I18nString("endpoint")));
 		assertThat(returned.getId(), is("newEndpoint"));
@@ -127,7 +127,7 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 		EndpointDescription returned = returnedL.get(1);
 		assertThat(returned.getAuthenticatorSets(), is(
 				Lists.newArrayList(new AuthenticationOptionDescription("ApassREST"))));
-		assertThat(returned.getContextAddress(), is("contextA"));
+		assertThat(returned.getContextAddress(), is("/contextA"));
 		assertThat(returned.getDescription(), is("desc2"));
 		assertThat(returned.getDisplayedName(), is(new I18nString("endpoint2")));
 		assertThat(returned.getId(), is("newEndpoint"));
@@ -159,7 +159,7 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 		EndpointDescription returned = returnedL.get(1);
 		assertThat(returned.getAuthenticatorSets(), is(
 				Lists.newArrayList(new AuthenticationOptionDescription("ApassREST"))));
-		assertThat(returned.getContextAddress(), is("contextA"));
+		assertThat(returned.getContextAddress(), is("/contextA"));
 		assertThat(returned.getDescription(), is("desc"));
 		assertThat(returned.getDisplayedName(), is(new I18nString("endpoint")));
 		assertThat(returned.getId(), is("newEndpoint"));
@@ -188,7 +188,7 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 	private HttpPost getDeployRequest(String authnDescription) throws UnsupportedEncodingException, JsonProcessingException
 	{
 		HttpPost deploy = new HttpPost("/restadm/v1/endpoint/newEndpoint?typeId=" + RESTAdminEndpointFactory.NAME
-				+ "&address=contextA");
+				+ "&address=/contextA");
 		List<AuthenticationOptionDescription> authn = Lists.newArrayList(new AuthenticationOptionDescription(authnDescription));
 		EndpointConfiguration config = new EndpointConfiguration(new I18nString("endpoint"),
 				"desc",
