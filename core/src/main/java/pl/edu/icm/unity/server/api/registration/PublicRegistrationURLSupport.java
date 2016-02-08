@@ -37,9 +37,10 @@ public class PublicRegistrationURLSupport
 	{
 		try
 		{
+			String pathURLEncoded = URLEncoder.encode(formName, StandardCharsets.UTF_8.name()).
+					replaceAll("\\+", "%20");
 			return sharedEndpointMan.getServletUrl(PublicWellKnownURLServlet.SERVLET_PATH) + 
-				"#!" + FRAGMENT_PREFIX + 
-				URLEncoder.encode(formName, StandardCharsets.UTF_8.name());
+				"#!" + FRAGMENT_PREFIX + pathURLEncoded;
 		} catch (UnsupportedEncodingException e)
 		{
 			throw new IllegalStateException(e);
