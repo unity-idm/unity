@@ -138,7 +138,7 @@ public class BulkProcessingComponent extends CustomComponent
 			try
 			{
 				bulkManagement.removeScheduledRule(id);
-			} catch (EngineException e)
+			} catch (Exception e)
 			{
 				NotificationPopup.showError(msg, 
 						msg.getMessage("BulkProcessingComponent.errorRemoving", id), e);
@@ -156,7 +156,7 @@ public class BulkProcessingComponent extends CustomComponent
 			List<ScheduledProcessingRule> scheduledRules = bulkManagement.getScheduledRules();
 			table.setInput(scheduledRules);
 			setCompositionRoot(main);
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			ErrorComponent error = new ErrorComponent();
 			error.setError(msg.getMessage("BulkProcessingComponent.errorReading"), e);
@@ -170,7 +170,7 @@ public class BulkProcessingComponent extends CustomComponent
 		{
 			bulkManagement.scheduleRule(rule);
 			refresh();
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg, 
 					msg.getMessage("BulkProcessingComponent.errorAdd"), e);

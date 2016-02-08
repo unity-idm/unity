@@ -10,11 +10,10 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.tprofile.ActionEditor;
 import pl.edu.icm.unity.webadmin.tprofile.MVELExpressionField;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.RequiredTextField;
+import pl.edu.icm.unity.webui.common.FormValidator;
 
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.TextField;
 
 /**
  * Edit component of a {@link ScheduledProcessingRuleParam}
@@ -26,7 +25,9 @@ public class ScheduledRuleParamEditorImpl extends CustomComponent implements Rul
 
 	protected MVELExpressionField condition;
 	protected ActionEditor actionEditor;
-	protected TextField cronExpression;
+	protected CronExpressionField cronExpression;
+
+	private FormLayout main;
 	
 	
 	public ScheduledRuleParamEditorImpl(UnityMessageSource msg, ActionEditor actionEditor)
@@ -38,15 +39,16 @@ public class ScheduledRuleParamEditorImpl extends CustomComponent implements Rul
 
 	protected void initUI()
 	{
-		FormLayout main = new FormLayout();
+		main = new FormLayout();
 		setCompositionRoot(main);
 		
-		cronExpression = new RequiredTextField(msg.getMessage("RuleEditor.cronExpression"), msg);
+		cronExpression = new CronExpressionField(msg, msg.getMessage("RuleEditor.cronExpression"));
 		cronExpression.setValue("0 0 6 * * ?");
-		cronExpression.setDescription(msg.getMessage("RuleEditor.cronExpressionDescription"));
 		
 		condition = new MVELExpressionField(msg, msg.getMessage("RuleEditor.condition"),
 				msg.getMessage("MVELExpressionField.conditionDesc"));
+		condition.setValue("status == 'DISABLED'");
+		condition.setValidationVisible(true);
 		
 		main.addComponents(cronExpression, condition);
 		
@@ -56,6 +58,7 @@ public class ScheduledRuleParamEditorImpl extends CustomComponent implements Rul
 	@Override
 	public ScheduledProcessingRuleParam getRule() throws FormValidationException
 	{
+		new FormValidator(main).validate();
 		return new ScheduledProcessingRuleParam(condition.getValue(), 
 				(EntityAction) actionEditor.getAction(),
 				cronExpression.getValue());

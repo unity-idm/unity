@@ -12,6 +12,7 @@ import pl.edu.icm.unity.server.bulkops.ProcessingRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 /**
  * Editor dialog for rule editing.
@@ -44,7 +45,7 @@ public class RuleEditDialog<T extends ProcessingRule> extends AbstractDialog
 			callback.accept(editor.getRule());
 		} catch (FormValidationException e)
 		{
-			//ok - just do not close
+			NotificationPopup.showFormError(msg);
 			return;
 		}
 		close();
