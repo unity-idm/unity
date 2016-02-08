@@ -35,6 +35,7 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 
+import com.google.common.collect.Sets;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
@@ -109,6 +110,7 @@ public class BulkProcessingComponent extends CustomComponent
 		});
 		table.addActionHandler(new RefreshActionHandler());
 		table.addActionHandler(new AddActionHandler());
+		table.addActionHandler(new EditActionHandler());
 		table.addActionHandler(new RunScheduledHandler());
 		table.addActionHandler(new DeleteActionHandler());
 		table.setWidth(90, Unit.PERCENTAGE);
@@ -273,6 +275,41 @@ public class BulkProcessingComponent extends CustomComponent
 		}
 	}
 
+	private class EditActionHandler extends SingleActionHandler
+	{
+		public EditActionHandler()
+		{
+			super(msg.getMessage("BulkProcessingComponent.editAction"), Images.edit.getResource());
+		}
+
+		@Override
+		public void handleAction(Object sender, final Object target)
+		{
+			ActionEditor actionEditor;
+			try
+			{
+				actionEditor = getActionEditor();
+			} catch (EngineException e)
+			{
+				NotificationPopup.showError(msg, 
+						msg.getMessage("BulkProcessingComponent.errorCreateActions"), e);
+				return;
+			}
+			ScheduledRuleParamEditorImpl editor = new ScheduledRuleParamEditorImpl(msg, actionEditor);
+			ScheduledProcessingRule selected = (ScheduledProcessingRule)(((GenericItem<?>)target).getElement());
+			editor.setInput(selected);
+			
+			RuleEditDialog<ScheduledProcessingRuleParam> dialog = new RuleEditDialog<>(msg, 
+					msg.getMessage("BulkProcessingComponent.editAction"), editor, 
+					rule -> 
+					{
+						schedule(rule);
+						delete(Sets.newHashSet(selected.getId()));
+					});
+			dialog.show();
+		}
+	}
+	
 	private class RunScheduledHandler extends SingleActionHandler
 	{
 		public RunScheduledHandler()

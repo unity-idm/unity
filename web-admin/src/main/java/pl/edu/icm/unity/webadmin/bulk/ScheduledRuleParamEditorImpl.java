@@ -37,6 +37,13 @@ public class ScheduledRuleParamEditorImpl extends CustomComponent implements Rul
 		initUI();
 	}
 
+	public void setInput(ScheduledProcessingRuleParam toEdit)
+	{
+		cronExpression.setValue(toEdit.getCronExpression());
+		condition.setValue(toEdit.getCondition());
+		actionEditor.setInput(toEdit.getAction());
+	}
+	
 	protected void initUI()
 	{
 		main = new FormLayout();
