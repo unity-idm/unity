@@ -55,15 +55,17 @@ public class SamlParseServlet extends SamlHttpServlet
 	protected String endpointAddress;
 	protected String samlDispatcherServletPath;
 	protected ErrorHandler errorHandler;
+	private boolean assumeForce;
 
 	public SamlParseServlet(RemoteMetaManager samlConfigProvider, String endpointAddress,
-			String samlDispatcherServletPath, ErrorHandler errorHandler)
+			String samlDispatcherServletPath, ErrorHandler errorHandler, boolean assumeForce)
 	{
 		super(true, false, false);
 		this.samlConfigProvider = samlConfigProvider;
 		this.endpointAddress = endpointAddress;
 		this.samlDispatcherServletPath = samlDispatcherServletPath;
 		this.errorHandler = errorHandler;
+		this.assumeForce = assumeForce;
 	}
 
 	/**
@@ -128,8 +130,10 @@ public class SamlParseServlet extends SamlHttpServlet
 		if (context != null)
 		{
 			//We can have the old session expired or order to forcefully close it.
-			String force = request.getParameter(REQ_FORCE);
-			if ((force == null || force.equals("false")) && !context.isExpired())
+			String forceStr = request.getParameter(REQ_FORCE);
+			boolean force = assumeForce || (forceStr != null && !forceStr.equals("false"));
+			
+			if (!force && !context.isExpired())
 			{
 				if (log.isTraceEnabled())
 					log.trace("Request to SAML consumer address, with SAML input and we have " +

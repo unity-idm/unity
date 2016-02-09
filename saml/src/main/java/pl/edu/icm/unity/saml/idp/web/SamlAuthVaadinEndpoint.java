@@ -252,7 +252,8 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	protected Servlet getSamlParseServlet(String endpointURL, String dispatcherUrl)
 	{
 		return new SamlParseServlet(myMetadataManager, 
-				endpointURL, dispatcherUrl, new ErrorHandler(freemarkerHandler));
+				endpointURL, dispatcherUrl, new ErrorHandler(freemarkerHandler),
+				samlProperties.getBooleanValue(SamlIdpProperties.ASSUME_FORCE));
 	}
 
 	protected Servlet getMetadataServlet(String samlEndpointURL, String sloEndpointURL, String sloSoapEndpointURL)
