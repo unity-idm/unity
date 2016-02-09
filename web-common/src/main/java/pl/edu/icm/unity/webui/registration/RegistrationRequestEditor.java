@@ -43,6 +43,8 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.Selection;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
+import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
+import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 import pl.edu.icm.unity.webui.common.CaptchaComponent;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -93,10 +95,10 @@ public class RegistrationRequestEditor extends CustomComponent
 	
 	private Map<String, IdentityTaV> remoteIdentitiesByType;
 	private Map<String, Attribute<?>> remoteAttributes;
-	private List<IdentityEditor> identityParamEditors;
+	private Map<Integer, IdentityEditor> identityParamEditors;
 	private List<CredentialEditor> credentialParamEditors;
-	private List<FixedAttributeEditor> attributeEditor;
-	private List<CheckBox> groupSelectors;
+	private Map<Integer, FixedAttributeEditor> attributeEditor;
+	private Map<Integer, CheckBox> groupSelectors;
 	private List<CheckBox> agreementSelectors;
 	private TextArea comment;
 	private TextField registrationCode;
@@ -211,23 +213,10 @@ public class RegistrationRequestEditor extends CustomComponent
 		setRequestAttributes(ret, status);
 		setRequestGroups(ret, status);
 		setRequestAgreements(ret, status);
+		setRequestCode(ret, status);
 		
 		if (form.isCollectComments())
 			ret.setComments(comment.getValue());
-		if (form.getRegistrationCode() != null && regCodeFromURL == null)
-		{
-			ret.setRegistrationCode(registrationCode.getValue());
-			if (registrationCode.getValue().isEmpty())
-			{
-				registrationCode.setComponentError(new UserError(msg.getMessage("fieldRequired")));
-				status.hasFormException = true;
-			} else
-				registrationCode.setComponentError(null);
-		}
-		
-		if (invitation != null)
-			ret.setRegistrationCode(regCodeFromURL);
-		
 		
 		if (captcha != null)
 		{
@@ -252,21 +241,26 @@ public class RegistrationRequestEditor extends CustomComponent
 	{
 		List<IdentityParam> identities = new ArrayList<>();
 		IdentityParam ip;
-		int j=0;
 		for (int i=0; i<form.getIdentityParams().size(); i++)
 		{
 			IdentityRegistrationParam regParam = form.getIdentityParams().get(i);
 			IdentityTaV rid = remoteIdentitiesByType.get(regParam.getIdentityType());
 			if (regParam.getRetrievalSettings().isInteractivelyEntered(rid != null))
 			{
-				IdentityEditor editor = identityParamEditors.get(j++);
-				try
+				IdentityEditor editor = identityParamEditors.get(i);
+				if (editor == null) //OK - invitation parameter
 				{
-					ip = editor.getValue();
-				} catch (IllegalIdentityValueException e)
+					ip = null;
+				} else
 				{
-					status.hasFormException = true;
-					continue;
+					try
+					{
+						ip = editor.getValue();
+					} catch (IllegalIdentityValueException e)
+					{
+						status.hasFormException = true;
+						continue;
+					}
 				}
 			} else
 			{
@@ -316,7 +310,6 @@ public class RegistrationRequestEditor extends CustomComponent
 		if (form.getAttributeParams() != null)
 		{
 			List<Attribute<?>> a = new ArrayList<>();
-			int interactiveIndex=0;
 			for (int i=0; i<form.getAttributeParams().size(); i++)
 			{
 				AttributeRegistrationParam aparam = form.getAttributeParams().get(i);
@@ -325,14 +318,20 @@ public class RegistrationRequestEditor extends CustomComponent
 				Attribute<?> rattr = remoteAttributes.get(aparam.getGroup()+ "//" + aparam.getAttributeType());
 				if (aparam.getRetrievalSettings().isInteractivelyEntered(rattr != null))
 				{
-					FixedAttributeEditor ae = attributeEditor.get(interactiveIndex++);
-					try
+					FixedAttributeEditor ae = attributeEditor.get(i);
+					if (ae == null)	//ok, attribute specified by invitation
 					{
-						attr = ae.getAttribute();
-					} catch (FormValidationException e)
+						attr = null;
+					} else
 					{
-						status.hasFormException = true;
-						continue;
+						try
+						{
+							attr = ae.getAttribute();
+						} catch (FormValidationException e)
+						{
+							status.hasFormException = true;
+							continue;
+						}
 					}
 				} else
 				{
@@ -346,11 +345,7 @@ public class RegistrationRequestEditor extends CustomComponent
 					}
 				}
 
-				if (attr != null)
-				{
-					a.add(attr);
-				} else
-					a.add(null);
+				a.add(attr);
 			}
 			ret.setAttributes(a);
 		}
@@ -361,14 +356,17 @@ public class RegistrationRequestEditor extends CustomComponent
 		if (form.getGroupParams() != null)
 		{
 			List<Selection> g = new ArrayList<>();
-			int interactiveIndex=0;
 			for (int i=0; i<form.getGroupParams().size(); i++)
 			{
 				GroupRegistrationParam gp = form.getGroupParams().get(i);
 				boolean hasRemoteGroup = remotelyAuthenticated.getGroups().contains(gp.getGroupPath());
 				if (gp.getRetrievalSettings().isInteractivelyEntered(hasRemoteGroup))
 				{
-					g.add(new Selection(groupSelectors.get(interactiveIndex++).getValue()));
+					CheckBox selector = groupSelectors.get(i);
+					if (selector == null)	//ok, group specified by invitation
+						g.add(null);
+					else
+						g.add(new Selection(selector.getValue()));
 				} else
 				{
 					g.add(new Selection(remotelyAuthenticated.getGroups().contains(gp.getGroupPath()),
@@ -398,6 +396,22 @@ public class RegistrationRequestEditor extends CustomComponent
 		}
 	}
 
+	private void setRequestCode(RegistrationRequest ret, FormErrorStatus status)
+	{
+		if (form.getRegistrationCode() != null && regCodeFromURL == null)
+		{
+			ret.setRegistrationCode(registrationCode.getValue());
+			if (registrationCode.getValue().isEmpty())
+			{
+				registrationCode.setComponentError(new UserError(msg.getMessage("fieldRequired")));
+				status.hasFormException = true;
+			} else
+				registrationCode.setComponentError(null);
+		}
+		
+		if (invitation != null)
+			ret.setRegistrationCode(regCodeFromURL);
+	}
 	
 	private void initUI() throws EngineException
 	{
@@ -473,17 +487,21 @@ public class RegistrationRequestEditor extends CustomComponent
 	{
 		boolean headerAdded = false;
 		List<IdentityRegistrationParam> idParams = form.getIdentityParams();
-		identityParamEditors = new ArrayList<>();
+		Map<Integer, PrefilledEntry<IdentityParam>> fromInvitation = invitation != null ? 
+				invitation.getIdentities() : new HashMap<>();
+		identityParamEditors = new HashMap<>();
 		for (int i=0; i<idParams.size(); i++)
 		{
 			IdentityRegistrationParam idParam = idParams.get(i);
-			if (idParam.getRetrievalSettings().isAutomaticOnly())
-				continue;
-				
 			IdentityTaV rid = remoteIdentitiesByType.get(idParam.getIdentityType());
-			if (idParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticOrInteractive && rid != null)
+
+			if (!idParam.getRetrievalSettings().isInteractivelyEntered(rid != null))
 				continue;
-				
+			
+			PrefilledEntry<IdentityParam> prefilledEntry = fromInvitation.get(i);
+			if (prefilledEntry != null && !prefilledEntry.getMode().isInteractivelyEntered())
+				continue;
+			
 			if (!headerAdded)
 			{
 				Label identityL = new Label(msg.getMessage("RegistrationRequest.identities"));
@@ -493,16 +511,19 @@ public class RegistrationRequestEditor extends CustomComponent
 			}
 			
 			IdentityEditor editor = identityEditorRegistry.getEditor(idParam.getIdentityType());
-			identityParamEditors.add(editor);
+			identityParamEditors.put(i, editor);
 			ComponentsContainer editorUI = editor.getEditor(!idParam.isOptional(), false);
 			layout.addComponents(editorUI.getComponents());
 			
 			if (idParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive && rid != null)
 			{
 				 if (rid.getValue() != null)
-					 editor.setDefaultValue(new IdentityParam(idParam.getIdentityType(),
+					editor.setDefaultValue(new IdentityParam(idParam.getIdentityType(),
 							 rid.getValue()));
 			}
+			if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.DEFAULT)
+				editor.setDefaultValue(prefilledEntry.getEntry());
+			
 			if (idParam.getLabel() != null)
 				editorUI.setCaption(idParam.getLabel());
 			if (idParam.getDescription() != null)
@@ -552,15 +573,18 @@ public class RegistrationRequestEditor extends CustomComponent
 		boolean headerAdded = false;
 		Map<String, AttributeType> atTypes = attrsMan.getAttributeTypesAsMap();
 		List<AttributeRegistrationParam> attributeParams = form.getAttributeParams();
-		attributeEditor = new ArrayList<>();
+		Map<Integer, PrefilledEntry<Attribute<?>>> fromInvitation = invitation != null ? 
+				invitation.getAttributes() : new HashMap<>();
+		attributeEditor = new HashMap<>();
 		for (int i=0; i<attributeParams.size(); i++)
 		{
 			AttributeRegistrationParam aParam = attributeParams.get(i);
-			if (aParam.getRetrievalSettings().isAutomaticOnly())
+			Attribute<?> rattr = remoteAttributes.get(aParam.getGroup() + "//" + aParam.getAttributeType());
+			if (!aParam.getRetrievalSettings().isInteractivelyEntered(rattr != null))
 				continue;
 				
-			Attribute<?> rattr = remoteAttributes.get(aParam.getGroup() + "//" + aParam.getAttributeType());
-			if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticOrInteractive && rattr != null)
+			PrefilledEntry<Attribute<?>> prefilledEntry = fromInvitation.get(i);
+			if (prefilledEntry != null && !prefilledEntry.getMode().isInteractivelyEntered())
 				continue;
 			
 			if (!headerAdded)
@@ -577,11 +601,14 @@ public class RegistrationRequestEditor extends CustomComponent
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry, 
 					at, aParam.isShowGroups(), aParam.getGroup(), at.getVisibility(), 
 					aName, description, !aParam.isOptional(), false, layout);
-			if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive && rattr != null)
-			{	
+			
+			if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive 
+					&& rattr != null)
 				editor.setAttributeValues(rattr.getValues());
-			}
-			attributeEditor.add(editor);
+			if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.DEFAULT)
+				editor.setAttributeValues(prefilledEntry.getEntry().getValues());
+			
+			attributeEditor.put(i, editor);
 		}
 		createExternalAttributesUI(layout, atTypes);
 	}
@@ -591,14 +618,17 @@ public class RegistrationRequestEditor extends CustomComponent
 		boolean headerAdded = false;
 		
 		List<GroupRegistrationParam> groupParams = form.getGroupParams();
-		groupSelectors = new ArrayList<>();
+		Map<Integer, PrefilledEntry<Selection>> fromInvitation = invitation != null ? 
+				invitation.getGroupSelections() : new HashMap<>();
+		groupSelectors = new HashMap<>();
 		for (int i=0; i<groupParams.size(); i++)
 		{
 			GroupRegistrationParam gParam = groupParams.get(i);
-			if (gParam.getRetrievalSettings().isAutomaticOnly())
-				continue;
 			boolean conGroup = remotelyAuthenticated.getGroups().contains(gParam.getGroupPath());
-			if (gParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticOrInteractive && conGroup)
+			if (!gParam.getRetrievalSettings().isInteractivelyEntered(conGroup))
+				continue;
+			PrefilledEntry<Selection> prefilledEntry = fromInvitation.get(i);
+			if (prefilledEntry != null && !prefilledEntry.getMode().isInteractivelyEntered())
 				continue;
 			
 			if (!headerAdded)
@@ -621,10 +651,10 @@ public class RegistrationRequestEditor extends CustomComponent
 				cb.setDescription(HtmlSimplifiedLabel.escape(grp.getDescription().getValue(msg)));
 			
 			if (gParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive && conGroup)
-			{
 				cb.setValue(conGroup);
-			}			
-			groupSelectors.add(cb);
+			if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.DEFAULT)
+				cb.setValue(prefilledEntry.getEntry().isSelected());
+			groupSelectors.put(i, cb);
 			layout.addComponent(cb);
 		}
 		createExternalGroupsUI(layout);
@@ -659,19 +689,19 @@ public class RegistrationRequestEditor extends CustomComponent
 	
 	private void createExternalIdentitiesUI(Layout layout)
 	{
-		ListOfElements<String> identitiesList = new ListOfElements<>(msg, 
-				new ListOfElements.LabelConverter<String>()
-		{
-			@Override
-			public Label toLabel(String value)
-			{
-				return new Label(value);
-			}
-		});
+		ListOfElements<String> identitiesList = new StringListOfElements(msg);
 		List<IdentityRegistrationParam> idParams = form.getIdentityParams();
+		Map<Integer, PrefilledEntry<IdentityParam>> fromInvitation = invitation != null ? 
+				invitation.getIdentities() : new HashMap<>();
 		for (int i=0; i<idParams.size(); i++)
 		{
 			IdentityRegistrationParam idParam = idParams.get(i);
+			PrefilledEntry<IdentityParam> prefilledEntry = fromInvitation.get(i);
+			if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.READ_ONLY)
+			{
+				identitiesList.addEntry(prefilledEntry.getEntry().toString());
+				continue;
+			}
 			if (!idParam.getRetrievalSettings().isPotentiallyAutomaticAndVisible())
 				continue;
 			IdentityTaV id = remoteIdentitiesByType.get(idParam.getIdentityType());
@@ -679,73 +709,74 @@ public class RegistrationRequestEditor extends CustomComponent
 				continue;
 			identitiesList.addEntry(id.toString());
 		}
-		if (identitiesList.size() > 0)
-		{
-			Label titleL = new Label(msg.getMessage("RegistrationRequest.externalIdentities"));
-			titleL.addStyleName(Styles.emphasized.toString());
-			layout.addComponent(titleL);
-			layout.addComponent(identitiesList);
-		}
+		
+		addReadOnlySection(msg.getMessage("RegistrationRequest.externalIdentities"), identitiesList, layout);
 	}
 	
 	private void createExternalAttributesUI(Layout layout, Map<String, AttributeType> atTypes)
 	{
 		List<AttributeRegistrationParam> attributeParams = form.getAttributeParams();
-		ListOfElements<String> attributesList = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
-		{
-			@Override
-			public Label toLabel(String value)
-			{
-				return new Label(value);
-			}
-		});
+		ListOfElements<String> attributesList = new StringListOfElements(msg);
+		Map<Integer, PrefilledEntry<Attribute<?>>> fromInvitation = invitation != null ? 
+				invitation.getAttributes() : new HashMap<>();
 		for (int i=0; i<attributeParams.size(); i++)
 		{
-			AttributeRegistrationParam aParam = attributeParams.get(i);
-			if (!aParam.getRetrievalSettings().isPotentiallyAutomaticAndVisible())
-				continue;
-			Attribute<?> a = remoteAttributes.get(aParam.getGroup() + "//" + aParam.getAttributeType());
+			Attribute<?> a = getReadOnlyAttribute(i, attributeParams, fromInvitation);
 			if (a == null)
 				continue;
+			AttributeRegistrationParam aParam = attributeParams.get(i);
 			String displayedName = atTypes.get(aParam.getAttributeType()).getDisplayedName().getValue(msg);
 			String aString = attributeHandlerRegistry.getSimplifiedAttributeRepresentation(a, 120,
 					displayedName);
 			attributesList.addEntry(aString);
 		}
-		if (attributesList.size() > 0)
-		{
-			Label titleL = new Label(msg.getMessage("RegistrationRequest.externalAttributes"));
-			titleL.addStyleName(Styles.emphasized.toString());
-			layout.addComponent(titleL);
-			layout.addComponent(attributesList);
-		}
+		addReadOnlySection(msg.getMessage("RegistrationRequest.externalAttributes"), attributesList, layout);
+	}
+	
+	private Attribute<?> getReadOnlyAttribute(int i, List<AttributeRegistrationParam> attributeParams,
+			Map<Integer, PrefilledEntry<Attribute<?>>> fromInvitation)
+	{
+		AttributeRegistrationParam aParam = attributeParams.get(i);
+		PrefilledEntry<Attribute<?>> prefilledEntry = fromInvitation.get(i);
+		if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.READ_ONLY)
+			return prefilledEntry.getEntry();
+		if (!aParam.getRetrievalSettings().isPotentiallyAutomaticAndVisible())
+			return null;
+		return remoteAttributes.get(aParam.getGroup() + "//" + aParam.getAttributeType());
 	}
 	
 	private void createExternalGroupsUI(Layout layout)
 	{
-		ListOfElements<String> groupsList = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
-		{
-			@Override
-			public Label toLabel(String value)
-			{
-				return new Label(value);
-			}
-		});
+		ListOfElements<String> groupsList = new StringListOfElements(msg);
 		List<GroupRegistrationParam> groupParams = form.getGroupParams();
+		Map<Integer, PrefilledEntry<Selection>> fromInvitation = invitation != null ? 
+				invitation.getGroupSelections() : new HashMap<>();
 		for (int i=0; i<groupParams.size(); i++)
 		{
 			GroupRegistrationParam gParam = groupParams.get(i);
+			PrefilledEntry<Selection> prefilledEntry = fromInvitation.get(i);
+			if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.READ_ONLY 
+					&& prefilledEntry.getEntry().isSelected())
+			{
+				groupsList.addEntry(gParam.getGroupPath());
+				continue;
+			}	
 			if (!gParam.getRetrievalSettings().isPotentiallyAutomaticAndVisible())
 				continue;
 			if (remotelyAuthenticated.getGroups().contains(gParam.getGroupPath()))
 				groupsList.addEntry(gParam.getGroupPath());
 		}
-		if (groupsList.size() > 0)
+		addReadOnlySection(msg.getMessage("RegistrationRequest.externalGroups"), groupsList, layout);
+	}
+
+	private void addReadOnlySection(String caption, ListOfElements<String> list, Layout layout)
+	{
+		if (list.size() > 0)
 		{
-			Label titleL = new Label(msg.getMessage("RegistrationRequest.externalGroups"));
+			Label titleL = new Label(caption);
 			titleL.addStyleName(Styles.emphasized.toString());
 			layout.addComponent(titleL);
-			layout.addComponent(groupsList);
+			layout.addComponent(list);
 		}
 	}
 	
@@ -792,22 +823,18 @@ public class RegistrationRequestEditor extends CustomComponent
 		return str == null || str.equals("");
 	}
 	
-	private class FormErrorStatus
+	private static class FormErrorStatus
 	{
 		boolean hasFormException = false;
 	}
+	
+	private static class StringListOfElements extends ListOfElements<String>
+	{
+		public StringListOfElements(UnityMessageSource msg)
+		{
+			super(msg, value -> new Label(value));
+		}
+	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 

@@ -75,7 +75,7 @@ public class RegistrationRequestValidator
 	public void validateSubmittedRequest(RegistrationForm form, RegistrationRequest request,
 			boolean doCredentialCheckAndUpdate, SqlSession sql) throws EngineException
 	{
-		processInvitationAndValidateCode(form, request, sql);
+		boolean byInvitation = processInvitationAndValidateCode(form, request, sql);
 		
 		validateRequestAgreements(form, request);
 		validateRequestedAttributes(form, request);
@@ -92,6 +92,13 @@ public class RegistrationRequestValidator
 			throw new WrongArgumentException(
 					"Wrong amount of group selections, should be: "
 							+ form.getGroupParams().size());
+		
+		if (byInvitation)
+		{
+			String code = request.getRegistrationCode();
+			log.debug("Received registration request for invitation " + code + ", removing it");
+			invitationDB.remove(code, sql);
+		}
 	}
 
 	public void validateTranslatedRequest(RegistrationForm form, RegistrationRequest originalRequest, 
@@ -110,9 +117,10 @@ public class RegistrationRequestValidator
 	 * @param form
 	 * @param request
 	 * @param sql
+	 * @return true if the request is by invitation
 	 * @throws EngineException
 	 */
-	private void processInvitationAndValidateCode(RegistrationForm form, RegistrationRequest request,
+	private boolean processInvitationAndValidateCode(RegistrationForm form, RegistrationRequest request,
 			SqlSession sql) throws EngineException
 	{
 		String codeFromRequest = request.getRegistrationCode();
@@ -124,7 +132,7 @@ public class RegistrationRequestValidator
 		if (codeFromRequest == null || form.getRegistrationCode() != null)
 		{
 			validateRequestCode(form, request);
-			return;
+			return false;
 		}
 				
 		InvitationWithCode invitation = getInvitation(codeFromRequest, sql);
@@ -138,7 +146,7 @@ public class RegistrationRequestValidator
 				invitation.getAttributes(), "attribute");
 		processInvitationElements(form.getGroupParams(), request.getGroupSelections(), 
 				invitation.getGroupSelections(), "group");
-		invitationDB.remove(codeFromRequest, sql);
+		return true;
 	}
 
 	private <T> void processInvitationElements(List<? extends RegistrationParam> paramDef,

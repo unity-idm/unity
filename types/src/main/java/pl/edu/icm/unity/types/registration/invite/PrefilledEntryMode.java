@@ -27,5 +27,10 @@ public enum PrefilledEntryMode {
 	/**
 	 * Entry is hidden, so the user can neither read nor edit the pre-filled value.
 	 */
-	HIDDEN
+	HIDDEN;
+	
+	public boolean isInteractivelyEntered()
+	{
+		return this == DEFAULT; 
+	}
 }
