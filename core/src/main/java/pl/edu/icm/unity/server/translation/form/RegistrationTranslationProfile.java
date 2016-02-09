@@ -75,7 +75,8 @@ public class RegistrationTranslationProfile extends TranslationProfileInstance
 		userLocale,
 		registrationForm,
 		requestId,
-		agrs;
+		agrs,
+		validCode;
 	}
 	
 	public enum PostConfirmationContextKey
@@ -292,6 +293,7 @@ public class RegistrationTranslationProfile extends TranslationProfileInstance
 		
 		ret.put(ContextKey.userLocale.name(), request.getUserLocale());
 		ret.put(ContextKey.requestId.name(), requestId);
+		ret.put(ContextKey.validCode.name(), request.getRegistrationCode() != null);
 		
 		Map<String, Object> attr = new HashMap<>();
 		Map<String, List<Object>> attrs = new HashMap<>();
