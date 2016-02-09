@@ -66,7 +66,7 @@ public class RegistrationFormEditDialog extends AbstractDialog
 	
 	private boolean preCheckForm(RegistrationForm form)
 	{
-		if (form.isPubliclyAvailable() && form.containsRemoteMandatoryParams())
+		if (form.isPubliclyAvailable() && form.containsAutomaticAndMandatoryParams())
 		{
 			ConfirmDialog warning = new ConfirmDialog(msg, 
 					msg.getMessage("RegistrationFormEditDialog.publiclAndRemoteWarning"), 

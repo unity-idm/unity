@@ -18,21 +18,22 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
-import pl.edu.icm.unity.server.translation.AbstractTranslationProfile;
+import pl.edu.icm.unity.server.registries.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.ExecutionBreakException;
-import pl.edu.icm.unity.server.translation.ProfileType;
-import pl.edu.icm.unity.server.translation.TranslationAction;
+import pl.edu.icm.unity.server.translation.TranslationActionInstance;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
+import pl.edu.icm.unity.server.translation.TranslationProfileInstance;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.types.translation.TranslationRule;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Entry point: input translation profile, a list of translation rules annotated with a name and description.
  * @author K. Benedyczak
  */
-public class InputTranslationProfile extends AbstractTranslationProfile<InputTranslationRule>
+public class InputTranslationProfile extends TranslationProfileInstance<InputTranslationAction, InputTranslationRule>
 {
 	public enum ContextKey
 	{
@@ -48,14 +49,21 @@ public class InputTranslationProfile extends AbstractTranslationProfile<InputTra
 	
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, InputTranslationProfile.class);
 	
-	public InputTranslationProfile(String name, List<InputTranslationRule> rules)
+	public InputTranslationProfile(String name, List<? extends TranslationRule> rules, 
+			InputTranslationActionsRegistry registry)
 	{
-		super(name, ProfileType.INPUT, rules);
+		super(name, "", ProfileType.INPUT, rules, registry);
 	}
-
-	public InputTranslationProfile(String json, ObjectMapper jsonMapper, TranslationActionsRegistry registry)
+	
+	public InputTranslationProfile(String name, String description, List<? extends TranslationRule> rules, 
+			InputTranslationActionsRegistry registry)
 	{
-		fromJson(json, jsonMapper, registry);
+		super(name, description, ProfileType.INPUT, rules, registry);
+	}	
+	
+	public InputTranslationProfile(ObjectNode json,	InputTranslationActionsRegistry registry)
+	{
+		super(json, registry);
 	}
 	
 	public MappingResult translate(RemotelyAuthenticatedInput input) throws EngineException
@@ -68,7 +76,7 @@ public class InputTranslationProfile extends AbstractTranslationProfile<InputTra
 		{
 			int i=1;
 			MappingResult translationState = new MappingResult();
-			for (InputTranslationRule rule: rules)
+			for (InputTranslationRule rule: ruleInstances)
 			{
 				NDC.push("[r: " + (i++) + "]");
 				try
@@ -183,7 +191,7 @@ public class InputTranslationProfile extends AbstractTranslationProfile<InputTra
 	}
 	
 	@Override
-	protected InputTranslationRule createRule(TranslationAction action, TranslationCondition condition)
+	protected InputTranslationRule createRule(TranslationActionInstance action, TranslationCondition condition)
 	{
 		if (!(action instanceof InputTranslationAction))
 		{

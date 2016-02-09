@@ -14,7 +14,9 @@
 	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
 		<property name="bundle" value="pl/edu/icm/unity/webadmin/messages/home-messages"/>
 	</bean>
-
+	
+	<bean class="pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory"/>
+	
 	<bean scope="prototype" id="UserHomeUI" class="pl.edu.icm.unity.home.UserHomeUI"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.home.UserAccountComponent"/>
 		
@@ -43,6 +45,7 @@
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.tprofile.TranslationProfilesComponent"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.msgtemplate.MessageTemplatesComponent"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.confirmations.ConfirmationConfigurationsComponent"/>
+	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.bulk.BulkProcessingComponent"/>
 	
 	
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormsComponent"/>

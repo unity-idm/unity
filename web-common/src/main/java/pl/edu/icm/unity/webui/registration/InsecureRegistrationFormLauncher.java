@@ -17,14 +17,14 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.RegistrationContext;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
-import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.server.api.internal.IdPLoginController;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
+import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -87,15 +87,18 @@ public class InsecureRegistrationFormLauncher implements RegistrationFormDialogP
 			bus.fireEvent(new RegistrationRequestChangedEvent(id));
 		} catch (WrongArgumentException e)
 		{
-			new PostRegistrationHandler(idpLoginController, form, msg).submissionError(e, context);
+			new PostRegistrationHandler(idpLoginController, form, msg, 
+					registrationsManagement.getProfileInstance(form)).submissionError(e, context);
 			return false;
 		} catch (EngineException e)
 		{
-			new PostRegistrationHandler(idpLoginController, form, msg).submissionError(e, context);
+			new PostRegistrationHandler(idpLoginController, form, msg, 
+					registrationsManagement.getProfileInstance(form)).submissionError(e, context);
 			return true;
 		}
 
-		new PostRegistrationHandler(idpLoginController, form, msg).submitted(id, registrationsManagement,
+		new PostRegistrationHandler(idpLoginController, form, msg, 
+				registrationsManagement.getProfileInstance(form)).submitted(id, registrationsManagement,
 				request, context);
 		return true;
 	}
@@ -134,7 +137,8 @@ public class InsecureRegistrationFormLauncher implements RegistrationFormDialogP
 						@Override
 					public void cancelled()
 					{
-						new PostRegistrationHandler(idpLoginController, form, msg).
+						new PostRegistrationHandler(idpLoginController, form, msg, 
+								registrationsManagement.getProfileInstance(form)).
 							cancelled(false, context);
 					}
 				});

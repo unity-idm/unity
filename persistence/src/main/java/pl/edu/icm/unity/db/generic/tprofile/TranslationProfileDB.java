@@ -10,11 +10,10 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.db.DBGeneric;
 import pl.edu.icm.unity.db.generic.DependencyNotificationManager;
 import pl.edu.icm.unity.db.generic.GenericObjectsDB;
-import pl.edu.icm.unity.server.translation.AbstractTranslationProfile;
-import pl.edu.icm.unity.server.translation.TranslationProfile;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
- * Easy to use interface to {@link AbstractTranslationProfile} storage.
+ * Easy to use interface to {@link TranslationProfile} storage.
  *  
  * @author K. Benedyczak
  */

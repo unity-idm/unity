@@ -20,7 +20,6 @@ import org.springframework.context.annotation.Scope;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
@@ -30,6 +29,7 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
@@ -40,6 +40,7 @@ import pl.edu.icm.unity.webui.authn.AuthNTile.SelectionChangedListener;
 import pl.edu.icm.unity.webui.authn.SelectedAuthNPanel.AuthenticationListener;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormsChooserComponent;
@@ -321,7 +322,9 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				createRegistrationDialog().show();
+				AbstractDialog regDialog = createRegistrationDialog();
+				if (regDialog != null)
+					regDialog.show();
 			}
 		});
 		register.setId("AuthenticationUI.registerButton");
@@ -345,6 +348,9 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 						+ "as public or its configuration is invalid: " + e.toString());
 				if (log.isDebugEnabled())
 					log.debug("Deatils: ", e);
+				NotificationPopup.showError(msg, 
+						msg.getMessage("RegistrationFormsChooserComponent.errorShowFormEdit"), e);
+
 				return null;
 			}
 		} else

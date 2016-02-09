@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.confirmations.ConfirmationServlet;
 import pl.edu.icm.unity.db.ContentsUpdater;
 import pl.edu.icm.unity.db.DBAttributes;
@@ -42,6 +43,7 @@ import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.InitDB;
 import pl.edu.icm.unity.engine.SharedEndpointManagementImpl;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
+import pl.edu.icm.unity.engine.bulkops.BulkOperationsUpdater;
 import pl.edu.icm.unity.engine.endpoints.EndpointsUpdater;
 import pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.notifications.EmailFacility;
@@ -67,7 +69,7 @@ import pl.edu.icm.unity.server.api.internal.PublicWellKnownURLServlet;
 import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
 import pl.edu.icm.unity.server.attributes.SystemAttributesProvider;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.FileWatcher;
@@ -103,6 +105,7 @@ import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.utils.LifecycleBase;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.FilePropertiesHelper;
@@ -162,7 +165,9 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	private ExecutorsService executors;
 	@Autowired
-	private EndpointsUpdater updater;
+	private EndpointsUpdater endpointsUpdater;
+	@Autowired
+	private BulkOperationsUpdater bulkOperationsUpdater;
 	@Autowired
 	EntitiesScheduledUpdater entitiesUpdater;
 	@Autowired
@@ -177,7 +182,7 @@ public class EngineInitialization extends LifecycleBase
 	private RealmsManagement realmManagement;
 	
 	@Autowired
-	private TranslationActionsRegistry tactionsRegistry;
+	private InputTranslationActionsRegistry tactionsRegistry;
 	@Autowired
 	private ObjectMapper jsonMapper;
 	@Autowired
@@ -240,29 +245,14 @@ public class EngineInitialization extends LifecycleBase
 	
 	private void initializeBackgroundTasks()
 	{
-		Runnable endpointsUpdater = new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				try
-				{
-					updater.updateEndpoints();
-				} catch (Exception e)
-				{
-					log.error("Can't synchronize runtime state of endpoints " +
-							"with the persisted endpoints state", e);
-				}
-			}
-		};
 		int interval = config.getIntValue(UnityServerConfiguration.UPDATE_INTERVAL);
-		updater.setLastUpdate(endpointsLoadTime + 1000); //hack. We set the last update to +1s then the 
-		//real value is, to ensure that no immediate endpoint update will take place. This is due to fact that
-		//the update precision is stored with 1s granularity. The negative outcome is that any endpoint update
-		//in the very first second won't be found. Though chances are minimal (server is still starting...)
+		endpointsUpdater.setInitialUpdate(endpointsLoadTime);
 		executors.getService().scheduleWithFixedDelay(endpointsUpdater, interval+interval/10, 
 				interval, TimeUnit.SECONDS);
 
+		executors.getService().scheduleWithFixedDelay(bulkOperationsUpdater, 2500, 
+				interval, TimeUnit.SECONDS);
+		
 		Runnable attributeStatementsUpdater = new Runnable()
 		{
 			@Override
@@ -713,7 +703,7 @@ public class EngineInitialization extends LifecycleBase
 			throw new InternalException("Can't add realms which are defined in configuration", e);
 		}
 	}
-	
+
 	private void initializeEndpoints()
 	{
 		try
@@ -943,16 +933,17 @@ public class EngineInitialization extends LifecycleBase
 		log.info("Loading configured translation profiles");
 		for (String profileFile: profileFiles)
 		{
-			String json;
+			ObjectNode json;
 			try
 			{
-				json = FileUtils.readFileToString(new File(profileFile));
+				String source = FileUtils.readFileToString(new File(profileFile));
+				json = JsonUtil.parse(source);
 			} catch (IOException e)
 			{
 				throw new ConfigurationException("Problem loading translation profile from file: " +
 						profileFile, e);
 			}
-			InputTranslationProfile tp = new InputTranslationProfile(json, jsonMapper, tactionsRegistry);
+			InputTranslationProfile tp = new InputTranslationProfile(json, tactionsRegistry);
 			try
 			{
 				if (existingProfiles.containsKey(tp.getName()))

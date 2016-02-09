@@ -17,35 +17,43 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
-import pl.edu.icm.unity.server.translation.AbstractTranslationProfile;
+import pl.edu.icm.unity.server.registries.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.ExecutionBreakException;
-import pl.edu.icm.unity.server.translation.ProfileType;
-import pl.edu.icm.unity.server.translation.TranslationAction;
+import pl.edu.icm.unity.server.translation.TranslationActionInstance;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
+import pl.edu.icm.unity.server.translation.TranslationProfileInstance;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.types.translation.TranslationRule;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Entry point: output translation profile, a list of translation rules annotated with a name and description.
  * @author K. Benedyczak
  */
-public class OutputTranslationProfile extends AbstractTranslationProfile<OutputTranslationRule>
+public class OutputTranslationProfile extends TranslationProfileInstance<OutputTranslationAction, OutputTranslationRule>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, OutputTranslationProfile.class);
 	
-	public OutputTranslationProfile(String name, List<OutputTranslationRule> rules)
+	public OutputTranslationProfile(String name, String description, List<? extends TranslationRule> rules,
+			OutputTranslationActionsRegistry registry)
 	{
-		super(name, ProfileType.OUTPUT, rules);
+		super(name, description, ProfileType.OUTPUT, rules, registry);
+	}
+	
+	public OutputTranslationProfile(String name, List<? extends TranslationRule> rules,
+			OutputTranslationActionsRegistry registry)
+	{
+		super(name, "", ProfileType.OUTPUT, rules, registry);
 	}
 
-	public OutputTranslationProfile(String json, ObjectMapper jsonMapper, TranslationActionsRegistry registry)
+	public OutputTranslationProfile(ObjectNode json, OutputTranslationActionsRegistry registry)
 	{
-		fromJson(json, jsonMapper, registry);
+		super(json, registry);
 	}
 	
 	public TranslationResult translate(TranslationInput input) throws EngineException
@@ -58,7 +66,7 @@ public class OutputTranslationProfile extends AbstractTranslationProfile<OutputT
 		{
 			int i=1;
 			TranslationResult translationState = initiateTranslationResult(input);
-			for (OutputTranslationRule rule: rules)
+			for (OutputTranslationRule rule: ruleInstances)
 			{
 				NDC.push("[r: " + (i++) + "]");
 				try
@@ -149,7 +157,7 @@ public class OutputTranslationProfile extends AbstractTranslationProfile<OutputT
 	}
 	
 	@Override
-	protected OutputTranslationRule createRule(TranslationAction action,
+	protected OutputTranslationRule createRule(TranslationActionInstance action,
 			TranslationCondition condition)
 	{
 		if (!(action instanceof OutputTranslationAction))

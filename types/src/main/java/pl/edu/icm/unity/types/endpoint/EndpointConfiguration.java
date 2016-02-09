@@ -11,6 +11,7 @@ package pl.edu.icm.unity.types.endpoint;
 import java.util.ArrayList;
 import java.util.List;
 
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
@@ -18,7 +19,6 @@ import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -67,9 +67,9 @@ public class EndpointConfiguration
 	}
 	
 	@JsonValue
-	public ObjectNode toJson(ObjectMapper mapper)
+	public ObjectNode toJson()
 	{
-		ObjectNode root = mapper.createObjectNode();
+		ObjectNode root = Constants.MAPPER.createObjectNode();
 		root.set("displayedName", I18nStringJsonUtil.toJson(displayedName));
 		root.put("description", description);
 		root.put("configuration", configuration);

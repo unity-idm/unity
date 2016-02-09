@@ -4,46 +4,37 @@
  */
 package pl.edu.icm.unity.stdext.translation.out;
 
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ProfileType;
-import pl.edu.icm.unity.server.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationActionFactory;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
- * Boilerplate code for the output profile's {@link TranslationActionFactory} implementations.
+ * Boilerplate code for the output profile's {@link OutputTranslationActionFactory} implementations.
  * @author K. Benedyczak
  */
-public abstract class AbstractOutputTranslationActionFactory implements TranslationActionFactory
+public abstract class AbstractOutputTranslationActionFactory implements OutputTranslationActionFactory
 {
-	private final String name;
-	private final ActionParameterDesc[] parameters;
+	private TranslationActionType actionType;
 	
-	public AbstractOutputTranslationActionFactory(String name, ActionParameterDesc... parameters)
+	public AbstractOutputTranslationActionFactory(String name, ActionParameterDefinition... parameters)
 	{
-		this.name = name;
-		this.parameters = parameters;
+		actionType = new TranslationActionType(ProfileType.OUTPUT, 
+				"TranslationAction." + name + ".desc", 
+				name, 
+				parameters);
 	}
-
+		
 	@Override
-	public ProfileType getSupportedProfileType()
+	public TranslationActionType getActionType()
 	{
-		return ProfileType.OUTPUT;
+		return actionType;
 	}
-
+	
 	@Override
-	public String getDescriptionKey()
+	public OutputTranslationAction getBlindInstance(String... parameters)
 	{
-		return "TranslationAction." + name + ".desc";
-	}
-
-	@Override
-	public String getName()
-	{
-		return name;
-	}
-
-	@Override
-	public ActionParameterDesc[] getParameters()
-	{
-		return parameters;
+		return new BlindStopperOutputAction(getActionType(), parameters);
 	}
 }

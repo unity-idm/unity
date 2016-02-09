@@ -18,6 +18,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
@@ -26,7 +27,7 @@ import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpointFactory;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.EntityState;
@@ -37,7 +38,6 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;
@@ -128,7 +128,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 	@Autowired
 	private TranslationProfileManagement profilesMan;
 	@Autowired
-	private TranslationActionsRegistry trActionReg;
+	private InputTranslationActionsRegistry trActionReg;
 	
 	@Before
 	public void setup()
@@ -149,8 +149,8 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 					"cr-pass", EntityState.valid, false);
 			
 			profilesMan.addProfile(new InputTranslationProfile(
-					FileUtils.readFileToString(new File("src/test/resources/tr-local.json")), 
-					new ObjectMapper(), trActionReg));
+					JsonUtil.parse(FileUtils.readFileToString(new File("src/test/resources/tr-local.json"))),
+					trActionReg));
 			
 			AuthenticationRealm realm = new AuthenticationRealm(REALM_NAME, "", 
 					10, 100, -1, 600);

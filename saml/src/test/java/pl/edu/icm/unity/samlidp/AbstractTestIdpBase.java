@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.samlidp;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.security.KeyStoreException;
@@ -17,15 +17,12 @@ import java.util.Set;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
-import eu.emi.security.authn.x509.impl.KeystoreCredential;
-import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.saml.idp.ws.SamlIdPSoapEndpointFactory;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationProfile;
@@ -46,8 +43,8 @@ import pl.edu.icm.unity.stdext.translation.out.CreateAttributeActionFactory;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -57,6 +54,9 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
+import eu.emi.security.authn.x509.impl.KeystoreCredential;
+import eu.unicore.util.httpclient.DefaultClientConfiguration;
 
 public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 {
@@ -76,7 +76,7 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 	public static final String REALM_NAME = "testr";
 	
 	@Autowired
-	private TranslationActionsRegistry tactionReg;
+	private OutputTranslationActionsRegistry tactionReg;
 	@Autowired
 	private TranslationProfileManagement profilesMan;
 	
@@ -130,7 +130,7 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 				"unity:identity:persistent", 
 				"idsByType['persistent']");
 		rules.add(new OutputTranslationRule(action4, new TranslationCondition("idsByType['persistent'] != null")));
-		return new OutputTranslationProfile("testOutProfile", rules);
+		return new OutputTranslationProfile("testOutProfile", rules, tactionReg);
 	}
 	
 	protected DefaultClientConfiguration getClientCfg() throws KeyStoreException, IOException

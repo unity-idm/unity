@@ -20,9 +20,8 @@ import pl.edu.icm.unity.server.api.registration.AcceptRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationRule;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -37,8 +36,10 @@ import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.OptionalRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
+import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
 import pl.edu.icm.unity.webadmin.tprofile.RegistrationTranslationProfileEditor;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditor;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -113,34 +114,34 @@ public class RegistrationFormEditor extends VerticalLayout
 	private ListOfEmbeddedElements<CredentialRegistrationParam> credentialParams;
 
 	private ComboBox credentialRequirementAssignment;
-	private TranslationProfileEditor<RegistrationTranslationRule> profileEditor;
-	private AttributesManagement attributeMan;
-	private IdentitiesManagement identitiesMan;
-	private TranslationActionsRegistry actionsRegistry;
+	private TranslationProfileEditor profileEditor;
+	private RegistrationActionsRegistry actionsRegistry;
+	private Provider actionComponentProvider;
 	
 	public RegistrationFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
 			NotificationsManagement notificationsMan,
 			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
 			AttributesManagement attributeMan,
-			AuthenticationManagement authenticationMan, TranslationActionsRegistry actionsRegistry) 
+			AuthenticationManagement authenticationMan, RegistrationActionsRegistry actionsRegistry,
+			Provider actionComponentProvider) 
 					throws EngineException
 	{
 		this(msg, groupsMan, notificationsMan, msgTempMan, identitiesMan, attributeMan, authenticationMan, 
-				actionsRegistry, null, false);
+				actionsRegistry, actionComponentProvider, null, false);
 	}
 
 	public RegistrationFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
 			NotificationsManagement notificationsMan,
 			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
 			AttributesManagement attributeMan,
-			AuthenticationManagement authenticationMan, TranslationActionsRegistry actionsRegistry,
+			AuthenticationManagement authenticationMan, RegistrationActionsRegistry actionsRegistry,
+			Provider actionComponentProvider,
 			RegistrationForm toEdit, boolean copyMode)
 			throws EngineException
 	{
 		super();
-		this.identitiesMan = identitiesMan;
-		this.attributeMan = attributeMan;
 		this.actionsRegistry = actionsRegistry;
+		this.actionComponentProvider = actionComponentProvider;
 		editMode = toEdit != null;
 		this.copyMode = editMode && copyMode;
 		this.msg = msg;
@@ -184,37 +185,39 @@ public class RegistrationFormEditor extends VerticalLayout
 	
 	public RegistrationForm getForm() throws FormValidationException
 	{
-		RegistrationForm ret = new RegistrationForm();	
-		ret.setAgreements(agreements.getElements());
-		ret.setAttributeParams(attributeParams.getElements());
-		ret.setCollectComments(collectComments.getValue());
-		ret.setCredentialParams(credentialParams.getElements());
-		ret.setDefaultCredentialRequirement((String) credentialRequirementAssignment.getValue());
-		ret.setTranslationProfile((RegistrationTranslationProfile) profileEditor.getProfile());
-		ret.setDescription(description.getValue());
+		RegistrationFormBuilder builder = new RegistrationFormBuilder();	
+		builder.withAgreements(agreements.getElements());
+		builder.withAttributeParams(attributeParams.getElements());
+		builder.withCollectComments(collectComments.getValue());
+		builder.withCredentialParams(credentialParams.getElements());
+		builder.withDefaultCredentialRequirement((String) credentialRequirementAssignment.getValue());
+		builder.withTranslationProfile(profileEditor.getProfile());
+		builder.withDescription(description.getValue());
+
 		I18nString displayedNameStr = displayedName.getValue();
 		displayedNameStr.setDefaultValue(name.getValue());
-		ret.setDisplayedName(displayedNameStr);
-		ret.setFormInformation(formInformation.getValue());
-		ret.setGroupParams(groupParams.getElements());
-		ret.setIdentityParams(identityParams.getElements());
-		ret.setName(name.getValue());
-		ret.setCaptchaLength(captcha.getValue().intValue());
+		builder.withDisplayedName(displayedNameStr);
+		builder.withFormInformation(formInformation.getValue());
+		builder.withGroupParams(groupParams.getElements());
+		builder.withIdentityParams(identityParams.getElements());
+		builder.withName(name.getValue());
+		builder.withCaptchaLength(captcha.getValue().intValue());
+		builder.withPubliclyAvailable(publiclyAvailable.getValue());
 		
-		RegistrationFormNotifications notCfg = ret.getNotificationsConfiguration();
+		RegistrationFormNotifications notCfg = new RegistrationFormNotifications();
 		notCfg.setAcceptedTemplate((String) acceptedTemplate.getValue());
 		notCfg.setAdminsNotificationGroup((String) adminsNotificationGroup.getValue());
 		notCfg.setChannel((String) channel.getValue());
 		notCfg.setRejectedTemplate((String) rejectedTemplate.getValue());
 		notCfg.setSubmittedTemplate((String) submittedTemplate.getValue());
 		notCfg.setUpdatedTemplate((String) updatedTemplate.getValue());
-		ret.setPubliclyAvailable(publiclyAvailable.getValue());
+		builder.withNotificationsConfiguration(notCfg);
 		
 		String code = registrationCode.getValue();
 		if (code != null && !code.equals(""))
-			ret.setRegistrationCode(code);
+			builder.withRegistrationCode(code);
 		
-		return ret;
+		return builder.build();
 	}
 		
 	private void initMainTab(RegistrationForm toEdit) throws EngineException
@@ -351,10 +354,11 @@ public class RegistrationFormEditor extends VerticalLayout
 		credentialRequirementAssignment.setNullSelectionAllowed(false);
 		
 		RegistrationTranslationProfile profile = toEdit == null ? 
-				new RegistrationTranslationProfile("form profile", new ArrayList<>()) : 
-				toEdit.getTranslationProfile();
-		profileEditor = new RegistrationTranslationProfileEditor(msg, actionsRegistry, profile, 
-				attributeMan, identitiesMan, authenticationMan, groupsMan);
+				new RegistrationTranslationProfile("form profile", new ArrayList<>(), actionsRegistry) : 
+				new RegistrationTranslationProfile(toEdit.getTranslationProfile().getName(), 
+						toEdit.getTranslationProfile().getRules(), actionsRegistry);
+		profileEditor = new RegistrationTranslationProfileEditor(msg, actionsRegistry, 
+				actionComponentProvider, profile);
 		
 		main.addComponents(credentialRequirementAssignment);
 		wrapper.addComponent(profileEditor);

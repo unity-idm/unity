@@ -4,46 +4,38 @@
  */
 package pl.edu.icm.unity.server.translation.in.action;
 
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
-import pl.edu.icm.unity.server.translation.ProfileType;
-import pl.edu.icm.unity.server.translation.TranslationActionFactory;
+import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
+import pl.edu.icm.unity.server.translation.in.InputTranslationActionFactory;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
- * Boilerplate code for the input profile's {@link TranslationActionFactory} implementations.
+ * Boilerplate code for the input profile's {@link InputTranslationActionFactory} implementations.
  * @author K. Benedyczak
  */
-public abstract class AbstractInputTranslationActionFactory implements TranslationActionFactory
+public abstract class AbstractInputTranslationActionFactory implements InputTranslationActionFactory
 {
-	private final String name;
-	private final ActionParameterDesc[] parameters;
-	
-	public AbstractInputTranslationActionFactory(String name, ActionParameterDesc... parameters)
+	private TranslationActionType actionType;
+
+	public AbstractInputTranslationActionFactory(String name, ActionParameterDefinition... parameters)
 	{
-		this.name = name;
-		this.parameters = parameters;
+		actionType = new TranslationActionType(ProfileType.INPUT,
+				"TranslationAction." + name + ".desc",
+				name,
+				parameters);
+
 	}
 
 	@Override
-	public ProfileType getSupportedProfileType()
+	public TranslationActionType getActionType()
 	{
-		return ProfileType.INPUT;
+		return actionType;
 	}
 
 	@Override
-	public String getDescriptionKey()
+	public InputTranslationAction getBlindInstance(String... parameters)
 	{
-		return "TranslationAction." + name + ".desc";
-	}
-
-	@Override
-	public String getName()
-	{
-		return name;
-	}
-
-	@Override
-	public ActionParameterDesc[] getParameters()
-	{
-		return parameters;
+		return new BlindStopperInputAction(getActionType(), parameters);
 	}
 }

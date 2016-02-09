@@ -17,6 +17,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
@@ -63,7 +64,8 @@ public class RESTAdminEndpointFactory implements EndpointFactory
 	private ConfirmationManager cofirmationManager;
 	@Autowired
 	private NetworkServer server;
-	
+	@Autowired
+	private RegistrationsManagement registrationManagement;
 	/**
 	 * We depend on app context in order to work around of the dependency cycle. 
 	 * We do depend on EndpointsManagement, however it requires this factory to be instantiated first 
@@ -84,7 +86,8 @@ public class RESTAdminEndpointFactory implements EndpointFactory
 		EndpointManagement endpointManagement = appContext.getBean(EndpointManagement.class);
 		return new RESTAdminEndpoint(msg, sessionMan, server, "", identitiesMan, groupsMan, attributesMan,
 				authnProcessor, identityTypesRegistry, attributeTypeSerializer,
-				attributeSyntaxFactoriesRegistry, cofirmationManager, endpointManagement);
+				attributeSyntaxFactoriesRegistry, cofirmationManager, endpointManagement,
+				registrationManagement);
 	}
 
 }

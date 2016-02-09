@@ -4,6 +4,10 @@
  */
 package pl.edu.icm.unity.engine.internal;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -16,8 +20,10 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.DBSessionManager;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
 import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -33,7 +39,10 @@ import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.server.registries.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
@@ -50,6 +59,7 @@ public class SessionManagementImpl implements SessionManagement
 	private LoginToHttpSessionBinder sessionBinder;
 	private SessionParticipantTypesRegistry participantTypesRegistry;
 	private DBIdentities dbIdentities;
+	private DBAttributes dbAttributes;
 	private DBSessionManager db;
 	
 	/**
@@ -61,12 +71,13 @@ public class SessionManagementImpl implements SessionManagement
 	public SessionManagementImpl(TokensManagement tokensManagement, ExecutorsService execService,
 			LoginToHttpSessionBinder sessionBinder, 
 			SessionParticipantTypesRegistry participantTypesRegistry, 
-			DBIdentities dbIdentities, DBSessionManager db)
+			DBIdentities dbIdentities, DBAttributes dbAttributes, DBSessionManager db)
 	{
 		this.tokensManagement = tokensManagement;
 		this.sessionBinder = sessionBinder;
 		this.participantTypesRegistry = participantTypesRegistry;
 		this.dbIdentities = dbIdentities;
+		this.dbAttributes = dbAttributes;
 		this.db = db;
 		execService.getService().scheduleWithFixedDelay(new TerminateInactiveSessions(), 
 				20, 30, TimeUnit.SECONDS);
@@ -143,6 +154,7 @@ public class SessionManagementImpl implements SessionManagement
 		{
 			tokensManagement.addToken(SESSION_TOKEN_TYPE, id, new EntityParam(loggedEntity), 
 					ls.getTokenContents(), ls.getStarted(), ls.getExpires());
+			updateLoginAttributes(loggedEntity, ls.getStarted());
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't create a new session", e);
@@ -253,6 +265,17 @@ public class SessionManagementImpl implements SessionManagement
 		LoginSession session = new LoginSession();
 		session.deserialize(token);
 		return session;
+	}
+	
+	private void updateLoginAttributes(long entityId, Date started) throws EngineException
+	{
+		SqlSession sqlMap = SqlSessionTL.get();
+		String loginTime = LocalDateTime.ofInstant(
+				started.toInstant().truncatedTo(ChronoUnit.SECONDS), ZoneId.systemDefault())
+				.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+		StringAttribute lastAuthn = new StringAttribute(SystemAttributeTypes.LAST_AUTHENTICATION,
+				"/", AttributeVisibility.local, loginTime);
+		dbAttributes.addAttribute(entityId, lastAuthn, true, sqlMap);
 	}
 	
 	private class TerminateInactiveSessions implements Runnable

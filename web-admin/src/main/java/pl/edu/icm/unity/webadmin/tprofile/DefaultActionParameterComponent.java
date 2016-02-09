@@ -4,9 +4,10 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
+import pl.edu.icm.unity.webui.common.Styles;
 
 import com.vaadin.ui.TextField;
 
@@ -16,11 +17,11 @@ import com.vaadin.ui.TextField;
  */
 public class DefaultActionParameterComponent extends RequiredTextField implements ActionParameterComponent
 {
-	public DefaultActionParameterComponent(ActionParameterDesc desc, UnityMessageSource msg)
+	public DefaultActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg)
 	{
 		super(desc.getName() + ":", msg);
 		setDescription(msg.getMessage(desc.getDescriptionKey()));
-		setColumns(40);
+		setColumns(Styles.WIDE_TEXT_FIELD);
 	}
 	
 	@Override

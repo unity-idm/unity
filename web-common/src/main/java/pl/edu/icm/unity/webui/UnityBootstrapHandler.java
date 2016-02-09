@@ -4,11 +4,15 @@
  */
 package pl.edu.icm.unity.webui;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
 import com.vaadin.server.SynchronizedRequestHandler;
@@ -18,6 +22,10 @@ import com.vaadin.server.VaadinSession;
 import com.vaadin.server.communication.ServletBootstrapHandler;
 import com.vaadin.shared.Version;
 
+import freemarker.cache.ClassTemplateLoader;
+import freemarker.cache.FileTemplateLoader;
+import freemarker.cache.MultiTemplateLoader;
+import freemarker.cache.TemplateLoader;
 import freemarker.ext.beans.BeansWrapperBuilder;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -33,7 +41,10 @@ import freemarker.template.TemplateException;
  */
 public class UnityBootstrapHandler extends SynchronizedRequestHandler
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, UnityBootstrapHandler.class);
+	
 	public static final String TEMPLATES_ROOT = "/templates";
+	
 	private final Configuration cfg;
 	private final String mainTemplate;
 	private final UnityMessageSource msg;
@@ -42,7 +53,7 @@ public class UnityBootstrapHandler extends SynchronizedRequestHandler
 	private long heartbeat;
 	private String uiPath;
 	
-	public UnityBootstrapHandler(String mainTemplate, UnityMessageSource msg, String theme,
+	public UnityBootstrapHandler(String webContentsDirectory, String mainTemplate, UnityMessageSource msg, String theme,
 			boolean debug, long heartbeat, String uiPath)
 	{
 		this.mainTemplate = mainTemplate;
@@ -52,11 +63,29 @@ public class UnityBootstrapHandler extends SynchronizedRequestHandler
 		this.heartbeat = heartbeat;
 		this.uiPath = uiPath;
 		cfg = new Configuration(Configuration.VERSION_2_3_21);
-		cfg.setClassForTemplateLoading(getClass(), TEMPLATES_ROOT);
+		
+		cfg.setTemplateLoader(getTemplateLoader(webContentsDirectory));
 		BeansWrapperBuilder builder = new BeansWrapperBuilder(Configuration.VERSION_2_3_21);
 		cfg.setObjectWrapper(builder.build());
 	}
 
+	private TemplateLoader getTemplateLoader(String webContentsDirectory)
+	{
+		ClassTemplateLoader fallbackLoader = new ClassTemplateLoader(getClass(), TEMPLATES_ROOT);
+		FileTemplateLoader primaryLoader;
+		File webContents = new File(webContentsDirectory, TEMPLATES_ROOT);
+		try
+		{
+			primaryLoader = new FileTemplateLoader(webContents);
+		} catch (IOException e)
+		{
+			log.warn("Templates directory " + webContentsDirectory + 
+					" can not be read. Will use the default bundled templates only.");
+			return fallbackLoader;
+		}
+		return new MultiTemplateLoader(new TemplateLoader [] {primaryLoader, fallbackLoader});
+	}
+	
 
 	@Override
 	public boolean synchronizedHandleRequest(VaadinSession session, VaadinRequest request,
@@ -91,6 +120,7 @@ public class UnityBootstrapHandler extends SynchronizedRequestHandler
 			throws IOException
 	{
 		Template temp = cfg.getTemplate(view);
+		log.debug("Using template " + temp.getName());
 		try
 		{
 			temp.process(datamodel, out);

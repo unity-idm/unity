@@ -4,16 +4,37 @@
  */
 package pl.edu.icm.unity.server.translation.out;
 
+import org.apache.log4j.NDC;
+
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.translation.TranslationAction;
+import pl.edu.icm.unity.server.translation.TranslationActionInstance;
+import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
- * Instance of this interface is configured with parameters and performs a translation
- * of an exposed data to a client.
+ * Base class of all output profile action instances.
+ * Ensures proper logging of action invocation.
  * @author K. Benedyczak
  */
-public interface OutputTranslationAction extends TranslationAction
+public abstract class OutputTranslationAction extends TranslationActionInstance
 {
+	public OutputTranslationAction(TranslationActionType actionType, String[] parameters)
+	{
+		super(actionType, parameters);
+	}
+	
 	public void invoke(TranslationInput input, Object mvelCtx, String currentProfile,
+			TranslationResult result) throws EngineException
+	{
+		try
+		{
+			NDC.push("[" + input + "]");
+			invokeWrapped(input, mvelCtx, currentProfile, result);
+		} finally
+		{
+			NDC.pop();			
+		}
+	}
+	
+	protected abstract void invokeWrapped(TranslationInput input, Object mvelCtx, String currentProfile,
 			TranslationResult result) throws EngineException;
 }

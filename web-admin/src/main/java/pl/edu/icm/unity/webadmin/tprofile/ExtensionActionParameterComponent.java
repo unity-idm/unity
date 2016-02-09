@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import pl.edu.icm.unity.server.translation.ActionParameterDesc;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.webadmin.tprofile.wizard.DragDropBean;
 
 import com.vaadin.data.Validator.InvalidValueException;
@@ -32,7 +32,7 @@ public class ExtensionActionParameterComponent extends CustomField<String> imple
 {
 	private DefaultActionParameterComponent parameter;
 
-	public ExtensionActionParameterComponent(ActionParameterDesc desc, UnityMessageSource msg) 
+	public ExtensionActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg) 
 	{
 		parameter = new DefaultActionParameterComponent(desc, msg);
 		setCaption(parameter.getCaption());

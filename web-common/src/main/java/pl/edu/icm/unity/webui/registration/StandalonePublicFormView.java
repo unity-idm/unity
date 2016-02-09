@@ -8,15 +8,15 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.RegistrationContext;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
-import pl.edu.icm.unity.server.api.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.server.api.internal.IdPLoginController;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
+import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
+import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -118,7 +118,8 @@ public class StandalonePublicFormView extends CustomComponent implements View
 			RegistrationContext context = new RegistrationContext(false, 
 					idpLoginController.isLoginInProgress(), 
 					TriggeringMode.manualStandalone);
-			new PostRegistrationHandler(idpLoginController, form, msg).cancelled(true, context);
+			new PostRegistrationHandler(idpLoginController, form, msg, regMan.getProfileInstance(form))
+				.cancelled(true, context);
 		});
 		buttons.addComponents(cancel, ok);
 		buttons.setSpacing(true);
@@ -139,11 +140,12 @@ public class StandalonePublicFormView extends CustomComponent implements View
 		{
 			RegistrationRequest request = editor.getRequest();
 			String requestId = regMan.submitRegistrationRequest(request, context);
-			new PostRegistrationHandler(idpLoginController, form, msg).submitted(requestId, regMan,
-					request, context);
+			new PostRegistrationHandler(idpLoginController, form, msg, regMan.getProfileInstance(form))
+				.submitted(requestId, regMan, request, context);
 		} catch (Exception e) 
 		{
-			new PostRegistrationHandler(idpLoginController, form, msg).submissionError(e, context);
+			new PostRegistrationHandler(idpLoginController, form, msg, regMan.getProfileInstance(form))
+				.submissionError(e, context);
 		}
 	}
 

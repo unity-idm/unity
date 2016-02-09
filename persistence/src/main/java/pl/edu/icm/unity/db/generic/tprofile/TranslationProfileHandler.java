@@ -11,28 +11,29 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.db.generic.DefaultEntityHandler;
+import pl.edu.icm.unity.db.model.GenericObjectBean;
+import pl.edu.icm.unity.server.registries.InputTranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.OutputTranslationActionsRegistry;
+import pl.edu.icm.unity.server.translation.in.IdentityEffectMode;
+import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
+import pl.edu.icm.unity.server.translation.out.OutputTranslationProfile;
+import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.types.translation.TranslationAction;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
+import pl.edu.icm.unity.types.translation.TranslationRule;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.db.generic.DefaultEntityHandler;
-import pl.edu.icm.unity.db.model.GenericObjectBean;
-import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
-import pl.edu.icm.unity.server.translation.AbstractTranslationProfile;
-import pl.edu.icm.unity.server.translation.ProfileType;
-import pl.edu.icm.unity.server.translation.TranslationProfile;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
-import pl.edu.icm.unity.server.translation.in.IdentityEffectMode;
-import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
-import pl.edu.icm.unity.server.translation.out.OutputTranslationProfile;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
-
 /**
- * Handler for {@link AbstractTranslationProfile}.
+ * Handler for {@link AbstractTranslationProfileInstance}.
  * 
  * @author K. Benedyczak
  */
@@ -41,22 +42,23 @@ public class TranslationProfileHandler extends DefaultEntityHandler<TranslationP
 {
 	public static final String TRANSLATION_PROFILE_OBJECT_TYPE = "translationProfile";
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, TranslationProfileHandler.class);
-	private TranslationActionsRegistry actionsRegistry;
-	private RegistrationTranslationActionsRegistry registrationActionsRegistry;
+	private InputTranslationActionsRegistry inputActionsRegistry;
+	private OutputTranslationActionsRegistry outputActionsRegistry;
 	
 	@Autowired
-	public TranslationProfileHandler(ObjectMapper jsonMapper, TranslationActionsRegistry actionsRegistry,
-			RegistrationTranslationActionsRegistry registrationActionsRegistry)
+	public TranslationProfileHandler(ObjectMapper jsonMapper, InputTranslationActionsRegistry inputActionsRegistry,
+			OutputTranslationActionsRegistry outputActionsRegistry)
 	{
 		super(jsonMapper, TRANSLATION_PROFILE_OBJECT_TYPE, TranslationProfile.class);
-		this.actionsRegistry = actionsRegistry;
-		this.registrationActionsRegistry = registrationActionsRegistry;
+		this.inputActionsRegistry = inputActionsRegistry;
+		this.outputActionsRegistry = outputActionsRegistry;
 	}
 
 	@Override
 	public GenericObjectBean toBlob(TranslationProfile value, SqlSession sql)
 	{
-		String json = value.toJson(jsonMapper);
+		ObjectNode jsonObject = value.toJsonObject();
+		String json = JsonUtil.serialize(jsonObject);
 		return new GenericObjectBean(value.getName(), json.getBytes(StandardCharsets.UTF_8), supportedType, 
 				value.getProfileType().toString());
 	}
@@ -68,21 +70,18 @@ public class TranslationProfileHandler extends DefaultEntityHandler<TranslationP
 		if (subType == null)
 			subType = ProfileType.INPUT.toString();
 		ProfileType pt = ProfileType.valueOf(subType);
+		String jsonString = new String(blob.getContents(), StandardCharsets.UTF_8);
+		ObjectNode root = JsonUtil.parse(jsonString);
 		switch (pt)
 		{
 		case INPUT:
-			return new InputTranslationProfile(new String(blob.getContents(), StandardCharsets.UTF_8), 
-					jsonMapper, actionsRegistry);
+			return new InputTranslationProfile(root, inputActionsRegistry);
 		case OUTPUT:
-			return new OutputTranslationProfile(new String(blob.getContents(), StandardCharsets.UTF_8), 
-					jsonMapper, actionsRegistry);
-		case REGISTRATION:
-			return new RegistrationTranslationProfile(
-					new String(blob.getContents(), StandardCharsets.UTF_8), jsonMapper, 
-					registrationActionsRegistry);
+			return new OutputTranslationProfile(root, outputActionsRegistry);
+		default:
+			throw new IllegalStateException("The stored translation profile with subtype id " + subType + 
+					" has no implemented class representation");
 		}
-		throw new IllegalStateException("The stored translation profile with subtype id " + subType + 
-				" has no implemented class representation");
 	}
 	
 	@Override
@@ -113,7 +112,7 @@ public class TranslationProfileHandler extends DefaultEntityHandler<TranslationP
 		String name = old.get("name").asText();
 		String json = jsonMapper.writeValueAsString(old);
 		log.warn("The translation profile " + name + " is in legacy format. The profile will be recreated. "
-				+ "Please VERIFY it manually, especially if there are any warning below. "
+				+ "Please VERIFY it manually, especially if there are any warnings below. "
 				+ "The old profile dump follows. "
 				+ "In case of any troubles provide it to the support mailing list, "
 				+ "we will help you to create a new profile.\n" + json);
@@ -153,11 +152,11 @@ public class TranslationProfileHandler extends DefaultEntityHandler<TranslationP
 			String condition = jsonRule.get("condition").get("conditionValue").asText();
 			ObjectNode jsonAction = (ObjectNode) jsonRule.get("action");
 			String actionName = jsonAction.get("name").asText();
-			String[] oldParams = AbstractTranslationProfile.extractParams(jsonAction);
+			String[] oldParams = extractParams(jsonAction);
 			
 			if (actionName.equals("mapIdentityByType"))
 			{
-				AbstractTranslationProfile.addAction(jsonRules, "mapIdentity", 
+				storeRule(jsonRules, "mapIdentity", 
 						createUserCond != null ? createUserCond : condition, 
 						oldParams[1], "idsByType['" + oldParams[0] + "']", 
 						oldParams[2], idMode);
@@ -166,14 +165,13 @@ public class TranslationProfileHandler extends DefaultEntityHandler<TranslationP
 			if (actionName.equals("mapGroup") && updateGroupsCond != null)
 			{
 				String group = oldParams[1].equals("$1") ? oldParams[0] : oldParams[1];
-				AbstractTranslationProfile.addAction(jsonRules, "mapGroup", updateGroupsCond, 
-						"'" + group + "'");
+				storeRule(jsonRules, "mapGroup", updateGroupsCond, "'" + group + "'");
 				log.warn("Please re-check the group mapping: " + group);
 			}
 			
 			if (actionName.equals("mapAttributeToIdentity"))
 			{
-				AbstractTranslationProfile.addAction(jsonRules, "mapIdentity", 
+				storeRule(jsonRules, "mapIdentity", 
 						createUserCond != null ? createUserCond : condition, 
 						oldParams[1], "attr['" + oldParams[0] + "']", 
 						oldParams[2], idMode);
@@ -182,7 +180,7 @@ public class TranslationProfileHandler extends DefaultEntityHandler<TranslationP
 			if (actionName.equals("mapAttribute") && updateAttributesCond != null)
 			{
 				String attr = oldParams[1].equals("$1") ? oldParams[0] : oldParams[1];
-				AbstractTranslationProfile.addAction(jsonRules, "mapAttribute", updateAttributesCond, 
+				storeRule(jsonRules, "mapAttribute", updateAttributesCond, 
 						attr, oldParams[2], 
 						"attr['" + oldParams[0] + "']", 
 						AttributeVisibility.full.toString(), "CREATE_OR_UPDATE");
@@ -190,7 +188,7 @@ public class TranslationProfileHandler extends DefaultEntityHandler<TranslationP
 			
 			if (actionName.equals("mapIdentity"))
 			{
-				AbstractTranslationProfile.addAction(jsonRules, "mapIdentity", 
+				storeRule(jsonRules, "mapIdentity", 
 						createUserCond != null ? createUserCond : condition, 
 						"identifier", "id", 
 						oldParams[2], idMode);
@@ -202,5 +200,21 @@ public class TranslationProfileHandler extends DefaultEntityHandler<TranslationP
 		
 		return root;
 	}
+	
+	
+	private String[] extractParams(ObjectNode jsonAction)
+	{
+		ArrayNode jsonAParams = (ArrayNode) jsonAction.get("parameters");
+		String[] parameters = new String[jsonAParams.size()];
+		for (int j=0; j<jsonAParams.size(); j++)
+			parameters[j] = jsonAParams.get(j).isNull() ? null : jsonAParams.get(j).asText();
+		return parameters;
+	}
 
+	private void storeRule(ArrayNode jsonRules, String actionName, String condition, String... params)
+	{
+		TranslationAction action = new TranslationAction(actionName, params);
+		TranslationRule translationRule = new TranslationRule(condition, action);
+		TranslationProfile.storeRule(jsonRules, translationRule);
+	}
 }

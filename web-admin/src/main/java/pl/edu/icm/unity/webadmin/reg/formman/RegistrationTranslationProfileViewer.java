@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formman;
 
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileViewer;
 
@@ -16,10 +16,9 @@ import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileViewer;
 public class RegistrationTranslationProfileViewer extends TranslationProfileViewer
 {
 
-	public RegistrationTranslationProfileViewer(UnityMessageSource msg,
-			TranslationActionsRegistry registry)
+	public RegistrationTranslationProfileViewer(UnityMessageSource msg, RegistrationActionsRegistry actionsRegistry)
 	{
-		super(msg, registry);
+		super(msg, actionsRegistry);
 	}
 
 	protected void initUI()
