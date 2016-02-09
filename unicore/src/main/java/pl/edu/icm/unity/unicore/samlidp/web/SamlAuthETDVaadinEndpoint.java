@@ -11,6 +11,7 @@ import javax.servlet.Servlet;
 import org.springframework.context.ApplicationContext;
 
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
@@ -54,6 +55,7 @@ public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 	protected Servlet getSamlParseServlet(String endpointURL, String uiUrl)
 	{
 		return new SamlETDParseServlet(myMetadataManager, 
-				endpointURL, uiUrl, new ErrorHandler(freemarkerHandler));
+				endpointURL, uiUrl, new ErrorHandler(freemarkerHandler),
+				samlProperties.getBooleanValue(SamlIdpProperties.ASSUME_FORCE));
 	}
 }

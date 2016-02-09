@@ -28,9 +28,9 @@ import pl.edu.icm.unity.unicore.samlidp.saml.WebAuthWithETDRequestValidator;
 public class SamlETDParseServlet extends SamlParseServlet
 {
 	public SamlETDParseServlet(RemoteMetaManager samlConfigProvider, String endpointAddress,
-			String samlUiServletPath, ErrorHandler errorHandler)
+			String samlUiServletPath, ErrorHandler errorHandler, boolean assumeForce)
 	{
-		super(samlConfigProvider, endpointAddress, samlUiServletPath, errorHandler);
+		super(samlConfigProvider, endpointAddress, samlUiServletPath, errorHandler, assumeForce);
 	}
 
 	@Override
