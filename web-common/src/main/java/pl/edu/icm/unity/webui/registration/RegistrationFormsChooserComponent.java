@@ -54,7 +54,6 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 	protected RegistrationFormDialogProvider formLauncher;
 
 	protected boolean showNonPublic;
-	protected boolean showWithAutomaticParams;
 	protected Collection<String> allowedForms;
 	protected List<RegistrationForm> displayedForms;
 	protected VerticalLayout main;
@@ -100,11 +99,6 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 		this.showNonPublic = showNonPublic;
 	}
 	
-	public void setShowWithAutomaticParams(boolean showWithAutomaticParams)
-	{
-		this.showWithAutomaticParams = showWithAutomaticParams;
-	}
-	
 	public void setAllowedForms(Collection<String> allowed)
 	{
 		allowedForms = allowed;
@@ -130,8 +124,6 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 				continue;
 			if (allowedForms != null && !allowedForms.contains(form.getName()))
 				continue;
-			if (!showWithAutomaticParams && form.containsRemoteMandatoryParams())
-				continue;	
 			Button button = new Button(form.getName());
 			button.setStyleName(Styles.vButtonLink.toString());
 			button.addClickListener(new ButtonListener(form, mode));

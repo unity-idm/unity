@@ -58,8 +58,6 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
-import com.vaadin.data.Validator;
-import com.vaadin.data.validator.AbstractValidator;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
@@ -186,13 +184,6 @@ public class RegistrationFormEditor extends VerticalLayout
 	
 	public RegistrationForm getForm() throws FormValidationException
 	{
-		try
-		{
-			publiclyAvailable.validate();
-		} catch (Validator.InvalidValueException e)
-		{
-			throw new FormValidationException(e.getMessage(), e);
-		}
 		RegistrationForm ret = new RegistrationForm();	
 		ret.setAgreements(agreements.getElements());
 		ret.setAttributeParams(attributeParams.getElements());
@@ -225,7 +216,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		
 		return ret;
 	}
-	
+		
 	private void initMainTab(RegistrationForm toEdit) throws EngineException
 	{
 		FormLayout main = new CompactFormLayout();
@@ -254,37 +245,6 @@ public class RegistrationFormEditor extends VerticalLayout
 		description = new DescriptionTextArea(msg.getMessage("RegistrationFormViewer.description"));
 		
 		publiclyAvailable = new CheckBox(msg.getMessage("RegistrationFormEditor.publiclyAvailable"));
-		publiclyAvailable.addValidator(new AbstractValidator<Boolean>(msg
-				.getMessage("RegistrationFormEditor.publiclyValidationFalse"))
-		{
-
-			@Override
-			protected boolean isValidValue(Boolean value)
-			{
-				RegistrationForm empty = new RegistrationForm();
-				try
-				{
-					empty.setGroupParams(groupParams.getElements());
-					empty.setAttributeParams(attributeParams.getElements());
-					empty.setIdentityParams(identityParams.getElements());
-				} catch (FormValidationException e)
-				{
-					return false;
-				}
-
-				if (value == true && empty.containsRemoteMandatoryParams())
-					return false;
-				return true;
-			}
-
-			@Override
-			public Class<Boolean> getType()
-			{
-				return Boolean.class;
-			}
-		});
-		publiclyAvailable.setValidationVisible(true);
-		publiclyAvailable.setImmediate(true);
 		
 		channel = new ComboBox(msg.getMessage("RegistrationFormViewer.channel"));
 		Set<String> channels = notificationsMan.getNotificationChannels().keySet();
