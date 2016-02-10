@@ -112,7 +112,10 @@ public class InsecureRegistrationFormLauncher implements RegistrationFormDialogP
 		for (RegistrationForm form: forms)
 		{
 			if (formName.equals(form.getName()))
+			{
 				showRegistrationDialog(form, remoteContext, mode, errorHandler);
+				return;
+			}
 		}
 		throw new WrongArgumentException("There is no registration form " + formName);
 	}
