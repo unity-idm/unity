@@ -18,9 +18,8 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.registries.TypesRegistryBase;
+import pl.edu.icm.unity.server.registries.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.ExecutionBreakException;
-import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 import pl.edu.icm.unity.server.translation.TranslationActionInstance;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
 import pl.edu.icm.unity.server.translation.TranslationProfileInstance;
@@ -51,19 +50,18 @@ public class InputTranslationProfile extends TranslationProfileInstance<InputTra
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, InputTranslationProfile.class);
 	
 	public InputTranslationProfile(String name, List<? extends TranslationRule> rules, 
-			TypesRegistryBase<? extends TranslationActionFactory> registry)
+			InputTranslationActionsRegistry registry)
 	{
 		super(name, "", ProfileType.INPUT, rules, registry);
 	}
 	
 	public InputTranslationProfile(String name, String description, List<? extends TranslationRule> rules, 
-			TypesRegistryBase<? extends TranslationActionFactory> registry)
+			InputTranslationActionsRegistry registry)
 	{
 		super(name, description, ProfileType.INPUT, rules, registry);
 	}	
 	
-	public InputTranslationProfile(ObjectNode json, 
-			TypesRegistryBase<? extends TranslationActionFactory> registry)
+	public InputTranslationProfile(ObjectNode json,	InputTranslationActionsRegistry registry)
 	{
 		super(json, registry);
 	}

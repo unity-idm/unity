@@ -21,7 +21,7 @@ public abstract class TypesRegistryBase<T>
 {
 	private Map<String, T> elements;
 	
-	public TypesRegistryBase(List<T> typeElements)
+	public TypesRegistryBase(List<? extends T> typeElements)
 	{
 		this.elements = new HashMap<String, T>(10);
 		if (typeElements == null)

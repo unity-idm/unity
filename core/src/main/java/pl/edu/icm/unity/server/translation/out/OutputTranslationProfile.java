@@ -17,9 +17,8 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.registries.TypesRegistryBase;
+import pl.edu.icm.unity.server.registries.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.ExecutionBreakException;
-import pl.edu.icm.unity.server.translation.TranslationActionFactory;
 import pl.edu.icm.unity.server.translation.TranslationActionInstance;
 import pl.edu.icm.unity.server.translation.TranslationCondition;
 import pl.edu.icm.unity.server.translation.TranslationProfileInstance;
@@ -41,19 +40,18 @@ public class OutputTranslationProfile extends TranslationProfileInstance<OutputT
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, OutputTranslationProfile.class);
 	
 	public OutputTranslationProfile(String name, String description, List<? extends TranslationRule> rules,
-			TypesRegistryBase<? extends TranslationActionFactory> registry)
+			OutputTranslationActionsRegistry registry)
 	{
 		super(name, description, ProfileType.OUTPUT, rules, registry);
 	}
 	
 	public OutputTranslationProfile(String name, List<? extends TranslationRule> rules,
-			TypesRegistryBase<? extends TranslationActionFactory> registry)
+			OutputTranslationActionsRegistry registry)
 	{
 		super(name, "", ProfileType.OUTPUT, rules, registry);
 	}
 
-	public OutputTranslationProfile(ObjectNode json,
-			TypesRegistryBase<? extends TranslationActionFactory> registry)
+	public OutputTranslationProfile(ObjectNode json, OutputTranslationActionsRegistry registry)
 	{
 		super(json, registry);
 	}

@@ -31,7 +31,7 @@ import pl.edu.icm.unity.engine.mock.MockNotificationFacility;
 import pl.edu.icm.unity.engine.mock.MockNotificationFacility.Message;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfileBuilder;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
@@ -67,7 +67,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 			false, false, TriggeringMode.manualStandalone);
 	
 	@Autowired
-	private RegistrationTranslationActionsRegistry regActionsRegistry;
+	private RegistrationActionsRegistry regActionsRegistry;
 	
 	@Autowired
 	private InitializerCommon commonInitializer;

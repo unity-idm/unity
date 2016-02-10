@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.db.generic.DefaultEntityHandler;
 import pl.edu.icm.unity.db.model.GenericObjectBean;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfileBuilder;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.types.EntityState;
@@ -37,11 +37,11 @@ import com.google.common.collect.Lists;
 public class RegistrationFormHandler extends DefaultEntityHandler<RegistrationForm>
 {
 	public static final String REGISTRATION_FORM_OBJECT_TYPE = "registrationForm";
-	private RegistrationTranslationActionsRegistry translationActionsRegistry;
+	private RegistrationActionsRegistry translationActionsRegistry;
 	
 	@Autowired
 	public RegistrationFormHandler(ObjectMapper jsonMapper, 
-			RegistrationTranslationActionsRegistry translationActionsRegistry)
+			RegistrationActionsRegistry translationActionsRegistry)
 	{
 		super(jsonMapper, REGISTRATION_FORM_OBJECT_TYPE, RegistrationForm.class);
 		this.translationActionsRegistry = translationActionsRegistry;

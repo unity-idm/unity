@@ -17,6 +17,8 @@ import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
 
 public class MockEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
+	public static final String WRONG_CONFIG = "wrong";
+	
 	public MockEndpoint(NetworkServer httpServer)
 	{
 		super(httpServer);
@@ -31,6 +33,8 @@ public class MockEndpoint extends AbstractWebEndpoint implements WebAppEndpointI
 	@Override
 	protected void setSerializedConfiguration(String json)
 	{
+		if (json.equals(WRONG_CONFIG))
+			throw new IllegalStateException("Wrong configuration");
 	}
 
 	@Override

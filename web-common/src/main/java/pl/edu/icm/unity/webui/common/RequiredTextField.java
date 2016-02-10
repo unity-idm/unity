@@ -37,6 +37,7 @@ public class RequiredTextField extends TextField
 		setRequiredError(msg.getMessage("fieldRequired"));
 	}
 	
+	@Override
 	protected boolean shouldHideErrors() {
 		return false;
 	}

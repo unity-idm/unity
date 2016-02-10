@@ -89,6 +89,7 @@ public class SamlIdpProperties extends SamlProperties
 	
 	public static final String TRANSLATION_PROFILE = "translationProfile";
 	public static final String SKIP_CONSENT = "skipConsent";
+	public static final String ASSUME_FORCE = "assumeForceOnSessionClash";
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
@@ -202,6 +203,13 @@ public class SamlIdpProperties extends SamlProperties
 						+ " with the information what service requested authentication and what data "
 						+ "is going to be released. Note that user may always choose to disable "
 						+ "the consent screen for each service, even if this setting is set to false."));
+		defaults.put(ASSUME_FORCE, new PropertyMD("false").setCategory(samlCat).
+				setDescription("Controls what to do in case of initialization of a new SAML interaction,"
+						+ "while another one was not finished within the same browser session."
+						+ " By default a warning page is rendered and the user has "
+						+ "a choice to cancel or forcefully continue. However, "
+						+ "if this setting is set to true, then the new interaction forcefully"
+						+ "takes over the old interaction, without asking the user."));
 		defaults.put(TRUSTSTORE, new PropertyMD().setCategory(samlCat).
 				setDescription("Truststore name to setup SAML trust settings. The truststore "
 						+ "is used to verify request signature issuer, " +

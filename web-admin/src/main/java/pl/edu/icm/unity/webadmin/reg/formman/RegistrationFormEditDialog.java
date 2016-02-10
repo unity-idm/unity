@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webadmin.reg.formman;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
@@ -50,6 +51,10 @@ public class RegistrationFormEditDialog extends AbstractDialog
 		try
 		{
 			RegistrationForm form = editor.getForm();
+			
+			if (!preCheckForm(form))
+				return;
+			
 			if (callback.newForm(form, editor.isIgnoreRequests()))
 				close();
 		} catch (FormValidationException e) 
@@ -57,6 +62,22 @@ public class RegistrationFormEditDialog extends AbstractDialog
 			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
 			return;
 		}
+	}
+	
+	private boolean preCheckForm(RegistrationForm form)
+	{
+		if (form.isPubliclyAvailable() && form.containsAutomaticAndMandatoryParams())
+		{
+			ConfirmDialog warning = new ConfirmDialog(msg, 
+					msg.getMessage("RegistrationFormEditDialog.publiclAndRemoteWarning"), 
+					() -> {
+						if (callback.newForm(form, editor.isIgnoreRequests()))
+							RegistrationFormEditDialog.this.close();
+					});
+			warning.show();
+			return false;
+		}
+		return true;
 	}
 	
 	public interface Callback

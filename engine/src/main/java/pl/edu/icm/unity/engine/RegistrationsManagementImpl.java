@@ -60,7 +60,7 @@ import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -111,7 +111,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private RegistrationRequestValidator registrationRequestValidator;
 	private InvitationWithCodeDB invitationDB;
 	private SharedEndpointManagement sharedEndpointMan;
-	private RegistrationTranslationActionsRegistry registrationTranslationActionsRegistry;
+	private RegistrationActionsRegistry registrationTranslationActionsRegistry;
 
 	@Autowired
 	public RegistrationsManagementImpl(RegistrationFormDB formsDB,
@@ -126,7 +126,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			RegistrationRequestValidator registrationRequestValidator,
 			InvitationWithCodeDB invitationDB,
 			SharedEndpointManagement endpointMan,
-			RegistrationTranslationActionsRegistry registrationTranslationActionsRegistry)
+			RegistrationActionsRegistry registrationTranslationActionsRegistry)
 	{
 		this.formsDB = formsDB;
 		this.requestDB = requestDB;

@@ -27,7 +27,7 @@ import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpointFactory;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.registries.TranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.EntityState;
@@ -128,7 +128,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 	@Autowired
 	private TranslationProfileManagement profilesMan;
 	@Autowired
-	private TranslationActionsRegistry trActionReg;
+	private InputTranslationActionsRegistry trActionReg;
 	
 	@Before
 	public void setup()

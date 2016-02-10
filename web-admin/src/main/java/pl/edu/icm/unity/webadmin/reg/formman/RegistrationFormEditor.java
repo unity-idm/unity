@@ -21,7 +21,7 @@ import pl.edu.icm.unity.server.api.registration.InvitationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
-import pl.edu.icm.unity.server.registries.RegistrationTranslationActionsRegistry;
+import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
@@ -40,6 +40,7 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
+import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
 import pl.edu.icm.unity.webadmin.tprofile.RegistrationTranslationProfileEditor;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditor;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -59,8 +60,6 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
-import com.vaadin.data.Validator;
-import com.vaadin.data.validator.AbstractValidator;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
@@ -119,33 +118,33 @@ public class RegistrationFormEditor extends VerticalLayout
 
 	private ComboBox credentialRequirementAssignment;
 	private TranslationProfileEditor profileEditor;
-	private AttributesManagement attributeMan;
-	private IdentitiesManagement identitiesMan;
-	private RegistrationTranslationActionsRegistry actionsRegistry;
+	private RegistrationActionsRegistry actionsRegistry;
+	private Provider actionComponentProvider;
 	
 	public RegistrationFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
 			NotificationsManagement notificationsMan,
 			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
 			AttributesManagement attributeMan,
-			AuthenticationManagement authenticationMan, RegistrationTranslationActionsRegistry actionsRegistry) 
+			AuthenticationManagement authenticationMan, RegistrationActionsRegistry actionsRegistry,
+			Provider actionComponentProvider) 
 					throws EngineException
 	{
 		this(msg, groupsMan, notificationsMan, msgTempMan, identitiesMan, attributeMan, authenticationMan, 
-				actionsRegistry, null, false);
+				actionsRegistry, actionComponentProvider, null, false);
 	}
 
 	public RegistrationFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
 			NotificationsManagement notificationsMan,
 			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
 			AttributesManagement attributeMan,
-			AuthenticationManagement authenticationMan, RegistrationTranslationActionsRegistry actionsRegistry,
+			AuthenticationManagement authenticationMan, RegistrationActionsRegistry actionsRegistry,
+			Provider actionComponentProvider,
 			RegistrationForm toEdit, boolean copyMode)
 			throws EngineException
 	{
 		super();
-		this.identitiesMan = identitiesMan;
-		this.attributeMan = attributeMan;
 		this.actionsRegistry = actionsRegistry;
+		this.actionComponentProvider = actionComponentProvider;
 		editMode = toEdit != null;
 		this.copyMode = editMode && copyMode;
 		this.msg = msg;
@@ -189,13 +188,6 @@ public class RegistrationFormEditor extends VerticalLayout
 	
 	public RegistrationForm getForm() throws FormValidationException
 	{
-		try
-		{
-			publiclyAvailable.validate();
-		} catch (Validator.InvalidValueException e)
-		{
-			throw new FormValidationException(e.getMessage(), e);
-		}
 		RegistrationFormBuilder builder = new RegistrationFormBuilder();	
 		builder.withAgreements(agreements.getElements());
 		builder.withAttributeParams(attributeParams.getElements());
@@ -204,6 +196,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		builder.withDefaultCredentialRequirement((String) credentialRequirementAssignment.getValue());
 		builder.withTranslationProfile(profileEditor.getProfile());
 		builder.withDescription(description.getValue());
+
 		I18nString displayedNameStr = displayedName.getValue();
 		displayedNameStr.setDefaultValue(name.getValue());
 		builder.withDisplayedName(displayedNameStr);
@@ -231,7 +224,7 @@ public class RegistrationFormEditor extends VerticalLayout
 		
 		return builder.build();
 	}
-	
+		
 	private void initMainTab(RegistrationForm toEdit) throws EngineException
 	{
 		FormLayout main = new CompactFormLayout();
@@ -260,40 +253,6 @@ public class RegistrationFormEditor extends VerticalLayout
 		description = new DescriptionTextArea(msg.getMessage("RegistrationFormViewer.description"));
 		
 		publiclyAvailable = new CheckBox(msg.getMessage("RegistrationFormEditor.publiclyAvailable"));
-		publiclyAvailable.addValidator(new AbstractValidator<Boolean>(msg
-				.getMessage("RegistrationFormEditor.publiclyValidationFalse"))
-		{
-
-			@Override
-			protected boolean isValidValue(Boolean value)
-			{
-				RegistrationForm empty;
-				try
-				{
-					RegistrationFormBuilder formBuilder = new RegistrationFormBuilder();
-					formBuilder.withGroupParams(groupParams.getElements());
-					formBuilder.withAttributeParams(attributeParams.getElements());
-					formBuilder.withIdentityParams(identityParams.getElements());
-					formBuilder.withName("test").withDefaultCredentialRequirement("testcr");
-					empty = formBuilder.build();
-				} catch (FormValidationException e)
-				{
-					return false;
-				}
-
-				if (value == true && empty.containsAutomaticAndMandatoryParams())
-					return false;
-				return true;
-			}
-
-			@Override
-			public Class<Boolean> getType()
-			{
-				return Boolean.class;
-			}
-		});
-		publiclyAvailable.setValidationVisible(true);
-		publiclyAvailable.setImmediate(true);
 		publiclyAvailable.addValueChangeListener(event -> {
 			byInvitationOnly.setEnabled(publiclyAvailable.getValue());
 		});
@@ -413,8 +372,8 @@ public class RegistrationFormEditor extends VerticalLayout
 				new RegistrationTranslationProfile("form profile", new ArrayList<>(), actionsRegistry) : 
 				new RegistrationTranslationProfile(toEdit.getTranslationProfile().getName(), 
 						toEdit.getTranslationProfile().getRules(), actionsRegistry);
-		profileEditor = new RegistrationTranslationProfileEditor(msg, actionsRegistry, profile, 
-				attributeMan, identitiesMan, authenticationMan, groupsMan);
+		profileEditor = new RegistrationTranslationProfileEditor(msg, actionsRegistry, 
+				actionComponentProvider, profile);
 		
 		main.addComponents(credentialRequirementAssignment);
 		wrapper.addComponent(profileEditor);

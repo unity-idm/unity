@@ -83,7 +83,11 @@ public enum Styles
 	vTiny(ValoTheme.TEXTFIELD_TINY),
 	vTableNoHorizontalLines(ValoTheme.TABLE_NO_HORIZONTAL_LINES),
 	vComboSmall(ValoTheme.COMBOBOX_SMALL);
-	
+
+	/**
+	 * Number of columns for wider then regular text fields.
+	 */
+	public static final int WIDE_TEXT_FIELD = 40;
 	
 	private String value;
 	
