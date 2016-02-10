@@ -25,17 +25,19 @@ import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.webui.AsyncErrorHandler;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
+import pl.edu.icm.unity.webui.registration.RequestEditorCreator.RequestEditorCreatedCallback;
 
 
 
 /**
  * Responsible for showing a given registration form dialog. This is a no-authz variation of
- * {@link RegistrationFormLauncher} intended for general use.
+ * {@link AdminRegistrationFormLauncher} intended for general use.
  * 
  * @author K. Benedyczak
  */
@@ -103,28 +105,52 @@ public class InsecureRegistrationFormLauncher implements RegistrationFormDialogP
 		return true;
 	}
 	
-	public RegistrationRequestEditorDialog getDialog(String formName, RemotelyAuthenticatedContext remoteContext, 
-			TriggeringMode mode) throws EngineException
+	public void showRegistrationDialog(String formName, RemotelyAuthenticatedContext remoteContext, 
+			TriggeringMode mode, AsyncErrorHandler errorHandler) throws EngineException
 	{
 		List<RegistrationForm> forms = registrationsManagement.getForms();
 		for (RegistrationForm form: forms)
 		{
 			if (formName.equals(form.getName()))
-				return getDialog(form, remoteContext, mode);
+				showRegistrationDialog(form, remoteContext, mode, errorHandler);
 		}
 		throw new WrongArgumentException("There is no registration form " + formName);
 	}
 	
 	@Override
-	public RegistrationRequestEditorDialog getDialog(final RegistrationForm form, 
-			RemotelyAuthenticatedContext remoteContext, TriggeringMode mode) throws EngineException
+	public void showRegistrationDialog(final RegistrationForm form, 
+			RemotelyAuthenticatedContext remoteContext, TriggeringMode mode,
+			AsyncErrorHandler errorHandler)
 	{
 		RegistrationContext context = new RegistrationContext(true, 
 				idpLoginController.isLoginInProgress(), mode);
-		RegistrationRequestEditor editor = new RegistrationRequestEditor(msg, form, 
-				remoteContext, identityEditorRegistry, 
-				credentialEditorRegistry, 
-				attributeHandlerRegistry, attrsMan, authnMan, groupsMan, registrationsManagement);
+		RequestEditorCreator editorCreator = new RequestEditorCreator(msg, form, remoteContext, 
+				identityEditorRegistry, credentialEditorRegistry, attributeHandlerRegistry, 
+				registrationsManagement, attrsMan, groupsMan, authnMan);
+		editorCreator.invoke(new RequestEditorCreatedCallback()
+		{
+			@Override
+			public void onCreationError(Exception e)
+			{
+				errorHandler.onError(e);
+			}
+			
+			@Override
+			public void onCreated(RegistrationRequestEditor editor)
+			{
+				showDialog(form, context, editor);
+			}
+
+			@Override
+			public void onCancel()
+			{
+				//nop
+			}
+		});
+	}
+	
+	private void showDialog(RegistrationForm form, RegistrationContext context, RegistrationRequestEditor editor)
+	{
 		RegistrationRequestEditorDialog dialog = new RegistrationRequestEditorDialog(msg, 
 				msg.getMessage("RegistrationFormsChooserComponent.dialogCaption"), 
 				editor, new RegistrationRequestEditorDialog.Callback()
@@ -142,7 +168,6 @@ public class InsecureRegistrationFormLauncher implements RegistrationFormDialogP
 							cancelled(false, context);
 					}
 				});
-		return dialog;
+		dialog.show();
 	}
-
 }

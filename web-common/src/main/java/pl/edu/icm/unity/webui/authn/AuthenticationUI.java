@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
@@ -28,8 +27,8 @@ import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
@@ -39,7 +38,7 @@ import pl.edu.icm.unity.webui.VaadinEndpointProperties.TileMode;
 import pl.edu.icm.unity.webui.authn.AuthNTile.SelectionChangedListener;
 import pl.edu.icm.unity.webui.authn.SelectedAuthNPanel.AuthenticationListener;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
-import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormsChooserComponent;
@@ -321,37 +320,40 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				createRegistrationDialog().show();
+				showRegistrationDialog();
 			}
 		});
 		register.setId("AuthenticationUI.registerButton");
 		return register;
 	}
 	
-	private AbstractDialog createRegistrationDialog()
+	private void showRegistrationDialog()
 	{
 		if (formsChooser.getDisplayedForms().size() == 1)
 		{
 			RegistrationForm form = formsChooser.getDisplayedForms().get(0);
-			try
-			{
-				return formLauncher.getDialog(form, new RemotelyAuthenticatedContext("--none--",
-						"--none--"), TriggeringMode.manualAtLogin);
-			} catch (EngineException e)
-			{
-				log.info("Can't initialize registration form '" + form.getName() + "' UI. "
-						+ "It can be fine in some cases, but often means "
-						+ "that the form should not be marked "
-						+ "as public or its configuration is invalid: " + e.toString());
-				if (log.isDebugEnabled())
-					log.debug("Deatils: ", e);
-				return null;
-			}
+			formLauncher.showRegistrationDialog(form, 
+					new RemotelyAuthenticatedContext("--none--", "--none--"),
+					TriggeringMode.manualAtLogin, 
+					error -> handleRegistrationError(error, form.getName()));
 		} else
 		{
-			return new RegistrationFormChooserDialog(
+			RegistrationFormChooserDialog chooser = new RegistrationFormChooserDialog(
 				msg, msg.getMessage("RegistrationFormChooserDialog.selectForm"), formsChooser);
+			chooser.show();
 		}
+	}
+	
+	private void handleRegistrationError(Exception e, String formName)
+	{
+		log.info("Can't initialize registration form '" + formName + "' UI. "
+				+ "It can be fine in some cases, but often means "
+				+ "that the form should not be marked "
+				+ "as public or its configuration is invalid: " + e.toString());
+		if (log.isDebugEnabled())
+			log.debug("Deatils: ", e);
+		NotificationPopup.showError(msg, msg.getMessage("AuthenticationUI.authnErrorTitle"), 
+				msg.getMessage("AuthenticationUI.problemWithRegistration"));
 	}
 	
 	@Override

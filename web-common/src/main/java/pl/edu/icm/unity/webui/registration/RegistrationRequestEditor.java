@@ -20,7 +20,6 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
-import pl.edu.icm.unity.server.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.Log;
@@ -61,8 +60,6 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 import com.google.common.html.HtmlEscapers;
 import com.vaadin.server.UserError;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinService;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CustomComponent;
@@ -76,7 +73,9 @@ import com.vaadin.ui.VerticalLayout;
 /**
  * Generates a UI based on a given registration form. User can fill the form and a request is returned.
  * The class verifies if the data obtained from an upstream IdP is complete wrt requirements of the form.
- * 
+ * <p>
+ * Objects of this class should be typically created using {@link RequestEditorCreator}, so that the
+ * registration code is collected appropriately.
  * @author K. Benedyczak
  */
 public class RegistrationRequestEditor extends CustomComponent
@@ -103,7 +102,7 @@ public class RegistrationRequestEditor extends CustomComponent
 	private TextArea comment;
 	private TextField registrationCode;
 	private CaptchaComponent captcha;
-	private String regCodeFromURL;
+	private String regCodeProvided;
 	private InvitationWithCode invitation;
 
 	/**
@@ -126,7 +125,8 @@ public class RegistrationRequestEditor extends CustomComponent
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributesManagement attrsMan, AuthenticationManagement authnMan,
-			GroupsManagement groupsMan, RegistrationsManagement registrationsMan) throws EngineException
+			GroupsManagement groupsMan, RegistrationsManagement registrationsMan,
+			String registrationCode) throws Exception
 	{
 		this.msg = msg;
 		this.form = form;
@@ -138,10 +138,12 @@ public class RegistrationRequestEditor extends CustomComponent
 		this.authnMan = authnMan;
 		this.groupsMan = groupsMan;
 		this.registrationsMan = registrationsMan;
+		this.regCodeProvided = registrationCode;
+		
 		checkRemotelyObtainedData();
 		initUI();
 	}
-
+	
 	private void checkRemotelyObtainedData() throws AuthenticationException
 	{
 		List<IdentityRegistrationParam> idParams = form.getIdentityParams();
@@ -398,7 +400,7 @@ public class RegistrationRequestEditor extends CustomComponent
 
 	private void setRequestCode(RegistrationRequest ret, FormErrorStatus status)
 	{
-		if (form.getRegistrationCode() != null && regCodeFromURL == null)
+		if (form.getRegistrationCode() != null && regCodeProvided == null)
 		{
 			ret.setRegistrationCode(registrationCode.getValue());
 			if (registrationCode.getValue().isEmpty())
@@ -410,7 +412,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		}
 		
 		if (invitation != null)
-			ret.setRegistrationCode(regCodeFromURL);
+			ret.setRegistrationCode(regCodeProvided);
 	}
 	
 	private void initUI() throws EngineException
@@ -436,7 +438,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		
 		setupInvitationByCode();
 		
-		if (form.getRegistrationCode() != null && regCodeFromURL == null)
+		if (form.getRegistrationCode() != null && regCodeProvided == null)
 		{
 			registrationCode = new TextField(msg.getMessage("RegistrationRequest.registrationCode"));
 			registrationCode.setRequired(true);
@@ -782,24 +784,17 @@ public class RegistrationRequestEditor extends CustomComponent
 	
 	private void setupInvitationByCode()
 	{
-		regCodeFromURL = getCodeFromURL();
-		if (regCodeFromURL != null)
-			invitation = getInvitation(regCodeFromURL);
-		
-		if (form.isByInvitationOnly() && regCodeFromURL == null)
+		if (regCodeProvided != null)
+			invitation = getInvitation(regCodeProvided);
+
+		if (invitation != null && !invitation.getFormId().equals(form.getName()))
+			throw new IllegalStateException(msg.getMessage("RegistrationRequest.errorCodeOfOtherForm"));
+		if (form.isByInvitationOnly() && regCodeProvided == null)
 			throw new IllegalStateException(msg.getMessage("RegistrationRequest.errorMissingCode"));
 		if (form.isByInvitationOnly() &&  invitation == null)
 			throw new IllegalStateException(msg.getMessage("RegistrationRequest.errorWrongCode"));
 		if (form.isByInvitationOnly() &&  invitation.isExpired())
 			throw new IllegalStateException(msg.getMessage("RegistrationRequest.errorExpiredCode"));
-	}
-	
-	private String getCodeFromURL()
-	{
-		VaadinRequest currentRequest = VaadinService.getCurrentRequest();
-		if (currentRequest == null)
-			return null;
-		return currentRequest.getParameter(PublicRegistrationURLSupport.CODE_PARAM);
 	}
 	
 	private InvitationWithCode getInvitation(String code)

@@ -19,23 +19,21 @@ import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.Styles;
 
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
-
-import pl.edu.icm.unity.webui.common.Styles;
 
 
 
@@ -65,7 +63,7 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 	@Autowired
 	public RegistrationFormsChooserComponent(UnityMessageSource msg,
 			RegistrationsManagement registrationsManagement,
-			RegistrationFormLauncher formLauncher)
+			AdminRegistrationFormLauncher formLauncher)
 	{
 		this(msg, registrationsManagement, (RegistrationFormDialogProvider)formLauncher);
 	}
@@ -202,18 +200,17 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 		@Override
 		public void buttonClick(ClickEvent event)
 		{
-			try
-			{
-				AbstractDialog dialog = formLauncher.getDialog(form, 
-						new RemotelyAuthenticatedContext("--none--", "--none--"), 
-						mode);
-				dialog.show();
-				if (callback != null)
-					callback.closed();
-			} catch (EngineException e)
-			{
-				NotificationPopup.showError(msg, msg.getMessage("RegistrationFormsChooserComponent.errorShowFormEdit"), e);
-			}
+			formLauncher.showRegistrationDialog(form, 
+					new RemotelyAuthenticatedContext("--none--", "--none--"), 
+					mode, this::handleError);
+			if (callback != null)
+				callback.closed();
+		}
+		
+		private void handleError(Exception error)
+		{
+			NotificationPopup.showError(msg, 
+					msg.getMessage("RegistrationFormsChooserComponent.errorShowFormEdit"), error);
 		}
 	}
 	

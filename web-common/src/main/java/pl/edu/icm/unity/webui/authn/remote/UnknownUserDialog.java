@@ -6,10 +6,8 @@ package pl.edu.icm.unity.webui.authn.remote;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.sandbox.wizard.SandboxWizardDialog;
-import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
@@ -20,7 +18,6 @@ import pl.edu.icm.unity.webui.association.atlogin.ConnectIdAtLoginWizardProvider
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
-import pl.edu.icm.unity.webui.registration.RegistrationRequestEditorDialog;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -152,25 +149,26 @@ public class UnknownUserDialog extends AbstractDialog
 	
 	protected void showRegistration(String form, RemotelyAuthenticatedContext ctx)
 	{
-		RegistrationRequestEditorDialog dialog;
 		try
 		{
-			dialog = formLauncher.getDialog(form, ctx, TriggeringMode.afterRemoteLogin);
-			dialog.show();
+			formLauncher.showRegistrationDialog(form, ctx, TriggeringMode.afterRemoteLogin,
+					this::handleRegistrationError);
 			close();
-		} catch (AuthenticationException e)
-		{
-			log.debug("Can't show a registration form for the remotely authenticated user - "
-					+ "user does not meet form requirements.", e);
-			NotificationPopup.showError(msg, msg.getMessage("AuthenticationUI.authnErrorTitle"), 
-					msg.getMessage("AuthenticationUI.infufficientRegistrationInput"));
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			log.error("Can't show a registration form for the remotely authenticated user as configured. " +
 					"Probably the form name is wrong.", e);
 			NotificationPopup.showError(msg, msg.getMessage("AuthenticationUI.authnErrorTitle"), 
 					msg.getMessage("AuthenticationUI.problemWithRegistration"));
 		}
+	}
+	
+	private void handleRegistrationError(Exception error)
+	{
+		log.debug("Can't show a registration form for the remotely authenticated user - "
+				+ "user does not meet form requirements.", error);
+		NotificationPopup.showError(msg, msg.getMessage("AuthenticationUI.authnErrorTitle"), 
+				msg.getMessage("AuthenticationUI.infufficientRegistrationInput"));
 	}
 	
 	@Override

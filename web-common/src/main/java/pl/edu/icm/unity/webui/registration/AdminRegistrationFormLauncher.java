@@ -22,12 +22,14 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.webui.AsyncErrorHandler;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
+import pl.edu.icm.unity.webui.registration.RequestEditorCreator.RequestEditorCreatedCallback;
 
 
 
@@ -40,7 +42,7 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class RegistrationFormLauncher implements RegistrationFormDialogProvider
+public class AdminRegistrationFormLauncher implements RegistrationFormDialogProvider
 {
 	protected UnityMessageSource msg;
 	protected RegistrationsManagement registrationsManagement;
@@ -55,7 +57,7 @@ public class RegistrationFormLauncher implements RegistrationFormDialogProvider
 	private IdPLoginController idpLoginController;
 	
 	@Autowired
-	public RegistrationFormLauncher(UnityMessageSource msg,
+	public AdminRegistrationFormLauncher(UnityMessageSource msg,
 			RegistrationsManagement registrationsManagement,
 			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,
@@ -116,33 +118,57 @@ public class RegistrationFormLauncher implements RegistrationFormDialogProvider
 	}
 	
 	@Override
-	public AdminsRegistrationRequestEditorDialog getDialog(final RegistrationForm form, 
-			RemotelyAuthenticatedContext remoteContext, TriggeringMode mode) throws EngineException
+	public void showRegistrationDialog(final RegistrationForm form, 
+			RemotelyAuthenticatedContext remoteContext, TriggeringMode mode,
+			AsyncErrorHandler errorHandler)
 	{
-			RegistrationRequestEditor editor = new RegistrationRequestEditor(msg, form, 
-					remoteContext, identityEditorRegistry, 
-					credentialEditorRegistry, 
-					attributeHandlerRegistry, attrsMan, authnMan, groupsMan, registrationsManagement);
-			AdminsRegistrationRequestEditorDialog dialog = new AdminsRegistrationRequestEditorDialog(msg, 
-					msg.getMessage("RegistrationFormsChooserComponent.dialogCaption"), 
-					editor, new AdminsRegistrationRequestEditorDialog.Callback()
-					{
-						@Override
-						public boolean newRequest(RegistrationRequest request, boolean autoAccept)
-						{
-							return addRequest(request, autoAccept, form, mode);
-						}
+			RequestEditorCreator editorCreator = new RequestEditorCreator(msg, form, 
+					remoteContext, identityEditorRegistry, credentialEditorRegistry, 
+					attributeHandlerRegistry, registrationsManagement, attrsMan, groupsMan, authnMan);
+			editorCreator.invoke(new RequestEditorCreatedCallback()
+			{
+				@Override
+				public void onCreationError(Exception e)
+				{
+					errorHandler.onError(e);
+				}
+				
+				@Override
+				public void onCreated(RegistrationRequestEditor editor)
+				{
+					showDialog(form, editor, mode);
+				}
 
-						@Override
-						public void cancelled()
-						{
-							RegistrationContext context = new RegistrationContext(false, 
-									idpLoginController.isLoginInProgress(), mode);
-							new PostRegistrationHandler(idpLoginController, form, msg, 
-									registrationsManagement.getProfileInstance(form)).
-								cancelled(false, context);
-						}
-					});
-			return dialog;
+				@Override
+				public void onCancel()
+				{
+					//nop
+				}
+			});
+	}
+	
+	private void showDialog(RegistrationForm form, RegistrationRequestEditor editor, TriggeringMode mode)
+	{
+		AdminRegistrationRequestEditorDialog dialog = new AdminRegistrationRequestEditorDialog(msg, 
+				msg.getMessage("RegistrationFormsChooserComponent.dialogCaption"), 
+				editor, new AdminRegistrationRequestEditorDialog.Callback()
+				{
+					@Override
+					public boolean newRequest(RegistrationRequest request, boolean autoAccept)
+					{
+						return addRequest(request, autoAccept, form, mode);
+					}
+
+					@Override
+					public void cancelled()
+					{
+						RegistrationContext context = new RegistrationContext(false, 
+								idpLoginController.isLoginInProgress(), mode);
+						new PostRegistrationHandler(idpLoginController, form, msg, 
+								registrationsManagement.getProfileInstance(form)).
+							cancelled(false, context);
+					}
+				});
+		dialog.show();
 	}
 }

@@ -137,6 +137,9 @@ public class RegistrationRequestValidator
 				
 		InvitationWithCode invitation = getInvitation(codeFromRequest, sql);
 		
+		if (!invitation.getFormId().equals(form.getName()))
+			throw new WrongArgumentException("The invitation is for different registration form");
+		
 		if (invitation.isExpired())
 			throw new WrongArgumentException("The invitation has already expired");
 		

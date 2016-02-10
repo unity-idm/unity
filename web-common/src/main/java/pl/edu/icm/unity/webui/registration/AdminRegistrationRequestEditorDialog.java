@@ -25,13 +25,13 @@ import com.vaadin.ui.VerticalLayout;
  * 
  * @author K. Benedyczak
  */
-public class AdminsRegistrationRequestEditorDialog extends AbstractDialog
+public class AdminRegistrationRequestEditorDialog extends AbstractDialog
 {
 	private RegistrationRequestEditor editor;
 	private Callback callback;
 	private Button submitAndAccept;
 	
-	public AdminsRegistrationRequestEditorDialog(UnityMessageSource msg, String caption, 
+	public AdminRegistrationRequestEditorDialog(UnityMessageSource msg, String caption, 
 			RegistrationRequestEditor editor, Callback callback)
 	{
 		super(msg, caption, msg.getMessage("RegistrationRequestEditorDialog.submitRequest"), 

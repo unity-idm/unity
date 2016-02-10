@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.webui.registration;
 
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
@@ -14,15 +13,16 @@ import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
+import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
-import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
+import pl.edu.icm.unity.webui.registration.RequestEditorCreator.RequestEditorCreatedCallback;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -50,6 +50,7 @@ public class StandalonePublicFormView extends CustomComponent implements View
 	private UnityMessageSource msg;
 	private UnityServerConfiguration cfg;
 	private IdPLoginController idpLoginController;
+	private VerticalLayout main;
 	
 	public StandalonePublicFormView(RegistrationForm form, UnityMessageSource msg,
 			RegistrationsManagement regMan,
@@ -76,35 +77,49 @@ public class StandalonePublicFormView extends CustomComponent implements View
 	
 	@Override
 	public void enter(ViewChangeEvent changeEvent)
+	{		
+		initUIBase();
+		
+		RequestEditorCreator editorCreator = new RequestEditorCreator(msg, form, 
+				new RemotelyAuthenticatedContext("--none--", "--none--"), 
+				identityEditorRegistry, credentialEditorRegistry, attributeHandlerRegistry, 
+				regMan, attrsMan, groupsMan, authnMan);
+		editorCreator.invoke(new RequestEditorCreatedCallback()
+		{
+			@Override
+			public void onCreationError(Exception e)
+			{
+				handleError(e);
+			}
+			
+			@Override
+			public void onCreated(RegistrationRequestEditor editor)
+			{
+				editorCreated(editor);
+			}
+
+			@Override
+			public void onCancel()
+			{
+				//nop
+			}
+		});
+	}
+
+	private void initUIBase()
 	{
-		RegistrationRequestEditor editor;
-		try
-		{
-			editor = new RegistrationRequestEditor(msg, form, 
-					new RemotelyAuthenticatedContext("--none--", "--none--"), 
-					identityEditorRegistry, 
-					credentialEditorRegistry, 
-					attributeHandlerRegistry, attrsMan, authnMan, groupsMan, regMan);
-		} catch (IllegalStateException e)
-		{
-			ErrorComponent ec = new ErrorComponent();
-			ec.setError(e.getMessage());
-			setCompositionRoot(ec);
-			return;
-		} catch (EngineException e)
-		{
-			ErrorComponent ec = new ErrorComponent();
-			ec.setError("Can not open registration editor", e);
-			setCompositionRoot(ec);
-			return;
-		}
-		
-		LocaleChoiceComponent localeChoice = new LocaleChoiceComponent(cfg, msg);
-		
-		VerticalLayout main = new VerticalLayout();
+		main = new VerticalLayout();
 		main.setWidthUndefined();
 		main.setMargin(true);
 		main.setSpacing(true);
+		addStyleName("u-standalone-public-form");
+		setCompositionRoot(main);
+		setWidthUndefined();
+	}
+	
+	private void editorCreated(RegistrationRequestEditor editor)
+	{
+		LocaleChoiceComponent localeChoice = new LocaleChoiceComponent(cfg, msg);
 		
 		main.addComponent(localeChoice);
 		main.setComponentAlignment(localeChoice, Alignment.TOP_RIGHT);
@@ -130,11 +145,22 @@ public class StandalonePublicFormView extends CustomComponent implements View
 		buttons.addComponents(cancel, ok);
 		buttons.setSpacing(true);
 		main.addComponent(buttons);
-		main.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
-		
-		addStyleName("u-standalone-public-form");
-		setCompositionRoot(main);
-		setWidthUndefined();
+		main.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);		
+	}
+	
+	private void handleError(Exception e)
+	{
+		if (e instanceof IllegalArgumentException)
+		{
+			ErrorComponent ec = new ErrorComponent();
+			ec.setError(e.getMessage());
+			setCompositionRoot(ec);
+		} else
+		{
+			ErrorComponent ec = new ErrorComponent();
+			ec.setError("Can not open registration editor", e);
+			setCompositionRoot(ec);
+		}
 	}
 	
 	private void accept(RegistrationRequestEditor editor)

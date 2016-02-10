@@ -41,6 +41,7 @@ public class InvitationViewer extends CustomComponent
 	private AttributeHandlerRegistry attrHandlersRegistry;
 	
 	private Label formId;
+	private Label code;
 	private Label expiration;
 	private Label contactAddress;
 	private Label channelId;
@@ -71,6 +72,9 @@ public class InvitationViewer extends CustomComponent
 		formId = new Label();
 		formId.setCaption(msg.getMessage("InvitationViewer.formId"));
 		
+		code = new Label();
+		code.setCaption(msg.getMessage("InvitationViewer.code"));
+
 		expiration = new Label();
 		expiration.setCaption(msg.getMessage("InvitationViewer.expiration"));
 
@@ -109,7 +113,7 @@ public class InvitationViewer extends CustomComponent
 		groupsPanel = new SafePanel(msg.getMessage("InvitationViewer.groups"), groups);
 
 		
-		main.addComponents(formId, expiration, channelId, contactAddress, lastSentTime, notificationsSent,
+		main.addComponents(formId, code, expiration, channelId, contactAddress, lastSentTime, notificationsSent,
 				identitiesPanel, attributesPanel, groupsPanel);
 		setInput(null, null);
 	}
@@ -136,6 +140,7 @@ public class InvitationViewer extends CustomComponent
 		}
 		
 		formId.setValue(invitation.getFormId());
+		code.setValue(invitation.getRegistrationCode());
 		expiration.setValue(TimeUtil.formatMediumInstant(invitation.getExpiration()));
 		contactAddress.setValue(invitation.getContactAddress());
 		channelId.setValue(invitation.getChannelId());

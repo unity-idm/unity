@@ -53,7 +53,7 @@
 	<bean primary="false" scope="prototype" class="pl.edu.icm.unity.webui.registration.InsecureRegistrationFormsChooserComponent">
 			<qualifier value="insecure"/>
 	</bean>
-	<bean primary="true" scope="prototype" class="pl.edu.icm.unity.webui.registration.RegistrationFormLauncher"/>
+	<bean primary="true" scope="prototype" class="pl.edu.icm.unity.webui.registration.AdminRegistrationFormLauncher"/>
 	<bean primary="false" scope="prototype" class="pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher">
 			<qualifier value="insecure"/>
 	</bean>
