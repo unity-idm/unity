@@ -35,6 +35,15 @@ public class RemotelyAuthenticatedContext
 	private MappingResult mappingResult;
 	private RemotelyAuthenticatedInput input;
 
+	/**
+	 * @return pseudo remote authn context, which is empty. Used as we don't want to pass null reference
+	 * in case of local invocations.
+	 */
+	public static RemotelyAuthenticatedContext getLocalContext()
+	{
+		return new RemotelyAuthenticatedContext("--none--", "--none--");
+	}
+	
 	public RemotelyAuthenticatedContext(String remoteIdPName, String inputTranslationProfile)
 	{
 		this.remoteIdPName = remoteIdPName;

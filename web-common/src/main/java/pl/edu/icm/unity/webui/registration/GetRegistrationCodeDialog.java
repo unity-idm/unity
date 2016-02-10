@@ -11,6 +11,7 @@ package pl.edu.icm.unity.webui.registration;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
+import pl.edu.icm.unity.webui.common.Styles;
 
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.ui.Component;
@@ -45,6 +46,7 @@ class GetRegistrationCodeDialog extends AbstractDialog
 		FormLayout sub = new FormLayout();
 		code = new RequiredTextField(msg.getMessage("GetRegistrationCodeDialog.code"), msg);
 		code.setValidationVisible(false);
+		code.setColumns(Styles.WIDE_TEXT_FIELD);
 		sub.addComponent(code);
 		main.addComponent(sub);
 		return main;

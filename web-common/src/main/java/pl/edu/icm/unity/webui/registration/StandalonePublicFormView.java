@@ -81,7 +81,7 @@ public class StandalonePublicFormView extends CustomComponent implements View
 		initUIBase();
 		
 		RequestEditorCreator editorCreator = new RequestEditorCreator(msg, form, 
-				new RemotelyAuthenticatedContext("--none--", "--none--"), 
+				RemotelyAuthenticatedContext.getLocalContext(), 
 				identityEditorRegistry, credentialEditorRegistry, attributeHandlerRegistry, 
 				regMan, attrsMan, groupsMan, authnMan);
 		editorCreator.invoke(new RequestEditorCreatedCallback()

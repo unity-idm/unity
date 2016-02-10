@@ -254,7 +254,10 @@ public class RegistrationFormEditor extends VerticalLayout
 		
 		publiclyAvailable = new CheckBox(msg.getMessage("RegistrationFormEditor.publiclyAvailable"));
 		publiclyAvailable.addValueChangeListener(event -> {
-			byInvitationOnly.setEnabled(publiclyAvailable.getValue());
+			boolean isPublic = publiclyAvailable.getValue();
+			if (!isPublic)
+				byInvitationOnly.setValue(false);
+			byInvitationOnly.setEnabled(isPublic);
 		});
 		
 		byInvitationOnly = new CheckBox(msg.getMessage("RegistrationFormEditor.byInvitationOnly"));

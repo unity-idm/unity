@@ -333,7 +333,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		{
 			RegistrationForm form = formsChooser.getDisplayedForms().get(0);
 			formLauncher.showRegistrationDialog(form, 
-					new RemotelyAuthenticatedContext("--none--", "--none--"),
+					RemotelyAuthenticatedContext.getLocalContext(),
 					TriggeringMode.manualAtLogin, 
 					error -> handleRegistrationError(error, form.getName()));
 		} else
@@ -352,8 +352,8 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 				+ "as public or its configuration is invalid: " + e.toString());
 		if (log.isDebugEnabled())
 			log.debug("Deatils: ", e);
-		NotificationPopup.showError(msg, msg.getMessage("AuthenticationUI.authnErrorTitle"), 
-				msg.getMessage("AuthenticationUI.problemWithRegistration"));
+		NotificationPopup.showError(msg, msg.getMessage("error"), 
+				msg.getMessage("AuthenticationUI.registrationFormInitError"));
 	}
 	
 	@Override
