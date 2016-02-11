@@ -50,6 +50,13 @@ public class ExpressionActionParameterComponent extends CustomField<String> impl
 	}
 
 	@Override
+	public void setValidationVisible(boolean how) 
+	{
+		super.setValidationVisible(how);
+		parameter.setValidationVisible(how);
+	};
+	
+	@Override
 	public String getActionValue() 
 	{
 		return getInternalValue();
@@ -72,7 +79,13 @@ public class ExpressionActionParameterComponent extends CustomField<String> impl
 	{
 		return parameter.isValid();
 	}
-
+	
+	@Override
+	protected boolean shouldHideErrors() 
+	{
+		return false;
+	}
+	
 	@Override
 	protected String getInternalValue() 
 	{

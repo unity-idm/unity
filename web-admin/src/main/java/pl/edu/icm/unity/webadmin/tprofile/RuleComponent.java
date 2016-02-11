@@ -241,18 +241,9 @@ public class RuleComponent extends CustomComponent
 			ok = false;
 		}
 		
-		condition.setComponentError(null);
-		try 
-		{
-			TranslationCondition cnd = new TranslationCondition();
-			cnd.setCondition(condition.getValue());			
-		} catch (Exception e)
-		{
-			condition.setComponentError(new UserError(msg.getMessage(
-					"TranslationProfileEditor.conditionError", e.getMessage())));
+		condition.setValidationVisible(true);
+		if (!condition.isValid())
 			ok = false;
-		}
-		
 		return ok;
 	}
 

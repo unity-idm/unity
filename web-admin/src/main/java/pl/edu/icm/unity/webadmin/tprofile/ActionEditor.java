@@ -58,11 +58,9 @@ public class ActionEditor extends LayoutEmbeddable
 		actions = new RequiredComboBox(msg.getMessage("ActionEditor.ruleAction"), msg);
 		for (TranslationActionFactory a : tc.getAll())
 			actions.addItem(a.getActionType().getName());
-		actions.setValidationVisible(false);
 		actions.setNullSelectionAllowed(false);
 		actions.addValueChangeListener(new ValueChangeListener()
 		{
-
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
@@ -104,9 +102,7 @@ public class ActionEditor extends LayoutEmbeddable
 		
 		TranslationActionFactory factory = getActionFactory(action);
 		if (factory == null)
-		{	
 			return;
-		}
 		
 		actions.setDescription(msg.getMessage(factory.getActionType().getDescriptionKey()));
 		ActionParameterDefinition[] params = factory.getActionType().getParameters();	
@@ -124,15 +120,20 @@ public class ActionEditor extends LayoutEmbeddable
 		actionParams.setVisible(!paramComponents.isEmpty());
 	}
 
-	private String[] getActionParams()
+	private String[] getActionParams() throws FormValidationException
 	{
-		ArrayList<String> params = new ArrayList<String>();
+		List<String> params = new ArrayList<>();
+		boolean errors = false;
 		for (ActionParameterComponent tc: paramComponents)
 		{
-			((AbstractComponent)tc).setComponentError(null);
-			String val = tc.getActionValue();
-			params.add(val);
+			tc.setValidationVisible(true);
+			if (!tc.isValid())
+				errors = true;
+			else
+				params.add(tc.getActionValue());
 		}
+		if (errors)
+			throw new FormValidationException();
 		String[] wrapper = new String[params.size()];
 		return params.toArray(wrapper);
 	}
@@ -143,7 +144,6 @@ public class ActionEditor extends LayoutEmbeddable
 		try
 		{
 			factory = tc.getByName(action);
-
 		} catch (EngineException e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("ActionEditor.errorGetActions"), e);
@@ -159,6 +159,9 @@ public class ActionEditor extends LayoutEmbeddable
 		try
 		{
 			return factory.getInstance(getActionParams());
+		} catch (FormValidationException e)
+		{
+			throw e;
 		} catch (Exception e)
 		{
 			String error = msg.getMessage("ActionEditor.parametersError", e.getMessage());
