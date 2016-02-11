@@ -110,6 +110,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 		InvitationParam invitation = new InvitationParam(TEST_FORM, Instant.now().plusSeconds(100), 
 				"someAddr", "mock-chan");
 		String code = registrationsMan.addInvitation(invitation);
+		mockNotificationFacility.resetSent();
 		
 		registrationsMan.sendInvitation(code);
 		

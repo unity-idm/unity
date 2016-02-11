@@ -75,6 +75,10 @@ public class MockNotificationFacility implements NotificationFacility
 		return null;
 	}
 
+	public void resetSent()
+	{
+		this.sent.clear();
+	}
 	
 	public List<Message> getSent()
 	{
