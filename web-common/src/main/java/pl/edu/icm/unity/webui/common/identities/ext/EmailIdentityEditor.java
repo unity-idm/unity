@@ -4,6 +4,12 @@
  */
 package pl.edu.icm.unity.webui.common.identities.ext;
 
+import com.vaadin.server.UserError;
+import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.TextField;
+
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
@@ -12,10 +18,6 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
-
-import com.vaadin.server.UserError;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.TextField;
 
 /**
  * {@link EmailIdentity} editor
@@ -43,6 +45,9 @@ public class EmailIdentityEditor implements IdentityEditor
 		this.adminMode = adminMode;
 
 		ComponentsContainer ret = new ComponentsContainer(field);
+		Label label = new Label(msg.getMessage("VerifiableEmailAttributeHandler.userInformation"));
+		label.setContentMode(ContentMode.HTML);
+		ret.add(label);
 		
 		if (adminMode)
 		{
