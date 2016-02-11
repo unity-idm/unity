@@ -177,13 +177,13 @@ public class ActionEditor extends LayoutEmbeddable
 	}
 	
 	
-	public void indicateExtensionError(Exception e) 
+	public void indicateExpressionError(Exception e) 
 	{
 		for (ActionParameterComponent c: paramComponents)
 		{
-			if (c instanceof ExtensionActionParameterComponent)
+			if (c instanceof ExpressionActionParameterComponent)
 			{
-				ExtensionActionParameterComponent extension = (ExtensionActionParameterComponent) c;
+				ExpressionActionParameterComponent extension = (ExpressionActionParameterComponent) c;
 				extension.setStyleName(Styles.errorBackground.toString());
 				extension.setComponentError(new UserError(NotificationPopup.getHumanMessage(e)));
 				extension.setValidationVisible(true);
@@ -210,9 +210,9 @@ public class ActionEditor extends LayoutEmbeddable
 			c.removeStyleName(Styles.falseConditionBackground.toString());
 			c.removeStyleName(Styles.trueConditionBackground.toString());
 			c.removeStyleName(Styles.errorBackground.toString());
-			if (c instanceof ExtensionActionParameterComponent)
+			if (c instanceof ExpressionActionParameterComponent)
 			{
-				ExtensionActionParameterComponent extension = (ExtensionActionParameterComponent) c;
+				ExpressionActionParameterComponent extension = (ExpressionActionParameterComponent) c;
 				extension.setComponentError(null);
 				extension.setValidationVisible(false);
 			}			

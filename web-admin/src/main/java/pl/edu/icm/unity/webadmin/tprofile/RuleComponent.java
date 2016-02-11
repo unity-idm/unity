@@ -265,7 +265,7 @@ public class RuleComponent extends CustomComponent
 			rule = getRule();
 		} catch (Exception e)
 		{
-			actionEditor.indicateExtensionError(e);
+			actionEditor.indicateExpressionError(e);
 			return;
 		}
 		
@@ -287,7 +287,7 @@ public class RuleComponent extends CustomComponent
 			displayMappingResult(mappingResult);
 		} catch (EngineException e) 
 		{
-			actionEditor.indicateExtensionError(e);
+			actionEditor.indicateExpressionError(e);
 		}
 	}
 	

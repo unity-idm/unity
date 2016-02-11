@@ -22,17 +22,17 @@ import com.vaadin.ui.CustomField;
 import com.vaadin.ui.DragAndDropWrapper;
 
 /**
- * 
+ * For editing MVEL expressions. 
  * Decorates the {@link DefaultActionParameterComponent} with drag'n'drop support.
  *  
  * @author Roman Krysinski
  *
  */
-public class ExtensionActionParameterComponent extends CustomField<String> implements ActionParameterComponent
+public class ExpressionActionParameterComponent extends CustomField<String> implements ActionParameterComponent
 {
 	private DefaultActionParameterComponent parameter;
 
-	public ExtensionActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg) 
+	public ExpressionActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg) 
 	{
 		parameter = new DefaultActionParameterComponent(desc, msg);
 		setCaption(parameter.getCaption());

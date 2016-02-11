@@ -89,7 +89,7 @@ public class ActionParameterComponentFactory
 			case UNITY_ID_TYPE:
 				return new BaseEnumActionParameterComponent(param, msg, idTypes);
 			case EXPRESSION:
-				return new ExtensionActionParameterComponent(param, msg);
+				return new ExpressionActionParameterComponent(param, msg);
 			case DAYS:
 				return new DaysActionParameterComponent(param, msg);
 			case LARGE_TEXT:
