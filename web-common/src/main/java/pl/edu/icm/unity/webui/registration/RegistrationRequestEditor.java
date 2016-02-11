@@ -10,6 +10,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.html.HtmlEscapers;
+import com.vaadin.server.UserError;
+import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.AbstractOrderedLayout;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Layout;
+import com.vaadin.ui.TextArea;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
+
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
@@ -50,18 +64,6 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
-
-import com.google.common.html.HtmlEscapers;
-import com.vaadin.server.UserError;
-import com.vaadin.ui.AbstractOrderedLayout;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Layout;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * Generates a UI based on a given registration form. User can fill the form and a request is returned.
@@ -601,19 +603,23 @@ public class RegistrationRequestEditor extends CustomComponent
 		for (int i=0; i<aParams.size(); i++)
 		{
 			AgreementRegistrationParam aParam = aParams.get(i);
-			HtmlSimplifiedLabel aText = new HtmlSimplifiedLabel(aParam.getText().getValue(msg));
-			CheckBox cb = new CheckBox(msg.getMessage("RegistrationRequest.agree"));
-			agreementSelectors.add(cb);
+			Label aText = new Label(aParam.getText().getValue(msg));
+			aText.setContentMode(ContentMode.HTML);
 			layout.addComponent(aText);
-			layout.addComponent(cb);
+			CheckBox cb = new CheckBox(msg.getMessage("RegistrationRequest.agree"));
+			agreementSelectors.add(cb);	
+			HorizontalLayout horizontal = new HorizontalLayout();
+			layout.addComponent(horizontal);
+			horizontal.addComponent(cb);
 			if (aParam.isManatory())
 			{
 				Label mandatory = new Label(msg.getMessage("RegistrationRequest.mandatoryAgreement"));
 				mandatory.addStyleName(Styles.emphasized.toString());
-				layout.addComponent(mandatory);
+				mandatory.addStyleName("v-checkbox");
+				horizontal.addComponent(mandatory);
+				
 			}
-			if (i < aParams.size() - 1)
-				layout.addComponent(HtmlTag.hr());
+			
 		}		
 	}
 	
