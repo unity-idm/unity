@@ -54,6 +54,8 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -82,6 +84,10 @@ import pl.edu.icm.unity.types.registration.Selection;
 @Component
 public class InternalRegistrationManagment
 {
+	private static final String PORTAL_ATTRIBUTE_GROUP = "/portal";
+
+	private static final String AGREEMENTS_ATTRIBUTE_NAME = "agreements";
+
 	private static final Logger log = Log.getLogger(Log.U_SERVER,
 			InternalRegistrationManagment.class);
 
@@ -222,6 +228,16 @@ public class InternalRegistrationManagment
 						initial.getEntityId(), c.getSecrets(),
 						c.getCredentialId(), sql);
 			}
+		}
+		if(req.getAgreements() != null){
+			AttributeType type = dbAttributes.getAttributeTypes(sql).get(AGREEMENTS_ATTRIBUTE_NAME);
+			List<Long> agreementValues = new ArrayList<>();
+			for(Selection selection:req.getAgreements()){
+				agreementValues.add(selection.isSelected()?1l:0l);
+			}
+			@SuppressWarnings("unchecked")
+			Attribute<Long> agreements = new Attribute<Long>(AGREEMENTS_ATTRIBUTE_NAME, (AttributeValueSyntax<Long>)type.getValueType(), PORTAL_ATTRIBUTE_GROUP, AttributeVisibility.full, agreementValues);
+ 			attributesHelper.addAttribute(sql, initial.getEntityId(), true, type, false, agreements);
 		}
 		RegistrationFormNotifications notificationsCfg = form
 				.getNotificationsConfiguration();
