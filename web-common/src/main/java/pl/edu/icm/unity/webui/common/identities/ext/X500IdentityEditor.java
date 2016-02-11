@@ -17,9 +17,9 @@ import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.LimitedOuputStream;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextField;
@@ -52,9 +52,10 @@ public class X500IdentityEditor implements IdentityEditor
 	{
 		this.required = required;
 		field = new TextField();
-		field.setWidth(100, Unit.PERCENTAGE);
+		field.setColumns(Styles.WIDE_TEXT_FIELD);
 		Upload upload = new Upload();
 		upload.setCaption(msg.getMessage("X500IdentityEditor.certUploadCaption"));
+		upload.setImmediate(true);
 		CertUploader uploader = new CertUploader(); 
 		upload.setReceiver(uploader);
 		upload.addSucceededListener(uploader);

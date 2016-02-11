@@ -41,7 +41,6 @@ import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
 import com.vaadin.event.MouseEvents;
 import com.vaadin.event.MouseEvents.ClickEvent;
 import com.vaadin.server.Resource;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.server.StreamResource;
 import com.vaadin.server.StreamResource.StreamSource;
 import com.vaadin.ui.CheckBox;
@@ -212,12 +211,12 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 			field.setDescription(msg.getMessage("JpegAttributeHandler.clickToEnlarge"));
 			
 			upload = new Upload();
+			upload.setImmediate(true);
 			progressIndicator = new ProgressBar(0);
 			progressIndicator.setVisible(false);
 			
 			ImageUploader uploader = new ImageUploader(field, syntax, progressIndicator);
 			uploader.register();
-			upload.setWidth(100, Unit.PERCENTAGE);
 			upload.setCaption(label);
 
 			scale = new CheckBox(msg.getMessage("JpegAttributeHandler.scaleIfNeeded"));
