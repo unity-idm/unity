@@ -109,12 +109,11 @@ public class StandalonePublicFormView extends CustomComponent implements View
 	private void initUIBase()
 	{
 		main = new VerticalLayout();
-		main.setWidthUndefined();
 		main.setMargin(true);
 		main.setSpacing(true);
 		addStyleName("u-standalone-public-form");
 		setCompositionRoot(main);
-		setWidthUndefined();
+		setWidth(100, Unit.PERCENTAGE);
 	}
 	
 	private void editorCreated(RegistrationRequestEditor editor)
