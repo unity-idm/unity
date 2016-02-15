@@ -62,7 +62,7 @@ public interface RegistrationsManagement
 	 * are transformed to the internal (typically hashed) form. 
 	 * @param request
 	 * @param context
-	 * @return automatically asigned identifier of the request
+	 * @return automatically assigned identifier of the request
 	 * @throws EngineException
 	 */
 	String submitRegistrationRequest(RegistrationRequest request, RegistrationContext context) 
