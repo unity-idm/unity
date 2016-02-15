@@ -1,11 +1,7 @@
-/**********************************************************************
- *                     Copyright (c) 2015, Jirav
- *                        All Rights Reserved
- *
- *         This is unpublished proprietary source code of Jirav.
- *    Reproduction or distribution, in whole or in part, is forbidden
- *          except by express written permission of Jirav, Inc.
- **********************************************************************/
+/*
+ * Copyright (c) 2015, Jirav All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
 /**
  * Support for registration by invitation, with one time use registration codes.
  * Invited users, besides registration code can have some of the form elements pre-filled,
