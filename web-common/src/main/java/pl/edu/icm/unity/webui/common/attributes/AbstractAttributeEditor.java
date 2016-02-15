@@ -12,7 +12,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.Editor;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.EditorProvider;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 
 import com.vaadin.ui.AbstractOrderedLayout;
 
@@ -84,7 +84,7 @@ public abstract class AbstractAttributeEditor
 			ComponentsContainer ret = editor.getEditor(required, adminMode);
 			String description = at.getDescription().getValue(msg);
 			if (description != null && !description.equals(""))
-				ret.setDescription(HtmlSimplifiedLabel.escape(description));
+				ret.setDescription(HtmlConfigurableLabel.conditionallyEscape(description));
 			return ret;
 		}
 

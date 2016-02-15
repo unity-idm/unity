@@ -12,7 +12,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;
@@ -24,6 +24,8 @@ import com.vaadin.ui.VerticalLayout;
 
 /**
  * Shows {@link I18nString} in read only mode. Implemented as Custom field for convenience. 
+ * <p>
+ * IMPORTANT! This class is using {@link HtmlConfigurableLabel} underneath, so use with caution.
  * @author K. Benedyczak
  */
 public class I18nLabel extends CustomField<I18nString>
@@ -32,7 +34,7 @@ public class I18nLabel extends CustomField<I18nString>
 	
 	private String defaultLocaleCode;
 	private Map<String, Locale> enabledLocales;
-	private HtmlSimplifiedLabel defaultTf;
+	private HtmlConfigurableLabel defaultTf;
 	private Map<String, HPairLayout> translationTFs = new HashMap<String, HPairLayout>();
 	private VerticalLayout main;
 	
@@ -52,7 +54,7 @@ public class I18nLabel extends CustomField<I18nString>
 	private void initUI()
 	{
 		HPairLayout defL = new HPairLayout();
-		defaultTf = new HtmlSimplifiedLabel();
+		defaultTf = new HtmlConfigurableLabel();
 		Resource defStyle = Images.getFlagForLocale(defaultLocaleCode);
 		if (defStyle != null)
 			defL.addImage(defStyle);
@@ -68,7 +70,7 @@ public class I18nLabel extends CustomField<I18nString>
 				continue;
 
 			HPairLayout pair = new HPairLayout();
-			HtmlSimplifiedLabel tf = new HtmlSimplifiedLabel();
+			HtmlConfigurableLabel tf = new HtmlConfigurableLabel();
 			pair.addLabel(tf);
 			Resource image = Images.getFlagForLocale(localeKey);
 			if (image != null)
@@ -161,7 +163,7 @@ public class I18nLabel extends CustomField<I18nString>
 	
 	private class HPairLayout extends HorizontalLayout
 	{
-		private HtmlSimplifiedLabel label;
+		private HtmlConfigurableLabel label;
 		
 		public HPairLayout()
 		{
@@ -177,7 +179,7 @@ public class I18nLabel extends CustomField<I18nString>
 			setComponentAlignment(img, Alignment.MIDDLE_LEFT);
 		}
 		
-		public void addLabel(HtmlSimplifiedLabel l)
+		public void addLabel(HtmlConfigurableLabel l)
 		{
 			addComponent(l);
 			setComponentAlignment(l, Alignment.MIDDLE_LEFT);

@@ -55,7 +55,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 import com.google.common.html.HtmlEscapers;
@@ -429,7 +429,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		String info = form.getFormInformation() == null ? null : form.getFormInformation().getValue(msg);
 		if (info != null)
 		{
-			HtmlSimplifiedLabel formInformation = new HtmlSimplifiedLabel(info);
+			HtmlConfigurableLabel formInformation = new HtmlConfigurableLabel(info);
 			main.addComponent(formInformation);
 		}
 
@@ -558,9 +558,9 @@ public class RegistrationRequestEditor extends CustomComponent
 			else
 				editorUI.setCaption(credDefinition.getDisplayedName().getValue(msg) + ":");
 			if (param.getDescription() != null)
-				editorUI.setDescription(HtmlSimplifiedLabel.escape(param.getDescription()));
+				editorUI.setDescription(HtmlConfigurableLabel.conditionallyEscape(param.getDescription()));
 			else if (!credDefinition.getDescription().isEmpty())
-				editorUI.setDescription(HtmlSimplifiedLabel.escape(
+				editorUI.setDescription(HtmlConfigurableLabel.conditionallyEscape(
 						credDefinition.getDescription().getValue(msg)));
 			credentialParamEditors.add(editor);
 			layout.addComponents(editorUI.getComponents());
@@ -648,9 +648,9 @@ public class RegistrationRequestEditor extends CustomComponent
 			cb.setCaption(isEmpty(gParam.getLabel()) ? grp.getDisplayedName().getValue(msg) 
 					: gParam.getLabel());
 			if (gParam.getDescription() != null)
-				cb.setDescription(HtmlSimplifiedLabel.escape(gParam.getDescription()));
+				cb.setDescription(HtmlConfigurableLabel.conditionallyEscape(gParam.getDescription()));
 			else if (!grp.getDescription().isEmpty())
-				cb.setDescription(HtmlSimplifiedLabel.escape(grp.getDescription().getValue(msg)));
+				cb.setDescription(HtmlConfigurableLabel.conditionallyEscape(grp.getDescription().getValue(msg)));
 			
 			if (gParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive && conGroup)
 				cb.setValue(conGroup);
@@ -673,7 +673,7 @@ public class RegistrationRequestEditor extends CustomComponent
 		for (int i=0; i<aParams.size(); i++)
 		{
 			AgreementRegistrationParam aParam = aParams.get(i);
-			HtmlSimplifiedLabel aText = new HtmlSimplifiedLabel(aParam.getText().getValue(msg));
+			HtmlConfigurableLabel aText = new HtmlConfigurableLabel(aParam.getText().getValue(msg));
 			CheckBox cb = new CheckBox(msg.getMessage("RegistrationRequest.agree"));
 			agreementSelectors.add(cb);
 			layout.addComponent(aText);

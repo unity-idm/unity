@@ -13,7 +13,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.AbstractOrderedLayout;
@@ -71,7 +71,7 @@ public class AttributeViewer
 				String descriptionRaw = description.getValue(msg);
 				if (descriptionRaw != null)
 				{
-					String descSafe = HtmlSimplifiedLabel.escape(descriptionRaw);
+					String descSafe = HtmlConfigurableLabel.conditionallyEscape(descriptionRaw);
 					if (valueRepresentation instanceof AbstractField<?>)
 						((AbstractField<?>)valueRepresentation).setDescription(descSafe);
 					if (valueRepresentation instanceof Image)

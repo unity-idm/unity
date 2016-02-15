@@ -47,6 +47,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, UnityServerConfiguration.class);
 	public static final String CONFIGURATION_FILE = "conf/unityServer.conf";
 	public static final String DEFAULT_EMAIL_CHANNEL = "Default e-mail channel";
+
+	public static final String SYSTEM_ALLOW_FULL_HTML = "unity.server.allowFullHtml"; 
 	
 	public static final String BASE_PREFIX = "unityServer.";
 
@@ -69,6 +71,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String WELL_KNOWN_URL_THEME = "wellKnownUrlUITheme";
 	public static final String WELL_KNOWN_URL_TEMPLATE = "wellKnownUrlUITemplate";
 	public static final String UNITYGW_WEB_CONTENT_PATH = "unityGWWebContentDirectory";
+	public static final String ALLOW_FULL_HTML = "allowFullHtml"; 
 	
 	public static final String ENDPOINTS = "endpoints.";
 	public static final String ENDPOINT_DESCRIPTION = "endpointDescription";
@@ -180,6 +183,15 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put(THEME, new PropertyMD().setCategory(mainCat).setDescription(
 				"Overrides the default theme name as used for rendering the web endpoints. "
 				+ "This setting can be overriden per-endpoint. Applicable only for the web endpoints."));
+		defaults.put(ALLOW_FULL_HTML, new PropertyMD("false").setCategory(mainCat).setDescription(
+				"If set to true then Unity will render full HTML in admin-configured descriptions"
+				+ " of elements intended for end-user presentation "
+				+ "(e.g. registration form agreements or credential description). If false then only "
+				+ "a very limited set of HTML formatting tags will be rendered, the rest will be escaped. "
+				+ "This setting must be set to false in case when Unity is used by not-fully "
+				+ "trusted administrators, who (even with partially limited rights) may perform"
+				+ "XSS attacks. Then, however functionality of registration forms etc is slightly limited"
+				+ " as it is impossible to insert links and other advanced formating."));
 		defaults.put(UNITYGW_WEB_CONTENT_PATH, new PropertyMD().setPath().setCategory(mainCat).setDescription(
 				"Defines a folder from which all the web applications operating on the shared unitygw path "
 				+ "(e.g. the email confirmation screen) "
@@ -349,6 +361,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				IGNORE_CONFIGURED_CONTENTS_SETTING + " settings together makes really no sense: "
 						+ "database will be cleaned and not populated with any contents "
 						+ "so it won't be possible to anyhow log in.");
+		if (getBooleanValue(ALLOW_FULL_HTML))
+			System.setProperty(SYSTEM_ALLOW_FULL_HTML, "true");
 	}
 	
 	private void checkRealmNames()
