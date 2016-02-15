@@ -142,6 +142,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 				field.setId("EmailValueEditor."+label);
 			if (value != null)
 				field.setValue(value.getValue());
+			field.setRequired(required);
 			ComponentsContainer ret = new ComponentsContainer(field);
 			if (adminMode)
 			{
