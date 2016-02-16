@@ -55,7 +55,7 @@ public class BulkOperationsUpdater extends ScheduledUpdaterBase
 		Collection<RuleWithTS> scheduledRulesWithTS;
 		scheduledRulesWithTS = bulkSupport.getScheduledRulesWithTS();
 		
-		tx.runInTransaciton(() -> {
+		tx.runInTransaction(() -> {
 			SqlSession sql = SqlSessionTL.get();
 			Map<String, AbstractMap.SimpleEntry<Date, ScheduledProcessingRule>> rulesInDb = 
 					getRuleChangeTime(sql);

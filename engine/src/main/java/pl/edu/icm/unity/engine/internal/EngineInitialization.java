@@ -280,7 +280,7 @@ public class EngineInitialization extends LifecycleBase
 				log.debug("Clearing expired identities");
 				try
 				{
-					tx.runInTransaciton(() -> {
+					tx.runInTransaction(() -> {
 						dbIdentities.removeExpiredIdentities(SqlSessionTL.get());
 					});
 				} catch (Exception e)
@@ -455,7 +455,7 @@ public class EngineInitialization extends LifecycleBase
 		Collection<IdentityTypeDefinition> idTypes = idTypesReg.getAll();
 		try
 		{
-			tx.runInTransaciton(() -> {
+			tx.runInTransaction(() -> {
 				SqlSession sql = SqlSessionTL.get();
 				Map<String, IdentityType> defined = dbIdentities.getIdentityTypes(sql);
 				for (IdentityTypeDefinition it: idTypes)
@@ -480,7 +480,7 @@ public class EngineInitialization extends LifecycleBase
 		log.info("Checking if all system attribute types are defined");
 		try
 		{
-			tx.runInTransaciton(() -> {
+			tx.runInTransaction(() -> {
 				SqlSession sql = SqlSessionTL.get();
 				Map<String, AttributeType> existing = dbAttributes.getAttributeTypes(sql);
 				for (SystemAttributesProvider attrTypesProvider: sysTypeProviders)

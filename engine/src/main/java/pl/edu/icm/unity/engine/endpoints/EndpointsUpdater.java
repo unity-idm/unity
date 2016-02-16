@@ -72,7 +72,7 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 		log.debug("Running periodic endpoints update task. There are " + deployedEndpoints.size() + 
 				" deployed endpoints.");
 		
-		tx.runInTransaciton(() -> {
+		tx.runInTransaction(() -> {
 			SqlSession sql = SqlSessionTL.get();
 			long roundedUpdateTime = roundToS(System.currentTimeMillis());
 			Set<String> changedAuthenticators = getChangedAuthenticators(sql, roundedUpdateTime);

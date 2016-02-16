@@ -493,7 +493,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	{
 		attribute.validateInitialization();
 		entity.validateInitialization(); 
-		txRunner.runInTransaciton(() -> {
+		txRunner.runInTransaction(() -> {
 			SqlSession sql = SqlSessionTL.get();
 			boolean fullAuthz;
 			//Important - attributes can be also set as a result of addMember and addEntity.

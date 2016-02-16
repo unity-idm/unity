@@ -9,9 +9,9 @@ import pl.edu.icm.unity.exceptions.EngineException;
 
 public interface TransactionalRunner
 {
-	public void runInTransaciton(TxRunnable code) throws EngineException;
+	public void runInTransaction(TxRunnable code) throws EngineException;
 	
-	public <T> T runInTransacitonRet(TxRunnableRet<T> code) throws EngineException;
+	public <T> T runInTransactionRet(TxRunnableRet<T> code) throws EngineException;
 	
 	public interface TxRunnable
 	{

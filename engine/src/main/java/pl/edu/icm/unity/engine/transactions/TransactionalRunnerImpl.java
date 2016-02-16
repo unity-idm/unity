@@ -19,14 +19,14 @@ public class TransactionalRunnerImpl implements TransactionalRunner
 {
 	@Override
 	@Transactional
-	public void runInTransaciton(TxRunnable code) throws EngineException
+	public void runInTransaction(TxRunnable code) throws EngineException
 	{
 		code.run();
 	}
 
 	@Override
 	@Transactional
-	public <T> T runInTransacitonRet(TxRunnableRet<T> code) throws EngineException
+	public <T> T runInTransactionRet(TxRunnableRet<T> code) throws EngineException
 	{
 		return code.run();
 	}

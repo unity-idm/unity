@@ -165,7 +165,7 @@ public class AccessTokenResource extends BaseOAuthResource
 	
 	private TokensPair loadAndRemoveAuthzCodeToken(String code) throws OAuthErrorException, EngineException
 	{
-		return tx.runInTransacitonRet(() -> {
+		return tx.runInTransactionRet(() -> {
 			try
 			{
 				Token codeToken = tokensManagement.getTokenById(

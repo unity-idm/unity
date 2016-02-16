@@ -144,7 +144,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		entity.validateInitialization();
 		List<Attribute<?>> attributes = attributesP == null ? Collections.emptyList() : attributesP;
 
-		tx.runInTransaciton(() -> {
+		tx.runInTransaction(() -> {
 			SqlSession sql = SqlSessionTL.get();
 			long entityId = idResolver.getEntityId(entity, sql);
 			authz.checkAuthorization(authz.isSelf(entityId), path, AuthzCapability.groupModify);

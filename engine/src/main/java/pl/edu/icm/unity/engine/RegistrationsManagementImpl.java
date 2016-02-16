@@ -235,7 +235,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 
 	private RegistrationForm recordRequestAndReturnForm(RegistrationRequestState requestFull) throws EngineException
 	{
-		return tx.runInTransacitonRet(() -> {
+		return tx.runInTransactionRet(() -> {
 			RegistrationRequest request = requestFull.getRequest();
 			SqlSession sql = SqlSessionTL.get();
 			RegistrationForm form = formsDB.get(request.getFormId(), sql);
@@ -267,7 +267,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	{
 		if (!context.tryAutoAccept)
 			return null;
-		return tx.runInTransacitonRet(() -> {
+		return tx.runInTransactionRet(() -> {
 			return internalManagment.autoProcess(form, requestFull, 
 						"Automatic processing of the request  " + 
 						requestFull.getRequestId() + " invoked, action: {0}", 

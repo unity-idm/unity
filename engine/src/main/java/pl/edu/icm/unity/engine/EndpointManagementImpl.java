@@ -200,7 +200,7 @@ public class EndpointManagementImpl implements EndpointManagement
 	private void undeployInt(String id) throws EngineException
 	{
 		log.info("Will undeploy endpoint " + id);
-		tx.runInTransaciton(() -> {
+		tx.runInTransaction(() -> {
 			try
 			{
 				endpointDB.remove(id, SqlSessionTL.get());
@@ -237,7 +237,7 @@ public class EndpointManagementImpl implements EndpointManagement
 		log.info("Will update configuration of endpoint " + id);
 		if (log.isTraceEnabled())
 			log.trace("Updated endpoint configuration: " + configuration);
-		tx.runInTransaciton(() -> {
+		tx.runInTransaction(() -> {
 			SqlSession sql = SqlSessionTL.get();
 			try
 			{

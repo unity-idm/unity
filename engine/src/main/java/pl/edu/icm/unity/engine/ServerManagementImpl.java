@@ -102,7 +102,7 @@ public class ServerManagementImpl implements ServerManagement
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		
-		tx.runInTransaciton(() -> {
+		tx.runInTransaction(() -> {
 			SqlSession sql = SqlSessionTL.get();
 			initDb.deleteEverything(sql, resetIndexes);
 			try

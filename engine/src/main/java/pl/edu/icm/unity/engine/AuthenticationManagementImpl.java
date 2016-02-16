@@ -165,7 +165,7 @@ public class AuthenticationManagementImpl implements AuthenticationManagement
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		
-		tx.runInTransaciton(() -> {
+		tx.runInTransaction(() -> {
 			SqlSession sql = SqlSessionTL.get();
 			AuthenticatorImpl current = authenticatorLoader.getAuthenticator(id, sql);
 			String verificatorConfig = jsonVerificatorConfig;

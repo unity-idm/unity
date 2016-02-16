@@ -191,7 +191,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		authz.checkAuthorization(AuthzCapability.identityModify);
 		List<Attribute<?>> attributes = attributesP == null ? Collections.emptyList() : attributesP;
 		
-		Identity ret = tx.runInTransacitonRet(() -> {
+		Identity ret = tx.runInTransactionRet(() -> {
 			return engineHelper.addEntity(toAdd, credReqId, initialState, 
 					extractAttributes, attributes, true, SqlSessionTL.get());
 		}); 
@@ -212,7 +212,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	{
 		toAdd.validateInitialization();
 
-		Identity ret = tx.runInTransacitonRet(() -> {
+		Identity ret = tx.runInTransactionRet(() -> {
 			SqlSession sqlMap = SqlSessionTL.get();
 			long entityId = idResolver.getEntityId(parentEntity, sqlMap);
 			IdentityType identityType = dbIdentities.getIdentityTypes(sqlMap).get(

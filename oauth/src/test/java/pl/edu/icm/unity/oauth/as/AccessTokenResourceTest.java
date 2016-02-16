@@ -37,13 +37,13 @@ public class AccessTokenResourceTest
 	private TransactionalRunner tx = new TransactionalRunner()
 	{
 		@Override
-		public <T> T runInTransacitonRet(TxRunnableRet<T> code) throws EngineException
+		public <T> T runInTransactionRet(TxRunnableRet<T> code) throws EngineException
 		{
 			return code.run();
 		}
 		
 		@Override
-		public void runInTransaciton(TxRunnable code) throws EngineException
+		public void runInTransaction(TxRunnable code) throws EngineException
 		{
 			code.run();
 		}

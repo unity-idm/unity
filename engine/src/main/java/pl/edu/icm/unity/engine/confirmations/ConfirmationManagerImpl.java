@@ -155,7 +155,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		if (!checkSendingLimit(baseState.getValue()))
 			return;
 			
-		TokenAndFlag taf = tx.runInTransacitonRet(() -> {
+		TokenAndFlag taf = tx.runInTransactionRet(() -> {
 			boolean hasDuplicate = !getDuplicateTokens(facility, serializedState).isEmpty();
 			String token = insertConfirmationToken(serializedState);
 			return new TokenAndFlag(token, hasDuplicate);
@@ -249,7 +249,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			return new ConfirmationStatus(false, redirectURL, "ConfirmationStatus.invalidToken");
 		}
 		
-		return tx.runInTransacitonRet(() -> {
+		return tx.runInTransactionRet(() -> {
 			Token tk = null;
 			try
 			{
@@ -355,7 +355,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	{
 		if (entity.getEntityId() != null)
 			return entity.getEntityId();
-		return tx.runInTransacitonRet(() -> {
+		return tx.runInTransactionRet(() -> {
 			return idResolver.getEntityId(entity, SqlSessionTL.get());
 		});
 	}
@@ -438,14 +438,14 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	private ConfirmationConfiguration getConfiguration(String typeToConfirm,
 			String nameToConfirm) throws EngineException
 	{
-		return tx.runInTransacitonRet(() -> {
+		return tx.runInTransactionRet(() -> {
 			return configurationDB.get(typeToConfirm + nameToConfirm, SqlSessionTL.get());
 		});
 	}
 
 	private Collection<MessageTemplate> getAllTemplatesFromDB() throws EngineException
 	{
-		return tx.runInTransacitonRet(() -> {
+		return tx.runInTransactionRet(() -> {
 			Map<String, MessageTemplate> templates = mtDB.getAllAsMap(SqlSessionTL.get());
 			return templates.values();
 		});
