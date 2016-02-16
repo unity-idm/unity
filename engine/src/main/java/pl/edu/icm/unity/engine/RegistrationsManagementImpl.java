@@ -222,13 +222,12 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		requestFull.setRegistrationContext(context);
 		
 		RegistrationForm form = recordRequestAndReturnForm(requestFull); 
-			
-		Long entityId = sendNotificationAndTryAutoProcess(form, requestFull, context);
 		
-		if (entityId == null)
-			sendFormAttributeConfirmationRequest(requestFull, form);
-		else
-			sendAttributeConfirmationRequest(requestFull, entityId, form);
+		sendNotification(form, requestFull);
+		
+		Long entityId = tryAutoProcess(form, requestFull, context);
+		
+		sendAttributeConfirmationRequest(requestFull, entityId, form);
 		sendIdentityConfirmationRequest(requestFull, entityId, form);	
 		
 		return requestFull.getRequestId();
@@ -245,32 +244,34 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			return form;
 		});
 	}
+
+	private void sendNotification(RegistrationForm form, RegistrationRequestState requestFull) throws EngineException
+	{
+		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
+		if (notificationsCfg.getChannel() != null && notificationsCfg.getSubmittedTemplate() != null
+				&& notificationsCfg.getAdminsNotificationGroup() != null)
+		{
+			Map<String, String> params = internalManagment.getBaseNotificationParams(
+					form.getName(), requestFull.getRequestId()); 
+			notificationProducer.sendNotificationToGroup(
+					notificationsCfg.getAdminsNotificationGroup(), 
+					notificationsCfg.getChannel(), 
+					notificationsCfg.getSubmittedTemplate(),
+					params,
+					msg.getDefaultLocaleCode());
+		}
+	}
 	
-	private Long sendNotificationAndTryAutoProcess(RegistrationForm form, RegistrationRequestState requestFull, 
+	private Long tryAutoProcess(RegistrationForm form, RegistrationRequestState requestFull, 
 			RegistrationContext context) throws EngineException
 	{
+		if (!context.tryAutoAccept)
+			return null;
 		return tx.runInTransacitonRet(() -> {
-			SqlSession sql = SqlSessionTL.get();
-			Long entityId = null;
-			RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
-			if (notificationsCfg.getChannel() != null && notificationsCfg.getSubmittedTemplate() != null
-					&& notificationsCfg.getAdminsNotificationGroup() != null)
-			{
-				Map<String, String> params = internalManagment.getBaseNotificationParams(
-						form.getName(), requestFull.getRequestId()); 
-				notificationProducer.sendNotificationToGroup(
-						notificationsCfg.getAdminsNotificationGroup(), 
-						notificationsCfg.getChannel(), 
-						notificationsCfg.getSubmittedTemplate(),
-						params,
-						msg.getDefaultLocaleCode());
-			}
-			if (context.tryAutoAccept)
-				entityId = internalManagment.autoProcess(form, requestFull, 
+			return internalManagment.autoProcess(form, requestFull, 
 						"Automatic processing of the request  " + 
-						requestFull.getRequestId() + " invoked, action: {0}", sql);
-			
-			return entityId;
+						requestFull.getRequestId() + " invoked, action: {0}", 
+						SqlSessionTL.get());
 		});
 	}
 	
@@ -499,48 +500,34 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				for (Object v : attr.getValues())
 				{
 					VerifiableElement val = (VerifiableElement) v;
-					AttribiuteConfirmationState state = new AttribiuteConfirmationState(
-							entityId, 
-							attr.getName(), 
-							val.getValue(), 
-							requestState.getRequest().getUserLocale(), 
-							attr.getGroupPath(), 
-							getFormRedirectUrlForAttribute(requestState, form, attr));
-					confirmationManager.sendConfirmationRequest(state);
-				}
-			}
-		}
-	}
-
-	private void sendFormAttributeConfirmationRequest(RegistrationRequestState requestState, RegistrationForm form) 
-			throws InternalException, EngineException
-	{
-		for (Attribute<?> attr : requestState.getRequest().getAttributes())
-		{
-			if (attr == null)
-				continue;
-			
-			if (attr.getAttributeSyntax().isVerifiable())
-			{
-				for (Object v : attr.getValues())
-				{
-					VerifiableElement val = (VerifiableElement) v;
 					if (val.isConfirmed())
 						continue;
-					RegistrationReqAttribiuteConfirmationState state = 
-						new RegistrationReqAttribiuteConfirmationState(
+					BaseConfirmationState state;
+					if (entityId == null)
+					{
+						state = new RegistrationReqAttribiuteConfirmationState(
 							requestState.getRequestId(), 
 							attr.getName(), 
 							val.getValue(), 
 							requestState.getRequest().getUserLocale(),
 							attr.getGroupPath(), 
 							getFormRedirectUrlForAttribute(requestState, form, attr));
+					} else
+					{
+						state = new AttribiuteConfirmationState(
+							entityId, 
+							attr.getName(), 
+							val.getValue(), 
+							requestState.getRequest().getUserLocale(), 
+							attr.getGroupPath(), 
+							getFormRedirectUrlForAttribute(requestState, form, attr));
+					}
 					confirmationManager.sendConfirmationRequest(state);
 				}
 			}
 		}
 	}
-	
+
 	private void sendIdentityConfirmationRequest(RegistrationRequestState requestState,
 			Long entityId, RegistrationForm form) throws InternalException, EngineException
 	{
