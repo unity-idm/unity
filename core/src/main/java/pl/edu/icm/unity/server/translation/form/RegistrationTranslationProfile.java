@@ -27,18 +27,20 @@ import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.Au
 import pl.edu.icm.unity.server.translation.form.action.AutoProcessActionFactory;
 import pl.edu.icm.unity.server.translation.form.action.ConfirmationRedirectActionFactory;
 import pl.edu.icm.unity.server.translation.form.action.RedirectActionFactory;
+import pl.edu.icm.unity.server.translation.form.action.SubmitMessageActionFactory;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
+import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.Selection;
-import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 
@@ -130,6 +132,23 @@ public class RegistrationTranslationProfile extends TranslationProfileInstance
 			return null;
 		}
 		return result.getAutoAction();
+	}
+
+	public I18nMessage getPostSubmitMessage(RegistrationForm form, RegistrationRequest request,
+			RegistrationContext context, String requestId)
+	{
+		Map<String, Object> mvelCtx = createMvelContext(form, request, RequestSubmitStatus.submitted, 
+				context.triggeringMode, context.isOnIdpEndpoint, requestId);
+		TranslatedRegistrationRequest result;
+		try
+		{
+			result = executeFilteredActions(form, request, mvelCtx, SubmitMessageActionFactory.NAME);
+		} catch (EngineException e)
+		{
+			log.warn("Couldn't establish post submission message from profile", e);
+			return null;
+		}
+		return result.getPostSubmitMessage();
 	}
 	
 	public String getPostSubmitRedirectURL(RegistrationForm form, RegistrationRequest request,

@@ -10,6 +10,7 @@ import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.DescribedObjectImpl;
+import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.I18nString;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -163,42 +164,6 @@ public class MessageTemplate extends DescribedObjectImpl
 	public void setMessage(I18nMessage message)
 	{
 		this.message = message;
-	}
-	
-	/**
-	 * Objects are used to store message templates with localized strings.
-	 * @author K. Benedyczak
-	 */
-	public static class I18nMessage
-	{
-		private I18nString body;
-		private I18nString subject;
-		
-		public I18nMessage(I18nString subject, I18nString body)
-		{
-			this.subject = subject;
-			this.body = body;
-		}	
-		
-		public void setBody(I18nString body)
-		{
-			this.body = body;
-		}
-
-		public void setSubject(I18nString subject)
-		{
-			this.subject = subject;
-		}
-
-		public I18nString getBody()
-		{
-			return body;
-		}
-
-		public I18nString getSubject()
-		{
-			return subject;
-		}
 	}
 	
 	/**

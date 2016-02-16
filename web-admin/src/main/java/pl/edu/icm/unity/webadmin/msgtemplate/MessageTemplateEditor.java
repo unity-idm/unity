@@ -9,7 +9,6 @@ import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
-import pl.edu.icm.unity.msgtemplates.MessageTemplate.I18nMessage;
 import pl.edu.icm.unity.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.msgtemplates.MessageTemplateValidator;
 import pl.edu.icm.unity.msgtemplates.MessageTemplateValidator.IllegalVariablesException;
@@ -17,6 +16,7 @@ import pl.edu.icm.unity.msgtemplates.MessageTemplateValidator.MandatoryVariables
 import pl.edu.icm.unity.msgtemplates.MessageTemplateVariable;
 import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.NotificationPopup;

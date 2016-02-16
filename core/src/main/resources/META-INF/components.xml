@@ -70,8 +70,8 @@
 	<bean class="pl.edu.icm.unity.server.translation.form.action.RedirectActionFactory"/>
 	<bean class="pl.edu.icm.unity.server.translation.form.action.ScheduleEntityChangeActionFactory"/>
 	<bean class="pl.edu.icm.unity.server.translation.form.action.SetCredentialRequirementActionFactory"/>
-	<bean class="pl.edu.icm.unity.server.translation.form.action.SetEntityStateActionFactory"/>
-	
+	<bean class="pl.edu.icm.unity.server.translation.form.action.SetEntityStateActionFactory"/>	
+	<bean class="pl.edu.icm.unity.server.translation.form.action.SubmitMessageActionFactory"/>
 
 	
 	<beans profile="production">

@@ -15,6 +15,7 @@ import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder.S
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
@@ -76,6 +77,7 @@ public class PostRegistrationHandler
 			autoAccepted = false;
 		}
 		String redirect = translationProfile.getPostSubmitRedirectURL(form, request, context, requestId);
+		I18nMessage message = translationProfile.getPostSubmitMessage(form, request, context, requestId);
 		if (redirect != null)
 		{
 			String finalRedirect = new RegistrationRedirectURLBuilder(redirect, form.getName(), requestId, 
@@ -83,7 +85,12 @@ public class PostRegistrationHandler
 			redirectOrInform(finalRedirect);
 		} else
 		{
-			if (autoAccepted)
+			if (message != null)
+			{
+				NotificationPopup.showNotice(msg,
+						message.getSubject().getValue(msg),
+						message.getBody().getValue(msg));
+			} else if (autoAccepted)
 			{
 				NotificationPopup.showNotice(msg,
 						msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"),

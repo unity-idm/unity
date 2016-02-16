@@ -94,6 +94,8 @@ public class ActionParameterComponentFactory
 				return new DaysActionParameterComponent(param, msg);
 			case LARGE_TEXT:
 				return new TextAreaActionParameterComponent(param, msg);
+			case I18N_TEXT:
+				return new I18nTextActionParameterComponent(param, msg);
 			default: 
 				return new DefaultActionParameterComponent(param, msg);
 			}

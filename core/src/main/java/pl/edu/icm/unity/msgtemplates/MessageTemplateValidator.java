@@ -12,8 +12,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.msgtemplates.MessageTemplate.I18nMessage;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate.Message;
+import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.I18nString;
 
 /**

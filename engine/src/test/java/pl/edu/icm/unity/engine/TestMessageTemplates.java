@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
-import pl.edu.icm.unity.msgtemplates.MessageTemplate.I18nMessage;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
+import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.I18nString;
 
 public class TestMessageTemplates extends DBIntegrationTestBase

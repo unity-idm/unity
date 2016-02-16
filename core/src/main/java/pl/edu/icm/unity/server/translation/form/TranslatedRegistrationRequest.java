@@ -12,6 +12,7 @@ import java.util.Set;
 
 import pl.edu.icm.unity.server.translation.in.EntityChange;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
@@ -40,6 +41,7 @@ public class TranslatedRegistrationRequest
 	private EntityState initialEntityState = EntityState.valid;
 	private String credentialRequirement;
 	private String redirectURL = null;
+	private I18nMessage postSubmitMessage;
 	
 	public TranslatedRegistrationRequest(String credentialRequirement)
 	{
@@ -149,5 +151,15 @@ public class TranslatedRegistrationRequest
 	public Map<String, Set<String>> getAttributeClasses()
 	{
 		return attributeClasses;
+	}
+
+	public I18nMessage getPostSubmitMessage()
+	{
+		return postSubmitMessage;
+	}
+
+	public void setPostSubmitMessage(I18nMessage message)
+	{
+		this.postSubmitMessage = message;
 	}
 }
