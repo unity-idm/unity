@@ -231,13 +231,15 @@ public class InternalRegistrationManagment
 		}
 		if(req.getAgreements() != null){
 			AttributeType type = dbAttributes.getAttributeTypes(sql).get(AGREEMENTS_ATTRIBUTE_NAME);
-			List<Long> agreementValues = new ArrayList<>();
-			for(Selection selection:req.getAgreements()){
-				agreementValues.add(selection.isSelected()?1l:0l);
+			if(type != null){
+				List<Long> agreementValues = new ArrayList<>();
+				for(Selection selection:req.getAgreements()){
+					agreementValues.add(selection.isSelected()?1l:0l);
+				}
+				@SuppressWarnings("unchecked")
+				Attribute<Long> agreements = new Attribute<Long>(AGREEMENTS_ATTRIBUTE_NAME, (AttributeValueSyntax<Long>)type.getValueType(), PORTAL_ATTRIBUTE_GROUP, AttributeVisibility.full, agreementValues);
+	 			attributesHelper.addAttribute(sql, initial.getEntityId(), true, type, false, agreements);
 			}
-			@SuppressWarnings("unchecked")
-			Attribute<Long> agreements = new Attribute<Long>(AGREEMENTS_ATTRIBUTE_NAME, (AttributeValueSyntax<Long>)type.getValueType(), PORTAL_ATTRIBUTE_GROUP, AttributeVisibility.full, agreementValues);
- 			attributesHelper.addAttribute(sql, initial.getEntityId(), true, type, false, agreements);
 		}
 		RegistrationFormNotifications notificationsCfg = form
 				.getNotificationsConfiguration();
