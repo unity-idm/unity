@@ -124,7 +124,7 @@ and <<endp-rest-jwt>>. The differences are that the Unity's JWT tokens can be ob
 easier way then an OAuth access token. On the other hand JWT tokens can be used only with Unity, 
 other services will neither issue nor validate them.
 
-==== Revocation
+==== Revocation and logout
 
 The path +/revoke+ can be used to revoke an access token which was previously issued. This endpoint
 is implemented according to the RFC 7009. 
@@ -145,3 +145,8 @@ Content-Type: application/x-www-form-urlencoded
 token=45ghiukldjahdnhzdauz&user_id=oauth-client
 ----
 
+Besides the standard token revocation, it is also possible to request token's owner logout (disposal of the SSO session)
+together with token revocation. To be able to perform this operation, the client must request and obtain a special
+OAuth scope: +single_logout+. Having this scope, token revocation can be used to logout the token owner
+by adding the following form parameter to the request: +logout=true+.
+ 
