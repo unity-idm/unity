@@ -7,6 +7,7 @@ package pl.edu.icm.unity.restadm;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -120,7 +121,8 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 
 		assertThat(returnedL.size(), is(2));
 
-		EndpointDescription returned = returnedL.get(1);
+		EndpointDescription returned = getEndpointById(returnedL, "newEndpoint");
+		
 		assertThat(returned.getAuthenticatorSets(), is(
 				Lists.newArrayList(new AuthenticationOptionDescription("ApassREST"))));
 		assertThat(returned.getContextAddress(), is("/contextA"));
@@ -152,7 +154,7 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 
 		assertThat(returnedL.size(), is(2));
 
-		EndpointDescription returned = returnedL.get(1);
+		EndpointDescription returned = getEndpointById(returnedL, "newEndpoint");
 		assertThat(returned.getAuthenticatorSets(), is(
 				Lists.newArrayList(new AuthenticationOptionDescription("ApassREST"))));
 		assertThat(returned.getContextAddress(), is("/contextA"));
@@ -163,6 +165,15 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 		assertThat(returned.getType().getName(), is(RESTAdminEndpointFactory.NAME));
 	}
 
+	private EndpointDescription getEndpointById(List<EndpointDescription> returnedL, String id)
+	{
+		for (EndpointDescription e: returnedL)
+			if (e.getId().equals(id))
+				return e;
+		fail("No endpoint with a given id " + id);
+		throw new IllegalStateException();
+	}
+	
 	@Test
 	public void deployWithInvalidConfigurationResultsInBadRequest() throws Exception
 	{
