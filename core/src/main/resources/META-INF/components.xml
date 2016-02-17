@@ -35,8 +35,12 @@
 	<bean class="pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef"/>
 	<bean class="pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef"/>
 	<bean class="pl.edu.icm.unity.server.api.registration.InvitationTemplateDef"/>
+	<bean class="pl.edu.icm.unity.server.api.registration.EnquiryFilledTemplateDef"/>
+	<bean class="pl.edu.icm.unity.server.api.registration.NewEnquiryTemplateDef"/>
 
 	<bean class="pl.edu.icm.unity.confirmations.ConfirmationTemplateDef"/>
+
+
 
 	<bean class="pl.edu.icm.unity.server.authn.AuthenticationProcessor"/>
 	<bean class="pl.edu.icm.unity.server.authn.remote.InputTranslationEngine"/>

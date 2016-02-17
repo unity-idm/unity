@@ -38,6 +38,7 @@
 	<bean primary="true" class="pl.edu.icm.unity.engine.MessageTemplateManagementImpl"/>
 	<bean primary="true" class="pl.edu.icm.unity.engine.ConfirmationConfigurationManagementImpl"/>
 	<bean primary="true" class="pl.edu.icm.unity.engine.BulkProcessingManagementImpl"/>
+	<bean primary="true" class="pl.edu.icm.unity.engine.EnquiryManagementImpl"/>
 
 	<!-- Those beans are the same as the 'primary' beans above, but do not perform authorization. 
 	Must be used with qualifier. -->
@@ -97,7 +98,11 @@
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
-
+	<bean primary="false" class="pl.edu.icm.unity.engine.EnquiryManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	
 	<!-- Currently simplistic -->
 	<bean class="pl.edu.icm.unity.engine.PKIManagementImpl"/>
 	<bean class="pl.edu.icm.unity.engine.SharedEndpointManagementImpl"/>

@@ -4,11 +4,6 @@
  */
 package pl.edu.icm.unity.types.registration;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
  * Registration request, tied to a registration form contains data collected
@@ -18,86 +13,10 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
  * 
  * @author K. Benedyczak
  */
-public class RegistrationRequest
+public class RegistrationRequest extends BaseRegistrationInput
 {
-	private String formId;
-	private List<IdentityParam> identities = new ArrayList<>();
-	private List<Attribute<?>> attributes = new ArrayList<>();
-	private List<CredentialParamValue> credentials = new ArrayList<>();
-	private List<Selection> groupSelections = new ArrayList<>();
-	private List<Selection> agreements = new ArrayList<>();
-	private String comments;
 	private String registrationCode;
-	private String userLocale;
 	
-	public String getFormId()
-	{
-		return formId;
-	}
-
-	public void setFormId(String formId)
-	{
-		this.formId = formId;
-	}
-	public List<IdentityParam> getIdentities()
-	{
-		return identities;
-	}
-	public void setIdentities(List<IdentityParam> identities)
-	{
-		this.identities = identities;
-	}
-
-	public List<Attribute<?>> getAttributes()
-	{
-		return attributes;
-	}
-
-	public void setAttributes(List<Attribute<?>> attributes)
-	{
-		this.attributes = attributes;
-	}
-
-	public List<CredentialParamValue> getCredentials()
-	{
-		return credentials;
-	}
-
-	public void setCredentials(List<CredentialParamValue> credentials)
-	{
-		this.credentials = credentials;
-	}
-
-	public List<Selection> getGroupSelections()
-	{
-		return groupSelections;
-	}
-
-	public void setGroupSelections(List<Selection> groupSelections)
-	{
-		this.groupSelections = groupSelections;
-	}
-
-	public List<Selection> getAgreements()
-	{
-		return agreements;
-	}
-
-	public void setAgreements(List<Selection> agreements)
-	{
-		this.agreements = agreements;
-	}
-
-	public String getComments()
-	{
-		return comments;
-	}
-
-	public void setComments(String comments)
-	{
-		this.comments = comments;
-	}
-
 	public String getRegistrationCode()
 	{
 		return registrationCode;
@@ -108,29 +27,11 @@ public class RegistrationRequest
 		this.registrationCode = registrationCode;
 	}
 
-	public String getUserLocale()
-	{
-		return userLocale;
-	}
-
-	public void setUserLocale(String userLocale)
-	{
-		this.userLocale = userLocale;
-	}
-
 	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((agreements == null) ? 0 : agreements.hashCode());
-		result = prime * result + ((attributes == null) ? 0 : attributes.hashCode());
-		result = prime * result + ((comments == null) ? 0 : comments.hashCode());
-		result = prime * result + ((credentials == null) ? 0 : credentials.hashCode());
-		result = prime * result + ((formId == null) ? 0 : formId.hashCode());
-		result = prime * result
-				+ ((groupSelections == null) ? 0 : groupSelections.hashCode());
-		result = prime * result + ((identities == null) ? 0 : identities.hashCode());
+		int result = super.hashCode();
 		result = prime * result
 				+ ((registrationCode == null) ? 0 : registrationCode.hashCode());
 		return result;
@@ -141,53 +42,11 @@ public class RegistrationRequest
 	{
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!super.equals(obj))
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
 		RegistrationRequest other = (RegistrationRequest) obj;
-		if (agreements == null)
-		{
-			if (other.agreements != null)
-				return false;
-		} else if (!agreements.equals(other.agreements))
-			return false;
-		if (attributes == null)
-		{
-			if (other.attributes != null)
-				return false;
-		} else if (!attributes.equals(other.attributes))
-			return false;
-		if (comments == null)
-		{
-			if (other.comments != null)
-				return false;
-		} else if (!comments.equals(other.comments))
-			return false;
-		if (credentials == null)
-		{
-			if (other.credentials != null)
-				return false;
-		} else if (!credentials.equals(other.credentials))
-			return false;
-		if (formId == null)
-		{
-			if (other.formId != null)
-				return false;
-		} else if (!formId.equals(other.formId))
-			return false;
-		if (groupSelections == null)
-		{
-			if (other.groupSelections != null)
-				return false;
-		} else if (!groupSelections.equals(other.groupSelections))
-			return false;
-		if (identities == null)
-		{
-			if (other.identities != null)
-				return false;
-		} else if (!identities.equals(other.identities))
-			return false;
 		if (registrationCode == null)
 		{
 			if (other.registrationCode != null)
