@@ -30,7 +30,7 @@ class GetRegistrationCodeDialog extends AbstractDialog
 	{
 		super(msg, msg.getMessage("GetRegistrationCodeDialog.title"));
 		this.callback = callback;
-		setSizeMode(SizeMode.SMALL);
+		setSize(65, 40);
 	}
 	
 	@Override
