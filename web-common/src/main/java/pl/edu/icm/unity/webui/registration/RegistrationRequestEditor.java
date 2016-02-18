@@ -415,6 +415,14 @@ public class RegistrationRequestEditor extends CustomComponent
 			ret.setRegistrationCode(regCodeProvided);
 	}
 	
+	@Override
+	public void setWidthUndefined()
+	{
+		super.setWidthUndefined();
+		getCompositionRoot().setWidthUndefined();
+	}
+
+	
 	private void initUI() throws EngineException
 	{
 		VerticalLayout main = new VerticalLayout();
