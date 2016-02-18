@@ -40,6 +40,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public class RegistrationForm extends DescribedObjectROImpl
 {
+	public static final int MAX_CAPTCHA_LENGTH = 8;
+	
 	private boolean publiclyAvailable;
 	private RegistrationFormNotifications notificationsConfiguration = new RegistrationFormNotifications();
 	

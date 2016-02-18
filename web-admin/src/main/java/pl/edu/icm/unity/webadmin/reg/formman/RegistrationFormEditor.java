@@ -286,7 +286,8 @@ public class RegistrationFormEditor extends VerticalLayout
 		invitationTemplate =  new CompatibleTemplatesComboBox(InvitationTemplateDef.NAME, msgTempMan);
 		invitationTemplate.setCaption(msg.getMessage("RegistrationFormViewer.invitationTemplate"));
 		
-		captcha = new Slider(msg.getMessage("RegistrationFormViewer.captcha"), 0, 8);
+		captcha = new Slider(msg.getMessage("RegistrationFormViewer.captcha"), 0, 
+				RegistrationForm.MAX_CAPTCHA_LENGTH);
 		captcha.setWidth(10, Unit.EM);
 		captcha.setDescription(msg.getMessage("RegistrationFormEditor.captchaDescription"));
 		
