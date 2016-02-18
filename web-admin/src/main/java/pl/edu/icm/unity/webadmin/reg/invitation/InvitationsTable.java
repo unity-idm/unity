@@ -133,19 +133,29 @@ public class InvitationsTable extends CustomComponent
 	
 	private boolean addInvitation(InvitationParam invitation, boolean send)
 	{
+		String code;
 		try
 		{
-			String code = registrationManagement.addInvitation(invitation);
-			if (send)
-				registrationManagement.sendInvitation(code);
+			code = registrationManagement.addInvitation(invitation);
 			refresh();
-			return true;
 		} catch (Exception e)
 		{
 			String info = msg.getMessage("InvitationsTable.errorAdd");
 			NotificationPopup.showError(msg, info, e);
 			return false;
 		}
+		if (send)
+		{
+			try
+			{
+				registrationManagement.sendInvitation(code);
+			} catch (EngineException e)
+			{
+				String info = msg.getMessage("InvitationsTable.errorSend");
+				NotificationPopup.showError(msg, info, e);
+			}
+		}
+		return true;
 	}
 
 	private void removeInvitation(Collection<?> items)
