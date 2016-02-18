@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.types.registration;
 
+import java.util.Arrays;
+
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.InternalException;
 
@@ -11,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -22,8 +25,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public class EnquiryForm extends BaseForm
 {
-	private boolean optional;
-	private String targetUsersExpression;
+	public enum EnquiryType {REQUESTED_MANDATORY, REQUESTED_OPTIONAL}
+	
+	private EnquiryType type;
+	private String[] targetGroups;
 	private EnquiryFormNotifications notificationsConfiguration;
 	
 	@JsonCreator
@@ -49,8 +54,10 @@ public class EnquiryForm extends BaseForm
 	{
 		ObjectNode root = super.toJson();
 		ObjectMapper jsonMapper = Constants.MAPPER;
-		root.put("optional", optional);
-		root.put("targetUsersExpression", targetUsersExpression);
+		root.put("type", type.name());
+		ArrayNode targetGroupsA = root.putArray("targetGroups");
+		for (String targetGroup: targetGroups)
+			targetGroupsA.add(targetGroup);
 		root.set("NotificationsConfiguration", jsonMapper.valueToTree(getNotificationsConfiguration()));
 		return root;
 	}
@@ -60,10 +67,13 @@ public class EnquiryForm extends BaseForm
 		ObjectMapper jsonMapper = Constants.MAPPER;
 		try
 		{
-			JsonNode n = root.get("optional");
-			this.optional = n.asBoolean();
+			JsonNode n = root.get("type");
+			this.type = EnquiryType.valueOf(n.asText());
 			
-			this.targetUsersExpression = root.get("targetUsersExpression").asText();
+			ArrayNode targetGroupsA = root.withArray("targetGroups");
+			this.targetGroups = new String[targetGroupsA.size()];
+			for (int i=0; i<targetGroups.length; i++)
+				targetGroups[i] = targetGroupsA.get(i).asText();
 			
 			n = root.get("NotificationsConfiguration");
 			if (n != null)
@@ -78,34 +88,35 @@ public class EnquiryForm extends BaseForm
 		}
 	}
 
-	public boolean isOptional()
-	{
-		return optional;
-	}
-
-	public String getTargetUsersExpression()
-	{
-		return targetUsersExpression;
-	}
-
 	public EnquiryFormNotifications getNotificationsConfiguration()
 	{
 		return notificationsConfiguration;
 	}
 
-	public void setOptional(boolean optional)
-	{
-		this.optional = optional;
-	}
-
-	public void setTargetUsersExpression(String targetUsersExpression)
-	{
-		this.targetUsersExpression = targetUsersExpression;
-	}
 
 	public void setNotificationsConfiguration(EnquiryFormNotifications notificationsConfiguration)
 	{
 		this.notificationsConfiguration = notificationsConfiguration;
+	}
+
+	public EnquiryType getType()
+	{
+		return type;
+	}
+
+	public void setType(EnquiryType type)
+	{
+		this.type = type;
+	}
+
+	public String[] getTargetGroups()
+	{
+		return targetGroups;
+	}
+
+	public void setTargetGroups(String[] targetGroups)
+	{
+		this.targetGroups = targetGroups;
 	}
 
 	@Override
@@ -117,11 +128,8 @@ public class EnquiryForm extends BaseForm
 				* result
 				+ ((notificationsConfiguration == null) ? 0
 						: notificationsConfiguration.hashCode());
-		result = prime * result + (optional ? 1231 : 1237);
-		result = prime
-				* result
-				+ ((targetUsersExpression == null) ? 0 : targetUsersExpression
-						.hashCode());
+		result = prime * result + Arrays.hashCode(targetGroups);
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
 
@@ -141,13 +149,9 @@ public class EnquiryForm extends BaseForm
 				return false;
 		} else if (!notificationsConfiguration.equals(other.notificationsConfiguration))
 			return false;
-		if (optional != other.optional)
+		if (!Arrays.equals(targetGroups, other.targetGroups))
 			return false;
-		if (targetUsersExpression == null)
-		{
-			if (other.targetUsersExpression != null)
-				return false;
-		} else if (!targetUsersExpression.equals(other.targetUsersExpression))
+		if (type != other.type)
 			return false;
 		return true;
 	}

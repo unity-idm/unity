@@ -103,7 +103,7 @@ public class RegistrationFormViewer extends VerticalLayout
 		byInvitationOnly.setValue(msg.getYesNo(form.isByInvitationOnly()));
 		
 		publicLink.setValue(form.isPubliclyAvailable() ? 
-				PublicRegistrationURLSupport.getPublicLink(form.getName(), sharedEndpointMan) : "-");
+				PublicRegistrationURLSupport.getPublicRegistrationLink(form.getName(), sharedEndpointMan) : "-");
 		
 		RegistrationFormNotifications notCfg = form.getNotificationsConfiguration();
 		if (notCfg != null)

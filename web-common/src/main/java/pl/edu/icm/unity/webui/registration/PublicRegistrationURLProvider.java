@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.registration;
 
-import static pl.edu.icm.unity.server.api.registration.PublicRegistrationURLSupport.FRAGMENT_PREFIX;
+import static pl.edu.icm.unity.server.api.registration.PublicRegistrationURLSupport.REGISTRATION_FRAGMENT_PREFIX;
 
 import java.util.List;
 
@@ -77,16 +77,16 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 	@Override
 	public String getViewName(String viewAndParameters)
 	{
-		if (!viewAndParameters.startsWith(FRAGMENT_PREFIX))
+		if (!viewAndParameters.startsWith(REGISTRATION_FRAGMENT_PREFIX))
 			return null;
-		String viewName = viewAndParameters.substring(FRAGMENT_PREFIX.length());
+		String viewName = viewAndParameters.substring(REGISTRATION_FRAGMENT_PREFIX.length());
 		return getForm(viewName) == null ? null : viewAndParameters;
 	}
 
 	@Override
 	public View getView(String viewName)
 	{
-		RegistrationForm form = getForm(viewName.substring(FRAGMENT_PREFIX.length()));
+		RegistrationForm form = getForm(viewName.substring(REGISTRATION_FRAGMENT_PREFIX.length()));
 		if (form == null)
 			return null;
 		return new StandalonePublicFormView(form, msg, regMan, identityEditorRegistry, 

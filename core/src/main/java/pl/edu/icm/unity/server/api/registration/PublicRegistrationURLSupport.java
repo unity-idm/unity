@@ -21,7 +21,8 @@ import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
  */
 public class PublicRegistrationURLSupport
 {
-	public static final String FRAGMENT_PREFIX = "registration-";
+	public static final String REGISTRATION_FRAGMENT_PREFIX = "registration-";
+	public static final String ENQUIRY_FRAGMENT_PREFIX = "enquiry-";
 	public static final String CODE_PARAM = "regcode";
 	
 	/**
@@ -29,10 +30,21 @@ public class PublicRegistrationURLSupport
 	 * @param sharedEndpointMan
 	 * @return a link to a standalone UI of a registration form
 	 */
-	public static String getPublicLink(String formName, SharedEndpointManagement sharedEndpointMan)
+	public static String getPublicRegistrationLink(String formName, SharedEndpointManagement sharedEndpointMan)
 	{
 		return sharedEndpointMan.getServletUrl(PublicWellKnownURLServlet.SERVLET_PATH) + 
-				"#!" + FRAGMENT_PREFIX + urlEncodePath(formName);
+				"#!" + REGISTRATION_FRAGMENT_PREFIX + urlEncodePath(formName);
+	}
+
+	/**
+	 * @param formName
+	 * @param sharedEndpointMan
+	 * @return a link to a standalone UI of an enquiry form
+	 */
+	public static String getPublicEnquiryLink(String formName, SharedEndpointManagement sharedEndpointMan)
+	{
+		return sharedEndpointMan.getServletUrl(PublicWellKnownURLServlet.SERVLET_PATH) + 
+				"#!" + ENQUIRY_FRAGMENT_PREFIX + urlEncodePath(formName);
 	}
 
 	/**
@@ -40,11 +52,12 @@ public class PublicRegistrationURLSupport
 	 * @param sharedEndpointMan
 	 * @return a link to a standalone UI of a registration form with included registration code
 	 */
-	public static String getPublicLink(String formName, String code, SharedEndpointManagement sharedEndpointMan)
+	public static String getPublicRegistrationLink(String formName, String code, 
+			SharedEndpointManagement sharedEndpointMan)
 	{
 		return sharedEndpointMan.getServletUrl(PublicWellKnownURLServlet.SERVLET_PATH) +
 				"?" + CODE_PARAM + "=" + code +
-				"#!" + FRAGMENT_PREFIX + urlEncodePath(formName);
+				"#!" + REGISTRATION_FRAGMENT_PREFIX + urlEncodePath(formName);
 	}
 	
 	private static String urlEncodePath(String pathElement)

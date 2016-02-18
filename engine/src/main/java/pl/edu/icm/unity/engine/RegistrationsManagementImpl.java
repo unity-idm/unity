@@ -10,10 +10,8 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import org.apache.ibatis.session.SqlSession;
@@ -26,18 +24,14 @@ import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
 import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
 import pl.edu.icm.unity.confirmations.states.RegistrationReqAttribiuteConfirmationState;
 import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityConfirmationState;
-import pl.edu.icm.unity.db.DBAttributes;
-import pl.edu.icm.unity.db.generic.cred.CredentialDB;
 import pl.edu.icm.unity.db.generic.credreq.CredentialRequirementDB;
-import pl.edu.icm.unity.db.generic.msgtemplate.MessageTemplateDB;
 import pl.edu.icm.unity.db.generic.reg.InvitationWithCodeDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
-import pl.edu.icm.unity.db.mapper.GroupsMapper;
-import pl.edu.icm.unity.db.resolvers.GroupResolver;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
+import pl.edu.icm.unity.engine.internal.BaseFormValidator;
 import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
 import pl.edu.icm.unity.engine.internal.RegistrationRequestValidator;
 import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
@@ -64,16 +58,9 @@ import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.types.registration.AdminComment;
-import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
-import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
-import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
-import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
-import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
@@ -96,11 +83,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 {
 	private RegistrationFormDB formsDB;
 	private RegistrationRequestDB requestDB;
-	private CredentialDB credentialDB;
 	private CredentialRequirementDB credentialReqDB;
-	private DBAttributes dbAttributes;
-	private MessageTemplateDB msgTplDB;
-	private GroupResolver groupsResolver;
 	private IdentityTypesRegistry identityTypesRegistry;
 	private AuthorizationManager authz;
 	private NotificationProducer notificationProducer;
@@ -112,12 +95,12 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private InvitationWithCodeDB invitationDB;
 	private SharedEndpointManagement sharedEndpointMan;
 	private RegistrationActionsRegistry registrationTranslationActionsRegistry;
+	private BaseFormValidator baseValidator;
 
 	@Autowired
 	public RegistrationsManagementImpl(RegistrationFormDB formsDB,
-			RegistrationRequestDB requestDB, CredentialDB credentialDB,
-			CredentialRequirementDB credentialReqDB, DBAttributes dbAttributes,
-			MessageTemplateDB msgTplDB, GroupResolver groupsResolver,
+			RegistrationRequestDB requestDB, 
+			CredentialRequirementDB credentialReqDB, 
 			IdentityTypesRegistry identityTypesRegistry, AuthorizationManager authz,
 			NotificationProducer notificationProducer,
 			ConfirmationManager confirmationManager,
@@ -126,15 +109,12 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			RegistrationRequestValidator registrationRequestValidator,
 			InvitationWithCodeDB invitationDB,
 			SharedEndpointManagement endpointMan,
-			RegistrationActionsRegistry registrationTranslationActionsRegistry)
+			RegistrationActionsRegistry registrationTranslationActionsRegistry,
+			BaseFormValidator baseValidator)
 	{
 		this.formsDB = formsDB;
 		this.requestDB = requestDB;
-		this.credentialDB = credentialDB;
 		this.credentialReqDB = credentialReqDB;
-		this.dbAttributes = dbAttributes;
-		this.msgTplDB = msgTplDB;
-		this.groupsResolver = groupsResolver;
 		this.identityTypesRegistry = identityTypesRegistry;
 		this.authz = authz;
 		this.notificationProducer = notificationProducer;
@@ -146,6 +126,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		this.invitationDB = invitationDB;
 		this.sharedEndpointMan = endpointMan;
 		this.registrationTranslationActionsRegistry = registrationTranslationActionsRegistry;
+		this.baseValidator = baseValidator;
 	}
 
 	@Override
@@ -363,12 +344,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	
 	private void validateFormContents(RegistrationForm form, SqlSession sql) throws EngineException
 	{
-		GroupsMapper gm = sql.getMapper(GroupsMapper.class);
-
-		Map<String, AttributeType> atMap = dbAttributes.getAttributeTypes(sql);
-
-		if (form.getTranslationProfile() == null)
-			throw new WrongArgumentException("Translation profile is not set.");
+		baseValidator.validateBaseFormContents(form, sql);
 		
 		if (form.isByInvitationOnly())
 		{
@@ -380,111 +356,25 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 						+ "is by invitation only must not have a static registration code");
 		}
 		
-		if (form.getAttributeParams() != null)
-		{
-			Set<String> used = new HashSet<>();
-			for (AttributeRegistrationParam attr: form.getAttributeParams())
-			{
-				if (!atMap.containsKey(attr.getAttributeType()))
-					throw new WrongArgumentException("Attribute type " + attr.getAttributeType() + 
-							" does not exist");
-				String key = attr.getAttributeType() + " @ " + attr.getGroup();
-				if (used.contains(key))
-					throw new WrongArgumentException("Collected attribute " + key + 
-							" was specified more then once.");
-				used.add(key);
-				groupsResolver.resolveGroup(attr.getGroup(), gm);
-			}
-		}
-
-		if (form.getCredentialParams() != null)
-		{
-			Set<String> creds = new HashSet<>();
-			for (CredentialRegistrationParam cred: form.getCredentialParams())
-			{
-				if (creds.contains(cred.getCredentialName()))
-					throw new WrongArgumentException("Collected credential " + 
-							cred.getCredentialName() + " was specified more then once.");
-				creds.add(cred.getCredentialName());
-			}
-			credentialDB.assertExist(creds, sql);
-		}
-
 		if (form.getDefaultCredentialRequirement() == null)
 			throw new WrongArgumentException("Credential requirement must be set for the form");
 		if (credentialReqDB.get(form.getDefaultCredentialRequirement(), sql) == null)
 			throw new WrongArgumentException("Credential requirement " + 
 					form.getDefaultCredentialRequirement() + " does not exist");
 
-		if (form.getGroupParams() != null)
-		{
-			Set<String> used = new HashSet<>();
-			for (GroupRegistrationParam group: form.getGroupParams())
-			{
-				groupsResolver.resolveGroup(group.getGroupPath(), gm);
-				if (used.contains(group.getGroupPath()))
-					throw new WrongArgumentException("Selectable group " + group.getGroupPath() + 
-							" was specified more then once.");
-				used.add(group.getGroupPath());
-			}
-		}
-
-		boolean hasIdentity = false;
-		if (form.getIdentityParams() != null)
-		{
-			Set<String> usedRemote = new HashSet<>();
-			for (IdentityRegistrationParam id: form.getIdentityParams())
-			{
-				identityTypesRegistry.getByName(id.getIdentityType());
-				if (id.getRetrievalSettings() == ParameterRetrievalSettings.automatic || 
-						id.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden)
-				{
-					if (usedRemote.contains(id.getIdentityType()))
-						throw new WrongArgumentException("There can be only one identity " +
-								"collected automatically of each type. There are more " +
-								"then one of type " + id.getIdentityType());
-					usedRemote.add(id.getIdentityType());
-				}
-				hasIdentity = true;
-			}
-		}
-		if (!hasIdentity)
-			throw new WrongArgumentException("Registration form must collect at least one identity.");
-		
 		RegistrationFormNotifications notCfg = form.getNotificationsConfiguration();
 		if (notCfg == null)
 			throw new WrongArgumentException("NotificationsConfiguration must be set in the form.");
-		checkTemplate(notCfg.getAcceptedTemplate(), AcceptRegistrationTemplateDef.NAME,
+		baseValidator.checkTemplate(notCfg.getAcceptedTemplate(), AcceptRegistrationTemplateDef.NAME,
 				sql, "accepted registration request");
-		checkTemplate(notCfg.getRejectedTemplate(), RejectRegistrationTemplateDef.NAME,
+		baseValidator.checkTemplate(notCfg.getRejectedTemplate(), RejectRegistrationTemplateDef.NAME,
 				sql, "rejected registration request");
-		checkTemplate(notCfg.getSubmittedTemplate(), SubmitRegistrationTemplateDef.NAME,
+		baseValidator.checkTemplate(notCfg.getSubmittedTemplate(), SubmitRegistrationTemplateDef.NAME,
 				sql, "submitted registration request");
-		checkTemplate(notCfg.getUpdatedTemplate(), UpdateRegistrationTemplateDef.NAME,
+		baseValidator.checkTemplate(notCfg.getUpdatedTemplate(), UpdateRegistrationTemplateDef.NAME,
 				sql, "updated registration request");
-		checkTemplate(notCfg.getInvitationTemplate(), InvitationTemplateDef.NAME,
+		baseValidator.checkTemplate(notCfg.getInvitationTemplate(), InvitationTemplateDef.NAME,
 				sql, "invitation");
-		
-		if (form.getAgreements() != null)
-		{
-			for (AgreementRegistrationParam o: form.getAgreements())
-			{
-				if (o.getText() == null || o.getText().isEmpty())
-					throw new WrongArgumentException("Agreement text must not be empty.");
-			}
-		}
-	}
-	
-	private void checkTemplate(String tpl, String compatibleDef, SqlSession sql, String purpose) throws EngineException
-	{
-		if (tpl != null)
-		{
-			if (!msgTplDB.exists(tpl, sql))
-				throw new WrongArgumentException("Form has an unknown message template " + tpl);
-			if (!compatibleDef.equals(msgTplDB.get(tpl, sql).getConsumer()))
-				throw new WrongArgumentException("Template " + tpl + 
-						" is not suitable as the " + purpose + " template");
-		}
 	}
 	
 	private void sendAttributeConfirmationRequest(RegistrationRequestState requestState,
@@ -623,7 +513,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				userLocale, msg.getDefaultLocaleCode()));
 		notifyParams.put(InvitationTemplateDef.CODE, invitation.getRegistrationCode());
 		notifyParams.put(InvitationTemplateDef.URL, 
-				PublicRegistrationURLSupport.getPublicLink(invitation.getFormId(), code, sharedEndpointMan));
+				PublicRegistrationURLSupport.getPublicRegistrationLink(invitation.getFormId(), code, sharedEndpointMan));
 		ZonedDateTime expiry = invitation.getExpiration().atZone(ZoneId.systemDefault());
 		notifyParams.put(InvitationTemplateDef.EXPIRES, expiry.format(DateTimeFormatter.RFC_1123_DATE_TIME));
 		

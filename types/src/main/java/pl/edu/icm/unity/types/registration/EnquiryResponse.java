@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.types.registration;
 
 
+
 /**
  * Enquiry response, tied to an {@link EnquiryForm}. 
  * Contains only data entered interactively by a user.
