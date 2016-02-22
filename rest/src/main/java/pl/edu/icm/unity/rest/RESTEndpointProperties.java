@@ -19,7 +19,8 @@ import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 
 /**
- * Generic settings for all CXF JAX-RS endpoints. Placeholder - currently no configuration.
+ * Generic settings for all CXF JAX-RS endpoints.
+ * 
  * @author K. Benedyczak
  */
 public class RESTEndpointProperties extends PropertiesHelper
