@@ -15,6 +15,17 @@ public class AgreementRegistrationParam
 	private I18nString text;
 	private boolean manatory;
 
+	
+	public AgreementRegistrationParam(I18nString text, boolean manatory)
+	{
+		this.text = text;
+		this.manatory = manatory;
+	}
+	
+	public AgreementRegistrationParam()
+	{
+	}
+
 	public I18nString getText()
 	{
 		return text;

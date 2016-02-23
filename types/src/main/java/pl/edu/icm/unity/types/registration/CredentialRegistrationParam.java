@@ -14,6 +14,23 @@ public class CredentialRegistrationParam
 	private String label;
 	private String description;
 	
+	public CredentialRegistrationParam(String credentialName, String label, String description)
+	{
+		this.credentialName = credentialName;
+		this.label = label;
+		this.description = description;
+	}
+
+	public CredentialRegistrationParam(String credentialName)
+	{
+		this.credentialName = credentialName;
+	}
+
+	public CredentialRegistrationParam()
+	{
+	}
+
+	
 	public String getCredentialName()
 	{
 		return credentialName;

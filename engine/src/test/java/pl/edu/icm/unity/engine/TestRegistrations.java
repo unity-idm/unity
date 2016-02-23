@@ -34,6 +34,7 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.stdext.utils.InitializerCommon;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -44,6 +45,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
+import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
@@ -469,21 +471,18 @@ public class TestRegistrations extends DBIntegrationTestBase
 		
 		TranslationProfile translationProfile = profileBuilder.build();
 		
-		return RegistrationFormBuilder
-				.registrationForm()
+		return new RegistrationFormBuilder()
 				.withName("f1")
 				.withDescription("desc")
 				.withDefaultCredentialRequirement(
 						EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
 				.withPubliclyAvailable(true)
 				.withTranslationProfile(translationProfile)
-				.withCollectComments(true).withFormInformation()
-				.withDefaultValue("formInformation").endFormInformation()
-				.withAddedCredentialParam()
-				.withCredentialName(EngineInitialization.DEFAULT_CREDENTIAL)
-				.endCredentialParam()
-				.withAddedAgreement().withManatory(false).withText()
-				.withDefaultValue("a").endText().endAgreement()
+				.withCollectComments(true)
+				.withFormInformation(new I18nString("formInformation"))
+				.withAddedCredentialParam(
+						new CredentialRegistrationParam(EngineInitialization.DEFAULT_CREDENTIAL, null, null))
+				.withAddedAgreement(new AgreementRegistrationParam(new I18nString("a"), false))
 				.withAddedIdentityParam()
 				.withIdentityType(X500Identity.ID)
 				.withOptional(true)
@@ -508,8 +507,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 	
 	private RegistrationRequest getRequest()
 	{
-		return RegistrationRequestBuilder
-				.registrationRequest()
+		return new RegistrationRequestBuilder()
 				.withFormId("f1")
 				.withComments("comments")
 				.withRegistrationCode("123")
@@ -537,8 +535,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 
 	private RegistrationRequest getRequestWithoutOptionalElements()
 	{
-		return RegistrationRequestBuilder
-				.registrationRequest()
+		return new RegistrationRequestBuilder()
 				.withFormId("f1")
 				.withComments("comments")
 				.withAddedAgreement()

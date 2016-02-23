@@ -11,6 +11,8 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
+import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
+import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
@@ -46,16 +48,12 @@ public class RegistrationFormTest
 		RegistrationForm complete = new RegistrationFormBuilder()
 			.withName("exForm")
 			.withDefaultCredentialRequirement("credReq")
-			.withAddedAgreement()
-				.withText().withDefaultValue("agreement").endText()
-			.endAgreement()
+			.withAddedAgreement(new AgreementRegistrationParam(new I18nString("agreement"), false))
 			.withAddedAttributeParam()
 				.withAttributeType("at")
 				.withGroup("/A")
 			.endAttributeParam()
-			.withAddedCredentialParam()
-				.withCredentialName("cred")
-			.endCredentialParam()
+			.withAddedCredentialParam(new CredentialRegistrationParam("cred", null, null))
 			.withAddedGroupParam()
 				.withGroupPath("/B")
 				.withDescription("some desc")

@@ -46,7 +46,7 @@ public interface EnquiryManagement
 	 * @param updatedForm
 	 * @throws EngineException
 	 */
-	void updateForm(EnquiryForm updatedForm) throws EngineException;
+	void updateEnquiry(EnquiryForm updatedForm) throws EngineException;
 	
 	/**
 	 * 

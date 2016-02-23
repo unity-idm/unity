@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.generic.reg.EnquiryFormDB;
@@ -46,6 +47,20 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	private AuthorizationManager authz;
 	private BaseFormValidator baseValidator;
 	private SharedEndpointManagement sharedEndpointMan;
+
+	@Autowired
+	public EnquiryManagementImpl(EnquiryFormDB enquiryDB,
+			NotificationProducer notificationProducer, UnityMessageSource msg,
+			AuthorizationManager authz, BaseFormValidator baseValidator,
+			SharedEndpointManagement sharedEndpointMan)
+	{
+		this.enquiryDB = enquiryDB;
+		this.notificationProducer = notificationProducer;
+		this.msg = msg;
+		this.authz = authz;
+		this.baseValidator = baseValidator;
+		this.sharedEndpointMan = sharedEndpointMan;
+	}
 
 	@Transactional
 	@Override
@@ -94,7 +109,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	
 	@Transactional
 	@Override
-	public void updateForm(EnquiryForm updatedForm) throws EngineException
+	public void updateEnquiry(EnquiryForm updatedForm) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		SqlSession sql = SqlSessionTL.get();

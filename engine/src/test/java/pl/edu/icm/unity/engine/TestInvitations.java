@@ -294,8 +294,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 	{
 		TranslationProfile translationProfile = new RegistrationTranslationProfileBuilder(
 				regActionsRegistry, "form").build();
-		return RegistrationFormBuilder
-				.registrationForm()
+		return new RegistrationFormBuilder()
 				.withName(TEST_FORM)
 				.withDescription("desc")
 				.withDefaultCredentialRequirement(
@@ -325,7 +324,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 	
 	private RegistrationRequest getRequest(String code)
 	{
-		return RegistrationRequestBuilder.registrationRequest()
+		return new RegistrationRequestBuilder()
 				.withFormId(TEST_FORM)
 				.withRegistrationCode(code)
 				.withAddedAttribute(
@@ -342,7 +341,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 
 	private RegistrationRequest getRequestWithIdentity(String code)
 	{
-		return RegistrationRequestBuilder.registrationRequest()
+		return new RegistrationRequestBuilder()
 				.withFormId(TEST_FORM)
 				.withRegistrationCode(code)
 				.withAddedAttribute(null)
@@ -356,7 +355,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 
 	private RegistrationRequest getEmptyRequest(String code)
 	{
-		return RegistrationRequestBuilder.registrationRequest()
+		return new RegistrationRequestBuilder()
 				.withFormId(TEST_FORM)
 				.withRegistrationCode(code)
 				.withAddedAttribute(null)
