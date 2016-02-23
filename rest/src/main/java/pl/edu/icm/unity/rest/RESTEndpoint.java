@@ -156,13 +156,20 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 		FilterHolder filterHolder = new FilterHolder(filter);
 		List<String> allowedOrigins = 
 				genericEndpointProperties.getListOfValues(RESTEndpointProperties.ENABLED_CORS_ORIGINS);
-		StringJoiner stringJoiner = new StringJoiner(",");
-		allowedOrigins.forEach(origin -> stringJoiner.add(origin));
+		StringJoiner originsJoiner = new StringJoiner(",");
+		allowedOrigins.forEach(origin -> originsJoiner.add(origin));
+
+		List<String> allowedHeaders = 
+				genericEndpointProperties.getListOfValues(RESTEndpointProperties.ENABLED_CORS_HEADERS);
+		StringJoiner headersJoiner = new StringJoiner(",");
+		allowedHeaders.forEach(origin -> headersJoiner.add(origin));
+		String allowedHeadersSpec = allowedHeaders.isEmpty() ? "*" : headersJoiner.toString();
 		
-		filterHolder.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, stringJoiner.toString());
+		filterHolder.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM, allowedHeadersSpec);
+		filterHolder.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, originsJoiner.toString());
 		filterHolder.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET,POST,HEAD,DELETE,PUT,OPTIONS");
 		
-		log.debug("Will allow CORS for the following origins: " + stringJoiner.toString());
+		log.debug("Will allow CORS for the following origins: " + originsJoiner.toString());
 		
 		return filterHolder;
 	}

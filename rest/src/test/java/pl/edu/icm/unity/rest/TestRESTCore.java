@@ -43,6 +43,7 @@ public class TestRESTCore extends TestRESTBase
 {
 	private static final String ALLOWED_ORIGIN1 = "http://someorigin.com";
 	private static final String ALLOWED_ORIGIN2 = "http://someorigin.com2";
+	private static final String ALLOWED_HEADER = "authorization";
 	
 	@Before
 	public void configureEndpoint() throws Exception
@@ -61,6 +62,8 @@ public class TestRESTCore extends TestRESTBase
 				ALLOWED_ORIGIN1);
 		config.setProperty(RESTEndpointProperties.PREFIX+RESTEndpointProperties.ENABLED_CORS_ORIGINS + "2", 
 				ALLOWED_ORIGIN2);
+		config.setProperty(RESTEndpointProperties.PREFIX+RESTEndpointProperties.ENABLED_CORS_HEADERS + "1", 
+				ALLOWED_HEADER);
 		StringWriter writer = new StringWriter();
 		config.store(writer, "");
 		
@@ -103,6 +106,27 @@ public class TestRESTCore extends TestRESTBase
 		
 		HttpResponse response = client.execute(host, preflight, localcontext);
 		
+		assertCorsAllowed(response);
+	}
+
+	@Test
+	public void allowedCorsHeaderIsAccepted() throws Exception
+	{
+		HttpClient client = getClient();
+		HttpHost host = new HttpHost("localhost", 53456, "https");
+		HttpContext localcontext = getClientContext(client, host);
+		HttpOptions preflight = new HttpOptions("/mock/mock-rest/test/r1");
+		preflight.addHeader("Origin", ALLOWED_ORIGIN2);
+		preflight.addHeader("Access-Control-Request-Method", "PUT");
+		preflight.addHeader("Access-Control-Request-Headers", ALLOWED_HEADER);
+		
+		HttpResponse response = client.execute(host, preflight, localcontext);
+		
+		assertCorsAllowed(response);
+	}
+	
+	private void assertCorsAllowed(HttpResponse response)
+	{
 		assertEquals(response.getStatusLine().toString(), 200, response.getStatusLine().getStatusCode());
 		System.out.println(Arrays.toString(response.getAllHeaders()));
 		assertThat(response.getHeaders("Access-Control-Allow-Origin"), is(notNullValue()));
@@ -116,7 +140,7 @@ public class TestRESTCore extends TestRESTBase
 				containsString("DELETE"),
 				containsString("PUT")));
 	}
-
+	
 	@Test
 	public void notAllowedCorsOriginIsNotAccepted() throws Exception
 	{
@@ -134,5 +158,26 @@ public class TestRESTCore extends TestRESTBase
 		assertThat(response.getHeaders("Access-Control-Allow-Origin").length, is(0));
 		assertThat(response.getHeaders("Access-Control-Allow-Methods"), is(notNullValue()));
 		assertThat(response.getHeaders("Access-Control-Allow-Methods").length, is(0));
-	}	
+	}
+	
+	@Test
+	public void notAllowedCorsHeaderIsNotAccepted() throws Exception
+	{
+		HttpClient client = getClient();
+		HttpHost host = new HttpHost("localhost", 53456, "https");
+		HttpContext localcontext = getClientContext(client, host);
+		HttpOptions preflight = new HttpOptions("/mock/mock-rest/test/r1");
+		preflight.addHeader("Origin", ALLOWED_ORIGIN2);
+		preflight.addHeader("Access-Control-Request-Method", "PUT");
+		preflight.addHeader("Access-Control-Request-Headers", "X-notAllowed");
+		
+		HttpResponse response = client.execute(host, preflight, localcontext);
+		
+		assertEquals(response.getStatusLine().toString(), 200, response.getStatusLine().getStatusCode());
+		System.out.println(Arrays.toString(response.getAllHeaders()));
+		assertThat(response.getHeaders("Access-Control-Allow-Origin"), is(notNullValue()));
+		assertThat(response.getHeaders("Access-Control-Allow-Origin").length, is(0));
+		assertThat(response.getHeaders("Access-Control-Allow-Methods"), is(notNullValue()));
+		assertThat(response.getHeaders("Access-Control-Allow-Methods").length, is(0));
+	}
 }
