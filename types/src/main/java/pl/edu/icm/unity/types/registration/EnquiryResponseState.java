@@ -5,10 +5,10 @@
 package pl.edu.icm.unity.types.registration;
 
 /**
- * Specialization of {@link UserRequestState} for {@link RegistrationRequest}s.
+ * Specialization of {@link UserRequestState} for {@link EnquiryResponse}s.
  * @author K. Benedyczak
  */
-public class RegistrationRequestState extends UserRequestState<RegistrationRequest>
+public class EnquiryResponseState extends UserRequestState<EnquiryResponse>
 {
 
 }

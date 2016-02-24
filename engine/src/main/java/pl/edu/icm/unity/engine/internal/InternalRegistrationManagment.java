@@ -43,8 +43,8 @@ import pl.edu.icm.unity.server.api.registration.BaseRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.RegistrationWithCommentsTemplateDef;
 import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.GroupParam;
+import pl.edu.icm.unity.server.translation.form.RegistrationMVELContext.RequestSubmitStatus;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile.RequestSubmitStatus;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.server.utils.Log;
@@ -56,10 +56,13 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.CredentialParamValue;
+import pl.edu.icm.unity.types.registration.EnquiryForm;
+import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
+import pl.edu.icm.unity.types.registration.UserRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
@@ -143,7 +146,7 @@ public class InternalRegistrationManagment
 		
 		Identity initial = engineHelper.addEntity(identitiesIterator.next(),
 				translatedRequest.getCredentialRequirement(),
-				translatedRequest.getInitialEntityState(), 
+				translatedRequest.getEntityState(), 
 				false, rootAttributes, true, sql);
 
 		while (identitiesIterator.hasNext())
@@ -286,6 +289,36 @@ public class InternalRegistrationManagment
 		default:
 		}
 		return null;
+	}
+
+	/**
+	 * Accepts the enquiry response, unless its form profile returns drop o reject action.
+	 * In future this will be enhanced to the pipeline similar to registration processing. 
+	 * @throws EngineException 
+	 */
+	public void processEnquiry(EnquiryForm form, EnquiryResponse response, String logMessageTemplate,
+			SqlSession sql)	throws EngineException
+	{
+		RegistrationTranslationProfile translationProfile = getProfileInstance(form.getTranslationProfile());
+		
+		AutomaticRequestAction autoProcessAction = translationProfile.getAutoProcessAction(
+				form, requestFull, RequestSubmitStatus.submitted);
+
+		AdminComment systemComment = new AdminComment(
+				InternalRegistrationManagment.AUTO_PROCESS_COMMENT, 0, false);
+
+		String formattedMsg = MessageFormat.format(logMessageTemplate, autoProcessAction);
+		log.info(formattedMsg);
+		
+		switch (autoProcessAction)
+		{
+		case none:
+		case accept:
+			return acceptRequest(form, requestFull, null, systemComment, false, sql);
+		case drop:
+		case reject:
+		default:
+		}
 	}
 	
 	/**

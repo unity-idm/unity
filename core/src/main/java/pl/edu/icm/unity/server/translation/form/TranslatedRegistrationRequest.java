@@ -15,11 +15,15 @@ import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 
 /**
- * Output of {@link RegistrationRequest} translation with a {@link RegistrationTranslationProfile}.
- * Contains data that will be used to create a new entity when the request is accepted.
+ * Output of {@link RegistrationRequest} or {@link EnquiryResponse} translation with a 
+ * corresponding translation profile.
+ * <p>
+ * Contains data that will be used to create a new entity when the request is accepted or data to update 
+ * an existing entity (in case of enquires).
  * Additionally contains information whether the request should be automatically processed.
  * <p>
  * Implementation ensures that the same attribute/group/identity is not added twice. 
@@ -38,7 +42,7 @@ public class TranslatedRegistrationRequest
 	private Map<String, GroupParam> groups = new HashMap<>();
 	private Map<String, Set<String>> attributeClasses = new HashMap<>();
 	private EntityChange entityChange;
-	private EntityState initialEntityState = EntityState.valid;
+	private EntityState entityState = EntityState.valid;
 	private String credentialRequirement;
 	private String redirectURL = null;
 	private I18nMessage postSubmitMessage;
@@ -46,6 +50,10 @@ public class TranslatedRegistrationRequest
 	public TranslatedRegistrationRequest(String credentialRequirement)
 	{
 		this.credentialRequirement = credentialRequirement;
+	}
+	
+	public TranslatedRegistrationRequest()
+	{
 	}
 	
 	public void addIdentity(IdentityParam identity)
@@ -93,9 +101,9 @@ public class TranslatedRegistrationRequest
 		this.entityChange = entityChange;
 	}
 
-	public void setInitialEntityState(EntityState initialEntityState)
+	public void setEntityState(EntityState entityState)
 	{
-		this.initialEntityState = initialEntityState;
+		this.entityState = entityState;
 	}
 
 	public AutomaticRequestAction getAutoAction()
@@ -123,9 +131,9 @@ public class TranslatedRegistrationRequest
 		return entityChange;
 	}
 
-	public EntityState getInitialEntityState()
+	public EntityState getEntityState()
 	{
-		return initialEntityState;
+		return entityState;
 	}
 
 	public String getCredentialRequirement()

@@ -23,10 +23,10 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.MockAttributeSyntax;
 import pl.edu.icm.unity.server.api.internal.AttributesInternalProcessing;
 import pl.edu.icm.unity.server.translation.form.GroupParam;
+import pl.edu.icm.unity.server.translation.form.RegistrationMVELContext;
+import pl.edu.icm.unity.server.translation.form.RegistrationMVELContext.ContextKey;
+import pl.edu.icm.unity.server.translation.form.RegistrationMVELContext.RequestSubmitStatus;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationAction;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile.ContextKey;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile.RequestSubmitStatus;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.server.translation.form.action.SetEntityStateActionFactory.EntityStateLimited;
@@ -40,10 +40,10 @@ import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
+import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.Selection;
-import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 
 import com.google.common.collect.Lists;
 
@@ -266,7 +266,7 @@ public class TestFormProfileActions
 		
 		action.invoke(state, createContext(), "testProf");
 		
-		assertThat(state.getInitialEntityState(), is(EntityState.disabled));
+		assertThat(state.getEntityState(), is(EntityState.disabled));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -390,7 +390,7 @@ public class TestFormProfileActions
 				automaticGRP
 				));
 		when(form.getName()).thenReturn("form");
-		return RegistrationTranslationProfile.createMvelContext(form, request, RequestSubmitStatus.submitted,
+		return new RegistrationMVELContext(form, request, RequestSubmitStatus.submitted,
 				TriggeringMode.manualAtLogin, false, "requestId");
 	}
 }

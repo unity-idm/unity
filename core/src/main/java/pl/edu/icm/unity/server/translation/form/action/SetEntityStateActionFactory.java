@@ -57,7 +57,7 @@ public class SetEntityStateActionFactory extends AbstractRegistrationTranslation
 		protected void invokeWrapped(TranslatedRegistrationRequest state, Object mvelCtx,
 				String currentProfile) throws EngineException
 		{
-			state.setInitialEntityState(this.state);
+			state.setEntityState(this.state);
 		}
 		
 		private void setParameters(String[] parameters)
