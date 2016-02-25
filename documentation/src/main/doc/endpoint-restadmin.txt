@@ -158,6 +158,25 @@ Example output:
 
 '''
 
++@Path("/group/{groupPath}")+ +
++@POST+ +
+
+Creates a new group. The created group will be empty.
+
+
+'''
+
++@Path("/group/{groupPath}")+ +
++@QueryParam("recursive")+ +
++@DELETE+ +
+
+Removes a given group. The optional +recursive+ query parameter can be used to 
+enforce recursive removal (off by default).
+
+
+
+'''
+
 +@Path("/entity/identity/{type}/{value}")+ +
 +@QueryParam("credentialRequirement")+ +
 +@POST+ +	

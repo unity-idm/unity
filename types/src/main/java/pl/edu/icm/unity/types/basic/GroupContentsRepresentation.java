@@ -16,6 +16,10 @@ public class GroupContentsRepresentation
 	private List<String> subGroups;
 	private List<Long> members;
 
+	public GroupContentsRepresentation()
+	{
+	}
+
 	public GroupContentsRepresentation(GroupContents full)
 	{
 		this.subGroups = full.getSubGroups();
