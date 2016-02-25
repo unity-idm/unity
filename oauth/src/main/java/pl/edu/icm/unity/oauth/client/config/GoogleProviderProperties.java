@@ -28,6 +28,7 @@ public class GoogleProviderProperties extends CustomProviderProperties
 		properties.setProperty(prefix + OPENID_CONNECT, "true");
 		properties.setProperty(prefix + OPENID_DISCOVERY, 
 				"https://accounts.google.com/.well-known/openid-configuration");
+		properties.setProperty(prefix + ICON_URL, "file:../common/img/external/google-small.png");
 		return properties;
 	}
 

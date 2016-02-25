@@ -32,6 +32,7 @@ public class FacebookProviderProperties extends CustomProviderProperties
 		properties.setProperty(prefix + PROFILE_ENDPOINT, "https://graph.facebook.com/me/");
 		properties.setProperty(prefix + SCOPES, "email");
 		properties.setProperty(prefix + ACCESS_TOKEN_FORMAT, AccessTokenFormat.httpParams.toString());
+		properties.setProperty(prefix + ICON_URL, "file:../common/img/external/FB-small.png");
 		return properties;
 	}
 

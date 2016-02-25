@@ -32,6 +32,7 @@ public class GitHubProviderProperties extends CustomProviderProperties
 		properties.setProperty(prefix + PROFILE_ENDPOINT, "https://api.github.com/user");
 		properties.setProperty(prefix + SCOPES, "user:email");
 		properties.setProperty(prefix + ACCESS_TOKEN_FORMAT, AccessTokenFormat.httpParams.toString());
+		properties.setProperty(prefix + ICON_URL, "file:../common/img/external/github-small.png");
 		return properties;
 	}
 
