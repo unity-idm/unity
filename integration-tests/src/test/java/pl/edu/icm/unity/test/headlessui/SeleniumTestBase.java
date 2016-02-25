@@ -36,7 +36,7 @@ import pl.edu.icm.unity.server.JettyServer;
 public class SeleniumTestBase
 {
 	protected String baseUrl = "https://localhost:2443";
-	public static final int WAIT_TIME_S = 45;
+	public static final int WAIT_TIME_S = 450;
 	public static final int SLEEP_TIME_MS = 250;
 	public static final int SIMPLE_WAIT_TIME_MS = Integer.parseInt(
 			System.getProperty("unity.selenium.delay", "2000"));
@@ -91,7 +91,7 @@ public class SeleniumTestBase
 		try
 		{
 			WebElement ret = driver.findElement(by);
-			if (!ret.isDisplayed())
+			if (ret == null || !ret.isDisplayed())
 				return null;
 			return ret;
 		} catch (NoSuchElementException e)
