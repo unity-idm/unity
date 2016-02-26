@@ -18,12 +18,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.confirmations.ConfirmationManager;
-import pl.edu.icm.unity.confirmations.states.AttribiuteConfirmationState;
-import pl.edu.icm.unity.confirmations.states.BaseConfirmationState;
-import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
-import pl.edu.icm.unity.confirmations.states.RegistrationReqAttribiuteConfirmationState;
-import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityConfirmationState;
 import pl.edu.icm.unity.db.generic.credreq.CredentialRequirementDB;
 import pl.edu.icm.unity.db.generic.reg.InvitationWithCodeDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
@@ -34,10 +28,10 @@ import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.internal.BaseFormValidator;
 import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
 import pl.edu.icm.unity.engine.internal.RegistrationRequestValidator;
+import pl.edu.icm.unity.engine.registration.RegistrationConfirmationSupport;
 import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
 import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.notifications.NotificationProducer;
@@ -53,13 +47,9 @@ import pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
 import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -70,7 +60,6 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Implementation of registrations subsystem.
@@ -84,10 +73,10 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private RegistrationFormDB formsDB;
 	private RegistrationRequestDB requestDB;
 	private CredentialRequirementDB credentialReqDB;
-	private IdentityTypesRegistry identityTypesRegistry;
+	private RegistrationConfirmationSupport confirmationsSupport;
 	private AuthorizationManager authz;
 	private NotificationProducer notificationProducer;
-	private ConfirmationManager confirmationManager;
+
 	private InternalRegistrationManagment internalManagment;
 	private UnityMessageSource msg;
 	private TransactionalRunner tx;
@@ -101,9 +90,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	public RegistrationsManagementImpl(RegistrationFormDB formsDB,
 			RegistrationRequestDB requestDB, 
 			CredentialRequirementDB credentialReqDB, 
-			IdentityTypesRegistry identityTypesRegistry, AuthorizationManager authz,
+			RegistrationConfirmationSupport confirmationsSupport, AuthorizationManager authz,
 			NotificationProducer notificationProducer,
-			ConfirmationManager confirmationManager,
 			InternalRegistrationManagment internalManagment, UnityMessageSource msg,
 			TransactionalRunner tx,
 			RegistrationRequestValidator registrationRequestValidator,
@@ -115,10 +103,9 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		this.formsDB = formsDB;
 		this.requestDB = requestDB;
 		this.credentialReqDB = credentialReqDB;
-		this.identityTypesRegistry = identityTypesRegistry;
+		this.confirmationsSupport = confirmationsSupport;
 		this.authz = authz;
 		this.notificationProducer = notificationProducer;
-		this.confirmationManager = confirmationManager;
 		this.internalManagment = internalManagment;
 		this.msg = msg;
 		this.tx = tx;
@@ -208,8 +195,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		
 		Long entityId = tryAutoProcess(form, requestFull, context);
 		
-		sendAttributeConfirmationRequest(requestFull, entityId, form);
-		sendIdentityConfirmationRequest(requestFull, entityId, form);	
+		confirmationsSupport.sendAttributeConfirmationRequest(requestFull, entityId, form);
+		confirmationsSupport.sendIdentityConfirmationRequest(requestFull, entityId, form);	
 		
 		return requestFull.getRequestId();
 	}
@@ -377,102 +364,6 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				sql, "invitation");
 	}
 	
-	private void sendAttributeConfirmationRequest(RegistrationRequestState requestState,
-			Long entityId, RegistrationForm form) throws InternalException, EngineException
-	{
-		for (Attribute<?> attr : requestState.getRequest().getAttributes())
-		{
-			if (attr == null)
-				continue;
-			
-			if (attr.getAttributeSyntax().isVerifiable())
-			{
-				for (Object v : attr.getValues())
-				{
-					VerifiableElement val = (VerifiableElement) v;
-					if (val.isConfirmed())
-						continue;
-					BaseConfirmationState state;
-					if (entityId == null)
-					{
-						state = new RegistrationReqAttribiuteConfirmationState(
-							requestState.getRequestId(), 
-							attr.getName(), 
-							val.getValue(), 
-							requestState.getRequest().getUserLocale(),
-							attr.getGroupPath(), 
-							getFormRedirectUrlForAttribute(requestState, form, attr));
-					} else
-					{
-						state = new AttribiuteConfirmationState(
-							entityId, 
-							attr.getName(), 
-							val.getValue(), 
-							requestState.getRequest().getUserLocale(), 
-							attr.getGroupPath(), 
-							getFormRedirectUrlForAttribute(requestState, form, attr));
-					}
-					confirmationManager.sendConfirmationRequest(state);
-				}
-			}
-		}
-	}
-
-	private void sendIdentityConfirmationRequest(RegistrationRequestState requestState,
-			Long entityId, RegistrationForm form) throws InternalException, EngineException
-	{
-		for (IdentityParam id : requestState.getRequest().getIdentities())
-		{
-			if (id == null)
-				continue;
-			
-			if (identityTypesRegistry.getByName(id.getTypeId()).isVerifiable() && !id.isConfirmed())
-			{
-				BaseConfirmationState state;
-				if (entityId == null)
-				{
-					state = new RegistrationReqIdentityConfirmationState(
-							requestState.getRequestId(),
-							id.getTypeId(), id.getValue(), 
-							requestState.getRequest().getUserLocale(),
-							getFormRedirectUrlForIdentity(requestState, form, id));
-				} else
-				{
-					state = new IdentityConfirmationState(entityId, 
-							id.getTypeId(), id.getValue(), 
-							requestState.getRequest().getUserLocale(),
-							getFormRedirectUrlForIdentity(requestState, form, id));
-				}
-				confirmationManager.sendConfirmationRequest(state);
-			}
-		}
-	}
-	
-	private String getFormRedirectUrlForIdentity(RegistrationRequestState requestState, RegistrationForm form,
-			IdentityParam identity)
-	{
-		TranslationProfile translationProfile = form.getTranslationProfile();
-		RegistrationTranslationProfile regProfile = new RegistrationTranslationProfile(translationProfile.getName(), 
-				translationProfile.getRules(), registrationTranslationActionsRegistry);
-		return regProfile.getPostConfirmationRedirectURL(form, requestState, identity, 
-				requestState.getRequestId());
-	}	
-	
-	private String getFormRedirectUrlForAttribute(RegistrationRequestState requestState, RegistrationForm form,
-			Attribute<?> attr)
-	{
-		String current = null;
-		if (InvocationContext.getCurrent().getCurrentURLUsed() != null
-				&& InvocationContext.getCurrent().getLoginSession() == null)
-			current = InvocationContext.getCurrent().getCurrentURLUsed();
-		TranslationProfile translationProfile = form.getTranslationProfile();
-		RegistrationTranslationProfile regProfile = new RegistrationTranslationProfile(translationProfile.getName(), 
-				translationProfile.getRules(), registrationTranslationActionsRegistry);
-		String configured = regProfile.getPostConfirmationRedirectURL(form, requestState, attr,
-				requestState.getRequestId());
-		return configured != null ? configured : current;
-	}
-
 	@Override
 	@Transactional
 	public String addInvitation(InvitationParam invitation) throws EngineException

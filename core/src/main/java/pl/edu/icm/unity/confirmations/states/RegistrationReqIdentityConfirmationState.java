@@ -24,14 +24,14 @@ public class RegistrationReqIdentityConfirmationState extends RegistrationConfir
 	}
 
 	public RegistrationReqIdentityConfirmationState(String requestId, String type,
-			String value, String locale, String redirectUrl)
+			String value, String locale, String redirectUrl, RequestType requestType)
 	{
-		super(FACILITY_ID, type, value, locale, redirectUrl, requestId);
+		super(FACILITY_ID, type, value, locale, redirectUrl, requestId, requestType);
 	}
 	
 	public RegistrationReqIdentityConfirmationState(String requestId, String type,
-			String value, String locale)
+			String value, String locale, RequestType requestType)
 	{
-		super(FACILITY_ID, type, value, locale, requestId);
+		super(FACILITY_ID, type, value, locale, requestId, requestType);
 	}
 }

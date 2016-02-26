@@ -54,6 +54,8 @@
 	<bean class="pl.edu.icm.unity.db.generic.reg.InvitationWithCodeHandler"/>
 	<bean class="pl.edu.icm.unity.db.generic.reg.EnquiryFormDB"/>
 	<bean class="pl.edu.icm.unity.db.generic.reg.EnquiryFormHandler"/>
+	<bean class="pl.edu.icm.unity.db.generic.reg.EnquiryResponseDB"/>
+	<bean class="pl.edu.icm.unity.db.generic.reg.EnquiryResponseHandler"/>
 	<bean class="pl.edu.icm.unity.db.generic.tprofile.TranslationProfileDB"/>
 	<bean class="pl.edu.icm.unity.db.generic.tprofile.TranslationProfileHandler"/>
 	<bean class="pl.edu.icm.unity.db.generic.bulk.ProcessingRuleDB"/>

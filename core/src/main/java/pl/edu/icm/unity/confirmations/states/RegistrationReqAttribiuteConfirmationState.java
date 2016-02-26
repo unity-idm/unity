@@ -29,16 +29,17 @@ public class RegistrationReqAttribiuteConfirmationState extends RegistrationConf
 	}
 
 	public RegistrationReqAttribiuteConfirmationState(String requestId,
-			String type, String value, String locale, String group, String redirectUrl)
+			String type, String value, String locale, String group, String redirectUrl, 
+			RequestType requestType)
 	{
-		super(FACILITY_ID, type, value, locale, redirectUrl, requestId);
+		super(FACILITY_ID, type, value, locale, redirectUrl, requestId, requestType);
 		this.group = group;
 	}
 	
 	public RegistrationReqAttribiuteConfirmationState(String requestId,
-			String type, String value, String locale, String group)
+			String type, String value, String locale, String group, RequestType requestType)
 	{
-		super(FACILITY_ID, type, value, locale, requestId);
+		super(FACILITY_ID, type, value, locale, requestId, requestType);
 		this.group = group;
 	}
 

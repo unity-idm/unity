@@ -15,22 +15,27 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public class RegistrationConfirmationState extends BaseConfirmationState
 {
+	public enum RequestType {REGISTRATION, ENQUIRY}
+	
 	protected String requestId;
+	protected RequestType requestType;
 	
 	
 	public RegistrationConfirmationState(String facilityId, String type, String value, String locale,
-			String requestId)
+			String requestId, RequestType requestType)
 	{
 		super(facilityId, type, value, locale);
 		this.requestId = requestId;
+		this.requestType = requestType;
 	}
 
 
 	public RegistrationConfirmationState(String facilityId, String type, String value, String locale,
-			String redirectUrl, String requestId)
+			String redirectUrl, String requestId, RequestType requestType)
 	{
 		super(facilityId, type, value, locale, redirectUrl);
 		this.requestId = requestId;
+		this.requestType = requestType;
 	}
 
 
@@ -56,12 +61,23 @@ public class RegistrationConfirmationState extends BaseConfirmationState
 		this.requestId = requestId;
 	}
 
+	public RequestType getRequestType()
+	{
+		return requestType;
+	}
+
+
+	public void setRequestType(RequestType requestType)
+	{
+		this.requestType = requestType;
+	}
 
 	@Override
 	protected ObjectNode createState()
 	{
 		ObjectNode state = super.createState();
 		state.put("requestId", getRequestId());
+		state.put("requestType", getRequestType().name());
 		return state;
 	}
 	
@@ -73,6 +89,10 @@ public class RegistrationConfirmationState extends BaseConfirmationState
 		try
 		{
 			requestId = main.get("requestId").asText();
+			requestType = main.has("requestType") ?
+					RequestType.valueOf(main.get("requestType").asText()) : 
+					RequestType.REGISTRATION;
+				
 		} catch (Exception e)
 		{
 			throw new WrongArgumentException("Can't perform JSON deserialization", e);

@@ -15,18 +15,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.UUID;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.db.generic.reg.EnquiryFormDB;
+import pl.edu.icm.unity.db.generic.reg.EnquiryResponseDB;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.internal.BaseFormValidator;
 import pl.edu.icm.unity.engine.internal.EnquiryResponseValidator;
 import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
+import pl.edu.icm.unity.engine.registration.RegistrationConfirmationSupport;
 import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
 import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -75,8 +78,10 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
 @InvocationEventProducer
 public class EnquiryManagementImpl implements EnquiryManagement
 {
-	private EnquiryFormDB enquiryDB;
+	private EnquiryFormDB enquiryFormDB;
+	private EnquiryResponseDB requestDB;
 	private NotificationProducer notificationProducer;
+	private RegistrationConfirmationSupport confirmationsSupport;
 	private UnityMessageSource msg;
 	private AuthorizationManager authz;
 	private BaseFormValidator baseFormValidator;
@@ -91,7 +96,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		SqlSession sql = SqlSessionTL.get();
 		validateFormContents(form, sql);
-		enquiryDB.insert(form.getName(), form, sql);
+		enquiryFormDB.insert(form.getName(), form, sql);
 	}
 	
 	@Transactional
@@ -100,7 +105,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		
-		EnquiryForm form = enquiryDB.get(enquiryId, SqlSessionTL.get());
+		EnquiryForm form = enquiryFormDB.get(enquiryId, SqlSessionTL.get());
 		EnquiryFormNotifications notificationsCfg = form.getNotificationsConfiguration();
 		
 		if (notificationsCfg.getChannel() != null && notificationsCfg.getEnquiryToFillTemplate() != null)
@@ -126,7 +131,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	public void removeEnquiry(String formId) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		enquiryDB.remove(formId, SqlSessionTL.get());
+		enquiryFormDB.remove(formId, SqlSessionTL.get());
 	}
 	
 	@Transactional
@@ -136,7 +141,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		SqlSession sql = SqlSessionTL.get();
 		validateFormContents(updatedForm, sql);
-		enquiryDB.update(updatedForm.getName(), updatedForm, sql);
+		enquiryFormDB.update(updatedForm.getName(), updatedForm, sql);
 	}
 	
 	@Transactional
@@ -144,25 +149,38 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	public List<EnquiryForm> getEnquires() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.readInfo);
-		return enquiryDB.getAll(SqlSessionTL.get());
+		return enquiryFormDB.getAll(SqlSessionTL.get());
 	}
 	
 	
 	@Override
-	public void submitEnquiryResponse(EnquiryResponse response) throws EngineException
+	public String submitEnquiryResponse(EnquiryResponse response, RegistrationContext context) throws EngineException
 	{
-		// TODO Auto-generated method stub
-		EnquiryForm form = validateResponse(response);
-		sendNotificationOnNewResponse(form, response);
+		EnquiryResponseState responseFull = new EnquiryResponseState();
+		responseFull.setStatus(RegistrationRequestStatus.pending);
+		responseFull.setRequest(response);
+		responseFull.setRequestId(UUID.randomUUID().toString());
+		responseFull.setTimestamp(new Date());
+		responseFull.setRegistrationContext(context);
 		
+		EnquiryForm form = recordRequestAndReturnForm(responseFull);
+		sendNotificationOnNewResponse(form, response);
+		tryAutoProcess(form, responseFull, context);
+		
+		long entityId = InvocationContext.getCurrent().getLoginSession().getEntityId();
+		confirmationsSupport.sendAttributeConfirmationRequest(responseFull, entityId, form);
+		confirmationsSupport.sendIdentityConfirmationRequest(responseFull, entityId, form);
+		
+		return responseFull.getRequestId();
 	}
 	
-	private EnquiryForm validateResponse(EnquiryResponse response) throws EngineException
+	private EnquiryForm recordRequestAndReturnForm(EnquiryResponseState responseFull) throws EngineException
 	{
 		return tx.runInTransactionRet(() -> {
 			SqlSession sql = SqlSessionTL.get();
-			EnquiryForm form = enquiryDB.get(response.getFormId(), sql);
-			enquiryResponseValidator.validateSubmittedRequest(form, response, true, sql);
+			EnquiryForm form = enquiryFormDB.get(responseFull.getRequest().getFormId(), sql);
+			enquiryResponseValidator.validateSubmittedRequest(form, responseFull.getRequest(), true, sql);
+			requestDB.insert(responseFull.getRequestId(), responseFull, sql);
 			return form;
 		});
 	}
@@ -186,22 +204,26 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		}
 	}
 	
-	private Long tryAutoProcess(RegistrationForm form, UserRequestState requestFull) throws EngineException
+	private void tryAutoProcess(EnquiryForm form, EnquiryResponseState requestFull, 
+			RegistrationContext context) throws EngineException
 	{
-		return tx.runInTransactionRet(() -> {
-			return internalManagment.autoProcess(form, requestFull, 
+		if (!context.tryAutoAccept)
+			return;
+		tx.runInTransaction(() -> {
+			autoProcess(form, requestFull, 
 						"Automatic processing of the request  " + 
 						requestFull.getRequestId() + " invoked, action: {0}", 
 						SqlSessionTL.get());
 		});
 	}
 
+	
 	/**
 	 * Process the request: unless auto action returned by the profile is drop or reject, then 
 	 * the request is accepted.
 	 * @throws EngineException 
 	 */
-	public void autoProcess(RegistrationForm form, EnquiryResponseState requestFull, String logMessageTemplate,
+	public void autoProcess(EnquiryForm form, EnquiryResponseState requestFull, String logMessageTemplate,
 			SqlSession sql)	throws EngineException
 	{
 		EnquiryTranslationProfile translationProfile = getProfileInstance(form.getTranslationProfile());
@@ -265,6 +287,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		
 		enquiryResponseValidator.validateTranslatedRequest(form, currentRequest.getRequest(), 
 				translatedRequest, sql);
+
 		requestDB.update(currentRequest.getRequestId(), currentRequest, sql);
 
 		List<Attribute<?>> rootAttributes = new ArrayList<>(translatedRequest.getAttributes().size());

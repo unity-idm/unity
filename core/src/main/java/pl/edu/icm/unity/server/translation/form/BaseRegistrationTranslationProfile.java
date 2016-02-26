@@ -10,6 +10,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.apache.log4j.NDC;
 
+import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
@@ -22,10 +23,13 @@ import pl.edu.icm.unity.server.translation.TranslationProfileInstance;
 import pl.edu.icm.unity.server.translation.form.RegistrationMVELContext.RequestSubmitStatus;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.server.translation.form.action.AutoProcessActionFactory;
+import pl.edu.icm.unity.server.translation.form.action.ConfirmationRedirectActionFactory;
 import pl.edu.icm.unity.server.translation.form.action.RedirectActionFactory;
 import pl.edu.icm.unity.server.translation.form.action.SubmitMessageActionFactory;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.I18nMessage;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
@@ -140,6 +144,46 @@ public abstract class BaseRegistrationTranslationProfile extends TranslationProf
 		return result.getRedirectURL();
 	}
 
+	public String getPostConfirmationRedirectURL(BaseForm form, UserRequestState<?> request,
+			IdentityParam confirmed, String requestId)
+	{
+		return getPostConfirmationRedirectURL(form, request.getRequest(), request.getRegistrationContext(),
+				requestId,
+				ConfirmationRedirectURLBuilder.ConfirmedElementType.identity.toString(), 
+				confirmed.getTypeId(), confirmed.getValue());
+	}
+
+	public String getPostConfirmationRedirectURL(BaseForm form, UserRequestState<?> request,
+			Attribute<?> confirmed, String requestId)
+	{
+		return getPostConfirmationRedirectURL(form, request.getRequest(), request.getRegistrationContext(),
+				requestId,
+				ConfirmationRedirectURLBuilder.ConfirmedElementType.attribute.toString(), 
+				confirmed.getName(), confirmed.getValues().get(0).toString());
+	}
+	
+	private String getPostConfirmationRedirectURL(BaseForm form, BaseRegistrationInput request,
+			RegistrationContext regContxt, String requestId, 
+			String cType, String cName, String cValue)
+	{
+		RegistrationMVELContext mvelCtx = new RegistrationMVELContext(form, request, 
+				RequestSubmitStatus.submitted, 
+				regContxt.triggeringMode, regContxt.isOnIdpEndpoint, requestId);
+		mvelCtx.addConfirmationContext(cType, cName, cValue);
+		TranslatedRegistrationRequest result;
+		try
+		{
+			result = executeFilteredActions(form, 
+					request, mvelCtx, ConfirmationRedirectActionFactory.NAME);
+		} catch (EngineException e)
+		{
+			log.error("Couldn't establish redirect URL from profile", e);
+			return null;
+		}
+		
+		return "".equals(result.getRedirectURL()) ? null : result.getRedirectURL();
+	}
+	
 	protected TranslatedRegistrationRequest executeFilteredActions(BaseForm form, 
 			BaseRegistrationInput request, Map<String, Object> mvelCtx, 
 			String actionNameFilter) throws EngineException

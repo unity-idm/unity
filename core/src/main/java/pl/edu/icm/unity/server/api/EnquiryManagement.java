@@ -9,7 +9,7 @@ import java.util.List;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
+import pl.edu.icm.unity.types.registration.RegistrationContext;
 
 /**
  * Enquires support: forms, submissions of requests and their processing.
@@ -56,10 +56,11 @@ public interface EnquiryManagement
 	List<EnquiryForm> getEnquires() throws EngineException;
 	
 	/**
-	 * Submits an enquiry response. The response is encoded in {@link RegistrationRequest} class
-	 * as it contains everything required in the form. Note however  
+	 * Submits an enquiry response.
 	 * @param response
+	 * @param context submission context
+	 * @return id of the recorder response
 	 * @throws EngineException
 	 */
-	void submitEnquiryResponse(EnquiryResponse response) throws EngineException;
+	String submitEnquiryResponse(EnquiryResponse response, RegistrationContext context) throws EngineException;
 }

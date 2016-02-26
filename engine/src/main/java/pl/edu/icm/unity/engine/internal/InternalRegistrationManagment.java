@@ -379,6 +379,7 @@ public class InternalRegistrationManagment
 		return notificationFacility.getAddressForRegistrationRequest(currentRequest, sql);
 	}
 
+	//TODO - needs version for enquiry rewrite
 	private void rewriteRequestTokenInternal(RegistrationRequestState finalReguest, long entityId) 
 			throws EngineException
 	{
