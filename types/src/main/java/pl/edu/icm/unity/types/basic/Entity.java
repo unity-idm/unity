@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.types.basic;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import pl.edu.icm.unity.types.EntityInformation;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
@@ -15,7 +17,7 @@ import pl.edu.icm.unity.types.authn.CredentialInfo;
 public class Entity
 {
 	private Long id;
-	private EntityInformation information;
+	private EntityInformation entityInformation;
 	private Identity[] identities;
 	private CredentialInfo credentialInfo;
 	
@@ -24,7 +26,7 @@ public class Entity
 		this.id = id;
 		this.identities = identities;
 		this.credentialInfo = credentialInfo;
-		this.information = info;
+		this.entityInformation = info;
 	}
 
 	public Entity(Long id, Identity[] identities, EntityState state, CredentialInfo credentialInfo)
@@ -32,6 +34,14 @@ public class Entity
 		this(id, identities, new EntityInformation(state), credentialInfo);
 	}
 
+	/**
+	 * Used by Jackson during deserialization
+	 */
+	@SuppressWarnings("unused")
+	private Entity()
+	{
+	}
+	
 	public Long getId()
 	{
 		return id;
@@ -46,14 +56,15 @@ public class Entity
 		return credentialInfo;
 	}
 
+	@JsonIgnore
 	public EntityState getState()
 	{
-		return information.getState();
+		return entityInformation.getState();
 	}
 
 	public EntityInformation getEntityInformation()
 	{
-		return information;
+		return entityInformation;
 	}
 	
 	@Override

@@ -18,7 +18,7 @@ import pl.edu.icm.unity.test.headlessui.SeleniumTestBase;
 public class TestAccountAssociation extends SeleniumTestBase
 {
 	@Test
-	public void registrationTest() throws Exception
+	public void accountAssociationTest() throws Exception
 	{
 		//login to home UI 
 		driver.get(baseUrl + "/home/home");
