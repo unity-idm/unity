@@ -115,11 +115,13 @@ Example output:
 
 +@Path("/entity/{entityId}/attributes")+ +
 +@QueryParam("group")+ +
++@QueryParam("effective")+ +
 +@GET+ +
 
-Returns effective attributes of a given entity in a selected group. Values are encoded using simple mapping if possible
+Returns attributes of a given entity in a selected group. Values are encoded using simple mapping if possible
 (e.g. String attribute is placed as JSON string), values with syntax which is not directly mappable to JSON type
-is converted to binary representation and then Base64 encoded. 
+is converted to binary representation and then Base64 encoded. The optional effective query parameter (by default true)
+can be used to control whether only directly defined or effective attributes are queried.
 
 Example output: 
 ----

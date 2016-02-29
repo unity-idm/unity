@@ -229,13 +229,16 @@ public class RESTAdmin
 	@Path("/entity/{entityId}/attributes")
 	@GET
 	public String getAttributes(@PathParam("entityId") long entityId,
-			@QueryParam("group") String group) throws EngineException, JsonProcessingException
+			@QueryParam("group") String group, @QueryParam("effective") Boolean effective) 
+					throws EngineException, JsonProcessingException
 	{
 		if (group == null)
 			group = "/";
+		if (effective == null)
+			effective = true;
 		log.debug("getAttributes query for " + entityId + " in " + group);
-		Collection<AttributeExt<?>> attributes = attributesMan.getAttributes(
-				new EntityParam(entityId), group, null);
+		Collection<AttributeExt<?>> attributes = attributesMan.getAllAttributes(
+				new EntityParam(entityId), effective, group, null, true);
 		
 		List<AttributeRepresentation> wrapped = new ArrayList<AttributeRepresentation>(attributes.size());
 		for (AttributeExt<?> a: attributes)

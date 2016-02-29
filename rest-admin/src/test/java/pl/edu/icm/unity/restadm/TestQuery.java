@@ -4,7 +4,9 @@
  */
 package pl.edu.icm.unity.restadm;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -122,8 +124,29 @@ public class TestQuery extends TestRESTBase
 		contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
 		System.out.println("Attributes in /example:\n" + formatJson(contents));
-		
 	}
+	
+	@Test
+	public void localAttributesAreReturned() throws Exception
+	{
+		setupPasswordAuthn();
+		createUsernameUser("System Manager");
+		super.deployEndpoint(RESTAdminEndpointFactory.NAME, 
+				"restAdmin", "/restadm");
+		long e = createTestContents();
+		
+		HttpClient client = getClient();
+		HttpHost host = new HttpHost("localhost", 53456, "https");
+		HttpContext localcontext = getClientContext(client, host);
+		HttpGet getAttributes = new HttpGet("/restadm/v1/entity/" + e + "/attributes");
+		HttpResponse response = client.execute(host, getAttributes, localcontext);
+		String contents = EntityUtils.toString(response.getEntity());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertThat(contents, containsString("local"));
+		System.out.println("Attributes in /:\n" + formatJson(contents));
+	}
+	
+	
 	
 	protected long createTestContents() throws Exception
 	{
