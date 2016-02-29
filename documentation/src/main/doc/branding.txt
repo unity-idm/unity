@@ -1,5 +1,5 @@
 [[branding]]
-== Web interface branding
+== Web interface customization and branding
 
 Unity interface appearance can be customized to match the owning organization preferences.
 There are two ways (which can be combined) to perform such customizations:
@@ -174,3 +174,24 @@ templates for every endpoint, what is configured with the +unity.endpoint.web.te
 There are also options to set templates for the shared (not endpoint specific UIs), as the email confirmation
 screen. See the main server reference documentation: <<configuration>>. 
 
+
+=== Controlling translation of messages
+
+In the +i18n/+ subfolder of the configuration directory a copy of all system messages is stored. 
+It is possible to change any of the messages which are stored there, also including translations.
+Files are grouped in several directories; the structure of those directories is hardcoded and can not be modified.
+In each directory there is is one +message.properties+ file with default values (the default is simply English) and
+arbitrary number of files +message_LC.properties+, where +LC+ is a code of a locale of the translation. 
+
+It is important to note how language-wise resolving of messages follows. For each message key and locale, 
+Unity searches for the message value in the following order:
+
+1. locale specific file in the configuration directory
+1. default locale file in the configuration directory
+1. locale specific, packaged translation (can not be modified)
+1. default locale, packaged translation (can not be modified)
+
+Note that initially (until any custom reconfigurations are performed) the two last options are the same
+as the two first.
+
+  

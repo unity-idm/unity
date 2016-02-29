@@ -65,6 +65,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	private static final String RECREATE_ENDPOINTS_ON_STARTUP = "recreateEndpointsOnStartup";
 	public static final String LOGOUT_MODE = "logoutMode";
 	public static final String DEFAULT_WEB_CONTENT_PATH = "defaultWebContentDirectory";
+	public static final String MESSAGES_DIRECTORY = "i18nMessagesDirectory";
 	public static final String THEME = "defaultTheme";
 	public static final String CONFIRMATION_THEME = "confirmationUITheme";
 	public static final String CONFIRMATION_TEMPLATE = "confirmationUITemplate";
@@ -177,6 +178,9 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				"Defines the interval of background update tasks in seconds. Those tasks are used to update runtime state of the server (for instance the deployed endpoints) with the data which is stored in database."));
 		defaults.put(WORKSPACE_DIRECTORY, new PropertyMD("data/workspace").setPath().setCategory(mainCat).setDescription(
 				"Defines a folder where the server will write its internal files."));
+		defaults.put(MESSAGES_DIRECTORY, new PropertyMD("i18n").setPath().setCategory(mainCat).setDescription(
+				"Defines a folder where internacionalized messages are stored. Note that"
+				+ " this directory is optional: a fallback messages are always included in the application."));
 		defaults.put(DEFAULT_WEB_CONTENT_PATH, new PropertyMD("webContent").setPath().setCategory(mainCat).setDescription(
 				"Defines a default folder from which the web endpoints will serve static content, configured locally. "
 				+ "Also used for the shared endpoint under /unitygw path."));
