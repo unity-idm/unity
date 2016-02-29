@@ -54,6 +54,7 @@ public class TestAccountAssociation extends SeleniumTestBase
 		Assert.assertTrue(finishB.isEnabled());
 		simpleWait();
 		finishB.click();
+		simpleWait();
 		waitForElement(By.className("success")).click();
 		waitForElement(By.id("MainHeader.logout")).click();
 	}
