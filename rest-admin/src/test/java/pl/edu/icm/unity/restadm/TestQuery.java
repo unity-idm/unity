@@ -4,12 +4,13 @@
  */
 package pl.edu.icm.unity.restadm;
 
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.List;
 
 import javax.ws.rs.core.Response.Status;
 
@@ -38,6 +39,7 @@ import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.basic.AttributeRepresentation;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -46,6 +48,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -142,7 +145,10 @@ public class TestQuery extends TestRESTBase
 		HttpResponse response = client.execute(host, getAttributes, localcontext);
 		String contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
-		assertThat(contents, containsString("local"));
+		List<AttributeRepresentation> parsed = m.readValue(contents, 
+				new TypeReference<List<AttributeRepresentation>>(){});
+		assertThat(parsed.size(), is(1));
+		assertThat(parsed.get(0).getVisibility(), is(AttributeVisibility.local));
 		System.out.println("Attributes in /:\n" + formatJson(contents));
 	}
 	
