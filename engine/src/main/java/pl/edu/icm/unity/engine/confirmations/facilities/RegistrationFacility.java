@@ -11,16 +11,22 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder.ConfirmedElementType;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.states.RegistrationConfirmationState;
+import pl.edu.icm.unity.confirmations.states.RegistrationConfirmationState.RequestType;
+import pl.edu.icm.unity.db.generic.reg.EnquiryFormDB;
+import pl.edu.icm.unity.db.generic.reg.EnquiryResponseDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
 import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder;
 import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder.Status;
+import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
+import pl.edu.icm.unity.types.registration.EnquiryForm;
+import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
+import pl.edu.icm.unity.types.registration.UserRequestState;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -36,15 +42,19 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 	protected final ObjectMapper mapper = Constants.MAPPER;
 	
 	protected RegistrationRequestDB requestDB;
+	protected EnquiryResponseDB enquiryResponsesDB;
 	protected RegistrationFormDB formsDB;
+	protected EnquiryFormDB enquiresDB;
 	protected InternalRegistrationManagment internalRegistrationManagment;
 
-	public RegistrationFacility(RegistrationRequestDB requestDB,
-			RegistrationFormDB formsDB,
+	public RegistrationFacility(RegistrationRequestDB requestDB, EnquiryResponseDB enquiryResponsesDB,
+			RegistrationFormDB formsDB, EnquiryFormDB enquiresDB,
 			InternalRegistrationManagment internalRegistrationManagment)
 	{
 		this.requestDB = requestDB;
+		this.enquiryResponsesDB = enquiryResponsesDB;
 		this.formsDB = formsDB;
+		this.enquiresDB = enquiresDB;
 		this.internalRegistrationManagment = internalRegistrationManagment;
 	}
 
@@ -59,12 +69,12 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 		return base.getRequestId().equals(requestId) && base.getValue().equals(value);
 	}
 	
-	protected abstract ConfirmationStatus confirmElements(RegistrationRequestState reqState, T state) 
+	protected abstract ConfirmationStatus confirmElements(UserRequestState<?> reqState, T state) 
 			throws EngineException;
 	
 	protected abstract ConfirmedElementType getConfirmedElementType(T state);
 
-	protected String getSuccessRedirect(T state, RegistrationRequestState reqState)
+	protected String getSuccessRedirect(T state, UserRequestState<?> reqState)
 	{
 		return new RegistrationRedirectURLBuilder(state.getRedirectUrl(), reqState.getRequest().getFormId(),
 				reqState.getRequestId(), Status.elementConfirmed).
@@ -72,7 +82,7 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 			build();
 	}
 	
-	protected String getErrorRedirect(T state, RegistrationRequestState reqState)
+	protected String getErrorRedirect(T state, UserRequestState<?> reqState)
 	{
 		return new RegistrationRedirectURLBuilder(state.getRedirectUrl(), reqState.getRequest().getFormId(),
 				reqState.getRequestId(), Status.elementConfirmationError).
@@ -80,20 +90,17 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 			build();
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public ConfirmationStatus processConfirmation(String rawState, SqlSession sql) throws EngineException
 	{
 		T state = parseState(rawState);
 		String requestId = state.getRequestId();
 
-		RegistrationRequestState reqState = null;
+		UserRequestState<?> reqState = null;
 		try
 		{
-			reqState = internalRegistrationManagment.getRequest(requestId, sql);
-
+			reqState = state.getRequestType() == RequestType.REGISTRATION ? 
+					requestDB.get(requestId, sql) : enquiryResponsesDB.get(requestId, sql);
 		} catch (EngineException e)
 		{
 			String redirect = new RegistrationRedirectURLBuilder(state.getRedirectUrl(), null,
@@ -113,20 +120,36 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 				build();
 			return new ConfirmationStatus(false, redirect, "ConfirmationStatus.requestRejected");
 		}
-		RegistrationRequest req = reqState.getRequest();
+		BaseRegistrationInput req = reqState.getRequest();
 		ConfirmationStatus status = confirmElements(reqState, state);
-		requestDB.update(requestId, reqState, sql);
+		
+		if (state.getRequestType() == RequestType.REGISTRATION)
+			requestDB.update(requestId, (RegistrationRequestState) reqState, sql);
+		else
+			enquiryResponsesDB.update(requestId, (EnquiryResponseState) reqState, sql);
 		//make sure we update request, later on auto-acceptance may fail
 		sql.commit();
 		
 		if (status.isSuccess() && reqState.getStatus().equals(RegistrationRequestStatus.pending))
 		{
-			RegistrationForm form = formsDB.get(req.getFormId(), sql);
-			
-			internalRegistrationManagment.autoProcess(form, reqState, 
-					"Automatically processing registration request " + state.getRequestId()
+			if (state.getRequestType() == RequestType.REGISTRATION)
+			{
+				RegistrationForm form = formsDB.get(req.getFormId(), sql);
+				String info = "Automatically processing registration request " + state.getRequestId()
 					+ " after confirmation [" + state.getType() + "]" + state.getValue() + " by "
-					+ state.getFacilityId() + ". Action: {0}", sql);
+					+ state.getFacilityId() + ". Action: {0}";
+			
+				internalRegistrationManagment.autoProcess(form, 
+						(RegistrationRequestState) reqState, info, sql);
+			} else
+			{
+				String info = "Automatically processing enquiry response " + state.getRequestId()
+						+ " after confirmation [" + state.getType() + "]" + state.getValue() + " by "
+						+ state.getFacilityId() + ". Action: {0}";
+				EnquiryForm form = enquiresDB.get(req.getFormId(), sql);
+				internalRegistrationManagment.autoProcessEnquiry(form, 
+						(EnquiryResponseState) reqState, info, sql);
+			}
 		}
 
 		return status;

@@ -34,6 +34,7 @@ import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
 import pl.edu.icm.unity.engine.notifications.InternalFacilitiesManagement;
 import pl.edu.icm.unity.engine.notifications.NotificationFacility;
+import pl.edu.icm.unity.engine.registration.RegistrationConfirmationSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.notifications.NotificationProducer;
@@ -42,6 +43,7 @@ import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.api.registration.BaseRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.RegistrationWithCommentsTemplateDef;
 import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
+import pl.edu.icm.unity.server.translation.form.EnquiryTranslationProfile;
 import pl.edu.icm.unity.server.translation.form.GroupParam;
 import pl.edu.icm.unity.server.translation.form.RegistrationMVELContext.RequestSubmitStatus;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
@@ -58,6 +60,7 @@ import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.CredentialParamValue;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
+import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
@@ -89,7 +92,7 @@ public class InternalRegistrationManagment
 	@Autowired
 	private DBGroups dbGroups;
 	@Autowired
-	private TokensManagement tokensMan;
+	private RegistrationConfirmationSupport confirmationsSupport;
 	@Autowired
 	private UnityMessageSource msg;
 	@Autowired
@@ -129,7 +132,8 @@ public class InternalRegistrationManagment
 	{
 		currentRequest.setStatus(RegistrationRequestStatus.accepted);
 
-		RegistrationTranslationProfile translationProfile = getProfileInstance(form.getTranslationProfile());
+		RegistrationTranslationProfile translationProfile = getRegistrationProfileInstance(
+				form.getTranslationProfile());
 		TranslatedRegistrationRequest translatedRequest = translationProfile.translate(form, currentRequest);
 		
 		registrationRequestValidator.validateTranslatedRequest(form, currentRequest.getRequest(), 
@@ -197,7 +201,7 @@ public class InternalRegistrationManagment
 				currentRequest.getRequestId(), form.getName(), true, publicComment,
 				internalComment, notificationsCfg, sql);
 		if (rewriteConfirmationToken)
-			rewriteRequestTokenInternal(currentRequest, initial.getEntityId());
+			confirmationsSupport.rewriteRequestToken(currentRequest, initial.getEntityId());
 
 		return initial.getEntityId();
 	}
@@ -239,12 +243,6 @@ public class InternalRegistrationManagment
 		}
 	}
 
-	public RegistrationRequestState getRequest(String requestId, SqlSession sql) throws EngineException
-	{
-		return requestDB.get(requestId, sql);
-	}
-
-
 	public Map<String, String> getBaseNotificationParams(String formId, String requestId)
 	{
 		Map<String, String> ret = new HashMap<>();
@@ -261,7 +259,8 @@ public class InternalRegistrationManagment
 	public Long autoProcess(RegistrationForm form, RegistrationRequestState requestFull, String logMessageTemplate,
 			SqlSession sql)	throws EngineException
 	{
-		RegistrationTranslationProfile translationProfile = getProfileInstance(form.getTranslationProfile());
+		RegistrationTranslationProfile translationProfile = getRegistrationProfileInstance(
+				form.getTranslationProfile());
 		
 		AutomaticRequestAction autoProcessAction = translationProfile.getAutoProcessAction(
 				form, requestFull, RequestSubmitStatus.submitted);
@@ -291,18 +290,20 @@ public class InternalRegistrationManagment
 		return null;
 	}
 
+	//TODO
 	/**
 	 * Accepts the enquiry response, unless its form profile returns drop o reject action.
 	 * In future this will be enhanced to the pipeline similar to registration processing. 
 	 * @throws EngineException 
 	 */
-	public void processEnquiry(EnquiryForm form, EnquiryResponse response, String logMessageTemplate,
+	public void autoProcessEnquiry(EnquiryForm form, EnquiryResponseState fullResponse, String logMessageTemplate,
 			SqlSession sql)	throws EngineException
 	{
-		RegistrationTranslationProfile translationProfile = getProfileInstance(form.getTranslationProfile());
+		EnquiryTranslationProfile translationProfile = getEnquiryProfileInstance(
+				form.getTranslationProfile());
 		
 		AutomaticRequestAction autoProcessAction = translationProfile.getAutoProcessAction(
-				form, requestFull, RequestSubmitStatus.submitted);
+				form, fullResponse, RequestSubmitStatus.submitted);
 
 		AdminComment systemComment = new AdminComment(
 				InternalRegistrationManagment.AUTO_PROCESS_COMMENT, 0, false);
@@ -314,7 +315,7 @@ public class InternalRegistrationManagment
 		{
 		case none:
 		case accept:
-			return acceptRequest(form, requestFull, null, systemComment, false, sql);
+			return acceptResponse(form, fullResponse, null, systemComment, false, sql);
 		case drop:
 		case reject:
 		default:
@@ -379,122 +380,16 @@ public class InternalRegistrationManagment
 		return notificationFacility.getAddressForRegistrationRequest(currentRequest, sql);
 	}
 
-	//TODO - needs version for enquiry rewrite
-	private void rewriteRequestTokenInternal(RegistrationRequestState finalReguest, long entityId) 
-			throws EngineException
-	{
-
-		List<Token> tks = tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE);
-		for (Token tk : tks)
-		{
-			RegistrationConfirmationState state;
-			try
-			{
-				state = new RegistrationConfirmationState(tk.getContentsString());
-			} catch (WrongArgumentException e)
-			{
-				//OK - not a registration token
-				continue;
-			}
-			if (state.getRequestId().equals(finalReguest.getRequestId()))
-			{
-				if (state.getFacilityId().equals(
-						RegistrationReqAttribiuteConfirmationState.FACILITY_ID))
-				{
-					rewriteSingleAttributeToken(finalReguest, tk, entityId);
-				} else if (state.getFacilityId().equals(
-						RegistrationReqIdentityConfirmationState.FACILITY_ID))
-				{
-					rewriteSingleIdentityToken(finalReguest, tk, entityId);
-				}
-			}
-		}
-	}
-
-	private void rewriteSingleIdentityToken(RegistrationRequestState finalReguest, Token tk, 
-			long entityId) throws EngineException
-	{
-		RegistrationReqIdentityConfirmationState oldState = new RegistrationReqIdentityConfirmationState(
-				new String(tk.getContents(), StandardCharsets.UTF_8));
-		boolean inRequest = false;
-		for (IdentityParam id : finalReguest.getRequest().getIdentities())
-		{
-			if (id == null)
-				continue;
-			
-			if (id.getTypeId().equals(oldState.getType())
-					&& id.getValue().equals(oldState.getValue()))
-			{
-				inRequest = true;
-				break;
-			}
-		}
-
-		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue());
-		if (inRequest)
-		{
-			IdentityConfirmationState newstate = new IdentityConfirmationState(
-					entityId, oldState.getType(), oldState.getValue(),
-					oldState.getLocale(), oldState.getRedirectUrl());
-			log.debug("Update confirmation token " + tk.getValue()
-					+ " change facility to " + newstate.getFacilityId());
-			tokensMan.addToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk
-					.getValue(), newstate.getSerializedConfiguration()
-					.getBytes(StandardCharsets.UTF_8), tk.getCreated(), tk
-					.getExpires());
-		}
-
-	}
-
-	private void rewriteSingleAttributeToken(RegistrationRequestState finalReguest, Token tk, 
-			long entityId) throws EngineException
-	{
-
-		RegistrationReqAttribiuteConfirmationState oldState = new RegistrationReqAttribiuteConfirmationState(
-				new String(tk.getContents(), StandardCharsets.UTF_8));
-		boolean inRequest = false;
-		for (Attribute<?> attribute : finalReguest.getRequest().getAttributes())
-		{
-			if (attribute == null || attribute.getAttributeSyntax() == null)
-				continue;
-			if (inRequest)
-				break;
-			
-			if (attribute.getAttributeSyntax().isVerifiable()
-					&& attribute.getName().equals(oldState.getType())
-					&& attribute.getValues() != null)
-
-			{
-				for (Object o : attribute.getValues())
-				{
-					VerifiableElement val = (VerifiableElement) o;
-					if (val.getValue().equals(oldState.getValue()))
-					{
-						inRequest = true;
-						break;
-					}
-				}
-			}
-		}
-		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue());
-		if (inRequest)
-		{
-			AttribiuteConfirmationState newstate = new AttribiuteConfirmationState(
-					entityId, oldState.getType(), oldState.getValue(),
-					oldState.getLocale(), oldState.getGroup(),
-					oldState.getRedirectUrl());
-			log.debug("Update confirmation token " + tk.getValue()
-					+ " change facility to " + newstate.getFacilityId());
-			tokensMan.addToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk
-					.getValue(), newstate.getSerializedConfiguration()
-					.getBytes(StandardCharsets.UTF_8), tk.getCreated(), tk
-					.getExpires());
-		}
-	}
 	
-	private RegistrationTranslationProfile getProfileInstance(TranslationProfile profile)
+	private RegistrationTranslationProfile getRegistrationProfileInstance(TranslationProfile profile)
 	{
 		return new RegistrationTranslationProfile(profile.getName(), profile.getRules(), 
+				registrationTranslationActionsRegistry);
+	}
+	
+	private EnquiryTranslationProfile getEnquiryProfileInstance(TranslationProfile profile)
+	{
+		return new EnquiryTranslationProfile(profile.getName(), profile.getRules(), 
 				registrationTranslationActionsRegistry);
 	}
 }

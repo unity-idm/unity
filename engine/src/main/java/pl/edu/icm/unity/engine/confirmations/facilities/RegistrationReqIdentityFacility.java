@@ -13,6 +13,9 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.confirmations.ConfirmationRedirectURLBuilder.ConfirmedElementType;
 import pl.edu.icm.unity.confirmations.ConfirmationStatus;
 import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityConfirmationState;
+import pl.edu.icm.unity.confirmations.states.RegistrationConfirmationState.RequestType;
+import pl.edu.icm.unity.db.generic.reg.EnquiryFormDB;
+import pl.edu.icm.unity.db.generic.reg.EnquiryResponseDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
 import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
@@ -22,7 +25,9 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
+import pl.edu.icm.unity.types.registration.UserRequestState;
 
 /**
  * Identity from registration confirmation facility.
@@ -36,11 +41,12 @@ public class RegistrationReqIdentityFacility extends RegistrationFacility<Regist
 
 	@Autowired
 	public RegistrationReqIdentityFacility(
-			RegistrationRequestDB requestDB, RegistrationFormDB formsDB,
+			RegistrationRequestDB requestDB, EnquiryResponseDB enquiryResponsesDB, 
+			RegistrationFormDB formsDB, EnquiryFormDB enquiresDB,
 			InternalRegistrationManagment internalRegistrationManagment,
 			IdentityTypesRegistry identityTypesRegistry)
 	{
-		super(requestDB, formsDB, internalRegistrationManagment);
+		super(requestDB, enquiryResponsesDB, formsDB, enquiresDB, internalRegistrationManagment);
 		this.identityTypesRegistry = identityTypesRegistry;
 	}
 
@@ -57,7 +63,7 @@ public class RegistrationReqIdentityFacility extends RegistrationFacility<Regist
 	}
 
 	@Override
-	protected ConfirmationStatus confirmElements(RegistrationRequestState reqState,
+	protected ConfirmationStatus confirmElements(UserRequestState<?> reqState,
 			RegistrationReqIdentityConfirmationState idState) throws EngineException
 	{
 		if (!(identityTypesRegistry.getByName(idState.getType()).isVerifiable()))
@@ -73,9 +79,6 @@ public class RegistrationReqIdentityFacility extends RegistrationFacility<Regist
 				idState.getType());
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@Transactional
 	public void processAfterSendRequest(String state) throws EngineException
@@ -84,8 +87,8 @@ public class RegistrationReqIdentityFacility extends RegistrationFacility<Regist
 		String requestId = idState.getRequestId();
 		SqlSession sql = SqlSessionTL.get();
 
-		RegistrationRequestState reqState = internalRegistrationManagment
-				.getRequest(requestId, sql);
+		UserRequestState<?> reqState = idState.getRequestType() == RequestType.REGISTRATION ?
+				requestDB.get(requestId, sql) : enquiryResponsesDB.get(requestId, sql);
 		for (IdentityParam id : reqState.getRequest().getIdentities())
 		{
 			if (id == null)
@@ -93,7 +96,10 @@ public class RegistrationReqIdentityFacility extends RegistrationFacility<Regist
 			if (identityTypesRegistry.getByName(id.getTypeId()).isVerifiable())
 				updateConfirmationInfo(id, id.getValue());
 		}
-		requestDB.update(requestId, reqState, sql);
+		if (idState.getRequestType() == RequestType.REGISTRATION)
+			requestDB.update(requestId, (RegistrationRequestState) reqState, sql);
+		else
+			enquiryResponsesDB.update(requestId, (EnquiryResponseState) reqState, sql);
 	}
 
 	@Override

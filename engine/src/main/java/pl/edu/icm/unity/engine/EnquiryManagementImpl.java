@@ -4,17 +4,10 @@
  */
 package pl.edu.icm.unity.engine;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 import java.util.UUID;
 
 import org.apache.ibatis.session.SqlSession;
@@ -43,31 +36,13 @@ import pl.edu.icm.unity.server.api.registration.EnquiryFilledTemplateDef;
 import pl.edu.icm.unity.server.api.registration.NewEnquiryTemplateDef;
 import pl.edu.icm.unity.server.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.translation.form.EnquiryTranslationProfile;
-import pl.edu.icm.unity.server.translation.form.GroupParam;
-import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest;
-import pl.edu.icm.unity.server.translation.form.RegistrationMVELContext.RequestSubmitStatus;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
-import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.registration.AdminComment;
-import pl.edu.icm.unity.types.registration.CredentialParamValue;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
-import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
-import pl.edu.icm.unity.types.registration.UserRequestState;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Implementation of the enquiry management API.
@@ -88,7 +63,31 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	private EnquiryResponseValidator enquiryResponseValidator;
 	private SharedEndpointManagement sharedEndpointMan;
 	private TransactionalRunner tx;
+	private InternalRegistrationManagment internalManagment;
 	
+	@Autowired
+	public EnquiryManagementImpl(EnquiryFormDB enquiryFormDB, EnquiryResponseDB requestDB,
+			NotificationProducer notificationProducer,
+			RegistrationConfirmationSupport confirmationsSupport,
+			UnityMessageSource msg, AuthorizationManager authz,
+			BaseFormValidator baseFormValidator,
+			EnquiryResponseValidator enquiryResponseValidator,
+			SharedEndpointManagement sharedEndpointMan, TransactionalRunner tx,
+			InternalRegistrationManagment internalManagment)
+	{
+		this.enquiryFormDB = enquiryFormDB;
+		this.requestDB = requestDB;
+		this.notificationProducer = notificationProducer;
+		this.confirmationsSupport = confirmationsSupport;
+		this.msg = msg;
+		this.authz = authz;
+		this.baseFormValidator = baseFormValidator;
+		this.enquiryResponseValidator = enquiryResponseValidator;
+		this.sharedEndpointMan = sharedEndpointMan;
+		this.tx = tx;
+		this.internalManagment = internalManagment;
+	}
+
 	@Transactional
 	@Override
 	public void addEnquiry(EnquiryForm form) throws EngineException
@@ -210,42 +209,13 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		if (!context.tryAutoAccept)
 			return;
 		tx.runInTransaction(() -> {
-			autoProcess(form, requestFull, 
+			internalManagment.autoProcessEnquiry(form, requestFull, 
 						"Automatic processing of the request  " + 
 						requestFull.getRequestId() + " invoked, action: {0}", 
 						SqlSessionTL.get());
 		});
 	}
 
-	
-	/**
-	 * Process the request: unless auto action returned by the profile is drop or reject, then 
-	 * the request is accepted.
-	 * @throws EngineException 
-	 */
-	public void autoProcess(EnquiryForm form, EnquiryResponseState requestFull, String logMessageTemplate,
-			SqlSession sql)	throws EngineException
-	{
-		EnquiryTranslationProfile translationProfile = getProfileInstance(form.getTranslationProfile());
-		
-		AutomaticRequestAction autoProcessAction = translationProfile.getAutoProcessAction(
-				form, requestFull, RequestSubmitStatus.submitted);
-		AdminComment systemComment = new AdminComment(
-				InternalRegistrationManagment.AUTO_PROCESS_COMMENT, 0, false);
-
-		String formattedMsg = MessageFormat.format(logMessageTemplate, autoProcessAction);
-		log.info(formattedMsg);
-		
-		switch (autoProcessAction)
-		{
-		case accept:
-			requestFull.getAdminComments().add(systemComment);
-			return acceptRequest(form, requestFull, null, systemComment, false, sql);
-		case drop:
-		case reject:
-		default:
-		}
-	}
 	
 	private void validateFormContents(EnquiryForm form, SqlSession sql) throws EngineException
 	{
@@ -262,105 +232,4 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		if (form.getTargetGroups() == null || form.getTargetGroups().length == 0)
 			throw new WrongArgumentException("Target groups must be set in the form.");
 	}
-	
-	
-	/**
-	 * Accepts a registration request applying all its settings. The method operates on a result 
-	 * of the form's translation profile, rather then on the original request. 
-	 * @param form
-	 * @param currentRequest
-	 * @param publicComment
-	 * @param internalComment
-	 * @param rewriteConfirmationToken
-	 * @param sql
-	 * @return
-	 * @throws EngineException
-	 */
-	public void acceptResponse(EnquiryForm form, EnquiryResponseState currentRequest,
-			AdminComment publicComment, AdminComment internalComment,
-			SqlSession sql) throws EngineException
-	{
-		currentRequest.setStatus(RegistrationRequestStatus.accepted);
-
-		EnquiryTranslationProfile translationProfile = getProfileInstance(form.getTranslationProfile());
-		TranslatedRegistrationRequest translatedRequest = translationProfile.translate(form, currentRequest);
-		
-		enquiryResponseValidator.validateTranslatedRequest(form, currentRequest.getRequest(), 
-				translatedRequest, sql);
-
-		requestDB.update(currentRequest.getRequestId(), currentRequest, sql);
-
-		List<Attribute<?>> rootAttributes = new ArrayList<>(translatedRequest.getAttributes().size());
-		Map<String, List<Attribute<?>>> remainingAttributesByGroup = new HashMap<String, List<Attribute<?>>>();
-		for (Attribute<?> a : translatedRequest.getAttributes())
-			addAttr(a, rootAttributes, remainingAttributesByGroup);
-
-		Collection<IdentityParam> identities = translatedRequest.getIdentities();
-		Iterator<IdentityParam> identitiesIterator = identities.iterator();
-		
-		Identity initial = engineHelper.addEntity(identitiesIterator.next(),
-				translatedRequest.getCredentialRequirement(),
-				translatedRequest.getEntityState(), 
-				false, rootAttributes, true, sql);
-
-		while (identitiesIterator.hasNext())
-		{
-			IdentityParam idParam = identitiesIterator.next();
-			dbIdentities.insertIdentity(idParam, initial.getEntityId(), false, sql);
-		}
-
-		Map<String, GroupParam> sortedGroups = new TreeMap<>();
-		for (GroupParam group : translatedRequest.getGroups())
-			sortedGroups.put(group.getGroup(), group);
-
-		EntityParam entity = new EntityParam(initial.getEntityId());
-		for (Map.Entry<String, GroupParam> entry : sortedGroups.entrySet())
-		{
-			List<Attribute<?>> attributes = remainingAttributesByGroup.get(entry.getKey());
-			if (attributes == null)
-				attributes = Collections.emptyList();
-			attributesHelper.checkGroupAttributeClassesConsistency(attributes, entry.getKey(), sql);
-			GroupParam sel = entry.getValue();
-			String idp = sel == null ? null : sel.getExternalIdp();
-			String profile = sel == null ? null : sel.getTranslationProfile();
-			dbGroups.addMemberFromParent(entry.getKey(), entity, idp, profile, new Date(), sql);
-			attributesHelper.addAttributesList(attributes, initial.getEntityId(),
-					true, sql);
-		}
-
-		Map<String, Set<String>> attributeClasses = translatedRequest.getAttributeClasses();
-		for (Map.Entry<String, Set<String>> groupAcs: attributeClasses.entrySet())
-		{
-			attributesHelper.setAttributeClasses(initial.getEntityId(), groupAcs.getKey(), 
-					groupAcs.getValue(), sql);
-		}
-		
-		RegistrationRequest originalRequest = currentRequest.getRequest();
-		if (originalRequest.getCredentials() != null)
-		{
-			for (CredentialParamValue c : originalRequest.getCredentials())
-			{
-				engineHelper.setPreviouslyPreparedEntityCredentialInternal(
-						initial.getEntityId(), c.getSecrets(),
-						c.getCredentialId(), sql);
-			}
-		}
-		RegistrationFormNotifications notificationsCfg = form
-				.getNotificationsConfiguration();
-		sendProcessingNotification(notificationsCfg.getAcceptedTemplate(), currentRequest,
-				currentRequest.getRequestId(), form.getName(), true, publicComment,
-				internalComment, notificationsCfg, sql);
-		if (rewriteConfirmationToken)
-			rewriteRequestTokenInternal(currentRequest, initial.getEntityId());
-
-		return initial.getEntityId();
-	}
-	
-	
-	private EnquiryTranslationProfile getProfileInstance(TranslationProfile profile)
-	{
-		return new EnquiryTranslationProfile(profile.getName(), profile.getRules(), 
-				registrationTranslationActionsRegistry);
-	}
-
 }
