@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +49,7 @@ import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile.RequestSubmitStatus;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
+import pl.edu.icm.unity.server.utils.GroupUtils;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -152,9 +155,7 @@ public class InternalRegistrationManagment
 			dbIdentities.insertIdentity(idParam, initial.getEntityId(), false, sql);
 		}
 
-		Map<String, GroupParam> sortedGroups = new TreeMap<>();
-		for (GroupParam group : translatedRequest.getGroups())
-			sortedGroups.put(group.getGroup(), group);
+		Map<String, GroupParam> sortedGroups = establishSortedGroups(translatedRequest.getGroups());
 
 		EntityParam entity = new EntityParam(initial.getEntityId());
 		for (Map.Entry<String, GroupParam> entry : sortedGroups.entrySet())
@@ -197,6 +198,25 @@ public class InternalRegistrationManagment
 			rewriteRequestTokenInternal(currentRequest, initial.getEntityId());
 
 		return initial.getEntityId();
+	}
+	
+	private Map<String, GroupParam> establishSortedGroups(Collection<GroupParam> requestedGroups)
+	{
+		Map<String, GroupParam> sortedGroups = new TreeMap<>();
+		Set<String> allGroups = new HashSet<>();
+		allGroups.add("/");
+		
+		for (GroupParam group : requestedGroups)
+		{
+			Deque<String> missingGroups = GroupUtils.getMissingGroups(group.getGroup(), allGroups);
+			for (String missingGroup: missingGroups)
+			{
+				sortedGroups.put(missingGroup, new GroupParam(missingGroup,
+						group.getExternalIdp(), group.getTranslationProfile()));
+				allGroups.add(missingGroup);
+			}
+		}
+		return sortedGroups;
 	}
 	
 	public void dropRequest(String id, SqlSession sql) throws EngineException
