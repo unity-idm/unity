@@ -11,7 +11,7 @@ import pl.edu.icm.unity.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.msgtemplates.MessageTemplateVariable;
 
 /**
- * Base class for all {@link MessageTemplateDefinition}s of the registration forms subsystem. 
+ * Base class for all {@link MessageTemplateDefinition}s of the registration & enquiry forms subsystem. 
  * Common variables are defined here.
  *   
  * @author P. Piernik

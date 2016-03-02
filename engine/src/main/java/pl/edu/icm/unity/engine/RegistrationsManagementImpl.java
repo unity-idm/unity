@@ -25,10 +25,10 @@ import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
-import pl.edu.icm.unity.engine.internal.BaseFormValidator;
-import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
-import pl.edu.icm.unity.engine.internal.RegistrationRequestValidator;
+import pl.edu.icm.unity.engine.registration.BaseFormValidator;
 import pl.edu.icm.unity.engine.registration.RegistrationConfirmationSupport;
+import pl.edu.icm.unity.engine.registration.RegistrationRequestValidator;
+import pl.edu.icm.unity.engine.registration.SharedRegistrationManagment;
 import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
 import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -46,7 +46,6 @@ import pl.edu.icm.unity.server.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
-import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -77,7 +76,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private AuthorizationManager authz;
 	private NotificationProducer notificationProducer;
 
-	private InternalRegistrationManagment internalManagment;
+	private SharedRegistrationManagment internalManagment;
 	private UnityMessageSource msg;
 	private TransactionalRunner tx;
 	private RegistrationRequestValidator registrationRequestValidator;
@@ -92,7 +91,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			CredentialRequirementDB credentialReqDB, 
 			RegistrationConfirmationSupport confirmationsSupport, AuthorizationManager authz,
 			NotificationProducer notificationProducer,
-			InternalRegistrationManagment internalManagment, UnityMessageSource msg,
+			SharedRegistrationManagment internalManagment, UnityMessageSource msg,
 			TransactionalRunner tx,
 			RegistrationRequestValidator registrationRequestValidator,
 			InvitationWithCodeDB invitationDB,
@@ -175,7 +174,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	{
 		authz.checkAuthorization(AuthzCapability.readInfo);
 		SqlSession sql = SqlSessionTL.get();
-		return internalManagment.getForms(sql);
+		return formsDB.getAll(sql);
 	}
 
 	@Override
@@ -261,42 +260,14 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				AuthzCapability.identityModify, AuthzCapability.groupModify);
 		SqlSession sql = SqlSessionTL.get();
 		RegistrationRequestState currentRequest = requestDB.get(id, sql);
-		if (finalRequest != null)
-		{
-			finalRequest.setCredentials(currentRequest.getRequest().getCredentials());
-			currentRequest.setRequest(finalRequest);
-		}
-		InvocationContext authnCtx = InvocationContext.getCurrent();
-		LoginSession client = authnCtx.getLoginSession();
 
-		if (client == null)
-		{
-			client = new LoginSession();
-			client.setEntityId(0);
-		}
+		LoginSession client = internalManagment.preprocessRequest(finalRequest, currentRequest, action);
 
-		AdminComment publicComment = null;
-		AdminComment internalComment = null;
-		if (publicCommentStr != null)
-		{
-			publicComment = new AdminComment(publicCommentStr, client.getEntityId(), true);
-			currentRequest.getAdminComments().add(publicComment);
-		}
-		if (internalCommentStr != null)
-		{
-			internalComment = new AdminComment(internalCommentStr, client.getEntityId(), false);
-			currentRequest.getAdminComments().add(internalComment);
-		}
+		AdminComment publicComment = internalManagment.preprocessComment(currentRequest, 
+				publicCommentStr, client, true);
+		AdminComment internalComment = internalManagment.preprocessComment(currentRequest, 
+				internalCommentStr, client, false);
 
-		if (currentRequest.getStatus() != RegistrationRequestStatus.pending && 
-				(action == RegistrationRequestAction.accept || 
-				action == RegistrationRequestAction.reject))
-			throw new WrongArgumentException("The request was already processed. " +
-					"It is only possible to drop it or to modify its comments.");
-		if (currentRequest.getStatus() != RegistrationRequestStatus.pending && 
-				action == RegistrationRequestAction.update && finalRequest != null)
-			throw new WrongArgumentException("The request was already processed. " +
-					"It is only possible to drop it or to modify its comments.");
 		RegistrationForm form = formsDB.get(currentRequest.getRequest().getFormId(), sql);
 
 		switch (action)
@@ -325,7 +296,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		requestDB.update(currentRequest.getRequestId(), currentRequest, sql);
 		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
 		internalManagment.sendProcessingNotification(notificationsCfg.getUpdatedTemplate(),
-				currentRequest, currentRequest.getRequestId(), form.getName(), false, 
+				currentRequest, form.getName(), false, 
 				publicComment, internalComment,	notificationsCfg, sql);
 	}
 	

@@ -10,6 +10,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
+import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 
 /**
  * Enquires support: forms, submissions of requests and their processing.
@@ -47,6 +48,20 @@ public interface EnquiryManagement
 	 * @throws EngineException
 	 */
 	void updateEnquiry(EnquiryForm updatedForm) throws EngineException;
+	
+	/**
+	 * Accepts, deletes or rejects a given enquiry response. The request can be freely modified at this time
+	 * too, with one exception: the credentials originally submitted are always preserved.
+	 * @param id request id to be processed
+	 * @param finalRequest updated request with edits made by admin
+	 * @param action what to do with the request.
+	 * @param publicComment comment to be recorded and sent to the requester
+	 * @param privateComment comment to be internally recored only.
+	 * @throws EngineException
+	 */
+	void processEnquiryResponse(String id, EnquiryResponse finalResponse, 
+			RegistrationRequestAction action, String publicComment, 
+			String privateComment) throws EngineException;
 	
 	/**
 	 * 

@@ -16,7 +16,8 @@ import pl.edu.icm.unity.db.generic.reg.EnquiryFormDB;
 import pl.edu.icm.unity.db.generic.reg.EnquiryResponseDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
-import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
+import pl.edu.icm.unity.engine.registration.SharedEnquiryManagment;
+import pl.edu.icm.unity.engine.registration.SharedRegistrationManagment;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder;
 import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder.Status;
@@ -45,17 +46,20 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 	protected EnquiryResponseDB enquiryResponsesDB;
 	protected RegistrationFormDB formsDB;
 	protected EnquiryFormDB enquiresDB;
-	protected InternalRegistrationManagment internalRegistrationManagment;
+	protected SharedRegistrationManagment internalRegistrationManagment;
+	protected SharedEnquiryManagment internalEnquiryManagment;
 
 	public RegistrationFacility(RegistrationRequestDB requestDB, EnquiryResponseDB enquiryResponsesDB,
 			RegistrationFormDB formsDB, EnquiryFormDB enquiresDB,
-			InternalRegistrationManagment internalRegistrationManagment)
+			SharedRegistrationManagment internalRegistrationManagment,
+			SharedEnquiryManagment internalEnquiryManagment)
 	{
 		this.requestDB = requestDB;
 		this.enquiryResponsesDB = enquiryResponsesDB;
 		this.formsDB = formsDB;
 		this.enquiresDB = enquiresDB;
 		this.internalRegistrationManagment = internalRegistrationManagment;
+		this.internalEnquiryManagment = internalEnquiryManagment;
 	}
 
 	@Override
@@ -147,7 +151,7 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 						+ " after confirmation [" + state.getType() + "]" + state.getValue() + " by "
 						+ state.getFacilityId() + ". Action: {0}";
 				EnquiryForm form = enquiresDB.get(req.getFormId(), sql);
-				internalRegistrationManagment.autoProcessEnquiry(form, 
+				internalEnquiryManagment.autoProcessEnquiry(form, 
 						(EnquiryResponseState) reqState, info, sql);
 			}
 		}

@@ -2,7 +2,7 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.internal;
+package pl.edu.icm.unity.engine.registration;
 
 import java.util.List;
 import java.util.Map;

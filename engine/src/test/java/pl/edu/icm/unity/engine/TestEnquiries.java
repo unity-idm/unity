@@ -41,6 +41,8 @@ import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
+import pl.edu.icm.unity.types.registration.RegistrationContext;
+import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 public class TestEnquiries extends DBIntegrationTestBase
@@ -187,7 +189,8 @@ public class TestEnquiries extends DBIntegrationTestBase
 	{
 		initAndCreateEnquiry("true");
 		EnquiryResponse response = getRequestWithoutOptionalElements();
-		enquiryManagement.submitEnquiryResponse(response);
+		enquiryManagement.submitEnquiryResponse(response, new RegistrationContext(true, false, 
+				TriggeringMode.manualStandalone));
 		
 		//TODO check if applied
 	}

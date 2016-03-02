@@ -18,7 +18,8 @@ import pl.edu.icm.unity.db.generic.reg.EnquiryFormDB;
 import pl.edu.icm.unity.db.generic.reg.EnquiryResponseDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
-import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
+import pl.edu.icm.unity.engine.registration.SharedEnquiryManagment;
+import pl.edu.icm.unity.engine.registration.SharedRegistrationManagment;
 import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
 import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -43,9 +44,11 @@ public class RegistrationReqAttributeFacility extends RegistrationFacility<Regis
 	@Autowired
 	public RegistrationReqAttributeFacility(RegistrationRequestDB requestDB, EnquiryResponseDB enquiryResponsesDB, 
 			RegistrationFormDB formsDB, EnquiryFormDB enquiresDB,
-			InternalRegistrationManagment internalRegistrationManagment)
+			SharedRegistrationManagment internalRegistrationManagment,
+			SharedEnquiryManagment internalEnquiryManagment)
 	{
-		super(requestDB, enquiryResponsesDB, formsDB, enquiresDB, internalRegistrationManagment);
+		super(requestDB, enquiryResponsesDB, formsDB, enquiresDB, internalRegistrationManagment,
+				internalEnquiryManagment);
 	}
 
 	@Override

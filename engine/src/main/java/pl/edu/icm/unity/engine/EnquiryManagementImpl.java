@@ -19,10 +19,10 @@ import pl.edu.icm.unity.db.generic.reg.EnquiryResponseDB;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
-import pl.edu.icm.unity.engine.internal.BaseFormValidator;
-import pl.edu.icm.unity.engine.internal.EnquiryResponseValidator;
-import pl.edu.icm.unity.engine.internal.InternalRegistrationManagment;
+import pl.edu.icm.unity.engine.registration.BaseFormValidator;
+import pl.edu.icm.unity.engine.registration.EnquiryResponseValidator;
 import pl.edu.icm.unity.engine.registration.RegistrationConfirmationSupport;
+import pl.edu.icm.unity.engine.registration.SharedEnquiryManagment;
 import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
 import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -32,16 +32,20 @@ import pl.edu.icm.unity.server.api.EnquiryManagement;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
 import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
+import pl.edu.icm.unity.server.api.registration.AcceptRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.EnquiryFilledTemplateDef;
 import pl.edu.icm.unity.server.api.registration.NewEnquiryTemplateDef;
 import pl.edu.icm.unity.server.api.registration.PublicRegistrationURLSupport;
+import pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
+import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 
 /**
@@ -63,7 +67,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	private EnquiryResponseValidator enquiryResponseValidator;
 	private SharedEndpointManagement sharedEndpointMan;
 	private TransactionalRunner tx;
-	private InternalRegistrationManagment internalManagment;
+	private SharedEnquiryManagment internalManagment;
 	
 	@Autowired
 	public EnquiryManagementImpl(EnquiryFormDB enquiryFormDB, EnquiryResponseDB requestDB,
@@ -73,7 +77,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			BaseFormValidator baseFormValidator,
 			EnquiryResponseValidator enquiryResponseValidator,
 			SharedEndpointManagement sharedEndpointMan, TransactionalRunner tx,
-			InternalRegistrationManagment internalManagment)
+			SharedEnquiryManagment internalManagment)
 	{
 		this.enquiryFormDB = enquiryFormDB;
 		this.requestDB = requestDB;
@@ -161,16 +165,63 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		responseFull.setRequestId(UUID.randomUUID().toString());
 		responseFull.setTimestamp(new Date());
 		responseFull.setRegistrationContext(context);
+		responseFull.setEntityId(InvocationContext.getCurrent().getLoginSession().getEntityId());
 		
 		EnquiryForm form = recordRequestAndReturnForm(responseFull);
 		sendNotificationOnNewResponse(form, response);
 		tryAutoProcess(form, responseFull, context);
 		
-		long entityId = InvocationContext.getCurrent().getLoginSession().getEntityId();
-		confirmationsSupport.sendAttributeConfirmationRequest(responseFull, entityId, form);
-		confirmationsSupport.sendIdentityConfirmationRequest(responseFull, entityId, form);
+		confirmationsSupport.sendAttributeConfirmationRequest(responseFull, form);
+		confirmationsSupport.sendIdentityConfirmationRequest(responseFull, form);
 		
 		return responseFull.getRequestId();
+	}
+	
+	
+	@Override
+	@Transactional
+	public void processEnquiryResponse(String id, EnquiryResponse finalRequest,
+			RegistrationRequestAction action, String publicCommentStr,
+			String internalCommentStr) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.credentialModify, AuthzCapability.attributeModify,
+				AuthzCapability.identityModify, AuthzCapability.groupModify);
+		SqlSession sql = SqlSessionTL.get();
+		EnquiryResponseState currentRequest = requestDB.get(id, sql);
+		
+		LoginSession client = internalManagment.preprocessRequest(finalRequest, currentRequest, action);
+		
+		AdminComment publicComment = internalManagment.preprocessComment(currentRequest, 
+				publicCommentStr, client, true);
+		AdminComment internalComment = internalManagment.preprocessComment(currentRequest, 
+				internalCommentStr, client, false);
+
+		EnquiryForm form = enquiryFormDB.get(currentRequest.getRequest().getFormId(), sql);
+
+		switch (action)
+		{
+		case drop:
+			internalManagment.dropEnquiryResponse(id, sql);
+			break;
+		case reject:
+			internalManagment.rejectEnquiryResponse(form, currentRequest, publicComment, internalComment, sql);
+			break;
+		case update:
+			updateResponse(form, currentRequest, publicComment, internalComment, sql);
+			break;
+		case accept:
+			internalManagment.acceptEnquiryResponse(form, currentRequest, publicComment, 
+					internalComment, true, sql);
+			break;
+		}
+	}
+
+	private void updateResponse(EnquiryForm form, EnquiryResponseState currentRequest,
+			AdminComment publicComment, AdminComment internalComment, SqlSession sql) 
+			throws EngineException
+	{
+		enquiryResponseValidator.validateSubmittedRequest(form, currentRequest.getRequest(), false, sql);
+		requestDB.update(currentRequest.getRequestId(), currentRequest, sql);
 	}
 	
 	private EnquiryForm recordRequestAndReturnForm(EnquiryResponseState responseFull) throws EngineException
@@ -187,7 +238,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	private void sendNotificationOnNewResponse(EnquiryForm form, EnquiryResponse response) throws EngineException
 	{
 		EnquiryFormNotifications notificationsCfg = form.getNotificationsConfiguration();
-		if (notificationsCfg.getChannel() != null && notificationsCfg.getEnquiryFilledTemplate() != null
+		if (notificationsCfg.getChannel() != null && notificationsCfg.getSubmittedTemplate() != null
 				&& notificationsCfg.getAdminsNotificationGroup() != null)
 		{
 			Map<String, String> params = new HashMap<>();
@@ -197,7 +248,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			notificationProducer.sendNotificationToGroup(
 					notificationsCfg.getAdminsNotificationGroup(), 
 					notificationsCfg.getChannel(), 
-					notificationsCfg.getEnquiryFilledTemplate(),
+					notificationsCfg.getSubmittedTemplate(),
 					params,
 					msg.getDefaultLocaleCode());
 		}
@@ -224,10 +275,14 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		EnquiryFormNotifications notCfg = form.getNotificationsConfiguration();
 		if (notCfg == null)
 			throw new WrongArgumentException("NotificationsConfiguration must be set in the form.");
-		baseFormValidator.checkTemplate(notCfg.getEnquiryFilledTemplate(), EnquiryFilledTemplateDef.NAME,
+		baseFormValidator.checkTemplate(notCfg.getSubmittedTemplate(), EnquiryFilledTemplateDef.NAME,
 				sql, "enquiry filled");
 		baseFormValidator.checkTemplate(notCfg.getEnquiryToFillTemplate(), NewEnquiryTemplateDef.NAME,
 				sql, "new enquiry");
+		baseFormValidator.checkTemplate(notCfg.getAcceptedTemplate(), AcceptRegistrationTemplateDef.NAME,
+				sql, "enquiry accepted");
+		baseFormValidator.checkTemplate(notCfg.getAcceptedTemplate(), RejectRegistrationTemplateDef.NAME,
+				sql, "enquiry rejected");
 		
 		if (form.getTargetGroups() == null || form.getTargetGroups().length == 0)
 			throw new WrongArgumentException("Target groups must be set in the form.");

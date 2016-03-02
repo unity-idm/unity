@@ -30,7 +30,7 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
  *  
  * @author K. Benedyczak
  */
-public class BaseForm extends DescribedObjectROImpl
+public abstract class BaseForm extends DescribedObjectROImpl
 {
 	private List<IdentityRegistrationParam> identityParams = new ArrayList<>();
 	private List<AttributeRegistrationParam> attributeParams = new ArrayList<>();	
@@ -42,7 +42,6 @@ public class BaseForm extends DescribedObjectROImpl
 	private I18nString formInformation = new I18nString();
 	private TranslationProfile translationProfile = 
 			new TranslationProfile("registrationProfile", "", ProfileType.REGISTRATION, new ArrayList<>()); 
-
 	
 	@JsonCreator
 	BaseForm(ObjectNode json)
@@ -333,6 +332,8 @@ public class BaseForm extends DescribedObjectROImpl
 		this.translationProfile = translationProfile;
 	}
 
+	public abstract BaseFormNotifications getNotificationsConfiguration();
+	
 	@Override
 	public int hashCode()
 	{

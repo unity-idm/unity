@@ -120,8 +120,13 @@
 	<bean class="pl.edu.icm.unity.engine.internal.SessionManagementImpl"/>
 	<bean class="pl.edu.icm.unity.engine.internal.AuthenticatorsManagementImpl"/>
 	<bean class="pl.edu.icm.unity.engine.internal.EntitiesScheduledUpdater"/>
-	<bean class="pl.edu.icm.unity.engine.internal.InternalRegistrationManagment"/>
-	<bean class="pl.edu.icm.unity.engine.internal.RegistrationRequestValidator"/>
+
+	<bean class="pl.edu.icm.unity.engine.registration.SharedRegistrationManagment"/>
+	<bean class="pl.edu.icm.unity.engine.registration.SharedEnquiryManagment"/>
+	<bean class="pl.edu.icm.unity.engine.registration.RegistrationRequestValidator"/>
+	<bean class="pl.edu.icm.unity.engine.registration.RegistrationConfirmationSupport"/>
+	<bean class="pl.edu.icm.unity.engine.registration.EnquiryResponseValidator"/>
+	<bean class="pl.edu.icm.unity.engine.registration.RegistrationRequestValidator"/>
 
 
 	<bean primary="true" class="pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl"/>

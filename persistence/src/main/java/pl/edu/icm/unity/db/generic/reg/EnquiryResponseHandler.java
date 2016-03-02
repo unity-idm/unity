@@ -12,6 +12,7 @@ import pl.edu.icm.unity.db.json.FullAttributeSerializer;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -39,6 +40,18 @@ public class EnquiryResponseHandler extends BaseRequestHandler<EnquiryResponse, 
 		EnquiryResponse retReq = new EnquiryResponse();
 		ret.setRequest(retReq);
 		parseRequest(retReq, root, sql);
+		
+		JsonNode n = root.get("EntityId");
+		ret.setEntityId(n.asLong());
+		
+		return ret;
+	}
+	
+	@Override
+	protected ObjectNode toObjectNode(EnquiryResponseState value, SqlSession sql)
+	{
+		ObjectNode ret = super.toObjectNode(value, sql);
+		ret.put("EntityId", value.getEntityId());
 		return ret;
 	}
 }

@@ -50,6 +50,7 @@ public class RegistrationForm extends BaseForm
 	{
 	}
 	
+	@Override
 	public RegistrationFormNotifications getNotificationsConfiguration()
 	{
 		return notificationsConfiguration;

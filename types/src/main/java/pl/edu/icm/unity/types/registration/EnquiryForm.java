@@ -88,6 +88,7 @@ public class EnquiryForm extends BaseForm
 		}
 	}
 
+	@Override
 	public EnquiryFormNotifications getNotificationsConfiguration()
 	{
 		return notificationsConfiguration;

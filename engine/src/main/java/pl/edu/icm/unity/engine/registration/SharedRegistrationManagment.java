@@ -2,49 +2,31 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.internal;
+package pl.edu.icm.unity.engine.registration;
 
-import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.confirmations.ConfirmationManager;
-import pl.edu.icm.unity.confirmations.states.AttribiuteConfirmationState;
-import pl.edu.icm.unity.confirmations.states.IdentityConfirmationState;
-import pl.edu.icm.unity.confirmations.states.RegistrationConfirmationState;
-import pl.edu.icm.unity.confirmations.states.RegistrationReqAttribiuteConfirmationState;
-import pl.edu.icm.unity.confirmations.states.RegistrationReqIdentityConfirmationState;
 import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
-import pl.edu.icm.unity.db.generic.reg.RegistrationFormDB;
 import pl.edu.icm.unity.db.generic.reg.RegistrationRequestDB;
+import pl.edu.icm.unity.engine.internal.AttributesHelper;
+import pl.edu.icm.unity.engine.internal.EngineHelper;
 import pl.edu.icm.unity.engine.notifications.InternalFacilitiesManagement;
 import pl.edu.icm.unity.engine.notifications.NotificationFacility;
-import pl.edu.icm.unity.engine.registration.RegistrationConfirmationSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.notifications.NotificationProducer;
-import pl.edu.icm.unity.server.api.internal.Token;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.api.registration.BaseRegistrationTemplateDef;
-import pl.edu.icm.unity.server.api.registration.RegistrationWithCommentsTemplateDef;
 import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
-import pl.edu.icm.unity.server.translation.form.EnquiryTranslationProfile;
-import pl.edu.icm.unity.server.translation.form.GroupParam;
 import pl.edu.icm.unity.server.translation.form.RegistrationMVELContext.RequestSubmitStatus;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest;
@@ -52,20 +34,12 @@ import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.Au
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.types.registration.AdminComment;
-import pl.edu.icm.unity.types.registration.CredentialParamValue;
-import pl.edu.icm.unity.types.registration.EnquiryForm;
-import pl.edu.icm.unity.types.registration.EnquiryResponse;
-import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
-import pl.edu.icm.unity.types.registration.UserRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
@@ -76,42 +50,37 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
  * @author P. Piernik
  */
 @Component
-public class InternalRegistrationManagment
+public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER,
-			InternalRegistrationManagment.class);
+			SharedRegistrationManagment.class);
 
-	public static final String AUTO_PROCESS_COMMENT = "Automatically processed";
-
-	@Autowired
-	private RegistrationFormDB formsDB;
-	@Autowired
 	private RegistrationRequestDB requestDB;
-	@Autowired
 	private DBIdentities dbIdentities;
-	@Autowired
-	private DBGroups dbGroups;
-	@Autowired
 	private RegistrationConfirmationSupport confirmationsSupport;
-	@Autowired
-	private UnityMessageSource msg;
-	@Autowired
-	private EngineHelper engineHelper;
-	@Autowired
-	private AttributesHelper attributesHelper;
-	@Autowired
-	private NotificationProducer notificationProducer;
-	@Autowired
 	private InternalFacilitiesManagement facilitiesManagement;
-	@Autowired
 	private RegistrationRequestValidator registrationRequestValidator;
-	@Autowired
 	private RegistrationActionsRegistry registrationTranslationActionsRegistry;
 
 
-	public List<RegistrationForm> getForms(SqlSession sql) throws EngineException
+	@Autowired
+	public SharedRegistrationManagment(UnityMessageSource msg,
+			NotificationProducer notificationProducer,
+			AttributesHelper attributesHelper, DBGroups dbGroups,
+			EngineHelper engineHelper, RegistrationRequestDB requestDB,
+			DBIdentities dbIdentities,
+			RegistrationConfirmationSupport confirmationsSupport,
+			InternalFacilitiesManagement facilitiesManagement,
+			RegistrationRequestValidator registrationRequestValidator,
+			RegistrationActionsRegistry registrationTranslationActionsRegistry)
 	{
-		return formsDB.getAll(sql);
+		super(msg, notificationProducer, attributesHelper, dbGroups, engineHelper);
+		this.requestDB = requestDB;
+		this.dbIdentities = dbIdentities;
+		this.confirmationsSupport = confirmationsSupport;
+		this.facilitiesManagement = facilitiesManagement;
+		this.registrationRequestValidator = registrationRequestValidator;
+		this.registrationTranslationActionsRegistry = registrationTranslationActionsRegistry;
 	}
 
 	/**
@@ -143,7 +112,7 @@ public class InternalRegistrationManagment
 		List<Attribute<?>> rootAttributes = new ArrayList<>(translatedRequest.getAttributes().size());
 		Map<String, List<Attribute<?>>> remainingAttributesByGroup = new HashMap<String, List<Attribute<?>>>();
 		for (Attribute<?> a : translatedRequest.getAttributes())
-			addAttr(a, rootAttributes, remainingAttributesByGroup);
+			addAttributeToGroupsMap(a, rootAttributes, remainingAttributesByGroup);
 
 		Collection<IdentityParam> identities = translatedRequest.getIdentities();
 		Iterator<IdentityParam> identitiesIterator = identities.iterator();
@@ -159,46 +128,14 @@ public class InternalRegistrationManagment
 			dbIdentities.insertIdentity(idParam, initial.getEntityId(), false, sql);
 		}
 
-		Map<String, GroupParam> sortedGroups = new TreeMap<>();
-		for (GroupParam group : translatedRequest.getGroups())
-			sortedGroups.put(group.getGroup(), group);
-
-		EntityParam entity = new EntityParam(initial.getEntityId());
-		for (Map.Entry<String, GroupParam> entry : sortedGroups.entrySet())
-		{
-			List<Attribute<?>> attributes = remainingAttributesByGroup.get(entry.getKey());
-			if (attributes == null)
-				attributes = Collections.emptyList();
-			attributesHelper.checkGroupAttributeClassesConsistency(attributes, entry.getKey(), sql);
-			GroupParam sel = entry.getValue();
-			String idp = sel == null ? null : sel.getExternalIdp();
-			String profile = sel == null ? null : sel.getTranslationProfile();
-			dbGroups.addMemberFromParent(entry.getKey(), entity, idp, profile, new Date(), sql);
-			attributesHelper.addAttributesList(attributes, initial.getEntityId(),
-					true, sql);
-		}
-
-		Map<String, Set<String>> attributeClasses = translatedRequest.getAttributeClasses();
-		for (Map.Entry<String, Set<String>> groupAcs: attributeClasses.entrySet())
-		{
-			attributesHelper.setAttributeClasses(initial.getEntityId(), groupAcs.getKey(), 
-					groupAcs.getValue(), sql);
-		}
+		applyRequestedGroups(initial.getEntityId(), remainingAttributesByGroup, 
+				translatedRequest, sql);
+		applyRequestedAttributeClasses(translatedRequest, initial.getEntityId(), sql);		
+		applyRequestedCredentials(currentRequest, initial.getEntityId(), sql);
 		
-		RegistrationRequest originalRequest = currentRequest.getRequest();
-		if (originalRequest.getCredentials() != null)
-		{
-			for (CredentialParamValue c : originalRequest.getCredentials())
-			{
-				engineHelper.setPreviouslyPreparedEntityCredentialInternal(
-						initial.getEntityId(), c.getSecrets(),
-						c.getCredentialId(), sql);
-			}
-		}
-		RegistrationFormNotifications notificationsCfg = form
-				.getNotificationsConfiguration();
+		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
 		sendProcessingNotification(notificationsCfg.getAcceptedTemplate(), currentRequest,
-				currentRequest.getRequestId(), form.getName(), true, publicComment,
+				form.getName(), true, publicComment,
 				internalComment, notificationsCfg, sql);
 		if (rewriteConfirmationToken)
 			confirmationsSupport.rewriteRequestToken(currentRequest, initial.getEntityId());
@@ -217,40 +154,13 @@ public class InternalRegistrationManagment
 		currentRequest.setStatus(RegistrationRequestStatus.rejected);
 		requestDB.update(currentRequest.getRequestId(), currentRequest, sql);
 		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
+		String receipentAddress = getRequesterAddress(currentRequest, notificationsCfg, sql);
 		sendProcessingNotification(notificationsCfg.getRejectedTemplate(), 
-				currentRequest, currentRequest.getRequestId(), form.getName(),
+				currentRequest, form.getName(),
 				true, publicComment, 
-				internalComment, notificationsCfg, sql);
+				internalComment, notificationsCfg, receipentAddress);
 	}
 	
-
-
-	private void addAttr(Attribute<?> a, List<Attribute<?>> rootAttributes,
-			Map<String, List<Attribute<?>>> remainingAttributesByGroup)
-	{
-		String path = a.getGroupPath();
-		if (path.equals("/"))
-			rootAttributes.add(a);
-		else
-		{
-			List<Attribute<?>> attrs = remainingAttributesByGroup.get(path);
-			if (attrs == null)
-			{
-				attrs = new ArrayList<>();
-				remainingAttributesByGroup.put(path, attrs);
-			}
-			attrs.add(a);
-		}
-	}
-
-	public Map<String, String> getBaseNotificationParams(String formId, String requestId)
-	{
-		Map<String, String> ret = new HashMap<>();
-		ret.put(BaseRegistrationTemplateDef.FORM_NAME, formId);
-		ret.put(BaseRegistrationTemplateDef.REQUEST_ID, requestId);
-		return ret;
-	}
-
 	/**
 	 * Basing on the profile's decision automatically process the request if needed.
 	 * @return entity id if automatic request acceptance was performed.
@@ -268,7 +178,7 @@ public class InternalRegistrationManagment
 			return null;
 
 		AdminComment systemComment = new AdminComment(
-				InternalRegistrationManagment.AUTO_PROCESS_COMMENT, 0, false);
+				SharedRegistrationManagment.AUTO_PROCESS_COMMENT, 0, false);
 
 		String formattedMsg = MessageFormat.format(logMessageTemplate, autoProcessAction);
 		log.info(formattedMsg);
@@ -290,38 +200,6 @@ public class InternalRegistrationManagment
 		return null;
 	}
 
-	//TODO
-	/**
-	 * Accepts the enquiry response, unless its form profile returns drop o reject action.
-	 * In future this will be enhanced to the pipeline similar to registration processing. 
-	 * @throws EngineException 
-	 */
-	public void autoProcessEnquiry(EnquiryForm form, EnquiryResponseState fullResponse, String logMessageTemplate,
-			SqlSession sql)	throws EngineException
-	{
-		EnquiryTranslationProfile translationProfile = getEnquiryProfileInstance(
-				form.getTranslationProfile());
-		
-		AutomaticRequestAction autoProcessAction = translationProfile.getAutoProcessAction(
-				form, fullResponse, RequestSubmitStatus.submitted);
-
-		AdminComment systemComment = new AdminComment(
-				InternalRegistrationManagment.AUTO_PROCESS_COMMENT, 0, false);
-
-		String formattedMsg = MessageFormat.format(logMessageTemplate, autoProcessAction);
-		log.info(formattedMsg);
-		
-		switch (autoProcessAction)
-		{
-		case none:
-		case accept:
-			return acceptResponse(form, fullResponse, null, systemComment, false, sql);
-		case drop:
-		case reject:
-		default:
-		}
-	}
-	
 	/**
 	 * Creates and sends notifications to the requester and admins in effect
 	 * of request processing.
@@ -334,41 +212,15 @@ public class InternalRegistrationManagment
 	 * @throws EngineException
 	 */
 	public void sendProcessingNotification(String templateId,
-			RegistrationRequestState currentRequest, String requestId, String formId,
+			RegistrationRequestState currentRequest, String formId,
 			boolean sendToRequester, AdminComment publicComment,
 			AdminComment internalComment,
 			RegistrationFormNotifications notificationsCfg, SqlSession sql)
 			throws EngineException
 	{
-		if (notificationsCfg.getChannel() == null || templateId == null)
-			return;
-		Map<String, String> notifyParams = getBaseNotificationParams(formId, requestId);
-		notifyParams.put(RegistrationWithCommentsTemplateDef.PUBLIC_COMMENT,
-				publicComment == null ? "" : publicComment.getContents());
-		notifyParams.put(RegistrationWithCommentsTemplateDef.INTERNAL_COMMENT, "");
 		String requesterAddress = getRequesterAddress(currentRequest, notificationsCfg, sql);
-		if (requesterAddress != null)
-		{
-			if (sendToRequester || publicComment != null)
-			{
-				String userLocale = currentRequest.getRequest().getUserLocale();
-				notificationProducer.sendNotification(requesterAddress,
-						notificationsCfg.getChannel(), templateId,
-						notifyParams, userLocale);
-			}
-		}
-
-		if (notificationsCfg.getAdminsNotificationGroup() != null)
-		{
-			notifyParams.put(
-					RegistrationWithCommentsTemplateDef.INTERNAL_COMMENT,
-					internalComment == null ? "" : internalComment
-							.getContents());
-			notificationProducer.sendNotificationToGroup(
-					notificationsCfg.getAdminsNotificationGroup(),
-					notificationsCfg.getChannel(), templateId, notifyParams,
-					msg.getDefaultLocaleCode());
-		}
+		sendProcessingNotification(templateId, currentRequest, formId, sendToRequester, 
+				publicComment, internalComment, notificationsCfg, requesterAddress);
 	}
 
 	private String getRequesterAddress(RegistrationRequestState currentRequest,
@@ -384,12 +236,6 @@ public class InternalRegistrationManagment
 	private RegistrationTranslationProfile getRegistrationProfileInstance(TranslationProfile profile)
 	{
 		return new RegistrationTranslationProfile(profile.getName(), profile.getRules(), 
-				registrationTranslationActionsRegistry);
-	}
-	
-	private EnquiryTranslationProfile getEnquiryProfileInstance(TranslationProfile profile)
-	{
-		return new EnquiryTranslationProfile(profile.getName(), profile.getRules(), 
 				registrationTranslationActionsRegistry);
 	}
 }

@@ -69,9 +69,9 @@ public class EnquiryFormBuilder extends BaseFormBuilder<EnquiryFormBuilder>
 			return instance;
 		}
 
-		public EnquiryFormNotificationsBuilder withEnquiryFilledTemplate(String aValue)
+		public EnquiryFormNotificationsBuilder withSubmittedTemplate(String aValue)
 		{
-			instance.setEnquiryFilledTemplate(aValue);
+			instance.setSubmittedTemplate(aValue);
 
 			return this;
 		}

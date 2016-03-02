@@ -10,5 +10,15 @@ package pl.edu.icm.unity.types.registration;
  */
 public class EnquiryResponseState extends UserRequestState<EnquiryResponse>
 {
+	private long entityId;
 
+	public long getEntityId()
+	{
+		return entityId;
+	}
+
+	public void setEntityId(long entityId)
+	{
+		this.entityId = entityId;
+	}
 }
