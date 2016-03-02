@@ -65,7 +65,7 @@ public class PresetAttributeEditor extends PresetEditorBase<Attribute<?>>
 		AttributeType at = attrTypes.get(selectedParam.getAttributeType());
 		fixedAttributeEditor = new FixedAttributeEditor(msg, attrHandlersRegistry, 
 				at, true, selectedParam.getGroup(), at.getVisibility(), 
-				selectedParam.getAttributeType(), null, true, false, wrapper);
+				selectedParam.getAttributeType(), null, true, true, wrapper);
 	}
 	
 	@Override
