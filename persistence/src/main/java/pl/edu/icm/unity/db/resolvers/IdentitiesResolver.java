@@ -90,6 +90,7 @@ public class IdentitiesResolver
 	public static String getComparableIdentityValue(IdentityTaV id, IdentityTypeDefinition idType)
 			throws IllegalIdentityValueException
 	{
+		idType.validate(id.getValue());
 		return toInDBIdentityValue(idType.getId(), idType.getComparableValue(id.getValue(), id.getRealm(), 
 				id.getTarget()));
 	}

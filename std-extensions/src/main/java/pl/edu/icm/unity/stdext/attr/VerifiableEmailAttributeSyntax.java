@@ -96,7 +96,7 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 			throw new IllegalAttributeValueException("null value is illegal");
 		String error = EmailUtils.validate(value.getValue());
 		if (error != null)
-			throw new IllegalAttributeValueException(error);
+			throw new IllegalAttributeValueException(value.getValue() + ": " + error);
 	}
 
 	@Override
