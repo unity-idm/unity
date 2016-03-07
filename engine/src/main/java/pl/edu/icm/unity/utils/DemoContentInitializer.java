@@ -94,6 +94,13 @@ public class DemoContentInitializer implements ServerInitializer
 			userPicture.setMaxElements(10);
 			attrMan.addAttributeType(userPicture);
 
+			AttributeType name = new AttributeType("name", new StringAttributeSyntax(), msg);
+			name.setMinElements(1);
+			((StringAttributeSyntax)name.getValueType()).setMaxLength(100);
+			((StringAttributeSyntax)name.getValueType()).setMinLength(2);
+			attrMan.addAttributeType(name);
+
+			
 			AttributeType postalcode = new AttributeType("postalcode", new StringAttributeSyntax(), msg);
 			postalcode.setMinElements(0);
 			postalcode.setMaxElements(Integer.MAX_VALUE);
