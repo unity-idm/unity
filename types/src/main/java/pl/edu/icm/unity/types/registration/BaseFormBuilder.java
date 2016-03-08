@@ -13,7 +13,7 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
 /**
  * Builder of {@link BaseForm}
  */
-class BaseFormBuilder<T extends BaseFormBuilder<?>>
+public class BaseFormBuilder<T extends BaseFormBuilder<?>>
 {
 	private BaseForm instance;
 

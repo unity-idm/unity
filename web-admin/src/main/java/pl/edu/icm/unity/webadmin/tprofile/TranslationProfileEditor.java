@@ -50,7 +50,6 @@ public class TranslationProfileEditor extends VerticalLayout
 	protected UnityMessageSource msg;
 	protected ProfileType type;
 	protected TypesRegistryBase<? extends TranslationActionFactory> registry;
-	protected boolean editMode;
 	protected AbstractTextField name;
 	protected DescriptionTextArea description;
 	protected FormLayout rulesLayout;
@@ -62,8 +61,7 @@ public class TranslationProfileEditor extends VerticalLayout
 	
 	public TranslationProfileEditor(UnityMessageSource msg,
 			TypesRegistryBase<? extends TranslationActionFactory> registry, ProfileType type, 
-			Provider actionComponentProvider,
-			TranslationProfileInstance<?, ?> toEdit) throws EngineException
+			Provider actionComponentProvider) throws EngineException
 	{
 		super();
 		this.msg = msg;
@@ -71,10 +69,20 @@ public class TranslationProfileEditor extends VerticalLayout
 		this.type = type;
 		this.actionComponentProvider = actionComponentProvider;
 		this.rules = new ArrayList<>();
-		editMode = toEdit != null;
-		initUI(toEdit);
+		initUI();
 	}
 
+	public void setValue(TranslationProfileInstance<?, ?> toEdit)
+	{
+		name.setValue(toEdit.getName());
+		name.setReadOnly(true);
+		description.setValue(toEdit.getDescription());
+		for (TranslationRuleInstance<?> trule : toEdit.getRuleInstances())
+		{
+			addRuleComponent(trule);
+		}
+	}
+	
 	public TranslationProfile getProfile() throws FormValidationException
 	{
 		int nvalidr= 0;
@@ -97,7 +105,7 @@ public class TranslationProfileEditor extends VerticalLayout
 				type, trules);
 	}
 	
-	protected void initUI(TranslationProfileInstance<?, ?> toEdit)
+	protected void initUI()
 	{
 		rulesLayout = new CompactFormLayout();
 		rulesLayout.setImmediate(true);
@@ -111,20 +119,8 @@ public class TranslationProfileEditor extends VerticalLayout
 		description = new DescriptionTextArea(
 				msg.getMessage("TranslationProfileEditor.description"));
 
-		if (editMode)
-		{
-			name.setValue(toEdit.getName());
-			name.setReadOnly(true);
-			description.setValue(toEdit.getDescription());
-			for (TranslationRuleInstance<?> trule : toEdit.getRuleInstances())
-			{
-				addRuleComponent(trule);
-			}
-		} else
-		{
-			name.setValue(msg.getMessage("TranslationProfileEditor.defaultName"));
-			addRuleComponent(null);
-		}
+		name.setValue(msg.getMessage("TranslationProfileEditor.defaultName"));
+		addRuleComponent(null);
 
 		HorizontalLayout hl = new HorizontalLayout();
 		hl.setSpacing(true);
@@ -249,13 +245,10 @@ public class TranslationProfileEditor extends VerticalLayout
 
 	public void setCopyMode()
 	{
-		if (editMode)
-		{
-			name.setReadOnly(false);
-			String old = name.getValue();
-			name.setValue(msg.getMessage("TranslationProfileEditor.nameCopy", old));
-			name.setReadOnly(true);
-		}
+		name.setReadOnly(false);
+		String old = name.getValue();
+		name.setValue(msg.getMessage("TranslationProfileEditor.nameCopy", old));
+		name.setReadOnly(true);
 	}
 	
 	private final class CallbackImplementation implements Callback

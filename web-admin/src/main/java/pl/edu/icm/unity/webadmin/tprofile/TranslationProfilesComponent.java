@@ -315,8 +315,10 @@ public class TranslationProfilesComponent extends VerticalLayout
 	private TranslationProfileEditor getProfileEditor(TranslationProfileInstance<?, ?> toEdit) throws EngineException
 	{
 		ProfileType pt = (ProfileType) profileType.getValue();
-		return new TranslationProfileEditor(msg, getCurrentActionsRegistry(), pt, 
-				actionComponentFactory.getComponentProvider(), toEdit);
+		TranslationProfileEditor editor = new TranslationProfileEditor(msg, getCurrentActionsRegistry(), pt, 
+				actionComponentFactory.getComponentProvider());
+		editor.setValue(toEdit);
+		return editor;
 	}
 	
 	private TypesRegistryBase<? extends TranslationActionFactory> getCurrentActionsRegistry()

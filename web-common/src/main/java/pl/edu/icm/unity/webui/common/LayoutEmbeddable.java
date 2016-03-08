@@ -17,7 +17,7 @@ import com.vaadin.ui.Layout;
  * whenever (reusable) part of a layout should be programmed as a separate class, but its components should
  * be added to layout directly to obtain uniform presentation (think about {@link FormLayout}).
  * <p>
- * This class provides operations to add/remove componets, which are proxied to the layout. 
+ * This class provides operations to add/remove components, which are proxied to the layout. 
  *    
  * @author K. Benedyczak
  */

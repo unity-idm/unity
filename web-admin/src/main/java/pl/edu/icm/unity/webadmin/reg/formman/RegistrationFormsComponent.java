@@ -320,7 +320,8 @@ public class RegistrationFormsComponent extends VerticalLayout
 				editor = new RegistrationFormEditor(msg, groupsMan, notificationsMan,
 						msgTempMan, identitiesMan, attributeMan, authenticationMan,
 						actionsRegistry, actionComponentFactory.getComponentProvider(), 
-						form, copyMode);
+						copyMode);
+				editor.setForm(form);
 			} catch (Exception e)
 			{
 				NotificationPopup.showError(msg, msg.getMessage(

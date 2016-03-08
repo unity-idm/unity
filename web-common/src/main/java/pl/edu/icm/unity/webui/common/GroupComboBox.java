@@ -4,15 +4,9 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
-import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.utils.Log;
 
 import com.vaadin.ui.ComboBox;
 
@@ -22,58 +16,51 @@ import com.vaadin.ui.ComboBox;
  * with subgroups of a given group, both immediate and recursive.
  * @author K. Benedyczak
  */
-public class GroupComboBox extends ComboBox
+public class GroupComboBox extends GroupSelectionComponent
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, GroupComboBox.class);
-	private GroupsManagement groupsMan;
-	private List<String> fixedGroups;
+	private ComboBox contents;
 	
 	public GroupComboBox(String caption, Collection<String> groups)
 	{
-		setCaption(caption);
-		this.fixedGroups = new ArrayList<>(groups);
-		setNullSelectionAllowed(false);
+		super(caption, groups);
+		init();
 	}
 
 	public GroupComboBox(String caption, GroupsManagement groupsMan)
 	{
-		setCaption(caption);
-		this.groupsMan = groupsMan;
-		setNullSelectionAllowed(false);
+		super(caption, groupsMan);
+		init();
+	}
+	
+	private void init()
+	{
+		contents = new ComboBox();
+		contents.setNullSelectionAllowed(false);
+		setCompositionRoot(contents);
 	}
 
 	public void setInput(String rootGroup, boolean inclusive)
 	{
-		removeAllItems();
-		if (groupsMan != null)
-		{
-			fixedGroups = new ArrayList<String>();
-			getGroups(rootGroup, fixedGroups);
-		}
-		if (inclusive && !fixedGroups.contains(rootGroup))
-			fixedGroups.add(rootGroup);
-		if (!inclusive && fixedGroups.contains(rootGroup))
-			fixedGroups.remove(rootGroup);
-		Collections.sort(fixedGroups);
+		contents.removeAllItems();
+		super.setInput(rootGroup, inclusive);
 		for (String group: fixedGroups)
-			addItem(group);
+			contents.addItem(group);
 		if (!fixedGroups.isEmpty())
-			select(fixedGroups.get(0));
+			contents.select(fixedGroups.get(0));
 	}
-	
-	public List<String> getGroups()
+
+	public void setValue(String group)
 	{
-		return new ArrayList<>(fixedGroups);
+		contents.setValue(group);
 	}
-	
-	private void getGroups(String group, List<String> groups)
+
+	public String getValue()
 	{
-		try
-		{
-			groups.addAll(groupsMan.getChildGroups(group));
-		} catch (Exception e)
-		{
-			log.warn("Can't read groups for combo box", e);
-		}
+		return (String) contents.getValue();
+	}
+
+	public void setNullSelectionAllowed(boolean b)
+	{
+		contents.setNullSelectionAllowed(b);		
 	}
 }

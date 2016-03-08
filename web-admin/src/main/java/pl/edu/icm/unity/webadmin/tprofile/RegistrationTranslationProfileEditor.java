@@ -7,8 +7,6 @@ package pl.edu.icm.unity.webadmin.tprofile;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
-import pl.edu.icm.unity.server.translation.TranslationProfileInstance;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
@@ -22,16 +20,15 @@ import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provid
 public class RegistrationTranslationProfileEditor extends TranslationProfileEditor
 {
 	public RegistrationTranslationProfileEditor(UnityMessageSource msg,
-			RegistrationActionsRegistry registry, Provider actionComponentProvider,
-			RegistrationTranslationProfile toEdit) throws EngineException
+			RegistrationActionsRegistry registry, Provider actionComponentProvider) throws EngineException
 	{
-		super(msg, registry, ProfileType.REGISTRATION, actionComponentProvider, toEdit);
+		super(msg, registry, ProfileType.REGISTRATION, actionComponentProvider);
 	}
 
 	@Override
-	protected void initUI(TranslationProfileInstance<?, ?> toEdit)
+	protected void initUI()
 	{
-		super.initUI(toEdit);
+		super.initUI();
 		name.setVisible(false);
 		description.setVisible(false);
 	}
