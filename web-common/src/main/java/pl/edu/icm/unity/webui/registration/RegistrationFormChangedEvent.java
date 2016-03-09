@@ -5,40 +5,16 @@
 package pl.edu.icm.unity.webui.registration;
 
 import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.webui.bus.Event;
 
-public class RegistrationFormChangedEvent implements Event
+public class RegistrationFormChangedEvent extends BaseFormChangedEvent<RegistrationForm>
 {
-	private RegistrationForm form;
-	private String name;
-
 	public RegistrationFormChangedEvent(String name)
 	{
-		this.name = name;
+		super(name);
 	}
 
 	public RegistrationFormChangedEvent(RegistrationForm form)
 	{
-		this.form = form;
-	}
-
-	public String getName()
-	{
-		return name;
-	}
-
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-
-	public RegistrationForm getForm()
-	{
-		return form;
-	}
-
-	public void setForm(RegistrationForm form)
-	{
-		this.form = form;
+		super(form);
 	}
 }

@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formman;
 
-import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
@@ -15,16 +13,14 @@ import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.OptionalRegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
-import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -36,38 +32,29 @@ public class BaseFormViewer extends VerticalLayout
 {
 	private UnityMessageSource msg;
 	
-	private TabSheet tabs;
+	protected Label name;
+	protected Label description;
 	
-	private Label name;
-	private Label description;
-	
-	private I18nLabel displayedName;
-	private I18nLabel formInformation;
-	private Label collectComments;
+	protected I18nLabel displayedName;
+	protected I18nLabel formInformation;
+	protected Label collectComments;
 	private ListOfElements<AgreementRegistrationParam> agreements;	
 	private ListOfElements<IdentityRegistrationParam> identityParams;
 	private ListOfElements<AttributeRegistrationParam> attributeParams;
 	private ListOfElements<GroupRegistrationParam> groupParams;
 	private ListOfElements<CredentialRegistrationParam> credentialParams;	
 	
-	private RegistrationTranslationProfileViewer translationProfile;
-	private RegistrationActionsRegistry registrationActionsRegistry;
-	
-	public BaseFormViewer(UnityMessageSource msg, RegistrationActionsRegistry registrationActionsRegistry)
+	public BaseFormViewer(UnityMessageSource msg)
 	{
 		this.msg = msg;
-		this.registrationActionsRegistry = registrationActionsRegistry;
-		initUI();
 	}
 	
 	protected void setInput(BaseForm form)
 	{
 		if (form == null)
 		{
-			tabs.setVisible(false);
 			return;
 		}
-		tabs.setVisible(true);
 		
 		name.setValue(form.getName());
 		description.setValue(form.getDescription());
@@ -92,33 +79,29 @@ public class BaseFormViewer extends VerticalLayout
 			groupParams.addEntry(gp);
 		for (CredentialRegistrationParam cp: form.getCredentialParams())
 			credentialParams.addEntry(cp);
-		
-		translationProfile.setInput(new RegistrationTranslationProfile(form.getTranslationProfile().getName(), 
-				form.getTranslationProfile().getRules(), registrationActionsRegistry));
 	}
 	
-	private void initUI()
+	protected void setupCommonFormInformationComponents()
 	{
-		tabs = new TabSheet();
-		initMainTab();
-		initCollectedTab();
-		initAssignedTab();
-		addComponent(tabs);
-	}
-	
-	private void initCollectedTab()
-	{
-		FormLayout main = new CompactFormLayout();
-		VerticalLayout wrapper = new VerticalLayout(main);
-		wrapper.setMargin(true);
-		wrapper.setSpacing(true);
-
-		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.collectedTab"));
-		
 		displayedName = new I18nLabel(msg, msg.getMessage("RegistrationFormViewer.displayedName"));
 		formInformation = new I18nLabel(msg, msg.getMessage("RegistrationFormViewer.formInformation"));
 		collectComments = new Label();
 		collectComments.setCaption(msg.getMessage("RegistrationFormViewer.collectComments"));
+	}
+	
+	protected void setupNameAndDesc()
+	{
+		name = new Label();
+		name.setCaption(msg.getMessage("RegistrationFormViewer.name"));
+		
+		description = new Label();
+		description.setCaption(msg.getMessage("RegistrationFormViewer.description"));
+	}
+	
+	protected Component getCollectedDataInformation()
+	{
+		VerticalLayout wrapper = new VerticalLayout();
+		wrapper.setSpacing(true);
 
 		agreements = new ListOfElements<>(msg, new ListOfElements.LabelConverter<AgreementRegistrationParam>()
 		{
@@ -199,37 +182,8 @@ public class BaseFormViewer extends VerticalLayout
 		Panel credentialParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.credentialParams"), 
 				credentialParams);
 		
-		main.addComponents(displayedName, formInformation, collectComments);
 		wrapper.addComponents(agreementsP, identityParamsP, attributeParamsP, groupParamsP, credentialParamsP);
-	}
-	
-	private void initAssignedTab()
-	{
-		FormLayout main = new CompactFormLayout();
-		VerticalLayout wrapper = new VerticalLayout(main);
-		wrapper.setMargin(true);
-		wrapper.setSpacing(true);
-		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.assignedTab"));
-		
-		translationProfile = new RegistrationTranslationProfileViewer(msg, registrationActionsRegistry);
-		
-		wrapper.addComponent(translationProfile);
-	}
-	
-	private void initMainTab()
-	{
-		FormLayout main = new CompactFormLayout();
-		VerticalLayout wrapper = new VerticalLayout(main);
-		wrapper.setMargin(true);
-		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.mainTab"));
-		
-		name = new Label();
-		name.setCaption(msg.getMessage("RegistrationFormViewer.name"));
-		
-		description = new Label();
-		description.setCaption(msg.getMessage("RegistrationFormViewer.description"));
-		
-		main.addComponents(name, description);
+		return wrapper;
 	}
 	
 	private String toHTMLLabel(OptionalRegistrationParam value)

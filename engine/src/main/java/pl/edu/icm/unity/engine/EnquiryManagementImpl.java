@@ -131,19 +131,22 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	
 	@Transactional
 	@Override
-	public void removeEnquiry(String formId) throws EngineException
+	public void removeEnquiry(String formId, boolean dropRequests) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		enquiryFormDB.remove(formId, SqlSessionTL.get());
+		internalManagment.removeForm(formId, dropRequests, requestDB, enquiryFormDB, SqlSessionTL.get());
 	}
 	
 	@Transactional
 	@Override
-	public void updateEnquiry(EnquiryForm updatedForm) throws EngineException
+	public void updateEnquiry(EnquiryForm updatedForm, boolean ignoreRequests) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		SqlSession sql = SqlSessionTL.get();
 		validateFormContents(updatedForm, sql);
+		String formId = updatedForm.getName();
+		if (!ignoreRequests)
+			internalManagment.validateIfHasPendingRequests(formId, requestDB, sql);
 		enquiryFormDB.update(updatedForm.getName(), updatedForm, sql);
 	}
 	

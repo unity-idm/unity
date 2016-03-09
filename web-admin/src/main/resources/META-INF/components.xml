@@ -50,5 +50,6 @@
 	
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.invitation.InvitationsComponent"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormsComponent"/>
+	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.formman.EnquiryFormsComponent"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.reqman.RequestsComponent"/>
 </beans>

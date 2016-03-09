@@ -70,7 +70,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 	{
 		initAndCreateEnquiry(null);
 		
-		enquiryManagement.removeEnquiry("f1");
+		enquiryManagement.removeEnquiry("f1", true);
 		
 		assertEquals(0, enquiryManagement.getEnquires().size());
 	}
@@ -80,7 +80,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 	{
 		try
 		{
-			enquiryManagement.removeEnquiry("missing");
+			enquiryManagement.removeEnquiry("missing", true);
 			fail("Removed non existing enquiry");
 		} catch (WrongArgumentException e) {/*ok*/}
 	}
@@ -295,7 +295,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 		}
 		try
 		{
-			enquiryManagement.updateEnquiry(form);
+			enquiryManagement.updateEnquiry(form, true);
 			fail("Updated the form with illegal " + msg);
 		} catch (EngineException e) 
 		{

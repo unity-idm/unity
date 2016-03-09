@@ -32,7 +32,6 @@ import pl.edu.icm.unity.engine.registration.SharedRegistrationManagment;
 import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
 import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.notifications.NotificationProducer;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
@@ -130,21 +129,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	public void removeForm(String formId, boolean dropRequests) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		SqlSession sql = SqlSessionTL.get();
-		List<RegistrationRequestState> requests = requestDB.getAll(sql);
-		if (dropRequests)
-		{
-			for (RegistrationRequestState req: requests)
-				if (formId.equals(req.getRequest().getFormId()))
-					requestDB.remove(req.getRequestId(), sql);
-		} else
-		{
-			for (RegistrationRequestState req: requests)
-				if (formId.equals(req.getRequest().getFormId()))
-					throw new SchemaConsistencyException("There are requests bound " +
-							"to this form, and it was not chosen to drop them.");
-		}
-		formsDB.remove(formId, sql);
+		internalManagment.removeForm(formId, dropRequests, requestDB, formsDB, SqlSessionTL.get());
 	}
 
 	@Override
@@ -157,14 +142,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		validateFormContents(updatedForm, sql);
 		String formId = updatedForm.getName();
 		if (!ignoreRequests)
-		{
-			List<RegistrationRequestState> requests = requestDB.getAll(sql);
-			for (RegistrationRequestState req: requests)
-				if (formId.equals(req.getRequest().getFormId()) && 
-						req.getStatus() == RegistrationRequestStatus.pending)
-					throw new SchemaConsistencyException("There are requests bound to " +
-							"this form, and it was not chosen to ignore them.");
-		}
+			internalManagment.validateIfHasPendingRequests(formId, requestDB, sql);
 		formsDB.update(formId, updatedForm, sql);
 	}
 

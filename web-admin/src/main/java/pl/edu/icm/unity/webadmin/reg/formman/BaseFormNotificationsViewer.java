@@ -52,6 +52,15 @@ public class BaseFormNotificationsViewer extends LayoutEmbeddable
 		addComponents(channel, adminsNotificationGroup,	submittedTemplate, rejectedTemplate, acceptedTemplate);
 	}
 	
+	protected void clear()
+	{
+		submittedTemplate.clearContent();
+		rejectedTemplate.clearContent();
+		acceptedTemplate.clearContent();
+		channel.setValue("");
+		adminsNotificationGroup.setValue("");
+	}
+	
 	protected void setValue(BaseFormNotifications notCfg)
 	{
 		submittedTemplate.setInput(notCfg.getSubmittedTemplate());

@@ -64,7 +64,7 @@ public abstract class MessageTemplateViewerBase extends VerticalLayout
 		main.addComponents(subject, body);
 	}
 
-	protected void clearContent()
+	public void clearContent()
 	{
 		name.setValue("");
 		for (Component c : messages)

@@ -39,7 +39,7 @@ public interface EnquiryManagement
 	 * @param formId
 	 * @throws EngineException
 	 */
-	void removeEnquiry(String formId) throws EngineException;
+	void removeEnquiry(String formId, boolean dropRequests) throws EngineException;
 	
 	/**
 	 * Updates an existing enquiry form. Will be applicable only to those users who has not yet filled the 
@@ -47,7 +47,7 @@ public interface EnquiryManagement
 	 * @param updatedForm
 	 * @throws EngineException
 	 */
-	void updateEnquiry(EnquiryForm updatedForm) throws EngineException;
+	void updateEnquiry(EnquiryForm updatedForm, boolean ignoreRequests) throws EngineException;
 	
 	/**
 	 * Accepts, deletes or rejects a given enquiry response. The request can be freely modified at this time

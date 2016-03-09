@@ -16,9 +16,11 @@ import java.util.TreeMap;
 import org.apache.ibatis.session.SqlSession;
 
 import pl.edu.icm.unity.db.DBGroups;
+import pl.edu.icm.unity.db.generic.GenericObjectsDB;
 import pl.edu.icm.unity.engine.internal.AttributesHelper;
 import pl.edu.icm.unity.engine.internal.EngineHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.notifications.NotificationProducer;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
@@ -31,6 +33,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.registration.AdminComment;
+import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseFormNotifications;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.types.registration.CredentialParamValue;
@@ -230,5 +233,37 @@ public class BaseSharedRegistrationSupport
 					notificationsCfg.getChannel(), templateId, notifyParams,
 					msg.getDefaultLocaleCode());
 		}
+	}
+	
+	public <T extends UserRequestState<?>> void removeForm(String formId, 
+			boolean dropRequests, GenericObjectsDB<T> requestDB, GenericObjectsDB<? extends BaseForm> formDB, 
+			SqlSession sql) throws EngineException
+	{
+		List<T> requests = requestDB.getAll(sql);
+		if (dropRequests)
+		{
+			for (T req: requests)
+				if (formId.equals(req.getRequest().getFormId()))
+					requestDB.remove(req.getRequestId(), sql);
+		} else
+		{
+			for (T req: requests)
+				if (formId.equals(req.getRequest().getFormId()))
+					throw new SchemaConsistencyException("There are requests bound " +
+							"to this form, and it was not chosen to drop them.");
+		}
+
+		formDB.remove(formId, sql);
+	}
+	
+	public <T extends UserRequestState<?>> void validateIfHasPendingRequests(String formId, 
+			GenericObjectsDB<T> requestDB, SqlSession sql) throws EngineException
+	{
+		List<T> requests = requestDB.getAll(sql);
+		for (T req: requests)
+			if (formId.equals(req.getRequest().getFormId()) && 
+					req.getStatus() == RegistrationRequestStatus.pending)
+				throw new SchemaConsistencyException("There are requests bound to " +
+						"this form, and it was not chosen to ignore them.");
 	}
 }
