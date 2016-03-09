@@ -29,7 +29,6 @@ import pl.edu.icm.unity.types.registration.OptionalRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
-import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditor;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
@@ -78,8 +77,6 @@ public class BaseFormEditor extends VerticalLayout
 	private ListOfEmbeddedElements<GroupRegistrationParam> groupParams;
 	private ListOfEmbeddedElements<CredentialRegistrationParam> credentialParams;
 
-	private TranslationProfileEditor profileEditor;
-	
 	public BaseFormEditor(UnityMessageSource msg, IdentitiesManagement identitiesMan,
 			AttributesManagement attributeMan,
 			AuthenticationManagement authenticationMan, RegistrationActionsRegistry actionsRegistry,
@@ -129,7 +126,6 @@ public class BaseFormEditor extends VerticalLayout
 		builder.withAttributeParams(attributeParams.getElements());
 		builder.withCollectComments(collectComments.getValue());
 		builder.withCredentialParams(credentialParams.getElements());
-		builder.withTranslationProfile(profileEditor.getProfile());
 		builder.withDescription(description.getValue());
 
 		I18nString displayedNameStr = displayedName.getValue();

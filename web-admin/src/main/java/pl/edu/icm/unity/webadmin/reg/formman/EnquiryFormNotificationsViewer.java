@@ -27,7 +27,7 @@ public class EnquiryFormNotificationsViewer extends BaseFormNotificationsViewer
 	private void initMyUI()
 	{
 		enquiryToFillTemplate = new SimpleMessageTemplateViewer(
-				msg.getMessage("RegistrationFormViewer.enquiryToFillTemplate"),
+				msg.getMessage("EnquiryFormNotificationsViewer.enquiryToFillTemplate"),
 				msg, msgTempMan);
 		addComponents(enquiryToFillTemplate);
 	}

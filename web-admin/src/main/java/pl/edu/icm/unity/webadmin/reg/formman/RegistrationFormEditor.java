@@ -126,6 +126,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		builder.withPubliclyAvailable(publiclyAvailable.getValue());
 		builder.withByInvitationOnly(byInvitationOnly.getValue());
 		
+		builder.withTranslationProfile(profileEditor.getProfile());
 		RegistrationFormNotifications notCfg = notificationsEditor.getValue();
 		builder.withNotificationsConfiguration(notCfg);
 		

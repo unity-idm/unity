@@ -115,6 +115,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		builder.withType(enquiryType.getSelectedValue());
 		builder.withTargetGroups(targetGroups.getSelectedGroups().toArray(new String[0]));
 		
+		builder.withTranslationProfile(profileEditor.getProfile());
 		EnquiryFormNotifications notCfg = notificationsEditor.getValue();
 		builder.withNotificationsConfiguration(notCfg);
 		return builder.build();

@@ -34,7 +34,7 @@ public class EnquiryFormNotificationsEditor extends BaseFormNotificationsEditor
 	private void initMyUI() throws EngineException
 	{
 		enquiryToFillTemplate =  new CompatibleTemplatesComboBox(NewEnquiryTemplateDef.NAME, msgTempMan);
-		enquiryToFillTemplate.setCaption(msg.getMessage("EnquiryFormViewer.enquiryToFillTemplate"));
+		enquiryToFillTemplate.setCaption(msg.getMessage("EnquiryFormNotificationsViewer.enquiryToFillTemplate"));
 		addComponents(enquiryToFillTemplate);
 	}
 	
