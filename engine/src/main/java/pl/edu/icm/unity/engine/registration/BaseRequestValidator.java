@@ -164,7 +164,7 @@ class BaseRequestValidator
 				throw new WrongArgumentException("Identity nr " + i + " contains null values");
 			if (!form.getIdentityParams().get(i).getIdentityType().equals(idParam.getTypeId()))
 				throw new WrongArgumentException("Identity nr " + i + " must be of " 
-						+ idParam.getTypeId() + " type");
+						+ form.getIdentityParams().get(i).getIdentityType() + " type");
 			identitiesFound = true;
 		}
 		if (!identitiesFound)

@@ -227,6 +227,8 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			RegistrationFormNotifications notificationsCfg, SqlSession sql)
 			throws EngineException
 	{
+		if (notificationsCfg.getChannel() == null)
+			return null;
 		NotificationFacility notificationFacility = facilitiesManagement.getNotificationFacilityForChannel(
 				notificationsCfg.getChannel(), sql);
 		return notificationFacility.getAddressForRegistrationRequest(currentRequest, sql);

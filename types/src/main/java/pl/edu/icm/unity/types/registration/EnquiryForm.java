@@ -29,7 +29,7 @@ public class EnquiryForm extends BaseForm
 	
 	private EnquiryType type;
 	private String[] targetGroups;
-	private EnquiryFormNotifications notificationsConfiguration;
+	private EnquiryFormNotifications notificationsConfiguration = new EnquiryFormNotifications();
 	
 	@JsonCreator
 	public EnquiryForm(ObjectNode json)

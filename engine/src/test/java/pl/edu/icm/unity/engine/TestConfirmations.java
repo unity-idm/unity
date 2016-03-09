@@ -37,7 +37,6 @@ import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfileBuilder;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
@@ -418,36 +417,6 @@ public class TestConfirmations extends DBIntegrationTestBase
 		groupsMan.addGroup(new Group("/B"));
 
 		RegistrationForm form = getFormBuilder().build();
-		/*
-		RegistrationForm form = new RegistrationFormBuilder()
-				.withName("f1")
-				.withDescription("description")
-				.withPubliclyAvailable(true)
-				.withDefaultCredentialRequirement(
-						EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
-				.withRegistrationCode("123")
-				.withCollectComments(true)
-				.withFormInformation(new I18nString("formInformation"))
-				.withAddedCredentialParam(new CredentialRegistrationParam(EngineInitialization.DEFAULT_CREDENTIAL,
-						"label", "description"))
-				.withAddedAgreement(new AgreementRegistrationParam(new I18nString("a"), false))
-				.withAddedIdentityParam().withDescription("description")
-				.withIdentityType(UsernameIdentity.ID).withLabel("label")
-				.withOptional(true)
-				.withRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
-				.endIdentityParam()
-				.withAddedAttributeParam()
-				.withAttributeType(InitializerCommon.EMAIL_ATTR).withGroup("/")
-				.withDescription("description").withLabel("label")
-				.withOptional(true)
-				.withRetrievalSettings(ParameterRetrievalSettings.interactive)
-				.withShowGroups(true).endAttributeParam()
-				.withAddedGroupParam().withDescription("description")
-				.withGroupPath("/B").withLabel("label")
-				.withRetrievalSettings(ParameterRetrievalSettings.automatic)
-				.endGroupParam().
-				build();
-*/
 		registrationsMan.addForm(form);
 
 		addSimpleConfirmationConfiguration(
@@ -505,36 +474,15 @@ public class TestConfirmations extends DBIntegrationTestBase
 		commonInitializer.initializeMainAttributeClass();
 		groupsMan.addGroup(new Group("/A"));
 		groupsMan.addGroup(new Group("/B"));
-		RegistrationForm form = getFormBuilder().build();
-		/*
-		RegistrationForm form = RegistrationFormBuilder
-				.registrationForm()
+		RegistrationForm form = new RegistrationFormBuilder()
 				.withName("f1")
 				.withDefaultCredentialRequirement(
 						EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
-				.withPubliclyAvailable(true)
-				.withRegistrationCode("123")
-				.withCollectComments(true).withFormInformation()
-				.withDefaultValue("formInformation").endFormInformation()
-				.withAddedCredentialParam().withCredentialName(EngineInitialization.DEFAULT_CREDENTIAL)
-				.endCredentialParam()
-				.withAddedAgreement().withManatory(false).withText()
-				.withDefaultValue("a").endText().endAgreement()
 				.withAddedIdentityParam()
-				.withIdentityType(EmailIdentity.ID)
-				.withOptional(true)
-				.withRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
+					.withIdentityType(EmailIdentity.ID)
+					.withRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
 				.endIdentityParam()
-				.withAddedAttributeParam()
-				.withAttributeType(InitializerCommon.CN_ATTR).withGroup("/")
-				.withOptional(true)
-				.withRetrievalSettings(ParameterRetrievalSettings.interactive)
-				.withShowGroups(true).endAttributeParam()
-				.withAddedGroupParam()
-				.withGroupPath("/B")
-				.withRetrievalSettings(ParameterRetrievalSettings.automatic)
-				.endGroupParam().build();
-*/
+				.build();
 		registrationsMan.addForm(form);
 
 		addSimpleConfirmationConfiguration(
@@ -543,18 +491,6 @@ public class TestConfirmations extends DBIntegrationTestBase
 
 		RegistrationRequest request = new RegistrationRequestBuilder()
 				.withFormId("f1")
-				.withComments("comments")
-				.withRegistrationCode("123")
-				.withAddedAgreement()
-				.withSelected(true)
-				.endAgreement()
-				.withAddedAttribute(
-						new StringAttribute(InitializerCommon.CN_ATTR, "/",
-								AttributeVisibility.full, "cn"))
-				.withAddedCredential()
-				.withCredentialId(EngineInitialization.DEFAULT_CREDENTIAL)
-				.withSecrets(new PasswordToken("abs").toJson()).endCredential()
-				.withAddedGroupSelection().withSelected(true).endGroupSelection()
 				.withAddedIdentity().withTypeId(EmailIdentity.ID)
 				.withValue("example@example.com").endIdentity()
 				.build();
@@ -600,37 +536,6 @@ public class TestConfirmations extends DBIntegrationTestBase
 				withAutoProcess("attr[\"email\"].confirmed ==  true", AutomaticRequestAction.accept).
 				build();
 		RegistrationForm form = getFormBuilder().withTranslationProfile(translationProfile).build();
-		/*
-		RegistrationForm form = RegistrationFormBuilder
-				.registrationForm()
-				.withName("f1")
-				.withDefaultCredentialRequirement(
-						EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
-				.withPubliclyAvailable(true)
-				.withRegistrationCode("123")
-				.withTranslationProfile(translationProfile)
-				.withCollectComments(true).withFormInformation()
-				.withDefaultValue("formInformation").endFormInformation()
-				.withAddedCredentialParam()
-				.withCredentialName(EngineInitialization.DEFAULT_CREDENTIAL)
-				.endCredentialParam()
-				.withAddedAgreement().withManatory(false).withText()
-				.withDefaultValue("a").endText().endAgreement()
-				.withAddedIdentityParam()
-				.withIdentityType(UsernameIdentity.ID)
-				.withOptional(true)
-				.withRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
-				.endIdentityParam()
-				.withAddedAttributeParam()
-				.withAttributeType(InitializerCommon.EMAIL_ATTR).withGroup("/")
-				.withOptional(true)
-				.withRetrievalSettings(ParameterRetrievalSettings.interactive)
-				.withShowGroups(true).endAttributeParam()
-				.withAddedGroupParam()
-				.withGroupPath("/B")
-				.withRetrievalSettings(ParameterRetrievalSettings.automatic)
-				.endGroupParam().build();
-*/
 		registrationsMan.addForm(form);
 
 		addSimpleConfirmationConfiguration(
@@ -688,38 +593,21 @@ public class TestConfirmations extends DBIntegrationTestBase
 		commonInitializer.initializeMainAttributeClass();
 		groupsMan.addGroup(new Group("/A"));
 		groupsMan.addGroup(new Group("/B"));
-		RegistrationForm form = getFormBuilder().build();
-		/*
-		RegistrationForm form = RegistrationFormBuilder
-				.registrationForm()
+		RegistrationForm form = new RegistrationFormBuilder()
 				.withName("f1")
 				.withDefaultCredentialRequirement(
 						EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
-				.withPubliclyAvailable(true)
-				.withRegistrationCode("123")
-				.withCollectComments(true).withFormInformation()
-				.withDefaultValue("formInformation").endFormInformation()
-				.withAddedCredentialParam()
-				.withCredentialName(EngineInitialization.DEFAULT_CREDENTIAL)
-				.endCredentialParam()
-				.withAddedAgreement().withManatory(false).withText()
-				.withDefaultValue("a").endText().endAgreement()
 				.withAddedIdentityParam()
-				.withIdentityType(EmailIdentity.ID)
-				.withOptional(true)
-				.withRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
+					.withIdentityType(EmailIdentity.ID)
+					.withRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
 				.endIdentityParam()
 				.withAddedAttributeParam()
-				.withAttributeType(InitializerCommon.EMAIL_ATTR).withGroup("/")
-				.withOptional(true)
-				.withRetrievalSettings(ParameterRetrievalSettings.interactive)
-				.withShowGroups(true).endAttributeParam()
-				.withAddedGroupParam()
-				.withGroupPath("/B")
-				.withRetrievalSettings(ParameterRetrievalSettings.automatic)
-				.endGroupParam()
+					.withAttributeType(InitializerCommon.EMAIL_ATTR)
+					.withGroup("/")
+					.withRetrievalSettings(ParameterRetrievalSettings.interactive)
+				.endAttributeParam()
 				.build();
-*/
+
 		registrationsMan.addForm(form);
 
 		addSimpleConfirmationConfiguration(
@@ -732,19 +620,10 @@ public class TestConfirmations extends DBIntegrationTestBase
 
 		RegistrationRequest request = new RegistrationRequestBuilder()
 				.withFormId("f1")
-				.withComments("comments")
-				.withRegistrationCode("123")
-				.withAddedAgreement()
-				.withSelected(true)
-				.endAgreement()
 				.withAddedAttribute(
 						new VerifiableEmailAttribute(
 								InitializerCommon.EMAIL_ATTR, "/",
 								AttributeVisibility.full, "test3@example.com"))
-				.withAddedCredential()
-				.withCredentialId(EngineInitialization.DEFAULT_CREDENTIAL)
-				.withSecrets(new PasswordToken("abs").toJson()).endCredential()
-				.withAddedGroupSelection().withSelected(true).endGroupSelection()
 				.withAddedIdentity().withTypeId(EmailIdentity.ID)
 				.withValue("test33@example.com").endIdentity()
 				.build();
@@ -806,38 +685,6 @@ public class TestConfirmations extends DBIntegrationTestBase
 		
 		RegistrationForm form = getFormBuilder().withTranslationProfile(translationProfile).build();
 		
-		/*
-		RegistrationForm form = RegistrationFormBuilder
-				.registrationForm()
-				.withName("f1")
-				.withDefaultCredentialRequirement(
-						EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
-				.withPubliclyAvailable(true)
-				.withRegistrationCode("123")
-				.withTranslationProfile(translationProfile)
-				.withCollectComments(true).withFormInformation()
-				.withDefaultValue("formInformation").endFormInformation()
-				.withAddedCredentialParam()
-				.withCredentialName(EngineInitialization.DEFAULT_CREDENTIAL)
-				.endCredentialParam()
-				.withAddedAgreement().withManatory(false).withText()
-				.withDefaultValue("a").endText().endAgreement()
-				.withAddedIdentityParam()
-				.withIdentityType(UsernameIdentity.ID)
-				.withOptional(true)
-				.withRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
-				.endIdentityParam()
-				.withAddedAttributeParam()
-				.withAttributeType(InitializerCommon.EMAIL_ATTR).withGroup("/")
-				.withOptional(true)
-				.withRetrievalSettings(ParameterRetrievalSettings.interactive)
-				.withShowGroups(true).endAttributeParam()
-				.withAddedGroupParam()
-				.withGroupPath("/B")
-				.withRetrievalSettings(ParameterRetrievalSettings.automatic)
-				.endGroupParam()
-				.build();
-*/
 		registrationsMan.addForm(form);
 
 		addSimpleConfirmationConfiguration(

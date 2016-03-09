@@ -205,7 +205,7 @@ public class BaseSharedRegistrationSupport
 			BaseFormNotifications notificationsCfg, String requesterAddress)
 			throws EngineException
 	{
-		if (notificationsCfg.getChannel() == null || templateId == null)
+		if (notificationsCfg.getChannel() == null || templateId == null || requesterAddress == null)
 			return;
 		Map<String, String> notifyParams = getBaseNotificationParams(formId, currentRequest.getRequestId());
 		notifyParams.put(RegistrationWithCommentsTemplateDef.PUBLIC_COMMENT,

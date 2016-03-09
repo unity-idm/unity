@@ -197,6 +197,8 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 			EnquiryFormNotifications notificationsCfg, SqlSession sql)
 			throws EngineException
 	{
+		if (notificationsCfg.getChannel() == null)
+			return null;
 		NotificationFacility notificationFacility = facilitiesManagement.getNotificationFacilityForChannel(
 				notificationsCfg.getChannel(), sql);
 		return notificationFacility.getAddressForEntity(new EntityParam(currentRequest.getEntityId()), sql, null);

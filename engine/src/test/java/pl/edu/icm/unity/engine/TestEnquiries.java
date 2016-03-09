@@ -36,6 +36,7 @@ import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
+import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryFormBuilder;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
@@ -211,6 +212,8 @@ public class TestEnquiries extends DBIntegrationTestBase
 				.withName("f1")
 				.withDescription("desc")
 				.withTranslationProfile(translationProfile)
+				.withTargetGroups(new String[] {"/"})
+				.withType(EnquiryType.REQUESTED_MANDATORY)
 				.withCollectComments(true)
 				.withFormInformation(new I18nString("formInformation"))
 				.withAddedCredentialParam(new CredentialRegistrationParam(EngineInitialization.DEFAULT_CREDENTIAL))

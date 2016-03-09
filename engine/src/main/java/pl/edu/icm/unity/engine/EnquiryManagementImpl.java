@@ -289,5 +289,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		
 		if (form.getTargetGroups() == null || form.getTargetGroups().length == 0)
 			throw new WrongArgumentException("Target groups must be set in the form.");
+		if (form.getType() == null)
+			throw new WrongArgumentException("Form type must be set.");
 	}
 }
