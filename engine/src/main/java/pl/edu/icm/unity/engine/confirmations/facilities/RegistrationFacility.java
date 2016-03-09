@@ -46,19 +46,19 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 	protected EnquiryResponseDB enquiryResponsesDB;
 	protected RegistrationFormDB formsDB;
 	protected EnquiryFormDB enquiresDB;
-	protected SharedRegistrationManagment internalRegistrationManagment;
+	protected SharedRegistrationManagment sharedRegistrationManagment;
 	protected SharedEnquiryManagment internalEnquiryManagment;
 
 	public RegistrationFacility(RegistrationRequestDB requestDB, EnquiryResponseDB enquiryResponsesDB,
 			RegistrationFormDB formsDB, EnquiryFormDB enquiresDB,
-			SharedRegistrationManagment internalRegistrationManagment,
+			SharedRegistrationManagment sharedRegistrationManagment,
 			SharedEnquiryManagment internalEnquiryManagment)
 	{
 		this.requestDB = requestDB;
 		this.enquiryResponsesDB = enquiryResponsesDB;
 		this.formsDB = formsDB;
 		this.enquiresDB = enquiresDB;
-		this.internalRegistrationManagment = internalRegistrationManagment;
+		this.sharedRegistrationManagment = sharedRegistrationManagment;
 		this.internalEnquiryManagment = internalEnquiryManagment;
 	}
 
@@ -143,7 +143,7 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 					+ " after confirmation [" + state.getType() + "]" + state.getValue() + " by "
 					+ state.getFacilityId() + ". Action: {0}";
 			
-				internalRegistrationManagment.autoProcess(form, 
+				sharedRegistrationManagment.autoProcess(form, 
 						(RegistrationRequestState) reqState, info, sql);
 			} else
 			{

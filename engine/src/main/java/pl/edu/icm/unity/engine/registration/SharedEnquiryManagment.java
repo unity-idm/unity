@@ -57,7 +57,7 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 
 	private EnquiryResponseDB enquiryResponseDB;
 	private DBIdentities dbIdentities;
-	private RegistrationConfirmationSupport confirmationsSupport;
+	private RegistrationConfirmationRewriteSupport confirmationsSupport;
 	private InternalFacilitiesManagement facilitiesManagement;
 	private RegistrationActionsRegistry registrationTranslationActionsRegistry;
 	private EnquiryResponseValidator responseValidator;
@@ -68,7 +68,7 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 			AttributesHelper attributesHelper, DBGroups dbGroups,
 			EngineHelper engineHelper, EnquiryResponseDB enquiryResponseDB,
 			DBIdentities dbIdentities,
-			RegistrationConfirmationSupport confirmationsSupport,
+			RegistrationConfirmationRewriteSupport confirmationsSupport,
 			InternalFacilitiesManagement facilitiesManagement,
 			RegistrationActionsRegistry registrationTranslationActionsRegistry,
 			EnquiryResponseValidator responseValidator)

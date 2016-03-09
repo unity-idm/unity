@@ -57,7 +57,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 
 	private RegistrationRequestDB requestDB;
 	private DBIdentities dbIdentities;
-	private RegistrationConfirmationSupport confirmationsSupport;
+	private RegistrationConfirmationRewriteSupport confirmationsSupport;
 	private InternalFacilitiesManagement facilitiesManagement;
 	private RegistrationRequestValidator registrationRequestValidator;
 	private RegistrationActionsRegistry registrationTranslationActionsRegistry;
@@ -69,7 +69,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			AttributesHelper attributesHelper, DBGroups dbGroups,
 			EngineHelper engineHelper, RegistrationRequestDB requestDB,
 			DBIdentities dbIdentities,
-			RegistrationConfirmationSupport confirmationsSupport,
+			RegistrationConfirmationRewriteSupport confirmationsSupport,
 			InternalFacilitiesManagement facilitiesManagement,
 			RegistrationRequestValidator registrationRequestValidator,
 			RegistrationActionsRegistry registrationTranslationActionsRegistry)
