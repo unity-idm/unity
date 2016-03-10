@@ -481,6 +481,11 @@
 				<version>${apacheds.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.apache.directory.server</groupId>
+				<artifactId>apacheds-service</artifactId>
+				<version>${apacheds.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>commons-validator</groupId>
 				<artifactId>commons-validator</artifactId>
 				<version>1.5.0</version>

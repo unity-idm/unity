@@ -7,5 +7,10 @@
 	<context:annotation-config/>
 	<bean class="pl.edu.icm.unity.ldap.client.LdapVerificatorFactory"/>
 	<bean class="pl.edu.icm.unity.ldap.client.LdapDNVerificatorFactory"/>
-	<bean class="pl.edu.icm.unity.ldap.client.LdapImporterFactory"/>	
+	<bean class="pl.edu.icm.unity.ldap.client.LdapImporterFactory"/>
+
+	<!-- LDAP server -->
+	<bean class="pl.edu.icm.unity.ldap.endpoint.LdapEndpointFactory"/>
+	<bean class="pl.edu.icm.unity.ldap.endpoint.RawPasswordRetrievalFactory"/>
+
 </beans>
