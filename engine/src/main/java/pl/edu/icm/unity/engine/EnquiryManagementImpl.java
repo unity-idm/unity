@@ -284,7 +284,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 				sql, "new enquiry");
 		baseFormValidator.checkTemplate(notCfg.getAcceptedTemplate(), AcceptRegistrationTemplateDef.NAME,
 				sql, "enquiry accepted");
-		baseFormValidator.checkTemplate(notCfg.getAcceptedTemplate(), RejectRegistrationTemplateDef.NAME,
+		baseFormValidator.checkTemplate(notCfg.getRejectedTemplate(), RejectRegistrationTemplateDef.NAME,
 				sql, "enquiry rejected");
 		
 		if (form.getTargetGroups() == null || form.getTargetGroups().length == 0)

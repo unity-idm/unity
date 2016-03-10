@@ -22,7 +22,6 @@ public class BaseFormNotificationsViewer extends LayoutEmbeddable
 	protected UnityMessageSource msg;
 	protected MessageTemplateManagement msgTempMan;
 	
-	private SimpleMessageTemplateViewer submittedTemplate;
 	private SimpleMessageTemplateViewer rejectedTemplate;
 	private SimpleMessageTemplateViewer acceptedTemplate;
 	private Label channel;
@@ -33,9 +32,10 @@ public class BaseFormNotificationsViewer extends LayoutEmbeddable
 	{
 		this.msg = msg;
 		this.msgTempMan = msgTempMan;
+		initUI();
 	}
 
-	protected void initUI()
+	private void initUI()
 	{
 		channel = new Label();
 		channel.setCaption(msg.getMessage("RegistrationFormViewer.channel"));
@@ -43,18 +43,15 @@ public class BaseFormNotificationsViewer extends LayoutEmbeddable
 		adminsNotificationGroup = new Label();
 		adminsNotificationGroup.setCaption(msg.getMessage("RegistrationFormViewer.adminsNotificationsGroup"));
 		
-		submittedTemplate = new SimpleMessageTemplateViewer(msg.getMessage("RegistrationFormViewer.submittedTemplate"),
-				msg, msgTempMan);
 		rejectedTemplate = new SimpleMessageTemplateViewer(msg.getMessage("RegistrationFormViewer.rejectedTemplate"),
 				msg, msgTempMan);
 		acceptedTemplate = new SimpleMessageTemplateViewer(msg.getMessage("RegistrationFormViewer.acceptedTemplate"),
 				msg, msgTempMan);
-		addComponents(channel, adminsNotificationGroup,	submittedTemplate, rejectedTemplate, acceptedTemplate);
+		addComponents(channel, adminsNotificationGroup,	rejectedTemplate, acceptedTemplate);
 	}
 	
 	protected void clear()
 	{
-		submittedTemplate.clearContent();
 		rejectedTemplate.clearContent();
 		acceptedTemplate.clearContent();
 		channel.setValue("");
@@ -63,7 +60,6 @@ public class BaseFormNotificationsViewer extends LayoutEmbeddable
 	
 	protected void setValue(BaseFormNotifications notCfg)
 	{
-		submittedTemplate.setInput(notCfg.getSubmittedTemplate());
 		rejectedTemplate.setInput(notCfg.getRejectedTemplate());
 		acceptedTemplate.setInput(notCfg.getAcceptedTemplate());
 		channel.setValue(notCfg.getChannel());

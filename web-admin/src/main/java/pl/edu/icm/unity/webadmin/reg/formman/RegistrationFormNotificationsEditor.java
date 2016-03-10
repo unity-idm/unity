@@ -9,6 +9,7 @@ import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.registration.InvitationTemplateDef;
+import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
@@ -24,6 +25,7 @@ public class RegistrationFormNotificationsEditor extends BaseFormNotificationsEd
 {
 	private ComboBox updatedTemplate;
 	private ComboBox invitationTemplate;
+	private ComboBox submittedTemplate;
 	
 	public RegistrationFormNotificationsEditor(UnityMessageSource msg,
 			GroupsManagement groupsMan, NotificationsManagement notificationsMan,
@@ -35,17 +37,19 @@ public class RegistrationFormNotificationsEditor extends BaseFormNotificationsEd
 
 	private void initMyUI() throws EngineException
 	{
+		submittedTemplate = new CompatibleTemplatesComboBox(SubmitRegistrationTemplateDef.NAME, msgTempMan);
+		submittedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.submittedTemplate"));
 		updatedTemplate =  new CompatibleTemplatesComboBox(UpdateRegistrationTemplateDef.NAME, msgTempMan);
 		updatedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.updatedTemplate"));
 		invitationTemplate =  new CompatibleTemplatesComboBox(InvitationTemplateDef.NAME, msgTempMan);
 		invitationTemplate.setCaption(msg.getMessage("RegistrationFormViewer.invitationTemplate"));
-		addComponents(updatedTemplate, invitationTemplate);
+		addComponents(submittedTemplate, updatedTemplate, invitationTemplate);
 	}
 	
 	public void setValue(RegistrationFormNotifications toEdit)
 	{
 		super.setValue(toEdit);
-		
+		submittedTemplate.setValue(toEdit.getSubmittedTemplate());
 		updatedTemplate.setValue(toEdit.getUpdatedTemplate());
 		invitationTemplate.setValue(toEdit.getInvitationTemplate());
 	}
@@ -56,6 +60,7 @@ public class RegistrationFormNotificationsEditor extends BaseFormNotificationsEd
 		super.fill(notCfg);
 		notCfg.setUpdatedTemplate((String) updatedTemplate.getValue());
 		notCfg.setInvitationTemplate((String) invitationTemplate.getValue());
+		notCfg.setSubmittedTemplate((String) submittedTemplate.getValue());
 		return notCfg;
 	}
 }

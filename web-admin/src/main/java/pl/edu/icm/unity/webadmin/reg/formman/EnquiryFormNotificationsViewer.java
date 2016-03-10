@@ -16,6 +16,7 @@ import pl.edu.icm.unity.webadmin.msgtemplate.SimpleMessageTemplateViewer;
 public class EnquiryFormNotificationsViewer extends BaseFormNotificationsViewer
 {
 	private SimpleMessageTemplateViewer enquiryToFillTemplate;
+	private SimpleMessageTemplateViewer submittedTemplate;
 	
 	public EnquiryFormNotificationsViewer(UnityMessageSource msg,
 			MessageTemplateManagement msgTempMan)
@@ -26,21 +27,27 @@ public class EnquiryFormNotificationsViewer extends BaseFormNotificationsViewer
 
 	private void initMyUI()
 	{
+		submittedTemplate = new SimpleMessageTemplateViewer(msg.getMessage(
+				"RegistrationFormViewer.submittedTemplate"),
+				msg, msgTempMan);
+
 		enquiryToFillTemplate = new SimpleMessageTemplateViewer(
 				msg.getMessage("EnquiryFormNotificationsViewer.enquiryToFillTemplate"),
 				msg, msgTempMan);
-		addComponents(enquiryToFillTemplate);
+		addComponents(enquiryToFillTemplate, submittedTemplate);
 	}
 	
 	public void clear()
 	{
 		super.clear();
 		enquiryToFillTemplate.clearContent();
+		submittedTemplate.clearContent();
 	}
 	
 	public void setValue(EnquiryFormNotifications notCfg)
 	{
 		super.setValue(notCfg);
+		submittedTemplate.setInput(notCfg.getSubmittedTemplate());
 		enquiryToFillTemplate.setInput(notCfg.getEnquiryToFillTemplate());
 	}
 }

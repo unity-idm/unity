@@ -13,6 +13,7 @@ public class RegistrationFormNotifications extends BaseFormNotifications
 {
 	private String updatedTemplate;
 	private String invitationTemplate;
+	private String submittedTemplate;
 	
 	public String getUpdatedTemplate()
 	{
@@ -30,7 +31,15 @@ public class RegistrationFormNotifications extends BaseFormNotifications
 	{
 		this.invitationTemplate = invitationTemplate;
 	}
-
+	public String getSubmittedTemplate()
+	{
+		return submittedTemplate;
+	}
+	public void setSubmittedTemplate(String submittedTemplate)
+	{
+		this.submittedTemplate = submittedTemplate;
+	}
+	
 	@Override
 	public int hashCode()
 	{

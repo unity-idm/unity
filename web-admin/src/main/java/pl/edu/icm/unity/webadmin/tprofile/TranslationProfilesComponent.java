@@ -317,7 +317,8 @@ public class TranslationProfilesComponent extends VerticalLayout
 		ProfileType pt = (ProfileType) profileType.getValue();
 		TranslationProfileEditor editor = new TranslationProfileEditor(msg, getCurrentActionsRegistry(), pt, 
 				actionComponentFactory.getComponentProvider());
-		editor.setValue(toEdit);
+		if (toEdit != null)
+			editor.setValue(toEdit);
 		return editor;
 	}
 	

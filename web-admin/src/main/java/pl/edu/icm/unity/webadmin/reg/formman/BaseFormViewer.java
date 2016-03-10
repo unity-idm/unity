@@ -42,7 +42,17 @@ public class BaseFormViewer extends VerticalLayout
 	private ListOfElements<IdentityRegistrationParam> identityParams;
 	private ListOfElements<AttributeRegistrationParam> attributeParams;
 	private ListOfElements<GroupRegistrationParam> groupParams;
-	private ListOfElements<CredentialRegistrationParam> credentialParams;	
+	private ListOfElements<CredentialRegistrationParam> credentialParams;
+
+	private Panel credentialParamsP;
+
+	private Panel groupParamsP;
+
+	private Panel attributeParamsP;
+
+	private Panel identityParamsP;
+
+	private Panel agreementsP;	
 	
 	public BaseFormViewer(UnityMessageSource msg)
 	{
@@ -79,6 +89,12 @@ public class BaseFormViewer extends VerticalLayout
 			groupParams.addEntry(gp);
 		for (CredentialRegistrationParam cp: form.getCredentialParams())
 			credentialParams.addEntry(cp);
+		
+		agreementsP.setVisible(!form.getAgreements().isEmpty());
+		identityParamsP.setVisible(!form.getIdentityParams().isEmpty());
+		attributeParamsP.setVisible(!form.getAttributeParams().isEmpty());
+		groupParamsP.setVisible(!form.getGroupParams().isEmpty());
+		credentialParamsP.setVisible(!form.getCredentialParams().isEmpty());
 	}
 	
 	protected void setupCommonFormInformationComponents()
@@ -116,7 +132,7 @@ public class BaseFormViewer extends VerticalLayout
 			}
 		});
 		agreements.setMargin(true);
-		Panel agreementsP = new SafePanel(msg.getMessage("RegistrationFormViewer.agreements"), agreements);
+		agreementsP = new SafePanel(msg.getMessage("RegistrationFormViewer.agreements"), agreements);
 
 		identityParams = new ListOfElements<>(msg, new ListOfElements.LabelConverter<IdentityRegistrationParam>()
 		{
@@ -131,7 +147,7 @@ public class BaseFormViewer extends VerticalLayout
 			}
 		});
 		identityParams.setMargin(true);
-		Panel identityParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.identityParams"), identityParams);
+		identityParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.identityParams"), identityParams);
 		
 		attributeParams = new ListOfElements<>(msg, new ListOfElements.LabelConverter<AttributeRegistrationParam>()
 		{
@@ -148,7 +164,7 @@ public class BaseFormViewer extends VerticalLayout
 			}
 		});
 		attributeParams.setMargin(true);
-		Panel attributeParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.attributeParams"), 
+		attributeParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.attributeParams"), 
 				attributeParams);
 		
 		
@@ -164,7 +180,7 @@ public class BaseFormViewer extends VerticalLayout
 			}
 		});
 		groupParams.setMargin(true);
-		Panel groupParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.groupParams"), groupParams);
+		groupParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.groupParams"), groupParams);
 		
 		credentialParams = new ListOfElements<>(msg, new ListOfElements.LabelConverter<CredentialRegistrationParam>()
 		{
@@ -179,7 +195,7 @@ public class BaseFormViewer extends VerticalLayout
 			}
 		});
 		credentialParams.setMargin(true);
-		Panel credentialParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.credentialParams"), 
+		credentialParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.credentialParams"), 
 				credentialParams);
 		
 		wrapper.addComponents(agreementsP, identityParamsP, attributeParamsP, groupParamsP, credentialParamsP);

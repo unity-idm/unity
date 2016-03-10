@@ -13,7 +13,6 @@ import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.registration.AcceptRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef;
-import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.BaseFormNotifications;
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
@@ -36,7 +35,6 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 	private ComboBox channel;
 	private GroupComboBox adminsNotificationGroup;
 
-	private ComboBox submittedTemplate;
 	private ComboBox rejectedTemplate;
 	private ComboBox acceptedTemplate;
 
@@ -63,23 +61,19 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 		adminsNotificationGroup.setNullSelectionAllowed(true);
 		adminsNotificationGroup.setInput("/", true);
 		
-		
-		submittedTemplate = new CompatibleTemplatesComboBox(SubmitRegistrationTemplateDef.NAME, msgTempMan);
-		submittedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.submittedTemplate"));
 		rejectedTemplate =  new CompatibleTemplatesComboBox(RejectRegistrationTemplateDef.NAME, msgTempMan);
 		rejectedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.rejectedTemplate"));
 		acceptedTemplate =  new CompatibleTemplatesComboBox(AcceptRegistrationTemplateDef.NAME, msgTempMan);
 		acceptedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.acceptedTemplate"));
 		
 		addComponents(channel, adminsNotificationGroup,
-				submittedTemplate, rejectedTemplate, acceptedTemplate);
+				rejectedTemplate, acceptedTemplate);
 	}
 	
 	protected void setValue(BaseFormNotifications toEdit)
 	{
 		adminsNotificationGroup.setValue(toEdit.getAdminsNotificationGroup());
 		channel.setValue(toEdit.getChannel());
-		submittedTemplate.setValue(toEdit.getSubmittedTemplate());
 		rejectedTemplate.setValue(toEdit.getRejectedTemplate());
 		acceptedTemplate.setValue(toEdit.getAcceptedTemplate());
 	}
@@ -90,7 +84,6 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 		notCfg.setAdminsNotificationGroup((String) adminsNotificationGroup.getValue());
 		notCfg.setChannel((String) channel.getValue());
 		notCfg.setRejectedTemplate((String) rejectedTemplate.getValue());
-		notCfg.setSubmittedTemplate((String) submittedTemplate.getValue());
 	}
 	
 	public List<String> getGroups()

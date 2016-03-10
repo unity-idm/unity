@@ -12,7 +12,7 @@ package pl.edu.icm.unity.types.registration;
 public class EnquiryFormNotifications extends BaseFormNotifications
 {
 	private String enquiryToFillTemplate;
-	
+	private String submittedTemplate;
 	
 	public String getEnquiryToFillTemplate()
 	{
@@ -23,6 +23,14 @@ public class EnquiryFormNotifications extends BaseFormNotifications
 		this.enquiryToFillTemplate = enquiryToFillTemplate;
 	}
 	
+	public String getSubmittedTemplate()
+	{
+		return submittedTemplate;
+	}
+	public void setSubmittedTemplate(String submittedTemplate)
+	{
+		this.submittedTemplate = submittedTemplate;
+	}
 	@Override
 	public int hashCode()
 	{
@@ -32,6 +40,8 @@ public class EnquiryFormNotifications extends BaseFormNotifications
 				* result
 				+ ((enquiryToFillTemplate == null) ? 0 : enquiryToFillTemplate
 						.hashCode());
+		result = prime * result
+				+ ((submittedTemplate == null) ? 0 : submittedTemplate.hashCode());
 		return result;
 	}
 	@Override
@@ -49,6 +59,12 @@ public class EnquiryFormNotifications extends BaseFormNotifications
 			if (other.enquiryToFillTemplate != null)
 				return false;
 		} else if (!enquiryToFillTemplate.equals(other.enquiryToFillTemplate))
+			return false;
+		if (submittedTemplate == null)
+		{
+			if (other.submittedTemplate != null)
+				return false;
+		} else if (!submittedTemplate.equals(other.submittedTemplate))
 			return false;
 		return true;
 	}

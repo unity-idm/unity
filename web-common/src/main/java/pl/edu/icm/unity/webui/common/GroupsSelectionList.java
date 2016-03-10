@@ -4,11 +4,14 @@
  */
 package pl.edu.icm.unity.webui.common;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import pl.edu.icm.unity.server.api.GroupsManagement;
 
 import com.vaadin.ui.ListSelect;
+import com.vaadin.ui.TwinColSelect;
 
 
 /**
@@ -16,45 +19,53 @@ import com.vaadin.ui.ListSelect;
  * with subgroups of a given group, both immediate and recursive.
  * @author K. Benedyczak
  */
-public class GroupsSelectionList extends GroupSelectionComponent
+public class GroupsSelectionList extends TwinColSelect
 {
-	private ListSelect contents;
-	
+	private Collection<String> groups;
+	private GroupsManagement groupsMan;
+	private List<String> processedGroups = new ArrayList<>();
+
 	public GroupsSelectionList(String caption, Collection<String> groups)
 	{
-		super(caption, groups);
-		init();
+		super(caption);
+		this.groups = groups;
+		initContent();
 	}
 
 	public GroupsSelectionList(String caption, GroupsManagement groupsMan)
 	{
-		super(caption, groupsMan);
-		init();
-	}
-	
-	private void init()
-	{
-		contents = new ListSelect();
-		contents.setMultiSelect(true);
-		setCompositionRoot(contents);
+		super(caption);
+		this.groupsMan = groupsMan;
+		initContent();
 	}
 	
 	@SuppressWarnings("unchecked")
 	public Collection<String> getSelectedGroups()
 	{
-		return (Collection<String>) contents.getValue();
+		return (Collection<String>) getValue();
 	}
 	
 	public void setSelectedGroups(Collection<String> groups)
 	{
-		contents.setValue(groups);
+		setValue(groups);
 	}
-	
+
+	public List<String> getAllGroups()
+	{
+		return new ArrayList<>(processedGroups);
+	}
+
 	public void setInput(String rootGroup, boolean inclusive)
 	{
-		contents.removeAllItems();
-		super.setInput(rootGroup, inclusive);
-		for (String group: fixedGroups)
-			contents.addItem(group);
+		removeAllItems();
+		processedGroups = GroupSelectionUtils.establishGroups(
+				rootGroup, inclusive, groupsMan, groups);
+		for (String group: processedGroups)
+			addItem(group);
+	}
+
+	private void initContent()
+	{
+		setRows(5);
 	}
 }

@@ -4,7 +4,9 @@
  */
 package pl.edu.icm.unity.webui.common;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import pl.edu.icm.unity.server.api.GroupsManagement;
 
@@ -16,51 +18,50 @@ import com.vaadin.ui.ComboBox;
  * with subgroups of a given group, both immediate and recursive.
  * @author K. Benedyczak
  */
-public class GroupComboBox extends GroupSelectionComponent
+public class GroupComboBox extends ComboBox
 {
-	private ComboBox contents;
-	
+	private Collection<String> groups;
+	private GroupsManagement groupsMan;
+	private List<String> processedGroups = new ArrayList<>();
+
 	public GroupComboBox(String caption, Collection<String> groups)
 	{
-		super(caption, groups);
+		super(caption);
+		this.groups = groups;
 		init();
 	}
 
 	public GroupComboBox(String caption, GroupsManagement groupsMan)
 	{
-		super(caption, groupsMan);
+		super(caption);
+		this.groupsMan = groupsMan;
 		init();
 	}
 	
 	private void init()
 	{
-		contents = new ComboBox();
-		contents.setNullSelectionAllowed(false);
-		setCompositionRoot(contents);
+		setNullSelectionAllowed(false);
 	}
-
+	
+	public List<String> getAllGroups()
+	{
+		return new ArrayList<>(processedGroups);
+	}
+	
 	public void setInput(String rootGroup, boolean inclusive)
 	{
-		contents.removeAllItems();
-		super.setInput(rootGroup, inclusive);
-		for (String group: fixedGroups)
-			contents.addItem(group);
-		if (!fixedGroups.isEmpty())
-			contents.select(fixedGroups.get(0));
+		removeAllItems();
+		processedGroups = GroupSelectionUtils.establishGroups(rootGroup, 
+				inclusive, groupsMan, groups);
+		for (String group: processedGroups)
+			addItem(group);
+		if (!processedGroups.isEmpty())
+			select(processedGroups.get(0));
 	}
 
-	public void setValue(String group)
-	{
-		contents.setValue(group);
-	}
-
+	@Override
 	public String getValue()
 	{
-		return (String) contents.getValue();
-	}
-
-	public void setNullSelectionAllowed(boolean b)
-	{
-		contents.setNullSelectionAllowed(b);		
+		return (String) super.getValue();
 	}
 }

@@ -17,6 +17,7 @@ public class RegistrationFormNotificationsViewer extends BaseFormNotificationsVi
 {
 	private SimpleMessageTemplateViewer updatedTemplate;
 	private SimpleMessageTemplateViewer invitationTemplate;
+	private SimpleMessageTemplateViewer submittedTemplate;
 	
 	public RegistrationFormNotificationsViewer(UnityMessageSource msg,
 			MessageTemplateManagement msgTempMan)
@@ -27,6 +28,9 @@ public class RegistrationFormNotificationsViewer extends BaseFormNotificationsVi
 
 	private void initMyUI()
 	{
+		submittedTemplate = new SimpleMessageTemplateViewer(msg.getMessage(
+				"RegistrationFormViewer.submittedTemplate"),
+				msg, msgTempMan);
 		updatedTemplate = new SimpleMessageTemplateViewer(msg.getMessage("RegistrationFormViewer.updatedTemplate"),
 				msg, msgTempMan);
 		invitationTemplate = new SimpleMessageTemplateViewer(msg.getMessage("RegistrationFormViewer.invitationTemplate"),
@@ -39,6 +43,7 @@ public class RegistrationFormNotificationsViewer extends BaseFormNotificationsVi
 		super.clear();
 		updatedTemplate.clearContent();
 		invitationTemplate.clearContent();
+		submittedTemplate.clearContent();
 	}
 	
 	public void setValue(RegistrationFormNotifications notCfg)
@@ -46,5 +51,6 @@ public class RegistrationFormNotificationsViewer extends BaseFormNotificationsVi
 		super.setValue(notCfg);
 		updatedTemplate.setInput(notCfg.getUpdatedTemplate());
 		invitationTemplate.setInput(notCfg.getInvitationTemplate());
+		submittedTemplate.setInput(notCfg.getSubmittedTemplate());
 	}
 }

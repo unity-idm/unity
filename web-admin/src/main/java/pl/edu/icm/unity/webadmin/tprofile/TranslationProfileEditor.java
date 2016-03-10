@@ -120,7 +120,6 @@ public class TranslationProfileEditor extends VerticalLayout
 				msg.getMessage("TranslationProfileEditor.description"));
 
 		name.setValue(msg.getMessage("TranslationProfileEditor.defaultName"));
-		addRuleComponent(null);
 
 		HorizontalLayout hl = new HorizontalLayout();
 		hl.setSpacing(true);

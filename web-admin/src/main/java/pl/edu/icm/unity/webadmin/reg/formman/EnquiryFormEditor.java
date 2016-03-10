@@ -144,7 +144,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		wrapper.setMargin(true);
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.mainTab"));
 		
-		initNameAndDescFields();
+		initNameAndDescFields(msg.getMessage("EnquiryFormEditor.defaultName"));
 		main.addComponents(name, description);
 
 		notificationsEditor = new EnquiryFormNotificationsEditor(msg, groupsMan, 
@@ -155,6 +155,8 @@ public class EnquiryFormEditor extends BaseFormEditor
 		
 		targetGroups = new GroupsSelectionList(msg.getMessage("EnquiryFormViewer.targetGroups"), 
 				notificationsEditor.getGroups());
+		targetGroups.setInput("/", true);
+		targetGroups.setRequired(true);
 		
 		main.addComponents(enquiryType, targetGroups);
 		
@@ -170,7 +172,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		
 		initCommonDisplayedFields();
 		
-		TabSheet tabOfLists = createCollectedParamsTabs(notificationsEditor.getGroups());
+		TabSheet tabOfLists = createCollectedParamsTabs(notificationsEditor.getGroups(), true);
 		main.addComponents(displayedName, formInformation, collectComments, tabOfLists);
 	}
 	

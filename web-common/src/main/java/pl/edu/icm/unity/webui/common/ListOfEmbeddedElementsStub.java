@@ -55,7 +55,8 @@ public class ListOfEmbeddedElementsStub<T>
 		Button lonelyAdd = new Button();
 		lonelyAdd.setIcon(Images.add.getResource());
 		lonelyAdd.setDescription(msg.getMessage("add"));
-		lonelyAdd.setStyleName(Styles.vButtonSmall.toString());
+		lonelyAdd.addStyleName(Styles.toolbarButton.toString());
+		lonelyAdd.addStyleName(Styles.vButtonLink.toString());
 		lonelyAdd.addClickListener(new Button.ClickListener()
 		{
 			@Override

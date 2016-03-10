@@ -31,6 +31,7 @@ import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
+import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
@@ -47,9 +48,7 @@ import pl.edu.icm.unity.webui.registration.RegistrationFormChangedEvent;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.Resource;
-import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
@@ -101,7 +100,6 @@ public class EnquiryFormsComponent extends VerticalLayout
 		this.bus = WebSession.getCurrent().getEventBus();
 		
 		addStyleName(Styles.visibleScroll.toString());
-		HorizontalLayout hl = new HorizontalLayout();
 		setCaption(msg.getMessage("EnquiryFormsComponent.caption"));
 		table = new GenericElementsTable<EnquiryForm>(msg.getMessage("RegistrationFormsComponent.formsTable"), 
 				new GenericElementsTable.NameProvider<EnquiryForm>()
@@ -112,7 +110,7 @@ public class EnquiryFormsComponent extends VerticalLayout
 						return new Label(element.getName());
 					}
 				});
-		table.setWidth(90, Unit.PERCENTAGE);
+		table.setSizeFull();
 		table.setMultiSelect(true);
 		viewer = new EnquiryFormViewer(msg, actionsRegistry, msgTempMan);
 		viewer.setInput(null);
@@ -140,16 +138,11 @@ public class EnquiryFormsComponent extends VerticalLayout
 		Toolbar toolbar = new Toolbar(table, Orientation.HORIZONTAL);
 		toolbar.addActionHandlers(table.getActionHandlers());
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
-		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
+		tableWithToolbar.setSizeFull();
 		
-		hl.addComponents(tableWithToolbar, viewer);
-		hl.setSizeFull();
-		hl.setMargin(true);
-		hl.setSpacing(true);
-		hl.setMargin(new MarginInfo(true, false, true, false));
+		CompositeSplitPanel hl = new CompositeSplitPanel(false, true, tableWithToolbar, viewer, 25);
+
 		main = hl;
-		hl.setExpandRatio(tableWithToolbar, 0.3f);
-		hl.setExpandRatio(viewer, 0.7f);
 		refresh();
 	}
 	

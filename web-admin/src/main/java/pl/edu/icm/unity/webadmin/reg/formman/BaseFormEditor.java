@@ -137,11 +137,11 @@ public class BaseFormEditor extends VerticalLayout
 		builder.withName(name.getValue());
 	}
 		
-	protected void initNameAndDescFields() throws EngineException
+	protected void initNameAndDescFields(String defaultName) throws EngineException
 	{
 		name = new RequiredTextField(msg);
 		name.setCaption(msg.getMessage("RegistrationFormEditor.name"));
-		name.setValue(msg.getMessage("RegistrationFormEditor.defaultName"));
+		name.setValue(defaultName);
 		description = new DescriptionTextArea(msg.getMessage("RegistrationFormViewer.description"));
 	}
 	
@@ -165,7 +165,7 @@ public class BaseFormEditor extends VerticalLayout
 		}
 	}
 	
-	protected TabSheet createCollectedParamsTabs(List<String> groups)
+	protected TabSheet createCollectedParamsTabs(List<String> groups, boolean forceInteractiveRetrieval)
 	{
 		this.groups = groups;
 		TabSheet tabOfLists = new TabSheet();
@@ -173,12 +173,25 @@ public class BaseFormEditor extends VerticalLayout
 		
 		agreements = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.agreements"), 
 				msg, new AgreementEditorAndProvider(), 0, 20, true);
+		
+		IdentityEditorAndProvider identityEditorAndProvider = new IdentityEditorAndProvider();
+		if (forceInteractiveRetrieval)
+			identityEditorAndProvider.fixRetrievalSettings(ParameterRetrievalSettings.interactive);
 		identityParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.identityParams"),
-				msg, new IdentityEditorAndProvider(), 1, 20, true);
+				msg, identityEditorAndProvider, 1, 20, true);
+
+		AttributeEditorAndProvider attributeEditorAndProvider = new AttributeEditorAndProvider();
+		if (forceInteractiveRetrieval)
+			attributeEditorAndProvider.fixRetrievalSettings(ParameterRetrievalSettings.interactive);
 		attributeParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.attributeParams"),
-				msg, new AttributeEditorAndProvider(), 0, 20, true);
+				msg, attributeEditorAndProvider, 0, 20, true);
+		
+		GroupEditorAndProvider groupEditorAndProvider = new GroupEditorAndProvider();
+		if (forceInteractiveRetrieval)
+			groupEditorAndProvider.fixRetrievalSettings(ParameterRetrievalSettings.interactive);
 		groupParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.groupParams"),
-				msg, new GroupEditorAndProvider(), 0, 20, true);
+				msg, groupEditorAndProvider, 0, 20, true);
+		
 		credentialParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.credentialParams"),
 				msg, new CredentialEditorAndProvider(), 0, 20, true);
 		tabOfLists.addComponents(agreements, identityParams, attributeParams, groupParams, credentialParams);
@@ -231,7 +244,9 @@ public class BaseFormEditor extends VerticalLayout
 		@Override
 		public Editor<IdentityRegistrationParam> getEditor()
 		{
-			return new IdentityEditorAndProvider();
+			IdentityEditorAndProvider ret = new IdentityEditorAndProvider();
+			ret.fixRetrievalSettings(fixedRetrievalSettings);
+			return ret;
 		}
 
 		@Override
@@ -274,7 +289,9 @@ public class BaseFormEditor extends VerticalLayout
 		@Override
 		public Editor<AttributeRegistrationParam> getEditor()
 		{
-			return new AttributeEditorAndProvider();
+			AttributeEditorAndProvider ret = new AttributeEditorAndProvider();
+			ret.fixRetrievalSettings(fixedRetrievalSettings);
+			return ret;
 		}
 
 		@Override
@@ -322,7 +339,9 @@ public class BaseFormEditor extends VerticalLayout
 		@Override
 		public Editor<GroupRegistrationParam> getEditor()
 		{
-			return new GroupEditorAndProvider();
+			GroupEditorAndProvider ret = new GroupEditorAndProvider();
+			ret.fixRetrievalSettings(fixedRetrievalSettings);
+			return ret;
 		}
 
 		@Override
@@ -413,6 +432,7 @@ public class BaseFormEditor extends VerticalLayout
 		protected TextField label;
 		protected TextField description;
 		protected EnumComboBox<ParameterRetrievalSettings> retrievalSettings;
+		protected ParameterRetrievalSettings fixedRetrievalSettings;
 
 		protected void initEditorComponent(RegistrationParam value)
 		{
@@ -436,6 +456,13 @@ public class BaseFormEditor extends VerticalLayout
 				}
 				retrievalSettings.setEnumValue(value.getRetrievalSettings());
 			}
+
+			if (fixedRetrievalSettings != null)
+			{
+				retrievalSettings.setEnumValue(fixedRetrievalSettings);
+				retrievalSettings.setVisible(false);
+			}
+			
 			main.add(retrievalSettings);
 		}
 		
@@ -446,6 +473,11 @@ public class BaseFormEditor extends VerticalLayout
 			if (!label.getValue().isEmpty())
 				v.setLabel(label.getValue());
 			v.setRetrievalSettings(retrievalSettings.getSelectedValue());
+		}
+		
+		public void fixRetrievalSettings(ParameterRetrievalSettings fixedValue)
+		{
+			this.fixedRetrievalSettings = fixedValue;
 		}
 	}
 	

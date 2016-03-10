@@ -164,7 +164,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		wrapper.setMargin(true);
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.mainTab"));
 		
-		initNameAndDescFields();
+		initNameAndDescFields(msg.getMessage("RegistrationFormEditor.defaultName"));
 		
 		publiclyAvailable = new CheckBox(msg.getMessage("RegistrationFormEditor.publiclyAvailable"));
 		publiclyAvailable.addValueChangeListener(event -> {
@@ -200,7 +200,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		initCommonDisplayedFields();
 		registrationCode = new TextField(msg.getMessage("RegistrationFormViewer.registrationCode"));
 		
-		TabSheet tabOfLists = createCollectedParamsTabs(notificationsEditor.getGroups());
+		TabSheet tabOfLists = createCollectedParamsTabs(notificationsEditor.getGroups(), false);
 		main.addComponents(displayedName, formInformation, registrationCode, collectComments, tabOfLists);
 	}
 	

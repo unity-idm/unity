@@ -11,21 +11,12 @@ package pl.edu.icm.unity.types.registration;
  */
 public class BaseFormNotifications
 {
-	private String submittedTemplate;
 	private String rejectedTemplate;
 	private String acceptedTemplate;
 	
 	private String channel;
 	private String adminsNotificationGroup;
 	
-	public String getSubmittedTemplate()
-	{
-		return submittedTemplate;
-	}
-	public void setSubmittedTemplate(String submittedTemplate)
-	{
-		this.submittedTemplate = submittedTemplate;
-	}
 	public String getChannel()
 	{
 		return channel;
@@ -72,8 +63,6 @@ public class BaseFormNotifications
 		result = prime * result + ((channel == null) ? 0 : channel.hashCode());
 		result = prime * result
 				+ ((rejectedTemplate == null) ? 0 : rejectedTemplate.hashCode());
-		result = prime * result
-				+ ((submittedTemplate == null) ? 0 : submittedTemplate.hashCode());
 		return result;
 	}
 	@Override
@@ -109,12 +98,6 @@ public class BaseFormNotifications
 			if (other.rejectedTemplate != null)
 				return false;
 		} else if (!rejectedTemplate.equals(other.rejectedTemplate))
-			return false;
-		if (submittedTemplate == null)
-		{
-			if (other.submittedTemplate != null)
-				return false;
-		} else if (!submittedTemplate.equals(other.submittedTemplate))
 			return false;
 		return true;
 	}

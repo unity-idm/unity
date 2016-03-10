@@ -17,6 +17,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.server.api.registration.NewEnquiryTemplateDef;
+import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
 
@@ -56,6 +57,12 @@ public class EnquiryFormDB extends GenericObjectsDB<EnquiryForm>
 					throw new SchemaConsistencyException("The message template is used by an enquiry form " 
 							+ form.getName() + " and the template's type change would render the template incompatible with it");
 				}
+				if (oldObject.getName().equals(notCfg.getSubmittedTemplate()) && 
+						!updatedObject.getConsumer().equals(SubmitRegistrationTemplateDef.NAME))
+				{
+					throw new SchemaConsistencyException("The message template is used by a registration form " 
+							+ form.getName() + " and the template's type change would render the template incompatible with it");
+				}
 			}
 			
 		}
@@ -71,6 +78,9 @@ public class EnquiryFormDB extends GenericObjectsDB<EnquiryForm>
 				checkRemoved(notCfg, removedObject, form.getName());
 				if (removedObject.getName().equals(notCfg.getEnquiryToFillTemplate()))
 					throw new SchemaConsistencyException("The message template is used by an enquiry form " 
+							+ form.getName());
+				if (removedObject.getName().equals(notCfg.getSubmittedTemplate()))
+					throw new SchemaConsistencyException("The message template is used by a registration form " 
 							+ form.getName());
 			}
 		}
