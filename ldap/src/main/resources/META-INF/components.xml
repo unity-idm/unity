@@ -8,4 +8,8 @@
 	<bean class="pl.edu.icm.unity.ldap.client.LdapVerificatorFactory"/>
 	<bean class="pl.edu.icm.unity.ldap.client.LdapDNVerificatorFactory"/>
 	
+	<!-- LDAP server -->
+	<bean class="pl.edu.icm.unity.ldap.endpoint.LdapEndpointFactory"/>
+	<bean class="pl.edu.icm.unity.ldap.endpoint.RawPasswordRetrievalFactory"/>
+
 </beans>
