@@ -2,13 +2,14 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.registration;
+package pl.edu.icm.unity.webadmin.reg.formfill;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
+import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.registration.BaseRequestEditor;
 
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
@@ -18,25 +19,23 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
 /**
- * Dialog allowing to fill a registration form. Intended to be used from the AdminUI to fill registration form by admin.
+ * Dialog allowing to fill an enquiry or registration form. Intended to be used from the AdminUI.
  * It takes an editor component as argument. Dialog uses 3 buttons: submit request, submit and accept, cancel.
- * The submit and accept button distinguishes this dialog from its simpler brother 
- * {@link RegistrationRequestEditorDialog}.
  * 
  * @author K. Benedyczak
  */
-public class AdminRegistrationRequestEditorDialog extends AbstractDialog
+public class UserFormFillDialog<T extends BaseRegistrationInput> extends AbstractDialog
 {
-	private RegistrationRequestEditor editor;
-	private Callback callback;
+	private BaseRequestEditor<T> editor;
+	private Callback<T> callback;
 	private Button submitAndAccept;
 	
-	public AdminRegistrationRequestEditorDialog(UnityMessageSource msg, String caption, 
-			RegistrationRequestEditor editor, Callback callback)
+	public UserFormFillDialog(UnityMessageSource msg, String caption, 
+			BaseRequestEditor<T> editor, Callback<T> callback)
 	{
-		super(msg, caption, msg.getMessage("RegistrationRequestEditorDialog.submitRequest"), 
+		super(msg, caption, msg.getMessage("UserFormFillDialog.submitRequest"), 
 				msg.getMessage("cancel"));
-		submitAndAccept = new Button(msg.getMessage("RegistrationRequestEditorDialog.submitAndAccept"), this);
+		submitAndAccept = new Button(msg.getMessage("UserFormFillDialog.submitAndAccept"), this);
 		this.editor = editor;
 		this.callback = callback;
 		setSizeMode(SizeMode.LARGE);
@@ -82,7 +81,7 @@ public class AdminRegistrationRequestEditorDialog extends AbstractDialog
 	{
 		try
 		{
-			RegistrationRequest request = editor.getRequest();
+			T request = editor.getRequest();
 			if (callback.newRequest(request, autoAccept))
 				close();
 		} catch (FormValidationException e) 
@@ -92,9 +91,9 @@ public class AdminRegistrationRequestEditorDialog extends AbstractDialog
 		}
 	}
 	
-	public interface Callback
+	public interface Callback<T>
 	{
-		boolean newRequest(RegistrationRequest request, boolean autoAccept);
+		boolean newRequest(T request, boolean autoAccept);
 		void cancelled();
 	}
 	

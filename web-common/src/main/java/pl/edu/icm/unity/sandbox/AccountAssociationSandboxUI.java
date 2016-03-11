@@ -22,7 +22,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
-import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormsChooserComponent;
+import pl.edu.icm.unity.webui.registration.RegistrationFormsChooserComponent;
 
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
@@ -43,7 +43,7 @@ public class AccountAssociationSandboxUI extends SandboxUIBase
 	public AccountAssociationSandboxUI(UnityMessageSource msg,
 			LocaleChoiceComponent localeChoice,
 			WebAuthenticationProcessor authnProcessor,
-			InsecureRegistrationFormsChooserComponent formsChooser,
+			RegistrationFormsChooserComponent formsChooser,
 			InsecureRegistrationFormLauncher formLauncher,
 			ExecutorsService execService, AuthenticationManagement authnManagement,
 			AuthenticatorsManagement authenticatorsManagement,

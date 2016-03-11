@@ -7,8 +7,10 @@ package pl.edu.icm.unity.server.api;
 import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.translation.form.EnquiryTranslationProfile;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
+import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 
@@ -78,4 +80,17 @@ public interface EnquiryManagement
 	 * @throws EngineException
 	 */
 	String submitEnquiryResponse(EnquiryResponse response, RegistrationContext context) throws EngineException;
+
+	/**
+	 * Lists all responses
+	 * @return
+	 * @throws EngineException
+	 */
+	List<EnquiryResponseState> getEnquiryResponses() throws EngineException;
+	
+	/**
+	 * @param form
+	 * @return
+	 */
+	EnquiryTranslationProfile getProfileInstance(EnquiryForm form);
 }

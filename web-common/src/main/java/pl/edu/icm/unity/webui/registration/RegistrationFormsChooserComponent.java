@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -25,7 +26,6 @@ import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -39,7 +39,8 @@ import com.vaadin.ui.VerticalLayout;
 
 /**
  * Responsible for showing registration forms list and allowing to launch editor of a chosen one.
- * 
+ * Useful for showing filtered list of forms available for end user.  
+ *  
  * @author K. Benedyczak
  */
 @Component
@@ -51,7 +52,6 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 	protected RegistrationsManagement registrationsManagement;
 	protected RegistrationFormDialogProvider formLauncher;
 
-	protected boolean showNonPublic;
 	protected Collection<String> allowedForms;
 	protected List<RegistrationForm> displayedForms;
 	protected VerticalLayout main;
@@ -61,17 +61,9 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 	
 	@Autowired
 	public RegistrationFormsChooserComponent(UnityMessageSource msg,
-			RegistrationsManagement registrationsManagement,
-			AdminRegistrationFormLauncher formLauncher)
+			@Qualifier("insecure") RegistrationsManagement registrationsManagement,
+			InsecureRegistrationFormLauncher formLauncher)
 	{
-		this(msg, registrationsManagement, (RegistrationFormDialogProvider)formLauncher);
-	}
-
-	protected RegistrationFormsChooserComponent(UnityMessageSource msg,
-			RegistrationsManagement registrationsManagement,
-			RegistrationFormDialogProvider formLauncher)
-	{
-		super();
 		this.msg = msg;
 		this.registrationsManagement = registrationsManagement;
 		this.formLauncher = formLauncher;
@@ -90,11 +82,6 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 				}
 			}
 		}, RegistrationFormChangedEvent.class);
-	}
-	
-	public void setShowNonPublic(boolean showNonPublic)
-	{
-		this.showNonPublic = showNonPublic;
 	}
 	
 	public void setAllowedForms(Collection<String> allowed)
@@ -118,7 +105,7 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 		boolean available = false;
 		for (RegistrationForm form: forms)
 		{
-			if (!showNonPublic && !form.isPubliclyAvailable())
+			if (!form.isPubliclyAvailable())
 				continue;
 			if (allowedForms != null && !allowedForms.contains(form.getName()))
 				continue;
@@ -137,8 +124,6 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 	public void initUI(TriggeringMode mode)
 	{
 		this.mode = mode;
-		addStyleName(Styles.visibleScroll.toString());
-		setCaption(msg.getMessage("RegistrationFormsChooserComponent.caption"));
 		try
 		{
 			removeAllComponents();
@@ -146,24 +131,6 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 			main.setSpacing(true);
 			main.setMargin(true);
 			addComponent(main);
-			Button refresh = new Button(msg.getMessage("RegistrationFormsChooserComponent.refresh"));
-			refresh.setIcon(Images.refresh.getResource());
-			refresh.addClickListener(new ClickListener()
-			{
-				@Override
-				public void buttonClick(ClickEvent event)
-				{
-					try
-					{
-						refresh();
-					} catch (EngineException e)
-					{
-						NotificationPopup.showError(msg, 
-								msg.getMessage("RegistrationFormsChooserComponent.errorRefresh"), e);
-					}
-				}
-			});
-			addComponent(refresh);
 			refresh();
 		} catch (Exception e)
 		{
@@ -173,7 +140,7 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 			addComponent(error);
 		}
 	}
-
+	
 	public void setCallback(Callback callback)
 	{
 		this.callback = callback;
@@ -211,5 +178,4 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 	{
 		void closed();
 	}
-
 }

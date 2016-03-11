@@ -64,7 +64,7 @@ import com.vaadin.ui.TextArea;
  * Base for enquiry and registration request editors
  * @author K. Benedyczak
  */
-public class BaseRequestEditor extends CustomComponent
+public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends CustomComponent
 {
 	protected UnityMessageSource msg;
 	private BaseForm form;
@@ -119,6 +119,8 @@ public class BaseRequestEditor extends CustomComponent
 		
 		checkRemotelyObtainedData();
 	}
+	
+	public abstract T getRequest() throws FormValidationException;
 	
 	private void checkRemotelyObtainedData() throws AuthenticationException
 	{

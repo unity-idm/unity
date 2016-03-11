@@ -14,8 +14,7 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
 
 /**
- * Provides registration form dialog. Implemented by {@link AdminRegistrationFormLauncher} 
- * and {@link InsecureRegistrationFormLauncher}
+ * Provides registration form dialog.
  * @author K. Benedyczak
  */
 public interface RegistrationFormDialogProvider

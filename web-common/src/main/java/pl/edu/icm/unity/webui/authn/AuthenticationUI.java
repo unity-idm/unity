@@ -41,8 +41,8 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
-import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormsChooserComponent;
 import pl.edu.icm.unity.webui.registration.RegistrationFormChooserDialog;
+import pl.edu.icm.unity.webui.registration.RegistrationFormsChooserComponent;
 
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
@@ -76,7 +76,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	
 	protected LocaleChoiceComponent localeChoice;
 	protected WebAuthenticationProcessor authnProcessor;
-	protected InsecureRegistrationFormsChooserComponent formsChooser;
+	protected RegistrationFormsChooserComponent formsChooser;
 	protected InsecureRegistrationFormLauncher formLauncher;
 	protected ExecutorsService execService;
 	protected AuthenticationTopHeader headerUIComponent;
@@ -91,7 +91,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	@Autowired
 	public AuthenticationUI(UnityMessageSource msg, LocaleChoiceComponent localeChoice,
 			WebAuthenticationProcessor authnProcessor,
-			InsecureRegistrationFormsChooserComponent formsChooser,
+			RegistrationFormsChooserComponent formsChooser,
 			InsecureRegistrationFormLauncher formLauncher,
 			ExecutorsService execService, @Qualifier("insecure") IdentitiesManagement idsMan,
 			InputTranslationEngine inputTranslationEngine)

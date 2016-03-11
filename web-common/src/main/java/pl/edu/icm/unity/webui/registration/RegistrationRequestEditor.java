@@ -48,7 +48,7 @@ import com.vaadin.ui.VerticalLayout;
  * registration code is collected appropriately.
  * @author K. Benedyczak
  */
-public class RegistrationRequestEditor extends BaseRequestEditor
+public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationRequest>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RegistrationRequestEditor.class);
 	private RegistrationForm form;
@@ -91,6 +91,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor
 		initUI();
 	}
 	
+	@Override
 	public RegistrationRequest getRequest() throws FormValidationException
 	{
 		RegistrationRequest ret = new RegistrationRequest();

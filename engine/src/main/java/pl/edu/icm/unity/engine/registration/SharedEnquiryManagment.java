@@ -205,7 +205,7 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 	}
 
 	
-	private EnquiryTranslationProfile getEnquiryProfileInstance(TranslationProfile profile)
+	public EnquiryTranslationProfile getEnquiryProfileInstance(TranslationProfile profile)
 	{
 		return new EnquiryTranslationProfile(profile.getName(), profile.getRules(), 
 				registrationTranslationActionsRegistry);

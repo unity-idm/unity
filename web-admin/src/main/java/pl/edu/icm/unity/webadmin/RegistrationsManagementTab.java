@@ -4,22 +4,20 @@
  */
 package pl.edu.icm.unity.webadmin;
 
-import org.springframework.context.annotation.Scope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.webadmin.reg.formfill.FormsChooserComponent;
 import pl.edu.icm.unity.webadmin.reg.formman.EnquiryFormsComponent;
 import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormsComponent;
 import pl.edu.icm.unity.webadmin.reg.invitation.InvitationsComponent;
 import pl.edu.icm.unity.webadmin.reg.reqman.RequestsComponent;
-import pl.edu.icm.unity.webui.registration.RegistrationFormsChooserComponent;
+import pl.edu.icm.unity.webui.common.Styles;
 
 import com.vaadin.ui.VerticalLayout;
-
-import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Tab containing management views for the management of registrations: forms, requests and form filling.
@@ -35,13 +33,11 @@ public class RegistrationsManagementTab  extends VerticalLayout
 
 	@Autowired
 	public RegistrationsManagementTab(UnityMessageSource msg, RegistrationFormsComponent regComponent,
-			RequestsComponent requestsComponent, RegistrationFormsChooserComponent reqFillComponent,
+			RequestsComponent requestsComponent, FormsChooserComponent reqFillComponent,
 			InvitationsComponent invitationsComponent, EnquiryFormsComponent enquiryFormsComponent)
 	{
 		super();
 		this.msg = msg;
-		reqFillComponent.setShowNonPublic(true);
-		reqFillComponent.initUI(TriggeringMode.manualAdmin);
 		this.tabs = new MainTabPanel(requestsComponent, reqFillComponent, invitationsComponent, 
 				regComponent, enquiryFormsComponent);
 		this.tabs.addStyleName(Styles.vTabsheetMinimal.toString());

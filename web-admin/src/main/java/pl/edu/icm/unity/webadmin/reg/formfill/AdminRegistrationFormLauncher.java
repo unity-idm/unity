@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.registration;
+package pl.edu.icm.unity.webadmin.reg.formfill;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -29,13 +29,19 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
+import pl.edu.icm.unity.webui.registration.PostFormFillingHandler;
+import pl.edu.icm.unity.webui.registration.RegistrationFormDialogProvider;
+import pl.edu.icm.unity.webui.registration.RegistrationRequestChangedEvent;
+import pl.edu.icm.unity.webui.registration.RegistrationRequestEditor;
+import pl.edu.icm.unity.webui.registration.RegistrationRequestEditorDialog;
+import pl.edu.icm.unity.webui.registration.RequestEditorCreator;
 import pl.edu.icm.unity.webui.registration.RequestEditorCreator.RequestEditorCreatedCallback;
 
 
 
 /**
- * Responsible for showing a given registration form dialog. Wrapper over {@link RegistrationRequestEditorDialog}
- * simplifying its instantiation.
+ * Responsible for showing a given registration form dialog. Simplifies instantiation of
+ * {@link RegistrationRequestEditorDialog}.
  * <p> This version is intended for use in AdminUI where automatic request acceptance is possible.
  * 
  * @author K. Benedyczak
@@ -90,7 +96,7 @@ public class AdminRegistrationFormLauncher implements RegistrationFormDialogProv
 			bus.fireEvent(new RegistrationRequestChangedEvent(id));
 		} catch (EngineException e)
 		{
-			new PostRegistrationHandler(idpLoginController, form, msg, 
+			new PostFormFillingHandler(idpLoginController, form, msg, 
 					registrationsManagement.getProfileInstance(form)).submissionError(e, context);
 			return false;
 		}
@@ -101,18 +107,18 @@ public class AdminRegistrationFormLauncher implements RegistrationFormDialogProv
 			{
 				registrationsManagement.processRegistrationRequest(id, request, 
 						RegistrationRequestAction.accept, null, 
-						msg.getMessage("RegistrationFormsChooserComponent.autoAccept"));
+						msg.getMessage("AdminFormLauncher.autoAccept"));
 				bus.fireEvent(new RegistrationRequestChangedEvent(id));
 			}	
-			new PostRegistrationHandler(idpLoginController, form, msg, 
+			new PostFormFillingHandler(idpLoginController, form, msg, 
 					registrationsManagement.getProfileInstance(form), false).
-				submitted(id, registrationsManagement, request, context);
+				submittedRegistrationRequest(id, registrationsManagement, request, context);
 			
 			return true;
 		} catch (EngineException e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage(
-					"RegistrationFormsChooserComponent.errorRequestAutoAccept"), e);
+					"AdminFormLauncher.errorRequestAutoAccept"), e);
 			return true;
 		}
 	}
@@ -149,9 +155,9 @@ public class AdminRegistrationFormLauncher implements RegistrationFormDialogProv
 	
 	private void showDialog(RegistrationForm form, RegistrationRequestEditor editor, TriggeringMode mode)
 	{
-		AdminRegistrationRequestEditorDialog dialog = new AdminRegistrationRequestEditorDialog(msg, 
-				msg.getMessage("RegistrationFormsChooserComponent.dialogCaption"), 
-				editor, new AdminRegistrationRequestEditorDialog.Callback()
+		UserFormFillDialog<RegistrationRequest> dialog = new UserFormFillDialog<>(msg, 
+				msg.getMessage("AdminRegistrationFormLauncher.dialogCaption"), 
+				editor, new UserFormFillDialog.Callback<RegistrationRequest>()
 				{
 					@Override
 					public boolean newRequest(RegistrationRequest request, boolean autoAccept)
@@ -164,7 +170,7 @@ public class AdminRegistrationFormLauncher implements RegistrationFormDialogProv
 					{
 						RegistrationContext context = new RegistrationContext(false, 
 								idpLoginController.isLoginInProgress(), mode);
-						new PostRegistrationHandler(idpLoginController, form, msg, 
+						new PostFormFillingHandler(idpLoginController, form, msg, 
 								registrationsManagement.getProfileInstance(form)).
 							cancelled(false, context);
 					}

@@ -52,4 +52,7 @@
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormsComponent"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.formman.EnquiryFormsComponent"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.reqman.RequestsComponent"/>
+	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.formfill.FormsChooserComponent"/>
+	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.formfill.AdminEnquiryFormLauncher"/>
+	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.formfill.AdminRegistrationFormLauncher"/>
 </beans>

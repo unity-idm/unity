@@ -49,12 +49,8 @@
 	<bean scope="prototype" id="AuthenticationUI" class="pl.edu.icm.unity.webui.authn.AuthenticationUI"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webui.authn.LocaleChoiceComponent"/>
 	
-	<bean primary="true" scope="prototype" class="pl.edu.icm.unity.webui.registration.RegistrationFormsChooserComponent"/>
-	<bean primary="false" scope="prototype" class="pl.edu.icm.unity.webui.registration.InsecureRegistrationFormsChooserComponent">
-			<qualifier value="insecure"/>
-	</bean>
-	<bean primary="true" scope="prototype" class="pl.edu.icm.unity.webui.registration.AdminRegistrationFormLauncher"/>
-	<bean primary="false" scope="prototype" class="pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher">
+	<bean scope="prototype" class="pl.edu.icm.unity.webui.registration.RegistrationFormsChooserComponent"/>
+	<bean scope="prototype" class="pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher">
 			<qualifier value="insecure"/>
 	</bean>
 	<bean class="pl.edu.icm.unity.webui.registration.PublicRegistrationURLProvider"/>

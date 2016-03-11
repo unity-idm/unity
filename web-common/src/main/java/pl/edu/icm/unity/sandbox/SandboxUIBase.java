@@ -32,7 +32,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
-import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormsChooserComponent;
+import pl.edu.icm.unity.webui.registration.RegistrationFormsChooserComponent;
 
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
@@ -62,7 +62,7 @@ public abstract class SandboxUIBase extends AuthenticationUI
 	public SandboxUIBase(UnityMessageSource msg,
 			LocaleChoiceComponent localeChoice,
 			WebAuthenticationProcessor authnProcessor,
-			InsecureRegistrationFormsChooserComponent formsChooser,
+			RegistrationFormsChooserComponent formsChooser,
 			InsecureRegistrationFormLauncher formLauncher,
 			ExecutorsService execService,
 			AuthenticatorsManagement authenticatorsManagement,

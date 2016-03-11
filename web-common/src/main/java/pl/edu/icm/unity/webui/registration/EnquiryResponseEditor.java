@@ -13,7 +13,7 @@ import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
+import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -30,7 +30,7 @@ import com.vaadin.ui.VerticalLayout;
  * Generates a UI based on a given {@link EnquiryForm}. 
  * @author K. Benedyczak
  */
-public class EnquiryResponseEditor extends BaseRequestEditor
+public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 {
 	private EnquiryForm form;
 	
@@ -49,9 +49,10 @@ public class EnquiryResponseEditor extends BaseRequestEditor
 		initUI();
 	}
 	
-	public RegistrationRequest getRequest() throws FormValidationException
+	@Override
+	public EnquiryResponse getRequest() throws FormValidationException
 	{
-		RegistrationRequest ret = new RegistrationRequest();
+		EnquiryResponse ret = new EnquiryResponse();
 		FormErrorStatus status = new FormErrorStatus();
 
 		super.fillRequest(ret, status);

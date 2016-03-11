@@ -8,16 +8,20 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.server.api.EnquiryManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.api.internal.IdPLoginController;
 import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder;
 import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder.Status;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
+import pl.edu.icm.unity.server.translation.form.BaseRegistrationTranslationProfile;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nMessage;
+import pl.edu.icm.unity.types.registration.BaseForm;
+import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
+import pl.edu.icm.unity.types.registration.EnquiryResponse;
+import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
@@ -27,26 +31,27 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import com.vaadin.server.Page;
 
 /**
- * Performs UI-related actions after registration request submission or form cancellation. 
+ * Performs UI-related actions after registration request/enquiry response submission or cancellation.
+ *  
  * @author K. Benedyczak
  */
-public class PostRegistrationHandler
+public class PostFormFillingHandler
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, PostRegistrationHandler.class);
-	private RegistrationForm form;
+	private static final Logger log = Log.getLogger(Log.U_SERVER, PostFormFillingHandler.class);
+	private BaseForm form;
 	private UnityMessageSource msg;
 	private boolean doRedirect;
 	private IdPLoginController loginController;
-	private RegistrationTranslationProfile translationProfile;
+	private BaseRegistrationTranslationProfile translationProfile;
 	
-	public PostRegistrationHandler(IdPLoginController loginController, 
-			RegistrationForm form, UnityMessageSource msg, RegistrationTranslationProfile profile)
+	public PostFormFillingHandler(IdPLoginController loginController, 
+			BaseForm form, UnityMessageSource msg, BaseRegistrationTranslationProfile profile)
 	{
 		this(loginController, form, msg, profile, true);
 	}
 
-	public PostRegistrationHandler(IdPLoginController loginController, 
-			RegistrationForm form, UnityMessageSource msg, RegistrationTranslationProfile profile, 
+	public PostFormFillingHandler(IdPLoginController loginController, 
+			BaseForm form, UnityMessageSource msg, BaseRegistrationTranslationProfile profile, 
 			boolean doRedirect)
 	{
 		this.loginController = loginController;
@@ -64,7 +69,7 @@ public class PostRegistrationHandler
 	 * @param registrationsManagement
 	 * @throws EngineException
 	 */
-	public void submitted(String requestId, RegistrationsManagement registrationsManagement, 
+	public void submittedRegistrationRequest(String requestId, RegistrationsManagement registrationsManagement, 
 			RegistrationRequest request, RegistrationContext context)
 	{
 		boolean autoAccepted;
@@ -76,6 +81,54 @@ public class PostRegistrationHandler
 			log.error("Shouldn't happen: can't get request status to check if it was auto accepted", e);
 			autoAccepted = false;
 		}
+		submittedGeneric(requestId, request, context, autoAccepted);
+	}
+	
+	private boolean isRequestAutoAccepted(String requestId, RegistrationsManagement registrationsManagement) 
+			throws EngineException
+	{
+		for (RegistrationRequestState r : registrationsManagement.getRegistrationRequests())
+		{
+			if (r.getRequestId().equals(requestId)
+					&& r.getStatus() == RegistrationRequestStatus.accepted)
+				return true;
+		}
+		return false;
+	}
+
+	private boolean isResponseAutoAccepted(String requestId, EnquiryManagement registrationsManagement) 
+			throws EngineException
+	{
+		for (EnquiryResponseState r : registrationsManagement.getEnquiryResponses())
+		{
+			if (r.getRequestId().equals(requestId)
+					&& r.getStatus() == RegistrationRequestStatus.accepted)
+				return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Invokes proper redirection or shows an information message depending on response status and form settings.
+	 */
+	public void submittedEnquiryResponse(String requestId, EnquiryManagement enquiryManagement, 
+			EnquiryResponse request, RegistrationContext context)
+	{
+		boolean autoAccepted;
+		try
+		{
+			autoAccepted = isResponseAutoAccepted(requestId, enquiryManagement);
+		} catch (EngineException e)
+		{
+			log.error("Shouldn't happen: can't get request status to check if it was auto accepted", e);
+			autoAccepted = false;
+		}
+		submittedGeneric(requestId, request, context, autoAccepted);
+	}
+
+	private void submittedGeneric(String requestId, BaseRegistrationInput request, 
+			RegistrationContext context, boolean autoAccepted)
+	{
 		String redirect = translationProfile.getPostSubmitRedirectURL(form, request, context, requestId);
 		I18nMessage message = translationProfile.getPostSubmitMessage(form, request, context, requestId);
 		if (redirect != null)
@@ -102,18 +155,6 @@ public class PostRegistrationHandler
 						msg.getMessage("RegistrationFormsChooserComponent.requestSubmittedInfoNoAccept"));
 			}
 		}
-	}
-	
-	private boolean isRequestAutoAccepted(String requestId, RegistrationsManagement registrationsManagement) 
-			throws EngineException
-	{
-		for (RegistrationRequestState r : registrationsManagement.getRegistrationRequests())
-		{
-			if (r.getRequestId().equals(requestId)
-					&& r.getStatus() == RegistrationRequestStatus.accepted)
-				return true;
-		}
-		return false;
 	}
 
 	

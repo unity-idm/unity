@@ -38,6 +38,7 @@ import pl.edu.icm.unity.server.api.registration.NewEnquiryTemplateDef;
 import pl.edu.icm.unity.server.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.server.translation.form.EnquiryTranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
@@ -291,5 +292,19 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			throw new WrongArgumentException("Target groups must be set in the form.");
 		if (form.getType() == null)
 			throw new WrongArgumentException("Form type must be set.");
+	}
+	
+	@Override
+	public EnquiryTranslationProfile getProfileInstance(EnquiryForm form)
+	{
+		return internalManagment.getEnquiryProfileInstance(form.getTranslationProfile());
+	}
+
+	@Transactional
+	@Override
+	public List<EnquiryResponseState> getEnquiryResponses() throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.read);
+		return requestDB.getAll(SqlSessionTL.get());
 	}
 }
