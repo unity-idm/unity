@@ -449,12 +449,12 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
             if (null != searchContext.getReturningAttributes()) {
                 attributes.addAll(searchContext.getReturningAttributes());
             }else {
-                attributes.add(new AttributeTypeOptions(
-                        schemaManager.lookupAttributeTypeRegistry(SchemaConstants.CN_AT))
-                );
-                attributes.add(new AttributeTypeOptions(
-                        schemaManager.lookupAttributeTypeRegistry(SchemaConstants.EMAIL_AT))
-                );
+                String default_attributes = configuration.getValue("returned_user_attributes");
+                for (String at : default_attributes.split(",")) {
+                    attributes.add(new AttributeTypeOptions(
+                            schemaManager.lookupAttributeTypeRegistry(at.trim()))
+                    );
+                }
             }
 
             for (AttributeTypeOptions ao : attributes) {

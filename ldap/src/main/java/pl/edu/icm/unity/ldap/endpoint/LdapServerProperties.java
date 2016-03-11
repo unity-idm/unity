@@ -42,6 +42,7 @@ public class LdapServerProperties extends PropertiesHelper
 		META.put("user_query", new PropertyMD().setCategory(main).setDescription("LDAP user query token"));
 		META.put("group_member", new PropertyMD().setCategory(main).setDescription("LDAP member attribute name"));
 		META.put("group_member_user_regexp", new PropertyMD().setCategory(main).setDescription("LDAP regexp for getting user from a member query"));
+		META.put("returned_user_attributes", new PropertyMD().setCategory(main).setDescription("Attributes that should be returned if return all user attributes flag is set"));
 	}
 	
 	public LdapServerProperties(Properties properties) throws ConfigurationException
