@@ -28,46 +28,44 @@ import java.util.Map;
 public class LdapEndpointFactory implements EndpointFactory
 {
 	public static final String NAME = "LDAPServer";
+
 	public static final String SERVLET_PATH = "/info";
 
 	private EndpointTypeDescription endpointDescription;
+
 	private NetworkServer server;
-    private PasswordVerificator credentialVerificator;
-    SessionManagement sessionMan;
-    AttributesManagement attributesMan;
-	IdentitiesManagement identitiesMan;
+
+	private PasswordVerificator credentialVerificator;
+
+	private SessionManagement sessionMan;
+
+	private AttributesManagement attributesMan;
+
+	private IdentitiesManagement identitiesMan;
 
 	@Autowired
-	public LdapEndpointFactory(
-        NetworkServer server,
-        IdentityResolver identityResolver,
-        PasswordVerificatorFactory pwf,
-        SessionManagement sessionMan,
-        AttributesManagement attributesMan,
-		IdentitiesManagement identitiesMan
-    )
+	public LdapEndpointFactory(NetworkServer server, IdentityResolver identityResolver,
+			PasswordVerificatorFactory pwf, SessionManagement sessionMan,
+			AttributesManagement attributesMan, IdentitiesManagement identitiesMan)
 	{
 		this.server = server;
 
-        // now now, this is not very nice
-        this.credentialVerificator = (PasswordVerificator)pwf.newInstance();
-        this.credentialVerificator.setIdentityResolver(identityResolver);
-        this.credentialVerificator.setCredentialName("Password credential");
-        this.sessionMan = sessionMan;
-        this.attributesMan = attributesMan;
+		// now now, this is not very nice
+		this.credentialVerificator = (PasswordVerificator) pwf.newInstance();
+		this.credentialVerificator.setIdentityResolver(identityResolver);
+		this.credentialVerificator.setCredentialName("Password credential");
+		this.sessionMan = sessionMan;
+		this.attributesMan = attributesMan;
 		this.identitiesMan = identitiesMan;
 
-		Map<String,String> paths = new HashMap<>();
+		Map<String, String> paths = new HashMap<>();
 		paths.put(SERVLET_PATH, "Info for the LDAP server endpoint");
-		endpointDescription = new EndpointTypeDescription(
-			NAME,
-			"Limited LDAP server interface",
-			Collections.singleton(LdapServerAuthentication.NAME),
-			paths
-		);
+		endpointDescription = new EndpointTypeDescription(NAME,
+				"Limited LDAP server interface",
+				Collections.singleton(LdapServerAuthentication.NAME), paths);
 
-    }
-	
+	}
+
 	@Override
 	public EndpointTypeDescription getDescription()
 	{
@@ -77,11 +75,7 @@ public class LdapEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new LdapEndpoint(
-            server, SERVLET_PATH, credentialVerificator,
-            sessionMan,
-            attributesMan,
-			identitiesMan
-        );
+		return new LdapEndpoint(server, SERVLET_PATH, sessionMan, attributesMan,
+				identitiesMan);
 	}
 }

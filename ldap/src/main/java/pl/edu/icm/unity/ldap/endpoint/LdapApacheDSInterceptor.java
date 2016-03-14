@@ -58,427 +58,523 @@ import java.util.regex.Pattern;
  * ApacheDS interceptor implementation. This is the integration part between
  * ApacheDS and Unity.
  */
-@SuppressWarnings("UnnecessaryLocalVariable")
 public class LdapApacheDSInterceptor extends BaseInterceptor
 {
-	//private static final Logger LOG = LoggerFactory.getLogger(LdapApacheDSInterceptor.class);
 	private RawPasswordRetrieval auth_;
-    private LdapServerFacade lsf_;
-    private SessionManagement sessionMan;
-    AuthenticationRealm realm;
-    AttributesManagement attributesMan;
-    IdentitiesManagement identitiesMan;
-    LdapServerProperties configuration;
+
+	private LdapServerFacade lsf_;
+
+	private SessionManagement sessionMan;
+
+	private AuthenticationRealm realm;
+
+	private AttributesManagement attributesMan;
+
+	private IdentitiesManagement identitiesMan;
+
+	private LdapServerProperties configuration;
 
 	/**
 	 * Creates a new instance of DefaultAuthorizationInterceptor.
 	 */
-	public LdapApacheDSInterceptor(RawPasswordRetrieval auth,
-                                   SessionManagement sessionMan,
-                                   AuthenticationRealm realm,
-                                   AttributesManagement attributesMan,
-                                   IdentitiesManagement identitiesMan,
-                                   LdapServerProperties configuration)
+	public LdapApacheDSInterceptor(RawPasswordRetrieval auth, SessionManagement sessionMan,
+			AuthenticationRealm realm, AttributesManagement attributesMan,
+			IdentitiesManagement identitiesMan, LdapServerProperties configuration)
 	{
 		super();
-        this.lsf_ = null;
+		this.lsf_ = null;
 		this.auth_ = auth;
-        this.sessionMan = sessionMan;
-        this.realm = realm;
-        this.attributesMan = attributesMan;
-        this.identitiesMan = identitiesMan;
-        this.configuration = configuration;
+		this.sessionMan = sessionMan;
+		this.realm = realm;
+		this.attributesMan = attributesMan;
+		this.identitiesMan = identitiesMan;
+		this.configuration = configuration;
 	}
 
-    public void setLdapServerFacade(LdapServerFacade lsf) {
-        this.lsf_ = lsf;
-    }
-
-	public void init( DirectoryService directoryService ) throws LdapException {
-		super.init( directoryService );
-	}
-
-    //
-    // supported operations
-    //
-
-	public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
+	public void setLdapServerFacade(LdapServerFacade lsf)
 	{
-        boolean isMainBindUser = lookupContext.getDn().toString().equals(ServerDNConstants.ADMIN_SYSTEM_DN);
-        if (isMainBindUser) {
-            Entry entry = next(lookupContext);
-            return entry;
-        }
-
-        // Require ldap-user - cn should be enough
-        // Require ldap-group - groups
-        // Require ldap-dn - cn should be enough
-        // Require ldap-attribute - not supporting
-        // Require ldap-filter - not supporting
-
-        // lookup for
-        Entry entry = new DefaultEntry(schemaManager, lookupContext.getDn());
-        String group = getGroup(lookupContext.getDn());
-        if (null != group) {
-            if (lookupContext.isAllOperationalAttributes()) {
-                AttributeType OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry(SchemaConstants.OBJECT_CLASS_AT);
-                entry.put("objectClass", OBJECT_CLASS_AT, "top", "person", "inetOrgPerson", "organizationalPerson");
-                entry.put("cn", schemaManager.lookupAttributeTypeRegistry("cn"), "test");
-                return new ClonedServerEntry(entry);
-            }
-
-        }
-        String user = getUserName(lookupContext.getDn());
-        if (null != user) {
-            if (lookupContext.isAllUserAttributes()) {
-                AttributeType OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
-                entry.put( "objectClass", OBJECT_CLASS_AT, "top", "person", "inetOrgPerson", "organizationalPerson" );
-                entry.put( "cn", schemaManager.lookupAttributeTypeRegistry( "cn" ), "test" );
-                return new ClonedServerEntry(entry);
-            }
-        }
-
-        return next( lookupContext );
+		this.lsf_ = lsf;
 	}
 
-	public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
+	public void init(DirectoryService directoryService) throws LdapException
 	{
-        // admin bind will not return true (we look for cn)
-        boolean userSearch = isUserSearch(searchContext.getFilter());
-        String username = getUserName(searchContext.getFilter(), new String[] {"cn", "mail"});
-        // e.g., search by mail
-        if (userSearch && null == username) {
-            return emptyResult(searchContext);
-        }
-        if (userSearch && !username.equals("ou=system")) {
-            return getUser(searchContext, username);
-        }
-
-        EntryFilteringCursor ec = next( searchContext );
-        return ec;
+		super.init(directoryService);
 	}
 
-	public void bind( BindOperationContext bindContext ) throws LdapException
+	//
+	// supported operations
+	//
+
+	public Entry lookup(LookupOperationContext lookupContext) throws LdapException
 	{
-        // this is the main binding account local to ldap
-        boolean isMainBindUser = bindContext.getDn().toString().equals(ServerDNConstants.ADMIN_SYSTEM_DN);
-        if (isMainBindUser) {
-            next( bindContext );
-            return;
-        }
+		boolean isMainBindUser = lookupContext.getDn().toString()
+				.equals(ServerDNConstants.ADMIN_SYSTEM_DN);
+		if (isMainBindUser)
+		{
+			Entry entry = next(lookupContext);
+			return entry;
+		}
 
-        // user binding
-        String username = bindContext.getDn().getRdn().getAva().getValue().toString();
+		// Require ldap-user - cn should be enough
+		// Require ldap-group - groups
+		// Require ldap-dn - cn should be enough
+		// Require ldap-attribute - not supporting
+		// Require ldap-filter - not supporting
 
-        try {
-            if (auth_.checkPassword(
-                username,
-                new String(bindContext.getCredentials(), StandardCharsets.UTF_8)
-            ))
-            {
-                LdapPrincipal policyConfig = new LdapPrincipal();
-                bindContext.setCredentials(null);
-                policyConfig.setUserPassword(new byte[][]{StringConstants.EMPTY_BYTES});
-                DefaultCoreSession mods = new DefaultCoreSession(policyConfig, this.directoryService);
-                bindContext.setSession(mods);
-            }
-        }catch(Exception e){
-            // no go!
-            throw new LdapAuthenticationException();
-        }
+		// lookup for
+		Entry entry = new DefaultEntry(schemaManager, lookupContext.getDn());
+		String group = getGroup(lookupContext.getDn());
+		if (null != group)
+		{
+			if (lookupContext.isAllOperationalAttributes())
+			{
+				AttributeType OBJECT_CLASS_AT = schemaManager
+						.lookupAttributeTypeRegistry(SchemaConstants.OBJECT_CLASS_AT);
+				entry.put("objectClass", OBJECT_CLASS_AT, "top", "person",
+						"inetOrgPerson", "organizationalPerson");
+				entry.put("cn", schemaManager.lookupAttributeTypeRegistry("cn"),
+						"test");
+				return new ClonedServerEntry(entry);
+			}
+
+		}
+		String user = getUserName(lookupContext.getDn());
+		if (null != user)
+		{
+			if (lookupContext.isAllUserAttributes())
+			{
+				AttributeType OBJECT_CLASS_AT = schemaManager
+						.lookupAttributeTypeRegistry(SchemaConstants.OBJECT_CLASS_AT);
+				entry.put("objectClass", OBJECT_CLASS_AT, "top", "person",
+						"inetOrgPerson", "organizationalPerson");
+				entry.put("cn", schemaManager.lookupAttributeTypeRegistry("cn"),
+						"test");
+				return new ClonedServerEntry(entry);
+			}
+		}
+
+		return next(lookupContext);
 	}
 
-    private void notSupported() throws LdapException {
-        throw new LdapUnwillingToPerformException(
-            ResultCodeEnum.UNWILLING_TO_PERFORM
-        );
-    }
+	public EntryFilteringCursor search(SearchOperationContext searchContext)
+			throws LdapException
+	{
+		// admin bind will not return true (we look for cn)
+		boolean userSearch = isUserSearch(searchContext.getFilter());
+		String username = getUserName(searchContext.getFilter(), new String[] { "cn",
+				"mail" });
+		// e.g., search by mail
+		if (userSearch && null == username)
+		{
+			return emptyResult(searchContext);
+		}
+		if (userSearch && !username.equals("ou=system"))
+		{
+			return getUser(searchContext, username);
+		}
 
-    /*
-     * Find user, get his groups and return true if he is the member of desired group.
-     */
-    public boolean compare(CompareOperationContext compareContext) throws LdapException {
-        String group_member = configuration.getValue("group_member");
-        String group_member_user_regexp = configuration.getValue("group_member_user_regexp");
-        // we know how to do members
-        if (compareContext.getAttributeType().getName().equals(group_member)) {
-            try {
-                boolean group_found = false;
-                String user = compareContext.getValue().getString();
-                Pattern p = Pattern.compile(group_member_user_regexp);
-                Matcher m = p.matcher(user);
-                if (m.find()) {
-                    user = m.group(1);
-                    long userEntityId = auth_.verifyUser(user);
-//                    Collection<AttributeExt<?>> attrs = attributesMan.getAllAttributes(
-//                        new EntityParam(userEntityId), true, null, null, true
-//                    );
+		EntryFilteringCursor ec = next(searchContext);
+		return ec;
+	}
 
-                    Map<String, GroupMembership> grps = identitiesMan.getGroups(new EntityParam(userEntityId));
-                    String group = getGroup(compareContext.getOriginalEntry().getDn());
-                    if (grps.containsKey(group)) {
-                        group_found = true;
-                    }
-                    return group_found;
-                }
-            } catch (EngineException e) {
-                e.printStackTrace();
-            }
-            return false;
-        }
+	public void bind(BindOperationContext bindContext) throws LdapException
+	{
+		// this is the main binding account local to ldap
+		boolean isMainBindUser = bindContext.getDn().toString()
+				.equals(ServerDNConstants.ADMIN_SYSTEM_DN);
+		if (isMainBindUser)
+		{
+			next(bindContext);
+			return;
+		}
 
-        return next(compareContext);
-    }
+		// user binding
+		String username = bindContext.getDn().getRdn().getAva().getValue().toString();
 
-    //
-    // not supported
-    //
+		try
+		{
+			if (auth_.checkPassword(username, new String(bindContext.getCredentials(),
+					StandardCharsets.UTF_8)))
+			{
+				LdapPrincipal policyConfig = new LdapPrincipal();
+				bindContext.setCredentials(null);
+				policyConfig.setUserPassword(new byte[][] { StringConstants.EMPTY_BYTES });
+				DefaultCoreSession mods = new DefaultCoreSession(policyConfig,
+						this.directoryService);
+				bindContext.setSession(mods);
+			}
+		} catch (Exception e)
+		{
+			// no go!
+			throw new LdapAuthenticationException();
+		}
+	}
 
-    public void rename(RenameOperationContext renameContext) throws LdapException {
-        notSupported();
-    }
-    public void moveAndRename(MoveAndRenameOperationContext moveAndRenameContext) throws LdapException {
-        notSupported();
-    }
-    public void move(MoveOperationContext moveContext) throws LdapException {
-        notSupported();
-    }
-    public void modify(ModifyOperationContext modifyContext) throws LdapException {
-        notSupported();
-    }
-    public boolean hasEntry(HasEntryOperationContext hasEntryContext) throws LdapException {
-        notSupported();
-        return false;
-    }
-    public Entry getRootDse(GetRootDseOperationContext getRootDseContext) throws LdapException {
-        notSupported();
-        return null;
-    }
-    public void delete(DeleteOperationContext deleteContext) throws LdapException {
-        notSupported();
-    }
+	private void notSupported() throws LdapException
+	{
+		throw new LdapUnwillingToPerformException(ResultCodeEnum.UNWILLING_TO_PERFORM);
+	}
 
-    public void add(AddOperationContext addContext) throws LdapException {
-        notSupported();
-    }
+	/*
+	 * Find user, get his groups and return true if he is the member of
+	 * desired group.
+	 */
+	public boolean compare(CompareOperationContext compareContext) throws LdapException
+	{
+		String group_member = configuration.getValue("group_member");
+		String group_member_user_regexp = configuration
+				.getValue("group_member_user_regexp");
+		// we know how to do members
+		if (compareContext.getAttributeType().getName().equals(group_member))
+		{
+			try
+			{
+				boolean group_found = false;
+				String user = compareContext.getValue().getString();
+				Pattern p = Pattern.compile(group_member_user_regexp);
+				Matcher m = p.matcher(user);
+				if (m.find())
+				{
+					user = m.group(1);
+					long userEntityId = auth_.verifyUser(user);
+					// Collection<AttributeExt<?>> attrs =
+					// attributesMan.getAllAttributes(
+					// new EntityParam(userEntityId), true,
+					// null, null, true
+					// );
 
-    //
-    // helpers
-    //
+					Map<String, GroupMembership> grps = identitiesMan
+							.getGroups(new EntityParam(userEntityId));
+					String group = getGroup(compareContext.getOriginalEntry()
+							.getDn());
+					if (grps.containsKey(group))
+					{
+						group_found = true;
+					}
+					return group_found;
+				}
+			} catch (EngineException e)
+			{
+				e.printStackTrace();
+			}
+			return false;
+		}
 
-    /*
-     * Empty LDAP result.
-     */
-    private EntryFilteringCursorImpl emptyResult(SearchOperationContext searchContext) {
-        return new EntryFilteringCursorImpl(
-            new EmptyCursor<>(), searchContext, lsf_.getDs().getSchemaManager()
-        );
-    }
+		return next(compareContext);
+	}
 
-    /**
-     * Add user attributes to LDAP answer
-     *
-     * TODO: this should be configurable
-     */
-    private void addAttribute(String name, String username, Collection<AttributeExt<?>> attrs, Entry toEntry) throws LdapException {
-        Attribute da = null;
+	//
+	// not supported
+	//
 
-        switch (name) {
-            case SchemaConstants.USER_PASSWORD_AT:
-                da = lsf_.getAttribute(SchemaConstants.USER_PASSWORD_AT, SchemaConstants.USER_PASSWORD_AT_OID);
-                da.add("not disclosing");
-                break;
-            case SchemaConstants.CN_AT:
-                da = lsf_.getAttribute(SchemaConstants.CN_AT, SchemaConstants.CN_AT_OID);
-                da.add(username);
-                break;
-            case SchemaConstants.MAIL_AT:
-            case SchemaConstants.EMAIL_AT:
-                da = lsf_.getAttribute(SchemaConstants.MAIL_AT, SchemaConstants.MAIL_AT_OID);
-                for (AttributeExt<?> ae : attrs) {
-                    if (ae.getName().equals(SchemaConstants.MAIL_AT) || ae.getName().equals(SchemaConstants.EMAIL_AT)) {
-                        Object o = ae.getValues().get(0);
-                        da.add(o.toString());
-                    }
-                }
-                break;
-            default:
-                for (AttributeExt<?> ae : attrs) {
-                    if (ae.getName().equals(name)) {
-                        da = lsf_.getAttribute(name, null);
+	public void rename(RenameOperationContext renameContext) throws LdapException
+	{
+		notSupported();
+	}
 
-                        Object o = ae.getValues().get(0);
-                        if (o instanceof BufferedImage) {
-                            try {
-                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                ImageIO.write((BufferedImage) o, "jpg", baos);
-                                baos.flush();
-                                byte[] imageInByte = baos.toByteArray();
-                                da.add(imageInByte);
-                                baos.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            da.add(o.toString());
-                        }
-                    }
-                }
-                break;
-        }
+	public void moveAndRename(MoveAndRenameOperationContext moveAndRenameContext)
+			throws LdapException
+	{
+		notSupported();
+	}
 
-        if (null != da) {
-            toEntry.add(da);
-        }
-    }
+	public void move(MoveOperationContext moveContext) throws LdapException
+	{
+		notSupported();
+	}
 
-    /**
-     * Get groups from LDAP DN.
-     */
-    private String getGroup(Dn dn) {
-        String group_query = configuration.getValue("group_query");
-        for (org.apache.directory.api.ldap.model.name.Rdn rdn : dn.getRdns()) {
-            if (rdn.getAva().toString().equals(group_query)) {
-                return dn.getRdn().getAva().getValue().getString();
-            }
-        }
-        return null;
-    }
+	public void modify(ModifyOperationContext modifyContext) throws LdapException
+	{
+		notSupported();
+	}
 
-    /*
-     * Get user from LDAP DN.
-     */
-    private String getUserName(Dn dn) {
-        String user_query = configuration.getValue("user_query");
-        for (org.apache.directory.api.ldap.model.name.Rdn rdn : dn.getRdns()) {
-            if (rdn.getAva().getAttributeType().getName().equals(user_query)) {
-                return rdn.getAva().getValue().getString();
-            }
-        }
-        return null;
-    }
+	public boolean hasEntry(HasEntryOperationContext hasEntryContext) throws LdapException
+	{
+		notSupported();
+		return false;
+	}
 
-    /*
-     * Is the LDAP query a user search?
-     */
-    static public boolean isUserSearch(ExprNode node) {
-        if (node instanceof BranchNode) {
-            BranchNode n = (BranchNode) node;
-            for (ExprNode en : n.getChildren()) {
-                if (isUserSearch(en)) {
-                    return true;
-                }
-            }
-        }else if (node instanceof SimpleNode) {
-            try {
-                SimpleNode<String> sns = (SimpleNode<String>) node;
-                if (sns.getAttribute().equals("objectClass")) {
-                    return sns.getValue().toString().equals("inetorgperson");
-                }
-                // this is clearly wrong
-                if (sns.getAttribute().equals("mail")) {
-                    return true;
-                }
-            }catch(Exception e) {
-                return false;
-            }
-        }
-        return false;
-    }
+	public Entry getRootDse(GetRootDseOperationContext getRootDseContext) throws LdapException
+	{
+		notSupported();
+		return null;
+	}
 
-   /*
-    * Get user name from LDAP query
-    */
-   static public String getUserName(ExprNode node, String[] attributes) {
-       for (int i = 0; i < attributes.length; ++i) {
-           String uname = getUserName(node, attributes[i]);
-           if (null != uname) {
-               return uname;
-           }
-       }
-        return null;
-   }
-   static public String getUserName(ExprNode node, String attribute) {
+	public void delete(DeleteOperationContext deleteContext) throws LdapException
+	{
+		notSupported();
+	}
 
-        if (node instanceof BranchNode) {
-            BranchNode n = (BranchNode) node;
-            for (ExprNode en : n.getChildren()) {
-                String username = getUserName(en, attribute);
-                if (null != username) {
-                    return username;
-                }
-            }
-        }else if (node instanceof SimpleNode) {
-            try {
-                SimpleNode<String> sns = (SimpleNode<String>) node;
-                if (sns.getAttribute().equals(attribute)) {
-                    return sns.getValue().toString();
-                }
-            }catch(Exception e) {
-                return null;
-            }
-        }
-        return null;
-    }
+	public void add(AddOperationContext addContext) throws LdapException
+	{
+		notSupported();
+	}
 
+	//
+	// helpers
+	//
 
-    /**
-     * Get Unity user from LDAP search context.
-     */
-    public EntryFilteringCursor getUser(SearchOperationContext searchContext, String username) throws LdapException {
-        //String username = getUserName(searchContext.getFilter(), "cn");
+	/*
+	 * Empty LDAP result.
+	 */
+	private EntryFilteringCursorImpl emptyResult(SearchOperationContext searchContext)
+	{
+		return new EntryFilteringCursorImpl(new EmptyCursor<>(), searchContext, lsf_
+				.getDs().getSchemaManager());
+	}
 
-        Entry entry = new DefaultEntry(lsf_.getDs().getSchemaManager());
-        try {
-            long userEntityId = auth_.verifyUser(username);
+	/**
+	 * Add user attributes to LDAP answer
+	 *
+	 * TODO: this should be configurable
+	 */
+	private void addAttribute(String name, String username, Collection<AttributeExt<?>> attrs,
+			Entry toEntry) throws LdapException
+	{
+		Attribute da = null;
 
-            InvocationContext ctx = new InvocationContext(null, this.realm);
-            InvocationContext.setCurrent(ctx);
-            LoginSession ls = this.sessionMan.getCreateSession(
-                userEntityId, this.realm, "", false, null
-            );
-            ctx.setLoginSession(ls);
-            //ls.addAuthenticatedIdentities(client.getAuthenticatedWith());
-            //ls.setRemoteIdP(client.getRemoteIdP());
+		switch (name)
+		{
+		case SchemaConstants.USER_PASSWORD_AT:
+			da = lsf_.getAttribute(SchemaConstants.USER_PASSWORD_AT,
+					SchemaConstants.USER_PASSWORD_AT_OID);
+			da.add("not disclosing");
+			break;
+		case SchemaConstants.CN_AT:
+			da = lsf_.getAttribute(SchemaConstants.CN_AT, SchemaConstants.CN_AT_OID);
+			da.add(username);
+			break;
+		case SchemaConstants.MAIL_AT:
+		case SchemaConstants.EMAIL_AT:
+			da = lsf_.getAttribute(SchemaConstants.MAIL_AT, SchemaConstants.MAIL_AT_OID);
+			for (AttributeExt<?> ae : attrs)
+			{
+				if (ae.getName().equals(SchemaConstants.MAIL_AT)
+						|| ae.getName().equals(SchemaConstants.EMAIL_AT))
+				{
+					Object o = ae.getValues().get(0);
+					da.add(o.toString());
+				}
+			}
+			break;
+		default:
+			for (AttributeExt<?> ae : attrs)
+			{
+				if (ae.getName().equals(name))
+				{
+					da = lsf_.getAttribute(name, null);
 
-            Collection<AttributeExt<?>> attrs = attributesMan.getAttributes(
-                new EntityParam(userEntityId), null, null
-            );
+					Object o = ae.getValues().get(0);
+					if (o instanceof BufferedImage)
+					{
+						try
+						{
+							ByteArrayOutputStream baos = new ByteArrayOutputStream();
+							ImageIO.write((BufferedImage) o, "jpg",
+									baos);
+							baos.flush();
+							byte[] imageInByte = baos.toByteArray();
+							da.add(imageInByte);
+							baos.close();
+						} catch (IOException e)
+						{
+							e.printStackTrace();
+						}
+					} else
+					{
+						da.add(o.toString());
+					}
+				}
+			}
+			break;
+		}
 
-            Set<AttributeTypeOptions> attributes = new HashSet<AttributeTypeOptions>();
-            if (null != searchContext.getReturningAttributes()) {
-                attributes.addAll(searchContext.getReturningAttributes());
-            }else {
-                String default_attributes = configuration.getValue("returned_user_attributes");
-                for (String at : default_attributes.split(",")) {
-                    attributes.add(new AttributeTypeOptions(
-                            schemaManager.lookupAttributeTypeRegistry(at.trim()))
-                    );
-                }
-            }
+		if (null != da)
+		{
+			toEntry.add(da);
+		}
+	}
 
-            for (AttributeTypeOptions ao : attributes) {
-                String aName = ao.getAttributeType().getName();
-                addAttribute(aName, username, attrs, entry);
-                if (aName.equals("cn")) {
-                    String requestDn = "cn=" + username + "," + searchContext.getDn().toString();
-                    entry.setDn(requestDn);
-                }
-            }
+	/**
+	 * Get groups from LDAP DN.
+	 */
+	private String getGroup(Dn dn)
+	{
+		String group_query = configuration.getValue("group_query");
+		for (org.apache.directory.api.ldap.model.name.Rdn rdn : dn.getRdns())
+		{
+			if (rdn.getAva().toString().equals(group_query))
+			{
+				return dn.getRdn().getAva().getValue().getString();
+			}
+		}
+		return null;
+	}
 
-            return new EntryFilteringCursorImpl(
-                new SingletonCursor<>(entry),
-                searchContext,
-                lsf_.getDs().getSchemaManager()
-            );
+	/*
+	 * Get user from LDAP DN.
+	 */
+	private String getUserName(Dn dn)
+	{
+		String user_query = configuration.getValue("user_query");
+		for (org.apache.directory.api.ldap.model.name.Rdn rdn : dn.getRdns())
+		{
+			if (rdn.getAva().getAttributeType().getName().equals(user_query))
+			{
+				return rdn.getAva().getValue().getString();
+			}
+		}
+		return null;
+	}
 
-        }catch(IllegalIdentityValueException ignored) {
+	/*
+	 * Is the LDAP query a user search?
+	 */
+	static public boolean isUserSearch(ExprNode node)
+	{
+		if (node instanceof BranchNode)
+		{
+			BranchNode n = (BranchNode) node;
+			for (ExprNode en : n.getChildren())
+			{
+				if (isUserSearch(en))
+				{
+					return true;
+				}
+			}
+		} else if (node instanceof SimpleNode)
+		{
+			try
+			{
+				SimpleNode<?> sns = (SimpleNode<?>) node;
+				if (sns.getAttribute().equals("objectClass"))
+				{
+					return sns.getValue().toString().equals("inetorgperson");
+				}
+				// this is clearly wrong
+				if (sns.getAttribute().equals("mail"))
+				{
+					return true;
+				}
+			} catch (Exception e)
+			{
+				return false;
+			}
+		}
+		return false;
+	}
 
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
+	/*
+	 * Get user name from LDAP query
+	 */
+	static public String getUserName(ExprNode node, String[] attributes)
+	{
+		for (int i = 0; i < attributes.length; ++i)
+		{
+			String uname = getUserName(node, attributes[i]);
+			if (null != uname)
+			{
+				return uname;
+			}
+		}
+		return null;
+	}
 
-        return emptyResult(searchContext);
-    }
+	static public String getUserName(ExprNode node, String attribute)
+	{
+
+		if (node instanceof BranchNode)
+		{
+			BranchNode n = (BranchNode) node;
+			for (ExprNode en : n.getChildren())
+			{
+				String username = getUserName(en, attribute);
+				if (null != username)
+				{
+					return username;
+				}
+			}
+		} else if (node instanceof SimpleNode)
+		{
+			try
+			{
+				SimpleNode<?> sns = (SimpleNode<?>) node;
+				if (sns.getAttribute().equals(attribute))
+				{
+					return sns.getValue().toString();
+				}
+			} catch (Exception e)
+			{
+				return null;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Get Unity user from LDAP search context.
+	 */
+	public EntryFilteringCursor getUser(SearchOperationContext searchContext, String username)
+			throws LdapException
+	{
+		// String username = getUserName(searchContext.getFilter(),
+		// "cn");
+
+		Entry entry = new DefaultEntry(lsf_.getDs().getSchemaManager());
+		try
+		{
+			long userEntityId = auth_.verifyUser(username);
+
+			InvocationContext ctx = new InvocationContext(null, this.realm);
+			InvocationContext.setCurrent(ctx);
+			LoginSession ls = this.sessionMan.getCreateSession(userEntityId,
+					this.realm, "", false, null);
+			ctx.setLoginSession(ls);
+			// ls.addAuthenticatedIdentities(client.getAuthenticatedWith());
+			// ls.setRemoteIdP(client.getRemoteIdP());
+
+			Collection<AttributeExt<?>> attrs = attributesMan.getAttributes(
+					new EntityParam(userEntityId), null, null);
+
+			Set<AttributeTypeOptions> attributes = new HashSet<AttributeTypeOptions>();
+			if (null != searchContext.getReturningAttributes())
+			{
+				attributes.addAll(searchContext.getReturningAttributes());
+			} else
+			{
+				String default_attributes = configuration
+						.getValue("returned_user_attributes");
+				for (String at : default_attributes.split(","))
+				{
+					attributes.add(new AttributeTypeOptions(schemaManager
+							.lookupAttributeTypeRegistry(at.trim())));
+				}
+			}
+
+			for (AttributeTypeOptions ao : attributes)
+			{
+				String aName = ao.getAttributeType().getName();
+				addAttribute(aName, username, attrs, entry);
+				if (aName.equals("cn"))
+				{
+					String requestDn = "cn=" + username + ","
+							+ searchContext.getDn().toString();
+					entry.setDn(requestDn);
+				}
+			}
+
+			return new EntryFilteringCursorImpl(new SingletonCursor<>(entry),
+					searchContext, lsf_.getDs().getSchemaManager());
+
+		} catch (IllegalIdentityValueException ignored)
+		{
+
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
+		return emptyResult(searchContext);
+	}
 
 }
