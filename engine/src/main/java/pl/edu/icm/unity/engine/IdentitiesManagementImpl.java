@@ -303,6 +303,11 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		String type = identityType.getIdentityTypeProvider().getId();
 		boolean fullAuthz = authorizeIdentityChange(entityId, new ArrayList<IdentityParam>(), 
 				identityType.isSelfModificable());
+
+		if (identities.length == 1)
+			throw new SchemaConsistencyException("Can not remove the last identity, "
+					+ "it is only possible to perform the full removeal by deleting its entity now.");
+		
 		if (!fullAuthz)
 		{
 			if (getIdentityCountOfType(identities, type) <= identityType.getMinInstances())
