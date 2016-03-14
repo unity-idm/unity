@@ -88,6 +88,11 @@ public class ListOfSelectableElements extends CustomComponent
 		row = 1;
 	}
 	
+	public boolean isEmpty()
+	{
+		return row == 1;
+	}
+	
 	public List<CheckBox> getSelection()
 	{
 		return new ArrayList<>(selects);

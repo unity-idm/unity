@@ -12,11 +12,11 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
+import pl.edu.icm.unity.types.registration.BaseForm;
+import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
-import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.Selection;
+import pl.edu.icm.unity.types.registration.UserRequestState;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements.DisableMode;
@@ -30,19 +30,19 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Layout;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.VerticalLayout;
 
 /**
- * Shows request contents and provides a possibility to edit it.
+ * Shows request contents and provides a possibility to edit it. Base for extending by request type specific components.
  * 
  * @author K. Benedyczak
  */
-public class RequestReviewPanel extends CustomComponent
+public class RequestReviewPanelBase extends CustomComponent
 {
-	private UnityMessageSource msg;
+	protected UnityMessageSource msg;
 	private AttributeHandlerRegistry handlersRegistry;
-	private RegistrationRequestState requestState;
+	private UserRequestState<?> requestState;
 	private IdentityTypesRegistry idTypesRegistry;
 	
 	private ListOfSelectableElements attributes;
@@ -50,23 +50,22 @@ public class RequestReviewPanel extends CustomComponent
 	private ListOfElements<String> identities;
 	private ListOfElements<String> agreements;
 	private Label comment;
-	private Label code;
+	private Panel attributesPanel;
+	private Panel groupsPanel;
+	private Panel agreementsP;
+	private Panel commentP;
+	private Panel identitiesP;
 	
-	public RequestReviewPanel(UnityMessageSource msg, AttributeHandlerRegistry handlersRegistry,
+	public RequestReviewPanelBase(UnityMessageSource msg, AttributeHandlerRegistry handlersRegistry,
 			IdentityTypesRegistry idTypesRegistry)
 	{
 		this.msg = msg;
 		this.handlersRegistry = handlersRegistry;
 		this.idTypesRegistry = idTypesRegistry;
-		initUI();
 	}
 	
-	private void initUI()
+	protected void addStandardComponents(Layout main)
 	{
-		VerticalLayout main = new VerticalLayout();
-		main.setSpacing(true);
-		main.setMargin(true);
-		
 		identities = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
 		{
 			@Override
@@ -77,20 +76,20 @@ public class RequestReviewPanel extends CustomComponent
 		});
 		identities.setAddSeparatorLine(false);
 		identities.setMargin(true);
-		Panel identitiesP = new SafePanel(msg.getMessage("RequestReviewPanel.requestedIdentities"), identities);
+		identitiesP = new SafePanel(msg.getMessage("RequestReviewPanel.requestedIdentities"), identities);
 		
 		attributes = new ListOfSelectableElements(null,
 				new Label(msg.getMessage("RequestReviewPanel.requestedAttributeIgnore")), 
 				DisableMode.WHEN_SELECTED);
 		attributes.addStyleName(Styles.margin.toString());
-		Panel attributesPanel = new SafePanel(msg.getMessage("RequestReviewPanel.requestedAttributes"), 
+		attributesPanel = new SafePanel(msg.getMessage("RequestReviewPanel.requestedAttributes"), 
 				attributes);
 		
 		groups = new ListOfSelectableElements(null,
 				new Label(msg.getMessage("RequestReviewPanel.requestedGroupsIgnore")), 
 				DisableMode.WHEN_SELECTED);
 		groups.addStyleName(Styles.margin.toString());
-		Panel groupsPanel = new SafePanel(msg.getMessage("RequestReviewPanel.requestedGroups"), groups);
+		groupsPanel = new SafePanel(msg.getMessage("RequestReviewPanel.requestedGroups"), groups);
 		
 		agreements = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
 		{
@@ -102,30 +101,23 @@ public class RequestReviewPanel extends CustomComponent
 		});
 		agreements.setAddSeparatorLine(false);
 		agreements.setMargin(true);
-		Panel agreementsP = new SafePanel(msg.getMessage("RequestReviewPanel.agreements"), agreements);
+		agreementsP = new SafePanel(msg.getMessage("RequestReviewPanel.agreements"), agreements);
 		
 		comment = new Label();
 		comment.addStyleName(Styles.margin.toString());
-		Panel commentP = new SafePanel(msg.getMessage("RequestReviewPanel.comment"), comment);
+		commentP = new SafePanel(msg.getMessage("RequestReviewPanel.comment"), comment);
 		
-		code = new Label(msg.getMessage("RequestReviewPanel.codeValid"));
-		code.addStyleName(Styles.bold.toString());
-		
-		
-		main.addComponents(code, identitiesP, attributesPanel, groupsPanel, commentP, agreementsP);
-		setCompositionRoot(main);
+		main.addComponents(identitiesP, attributesPanel, groupsPanel, commentP, agreementsP);
 	}
 	
-	public RegistrationRequest getUpdatedRequest()
+	protected void fillRequest(BaseRegistrationInput ret)
 	{
-		RegistrationRequest orig = requestState.getRequest();
-		RegistrationRequest ret = new RegistrationRequest();
+		BaseRegistrationInput orig = requestState.getRequest();
 		ret.setAgreements(orig.getAgreements());
 		ret.setComments(orig.getComments());
 		ret.setCredentials(orig.getCredentials());
 		ret.setFormId(orig.getFormId());
 		ret.setIdentities(orig.getIdentities());
-		ret.setRegistrationCode(orig.getRegistrationCode());
 		ret.setUserLocale(orig.getUserLocale());
 		
 		ret.setGroupSelections(new ArrayList<Selection>(orig.getGroupSelections().size()));
@@ -155,22 +147,19 @@ public class RequestReviewPanel extends CustomComponent
 			else
 				ret.getAttributes().add(null);
 		}
-		return ret;
 	}
 	
-	public void setInput(RegistrationRequestState requestState, RegistrationForm form)
+	protected void setInput(UserRequestState<?> requestState, BaseForm form)
 	{
 		this.requestState = requestState;
-		RegistrationRequest request = requestState.getRequest();
+		BaseRegistrationInput request = requestState.getRequest();
 		String comments = request.getComments();
 		if (comments != null && !comments.equals(""))
 		{
-			comment.setVisible(true);
+			commentP.setVisible(true);
 			comment.setValue(comments);
 		} else
-			comment.setVisible(false);
-		
-		code.setVisible(request.getRegistrationCode() != null);
+			commentP.setVisible(false);
 		
 		identities.clearContents();
 		for (IdentityParam idParam: request.getIdentities())
@@ -186,6 +175,7 @@ public class RequestReviewPanel extends CustomComponent
 				throw new IllegalStateException("Ups, have request in DB with unsupported id type.", e);
 			}
 		}
+		identitiesP.setVisible(identities.getComponentCount() > 0);
 		
 		agreements.clearContents();
 		for (int i=0; i<request.getAgreements().size(); i++)
@@ -201,6 +191,7 @@ public class RequestReviewPanel extends CustomComponent
 					agreementTextStr.substring(0, 100) + "[...]" : agreementTextStr;
 			agreements.addEntry(info + ": " +  aText);
 		}
+		agreementsP.setVisible(agreements.getComponentCount() > 0);
 		
 		attributes.clearEntries();
 		for (Attribute<?> ap: request.getAttributes())
@@ -210,7 +201,8 @@ public class RequestReviewPanel extends CustomComponent
 			Component rep = handlersRegistry.getRepresentation(ap, RepresentationSize.MEDIUM);
 			attributes.addEntry(rep, false);
 		}
-		
+		attributesPanel.setVisible(!attributes.isEmpty());
+
 		groups.clearEntries();
 		for (int i=0; i<request.getGroupSelections().size(); i++)
 		{
@@ -224,5 +216,6 @@ public class RequestReviewPanel extends CustomComponent
 				"[from: " + selection.getExternalIdp() + "] " + groupParam.getGroupPath();
 			groups.addEntry(new Label(groupEntry), false);
 		}
+		groupsPanel.setVisible(!groups.isEmpty());
 	}
 }

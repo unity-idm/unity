@@ -52,6 +52,7 @@ import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityInformation;
 import pl.edu.icm.unity.types.EntityScheduledOperation;
@@ -87,6 +88,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 {
 	private DBIdentities dbIdentities;
 	private DBAttributes dbAttributes;
+	private AttributesHelper attributesHelper;
 	private DBShared dbShared;
 	private IdentitiesResolver idResolver;
 	private EngineHelper engineHelper;
@@ -112,6 +114,7 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		this.acDB = acDB;
 		this.idResolver = idResolver;
 		this.engineHelper = engineHelper;
+		this.attributesHelper = attributesHelper;
 		this.authz = authz;
 		this.idTypesRegistry = idTypesRegistry;
 		this.confirmationManager = confirmationsManager;
@@ -579,6 +582,28 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		return resolveEntityBasic(entityId, target, allowCreate, group, sqlMap);
 	}
 
+	@Transactional
+	@Override
+	public String getEntityLabel(EntityParam entity) throws EngineException
+	{
+		entity.validateInitialization();
+		SqlSession sqlMap = SqlSessionTL.get();
+		AttributeType nameAt = attributesHelper.getAttributeTypeWithSingeltonMetadata(
+				EntityNameMetadataProvider.NAME, sqlMap);
+		if (nameAt == null)
+			return null;
+		long entityId = idResolver.getEntityId(entity, sqlMap);
+		Collection<AttributeExt<?>> attributes = dbAttributes.getAllAttributes(
+				entityId, "/", true, nameAt.getName(), sqlMap);
+		if (attributes.isEmpty())
+			return null;
+		List<?> values = attributes.iterator().next().getValues();
+		if (values.isEmpty())
+			return null;
+		return values.get(0).toString();
+	}
+	
+	
 	/**
 	 * Checks if read cap is set and resolved the entity: identities and credential with respect to the
 	 * given target.

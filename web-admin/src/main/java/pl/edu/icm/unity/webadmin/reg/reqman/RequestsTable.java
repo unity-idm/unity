@@ -10,12 +10,17 @@ import java.util.List;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.EnquiryManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.registration.EnquiryResponse;
+import pl.edu.icm.unity.types.registration.EnquiryResponseState;
+import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
+import pl.edu.icm.unity.types.registration.UserRequestState;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
@@ -26,6 +31,7 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.SmallTable;
 import pl.edu.icm.unity.webui.common.Toolbar;
+import pl.edu.icm.unity.webui.registration.EnquiryResponseChangedEvent;
 import pl.edu.icm.unity.webui.registration.RegistrationRequestChangedEvent;
 
 import com.google.common.collect.Lists;
@@ -45,14 +51,16 @@ import com.vaadin.ui.Table;
 public class RequestsTable extends CustomComponent
 {
 	private RegistrationsManagement registrationsManagement;
+	private EnquiryManagement enquiryManagement;
 	private UnityMessageSource msg;
 	private EventsBus bus;
 	
 	private Table requestsTable;
 
-	public RequestsTable(RegistrationsManagement regMan, UnityMessageSource msg)
+	public RequestsTable(RegistrationsManagement regMan, EnquiryManagement enquiryManagement, UnityMessageSource msg)
 	{
 		this.registrationsManagement = regMan;
+		this.enquiryManagement = enquiryManagement;
 		this.msg = msg;
 		this.bus = WebSession.getCurrent().getEventBus();
 		initUI();
@@ -69,9 +77,10 @@ public class RequestsTable extends CustomComponent
 		requestsTable.setSelectable(true);
 		requestsTable.setMultiSelect(true);
 		requestsTable.setContainerDataSource(tableContainer);
-		requestsTable.setVisibleColumns(new Object[] {"form", "requestId", "submitTime", "status", 
+		requestsTable.setVisibleColumns(new Object[] {"type", "form", "requestId", "submitTime", "status", 
 				"requestedIdentity"});
 		requestsTable.setColumnHeaders(new String[] {
+				msg.getMessage("RegistrationRequest.type"),
 				msg.getMessage("RegistrationRequest.form"),
 				msg.getMessage("RegistrationRequest.requestId"),
 				msg.getMessage("RegistrationRequest.submitTime"),
@@ -114,7 +123,12 @@ public class RequestsTable extends CustomComponent
 			public void valueChange(ValueChangeEvent event)
 			{
 				TableRequestBean selected = getOnlyOneSelected();
-				listener.requestChanged(selected == null ? null : selected.request);
+				if (selected == null)
+					listener.deselected();
+				else if (selected.request instanceof RegistrationRequestState)
+					listener.registrationChanged((RegistrationRequestState) selected.request);
+				else
+					listener.enquiryChanged((EnquiryResponseState) selected.request);
 			}
 		});
 	}
@@ -131,15 +145,10 @@ public class RequestsTable extends CustomComponent
 		try
 		{
 			TableRequestBean selected = getOnlyOneSelected();
-			List<RegistrationRequestState> requests = registrationsManagement.getRegistrationRequests();
 			requestsTable.removeAllItems();
-			for (RegistrationRequestState req: requests)
-			{
-				TableRequestBean item = new TableRequestBean(req, msg);
-				requestsTable.addItem(item);
-				if (selected != null && selected.request.getRequestId().equals(req.getRequestId()))
-					requestsTable.setValue(Lists.newArrayList(item));
-			}
+
+			fill(selected, registrationsManagement.getRegistrationRequests());
+			fill(selected, enquiryManagement.getEnquiryResponses());
 		} catch (Exception e)
 		{
 			ErrorComponent error = new ErrorComponent();
@@ -147,27 +156,54 @@ public class RequestsTable extends CustomComponent
 			setCompositionRoot(error);
 		}
 	}
+
+	private void fill(TableRequestBean selected, List<? extends UserRequestState<?>> requests)
+	{
+		for (UserRequestState<?> req: requests)
+		{
+			TableRequestBean item = new TableRequestBean(req, msg);
+			requestsTable.addItem(item);
+			if (selected != null && selected.request.getRequestId().equals(req.getRequestId()))
+				requestsTable.setValue(Lists.newArrayList(item));
+		}
+	}
 	
 	public void process(Collection<?> items, RegistrationRequestAction action)
 	{
 		for (Object item: items)
 		{
-			RegistrationRequestState request = ((TableRequestBean)item).request;
 			try
 			{
-				registrationsManagement.processRegistrationRequest(request.getRequestId(), 
-						request.getRequest(), 
-						action, 
-						null, 
-						null);
-				bus.fireEvent(new RegistrationRequestChangedEvent(request.getRequestId()));
+				processSingle((TableRequestBean) item, action);
 			} catch (EngineException e)
 			{
 				String info = msg.getMessage("RequestsTable.processError." + action.toString(),
-						request.getRequestId());
+						((TableRequestBean)item).request.getRequestId());
 				NotificationPopup.showError(msg, info, e);
 				break;
 			}
+		}
+	}
+	
+	private void processSingle(TableRequestBean item, RegistrationRequestAction action) throws EngineException
+	{
+		UserRequestState<?> request = item.request;
+		if (request instanceof RegistrationRequestState)
+		{
+			registrationsManagement.processRegistrationRequest(request.getRequestId(), 
+				(RegistrationRequest) request.getRequest(), 
+				action, 
+				null, 
+				null);
+			bus.fireEvent(new RegistrationRequestChangedEvent(request.getRequestId()));
+		} else
+		{
+			enquiryManagement.processEnquiryResponse(request.getRequestId(), 
+					(EnquiryResponse) request.getRequest(), 
+					action, 
+					null, 
+					null);
+			bus.fireEvent(new EnquiryResponseChangedEvent(request.getRequestId()));
 		}
 	}
 	
@@ -233,15 +269,21 @@ public class RequestsTable extends CustomComponent
 
 	public static class TableRequestBean
 	{
-		private RegistrationRequestState request;
+		private UserRequestState<?> request;
 		private UnityMessageSource msg;
 		
-		public TableRequestBean(RegistrationRequestState request, UnityMessageSource msg)
+		public TableRequestBean(UserRequestState<?> request, UnityMessageSource msg)
 		{
 			this.request = request;
 			this.msg = msg;
 		}
 
+		public String getType()
+		{
+			boolean enquiry = request instanceof EnquiryResponseState;
+			return msg.getMessage("RequestsTable.type." + (enquiry ? "enquiry" : "registration"));
+		}
+		
 		public String getForm()
 		{
 			return request.getRequest().getFormId();
@@ -271,6 +313,8 @@ public class RequestsTable extends CustomComponent
 	
 	public interface RequestSelectionListener
 	{
-		void requestChanged(RegistrationRequestState request);
+		void registrationChanged(RegistrationRequestState request);
+		void enquiryChanged(EnquiryResponseState request);
+		void deselected();
 	}
 }

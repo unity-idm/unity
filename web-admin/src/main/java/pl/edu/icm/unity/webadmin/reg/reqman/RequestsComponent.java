@@ -9,16 +9,20 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.server.api.EnquiryManagement;
+import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.webadmin.reg.reqman.RequestsTable.RequestSelectionListener;
 import pl.edu.icm.unity.webui.WebSession;
-import pl.edu.icm.unity.webui.bus.EventListener;
+import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.registration.EnquiryResponseChangedEvent;
 import pl.edu.icm.unity.webui.registration.RegistrationRequestChangedEvent;
 
 import com.vaadin.ui.CustomComponent;
@@ -41,40 +45,54 @@ public class RequestsComponent extends CustomComponent
 	
 	private RequestsTable requestsTable;
 	private IdentityTypesRegistry idTypesRegistry;
+	private EnquiryManagement enquiryManagement;
+	private IdentitiesManagement identitiesManagement;
 	
 	@Autowired
-	public RequestsComponent(RegistrationsManagement registrationsManagement, 
+	public RequestsComponent(RegistrationsManagement registrationsManagement, EnquiryManagement enquiryManagement,
 			AttributeHandlerRegistry handlersRegistry,
-			IdentityTypesRegistry idTypesRegistry, UnityMessageSource msg)
+			IdentityTypesRegistry idTypesRegistry, UnityMessageSource msg, 
+			IdentitiesManagement identitiesManagement)
 	{
 		this.registrationsManagement = registrationsManagement;
+		this.enquiryManagement = enquiryManagement;
 		this.idTypesRegistry = idTypesRegistry;
 		this.msg = msg;
 		this.handlersRegistry = handlersRegistry;
+		this.identitiesManagement = identitiesManagement;
 		initUI();
-		WebSession.getCurrent().getEventBus().addListener(new EventListener<RegistrationRequestChangedEvent>()
-		{
-			@Override
-			public void handleEvent(RegistrationRequestChangedEvent event)
-			{
-				requestsTable.refresh();
-			}
-		}, RegistrationRequestChangedEvent.class);
+		EventsBus eventBus = WebSession.getCurrent().getEventBus();
+		eventBus.addListener(event -> requestsTable.refresh(), RegistrationRequestChangedEvent.class);
+		eventBus.addListener(event -> requestsTable.refresh(), EnquiryResponseChangedEvent.class);
 	}
 
 
 	private void initUI()
 	{
 		addStyleName(Styles.visibleScroll.toString());
-		requestsTable = new RequestsTable(registrationsManagement, msg);
+		requestsTable = new RequestsTable(registrationsManagement, enquiryManagement, msg);
 		final RequestProcessingPanel requestPanel = new RequestProcessingPanel(msg, registrationsManagement,
-				handlersRegistry, idTypesRegistry);
+				enquiryManagement, handlersRegistry, idTypesRegistry, identitiesManagement);
 		requestsTable.addValueChangeListener(new RequestSelectionListener()
 		{
 			@Override
-			public void requestChanged(RegistrationRequestState request)
+			public void registrationChanged(RegistrationRequestState request)
 			{
+				requestPanel.setVisible(true);
 				requestPanel.setRequest(request);
+			}
+
+			@Override
+			public void enquiryChanged(EnquiryResponseState request)
+			{
+				requestPanel.setVisible(true);
+				requestPanel.setRequest(request);
+			}
+
+			@Override
+			public void deselected()
+			{
+				requestPanel.setVisible(false);
 			}
 		});
 		

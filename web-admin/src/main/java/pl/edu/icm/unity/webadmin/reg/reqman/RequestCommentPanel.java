@@ -9,15 +9,19 @@ import java.util.List;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.EnquiryManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.AdminComment;
+import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
+import pl.edu.icm.unity.types.registration.UserRequestState;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.registration.EnquiryResponseChangedEvent;
 import pl.edu.icm.unity.webui.registration.RegistrationRequestChangedEvent;
 
 import com.vaadin.shared.ui.label.ContentMode;
@@ -30,23 +34,26 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 
 /**
- * Allows to browse and post request comments.
+ * Allows to browse and post request comments. Works with both enquiry and registration requests.
  * @author K. Benedyczak
  */
 public class RequestCommentPanel extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private RegistrationsManagement regMan;
-	private RegistrationRequestState requestState;
+	private EnquiryManagement enquiryMan;
+	private UserRequestState<?> requestState;
 	
 	private EventsBus bus;
 	private VerticalLayout contentP; 
 	private TextArea commentField;
 	
-	public RequestCommentPanel(UnityMessageSource msg, RegistrationsManagement regMan)
+	public RequestCommentPanel(UnityMessageSource msg, RegistrationsManagement regMan,
+			EnquiryManagement enquiryMan)
 	{
 		this.msg = msg;
 		this.regMan = regMan;
+		this.enquiryMan = enquiryMan;
 		this.bus = WebSession.getCurrent().getEventBus();
 		initUI();
 	}
@@ -96,18 +103,36 @@ public class RequestCommentPanel extends CustomComponent
 	{
 		try
 		{
-			regMan.processRegistrationRequest(requestState.getRequestId(), 
+			if (requestState instanceof RegistrationRequestState)
+			{
+				regMan.processRegistrationRequest(requestState.getRequestId(), 
 					null, RegistrationRequestAction.update, 
 					asPublic ? comment : null, asPublic ? null : comment);
-			bus.fireEvent(new RegistrationRequestChangedEvent(requestState.getRequestId()));
+				bus.fireEvent(new RegistrationRequestChangedEvent(requestState.getRequestId()));
+			} else
+			{
+				enquiryMan.processEnquiryResponse(requestState.getRequestId(), 
+						null, RegistrationRequestAction.update, 
+						asPublic ? comment : null, asPublic ? null : comment);
+				bus.fireEvent(new EnquiryResponseChangedEvent(requestState.getRequestId()));
+			}
 		} catch (EngineException e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("RequestProcessingPanel.errorRequestProcess"), e);
 		}
 	}
 
-	
 	public void setInput(RegistrationRequestState requestState)
+	{
+		setInputGeneric(requestState);
+	}
+	
+	public void setInput(EnquiryResponseState requestState)
+	{
+		setInputGeneric(requestState);
+	}
+
+	private void setInputGeneric(UserRequestState<?> requestState)
 	{
 		commentField.setValue("");
 		contentP.removeAllComponents();

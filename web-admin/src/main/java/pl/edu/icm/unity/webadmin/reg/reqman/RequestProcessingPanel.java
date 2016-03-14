@@ -9,20 +9,27 @@ import java.util.List;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.EnquiryManagement;
+import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.registration.BaseForm;
+import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
+import pl.edu.icm.unity.types.registration.EnquiryForm;
+import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
+import pl.edu.icm.unity.types.registration.UserRequestState;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.registration.EnquiryResponseChangedEvent;
 import pl.edu.icm.unity.webui.registration.RegistrationRequestChangedEvent;
 
 import com.vaadin.ui.Alignment;
@@ -47,31 +54,40 @@ public class RequestProcessingPanel extends CustomComponent
 	
 	private EventsBus bus;
 	private RequestCommentPanel commentPanel;
-	private RequestReviewPanel requestReviewPanel;
-	private RegistrationRequestState requestState;
+	private GenericReviewPanel requestReviewPanel;
+	private UserRequestState<?> requestState;
 	private Button accept;
 	private Button reject;
 	private Button delete;
 	private VerticalLayout main;
+	private Label requestType;
 	private Label requestForm;
 	private Label requestId;
 	private Label requestStatus;
 	private Label requestDate;
 	private IdentityTypesRegistry idTypesRegistry;
+	private EnquiryManagement enquiryMan;
+	private IdentitiesManagement identitiesManagement;
 	
 	public RequestProcessingPanel(UnityMessageSource msg, RegistrationsManagement regMan,
-			AttributeHandlerRegistry handlersRegistry, IdentityTypesRegistry idTypesRegistry)
+			EnquiryManagement enquiryMan,
+			AttributeHandlerRegistry handlersRegistry, IdentityTypesRegistry idTypesRegistry,
+			IdentitiesManagement identitiesManagement)
 	{
 		this.msg = msg;
 		this.regMan = regMan;
+		this.enquiryMan = enquiryMan;
 		this.handlersRegistry = handlersRegistry;
 		this.idTypesRegistry = idTypesRegistry;
+		this.identitiesManagement = identitiesManagement;
 		this.bus = WebSession.getCurrent().getEventBus();
 		initUI();
 	}
 	
 	private void initUI()
 	{
+		requestType = new Label();
+		requestType.setCaption(msg.getMessage("RegistrationRequest.type")+":");
 		requestForm = new Label();
 		requestForm.setCaption(msg.getMessage("RegistrationRequest.form")+":");
 		requestId = new Label();
@@ -81,15 +97,16 @@ public class RequestProcessingPanel extends CustomComponent
 		requestDate = new Label();
 		requestDate.setCaption(msg.getMessage("RegistrationRequest.submitTime")+":");
 		
-		FormLayout topInfo = new CompactFormLayout(requestForm, requestStatus, requestDate, requestId);
+		FormLayout topInfo = new CompactFormLayout(requestType, requestForm, requestStatus, 
+				requestDate, requestId);
 		
 		TabSheet tabs = new TabSheet();
 		tabs.addStyleName(Styles.vTabsheetMinimal.toString());
 		
-		commentPanel = new RequestCommentPanel(msg, regMan);
+		commentPanel = new RequestCommentPanel(msg, regMan, enquiryMan);
 		commentPanel.setCaption(msg.getMessage("RequestProcessingPanel.comments"));
 		
-		requestReviewPanel = new RequestReviewPanel(msg, handlersRegistry, idTypesRegistry);
+		requestReviewPanel = new GenericReviewPanel(msg, handlersRegistry, idTypesRegistry, identitiesManagement);
 		requestReviewPanel.setCaption(msg.getMessage("RequestProcessingPanel.requested"));
 		
 		tabs.addComponent(requestReviewPanel);
@@ -130,21 +147,12 @@ public class RequestProcessingPanel extends CustomComponent
 		main.setComponentAlignment(buttonsBar, Alignment.BOTTOM_RIGHT);
 		main.setMargin(true);
 		main.setSpacing(true);
+		main.setVisible(false);
 		setCompositionRoot(main);
-		setRequest(null);
 	}
 	
 	public void setRequest(RegistrationRequestState input)
 	{
-		if (input == null)
-		{
-			main.setVisible(false);
-			return;
-		}
-		main.setVisible(true);
-
-		this.requestState = input;
-		RegistrationRequest request = input.getRequest();
 		List<RegistrationForm> forms;
 		try
 		{
@@ -154,32 +162,73 @@ public class RequestProcessingPanel extends CustomComponent
 			NotificationPopup.showError(msg, msg.getMessage("RequestsTable.errorGetRequests"), e);
 			return;
 		}
-		RegistrationForm form = null;
-		for (RegistrationForm f: forms)
-			if (f.getName().equals(request.getFormId()))
-				form = f;
-		if (form == null)
-			throw new IllegalStateException("Got request for the non-existing form " + 
-		request.getFormId() + " " + input.getRequestId());
+
+		RegistrationForm form = findForm(forms, input.getRequest().getFormId(), input.getRequestId());
+		setValueGeneric(input, form);
+		requestType.setValue(msg.getMessage("RequestsTable.type.registration"));
+		commentPanel.setInput(input);
+		requestReviewPanel.setRegistration(input, form);		
+	}
+
+	public void setRequest(EnquiryResponseState input)
+	{
+		List<EnquiryForm> forms;
+		try
+		{
+			forms = enquiryMan.getEnquires();
+		} catch (EngineException e)
+		{
+			NotificationPopup.showError(msg, msg.getMessage("RequestsTable.errorGetRequests"), e);
+			return;
+		}
+		EnquiryForm form = findForm(forms, input.getRequest().getFormId(), input.getRequestId());
+		
+		setValueGeneric(input, form);
+		requestType.setValue(msg.getMessage("RequestsTable.type.enquiry"));
+		commentPanel.setInput(input);
+		requestReviewPanel.setEnquiry(input, form);		
+	}
+	
+	private void setValueGeneric(UserRequestState<?> input, BaseForm form)
+	{
+		main.setVisible(true);
+		this.requestState = input;
+
+		BaseRegistrationInput request = input.getRequest();
+
 		requestForm.setValue(request.getFormId());
 		requestId.setValue(input.getRequestId());
 		requestStatus.setValue(msg.getMessage("RegistrationRequestStatus." + input.getStatus()));
 		requestDate.setValue(new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT).format(input.getTimestamp()));
 		
-		commentPanel.setInput(input);
-		requestReviewPanel.setInput(input, form);
-		
 		accept.setVisible(input.getStatus() == RegistrationRequestStatus.pending);
 		reject.setVisible(input.getStatus() == RegistrationRequestStatus.pending);
+	}
+	
+	private <T extends BaseForm> T findForm(List<T> forms, String id, String requestId)
+	{
+		for (T f: forms)
+			if (f.getName().equals(id))
+				return f;
+		throw new IllegalStateException("Got request for the non-existing form " + 
+					id + ", request id is " + requestId);
 	}
 	
 	private void process(RegistrationRequestAction action)
 	{
 		try
 		{
-			regMan.processRegistrationRequest(requestState.getRequestId(), 
-					requestReviewPanel.getUpdatedRequest(), action, null, null);
-			bus.fireEvent(new RegistrationRequestChangedEvent(requestState.getRequestId()));
+			if (requestState instanceof RegistrationRequestState)
+			{
+				regMan.processRegistrationRequest(requestState.getRequestId(), 
+						requestReviewPanel.getUpdatedRequest(), action, null, null);
+				bus.fireEvent(new RegistrationRequestChangedEvent(requestState.getRequestId()));
+			} else
+			{
+				enquiryMan.processEnquiryResponse(requestState.getRequestId(), 
+						requestReviewPanel.getUpdatedResponse(), action, null, null);
+				bus.fireEvent(new EnquiryResponseChangedEvent(requestState.getRequestId()));
+			}
 		} catch (EngineException e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("RequestProcessingPanel.errorRequestProccess"), e);

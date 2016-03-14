@@ -283,5 +283,12 @@ public interface IdentitiesManagement
 	 * @throws EngineException
 	 */
 	void mergeEntities(EntityParam target, EntityParam merged, boolean safeMode) throws EngineException;
+
+	/**
+	 * @param entity
+	 * @return displayed name of the entity or null if undefined
+	 * @throws EngineException
+	 */
+	String getEntityLabel(EntityParam entity) throws EngineException;
 }
 
