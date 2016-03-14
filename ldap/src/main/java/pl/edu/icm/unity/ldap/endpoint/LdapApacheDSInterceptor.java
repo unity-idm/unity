@@ -96,6 +96,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 		this.lsf_ = lsf;
 	}
 
+	@Override
 	public void init(DirectoryService directoryService) throws LdapException
 	{
 		super.init(directoryService);
@@ -105,6 +106,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 	// supported operations
 	//
 
+	@Override
 	public Entry lookup(LookupOperationContext lookupContext) throws LdapException
 	{
 		boolean isMainBindUser = lookupContext.getDn().toString()
@@ -156,6 +158,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 		return next(lookupContext);
 	}
 
+	@Override
 	public EntryFilteringCursor search(SearchOperationContext searchContext)
 			throws LdapException
 	{
@@ -177,6 +180,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 		return ec;
 	}
 
+	@Override
 	public void bind(BindOperationContext bindContext) throws LdapException
 	{
 		// this is the main binding account local to ldap
@@ -219,6 +223,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 	 * Find user, get his groups and return true if he is the member of
 	 * desired group.
 	 */
+	@Override
 	public boolean compare(CompareOperationContext compareContext) throws LdapException
 	{
 		String group_member = configuration.getValue("group_member");
@@ -267,44 +272,52 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 	// not supported
 	//
 
+	@Override
 	public void rename(RenameOperationContext renameContext) throws LdapException
 	{
 		notSupported();
 	}
 
+	@Override
 	public void moveAndRename(MoveAndRenameOperationContext moveAndRenameContext)
 			throws LdapException
 	{
 		notSupported();
 	}
 
+	@Override
 	public void move(MoveOperationContext moveContext) throws LdapException
 	{
 		notSupported();
 	}
 
+	@Override
 	public void modify(ModifyOperationContext modifyContext) throws LdapException
 	{
 		notSupported();
 	}
 
+	@Override
 	public boolean hasEntry(HasEntryOperationContext hasEntryContext) throws LdapException
 	{
 		notSupported();
 		return false;
 	}
 
+	@Override
 	public Entry getRootDse(GetRootDseOperationContext getRootDseContext) throws LdapException
 	{
 		notSupported();
 		return null;
 	}
 
+	@Override
 	public void delete(DeleteOperationContext deleteContext) throws LdapException
 	{
 		notSupported();
 	}
 
+	@Override
 	public void add(AddOperationContext addContext) throws LdapException
 	{
 		notSupported();
