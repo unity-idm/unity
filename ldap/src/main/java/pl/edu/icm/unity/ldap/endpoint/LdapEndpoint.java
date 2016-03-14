@@ -104,12 +104,12 @@ public class LdapEndpoint extends AbstractWebEndpoint
 		LdapApacheDSInterceptor ladi = new LdapApacheDSInterceptor(rpr, sessionMan,
 				this.description.getRealm(), attributesMan, identitiesMan,
 				configuration);
-		LdapServerFacade ldf = new LdapServerFacade(host, port, ladi,
+		LdapServerFacade ldf = new LdapServerFacade(host, port, 
 				"ldap server interface", workDirectory);
 		ladi.setLdapServerFacade(ldf);
 		try
 		{
-			ldf.init(false);
+			ldf.init(false, ladi);
 			ldf.changeAdminPasswordBeforeStart(configuration.getValue("bind_password"));
 			ldf.start();
 

@@ -57,16 +57,12 @@ public class LdapServerFacade
 
 	private String workdir_;
 
-	private BaseInterceptor interceptor_;
-
-	public LdapServerFacade(String host, int port, BaseInterceptor interceptor,
-			String nameOrNull, String workdir)
+	public LdapServerFacade(String host, int port, String nameOrNull, String workdir)
 	{
 		this.host_ = host;
 		this.port_ = port;
 		this.name_ = nameOrNull;
 		this.workdir_ = workdir;
-		this.interceptor_ = interceptor;
 
 		this.impl_ = null;
 		this.ds_ = null;
@@ -85,7 +81,7 @@ public class LdapServerFacade
 		return da;
 	}
 
-	public void init(boolean deleteWorkDir) throws Exception
+	public void init(boolean deleteWorkDir, BaseInterceptor interceptor) throws Exception
 	{
 		impl_ = new LdapServer();
 		impl_.setServiceName(name_);
@@ -101,7 +97,7 @@ public class LdapServerFacade
 		loadSettings();
 
 		//
-		setUnityInterceptor(interceptor_);
+		setUnityInterceptor(interceptor);
 
 		//
 		impl_.setDirectoryService(ds_);
