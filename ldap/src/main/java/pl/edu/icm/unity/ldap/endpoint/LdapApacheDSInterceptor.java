@@ -430,7 +430,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 	/*
 	 * Is the LDAP query a user search?
 	 */
-	static public boolean isUserSearch(ExprNode node)
+	private static boolean isUserSearch(ExprNode node)
 	{
 		if (node instanceof BranchNode)
 		{
@@ -451,7 +451,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 				{
 					return sns.getValue().toString().equals("inetorgperson");
 				}
-				// this is clearly wrong
+				//FIXME this is clearly wrong
 				if (sns.getAttribute().equals("mail"))
 				{
 					return true;
@@ -467,7 +467,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 	/*
 	 * Get user name from LDAP query
 	 */
-	static public String getUserName(ExprNode node, String[] attributes)
+	private static String getUserName(ExprNode node, String[] attributes)
 	{
 		for (int i = 0; i < attributes.length; ++i)
 		{
@@ -480,7 +480,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 		return null;
 	}
 
-	static public String getUserName(ExprNode node, String attribute)
+	private static String getUserName(ExprNode node, String attribute)
 	{
 
 		if (node instanceof BranchNode)
@@ -514,7 +514,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 	/**
 	 * Get Unity user from LDAP search context.
 	 */
-	public EntryFilteringCursor getUser(SearchOperationContext searchContext, String username)
+	private EntryFilteringCursor getUser(SearchOperationContext searchContext, String username)
 			throws LdapException
 	{
 		// String username = getUserName(searchContext.getFilter(),
