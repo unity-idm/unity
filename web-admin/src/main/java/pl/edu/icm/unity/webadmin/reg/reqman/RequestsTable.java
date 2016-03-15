@@ -31,8 +31,8 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.SmallTable;
 import pl.edu.icm.unity.webui.common.Toolbar;
-import pl.edu.icm.unity.webui.registration.EnquiryResponseChangedEvent;
-import pl.edu.icm.unity.webui.registration.RegistrationRequestChangedEvent;
+import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
 
 import com.google.common.collect.Lists;
 import com.vaadin.data.Property.ValueChangeEvent;

@@ -42,7 +42,7 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.registration.RegistrationFormChangedEvent;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationFormChangedEvent;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;

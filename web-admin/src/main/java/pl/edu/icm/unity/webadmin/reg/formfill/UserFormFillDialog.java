@@ -9,7 +9,7 @@ import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.registration.BaseRequestEditor;
+import pl.edu.icm.unity.webui.forms.BaseRequestEditor;
 
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;

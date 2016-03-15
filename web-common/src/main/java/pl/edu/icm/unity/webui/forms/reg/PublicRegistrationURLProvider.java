@@ -2,7 +2,7 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.registration;
+package pl.edu.icm.unity.webui.forms.reg;
 
 import static pl.edu.icm.unity.server.api.registration.PublicRegistrationURLSupport.REGISTRATION_FRAGMENT_PREFIX;
 

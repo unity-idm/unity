@@ -118,7 +118,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			Map<String, String> params = new HashMap<>();
 			params.put(NewEnquiryTemplateDef.FORM_NAME, form.getDisplayedName().getDefaultValue());
 			params.put(NewEnquiryTemplateDef.URL, 
-					PublicRegistrationURLSupport.getPublicEnquiryLink(enquiryId, sharedEndpointMan));
+					PublicRegistrationURLSupport.getWellknownEnquiryLink(enquiryId, sharedEndpointMan));
 			
 			for (String group: form.getTargetGroups())
 				notificationProducer.sendNotificationToGroup(

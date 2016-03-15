@@ -2,7 +2,7 @@
  * Copyright (c) 2015, Jirav All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.registration;
+package pl.edu.icm.unity.webui.forms.reg;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;

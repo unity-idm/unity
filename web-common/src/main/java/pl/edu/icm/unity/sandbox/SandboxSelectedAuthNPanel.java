@@ -14,7 +14,7 @@ import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.authn.SelectedAuthNPanel;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
-import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
+import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncher;
 
 /**
  * Extension of {@link AuthenticatorSetComponent}. Merely disables final authentication in the system after user's 

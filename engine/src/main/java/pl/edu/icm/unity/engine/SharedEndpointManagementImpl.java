@@ -55,6 +55,12 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 	}
 
 	@Override
+	public String getServerAddress()
+	{
+		return advertisedAddress.toExternalForm();
+	}
+	
+	@Override
 	public void deployInternalEndpointServlet(String contextPath, ServletHolder servlet, boolean mapVaadinResource)
 			throws EngineException
 	{

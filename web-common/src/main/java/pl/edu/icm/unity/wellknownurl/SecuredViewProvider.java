@@ -9,13 +9,14 @@ import java.util.Properties;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 
 import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewProvider;
 
 /**
  * Implementations provide {@link View}s for registration in {@link SecuredNavigationUI}.
  * 
  * @author K. Benedyczak
  */
-public interface SecuredViewProvider extends PublicViewProvider
+public interface SecuredViewProvider extends ViewProvider
 {
 	/**
 	 * Provides well-known URL endpoint configuration to the view provider.

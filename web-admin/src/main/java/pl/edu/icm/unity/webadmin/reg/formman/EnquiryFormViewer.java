@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import pl.edu.icm.unity.server.api.MessageTemplateManagement;
+import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
+import pl.edu.icm.unity.server.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -34,18 +36,21 @@ public class EnquiryFormViewer extends BaseFormViewer
 	
 	private Label type;
 	private Label targetGroups;
+	private Label publicLink;
 	
 	private EnquiryFormNotificationsViewer notViewer;
 	private RegistrationTranslationProfileViewer translationProfile;
 	private RegistrationActionsRegistry registrationActionsRegistry;
+	private SharedEndpointManagement sharedEndpointMan;
 	
 	public EnquiryFormViewer(UnityMessageSource msg, RegistrationActionsRegistry registrationActionsRegistry,
-			MessageTemplateManagement msgTempMan)
+			MessageTemplateManagement msgTempMan, SharedEndpointManagement sharedEndpointMan)
 	{
 		super(msg);
 		this.msg = msg;
 		this.registrationActionsRegistry = registrationActionsRegistry;
 		this.msgTempMan = msgTempMan;
+		this.sharedEndpointMan = sharedEndpointMan;
 		initUI();
 	}
 	
@@ -63,6 +68,7 @@ public class EnquiryFormViewer extends BaseFormViewer
 		type.setValue(msg.getMessage("EnquiryType." + form.getType().name()));
 		targetGroups.setValue(Arrays.stream(form.getTargetGroups()).
 				collect(Collectors.joining(", ")));
+		publicLink.setValue(PublicRegistrationURLSupport.getWellknownEnquiryLink(form.getName(), sharedEndpointMan));
 		
 		EnquiryFormNotifications notCfg = form.getNotificationsConfiguration();
 		if (notCfg != null)
@@ -125,8 +131,11 @@ public class EnquiryFormViewer extends BaseFormViewer
 		targetGroups = new Label();
 		targetGroups.setCaption(msg.getMessage("EnquiryFormViewer.targetGroups"));
 		
+		publicLink = new Label();
+		publicLink.setCaption(msg.getMessage("RegistrationFormViewer.publicLink"));
+		
 		notViewer = new EnquiryFormNotificationsViewer(msg, msgTempMan);
-		main.addComponents(name, description, type, targetGroups);
+		main.addComponents(name, description, type, targetGroups, publicLink);
 		notViewer.addToLayout(main);
 	}
 }

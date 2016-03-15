@@ -31,7 +31,7 @@ import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
-import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
+import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncher;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.VaadinRequest;

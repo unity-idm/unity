@@ -50,4 +50,9 @@ public interface SharedEndpointManagement
 	 */
 	void deployInternalEndpointFilter(String contextPath, FilterHolder filter)
 			throws EngineException;
+
+	/**
+	 * @return advertised address of the server
+	 */
+	String getServerAddress();
 }

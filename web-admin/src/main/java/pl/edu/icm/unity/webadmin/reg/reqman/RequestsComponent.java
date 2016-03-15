@@ -22,8 +22,8 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.registration.EnquiryResponseChangedEvent;
-import pl.edu.icm.unity.webui.registration.RegistrationRequestChangedEvent;
+import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
 
 import com.vaadin.ui.CustomComponent;
 

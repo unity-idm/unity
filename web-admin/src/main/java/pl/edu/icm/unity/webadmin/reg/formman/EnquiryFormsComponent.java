@@ -42,8 +42,8 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.registration.EnquiryFormChangedEvent;
-import pl.edu.icm.unity.webui.registration.RegistrationFormChangedEvent;
+import pl.edu.icm.unity.webui.forms.enquiry.EnquiryFormChangedEvent;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationFormChangedEvent;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -112,7 +112,7 @@ public class EnquiryFormsComponent extends VerticalLayout
 				});
 		table.setSizeFull();
 		table.setMultiSelect(true);
-		viewer = new EnquiryFormViewer(msg, actionsRegistry, msgTempMan);
+		viewer = new EnquiryFormViewer(msg, actionsRegistry, msgTempMan, sharedEndpointMan);
 		viewer.setInput(null);
 		table.addValueChangeListener(new ValueChangeListener()
 		{

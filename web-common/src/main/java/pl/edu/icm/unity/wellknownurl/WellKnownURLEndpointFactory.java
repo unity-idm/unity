@@ -14,6 +14,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
+import pl.edu.icm.unity.server.api.internal.SecuredWellKnownURLServlet;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -25,7 +26,6 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 public class WellKnownURLEndpointFactory implements EndpointFactory
 {
 	public static final String NAME = "WellKnownLinksHandler";
-	public static final String SERVLET_PATH = "/sec";
 
 	private EndpointTypeDescription description;
 	private ApplicationContext applicationContext;
@@ -43,7 +43,7 @@ public class WellKnownURLEndpointFactory implements EndpointFactory
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(VaadinAuthentication.NAME);
 		Map<String,String> paths=new HashMap<String, String>();
-		paths.put(SERVLET_PATH, "Well known links endpoint");
+		paths.put(SecuredWellKnownURLServlet.SERVLET_PATH, "Well known links endpoint");
 		description = new EndpointTypeDescription(NAME, 
 				"Provides access to public links which can be used to access parts of "
 				+ "Unity UIs directly", supportedAuthn, paths);
@@ -59,7 +59,7 @@ public class WellKnownURLEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new VaadinEndpoint(server, msg, applicationContext, 
-				SecuredNavigationUI.class.getSimpleName(), SERVLET_PATH);
+				SecuredNavigationUI.class.getSimpleName(), SecuredWellKnownURLServlet.SERVLET_PATH);
 	}
 
 }

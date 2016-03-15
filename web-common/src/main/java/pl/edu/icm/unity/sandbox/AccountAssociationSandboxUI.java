@@ -21,8 +21,8 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
-import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
-import pl.edu.icm.unity.webui.registration.RegistrationFormsChooserComponent;
+import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncher;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationFormsChooserComponent;
 
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;

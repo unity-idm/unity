@@ -29,13 +29,13 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
-import pl.edu.icm.unity.webui.registration.PostFormFillingHandler;
-import pl.edu.icm.unity.webui.registration.RegistrationFormDialogProvider;
-import pl.edu.icm.unity.webui.registration.RegistrationRequestChangedEvent;
-import pl.edu.icm.unity.webui.registration.RegistrationRequestEditor;
-import pl.edu.icm.unity.webui.registration.RegistrationRequestEditorDialog;
-import pl.edu.icm.unity.webui.registration.RequestEditorCreator;
-import pl.edu.icm.unity.webui.registration.RequestEditorCreator.RequestEditorCreatedCallback;
+import pl.edu.icm.unity.webui.forms.PostFormFillingHandler;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestEditor;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestEditorDialog;
+import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator;
+import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreatedCallback;
 
 
 

@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.registration;
+package pl.edu.icm.unity.webui.forms;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -658,9 +658,13 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		return str == null || str.equals("");
 	}
 	
-	static class FormErrorStatus
+	protected static class FormErrorStatus
 	{
-		boolean hasFormException = false;
+		public FormErrorStatus()
+		{
+		}
+
+		public boolean hasFormException = false;
 	}
 	
 	static class StringListOfElements extends ListOfElements<String>

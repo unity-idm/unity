@@ -17,7 +17,7 @@ import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.webui.association.atlogin.ConnectIdAtLoginWizardProvider;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
+import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncher;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;

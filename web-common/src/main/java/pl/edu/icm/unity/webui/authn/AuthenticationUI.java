@@ -40,9 +40,9 @@ import pl.edu.icm.unity.webui.authn.SelectedAuthNPanel.AuthenticationListener;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher;
-import pl.edu.icm.unity.webui.registration.RegistrationFormChooserDialog;
-import pl.edu.icm.unity.webui.registration.RegistrationFormsChooserComponent;
+import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncher;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationFormChooserDialog;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationFormsChooserComponent;
 
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;

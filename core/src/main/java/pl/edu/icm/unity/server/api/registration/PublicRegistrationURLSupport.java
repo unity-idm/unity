@@ -9,6 +9,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 import pl.edu.icm.unity.server.api.internal.PublicWellKnownURLServlet;
+import pl.edu.icm.unity.server.api.internal.SecuredWellKnownURLServlet;
 import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
 
 /**
@@ -41,9 +42,11 @@ public class PublicRegistrationURLSupport
 	 * @param sharedEndpointMan
 	 * @return a link to a standalone UI of an enquiry form
 	 */
-	public static String getPublicEnquiryLink(String formName, SharedEndpointManagement sharedEndpointMan)
+	public static String getWellknownEnquiryLink(String formName, SharedEndpointManagement sharedEndpointMan)
 	{
-		return sharedEndpointMan.getServletUrl(PublicWellKnownURLServlet.SERVLET_PATH) + 
+		return sharedEndpointMan.getServerAddress() + 
+				SecuredWellKnownURLServlet.DEFAULT_CONTEXT + 
+				SecuredWellKnownURLServlet.SERVLET_PATH + 
 				"#!" + ENQUIRY_FRAGMENT_PREFIX + urlEncodePath(formName);
 	}
 

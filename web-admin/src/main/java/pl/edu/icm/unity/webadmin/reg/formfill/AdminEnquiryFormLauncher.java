@@ -29,10 +29,10 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
-import pl.edu.icm.unity.webui.registration.EnquiryResponseChangedEvent;
-import pl.edu.icm.unity.webui.registration.EnquiryResponseEditor;
-import pl.edu.icm.unity.webui.registration.PostFormFillingHandler;
-import pl.edu.icm.unity.webui.registration.RegistrationRequestChangedEvent;
+import pl.edu.icm.unity.webui.forms.PostFormFillingHandler;
+import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
+import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditor;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
 
 
 

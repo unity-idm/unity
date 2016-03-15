@@ -49,11 +49,14 @@
 	<bean scope="prototype" id="AuthenticationUI" class="pl.edu.icm.unity.webui.authn.AuthenticationUI"/>
 	<bean scope="prototype" class="pl.edu.icm.unity.webui.authn.LocaleChoiceComponent"/>
 	
-	<bean scope="prototype" class="pl.edu.icm.unity.webui.registration.RegistrationFormsChooserComponent"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webui.registration.InsecureRegistrationFormLauncher">
+	<bean scope="prototype" class="pl.edu.icm.unity.webui.forms.reg.RegistrationFormsChooserComponent"/>
+	<bean scope="prototype" class="pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncher">
 			<qualifier value="insecure"/>
 	</bean>
-	<bean class="pl.edu.icm.unity.webui.registration.PublicRegistrationURLProvider"/>
+	<bean class="pl.edu.icm.unity.webui.forms.reg.PublicRegistrationURLProvider"/>
+
+	<bean class="pl.edu.icm.unity.webui.forms.enquiry.EnquiryWellKnownURLViewProvider"/>
+	<bean class="pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditorController"/>
 	
 	<bean scope="prototype" id="PublicNavigationUI" class="pl.edu.icm.unity.wellknownurl.PublicNavigationUI"/>
 	<bean scope="prototype" id="SecuredNavigationUI" class="pl.edu.icm.unity.wellknownurl.SecuredNavigationUI"/>
