@@ -62,6 +62,13 @@ public class InvitationEditDialog extends AbstractDialog
 		try
 		{
 			InvitationParam invitation = editor.getInvitation();
+			if (send && (invitation.getContactAddress() == null || 
+					invitation.getContactAddress().isEmpty()))
+				throw new FormValidationException(msg.getMessage("InvitationEditDialog.addressMandatoryToSend"));
+			if (send && (invitation.getChannelId() == null || 
+					invitation.getChannelId().isEmpty()))
+				throw new FormValidationException(msg.getMessage("InvitationEditDialog.channelMandatoryToSend"));
+			
 			if (callback.onInvitation(invitation, send))
 				close();
 		} catch (FormValidationException e) 

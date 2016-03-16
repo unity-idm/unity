@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.stereotype.Component;
 
@@ -24,10 +25,12 @@ import pl.edu.icm.unity.server.authn.InvocationContext;
  * @author K. Benedyczak
  */
 @Component
-public class UnityMessageSource extends ResourceBundleMessageSource implements MessageSource
+public class UnityMessageSource extends ReloadableResourceBundleMessageSource implements MessageSource
 {
+	private static final String DEFAULT_PACKAGE = "pl/edu/icm/unity/"; 
 	private UnityServerConfiguration config;
-
+	
+	
 	@Autowired
 	public UnityMessageSource(UnityServerConfiguration config,
 			List<UnityMessageBundles> bundles)
@@ -35,12 +38,30 @@ public class UnityMessageSource extends ResourceBundleMessageSource implements M
 		super();
 		this.config = config;
 		List<String> allBundles = new ArrayList<String>();
+		String fsLocation = getFSMessagesDirectory();
 		for (UnityMessageBundles bundle: bundles)
-			allBundles.addAll(bundle.getBundles());
+			bundle.getBundles().forEach(src -> {
+				allBundles.add("file:" + fsLocation + shortenPath(src));
+				allBundles.add("classpath:" + src);
+			});
+		
 		setBasenames(allBundles.toArray(new String[allBundles.size()]));
 		setFallbackToSystemLocale(false);
 		setDefaultEncoding("UTF-8");
 		setAlwaysUseMessageFormat(true);
+	}
+	
+	private String shortenPath(String fullPath)
+	{
+		return fullPath.startsWith(DEFAULT_PACKAGE) ? 
+				fullPath.substring(DEFAULT_PACKAGE.length()) : 
+				fullPath;
+	}
+	
+	private String getFSMessagesDirectory()
+	{
+		String fsMessages = config.getValue(UnityServerConfiguration.MESSAGES_DIRECTORY);
+		return fsMessages.endsWith("/") ? fsMessages : fsMessages + "/";
 	}
 	
 	@Override

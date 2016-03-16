@@ -12,24 +12,28 @@ import java.util.Date;
  */
 public class EntityInformation
 {
-	private EntityState state;
+	private EntityState entityState;
 	private Date scheduledOperationTime;
 	private EntityScheduledOperation scheduledOperation;
 	private Date removalByUserTime;
 	
 	public EntityInformation(EntityState state)
 	{
-		this.state = state;
+		this.entityState = state;
 	}
 
+	public EntityInformation()
+	{
+	}
+	
 	public EntityState getState()
 	{
-		return state;
+		return entityState;
 	}
 
 	public void setState(EntityState state)
 	{
-		this.state = state;
+		this.entityState = state;
 	}
 
 	public Date getScheduledOperationTime()

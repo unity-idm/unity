@@ -125,6 +125,8 @@ public class StandalonePublicFormView extends CustomComponent implements View
 		main.setComponentAlignment(localeChoice, Alignment.TOP_RIGHT);
 
 		main.addComponent(editor);
+		editor.setWidthUndefined();
+		main.setComponentAlignment(editor, Alignment.MIDDLE_CENTER);
 
 		HorizontalLayout buttons = new HorizontalLayout();
 		

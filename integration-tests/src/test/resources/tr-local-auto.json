@@ -1,0 +1,21 @@
+{
+	"ver": "2",
+	"name": "localProfile-auto",
+	"description": "auto creates remote id",
+	"rules": [
+		{
+			"condition": {
+				"conditionValue": "true"
+			}, 
+			"action": {
+				"name": "mapIdentity",
+				"parameters": [
+					"identifier",
+					"id",
+					"Password requirement",
+					"CREATE_OR_MATCH"
+				]
+			}			
+		}
+	]
+}

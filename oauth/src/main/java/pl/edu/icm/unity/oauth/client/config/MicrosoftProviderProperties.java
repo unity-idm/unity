@@ -31,6 +31,7 @@ public class MicrosoftProviderProperties extends CustomProviderProperties
 		properties.setProperty(prefix + ACCESS_TOKEN_ENDPOINT, "https://login.live.com/oauth20_token.srf");
 		properties.setProperty(prefix + PROFILE_ENDPOINT, "https://apis.live.net/v5.0/me");
 		properties.setProperty(prefix + SCOPES, "wl.basic");
+		properties.setProperty(prefix + ICON_URL, "file:../common/img/external/ms-small.png");
 		return properties;
 	}
 

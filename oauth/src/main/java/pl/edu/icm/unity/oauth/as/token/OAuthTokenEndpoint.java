@@ -44,6 +44,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	private OAuthEndpointsCoordinator coordinator;
 	private TransactionalRunner tx;
 	private IdPEngine idPEngine;
+
 	/**
 	 *  WARNING - this is an insecure instance!
 	 */
@@ -99,7 +100,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 			ret.add(new KeysResource(config));
 			ret.add(new TokenInfoResource(tokensManagement));
 			ret.add(new UserInfoResource(tokensManagement));
-			ret.add(new RevocationResource(tokensManagement));
+			ret.add(new RevocationResource(tokensManagement, sessionMan, getEndpointDescription().getRealm()));
 			installExceptionHandlers(ret);
 			return ret;
 		}

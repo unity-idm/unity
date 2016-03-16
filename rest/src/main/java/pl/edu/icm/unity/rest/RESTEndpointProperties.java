@@ -19,7 +19,8 @@ import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 
 /**
- * Generic settings for all CXF JAX-RS endpoints. Placeholder - currently no configuration.
+ * Generic settings for all CXF JAX-RS endpoints.
+ * 
  * @author K. Benedyczak
  */
 public class RESTEndpointProperties extends PropertiesHelper
@@ -32,6 +33,7 @@ public class RESTEndpointProperties extends PropertiesHelper
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
 	
 	public static final String ENABLED_CORS_ORIGINS = "allowedCorsOrigins.";
+	public static final String ENABLED_CORS_HEADERS = "allowedCorsHeaders.";
 	
 	static
 	{
@@ -39,6 +41,8 @@ public class RESTEndpointProperties extends PropertiesHelper
 				"List of origins allowed for the CORS requests. "
 				+ "The complete set of HTTP methods is enabled for the enumerated resources. "
 				+ "If the list is undefined then CORS support is turned off."));
+		META.put(ENABLED_CORS_HEADERS, new PropertyMD().setList(false).setDescription(
+				"List of headers allowed for the CORS requests. If undefined then all are enabled by defult."));
 	}
 	
 	public RESTEndpointProperties(Properties properties)

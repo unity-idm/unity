@@ -311,6 +311,9 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				sql, "updated registration request");
 		baseValidator.checkTemplate(notCfg.getInvitationTemplate(), InvitationTemplateDef.NAME,
 				sql, "invitation");
+		if (form.getCaptchaLength() > RegistrationForm.MAX_CAPTCHA_LENGTH)
+			throw new WrongArgumentException("Captcha can not be longer then " + 
+					RegistrationForm.MAX_CAPTCHA_LENGTH + " characters");
 	}
 	
 	@Override

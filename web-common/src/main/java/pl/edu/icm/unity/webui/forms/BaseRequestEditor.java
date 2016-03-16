@@ -120,6 +120,13 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		checkRemotelyObtainedData();
 	}
 	
+	@Override
+	public void setWidthUndefined()
+	{
+		super.setWidthUndefined();
+		getCompositionRoot().setWidthUndefined();
+	}
+	
 	public abstract T getRequest() throws FormValidationException;
 	
 	private void checkRemotelyObtainedData() throws AuthenticationException

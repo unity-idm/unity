@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.oauth.as.token;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -14,8 +17,12 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.basic.EntityParam;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.ErrorObject;
@@ -37,6 +44,11 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
    
    token=45ghiukldjahdnhzdauz&user_id=oauth-client
  * </code>
+ * <p>
+ * Unity also supports one non standard extension. If a logout=true parameter is added, then 
+ * besides token revocation also the token's owner's session is killed. To allow for this,
+ * a special OAuth scope must be associated with the token: 'single-logout'.
+ * 
  * 
  * @author K. Benedyczak
  */
@@ -49,18 +61,25 @@ public class RevocationResource extends BaseOAuthResource
 	public static final String UNSUPPORTED_TOKEN_TYPE_ERROR = "unsupported_token_type";
 	public static final String TOKEN = "token";
 	public static final String CLIENT = "client_id";
+	public static final String LOGOUT = "logout";
+	public static final String LOGOUT_SCOPE = "single-logout";
 	
 	private TokensManagement tokensManagement;
+	private SessionManagement sessionManagement;
+	private AuthenticationRealm realm;
 	
-	public RevocationResource(TokensManagement tokensManagement)
+	public RevocationResource(TokensManagement tokensManagement, SessionManagement sessionManagement, 
+			AuthenticationRealm realm)
 	{
 		this.tokensManagement = tokensManagement;
+		this.sessionManagement = sessionManagement;
+		this.realm = realm;
 	}
 
 	@Path("/")
 	@POST
 	public Response revoke(@FormParam(TOKEN) String token, @FormParam(CLIENT) String clientId, 
-			@FormParam(TOKEN_TYPE) String tokenHint) 
+			@FormParam(TOKEN_TYPE) String tokenHint, @FormParam(LOGOUT) String logout) 
 			throws EngineException, JsonProcessingException
 	{
 		if (token == null)
@@ -89,7 +108,14 @@ public class RevocationResource extends BaseOAuthResource
 		
 		if (!clientId.equals(parsedAccessToken.getClientUsername()))
 			return makeError(OAuth2Error.INVALID_CLIENT, "Wrong client/token");
-				
+		
+		if ("true".equals(logout))
+		{
+			Response r = killSession(parsedAccessToken, internalAccessToken.getOwner());
+			if (r != null)
+				return r;
+		}
+		
 		try
 		{
 			tokensManagement.removeToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN, token);
@@ -98,5 +124,26 @@ public class RevocationResource extends BaseOAuthResource
 			//ok
 		}
 		return toResponse(Response.ok());
+	}
+	
+	private Response killSession(OAuthToken parsedAccessToken, long entity) throws EngineException
+	{
+		if (parsedAccessToken.getScope() == null)
+			return makeError(OAuth2Error.INVALID_SCOPE, "Insufficent scope to perform full logout.");
+		Optional<String> logoutScope = Arrays.stream(parsedAccessToken.getScope()).
+				filter(scope -> LOGOUT_SCOPE.equals(scope)).
+				findAny();
+		if (!logoutScope.isPresent())
+			return makeError(OAuth2Error.INVALID_SCOPE, "Insufficent scope to perform full logout.");
+		try
+		{
+			LoginSession ownedSession = sessionManagement.getOwnedSession(
+					new EntityParam(entity), realm.getName());
+			sessionManagement.removeSession(ownedSession.getId(), true);
+		} catch (WrongArgumentException e)
+		{
+			//ok - no session
+		}
+		return null;
 	}
 }

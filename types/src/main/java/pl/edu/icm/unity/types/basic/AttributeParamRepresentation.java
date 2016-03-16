@@ -18,6 +18,10 @@ public class AttributeParamRepresentation
 	private String groupPath;
 	private AttributeVisibility visibility = AttributeVisibility.full;
 	
+	/**
+	 * When constructing from a full API attribute
+	 * @param orig
+	 */
 	@SuppressWarnings("unchecked")
 	public AttributeParamRepresentation(Attribute<?> orig)
 	{
@@ -34,8 +38,22 @@ public class AttributeParamRepresentation
 		this.visibility = orig.getVisibility();
 	}
 	
+	/**
+	 * Mostly used by JSON deserialization
+	 */
 	public AttributeParamRepresentation()
 	{
+	}
+
+	/**
+	 * For manual construction of the object from scratch
+	 */
+	public AttributeParamRepresentation(String name, String group, List<?> values)
+	{
+		this.name = name;
+		this.groupPath = group;
+		this.values = new ArrayList<>(values.size());
+		this.values.addAll(values);
 	}
 	
 	public <T> Attribute<T> toAPIAttribute(AttributeValueSyntax<T> syntax)
@@ -66,9 +84,10 @@ public class AttributeParamRepresentation
 		return visibility;
 	}
 
-	public void setValues(List<Object> values)
+	public void setValues(List<?> values)
 	{
-		this.values = values;
+		this.values = new ArrayList<>(values.size());
+		this.values.addAll(values);
 	}
 
 	public void setName(String name)

@@ -4,19 +4,24 @@
  */
 package pl.edu.icm.unity.restadm;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.List;
 
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import pl.edu.icm.unity.rest.TestRESTBase;
@@ -30,20 +35,23 @@ import pl.edu.icm.unity.stdext.attr.JpegImageAttribute;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
-import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.basic.AttributeRepresentation;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.VerifiableEmail;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -57,14 +65,18 @@ public class TestQuery extends TestRESTBase
 		m.enable(SerializationFeature.INDENT_OUTPUT);
 	}
 	
-	@Test
-	public void resolveOfEmailWithTagsReturnsEntity() throws Exception
+	@Before
+	public void init() throws Exception
 	{
-
 		setupPasswordAuthn();
 		createUsernameUser("System Manager");
 		super.deployEndpoint(RESTAdminEndpointFactory.NAME, 
 				"restAdmin", "/restadm");
+	}
+	
+	@Test
+	public void resolveOfEmailWithTagsReturnsEntity() throws Exception
+	{
 		idsMan.addEntity(new IdentityParam(EmailIdentity.ID, "a+zzz@ex.com"), "cr-pass", 
 				EntityState.valid, false);
 		
@@ -82,11 +94,6 @@ public class TestQuery extends TestRESTBase
 	@Test
 	public void testQuery() throws Exception
 	{
-
-		setupPasswordAuthn();
-		createUsernameUser("System Manager");
-		super.deployEndpoint(RESTAdminEndpointFactory.NAME, 
-				"restAdmin", "/restadm");
 		long e = createTestContents();
 		
 		HttpClient client = getClient();
@@ -105,12 +112,6 @@ public class TestQuery extends TestRESTBase
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
 		System.out.println("User's groups:\n" + contents);
 		
-		HttpGet getEntity = new HttpGet("/restadm/v1/entity/"+e);
-		response = client.execute(host, getEntity, localcontext);
-		contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
-		System.out.println("User's info:\n" + formatJson(contents));
-		
 		HttpGet getGroupContents = new HttpGet("/restadm/v1/group/example%2Fsub");
 		response = client.execute(host, getGroupContents, localcontext);
 		contents = EntityUtils.toString(response.getEntity());
@@ -122,8 +123,48 @@ public class TestQuery extends TestRESTBase
 		contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
 		System.out.println("Attributes in /example:\n" + formatJson(contents));
-		
 	}
+	
+	@Test
+	public void fullEntityIsReturned() throws Exception
+	{
+		long e = createTestContents();
+		
+		HttpGet getEntity = new HttpGet("/restadm/v1/entity/"+e);
+		HttpResponse response = executeQuery(getEntity);
+		
+		String contents = EntityUtils.toString(response.getEntity());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		System.out.println("User's info:\n" + formatJson(contents));
+		Entity parsed = m.readValue(contents, Entity.class);
+		assertThat(parsed.getId(), is(e));
+	}
+	
+	@Test
+	public void localAttributesAreReturned() throws Exception
+	{
+		long e = createTestContents();
+		
+		HttpGet getAttributes = new HttpGet("/restadm/v1/entity/" + e + "/attributes");
+		HttpResponse response = executeQuery(getAttributes);
+		
+		String contents = EntityUtils.toString(response.getEntity());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		List<AttributeRepresentation> parsed = m.readValue(contents, 
+				new TypeReference<List<AttributeRepresentation>>(){});
+		assertThat(parsed.size(), is(1));
+		assertThat(parsed.get(0).getVisibility(), is(AttributeVisibility.local));
+		System.out.println("Attributes in /:\n" + formatJson(contents));
+	}
+	
+	private HttpResponse executeQuery(HttpRequest request) throws Exception
+	{
+		HttpClient client = getClient();
+		HttpHost host = new HttpHost("localhost", 53456, "https");
+		HttpContext localcontext = getClientContext(client, host);
+		return client.execute(host, request, localcontext);
+	}
+	
 	
 	protected long createTestContents() throws Exception
 	{

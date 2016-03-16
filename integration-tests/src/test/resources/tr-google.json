@@ -1,0 +1,33 @@
+{
+	"ver": "2",
+	"name": "googleProfile",
+	"description": "For translation of google authn",
+	"rules": [
+		{
+			"condition": {
+				"conditionValue": "true"
+			}, 
+			"action": {
+				"name": "mapIdentity",
+				"parameters": [
+					"identifier",
+					"attr['sub']",
+					"Password requirement",
+					"CREATE_OR_MATCH"
+				]
+			}
+		},
+			
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapGroup",
+				"parameters": [
+					"'/A'"
+				]
+			}
+		}
+	]
+}

@@ -10,8 +10,8 @@ import static org.junit.Assert.assertThat;
 import org.junit.Assert;
 import org.junit.Test;
 
-import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
 import pl.edu.icm.unity.stdext.utils.EmailUtils;
+import pl.edu.icm.unity.types.basic.VerifiableEmail;
 
 public class TestEmailUtils
 {

@@ -56,8 +56,11 @@ public class ActionEditor extends LayoutEmbeddable
 	private void initUI(TranslationAction toEdit)
 	{
 		actions = new RequiredComboBox(msg.getMessage("ActionEditor.ruleAction"), msg);
-		for (TranslationActionFactory a : tc.getAll())
-			actions.addItem(a.getActionType().getName());
+		tc.getAll().stream().
+			map(af -> af.getActionType().getName()).
+			sorted().
+			forEach(actionName -> actions.addItem(actionName));
+		
 		actions.setNullSelectionAllowed(false);
 		actions.addValueChangeListener(new ValueChangeListener()
 		{
@@ -69,7 +72,7 @@ public class ActionEditor extends LayoutEmbeddable
 
 			}
 		});
-
+		
 		actionParams = new Label();
 		actionParams.setCaption(msg.getMessage("ActionEditor.actionParameters"));
 

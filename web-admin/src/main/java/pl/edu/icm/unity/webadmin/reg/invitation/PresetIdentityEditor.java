@@ -59,7 +59,7 @@ public class PresetIdentityEditor extends PresetEditorBase<IdentityParam>
 		selectedParam = formParameters.get(position);
 		editor = identityEditorRegistry.getEditor(selectedParam.getIdentityType());
 		container.removeAllComponents();
-		container.addComponents(editor.getEditor(true, false).getComponents());
+		container.addComponents(editor.getEditor(true, true).getComponents());
 	}
 
 	@Override

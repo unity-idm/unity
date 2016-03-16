@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.attributes.AttributeValueSyntaxFactory;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
+import pl.edu.icm.unity.types.basic.VerifiableEmail;
 
 @Component
 public class VerifiableEmailAttributeSyntaxFactory implements AttributeValueSyntaxFactory<VerifiableEmail>

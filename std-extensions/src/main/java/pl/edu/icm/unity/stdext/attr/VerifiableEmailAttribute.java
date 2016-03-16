@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.VerifiableEmail;
 
 /**
  * Helper class allowing to create verifiable email attributes easily.

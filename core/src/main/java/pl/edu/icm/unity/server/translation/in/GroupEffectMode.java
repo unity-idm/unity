@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.server.translation.in;
 
-import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
- * Defines how a mapped {@link IdentityParam} should be handled. 
+ * Defines how a mapped group should be handled. 
  * @author K. Benedyczak
  */
 public enum GroupEffectMode

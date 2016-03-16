@@ -53,6 +53,7 @@ import pl.edu.icm.unity.types.basic.AttributeRepresentation;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupContentsRepresentation;
 import pl.edu.icm.unity.types.basic.GroupMembership;
@@ -228,13 +229,16 @@ public class RESTAdmin
 	@Path("/entity/{entityId}/attributes")
 	@GET
 	public String getAttributes(@PathParam("entityId") long entityId,
-			@QueryParam("group") String group) throws EngineException, JsonProcessingException
+			@QueryParam("group") String group, @QueryParam("effective") Boolean effective) 
+					throws EngineException, JsonProcessingException
 	{
 		if (group == null)
 			group = "/";
+		if (effective == null)
+			effective = true;
 		log.debug("getAttributes query for " + entityId + " in " + group);
-		Collection<AttributeExt<?>> attributes = attributesMan.getAttributes(
-				new EntityParam(entityId), group, null);
+		Collection<AttributeExt<?>> attributes = attributesMan.getAllAttributes(
+				new EntityParam(entityId), effective, group, null, true);
 		
 		List<AttributeRepresentation> wrapped = new ArrayList<AttributeRepresentation>(attributes.size());
 		for (AttributeExt<?> a: attributes)
@@ -371,6 +375,28 @@ public class RESTAdmin
 		GroupContents contents = groupsMan.getContents(group, GroupContents.GROUPS | GroupContents.MEMBERS);
 		return mapper.writeValueAsString(new GroupContentsRepresentation(contents));
 	}
+
+	
+	@Path("/group/{groupPath}")
+	@DELETE
+	public void removeGroup(@PathParam("groupPath") String group, 
+			@QueryParam("recursive") Boolean recursive) throws EngineException, JsonProcessingException
+	{
+		if (recursive == null)
+			recursive = false;
+		log.debug("removeGroup " + group + (recursive ? " [recursive]" : ""));
+		groupsMan.removeGroup(group, recursive);
+	}
+	
+	
+	@Path("/group/{groupPath}")
+	@POST
+	public void addGroup(@PathParam("groupPath") String group) throws EngineException, JsonProcessingException
+	{
+		log.debug("addGroup " + group);
+		Group toAdd = new Group(group);
+		groupsMan.addGroup(toAdd);
+	}
 	
 	@Path("/group/{groupPath}/entity/{entityId}")
 	@DELETE
@@ -389,6 +415,8 @@ public class RESTAdmin
 		log.debug("addMember " + entityId + " to " + group);
 		groupsMan.addMemberFromParent(group, new EntityParam(entityId));
 	}
+
+	
 	
 	@Path("/attributeTypes")
 	@GET

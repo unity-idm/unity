@@ -4,14 +4,17 @@
  */
 package pl.edu.icm.unity.engine;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +30,6 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfileBuilder;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
-import pl.edu.icm.unity.stdext.attr.VerifiableEmail;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -43,9 +45,11 @@ import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
+import pl.edu.icm.unity.types.basic.VerifiableEmail;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
@@ -386,7 +390,35 @@ public class TestRegistrations extends DBIntegrationTestBase
 		//TODO test notifications
 		
 	}
+
+	@Test
+	public void formProfileGroupAddingIsRecursive() throws EngineException
+	{
+		initContents();
+		RegistrationContext defContext = new RegistrationContext(true, false, TriggeringMode.manualAtLogin);
+
+		RegistrationTranslationProfileBuilder profileBuilder = new RegistrationTranslationProfileBuilder(
+				registry, "form").
+				withAutoProcess("true",	AutomaticRequestAction.accept).
+				withGroupMembership("true", "'/A/B/C'");
 		
+		RegistrationFormBuilder formBuilder = getFormBuilder(true, "true", false);
+		formBuilder.withTranslationProfile(profileBuilder.build());
+		RegistrationForm form = formBuilder.build();
+		registrationsMan.addForm(form);
+		
+		RegistrationRequest request = getRequest();
+		request.setRegistrationCode(null);
+		registrationsMan.submitRegistrationRequest(request, defContext);
+		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
+		assertThat(fromDb.getStatus(), is(RegistrationRequestStatus.accepted));
+		
+		Map<String, GroupMembership> groups = idsMan.getGroups(
+				new EntityParam(new IdentityTaV(UsernameIdentity.ID, "test-user")));
+		assertThat(groups.containsKey("/A/B/C"), is(true));
+	}
+	
+	
 	@Test
 	public void testRequestsWithAutoAccept() throws EngineException
 	{
@@ -578,13 +610,20 @@ public class TestRegistrations extends DBIntegrationTestBase
 		return initAndCreateForm(nullCode, autoAcceptCondition, true);
 	}
 	
-	private RegistrationForm initAndCreateForm(boolean nullCode, String autoAcceptCondition, 
-			boolean addEmailAC) throws EngineException
+	private void initContents() throws EngineException
 	{
 		commonInitializer.initializeCommonAttributeTypes();
 		commonInitializer.initializeMainAttributeClass();
 		groupsMan.addGroup(new Group("/A"));
 		groupsMan.addGroup(new Group("/B"));
+		groupsMan.addGroup(new Group("/A/B"));
+		groupsMan.addGroup(new Group("/A/B/C"));
+	}
+	
+	private RegistrationForm initAndCreateForm(boolean nullCode, String autoAcceptCondition, 
+			boolean addEmailAC) throws EngineException
+	{
+		initContents();
 		
 		RegistrationForm form = getFormBuilder(nullCode, autoAcceptCondition, addEmailAC).build();
 

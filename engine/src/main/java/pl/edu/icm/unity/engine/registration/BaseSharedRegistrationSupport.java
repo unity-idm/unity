@@ -5,9 +5,12 @@
 package pl.edu.icm.unity.engine.registration;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +32,7 @@ import pl.edu.icm.unity.server.api.registration.RegistrationWithCommentsTemplate
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.translation.form.GroupParam;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest;
+import pl.edu.icm.unity.server.utils.GroupUtils;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -72,9 +76,7 @@ public class BaseSharedRegistrationSupport
 	protected void applyRequestedGroups(long entityId, Map<String, List<Attribute<?>>> remainingAttributesByGroup,
 			TranslatedRegistrationRequest translatedRequest, SqlSession sql) throws EngineException
 	{
-		Map<String, GroupParam> sortedGroups = new TreeMap<>();
-		for (GroupParam group : translatedRequest.getGroups())
-			sortedGroups.put(group.getGroup(), group);
+		Map<String, GroupParam> sortedGroups = establishSortedGroups(translatedRequest.getGroups());
 
 		EntityParam entity = new EntityParam(entityId);
 		for (Map.Entry<String, GroupParam> entry : sortedGroups.entrySet())
@@ -90,6 +92,25 @@ public class BaseSharedRegistrationSupport
 			attributesHelper.addAttributesList(attributes, entityId,
 					true, sql);
 		}
+	}
+
+	private Map<String, GroupParam> establishSortedGroups(Collection<GroupParam> requestedGroups)
+	{
+		Map<String, GroupParam> sortedGroups = new TreeMap<>();
+		Set<String> allGroups = new HashSet<>();
+		allGroups.add("/");
+		
+		for (GroupParam group : requestedGroups)
+		{
+			Deque<String> missingGroups = GroupUtils.getMissingGroups(group.getGroup(), allGroups);
+			for (String missingGroup: missingGroups)
+			{
+				sortedGroups.put(missingGroup, new GroupParam(missingGroup,
+						group.getExternalIdp(), group.getTranslationProfile()));
+				allGroups.add(missingGroup);
+			}
+		}
+		return sortedGroups;
 	}
 	
 	protected void applyRequestedAttributeClasses(TranslatedRegistrationRequest translatedRequest,

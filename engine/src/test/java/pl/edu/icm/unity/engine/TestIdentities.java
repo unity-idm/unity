@@ -4,11 +4,15 @@
  */
 package pl.edu.icm.unity.engine;
 
+import static com.googlecode.catchexception.CatchException.catchException;
+import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -706,5 +710,17 @@ public class TestIdentities extends DBIntegrationTestBase
 		
 		contents = groupsMan.getContents("/", GroupContents.MEMBERS);
 		assertEquals(1, contents.getMembers().size());
+	}
+	
+	@Test
+	public void removeingLastIdentityIsProhibited() throws Exception
+	{
+		setupMockAuthn();
+		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		
+		catchException(idsMan).removeIdentity(id);
+
+		assertThat(caughtException(), isA(SchemaConsistencyException.class));
 	}
 }

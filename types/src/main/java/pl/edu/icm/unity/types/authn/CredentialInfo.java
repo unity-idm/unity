@@ -21,6 +21,14 @@ public class CredentialInfo
 		this.credentialsState = credentialsState;
 	}
 	
+	/**
+	 * Used by Jackson during deserialization
+	 */
+	@SuppressWarnings("unused")
+	private CredentialInfo()
+	{
+	}
+	
 	public String getCredentialRequirementId()
 	{
 		return credentialRequirementId;

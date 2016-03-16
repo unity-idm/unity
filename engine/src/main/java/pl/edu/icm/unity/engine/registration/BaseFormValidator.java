@@ -146,10 +146,10 @@ public class BaseFormValidator
 		if (tpl != null)
 		{
 			if (!msgTplDB.exists(tpl, sql))
-				throw new WrongArgumentException("Form has an unknown message template " + tpl);
+				throw new WrongArgumentException("Form has an unknown message template '" + tpl + "'");
 			if (!compatibleDef.equals(msgTplDB.get(tpl, sql).getConsumer()))
-				throw new WrongArgumentException("Template " + tpl + 
-						" is not suitable as the " + purpose + " template");
+				throw new WrongArgumentException("Template '" + tpl + 
+						"' is not suitable as the " + purpose + " template");
 		}
 	}
 }

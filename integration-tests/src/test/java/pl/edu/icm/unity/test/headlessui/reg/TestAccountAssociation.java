@@ -18,7 +18,7 @@ import pl.edu.icm.unity.test.headlessui.SeleniumTestBase;
 public class TestAccountAssociation extends SeleniumTestBase
 {
 	@Test
-	public void registrationTest() throws Exception
+	public void accountAssociationTest() throws Exception
 	{
 		//login to home UI 
 		driver.get(baseUrl + "/home/home");
@@ -54,6 +54,7 @@ public class TestAccountAssociation extends SeleniumTestBase
 		Assert.assertTrue(finishB.isEnabled());
 		simpleWait();
 		finishB.click();
+		simpleWait();
 		waitForElement(By.className("success")).click();
 		waitForElement(By.id("MainHeader.logout")).click();
 	}

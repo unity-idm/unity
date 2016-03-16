@@ -5,8 +5,6 @@
 package pl.edu.icm.unity.stdext.attr;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import pl.edu.icm.unity.Constants;
@@ -14,12 +12,10 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.utils.EmailUtils;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.types.basic.VerifiableEmail;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Verifiable email attribute value syntax.
@@ -29,40 +25,28 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 {
 	public static final String ID = "verifiableEmail";
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getValueSyntaxId()
 	{
 		return ID;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean areEqual(VerifiableEmail value, Object another)
 	{
 		return value.equals(another);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public int hashCode(Object value)
 	{
 		return value.hashCode();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public byte[] serialize(VerifiableEmail value) throws InternalException
 	{
-		JsonNode main = serialize2Json(value);
+		JsonNode main = value.toJson();
 		try
 		{
 			return Constants.MAPPER.writeValueAsString(main).getBytes(StandardCharsets.UTF_8);
@@ -72,24 +56,10 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 		}
 	}
 
-	private JsonNode serialize2Json(VerifiableEmail value)
-	{
-		ObjectNode main = Constants.MAPPER.createObjectNode();
-		main.put("value", value.getValue());
-		main.put("confirmationData", value.getConfirmationInfo().getSerializedConfiguration());
-		ArrayNode tagsJ = main.putArray("tags");
-		for (String tag: value.getTags())
-			tagsJ.add(tag);
-		return main;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Object serializeSimple(VerifiableEmail value)
 	{
-		return serialize2Json(value);
+		return value.toJson();
 	}
 
 	@Override
@@ -98,16 +68,13 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 		if (value instanceof Map)
 		{
 			JsonNode node = Constants.MAPPER.convertValue(value, JsonNode.class);
-			return deserializeFromJson(node);
+			return new VerifiableEmail(node);
 		}
 		throw new InternalException("Value must be json encoded and is " + value.getClass() + 
 				"\n" + value);
 	}
 
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public VerifiableEmail deserialize(byte[] raw) throws InternalException
 	{
@@ -119,29 +86,9 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 		{
 			throw new InternalException("Can't deserialize VerifiableEmail from JSON", e);
 		}
-		return deserializeFromJson(jsonN);
+		return new VerifiableEmail(jsonN);
 	}
 
-	private VerifiableEmail deserializeFromJson(JsonNode jsonN) throws InternalException
-	{
-		VerifiableEmail email = new VerifiableEmail(jsonN.get("value").asText());
-		ConfirmationInfo confirmationData = new ConfirmationInfo();
-		confirmationData.setSerializedConfiguration(jsonN.get("confirmationData").asText());
-		email.setConfirmationInfo(confirmationData);
-		List<String> tags = new ArrayList<>();
-		if (jsonN.has("tags"))
-		{
-			ArrayNode tagsJ = (ArrayNode) jsonN.get("tags");
-			for (JsonNode entry: tagsJ)
-				tags.add(entry.asText());
-		}
-		email.setTags(tags);
-		return email;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void validate(VerifiableEmail value) throws IllegalAttributeValueException
 	{
@@ -149,21 +96,15 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 			throw new IllegalAttributeValueException("null value is illegal");
 		String error = EmailUtils.validate(value.getValue());
 		if (error != null)
-			throw new IllegalAttributeValueException(error);
+			throw new IllegalAttributeValueException(value.getValue() + ": " + error);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getSerializedConfiguration() throws InternalException
 	{
 		return "{}";
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void setSerializedConfiguration(String json) throws InternalException
 	{

@@ -22,6 +22,10 @@ public class AttributeRepresentation extends AttributeParamRepresentation
 		this.syntax = orig.getAttributeSyntax().getValueSyntaxId();
 	}
 
+	public AttributeRepresentation()
+	{
+	}
+
 	public String getSyntax()
 	{
 		return syntax;

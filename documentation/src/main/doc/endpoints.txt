@@ -38,12 +38,20 @@ Additionally an endpoint may require simultaneous authentication using two authe
 a comma as a separator. In the above example the endpoint allows for choosing between 
 two authentication methods: one will use a single authenticator +oauthWeb+ and another alternative 
 will require simultaneous authentication using +certWeb+ and +simplePwdWeb+.
+
+=== Common options for endpoints
  
 As it was mentioned there are options which are common for all endpoints with the same binding.
 Those options are presented here, the endpoint sections later on do not contain them.  
  
-For the Web Service (CXF) binding the common options are:
-include::ref-cxfEndpointProperties.txt[]
+For the REST endpoints the common options are:
+include::ref-restEndpointProperties.txt[]
+
+Options reference for all Web (Vaadin) endpoints are as follows:
+
+include::ref-vaadinEndpointProperties.txt[]
+
+Currently there are no common options for Web Serice endpoints.
 
 [[endpoints-authn]]
 === Configuration of web authentication screen 
@@ -86,12 +94,6 @@ unity.endpoint.web.authenticationTiles.2.tileMode=table
 unity.endpoint.web.authenticationTiles.2.tileName.pl=Zdalne logowanie
 unity.endpoint.web.authenticationTiles.2.tileName.en=Remote methods
 ----
-
-
-Options reference for all Web (Vaadin) endpoints are as follows:
-
-include::ref-vaadinEndpointProperties.txt[]
-
 
 
 

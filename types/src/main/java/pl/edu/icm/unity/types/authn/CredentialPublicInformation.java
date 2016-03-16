@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.types.authn;
 
+
 /**
  * Stores information about credential: its status and credential-type dependent data, 
  * e.g. for password credential it may be its last update date.
@@ -14,10 +15,20 @@ public class CredentialPublicInformation
 	private LocalCredentialState state;
 	private String extraInformation;
 	
-	public CredentialPublicInformation(LocalCredentialState state, String extraInformation)
+	public CredentialPublicInformation(
+			LocalCredentialState state, 
+			String extraInformation)
 	{
 		this.state = state;
 		this.extraInformation = extraInformation;
+	}
+
+	/**
+	 * Used by JSON deserialization
+	 */
+	@SuppressWarnings("unused")
+	private CredentialPublicInformation()
+	{
 	}
 
 	public LocalCredentialState getState()

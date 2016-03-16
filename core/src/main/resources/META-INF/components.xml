@@ -11,7 +11,7 @@
 	<bean class="pl.edu.icm.unity.server.utils.UnityMessageSource"/>
 	<bean class="pl.edu.icm.unity.server.utils.QuartzSchedulerFactory"/>
 	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
-		<property name="bundle" value="pl/edu/icm/unity/server/core/messages/messages"/>
+		<property name="bundle" value="pl/edu/icm/unity/core/messages/messages"/>
 	</bean>
 	<bean class="pl.edu.icm.unity.ldaputils.LDAPAttributeTypesConverter"/>
 	
