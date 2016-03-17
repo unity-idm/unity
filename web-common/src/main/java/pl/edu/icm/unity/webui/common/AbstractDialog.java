@@ -214,7 +214,10 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		setHeight(height, Unit.PERCENTAGE);
 		enterButton = getDefaultOKButton();
 		if (enterButton != null)
+		{
 			enterButton.setClickShortcut(KeyCode.ENTER);
+			enterButton.addStyleName(Styles.vButtonPrimary.toString());
+		}
 		escapeButton = getDefaultCancelButton();
 		if (escapeButton != null)
 			escapeButton.setClickShortcut(KeyCode.ESCAPE);

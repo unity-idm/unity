@@ -27,16 +27,17 @@ public class EnquiryFormFillDialog extends AbstractDialog
 {
 	private EnquiryResponseEditor editor;
 	private Callback callback;
-	private boolean mandatory;
+	private EnquiryType type;
 	
 	public EnquiryFormFillDialog(UnityMessageSource msg, String caption, 
 			EnquiryResponseEditor editor, Callback callback, EnquiryType type)
 	{
 		super(msg, caption, msg.getMessage("RegistrationRequestEditorDialog.submitRequest"), 
-				msg.getMessage("cancel"));
+				type == EnquiryType.REQUESTED_MANDATORY ? msg.getMessage("MainHeader.logout") :
+					msg.getMessage("cancel"));
 		this.editor = editor;
 		this.callback = callback;
-		this.mandatory = type == EnquiryType.REQUESTED_MANDATORY;
+		this.type = type;
 		setSizeMode(SizeMode.LARGE);
 	}
 	
@@ -44,16 +45,28 @@ public class EnquiryFormFillDialog extends AbstractDialog
 	protected AbstractOrderedLayout getButtonsBar()
 	{
 		AbstractOrderedLayout ret = super.getButtonsBar();
-		if (!mandatory)
+		if (type != EnquiryType.REQUESTED_MANDATORY)
 		{
 			Button ignore = new Button(msg.getMessage("EnquiryFormFillDialog.ignore"), 
 					event-> {
 						callback.ignored();
 						close();
 					});
-			ret.addComponent(ignore, 0);
+			ret.addComponent(ignore);
 		}
 		return ret;
+	}
+	
+	@Override
+	public void show()
+	{
+		super.show();
+		
+		String info = (type == EnquiryType.REQUESTED_MANDATORY) ? 
+				msg.getMessage("EnquiryFormFillDialog.mandatoryEnquiryInfo") : 
+				msg.getMessage("EnquiryFormFillDialog.optionalEnquiryInfo");
+		NotificationPopup.showNotice(msg, msg.getMessage("EnquiryFormFillDialog.newEnquiryCaption"), info);
+			
 	}
 	
 	@Override
