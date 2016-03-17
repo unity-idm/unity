@@ -4,18 +4,24 @@
  */
 package pl.edu.icm.unity.engine;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.db.DBAttributes;
+import pl.edu.icm.unity.db.DBShared;
 import pl.edu.icm.unity.db.generic.reg.EnquiryFormDB;
 import pl.edu.icm.unity.db.generic.reg.EnquiryResponseDB;
+import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
@@ -40,6 +46,11 @@ import pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.translation.form.EnquiryTranslationProfile;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
+import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
@@ -69,6 +80,11 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	private SharedEndpointManagement sharedEndpointMan;
 	private TransactionalRunner tx;
 	private SharedEnquiryManagment internalManagment;
+	private IdentitiesResolver identitiesResolver;
+	private DBAttributes dbAttributes;
+	private DBShared dbShared;
+	
+	
 	
 	@Autowired
 	public EnquiryManagementImpl(EnquiryFormDB enquiryFormDB, EnquiryResponseDB requestDB,
@@ -78,7 +94,10 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			BaseFormValidator baseFormValidator,
 			EnquiryResponseValidator enquiryResponseValidator,
 			SharedEndpointManagement sharedEndpointMan, TransactionalRunner tx,
-			SharedEnquiryManagment internalManagment)
+			SharedEnquiryManagment internalManagment,
+			IdentitiesResolver identitiesResolver,
+			DBAttributes dbAttributes,
+			DBShared dbShared)
 	{
 		this.enquiryFormDB = enquiryFormDB;
 		this.requestDB = requestDB;
@@ -91,6 +110,9 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		this.sharedEndpointMan = sharedEndpointMan;
 		this.tx = tx;
 		this.internalManagment = internalManagment;
+		this.identitiesResolver = identitiesResolver;
+		this.dbAttributes = dbAttributes;
+		this.dbShared = dbShared;
 	}
 
 	@Transactional
@@ -235,6 +257,8 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			EnquiryForm form = enquiryFormDB.get(responseFull.getRequest().getFormId(), sql);
 			enquiryResponseValidator.validateSubmittedRequest(form, responseFull.getRequest(), true, sql);
 			requestDB.insert(responseFull.getRequestId(), responseFull, sql);
+			addToAttribute(responseFull.getEntityId(), SystemAttributeTypes.FILLED_ENQUIRES, 
+					form.getName(), sql);
 			return form;
 		});
 	}
@@ -306,5 +330,72 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	{
 		authz.checkAuthorization(AuthzCapability.read);
 		return requestDB.getAll(SqlSessionTL.get());
+	}
+
+	@Transactional
+	@Override
+	public List<EnquiryForm> getPendingEnquires(EntityParam entity) throws EngineException
+	{
+		SqlSession sql = SqlSessionTL.get();
+		long entityId = identitiesResolver.getEntityId(entity, sql);
+		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.read);
+		
+		List<EnquiryForm> allForms = enquiryFormDB.getAll(SqlSessionTL.get());
+		
+		Set<String> ignored = getEnquiresFromAttribute(entityId, SystemAttributeTypes.FILLED_ENQUIRES, sql);
+		ignored.addAll(getEnquiresFromAttribute(entityId, SystemAttributeTypes.IGNORED_ENQUIRES, sql));
+		
+		Set<String> allGroups = dbShared.getAllGroups(entityId, sql);
+		
+		List<EnquiryForm> ret = new ArrayList<>();
+		for (EnquiryForm form: allForms)
+		{
+			if (ignored.contains(form.getName()))
+				continue;
+			if (isInTargetGroups(allGroups, form.getTargetGroups()))
+				ret.add(form);
+		}
+		return ret;
+	}
+
+	private boolean isInTargetGroups(Set<String> groups, String[] targetGroups)
+	{
+		for (String targetGroup: targetGroups)
+			if (groups.contains(targetGroup))
+				return true;
+		return false;
+	}
+	
+	private Set<String> getEnquiresFromAttribute(long entityId, String attributeName, SqlSession sql) 
+			throws EngineException
+	{
+		Set<String> ret = new LinkedHashSet<>();
+		Map<String, AttributeExt<?>> attrs = dbAttributes.getAllAttributesAsMapOneGroup(
+				entityId, "/", attributeName, sql);
+		if (!attrs.containsKey(attributeName))
+			return ret;
+		
+		AttributeExt<?> attr = attrs.get(attributeName);
+		attr.getValues().forEach(v -> ret.add(v.toString()));
+		return ret;
+	}
+	
+	private void addToAttribute(long entityId, String attributeName, String value, SqlSession sql) throws EngineException
+	{
+		Set<String> currentValues = getEnquiresFromAttribute(entityId, attributeName, sql);
+		currentValues.add(value);
+		StringAttribute attribute = new StringAttribute(attributeName, "/", AttributeVisibility.full, 
+				new ArrayList<>(currentValues));
+		dbAttributes.addAttribute(entityId, attribute, true, sql);
+	}
+	
+	@Transactional
+	@Override
+	public void ignoreEnquiry(String enquiryId, EntityParam entity) throws EngineException
+	{
+		SqlSession sql = SqlSessionTL.get();
+		long entityId = identitiesResolver.getEntityId(entity, sql);
+		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.read);
+		addToAttribute(entityId, SystemAttributeTypes.IGNORED_ENQUIRES, enquiryId, sql);
 	}
 }

@@ -34,6 +34,8 @@ public class SystemAttributeTypes implements SystemAttributesProvider
 	public static final String AUTHORIZATION_ROLE = "sys:AuthorizationRole";
 	public static final String PREFERENCES = "sys:Preferences";
 	public static final String LAST_AUTHENTICATION = "sys:LastAuthentication";
+	public static final String FILLED_ENQUIRES = "sys:FilledEnquires";
+	public static final String IGNORED_ENQUIRES = "sys:IgnoredEnquires";
 	
 	private AuthorizationManager authz;
 	private UnityMessageSource msg;
@@ -50,6 +52,8 @@ public class SystemAttributeTypes implements SystemAttributesProvider
 		systemAttributes.add(getPreferenceAT());
 		systemAttributes.add(getAttributeClassesAT());
 		systemAttributes.add(getLastAuthenticationAT());
+		systemAttributes.add(getFilledEnquiresAT());
+		systemAttributes.add(getIgnoredEnquiresAT());
 	}
 	
 	private AttributeType getCredentialRequirementsAT()
@@ -105,6 +109,26 @@ public class SystemAttributeTypes implements SystemAttributesProvider
 		preferenceAt.setMinElements(0);
 		preferenceAt.setMaxElements(1);
 		preferenceAt.setVisibility(AttributeVisibility.local);
+		return preferenceAt;
+	}
+
+	private AttributeType getFilledEnquiresAT()
+	{
+		AttributeType preferenceAt = new AttributeType(FILLED_ENQUIRES, new StringAttributeSyntax(), msg);
+		preferenceAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
+		preferenceAt.setMinElements(0);
+		preferenceAt.setMaxElements(Integer.MAX_VALUE);
+		preferenceAt.setUniqueValues(true);
+		return preferenceAt;
+	}
+
+	private AttributeType getIgnoredEnquiresAT()
+	{
+		AttributeType preferenceAt = new AttributeType(IGNORED_ENQUIRES, new StringAttributeSyntax(), msg);
+		preferenceAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
+		preferenceAt.setMinElements(0);
+		preferenceAt.setMaxElements(Integer.MAX_VALUE);
+		preferenceAt.setUniqueValues(true);
 		return preferenceAt;
 	}
 	

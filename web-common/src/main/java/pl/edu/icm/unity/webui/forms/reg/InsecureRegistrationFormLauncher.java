@@ -32,6 +32,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.forms.PostFormFillingHandler;
+import pl.edu.icm.unity.webui.forms.UserFormFillDialog;
 import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreatedCallback;
 
 
@@ -154,9 +155,9 @@ public class InsecureRegistrationFormLauncher implements RegistrationFormDialogP
 	
 	private void showDialog(RegistrationForm form, RegistrationContext context, RegistrationRequestEditor editor)
 	{
-		RegistrationRequestEditorDialog dialog = new RegistrationRequestEditorDialog(msg, 
+		UserFormFillDialog<RegistrationRequest> dialog = new UserFormFillDialog<>(msg, 
 				msg.getMessage("RegistrationFormsChooserComponent.dialogCaption"), 
-				editor, new RegistrationRequestEditorDialog.Callback()
+				editor, new UserFormFillDialog.Callback<RegistrationRequest>()
 				{
 					@Override
 					public boolean newRequest(RegistrationRequest request)

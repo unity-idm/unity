@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.forms.enquiry;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -16,9 +17,11 @@ import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EnquiryManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.internal.IdPLoginController;
+import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
@@ -66,6 +69,31 @@ public class EnquiryResponseEditorController
 				identityEditorRegistry, credentialEditorRegistry, 
 				attributeHandlerRegistry, attrsMan, authnMan, groupsMan);
 	}
+
+	public List<EnquiryForm> getFormsToFill()
+	{
+		EntityParam entity = new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId());
+		try
+		{
+			return enquiryManagement.getPendingEnquires(entity);
+		} catch (EngineException e)
+		{
+			log.error("Can't load pending enquiry forms", e);
+			return new ArrayList<>();
+		}
+	}
+	
+	public void markFormAsIgnored(String formId)
+	{
+		EntityParam entity = new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId());
+		try
+		{
+			enquiryManagement.ignoreEnquiry(formId, entity);
+		} catch (EngineException e)
+		{
+			log.error("Can't mark form as ignored", e);
+		}
+	}	
 	
 	public EnquiryForm getForm(String name)
 	{

@@ -24,13 +24,13 @@ import com.vaadin.ui.VerticalLayout;
  * 
  * @author K. Benedyczak
  */
-public class UserFormFillDialog<T extends BaseRegistrationInput> extends AbstractDialog
+public class AdminFormFillDialog<T extends BaseRegistrationInput> extends AbstractDialog
 {
 	private BaseRequestEditor<T> editor;
 	private Callback<T> callback;
 	private Button submitAndAccept;
 	
-	public UserFormFillDialog(UnityMessageSource msg, String caption, 
+	public AdminFormFillDialog(UnityMessageSource msg, String caption, 
 			BaseRequestEditor<T> editor, Callback<T> callback)
 	{
 		super(msg, caption, msg.getMessage("UserFormFillDialog.submitRequest"), 

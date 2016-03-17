@@ -8,6 +8,7 @@ import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.translation.form.EnquiryTranslationProfile;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
@@ -71,6 +72,25 @@ public interface EnquiryManagement
 	 * @throws EngineException
 	 */
 	List<EnquiryForm> getEnquires() throws EngineException;
+	
+	/**
+	 * 
+	 * @param entity
+	 * @return list of enquires which are supposed to be filled by a given user. Only active enquires,
+	 * which were not yet filled nor ignored by the user are returned.
+	 * @throws EngineException
+	 */
+	List<EnquiryForm> getPendingEnquires(EntityParam entity) throws EngineException;
+	
+	/**
+	 * Marks an enquiry as ignored for the given user. This is only possible for enquires 
+	 * which are not mandatory to be filled.
+	 * 
+	 * @param enquiryId
+	 * @param entity
+	 * @throws EngineException
+	 */
+	void ignoreEnquiry(String enquiryId, EntityParam entity) throws EngineException;
 	
 	/**
 	 * Submits an enquiry response.

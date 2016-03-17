@@ -2,10 +2,10 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.forms.reg;
+package pl.edu.icm.unity.webui.forms;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
+import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -15,17 +15,18 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
 /**
- * Dialog allowing to fill a registration form. It takes an editor component as argument.
+ * Dialog allowing to fill a registration or enquiry form. It takes an editor component as argument.
  * Dialog uses 2 buttons: submit request, cancel.
+ * 
  * @author K. Benedyczak
  */
-public class RegistrationRequestEditorDialog extends AbstractDialog
+public class UserFormFillDialog<T extends BaseRegistrationInput> extends AbstractDialog
 {
-	private RegistrationRequestEditor editor;
-	private Callback callback;
+	private BaseRequestEditor<T> editor;
+	private Callback<T> callback;
 	
-	public RegistrationRequestEditorDialog(UnityMessageSource msg, String caption, 
-			RegistrationRequestEditor editor, Callback callback)
+	public UserFormFillDialog(UnityMessageSource msg, String caption, 
+			BaseRequestEditor<T> editor, Callback<T> callback)
 	{
 		super(msg, caption, msg.getMessage("RegistrationRequestEditorDialog.submitRequest"), 
 				msg.getMessage("cancel"));
@@ -56,7 +57,7 @@ public class RegistrationRequestEditorDialog extends AbstractDialog
 	{
 		try
 		{
-			RegistrationRequest request = editor.getRequest();
+			T request = editor.getRequest();
 			if (callback.newRequest(request))
 				close();
 		} catch (FormValidationException e) 
@@ -66,9 +67,9 @@ public class RegistrationRequestEditorDialog extends AbstractDialog
 		}
 	}
 	
-	public interface Callback
+	public interface Callback<T>
 	{
-		boolean newRequest(RegistrationRequest request);
+		boolean newRequest(T request);
 		void cancelled();
 	}
 }

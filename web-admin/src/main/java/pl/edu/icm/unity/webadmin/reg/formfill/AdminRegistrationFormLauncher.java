@@ -30,10 +30,10 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.forms.PostFormFillingHandler;
+import pl.edu.icm.unity.webui.forms.UserFormFillDialog;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestEditor;
-import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestEditorDialog;
 import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator;
 import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreatedCallback;
 
@@ -41,7 +41,7 @@ import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreate
 
 /**
  * Responsible for showing a given registration form dialog. Simplifies instantiation of
- * {@link RegistrationRequestEditorDialog}.
+ * {@link UserFormFillDialog}.
  * <p> This version is intended for use in AdminUI where automatic request acceptance is possible.
  * 
  * @author K. Benedyczak
@@ -155,9 +155,9 @@ public class AdminRegistrationFormLauncher implements RegistrationFormDialogProv
 	
 	private void showDialog(RegistrationForm form, RegistrationRequestEditor editor, TriggeringMode mode)
 	{
-		UserFormFillDialog<RegistrationRequest> dialog = new UserFormFillDialog<>(msg, 
+		AdminFormFillDialog<RegistrationRequest> dialog = new AdminFormFillDialog<>(msg, 
 				msg.getMessage("AdminRegistrationFormLauncher.dialogCaption"), 
-				editor, new UserFormFillDialog.Callback<RegistrationRequest>()
+				editor, new AdminFormFillDialog.Callback<RegistrationRequest>()
 				{
 					@Override
 					public boolean newRequest(RegistrationRequest request, boolean autoAccept)

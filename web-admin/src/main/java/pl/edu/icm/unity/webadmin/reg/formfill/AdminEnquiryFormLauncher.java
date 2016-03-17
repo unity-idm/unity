@@ -134,9 +134,9 @@ public class AdminEnquiryFormLauncher
 			errorHandler.onError(e);
 			return;
 		}
-		UserFormFillDialog<EnquiryResponse> dialog = new UserFormFillDialog<>(msg, 
+		AdminFormFillDialog<EnquiryResponse> dialog = new AdminFormFillDialog<>(msg, 
 				msg.getMessage("AdminEnquiryFormLauncher.dialogCaption"), 
-				editor, new UserFormFillDialog.Callback<EnquiryResponse>()
+				editor, new AdminFormFillDialog.Callback<EnquiryResponse>()
 				{
 					@Override
 					public boolean newRequest(EnquiryResponse request, boolean autoAccept)
