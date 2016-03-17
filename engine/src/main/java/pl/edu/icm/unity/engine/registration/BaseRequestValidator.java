@@ -154,7 +154,6 @@ class BaseRequestValidator
 	{
 		List<IdentityParam> requestedIds = request.getIdentities();
 		validateParamsBase(form.getIdentityParams(), requestedIds, "identities");
-		boolean identitiesFound = false;
 		for (int i=0; i<requestedIds.size(); i++)
 		{
 			IdentityParam idParam = requestedIds.get(i);
@@ -165,11 +164,7 @@ class BaseRequestValidator
 			if (!form.getIdentityParams().get(i).getIdentityType().equals(idParam.getTypeId()))
 				throw new WrongArgumentException("Identity nr " + i + " must be of " 
 						+ form.getIdentityParams().get(i).getIdentityType() + " type");
-			identitiesFound = true;
 		}
-		if (!identitiesFound)
-			throw new WrongArgumentException("At least one identity must be defined in the "
-					+ "registration request.");
 	}
 
 	private void checkIdentityIsNotPresent(IdentityParam idParam, SqlSession sql) throws WrongArgumentException

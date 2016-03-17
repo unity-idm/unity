@@ -30,6 +30,7 @@ public class BaseRegistrationInputBuilder<T extends BaseRegistrationInput,
 
 	public T build()
 	{
+		instance.validate();
 		return instance;
 	}
 

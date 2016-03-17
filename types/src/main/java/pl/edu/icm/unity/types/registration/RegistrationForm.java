@@ -120,8 +120,9 @@ public class RegistrationForm extends BaseForm
 		return "RegistrationForm [name=" + name + "]";
 	}
 
-	void validate()
+	protected void validate()
 	{
+		super.validate();
 		if (defaultCredentialRequirement == null)
 			throw new IllegalStateException("Default credential requirement must be not-null "
 					+ "in RegistrationForm");

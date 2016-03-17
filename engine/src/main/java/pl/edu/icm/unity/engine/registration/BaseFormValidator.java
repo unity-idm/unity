@@ -65,6 +65,9 @@ public class BaseFormValidator
 
 		Map<String, AttributeType> atMap = dbAttributes.getAttributeTypes(sql);
 
+		if (form.getName() == null)
+			throw new WrongArgumentException("Form name is not set.");
+		
 		if (form.getTranslationProfile() == null)
 			throw new WrongArgumentException("Translation profile is not set.");
 		

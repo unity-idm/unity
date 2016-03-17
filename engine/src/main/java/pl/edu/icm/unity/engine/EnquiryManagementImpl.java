@@ -53,6 +53,7 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
+import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
@@ -396,6 +397,9 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		SqlSession sql = SqlSessionTL.get();
 		long entityId = identitiesResolver.getEntityId(entity, sql);
 		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.read);
+		EnquiryForm form = enquiryFormDB.get(enquiryId, SqlSessionTL.get());
+		if (form.getType() == EnquiryType.REQUESTED_MANDATORY)
+			throw new WrongArgumentException("The mandatory enquiry can not be marked as ignored");
 		addToAttribute(entityId, SystemAttributeTypes.IGNORED_ENQUIRES, enquiryId, sql);
 	}
 }

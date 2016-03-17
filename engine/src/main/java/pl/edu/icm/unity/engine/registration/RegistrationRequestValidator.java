@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.registration;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
@@ -17,6 +18,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
@@ -48,7 +50,13 @@ public class RegistrationRequestValidator extends BaseRequestValidator
 		boolean byInvitation = processInvitationAndValidateCode(form, request, sql);
 		
 		super.validateSubmittedRequest(form, request, doCredentialCheckAndUpdate, sql);
-		
+
+		Optional<IdentityParam> identity = request.getIdentities().stream()
+				.filter(param -> param != null)
+				.findAny();
+		if (!identity.isPresent())
+			throw new WrongArgumentException("At least one identity must be defined in the "
+					+ "registration request.");
 		if (byInvitation)
 		{
 			String code = request.getRegistrationCode();

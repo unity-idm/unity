@@ -26,6 +26,12 @@ public class BaseRegistrationInput
 	private String comments;
 	private String userLocale;
 	
+	public void validate()
+	{
+		if (formId == null)
+			throw new IllegalStateException("Form id must be set");
+	}
+	
 	public String getFormId()
 	{
 		return formId;

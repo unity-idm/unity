@@ -4,13 +4,20 @@
  */
 package pl.edu.icm.unity.engine;
 
-import static org.junit.Assert.assertEquals;
+import static com.googlecode.catchexception.CatchException.catchException;
+import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.isA;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -29,9 +36,14 @@ import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.stdext.utils.InitializerCommon;
+import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
@@ -57,13 +69,27 @@ public class TestEnquiries extends DBIntegrationTestBase
 	@Autowired
 	private EnquiryManagement enquiryManagement;
 
+
+	@Before
+	public void init() throws EngineException
+	{
+		setupPasswordAuthn();
+		commonInitializer.initializeCommonAttributeTypes();
+		commonInitializer.initializeMainAttributeClass();
+		groupsMan.addGroup(new Group("/A"));
+		groupsMan.addGroup(new Group("/B"));
+	}
+
+	
 	@Test 
 	public void addedEnquiryIsReturned() throws Exception
 	{
 		EnquiryForm form = initAndCreateEnquiry(null);
+		
 		List<EnquiryForm> forms = enquiryManagement.getEnquires();
-		assertEquals(1, forms.size());
-		assertEquals(form, forms.get(0));
+		
+		assertThat(forms.size(), is(1));
+		assertThat(forms.get(0), is(form));
 	}
 	
 	@Test 
@@ -73,28 +99,25 @@ public class TestEnquiries extends DBIntegrationTestBase
 		
 		enquiryManagement.removeEnquiry("f1", true);
 		
-		assertEquals(0, enquiryManagement.getEnquires().size());
+		assertThat(enquiryManagement.getEnquires().isEmpty(), is(true));
 	}
 
 	@Test 
 	public void missingFormCantBeRemoved() throws Exception
 	{
-		try
-		{
-			enquiryManagement.removeEnquiry("missing", true);
-			fail("Removed non existing enquiry");
-		} catch (WrongArgumentException e) {/*ok*/}
+		catchException(enquiryManagement).removeEnquiry("missing", true);
+		
+		assertThat(caughtException(), isA(WrongArgumentException.class));
 	}
 	
 	@Test 
 	public void formWithDuplicateNameCantBeAdded() throws Exception
 	{
 		EnquiryForm form = initAndCreateEnquiry(null);
-		try
-		{
-			enquiryManagement.addEnquiry(form);
-			fail("Added the same enquiry twice");
-		} catch (WrongArgumentException e) {/*ok*/}
+		
+		catchException(enquiryManagement).addEnquiry(form);
+		
+		assertThat(caughtException(), isA(WrongArgumentException.class));
 	}
 	
 	@Test 
@@ -152,50 +175,155 @@ public class TestEnquiries extends DBIntegrationTestBase
 	{
 		initAndCreateEnquiry(null);
 		
-		try
-		{
-			attrsMan.removeAttributeClass(InitializerCommon.NAMING_AC);
-		} catch (SchemaConsistencyException e)
-		{
-			//OK
-		}
-		
-		try
-		{
-			attrsMan.removeAttributeType("cn", true);
-		} catch (SchemaConsistencyException e)
-		{
-			//OK
-		}
-		try
-		{
-			attrsMan.removeAttributeType("email", true);
-		} catch (SchemaConsistencyException e)
-		{
-			//OK
-		}
-		
-		try
-		{
-			groupsMan.removeGroup("/B", true);
-		} catch (SchemaConsistencyException e)
-		{
-			//OK
-		}
+		catchException(attrsMan).removeAttributeType(InitializerCommon.EMAIL_ATTR, true);
+		assertThat(caughtException(), isA(SchemaConsistencyException.class));
+
+		catchException(groupsMan).removeGroup("/B", true);
+		assertThat(caughtException(), isA(SchemaConsistencyException.class));
+
+		catchException(authnMan).removeCredentialDefinition(EngineInitialization.DEFAULT_CREDENTIAL);
+		assertThat(caughtException(), isA(SchemaConsistencyException.class));
 	}
 	
 	
 	@Test
-	public void requestWithoutOptionalFieldsIsAccepted() throws EngineException
+	public void requestWithoutOptionalFieldsIsAccepted() throws Exception
 	{
 		initAndCreateEnquiry("true");
-		EnquiryResponse response = getRequestWithoutOptionalElements();
+		EnquiryResponse response = new EnquiryResponseBuilder()
+			.withFormId("f1")
+			.withComments("comments")
+			.withAddedAgreement()
+				.withSelected(true)
+			.endAgreement()
+			.withAddedCredential()
+				.withCredentialId(EngineInitialization.DEFAULT_CREDENTIAL)
+				.withSecrets(new PasswordToken("abc").toJson())
+			.endCredential()
+			.withAddedAttribute(null)
+			.withAddedIdentity(null)
+			.withAddedIdentity()
+				.withTypeId(UsernameIdentity.ID)
+				.withValue("test-user")
+			.endIdentity()
+			.withAddedGroupSelection(null)
+			.build();
+		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
+				CRED_REQ_PASS, EntityState.valid, false);
+		
+		setupUserContext("tuser", false);
 		enquiryManagement.submitEnquiryResponse(response, new RegistrationContext(true, false, 
 				TriggeringMode.manualStandalone));
+		setupAdmin();
 		
-		//TODO check if applied
+		
+		Entity entity = idsMan.getEntity(new EntityParam(new IdentityParam(UsernameIdentity.ID, "test-user")));
+		Collection<Identity> usernames = getIdentitiesByType(entity.getIdentities(), UsernameIdentity.ID);
+		assertThat(usernames.size(), is(2));
+		assertThat(usernames, hasItem(identity));
+	}
+
+	@Test
+	public void matchingEnquiryIsPending() throws Exception
+	{
+		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
+				CRED_REQ_PASS, EntityState.valid, false);
+		EntityParam entityParam = new EntityParam(identity);
+		groupsMan.addMemberFromParent("/A", entityParam);
+		EnquiryForm form = new EnquiryFormBuilder()
+			.withTargetGroups(new String[] {"/A"})
+			.withType(EnquiryType.REQUESTED_OPTIONAL)
+			.withName("tenquiry")
+			.build();
+		enquiryManagement.addEnquiry(form);
+		
+		List<EnquiryForm> pendingEnquires = enquiryManagement.getPendingEnquires(entityParam);
+		
+		assertThat(pendingEnquires.size(), is(1));
+		assertThat(pendingEnquires.get(0), is(form));
+	}
+
+	@Test
+	public void enquiryForDifferentGroupIsNotPending() throws Exception
+	{
+		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
+				CRED_REQ_PASS, EntityState.valid, false);
+		EntityParam entityParam = new EntityParam(identity);
+		EnquiryForm form = new EnquiryFormBuilder()
+			.withTargetGroups(new String[] {"/A"})
+			.withType(EnquiryType.REQUESTED_OPTIONAL)
+			.withName("tenquiry")
+			.build();
+		enquiryManagement.addEnquiry(form);
+		
+		List<EnquiryForm> pendingEnquires = enquiryManagement.getPendingEnquires(entityParam);
+		
+		assertThat(pendingEnquires.isEmpty(), is(true));
 	}
 	
+	@Test
+	public void submittedEnquiryIsNotPendingAnymore() throws Exception
+	{
+		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
+				CRED_REQ_PASS, EntityState.valid, false);
+		EntityParam entityParam = new EntityParam(identity);
+		EnquiryForm form = new EnquiryFormBuilder()
+			.withTargetGroups(new String[] {"/"})
+			.withType(EnquiryType.REQUESTED_OPTIONAL)
+			.withName("enquiry1")
+			.build();
+		enquiryManagement.addEnquiry(form);
+
+		setupUserContext("tuser", false);
+		EnquiryResponse response = new EnquiryResponseBuilder()
+			.withFormId("enquiry1")
+			.build();
+		enquiryManagement.submitEnquiryResponse(response, 
+				new RegistrationContext(true, false, TriggeringMode.manualStandalone));
+		setupAdmin();
+		
+		List<EnquiryForm> pendingEnquires = enquiryManagement.getPendingEnquires(entityParam);
+		
+		assertThat(pendingEnquires.isEmpty(), is(true));
+	}
+	
+	@Test
+	public void ignoredEnquiryIsNotPendingAnymore() throws Exception
+	{
+		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
+				CRED_REQ_PASS, EntityState.valid, false);
+		EntityParam entityParam = new EntityParam(identity);
+		EnquiryForm form = new EnquiryFormBuilder()
+			.withName("e1")
+			.withType(EnquiryType.REQUESTED_OPTIONAL)
+			.withTargetGroups(new String[] {"/"})
+			.build();
+		enquiryManagement.addEnquiry(form);
+		enquiryManagement.ignoreEnquiry("e1", entityParam);
+		
+		List<EnquiryForm> pendingEnquires = enquiryManagement.getPendingEnquires(entityParam);
+		
+		assertThat(pendingEnquires.isEmpty(), is(true));
+	}
+	
+	@Test
+	public void mandatoryEnquiryCanNotBeIgnored() throws Exception
+	{
+		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
+				CRED_REQ_PASS, EntityState.valid, false);
+		EntityParam entityParam = new EntityParam(identity);
+		EnquiryForm form = new EnquiryFormBuilder()
+			.withName("e1")
+			.withTargetGroups(new String[] {"/"})
+			.withType(EnquiryType.REQUESTED_MANDATORY)
+			.build();
+		enquiryManagement.addEnquiry(form);
+		
+		catchException(enquiryManagement).ignoreEnquiry("e1", entityParam);
+		
+		assertThat(caughtException(), isA(WrongArgumentException.class));
+	}
+
 	private EnquiryFormBuilder getFormBuilder(String autoAcceptCondition)
 	{
 		RegistrationTranslationProfileBuilder profileBuilder = new RegistrationTranslationProfileBuilder(
@@ -237,54 +365,6 @@ public class TestEnquiries extends DBIntegrationTestBase
 				.withRetrievalSettings(ParameterRetrievalSettings.automatic)
 				.endGroupParam();
 	}
-/*	
-	private EnquiryResponse getRequest()
-	{
-		return new EnquiryResponseBuilder()
-				.withFormId("f1")
-				.withComments("comments")
-				.withAddedAgreement()
-				.withSelected(true)
-				.endAgreement()
-				.withAddedAttribute(
-						new VerifiableEmailAttribute(
-								InitializerCommon.EMAIL_ATTR, "/",
-								AttributeVisibility.full, "foo@example.com"))
-				.withAddedCredential()
-				.withCredentialId(EngineInitialization.DEFAULT_CREDENTIAL)
-				.withSecrets(new PasswordToken("abc").toJson()).endCredential()
-				.withAddedGroupSelection().withSelected(true).endGroupSelection()
-				.withAddedIdentity()
-					.withTypeId(X500Identity.ID)
-					.withValue("CN=registration test")
-				.endIdentity()
-				.withAddedIdentity()
-					.withTypeId(UsernameIdentity.ID)
-					.withValue("test-user")
-				.endIdentity()
-				.build();
-	}
-*/
-	private EnquiryResponse getRequestWithoutOptionalElements()
-	{
-		return new EnquiryResponseBuilder()
-				.withFormId("f1")
-				.withComments("comments")
-				.withAddedAgreement()
-				.withSelected(true)
-				.endAgreement()
-				.withAddedCredential()
-				.withCredentialId(EngineInitialization.DEFAULT_CREDENTIAL)
-				.withSecrets(new PasswordToken("abc").toJson()).endCredential()
-				.withAddedAttribute(null)
-				.withAddedIdentity(null)
-				.withAddedIdentity()
-					.withTypeId(UsernameIdentity.ID)
-					.withValue("test-user")
-				.endIdentity()
-				.withAddedGroupSelection(null)
-				.build();
-	}
 	
 	private void checkUpdateOrAdd(EnquiryForm form, String msg, Class<?> exception) throws EngineException
 	{
@@ -308,13 +388,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 	
 	private EnquiryForm initAndCreateEnquiry(String autoAcceptCondition) throws EngineException
 	{
-		commonInitializer.initializeCommonAttributeTypes();
-		commonInitializer.initializeMainAttributeClass();
-		groupsMan.addGroup(new Group("/A"));
-		groupsMan.addGroup(new Group("/B"));
-		
 		EnquiryForm form = getFormBuilder(autoAcceptCondition).build();
-
 		enquiryManagement.addEnquiry(form);
 		return form;
 	}
