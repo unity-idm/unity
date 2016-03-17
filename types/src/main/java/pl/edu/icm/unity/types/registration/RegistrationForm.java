@@ -45,7 +45,7 @@ public class RegistrationForm extends BaseForm
 	{
 		super(json);
 		fromJson(json);
-		validate();
+		validateRegistration();
 	}
 	
 	RegistrationForm()
@@ -120,9 +120,8 @@ public class RegistrationForm extends BaseForm
 		return "RegistrationForm [name=" + name + "]";
 	}
 
-	protected void validate()
+	protected void validateRegistration()
 	{
-		super.validate();
 		if (defaultCredentialRequirement == null)
 			throw new IllegalStateException("Default credential requirement must be not-null "
 					+ "in RegistrationForm");

@@ -54,7 +54,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 	{
 	}
 
-	protected void validate()
+	protected final void validate()
 	{
 		if (identityParams == null || groupParams == null || agreements == null 
 				|| credentialParams == null || attributeParams == null)

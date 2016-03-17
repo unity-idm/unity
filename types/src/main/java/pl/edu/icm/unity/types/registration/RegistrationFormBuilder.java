@@ -21,6 +21,7 @@ public class RegistrationFormBuilder extends BaseFormBuilder<RegistrationFormBui
 	public RegistrationForm build()
 	{
 		instance.validate();
+		instance.validateRegistration();
 		return instance;
 	}
 
