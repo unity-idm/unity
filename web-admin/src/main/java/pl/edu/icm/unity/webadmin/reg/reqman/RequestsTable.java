@@ -306,7 +306,10 @@ public class RequestsTable extends CustomComponent
 		
 		public String getRequestedIdentity()
 		{
-			IdentityParam id = request.getRequest().getIdentities().get(0);
+			List<IdentityParam> identities = request.getRequest().getIdentities();
+			if (identities.isEmpty())
+				return "-";
+			IdentityParam id = identities.get(0);
 			return id == null ? "-" : id.toString();
 		}
 	}

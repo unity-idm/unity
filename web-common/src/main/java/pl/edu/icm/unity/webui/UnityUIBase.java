@@ -75,6 +75,7 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	{
 		setErrorHandler(new ErrorHandlerImpl());
 		appInit(request);
+		initExtensions();
 	}
 
 	@Override
@@ -159,5 +160,12 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 			NotificationPopup.showError(msg, msg.getMessage("error"), 
 					msg.getMessage("UnityUIBase.unhandledError"));
 		} 
+	}
+
+	/**
+	 * Extensions can overwrite this method to provide additional initialization logic.
+	 */
+	protected void initExtensions()
+	{
 	}
 }

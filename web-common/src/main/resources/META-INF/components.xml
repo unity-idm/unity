@@ -57,6 +57,7 @@
 
 	<bean class="pl.edu.icm.unity.webui.forms.enquiry.EnquiryWellKnownURLViewProvider"/>
 	<bean class="pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditorController"/>
+	<bean class="pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher"/>
 	
 	<bean scope="prototype" id="PublicNavigationUI" class="pl.edu.icm.unity.wellknownurl.PublicNavigationUI"/>
 	<bean scope="prototype" id="SecuredNavigationUI" class="pl.edu.icm.unity.wellknownurl.SecuredNavigationUI"/>

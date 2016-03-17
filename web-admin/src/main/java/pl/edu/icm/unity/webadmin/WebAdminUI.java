@@ -20,10 +20,11 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.webadmin.AdminTopHeader.ViewSwitchCallback;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
-import pl.edu.icm.unity.webui.UnityUIBase;
+import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
@@ -38,10 +39,8 @@ import com.vaadin.ui.VerticalLayout;
 @Component("WebAdminUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("unityThemeValo")
-public class WebAdminUI extends UnityUIBase implements UnityWebUI
+public class WebAdminUI extends UnityEndpointUIBase implements UnityWebUI
 {
-	private static final long serialVersionUID = 1L;
-
 	private ContentsManagementTab contentsManagement;
 	private RegistrationsManagementTab registrationsManagement;
 	private SchemaManagementTab schemaManagement;
@@ -56,9 +55,9 @@ public class WebAdminUI extends UnityUIBase implements UnityWebUI
 	public WebAdminUI(UnityMessageSource msg, ContentsManagementTab contentsManagement,
 			SchemaManagementTab schemaManagement, RegistrationsManagementTab registrationsManagement,
 			UserAccountComponent userAccount, ServerManagementTab serverManagement,
-			WebAuthenticationProcessor authnProcessor)
+			WebAuthenticationProcessor authnProcessor, EnquiresDialogLauncher enquiryDialogLauncher)
 	{
-		super(msg);
+		super(msg, enquiryDialogLauncher);
 		this.contentsManagement = contentsManagement;
 		this.schemaManagement = schemaManagement;
 		this.userAccount = userAccount;

@@ -7,6 +7,8 @@ package pl.edu.icm.unity.webui.forms.enquiry;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.Log;
@@ -22,6 +24,7 @@ import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
  *  
  * @author K. Benedyczak
  */
+@Component
 public class EnquiresDialogLauncher
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiresDialogLauncher.class);
@@ -29,6 +32,7 @@ public class EnquiresDialogLauncher
 	private EnquiryResponseEditorController enquiryController;
 	private WebAuthenticationProcessor authnProcessor;
 	
+	@Autowired
 	public EnquiresDialogLauncher(UnityMessageSource msg,
 			EnquiryResponseEditorController enquiryController,
 			WebAuthenticationProcessor authnProcessor)
@@ -42,11 +46,15 @@ public class EnquiresDialogLauncher
 	{
 		List<EnquiryForm> formsToFill = enquiryController.getFormsToFill();
 		if (!formsToFill.isEmpty())
-			showEnquiryDialog(formsToFill.get(0));
+		{
+			showEnquiryDialog(0, formsToFill);
+			return;
+		}
 	}
 	
-	private void showEnquiryDialog(EnquiryForm enquiry)
+	private void showEnquiryDialog(int currentFormIndex, List<EnquiryForm> formsToFill)
 	{
+		EnquiryForm enquiry = formsToFill.get(currentFormIndex);
 		EnquiryResponseEditor editor;
 		try
 		{
@@ -59,46 +67,57 @@ public class EnquiresDialogLauncher
 		}
 		EnquiryFormFillDialog dialog = new EnquiryFormFillDialog(msg, 
 				msg.getMessage("EnquiresDialogLauncher.caption"), editor, 
-				new CallbackImpl(enquiry), enquiry.getType());
+				new CallbackImpl(currentFormIndex, formsToFill), enquiry.getType());
 		dialog.show();
 	}
 	
 	private class CallbackImpl implements EnquiryFormFillDialog.Callback
 	{
-		private EnquiryForm form;
+		private int currentFormIndex;
+		private List<EnquiryForm> formsToFill;
 		
-		public CallbackImpl(EnquiryForm form)
+		public CallbackImpl(int currentFormIndex, List<EnquiryForm> formsToFill)
 		{
-			this.form = form;
+			this.currentFormIndex = currentFormIndex;
+			this.formsToFill = formsToFill;
 		}
 
 		@Override
 		public boolean newRequest(EnquiryResponse request)
 		{
-			boolean submitted = enquiryController.submitted(request, form, TriggeringMode.manualAtLogin);
+			boolean submitted = enquiryController.submitted(request, formsToFill.get(currentFormIndex), 
+					TriggeringMode.manualAtLogin);
 			if (submitted)
-				showEnquiryDialogIfNeeded();
+				showNextIfNeeded();
 			return submitted;
 		}
 
 		@Override
 		public void cancelled()
 		{
-			enquiryController.cancelled(form, TriggeringMode.manualAtLogin);
-			if (form.getType() == EnquiryType.REQUESTED_MANDATORY)
+			enquiryController.cancelled(formsToFill.get(currentFormIndex), 
+					TriggeringMode.manualAtLogin);
+			if (formsToFill.get(currentFormIndex).getType() == EnquiryType.REQUESTED_MANDATORY)
 			{
 				authnProcessor.logout(true);
 			} else
 			{
-				showEnquiryDialogIfNeeded();
+				showNextIfNeeded();
 			}
 		}
 
 		@Override
 		public void ignored()
 		{
-			enquiryController.markFormAsIgnored(form.getName());
-			showEnquiryDialogIfNeeded();
+			enquiryController.markFormAsIgnored(formsToFill.get(currentFormIndex).getName());
+			showNextIfNeeded();
+		}
+		
+		private void showNextIfNeeded()
+		{
+			currentFormIndex++;
+			if (formsToFill.size() > currentFormIndex)
+				showEnquiryDialog(currentFormIndex, formsToFill);
 		}
 	}
 }

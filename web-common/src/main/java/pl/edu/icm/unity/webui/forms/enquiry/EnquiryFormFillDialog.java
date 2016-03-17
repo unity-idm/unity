@@ -28,7 +28,6 @@ public class EnquiryFormFillDialog extends AbstractDialog
 	private EnquiryResponseEditor editor;
 	private Callback callback;
 	private boolean mandatory;
-	private Button ignore;
 	
 	public EnquiryFormFillDialog(UnityMessageSource msg, String caption, 
 			EnquiryResponseEditor editor, Callback callback, EnquiryType type)
@@ -47,8 +46,11 @@ public class EnquiryFormFillDialog extends AbstractDialog
 		AbstractOrderedLayout ret = super.getButtonsBar();
 		if (!mandatory)
 		{
-			ignore = new Button(msg.getMessage("EnquiryFormFillDialog.ignore"), 
-					event->callback.ignored());
+			Button ignore = new Button(msg.getMessage("EnquiryFormFillDialog.ignore"), 
+					event-> {
+						callback.ignored();
+						close();
+					});
 			ret.addComponent(ignore, 0);
 		}
 		return ret;

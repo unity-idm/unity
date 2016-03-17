@@ -41,7 +41,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.webui.UnityUIBase;
+import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -54,6 +54,7 @@ import pl.edu.icm.unity.webui.common.provider.IdentitySelectorComponent;
 import pl.edu.icm.unity.webui.common.provider.SPInfoComponent;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
+import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
@@ -77,7 +78,7 @@ import eu.unicore.samly2.exceptions.SAMLRequesterException;
 @Component("SamlIdPWebUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("unityThemeValo")
-public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
+public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlIdPWebUI.class);
 	protected UnityMessageSource msg;
@@ -103,9 +104,10 @@ public class SamlIdPWebUI extends UnityUIBase implements UnityWebUI
 			WebAuthenticationProcessor authnProcessor, IdPEngine idpEngine,
 			IdentityTypesRegistry identityTypesRegistry, SessionManagement sessionMan, 
 			AttributesManagement attrsMan, 
-			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry)
+			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry, 
+			EnquiresDialogLauncher enquiryDialogLauncher)
 	{
-		super(msg);
+		super(msg, enquiryDialogLauncher);
 		this.msg = msg;
 		this.freemarkerHandler = freemarkerHandler;
 		this.handlersRegistry = handlersRegistry;

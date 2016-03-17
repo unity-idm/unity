@@ -31,13 +31,13 @@ import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.server.authn.AuthenticationProcessor.PartialAuthnState;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.server.authn.LogoutProcessor;
 import pl.edu.icm.unity.server.authn.LogoutProcessorFactory;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
-import pl.edu.icm.unity.server.authn.AuthenticationProcessor.PartialAuthnState;
 import pl.edu.icm.unity.server.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.server.registries.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.server.utils.Log;
@@ -49,8 +49,6 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
-import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
-import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditorController;
 
 import com.vaadin.server.Page;
 import com.vaadin.server.SynchronizedRequestHandler;
@@ -87,7 +85,6 @@ public class WebAuthenticationProcessor
 	private SessionManagement sessionMan;
 	private LoginToHttpSessionBinder sessionBinder;
 	private LogoutProcessor logoutProcessor;
-	private EnquiryResponseEditorController enquiryController;
 	private AuthenticationProcessor authnProcessor;
 	
 	@Autowired
@@ -96,8 +93,7 @@ public class WebAuthenticationProcessor
 			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder,
 			IdentitiesManagement idsMan, AttributesInternalProcessing attrMan,
 			CredentialEditorRegistry credEditorReg, LogoutProcessorFactory logoutProcessorFactory,
-			UnityServerConfiguration config, SessionParticipantTypesRegistry participantTypesRegistry,
-			EnquiryResponseEditorController enquiryController)
+			UnityServerConfiguration config, SessionParticipantTypesRegistry participantTypesRegistry)
 	{
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
@@ -109,7 +105,6 @@ public class WebAuthenticationProcessor
 		this.sessionBinder = sessionBinder;
 		this.config = config;
 		this.participantTypesRegistry = participantTypesRegistry;
-		this.enquiryController = enquiryController;
 		this.logoutProcessor = logoutProcessorFactory.getInstance();
 	}
 
@@ -148,12 +143,7 @@ public class WebAuthenticationProcessor
 		
 		logged(logInfo, realm, rememberMe, AuthenticationProcessor.extractParticipants(result));
 
-		if (logInfo.isUsedOutdatedCredential())
-		{
-			showCredentialUpdate();
-			return null;
-		}
-		gotoOrigin();
+		finalizeLogin(logInfo);
 		return null;
 	}
 
@@ -176,17 +166,19 @@ public class WebAuthenticationProcessor
 		logged(logInfo, realm, rememberMe, 
 				AuthenticationProcessor.extractParticipants(state.getPrimaryResult(), result2));
 
+		finalizeLogin(logInfo);
+	}
+	
+	private void finalizeLogin(AuthenticatedEntity logInfo) throws AuthenticationException
+	{
 		if (logInfo.isUsedOutdatedCredential())
 		{
 			showCredentialUpdate();
 			return;
 		}
 		
-		showEnquires();
-		
 		gotoOrigin();
 	}
-	
 	
 	private String getLabel(long entityId)
 	{
@@ -211,12 +203,6 @@ public class WebAuthenticationProcessor
 		OutdatedCredentialDialog dialog = new OutdatedCredentialDialog(msg, authnMan, idsMan, credEditorReg,
 				this);
 		dialog.show();
-	}
-	
-	private void showEnquires()
-	{
-		EnquiresDialogLauncher enqiuryLauncher = new EnquiresDialogLauncher(msg, enquiryController, this);
-		enqiuryLauncher.showEnquiryDialogIfNeeded();
 	}
 	
 	private void logged(AuthenticatedEntity authenticatedEntity, final AuthenticationRealm realm, 

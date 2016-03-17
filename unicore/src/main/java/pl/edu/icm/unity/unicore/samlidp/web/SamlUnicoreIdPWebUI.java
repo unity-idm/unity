@@ -37,6 +37,7 @@ import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
+import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
@@ -70,10 +71,12 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
 			WebAuthenticationProcessor authnProcessor, IdPEngine idpEngine, 
 			IdentityTypesRegistry idTypesRegistry, SessionManagement sessionMan, 
-			AttributesManagement attrMan, AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry)
+			AttributesManagement attrMan, AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry,
+			EnquiresDialogLauncher enquiryDialogLauncher)
 	{
 		super(msg, freemarkerHandler, handlersRegistry, preferencesMan,	authnProcessor, idpEngine,
-				idTypesRegistry, sessionMan, attrMan, attributeSyntaxFactoriesRegistry);
+				idTypesRegistry, sessionMan, attrMan, attributeSyntaxFactoriesRegistry, 
+				enquiryDialogLauncher);
 	}
 
 	@Override

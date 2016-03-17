@@ -34,7 +34,7 @@ import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.webui.UnityUIBase;
+import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
@@ -47,6 +47,7 @@ import pl.edu.icm.unity.webui.common.provider.IdentitySelectorComponent;
 import pl.edu.icm.unity.webui.common.provider.SPInfoComponent;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
+import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 
 import com.google.gwt.thirdparty.guava.common.collect.Lists;
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
@@ -69,7 +70,7 @@ import com.vaadin.ui.VerticalLayout;
 @Component("OAuthAuthzUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("unityThemeValo")
-public class OAuthAuthzUI extends UnityUIBase 
+public class OAuthAuthzUI extends UnityEndpointUIBase 
 {
 	private static Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthAuthzUI.class);
 	private UnityMessageSource msg;
@@ -90,9 +91,9 @@ public class OAuthAuthzUI extends UnityUIBase
 	public OAuthAuthzUI(UnityMessageSource msg, TokensManagement tokensMan,
 			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
 			WebAuthenticationProcessor authnProcessor, IdPEngine idpEngine,
-			IdentityTypesRegistry identityTypesRegistry)
+			IdentityTypesRegistry identityTypesRegistry, EnquiresDialogLauncher enquiryDialogLauncher)
 	{
-		super(msg);
+		super(msg, enquiryDialogLauncher);
 		this.msg = msg;
 		this.handlersRegistry = handlersRegistry;
 		this.preferencesMan = preferencesMan;

@@ -172,7 +172,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		
 		initCommonDisplayedFields();
 		
-		TabSheet tabOfLists = createCollectedParamsTabs(notificationsEditor.getGroups(), true);
+		TabSheet tabOfLists = createCollectedParamsTabs(notificationsEditor.getGroups(), true, 0);
 		main.addComponents(displayedName, formInformation, collectComments, tabOfLists);
 	}
 	
