@@ -21,6 +21,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
+import pl.edu.icm.unity.webui.common.ConfirmationComponent;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
@@ -28,11 +29,9 @@ import pl.edu.icm.unity.webui.common.TopHeaderLight;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.Page;
-import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;
@@ -84,8 +83,9 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 		String infoKey = status.getUserMessageKey();
 		String[] infoArgs = status.getUserMessageArgs();
 
-		infoWrapper.addComponent(status.isSuccess() == true ? getSuccessfullStatus(infoKey, infoArgs)
-				: getUnsuccessfullStatus(infoKey, infoArgs));
+		infoWrapper.addComponent(status.isSuccess() == true ? 
+				getSuccessfullStatus(msg.getMessage(infoKey, (Object[])infoArgs))
+				: getUnsuccessfullStatus(msg.getMessage(infoKey, (Object[])infoArgs)));
 		Label spacerB = new Label();
 		Label spacerU = new Label();
 		
@@ -118,39 +118,16 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 		setContent(contents);
 	}
 
-	private VerticalLayout getSuccessfullStatus(String infoKey, String[] infoArgs)
+	private com.vaadin.ui.Component getSuccessfullStatus(String info)
 	{
-		return getStatus(Images.ok32.getResource(),
-				msg.getMessage("ConfirmationStatus.successful"), infoKey, infoArgs);
+		return new ConfirmationComponent(Images.ok32.getResource(), 
+				msg.getMessage("ConfirmationStatus.successful"), info);
 	}
 
-	private VerticalLayout getUnsuccessfullStatus(String infoKey, String[] infoArgs)
+	private com.vaadin.ui.Component getUnsuccessfullStatus(String info)
 	{
-		return getStatus(Images.error32.getResource(),
-				msg.getMessage("ConfirmationStatus.unsuccessful"), infoKey, infoArgs);
-	}
-
-	private VerticalLayout getStatus(Resource icon, String title, String infoKey, Object[] infoArgs)
-	{
-		VerticalLayout mainStatus = new VerticalLayout();
-		HorizontalLayout header = new HorizontalLayout();
-		header.setSizeFull();
-		HorizontalLayout headerWrapper = new HorizontalLayout();
-		Image statusIcon = new Image();
-		statusIcon.setSource(icon);
-		Label titleL = new Label(title);
-		titleL.addStyleName(Styles.textXLarge.toString());
-		headerWrapper.addComponents(statusIcon, titleL);
-		headerWrapper.setComponentAlignment(statusIcon, Alignment.MIDDLE_CENTER);
-		headerWrapper.setComponentAlignment(titleL, Alignment.MIDDLE_CENTER);
-		header.addComponent(headerWrapper);
-		header.setComponentAlignment(headerWrapper, Alignment.TOP_CENTER);
-		mainStatus.addComponent(header);
-		Label info = new Label(msg.getMessage(infoKey, infoArgs));
-		info.addStyleName(Styles.textCenter.toString());
-		info.addStyleName(Styles.textLarge.toString());
-		mainStatus.addComponent(info);
-		return mainStatus;
+		return new ConfirmationComponent(Images.error32.getResource(), 
+				msg.getMessage("ConfirmationStatus.unsuccessful"), info);
 	}
 
 	@Override

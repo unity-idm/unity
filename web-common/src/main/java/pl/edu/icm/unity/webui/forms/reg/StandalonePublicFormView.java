@@ -17,7 +17,9 @@ import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
+import pl.edu.icm.unity.webui.common.ConfirmationComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
@@ -27,6 +29,7 @@ import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreate
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
@@ -143,6 +146,8 @@ public class StandalonePublicFormView extends CustomComponent implements View
 					TriggeringMode.manualStandalone);
 			new PostFormFillingHandler(idpLoginController, form, msg, regMan.getProfileInstance(form))
 				.cancelled(true, context);
+			showConfirm(Images.error32.getResource(),
+					msg.getMessage("StandalonePublicFormView.requestCancelled"));
 		});
 		buttons.addComponents(cancel, ok);
 		buttons.setSpacing(true);
@@ -176,11 +181,25 @@ public class StandalonePublicFormView extends CustomComponent implements View
 			String requestId = regMan.submitRegistrationRequest(request, context);
 			new PostFormFillingHandler(idpLoginController, form, msg, regMan.getProfileInstance(form))
 				.submittedRegistrationRequest(requestId, regMan, request, context);
+			showConfirm(Images.ok32.getResource(),
+					msg.getMessage("StandalonePublicFormView.requestSubmitted"));
 		} catch (Exception e) 
 		{
 			new PostFormFillingHandler(idpLoginController, form, msg, regMan.getProfileInstance(form))
 				.submissionError(e, context);
+			showConfirm(Images.error32.getResource(),
+					msg.getMessage("StandalonePublicFormView.submissionFailed"));
 		}
 	}
 
+	private void showConfirm(Resource icon, String message)
+	{
+		VerticalLayout wrapper = new VerticalLayout();
+		ConfirmationComponent confirmation = new ConfirmationComponent(icon, message);
+		wrapper.addComponent(confirmation);
+		wrapper.setComponentAlignment(confirmation, Alignment.MIDDLE_CENTER);
+		wrapper.setSizeFull();
+		setSizeFull();
+		setCompositionRoot(wrapper);
+	}
 }
