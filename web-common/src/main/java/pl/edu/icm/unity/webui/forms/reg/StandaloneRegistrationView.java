@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
+import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
@@ -20,6 +22,7 @@ import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.common.ConfirmationComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
@@ -41,7 +44,7 @@ import com.vaadin.ui.VerticalLayout;
  * 
  * @author K. Benedyczak
  */
-public class StandalonePublicFormView extends CustomComponent implements View
+public class StandaloneRegistrationView extends CustomComponent implements View
 {
 	private RegistrationForm form;
 	private RegistrationsManagement regMan;
@@ -56,7 +59,7 @@ public class StandalonePublicFormView extends CustomComponent implements View
 	private IdPLoginController idpLoginController;
 	private VerticalLayout main;
 	
-	public StandalonePublicFormView(RegistrationForm form, UnityMessageSource msg,
+	public StandaloneRegistrationView(RegistrationForm form, UnityMessageSource msg,
 			RegistrationsManagement regMan,
 			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,
@@ -174,16 +177,32 @@ public class StandalonePublicFormView extends CustomComponent implements View
 	{
 		RegistrationContext context = new RegistrationContext(true, 
 				idpLoginController.isLoginInProgress(), 
-				TriggeringMode.manualStandalone);		
+				TriggeringMode.manualStandalone);
+		RegistrationRequest request;
 		try
 		{
-			RegistrationRequest request = editor.getRequest();
+			request = editor.getRequest();
+		} catch (Exception e) 
+		{
+			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
+			return;
+		}
+		
+		
+		try
+		{
 			String requestId = regMan.submitRegistrationRequest(request, context);
 			new PostFormFillingHandler(idpLoginController, form, msg, regMan.getProfileInstance(form))
 				.submittedRegistrationRequest(requestId, regMan, request, context);
 			showConfirm(Images.ok32.getResource(),
 					msg.getMessage("StandalonePublicFormView.requestSubmitted"));
-		} catch (Exception e) 
+		} catch (WrongArgumentException e)
+		{
+			if (e instanceof IllegalFormContentsException)
+				editor.markErrorsFromException((IllegalFormContentsException) e);
+			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
+			return;
+		} catch (Exception e)
 		{
 			new PostFormFillingHandler(idpLoginController, form, msg, regMan.getProfileInstance(form))
 				.submissionError(e, context);

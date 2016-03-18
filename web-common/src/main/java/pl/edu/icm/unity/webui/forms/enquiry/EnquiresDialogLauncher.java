@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
@@ -83,7 +84,7 @@ public class EnquiresDialogLauncher
 		}
 
 		@Override
-		public boolean newRequest(EnquiryResponse request)
+		public boolean newRequest(EnquiryResponse request) throws WrongArgumentException
 		{
 			boolean submitted = enquiryController.submitted(request, formsToFill.get(currentFormIndex), 
 					TriggeringMode.manualAtLogin);

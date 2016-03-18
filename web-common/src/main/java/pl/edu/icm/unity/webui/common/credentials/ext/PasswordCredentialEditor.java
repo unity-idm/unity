@@ -178,6 +178,11 @@ public class PasswordCredentialEditor implements CredentialEditor
 	{
 		password1.setComponentError(message == null ? null : new UserError(message));
 		password2.setComponentError(message == null ? null : new UserError(message));
+		if (message != null)
+		{
+			password1.setValue("");
+			password2.setValue("");
+		}
 	}
 
 	@Override

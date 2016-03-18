@@ -8,6 +8,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
@@ -21,7 +22,7 @@ import pl.edu.icm.unity.types.registration.EnquiryResponse;
 public class EnquiryResponseValidator extends BaseRequestValidator
 {
 	public void validateSubmittedResponse(EnquiryForm form, EnquiryResponse response,
-			boolean doCredentialCheckAndUpdate, SqlSession sql) throws EngineException
+			boolean doCredentialCheckAndUpdate, SqlSession sql) throws IllegalFormContentsException
 	{
 		super.validateSubmittedRequest(form, response, doCredentialCheckAndUpdate, sql);
 	}

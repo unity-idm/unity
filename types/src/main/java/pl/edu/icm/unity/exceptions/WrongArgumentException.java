@@ -11,8 +11,6 @@ package pl.edu.icm.unity.exceptions;
  */
 public class WrongArgumentException extends EngineException
 {
-	private static final long serialVersionUID = 1L;
-
 	public WrongArgumentException(String msg, Throwable cause)
 	{
 		super(msg, cause);

@@ -89,7 +89,7 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 		RegistrationForm form = getForm(viewName.substring(REGISTRATION_FRAGMENT_PREFIX.length()));
 		if (form == null)
 			return null;
-		return new StandalonePublicFormView(form, msg, regMan, identityEditorRegistry, 
+		return new StandaloneRegistrationView(form, msg, regMan, identityEditorRegistry, 
 				credentialEditorRegistry, attributeHandlerRegistry, attrsMan, authnMan, 
 				groupsMan, cfg, idpLoginController);
 	}

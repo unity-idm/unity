@@ -30,18 +30,18 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.forms.PostFormFillingHandler;
-import pl.edu.icm.unity.webui.forms.UserFormFillDialog;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestEditor;
 import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationFormFillDialog;
 import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreatedCallback;
 
 
 
 /**
  * Responsible for showing a given registration form dialog. Simplifies instantiation of
- * {@link UserFormFillDialog}.
+ * {@link RegistrationFormFillDialog}.
  * <p> This version is intended for use in AdminUI where automatic request acceptance is possible.
  * 
  * @author K. Benedyczak

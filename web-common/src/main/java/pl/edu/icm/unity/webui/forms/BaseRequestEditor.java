@@ -9,9 +9,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
+import pl.edu.icm.unity.exceptions.IllegalFormContentsException.Category;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
@@ -128,6 +131,34 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	}
 	
 	public abstract T getRequest() throws FormValidationException;
+	
+	/**
+	 * Called if a form being edited was not accepted by the engine. 
+	 * @param e
+	 */
+	public void markErrorsFromException(IllegalFormContentsException e)
+	{
+		Category category = e.getCategory();
+		int position = e.getPosition();
+		if (category == null)
+			return;
+		
+		if (category == Category.CREDENTIAL)
+		{
+			String info = e.getMessage();
+			if (e.getCause() != null && e.getCause() instanceof IllegalCredentialException)
+			{
+				IllegalCredentialException ice = (IllegalCredentialException) e.getCause();
+				info = ice.getMessage() + ": ";
+				if (ice.getDetails() != null)
+					info += ice.getDetails().stream()
+						.map(ss -> ss.getValue(msg))
+						.collect(Collectors.joining(" "));
+					
+			}
+			credentialParamEditors.get(position).setCredentialError(info);
+		}
+	}
 	
 	private void checkRemotelyObtainedData() throws AuthenticationException
 	{

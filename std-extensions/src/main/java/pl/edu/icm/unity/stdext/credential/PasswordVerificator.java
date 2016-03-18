@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.Deque;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.bouncycastle.util.Arrays;
@@ -38,6 +39,7 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.utils.CryptoUtils;
+import pl.edu.icm.unity.types.I18nStringSource;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 
@@ -325,9 +327,8 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		PasswordValidator validator = getPasswordValidator();
 		
 		RuleResult result = validator.validate(new PasswordData(new Password(password)));
-		//TODO when i18n is added this should be extended to provide better information.
 		if (!result.isValid())
-			throw new IllegalCredentialException("Password is too weak");
+			throw new IllegalCredentialException("Password is too weak", getWeakPasswordDetails(result));
 		
 		for (PasswordInfo pi: currentCredentials)
 		{
@@ -337,6 +338,14 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		}
 	}
 
+	private List<I18nStringSource> getWeakPasswordDetails(RuleResult result)
+	{
+		return result.getDetails().stream()
+			.filter(rr -> !rr.getErrorCode().equals("INSUFFICIENT_CHARACTERS"))
+			.map(rr -> new I18nStringSource("PasswordVerificator." + rr.getErrorCode(), rr.getValues()))
+			.collect(Collectors.toList());
+	}
+	
 	private PasswordValidator getPasswordValidator()
 	{
 		List<Rule> ruleList = new ArrayList<Rule>();

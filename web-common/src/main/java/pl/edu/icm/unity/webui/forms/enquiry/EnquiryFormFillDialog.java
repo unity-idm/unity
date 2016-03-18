@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.forms.enquiry;
 
+import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
@@ -97,13 +99,17 @@ public class EnquiryFormFillDialog extends AbstractDialog
 		} catch (FormValidationException e) 
 		{
 			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
-			return;
+		} catch (WrongArgumentException e)
+		{
+			if (e instanceof IllegalFormContentsException)
+				editor.markErrorsFromException((IllegalFormContentsException) e);
+			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
 		}
 	}
 	
 	public interface Callback
 	{
-		boolean newRequest(EnquiryResponse request);
+		boolean newRequest(EnquiryResponse request) throws WrongArgumentException;
 		void cancelled();
 		void ignored();
 	}

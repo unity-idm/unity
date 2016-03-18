@@ -4,13 +4,17 @@
  */
 package pl.edu.icm.unity.exceptions;
 
+import java.util.List;
+
+import pl.edu.icm.unity.types.I18nStringSource;
+
 /**
  * Thrown when credential definition is invalid.
  * @author K. Benedyczak
  */
 public class IllegalCredentialException extends EngineException
 {
-	private static final long serialVersionUID = 1L;
+	private List<I18nStringSource> details;
 
 	public IllegalCredentialException(String msg, Throwable cause)
 	{
@@ -20,5 +24,16 @@ public class IllegalCredentialException extends EngineException
 	public IllegalCredentialException(String msg)
 	{
 		super(msg);
+	}
+	
+	public IllegalCredentialException(String msg, List<I18nStringSource> details)
+	{
+		super(msg);
+		this.details = details;
+	}
+
+	public List<I18nStringSource> getDetails()
+	{
+		return details;
 	}
 }

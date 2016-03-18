@@ -12,6 +12,8 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.Log;
@@ -21,7 +23,6 @@ import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.webui.common.ConfirmationComponent;
-import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryWellKnownURLView.Callback;
@@ -81,20 +82,29 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 		return new EnquiryWellKnownURLView(editor, msg, cfg, new Callback()
 		{
 			@Override
-			public void submitted()
+			public boolean submitted()
 			{
 				EnquiryResponse request;
 				try
 				{
 					request = editor.getRequest();
-				} catch (FormValidationException e)
+				} catch (Exception e)
 				{
 					NotificationPopup.showError(msg, 
 							msg.getMessage("EnquiryResponse.errorSubmit"), e);
-					return;
+					return false;
 				}
 				
-				editorController.submitted(request, form, TriggeringMode.manualStandalone);
+				try
+				{
+					return editorController.submitted(request, form, TriggeringMode.manualStandalone);
+				} catch (WrongArgumentException e)
+				{
+					NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
+					if (e instanceof IllegalFormContentsException)
+						editor.markErrorsFromException((IllegalFormContentsException) e);
+					return false;
+				}
 			}
 			
 			@Override

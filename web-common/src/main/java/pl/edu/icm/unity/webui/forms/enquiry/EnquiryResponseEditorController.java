@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EnquiryManagement;
@@ -122,7 +123,7 @@ public class EnquiryResponseEditorController
 	}
 	
 	public boolean submitted(EnquiryResponse response, EnquiryForm form, 
-			TriggeringMode mode)
+			TriggeringMode mode) throws WrongArgumentException
 	{
 		RegistrationContext context = new RegistrationContext(true, 
 				idpLoginController.isLoginInProgress(), mode);
@@ -131,7 +132,10 @@ public class EnquiryResponseEditorController
 		{
 			id = enquiryManagement.submitEnquiryResponse(response, context);
 			WebSession.getCurrent().getEventBus().fireEvent(new EnquiryResponseChangedEvent(id));
-		} catch (EngineException e)
+		} catch (WrongArgumentException e)
+		{
+			throw e;
+		} catch (Exception e)
 		{
 			new PostFormFillingHandler(idpLoginController, form, msg, 
 					enquiryManagement.getProfileInstance(form)).submissionError(e, context);

@@ -10,8 +10,6 @@ package pl.edu.icm.unity.exceptions;
  */
 public class IllegalPreviousCredentialException extends IllegalCredentialException
 {
-	private static final long serialVersionUID = 1L;
-
 	public IllegalPreviousCredentialException(String msg, Throwable cause)
 	{
 		super(msg, cause);

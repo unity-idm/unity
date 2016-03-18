@@ -32,7 +32,6 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.forms.PostFormFillingHandler;
-import pl.edu.icm.unity.webui.forms.UserFormFillDialog;
 import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreatedCallback;
 
 
@@ -81,7 +80,8 @@ public class InsecureRegistrationFormLauncher implements RegistrationFormDialogP
 		this.bus = WebSession.getCurrent().getEventBus();
 	}
 
-	protected boolean addRequest(RegistrationRequest request, RegistrationForm form, RegistrationContext context)
+	protected boolean addRequest(RegistrationRequest request, RegistrationForm form, RegistrationContext context) 
+			throws WrongArgumentException
 	{
 		String id;
 		try
@@ -90,10 +90,8 @@ public class InsecureRegistrationFormLauncher implements RegistrationFormDialogP
 			bus.fireEvent(new RegistrationRequestChangedEvent(id));
 		} catch (WrongArgumentException e)
 		{
-			new PostFormFillingHandler(idpLoginController, form, msg, 
-					registrationsManagement.getProfileInstance(form)).submissionError(e, context);
-			return false;
-		} catch (EngineException e)
+			throw e;
+		} catch (Exception e)
 		{
 			new PostFormFillingHandler(idpLoginController, form, msg, 
 					registrationsManagement.getProfileInstance(form)).submissionError(e, context);
@@ -155,12 +153,12 @@ public class InsecureRegistrationFormLauncher implements RegistrationFormDialogP
 	
 	private void showDialog(RegistrationForm form, RegistrationContext context, RegistrationRequestEditor editor)
 	{
-		UserFormFillDialog<RegistrationRequest> dialog = new UserFormFillDialog<>(msg, 
+		RegistrationFormFillDialog dialog = new RegistrationFormFillDialog(msg, 
 				msg.getMessage("RegistrationFormsChooserComponent.dialogCaption"), 
-				editor, new UserFormFillDialog.Callback<RegistrationRequest>()
+				editor, new RegistrationFormFillDialog.Callback()
 				{
 					@Override
-					public boolean newRequest(RegistrationRequest request)
+					public boolean newRequest(RegistrationRequest request) throws WrongArgumentException
 					{
 						return addRequest(request, form, context);
 					}

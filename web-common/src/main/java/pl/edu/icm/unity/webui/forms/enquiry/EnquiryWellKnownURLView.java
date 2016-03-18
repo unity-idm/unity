@@ -65,8 +65,8 @@ public class EnquiryWellKnownURLView extends CustomComponent implements View
 		Button ok = new Button(msg.getMessage("RegistrationRequestEditorDialog.submitRequest"));
 		ok.addStyleName(Styles.vButtonPrimary.toString());
 		ok.addClickListener(event -> {
-			callback.submitted();
-			showConfirm(Images.ok32.getResource(),
+			if (callback.submitted())
+				showConfirm(Images.ok32.getResource(),
 					msg.getMessage("EnquiryWellKnownURLView.responseSubmitted"));
 		});
 		
@@ -106,7 +106,7 @@ public class EnquiryWellKnownURLView extends CustomComponent implements View
 	
 	public interface Callback
 	{
-		void submitted();
+		boolean submitted();
 		void cancelled();
 	}
 }
