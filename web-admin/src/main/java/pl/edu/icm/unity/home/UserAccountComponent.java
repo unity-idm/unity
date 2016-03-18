@@ -34,8 +34,6 @@ import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
 import pl.edu.icm.unity.server.translation.in.MappingResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
-import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
@@ -235,8 +233,7 @@ public class UserAccountComponent extends VerticalLayout
 			//OK, let's skip this.
 		}
 		Entity entity = idsMan.getEntity(param);
-		AttributeExt<?> nameAttr = attrMan.getAttributeByMetadata(param, "/", EntityNameMetadataProvider.NAME);
-		String label = nameAttr == null ? null : (String)nameAttr.getValues().get(0);
+		String label = idsMan.getEntityLabel(param);
 		EntityWithLabel entityWithLabel = new EntityWithLabel(entity, label);
 		ret.setInput(entityWithLabel, groups);
 		return ret;

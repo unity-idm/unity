@@ -22,7 +22,6 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.internal.AttributesInternalProcessing;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.SessionParticipant;
@@ -44,9 +43,7 @@ import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration.LogoutMode;
-import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
@@ -79,7 +76,6 @@ public class WebAuthenticationProcessor
 	private UnityServerConfiguration config;
 	private AuthenticationManagement authnMan;
 	private IdentitiesManagement idsMan;
-	private AttributesInternalProcessing attrProcessor;
 	private CredentialEditorRegistry credEditorReg;
 	private SessionParticipantTypesRegistry participantTypesRegistry;
 	private SessionManagement sessionMan;
@@ -91,7 +87,7 @@ public class WebAuthenticationProcessor
 	public WebAuthenticationProcessor(UnityMessageSource msg, AuthenticationProcessor authnProcessor,
 			AuthenticationManagement authnMan,
 			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder,
-			IdentitiesManagement idsMan, AttributesInternalProcessing attrMan,
+			IdentitiesManagement idsMan, 
 			CredentialEditorRegistry credEditorReg, LogoutProcessorFactory logoutProcessorFactory,
 			UnityServerConfiguration config, SessionParticipantTypesRegistry participantTypesRegistry)
 	{
@@ -99,7 +95,6 @@ public class WebAuthenticationProcessor
 		this.authnProcessor = authnProcessor;
 		this.authnMan = authnMan;
 		this.idsMan = idsMan;
-		this.attrProcessor = attrMan;
 		this.credEditorReg = credEditorReg;
 		this.sessionMan = sessionMan;
 		this.sessionBinder = sessionBinder;
@@ -184,10 +179,7 @@ public class WebAuthenticationProcessor
 	{
 		try
 		{
-			AttributeExt<?> attr = attrProcessor.getAttributeByMetadata(
-					new EntityParam(entityId), "/", 
-					EntityNameMetadataProvider.NAME);
-			return (attr != null) ? (String) attr.getValues().get(0) : null;
+			return idsMan.getEntityLabel(new EntityParam(entityId));
 		} catch (AuthorizationException e)
 		{
 			log.debug("Not setting entity's label as the client is not authorized to read the attribute", e);

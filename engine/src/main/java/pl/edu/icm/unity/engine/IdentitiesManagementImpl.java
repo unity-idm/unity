@@ -593,16 +593,9 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 	{
 		entity.validateInitialization();
 		SqlSession sqlMap = SqlSessionTL.get();
-		AttributeType nameAt = attributesHelper.getAttributeTypeWithSingeltonMetadata(
+		AttributeExt<?> attribute = attributesHelper.getAttributeByMetadata(entity, "/", 
 				EntityNameMetadataProvider.NAME, sqlMap);
-		if (nameAt == null)
-			return null;
-		long entityId = idResolver.getEntityId(entity, sqlMap);
-		Collection<AttributeExt<?>> attributes = dbAttributes.getAllAttributes(
-				entityId, "/", true, nameAt.getName(), sqlMap);
-		if (attributes.isEmpty())
-			return null;
-		List<?> values = attributes.iterator().next().getValues();
+		List<?> values = attribute.getValues();
 		if (values.isEmpty())
 			return null;
 		return values.get(0).toString();
