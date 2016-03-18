@@ -20,12 +20,18 @@ import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.webui.common.ConfirmationComponent;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryWellKnownURLView.Callback;
 import pl.edu.icm.unity.wellknownurl.SecuredViewProvider;
 
 import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Standalone view presenting enquiry form.
@@ -57,6 +63,9 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 	public View getView(String viewName)
 	{
 		String formName = viewName.substring(ENQUIRY_FRAGMENT_PREFIX.length());
+		if (!editorController.isFormApplicable(formName))
+			return new NotApplicableView();
+		
 		EnquiryForm form = editorController.getForm(formName);
 		EnquiryResponseEditor editor;
 		try
@@ -105,5 +114,22 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 	public void setSandboxNotifier(SandboxAuthnNotifier sandboxNotifier,
 			String sandboxUrlForAssociation)
 	{
+	}
+	
+	private class NotApplicableView extends CustomComponent implements View
+	{
+
+		@Override
+		public void enter(ViewChangeEvent event)
+		{
+			VerticalLayout wrapper = new VerticalLayout();
+			ConfirmationComponent confirmation = new ConfirmationComponent(Images.error32.getResource(), 
+					msg.getMessage("EnquiryWellKnownURLViewProvider.notApplicableEnquiry"));
+			wrapper.addComponent(confirmation);
+			wrapper.setComponentAlignment(confirmation, Alignment.MIDDLE_CENTER);
+			wrapper.setSizeFull();
+			setSizeFull();
+			setCompositionRoot(wrapper);
+		}
 	}
 }

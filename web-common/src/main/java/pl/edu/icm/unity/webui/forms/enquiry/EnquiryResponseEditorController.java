@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webui.forms.enquiry;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +71,16 @@ public class EnquiryResponseEditorController
 				attributeHandlerRegistry, attrsMan, authnMan, groupsMan);
 	}
 
+	public boolean isFormApplicable(String formName)
+	{
+		List<EnquiryForm> formsToFill = getFormsToFill();
+		Optional<String> found = formsToFill.stream()
+				.map(form -> form.getName())
+				.filter(name -> formName.equals(formName))
+				.findAny();
+		return found.isPresent();
+	}
+	
 	public List<EnquiryForm> getFormsToFill()
 	{
 		EntityParam entity = new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId());
