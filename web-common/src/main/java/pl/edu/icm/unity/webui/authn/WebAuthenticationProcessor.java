@@ -34,8 +34,6 @@ import pl.edu.icm.unity.server.authn.AuthenticationProcessor.PartialAuthnState;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
-import pl.edu.icm.unity.server.authn.LogoutProcessor;
-import pl.edu.icm.unity.server.authn.LogoutProcessorFactory;
 import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.server.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.server.registries.SessionParticipantTypesRegistry;
@@ -80,7 +78,7 @@ public class WebAuthenticationProcessor
 	private SessionParticipantTypesRegistry participantTypesRegistry;
 	private SessionManagement sessionMan;
 	private LoginToHttpSessionBinder sessionBinder;
-	private LogoutProcessor logoutProcessor;
+	private LogoutProcessorsManager logoutProcessorsManager;
 	private AuthenticationProcessor authnProcessor;
 	
 	@Autowired
@@ -88,7 +86,7 @@ public class WebAuthenticationProcessor
 			AuthenticationManagement authnMan,
 			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder,
 			IdentitiesManagement idsMan, 
-			CredentialEditorRegistry credEditorReg, LogoutProcessorFactory logoutProcessorFactory,
+			CredentialEditorRegistry credEditorReg, LogoutProcessorsManager logoutProcessorsManager,
 			UnityServerConfiguration config, SessionParticipantTypesRegistry participantTypesRegistry)
 	{
 		this.msg = msg;
@@ -98,9 +96,9 @@ public class WebAuthenticationProcessor
 		this.credEditorReg = credEditorReg;
 		this.sessionMan = sessionMan;
 		this.sessionBinder = sessionBinder;
+		this.logoutProcessorsManager = logoutProcessorsManager;
 		this.config = config;
 		this.participantTypesRegistry = participantTypesRegistry;
-		this.logoutProcessor = logoutProcessorFactory.getInstance();
 	}
 
 	/**
@@ -325,7 +323,7 @@ public class WebAuthenticationProcessor
 		
 		if (mode == LogoutMode.internalAndSyncPeers)
 		{
-			logoutProcessor.handleSynchronousLogout(session);
+			logoutProcessorsManager.handleSynchronousLogout(session);
 			destroySession(soft);
 		} else
 		{
@@ -369,7 +367,7 @@ public class WebAuthenticationProcessor
 
 				try
 				{
-					logoutProcessor.handleAsyncLogout(loginSession, null, 
+					logoutProcessorsManager.handleAsyncLogout(loginSession, null, 
 							returnUri, 
 							response.getHttpServletResponse());
 				} catch (IOException e)
