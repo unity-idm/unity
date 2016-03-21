@@ -153,7 +153,7 @@ public class EnquiryResponseEditorController
 		}
 
 		new PostFormFillingHandler(idpLoginController, form, msg, 
-				enquiryManagement.getProfileInstance(form), false).
+				enquiryManagement.getProfileInstance(form), mode != TriggeringMode.manualAdmin).
 			submittedEnquiryResponse(id, enquiryManagement, response, context);
 		return true;
 	}
