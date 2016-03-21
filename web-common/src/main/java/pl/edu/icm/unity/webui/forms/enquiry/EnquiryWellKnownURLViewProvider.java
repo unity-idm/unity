@@ -18,13 +18,14 @@ import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.ConfirmationComponent;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.TopHeader;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryWellKnownURLView.Callback;
 import pl.edu.icm.unity.wellknownurl.SecuredViewProvider;
 
@@ -49,7 +50,7 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 	@Autowired
 	private UnityMessageSource msg;
 	@Autowired
-	private UnityServerConfiguration cfg;
+	private WebAuthenticationProcessor authnProcessor;
 	
 	@Override
 	public String getViewName(String viewAndParameters)
@@ -79,7 +80,7 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 			return null;
 		}
 		
-		return new EnquiryWellKnownURLView(editor, msg, cfg, new Callback()
+		return new EnquiryWellKnownURLView(editor, authnProcessor, msg, new Callback()
 		{
 			@Override
 			public boolean submitted()
@@ -133,10 +134,15 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 		public void enter(ViewChangeEvent event)
 		{
 			VerticalLayout wrapper = new VerticalLayout();
+			
+			TopHeader header = new TopHeader("", authnProcessor, msg);
+			wrapper.addComponent(header);
+			
 			ConfirmationComponent confirmation = new ConfirmationComponent(Images.error32.getResource(), 
 					msg.getMessage("EnquiryWellKnownURLViewProvider.notApplicableEnquiry"));
 			wrapper.addComponent(confirmation);
 			wrapper.setComponentAlignment(confirmation, Alignment.MIDDLE_CENTER);
+			wrapper.setExpandRatio(confirmation, 2f);
 			wrapper.setSizeFull();
 			setSizeFull();
 			setCompositionRoot(wrapper);

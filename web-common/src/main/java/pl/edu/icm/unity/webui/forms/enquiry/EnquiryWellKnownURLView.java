@@ -5,11 +5,11 @@
 package pl.edu.icm.unity.webui.forms.enquiry;
 
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
+import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.ConfirmationComponent;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.TopHeader;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -31,14 +31,14 @@ public class EnquiryWellKnownURLView extends CustomComponent implements View
 	private EnquiryResponseEditor editor;
 	private Callback callback;
 	private UnityMessageSource msg;
-	private UnityServerConfiguration cfg;
+	private WebAuthenticationProcessor authnProcessor;
 	
-	public EnquiryWellKnownURLView(EnquiryResponseEditor editor, UnityMessageSource msg, 
-			UnityServerConfiguration cfg, Callback callback)
+	public EnquiryWellKnownURLView(EnquiryResponseEditor editor, WebAuthenticationProcessor authnProcessor,
+			UnityMessageSource msg,	Callback callback)
 	{
 		this.editor = editor;
+		this.authnProcessor = authnProcessor;
 		this.msg = msg;
-		this.cfg = cfg;
 		this.callback = callback;
 	}
 	
@@ -51,11 +51,6 @@ public class EnquiryWellKnownURLView extends CustomComponent implements View
 
 	private void placeEditor(EnquiryResponseEditor editor)
 	{
-		LocaleChoiceComponent localeChoice = new LocaleChoiceComponent(cfg, msg);
-		
-		main.addComponent(localeChoice);
-		main.setComponentAlignment(localeChoice, Alignment.TOP_RIGHT);
-
 		main.addComponent(editor);
 		editor.setWidthUndefined();
 		main.setComponentAlignment(editor, Alignment.MIDDLE_CENTER);
@@ -86,18 +81,23 @@ public class EnquiryWellKnownURLView extends CustomComponent implements View
 	private void initUIBase()
 	{
 		main = new VerticalLayout();
-		main.setMargin(true);
-		main.setSpacing(true);
 		addStyleName("u-standalone-public-form");
 		setCompositionRoot(main);
 		setWidth(100, Unit.PERCENTAGE);
+		
+		TopHeader header = new TopHeader("", authnProcessor, msg);
+		main.addComponent(header);
 	}
 	
 	private void showConfirm(Resource icon, String message)
 	{
 		VerticalLayout wrapper = new VerticalLayout();
+		TopHeader header = new TopHeader("", authnProcessor, msg);
+		wrapper.addComponent(header);
+		
 		ConfirmationComponent confirmation = new ConfirmationComponent(icon, message);
 		wrapper.addComponent(confirmation);
+		wrapper.setExpandRatio(confirmation, 2f);
 		wrapper.setComponentAlignment(confirmation, Alignment.MIDDLE_CENTER);
 		wrapper.setSizeFull();
 		setSizeFull();
