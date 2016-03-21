@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * Classic translation profile used for post-processing registration requests.
  * @author K. Benedyczak
  */
-public class RegistrationTranslationProfile extends BaseRegistrationTranslationProfile
+public class RegistrationTranslationProfile extends BaseFormTranslationProfile
 {
 	public RegistrationTranslationProfile(ObjectNode json, RegistrationActionsRegistry registry)
 	{

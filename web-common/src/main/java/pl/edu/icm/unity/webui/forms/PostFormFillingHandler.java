@@ -13,7 +13,7 @@ import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.api.internal.IdPLoginController;
 import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder;
 import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder.Status;
-import pl.edu.icm.unity.server.translation.form.BaseRegistrationTranslationProfile;
+import pl.edu.icm.unity.server.translation.form.BaseFormTranslationProfile;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nMessage;
@@ -42,16 +42,16 @@ public class PostFormFillingHandler
 	private UnityMessageSource msg;
 	private boolean doRedirect;
 	private IdPLoginController loginController;
-	private BaseRegistrationTranslationProfile translationProfile;
+	private BaseFormTranslationProfile translationProfile;
 	
 	public PostFormFillingHandler(IdPLoginController loginController, 
-			BaseForm form, UnityMessageSource msg, BaseRegistrationTranslationProfile profile)
+			BaseForm form, UnityMessageSource msg, BaseFormTranslationProfile profile)
 	{
 		this(loginController, form, msg, profile, true);
 	}
 
 	public PostFormFillingHandler(IdPLoginController loginController, 
-			BaseForm form, UnityMessageSource msg, BaseRegistrationTranslationProfile profile, 
+			BaseForm form, UnityMessageSource msg, BaseFormTranslationProfile profile, 
 			boolean doRedirect)
 	{
 		this.loginController = loginController;

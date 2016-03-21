@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * Delegates to super class.
  * @author K. Benedyczak
  */
-public class EnquiryTranslationProfile extends BaseRegistrationTranslationProfile
+public class EnquiryTranslationProfile extends BaseFormTranslationProfile
 {
 	public EnquiryTranslationProfile(ObjectNode json, RegistrationActionsRegistry registry)
 	{

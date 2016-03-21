@@ -45,17 +45,17 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * Classic translation profile used for post-processing registration requests.
  * @author K. Benedyczak
  */
-public abstract class BaseRegistrationTranslationProfile extends TranslationProfileInstance
+public abstract class BaseFormTranslationProfile extends TranslationProfileInstance
 						<RegistrationTranslationAction, RegistrationTranslationRule>
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, BaseRegistrationTranslationProfile.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, BaseFormTranslationProfile.class);
 	
-	public BaseRegistrationTranslationProfile(ObjectNode json, RegistrationActionsRegistry registry)
+	public BaseFormTranslationProfile(ObjectNode json, RegistrationActionsRegistry registry)
 	{
 		super(json, registry);
 	}
 	
-	public BaseRegistrationTranslationProfile(String name, List<? extends TranslationRule> rules, 
+	public BaseFormTranslationProfile(String name, List<? extends TranslationRule> rules, 
 			TypesRegistryBase<? extends TranslationActionFactory> registry)
 	{
 		super(name, "", ProfileType.REGISTRATION, rules, registry);

@@ -19,6 +19,8 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
+import pl.edu.icm.unity.server.translation.form.BaseFormTranslationProfile;
+import pl.edu.icm.unity.server.translation.form.EnquiryTranslationProfile;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -50,30 +52,34 @@ public class RegistrationConfirmationSupport
 	public void sendAttributeConfirmationRequest(RegistrationRequestState requestState,
 			Long entityId, RegistrationForm form) throws InternalException, EngineException
 	{
-		sendAttributeConfirmationRequest(RequestType.REGISTRATION, requestState, entityId, form);
+		sendAttributeConfirmationRequest(RequestType.REGISTRATION, requestState, entityId, form,
+				getRegistrationProfile(form));
 	}
 
 	public void sendAttributeConfirmationRequest(EnquiryResponseState requestState,
 			EnquiryForm form) throws InternalException, EngineException
 	{
-		sendAttributeConfirmationRequest(RequestType.ENQUIRY, requestState, requestState.getEntityId(), form);
+		sendAttributeConfirmationRequest(RequestType.ENQUIRY, requestState, requestState.getEntityId(), form,
+				getEnquiryProfile(form));
 	}
 
 	public void sendIdentityConfirmationRequest(RegistrationRequestState requestState,
 			Long entityId, RegistrationForm form) throws InternalException, EngineException
 	{
-		sendIdentityConfirmationRequest(RequestType.REGISTRATION, requestState, entityId, form);
+		sendIdentityConfirmationRequest(RequestType.REGISTRATION, requestState, entityId, form,
+				getRegistrationProfile(form));
 	}
 
 	public void sendIdentityConfirmationRequest(EnquiryResponseState requestState,
 			EnquiryForm form) throws InternalException, EngineException
 	{
-		sendIdentityConfirmationRequest(RequestType.ENQUIRY, requestState, requestState.getEntityId(), form);
+		sendIdentityConfirmationRequest(RequestType.ENQUIRY, requestState, requestState.getEntityId(), form,
+				getEnquiryProfile(form));
 	}
 	
 	
 	private void sendAttributeConfirmationRequest(RequestType type, UserRequestState<?> requestState,
-			Long entityId, BaseForm form) throws InternalException, EngineException
+			Long entityId, BaseForm form, BaseFormTranslationProfile profile) throws InternalException, EngineException
 	{
 		for (Attribute<?> attr : requestState.getRequest().getAttributes())
 		{
@@ -96,7 +102,7 @@ public class RegistrationConfirmationSupport
 							val.getValue(), 
 							requestState.getRequest().getUserLocale(),
 							attr.getGroupPath(), 
-							getFormRedirectUrlForAttribute(requestState, form, attr),
+							getRedirectUrlForAttribute(requestState, form, attr, profile),
 							type);
 					} else
 					{
@@ -106,7 +112,7 @@ public class RegistrationConfirmationSupport
 							val.getValue(), 
 							requestState.getRequest().getUserLocale(), 
 							attr.getGroupPath(), 
-							getFormRedirectUrlForAttribute(requestState, form, attr));
+							getRedirectUrlForAttribute(requestState, form, attr, profile));
 					}
 					confirmationManager.sendConfirmationRequest(state);
 				}
@@ -115,7 +121,7 @@ public class RegistrationConfirmationSupport
 	}
 	
 	private void sendIdentityConfirmationRequest(RequestType requestType, UserRequestState<?> requestState,
-			Long entityId, BaseForm form) throws InternalException, EngineException
+			Long entityId, BaseForm form, BaseFormTranslationProfile profile) throws InternalException, EngineException
 	{
 		for (IdentityParam id : requestState.getRequest().getIdentities())
 		{
@@ -131,41 +137,49 @@ public class RegistrationConfirmationSupport
 							requestState.getRequestId(),
 							id.getTypeId(), id.getValue(), 
 							requestState.getRequest().getUserLocale(),
-							getFormRedirectUrlForIdentity(requestState, form, id),
+							getRedirectUrlForIdentity(requestState, form, id, profile),
 							requestType);
 				} else
 				{
 					state = new IdentityConfirmationState(entityId, 
 							id.getTypeId(), id.getValue(), 
 							requestState.getRequest().getUserLocale(),
-							getFormRedirectUrlForIdentity(requestState, form, id));
+							getRedirectUrlForIdentity(requestState, form, id, profile));
 				}
 				confirmationManager.sendConfirmationRequest(state);
 			}
 		}
 	}
+
+	private String getRedirectUrlForIdentity(UserRequestState<?> requestState, BaseForm form,
+			IdentityParam identity, BaseFormTranslationProfile profile)
+	{
+		return profile.getPostConfirmationRedirectURL(form, requestState, identity, 
+				requestState.getRequestId());
+	}
 	
-	private String getFormRedirectUrlForIdentity(UserRequestState<?> requestState, BaseForm form,
-			IdentityParam identity)
+	private RegistrationTranslationProfile getRegistrationProfile(RegistrationForm form)
 	{
 		TranslationProfile translationProfile = form.getTranslationProfile();
-		RegistrationTranslationProfile regProfile = new RegistrationTranslationProfile(translationProfile.getName(), 
+		return new RegistrationTranslationProfile(translationProfile.getName(), 
 				translationProfile.getRules(), registrationTranslationActionsRegistry);
-		return regProfile.getPostConfirmationRedirectURL(form, requestState, identity, 
-				requestState.getRequestId());
+	}	
+
+	private EnquiryTranslationProfile getEnquiryProfile(EnquiryForm form)
+	{
+		TranslationProfile translationProfile = form.getTranslationProfile();
+		return new EnquiryTranslationProfile(translationProfile.getName(), 
+				translationProfile.getRules(), registrationTranslationActionsRegistry);
 	}	
 	
-	private String getFormRedirectUrlForAttribute(UserRequestState<?> requestState, BaseForm form,
-			Attribute<?> attr)
+	private String getRedirectUrlForAttribute(UserRequestState<?> requestState, BaseForm form,
+			Attribute<?> attr, BaseFormTranslationProfile profile)
 	{
 		String current = null;
 		if (InvocationContext.getCurrent().getCurrentURLUsed() != null
 				&& InvocationContext.getCurrent().getLoginSession() == null)
 			current = InvocationContext.getCurrent().getCurrentURLUsed();
-		TranslationProfile translationProfile = form.getTranslationProfile();
-		RegistrationTranslationProfile regProfile = new RegistrationTranslationProfile(translationProfile.getName(), 
-				translationProfile.getRules(), registrationTranslationActionsRegistry);
-		String configured = regProfile.getPostConfirmationRedirectURL(form, requestState, attr,
+		String configured = profile.getPostConfirmationRedirectURL(form, requestState, attr,
 				requestState.getRequestId());
 		return configured != null ? configured : current;
 	}
