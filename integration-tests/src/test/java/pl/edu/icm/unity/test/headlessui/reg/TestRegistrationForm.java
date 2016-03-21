@@ -29,6 +29,7 @@ public class TestRegistrationForm extends SeleniumTestBase
 		waitForElement(By.id("WebPasswordRetrieval.password")).sendKeys("the!test1");
 		waitForElement(By.id("AuthenticationUI.authnenticateButton")).click();
 		waitForElement(By.id("IdpButtonsBar.confirmButton")).click();
+		simpleWait();
 		waitForElement(By.id("UnknownUserDialog.register")).click();
 		assertTrue(waitForElement(By.id("EmailValueEditor.Email")).getAttribute("value")
 				.contains("x"));
@@ -36,7 +37,7 @@ public class TestRegistrationForm extends SeleniumTestBase
 		waitForElement(By.id("EmailValueEditor.Email")).sendKeys("test@test.com");
 		assertTrue(waitForElement(By.id("ListOfElements")) != null);
 		waitForElement(By.id("AbstractDialog.confirm")).click();	
-//		simpleWait();
+		simpleWait();
 		waitForElement(By.className("v-Notification")).click();	
 		simpleWait();
 		waitForElement(By.id("AuthenticationUI.authnenticateButton")).click();
