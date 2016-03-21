@@ -10,7 +10,6 @@ import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.api.registration.InvitationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.SubmitRegistrationTemplateDef;
-import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
@@ -23,7 +22,6 @@ import com.vaadin.ui.ComboBox;
  */
 public class RegistrationFormNotificationsEditor extends BaseFormNotificationsEditor
 {
-	private ComboBox updatedTemplate;
 	private ComboBox invitationTemplate;
 	private ComboBox submittedTemplate;
 	
@@ -39,18 +37,15 @@ public class RegistrationFormNotificationsEditor extends BaseFormNotificationsEd
 	{
 		submittedTemplate = new CompatibleTemplatesComboBox(SubmitRegistrationTemplateDef.NAME, msgTempMan);
 		submittedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.submittedTemplate"));
-		updatedTemplate =  new CompatibleTemplatesComboBox(UpdateRegistrationTemplateDef.NAME, msgTempMan);
-		updatedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.updatedTemplate"));
 		invitationTemplate =  new CompatibleTemplatesComboBox(InvitationTemplateDef.NAME, msgTempMan);
 		invitationTemplate.setCaption(msg.getMessage("RegistrationFormViewer.invitationTemplate"));
-		addComponents(submittedTemplate, updatedTemplate, invitationTemplate);
+		addComponents(submittedTemplate, invitationTemplate);
 	}
 	
 	public void setValue(RegistrationFormNotifications toEdit)
 	{
 		super.setValue(toEdit);
 		submittedTemplate.setValue(toEdit.getSubmittedTemplate());
-		updatedTemplate.setValue(toEdit.getUpdatedTemplate());
 		invitationTemplate.setValue(toEdit.getInvitationTemplate());
 	}
 	
@@ -58,7 +53,6 @@ public class RegistrationFormNotificationsEditor extends BaseFormNotificationsEd
 	{
 		RegistrationFormNotifications notCfg = new RegistrationFormNotifications();
 		super.fill(notCfg);
-		notCfg.setUpdatedTemplate((String) updatedTemplate.getValue());
 		notCfg.setInvitationTemplate((String) invitationTemplate.getValue());
 		notCfg.setSubmittedTemplate((String) submittedTemplate.getValue());
 		return notCfg;

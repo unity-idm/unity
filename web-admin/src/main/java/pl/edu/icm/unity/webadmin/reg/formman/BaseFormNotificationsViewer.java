@@ -22,6 +22,7 @@ public class BaseFormNotificationsViewer extends LayoutEmbeddable
 	protected UnityMessageSource msg;
 	protected MessageTemplateManagement msgTempMan;
 	
+	private SimpleMessageTemplateViewer updatedTemplate;
 	private SimpleMessageTemplateViewer rejectedTemplate;
 	private SimpleMessageTemplateViewer acceptedTemplate;
 	private Label channel;
@@ -47,13 +48,16 @@ public class BaseFormNotificationsViewer extends LayoutEmbeddable
 				msg, msgTempMan);
 		acceptedTemplate = new SimpleMessageTemplateViewer(msg.getMessage("RegistrationFormViewer.acceptedTemplate"),
 				msg, msgTempMan);
-		addComponents(channel, adminsNotificationGroup,	rejectedTemplate, acceptedTemplate);
+		updatedTemplate = new SimpleMessageTemplateViewer(msg.getMessage("RegistrationFormViewer.updatedTemplate"),
+				msg, msgTempMan);
+		addComponents(channel, adminsNotificationGroup,	rejectedTemplate, acceptedTemplate, updatedTemplate);
 	}
 	
 	protected void clear()
 	{
 		rejectedTemplate.clearContent();
 		acceptedTemplate.clearContent();
+		updatedTemplate.clearContent();
 		channel.setValue("");
 		adminsNotificationGroup.setValue("");
 	}
@@ -62,6 +66,7 @@ public class BaseFormNotificationsViewer extends LayoutEmbeddable
 	{
 		rejectedTemplate.setInput(notCfg.getRejectedTemplate());
 		acceptedTemplate.setInput(notCfg.getAcceptedTemplate());
+		updatedTemplate.setInput(notCfg.getUpdatedTemplate());
 		channel.setValue(notCfg.getChannel());
 		adminsNotificationGroup.setValue(notCfg.getAdminsNotificationGroup());
 	}

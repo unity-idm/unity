@@ -13,6 +13,7 @@ public class BaseFormNotifications
 {
 	private String rejectedTemplate;
 	private String acceptedTemplate;
+	private String updatedTemplate;
 	
 	private String channel;
 	private String adminsNotificationGroup;
@@ -49,6 +50,15 @@ public class BaseFormNotifications
 	{
 		this.acceptedTemplate = acceptedTemplate;
 	}
+	public String getUpdatedTemplate()
+	{
+		return updatedTemplate;
+	}
+	public void setUpdatedTemplate(String updatedTemplate)
+	{
+		this.updatedTemplate = updatedTemplate;
+	}
+
 	@Override
 	public int hashCode()
 	{
@@ -63,6 +73,8 @@ public class BaseFormNotifications
 		result = prime * result + ((channel == null) ? 0 : channel.hashCode());
 		result = prime * result
 				+ ((rejectedTemplate == null) ? 0 : rejectedTemplate.hashCode());
+		result = prime * result
+				+ ((updatedTemplate == null) ? 0 : updatedTemplate.hashCode());
 		return result;
 	}
 	@Override
@@ -98,6 +110,12 @@ public class BaseFormNotifications
 			if (other.rejectedTemplate != null)
 				return false;
 		} else if (!rejectedTemplate.equals(other.rejectedTemplate))
+			return false;
+		if (updatedTemplate == null)
+		{
+			if (other.updatedTemplate != null)
+				return false;
+		} else if (!updatedTemplate.equals(other.updatedTemplate))
 			return false;
 		return true;
 	}

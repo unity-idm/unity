@@ -15,7 +15,6 @@ import pl.edu.icm.unity.webadmin.msgtemplate.SimpleMessageTemplateViewer;
  */
 public class RegistrationFormNotificationsViewer extends BaseFormNotificationsViewer
 {
-	private SimpleMessageTemplateViewer updatedTemplate;
 	private SimpleMessageTemplateViewer invitationTemplate;
 	private SimpleMessageTemplateViewer submittedTemplate;
 	
@@ -31,17 +30,15 @@ public class RegistrationFormNotificationsViewer extends BaseFormNotificationsVi
 		submittedTemplate = new SimpleMessageTemplateViewer(msg.getMessage(
 				"RegistrationFormViewer.submittedTemplate"),
 				msg, msgTempMan);
-		updatedTemplate = new SimpleMessageTemplateViewer(msg.getMessage("RegistrationFormViewer.updatedTemplate"),
+		invitationTemplate = new SimpleMessageTemplateViewer(
+				msg.getMessage("RegistrationFormViewer.invitationTemplate"),
 				msg, msgTempMan);
-		invitationTemplate = new SimpleMessageTemplateViewer(msg.getMessage("RegistrationFormViewer.invitationTemplate"),
-				msg, msgTempMan);
-		addComponents(updatedTemplate, invitationTemplate);
+		addComponents(submittedTemplate, invitationTemplate);
 	}
 	
 	public void clear()
 	{
 		super.clear();
-		updatedTemplate.clearContent();
 		invitationTemplate.clearContent();
 		submittedTemplate.clearContent();
 	}
@@ -49,7 +46,6 @@ public class RegistrationFormNotificationsViewer extends BaseFormNotificationsVi
 	public void setValue(RegistrationFormNotifications notCfg)
 	{
 		super.setValue(notCfg);
-		updatedTemplate.setInput(notCfg.getUpdatedTemplate());
 		invitationTemplate.setInput(notCfg.getInvitationTemplate());
 		submittedTemplate.setInput(notCfg.getSubmittedTemplate());
 	}

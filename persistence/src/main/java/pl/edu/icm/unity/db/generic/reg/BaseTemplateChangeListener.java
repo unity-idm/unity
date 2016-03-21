@@ -13,6 +13,7 @@ import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.server.api.registration.AcceptRegistrationTemplateDef;
 import pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef;
+import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
 import pl.edu.icm.unity.types.registration.BaseFormNotifications;
 
 /**
@@ -45,6 +46,12 @@ public abstract class BaseTemplateChangeListener implements DependencyChangeList
 			throw new SchemaConsistencyException("The message template is used by a registration form " 
 					+ formName + " and the template's type change would render the template incompatible with it");
 		}
+		if (oldObject.getName().equals(notCfg.getUpdatedTemplate()) && 
+				!updatedObject.getConsumer().equals(UpdateRegistrationTemplateDef.NAME))
+		{
+			throw new SchemaConsistencyException("The message template is used by a registration form " 
+					+ formName + " and the template's type change would render the template incompatible with it");
+		}
 	}
 
 	protected void checkRemoved(BaseFormNotifications notCfg, MessageTemplate removedObject, String formName) 
@@ -54,6 +61,9 @@ public abstract class BaseTemplateChangeListener implements DependencyChangeList
 				throw new SchemaConsistencyException("The message template is used by a registration form " 
 						+ formName);
 			if (removedObject.getName().equals(notCfg.getRejectedTemplate()))
+				throw new SchemaConsistencyException("The message template is used by a registration form " 
+						+ formName);
+			if (removedObject.getName().equals(notCfg.getUpdatedTemplate()))
 				throw new SchemaConsistencyException("The message template is used by a registration form " 
 						+ formName);
 	}

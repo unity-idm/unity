@@ -231,7 +231,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			return null;
 		NotificationFacility notificationFacility = facilitiesManagement.getNotificationFacilityForChannel(
 				notificationsCfg.getChannel(), sql);
-		return notificationFacility.getAddressForRegistrationRequest(currentRequest, sql);
+		return notificationFacility.getAddressForUserRequest(currentRequest, sql);
 	}
 
 	

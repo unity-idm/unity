@@ -13,7 +13,7 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.notifications.NotificationStatus;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.registration.RegistrationRequestState;
+import pl.edu.icm.unity.types.registration.UserRequestState;
 
 
 public class MockNotificationFacility implements NotificationFacility
@@ -69,8 +69,7 @@ public class MockNotificationFacility implements NotificationFacility
 	}
 
 	@Override
-	public String getAddressForRegistrationRequest(RegistrationRequestState currentRequest,
-			SqlSession sql) throws EngineException
+	public String getAddressForUserRequest(UserRequestState<?> currentRequest, SqlSession sql) throws EngineException
 	{
 		return null;
 	}

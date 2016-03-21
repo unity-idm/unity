@@ -157,7 +157,18 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 				true, publicComment, 
 				internalComment, notificationsCfg, requesterAddress);
 	}
-
+	
+	public void sendProcessingNotification(EnquiryForm form, String templateId,
+			EnquiryResponseState currentRequest, String formId,
+			AdminComment publicComment, AdminComment internalComment, SqlSession sql)
+			throws EngineException
+	{
+		EnquiryFormNotifications notificationsCfg = form.getNotificationsConfiguration();
+		String requesterAddress = getRequesterAddress(currentRequest, notificationsCfg, sql);
+		sendProcessingNotification(templateId, currentRequest, formId, false, 
+				publicComment, internalComment, notificationsCfg, requesterAddress);
+	}
+	
 	/**
 	 * Basing on the profile's decision automatically process the enquiry response if needed.
 	 * @throws EngineException 
@@ -203,12 +214,19 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 	{
 		if (notificationsCfg.getChannel() == null)
 			return null;
+
 		NotificationFacility notificationFacility = facilitiesManagement.getNotificationFacilityForChannel(
 				notificationsCfg.getChannel(), sql);
-		return notificationFacility.getAddressForEntity(new EntityParam(currentRequest.getEntityId()), sql, null);
+		try
+		{
+			return notificationFacility.getAddressForEntity(
+				new EntityParam(currentRequest.getEntityId()), sql, null);
+		} catch (Exception e)
+		{
+			return notificationFacility.getAddressForUserRequest(currentRequest, sql);
+		}
 	}
 
-	
 	public EnquiryTranslationProfile getEnquiryProfileInstance(TranslationProfile profile)
 	{
 		return new EnquiryTranslationProfile(profile.getName(), profile.getRules(), 

@@ -250,6 +250,9 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	{
 		enquiryResponseValidator.validateSubmittedRequest(form, currentRequest.getRequest(), false, sql);
 		requestDB.update(currentRequest.getRequestId(), currentRequest, sql);
+		internalManagment.sendProcessingNotification(form, 
+				form.getNotificationsConfiguration().getUpdatedTemplate(),
+				currentRequest, form.getName(), publicComment, internalComment,	sql);
 	}
 	
 	private EnquiryForm recordRequestAndReturnForm(EnquiryResponseState responseFull) throws EngineException

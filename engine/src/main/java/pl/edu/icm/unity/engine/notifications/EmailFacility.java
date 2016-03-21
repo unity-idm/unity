@@ -46,7 +46,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
-import pl.edu.icm.unity.types.registration.RegistrationRequestState;
+import pl.edu.icm.unity.types.registration.UserRequestState;
 
 import com.sun.mail.util.MailSSLSocketFactory;
 
@@ -170,7 +170,7 @@ public class EmailFacility implements NotificationFacility
 	 * from the registration request is used and the cases with "confirmed" status are skipped.
 	 */ 
 	@Override
-	public String getAddressForRegistrationRequest(RegistrationRequestState currentRequest,
+	public String getAddressForUserRequest(UserRequestState<?> currentRequest,
 			SqlSession sql) throws EngineException
 	{
 		List<VerifiableEmail> emailIds = getEmailIdentities(currentRequest);
@@ -213,7 +213,7 @@ public class EmailFacility implements NotificationFacility
 		return emailIds;
 	}
 
-	private List<VerifiableEmail> getEmailIdentities(RegistrationRequestState currentRequest) throws EngineException
+	private List<VerifiableEmail> getEmailIdentities(UserRequestState<?> currentRequest) throws EngineException
 	{
 		List<VerifiableEmail> emailIds = new ArrayList<>();
 		List<IdentityParam> identities = currentRequest.getRequest().getIdentities();
@@ -225,7 +225,7 @@ public class EmailFacility implements NotificationFacility
 		return emailIds;
 	}
 	
-	private Attribute<?> getEmailAttributeFromRequest(RegistrationRequestState currentRequest, SqlSession sql)
+	private Attribute<?> getEmailAttributeFromRequest(UserRequestState<?> currentRequest, SqlSession sql)
 			throws EngineException
 	{
 		List<Attribute<?>> attrs = currentRequest.getRequest().getAttributes();

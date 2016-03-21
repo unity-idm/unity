@@ -214,7 +214,7 @@ public class TestEmailFacility extends DBIntegrationTestBase
 		SqlSession sqlSession = db.getSqlSession(true);
 		try
 		{
-			assertEquals(expected, emailFacility.getAddressForRegistrationRequest(request, sqlSession));
+			assertEquals(expected, emailFacility.getAddressForUserRequest(request, sqlSession));
 			sqlSession.commit();
 		} finally
 		{
