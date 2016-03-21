@@ -32,6 +32,7 @@ import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
+import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
@@ -134,6 +135,7 @@ public class EnquiryFormsComponent extends VerticalLayout
 		table.addActionHandler(new EditActionHandler());
 		table.addActionHandler(new CopyActionHandler());
 		table.addActionHandler(new DeleteActionHandler());
+		table.addActionHandler(new ResendActionHandler());
 				
 		Toolbar toolbar = new Toolbar(table, Orientation.HORIZONTAL);
 		toolbar.addActionHandlers(table.getActionHandlers());
@@ -208,6 +210,17 @@ public class EnquiryFormsComponent extends VerticalLayout
 			return false;
 		}
 	}
+
+	private void resend(String name)
+	{
+		try
+		{
+			enquiriesManagement.sendEnquiry(name);
+		} catch (Exception e)
+		{
+			NotificationPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorSend"), e);
+		}
+	}
 	
 	private Collection<EnquiryForm> getItems(Object target)
 	{
@@ -267,6 +280,27 @@ public class EnquiryFormsComponent extends VerticalLayout
 							return addForm(form);
 						}
 					}, editor);
+			dialog.show();
+		}
+	}
+
+	private class ResendActionHandler extends SingleActionHandler
+	{
+		public ResendActionHandler()
+		{
+			super(msg.getMessage("RegistrationFormsComponent.resendAction"), Images.messageSend.getResource());
+			setNeedsTarget(true);
+		}
+
+		@Override
+		public void handleAction(Object sender, final Object target)
+		{
+			@SuppressWarnings("unchecked")
+			GenericItem<EnquiryForm> item = (GenericItem<EnquiryForm>) target;
+			EnquiryForm form = item.getElement();
+			ConfirmDialog dialog = new ConfirmDialog(msg, 
+					msg.getMessage("RegistrationFormsComponent.resendConfirmation"), 
+					() -> resend(form.getName()));
 			dialog.show();
 		}
 	}
