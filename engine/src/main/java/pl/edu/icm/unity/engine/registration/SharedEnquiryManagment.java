@@ -121,6 +121,8 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 			dbIdentities.insertIdentity(idParam, entityId, false, sql);
 		}
 
+		attributesHelper.addAttributesList(rootAttributes, entityId, true, sql);
+		
 		applyRequestedGroups(entityId, remainingAttributesByGroup, 
 				translatedRequest, sql);
 
@@ -159,8 +161,9 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 	/**
 	 * Basing on the profile's decision automatically process the enquiry response if needed.
 	 * @throws EngineException 
+	 * @return true only if request was accepted
 	 */
-	public void autoProcessEnquiry(EnquiryForm form, EnquiryResponseState fullResponse, String logMessageTemplate,
+	public boolean autoProcessEnquiry(EnquiryForm form, EnquiryResponseState fullResponse, String logMessageTemplate,
 			SqlSession sql)	throws EngineException
 	{
 		EnquiryTranslationProfile translationProfile = getEnquiryProfileInstance(
@@ -169,7 +172,7 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 		AutomaticRequestAction autoProcessAction = translationProfile.getAutoProcessAction(
 				form, fullResponse, RequestSubmitStatus.submitted);
 		if (autoProcessAction == AutomaticRequestAction.none)
-			return;
+			return false;
 		
 		AdminComment systemComment = new AdminComment(
 				SharedEnquiryManagment.AUTO_PROCESS_COMMENT, 0, false);
@@ -181,7 +184,7 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 		{
 		case accept:
 			acceptEnquiryResponse(form, fullResponse, null, systemComment, false, sql);
-			break;
+			return true;
 		case drop:
 			dropEnquiryResponse(fullResponse.getRequestId(), sql);
 			break;
@@ -191,6 +194,7 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 			break;
 		default:
 		}
+		return false;
 	}
 	
 	private String getRequesterAddress(EnquiryResponseState currentRequest,

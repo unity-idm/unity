@@ -57,9 +57,9 @@ public class RegistrationConfirmationSupport
 	}
 
 	public void sendAttributeConfirmationRequest(EnquiryResponseState requestState,
-			EnquiryForm form) throws InternalException, EngineException
+			EnquiryForm form, Long entityId) throws InternalException, EngineException
 	{
-		sendAttributeConfirmationRequest(RequestType.ENQUIRY, requestState, requestState.getEntityId(), form,
+		sendAttributeConfirmationRequest(RequestType.ENQUIRY, requestState, entityId, form,
 				getEnquiryProfile(form));
 	}
 
@@ -71,9 +71,9 @@ public class RegistrationConfirmationSupport
 	}
 
 	public void sendIdentityConfirmationRequest(EnquiryResponseState requestState,
-			EnquiryForm form) throws InternalException, EngineException
+			EnquiryForm form, Long entityId) throws InternalException, EngineException
 	{
-		sendIdentityConfirmationRequest(RequestType.ENQUIRY, requestState, requestState.getEntityId(), form,
+		sendIdentityConfirmationRequest(RequestType.ENQUIRY, requestState, entityId, form,
 				getEnquiryProfile(form));
 	}
 	

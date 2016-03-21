@@ -89,8 +89,7 @@ public class BaseSharedRegistrationSupport
 			String idp = sel == null ? null : sel.getExternalIdp();
 			String profile = sel == null ? null : sel.getTranslationProfile();
 			dbGroups.addMemberFromParent(entry.getKey(), entity, idp, profile, new Date(), sql);
-			attributesHelper.addAttributesList(attributes, entityId,
-					true, sql);
+			attributesHelper.addAttributesList(attributes, entityId, true, sql);
 		}
 	}
 

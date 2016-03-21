@@ -167,6 +167,10 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 					configEntry.getMsgTemplate(), 
 					facility, baseState.getLocale(), taf.token);
 			
+		} else
+		{
+			log.debug("Not sending a confirmation message to " + baseState.getValue() + 
+					" as such confirmation was already sent");
 		}
 		facility.processAfterSendRequest(serializedState);
 	}

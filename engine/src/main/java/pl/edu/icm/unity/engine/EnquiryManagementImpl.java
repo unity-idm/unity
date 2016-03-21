@@ -196,10 +196,11 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		
 		EnquiryForm form = recordRequestAndReturnForm(responseFull);
 		sendNotificationOnNewResponse(form, response);
-		tryAutoProcess(form, responseFull, context);
+		boolean accepted = tryAutoProcess(form, responseFull, context);
 		
-		confirmationsSupport.sendAttributeConfirmationRequest(responseFull, form);
-		confirmationsSupport.sendIdentityConfirmationRequest(responseFull, form);
+		Long entityId = accepted ? responseFull.getEntityId() : null;
+		confirmationsSupport.sendAttributeConfirmationRequest(responseFull, form, entityId);
+		confirmationsSupport.sendIdentityConfirmationRequest(responseFull, form, entityId);
 		
 		return responseFull.getRequestId();
 	}
@@ -283,13 +284,13 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		}
 	}
 	
-	private void tryAutoProcess(EnquiryForm form, EnquiryResponseState requestFull, 
+	private boolean tryAutoProcess(EnquiryForm form, EnquiryResponseState requestFull, 
 			RegistrationContext context) throws EngineException
 	{
 		if (!context.tryAutoAccept)
-			return;
-		tx.runInTransaction(() -> {
-			internalManagment.autoProcessEnquiry(form, requestFull, 
+			return false;
+		return tx.runInTransactionRet(() -> {
+			return internalManagment.autoProcessEnquiry(form, requestFull, 
 						"Automatic processing of the request  " + 
 						requestFull.getRequestId() + " invoked, action: {0}", 
 						SqlSessionTL.get());

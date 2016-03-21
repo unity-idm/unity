@@ -290,7 +290,7 @@ public class AttributesHelper
 		for (Attribute<?> a: attributes)
 		{
 			AttributeType at = dbAttributes.getAttributeType(a.getName(), sqlMap);
-			addAttribute(sqlMap, entityId, false, at, honorInitialConfirmation, a);
+			addAttribute(sqlMap, entityId, true, at, honorInitialConfirmation, a);
 		}
 	}
 }
