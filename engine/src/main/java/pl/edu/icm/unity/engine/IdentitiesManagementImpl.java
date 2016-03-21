@@ -595,6 +595,8 @@ public class IdentitiesManagementImpl implements IdentitiesManagement
 		SqlSession sqlMap = SqlSessionTL.get();
 		AttributeExt<?> attribute = attributesHelper.getAttributeByMetadata(entity, "/", 
 				EntityNameMetadataProvider.NAME, sqlMap);
+		if (attribute == null)
+			return null;
 		List<?> values = attribute.getValues();
 		if (values.isEmpty())
 			return null;
