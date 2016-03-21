@@ -79,6 +79,11 @@ public class I18nString
 		return new HashMap<String, String>(values);
 	}
 
+	public String getDefaultLocaleValue(MessageSource msg)
+	{
+		return getValue(null, msg.getDefaultLocaleCode());
+	}
+	
 	public String getDefaultValue()
 	{
 		return defaultValue;

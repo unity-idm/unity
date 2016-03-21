@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -44,22 +45,31 @@ import pl.edu.icm.unity.webui.forms.PostFormFillingHandler;
 public class EnquiryResponseEditorController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiryResponseEditorController.class);
+
 	@Autowired
 	private UnityMessageSource msg;
-	@Autowired
+	
+	@Autowired @Qualifier("insecure") 
 	private EnquiryManagement enquiryManagement;
+	
 	@Autowired
 	private IdentityEditorRegistry identityEditorRegistry;
+	
 	@Autowired
 	private CredentialEditorRegistry credentialEditorRegistry;
+	
 	@Autowired
 	private AttributeHandlerRegistry attributeHandlerRegistry;
-	@Autowired
+	
+	@Autowired @Qualifier("insecure") 
 	private AttributesManagement attrsMan;
-	@Autowired
+	
+	@Autowired @Qualifier("insecure") 
 	private AuthenticationManagement authnMan;
-	@Autowired
+	
+	@Autowired @Qualifier("insecure") 
 	private GroupsManagement groupsMan;	
+	
 	@Autowired
 	private IdPLoginController idpLoginController;
 

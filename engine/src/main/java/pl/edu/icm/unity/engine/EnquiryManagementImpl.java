@@ -139,7 +139,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		{
 
 			Map<String, String> params = new HashMap<>();
-			params.put(NewEnquiryTemplateDef.FORM_NAME, form.getDisplayedName().getDefaultValue());
+			params.put(NewEnquiryTemplateDef.FORM_NAME, form.getDisplayedName().getDefaultLocaleValue(msg));
 			params.put(NewEnquiryTemplateDef.URL, 
 					PublicRegistrationURLSupport.getWellknownEnquiryLink(enquiryId, sharedEndpointMan));
 			
@@ -271,7 +271,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 				&& notificationsCfg.getAdminsNotificationGroup() != null)
 		{
 			Map<String, String> params = new HashMap<>();
-			params.put(EnquiryFilledTemplateDef.FORM_NAME, form.getDisplayedName().getDefaultValue());
+			params.put(EnquiryFilledTemplateDef.FORM_NAME, form.getDisplayedName().getDefaultLocaleValue(msg));
 			LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
 			params.put(EnquiryFilledTemplateDef.USER, loginSession.getEntityLabel());
 			notificationProducer.sendNotificationToGroup(

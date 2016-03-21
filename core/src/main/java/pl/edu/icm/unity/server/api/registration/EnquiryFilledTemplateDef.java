@@ -22,7 +22,7 @@ public class EnquiryFilledTemplateDef implements MessageTemplateDefinition
 {
 	public static final String NAME = "EnquiryFilled";
 	
-	public static final String FORM_NAME = "enquiryName";
+	public static final String FORM_NAME = "formName";
 	public static final String USER = "user";
 	
 	@Override
