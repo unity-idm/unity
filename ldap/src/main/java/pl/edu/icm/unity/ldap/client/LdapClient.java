@@ -70,8 +70,8 @@ import pl.edu.icm.unity.stdext.identity.X500Identity;
  */
 public class LdapClient
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP, LdapClient.class);
-
+	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP_CLIENT, LdapClient.class);
+	public static final String ORIGINAL_GROUP_NAME = "originalGroupName";
 	private String idpName;
 	private LdapGroupHelper groupHelper;
 	

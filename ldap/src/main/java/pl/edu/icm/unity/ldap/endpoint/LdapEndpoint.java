@@ -26,7 +26,7 @@ import eu.unicore.util.configuration.ConfigurationException;
  */
 public class LdapEndpoint extends AbstractEndpoint
 {
-	private static final Logger LOG = Log.getLogger(Log.U_SERVER_LDAP, LdapServerProperties.class);
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_LDAP_ENDPOINT, LdapServerProperties.class);
 	
 	public static final String SERVER_WORK_DIRECTORY = "/ldapServer"; 
 	

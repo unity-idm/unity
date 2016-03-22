@@ -75,7 +75,7 @@ import pl.edu.icm.unity.types.basic.GroupMembership;
  */
 public class LdapApacheDSInterceptor extends BaseInterceptor
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP, LdapApacheDSInterceptor.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP_ENDPOINT, LdapApacheDSInterceptor.class);
 	
 	private LdapServerAuthentication auth;
 	
