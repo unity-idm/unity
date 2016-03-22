@@ -34,15 +34,15 @@ public class LdapServerProperties extends PropertiesHelper
 	{
 		PropertyMD.DocumentationCategory main = new PropertyMD.DocumentationCategory("General settings", "1");
 		META.put("host", new PropertyMD().setCategory(main).setDescription("LDAP server host settings"));
-		META.put("ldap_port", new PropertyMD().setCategory(main).setDescription("LDAP server port settings"));
-		META.put("ldaps_port", new PropertyMD().setCategory(main).setDescription("LDAPs server port settings"));
-		META.put("bind_password", new PropertyMD().setCategory(main).setDescription("LDAP server bind password"));
+		META.put("ldapPort", new PropertyMD().setCategory(main).setDescription("LDAP server port settings"));
+		META.put("ldapsPort", new PropertyMD().setCategory(main).setDescription("LDAPs server port settings"));
+		META.put("bindPassword", new PropertyMD().setCategory(main).setDescription("LDAP server bind password"));
 
-		META.put("group_query", new PropertyMD().setCategory(main).setDescription("LDAP group query token"));
-		META.put("user_query", new PropertyMD().setCategory(main).setDescription("LDAP user query token"));
-		META.put("group_member", new PropertyMD().setCategory(main).setDescription("LDAP member attribute name"));
-		META.put("group_member_user_regexp", new PropertyMD().setCategory(main).setDescription("LDAP regexp for getting user from a member query"));
-		META.put("returned_user_attributes", new PropertyMD().setCategory(main).setDescription("Attributes that should be returned if return all user attributes flag is set"));
+		META.put("groupQuery", new PropertyMD().setCategory(main).setDescription("LDAP group query token"));
+		META.put("userQuery", new PropertyMD().setCategory(main).setDescription("LDAP user query token"));
+		META.put("groupMember", new PropertyMD().setCategory(main).setDescription("LDAP member attribute name"));
+		META.put("groupMemberUserRegexp", new PropertyMD().setCategory(main).setDescription("LDAP regexp for getting user from a member query"));
+		META.put("returnedUserAttributes", new PropertyMD().setCategory(main).setDescription("Attributes that should be returned if return all user attributes flag is set"));
 	}
 	
 	public LdapServerProperties(Properties properties) throws ConfigurationException
