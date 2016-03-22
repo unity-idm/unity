@@ -22,7 +22,7 @@ import eu.unicore.util.configuration.PropertyMD;
  */
 public class LdapServerProperties extends PropertiesHelper
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP, LdapServerProperties.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, LdapServerProperties.class);
 	
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "unity.ldapServer.";
