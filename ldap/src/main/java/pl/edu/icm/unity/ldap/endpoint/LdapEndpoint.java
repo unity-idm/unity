@@ -9,15 +9,14 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
-import pl.edu.icm.unity.server.endpoint.AbstractWebEndpoint;
+import pl.edu.icm.unity.server.endpoint.AbstractEndpoint;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import eu.unicore.util.configuration.ConfigurationException;
@@ -25,15 +24,13 @@ import eu.unicore.util.configuration.ConfigurationException;
 /**
  * LDAP endpoint exposes a stripped LDAP protocol interface to Unity's database.
  */
-public class LdapEndpoint extends AbstractWebEndpoint
+public class LdapEndpoint extends AbstractEndpoint
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_LDAP, LdapServerProperties.class);
 	
 	public static final String SERVER_WORK_DIRECTORY = "/ldapServer"; 
 	
 	private LdapServerProperties configuration;
-
-	private String infoServletPath;
 
 	private SessionManagement sessionMan;
 
@@ -43,13 +40,13 @@ public class LdapEndpoint extends AbstractWebEndpoint
 
 	private UnityServerConfiguration mainConfig;
 
-	public LdapEndpoint(NetworkServer server, String infoServletPath,
-			SessionManagement sessionMan,
+	private NetworkServer httpServer;
+
+	public LdapEndpoint(NetworkServer server, SessionManagement sessionMan,
 			AttributesManagement attributesMan, IdentitiesManagement identitiesMan, 
 			UnityServerConfiguration mainConfig)
 	{
-		super(server);
-		this.infoServletPath = infoServletPath;
+		this.httpServer = server;
 		this.sessionMan = sessionMan;
 		this.attributesMan = attributesMan;
 		this.identitiesMan = identitiesMan;
@@ -72,25 +69,13 @@ public class LdapEndpoint extends AbstractWebEndpoint
 	}
 
 	@Override
-	public ServletContextHandler getServletContextHandler()
+	public void start() throws EngineException
 	{
-		//
 		RawPasswordRetrieval rpr = (RawPasswordRetrieval) (authenticators.get(0)
 				.getPrimaryAuthenticator());
-
-		//
 		startLdapEmbeddedServer(rpr);
-
-		//
-		LdapInfoServlet servlet = new LdapInfoServlet();
-		ServletContextHandler context = new ServletContextHandler(
-				ServletContextHandler.NO_SESSIONS);
-		context.setContextPath(description.getContextAddress());
-		ServletHolder holder = new ServletHolder(servlet);
-		context.addServlet(holder, infoServletPath + "/*");
-		return context;
 	}
-
+	
 	@Override
 	public void updateAuthenticationOptions(List<AuthenticationOption> authenticationOptions)
 			throws UnsupportedOperationException

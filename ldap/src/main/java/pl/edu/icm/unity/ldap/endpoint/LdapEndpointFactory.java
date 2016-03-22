@@ -31,8 +31,6 @@ public class LdapEndpointFactory implements EndpointFactory
 {
 	public static final String NAME = "LDAPServer";
 
-	public static final String SERVLET_PATH = "/info";
-
 	private EndpointTypeDescription endpointDescription;
 
 	private NetworkServer server;
@@ -65,7 +63,6 @@ public class LdapEndpointFactory implements EndpointFactory
 		this.identitiesMan = identitiesMan;
 
 		Map<String, String> paths = new HashMap<>();
-		paths.put(SERVLET_PATH, "Info for the LDAP server endpoint");
 		endpointDescription = new EndpointTypeDescription(NAME,
 				"Limited LDAP server interface",
 				Collections.singleton(LdapServerAuthentication.NAME), paths);
@@ -81,7 +78,7 @@ public class LdapEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new LdapEndpoint(server, SERVLET_PATH, sessionMan, attributesMan,
+		return new LdapEndpoint(server, sessionMan, attributesMan,
 				identitiesMan, mainConfig);
 	}
 }
