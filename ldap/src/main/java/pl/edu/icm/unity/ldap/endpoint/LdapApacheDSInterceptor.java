@@ -4,6 +4,19 @@
  */
 package pl.edu.icm.unity.ldap.endpoint;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.imageio.ImageIO;
+
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.api.ldap.model.cursor.SingletonCursor;
@@ -14,9 +27,6 @@ import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.exception.LdapUnwillingToPerformException;
-import org.apache.directory.api.ldap.model.filter.BranchNode;
-import org.apache.directory.api.ldap.model.filter.ExprNode;
-import org.apache.directory.api.ldap.model.filter.SimpleNode;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
@@ -29,7 +39,18 @@ import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursorImpl;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.context.*;
+import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.log4j.Logger;
 
@@ -45,19 +66,6 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupMembership;
-
-import javax.imageio.ImageIO;
-
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * ApacheDS interceptor implementation. This is the integration part between
@@ -170,8 +178,8 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 			throws LdapException
 	{
 		// admin bind will not return true (we look for cn)
-		boolean userSearch = isUserSearch(searchContext.getFilter());
-		String username = getUserName(searchContext.getFilter(), new String[] { "cn",
+		boolean userSearch = LdapNodeUtils.isUserSearch(searchContext.getFilter());
+		String username = LdapNodeUtils.getUserName(searchContext.getFilter(), new String[] { "cn",
 				"mail" });
 		// e.g., search by mail
 		if (userSearch && null == username)
@@ -445,84 +453,6 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 			if (rdn.getAva().getAttributeType().getName().equals(user_query))
 			{
 				return rdn.getAva().getValue().getString();
-			}
-		}
-		return null;
-	}
-
-	/*
-	 * Is the LDAP query a user search?
-	 */
-	private static boolean isUserSearch(ExprNode node)
-	{
-		if (node instanceof BranchNode)
-		{
-			BranchNode n = (BranchNode) node;
-			for (ExprNode en : n.getChildren())
-			{
-				if (isUserSearch(en))
-				{
-					return true;
-				}
-			}
-		} else if (node instanceof SimpleNode)
-		{
-			SimpleNode<?> sns = (SimpleNode<?>) node;
-			if (sns.getAttribute().equals("objectClass"))
-			{
-				return sns.getValue().toString().equals("inetorgperson");
-			}
-			//FIXME this is clearly wrong
-			if (sns.getAttribute().equals("mail"))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/*
-	 * Get user name from LDAP query
-	 */
-	private static String getUserName(ExprNode node, String[] attributes)
-	{
-		for (int i = 0; i < attributes.length; ++i)
-		{
-			String uname = getUserName(node, attributes[i]);
-			if (null != uname)
-			{
-				return uname;
-			}
-		}
-		return null;
-	}
-
-	private static String getUserName(ExprNode node, String attribute)
-	{
-
-		if (node instanceof BranchNode)
-		{
-			BranchNode n = (BranchNode) node;
-			for (ExprNode en : n.getChildren())
-			{
-				String username = getUserName(en, attribute);
-				if (null != username)
-				{
-					return username;
-				}
-			}
-		} else if (node instanceof SimpleNode)
-		{
-			try
-			{
-				SimpleNode<?> sns = (SimpleNode<?>) node;
-				if (sns.getAttribute().equals(attribute))
-				{
-					return sns.getValue().toString();
-				}
-			} catch (Exception e)
-			{
-				return null;
 			}
 		}
 		return null;
