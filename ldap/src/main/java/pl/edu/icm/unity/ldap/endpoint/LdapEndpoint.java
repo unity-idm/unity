@@ -92,12 +92,12 @@ public class LdapEndpoint extends AbstractWebEndpoint
 
 	private void startLdapEmbeddedServer(RawPasswordRetrieval rpr)
 	{
-		String host = configuration.getValue("host");
+		String host = configuration.getValue(LdapServerProperties.HOST);
 		if (null == host || host.isEmpty())
 		{
 			host = httpServer.getAdvertisedAddress().getHost();
 		}
-		int port = configuration.getIntValue("ldap_port");
+		int port = configuration.getIntValue(LdapServerProperties.LDAP_PORT);
 
 		// TODO temporary directory name
 		String workDirectory = "ldap-apacheds-configuration";
@@ -110,7 +110,7 @@ public class LdapEndpoint extends AbstractWebEndpoint
 		try
 		{
 			ldf.init(false, ladi);
-			ldf.changeAdminPasswordBeforeStart(configuration.getValue("bind_password"));
+			ldf.changeAdminPasswordBeforeStart(configuration.getValue(LdapServerProperties.BIND_PASSWORD));
 			ldf.start();
 
 		} catch (Exception e)

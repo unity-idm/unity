@@ -226,9 +226,9 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 	@Override
 	public boolean compare(CompareOperationContext compareContext) throws LdapException
 	{
-		String group_member = configuration.getValue("group_member");
+		String group_member = configuration.getValue(LdapServerProperties.GROUP_MEMBER);
 		String group_member_user_regexp = configuration
-				.getValue("group_member_user_regexp");
+				.getValue(LdapServerProperties.GROUP_MEMBER_USER_REGEXP);
 		// we know how to do members
 		if (compareContext.getAttributeType().getName().equals(group_member))
 		{
@@ -413,7 +413,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 	 */
 	private String getGroup(Dn dn)
 	{
-		String group_query = configuration.getValue("group_query");
+		String group_query = configuration.getValue(LdapServerProperties.GROUP_QUERY);
 		for (org.apache.directory.api.ldap.model.name.Rdn rdn : dn.getRdns())
 		{
 			if (rdn.getAva().toString().equals(group_query))
@@ -429,7 +429,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 	 */
 	private String getUserName(Dn dn)
 	{
-		String user_query = configuration.getValue("user_query");
+		String user_query = configuration.getValue(LdapServerProperties.USER_QUERY);
 		for (org.apache.directory.api.ldap.model.name.Rdn rdn : dn.getRdns())
 		{
 			if (rdn.getAva().getAttributeType().getName().equals(user_query))
@@ -556,7 +556,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 			} else
 			{
 				String default_attributes = configuration
-						.getValue("returned_user_attributes");
+						.getValue(LdapServerProperties.RETURNED_USER_ATTRIBUTES);
 				for (String at : default_attributes.split(","))
 				{
 					attributes.add(new AttributeTypeOptions(schemaManager
