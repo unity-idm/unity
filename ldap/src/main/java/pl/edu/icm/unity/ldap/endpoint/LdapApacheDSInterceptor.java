@@ -7,7 +7,6 @@ package pl.edu.icm.unity.ldap.endpoint;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -51,6 +50,7 @@ import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOpe
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.log4j.Logger;
 
@@ -60,6 +60,8 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationResult;
+import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -75,7 +77,9 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP, LdapApacheDSInterceptor.class);
 	
-	private RawPasswordRetrieval auth;
+	private LdapServerAuthentication auth;
+	
+	private UserMapper userMapper;
 
 	private LdapServerFacade lsf;
 
@@ -88,15 +92,17 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 	private IdentitiesManagement identitiesMan;
 
 	private LdapServerProperties configuration;
-
+	
 	/**
 	 * Creates a new instance of DefaultAuthorizationInterceptor.
 	 */
-	public LdapApacheDSInterceptor(RawPasswordRetrieval auth, SessionManagement sessionMan,
+	public LdapApacheDSInterceptor(LdapServerAuthentication auth, SessionManagement sessionMan,
 			AuthenticationRealm realm, AttributesManagement attributesMan,
-			IdentitiesManagement identitiesMan, LdapServerProperties configuration)
+			IdentitiesManagement identitiesMan, LdapServerProperties configuration,
+			UserMapper userMapper)
 	{
 		super();
+		this.userMapper = userMapper;
 		this.lsf = null;
 		this.auth = auth;
 		this.sessionMan = sessionMan;
@@ -198,37 +204,60 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 	@Override
 	public void bind(BindOperationContext bindContext) throws LdapException
 	{
-		// this is the main binding account local to ldap
-		boolean isMainBindUser = bindContext.getDn().toString()
-				.equals(ServerDNConstants.ADMIN_SYSTEM_DN);
-		if (isMainBindUser)
+		InvocationContext ctx = resetInvocationContext();
+		
+		if (bindContext.isSaslBind())
 		{
-			next(bindContext);
-			return;
+			log.debug("Blocking unsupported SASL bind");
+			throw new LdapAuthenticationException("SASL authentication is not supported");
 		}
-
-		// user binding
-		String username = bindContext.getDn().getRdn().getAva().getValue().toString();
-
+		
+		AuthenticationResult authnResult;
 		try
 		{
-			if (auth.checkPassword(username, new String(bindContext.getCredentials(),
-					StandardCharsets.UTF_8)))
-			{
-				LdapPrincipal policyConfig = new LdapPrincipal();
-				bindContext.setCredentials(null);
-				policyConfig.setUserPassword(new byte[][] { StringConstants.EMPTY_BYTES });
-				DefaultCoreSession mods = new DefaultCoreSession(policyConfig,
-						this.directoryService);
-				bindContext.setSession(mods);
-			} else
-			{
-				throw new LdapAuthenticationException("Invalid credentials");
-			}
+			authnResult = auth.authenticate(bindContext);
 		} catch (Exception e)
 		{
-			throw new LdapOtherException("Error during authentication", e);
+			throw new LdapOtherException("Error when authenticating", e);
 		}
+
+		if (authnResult.getStatus() == Status.success && 
+				!authnResult.getAuthenticatedEntity().isUsedOutdatedCredential())
+		{
+			LdapPrincipal policyConfig = new LdapPrincipal();
+			bindContext.setCredentials(null);
+			policyConfig.setUserPassword(new byte[][] { StringConstants.EMPTY_BYTES });
+			DefaultCoreSession mods = new DefaultCoreSession(policyConfig,
+					directoryService);
+			bindContext.setSession(mods);
+			
+			LoginSession ls = sessionMan.getCreateSession(
+					authnResult.getAuthenticatedEntity().getEntityId(),
+					realm, "", false, null);
+			ctx.setLoginSession(ls);
+		} else if (authnResult.getAuthenticatedEntity().isUsedOutdatedCredential())
+		{
+			log.debug("Blocking access as an outdated credential was used for bind, user is " + 
+					bindContext.getDn());
+			throw new LdapAuthenticationException("Outdated credential");
+		} else
+		{
+			log.debug("LDAP authentication failed for " + bindContext.getDn());
+			throw new LdapAuthenticationException("Invalid credential");
+		}
+	}
+
+	private InvocationContext resetInvocationContext()
+	{
+		InvocationContext ctx = new InvocationContext(null, realm);
+		InvocationContext.setCurrent(ctx);
+		return ctx;
+	}
+	
+	@Override
+	public void unbind(UnbindOperationContext unbindContext) throws LdapException
+	{
+		resetInvocationContext();
 	}
 
 	private void notSupported() throws LdapException
@@ -236,7 +265,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 		throw new LdapUnwillingToPerformException(ResultCodeEnum.UNWILLING_TO_PERFORM);
 	}
 
-	/*
+	/**
 	 * Find user, get his groups and return true if he is the member of
 	 * desired group.
 	 */
@@ -258,7 +287,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 				if (m.find())
 				{
 					user = m.group(1);
-					long userEntityId = auth.verifyUser(user);
+					long userEntityId = userMapper.resolveUser(user, realm.getName());
 					// Collection<AttributeExt<?>> attrs =
 					// attributesMan.getAllAttributes(
 					// new EntityParam(userEntityId), true,
@@ -344,8 +373,8 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 	// helpers
 	//
 
-	/*
-	 * Empty LDAP result.
+	/**
+	 * @return Empty LDAP result.
 	 */
 	private EntryFilteringCursorImpl emptyResult(SearchOperationContext searchContext)
 	{
@@ -442,8 +471,9 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 		return null;
 	}
 
-	/*
+	/**
 	 * Get user from LDAP DN.
+	 * TODO - should be the same as the code in {@link LdapSimpleBindRetrieval}? 
 	 */
 	private String getUserName(Dn dn)
 	{
@@ -470,15 +500,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 		Entry entry = new DefaultEntry(lsf.getDs().getSchemaManager());
 		try
 		{
-			long userEntityId = auth.verifyUser(username);
-
-			InvocationContext ctx = new InvocationContext(null, this.realm);
-			InvocationContext.setCurrent(ctx);
-			LoginSession ls = this.sessionMan.getCreateSession(userEntityId,
-					this.realm, "", false, null);
-			ctx.setLoginSession(ls);
-			// ls.addAuthenticatedIdentities(client.getAuthenticatedWith());
-			// ls.setRemoteIdP(client.getRemoteIdP());
+			long userEntityId = userMapper.resolveUser(username, realm.getName());
 
 			Collection<AttributeExt<?>> attrs = attributesMan.getAttributes(
 					new EntityParam(userEntityId), null, null);

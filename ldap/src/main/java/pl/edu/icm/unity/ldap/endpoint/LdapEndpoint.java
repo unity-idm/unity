@@ -42,15 +42,18 @@ public class LdapEndpoint extends AbstractEndpoint
 
 	private NetworkServer httpServer;
 
+	private UserMapper userMapper;
+
 	public LdapEndpoint(NetworkServer server, SessionManagement sessionMan,
 			AttributesManagement attributesMan, IdentitiesManagement identitiesMan, 
-			UnityServerConfiguration mainConfig)
+			UnityServerConfiguration mainConfig, UserMapper userMapper)
 	{
 		this.httpServer = server;
 		this.sessionMan = sessionMan;
 		this.attributesMan = attributesMan;
 		this.identitiesMan = identitiesMan;
 		this.mainConfig = mainConfig;
+		this.userMapper = userMapper;
 	}
 
 	@Override
@@ -71,7 +74,7 @@ public class LdapEndpoint extends AbstractEndpoint
 	@Override
 	public void start() throws EngineException
 	{
-		RawPasswordRetrieval rpr = (RawPasswordRetrieval) (authenticators.get(0)
+		LdapSimpleBindRetrieval rpr = (LdapSimpleBindRetrieval) (authenticators.get(0)
 				.getPrimaryAuthenticator());
 		startLdapEmbeddedServer(rpr);
 	}
@@ -82,7 +85,7 @@ public class LdapEndpoint extends AbstractEndpoint
 	{
 	}
 
-	private void startLdapEmbeddedServer(RawPasswordRetrieval rpr)
+	private void startLdapEmbeddedServer(LdapSimpleBindRetrieval rpr)
 	{
 		String host = configuration.getValue(LdapServerProperties.HOST);
 		if (null == host || host.isEmpty())
@@ -95,14 +98,13 @@ public class LdapEndpoint extends AbstractEndpoint
 				+ SERVER_WORK_DIRECTORY;
 		LdapApacheDSInterceptor ladi = new LdapApacheDSInterceptor(rpr, sessionMan,
 				this.description.getRealm(), attributesMan, identitiesMan,
-				configuration);
+				configuration, userMapper);
 		LdapServerFacade ldf = new LdapServerFacade(host, port, 
 				"ldap server interface", workDirectory);
 		ladi.setLdapServerFacade(ldf);
 		try
 		{
 			ldf.init(false, ladi);
-			ldf.changeAdminPasswordBeforeStart(configuration.getValue(LdapServerProperties.BIND_PASSWORD));
 			ldf.start();
 
 		} catch (Exception e)
