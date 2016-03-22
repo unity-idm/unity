@@ -19,6 +19,7 @@ import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import eu.unicore.util.configuration.ConfigurationException;
 
 /**
@@ -27,6 +28,8 @@ import eu.unicore.util.configuration.ConfigurationException;
 public class LdapEndpoint extends AbstractWebEndpoint
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_LDAP, LdapServerProperties.class);
+	
+	public static final String SERVER_WORK_DIRECTORY = "/ldapServer"; 
 	
 	private LdapServerProperties configuration;
 
@@ -38,15 +41,19 @@ public class LdapEndpoint extends AbstractWebEndpoint
 
 	private IdentitiesManagement identitiesMan;
 
+	private UnityServerConfiguration mainConfig;
+
 	public LdapEndpoint(NetworkServer server, String infoServletPath,
 			SessionManagement sessionMan,
-			AttributesManagement attributesMan, IdentitiesManagement identitiesMan)
+			AttributesManagement attributesMan, IdentitiesManagement identitiesMan, 
+			UnityServerConfiguration mainConfig)
 	{
 		super(server);
 		this.infoServletPath = infoServletPath;
 		this.sessionMan = sessionMan;
 		this.attributesMan = attributesMan;
 		this.identitiesMan = identitiesMan;
+		this.mainConfig = mainConfig;
 	}
 
 	@Override
@@ -99,8 +106,8 @@ public class LdapEndpoint extends AbstractWebEndpoint
 		}
 		int port = configuration.getIntValue(LdapServerProperties.LDAP_PORT);
 
-		// TODO temporary directory name
-		String workDirectory = "ldap-apacheds-configuration";
+		String workDirectory = mainConfig.getValue(UnityServerConfiguration.WORKSPACE_DIRECTORY) 
+				+ SERVER_WORK_DIRECTORY;
 		LdapApacheDSInterceptor ladi = new LdapApacheDSInterceptor(rpr, sessionMan,
 				this.description.getRealm(), attributesMan, identitiesMan,
 				configuration);

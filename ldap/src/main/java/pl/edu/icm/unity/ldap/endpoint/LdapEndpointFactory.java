@@ -6,6 +6,7 @@ package pl.edu.icm.unity.ldap.endpoint;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.internal.IdentityResolver;
@@ -13,6 +14,7 @@ import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.stdext.credential.PasswordVerificator;
 import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -43,12 +45,16 @@ public class LdapEndpointFactory implements EndpointFactory
 
 	private IdentitiesManagement identitiesMan;
 
+	private UnityServerConfiguration mainConfig;
+
 	@Autowired
 	public LdapEndpointFactory(NetworkServer server, IdentityResolver identityResolver,
 			PasswordVerificatorFactory pwf, SessionManagement sessionMan,
-			AttributesManagement attributesMan, IdentitiesManagement identitiesMan)
+			AttributesManagement attributesMan, IdentitiesManagement identitiesMan,
+			UnityServerConfiguration mainConfig)
 	{
 		this.server = server;
+		this.mainConfig = mainConfig;
 
 		// now now, this is not very nice
 		this.credentialVerificator = (PasswordVerificator) pwf.newInstance();
@@ -76,6 +82,6 @@ public class LdapEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new LdapEndpoint(server, SERVLET_PATH, sessionMan, attributesMan,
-				identitiesMan);
+				identitiesMan, mainConfig);
 	}
 }
