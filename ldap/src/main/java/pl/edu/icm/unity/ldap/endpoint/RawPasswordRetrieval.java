@@ -49,10 +49,10 @@ public class RawPasswordRetrieval extends AbstractCredentialRetrieval<PasswordEx
 		{
 			ewc = identityResolver.resolveIdentity(username, IDENTITY_TYPES, null);
 			return ewc.getEntityId();
-		} catch (Exception e){
-			e.printStackTrace();
+		} catch (Exception e)
+		{
+			throw new IllegalIdentityValueException("Invalid user", e);
 		}
-		throw new IllegalIdentityValueException("No user");
 	}
 
 	public boolean checkPassword(String username, String password) 
