@@ -12,6 +12,7 @@ import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.api.ldap.model.filter.BranchNode;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
@@ -30,6 +31,8 @@ import org.apache.directory.server.core.api.filtering.EntryFilteringCursorImpl;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.*;
 import org.apache.directory.server.core.shared.DefaultCoreSession;
+import org.apache.log4j.Logger;
+
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
@@ -37,12 +40,14 @@ import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 
 import javax.imageio.ImageIO;
+
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -60,6 +65,8 @@ import java.util.regex.Pattern;
  */
 public class LdapApacheDSInterceptor extends BaseInterceptor
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP, LdapApacheDSInterceptor.class);
+	
 	private RawPasswordRetrieval auth;
 
 	private LdapServerFacade lsf;
@@ -206,11 +213,13 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 				DefaultCoreSession mods = new DefaultCoreSession(policyConfig,
 						this.directoryService);
 				bindContext.setSession(mods);
+			} else
+			{
+				throw new LdapAuthenticationException("Invalid credentials");
 			}
 		} catch (Exception e)
 		{
-			// no go!
-			throw new LdapAuthenticationException();
+			throw new LdapOtherException("Error during authentication", e);
 		}
 	}
 
@@ -260,7 +269,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 				}
 			} catch (EngineException e)
 			{
-				e.printStackTrace();
+				throw new LdapOtherException("Error when comaring", e);
 			}
 			return false;
 		}
@@ -340,6 +349,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 	 * Add user attributes to LDAP answer
 	 *
 	 * TODO: this should be configurable
+	 * KB: and part should clearly be in a separated class with generic value type -> LDAP representation handling.
 	 */
 	private void addAttribute(String name, String username, Collection<AttributeExt<?>> attrs,
 			Entry toEntry) throws LdapException
@@ -383,15 +393,15 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 						try
 						{
 							ByteArrayOutputStream baos = new ByteArrayOutputStream();
-							ImageIO.write((BufferedImage) o, "jpg",
-									baos);
+							ImageIO.write((BufferedImage) o, "jpg",	baos);
 							baos.flush();
 							byte[] imageInByte = baos.toByteArray();
 							da.add(imageInByte);
 							baos.close();
 						} catch (IOException e)
 						{
-							e.printStackTrace();
+							throw new LdapOtherException(
+									"Can not serialize image to byte array", e);
 						}
 					} else
 					{
@@ -457,21 +467,15 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 			}
 		} else if (node instanceof SimpleNode)
 		{
-			try
+			SimpleNode<?> sns = (SimpleNode<?>) node;
+			if (sns.getAttribute().equals("objectClass"))
 			{
-				SimpleNode<?> sns = (SimpleNode<?>) node;
-				if (sns.getAttribute().equals("objectClass"))
-				{
-					return sns.getValue().toString().equals("inetorgperson");
-				}
-				//FIXME this is clearly wrong
-				if (sns.getAttribute().equals("mail"))
-				{
-					return true;
-				}
-			} catch (Exception e)
+				return sns.getValue().toString().equals("inetorgperson");
+			}
+			//FIXME this is clearly wrong
+			if (sns.getAttribute().equals("mail"))
 			{
-				return false;
+				return true;
 			}
 		}
 		return false;
@@ -581,10 +585,10 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 
 		} catch (IllegalIdentityValueException ignored)
 		{
-
+			log.debug("Requested user not found: " + username, ignored);
 		} catch (Exception e)
 		{
-			e.printStackTrace();
+			throw new LdapOtherException("Error establishing user information", e);
 		}
 
 		return emptyResult(searchContext);
