@@ -8,10 +8,9 @@ import java.io.StringReader;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
@@ -19,6 +18,7 @@ import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationOption;
 import pl.edu.icm.unity.server.endpoint.AbstractWebEndpoint;
+import pl.edu.icm.unity.server.utils.Log;
 import eu.unicore.util.configuration.ConfigurationException;
 
 /**
@@ -26,8 +26,8 @@ import eu.unicore.util.configuration.ConfigurationException;
  */
 public class LdapEndpoint extends AbstractWebEndpoint
 {
-	private static final Logger LOG = LoggerFactory.getLogger(LdapEndpoint.class);
-
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_LDAP, LdapServerProperties.class);
+	
 	private LdapServerProperties configuration;
 
 	private String infoServletPath;
