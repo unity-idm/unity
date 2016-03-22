@@ -45,14 +45,17 @@ public class LdapEndpointFactory implements EndpointFactory
 
 	private UnityServerConfiguration mainConfig;
 
+	private UserMapper userMapper;
+
 	@Autowired
 	public LdapEndpointFactory(NetworkServer server, IdentityResolver identityResolver,
 			PasswordVerificatorFactory pwf, SessionManagement sessionMan,
 			AttributesManagement attributesMan, IdentitiesManagement identitiesMan,
-			UnityServerConfiguration mainConfig)
+			UnityServerConfiguration mainConfig, UserMapper userMapper)
 	{
 		this.server = server;
 		this.mainConfig = mainConfig;
+		this.userMapper = userMapper;
 
 		// now now, this is not very nice
 		this.credentialVerificator = (PasswordVerificator) pwf.newInstance();
@@ -79,6 +82,6 @@ public class LdapEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new LdapEndpoint(server, sessionMan, attributesMan,
-				identitiesMan, mainConfig);
+				identitiesMan, mainConfig, userMapper);
 	}
 }

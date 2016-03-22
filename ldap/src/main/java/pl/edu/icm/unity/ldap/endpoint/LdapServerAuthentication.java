@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.ldap.endpoint;
 
+import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
+
+import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.endpoint.BindingAuthn;
 
 /**
@@ -12,5 +15,7 @@ import pl.edu.icm.unity.server.endpoint.BindingAuthn;
  */
 public interface LdapServerAuthentication extends BindingAuthn
 {
-	String NAME = "raw-password-auth";
+	String NAME = "ldap-protocol";
+	
+	AuthenticationResult authenticate(BindOperationContext bindContext);
 }

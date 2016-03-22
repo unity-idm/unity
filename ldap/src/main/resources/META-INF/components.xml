@@ -11,6 +11,6 @@
 
 	<!-- LDAP server -->
 	<bean class="pl.edu.icm.unity.ldap.endpoint.LdapEndpointFactory"/>
-	<bean class="pl.edu.icm.unity.ldap.endpoint.RawPasswordRetrievalFactory"/>
-
+	<bean class="pl.edu.icm.unity.ldap.endpoint.UserMapper"/>
+	<bean class="pl.edu.icm.unity.ldap.endpoint.LdapSimpleBindRetrievalFactory"/>
 </beans>

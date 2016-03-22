@@ -4,10 +4,8 @@
  */
 package pl.edu.icm.unity.ldap.endpoint;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.api.internal.IdentityResolver;
 import pl.edu.icm.unity.server.authn.CredentialExchange;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.server.authn.CredentialRetrievalFactory;
@@ -18,13 +16,10 @@ import pl.edu.icm.unity.stdext.credential.PasswordVerificator;
  * @author K. Benedyczak
  */
 @Component
-public class RawPasswordRetrievalFactory implements CredentialRetrievalFactory
+public class LdapSimpleBindRetrievalFactory implements CredentialRetrievalFactory
 {
-	public static final String NAME = "raw-password";
+	public static final String NAME = "ldap-simple";
 	
-	@Autowired
-	private IdentityResolver identityResolver;
-
 	@Override
 	public String getName()
 	{
@@ -34,13 +29,13 @@ public class RawPasswordRetrievalFactory implements CredentialRetrievalFactory
 	@Override
 	public String getDescription()
 	{
-		return "RawPasswordRetrievalFactory.desc";
+		return "LdapSimpleBindRetrievalFactory.desc";
 	}
 
 	@Override
 	public CredentialRetrieval newInstance()
 	{
-		return new RawPasswordRetrieval(identityResolver);
+		return new LdapSimpleBindRetrieval();
 	}
 
 	@Override
