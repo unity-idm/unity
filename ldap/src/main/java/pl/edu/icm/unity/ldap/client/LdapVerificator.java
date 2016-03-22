@@ -36,7 +36,7 @@ import eu.unicore.util.configuration.ConfigurationException;
  */
 public class LdapVerificator extends AbstractRemoteVerificator implements PasswordExchange, CertificateExchange
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP, LdapVerificator.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP_CLIENT, LdapVerificator.class);
 	private LdapProperties ldapProperties;
 	private LdapClient client;
 	private LdapClientConfiguration clientConfiguration;
@@ -89,7 +89,7 @@ public class LdapVerificator extends AbstractRemoteVerificator implements Passwo
 	public AuthenticationResult checkPassword(String username, String password, SandboxAuthnResultCallback callback)
 	{
 		RemoteAuthnState state = startAuthnResponseProcessing(callback, 
-				Log.U_SERVER_TRANSLATION, Log.U_SERVER_LDAP);
+				Log.U_SERVER_TRANSLATION, Log.U_SERVER_LDAP_CLIENT);
 		
 		try
 		{
@@ -132,7 +132,7 @@ public class LdapVerificator extends AbstractRemoteVerificator implements Passwo
 			SandboxAuthnResultCallback sandboxCallback)
 	{
 		RemoteAuthnState state = startAuthnResponseProcessing(sandboxCallback, 
-				Log.U_SERVER_TRANSLATION, Log.U_SERVER_LDAP);
+				Log.U_SERVER_TRANSLATION, Log.U_SERVER_LDAP_CLIENT);
 		
 		try
 		{
