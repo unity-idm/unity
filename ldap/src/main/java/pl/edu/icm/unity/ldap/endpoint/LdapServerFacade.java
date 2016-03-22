@@ -45,37 +45,37 @@ import java.util.List;
  */
 public class LdapServerFacade
 {
-	private LdapServer impl_;
+	private LdapServer impl;
 
-	private DirectoryService ds_;
+	private DirectoryService ds;
 
-	private String host_;
+	private String host;
 
-	private int port_;
+	private int port;
 
-	private String name_;
+	private String name;
 
-	private String workdir_;
+	private String workdir;
 
 	public LdapServerFacade(String host, int port, String nameOrNull, String workdir)
 	{
-		this.host_ = host;
-		this.port_ = port;
-		this.name_ = nameOrNull;
-		this.workdir_ = workdir;
+		this.host = host;
+		this.port = port;
+		this.name = nameOrNull;
+		this.workdir = workdir;
 
-		this.impl_ = null;
-		this.ds_ = null;
+		this.impl = null;
+		this.ds = null;
 	}
 
 	public DirectoryService getDs()
 	{
-		return ds_;
+		return ds;
 	}
 
 	public Attribute getAttribute(String uid, String upId) throws LdapException
 	{
-		AttributeType at = ds_.getSchemaManager().lookupAttributeTypeRegistry(
+		AttributeType at = ds.getSchemaManager().lookupAttributeTypeRegistry(
 				null == upId ? uid : upId);
 		Attribute da = new DefaultAttribute(uid, at);
 		return da;
@@ -83,12 +83,12 @@ public class LdapServerFacade
 
 	public void init(boolean deleteWorkDir, BaseInterceptor interceptor) throws Exception
 	{
-		impl_ = new LdapServer();
-		impl_.setServiceName(name_);
-		impl_.setTransports(new TcpTransport(host_, port_));
+		impl = new LdapServer();
+		impl.setServiceName(name);
+		impl.setTransports(new TcpTransport(host, port));
 
-		ds_ = new DefaultDirectoryService();
-		ds_.getChangeLog().setEnabled(false);
+		ds = new DefaultDirectoryService();
+		ds.getChangeLog().setEnabled(false);
 
 		// prepare the working dir with all the required settings
 		prepareWorkDir(deleteWorkDir);
@@ -100,8 +100,8 @@ public class LdapServerFacade
 		setUnityInterceptor(interceptor);
 
 		//
-		impl_.setDirectoryService(ds_);
-		ds_.startup();
+		impl.setDirectoryService(ds);
+		ds.startup();
 	}
 
 	public String getAdminDN()
@@ -116,17 +116,17 @@ public class LdapServerFacade
 	 */
 	private File prepareWorkDir(boolean delete_work_dir) throws IOException
 	{
-		File workdirF = new File(workdir_);
+		File workdirF = new File(workdir);
 		if (delete_work_dir && workdirF.exists())
 		{
 			FileUtils.deleteDirectory(workdirF);
 		}
 		boolean shouldExtract = !workdirF.exists();
-		ds_.setInstanceLayout(new InstanceLayout(workdirF));
+		ds.setInstanceLayout(new InstanceLayout(workdirF));
 
 		if (shouldExtract)
 		{
-			SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor(ds_
+			SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor(ds
 					.getInstanceLayout().getPartitionsDirectory());
 			extractor.extractOrCopy();
 		}
@@ -139,34 +139,34 @@ public class LdapServerFacade
      */
 	private void loadSettings() throws Exception
 	{
-		File schemaPartitionDirectory = new File(ds_.getInstanceLayout()
+		File schemaPartitionDirectory = new File(ds.getInstanceLayout()
 				.getPartitionsDirectory(), "schema");
 		SchemaLoader loader = new LdifSchemaLoader(schemaPartitionDirectory);
 		SchemaManager schemaManager = new DefaultSchemaManager(loader);
 		schemaManager.loadAllEnabled();
-		ds_.setSchemaManager(schemaManager);
+		ds.setSchemaManager(schemaManager);
 
 		LdifPartition schemaLdifPartition = new LdifPartition(schemaManager,
-				ds_.getDnFactory());
+				ds.getDnFactory());
 		schemaLdifPartition.setPartitionPath(schemaPartitionDirectory.toURI());
 		SchemaPartition schemaPartition = new SchemaPartition(schemaManager);
 		schemaPartition.setWrappedPartition(schemaLdifPartition);
-		ds_.setSchemaPartition(schemaPartition);
+		ds.setSchemaPartition(schemaPartition);
 
-		JdbmPartition systemPartition = new JdbmPartition(ds_.getSchemaManager(),
-				ds_.getDnFactory());
+		JdbmPartition systemPartition = new JdbmPartition(ds.getSchemaManager(),
+				ds.getDnFactory());
 		systemPartition.setId("system");
-		systemPartition.setPartitionPath(new File(ds_.getInstanceLayout()
+		systemPartition.setPartitionPath(new File(ds.getInstanceLayout()
 				.getPartitionsDirectory(), systemPartition.getId()).toURI());
 		systemPartition.setSuffixDn(new Dn(ServerDNConstants.SYSTEM_DN));
-		systemPartition.setSchemaManager(ds_.getSchemaManager());
+		systemPartition.setSchemaManager(ds.getSchemaManager());
 
-		ds_.setSystemPartition(systemPartition);
+		ds.setSystemPartition(systemPartition);
 	}
 
 	private void setUnityInterceptor(BaseInterceptor injectedInterceptor)
 	{
-		List<Interceptor> interceptors = ds_.getInterceptors();
+		List<Interceptor> interceptors = ds.getInterceptors();
 		// Find Normalization interceptor in chain
 		int insertionPosition = -1;
 		for (int pos = 0; pos < interceptors.size(); ++pos)
@@ -180,13 +180,13 @@ public class LdapServerFacade
 		}
 		// insert our new interceptor just behind
 		interceptors.add(insertionPosition + 1, injectedInterceptor);
-		ds_.setInterceptors(interceptors);
+		ds.setInterceptors(interceptors);
 	}
 
 	public void changeAdminPasswordBeforeStart(String password) throws LdapException
 	{
 		Dn systemDN = new Dn(ServerDNConstants.ADMIN_SYSTEM_DN);
-		Partition p = ds_.getPartitionNexus().getPartition(systemDN);
+		Partition p = ds.getPartitionNexus().getPartition(systemDN);
 		List<Modification> lmods = new ArrayList<>();
 		// magic constants
 		// https://tools.ietf.org/html/rfc4519 - Page 27
@@ -201,7 +201,7 @@ public class LdapServerFacade
 	public void addUser(String cn, String password, String displayName) throws LdapException
 	{
 		Dn userDN = new Dn("cn=" + cn + "," + ServerDNConstants.SYSTEM_DN);
-		Entry serverEntry = new DefaultEntry(ds_.getSchemaManager(), userDN);
+		Entry serverEntry = new DefaultEntry(ds.getSchemaManager(), userDN);
 		serverEntry.put(SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC,
 				SchemaConstants.PERSON_OC,
 				SchemaConstants.ORGANIZATIONAL_PERSON_OC,
@@ -210,12 +210,12 @@ public class LdapServerFacade
 		serverEntry.put(SchemaConstants.USER_PASSWORD_AT, Strings.getBytesUtf8(password));
 		serverEntry.put(SchemaConstants.DISPLAY_NAME_AT, displayName);
 		serverEntry.put(SchemaConstants.CN_AT, cn);
-		serverEntry.add(SchemaConstants.ENTRY_CSN_AT, ds_.getCSN().toString());
-		ds_.getPartitionNexus().add(new AddOperationContext(null, userDN, serverEntry));
+		serverEntry.add(SchemaConstants.ENTRY_CSN_AT, ds.getCSN().toString());
+		ds.getPartitionNexus().add(new AddOperationContext(null, userDN, serverEntry));
 	}
 
 	public void start() throws Exception
 	{
-		impl_.start();
+		impl.start();
 	}
 }
