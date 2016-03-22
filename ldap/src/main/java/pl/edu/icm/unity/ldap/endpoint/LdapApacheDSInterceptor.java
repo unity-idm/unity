@@ -60,9 +60,9 @@ import java.util.regex.Pattern;
  */
 public class LdapApacheDSInterceptor extends BaseInterceptor
 {
-	private RawPasswordRetrieval auth_;
+	private RawPasswordRetrieval auth;
 
-	private LdapServerFacade lsf_;
+	private LdapServerFacade lsf;
 
 	private SessionManagement sessionMan;
 
@@ -82,8 +82,8 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 			IdentitiesManagement identitiesMan, LdapServerProperties configuration)
 	{
 		super();
-		this.lsf_ = null;
-		this.auth_ = auth;
+		this.lsf = null;
+		this.auth = auth;
 		this.sessionMan = sessionMan;
 		this.realm = realm;
 		this.attributesMan = attributesMan;
@@ -93,7 +93,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 
 	public void setLdapServerFacade(LdapServerFacade lsf)
 	{
-		this.lsf_ = lsf;
+		this.lsf = lsf;
 	}
 
 	@Override
@@ -197,7 +197,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 
 		try
 		{
-			if (auth_.checkPassword(username, new String(bindContext.getCredentials(),
+			if (auth.checkPassword(username, new String(bindContext.getCredentials(),
 					StandardCharsets.UTF_8)))
 			{
 				LdapPrincipal policyConfig = new LdapPrincipal();
@@ -241,7 +241,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 				if (m.find())
 				{
 					user = m.group(1);
-					long userEntityId = auth_.verifyUser(user);
+					long userEntityId = auth.verifyUser(user);
 					// Collection<AttributeExt<?>> attrs =
 					// attributesMan.getAllAttributes(
 					// new EntityParam(userEntityId), true,
@@ -332,7 +332,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 	 */
 	private EntryFilteringCursorImpl emptyResult(SearchOperationContext searchContext)
 	{
-		return new EntryFilteringCursorImpl(new EmptyCursor<>(), searchContext, lsf_
+		return new EntryFilteringCursorImpl(new EmptyCursor<>(), searchContext, lsf
 				.getDs().getSchemaManager());
 	}
 
@@ -349,17 +349,17 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 		switch (name)
 		{
 		case SchemaConstants.USER_PASSWORD_AT:
-			da = lsf_.getAttribute(SchemaConstants.USER_PASSWORD_AT,
+			da = lsf.getAttribute(SchemaConstants.USER_PASSWORD_AT,
 					SchemaConstants.USER_PASSWORD_AT_OID);
 			da.add("not disclosing");
 			break;
 		case SchemaConstants.CN_AT:
-			da = lsf_.getAttribute(SchemaConstants.CN_AT, SchemaConstants.CN_AT_OID);
+			da = lsf.getAttribute(SchemaConstants.CN_AT, SchemaConstants.CN_AT_OID);
 			da.add(username);
 			break;
 		case SchemaConstants.MAIL_AT:
 		case SchemaConstants.EMAIL_AT:
-			da = lsf_.getAttribute(SchemaConstants.MAIL_AT, SchemaConstants.MAIL_AT_OID);
+			da = lsf.getAttribute(SchemaConstants.MAIL_AT, SchemaConstants.MAIL_AT_OID);
 			for (AttributeExt<?> ae : attrs)
 			{
 				if (ae.getName().equals(SchemaConstants.MAIL_AT)
@@ -375,7 +375,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 			{
 				if (ae.getName().equals(name))
 				{
-					da = lsf_.getAttribute(name, null);
+					da = lsf.getAttribute(name, null);
 
 					Object o = ae.getValues().get(0);
 					if (o instanceof BufferedImage)
@@ -533,10 +533,10 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 		// String username = getUserName(searchContext.getFilter(),
 		// "cn");
 
-		Entry entry = new DefaultEntry(lsf_.getDs().getSchemaManager());
+		Entry entry = new DefaultEntry(lsf.getDs().getSchemaManager());
 		try
 		{
-			long userEntityId = auth_.verifyUser(username);
+			long userEntityId = auth.verifyUser(username);
 
 			InvocationContext ctx = new InvocationContext(null, this.realm);
 			InvocationContext.setCurrent(ctx);
@@ -577,7 +577,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 			}
 
 			return new EntryFilteringCursorImpl(new SingletonCursor<>(entry),
-					searchContext, lsf_.getDs().getSchemaManager());
+					searchContext, lsf.getDs().getSchemaManager());
 
 		} catch (IllegalIdentityValueException ignored)
 		{
