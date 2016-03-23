@@ -10,12 +10,14 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.SimpleCommandLinePropertySource;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityLoggerFactory;
+import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.utils.LifecycleBase;
 import eu.unicore.util.LoggerFactory;
 
@@ -34,6 +36,13 @@ public class UnityApplication
 
 	private AbstractApplicationContext container;
 
+	private String[] activeProfiles;
+	
+	public UnityApplication(String... activeProfiles)
+	{
+		this.activeProfiles = activeProfiles;
+	}
+
 	public void run(String[] args)
 	{
 		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.LONG);
@@ -44,7 +53,10 @@ public class UnityApplication
 		MutablePropertySources propertySources = container.getEnvironment().getPropertySources();
 		SimpleCommandLinePropertySource clps = new SimpleCommandLinePropertySource(args);
 		propertySources.addFirst(clps);
-		container.getEnvironment().setActiveProfiles("production");
+		ConfigurableEnvironment env = container.getEnvironment();
+		env.setActiveProfiles(UnityServerConfiguration.PROFILE_PRODUCTION);
+		for (String profile: activeProfiles)
+			env.addActiveProfile(profile);
 		
 		container.refresh();
 

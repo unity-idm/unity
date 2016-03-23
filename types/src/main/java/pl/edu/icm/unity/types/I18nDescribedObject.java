@@ -71,7 +71,7 @@ public class I18nDescribedObject
 		String defaultMessage;
 		try
 		{
-			defaultMessage = msg.getMessage(key, args);
+			defaultMessage = msg.getMessageUnsafe(key, args);
 		} catch (NoSuchMessageException e)
 		{
 			return ret;

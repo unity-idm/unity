@@ -8,14 +8,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+
+import com.google.common.collect.Sets;
 
 /**
  * Extension of the {@link ResourceBundleMessageSource} which 
@@ -27,13 +33,18 @@ import pl.edu.icm.unity.server.authn.InvocationContext;
 @Component
 public class UnityMessageSource extends ReloadableResourceBundleMessageSource implements MessageSource
 {
+	private Logger log = Log.getLogger(Log.U_SERVER, UnityMessageSource.class);
+	
+	public static final String PROFILE_FAIL_ON_MISSING = "failOnMissingMessage";
+	
 	private static final String DEFAULT_PACKAGE = "pl/edu/icm/unity/"; 
 	private UnityServerConfiguration config;
+	private final boolean failOnMissingMessage;
 	
 	
 	@Autowired
 	public UnityMessageSource(UnityServerConfiguration config,
-			List<UnityMessageBundles> bundles)
+			List<UnityMessageBundles> bundles, Environment springEnv)
 	{
 		super();
 		this.config = config;
@@ -49,6 +60,8 @@ public class UnityMessageSource extends ReloadableResourceBundleMessageSource im
 		setFallbackToSystemLocale(false);
 		setDefaultEncoding("UTF-8");
 		setAlwaysUseMessageFormat(true);
+		Set<String> activeProfiles = Sets.newHashSet(springEnv.getActiveProfiles());
+		failOnMissingMessage = activeProfiles.contains(PROFILE_FAIL_ON_MISSING);
 	}
 	
 	private String shortenPath(String fullPath)
@@ -63,12 +76,29 @@ public class UnityMessageSource extends ReloadableResourceBundleMessageSource im
 		String fsMessages = config.getValue(UnityServerConfiguration.MESSAGES_DIRECTORY);
 		return fsMessages.endsWith("/") ? fsMessages : fsMessages + "/";
 	}
+
+	@Override
+	public String getMessageUnsafe(String code, Object... args)
+	{
+		Locale loc = getLocale();
+		return super.getMessage(code, args, loc);
+	}
 	
 	@Override
 	public String getMessage(String code, Object... args)
 	{
+		if (failOnMissingMessage)
+			return getMessageUnsafe(code, args);
+		
 		Locale loc = getLocale();
-		return super.getMessage(code, args, loc);
+		try
+		{
+			return super.getMessage(code, args, loc);
+		} catch (NoSuchMessageException e)
+		{
+			log.error("A message with code " + code + " is not defined, even in a default message bundle", e);
+			return code;
+		}
 	}
 
 	/**

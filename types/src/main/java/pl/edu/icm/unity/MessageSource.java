@@ -15,6 +15,7 @@ import java.util.Map;
 public interface MessageSource extends org.springframework.context.MessageSource
 {
 	String getMessage(String code, Object... args);
+	String getMessageUnsafe(String code, Object... args);
 	String getMessageNullArg(String code, Object... args);
 	String getYesNo(boolean value);
 	Locale getLocale();
