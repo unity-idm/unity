@@ -231,15 +231,13 @@ public class BaseSharedRegistrationSupport
 		notifyParams.put(RegistrationWithCommentsTemplateDef.PUBLIC_COMMENT,
 				publicComment == null ? "" : publicComment.getContents());
 		notifyParams.put(RegistrationWithCommentsTemplateDef.INTERNAL_COMMENT, "");
-		if (requesterAddress != null)
+
+		if (sendToRequester || publicComment != null)
 		{
-			if (sendToRequester || publicComment != null)
-			{
-				String userLocale = currentRequest.getRequest().getUserLocale();
-				notificationProducer.sendNotification(requesterAddress,
-						notificationsCfg.getChannel(), templateId,
-						notifyParams, userLocale);
-			}
+			String userLocale = currentRequest.getRequest().getUserLocale();
+			notificationProducer.sendNotification(requesterAddress,
+					notificationsCfg.getChannel(), templateId,
+					notifyParams, userLocale);
 		}
 
 		if (notificationsCfg.getAdminsNotificationGroup() != null)
