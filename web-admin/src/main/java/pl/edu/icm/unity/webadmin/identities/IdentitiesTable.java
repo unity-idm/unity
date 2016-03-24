@@ -5,12 +5,12 @@
 package pl.edu.icm.unity.webadmin.identities;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -891,10 +891,12 @@ public class IdentitiesTable extends CustomComponent
 		return resolved;
 	}
 
-	private void removeEntity(long entityId)
+	private void removeEntity(EntityWithLabel removed)
 	{
 		LoginSession entity = InvocationContext.getCurrent().getLoginSession();
 
+		long entityId = removed.getEntity().getId();
+		
 		if (entityId == entity.getEntityId())
 		{
 			NotificationPopup.showError(msg, msg.getMessage("error"), msg.getMessage("Identities.notRemovingLoggedUser"));
@@ -903,24 +905,61 @@ public class IdentitiesTable extends CustomComponent
 		try
 		{
 			identitiesMan.removeEntity(new EntityParam(entityId));
-			refresh();
+			removeNode(removed);
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("Identities.removeEntityError"), e);
 		}
 	}
+	
+	private void removeNode(EntityWithLabel removed)
+	{
+		data.remove(removed.getEntity().getId());
 
-	private void removeIdentity(Identity identity)
+		Collection<?> children = table.getChildren(removed);
+		if (children == null)
+		{
+			//flat structure > we have to find all identities of the same entity and remove them.
+			Set<Object> itemsToRemove = new HashSet<>();
+			for (Object item: table.getItemIds())
+			{
+				if (item.equals(removed))
+					itemsToRemove.add(item);
+				if (item instanceof IdentityWithEntity)
+					if (((IdentityWithEntity) item).entity.getEntity().getId() == 
+					removed.getEntity().getId())
+						itemsToRemove.add(item);
+			}
+			for (Object item: itemsToRemove)
+				table.removeItem(item);
+		} else
+		{
+			//easy - hierarchical structure
+			while (!children.isEmpty())
+				table.removeItem(children.iterator().next());
+			table.removeItem(removed);
+		}
+	}
+	
+	private void removeIdentity(IdentityWithEntity removed)
 	{
 		try
 		{
-			identitiesMan.removeIdentity(identity);
+			identitiesMan.removeIdentity(removed.identity);
+			removeNode(removed);
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("Identities.removeIdentityError"), e);
 		}
 	}
 
+	private void removeNode(IdentityWithEntity removed)
+	{
+		table.removeItem(removed);
+		data.get(removed.entity.getEntity().getId()).removeIdentity(
+				removed.getIdentity());
+	}
+	
 	private void resetIdentity(Identity identity)
 	{
 		try
@@ -1088,9 +1127,7 @@ public class IdentitiesTable extends CustomComponent
 				public void onConfirm()
 				{
 					for (EntityWithLabel entity : toRemove.values())
-					{
-						removeEntity(entity.getEntity().getId());
-					}
+						removeEntity(entity);
 				}
 			}).show();
 
@@ -1151,17 +1188,25 @@ public class IdentitiesTable extends CustomComponent
 				@Override
 				public void onConfirm()
 				{
+					boolean requiresRefresh = false;
 					for (IdentityWithEntity o : filteredNodes)
 					{
 						if (o.getIdentity().getType().getIdentityTypeProvider().isRemovable())
-							removeIdentity(o.identity);
-						else
+						{
+							removeIdentity(o);
+						} else
+						{
 							resetIdentity(o.identity);
+							requiresRefresh = true;
+						}
 					}
-					refresh();
+					if (requiresRefresh)
+						refresh();
 				}
 			}).show();
 		}
+		
+
 	}
 	
 	private class ChangeEntityStatusHandler extends SingleActionHandler
@@ -1383,20 +1428,26 @@ public class IdentitiesTable extends CustomComponent
 	private static class IdentitiesAndAttributes
 	{
 		private Entity entity;
-		private Identity[] identities;
+		private Set<Identity> identities;
 		private Map<String, Attribute<?>> rootAttributes;
 		private Map<String, Attribute<?>> currentAttributes;
 
 		public IdentitiesAndAttributes(Entity entity, Identity[] identities, 
 				Map<String, Attribute<?>> rootAttributes, Map<String, Attribute<?>> currentAttributes)
 		{
-			this.identities = Arrays.copyOf(identities, identities.length);
+			this.identities = new LinkedHashSet<>(); 
+			Collections.addAll(this.identities, identities);
 			this.rootAttributes = rootAttributes;
 			this.currentAttributes = currentAttributes;
 			this.entity = entity;
 		}
 		
-		public Identity[] getIdentities()
+		public void removeIdentity(Identity identity)
+		{
+			identities.remove(identity);
+		}
+
+		public Collection<Identity> getIdentities()
 		{
 			return identities;
 		}
