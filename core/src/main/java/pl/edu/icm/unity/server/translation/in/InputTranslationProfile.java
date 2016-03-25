@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.NDC;
@@ -102,7 +103,7 @@ public class InputTranslationProfile extends AbstractTranslationProfile<InputTra
 		Map<String, List<Object>> attrs = new HashMap<String, List<Object>>();
 		for (RemoteAttribute ra: input.getAttributes().values())
 		{
-			Object v = ra.getValues().isEmpty() ? "" : ra.getValues().get(0);
+			Object v = ra.getValues().stream().map(value -> value.toString()).collect(Collectors.joining(","));
 			attr.put(ra.getName(), v);
 			attrs.put(ra.getName(), ra.getValues());
 		}
