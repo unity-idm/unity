@@ -5,7 +5,9 @@
 package pl.edu.icm.unity.types.registration;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -20,6 +22,10 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.DescribedObjectROImpl;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.I18nStringJsonUtil;
+import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
+import pl.edu.icm.unity.types.registration.layout.FormElement;
+import pl.edu.icm.unity.types.registration.layout.FormLayout;
+import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
@@ -42,6 +48,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 	private I18nString formInformation = new I18nString();
 	private TranslationProfile translationProfile = 
 			new TranslationProfile("registrationProfile", "", ProfileType.REGISTRATION, new ArrayList<>()); 
+	private FormLayout formLayout;
 	
 	@JsonCreator
 	BaseForm(ObjectNode json)
@@ -71,6 +78,63 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		if (formInformation == null)
 			throw new IllegalStateException("Form information must be not-null "
 					+ "in a form (but it contents can be empty)");
+		
+		if (formLayout != null)
+			validateLayout();
+	}
+	
+	protected void validateLayout()
+	{
+		Set<String> definedElements = new HashSet<>();
+		for (FormElement element: formLayout.getElements())
+		{
+			String id = getIdOfElement(element);
+			if (id != null)
+				definedElements.add(id);
+		}
+		
+		checkFormParametersInLayout(definedElements);
+		checkOtherElementsInLayout(definedElements);
+		if (!definedElements.isEmpty())
+			throw new IllegalStateException("Form layout contains elements "
+					+ "which are not defied in the form: " + definedElements);
+	}
+	
+	protected void checkOtherElementsInLayout(Set<String> definedElements)
+	{
+		if (formInformation != null && !formInformation.isEmpty())
+			checkLayoutElement(FormLayout.FORM_INFO, definedElements);
+		if (isCollectComments())
+			checkLayoutElement(FormLayout.COMMENTS, definedElements);
+	}
+
+	protected void checkFormParametersInLayout(Set<String> definedElements)
+	{
+		for (int i = 0; i < identityParams.size(); i++)
+			checkLayoutElement(FormLayout.IDENTITY + "_" + i, definedElements);
+		for (int i = 0; i < attributeParams.size(); i++)
+			checkLayoutElement(FormLayout.ATTRIBUTE + "_" + i, definedElements);
+		for (int i = 0; i < agreements.size(); i++)
+			checkLayoutElement(FormLayout.AGREEMENT + "_" + i, definedElements);
+		for (int i = 0; i < groupParams.size(); i++)
+			checkLayoutElement(FormLayout.GROUP + "_" + i, definedElements);
+		for (int i = 0; i < credentialParams.size(); i++)
+			checkLayoutElement(FormLayout.CREDENTIAL + "_" + i, definedElements);
+	}
+	
+	protected void checkLayoutElement(String key, Set<String> definedElements)
+	{
+		if (!definedElements.remove(key))
+			throw new IllegalStateException("Form layout does not define position of " + key);
+	}
+	
+	protected String getIdOfElement(FormElement element)
+	{
+		if (element instanceof FormCaptionElement)
+			return null;
+		if (element instanceof FormParameterElement)
+			return element.getType() + "_" + ((FormParameterElement)element).getIndex();
+		return element.getType();
 	}
 	
 	@JsonValue
@@ -89,6 +153,8 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		root.put("Name", getName());
 		root.set("DisplayedName", I18nStringJsonUtil.toJson(getDisplayedName()));
 		root.set("TranslationProfile", getTranslationProfile().toJsonObject());
+		if (formLayout != null)
+			root.set("FormLayout", jsonMapper.valueToTree(getFormLayout()));
 		return root;
 	}
 
@@ -155,6 +221,12 @@ public abstract class BaseForm extends DescribedObjectROImpl
 			if (n != null)
 			{
 				setTranslationProfile(new TranslationProfile((ObjectNode) n));
+			}
+
+			n = root.get("FormLayout");
+			if (n != null)
+			{
+				setFormLayout(jsonMapper.treeToValue(n, FormLayout.class));
 			}
 			
 		} catch (Exception e)
@@ -332,8 +404,18 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		this.translationProfile = translationProfile;
 	}
 
-	public abstract BaseFormNotifications getNotificationsConfiguration();
+	public FormLayout getFormLayout()
+	{
+		return formLayout;
+	}
+
+	public void setFormLayout(FormLayout formLayout)
+	{
+		this.formLayout = formLayout;
+	}
 	
+	public abstract BaseFormNotifications getNotificationsConfiguration();
+
 	@Override
 	public int hashCode()
 	{
@@ -348,6 +430,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		result = prime * result + ((displayedName == null) ? 0 : displayedName.hashCode());
 		result = prime * result
 				+ ((formInformation == null) ? 0 : formInformation.hashCode());
+		result = prime * result + ((formLayout == null) ? 0 : formLayout.hashCode());
 		result = prime * result + ((groupParams == null) ? 0 : groupParams.hashCode());
 		result = prime * result
 				+ ((identityParams == null) ? 0 : identityParams.hashCode());
@@ -398,6 +481,12 @@ public abstract class BaseForm extends DescribedObjectROImpl
 			if (other.formInformation != null)
 				return false;
 		} else if (!formInformation.equals(other.formInformation))
+			return false;
+		if (formLayout == null)
+		{
+			if (other.formLayout != null)
+				return false;
+		} else if (!formLayout.equals(other.formLayout))
 			return false;
 		if (groupParams == null)
 		{

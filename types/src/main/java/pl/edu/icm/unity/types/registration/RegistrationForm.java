@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.types.registration;
 
+import java.util.Set;
+
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.InternalException;
 
@@ -32,6 +34,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class RegistrationForm extends BaseForm
 {
 	public static final int MAX_CAPTCHA_LENGTH = 8;
+	public static final String CAPTCHA = "CAPTCHA";
+	public static final String REG_CODE = "REG_CODE";
 	
 	private boolean publiclyAvailable;
 	private RegistrationFormNotifications notificationsConfiguration = new RegistrationFormNotifications();
@@ -125,6 +129,16 @@ public class RegistrationForm extends BaseForm
 		if (defaultCredentialRequirement == null)
 			throw new IllegalStateException("Default credential requirement must be not-null "
 					+ "in RegistrationForm");
+	}
+	
+	protected void checkOtherElementsInLayout(Set<String> definedElements)
+	{
+		super.checkOtherElementsInLayout(definedElements);
+		if (captchaLength > 0)
+			checkLayoutElement(CAPTCHA, definedElements);
+		if (registrationCode != null)
+			checkLayoutElement(REG_CODE, definedElements);
+
 	}
 	
 	@JsonValue
