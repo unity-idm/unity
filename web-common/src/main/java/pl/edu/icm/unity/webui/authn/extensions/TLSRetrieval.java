@@ -22,7 +22,6 @@ import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.CertificateExchange;
-import pl.edu.icm.unity.types.I18nDescribedObject;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -88,8 +87,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 			JsonNode root = Constants.MAPPER.readTree(json);
 			name = I18nStringJsonUtil.fromJson(root.get("i18nName"), root.get("name"));
 			if (name.isEmpty())
-				name = I18nDescribedObject.loadI18nStringFromBundle(
-						"WebTLSRetrieval.title", msg);
+				name = new I18nString("WebTLSRetrieval.title", msg);
 			JsonNode logoNode = root.get("logoURL");
 			if (logoNode != null && !logoNode.isNull())
 				logoURL = logoNode.asText();

@@ -93,12 +93,12 @@ public class AttributeType extends I18nDescribedObject implements Initialization
 	
 	private static I18nString loadDescriptions(String msgKey, MessageSource msg, Object... args)
 	{
-		return loadI18nStringFromBundle("AttrType." + msgKey + ".desc", msg, args);
+		return new I18nString("AttrType." + msgKey + ".desc", msg, args);
 	}
 
 	private static I18nString loadNames(String msgKey, MessageSource msg, Object... args)
 	{
-		return loadI18nStringFromBundle("AttrType." + msgKey + ".displayedName", msg, args);
+		return new I18nString("AttrType." + msgKey + ".displayedName", msg, args);
 	}
 	
 	public boolean isTypeImmutable()

@@ -12,7 +12,7 @@ public class RegistrationParam
 {
 	private String label;
 	private String description;
-	private ParameterRetrievalSettings retrievalSettings;
+	private ParameterRetrievalSettings retrievalSettings = ParameterRetrievalSettings.interactive;
 
 	public String getLabel()
 	{

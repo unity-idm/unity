@@ -9,15 +9,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.DescribedObjectROImpl;
 import pl.edu.icm.unity.types.I18nString;
@@ -26,8 +19,17 @@ import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
 import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.types.registration.layout.FormLayout;
 import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
+import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 
 /**
@@ -78,9 +80,6 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		if (formInformation == null)
 			throw new IllegalStateException("Form information must be not-null "
 					+ "in a form (but it contents can be empty)");
-		
-		if (formLayout != null)
-			validateLayout();
 	}
 	
 	protected void validateLayout()
@@ -130,7 +129,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 	
 	protected String getIdOfElement(FormElement element)
 	{
-		if (element instanceof FormCaptionElement)
+		if (!element.isFormContentsRelated())
 			return null;
 		if (element instanceof FormParameterElement)
 			return element.getType() + "_" + ((FormParameterElement)element).getIndex();
@@ -412,6 +411,50 @@ public abstract class BaseForm extends DescribedObjectROImpl
 	public void setFormLayout(FormLayout formLayout)
 	{
 		this.formLayout = formLayout;
+	}
+
+	protected List<FormElement> getDefaultBasicParamsLayout(String type, List<?> params, 
+			MessageSource msg, String captionKey, boolean addSeparator)
+	{
+		List<FormElement> ret = new ArrayList<>();
+		if (!params.isEmpty())
+			ret.add(new FormCaptionElement(new I18nString(captionKey, msg)));
+		for (int i=0; i<params.size(); i++)
+		{
+			if (addSeparator && i > 0)
+				ret.add(new FormSeparatorElement());
+			ret.add(new FormParameterElement(type, i));
+		}
+		return ret;
+	}
+	
+	protected List<FormElement> getDefaultParametersLayout(String type, List<? extends RegistrationParam> params, 
+			MessageSource msg, String captionKey, String readOnlyCaptionKey)
+	{
+		List<FormElement> ret = new ArrayList<>();
+		
+		for (int i=0; i<params.size(); i++)
+		{
+			RegistrationParam param = params.get(i);
+			if (!param.getRetrievalSettings().isInteractivelyEntered(false))
+				ret.add(new FormParameterElement(type, i));
+		}
+		
+		if (!ret.isEmpty())
+			ret.add(0, new FormCaptionElement(new I18nString(captionKey, msg)));
+
+		int interactiveSize = ret.size();
+		for (int i=0; i<params.size(); i++)
+		{
+			RegistrationParam param = params.get(i);
+			if (param.getRetrievalSettings().isInteractivelyEntered(false))
+				ret.add(new FormParameterElement(type, i));
+		}
+		
+		if (interactiveSize < ret.size())
+			ret.add(interactiveSize, new FormCaptionElement(new I18nString(readOnlyCaptionKey, msg)));
+		
+		return ret;
 	}
 	
 	public abstract BaseFormNotifications getNotificationsConfiguration();

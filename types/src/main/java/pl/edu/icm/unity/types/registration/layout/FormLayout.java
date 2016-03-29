@@ -35,6 +35,9 @@ public class FormLayout
 
 	public static final String FORM_INFO = "FORM_INFO";
 	public static final String COMMENTS = "COMMENTS";
+
+	public static final String CAPTION = "CAPTION";
+	public static final String SEPARATOR = "SEPARATOR";
 	
 	private List<FormElement> elements;
 

@@ -8,6 +8,8 @@
  **********************************************************************/
 package pl.edu.icm.unity.types.registration.layout;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 /**
  * Represents one of the variable form elements, which can have multiple 
  * occurrences: attributes, identities, groups and credentials.
@@ -20,10 +22,16 @@ public class FormParameterElement extends FormElement
 
 	public FormParameterElement(String type, int index)
 	{
-		super(type);
+		super(type, true);
 		this.index = index;
 	}
-
+	
+	@JsonCreator
+	private FormParameterElement()
+	{
+		super(null, true);
+	}
+	
 	public int getIndex()
 	{
 		return index;

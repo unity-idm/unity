@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.registration.layout.FormLayout;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
@@ -210,6 +211,16 @@ public class BaseFormBuilder<T extends BaseFormBuilder<?>>
 		return (T) this;
 	}
 
+	@SuppressWarnings("unchecked")
+	public T withLayout(FormLayout layout)
+	{
+		instance.setFormLayout(layout);
+
+		return (T) this;
+	}
+
+	
+	
 	public class GroupRegistrationParamBuilder
 	{
 		private GroupRegistrationParam instance;

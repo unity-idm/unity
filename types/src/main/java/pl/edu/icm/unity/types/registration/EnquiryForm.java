@@ -4,10 +4,16 @@
  */
 package pl.edu.icm.unity.types.registration;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
+import pl.edu.icm.unity.types.registration.layout.FormElement;
+import pl.edu.icm.unity.types.registration.layout.FormLayout;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -36,6 +42,8 @@ public class EnquiryForm extends BaseForm
 	{
 		super(json);
 		fromJson(json);
+		if (getFormLayout() != null)
+			validateLayout();
 	}
 	
 	public EnquiryForm()
@@ -120,6 +128,27 @@ public class EnquiryForm extends BaseForm
 		this.targetGroups = targetGroups;
 	}
 
+	public FormLayout getDefaultFormLayout(MessageSource msg)
+	{
+		List<FormElement> elements = new ArrayList<FormElement>();
+		if (getFormInformation() != null && !getFormInformation().isEmpty())
+			elements.add(new BasicFormElement(FormLayout.FORM_INFO));
+		elements.addAll(getDefaultParametersLayout(FormLayout.IDENTITY, getIdentityParams(), msg, 
+				"RegistrationRequest.identities", "RegistrationRequest.externalIdentities"));
+		elements.addAll(getDefaultBasicParamsLayout(FormLayout.CREDENTIAL, getCredentialParams(), msg, 
+				"RegistrationRequest.credentials", true));
+		elements.addAll(getDefaultParametersLayout(FormLayout.ATTRIBUTE, getAttributeParams(), msg, 
+				"RegistrationRequest.attributes", "RegistrationRequest.externalAttributes"));
+		elements.addAll(getDefaultParametersLayout(FormLayout.GROUP, getGroupParams(), msg, 
+				"RegistrationRequest.groups", "RegistrationRequest.externalGroups"));
+		if (isCollectComments())
+			elements.add(new BasicFormElement(FormLayout.COMMENTS));
+		elements.addAll(getDefaultBasicParamsLayout(FormLayout.AGREEMENT, getAgreements(), msg, 
+				"RegistrationRequest.agreements", true));
+		
+		return new FormLayout(elements);
+	}
+	
 	@Override
 	public int hashCode()
 	{

@@ -5,7 +5,10 @@
 package pl.edu.icm.unity.types;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+
+import org.springframework.context.NoSuchMessageException;
 
 import pl.edu.icm.unity.MessageSource;
 
@@ -34,7 +37,40 @@ public class I18nString
 		this();
 		this.defaultValue = defaultValue;
 	}
-
+	
+	/**
+	 * Loads {@link I18nString} from all message bundles which are installed in the system. The returned object 
+	 * has no default value set.
+	 * @param prefix
+	 * @param name
+	 * @param suffix
+	 * @param msg
+	 * @param msgKey
+	 * @param args
+	 * @return
+	 */
+	public I18nString(String key, MessageSource msg, Object... args)
+	{
+		this();
+		Map<String, Locale> allLocales = msg.getSupportedLocales();
+		
+		String defaultMessage;
+		try
+		{
+			defaultMessage = msg.getMessageUnsafe(key, args);
+		} catch (NoSuchMessageException e)
+		{
+			return;
+		}
+		
+		for (Locale locE: allLocales.values())
+		{
+			String message = msg.getMessage(key, args, locE);
+			if (locE.toString().equals(msg.getDefaultLocaleCode()) || !defaultMessage.equals(message))
+				addValue(locE.toString(), message);
+		}
+	}
+	
 	@JsonCreator
 	public static I18nString fromJson(JsonNode json)
 	{

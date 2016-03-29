@@ -21,7 +21,6 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.PasswordExchange;
 import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.I18nDescribedObject;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -101,8 +100,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			JsonNode root = Constants.MAPPER.readTree(json);
 			name = I18nStringJsonUtil.fromJson(root.get("i18nName"), root.get("name"));
 			if (name.isEmpty())
-				name = I18nDescribedObject.loadI18nStringFromBundle(
-						"WebPasswordRetrieval.password", msg);
+				name = new I18nString("WebPasswordRetrieval.password", msg);
 			JsonNode formNode = root.get("registrationFormForUnknown");
 			if (formNode != null && !formNode.isNull())
 				registrationFormForUnknown = formNode.asText();

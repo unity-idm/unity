@@ -82,7 +82,6 @@ import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
-import pl.edu.icm.unity.types.I18nDescribedObject;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
@@ -592,8 +591,7 @@ public class EngineInitialization extends LifecycleBase
 			}
 		}
 		
-		I18nString description = I18nDescribedObject.loadI18nStringFromBundle(
-				"CredDef.standardPassword.desc", msg); 
+		I18nString description = new I18nString("CredDef.standardPassword.desc", msg); 
 		CredentialDefinition credDef = new CredentialDefinition(PasswordVerificatorFactory.NAME,
 				adminCredName, description, msg);
 		credDef.setJsonConfiguration("{\"minLength\": 1," +

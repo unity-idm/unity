@@ -10,7 +10,9 @@ import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
 
 import org.junit.Test;
+import org.mockito.Mockito;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
@@ -76,7 +78,9 @@ public class RegistrationFormTest
 			.withTranslationProfile(profile)
 			.withRegistrationCode("code")
 			.build();
-
+		MessageSource msg = Mockito.mock(MessageSource.class);
+		complete.setFormLayout(complete.getDefaultFormLayout(msg));
+		
 		String jsonStr = UnityTypesFactory.toJsonString(complete);
 		RegistrationForm completeParsed = UnityTypesFactory.parse(jsonStr, RegistrationForm.class);
 

@@ -8,6 +8,8 @@
  **********************************************************************/
 package pl.edu.icm.unity.types.registration.layout;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import pl.edu.icm.unity.types.I18nString;
 
 /**
@@ -18,12 +20,18 @@ public class FormCaptionElement extends FormElement
 {
 	private I18nString value;
 
-	public FormCaptionElement(String type, I18nString value)
+	public FormCaptionElement(I18nString value)
 	{
-		super(type);
+		super(FormLayout.CAPTION, false);
 		this.value = value;	
 	}
-
+	
+	@JsonCreator
+	private FormCaptionElement()
+	{
+		super(FormLayout.CAPTION, false);
+	}
+	
 	public I18nString getValue()
 	{
 		return value;

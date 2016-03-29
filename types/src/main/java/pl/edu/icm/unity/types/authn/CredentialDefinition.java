@@ -57,7 +57,7 @@ public class CredentialDefinition extends I18nDescribedObject implements NamedOb
 	
 	private static I18nString loadNames(String name, MessageSource msg)
 	{
-		return loadI18nStringFromBundle("CredDef." + name + ".displayedName", msg);
+		return new I18nString("CredDef." + name + ".displayedName", msg);
 	}
 	
 	public String getTypeId()

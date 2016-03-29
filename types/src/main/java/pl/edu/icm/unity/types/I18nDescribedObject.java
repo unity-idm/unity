@@ -4,12 +4,6 @@
  */
 package pl.edu.icm.unity.types;
 
-import java.util.Locale;
-import java.util.Map;
-
-import org.springframework.context.NoSuchMessageException;
-
-import pl.edu.icm.unity.MessageSource;
 
 /**
  * Defines displayed name and description, both with a possibility to be translated
@@ -52,41 +46,6 @@ public class I18nDescribedObject
 		this.description = description;
 	}
 
-	/**
-	 * Loads {@link I18nString} from all message bundles which are installed in the system. The returned object 
-	 * has no default value set.
-	 * @param prefix
-	 * @param name
-	 * @param suffix
-	 * @param msg
-	 * @param msgKey
-	 * @param args
-	 * @return
-	 */
-	public static I18nString loadI18nStringFromBundle(String key, MessageSource msg, Object... args)
-	{
-		Map<String, Locale> allLocales = msg.getSupportedLocales();
-		I18nString ret = new I18nString();
-		
-		String defaultMessage;
-		try
-		{
-			defaultMessage = msg.getMessageUnsafe(key, args);
-		} catch (NoSuchMessageException e)
-		{
-			return ret;
-		}
-		
-		for (Locale locE: allLocales.values())
-		{
-			String message = msg.getMessage(key, args, locE);
-			if (locE.toString().equals(msg.getDefaultLocaleCode()) || !defaultMessage.equals(message))
-				ret.addValue(locE.toString(), message);
-		}
-		return ret;
-	}
-	
-	
 	@Override
 	public int hashCode()
 	{

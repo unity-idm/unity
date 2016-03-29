@@ -4,10 +4,16 @@
  */
 package pl.edu.icm.unity.types.registration;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
+import pl.edu.icm.unity.types.registration.layout.FormElement;
+import pl.edu.icm.unity.types.registration.layout.FormLayout;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -50,6 +56,8 @@ public class RegistrationForm extends BaseForm
 		super(json);
 		fromJson(json);
 		validateRegistration();
+		if (getFormLayout() != null)
+			validateLayout();
 	}
 	
 	RegistrationForm()
@@ -131,6 +139,7 @@ public class RegistrationForm extends BaseForm
 					+ "in RegistrationForm");
 	}
 	
+	@Override
 	protected void checkOtherElementsInLayout(Set<String> definedElements)
 	{
 		super.checkOtherElementsInLayout(definedElements);
@@ -140,7 +149,31 @@ public class RegistrationForm extends BaseForm
 			checkLayoutElement(REG_CODE, definedElements);
 
 	}
-	
+
+	public FormLayout getDefaultFormLayout(MessageSource msg)
+	{
+		List<FormElement> elements = new ArrayList<FormElement>();
+		if (getFormInformation() != null && !getFormInformation().isEmpty())
+			elements.add(new BasicFormElement(FormLayout.FORM_INFO));
+		if (registrationCode != null)
+			elements.add(new BasicFormElement(REG_CODE));
+		elements.addAll(getDefaultParametersLayout(FormLayout.IDENTITY, getIdentityParams(), msg, 
+				"RegistrationRequest.identities", "RegistrationRequest.externalIdentities"));
+		elements.addAll(getDefaultBasicParamsLayout(FormLayout.CREDENTIAL, getCredentialParams(), msg, 
+				"RegistrationRequest.credentials", true));
+		elements.addAll(getDefaultParametersLayout(FormLayout.ATTRIBUTE, getAttributeParams(), msg, 
+				"RegistrationRequest.attributes", "RegistrationRequest.externalAttributes"));
+		elements.addAll(getDefaultParametersLayout(FormLayout.GROUP, getGroupParams(), msg, 
+				"RegistrationRequest.groups", "RegistrationRequest.externalGroups"));
+		if (isCollectComments())
+			elements.add(new BasicFormElement(FormLayout.COMMENTS));
+		elements.addAll(getDefaultBasicParamsLayout(FormLayout.AGREEMENT, getAgreements(), msg, 
+				"RegistrationRequest.agreements", true));
+		if (captchaLength > 0)
+			elements.add(new BasicFormElement(CAPTCHA));
+		return new FormLayout(elements);
+	}
+
 	@JsonValue
 	public ObjectNode toJson()
 	{
