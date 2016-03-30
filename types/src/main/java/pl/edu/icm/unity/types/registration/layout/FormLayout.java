@@ -33,7 +33,6 @@ public class FormLayout
 	public static final String CREDENTIAL = "CREDENTIAL";
 	public static final String AGREEMENT = "AGREEMENT";
 
-	public static final String FORM_INFO = "FORM_INFO";
 	public static final String COMMENTS = "COMMENTS";
 
 	public static final String CAPTION = "CAPTION";

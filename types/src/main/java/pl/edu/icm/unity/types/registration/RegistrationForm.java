@@ -150,11 +150,10 @@ public class RegistrationForm extends BaseForm
 
 	}
 
+	@Override
 	public FormLayout getDefaultFormLayout(MessageSource msg)
 	{
 		List<FormElement> elements = new ArrayList<FormElement>();
-		if (getFormInformation() != null && !getFormInformation().isEmpty())
-			elements.add(new BasicFormElement(FormLayout.FORM_INFO));
 		if (registrationCode != null)
 			elements.add(new BasicFormElement(REG_CODE));
 		elements.addAll(getDefaultParametersLayout(FormLayout.IDENTITY, getIdentityParams(), msg, 

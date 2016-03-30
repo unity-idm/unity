@@ -128,11 +128,10 @@ public class EnquiryForm extends BaseForm
 		this.targetGroups = targetGroups;
 	}
 
+	@Override
 	public FormLayout getDefaultFormLayout(MessageSource msg)
 	{
 		List<FormElement> elements = new ArrayList<FormElement>();
-		if (getFormInformation() != null && !getFormInformation().isEmpty())
-			elements.add(new BasicFormElement(FormLayout.FORM_INFO));
 		elements.addAll(getDefaultParametersLayout(FormLayout.IDENTITY, getIdentityParams(), msg, 
 				"RegistrationRequest.identities", "RegistrationRequest.externalIdentities"));
 		elements.addAll(getDefaultBasicParamsLayout(FormLayout.CREDENTIAL, getCredentialParams(), msg, 

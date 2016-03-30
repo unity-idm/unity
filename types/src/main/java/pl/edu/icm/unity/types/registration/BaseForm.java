@@ -101,8 +101,6 @@ public abstract class BaseForm extends DescribedObjectROImpl
 	
 	protected void checkOtherElementsInLayout(Set<String> definedElements)
 	{
-		if (formInformation != null && !formInformation.isEmpty())
-			checkLayoutElement(FormLayout.FORM_INFO, definedElements);
 		if (isCollectComments())
 			checkLayoutElement(FormLayout.COMMENTS, definedElements);
 	}
@@ -403,11 +401,18 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		this.translationProfile = translationProfile;
 	}
 
+	public FormLayout getEffectiveFormLayout(MessageSource msg)
+	{
+		return formLayout == null ? getDefaultFormLayout(msg) : formLayout;
+	}
+	
 	public FormLayout getFormLayout()
 	{
 		return formLayout;
 	}
-
+	
+	public abstract FormLayout getDefaultFormLayout(MessageSource msg);
+	
 	public void setFormLayout(FormLayout formLayout)
 	{
 		this.formLayout = formLayout;
@@ -436,7 +441,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		for (int i=0; i<params.size(); i++)
 		{
 			RegistrationParam param = params.get(i);
-			if (!param.getRetrievalSettings().isInteractivelyEntered(false))
+			if (param.getRetrievalSettings().isInteractivelyEntered(false))
 				ret.add(new FormParameterElement(type, i));
 		}
 		
@@ -447,7 +452,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		for (int i=0; i<params.size(); i++)
 		{
 			RegistrationParam param = params.get(i);
-			if (param.getRetrievalSettings().isInteractivelyEntered(false))
+			if (!param.getRetrievalSettings().isInteractivelyEntered(false))
 				ret.add(new FormParameterElement(type, i));
 		}
 		

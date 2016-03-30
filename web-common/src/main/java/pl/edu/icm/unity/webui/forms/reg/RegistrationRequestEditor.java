@@ -4,10 +4,13 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.log4j.Logger;
+
+import com.vaadin.server.UserError;
+import com.vaadin.ui.AbstractOrderedLayout;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Layout;
+import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -18,28 +21,18 @@ import pl.edu.icm.unity.server.api.RegistrationsManagement;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
-import pl.edu.icm.unity.types.registration.Selection;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
-import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
+import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
+import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.webui.common.CaptchaComponent;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.forms.BaseRequestEditor;
-
-import com.vaadin.server.UserError;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * Generates a UI based on a given registration form. User can fill the form and a request is returned.
@@ -137,74 +130,42 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	
 	private void initUI() throws EngineException
 	{
-		VerticalLayout main = new VerticalLayout();
-		main.setSpacing(true);
-		main.setWidth(80, Unit.PERCENTAGE);
-		setCompositionRoot(main);
-		
-		Label formName = new Label(form.getDisplayedName().getValue(msg));
-		formName.addStyleName(Styles.vLabelH1.toString());
-		main.addComponent(formName);
-		
-		String info = form.getFormInformation() == null ? null : form.getFormInformation().getValue(msg);
-		if (info != null)
-		{
-			HtmlConfigurableLabel formInformation = new HtmlConfigurableLabel(info);
-			main.addComponent(formInformation);
-		}
-
-		FormLayout mainFormLayout = new FormLayout();
-		main.addComponent(mainFormLayout);
+		FormLayout mainFormLayout = createMainFormLayout();
 		
 		setupInvitationByCode();
 		
-		if (form.getRegistrationCode() != null && regCodeProvided == null)
+		createControls(mainFormLayout, invitation);
+	}
+	
+	@Override
+	protected void createControlFor(AbstractOrderedLayout layout, FormElement element, InvitationWithCode invitation) 
+			throws EngineException
+	{
+		switch (element.getType())
 		{
-			registrationCode = new TextField(msg.getMessage("RegistrationRequest.registrationCode"));
-			registrationCode.setRequired(true);
-			mainFormLayout.addComponent(registrationCode);
+		case RegistrationForm.CAPTCHA:
+			createCaptchaControl(layout, (BasicFormElement) element);
+			break;
+		case RegistrationForm.REG_CODE:
+			createRegistrationCodeControl(layout, (BasicFormElement) element);
+			break;
+		default:
+			super.createControlFor(layout, element, invitation);
 		}
-		
-		if (form.getIdentityParams() != null && form.getIdentityParams().size() > 0)
-		{
-			Map<Integer, PrefilledEntry<IdentityParam>> fromInvitation = invitation != null ? 
-					invitation.getIdentities() : new HashMap<>();
-			createIdentityUI(mainFormLayout, fromInvitation);
-		}
+	}
+	
+	private void createCaptchaControl(Layout layout, BasicFormElement element)
+	{
+		captcha = new CaptchaComponent(msg, form.getCaptchaLength());
+		layout.addComponent(HtmlTag.br());
+		layout.addComponent(captcha.getAsComponent());
+	}
 
-		if (form.getCredentialParams() != null && form.getCredentialParams().size() > 0)
-			createCredentialsUI(mainFormLayout);
-		
-		if (form.getAttributeParams() != null && form.getAttributeParams().size() > 0)
-		{
-			Map<Integer, PrefilledEntry<Attribute<?>>> fromInvitation = invitation != null ? 
-					invitation.getAttributes() : new HashMap<>();
-			createAttributesUI(mainFormLayout, fromInvitation);
-		}
-		
-		if (form.getGroupParams() != null && form.getGroupParams().size() > 0)
-		{
-			Map<Integer, PrefilledEntry<Selection>> fromInvitation = invitation != null ? 
-					invitation.getGroupSelections() : new HashMap<>();
-			createGroupsUI(mainFormLayout, fromInvitation);
-			mainFormLayout.addComponent(HtmlTag.br());
-		}
-		
-		if (form.isCollectComments())
-			createCommentsUI(mainFormLayout);
-
-		if (form.getAgreements() != null && form.getAgreements().size() > 0)
-		{
-			createAgreementsUI(mainFormLayout);
-			mainFormLayout.addComponent(HtmlTag.br());
-		}
-		
-		if (form.getCaptchaLength() > 0)
-		{
-			captcha = new CaptchaComponent(msg, form.getCaptchaLength());
-			mainFormLayout.addComponent(HtmlTag.br());
-			mainFormLayout.addComponent(captcha.getAsComponent());
-		}
+	private void createRegistrationCodeControl(Layout layout, BasicFormElement element)
+	{
+		registrationCode = new TextField(msg.getMessage("RegistrationRequest.registrationCode"));
+		registrationCode.setRequired(true);
+		layout.addComponent(registrationCode);
 	}
 	
 	private void setupInvitationByCode()
