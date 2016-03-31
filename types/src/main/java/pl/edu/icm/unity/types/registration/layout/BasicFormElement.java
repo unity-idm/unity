@@ -10,6 +10,8 @@ package pl.edu.icm.unity.types.registration.layout;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
+import pl.edu.icm.unity.MessageSource;
+
 /**
  * Used in {@link FormLayout} to represent a form element being placed - for 
  * positioning of simple elements which has only one instance (e.g. comments or captcha).
@@ -32,6 +34,12 @@ public class BasicFormElement extends FormElement
 	@Override
 	public String toString()
 	{
-		return "BasicFormElement []";
+		return "Parameter " + getType();
+	}
+
+	@Override
+	public String toString(MessageSource msg)
+	{
+		return toString();
 	}
 }

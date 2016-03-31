@@ -10,6 +10,8 @@ package pl.edu.icm.unity.types.registration.layout;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
+import pl.edu.icm.unity.MessageSource;
+
 /**
  * Represents one of the variable form elements, which can have multiple 
  * occurrences: attributes, identities, groups and credentials.
@@ -64,6 +66,12 @@ public class FormParameterElement extends FormElement
 	@Override
 	public String toString()
 	{
-		return "FormParameterElement [index=" + index + ", type=" + getType() + "]";
+		return "Parameter " + getType() + " [" + index + "]";
+	}
+
+	@Override
+	public String toString(MessageSource msg)
+	{
+		return toString();
 	}
 }

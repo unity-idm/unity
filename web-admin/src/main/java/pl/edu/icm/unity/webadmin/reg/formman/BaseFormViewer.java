@@ -13,11 +13,13 @@ import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.OptionalRegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
+import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -38,6 +40,7 @@ public class BaseFormViewer extends VerticalLayout
 	protected I18nLabel displayedName;
 	protected I18nLabel formInformation;
 	protected Label collectComments;
+	protected Label layout;
 	private ListOfElements<AgreementRegistrationParam> agreements;	
 	private ListOfElements<IdentityRegistrationParam> identityParams;
 	private ListOfElements<AttributeRegistrationParam> attributeParams;
@@ -52,7 +55,7 @@ public class BaseFormViewer extends VerticalLayout
 
 	private Panel identityParamsP;
 
-	private Panel agreementsP;	
+	private Panel agreementsP;
 	
 	public BaseFormViewer(UnityMessageSource msg)
 	{
@@ -95,6 +98,18 @@ public class BaseFormViewer extends VerticalLayout
 		attributeParamsP.setVisible(!form.getAttributeParams().isEmpty());
 		groupParamsP.setVisible(!form.getGroupParams().isEmpty());
 		credentialParamsP.setVisible(!form.getCredentialParams().isEmpty());
+		
+		setLayout(form);
+	}
+	
+	protected void setLayout(BaseForm form)
+	{
+		StringBuilder info = new StringBuilder();
+		if (form.getFormLayout() == null)
+			info.append(msg.getMessage("RegistrationFormViewer.defaultLayout")).append("\n\n");
+		for (FormElement formElement : form.getEffectiveFormLayout(msg).getElements())
+			info.append(formElement.toString(msg)).append("\n");
+		layout.setValue(info.toString());
 	}
 	
 	protected void setupCommonFormInformationComponents()
@@ -103,6 +118,9 @@ public class BaseFormViewer extends VerticalLayout
 		formInformation = new I18nLabel(msg, msg.getMessage("RegistrationFormViewer.formInformation"));
 		collectComments = new Label();
 		collectComments.setCaption(msg.getMessage("RegistrationFormViewer.collectComments"));
+		layout = new Label();
+		layout.setContentMode(ContentMode.PREFORMATTED);
+		layout.setCaption(msg.getMessage("RegistrationFormViewer.layout"));
 	}
 	
 	protected void setupNameAndDesc()

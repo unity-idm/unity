@@ -8,6 +8,7 @@
  **********************************************************************/
 package pl.edu.icm.unity.types.registration.layout;
 
+import pl.edu.icm.unity.MessageSource;
 
 /**
  * Represents a visual separator between sections. 
@@ -23,6 +24,12 @@ public class FormSeparatorElement extends FormElement
 	@Override
 	public String toString()
 	{
-		return "FormSeparatorElement [type=" + getType() + "]";
+		return "---------------";
+	}
+
+	@Override
+	public String toString(MessageSource msg)
+	{
+		return toString();
 	}
 }

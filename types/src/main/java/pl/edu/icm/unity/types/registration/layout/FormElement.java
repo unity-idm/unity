@@ -8,7 +8,10 @@
  **********************************************************************/
 package pl.edu.icm.unity.types.registration.layout;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import pl.edu.icm.unity.MessageSource;
 
 /**
  * Used in {@link FormLayout} to represent a form element being placed.
@@ -46,6 +49,9 @@ public abstract class FormElement
 		return clazz;
 	}
 
+	@JsonIgnore
+	public abstract String toString(MessageSource msg);
+	
 	@Override
 	public int hashCode()
 	{

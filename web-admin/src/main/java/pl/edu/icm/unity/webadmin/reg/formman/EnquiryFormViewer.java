@@ -86,6 +86,7 @@ public class EnquiryFormViewer extends BaseFormViewer
 		initMainTab();
 		initCollectedTab();
 		initAssignedTab();
+		initLayoutTab();
 		addComponent(tabs);
 	}
 	
@@ -137,5 +138,15 @@ public class EnquiryFormViewer extends BaseFormViewer
 		notViewer = new EnquiryFormNotificationsViewer(msg, msgTempMan);
 		main.addComponents(name, description, type, targetGroups, publicLink);
 		notViewer.addToLayout(main);
+	}
+	
+	
+	private void initLayoutTab()
+	{
+		VerticalLayout wrapper = new VerticalLayout();
+		wrapper.setMargin(true);
+		wrapper.setSpacing(true);
+		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.layoutTab"));
+		wrapper.addComponent(layout);
 	}
 }

@@ -10,6 +10,7 @@ package pl.edu.icm.unity.types.registration.layout;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
 
 /**
@@ -66,8 +67,14 @@ public class FormCaptionElement extends FormElement
 	}
 
 	@Override
+	public String toString(MessageSource msg)
+	{
+		return "Caption '" + value.getValue(msg) + "'";
+	}
+	
+	@Override
 	public String toString()
 	{
-		return "FormCaptionElement [value=" + value + ", type=" + getType() + "]";
+		return "Caption '" + value + "'";
 	}
 }

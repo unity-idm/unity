@@ -93,6 +93,7 @@ public class RegistrationFormViewer extends BaseFormViewer
 		initMainTab();
 		initCollectedTab();
 		initAssignedTab();
+		initLayoutTab();
 		addComponent(tabs);
 	}
 	
@@ -157,4 +158,14 @@ public class RegistrationFormViewer extends BaseFormViewer
 				publicLink, captcha);
 		notViewer.addToLayout(main);
 	}
+	
+	private void initLayoutTab()
+	{
+		VerticalLayout wrapper = new VerticalLayout();
+		wrapper.setMargin(true);
+		wrapper.setSpacing(true);
+		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.layoutTab"));
+		wrapper.addComponent(layout);
+	}
+	
 }
