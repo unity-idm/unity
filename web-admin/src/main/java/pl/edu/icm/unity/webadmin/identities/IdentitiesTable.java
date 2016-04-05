@@ -926,8 +926,8 @@ public class IdentitiesTable extends CustomComponent
 				if (item.equals(removed))
 					itemsToRemove.add(item);
 				if (item instanceof IdentityWithEntity)
-					if (((IdentityWithEntity) item).entity.getEntity().getId() == 
-					removed.getEntity().getId())
+					if (((IdentityWithEntity) item).entity.getEntity().getId().longValue() == 
+							removed.getEntity().getId().longValue())
 						itemsToRemove.add(item);
 			}
 			for (Object item: itemsToRemove)
