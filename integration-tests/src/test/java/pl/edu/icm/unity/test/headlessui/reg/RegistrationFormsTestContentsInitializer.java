@@ -94,7 +94,7 @@ public class RegistrationFormsTestContentsInitializer implements ServerInitializ
 			idParam.setIdentityType(UsernameIdentity.ID);
 			idParam.setLabel("Username");
 			idParam.setOptional(true);
-			idParam.setRetrievalSettings(ParameterRetrievalSettings.automaticOrInteractive);
+			idParam.setRetrievalSettings(ParameterRetrievalSettings.automatic);
 
 			AgreementRegistrationParam agreement = new AgreementRegistrationParam();
 			agreement.setManatory(false);

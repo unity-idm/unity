@@ -35,7 +35,6 @@ public class TestRegistrationForm extends SeleniumTestBase
 				.contains("x"));
 		waitForElement(By.id("EmailValueEditor.Email")).clear();
 		waitForElement(By.id("EmailValueEditor.Email")).sendKeys("test@test.com");
-		assertTrue(waitForElement(By.id("ListOfElements")) != null);
 		waitForElement(By.id("AbstractDialog.confirm")).click();	
 		simpleWait();
 		waitForElement(By.className("v-Notification")).click();	
