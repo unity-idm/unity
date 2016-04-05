@@ -39,12 +39,14 @@ launched other way will not allow for automatic acceptance.
 
 === Defining a registration form
 
-The form definition consists of three parts:
+The form definition consists of four parts:
 
 . General settings as name, notifications configuration and decision whether the form is publicly available.
 . Collected information settings, which define what needs to be provided to the form. This information
 is usually collected interactively by filling a web form, but some data can be also collected from a
 remote IdP. This latter option is possible only if a form is used for unknown remote users.
+. Form layout, which is by default generated automatically, but can be customized if order of elements, 
+separators or section captions need to be adapted. 
 . Settings which are automatically assigned for each user whose registration request is accepted.
 For instance this feature may be used to add all users to a specified group.    
 
@@ -59,7 +61,7 @@ It is then shown to a user in the form, but can not be edited.
 Provided by remote IdP only and is hidden in the form:: As above but the information is 
 not shown on the form filling screen. 
 Can be provided by remote IdP; if not then collected interactively:: In this mode the user can fill the data 
-only if it was not provided by a remote IdP.
+only if it was not provided by a remote IdP. If it was provided by remote IdP then this data is hidden in the form.
 Can be provided by remote IdP and is editable:: The field is always editable, but if a remote IdP provided a value 
 then it is used as a default.
 
