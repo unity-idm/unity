@@ -5,9 +5,16 @@
 package pl.edu.icm.unity.types.registration;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.MessageSource;
@@ -22,14 +29,6 @@ import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
 import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 
 /**
@@ -50,7 +49,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 	private I18nString formInformation = new I18nString();
 	private TranslationProfile translationProfile = 
 			new TranslationProfile("registrationProfile", "", ProfileType.REGISTRATION, new ArrayList<>()); 
-	private FormLayout formLayout;
+	private FormLayout layout;
 	
 	@JsonCreator
 	BaseForm(ObjectNode json)
@@ -82,56 +81,77 @@ public abstract class BaseForm extends DescribedObjectROImpl
 					+ "in a form (but it contents can be empty)");
 	}
 	
+	/**
+	 * removes all elements in layout that are not present in form and adds all form elements missing in layout
+	 * at the end of it.
+	 */
+	public void updateLayout()
+	{
+		if (layout == null)
+			return;
+		Set<String> definedElements = layout.getDefinedElements();
+		updateFormParametersInLayout(definedElements);
+		updateOtherElementsInLayout(definedElements);
+	}
+
+	protected void updateFormParametersInLayout(Set<String> definedElements)
+	{
+		for (int i = 0; i < identityParams.size(); i++)
+			layout.addParameterIfMissing(FormLayout.IDENTITY, i, definedElements);
+		for (int i = 0; i < attributeParams.size(); i++)
+			layout.addParameterIfMissing(FormLayout.ATTRIBUTE, i, definedElements);
+		for (int i = 0; i < agreements.size(); i++)
+			layout.addParameterIfMissing(FormLayout.AGREEMENT, i, definedElements);
+		for (int i = 0; i < groupParams.size(); i++)
+			layout.addParameterIfMissing(FormLayout.GROUP, i, definedElements);
+		for (int i = 0; i < credentialParams.size(); i++)
+			layout.addParameterIfMissing(FormLayout.CREDENTIAL, i, definedElements);
+		
+		layout.removeParametersWithIndexLargerThen(FormLayout.IDENTITY, identityParams.size());
+		layout.removeParametersWithIndexLargerThen(FormLayout.ATTRIBUTE, attributeParams.size());
+		layout.removeParametersWithIndexLargerThen(FormLayout.AGREEMENT, agreements.size());
+		layout.removeParametersWithIndexLargerThen(FormLayout.GROUP, groupParams.size());
+		layout.removeParametersWithIndexLargerThen(FormLayout.CREDENTIAL, credentialParams.size());
+	}
+	
+	protected void updateOtherElementsInLayout(Set<String> definedElements)
+	{
+		if (isCollectComments())
+			layout.addBasicElementIfMissing(FormLayout.COMMENTS, definedElements);
+		else
+			layout.removeBasicElementIfPresent(FormLayout.COMMENTS);
+	}
+
+	
+	protected void checkOtherElementsInLayout(Set<String> definedElements)
+	{
+		if (isCollectComments())
+			layout.checkLayoutElement(FormLayout.COMMENTS, definedElements);
+	}
+
+	protected void checkFormParametersInLayout(Set<String> definedElements)
+	{
+		for (int i = 0; i < identityParams.size(); i++)
+			layout.checkLayoutElement(FormLayout.IDENTITY + "_" + i, definedElements);
+		for (int i = 0; i < attributeParams.size(); i++)
+			layout.checkLayoutElement(FormLayout.ATTRIBUTE + "_" + i, definedElements);
+		for (int i = 0; i < agreements.size(); i++)
+			layout.checkLayoutElement(FormLayout.AGREEMENT + "_" + i, definedElements);
+		for (int i = 0; i < groupParams.size(); i++)
+			layout.checkLayoutElement(FormLayout.GROUP + "_" + i, definedElements);
+		for (int i = 0; i < credentialParams.size(); i++)
+			layout.checkLayoutElement(FormLayout.CREDENTIAL + "_" + i, definedElements);
+	}
+	
 	protected void validateLayout()
 	{
-		Set<String> definedElements = new HashSet<>();
-		for (FormElement element: formLayout.getElements())
-		{
-			String id = getIdOfElement(element);
-			if (id != null)
-				definedElements.add(id);
-		}
+		Set<String> definedElements = layout.getDefinedElements();
 		
 		checkFormParametersInLayout(definedElements);
 		checkOtherElementsInLayout(definedElements);
 		if (!definedElements.isEmpty())
 			throw new IllegalStateException("Form layout contains elements "
 					+ "which are not defied in the form: " + definedElements);
-	}
-	
-	protected void checkOtherElementsInLayout(Set<String> definedElements)
-	{
-		if (isCollectComments())
-			checkLayoutElement(FormLayout.COMMENTS, definedElements);
-	}
-
-	protected void checkFormParametersInLayout(Set<String> definedElements)
-	{
-		for (int i = 0; i < identityParams.size(); i++)
-			checkLayoutElement(FormLayout.IDENTITY + "_" + i, definedElements);
-		for (int i = 0; i < attributeParams.size(); i++)
-			checkLayoutElement(FormLayout.ATTRIBUTE + "_" + i, definedElements);
-		for (int i = 0; i < agreements.size(); i++)
-			checkLayoutElement(FormLayout.AGREEMENT + "_" + i, definedElements);
-		for (int i = 0; i < groupParams.size(); i++)
-			checkLayoutElement(FormLayout.GROUP + "_" + i, definedElements);
-		for (int i = 0; i < credentialParams.size(); i++)
-			checkLayoutElement(FormLayout.CREDENTIAL + "_" + i, definedElements);
-	}
-	
-	protected void checkLayoutElement(String key, Set<String> definedElements)
-	{
-		if (!definedElements.remove(key))
-			throw new IllegalStateException("Form layout does not define position of " + key);
-	}
-	
-	protected String getIdOfElement(FormElement element)
-	{
-		if (!element.isFormContentsRelated())
-			return null;
-		if (element instanceof FormParameterElement)
-			return element.getType() + "_" + ((FormParameterElement)element).getIndex();
-		return element.getType();
 	}
 	
 	@JsonValue
@@ -150,8 +170,8 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		root.put("Name", getName());
 		root.set("DisplayedName", I18nStringJsonUtil.toJson(getDisplayedName()));
 		root.set("TranslationProfile", getTranslationProfile().toJsonObject());
-		if (formLayout != null)
-			root.set("FormLayout", jsonMapper.valueToTree(getFormLayout()));
+		if (layout != null)
+			root.set("FormLayout", jsonMapper.valueToTree(getLayout()));
 		return root;
 	}
 
@@ -223,7 +243,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 			n = root.get("FormLayout");
 			if (n != null)
 			{
-				setFormLayout(jsonMapper.treeToValue(n, FormLayout.class));
+				setLayout(jsonMapper.treeToValue(n, FormLayout.class));
 			}
 			
 		} catch (Exception e)
@@ -403,19 +423,19 @@ public abstract class BaseForm extends DescribedObjectROImpl
 
 	public FormLayout getEffectiveFormLayout(MessageSource msg)
 	{
-		return formLayout == null ? getDefaultFormLayout(msg) : formLayout;
+		return layout == null ? getDefaultFormLayout(msg) : layout;
 	}
 	
-	public FormLayout getFormLayout()
+	public FormLayout getLayout()
 	{
-		return formLayout;
+		return layout;
 	}
 	
 	public abstract FormLayout getDefaultFormLayout(MessageSource msg);
 	
-	public void setFormLayout(FormLayout formLayout)
+	public void setLayout(FormLayout layout)
 	{
-		this.formLayout = formLayout;
+		this.layout = layout;
 	}
 
 	protected List<FormElement> getDefaultBasicParamsLayout(String type, List<?> params, 
@@ -478,7 +498,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		result = prime * result + ((displayedName == null) ? 0 : displayedName.hashCode());
 		result = prime * result
 				+ ((formInformation == null) ? 0 : formInformation.hashCode());
-		result = prime * result + ((formLayout == null) ? 0 : formLayout.hashCode());
+		result = prime * result + ((layout == null) ? 0 : layout.hashCode());
 		result = prime * result + ((groupParams == null) ? 0 : groupParams.hashCode());
 		result = prime * result
 				+ ((identityParams == null) ? 0 : identityParams.hashCode());
@@ -530,11 +550,11 @@ public abstract class BaseForm extends DescribedObjectROImpl
 				return false;
 		} else if (!formInformation.equals(other.formInformation))
 			return false;
-		if (formLayout == null)
+		if (layout == null)
 		{
-			if (other.formLayout != null)
+			if (other.layout != null)
 				return false;
-		} else if (!formLayout.equals(other.formLayout))
+		} else if (!layout.equals(other.layout))
 			return false;
 		if (groupParams == null)
 		{

@@ -79,7 +79,7 @@ public class RegistrationFormTest
 			.withRegistrationCode("code")
 			.build();
 		MessageSource msg = Mockito.mock(MessageSource.class);
-		complete.setFormLayout(complete.getDefaultFormLayout(msg));
+		complete.setLayout(complete.getDefaultFormLayout(msg));
 		
 		String jsonStr = UnityTypesFactory.toJsonString(complete);
 		RegistrationForm completeParsed = UnityTypesFactory.parse(jsonStr, RegistrationForm.class);

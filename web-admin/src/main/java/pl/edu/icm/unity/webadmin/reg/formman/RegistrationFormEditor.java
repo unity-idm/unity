@@ -7,25 +7,7 @@ package pl.edu.icm.unity.webadmin.reg.formman;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.MessageTemplateManagement;
-import pl.edu.icm.unity.server.api.NotificationsManagement;
-import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
-import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
-import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
-import pl.edu.icm.unity.webadmin.tprofile.RegistrationTranslationProfileEditor;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.NotNullComboBox;
+import org.apache.log4j.Logger;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
@@ -36,6 +18,30 @@ import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.AuthenticationManagement;
+import pl.edu.icm.unity.server.api.GroupsManagement;
+import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.MessageTemplateManagement;
+import pl.edu.icm.unity.server.api.NotificationsManagement;
+import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
+import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
+import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.authn.CredentialRequirements;
+import pl.edu.icm.unity.types.registration.BaseForm;
+import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
+import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
+import pl.edu.icm.unity.webadmin.reg.formman.layout.FormLayoutEditor;
+import pl.edu.icm.unity.webadmin.reg.formman.layout.FormLayoutEditor.FormProvider;
+import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
+import pl.edu.icm.unity.webadmin.tprofile.RegistrationTranslationProfileEditor;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.NotNullComboBox;
+
 /**
  * Allows to edit a registration form. Can be configured to edit an existing form (name is fixed)
  * or to create a new one (name can be chosen).
@@ -44,6 +50,7 @@ import com.vaadin.ui.VerticalLayout;
  */
 public class RegistrationFormEditor extends BaseFormEditor
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RegistrationFormEditor.class);
 	private UnityMessageSource msg;
 	private GroupsManagement groupsMan;
 	private NotificationsManagement notificationsMan;
@@ -64,6 +71,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private RegistrationActionsRegistry actionsRegistry;
 	private Provider actionComponentProvider;
 	private RegistrationTranslationProfileEditor profileEditor;
+	private FormLayoutEditor layoutEditor;
 	
 	public RegistrationFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
 			NotificationsManagement notificationsMan,
@@ -105,6 +113,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		tabs = new TabSheet();
 		initMainTab();
 		initCollectedTab();
+		initLayoutTab();
 		initAssignedTab();
 		ignoreRequests = new CheckBox(msg.getMessage("RegistrationFormEditDialog.ignoreRequests"));
 		addComponent(ignoreRequests);
@@ -117,24 +126,29 @@ public class RegistrationFormEditor extends BaseFormEditor
 	
 	public RegistrationForm getForm() throws FormValidationException
 	{
+		RegistrationFormBuilder builder = getFormBuilderBasic();
+		builder.withTranslationProfile(profileEditor.getProfile());
+		RegistrationFormNotifications notCfg = notificationsEditor.getValue();
+		builder.withNotificationsConfiguration(notCfg);
+		builder.withLayout(layoutEditor.getLayout());
+		return builder.build();
+	}
+	
+	private RegistrationFormBuilder getFormBuilderBasic() throws FormValidationException
+	{
 		RegistrationFormBuilder builder = new RegistrationFormBuilder();
 		super.buildCommon(builder);
 		
 		builder.withDefaultCredentialRequirement((String) credentialRequirementAssignment.getValue());
-
 		builder.withCaptchaLength(captcha.getValue().intValue());
 		builder.withPubliclyAvailable(publiclyAvailable.getValue());
 		builder.withByInvitationOnly(byInvitationOnly.getValue());
-		
-		builder.withTranslationProfile(profileEditor.getProfile());
-		RegistrationFormNotifications notCfg = notificationsEditor.getValue();
-		builder.withNotificationsConfiguration(notCfg);
 		
 		String code = registrationCode.getValue();
 		if (code != null && !code.equals(""))
 			builder.withRegistrationCode(code);
 		
-		return builder.build();
+		return builder;
 	}
 	
 	public void setForm(RegistrationForm toEdit)
@@ -152,7 +166,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 				toEdit.getTranslationProfile().getName(), 
 				toEdit.getTranslationProfile().getRules(), actionsRegistry);
 		profileEditor.setValue(profile);
-
+		layoutEditor.setInitialForm(toEdit);
 		if (!copyMode)
 			ignoreRequests.setVisible(true);
 	}
@@ -205,6 +219,16 @@ public class RegistrationFormEditor extends BaseFormEditor
 		main.addComponents(displayedName, formInformation, registrationCode, collectComments, tabOfLists);
 	}
 	
+	private void initLayoutTab()
+	{
+		VerticalLayout wrapper = new VerticalLayout();
+		layoutEditor = new FormLayoutEditor(msg, new FormProviderImpl());
+		wrapper.setMargin(true);
+		wrapper.addComponent(layoutEditor);
+		tabs.addSelectedTabChangeListener(event -> layoutEditor.updateFromForm());
+		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.layoutTab"));
+	}
+	
 	private void initAssignedTab() throws EngineException
 	{
 		FormLayout main = new CompactFormLayout();
@@ -229,5 +253,21 @@ public class RegistrationFormEditor extends BaseFormEditor
 	public boolean isIgnoreRequests()
 	{
 		return ignoreRequests.getValue();
+	}
+	
+	private class FormProviderImpl implements FormProvider
+	{
+		@Override
+		public BaseForm getForm()
+		{
+			try
+			{
+				return getFormBuilderBasic().build();
+			} catch (Exception e)
+			{
+				log.debug("Ignoring layout update, form is invalid", e);
+				return null;
+			}
+		}
 	}
 }

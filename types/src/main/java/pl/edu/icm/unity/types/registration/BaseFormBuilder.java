@@ -214,7 +214,7 @@ public class BaseFormBuilder<T extends BaseFormBuilder<?>>
 	@SuppressWarnings("unchecked")
 	public T withLayout(FormLayout layout)
 	{
-		instance.setFormLayout(layout);
+		instance.setLayout(layout);
 
 		return (T) this;
 	}

@@ -105,7 +105,7 @@ public class BaseFormViewer extends VerticalLayout
 	protected void setLayout(BaseForm form)
 	{
 		StringBuilder info = new StringBuilder();
-		if (form.getFormLayout() == null)
+		if (form.getLayout() == null)
 			info.append(msg.getMessage("RegistrationFormViewer.defaultLayout")).append("\n\n");
 		for (FormElement formElement : form.getEffectiveFormLayout(msg).getElements())
 			info.append(formElement.toString(msg)).append("\n");

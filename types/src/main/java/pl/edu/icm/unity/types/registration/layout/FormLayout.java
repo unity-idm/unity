@@ -9,7 +9,10 @@
 package pl.edu.icm.unity.types.registration.layout;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.types.registration.BaseForm;
@@ -40,7 +43,7 @@ public class FormLayout
 	
 	private List<FormElement> elements;
 
-	public FormLayout(List<FormElement> elements)
+	public FormLayout(List<? extends FormElement> elements)
 	{
 		this.elements = new ArrayList<>(elements);
 	}
@@ -62,8 +65,75 @@ public class FormLayout
 	
 	public List<FormElement> getElements()
 	{
-		return new ArrayList<>(elements);
+		return elements;
 	}
+	
+	
+	
+	public void removeParametersWithIndexLargerThen(String type, int size)
+	{
+		Iterator<FormElement> iterator = getElements().iterator();
+		while (iterator.hasNext())
+		{
+			FormElement formElement = iterator.next();
+			if (formElement.getType().equals(type) && 
+					((FormParameterElement)formElement).getIndex() >= size)
+				iterator.remove();
+		}
+	}
+
+	public void removeBasicElementIfPresent(String type)
+	{
+		for (int i = 0; i < getElements().size(); i++)
+		{
+			FormElement formElement = getElements().get(i);
+			if (formElement.getType().equals(type))
+			{
+				getElements().remove(i);
+				return;
+			}
+		}
+	}
+
+	public Set<String> getDefinedElements()
+	{
+		Set<String> definedElements = new HashSet<>();
+		for (FormElement element: getElements())
+		{
+			String id = getIdOfElement(element);
+			if (id != null)
+				definedElements.add(id);
+		}
+		return definedElements;
+	}
+	
+	public void checkLayoutElement(String key, Set<String> definedElements)
+	{
+		if (!definedElements.remove(key))
+			throw new IllegalStateException("Form layout does not define position of " + key);
+	}
+
+	public void addParameterIfMissing(String type, int index, Set<String> definedElements)
+	{
+		if (!definedElements.contains(type + "_" + index))
+			getElements().add(new FormParameterElement(type, index));
+	}
+	
+	public void addBasicElementIfMissing(String type, Set<String> definedElements)
+	{
+		if (!definedElements.contains(type))
+			getElements().add(new BasicFormElement(type));
+	}
+	
+	public String getIdOfElement(FormElement element)
+	{
+		if (!element.isFormContentsRelated())
+			return null;
+		if (element instanceof FormParameterElement)
+			return element.getType() + "_" + ((FormParameterElement)element).getIndex();
+		return element.getType();
+	}
+
 	
 	@Override
 	public int hashCode()

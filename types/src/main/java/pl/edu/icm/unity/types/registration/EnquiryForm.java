@@ -42,7 +42,7 @@ public class EnquiryForm extends BaseForm
 	{
 		super(json);
 		fromJson(json);
-		if (getFormLayout() != null)
+		if (getLayout() != null)
 			validateLayout();
 	}
 	

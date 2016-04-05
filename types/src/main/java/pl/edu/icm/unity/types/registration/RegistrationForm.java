@@ -56,7 +56,7 @@ public class RegistrationForm extends BaseForm
 		super(json);
 		fromJson(json);
 		validateRegistration();
-		if (getFormLayout() != null)
+		if (getLayout() != null)
 			validateLayout();
 	}
 	
@@ -140,13 +140,28 @@ public class RegistrationForm extends BaseForm
 	}
 	
 	@Override
+	protected void updateOtherElementsInLayout(Set<String> definedElements)
+	{
+		super.updateOtherElementsInLayout(definedElements);
+		if (captchaLength > 0)
+			getLayout().addBasicElementIfMissing(CAPTCHA, definedElements);
+		else
+			getLayout().removeBasicElementIfPresent(CAPTCHA);
+		
+		if (registrationCode != null)
+			getLayout().addBasicElementIfMissing(REG_CODE, definedElements);
+		else
+			getLayout().removeBasicElementIfPresent(REG_CODE);
+	}
+	
+	@Override
 	protected void checkOtherElementsInLayout(Set<String> definedElements)
 	{
 		super.checkOtherElementsInLayout(definedElements);
 		if (captchaLength > 0)
-			checkLayoutElement(CAPTCHA, definedElements);
+			getLayout().checkLayoutElement(CAPTCHA, definedElements);
 		if (registrationCode != null)
-			checkLayoutElement(REG_CODE, definedElements);
+			getLayout().checkLayoutElement(REG_CODE, definedElements);
 
 	}
 

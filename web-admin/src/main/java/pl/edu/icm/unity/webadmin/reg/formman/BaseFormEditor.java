@@ -199,6 +199,9 @@ public class BaseFormEditor extends VerticalLayout
 		return tabOfLists;
 	}
 	
+	
+	
+	
 	private class AgreementEditorAndProvider implements EditorProvider<AgreementRegistrationParam>,
 		Editor<AgreementRegistrationParam>
 	{

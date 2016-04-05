@@ -6,6 +6,15 @@ package pl.edu.icm.unity.webadmin.reg.formman;
 
 import java.util.ArrayList;
 
+import org.apache.log4j.Logger;
+
+import com.google.common.collect.Lists;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.VerticalLayout;
+
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
@@ -15,24 +24,21 @@ import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.server.api.NotificationsManagement;
 import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.EnquiryTranslationProfile;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryFormBuilder;
 import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
+import pl.edu.icm.unity.webadmin.reg.formman.layout.FormLayoutEditor;
+import pl.edu.icm.unity.webadmin.reg.formman.layout.FormLayoutEditor.FormProvider;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
 import pl.edu.icm.unity.webadmin.tprofile.RegistrationTranslationProfileEditor;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GroupsSelectionList;
-
-import com.google.common.collect.Lists;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * Allows to edit an {@link EnquiryForm}. Can be configured to edit an existing form (name is fixed)
@@ -42,6 +48,7 @@ import com.vaadin.ui.VerticalLayout;
  */
 public class EnquiryFormEditor extends BaseFormEditor
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiryFormEditor.class);
 	private UnityMessageSource msg;
 	private GroupsManagement groupsMan;
 	private NotificationsManagement notificationsMan;
@@ -57,6 +64,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 	private RegistrationActionsRegistry actionsRegistry;
 	private Provider actionComponentProvider;
 	private RegistrationTranslationProfileEditor profileEditor;
+	private FormLayoutEditor layoutEditor;
 	
 	public EnquiryFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
 			NotificationsManagement notificationsMan,
@@ -97,6 +105,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		tabs = new TabSheet();
 		initMainTab();
 		initCollectedTab();
+		initLayoutTab();
 		initAssignedTab();
 		ignoreRequests = new CheckBox(msg.getMessage("RegistrationFormEditDialog.ignoreRequests"));
 		addComponent(ignoreRequests);
@@ -109,16 +118,23 @@ public class EnquiryFormEditor extends BaseFormEditor
 	
 	public EnquiryForm getForm() throws FormValidationException
 	{
+		EnquiryFormBuilder builder = getFormBuilderBasic();
+		
+		builder.withTranslationProfile(profileEditor.getProfile());
+		EnquiryFormNotifications notCfg = notificationsEditor.getValue();
+		builder.withNotificationsConfiguration(notCfg);
+		builder.withLayout(layoutEditor.getLayout());
+		return builder.build();
+	}
+	
+	private EnquiryFormBuilder getFormBuilderBasic() throws FormValidationException
+	{
 		EnquiryFormBuilder builder = new EnquiryFormBuilder();
 		super.buildCommon(builder);
 		
 		builder.withType(enquiryType.getSelectedValue());
 		builder.withTargetGroups(targetGroups.getSelectedGroups().toArray(new String[0]));
-		
-		builder.withTranslationProfile(profileEditor.getProfile());
-		EnquiryFormNotifications notCfg = notificationsEditor.getValue();
-		builder.withNotificationsConfiguration(notCfg);
-		return builder.build();
+		return builder;
 	}
 	
 	public void setForm(EnquiryForm toEdit)
@@ -132,7 +148,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 				toEdit.getTranslationProfile().getName(), 
 				toEdit.getTranslationProfile().getRules(), actionsRegistry);
 		profileEditor.setValue(profile);
-		
+		layoutEditor.setInitialForm(toEdit);
 		if (!copyMode)
 			ignoreRequests.setVisible(true);
 	}
@@ -176,6 +192,16 @@ public class EnquiryFormEditor extends BaseFormEditor
 		main.addComponents(displayedName, formInformation, collectComments, tabOfLists);
 	}
 	
+	private void initLayoutTab()
+	{
+		VerticalLayout wrapper = new VerticalLayout();
+		layoutEditor = new FormLayoutEditor(msg, new FormProviderImpl());
+		wrapper.setMargin(true);
+		wrapper.addComponent(layoutEditor);
+		tabs.addSelectedTabChangeListener(event -> layoutEditor.updateFromForm());
+		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.layoutTab"));
+	}
+	
 	private void initAssignedTab() throws EngineException
 	{
 		VerticalLayout wrapper = new VerticalLayout();
@@ -191,5 +217,21 @@ public class EnquiryFormEditor extends BaseFormEditor
 	public boolean isIgnoreRequests()
 	{
 		return ignoreRequests.getValue();
+	}
+	
+	private class FormProviderImpl implements FormProvider
+	{
+		@Override
+		public BaseForm getForm()
+		{
+			try
+			{
+				return getFormBuilderBasic().build();
+			} catch (Exception e)
+			{
+				log.debug("Ignoring layout update, form is invalid", e);
+				return null;
+			}
+		}
 	}
 }
