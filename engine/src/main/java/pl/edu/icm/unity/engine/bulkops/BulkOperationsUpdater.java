@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
-import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -36,8 +35,6 @@ public class BulkOperationsUpdater extends ScheduledUpdaterBase
 {
 	@Autowired
 	private ProcessingRuleDB ruleDB;
-	@Autowired
-	private Scheduler scheduler;
 	@Autowired
 	private BulkProcessingSupport bulkSupport;
 	@Autowired

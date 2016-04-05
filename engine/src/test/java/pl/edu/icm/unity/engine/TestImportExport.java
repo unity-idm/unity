@@ -5,7 +5,8 @@
 package pl.edu.icm.unity.engine;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
@@ -13,8 +14,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.db.DBSessionManager;
-import pl.edu.icm.unity.db.InitDB;
 import pl.edu.icm.unity.server.api.ServerManagement;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.utils.DemoContentInitializer;
@@ -38,10 +37,6 @@ public class TestImportExport extends DBIntegrationTestBase
 	@Autowired
 	private DemoContentInitializer initializer;
 	
-	@Autowired
-	private InitDB initDb;
-	@Autowired
-	private DBSessionManager db;
 	@Autowired
 	private UnityServerConfiguration configuration;
 	

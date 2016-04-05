@@ -335,7 +335,6 @@ public class TestFormProfileActions
 		assertThat(((String)context.get(ContextKey.registrationForm.name())), is("form"));
 	}
 	
-	@SuppressWarnings("unchecked")
 	private Map<String, Object> createContext()
 	{
 		RegistrationRequest request = mock(RegistrationRequest.class);

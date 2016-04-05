@@ -34,11 +34,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import eu.unicore.util.configuration.ConfigurationException;
+import eu.unicore.util.configuration.FilePropertiesHelper;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.confirmations.ConfirmationServlet;
 import pl.edu.icm.unity.db.ContentsUpdater;
 import pl.edu.icm.unity.db.DBAttributes;
-import pl.edu.icm.unity.db.DBGroups;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.InitDB;
 import pl.edu.icm.unity.engine.SharedEndpointManagementImpl;
@@ -103,12 +106,6 @@ import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.utils.LifecycleBase;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import eu.unicore.util.configuration.ConfigurationException;
-import eu.unicore.util.configuration.FilePropertiesHelper;
-
 /**
  * Responsible for loading the initial state from database and starting background processes.
  * 
@@ -141,8 +138,6 @@ public class EngineInitialization extends LifecycleBase
 	private DBAttributes dbAttributes;
 	@Autowired
 	private DBIdentities dbIdentities;
-	@Autowired
-	private DBGroups dbGroups;
 	@Autowired
 	@Qualifier("insecure")
 	private IdentitiesManagement idManagement;
@@ -182,8 +177,6 @@ public class EngineInitialization extends LifecycleBase
 	
 	@Autowired
 	private InputTranslationActionsRegistry tactionsRegistry;
-	@Autowired
-	private ObjectMapper jsonMapper;
 	@Autowired
 	@Qualifier("insecure")
 	private TranslationProfileManagement profilesManagement;

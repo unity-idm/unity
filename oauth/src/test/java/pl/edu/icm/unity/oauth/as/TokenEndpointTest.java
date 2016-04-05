@@ -11,29 +11,10 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import pl.edu.icm.unity.engine.DBIntegrationTestBase;
-import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpointFactory;
-import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.api.TranslationProfileManagement;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.EntityState;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
@@ -55,6 +36,22 @@ import com.nimbusds.openid.connect.sdk.UserInfoSuccessResponse;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpointFactory;
+import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
+import pl.edu.icm.unity.server.api.PKIManagement;
+import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
+import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
 /**
  * An integration test of the Token endpoint. The context is initialized internally (i.e. the state which should
@@ -86,8 +83,6 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 	private TokensManagement tokensMan;
 	@Autowired
 	private PKIManagement pkiMan;
-	@Autowired
-	private TranslationProfileManagement profilesMan;
 
 	private Identity clientId;
 	
