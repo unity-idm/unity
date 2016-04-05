@@ -11,10 +11,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.log4j.Logger;
+
 import com.google.common.html.HtmlEscapers;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
@@ -31,6 +34,7 @@ import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -76,6 +80,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
  */
 public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends CustomComponent
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, BaseRequestEditor.class);
 	protected UnityMessageSource msg;
 	private BaseForm form;
 	private RemotelyAuthenticatedContext remotelyAuthenticated;
@@ -442,65 +447,72 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		for (CredentialDefinition credential: allCreds)
 			credentials.put(credential.getName(), credential);
 		
+		FormElement previousInserted = null;
 		for (FormElement element : form.getEffectiveFormLayout(msg).getElements())
-			createControlFor(layout, element, invitation);
+		{
+			if (createControlFor(layout, element, previousInserted, invitation))
+				previousInserted = element;
+		}
 	}
 	
-	protected void createControlFor(AbstractOrderedLayout layout, FormElement element, InvitationWithCode invitation) 
-			throws EngineException
+	protected boolean createControlFor(AbstractOrderedLayout layout, FormElement element, 
+			FormElement previousInserted, InvitationWithCode invitation) throws EngineException
 	{
 		switch (element.getType())
 		{
 		case FormLayout.IDENTITY:
-			createIdentityControl(layout, (FormParameterElement) element, 
+			return createIdentityControl(layout, (FormParameterElement) element, 
 					invitation != null ? invitation.getIdentities() : new HashMap<>());
-			break;
 			
 		case FormLayout.ATTRIBUTE:
-			createAttributeControl(layout, (FormParameterElement) element, 
+			return createAttributeControl(layout, (FormParameterElement) element, 
 					invitation != null ? invitation.getAttributes() : new HashMap<>());
-			break;
 			
 		case FormLayout.GROUP:
-			createGroupControl(layout, (FormParameterElement) element, 
+			return createGroupControl(layout, (FormParameterElement) element, 
 					invitation != null ? invitation.getGroupSelections() : new HashMap<>());
-			break;
 			
 		case FormLayout.CAPTION:
-			createLabelControl(layout, (FormCaptionElement) element);
-			break;
+			return createLabelControl(layout, previousInserted, (FormCaptionElement) element);
 			
 		case FormLayout.SEPARATOR:
-			createSeparatorControl(layout, (FormSeparatorElement) element);
-			break;
+			return createSeparatorControl(layout, (FormSeparatorElement) element);
 			
 		case FormLayout.AGREEMENT:
-			createAgreementControl(layout, (FormParameterElement) element);
-			break;
+			return createAgreementControl(layout, (FormParameterElement) element);
 			
 		case FormLayout.COMMENTS:
-			createCommentsControl(layout, (BasicFormElement) element);
-			break;
+			return createCommentsControl(layout, (BasicFormElement) element);
 			
 		case FormLayout.CREDENTIAL:
-			createCredentialControl(layout, (FormParameterElement) element);
-			break;
+			return createCredentialControl(layout, (FormParameterElement) element);
 		}
+		log.error("Unsupported form element, skipping: " + element);
+		return false;
 	}
 	
-	protected void createLabelControl(Layout layout, FormCaptionElement element)
+	protected boolean createLabelControl(AbstractOrderedLayout layout, FormElement previousInserted, FormCaptionElement element)
 	{
+		//we don't allow for empty sections - the previously added caption is removed.
+		if (previousInserted != null && previousInserted instanceof FormCaptionElement)
+		{
+			Component lastComponent = layout.getComponent(layout.getComponentCount()-1);
+			layout.removeComponent(lastComponent);
+		}
+		
 		Label label = new Label(element.getValue().getValue(msg));
 		label.addStyleName(Styles.formSection.toString());
 		layout.addComponent(label);
+		return true;
 	}	
 
-	protected void createSeparatorControl(Layout layout, FormSeparatorElement element)
+	protected boolean createSeparatorControl(Layout layout, FormSeparatorElement element)
 	{
 		layout.addComponent(HtmlTag.hr());
+		return true;
 	}	
 	
-	protected void createAgreementControl(Layout layout, FormParameterElement element)
+	protected boolean createAgreementControl(Layout layout, FormParameterElement element)
 	{
 		AgreementRegistrationParam aParam = form.getAgreements().get(element.getIndex());
 
@@ -515,17 +527,19 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			mandatory.addStyleName(Styles.emphasized.toString());
 			layout.addComponent(mandatory);
 		}
+		return true;
 	}
 	
-	protected void createCommentsControl(Layout layout, BasicFormElement element)
+	protected boolean createCommentsControl(Layout layout, BasicFormElement element)
 	{
 		comment = new TextArea();
 		comment.setWidth(80, Unit.PERCENTAGE);
 		comment.setCaption(msg.getMessage("RegistrationRequest.comment"));
 		layout.addComponent(comment);
+		return true;
 	}
 	
-	protected void createIdentityControl(Layout layout, FormParameterElement element, 
+	protected boolean createIdentityControl(Layout layout, FormParameterElement element, 
 			Map<Integer, PrefilledEntry<IdentityParam>> fromInvitation)
 	{
 		int index = element.getIndex();
@@ -534,9 +548,9 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		PrefilledEntry<IdentityParam> prefilledEntry = fromInvitation.get(index);
 
 		if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.HIDDEN)
-			return;
+			return false;
 		if (idParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden)
-			return;
+			return false;
 		
 		if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.READ_ONLY)
 		{
@@ -545,10 +559,10 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		} else if (!idParam.getRetrievalSettings().isInteractivelyEntered(rid != null))
 		{
 			if (!idParam.getRetrievalSettings().isPotentiallyAutomaticAndVisible())
-				return;
+				return false;
 			IdentityTaV id = remoteIdentitiesByType.get(idParam.getIdentityType());
 			if (id == null)
-				return;
+				return false;
 			
 			Label label = new Label(id.toString());
 			layout.addComponent(label);
@@ -573,9 +587,10 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			if (idParam.getDescription() != null)
 				editorUI.setDescription(HtmlEscapers.htmlEscaper().escape(idParam.getDescription()));
 		}
+		return true;
 	}
 	
-	protected void createAttributeControl(AbstractOrderedLayout layout, FormParameterElement element, 
+	protected boolean createAttributeControl(AbstractOrderedLayout layout, FormParameterElement element, 
 			Map<Integer, PrefilledEntry<Attribute<?>>> fromInvitation)
 	{
 		int index = element.getIndex();
@@ -586,9 +601,9 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		AttributeType aType = atTypes.get(aParam.getAttributeType());
 		
 		if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.HIDDEN)
-			return;
+			return false;
 		if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden)
-			return;
+			return false;
 		
 		if (readOnlyAttribute != null)
 		{
@@ -614,9 +629,10 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			
 			attributeEditor.put(index, editor);
 		}
+		return true;
 	}	
 	
-	protected void createGroupControl(AbstractOrderedLayout layout, FormParameterElement element, 
+	protected boolean createGroupControl(AbstractOrderedLayout layout, FormParameterElement element, 
 			Map<Integer, PrefilledEntry<Selection>> fromInvitation) throws EngineException
 	{
 		int index = element.getIndex();
@@ -625,9 +641,9 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		PrefilledEntry<Selection> prefilledEntry = fromInvitation.get(index);
 		
 		if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.HIDDEN)
-			return;
+			return false;
 		if (groupParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden)
-			return;
+			return false;
 		
 		boolean hasPrefilledROSelected = prefilledEntry != null && 
 				prefilledEntry.getMode() == PrefilledEntryMode.READ_ONLY 
@@ -662,9 +678,10 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			groupSelectors.put(index, cb);
 			layout.addComponent(cb);
 		}
+		return true;
 	}
 	
-	protected void createCredentialControl(AbstractOrderedLayout layout, FormParameterElement element) throws EngineException
+	protected boolean createCredentialControl(AbstractOrderedLayout layout, FormParameterElement element) throws EngineException
 	{
 		int index = element.getIndex();
 		CredentialRegistrationParam param = form.getCredentialParams().get(index);
@@ -682,6 +699,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					credDefinition.getDescription().getValue(msg)));
 		credentialParamEditors.add(editor);
 		layout.addComponents(editorUI.getComponents());
+		return true;
 	}
 	
 	

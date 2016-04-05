@@ -472,7 +472,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		for (int i=0; i<params.size(); i++)
 		{
 			RegistrationParam param = params.get(i);
-			if (!param.getRetrievalSettings().isInteractivelyEntered(false))
+			if (param.getRetrievalSettings().isPotentiallyAutomaticAndVisible())
 				ret.add(new FormParameterElement(type, i));
 		}
 		

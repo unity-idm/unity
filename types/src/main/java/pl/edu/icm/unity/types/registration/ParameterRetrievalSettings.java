@@ -27,7 +27,7 @@ public enum ParameterRetrievalSettings
 	automaticHidden,
 	
 	/**
-	 * if system does not set value user can enter value manually
+	 * if system does not set value user can enter value manually, otherwise remote value is used but not shown
 	 */
 	automaticOrInteractive,
 	
@@ -49,7 +49,7 @@ public enum ParameterRetrievalSettings
 	 */
 	public boolean isPotentiallyAutomaticAndVisible()
 	{
-		return this == automatic || this == automaticOrInteractive;
+		return this == automatic;
 	}
 	
 	public boolean isInteractivelyEntered(boolean hasRemoteValue)

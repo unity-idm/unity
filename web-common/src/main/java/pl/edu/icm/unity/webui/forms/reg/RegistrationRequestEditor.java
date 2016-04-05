@@ -138,34 +138,34 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	}
 	
 	@Override
-	protected void createControlFor(AbstractOrderedLayout layout, FormElement element, InvitationWithCode invitation) 
-			throws EngineException
+	protected boolean createControlFor(AbstractOrderedLayout layout, FormElement element, 
+			FormElement previousAdded, InvitationWithCode invitation) throws EngineException
 	{
 		switch (element.getType())
 		{
 		case RegistrationForm.CAPTCHA:
-			createCaptchaControl(layout, (BasicFormElement) element);
-			break;
+			return createCaptchaControl(layout, (BasicFormElement) element);
 		case RegistrationForm.REG_CODE:
-			createRegistrationCodeControl(layout, (BasicFormElement) element);
-			break;
+			return createRegistrationCodeControl(layout, (BasicFormElement) element);
 		default:
-			super.createControlFor(layout, element, invitation);
+			return super.createControlFor(layout, element, previousAdded, invitation);
 		}
 	}
 	
-	private void createCaptchaControl(Layout layout, BasicFormElement element)
+	private boolean createCaptchaControl(Layout layout, BasicFormElement element)
 	{
 		captcha = new CaptchaComponent(msg, form.getCaptchaLength());
 		layout.addComponent(HtmlTag.br());
 		layout.addComponent(captcha.getAsComponent());
+		return true;
 	}
 
-	private void createRegistrationCodeControl(Layout layout, BasicFormElement element)
+	private boolean createRegistrationCodeControl(Layout layout, BasicFormElement element)
 	{
 		registrationCode = new TextField(msg.getMessage("RegistrationRequest.registrationCode"));
 		registrationCode.setRequired(true);
 		layout.addComponent(registrationCode);
+		return true;
 	}
 	
 	private void setupInvitationByCode()
