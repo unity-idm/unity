@@ -15,7 +15,7 @@ authentication) or the user is asked to fill the enquiry after log in to Unity.
 . Information on filled enquiry (as well as ignored permanently in case of optional enquires) is recorded in 
 user's attributes.
 . Enquiry form does not work with the invitations subsystem (enquires are filled after authentication so this is 
-not needed).
+typically not needed, but we may remove this limitation in future).
 . Enquiry can contain only manually entered information, it can not be associated with remote login pipeline
 as registration forms (what obviously doesn't make any sense). 
 
