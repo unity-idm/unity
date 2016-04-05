@@ -325,7 +325,10 @@ public class EngineInitialization extends LifecycleBase
 		runInitializers();
 		initializeTranslationProfiles();
 		
-		removeERA();
+		boolean eraClean = config.getBooleanValue(
+				UnityServerConfiguration.CONFIG_ONLY_ERA_CONTROL);
+		if (eraClean)
+			removeERA();
 		initializeAuthenticators();
 		initializeRealms();
 		initializeEndpoints();
@@ -667,6 +670,7 @@ public class EngineInitialization extends LifecycleBase
 		try
 		{
 			log.info("Loading configured realms");
+			Collection<AuthenticationRealm> realms = realmManagement.getRealms();
 			Set<String> realmKeys = config.getStructuredListKeys(UnityServerConfiguration.REALMS);
 			for (String realmKey: realmKeys)
 			{
@@ -681,8 +685,14 @@ public class EngineInitialization extends LifecycleBase
 				int maxInactive = config.getIntValue(realmKey+
 						UnityServerConfiguration.REALM_MAX_INACTIVITY);
 				
-				realmManagement.addRealm(new AuthenticationRealm(name, description, blockAfter, 
-						blockFor, remeberMe, maxInactive));
+				AuthenticationRealm realm = new AuthenticationRealm(name, description, blockAfter, 
+						blockFor, remeberMe, maxInactive);
+				
+				if (realms.stream().filter(r -> r.getName().equals(name)).findAny().isPresent())
+					realmManagement.updateRealm(realm);
+				else
+					realmManagement.addRealm(realm);
+				
 				description = description == null ? "" : description;
 				log.info(" - " + name + ": " + description + " [blockAfter " + 
 						blockAfter + ", blockFor " + blockFor + 
@@ -728,6 +738,9 @@ public class EngineInitialization extends LifecycleBase
 	private void loadEndpointsFromConfiguration() throws IOException, EngineException
 	{
 		log.info("Loading all configured endpoints");
+		
+		List<EndpointDescription> existing = endpointManager.getEndpoints();
+		
 		Set<String> endpointsList = config.getStructuredListKeys(UnityServerConfiguration.ENDPOINTS);
 		for (String endpointKey: endpointsList)
 		{
@@ -736,6 +749,13 @@ public class EngineInitialization extends LifecycleBase
 			File configFile = config.getFileValue(endpointKey+UnityServerConfiguration.ENDPOINT_CONFIGURATION, false);
 			String address = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_ADDRESS);
 			String name = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_NAME);
+			
+			if (existing.stream().filter(e -> e.getId().equals(name)).findAny().isPresent())
+			{
+				log.info("Endpoint " + name + " is present in database, will be updated from configuration");
+				endpointManager.undeploy(name);
+			}
+			
 			I18nString displayedName = config.getLocalizedString(msg, 
 					endpointKey+UnityServerConfiguration.ENDPOINT_DISPLAYED_NAME);
 			if (displayedName.isEmpty())
@@ -794,6 +814,11 @@ public class EngineInitialization extends LifecycleBase
 				authnManagement.createAuthenticator(name, type, vJsonConfiguration, 
 						rJsonConfiguration, credential);
 				log.info(" - " + name + " [" + type + "]");
+			} else
+			{
+				authnManagement.updateAuthenticator(name, vJsonConfiguration, 
+						rJsonConfiguration, credential);
+				log.info(" - " + name + " [" + type + "] (updated)");
 			}
 		}
 	}

@@ -64,6 +64,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String PKI_CONF = "pkiConfigFile";
 	public static final String THREAD_POOL_SIZE = "threadPoolSize";
 	public static final String IGNORE_CONFIGURED_CONTENTS_SETTING = "ignoreContentsReloadingFromConfiguration";
+	public static final String CONFIG_ONLY_ERA_CONTROL = "fullyRecreateEndpointsAROnStartup";
 	private static final String RECREATE_ENDPOINTS_ON_STARTUP = "recreateEndpointsOnStartup";
 	public static final String LOGOUT_MODE = "logoutMode";
 	public static final String DEFAULT_WEB_CONTENT_PATH = "defaultWebContentDirectory";
@@ -165,6 +166,14 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 						+ "database contents (endpoints, authenticators, credentials, ...) "
 						+ "are ignored. This is useful in the case of redundant Unity instance,"
 						+ " which should use the database contents configured at the master serevr."));
+		defaults.put(CONFIG_ONLY_ERA_CONTROL, new PropertyMD("true").setCategory(mainCat).
+				setDescription("If set to true then all Endpoints, Authenticators and authentication Realms "
+						+ "are fully recreated from configuration at startup. This is convenient unless you "
+						+ "use other management means for those artefacts (as REST interface). "
+						+ "Then set it to false, to have only incremental changes from configuration "
+						+ "- elements not present in configuration will not be removed then. "
+						+ "Note that this option is ignored if " + IGNORE_CONFIGURED_CONTENTS_SETTING + 
+						" is true."));
 		defaults.put(LOGOUT_MODE, new PropertyMD(LogoutMode.internalAndSyncPeers).setCategory(mainCat).
 				setDescription("Controls the way how the logout operation is performed. "
 				+ "+internalOnly+ will perform only a local logout. +internalAndSyncPeers+ will also logout"
