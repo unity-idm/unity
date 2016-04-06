@@ -313,28 +313,6 @@ Both identity types works out of the box with the password credential.
 The only difference is that a user can not authenticate with e-mail identity if it was not confirmed.
  
 
-=== Internationalization & UI translations
-
-Unity offers internationalization (i18) features out of the box. However, the list of available languages
-is hardcoded and currently includes only English (en), Polish (pl) and German (de) locales. English locale is
-the default one and all default messages are in this language. The Polish translation is mostly complete with the
-exception of the Admin UI. German is currently empty. Administrator can configure which of the supported locale are
-enabled (see +unityServer.conf+ documentation).
-
-If you would like to have other locale supported please contact us via the mailing list - there is no problem to add 
-them or to allow for admin-configured locales outside from those predefined in distribution.
-
-Actual translations are fully controlled by Unity administrator.
-
-The user interface messages can be changed by editing Java properties file. See <<i18n>> for details.
-
-What is more Unity allows you to provide all names which are configurable by administrator in multiple languages.
-The user interface shows a small flag on right-top edge of each translatable component. After expanding the component,
-the translations in all enabled languages can be provided.
-
-image::./figures/languages.png[alt="Unity allows for translating admin-provided names",align="center"]
-
-
 === Bulk entity operations
 
 It is possible to invoke or schedule for recurring invocations conditional actions on entities database.

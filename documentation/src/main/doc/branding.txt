@@ -177,21 +177,41 @@ screen. See the main server reference documentation: <<configuration>>.
 [[i18n]]
 === Controlling translation of messages
 
+Unity offers internationalization (i18) features out of the box. However, the list of available languages
+is hardcoded and currently includes only English (en), Polish (pl) and German (de) locales. English locale is
+the default one and all default messages are in this language. The Polish translation is mostly complete with the
+exception of the Admin UI. German is currently empty. Administrator can configure which of the supported locale are
+enabled (see +unityServer.conf+ documentation).
+
+If you would like to have other locale supported please contact us via the mailing list - there is no problem to add 
+them or to allow for admin-configured locales outside from those predefined in distribution.
+
+Actual translations are fully controlled by Unity administrator. 
 In the +i18n/+ subfolder of the configuration directory a copy of all system messages is stored. 
 It is possible to change any of the messages which are stored there, also including translations.
 Files are grouped in several directories; the structure of those directories is hardcoded and can not be modified.
-In each directory there is is one +message.properties+ file with default values (the default is simply English) and
+In each directory there is one +message.properties+ file with default values (the default is simply English) and
 arbitrary number of files +message_LC.properties+, where +LC+ is a code of a locale of the translation. 
 
 It is important to note how language-wise resolving of messages follows. For each message key and locale, 
 Unity searches for the message value in the following order:
 
 1. locale specific file in the configuration directory
-1. default locale file in the configuration directory
-1. locale specific, packaged translation (can not be modified)
-1. default locale, packaged translation (can not be modified)
+2. default locale file in the configuration directory
+3. locale specific, packaged translation (can not be modified)
+4. default locale, packaged translation (can not be modified)
 
 Note that initially (until any custom reconfigurations are performed) the two last options are the same
 as the two first.
 
-  
+NOTE: It is advised not to modify the default messages in place, as during subsequent updates those modifications
+may be lost, or, depending on update mode, the updated default messages may be ignored during update. 
+Instead a separate directory may be configured for customized translations, while the default i18n directory is used 
+for the reference only.   
+
+What is more Unity allows for providing all names, descriptions and other texts which are end-user oriented 
+and configurable by administrator in multiple languages. The user interface shows a small flag on
+right-top edge of each translatable component. After expanding the component, the translations in all enabled
+languages can be provided.
+
+image::./figures/languages.png[alt="Unity allows for translating admin-provided names",align="center"]
