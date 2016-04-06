@@ -33,6 +33,10 @@
 
 		<!-- compile -->
 		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>apache-jsp</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
 			<artifactId>unity-server-core</artifactId>
 			<version>${project.version}</version>
