@@ -174,7 +174,7 @@ templates for every endpoint, what is configured with the +unity.endpoint.web.te
 There are also options to set templates for the shared (not endpoint specific UIs), as the email confirmation
 screen. See the main server reference documentation: <<configuration>>. 
 
-
+[[i18n]]
 === Controlling translation of messages
 
 In the +i18n/+ subfolder of the configuration directory a copy of all system messages is stored. 
