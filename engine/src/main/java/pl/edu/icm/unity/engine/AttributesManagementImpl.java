@@ -156,18 +156,28 @@ public class AttributesManagementImpl implements AttributesManagement
 	}
 
 	/**
-	 * Attribute types marked as immutable can have only displayed name and description modified.
-	 * Also metadata is not set on them.
+	 * Sets all user-controlled (mutable) elements of attribute type which has immutable type.
+	 * @param at
+	 * @param existing
+	 */
+	public static void setModifiableSettingsOfImmutableAT(AttributeType at, AttributeType existing)
+	{
+		existing.setDisplayedName(at.getDisplayedName());
+		existing.setDescription(at.getDescription());
+		existing.setSelfModificable(at.isSelfModificable());
+		existing.setVisibility(at.getVisibility());
+	}
+	
+	/**
+	 * Attribute types marked as immutable can have only displayed name, description, visibility and selfModifiable
+	 * settings modified. Also metadata is not set on them.
 	 * @param at
 	 * @throws EngineException 
 	 */
 	private void updateImmutableAttributeType(SqlSession sql, AttributeType at, AttributeType existing) 
 			throws EngineException
 	{
-		existing.setDisplayedName(at.getDisplayedName());
-		existing.setDescription(at.getDescription());
-		existing.setSelfModificable(at.isSelfModificable());
-		existing.setVisibility(at.getVisibility());
+		setModifiableSettingsOfImmutableAT(at, existing);
 		dbAttributes.updateAttributeType(existing, sql);
 	}
 	

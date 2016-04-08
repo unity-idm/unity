@@ -44,6 +44,7 @@ import pl.edu.icm.unity.db.ContentsUpdater;
 import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.db.DBIdentities;
 import pl.edu.icm.unity.db.InitDB;
+import pl.edu.icm.unity.engine.AttributesManagementImpl;
 import pl.edu.icm.unity.engine.SharedEndpointManagementImpl;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.bulkops.BulkOperationsUpdater;
@@ -489,6 +490,8 @@ public class EngineInitialization extends LifecycleBase
 						} else if (attrTypesProvider.requiresUpdate(existingAt))
 						{
 							log.info("Updating a system attribute type: " + at.getName());
+							AttributesManagementImpl.setModifiableSettingsOfImmutableAT(
+									at, existingAt);
 							dbAttributes.updateAttributeType(at, sql);
 						}
 					}
