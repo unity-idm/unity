@@ -74,6 +74,7 @@ public class TranslationProfileEditor extends VerticalLayout
 
 	public void setValue(TranslationProfileInstance<?, ?> toEdit)
 	{
+		name.setReadOnly(false);
 		name.setValue(toEdit.getName());
 		name.setReadOnly(true);
 		description.setValue(toEdit.getDescription());
