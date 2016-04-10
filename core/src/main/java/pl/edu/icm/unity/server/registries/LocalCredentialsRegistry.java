@@ -4,10 +4,12 @@
  */
 package pl.edu.icm.unity.server.registries;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +32,11 @@ public class LocalCredentialsRegistry
 	private Map<String, LocalCredentialVerificatorFactory> localCredentialVerificatorFactories;
 	
 	@Autowired
-	public LocalCredentialsRegistry(List<LocalCredentialVerificatorFactory> verificatorFactories)
+	public LocalCredentialsRegistry(Optional<List<LocalCredentialVerificatorFactory>> verificatorFactories)
 	{
 		localCredentialVerificatorFactories = new HashMap<String, LocalCredentialVerificatorFactory>();
 		
-		for (LocalCredentialVerificatorFactory f: verificatorFactories)
+		for (LocalCredentialVerificatorFactory f: verificatorFactories.orElseGet(ArrayList::new))
 			localCredentialVerificatorFactories.put(f.getName(), (LocalCredentialVerificatorFactory) f);	
 	}
 

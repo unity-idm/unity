@@ -4,7 +4,9 @@
  */
 package pl.edu.icm.unity.server.registries;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,9 +17,9 @@ import pl.edu.icm.unity.server.attributes.AttributeMetadataProvider;
 public class AttributeMetadataProvidersRegistry extends TypesRegistryBase<AttributeMetadataProvider>
 {
 	@Autowired
-	public AttributeMetadataProvidersRegistry(List<AttributeMetadataProvider> typeElements)
+	public AttributeMetadataProvidersRegistry(Optional<List<AttributeMetadataProvider>> typeElements)
 	{
-		super(typeElements);
+		super(typeElements.orElseGet(ArrayList::new));
 	}
 
 	@Override

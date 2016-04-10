@@ -26,6 +26,7 @@
 		<cxf.version>3.1.6</cxf.version>
 		<apacheds.version>2.0.0-M21</apacheds.version>
 		<bc.version>1.54</bc.version>
+		<atomikos.version>4.0.2</atomikos.version>
 		
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -46,6 +47,7 @@
 		<module>core</module>
 		<module>engine</module>
 		<module>persistence</module>
+		<module>storage</module>
 		<module>std-extensions</module>
 		<module>web-vaadin-widgetset</module>
 		<module>web-common</module>
@@ -472,6 +474,21 @@
 				<groupId>org.quartz-scheduler</groupId>
 				<artifactId>quartz</artifactId>
 				<version>2.2.2</version>
+			</dependency>
+			<dependency>
+				<groupId>com.hazelcast</groupId>
+				<artifactId>hazelcast</artifactId>
+				<version>3.6.2</version>
+			</dependency>
+			<dependency>
+				<groupId>com.atomikos</groupId>
+				<artifactId>transactions-jta</artifactId>
+				<version>${atomikos.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.atomikos</groupId>
+				<artifactId>transactions</artifactId>
+				<version>${atomikos.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

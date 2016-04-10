@@ -4,7 +4,9 @@
  */
 package pl.edu.icm.unity.server.registries;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,9 +21,9 @@ import pl.edu.icm.unity.server.attributes.AttributeValueSyntaxFactory;
 public class AttributeSyntaxFactoriesRegistry extends TypesRegistryBase<AttributeValueSyntaxFactory<?>>
 {
 	@Autowired
-	public AttributeSyntaxFactoriesRegistry(List<AttributeValueSyntaxFactory<?>> typeElements)
+	public AttributeSyntaxFactoriesRegistry(Optional<List<AttributeValueSyntaxFactory<?>>> typeElements)
 	{
-		super(typeElements);
+		super(typeElements.orElseGet(ArrayList::new));
 	}
 
 	@Override

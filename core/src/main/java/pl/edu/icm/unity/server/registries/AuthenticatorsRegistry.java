@@ -4,11 +4,13 @@
  */
 package pl.edu.icm.unity.server.registries;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -40,9 +42,12 @@ public class AuthenticatorsRegistry
 	private Map<String, AuthenticatorTypeDescription> authenticatorsById;
 	
 	@Autowired
-	public AuthenticatorsRegistry(List<CredentialRetrievalFactory> retrievalFactories, 
-			List<CredentialVerificatorFactory> verificatorFactories)
+	public AuthenticatorsRegistry(Optional<List<CredentialRetrievalFactory>> retrievalFactoriesO, 
+			Optional<List<CredentialVerificatorFactory>> verificatorFactoriesO)
 	{
+		List<CredentialRetrievalFactory> retrievalFactories = retrievalFactoriesO.orElseGet(ArrayList::new);
+		List<CredentialVerificatorFactory> verificatorFactories = verificatorFactoriesO.orElseGet(ArrayList::new);
+		
 		authenticatorsByBinding = new HashMap<String, Set<AuthenticatorTypeDescription>>();
 		authenticatorsById = new HashMap<String, AuthenticatorTypeDescription>();
 		

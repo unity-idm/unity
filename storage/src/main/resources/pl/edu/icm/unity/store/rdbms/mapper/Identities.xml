@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pl.edu.icm.unity.store.rdbms.mapper.IdentitiesMapper">
+	<resultMap id="identityResult" type="IdentityB">
+		<result property="id" column="ID"/>
+		<result property="name" column="NAME"/>
+		<result property="entityId" column="ENTITY_ID"/>
+		<result property="typeId" column="TYPE_ID"/>
+		<result property="contents" column="CONTENTS"/>
+	</resultMap>
+
+	<insert id="insertIdentityType" parameterType="BaseB">
+		INSERT INTO IDENTITY_TYPES (NAME, CONTENTS) VALUES (#{name}, #{contents})
+	</insert>
+
+	<update id="updateIdentityType" parameterType="BaseB">
+		UPDATE IDENTITY_TYPES SET CONTENTS=#{contents} WHERE NAME = #{name}
+	</update>
+
+	<select id="getIdentityTypes" resultType="BaseB">
+		select * from IDENTITY_TYPES
+	</select>
+
+	<select id="getIdentityTypeByName" parameterType="string" resultType="BaseB">
+		select * from IDENTITY_TYPES where NAME = #{value}
+	</select>
+	
+	<select id="getIdentityTypeById" parameterType="long" resultType="BaseB">
+		select * from IDENTITY_TYPES where ID = #{value}
+	</select>
+
+	<delete id="deleteIdentityType" parameterType="string">
+		DELETE FROM IDENTITY_TYPES WHERE NAME = #{value}
+	</delete>
+
+
+
+	<insert id="insertEntity" parameterType="BaseB" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO ENTITIES (CONTENTS) VALUES (#{contents})
+	</insert>
+	
+	<insert id="insertEntityWithId" parameterType="BaseB">
+		INSERT INTO ENTITIES (ID, CONTENTS) VALUES (#{id}, #{contents})
+	</insert>
+	
+	<update id="updateEntity" parameterType="BaseB">
+		UPDATE ENTITIES SET CONTENTS = #{contents} WHERE ID = #{id}
+	</update>	
+
+	<select id="getEntities" resultType="BaseB">
+		select * from ENTITIES
+	</select>
+
+	<select id="getEntityById" parameterType="long" resultType="BaseB">
+		select * from ENTITIES where ID = #{value}
+	</select>
+
+
+	<select id="getIdentities" resultMap="identityResult">
+		select * from IDENTITIES
+	</select>
+
+	<select id="getIdentitiesByEntity" parameterType="long" resultMap="identityResult">
+		select * from IDENTITIES where IDENTITIES.ENTITY_ID = #{value}
+	</select>
+	
+	<insert id="insertIdentity" parameterType="IdentityB" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO IDENTITIES (NAME, CONTENTS, TYPE_ID, ENTITY_ID) 
+			VALUES (#{name}, #{contents}, #{typeId}, #{entityId})
+	</insert>
+	
+	<update id="updateIdentity" parameterType="IdentityB">
+		UPDATE IDENTITIES SET CONTENTS = #{contents} WHERE NAME = #{name}
+	</update>
+
+	<update id="updateIdentityEntity" parameterType="IdentityB">
+		UPDATE IDENTITIES SET ENTITY_ID = #{entityId} WHERE NAME = #{name}
+	</update>
+	
+	<delete id="deleteIdentity" parameterType="string">
+		DELETE FROM IDENTITIES WHERE NAME = #{value}
+	</delete>
+
+	<delete id="deleteAllIdentities">
+		DELETE FROM IDENTITIES
+	</delete>
+
+	<delete id="deleteEntity" parameterType="long">
+		DELETE FROM ENTITIES WHERE ID = #{value}
+	</delete>
+	
+	<select id="getIdentityByName" resultMap="identityResult" parameterType="string">
+		select * from IDENTITIES WHERE NAME = #{value}
+	</select>
+	
+</mapper>

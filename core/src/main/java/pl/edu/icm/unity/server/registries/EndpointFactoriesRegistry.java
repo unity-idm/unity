@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,9 +28,9 @@ public class EndpointFactoriesRegistry
 	private List<EndpointTypeDescription> factoriesDescriptions = new ArrayList<EndpointTypeDescription>();
 	
 	@Autowired
-	public EndpointFactoriesRegistry(List<EndpointFactory> endpointFactories)
+	public EndpointFactoriesRegistry(Optional<List<EndpointFactory>> endpointFactories)
 	{
-		for (EndpointFactory factory: endpointFactories)
+		for (EndpointFactory factory: endpointFactories.orElseGet(ArrayList::new))
 		{
 			factoriesById.put(factory.getDescription().getName(), factory);
 			factoriesDescriptions.add(factory.getDescription());

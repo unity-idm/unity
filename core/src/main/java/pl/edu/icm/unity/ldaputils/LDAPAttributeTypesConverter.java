@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,9 +50,9 @@ public class LDAPAttributeTypesConverter
 	private List<LDAPAttributeTypeConverter> converters;
 	
 	@Autowired
-	public LDAPAttributeTypesConverter(List<LDAPAttributeTypeConverter> converters)
+	public LDAPAttributeTypesConverter(Optional<List<LDAPAttributeTypeConverter>> converters)
 	{
-		this.converters = converters;
+		this.converters = converters.orElseGet(ArrayList::new);
 	}
 
 	public List<AttributeType> convert(Reader input) throws RecognitionException, TokenStreamException
