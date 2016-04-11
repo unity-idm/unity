@@ -14,6 +14,8 @@ import pl.edu.icm.unity.types.basic.IdentityType;
  */
 public interface IdentityTypeDAO
 {
+	IdentityType getIdentityType(String idType);
+	
 	Map<String, IdentityType> getIdentityTypes();
 
 	void updateIdentityType(IdentityType idType);

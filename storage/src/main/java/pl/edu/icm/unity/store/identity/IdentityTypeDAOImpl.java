@@ -4,72 +4,59 @@
  */
 package pl.edu.icm.unity.store.identity;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
-import pl.edu.icm.unity.store.rdbms.mapper.IdentitiesMapper;
-import pl.edu.icm.unity.store.rdbms.model.BaseBean;
-import pl.edu.icm.unity.store.tx.SqlSessionTL;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
 /**
- * Implementation of {@link IdentityTypeDAO}.
- * 
+ * Router of {@link IdentityTypeDAO}.
  * @author K. Benedyczak
  */
-@Repository
+@Component
+@Primary
 public class IdentityTypeDAOImpl implements IdentityTypeDAO
 {
 	@Autowired
-	private IdentityTypeSerializer idTypeSerializer;
+	private IdentityTypeHzStore hzDAO;
+	@Autowired
+	private IdentityTypeRDBMSStore rdbmsDAO;
 	
+
 	@Override
-	public Map<String, IdentityType> getIdentityTypes()
+	public IdentityType getIdentityType(String idType)
 	{
-		IdentitiesMapper mapper = SqlSessionTL.get().getMapper(IdentitiesMapper.class);
-		List<BaseBean> identityTypeState = mapper.getIdentityTypes();
-		Map<String, IdentityType> ret = new HashMap<>(identityTypeState.size());
-		for (BaseBean state: identityTypeState)
-		{
-			try
-			{
-				ret.put(state.getName(), idTypeSerializer.resolveIdentityType(state));
-			} catch (IllegalTypeException e)
-			{
-				throw new InternalException("Can't find implementation of the identity type " + 
-						state.getName(), e);
-			}
-		}
-		return ret;
+		return hzDAO.getIdentityType(idType);
 	}
 
 	@Override
-	public void createIdentityType(IdentityType idType)
+	public Map<String, IdentityType> getIdentityTypes()
 	{
-		IdentitiesMapper mapper = SqlSessionTL.get().getMapper(IdentitiesMapper.class);
-		BaseBean toAdd = idTypeSerializer.serialize(idType);
-		mapper.insertIdentityType(toAdd);
+		return hzDAO.getIdentityTypes();
 	}
 
 	@Override
 	public void updateIdentityType(IdentityType idType)
 	{
-		IdentitiesMapper mapper = SqlSessionTL.get().getMapper(IdentitiesMapper.class);
-		BaseBean toUpdate = idTypeSerializer.serialize(idType);
-		mapper.updateIdentityType(toUpdate);
+		rdbmsDAO.updateIdentityType(idType);
+		hzDAO.updateIdentityType(idType);
+	}
+
+	@Override
+	public void createIdentityType(IdentityType idType)
+	{
+		rdbmsDAO.createIdentityType(idType);
+		hzDAO.createIdentityType(idType);
 	}
 
 	@Override
 	public void deleteIdentityType(String idType)
 	{
-		IdentitiesMapper mapper = SqlSessionTL.get().getMapper(IdentitiesMapper.class);
-		mapper.deleteIdentityType(idType);
+		rdbmsDAO.deleteIdentityType(idType);
+		hzDAO.deleteIdentityType(idType);
 	}
 }

@@ -28,7 +28,7 @@ import pl.edu.icm.unity.types.basic.IdentityType;
  * @author K. Benedyczak
  */
 @Component
-public class IdentityTypeSerializer
+public class IdentityTypeJSONSerializer
 {
 	@Autowired
 	private ObjectMapper mapper;
