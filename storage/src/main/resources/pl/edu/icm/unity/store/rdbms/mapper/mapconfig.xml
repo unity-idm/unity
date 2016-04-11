@@ -21,6 +21,7 @@
 		<typeAlias alias="DBLimits" type="pl.edu.icm.unity.store.rdbms.model.DBLimits" />
 	</typeAliases>
 	
+	<!-- TODO remove - not used -->
 	<environments default="def">
 		<environment id="def">
 			<transactionManager type="JDBC"/>

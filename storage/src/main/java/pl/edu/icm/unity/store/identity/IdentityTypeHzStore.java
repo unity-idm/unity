@@ -7,12 +7,12 @@ package pl.edu.icm.unity.store.identity;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.TransactionalMap;
 
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
+import pl.edu.icm.unity.store.tx.TransactionTL;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
 /**
@@ -25,23 +25,20 @@ public class IdentityTypeHzStore implements IdentityTypeDAO
 {
 	private static final String STORE_ID = "identityTypesMap";
 	
-	private Map<String, IdentityType> hIdentityTypeMap;
-	
-	@Autowired
-	public IdentityTypeHzStore(HazelcastInstance hazelcast)
-	{
-		hIdentityTypeMap = hazelcast.getMap(STORE_ID);
-	}
-
 	@Override
 	public Map<String, IdentityType> getIdentityTypes()
 	{
-		return new HashMap<>(hIdentityTypeMap);
+		TransactionalMap<String, IdentityType> hIdentityTypeMap = getMap();
+		Map<String, IdentityType> ret = new HashMap<>();
+		for (String key: hIdentityTypeMap.keySet())
+			ret.put(key, hIdentityTypeMap.get(key));
+		return ret;
 	}
 
 	@Override
 	public void updateIdentityType(IdentityType idType)
 	{
+		TransactionalMap<String, IdentityType> hIdentityTypeMap = getMap();
 		String key = getKey(idType);
 		if (!hIdentityTypeMap.containsKey(key))
 			throw new IllegalArgumentException("Identity type " + key + " does not exists");
@@ -51,6 +48,7 @@ public class IdentityTypeHzStore implements IdentityTypeDAO
 	@Override
 	public void createIdentityType(IdentityType idType) throws IllegalArgumentException
 	{
+		TransactionalMap<String, IdentityType> hIdentityTypeMap = getMap();
 		if (idType.getDescription() == null)
 			idType.setDescription(idType.getIdentityTypeProvider().getDefaultDescription());
 		String key = getKey(idType);
@@ -62,20 +60,25 @@ public class IdentityTypeHzStore implements IdentityTypeDAO
 	@Override
 	public void deleteIdentityType(String idType)
 	{
-		hIdentityTypeMap.remove(idType);
+		getMap().remove(idType);
+	}
+
+	@Override
+	public IdentityType getIdentityType(String idType)
+	{
+		IdentityType identityType = getMap().get(idType);
+		if (identityType == null)
+			throw new IllegalArgumentException("Identity type " + idType + " does not exists");
+		return identityType;
 	}
 	
 	private String getKey(IdentityType idType)
 	{
 		return idType.getIdentityTypeProvider().getId();
 	}
-
-	@Override
-	public IdentityType getIdentityType(String idType)
+	
+	private TransactionalMap<String, IdentityType> getMap()
 	{
-		IdentityType identityType = hIdentityTypeMap.get(idType);
-		if (identityType == null)
-			throw new IllegalArgumentException("Identity type " + idType + " does not exists");
-		return identityType;
+		return TransactionTL.getHzContext().getMap(STORE_ID);
 	}
 }

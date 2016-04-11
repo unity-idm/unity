@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.store.tx;
 
+import javax.transaction.Transaction;
+import javax.transaction.xa.XAResource;
+
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
@@ -12,6 +15,10 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.atomikos.icatch.jta.UserTransactionManager;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.transaction.HazelcastXAResource;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.api.tx.Propagation;
@@ -41,6 +48,12 @@ public class TransactionalAspect
 	
 	@Autowired
 	private DBSessionManager db;
+	
+	@Autowired
+	private UserTransactionManager transactionManager;
+	
+	@Autowired
+	private HazelcastInstance hazelcastInstance;
 	
 	
 	@Around("execution(public * pl.edu.icm.unity..*.*(..)) && "
@@ -74,7 +87,7 @@ public class TransactionalAspect
 				throw pe;
 			} catch (PersistenceException pe)
 			{
-				TransactionsState transactionsStack = SqlSessionTL.transactionState.get();
+				TransactionsState transactionsStack = TransactionTL.transactionState.get();
 				TransactionState ti = transactionsStack.getCurrent();
 				if (transactionsStack.isSubtransaction() && 
 						ti.getPropagation() != Propagation.REQUIRE_SEPARATE)
@@ -97,6 +110,7 @@ public class TransactionalAspect
 				} else
 				{
 					log.warn("Got persistence error, give up", pe);
+					transactionManager.rollback();
 					throw new TxPersistenceException(pe);
 				}
 
@@ -107,66 +121,72 @@ public class TransactionalAspect
 		} while(true);
 	}
 	
-	private void setupTransactionSession(ProceedingJoinPoint pjp, Transactional transactional)
+	private void setupTransactionSession(ProceedingJoinPoint pjp, Transactional transactional) 
+			throws Exception
 	{
-		TransactionsState transactionsStack = SqlSessionTL.transactionState.get();
+		TransactionsState transactionsStack = TransactionTL.transactionState.get();
 		
 		if (transactionsStack.isEmpty())
 		{
-			createNewSqlSession(pjp, transactional);
-			transactionsStack.push(new TransactionState(transactional.propagation(), 
-					SqlSessionTL.get()));
+			createNewTransaction(pjp, transactional);
 		} else
 		{
 			if (transactional.propagation() == Propagation.REQUIRED)
 			{
-				SqlSession current = SqlSessionTL.get();
-				transactionsStack.push(new TransactionState(transactional.propagation(), current));
+				transactionsStack.push(new TransactionState(transactional.propagation(), 
+						TransactionTL.getSql(),
+						TransactionTL.getHzXAResource()));
 			} else if (transactional.propagation() == Propagation.REQUIRE_SEPARATE)
 			{
-				createNewSqlSession(pjp, transactional);
-				transactionsStack.push(new TransactionState(transactional.propagation(), 
-						SqlSessionTL.get()));
+				createNewTransaction(pjp, transactional);
 			}
 		}
 	}
 	
-	private void createNewSqlSession(ProceedingJoinPoint pjp, Transactional transactional)
+	private void createNewTransaction(ProceedingJoinPoint pjp, Transactional transactional) 
+			throws Exception
 	{
+		transactionManager.begin();
+		Transaction transaction = transactionManager.getTransaction();
+		HazelcastXAResource xaResource = hazelcastInstance.getXAResource();
+		transaction.enlistResource(xaResource);
+		
 		if (log.isTraceEnabled())
-			log.trace("Starting sql session for " + pjp.toShortString());
+			log.trace("Starting new transaction for " + pjp.toShortString());
 		SqlSession sqlSession = db.getSqlSession(!transactional.noTransaction());
-		SqlSessionTL.sqlSession.set(sqlSession);		
+		TransactionsState transactionsStack = TransactionTL.transactionState.get();
+		transactionsStack.push(new TransactionState(transactional.propagation(), 
+				sqlSession, xaResource));
 	}
 	
-	private void commitIfNeeded(ProceedingJoinPoint pjp, Transactional transactional)
+	private void commitIfNeeded(ProceedingJoinPoint pjp, Transactional transactional) 
+			throws Exception
 	{
 		if (!transactional.autoCommit())
 			return;
 
-		TransactionsState transactionsStack = SqlSessionTL.transactionState.get();
+		TransactionsState transactionsStack = TransactionTL.transactionState.get();
 		TransactionState ti = transactionsStack.getCurrent();
 		
 		if (!transactionsStack.isSubtransaction() || ti.getPropagation() == Propagation.REQUIRE_SEPARATE)
 		{
 			if (log.isTraceEnabled())
 				log.trace("Commiting transaction for " + pjp.toShortString());
-			
-			ti.getSqlSession().commit();
+			transactionManager.getTransaction().delistResource(ti.getHzXAResource(), 
+					XAResource.TMSUCCESS);
+			transactionManager.commit();
 		}
 	}
 
 	private void cleanupTransaction(ProceedingJoinPoint pjp, Transactional transactional)
 	{
-		TransactionsState transactionsStack = SqlSessionTL.transactionState.get();
+		TransactionsState transactionsStack = TransactionTL.transactionState.get();
 		TransactionState ti = transactionsStack.pop();
 		
 		if (transactionsStack.isEmpty() || ti.getPropagation() == Propagation.REQUIRE_SEPARATE)
 		{
 			if (log.isTraceEnabled())
-				log.trace("Releassing sql session for " + pjp.toShortString());
-			SqlSessionTL.sqlSession.remove();
-			db.releaseSqlSession(ti.getSqlSession());
+				log.trace("Transactions stack is empty for " + pjp.toShortString());
 		}
 	}
 	

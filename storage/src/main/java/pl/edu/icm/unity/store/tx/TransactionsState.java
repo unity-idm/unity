@@ -9,6 +9,8 @@ import java.util.Deque;
 
 import org.apache.ibatis.session.SqlSession;
 
+import com.hazelcast.transaction.HazelcastXAResource;
+
 import pl.edu.icm.unity.store.api.tx.Propagation;
 
 /**
@@ -48,11 +50,13 @@ public class TransactionsState
 	{
 		private Propagation propagation;
 		private SqlSession sqlSession;
+		private HazelcastXAResource hzXAResource;
 		
-		public TransactionState(Propagation propagation, SqlSession sqlSession)
+		public TransactionState(Propagation propagation, SqlSession sqlSession, HazelcastXAResource hzXAResource)
 		{
 			this.propagation = propagation;
 			this.sqlSession = sqlSession;
+			this.hzXAResource = hzXAResource;
 		}
 		public Propagation getPropagation()
 		{
@@ -61,6 +65,10 @@ public class TransactionsState
 		public SqlSession getSqlSession()
 		{
 			return sqlSession;
+		}
+		public HazelcastXAResource getHzXAResource()
+		{
+			return hzXAResource;
 		}
 	}
 }

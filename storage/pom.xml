@@ -58,6 +58,14 @@
 			<artifactId>mybatis</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis-spring</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjweaver</artifactId>
 		</dependency>		
@@ -67,12 +75,16 @@
 		</dependency>
 		<dependency>
 			<groupId>com.atomikos</groupId>
-			<artifactId>transactions-jta</artifactId>
-		</dependency>	
+			<artifactId>transactions</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>com.atomikos</groupId>
-			<artifactId>transactions</artifactId>
-		</dependency>	
+			<artifactId>transactions-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.geronimo.specs</groupId>
+			<artifactId>geronimo-jta_1.0.1B_spec</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
