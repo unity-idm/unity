@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.server.translation;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.mvel2.MVEL;
@@ -46,7 +47,7 @@ public class TranslationCondition
 		Boolean result = null;
 		try
 		{
-			result = (Boolean) MVEL.executeExpression(compiled, input);
+			result = (Boolean) MVEL.executeExpression(compiled, input, new HashMap<>());
 		} catch (Exception e)
 		{
 			if (log.isDebugEnabled())
