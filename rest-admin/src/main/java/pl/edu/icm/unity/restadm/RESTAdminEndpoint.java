@@ -14,6 +14,7 @@ import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.json.AttributeTypeSerializer;
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.BulkProcessingManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
@@ -22,6 +23,7 @@ import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.server.registries.EntityActionsRegistry;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 
@@ -41,6 +43,8 @@ public class RESTAdminEndpoint extends RESTEndpoint
 	private ConfirmationManager confirmationManager;
 	private EndpointManagement endpointManagement;
 	private RegistrationsManagement registrationManagement;
+	private BulkProcessingManagement bulkProcessingManagement;
+	private EntityActionsRegistry entityActionsRegistry;
 	
 	public RESTAdminEndpoint(UnityMessageSource msg, SessionManagement sessionMan,
 			NetworkServer server, String servletPath, IdentitiesManagement identitiesMan,
@@ -50,7 +54,8 @@ public class RESTAdminEndpoint extends RESTEndpoint
 			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry,
 			ConfirmationManager confirmationManager,
 			EndpointManagement endpointManagement,
-			RegistrationsManagement registrationManagement)
+			RegistrationsManagement registrationManagement, 
+			BulkProcessingManagement bulkProcessingManagement, EntityActionsRegistry entityActionsRegistry)
 	{
 		super(msg, sessionMan, authnProcessor, server, servletPath);
 		this.identitiesMan = identitiesMan;
@@ -62,6 +67,8 @@ public class RESTAdminEndpoint extends RESTEndpoint
 		this.confirmationManager = confirmationManager;
 		this.endpointManagement = endpointManagement;
 		this.registrationManagement = registrationManagement;
+		this.bulkProcessingManagement = bulkProcessingManagement;
+		this.entityActionsRegistry = entityActionsRegistry;
 	}
 
 	@Override
@@ -79,7 +86,8 @@ public class RESTAdminEndpoint extends RESTEndpoint
 			HashSet<Object> ret = new HashSet<>();
 			ret.add(new RESTAdmin(identitiesMan, groupsMan, attributesMan, identityTypesRegistry, 
 					attributeTypeSerializer, attributeSyntaxFactoriesRegistry,
-					confirmationManager, endpointManagement, registrationManagement));
+					confirmationManager, endpointManagement, registrationManagement,
+					bulkProcessingManagement, entityActionsRegistry));
 			installExceptionHandlers(ret);
 			return ret;
 		}
