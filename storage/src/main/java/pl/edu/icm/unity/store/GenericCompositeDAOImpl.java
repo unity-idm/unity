@@ -6,6 +6,7 @@ package pl.edu.icm.unity.store;
 
 import java.util.Map;
 
+import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.store.api.CRUDDAO;
 
 /**
@@ -18,13 +19,27 @@ public class GenericCompositeDAOImpl<T> implements CRUDDAO<T>
 {
 	private CRUDDAO<T> hzDAO;
 	private CRUDDAO<T> rdbmsDAO;
+	private TransactionalRunner tx;
 	
-	public GenericCompositeDAOImpl(CRUDDAO<T> hzDAO, CRUDDAO<T> rdbmsDAO)
+	public GenericCompositeDAOImpl(CRUDDAO<T> hzDAO, CRUDDAO<T> rdbmsDAO,
+			TransactionalRunner tx)
 	{
 		this.hzDAO = hzDAO;
 		this.rdbmsDAO = rdbmsDAO;
+		this.tx = tx;
 	}
 
+	public void initHazelcast()
+	{
+		//TODO offer faster getAll method without map.
+		
+		tx.runInTransaction(() -> {
+			Map<String, T> asMap = rdbmsDAO.getAsMap();
+			for (T element: asMap.values())
+				hzDAO.create(element);
+		}); 
+	}
+	
 	@Override
 	public void create(T obj)
 	{

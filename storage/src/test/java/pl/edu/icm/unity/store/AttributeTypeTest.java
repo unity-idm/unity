@@ -72,7 +72,7 @@ public class AttributeTypeTest
 		assertThat(readMap.size(), is(1));
 		AttributeType read = readMap.get("attribute1");
 		assertThat(read.getDisplayedName(), is(new I18nString("Attribute 1")));
-		assertThat(read.getDescription(), is("desc"));
+		assertThat(read.getDescription(), is(new I18nString("desc")));
 		assertThat(read.getName(), is("attribute1"));
 		assertThat(read.getFlags(), is(8));
 		assertThat(read.getMaxElements(), is(10));

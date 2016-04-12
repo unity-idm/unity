@@ -20,7 +20,7 @@ import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
  * 
  * @author K. Benedyczak
  */
-@Component
+@Component("IdentityTypesRegistry")
 public class IdentityTypesRegistry extends TypesRegistryBase<IdentityTypeDefinition>
 {
 	private Collection<IdentityTypeDefinition> dynamic;

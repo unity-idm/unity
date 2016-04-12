@@ -4,22 +4,19 @@
  */
 package pl.edu.icm.unity.base.internal;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-
-
 public interface TransactionalRunner
 {
-	public void runInTransaction(TxRunnable code) throws EngineException;
+	public void runInTransaction(TxRunnable code);
 	
-	public <T> T runInTransactionRet(TxRunnableRet<T> code) throws EngineException;
+	public <T> T runInTransactionRet(TxRunnableRet<T> code);
 	
 	public interface TxRunnable
 	{
-		void run() throws EngineException;
+		void run();
 	}
 
 	public interface TxRunnableRet<T>
 	{
-		T run() throws EngineException;
+		T run();
 	}
 }

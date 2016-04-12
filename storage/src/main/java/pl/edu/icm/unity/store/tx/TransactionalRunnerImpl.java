@@ -7,7 +7,6 @@ package pl.edu.icm.unity.store.tx;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 
 /**
@@ -20,14 +19,14 @@ public class TransactionalRunnerImpl implements TransactionalRunner
 {
 	@Override
 	@Transactional
-	public void runInTransaction(TxRunnable code) throws EngineException
+	public void runInTransaction(TxRunnable code)
 	{
 		code.run();
 	}
 
 	@Override
 	@Transactional
-	public <T> T runInTransactionRet(TxRunnableRet<T> code) throws EngineException
+	public <T> T runInTransactionRet(TxRunnableRet<T> code)
 	{
 		return code.run();
 	}

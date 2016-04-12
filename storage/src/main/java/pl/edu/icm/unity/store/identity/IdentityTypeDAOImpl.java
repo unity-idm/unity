@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.store.GenericCompositeDAOImpl;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.types.basic.IdentityType;
@@ -21,8 +22,9 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 public class IdentityTypeDAOImpl extends GenericCompositeDAOImpl<IdentityType> implements IdentityTypeDAO
 {
 	@Autowired
-	public IdentityTypeDAOImpl(IdentityTypeHzStore hzDAO, IdentityTypeRDBMSStore rdbmsDAO)
+	public IdentityTypeDAOImpl(IdentityTypeHzStore hzDAO, IdentityTypeRDBMSStore rdbmsDAO,
+			TransactionalRunner tx)
 	{
-		super(hzDAO, rdbmsDAO);
+		super(hzDAO, rdbmsDAO, tx);
 	}
 }

@@ -18,7 +18,7 @@ import pl.edu.icm.unity.base.attributes.AttributeValueSyntaxFactory;
  * Maintains a simple registry of available {@link AttributeValueSyntaxFactory}ies.
  * @author K. Benedyczak
  */
-@Component
+@Component("AttributeSyntaxFactoriesRegistry")
 public class AttributeSyntaxFactoriesRegistry extends TypesRegistryBase<AttributeValueSyntaxFactory<?>>
 {
 	@Autowired
