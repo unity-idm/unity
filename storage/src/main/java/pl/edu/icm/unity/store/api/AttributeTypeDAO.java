@@ -4,12 +4,12 @@
  */
 package pl.edu.icm.unity.store.api;
 
-import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.types.basic.AttributeType;
 
 /**
- * Identity type DAO
+ * {@link AttributeType} DAO
  * @author K. Benedyczak
  */
-public interface IdentityTypeDAO extends CRUDDAO<IdentityType>
+public interface AttributeTypeDAO extends CRUDDAO<AttributeType>
 {
 }

@@ -4,12 +4,7 @@
  */
 package pl.edu.icm.unity.store.api;
 
-import pl.edu.icm.unity.types.basic.IdentityType;
-
-/**
- * Identity type DAO
- * @author K. Benedyczak
- */
-public interface IdentityTypeDAO extends CRUDDAO<IdentityType>
+public interface CRUDDAO<T> extends BasicCRUDDAO<T>, MapReadDAO<T>
 {
+
 }

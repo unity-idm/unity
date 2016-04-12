@@ -4,12 +4,14 @@
  */
 package pl.edu.icm.unity.store.api;
 
-import pl.edu.icm.unity.types.basic.IdentityType;
+import java.util.Map;
 
 /**
- * Identity type DAO
+ * DAO component: read all as map
  * @author K. Benedyczak
+ * @param <T>
  */
-public interface IdentityTypeDAO extends CRUDDAO<IdentityType>
+public interface MapReadDAO<T>
 {
+	Map<String, T> getAsMap();
 }

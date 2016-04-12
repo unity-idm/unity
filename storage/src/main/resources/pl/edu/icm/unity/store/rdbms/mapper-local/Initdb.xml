@@ -23,7 +23,7 @@
 		DROP INDEX IF EXISTS EVENTS_DATES_IDX;
 	</update>
 
-	<select id="getDBLimits" resultType="DBLimits">
+	<select id="getDBLimits" resultType="DBLimitsBean">
 		select 256 AS nameLimit, 64535 AS contentsLimit
 	</select>
 	

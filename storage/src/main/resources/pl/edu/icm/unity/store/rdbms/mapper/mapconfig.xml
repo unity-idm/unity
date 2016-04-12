@@ -18,7 +18,7 @@
 		<typeAlias alias="GenericObjectB" type="pl.edu.icm.unity.store.rdbms.model.GenericObjectBean" />
 		<typeAlias alias="TokenB" type="pl.edu.icm.unity.store.rdbms.model.TokenBean" />
 		<typeAlias alias="GroupElementChangeB" type="pl.edu.icm.unity.store.rdbms.model.GroupElementChangeBean" />
-		<typeAlias alias="DBLimits" type="pl.edu.icm.unity.store.rdbms.model.DBLimits" />
+		<typeAlias alias="DBLimitsBean" type="pl.edu.icm.unity.store.rdbms.model.DBLimitsBean" />
 	</typeAliases>
 	
 	<!-- TODO remove - not used -->

@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.store.rdbms.mapper;
 
-import pl.edu.icm.unity.store.rdbms.model.DBLimits;
+import pl.edu.icm.unity.store.rdbms.model.DBLimitsBean;
 
 
 /**
@@ -13,5 +13,5 @@ import pl.edu.icm.unity.store.rdbms.model.DBLimits;
  */
 public interface InitdbMapper
 {
-	public DBLimits getDBLimits();
+	public DBLimitsBean getDBLimits();
 }

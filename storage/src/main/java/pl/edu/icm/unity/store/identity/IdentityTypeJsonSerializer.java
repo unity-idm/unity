@@ -17,8 +17,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.base.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.store.rdbms.model.BaseBean;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
@@ -28,7 +28,7 @@ import pl.edu.icm.unity.types.basic.IdentityType;
  * @author K. Benedyczak
  */
 @Component
-public class IdentityTypeJSONSerializer
+public class IdentityTypeJsonSerializer implements RDBMSObjectSerializer<IdentityType, BaseBean>
 {
 	@Autowired
 	private ObjectMapper mapper;
@@ -36,14 +36,16 @@ public class IdentityTypeJSONSerializer
 	@Autowired
 	private IdentityTypesRegistry idTypesRegistry;
 	
-	public IdentityType resolveIdentityType(BaseBean raw) throws IllegalTypeException
+	@Override
+	public IdentityType fromDB(BaseBean raw)
 	{
 		IdentityType it = new IdentityType(idTypesRegistry.getByName(raw.getName()));
 		fromJson(raw.getContents(), it);
 		return it;
 	}
 	
-	public BaseBean serialize(IdentityType idType)
+	@Override
+	public BaseBean toDB(IdentityType idType)
 	{
 		BaseBean toAdd = new BaseBean();
 

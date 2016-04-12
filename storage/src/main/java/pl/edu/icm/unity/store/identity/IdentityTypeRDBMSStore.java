@@ -11,8 +11,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.rdbms.mapper.IdentitiesMapper;
 import pl.edu.icm.unity.store.rdbms.model.BaseBean;
@@ -28,63 +26,58 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 public class IdentityTypeRDBMSStore implements IdentityTypeDAO
 {
 	@Autowired
-	private IdentityTypeJSONSerializer idTypeSerializer;
+	private IdentityTypeJsonSerializer idTypeSerializer;
 	
 	@Override
-	public Map<String, IdentityType> getIdentityTypes()
+	public Map<String, IdentityType> getAsMap()
 	{
 		IdentitiesMapper mapper = TransactionTL.getSql().getMapper(IdentitiesMapper.class);
 		List<BaseBean> identityTypeState = mapper.getIdentityTypes();
 		Map<String, IdentityType> ret = new HashMap<>(identityTypeState.size());
 		for (BaseBean state: identityTypeState)
-		{
-			try
-			{
-				ret.put(state.getName(), idTypeSerializer.resolveIdentityType(state));
-			} catch (IllegalTypeException e)
-			{
-				throw new InternalException("Can't find implementation of the identity type " + 
-						state.getName(), e);
-			}
-		}
+			ret.put(state.getName(), idTypeSerializer.fromDB(state));
 		return ret;
 	}
 
 	@Override
-	public void createIdentityType(IdentityType idType)
+	public void create(IdentityType idType)
 	{
 		IdentitiesMapper mapper = TransactionTL.getSql().getMapper(IdentitiesMapper.class);
-		BaseBean toAdd = idTypeSerializer.serialize(idType);
+		BaseBean toAdd = idTypeSerializer.toDB(idType);
 		mapper.insertIdentityType(toAdd);
 	}
 
 	@Override
-	public void updateIdentityType(IdentityType idType)
+	public void update(IdentityType idType)
 	{
 		IdentitiesMapper mapper = TransactionTL.getSql().getMapper(IdentitiesMapper.class);
-		BaseBean toUpdate = idTypeSerializer.serialize(idType);
+		BaseBean toUpdate = idTypeSerializer.toDB(idType);
 		mapper.updateIdentityType(toUpdate);
 	}
 
 	@Override
-	public void deleteIdentityType(String idType)
+	public void delete(String idType)
 	{
 		IdentitiesMapper mapper = TransactionTL.getSql().getMapper(IdentitiesMapper.class);
 		mapper.deleteIdentityType(idType);
 	}
 
 	@Override
-	public IdentityType getIdentityType(String idType)
+	public IdentityType get(String idType)
 	{
 		IdentitiesMapper mapper = TransactionTL.getSql().getMapper(IdentitiesMapper.class);
 		BaseBean identityTypeState = mapper.getIdentityTypeByName(idType);
-		try
-		{
-			return idTypeSerializer.resolveIdentityType(identityTypeState);
-		} catch (IllegalTypeException e)
-		{
-			throw new InternalException("Can't find implementation of the identity type " + 
-					idType, e);
-		}
+		if (identityTypeState == null)
+			throw new IllegalArgumentException("The identity type with name " + idType + 
+					" does not exist");
+		return idTypeSerializer.fromDB(identityTypeState);
+	}
+
+	@Override
+	public boolean exists(String id)
+	{
+		IdentitiesMapper mapper = TransactionTL.getSql().getMapper(IdentitiesMapper.class);
+		BaseBean identityTypeState = mapper.getIdentityTypeByName(id);
+		return identityTypeState != null;
 	}
 }

@@ -34,7 +34,7 @@ public class IdentityTypeTest
 	public void shouldReturnCreatedIdentityType() throws EngineException
 	{
 		tx.runInTransaction(() -> {
-			idTypeDAO.deleteIdentityType(MockIdentityTypeDef.NAME);
+			idTypeDAO.delete(MockIdentityTypeDef.NAME);
 		});
 		
 		IdentityType idType = new IdentityType(new MockIdentityTypeDef());
@@ -42,14 +42,16 @@ public class IdentityTypeTest
 		idType.setMaxInstances(10);
 		idType.setMinInstances(0);
 		idType.setSelfModificable(true);
+		idType.getExtractedAttributes().put("a", "b");
+		idType.getExtractedAttributes().put("aa", "bb");
 		
 		tx.runInTransaction(() -> {
-			idTypeDAO.createIdentityType(idType);
+			idTypeDAO.create(idType);
 		});
 		
 		
 		Map<String, IdentityType> identityTypes = tx.runInTransactionRet(() -> {
-			return idTypeDAO.getIdentityTypes();
+			return idTypeDAO.getAsMap();
 		});
 		
 		assertThat(identityTypes.size(), is(1));
@@ -58,5 +60,7 @@ public class IdentityTypeTest
 		assertThat(identityType.getMaxInstances(), is (10));
 		assertThat(identityType.getMinInstances(), is (0));
 		assertThat(identityType.isSelfModificable(), is(true));
+		assertThat(identityType.getExtractedAttributes().get("a"), is("b"));
+		assertThat(identityType.getExtractedAttributes().get("aa"), is("bb"));
 	}
 }

@@ -8,7 +8,7 @@
 
 	<typeAliases>
 		<typeAlias alias="EventB" type="pl.edu.icm.unity.store.rdbms.model.EventBean" />
-		<typeAlias alias="DBLimits" type="pl.edu.icm.unity.store.rdbms.model.DBLimits" />
+		<typeAlias alias="DBLimitsBean" type="pl.edu.icm.unity.store.rdbms.model.DBLimitsBean" />
 	</typeAliases>
 	
 	<environments default="def">

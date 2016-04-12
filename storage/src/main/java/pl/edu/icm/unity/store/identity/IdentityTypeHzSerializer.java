@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.store.identity;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -15,7 +16,6 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
 import pl.edu.icm.unity.base.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.store.hz.SerializerProvider;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
@@ -63,19 +63,20 @@ public class IdentityTypeHzSerializer implements SerializerProvider<IdentityType
 		}
 	}
 	
+	private Map<String, String> readMap(ObjectDataInput in) throws IOException
+	{
+		int size = in.readInt();
+		Map<String, String> ret = new HashMap<>(size);
+		for (int i=0; i<size; i++)
+			ret.put(in.readUTF(), in.readUTF());
+		return ret;
+	}
+
 	@Override
 	public IdentityType read(ObjectDataInput in) throws IOException
 	{
 		String type = in.readUTF();
-		IdentityTypeDefinition idType;
-		try
-		{
-			idType = idTypesRegistry.getByName(type);
-		} catch (IllegalTypeException e)
-		{
-			throw new IOException("Can't deserialize "
-					+ "identity type as implementation " + type + " is unknown");
-		}
+		IdentityTypeDefinition idType = idTypesRegistry.getByName(type);
 		
 		IdentityType ret = new IdentityType(idType);
 		ret.setDescription(in.readUTF());
@@ -83,6 +84,7 @@ public class IdentityTypeHzSerializer implements SerializerProvider<IdentityType
 		ret.setMinInstances(in.readInt());
 		ret.setMinVerifiedInstances(in.readInt());
 		ret.setSelfModificable(in.readBoolean());
+		ret.getExtractedAttributes().putAll(readMap(in));
 		return ret;
 	}
 

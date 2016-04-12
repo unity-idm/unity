@@ -10,8 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
-
 /**
  * Maintains a simple registry of some implementations.
  * 
@@ -35,11 +33,11 @@ public abstract class TypesRegistryBase<T>
 		}
 	}
 	
-	public T getByName(String name) throws IllegalTypeException
+	public T getByName(String name) throws IllegalArgumentException
 	{
 		T ret = elements.get(name);
 		if (ret == null)
-			throw new IllegalTypeException("Type " + name + " is not supported");
+			throw new IllegalArgumentException("Type " + name + " is not supported");
 		return ret;
 	}
 	

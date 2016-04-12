@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper;
-import pl.edu.icm.unity.store.rdbms.model.DBLimits;
+import pl.edu.icm.unity.store.rdbms.model.DBLimitsBean;
 
 
 /**
@@ -33,8 +33,8 @@ public class DB
 {
 	public static final String DB_VERSION = "2_1_5";
 	
-	private DBLimits limits;
-	private DBLimits localLimits;
+	private DBLimitsBean limits;
+	private DBLimitsBean localLimits;
 
 	@Autowired
 	public DB(DBSessionManager sessionMan, LocalDBSessionManager localSessionMan, InitDB initDB) 
@@ -64,12 +64,12 @@ public class DB
 				" while you are using now version:" + DB.DB_VERSION);
 	}
 	
-	public DBLimits getDBLimits()
+	public DBLimit getDBLimits()
 	{
-		return limits;
+		return new DBLimit(limits);
 	}
 
-	public DBLimits getLocalDBLimits()
+	public DBLimitsBean getLocalDBLimits()
 	{
 		return localLimits;
 	}
@@ -86,7 +86,7 @@ public class DB
 		}
 	}
 	
-	private final DBLimits establishDBLimits(SessionManager sessionMan, Class<? extends InitdbMapper> mapperClass) throws InternalException
+	private final DBLimitsBean establishDBLimits(SessionManager sessionMan, Class<? extends InitdbMapper> mapperClass) throws InternalException
 	{
 		SqlSession sqlMap = sessionMan.getSqlSession(false);
 		try

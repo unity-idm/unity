@@ -4,12 +4,19 @@
  */
 package pl.edu.icm.unity.store.api;
 
-import pl.edu.icm.unity.types.basic.IdentityType;
-
 /**
- * Identity type DAO
+ * Basic DAO with typical CRUD operations
  * @author K. Benedyczak
  */
-public interface IdentityTypeDAO extends CRUDDAO<IdentityType>
-{
+public interface BasicCRUDDAO<T>
+{	
+	void create(T obj);
+	
+	void update(T obj);
+
+	void delete(String id);
+
+	T get(String id);
+	
+	boolean exists(String id);
 }

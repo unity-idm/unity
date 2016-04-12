@@ -44,7 +44,7 @@
 		);
 	</sql>
 	
-	<select id="getDBLimits" resultType="DBLimits">
+	<select id="getDBLimits" resultType="DBLimitsBean">
 		select 200 AS nameLimit, 60000 AS contentsLimit
 	</select>
 	
