@@ -10,34 +10,29 @@ import static org.junit.Assert.assertThat;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.base.internal.TransactionalRunner;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
+import pl.edu.icm.unity.store.api.BasicCRUDDAO;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
-public class AttributeTypeTest extends AbstractDAOTest
+public class AttributeTypeTest extends AbstractDAOTest<AttributeType>
 {
 	@Autowired
 	private AttributeTypeDAO attrTypeDAO;
 	
-	@Autowired
-	private TransactionalRunner tx;
-	
-	@Test
-	public void shouldReturnCreatedAttributeType() throws EngineException
+	@Override
+	protected BasicCRUDDAO<AttributeType> getDAO()
 	{
-		boolean doesntExist = tx.runInTransactionRet(() -> {
-			return attrTypeDAO.exists("attribute1");
-		});
-		assertThat(doesntExist, is(false));
-		
-		
-		AttributeType created = new AttributeType("attribute1", new MockAttributeSyntax());
+		return attrTypeDAO;
+	}
+
+	@Override
+	protected AttributeType getObject(String name)
+	{
+		AttributeType created = new AttributeType(name, new MockAttributeSyntax());
 		created.setDescription(new I18nString("desc"));
 		created.setDisplayedName(new I18nString("Attribute 1"));
 		created.setFlags(8);
@@ -49,26 +44,42 @@ public class AttributeTypeTest extends AbstractDAOTest
 		Map<String, String> meta = new HashMap<>();
 		meta.put("1", "a");
 		created.setMetadata(meta);
-		
-		tx.runInTransaction(() -> {
-			attrTypeDAO.create(created);
-		});
-		
-		
-		Map<String, AttributeType> readMap = tx.runInTransactionRet(() -> {
-			return attrTypeDAO.getAsMap();
-		});
-		
-		assertThat(readMap.size(), is(1));
-		AttributeType read = readMap.get("attribute1");
-		assertThat(read.getDisplayedName(), is(new I18nString("Attribute 1")));
-		assertThat(read.getDescription(), is(new I18nString("desc")));
-		assertThat(read.getName(), is("attribute1"));
-		assertThat(read.getFlags(), is(8));
-		assertThat(read.getMaxElements(), is(10));
-		assertThat(read.getMinElements(), is(1));
-		assertThat(read.getValueType().getValueSyntaxId(), is(MockAttributeSyntax.ID));
-		assertThat(read.getVisibility(), is(AttributeVisibility.local));
-		assertThat(read.getMetadata().get("1"), is("a"));
+		return created;
+	}
+
+	@Override
+	protected void mutateObject(AttributeType src)
+	{
+		src.setDescription(new I18nString("desc2"));
+		src.setDisplayedName(new I18nString("Attribute 1 updated"));
+		src.setFlags(4);
+		src.setUniqueValues(false);
+		src.setVisibility(AttributeVisibility.full);
+		src.setMaxElements(4);
+		src.setMinElements(2);
+		src.setSelfModificable(false);
+		Map<String, String> meta = new HashMap<>();
+		meta.put("2", "b");
+		src.setMetadata(meta);
+	}
+
+	@Override
+	protected String getName(AttributeType obj)
+	{
+		return obj.getName();
+	}
+
+	@Override
+	protected void assertAreEqual(AttributeType obj, AttributeType cmp)
+	{
+		assertThat(obj.getName(), is(cmp.getName()));
+		assertThat(obj.getDisplayedName(), is(cmp.getDisplayedName()));
+		assertThat(obj.getDescription(), is(cmp.getDescription()));
+		assertThat(obj.getFlags(), is(cmp.getFlags()));
+		assertThat(obj.getMaxElements(), is(cmp.getMaxElements()));
+		assertThat(obj.getMinElements(), is(cmp.getMinElements()));
+		assertThat(obj.getValueType().getValueSyntaxId(), is(cmp.getValueType().getValueSyntaxId()));
+		assertThat(obj.getVisibility(), is(cmp.getVisibility()));
+		assertThat(obj.getMetadata(), is(cmp.getMetadata()));
 	}
 }

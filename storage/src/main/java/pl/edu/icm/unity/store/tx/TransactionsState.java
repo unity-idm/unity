@@ -33,6 +33,8 @@ public class TransactionsState
 
 	public TransactionState getCurrent()
 	{
+		if (transactionsStack.isEmpty())
+			throw new IllegalStateException("There is no transaction in the context. This is a bug.");
 		return transactionsStack.peek();
 	}
 	
