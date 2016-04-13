@@ -3,13 +3,6 @@
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="pl.edu.icm.unity.store.rdbms.mapper.AttributesMapper">
 
-	<resultMap id="attributeTypeResult" type="AttributeTypeB">
-		<result property="id" column="ID"/>
-		<result property="name" column="NAME"/>
-		<result property="contents" column="CONTENTS"/>
-		<result property="valueSyntaxId" column="VALUE_SYNTAX_ID"/>
-	</resultMap>
-
 	<resultMap id="attributeResult" type="AttributeB">
 		<result property="id" column="ID"/>
 		<result property="typeId" column="TYPE_ID"/>
@@ -19,33 +12,6 @@
 		<result property="name" column="NAME"/>
 		<result property="valueSyntaxId" column="VALUE_SYNTAX_ID"/>
 	</resultMap>
-
-	<insert id="insertAttributeType" parameterType="AttributeTypeB">
-		INSERT INTO ATTRIBUTE_TYPES (NAME, VALUE_SYNTAX_ID, CONTENTS) VALUES (#{name}, #{valueSyntaxId}, #{contents})
-	</insert>	
-
-	<update id="updateAttributeType" parameterType="AttributeTypeB">
-		UPDATE ATTRIBUTE_TYPES SET VALUE_SYNTAX_ID=#{valueSyntaxId}, CONTENTS=#{contents}
-			WHERE NAME=#{name} 
-	</update>	
-
-	<select id="getAttributeTypes" resultMap="attributeTypeResult">
-		select * from ATTRIBUTE_TYPES
-	</select>
-
-	<select id="getAttributeType" parameterType="string" resultMap="attributeTypeResult">
-		select * from ATTRIBUTE_TYPES WHERE NAME = #{value}
-	</select>
-	
-	<select id="getAttributeTypeById" parameterType="long" resultMap="attributeTypeResult">
-		select * from ATTRIBUTE_TYPES WHERE ID = #{value}
-	</select>
-	
-	<delete id="deleteAttributeType" parameterType="string">
-		DELETE FROM ATTRIBUTE_TYPES WHERE NAME=#{value}
-	</delete>	
-
-	
 
 	<select id="getAttributes" parameterType="AttributeB" resultMap="attributeResult">
 		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID from ATTRIBUTES A, ATTRIBUTE_TYPES AT

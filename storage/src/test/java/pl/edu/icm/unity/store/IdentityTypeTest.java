@@ -34,7 +34,8 @@ public class IdentityTypeTest
 	public void shouldReturnCreatedIdentityType() throws EngineException
 	{
 		tx.runInTransaction(() -> {
-			idTypeDAO.delete(MockIdentityTypeDef.NAME);
+			if (idTypeDAO.exists(MockIdentityTypeDef.NAME))
+				idTypeDAO.delete(MockIdentityTypeDef.NAME);
 		});
 		
 		IdentityType idType = new IdentityType(new MockIdentityTypeDef());

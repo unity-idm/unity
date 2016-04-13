@@ -7,7 +7,6 @@ package pl.edu.icm.unity.store.rdbms.mapper;
 import java.util.List;
 
 import pl.edu.icm.unity.store.rdbms.model.AttributeBean;
-import pl.edu.icm.unity.store.rdbms.model.AttributeTypeBean;
 
 
 
@@ -17,13 +16,6 @@ import pl.edu.icm.unity.store.rdbms.model.AttributeTypeBean;
  */
 public interface AttributesMapper
 {
-	public void insertAttributeType(AttributeTypeBean at);
-	public void updateAttributeType(AttributeTypeBean at);
-	public List<AttributeTypeBean> getAttributeTypes();
-	public void deleteAttributeType(String name);
-	public AttributeTypeBean getAttributeType(String name);
-	public AttributeTypeBean getAttributeTypeById(long id);
-	
 	public List<AttributeBean> getAttributes(AttributeBean a);
 	public void insertAttribute(AttributeBean a);
 	public void updateAttribute(AttributeBean a);

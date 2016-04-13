@@ -10,6 +10,6 @@ import pl.edu.icm.unity.types.basic.IdentityType;
  * Identity type DAO
  * @author K. Benedyczak
  */
-public interface IdentityTypeDAO extends CRUDDAO<IdentityType>
+public interface IdentityTypeDAO extends BasicCRUDDAO<IdentityType>
 {
 }

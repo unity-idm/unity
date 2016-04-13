@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.store.GenericCompositeDAOImpl;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
+import pl.edu.icm.unity.store.generic.DependencyNotificationManager;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
 /**
@@ -21,10 +22,18 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 @Primary
 public class IdentityTypeDAOImpl extends GenericCompositeDAOImpl<IdentityType> implements IdentityTypeDAO
 {
+	public static final String NOTIFICATION_ID = "identityTypes";
+
 	@Autowired
 	public IdentityTypeDAOImpl(IdentityTypeHzStore hzDAO, IdentityTypeRDBMSStore rdbmsDAO,
-			TransactionalRunner tx)
+			TransactionalRunner tx, DependencyNotificationManager notificationsManager)
 	{
-		super(hzDAO, rdbmsDAO, tx);
+		super(hzDAO, rdbmsDAO, tx, notificationsManager, NOTIFICATION_ID);
+	}
+
+	@Override
+	protected String getKey(IdentityType idt)
+	{
+		return idt.getIdentityTypeProvider().getId();
 	}
 }

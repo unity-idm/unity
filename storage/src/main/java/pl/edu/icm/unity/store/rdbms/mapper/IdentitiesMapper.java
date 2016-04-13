@@ -15,13 +15,6 @@ import pl.edu.icm.unity.store.rdbms.model.IdentityBean;
  */
 public interface IdentitiesMapper
 {
-	void insertIdentityType(BaseBean arg);
-	void updateIdentityType(BaseBean arg);
-	void deleteIdentityType(String name);
-	List<BaseBean> getIdentityTypes();
-	BaseBean getIdentityTypeByName(String name);
-	BaseBean getIdentityTypeById(long id);
-	
 	void insertEntity(BaseBean arg);
 	void insertEntityWithId(BaseBean arg);
 	List<BaseBean> getEntities();	

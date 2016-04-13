@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Component;
 
 /**
@@ -44,38 +43,38 @@ public class DependencyNotificationManager
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void firePreAddEvent(String type, Object added, SqlSession sql)
+	public void firePreAddEvent(String type, Object added)
 	{
 		List<DependencyChangeListener<?>> listeners = listenersByType.get(type);
 		if (listeners == null)
 			return;
 		for (DependencyChangeListener listener: listeners)
 		{
-			listener.preAdd(added, sql);
+			listener.preAdd(added);
 		}
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void firePreUpdateEvent(String type, Object old, Object updated, SqlSession sql)
+	public void firePreUpdateEvent(String type, Object old, Object updated)
 	{
 		List<DependencyChangeListener<?>> listeners = listenersByType.get(type);
 		if (listeners == null)
 			return;
 		for (DependencyChangeListener listener: listeners)
 		{
-			listener.preUpdate(old, updated, sql);
+			listener.preUpdate(old, updated);
 		}
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void firePreRemoveEvent(String type, Object removed, SqlSession sql)
+	public void firePreRemoveEvent(String type, Object removed)
 	{
 		List<DependencyChangeListener<?>> listeners = listenersByType.get(type);
 		if (listeners == null)
 			return;
 		for (DependencyChangeListener listener: listeners)
 		{
-			listener.preRemove(removed, sql);
+			listener.preRemove(removed);
 		}
 	}
 }

@@ -4,10 +4,12 @@
  */
 package pl.edu.icm.unity.store;
 
+import java.util.List;
 import java.util.Map;
 
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
-import pl.edu.icm.unity.store.api.CRUDDAO;
+import pl.edu.icm.unity.store.api.BasicCRUDDAO;
+import pl.edu.icm.unity.store.generic.DependencyNotificationManager;
 
 /**
  * Implementation of CRUD DAO using underlying RDBMS and Hazelcast DAOs. Hazelcast is used for reading,
@@ -15,27 +17,32 @@ import pl.edu.icm.unity.store.api.CRUDDAO;
  *  
  * @author K. Benedyczak
  */
-public class GenericCompositeDAOImpl<T> implements CRUDDAO<T>
+public abstract class GenericCompositeDAOImpl<T> implements BasicCRUDDAO<T>
 {
-	private CRUDDAO<T> hzDAO;
-	private CRUDDAO<T> rdbmsDAO;
+	private BasicCRUDDAO<T> hzDAO;
+	private BasicCRUDDAO<T> rdbmsDAO;
 	private TransactionalRunner tx;
-	
-	public GenericCompositeDAOImpl(CRUDDAO<T> hzDAO, CRUDDAO<T> rdbmsDAO,
-			TransactionalRunner tx)
+	private DependencyNotificationManager notificationsManager;
+	private String notificationId;
+
+	public GenericCompositeDAOImpl(BasicCRUDDAO<T> hzDAO, BasicCRUDDAO<T> rdbmsDAO,
+			TransactionalRunner tx, DependencyNotificationManager notificationsManager,
+			String notificationId)
 	{
 		this.hzDAO = hzDAO;
 		this.rdbmsDAO = rdbmsDAO;
 		this.tx = tx;
+		this.notificationsManager = notificationsManager;
+		this.notificationId = notificationId;
 	}
+
+	protected abstract String getKey(T obj);
 
 	public void initHazelcast()
 	{
-		//TODO offer faster getAll method without map.
-		
 		tx.runInTransaction(() -> {
-			Map<String, T> asMap = rdbmsDAO.getAsMap();
-			for (T element: asMap.values())
+			List<T> all = rdbmsDAO.getAll();
+			for (T element: all)
 				hzDAO.create(element);
 		}); 
 	}
@@ -43,6 +50,7 @@ public class GenericCompositeDAOImpl<T> implements CRUDDAO<T>
 	@Override
 	public void create(T obj)
 	{
+		notificationsManager.firePreAddEvent(notificationId, obj);
 		rdbmsDAO.create(obj);
 		hzDAO.create(obj);
 	}
@@ -50,6 +58,9 @@ public class GenericCompositeDAOImpl<T> implements CRUDDAO<T>
 	@Override
 	public void update(T obj)
 	{
+		String key = getKey(obj);
+		T old = get(key);
+		notificationsManager.firePreUpdateEvent(notificationId, old, obj);
 		rdbmsDAO.update(obj);
 		hzDAO.update(obj);
 	}
@@ -57,6 +68,8 @@ public class GenericCompositeDAOImpl<T> implements CRUDDAO<T>
 	@Override
 	public void delete(String id)
 	{
+		T removed = get(id);
+		notificationsManager.firePreRemoveEvent(notificationId, removed);
 		rdbmsDAO.delete(id);
 		hzDAO.delete(id);
 	}
@@ -72,7 +85,13 @@ public class GenericCompositeDAOImpl<T> implements CRUDDAO<T>
 	{
 		return hzDAO.getAsMap();
 	}
-
+	
+	@Override
+	public List<T> getAll()
+	{
+		return hzDAO.getAll();
+	}
+	
 	@Override
 	public boolean exists(String id)
 	{

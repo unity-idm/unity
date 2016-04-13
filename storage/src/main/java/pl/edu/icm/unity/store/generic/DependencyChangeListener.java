@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.store.generic;
 
-import org.apache.ibatis.session.SqlSession;
-
 /**
  * Implementation is notified about the pre- add/update/remove operations on a 
  * generic object. The type of the dependency generic object is returned by the listener.
@@ -19,7 +17,7 @@ import org.apache.ibatis.session.SqlSession;
 public interface DependencyChangeListener<T>
 {
 	public String getDependencyObjectType();
-	public void preAdd(T newObject, SqlSession sql);
-	public void preUpdate(T oldObject, T updatedObject, SqlSession sql);
-	public void preRemove(T removedObject, SqlSession sql);
+	public void preAdd(T newObject);
+	public void preUpdate(T oldObject, T updatedObject);
+	public void preRemove(T removedObject);
 }

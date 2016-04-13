@@ -10,32 +10,6 @@
 		<result property="contents" column="CONTENTS"/>
 	</resultMap>
 
-	<insert id="insertIdentityType" parameterType="BaseB">
-		INSERT INTO IDENTITY_TYPES (NAME, CONTENTS) VALUES (#{name}, #{contents})
-	</insert>
-
-	<update id="updateIdentityType" parameterType="BaseB">
-		UPDATE IDENTITY_TYPES SET CONTENTS=#{contents} WHERE NAME = #{name}
-	</update>
-
-	<select id="getIdentityTypes" resultType="BaseB">
-		select * from IDENTITY_TYPES
-	</select>
-
-	<select id="getIdentityTypeByName" parameterType="string" resultType="BaseB">
-		select * from IDENTITY_TYPES where NAME = #{value}
-	</select>
-	
-	<select id="getIdentityTypeById" parameterType="long" resultType="BaseB">
-		select * from IDENTITY_TYPES where ID = #{value}
-	</select>
-
-	<delete id="deleteIdentityType" parameterType="string">
-		DELETE FROM IDENTITY_TYPES WHERE NAME = #{value}
-	</delete>
-
-
-
 	<insert id="insertEntity" parameterType="BaseB" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO ENTITIES (CONTENTS) VALUES (#{contents})
 	</insert>

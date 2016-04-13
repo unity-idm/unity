@@ -4,19 +4,21 @@
  */
 package pl.edu.icm.unity.store.hz;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.hazelcast.core.TransactionalMap;
 
-import pl.edu.icm.unity.store.api.CRUDDAO;
+import pl.edu.icm.unity.store.api.BasicCRUDDAO;
 import pl.edu.icm.unity.store.tx.TransactionTL;
 
 /**
  * Generic CRUD implementation on hazelcast map.
  * @author K. Benedyczak
  */
-public abstract class GenericHzCRUD<T> implements CRUDDAO<T>
+public abstract class GenericHzCRUD<T> implements BasicCRUDDAO<T>
 {
 	private final String STORE_ID;
 	private final String name; 
@@ -81,6 +83,16 @@ public abstract class GenericHzCRUD<T> implements CRUDDAO<T>
 		return ret;
 	}
 
+	@Override
+	public List<T> getAll()
+	{
+		TransactionalMap<String, T> hMap = getMap();
+		List<T> ret = new ArrayList<>();
+		for (String key: hMap.keySet())
+			ret.add(hMap.get(key));
+		return ret;
+	}
+	
 	protected TransactionalMap<String, T> getMap()
 	{
 		return TransactionTL.getHzContext().getMap(STORE_ID);

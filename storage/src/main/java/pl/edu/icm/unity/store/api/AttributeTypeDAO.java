@@ -10,6 +10,6 @@ import pl.edu.icm.unity.types.basic.AttributeType;
  * {@link AttributeType} DAO
  * @author K. Benedyczak
  */
-public interface AttributeTypeDAO extends CRUDDAO<AttributeType>
+public interface AttributeTypeDAO extends BasicCRUDDAO<AttributeType>
 {
 }

@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.store.api;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Basic DAO with typical CRUD operations
  * @author K. Benedyczak
@@ -17,6 +20,10 @@ public interface BasicCRUDDAO<T>
 	void delete(String id);
 
 	T get(String id);
-	
+
 	boolean exists(String id);
+	
+	Map<String, T> getAsMap();
+	
+	List<T> getAll();
 }
