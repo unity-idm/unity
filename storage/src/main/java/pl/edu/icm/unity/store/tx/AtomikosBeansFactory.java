@@ -20,6 +20,8 @@ import com.atomikos.icatch.jta.UserTransactionManager;
 @Configuration
 public class AtomikosBeansFactory
 {
+	public static final String USER_TX_MANAGER_BEAN = "AtomikosTransactionManager";
+	
 	@Bean(name="userTransactionService", destroyMethod="shutdownForce")
 	public UserTransactionServiceImp getUserTransationServiceImp()
 	{
@@ -31,7 +33,7 @@ public class AtomikosBeansFactory
 		return ret;
 	}
 	
-	@Bean(name="AtomikosTransactionManager", destroyMethod="close")
+	@Bean(name=USER_TX_MANAGER_BEAN, destroyMethod="close")
 	@Autowired
 	public UserTransactionManager getUserTransactionManager(UserTransactionServiceImp dependency)
 	{

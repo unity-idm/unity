@@ -10,19 +10,14 @@ import static org.junit.Assert.assertThat;
 import java.util.Map;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
-public class IdentityTypeTest
+public class IdentityTypeTest extends AbstractDAOTest
 {
 	@Autowired
 	private IdentityTypeDAO idTypeDAO;
@@ -33,11 +28,6 @@ public class IdentityTypeTest
 	@Test
 	public void shouldReturnCreatedIdentityType() throws EngineException
 	{
-		tx.runInTransaction(() -> {
-			if (idTypeDAO.exists(MockIdentityTypeDef.NAME))
-				idTypeDAO.delete(MockIdentityTypeDef.NAME);
-		});
-		
 		IdentityType idType = new IdentityType(new MockIdentityTypeDef());
 		idType.setDescription("d");
 		idType.setMaxInstances(10);

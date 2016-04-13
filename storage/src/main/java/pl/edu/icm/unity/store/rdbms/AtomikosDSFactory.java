@@ -9,10 +9,12 @@ import java.util.Properties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 
 import com.atomikos.jdbc.AtomikosDataSourceBean;
 
 import eu.unicore.util.db.DBPropertiesHelper;
+import pl.edu.icm.unity.store.tx.AtomikosBeansFactory;
 
 /**
  * Produces fundamental Atomikos components
@@ -23,13 +25,15 @@ public class AtomikosDSFactory
 {
 	@Autowired
 	@Bean(destroyMethod="close")
+	@DependsOn(AtomikosBeansFactory.USER_TX_MANAGER_BEAN)
 	public AtomikosDataSourceBean getAtomikosDataSource(DBConfiguration config)
 	{
+		//TODO make this configurable
 		AtomikosDataSourceBean ds = new AtomikosDataSourceBean();
 		ds.setUniqueResourceName("rdbms-default");
 		ds.setMaxPoolSize(20);
 		ds.setMinPoolSize(5);
-		ds.setTestQuery("select 1 from IDENTITY_TYPES");
+		ds.setMaxLifetime(60*120); 
 		//FIXME
 		ds.setXaDataSourceClassName("org.h2.jdbcx.JdbcDataSource");
 		Properties p = new Properties(); 

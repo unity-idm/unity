@@ -11,10 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -23,9 +20,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
-public class AttributeTypeTest
+public class AttributeTypeTest extends AbstractDAOTest
 {
 	@Autowired
 	private AttributeTypeDAO attrTypeDAO;
@@ -36,11 +31,6 @@ public class AttributeTypeTest
 	@Test
 	public void shouldReturnCreatedAttributeType() throws EngineException
 	{
-		tx.runInTransaction(() -> {
-			if (attrTypeDAO.exists("attribute1"))
-				attrTypeDAO.delete("attribute1");
-		});
-
 		boolean doesntExist = tx.runInTransactionRet(() -> {
 			return attrTypeDAO.exists("attribute1");
 		});
