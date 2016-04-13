@@ -4,15 +4,13 @@
  */
 package pl.edu.icm.unity.store.api.tx;
 
-import org.apache.ibatis.exceptions.PersistenceException;
-
 /**
  * Thrown when a retries of an transaction fails. Wrapped exception is the exception of the last try.
  * @author K. Benedyczak
  */
-public class TxPersistenceException extends PersistenceException
+public class TxPersistenceException extends Exception
 {
-	public TxPersistenceException(PersistenceException cause)
+	public TxPersistenceException(Exception cause)
 	{
 		super(cause);
 	}
