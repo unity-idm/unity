@@ -47,6 +47,7 @@
 		<module>core</module>
 		<module>engine</module>
 		<module>persistence</module>
+		<module>storage-api</module>
 		<module>storage</module>
 		<module>std-extensions</module>
 		<module>web-vaadin-widgetset</module>

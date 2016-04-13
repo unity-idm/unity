@@ -100,7 +100,7 @@
 		
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>unity-server-base</artifactId>
+			<artifactId>unity-server-storage-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		
