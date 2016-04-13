@@ -2,12 +2,12 @@
  * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE file for licensing information.
  *
- * Created on 12 kwi 2016
+ * Created on 10 kwi 2016
  * Author: K. Benedyczak
  */
 
 /**
- * Attribute related storage
+ * Identity related storage implementation
  * @author K. Benedyczak
  */
-package pl.edu.icm.unity.store.attribute;
+package pl.edu.icm.unity.store.impl.identity;

@@ -12,8 +12,8 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.store.attribute.AttributeTypeDAOImpl;
-import pl.edu.icm.unity.store.identity.IdentityTypeDAOImpl;
+import pl.edu.icm.unity.store.impl.attribute.AttributeTypeDAOImpl;
+import pl.edu.icm.unity.store.impl.identity.IdentityTypeDAOImpl;
 
 /**
  * Loads Hazelcast data from RDBMS at startup.
