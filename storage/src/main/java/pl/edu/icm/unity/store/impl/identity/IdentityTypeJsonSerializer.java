@@ -10,14 +10,14 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.base.utils.JsonSerializer;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.store.rdbms.model.BaseBean;
 import pl.edu.icm.unity.types.basic.IdentityType;
@@ -28,7 +28,8 @@ import pl.edu.icm.unity.types.basic.IdentityType;
  * @author K. Benedyczak
  */
 @Component
-public class IdentityTypeJsonSerializer implements RDBMSObjectSerializer<IdentityType, BaseBean>
+public class IdentityTypeJsonSerializer implements RDBMSObjectSerializer<IdentityType, BaseBean>,
+	JsonSerializer<IdentityType>
 {
 	@Autowired
 	private ObjectMapper mapper;
@@ -52,15 +53,28 @@ public class IdentityTypeJsonSerializer implements RDBMSObjectSerializer<Identit
 		if (idType.getDescription() == null)
 			idType.setDescription(idType.getIdentityTypeProvider().getDefaultDescription());
 		toAdd.setName(idType.getIdentityTypeProvider().getId());
-		toAdd.setContents(toJson(idType));
+		toAdd.setContents(JsonUtil.serialize2Bytes(toJsonBase(idType)));
 		return toAdd;
 	}
+
+	@Override
+	public IdentityType fromJson(ObjectNode main)
+	{
+		IdentityType it = new IdentityType(idTypesRegistry.getByName(
+				main.get("name").asText()));
+		fromJson(main, it);
+		return it;
+	}
 	
-	/**
-	 * @param src
-	 * @return Json as byte[] with the src contents.
-	 */
-	private byte[] toJson(IdentityType src)
+	@Override
+	public ObjectNode toJson(IdentityType src)
+	{
+		ObjectNode main = toJsonBase(src);
+		main.put("name", src.getIdentityTypeProvider().getId());
+		return main;
+	}
+
+	private ObjectNode toJsonBase(IdentityType src)
 	{
 		ObjectNode main = mapper.createObjectNode();
 		main.put("description", src.getDescription());
@@ -76,13 +90,7 @@ public class IdentityTypeJsonSerializer implements RDBMSObjectSerializer<Identit
 			entry.put("value", a.getValue());
 			extractedA.add(entry);
 		}
-		try
-		{
-			return mapper.writeValueAsBytes(main);
-		} catch (JsonProcessingException e)
-		{
-			throw new InternalException("Can't perform JSON serialization", e);
-		}
+		return main;
 	}
 	
 	/**
@@ -94,15 +102,12 @@ public class IdentityTypeJsonSerializer implements RDBMSObjectSerializer<Identit
 	{
 		if (json == null)
 			return;
-		ObjectNode main;
-		try
-		{
-			main = mapper.readValue(json, ObjectNode.class);
-		} catch (Exception e)
-		{
-			throw new InternalException("Can't perform JSON deserialization", e);
-		}
+		ObjectNode main = JsonUtil.parse(json);
+		fromJson(main, target);
+	}
 
+	private void fromJson(ObjectNode main, IdentityType target)
+	{
 		target.setDescription(main.get("description").asText());
 		ArrayNode attrs = main.withArray("extractedAttributes");
 		Map<String, String> attrs2 = new HashMap<String, String>();

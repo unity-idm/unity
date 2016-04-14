@@ -7,6 +7,7 @@ package pl.edu.icm.unity.store.impl.attribute;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.attributes.AttributeTypeSerializer;
 import pl.edu.icm.unity.base.attributes.AttributeValueSyntaxFactory;
 import pl.edu.icm.unity.base.registries.AttributeSyntaxFactoriesRegistry;
@@ -36,14 +37,14 @@ public class AttributeTypeJsonSerializer implements RDBMSObjectSerializer<Attrib
 		@SuppressWarnings("rawtypes")
 		AttributeValueSyntax syntax = syntaxFactory.createInstance();
 		at.setValueType(syntax);
-		atSerializer.fromJson(raw.getContents(), at);
+		atSerializer.fromJson(JsonUtil.parse(raw.getContents()), at);
 		return at;
 	}
 
 	@Override
 	public AttributeTypeBean toDB(AttributeType at) 
 	{
-		return new AttributeTypeBean(at.getName(), atSerializer.toJson(at), 
+		return new AttributeTypeBean(at.getName(), JsonUtil.serialize2Bytes(atSerializer.toJsonNode(at)), 
 				at.getValueType().getValueSyntaxId());
 	}
 }

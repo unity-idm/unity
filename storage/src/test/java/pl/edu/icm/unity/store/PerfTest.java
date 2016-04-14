@@ -17,6 +17,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.base.utils.StopWatch;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
+import pl.edu.icm.unity.store.impl.attribute.AttributeTypeHzStore;
 import pl.edu.icm.unity.store.impl.attribute.AttributeTypeRDBMSStore;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -26,7 +27,7 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
 public class PerfTest 
 {
-	private final int N = 2;
+	private final int N = 1000;
 	
 	@Autowired
 	private StoreLoader dbCleaner;
@@ -35,7 +36,7 @@ public class PerfTest
 	protected TransactionalRunner tx;
 
 	@Autowired
-	private AttributeTypeDAO dao;
+	private AttributeTypeHzStore dao;
 
 	@Autowired
 	private AttributeTypeRDBMSStore rdbmsDao;
@@ -66,9 +67,9 @@ public class PerfTest
 		{
 			int fi = i;
 			tx.runInTransaction(() -> {
-				StopWatch watch2 = new StopWatch();
+//				StopWatch watch2 = new StopWatch();
 				dao.create(getObject("a" + fi));
-				watch2.printTotal(type + " inner create: {0}");
+//				watch2.printTotal(type + " inner create: {0}");
 			});
 		}
 		
@@ -77,9 +78,9 @@ public class PerfTest
 		{
 			int fi = i;
 			tx.runInTransaction(() -> {
-				StopWatch watch2 = new StopWatch();
+//				StopWatch watch2 = new StopWatch();
 				dao.get("a" + fi);
-				watch2.printTotal(type + " inner read: {0}");
+//				watch2.printTotal(type + " inner read: {0}");
 			});
 		}
 		watch.printPeriod(type + " read: {0}");

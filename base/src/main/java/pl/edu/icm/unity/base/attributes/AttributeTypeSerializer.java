@@ -11,13 +11,12 @@ import java.util.Map.Entry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.base.registries.AttributeSyntaxFactoriesRegistry;
-import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.base.utils.JsonSerializer;
 import pl.edu.icm.unity.types.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
@@ -26,7 +25,7 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
  * @author K. Benedyczak
  */
 @Component
-public class AttributeTypeSerializer
+public class AttributeTypeSerializer implements JsonSerializer<AttributeType>
 {
 	private final ObjectMapper mapper = new ObjectMapper();
 	
@@ -56,7 +55,8 @@ public class AttributeTypeSerializer
 	 * @param src
 	 * @return
 	 */
-	public ObjectNode toJsonNodeFull(AttributeType src)
+	@Override
+	public ObjectNode toJson(AttributeType src)
 	{
 		ObjectNode root = toJsonNode(src);
 		root.put("name", src.getName());
@@ -64,42 +64,8 @@ public class AttributeTypeSerializer
 		return root;
 	}	
 	
-	public byte[] toJsonFull(AttributeType src)
+	public void fromJson(ObjectNode main, AttributeType target)
 	{
-		ObjectNode root = toJsonNodeFull(src);
-		try
-		{
-			return mapper.writeValueAsBytes(root);
-		} catch (JsonProcessingException e)
-		{
-			throw new InternalException("Can't perform JSON serialization", e);
-		}
-	}
-	
-	public byte[] toJson(AttributeType src)
-	{
-		ObjectNode root = toJsonNode(src);
-		try
-		{
-			return mapper.writeValueAsBytes(root);
-		} catch (JsonProcessingException e)
-		{
-			throw new InternalException("Can't perform JSON serialization", e);
-		}
-	}
-	
-	public void fromJson(byte[] json, AttributeType target)
-	{
-		if (json == null)
-			return;
-		ObjectNode main;
-		try
-		{
-			main = mapper.readValue(json, ObjectNode.class);
-		} catch (Exception e)
-		{
-			throw new InternalException("Can't perform JSON deserialization", e);
-		}
 		target.setFlags(main.get("flags").asInt());
 		target.setMaxElements(main.get("maxElements").asInt());
 		target.setMinElements(main.get("minElements").asInt());
@@ -125,20 +91,13 @@ public class AttributeTypeSerializer
 		}
 	}
 	
-	public AttributeType fromJsonFull(byte[] json) 
+	@Override
+	public AttributeType fromJson(ObjectNode main) 
 	{
-		ObjectNode main;
-		try
-		{
-			main = mapper.readValue(json, ObjectNode.class);
-		} catch (Exception e)
-		{
-			throw new InternalException("Can't perform JSON deserialization", e);
-		}
 		String name = main.get("name").asText();
 		AttributeValueSyntaxFactory<?> syntax = typesRegistry.getByName(main.get("syntaxId").asText());
 		AttributeType newAT = new AttributeType(name, syntax.createInstance());
-		fromJson(json, newAT);
+		fromJson(main, newAT);
 		return newAT;
 	}
 }

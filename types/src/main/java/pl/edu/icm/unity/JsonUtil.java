@@ -26,12 +26,34 @@ public class JsonUtil
 			throw new InternalException("Can't perform JSON deserialization", e);
 		}
 	}
+
+	public static ObjectNode parse(byte[] contents)
+	{
+		try
+		{
+			return Constants.MAPPER.readValue(contents, ObjectNode.class);
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't perform JSON deserialization", e);
+		}
+	}
 	
 	public static String serialize(JsonNode node)
 	{
 		try
 		{
 			return Constants.MAPPER.writeValueAsString(node);
+		} catch (JsonProcessingException e)
+		{
+			throw new InternalException("Can't perform JSON serialization", e);
+		}
+	}
+
+	public static byte[] serialize2Bytes(JsonNode node)
+	{
+		try
+		{
+			return Constants.MAPPER.writeValueAsBytes(node);
 		} catch (JsonProcessingException e)
 		{
 			throw new InternalException("Can't perform JSON serialization", e);
