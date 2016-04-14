@@ -70,13 +70,6 @@ public class LocalDBSessionManager implements SessionManager
 	@Override
 	public SqlSession getSqlSession(ExecutorType executor, boolean transactional)
 	{
-		SqlSession newSession = sqlMapFactory.openSession(executor, !transactional);
-		return newSession;
-	}
-
-	@Override
-	public void releaseSqlSession(SqlSession session)
-	{
-		session.close();
+		return sqlMapFactory.openSession(executor, !transactional);
 	}
 }

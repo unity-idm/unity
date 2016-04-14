@@ -17,5 +17,4 @@ public interface SessionManager
 	public Configuration getMyBatisConfiguration();
 	public SqlSession getSqlSession(boolean transactional);
 	public SqlSession getSqlSession(ExecutorType executor, boolean transactional);
-	public void releaseSqlSession(SqlSession session);
 }

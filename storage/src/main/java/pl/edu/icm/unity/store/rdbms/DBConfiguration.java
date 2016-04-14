@@ -44,6 +44,9 @@ public class DBConfiguration extends PropertiesHelper
 	public static final String DBCONFIG_FILE = "mapconfigFile";
 	public static final String LOCAL_DB_URL = "localDBUrl";
 	public static final String IGNORE_ALTERNATIVE_DB_CONFIG = "ignoreAlternativeDbConfig";
+	public static final String MAX_POOL_SIZE = "maxConnectionPoolSize";
+	public static final String MIN_POOL_SIZE = "minConnectionPoolSize";
+	public static final String MAX_IDLE_CONNECTION_TIME = "maxIdleConnectionLifetime";
 	
 	/**
 	 * System property: if set it is providing an alternative path to a file with DB configuration.
@@ -63,6 +66,16 @@ public class DBConfiguration extends PropertiesHelper
 		META.put(LOCAL_DB_URL, new PropertyMD("jdbc:h2:file:./data/unity-localdb.bin").
 				setDescription("Location of the local H2 database can be " +
 				"controlled with this connection URL."));
+		META.put(MAX_IDLE_CONNECTION_TIME, new PropertyMD("1800").
+				setDescription("Time in seconds after which an idle connection "
+						+ "is closed (and recreated if needed). Set to 0 to disable. "
+						+ "This setting is needed if stale connections become unoperational "
+						+ "what unfortunately do happen."));
+		META.put(MAX_POOL_SIZE, new PropertyMD("10").
+				setDescription("Maximum number of DB connections allowed in pool"));
+		META.put(MIN_POOL_SIZE, new PropertyMD("1").
+				setDescription("Minimum number of DB connections to be kept in pool"));
+		
 		META.put(IGNORE_ALTERNATIVE_DB_CONFIG, new PropertyMD("false").setHidden().
 				setDescription("For unity tests: if set in the main configuration then the system "
 						+ "property with alternative DB config is ignored. It is useful "

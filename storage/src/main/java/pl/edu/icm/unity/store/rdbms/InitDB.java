@@ -69,11 +69,11 @@ public class InitDB
 		try
 		{
 			dbVersion = session.selectOne("getDBVersion");
-			db.releaseSqlSession(session);
+			session.close();
 			log.info("Database initialized, skipping creation");
 		} catch (PersistenceException e)
 		{
-			db.releaseSqlSession(session);
+			session.close();
 			initDB();
 			dbVersionAtServerStarup = dbVersion2Long(DB.DB_VERSION);
 			return;
@@ -136,7 +136,7 @@ public class InitDB
 			session.commit();
 		} finally
 		{
-			db.releaseSqlSession(session);
+			session.close();
 		}
 	}
 	
@@ -155,7 +155,7 @@ public class InitDB
 			groups.insertGroup(root);
 		} finally
 		{
-			db.releaseSqlSession(session);		
+			session.close();
 		}
 	}
 	
@@ -186,7 +186,7 @@ public class InitDB
 			session.commit();
 		} finally
 		{
-			db.releaseSqlSession(session);
+			session.close();
 		}
 		log.info("Updated DB schema to the actual version " + DB.DB_VERSION);
 	}
@@ -207,7 +207,7 @@ public class InitDB
 			}
 		} finally
 		{
-			db.releaseSqlSession(session);
+			session.close();
 		}
 	}
 }

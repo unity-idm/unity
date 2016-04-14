@@ -82,7 +82,7 @@ public class DB
 			return sqlMap.selectOne("getDBVersion");
 		} finally
 		{
-			sessionMan.releaseSqlSession(sqlMap);
+			sqlMap.close();
 		}
 	}
 	
@@ -98,7 +98,7 @@ public class DB
 			throw new InternalException("Can't establish DB limits", e);
 		} finally
 		{
-			sessionMan.releaseSqlSession(sqlMap);
+			sqlMap.close();
 		}
 	}
 

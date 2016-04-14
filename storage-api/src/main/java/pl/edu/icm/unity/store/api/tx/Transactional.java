@@ -23,7 +23,5 @@ public @interface Transactional
 	
 	boolean autoCommit() default true;
 	
-	boolean noTransaction() default false;
-	
 	Propagation propagation() default Propagation.REQUIRED;
 }
