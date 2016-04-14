@@ -6,6 +6,7 @@ package pl.edu.icm.unity.restadm;
 
 import static com.googlecode.catchexception.CatchException.catchException;
 import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -16,6 +17,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
@@ -38,7 +40,7 @@ public class TestBulkProcessing extends RESTAdminTestBase
 		IdentityParam identityParam = new IdentityParam(UsernameIdentity.ID, "user-to-remove");	
 		idsMan.addEntity(identityParam, CRED_REQ_PASS, EntityState.valid, false);
 		
-		HttpPost post = new HttpPost("/restadm/v1/bulkProcessing/instant");
+		HttpPost post = new HttpPost("/restadm/v1/bulkProcessing/instant?timeout=20");
 		ProcessingRuleParam param = new ProcessingRuleParam(
 				"(idsByType contains 'userName') && (idsByType['userName'] contains 'user-to-remove')", 
 				RemoveEntityActionFactory.NAME);
@@ -46,17 +48,11 @@ public class TestBulkProcessing extends RESTAdminTestBase
 		System.out.println("Request to be sent:\n" + jsonform);
 		post.setEntity(new StringEntity(jsonform, ContentType.APPLICATION_JSON));
 		HttpResponse responsePost = client.execute(host, post, localcontext);
+		String contents = EntityUtils.toString(responsePost.getEntity());
+		assertEquals(contents, Status.OK.getStatusCode(), responsePost.getStatusLine().getStatusCode());
 
-		assertEquals(Status.NO_CONTENT.getStatusCode(), responsePost.getStatusLine().getStatusCode());
-
-		int wait = 0;
-		do
-		{
-			Thread.sleep(500);
-			catchException(idsMan).getEntity(new EntityParam(identityParam));
-			
-		} while (caughtException() == null && wait++ < 10);
-		
+		assertThat(contents, is("sync"));
+		catchException(idsMan).getEntity(new EntityParam(identityParam));
 		assertThat(caughtException(), isA(IllegalIdentityValueException.class));
 	}
 }

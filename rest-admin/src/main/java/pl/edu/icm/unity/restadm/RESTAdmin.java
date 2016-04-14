@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
@@ -662,13 +663,33 @@ public class RESTAdmin
 	@Path("bulkProcessing/instant")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void applyBulkProcessingRule(String jsonProcessingRule) throws EngineException
+	@Produces(MediaType.TEXT_PLAIN)
+	public String applyBulkProcessingRule(@QueryParam("timeout") Long timeout, String jsonProcessingRule) 
+			throws EngineException
 	{
 		ProcessingRuleParam param = UnityTypesFactory.parse(jsonProcessingRule, ProcessingRuleParam.class);
 		EntityActionFactory actionFactory = entityActionsRegistry.getByName(param.getActionName());
 		EntityAction action = (EntityAction) actionFactory.getInstance(param.getParams());
 		ProcessingRule rule = new ProcessingRule(param.getCondition(), action);
-		bulkProcessingManagement.applyRule(rule);
+		
+		if (timeout == null)
+			timeout = -1l;
+		
+		if (timeout < 0)
+		{
+			bulkProcessingManagement.applyRule(rule);
+			return "async";
+		} else
+		{
+			try
+			{
+				bulkProcessingManagement.applyRuleSync(rule, timeout);
+				return "sync";
+			} catch (TimeoutException e)
+			{
+				return "timeout";
+			}
+		}
 	}
 }
 
