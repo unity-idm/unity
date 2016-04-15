@@ -9,9 +9,9 @@ import java.util.List;
 
 import com.hazelcast.transaction.TransactionContext;
 
-import pl.edu.icm.unity.store.RDBMSEventsBatch;
-import pl.edu.icm.unity.store.RDBMSMutationEvent;
 import pl.edu.icm.unity.store.api.tx.Propagation;
+import pl.edu.icm.unity.store.rdbmsflush.RDBMSEventsBatch;
+import pl.edu.icm.unity.store.rdbmsflush.RDBMSMutationEvent;
 
 public class TransactionState
 {

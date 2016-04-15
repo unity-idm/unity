@@ -21,10 +21,10 @@ import com.hazelcast.core.TransactionalQueue;
 import com.hazelcast.transaction.TransactionContext;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.store.RDBMSEventSink;
-import pl.edu.icm.unity.store.RDBMSEventsBatch;
 import pl.edu.icm.unity.store.api.tx.Propagation;
 import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.store.rdbmsflush.RDBMSEventSink;
+import pl.edu.icm.unity.store.rdbmsflush.RDBMSEventsBatch;
 
 /**
  * Aspect providing transaction functionality. SqlSession is set up, released and auto committed 

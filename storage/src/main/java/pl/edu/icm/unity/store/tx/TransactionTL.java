@@ -8,8 +8,8 @@ import org.apache.ibatis.session.SqlSession;
 
 import com.hazelcast.transaction.TransactionContext;
 
-import pl.edu.icm.unity.store.RDBMSEventsBatch;
-import pl.edu.icm.unity.store.RDBMSMutationEvent;
+import pl.edu.icm.unity.store.rdbmsflush.RDBMSEventsBatch;
+import pl.edu.icm.unity.store.rdbmsflush.RDBMSMutationEvent;
 
 /**
  * Thread local transaction state, set by AOP. Allows to obtain {@link SqlSession} for accessing MyBatis

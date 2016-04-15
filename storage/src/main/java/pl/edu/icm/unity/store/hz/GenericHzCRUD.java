@@ -11,8 +11,8 @@ import java.util.Map;
 
 import com.hazelcast.core.TransactionalMap;
 
-import pl.edu.icm.unity.store.RDBMSMutationEvent;
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
+import pl.edu.icm.unity.store.rdbmsflush.RDBMSMutationEvent;
 import pl.edu.icm.unity.store.tx.TransactionTL;
 
 /**
