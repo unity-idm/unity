@@ -598,3 +598,28 @@ Example invitation definition:
 Syntax of prefilled parameters, can be seen in the result of retrieving an AdminUI defined invitation
 via the REST GET methods.
 
+
+'''
+
++@Path("bulkProcessing/instant")+ +
++@QueryParam("timeout")+ +
++@POST+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
++@Produces(MediaType.TEXT_PLAIN)+ +
+
+Schedules a rule for immediate processing. The optional query param +timeout+ controls whether the method should return
+immediately after scheduling (no parameter) or after completing (parameter set). In the latter case parameter 
+must specify the maximum wait time in seconds. Returned string is the status of scheduling (not the result of the action).
+Possible statuses are: +sync+ (rule execution was completed in synchronous mode), +async+ (rule was submitted) 
+or +timeout+ (rule was submitted in the synchronous mode but completion await time has passed).
+
+Example rule definition:
+
+----
+{
+  "condition" : "(idsByType contains 'userName') && (idsByType['userName'] contains 'user-to-remove')",
+  "actionName" : "removeEntity",
+  "params" : [ ]
+}
+---- 
+

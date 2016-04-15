@@ -14,6 +14,7 @@ import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.json.AttributeTypeSerializer;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
 import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.BulkProcessingManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
@@ -24,6 +25,7 @@ import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.server.endpoint.EndpointFactory;
 import pl.edu.icm.unity.server.endpoint.EndpointInstance;
 import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.server.registries.EntityActionsRegistry;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -66,6 +68,12 @@ public class RESTAdminEndpointFactory implements EndpointFactory
 	private NetworkServer server;
 	@Autowired
 	private RegistrationsManagement registrationManagement;
+	
+	@Autowired
+	private BulkProcessingManagement bulkProcessingManagement;
+	@Autowired
+	private EntityActionsRegistry entityActionsRegistry;
+	
 	/**
 	 * We depend on app context in order to work around of the dependency cycle. 
 	 * We do depend on EndpointsManagement, however it requires this factory to be instantiated first 
@@ -87,7 +95,7 @@ public class RESTAdminEndpointFactory implements EndpointFactory
 		return new RESTAdminEndpoint(msg, sessionMan, server, "", identitiesMan, groupsMan, attributesMan,
 				authnProcessor, identityTypesRegistry, attributeTypeSerializer,
 				attributeSyntaxFactoriesRegistry, cofirmationManager, endpointManagement,
-				registrationManagement);
+				registrationManagement, bulkProcessingManagement, entityActionsRegistry);
 	}
 
 }

@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.stdext.translation.out;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -86,7 +87,7 @@ public class CreatePersistentAttributeActionFactory extends AbstractOutputTransl
 		protected void invokeWrapped(TranslationInput input, Object mvelCtx, String currentProfile,
 				TranslationResult result) throws EngineException
 		{
-			Object value = MVEL.executeExpression(valuesExpression, mvelCtx);
+			Object value = MVEL.executeExpression(valuesExpression, mvelCtx, new HashMap<>());
 			if (value == null)
 			{
 				log.debug("Attribute value evaluated to null, skipping");

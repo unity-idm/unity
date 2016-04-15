@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.server.translation.form.action;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.mvel2.MVEL;
@@ -61,7 +62,7 @@ public class RedirectActionFactory extends AbstractRegistrationTranslationAction
 		protected void invokeWrapped(TranslatedRegistrationRequest state, Object mvelCtx,
 				String currentProfile) throws EngineException
 		{
-			Object value = MVEL.executeExpression(urlExpression, mvelCtx);
+			Object value = MVEL.executeExpression(urlExpression, mvelCtx, new HashMap<>());
 			if (value == null)
 			{
 				log.debug("Redirect URL expression evaluated to null, skipping");

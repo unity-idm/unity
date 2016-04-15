@@ -6,6 +6,7 @@ package pl.edu.icm.unity.server.translation.in.action;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.mvel2.MVEL;
@@ -67,7 +68,7 @@ public class MapGroupActionFactory extends AbstractInputTranslationActionFactory
 				throws EngineException
 		{
 			MappingResult ret = new MappingResult();
-			Object result = MVEL.executeExpression(expressionCompiled, mvelCtx);
+			Object result = MVEL.executeExpression(expressionCompiled, mvelCtx, new HashMap<>());
 			if (result == null)
 			{
 				log.debug("Group evaluated to null, skipping");

@@ -9,6 +9,7 @@ import java.time.format.FormatStyle;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+
 /**
  * Various useful application wide constants
  * @author K. Benedyczak
@@ -22,4 +23,8 @@ public class Constants
 	
 	public static final DateTimeFormatter DT_FORMATTER_MEDIUM = 
 			DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
+	
+	private Constants()
+	{
+	};
 }

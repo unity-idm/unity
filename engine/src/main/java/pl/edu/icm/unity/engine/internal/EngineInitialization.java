@@ -989,15 +989,14 @@ public class EngineInitialization extends LifecycleBase
 		if (!coldStart)
 			return;
 		List<String> enabledL = config.getListOfValues(UnityServerConfiguration.INITIALIZERS);
-		HashSet<String> enabled = new HashSet<>(enabledL);
+		Map<String, ServerInitializer> initializersMap = new HashMap<>();
 		for (ServerInitializer initializer: initializers)
+			initializersMap.put(initializer.getName(), initializer);
+		
+		for (String enabled: enabledL)
 		{
-			if (enabled.contains(initializer.getName()))
-			{
-				log.info("Running initializer: " + initializer.getName());
-				initializer.run();
-			} else
-				log.debug("Skipping initializer: " + initializer.getName());
+			log.info("Running initializer: " + enabled);
+			initializersMap.get(enabled).run();
 		}
 	}
 

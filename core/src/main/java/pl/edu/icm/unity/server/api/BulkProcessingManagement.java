@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.server.api;
 
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -32,4 +33,7 @@ public interface BulkProcessingManagement
 	void updateScheduledRule(ScheduledProcessingRule rule) throws EngineException;
 	
 	List<ScheduledProcessingRule> getScheduledRules() throws EngineException;
+
+	void applyRuleSync(ProcessingRule rule, long timeout)
+			throws AuthorizationException, TimeoutException;
 }

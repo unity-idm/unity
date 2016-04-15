@@ -7,6 +7,7 @@ package pl.edu.icm.unity.server.translation.in.action;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -111,7 +112,7 @@ public class MapAttributeActionFactory extends AbstractInputTranslationActionFac
 				String currentProfile)
 		{
 			MappingResult ret = new MappingResult();
-			Object value = MVEL.executeExpression(expressionCompiled, mvelCtx);
+			Object value = MVEL.executeExpression(expressionCompiled, mvelCtx, new HashMap<>());
 			if (value == null)
 			{
 				log.debug("Attribute value evaluated to null, skipping");

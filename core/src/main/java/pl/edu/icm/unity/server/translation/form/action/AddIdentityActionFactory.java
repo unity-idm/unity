@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.server.translation.form.action;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.mvel2.MVEL;
@@ -66,7 +67,7 @@ public class AddIdentityActionFactory extends AbstractRegistrationTranslationAct
 		protected void invokeWrapped(TranslatedRegistrationRequest state, Object mvelCtx,
 				String currentProfile) throws EngineException
 		{
-			Object value = MVEL.executeExpression(expressionCompiled, mvelCtx);
+			Object value = MVEL.executeExpression(expressionCompiled, mvelCtx, new HashMap<>());
 			if (value == null)
 			{
 				log.debug("Identity value evaluated to null, skipping");

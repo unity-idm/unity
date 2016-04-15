@@ -6,6 +6,7 @@ package pl.edu.icm.unity.server.translation.form.action;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.mvel2.MVEL;
@@ -64,7 +65,7 @@ public class AddAttributeClassActionFactory extends AbstractRegistrationTranslat
 		protected void invokeWrapped(TranslatedRegistrationRequest state, Object mvelCtx,
 				String currentProfile) throws EngineException
 		{
-			Object result = MVEL.executeExpression(expression, mvelCtx);
+			Object result = MVEL.executeExpression(expression, mvelCtx, new HashMap<>());
 			if (result == null)
 			{
 				log.debug("AC evaluated to null, skipping");

@@ -41,8 +41,16 @@ public class MVELExpressionField extends RequiredTextField
 					MVEL.compileExpression(value);
 				} catch (Exception e)
 				{
+					String info;
+					try
+					{
+						info = e.getMessage();
+					} catch (Exception ee)
+					{
+						info = "Other MVEL error";
+					}
 					setErrorMessage(msg.getMessage("MVELExpressionField.invalidValueWithReason", 
-							e.getMessage()));
+							info));
 					return false;
 				}
 

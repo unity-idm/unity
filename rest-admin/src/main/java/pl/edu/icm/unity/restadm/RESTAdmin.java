@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
@@ -28,6 +29,12 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.confirmations.ConfirmationManager;
@@ -37,15 +44,21 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.json.AttributeTypeSerializer;
 import pl.edu.icm.unity.rest.exception.JSONParsingException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.BulkProcessingManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
+import pl.edu.icm.unity.server.bulkops.EntityAction;
+import pl.edu.icm.unity.server.bulkops.EntityActionFactory;
+import pl.edu.icm.unity.server.bulkops.ProcessingRule;
 import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.server.registries.EntityActionsRegistry;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.UnityTypesFactory;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeParamRepresentation;
@@ -61,6 +74,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
+import pl.edu.icm.unity.types.bulkops.ProcessingRuleParam;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -69,12 +83,6 @@ import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.invite.RESTInvitationParam;
 import pl.edu.icm.unity.types.registration.invite.RESTInvitationWithCode;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * RESTful API implementation.
@@ -96,13 +104,16 @@ public class RESTAdmin
 	private ConfirmationManager confirmationManager;
 	private EndpointManagement endpointManagement;
 	private RegistrationsManagement registrationManagement;
+	private BulkProcessingManagement bulkProcessingManagement;
+	private EntityActionsRegistry entityActionsRegistry;
 	
 	public RESTAdmin(IdentitiesManagement identitiesMan, GroupsManagement groupsMan,
 			AttributesManagement attributesMan, IdentityTypesRegistry identityTypesRegistry,
 			AttributeTypeSerializer attrTypeSerializer,
 			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry,
 			ConfirmationManager confirmationManager, EndpointManagement endpointManagement,
-			RegistrationsManagement registrationManagement)
+			RegistrationsManagement registrationManagement, 
+			BulkProcessingManagement bulkProcessingManagement, EntityActionsRegistry entityActionsRegistry)
 	{
 		super();
 		this.identitiesMan = identitiesMan;
@@ -114,6 +125,8 @@ public class RESTAdmin
 		this.confirmationManager = confirmationManager;
 		this.endpointManagement = endpointManagement;
 		this.registrationManagement = registrationManagement;
+		this.bulkProcessingManagement = bulkProcessingManagement;
+		this.entityActionsRegistry = entityActionsRegistry;
 	}
 
 	@Path("/resolve/{identityType}/{identityValue}")
@@ -645,6 +658,38 @@ public class RESTAdmin
 		}
 		
 		return ret;
+	}
+	
+	@Path("bulkProcessing/instant")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
+	public String applyBulkProcessingRule(@QueryParam("timeout") Long timeout, String jsonProcessingRule) 
+			throws EngineException
+	{
+		ProcessingRuleParam param = UnityTypesFactory.parse(jsonProcessingRule, ProcessingRuleParam.class);
+		EntityActionFactory actionFactory = entityActionsRegistry.getByName(param.getActionName());
+		EntityAction action = (EntityAction) actionFactory.getInstance(param.getParams());
+		ProcessingRule rule = new ProcessingRule(param.getCondition(), action);
+		
+		if (timeout == null)
+			timeout = -1l;
+		
+		if (timeout < 0)
+		{
+			bulkProcessingManagement.applyRule(rule);
+			return "async";
+		} else
+		{
+			try
+			{
+				bulkProcessingManagement.applyRuleSync(rule, timeout);
+				return "sync";
+			} catch (TimeoutException e)
+			{
+				return "timeout";
+			}
+		}
 	}
 }
 
