@@ -6,8 +6,10 @@ package pl.edu.icm.unity.store.tx;
 
 import org.apache.ibatis.session.SqlSession;
 
-import com.hazelcast.transaction.HazelcastXAResource;
 import com.hazelcast.transaction.TransactionContext;
+
+import pl.edu.icm.unity.store.RDBMSEventsBatch;
+import pl.edu.icm.unity.store.RDBMSMutationEvent;
 
 /**
  * Thread local transaction state, set by AOP. Allows to obtain {@link SqlSession} for accessing MyBatis
@@ -18,21 +20,21 @@ public class TransactionTL
 {
 	static ThreadLocal<TransactionsState> transactionState = new TransactionsThreadLocal();
 	
-	public static SqlSession getSql()
-	{
-		return transactionState.get().getCurrent().getSqlSession();
-	}
-
 	public static TransactionContext getHzContext()
 	{
-		return transactionState.get().getCurrent().getHzXAResource().getTransactionContext();
+		return transactionState.get().getCurrent().getHzContext();
 	}
 
-	public static HazelcastXAResource getHzXAResource()
+	public static void enqueueRDBMSMutation(RDBMSMutationEvent event)
 	{
-		return transactionState.get().getCurrent().getHzXAResource();
+		transactionState.get().getCurrent().enqueueEvent(event);
 	}
-	
+
+	public static RDBMSEventsBatch getCurrentRDBMSBatch()
+	{
+		return transactionState.get().getCurrent().getBatch();
+	}
+
 	private static class TransactionsThreadLocal extends ThreadLocal<TransactionsState>
 	{
 		public TransactionsState initialValue()

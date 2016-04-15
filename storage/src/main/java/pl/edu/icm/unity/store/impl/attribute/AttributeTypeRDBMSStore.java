@@ -19,10 +19,12 @@ import pl.edu.icm.unity.types.basic.AttributeType;
  * RDBMS storage of {@link AttributeType}
  * @author K. Benedyczak
  */
-@Repository
+@Repository(AttributeTypeRDBMSStore.BEAN)
 public class AttributeTypeRDBMSStore extends GenericRDBMSCRUD<AttributeType, AttributeTypeBean> 
 					implements AttributeTypeDAO
 {
+	public static final String BEAN = "AttributeTypeRDBMSStore";
+
 	@Autowired
 	public AttributeTypeRDBMSStore(AttributeTypeJsonSerializer jsonSerializer, DBLimit limits)
 	{

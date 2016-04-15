@@ -10,13 +10,13 @@ import java.util.List;
 import java.util.Map;
 
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
-import pl.edu.icm.unity.store.tx.TransactionTL;
+import pl.edu.icm.unity.store.tx.SQLTransactionTL;
 
 /**
  * Base implementation of RDBMS based CRUD DAO.
  * @author K. Benedyczak
  */
-public abstract class GenericRDBMSCRUD<T, DBT> implements BasicCRUDDAO<T> 
+public abstract class GenericRDBMSCRUD<T, DBT> implements BasicCRUDDAO<T>, RDBMSDAO
 {
 	private Class<? extends BasicCRUDMapper<DBT>> mapperClass;
 	private RDBMSObjectSerializer<T, DBT> jsonSerializer;
@@ -37,7 +37,7 @@ public abstract class GenericRDBMSCRUD<T, DBT> implements BasicCRUDDAO<T>
 	@Override
 	public void create(T obj)
 	{
-		BasicCRUDMapper<DBT> mapper = TransactionTL.getSql().getMapper(mapperClass);
+		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);
 		limits.checkNameLimit(getNameId(obj));
 		assertDoesNotExist(obj, mapper);
 		DBT toAdd = jsonSerializer.toDB(obj);
@@ -47,7 +47,7 @@ public abstract class GenericRDBMSCRUD<T, DBT> implements BasicCRUDDAO<T>
 	@Override
 	public void update(T obj)
 	{
-		BasicCRUDMapper<DBT> mapper = TransactionTL.getSql().getMapper(mapperClass);
+		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);
 		limits.checkNameLimit(getNameId(obj));
 		assertExists(obj, mapper);
 		DBT toUpdate = jsonSerializer.toDB(obj);
@@ -57,7 +57,7 @@ public abstract class GenericRDBMSCRUD<T, DBT> implements BasicCRUDDAO<T>
 	@Override
 	public void delete(String id)
 	{
-		BasicCRUDMapper<DBT> mapper = TransactionTL.getSql().getMapper(mapperClass);
+		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);
 		assertExists(id, mapper);
 		mapper.delete(id);
 	}
@@ -65,7 +65,7 @@ public abstract class GenericRDBMSCRUD<T, DBT> implements BasicCRUDDAO<T>
 	@Override
 	public T get(String id)
 	{
-		BasicCRUDMapper<DBT> mapper = TransactionTL.getSql().getMapper(mapperClass);
+		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);
 		DBT byName = mapper.getByName(id);
 		if (byName == null)
 			throw new IllegalArgumentException(elementName + " [" + id + 
@@ -76,14 +76,14 @@ public abstract class GenericRDBMSCRUD<T, DBT> implements BasicCRUDDAO<T>
 	@Override
 	public boolean exists(String id)
 	{
-		BasicCRUDMapper<DBT> mapper = TransactionTL.getSql().getMapper(mapperClass);
+		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);
 		return mapper.getByName(id) != null;
 	}
 
 	@Override
 	public Map<String, T> getAsMap()
 	{
-		BasicCRUDMapper<DBT> mapper = TransactionTL.getSql().getMapper(mapperClass);
+		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);
 		List<DBT> allInDB = mapper.getAll();
 		Map<String, T> ret = new HashMap<>(allInDB.size());
 		for (DBT bean: allInDB)
@@ -97,7 +97,7 @@ public abstract class GenericRDBMSCRUD<T, DBT> implements BasicCRUDDAO<T>
 	@Override
 	public List<T> getAll()
 	{
-		BasicCRUDMapper<DBT> mapper = TransactionTL.getSql().getMapper(mapperClass);
+		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);
 		List<DBT> allInDB = mapper.getAll();
 		List<T> ret = new ArrayList<>(allInDB.size());
 		for (DBT bean: allInDB)

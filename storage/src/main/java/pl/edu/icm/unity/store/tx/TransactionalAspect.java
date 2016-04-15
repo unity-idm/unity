@@ -4,9 +4,10 @@
  */
 package pl.edu.icm.unity.store.tx;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.transaction.SystemException;
 
-import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -14,13 +15,15 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.atomikos.icatch.jta.UserTransactionManager;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.TransactionalQueue;
+import com.hazelcast.transaction.TransactionContext;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.store.RDBMSEventSink;
+import pl.edu.icm.unity.store.RDBMSEventsBatch;
 import pl.edu.icm.unity.store.api.tx.Propagation;
 import pl.edu.icm.unity.store.api.tx.Transactional;
-import pl.edu.icm.unity.store.rdbms.DBSessionManager;
 
 /**
  * Aspect providing transaction functionality. SqlSession is set up, released and auto committed 
@@ -40,12 +43,6 @@ public class TransactionalAspect
 	private static final Logger log = Log.getLogger(Log.U_SERVER, TransactionalAspect.class);
 	public static final long RETRY_BASE_DELAY = 50;
 	public static final long RETRY_MAX_DELAY = 200;
-	
-	@Autowired
-	private DBSessionManager db;
-	
-	@Autowired
-	private UserTransactionManager transactionManager;
 	
 	@Autowired
 	private HazelcastInstance hazelcastInstance;
@@ -81,7 +78,7 @@ public class TransactionalAspect
 				log.warn("Got persistence error from a child transaction, give up and rollback", pe);
 				rollback(pjp);
 				throw pe;
-			} catch (PersistenceException pe)
+			} catch (Exception pe)
 			{
 				log.debug("Got persistence error, rolling back transaction", pe);				
 				rollback(pjp);
@@ -131,11 +128,13 @@ public class TransactionalAspect
 		{
 			if (transactional.propagation() == Propagation.REQUIRED)
 			{
+				if (log.isTraceEnabled())
+					log.trace("Starting a new not separated subtransaction for " + pjp.toShortString());
 				transactionsStack.push(new TransactionState(transactional.propagation(), 
-						db, hazelcastInstance, transactionManager));
+						transactionsStack.getCurrent()));
 			} else if (transactional.propagation() == Propagation.REQUIRE_SEPARATE)
 			{
-				createNewTransaction(pjp, transactional);
+				throw new UnsupportedOperationException("Separate subtransactions are not supported");
 			}
 		}
 	}
@@ -144,28 +143,11 @@ public class TransactionalAspect
 			throws Exception
 	{
 		TransactionsState transactionsStack = TransactionTL.transactionState.get();
-
-		if (transactionManager.getTransaction() == null)
-		{
-			if (log.isTraceEnabled())
-				log.trace("Starting a new transaction for " + pjp.toShortString());
-			transactionManager.begin();
-			transactionsStack.push(new TransactionState(transactional.propagation(), 
-					db, hazelcastInstance, transactionManager));
-		} else if (transactional.propagation() == Propagation.REQUIRE_SEPARATE)
-		{
-			if (log.isTraceEnabled())
-				log.trace("Starting a new separate subtransaction for " + pjp.toShortString());
-			transactionManager.begin();
-			transactionsStack.push(new TransactionState(transactional.propagation(), 
-					transactionsStack.getCurrent()));
-		} else
-		{
-			if (log.isTraceEnabled())
-				log.trace("Starting a new not separated subtransaction for " + pjp.toShortString());
-			transactionsStack.push(new TransactionState(transactional.propagation(), 
-					transactionsStack.getCurrent()));
-		}
+		if (log.isTraceEnabled())
+			log.trace("Starting a new transaction for " + pjp.toShortString());
+		TransactionContext newTransactionContext = hazelcastInstance.newTransactionContext();
+		newTransactionContext.beginTransaction();
+		transactionsStack.push(new TransactionState(transactional.propagation(), newTransactionContext));
 	}
 	
 	private void commitIfNeeded(ProceedingJoinPoint pjp, Transactional transactional) 
@@ -176,49 +158,50 @@ public class TransactionalAspect
 		
 		if (!transactionsStack.isSubtransaction() || ti.getPropagation() == Propagation.REQUIRE_SEPARATE)
 		{
-			ti.delist();
-
 			if (transactional.autoCommit())
 			{
 				if (log.isTraceEnabled())
 					log.trace("Commiting transaction for " + pjp.toShortString());
-				transactionManager.commit();
+				
+				enqueueRDBMSBatch();
+				ti.getHzContext().commitTransaction();
 			}
 		}
 	}
 
+	private void enqueueRDBMSBatch() throws InterruptedException
+	{
+		RDBMSEventsBatch currentRDBMSBatch = TransactionTL.getCurrentRDBMSBatch();
+		if (currentRDBMSBatch.getEvents().isEmpty())
+			return;
+		TransactionContext hzContext = TransactionTL.getHzContext();
+		TransactionalQueue<Object> queue = hzContext.getQueue(RDBMSEventSink.RDBMS_EVENTS_QUEUE);
+		queue.offer(currentRDBMSBatch, 30, TimeUnit.SECONDS);
+	}
+
+	
 	private void rollback(ProceedingJoinPoint pjp) throws IllegalStateException, SecurityException, SystemException
 	{
 		TransactionsState transactionsStack = TransactionTL.transactionState.get();
 		TransactionState ti = transactionsStack.getCurrent();
-		ti.delist();
 		if (!transactionsStack.isSubtransaction() || ti.getPropagation() == Propagation.REQUIRE_SEPARATE)
 		{
 			if (log.isTraceEnabled())
 				log.trace("Rolling back transaction for " + pjp.toShortString());
-			transactionManager.rollback();
+			ti.getHzContext().rollbackTransaction();
 		}
 	}
 	
 	private void removeTransactionFromStack(ProceedingJoinPoint pjp, Transactional transactional)
 	{
 		TransactionsState transactionsStack = TransactionTL.transactionState.get();
-		TransactionState ti = transactionsStack.pop();
+		transactionsStack.pop();
 		
 		if (transactionsStack.isEmpty())
 		{
 			if (log.isTraceEnabled())
 				log.trace("Transactions stack is empty for " + pjp.toShortString() + 
 						" releasing resources");
-			ti.close();
-			try
-			{
-				if (transactionManager.getTransaction() != null)
-					log.fatal("Transactions stack is empty but there is an active transaction!");
-			} catch (SystemException e)
-			{
-				log.error("Can not verify transaction system coherence", e);
-			}
 		}
 	}
 	

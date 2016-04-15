@@ -15,15 +15,15 @@ import pl.edu.icm.unity.types.basic.IdentityType;
  * 
  * @author K. Benedyczak
  */
-@Repository
+@Repository(IdentityTypeHzStore.STORE_ID)
 public class IdentityTypeHzStore extends GenericHzCRUD<IdentityType> implements IdentityTypeDAO
 {
-	private static final String STORE_ID = "identityTypesMap";
+	public static final String STORE_ID = "identityTypesMap";
 	private static final String NAME = "identity type";
 
 	public IdentityTypeHzStore()
 	{
-		super(STORE_ID, NAME);
+		super(STORE_ID, NAME, IdentityTypeRDBMSStore.BEAN);
 	}
 
 	

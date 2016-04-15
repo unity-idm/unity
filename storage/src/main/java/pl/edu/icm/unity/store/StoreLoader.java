@@ -16,10 +16,14 @@ import org.springframework.stereotype.Component;
 import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.HazelcastInstance;
 
+import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.store.impl.attribute.AttributeTypeDAOImpl;
-import pl.edu.icm.unity.store.impl.identity.IdentityTypeDAOImpl;
+import pl.edu.icm.unity.store.impl.attribute.AttributeTypeHzStore;
+import pl.edu.icm.unity.store.impl.attribute.AttributeTypeRDBMSStore;
+import pl.edu.icm.unity.store.impl.identity.IdentityTypeHzStore;
+import pl.edu.icm.unity.store.impl.identity.IdentityTypeRDBMSStore;
 import pl.edu.icm.unity.store.rdbms.InitDB;
+import pl.edu.icm.unity.store.tx.RDBMSTransactionalRunner;
 
 /**
  * Loads Hazelcast data from RDBMS at startup.
@@ -32,9 +36,19 @@ public class StoreLoader
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, StoreLoader.class);
 	
 	@Autowired
-	private AttributeTypeDAOImpl atTypeStore;
+	private AttributeTypeHzStore atTypeStore;
 	@Autowired
-	private IdentityTypeDAOImpl idTypeStore;
+	private IdentityTypeHzStore idTypeStore;
+	@Autowired
+	private AttributeTypeRDBMSStore rdbmsAtTypeStore;
+	@Autowired
+	private IdentityTypeRDBMSStore rdbmsIdTypeStore;
+	
+	@Autowired
+	private RDBMSTransactionalRunner rdbmstx;
+	@Autowired
+	private TransactionalRunner tx;
+	
 	@Autowired
 	private InitDB initDB;
 	@Autowired
@@ -43,10 +57,19 @@ public class StoreLoader
 	@PostConstruct
 	public void initializeStores()
 	{
+		rdbmstx.runInTransaction(() -> {
+			tx.runInTransaction(() -> {
+				loadFromPersistentStore();
+			}); 
+		});
+	}
+
+	private void loadFromPersistentStore()
+	{
 		log.info("Loading identity types");
-		idTypeStore.initHazelcast();
+		idTypeStore.initHazelcast(rdbmsIdTypeStore);
 		log.info("Loading attribute types");
-		atTypeStore.initHazelcast();
+		atTypeStore.initHazelcast(rdbmsAtTypeStore);
 		log.info("Population of the in-memory data store completed");
 	}
 	

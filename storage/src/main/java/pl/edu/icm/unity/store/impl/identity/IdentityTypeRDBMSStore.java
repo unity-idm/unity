@@ -19,9 +19,11 @@ import pl.edu.icm.unity.types.basic.IdentityType;
  * 
  * @author K. Benedyczak
  */
-@Repository
+@Repository(IdentityTypeRDBMSStore.BEAN)
 public class IdentityTypeRDBMSStore extends GenericRDBMSCRUD<IdentityType, BaseBean> implements IdentityTypeDAO
 {
+	public static final String BEAN = "IdentityTypeRDBMSStore";
+	
 	@Autowired
 	public IdentityTypeRDBMSStore(IdentityTypeJsonSerializer jsonSerializer, DBLimit dbLimits)
 	{

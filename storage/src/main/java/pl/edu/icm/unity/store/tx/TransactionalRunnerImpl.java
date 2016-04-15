@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.store.tx;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
@@ -15,6 +16,7 @@ import pl.edu.icm.unity.store.api.tx.Transactional;
  * @author K. Benedyczak
  */
 @Component
+@Primary
 public class TransactionalRunnerImpl implements TransactionalRunner
 {
 	@Override

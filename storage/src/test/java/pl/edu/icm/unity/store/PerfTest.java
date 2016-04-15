@@ -6,6 +6,7 @@ package pl.edu.icm.unity.store;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +20,7 @@ import pl.edu.icm.unity.base.utils.StopWatch;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.impl.attribute.AttributeTypeHzStore;
 import pl.edu.icm.unity.store.impl.attribute.AttributeTypeRDBMSStore;
+import pl.edu.icm.unity.store.tx.RDBMSTransactionalRunner;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
@@ -27,16 +29,22 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
 public class PerfTest 
 {
-	private final int N = 1000;
+	private final int N = 500;
 	
 	@Autowired
 	private StoreLoader dbCleaner;
 
 	@Autowired
-	protected TransactionalRunner tx;
-
+	private TransactionalRunner txHz;
+	
+	@Autowired
+	private RDBMSTransactionalRunner txSql;
+	
 	@Autowired
 	private AttributeTypeHzStore dao;
+
+	@Autowired
+	private RDBMSEventSink rdbmsSink;
 
 	@Autowired
 	private AttributeTypeRDBMSStore rdbmsDao;
@@ -49,41 +57,60 @@ public class PerfTest
 
 
 	@Test
-	public void testHybrid()
+	public void testInMemory()
 	{
-		test(dao, "Hybrid");
+		test(dao, "Hybrid", txHz);
+
+		StopWatch watch = new StopWatch();
+		rdbmsSink.consumePresentAndExit();
+		watch.printTotal("RDBMS flush: {0}");
 	}
 
 	@Test
 	public void testRDBMS()
 	{
-		test(rdbmsDao, "RDBMS");
+		test(rdbmsDao, "RDBMS", txSql);
 	}
 
-	public void test(AttributeTypeDAO dao, String type)
+	public void test(AttributeTypeDAO dao, String type, TransactionalRunner tx)
 	{
+		Random r = new Random();
+		
 		StopWatch watch = new StopWatch();
 		for (int i = 0; i<N; i++)
 		{
 			int fi = i;
 			tx.runInTransaction(() -> {
 //				StopWatch watch2 = new StopWatch();
-				dao.create(getObject("a" + fi));
+				AttributeType at = getObject("a" + fi); 
+				dao.create(at);
+				at.setFlags(2);
+				at.setDescription(new I18nString("Updated at"));
+				dao.update(at);
 //				watch2.printTotal(type + " inner create: {0}");
 			});
 		}
 		
+		
 		watch.printPeriod(type + " creation: {0}");
+		for (int i = 0; i<N*5; i++)
+		{
+			tx.runInTransaction(() -> {
+				dao.get("a" + r.nextInt(N));
+			});
+		}
+		watch.printPeriod(type + " read: {0}");
+
 		for (int i = 0; i<N; i++)
 		{
 			int fi = i;
 			tx.runInTransaction(() -> {
-//				StopWatch watch2 = new StopWatch();
-				dao.get("a" + fi);
-//				watch2.printTotal(type + " inner read: {0}");
+				dao.delete("a" + fi);
 			});
 		}
-		watch.printPeriod(type + " read: {0}");
+		watch.printPeriod(type + " delete: {0}");
+
+		
 		watch.printTotal(type + " total: {0}");
 	}
 	

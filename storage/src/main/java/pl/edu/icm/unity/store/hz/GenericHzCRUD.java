@@ -11,6 +11,7 @@ import java.util.Map;
 
 import com.hazelcast.core.TransactionalMap;
 
+import pl.edu.icm.unity.store.RDBMSMutationEvent;
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
 import pl.edu.icm.unity.store.tx.TransactionTL;
 
@@ -21,16 +22,25 @@ import pl.edu.icm.unity.store.tx.TransactionTL;
 public abstract class GenericHzCRUD<T> implements BasicCRUDDAO<T>
 {
 	private final String STORE_ID;
-	private final String name; 
+	private final String name;
+	private final String rdbmsCounterpartDaoName; 
 	
-	public GenericHzCRUD(String storeId, String name)
+	public GenericHzCRUD(String storeId, String name, String rdbmsCounterpartDaoName)
 	{
 		STORE_ID = storeId;
 		this.name = name;
+		this.rdbmsCounterpartDaoName = rdbmsCounterpartDaoName;
 	}
 
 	protected abstract String getKey(T obj);
 
+	public void initHazelcast(BasicCRUDDAO<T> rdbmsDAO)
+	{
+		List<T> all = rdbmsDAO.getAll();
+		for (T element: all)
+			create(element);
+	}
+	
 	@Override
 	public void create(T obj) throws IllegalArgumentException
 	{
@@ -39,6 +49,7 @@ public abstract class GenericHzCRUD<T> implements BasicCRUDDAO<T>
 		if (hMap.containsKey(key))
 			throw new IllegalArgumentException(name + " [" + key + "] already exists");
 		hMap.put(key, obj);
+		TransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, "create", obj));
 	}
 	
 	@Override
@@ -49,12 +60,14 @@ public abstract class GenericHzCRUD<T> implements BasicCRUDDAO<T>
 		if (!hMap.containsKey(key))
 			throw new IllegalArgumentException(name + " [" + key + "] does not exists");
 		hMap.put(key, obj);
+		TransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, "update", obj));
 	}
 
 	@Override
 	public void delete(String id)
 	{
 		getMap().remove(id);
+		TransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, "delete", id));
 	}
 
 	@Override

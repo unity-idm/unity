@@ -15,15 +15,15 @@ import pl.edu.icm.unity.types.basic.AttributeType;
  * Hazelcast impl of {@link AttributeTypeDAO}
  * @author K. Benedyczak
  */
-@Repository
+@Repository(AttributeTypeHzStore.STORE_ID)
 public class AttributeTypeHzStore extends GenericHzCRUD<AttributeType> implements AttributeTypeDAO
 {
-	private static final String STORE_ID = "attributeTypesMap";
+	public static final String STORE_ID = "attributeTypesMap";
 	private static final String NAME = "attribute type";
 
 	public AttributeTypeHzStore()
 	{
-		super(STORE_ID, NAME);
+		super(STORE_ID, NAME, AttributeTypeRDBMSStore.BEAN);
 	}
 
 	@Override

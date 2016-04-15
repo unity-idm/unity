@@ -18,8 +18,6 @@ import pl.edu.icm.unity.types.basic.AttributeType;
  * Router of {@link AttributeTypeDAO}.
  * @author K. Benedyczak
  */
-@Component
-@Primary
 public class AttributeTypeDAOImpl extends GenericCompositeDAOImpl<AttributeType> implements AttributeTypeDAO
 {
 	public static final String NOTIFICATION_ID = "identityTypes";
