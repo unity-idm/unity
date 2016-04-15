@@ -66,7 +66,9 @@ public abstract class GenericHzCRUD<T> implements BasicCRUDDAO<T>
 	@Override
 	public void delete(String id)
 	{
-		getMap().remove(id);
+		T removed = getMap().remove(id);
+		if (removed == null)
+			throw new IllegalArgumentException(name + " [" + id + "] does not exists");
 		TransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, "delete", id));
 	}
 

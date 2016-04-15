@@ -81,7 +81,7 @@ public class StoreLoader
 		initDB.resetDatabase();
 		Collection<DistributedObject> distributedObjects = hzInstance.getDistributedObjects();
 		for (DistributedObject obj: distributedObjects)
-			obj.destroy();
+				obj.destroy();
 		initializeStores();
 	}
 }

@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.store.impl.identity;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
@@ -16,6 +17,7 @@ import pl.edu.icm.unity.types.basic.IdentityType;
  * @author K. Benedyczak
  */
 @Repository(IdentityTypeHzStore.STORE_ID)
+@Primary
 public class IdentityTypeHzStore extends GenericHzCRUD<IdentityType> implements IdentityTypeDAO
 {
 	public static final String STORE_ID = "identityTypesMap";

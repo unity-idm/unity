@@ -26,7 +26,6 @@
 		<cxf.version>3.1.6</cxf.version>
 		<apacheds.version>2.0.0-M21</apacheds.version>
 		<bc.version>1.54</bc.version>
-		<atomikos.version>4.0.2</atomikos.version>
 		
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -490,16 +489,6 @@
 				<groupId>com.hazelcast</groupId>
 				<artifactId>hazelcast</artifactId>
 				<version>3.6.2</version>
-			</dependency>
-			<dependency>
-				<groupId>com.atomikos</groupId>
-				<artifactId>transactions-jdbc</artifactId>
-				<version>${atomikos.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.atomikos</groupId>
-				<artifactId>transactions</artifactId>
-				<version>${atomikos.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.geronimo.specs</groupId>

@@ -15,6 +15,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.hazelcast.core.HazelcastException;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.TransactionalQueue;
 import com.hazelcast.transaction.TransactionContext;
@@ -75,10 +76,21 @@ public class TransactionalAspect
 				return retVal;
 			} catch (TxPersistenceException pe)
 			{
-				log.warn("Got persistence error from a child transaction, give up and rollback", pe);
-				rollback(pjp);
-				throw pe;
-			} catch (Exception pe)
+				TransactionsState transactionsStack = TransactionTL.transactionState.get();
+				if (transactionsStack.isSubtransaction())
+				{
+					if (log.isDebugEnabled())
+						log.debug("Got error in a subtransaction, propagate to parent; " + 
+							pjp.toShortString() + 
+							"; " + pe.getCause());
+					throw pe;
+				} else
+				{
+					log.warn("Got persistence error from a child transaction, give up and rollback", pe);
+					rollback(pjp);
+					throw pe;
+				}
+			} catch (HazelcastException pe) //TODO this should be checked if is correct
 			{
 				log.debug("Got persistence error, rolling back transaction", pe);				
 				rollback(pjp);
@@ -108,7 +120,11 @@ public class TransactionalAspect
 					log.warn("Got persistence error, give up", pe);
 					throw new TxPersistenceException(pe);
 				}
-
+			} catch (Throwable t)
+			{
+				log.debug("Got other error, rolling back transaction and giving up", t);				
+				rollback(pjp);
+				throw t;
 			} finally
 			{
 				removeTransactionFromStack(pjp, transactional);
