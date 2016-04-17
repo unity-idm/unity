@@ -15,6 +15,10 @@ public class RDBMSEventsBatch
 {
 	private List<RDBMSMutationEvent> events;
 
+	protected RDBMSEventsBatch()
+	{
+	}
+	
 	public RDBMSEventsBatch(List<RDBMSMutationEvent> events)
 	{
 		this.events = events;

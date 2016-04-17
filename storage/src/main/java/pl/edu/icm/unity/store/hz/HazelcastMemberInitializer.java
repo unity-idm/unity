@@ -4,19 +4,15 @@
  */
 package pl.edu.icm.unity.store.hz;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.hazelcast.config.Config;
+import com.hazelcast.config.GlobalSerializerConfig;
 import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.config.SerializationConfig;
-import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
@@ -30,10 +26,8 @@ public class HazelcastMemberInitializer
 {
 	@Autowired
 	@Bean
-	public HazelcastInstance getHazelcastInstance(Optional<List<SerializerProvider<?>>> serializers)
+	public HazelcastInstance getHazelcastInstance(KryoSerializer globalSerializer)
 	{
-		List<SerializerProvider<?>> sProviders = serializers.orElseGet(ArrayList::new);
-		
 		Config config = new Config();
 		config.setInstanceName("unity-1");
 		config.setProperty("hazelcast.logging.type", "log4j");
@@ -52,13 +46,9 @@ public class HazelcastMemberInitializer
 		        .setEnabled(true);
 		
 		SerializationConfig serializationConfig = config.getSerializationConfig();
-		for (SerializerProvider<?> provider: sProviders)
-		{
-			SerializerConfig cfg = new SerializerConfig();
-			cfg.setImplementation(provider);
-			cfg.setTypeClass(provider.getTypeClass());
-			serializationConfig.addSerializerConfig(cfg);
-		}
+		GlobalSerializerConfig globalSCfg = new GlobalSerializerConfig();
+		globalSCfg.setImplementation(globalSerializer);
+		serializationConfig.setGlobalSerializerConfig(globalSCfg);
 		return Hazelcast.newHazelcastInstance(config);
 	}
 }

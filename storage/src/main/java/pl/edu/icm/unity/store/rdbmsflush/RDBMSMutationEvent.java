@@ -14,6 +14,8 @@ public class RDBMSMutationEvent
 	private String dao;
 	private Object[] args;
 
+	protected RDBMSMutationEvent() {}
+	
 	public RDBMSMutationEvent(String dao, String operation, Object... args)
 	{
 		this.operation = operation;
