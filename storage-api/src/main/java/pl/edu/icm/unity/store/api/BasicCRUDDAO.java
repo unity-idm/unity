@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Basic DAO with typical CRUD operations
+ * Basic DAO with typical CRUD operations.
  * @author K. Benedyczak
  */
 public interface BasicCRUDDAO<T>

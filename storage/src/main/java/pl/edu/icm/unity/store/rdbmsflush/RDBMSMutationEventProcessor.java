@@ -5,7 +5,11 @@
 package pl.edu.icm.unity.store.rdbmsflush;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.SqlSession;
@@ -26,43 +30,60 @@ public class RDBMSMutationEventProcessor
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB,
 			RDBMSMutationEventProcessor.class);
 	
-	@Autowired
+	private Map<String, Map<String, Method>> daoMethods;
 	private Map<String, RDBMSDAO> daos;
+	
+	
+	@Autowired
+	public RDBMSMutationEventProcessor(Map<String, RDBMSDAO> daos)
+	{
+		Set<String> nonDAOMethods = Arrays.stream(Object.class.getMethods()).
+				map(m -> m.getName()).
+				collect(Collectors.toSet());
+		daoMethods = new HashMap<>();
+		for (Map.Entry<String, RDBMSDAO> entry: daos.entrySet())
+		{
+			Map<String, Method> methods = new HashMap<>();
+			daoMethods.put(entry.getKey(), methods);
+			
+			Method[] methodsA = entry.getValue().getClass().getMethods();
+			for (Method m: methodsA)
+			{
+				String name = m.getName();
+				if (nonDAOMethods.contains(name))
+					continue;
+				
+				if (methods.put(m.getName(), m) != null)
+					throw new IllegalStateException("RDBMSDAO " + entry.getKey() + 
+							" has methods with ambigous names: " + m.getName() + 
+							", this is not supported.");
+			}
+		}
+		this.daos = daos;
+	}
 	
 	public void apply(RDBMSMutationEvent event, SqlSession sql)
 	{
-		RDBMSDAO dao = daos.get(event.getDao());
-		if (dao == null)
+		Map<String, Method> daoM = daoMethods.get(event.getDao());
+		if (daoM == null)
 			throw new IllegalStateException("Unknown DAO, this is fatal error: " + event.getDao());
 		
 		try
 		{
-			invokeOnDAO(dao, event, sql);
+			invokeOnDAO(daoM, event, sql);
 		} catch (Exception e)
 		{
 			throw new PersistenceException(e);
 		}
 	}
 	
-	private void invokeOnDAO(RDBMSDAO dao, RDBMSMutationEvent event, SqlSession sql) 
+	private void invokeOnDAO(Map<String, Method> daoM, RDBMSMutationEvent event, SqlSession sql) 
 			throws Exception
 	{
-		log.trace("Will apply event " + event);
-		Object[] args = event.getArgs();
-		Class<?>[] argClasses = new Class<?>[args.length];
-		for (int i=0; i<argClasses.length; i++)
-		{
-			//FIXME!
-			if (args[i] instanceof String || args[i] instanceof Integer)
-				argClasses[i] = args[i].getClass();
-			else
-				argClasses[i] = Object.class;
-		}
-		Method method = dao.getClass().getMethod(event.getOperation(), argClasses);
-
+		Method method = daoM.get(event.getOperation());
+		RDBMSDAO dao = daos.get(event.getDao());
 		if (log.isTraceEnabled())
-			log.trace("Will use DAO method: " + method);
-
+			log.trace("Will apply event " + event + " with method " + method);
 		method.invoke(dao, event.getArgs());
 	}
 }
