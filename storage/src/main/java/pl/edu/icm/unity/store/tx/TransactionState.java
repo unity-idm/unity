@@ -9,33 +9,25 @@ import java.util.List;
 
 import com.hazelcast.transaction.TransactionContext;
 
-import pl.edu.icm.unity.store.api.tx.Propagation;
 import pl.edu.icm.unity.store.rdbmsflush.RDBMSEventsBatch;
 import pl.edu.icm.unity.store.rdbmsflush.RDBMSMutationEvent;
 
 public class TransactionState
 {
-	private Propagation propagation;
 	private TransactionContext context;
 	private List<RDBMSMutationEvent> rdbmsQueue = new ArrayList<>();
 	
-	public TransactionState(Propagation propagation, TransactionContext context)
+	public TransactionState(TransactionContext context)
 	{
-		this.propagation = propagation;
 		this.context = context;
 	}
 	
-	public TransactionState(Propagation propagation, TransactionState parent)
+	public TransactionState(TransactionState parent)
 	{
-		this.propagation = propagation;
 		this.context = parent.context;
 		this.rdbmsQueue = parent.rdbmsQueue;
 	}
 	
-	public Propagation getPropagation()
-	{
-		return propagation;
-	}
 	public void enqueueEvent(RDBMSMutationEvent event)
 	{
 		rdbmsQueue.add(event);

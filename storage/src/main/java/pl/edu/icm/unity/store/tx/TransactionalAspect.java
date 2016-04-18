@@ -21,7 +21,6 @@ import com.hazelcast.core.TransactionalQueue;
 import com.hazelcast.transaction.TransactionContext;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.store.api.tx.Propagation;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.rdbmsflush.RDBMSEventSink;
 import pl.edu.icm.unity.store.rdbmsflush.RDBMSEventsBatch;
@@ -96,9 +95,7 @@ public class TransactionalAspect
 				rollback(pjp);
 				
 				TransactionsState transactionsStack = TransactionTL.transactionState.get();
-				TransactionState ti = transactionsStack.getCurrent();
-				if (transactionsStack.isSubtransaction() && 
-						ti.getPropagation() != Propagation.REQUIRE_SEPARATE)
+				if (transactionsStack.isSubtransaction())
 				{
 					if (log.isDebugEnabled())
 						log.debug("Got persistence error in a subtransaction, propagate to parent; " + 
@@ -142,16 +139,9 @@ public class TransactionalAspect
 			createNewTransaction(pjp, transactional);
 		} else
 		{
-			if (transactional.propagation() == Propagation.REQUIRED)
-			{
-				if (log.isTraceEnabled())
-					log.trace("Starting a new not separated subtransaction for " + pjp.toShortString());
-				transactionsStack.push(new TransactionState(transactional.propagation(), 
-						transactionsStack.getCurrent()));
-			} else if (transactional.propagation() == Propagation.REQUIRE_SEPARATE)
-			{
-				throw new UnsupportedOperationException("Separate subtransactions are not supported");
-			}
+			if (log.isTraceEnabled())
+				log.trace("Starting a new not separated subtransaction for " + pjp.toShortString());
+			transactionsStack.push(new TransactionState(transactionsStack.getCurrent()));
 		}
 	}
 	
@@ -163,7 +153,7 @@ public class TransactionalAspect
 			log.trace("Starting a new transaction for " + pjp.toShortString());
 		TransactionContext newTransactionContext = hazelcastInstance.newTransactionContext();
 		newTransactionContext.beginTransaction();
-		transactionsStack.push(new TransactionState(transactional.propagation(), newTransactionContext));
+		transactionsStack.push(new TransactionState(newTransactionContext));
 	}
 	
 	private void commitIfNeeded(ProceedingJoinPoint pjp, Transactional transactional) 
@@ -172,7 +162,7 @@ public class TransactionalAspect
 		TransactionsState transactionsStack = TransactionTL.transactionState.get();
 		TransactionState ti = transactionsStack.getCurrent();
 		
-		if (!transactionsStack.isSubtransaction() || ti.getPropagation() == Propagation.REQUIRE_SEPARATE)
+		if (!transactionsStack.isSubtransaction())
 		{
 			if (transactional.autoCommit())
 			{
@@ -200,7 +190,7 @@ public class TransactionalAspect
 	{
 		TransactionsState transactionsStack = TransactionTL.transactionState.get();
 		TransactionState ti = transactionsStack.getCurrent();
-		if (!transactionsStack.isSubtransaction() || ti.getPropagation() == Propagation.REQUIRE_SEPARATE)
+		if (!transactionsStack.isSubtransaction())
 		{
 			if (log.isTraceEnabled())
 				log.trace("Rolling back transaction for " + pjp.toShortString());

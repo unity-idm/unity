@@ -22,6 +22,4 @@ public @interface Transactional
 	int maxRetries() default DEF_MAX_RETRIES;
 	
 	boolean autoCommit() default true;
-	
-	Propagation propagation() default Propagation.REQUIRED;
 }
