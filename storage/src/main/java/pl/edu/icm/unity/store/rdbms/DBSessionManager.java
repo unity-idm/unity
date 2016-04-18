@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import eu.unicore.util.db.DBPropertiesHelper;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.store.StorageConfiguration;
 
 
 /**
@@ -41,15 +42,15 @@ public class DBSessionManager
 	private SqlSessionFactory sqlMapFactory;
 
 	@Autowired
-	public DBSessionManager(DBConfiguration config) 
+	public DBSessionManager(StorageConfiguration config) 
 			throws InternalException, IOException
 	{
-		sqlMapFactory = loadMybatis(config);
+		sqlMapFactory = loadMybatis(config.getEngineConfig());
 	}
 	
-	private SqlSessionFactory loadMybatis(DBConfiguration config) throws IOException
+	private SqlSessionFactory loadMybatis(RDBMSConfiguration config) throws IOException
 	{
-		String mapFile = config.getFileValueAsString(DBConfiguration.DBCONFIG_FILE, false);
+		String mapFile = config.getFileValueAsString(RDBMSConfiguration.DBCONFIG_FILE, false);
 		SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
 		Reader reader;
 		if (mapFile != null)

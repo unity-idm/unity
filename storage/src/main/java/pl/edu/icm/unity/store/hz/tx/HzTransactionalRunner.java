@@ -7,8 +7,8 @@ package pl.edu.icm.unity.store.hz.tx;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.internal.StorageEngine;
-import pl.edu.icm.unity.base.internal.Transactional;
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
+import pl.edu.icm.unity.store.tx.TransactionalExt;
 
 /**
  * Hazelcast transactional runner - runs in a transaction using the Hazelcast infrastructure.
@@ -19,14 +19,14 @@ public class HzTransactionalRunner implements TransactionalRunner
 {
 	public static final String NAME = "HzTransactionalRunner";
 	
-	@Transactional(storageEngine=StorageEngine.hz)
+	@TransactionalExt(storageEngine=StorageEngine.hz)
 	@Override
 	public void runInTransaction(TxRunnable code)
 	{
 		code.run();
 	}
 
-	@Transactional(storageEngine=StorageEngine.hz)
+	@TransactionalExt(storageEngine=StorageEngine.hz)
 	@Override
 	public <T> T runInTransactionRet(TxRunnableRet<T> code)
 	{

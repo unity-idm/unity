@@ -6,13 +6,14 @@ package pl.edu.icm.unity.store.tx;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 
-import pl.edu.icm.unity.base.internal.Transactional;
-
 /**
  * Implementation should handle transactions - used by {@link TransactionalAspect}.
+ * Implementing bean name must be NAME_PFX + StorageEngine name.
  * @author K. Benedyczak
  */
 public interface TransactionEngine
 {
-	Object runInTransaction(ProceedingJoinPoint pjp, Transactional transactional) throws Throwable;
+	String NAME_PFX = "TransactionEngine";
+	
+	Object runInTransaction(ProceedingJoinPoint pjp, int maxRetries, boolean transactional) throws Throwable;
 }

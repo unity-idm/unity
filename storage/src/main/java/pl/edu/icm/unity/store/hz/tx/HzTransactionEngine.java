@@ -18,7 +18,6 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.TransactionalQueue;
 import com.hazelcast.transaction.TransactionContext;
 
-import pl.edu.icm.unity.base.internal.Transactional;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.rdbmsflush.RDBMSEventSink;
 import pl.edu.icm.unity.store.rdbmsflush.RDBMSEventsBatch;
@@ -32,7 +31,7 @@ import pl.edu.icm.unity.store.tx.TxPersistenceException;
  * Hazelcast based transaction layer implementation.
  * @author K. Benedyczak
  */
-@Component
+@Component(TransactionEngine.NAME_PFX + "hz")
 public class HzTransactionEngine implements TransactionEngine
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, TransactionalAspect.class);
@@ -43,16 +42,16 @@ public class HzTransactionEngine implements TransactionEngine
 	private HazelcastInstance hazelcastInstance;
 
 	@Override
-	public Object runInTransaction(ProceedingJoinPoint pjp, Transactional transactional) throws Throwable 
+	public Object runInTransaction(ProceedingJoinPoint pjp, int maxRetries, boolean autoCommit) throws Throwable 
 	{
 		int retry = 0;
 		do
 		{
-			setupTransactionSession(pjp, transactional);
+			setupTransactionSession(pjp);
 			try
 			{
 				Object retVal = pjp.proceed();
-				commitIfNeeded(pjp, transactional);
+				commitIfNeeded(pjp, autoCommit);
 				return retVal;
 			} catch (TxPersistenceException pe)
 			{
@@ -88,7 +87,7 @@ public class HzTransactionEngine implements TransactionEngine
 				}
 				
 				retry++;
-				if (retry < transactional.maxRetries())
+				if (retry < maxRetries)
 				{
 					if (log.isDebugEnabled())
 						log.debug("Got persistence error, will do retry #" + retry + 
@@ -107,19 +106,19 @@ public class HzTransactionEngine implements TransactionEngine
 				throw t;
 			} finally
 			{
-				removeTransactionFromStack(pjp, transactional);
+				removeTransactionFromStack(pjp);
 			}
 		} while(true);
 	}
 	
-	private void setupTransactionSession(ProceedingJoinPoint pjp, Transactional transactional) 
+	private void setupTransactionSession(ProceedingJoinPoint pjp) 
 			throws Exception
 	{
 		TransactionsState<HzTransactionState> transactionsStack = HzTransactionTL.transactionState.get();
 		
 		if (transactionsStack.isEmpty())
 		{
-			createNewTransaction(pjp, transactional);
+			createNewTransaction(pjp);
 		} else
 		{
 			if (log.isTraceEnabled())
@@ -128,7 +127,7 @@ public class HzTransactionEngine implements TransactionEngine
 		}
 	}
 	
-	private void createNewTransaction(ProceedingJoinPoint pjp, Transactional transactional) 
+	private void createNewTransaction(ProceedingJoinPoint pjp) 
 			throws Exception
 	{
 		TransactionsState<HzTransactionState> transactionsStack = HzTransactionTL.transactionState.get();
@@ -139,7 +138,7 @@ public class HzTransactionEngine implements TransactionEngine
 		transactionsStack.push(new HzTransactionState(newTransactionContext));
 	}
 	
-	private void commitIfNeeded(ProceedingJoinPoint pjp, Transactional transactional) 
+	private void commitIfNeeded(ProceedingJoinPoint pjp, boolean autoCommit) 
 			throws Exception
 	{
 		TransactionsState<HzTransactionState> transactionsStack = HzTransactionTL.transactionState.get();
@@ -147,7 +146,7 @@ public class HzTransactionEngine implements TransactionEngine
 		
 		if (!transactionsStack.isSubtransaction())
 		{
-			if (transactional.autoCommit())
+			if (autoCommit)
 			{
 				if (log.isTraceEnabled())
 					log.trace("Commiting transaction for " + pjp.toShortString());
@@ -181,7 +180,7 @@ public class HzTransactionEngine implements TransactionEngine
 		}
 	}
 	
-	private void removeTransactionFromStack(ProceedingJoinPoint pjp, Transactional transactional)
+	private void removeTransactionFromStack(ProceedingJoinPoint pjp)
 	{
 		TransactionsState<HzTransactionState> transactionsStack = HzTransactionTL.transactionState.get();
 		transactionsStack.pop();

@@ -23,7 +23,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 public class AttributeTypeRDBMSStore extends GenericRDBMSCRUD<AttributeType, AttributeTypeBean> 
 					implements AttributeTypeDAO
 {
-	public static final String BEAN = "AttributeTypeRDBMSStore";
+	public static final String BEAN = DAO_ID + "rdbms";
 
 	@Autowired
 	public AttributeTypeRDBMSStore(AttributeTypeJsonSerializer jsonSerializer, DBLimit limits)

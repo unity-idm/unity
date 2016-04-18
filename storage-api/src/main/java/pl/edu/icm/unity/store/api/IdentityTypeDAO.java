@@ -12,4 +12,5 @@ import pl.edu.icm.unity.types.basic.IdentityType;
  */
 public interface IdentityTypeDAO extends BasicCRUDDAO<IdentityType>
 {
+	String DAO_ID = "IdentityTypeDAO";
 }

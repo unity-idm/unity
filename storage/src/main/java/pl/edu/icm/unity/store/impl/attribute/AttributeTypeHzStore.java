@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.store.impl.attribute;
 
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
@@ -17,10 +16,9 @@ import pl.edu.icm.unity.types.basic.AttributeType;
  * @author K. Benedyczak
  */
 @Repository(AttributeTypeHzStore.STORE_ID)
-@Primary
 public class AttributeTypeHzStore extends GenericHzCRUD<AttributeType> implements AttributeTypeDAO
 {
-	public static final String STORE_ID = "attributeTypesMap";
+	public static final String STORE_ID = DAO_ID + "hz";
 	private static final String NAME = "attribute type";
 
 	public AttributeTypeHzStore()

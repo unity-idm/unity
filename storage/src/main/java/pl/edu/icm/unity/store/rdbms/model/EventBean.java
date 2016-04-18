@@ -12,23 +12,23 @@ import java.util.Date;
  */
 public class EventBean extends EventBeanBase
 {
-	private String event;
+	private byte[] event;
 
 	public EventBean()
 	{
 	}
 
-	public EventBean(Date nextProcessing, String event, String listenerId)
+	public EventBean(Date nextProcessing, byte[] event, String listenerId)
 	{
 		super(nextProcessing, listenerId);
 		this.event = event;
 	}
 
-	public String getEvent()
+	public byte[] getEvent()
 	{
 		return event;
 	}
-	public void setEvent(String event)
+	public void setEvent(byte[] event)
 	{
 		this.event = event;
 	}

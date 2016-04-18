@@ -7,12 +7,12 @@
 		<result property="id" column="ID"/>
 		<result property="nextProcessing" column="NEXT_PROCESSING"/>
 		<result property="listenerId" column="LISTENER_ID"/>
-		<result property="event" column="EVENT"/>
+		<result property="event" column="VALUES"/>
 		<result property="failures" column="FAILURES"/>
 	</resultMap>
 
 	<insert id="insertEvent" parameterType="EventB" useGeneratedKeys="true" keyProperty="id">
-		INSERT INTO EVENTS_QUEUE(NEXT_PROCESSING, LISTENER_ID, EVENT, FAILURES) 
+		INSERT INTO EVENTS_QUEUE(NEXT_PROCESSING, LISTENER_ID, VALUES, FAILURES) 
 			VALUES (#{nextProcessing}, #{listenerId}, #{event}, #{failures})
 	</insert>
 	

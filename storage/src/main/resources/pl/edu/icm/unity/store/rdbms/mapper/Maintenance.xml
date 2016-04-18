@@ -45,9 +45,6 @@
 		DROP TABLE IF EXISTS ATTRIBUTE_TYPES;
 	</update>
 	<update id="cleardb-12">
-		DROP INDEX IF EXISTS EVENTS_DATES_IDX;
-	</update>
-	<update id="cleardb-13">
 		DROP TABLE IF EXISTS EVENTS_QUEUE;
 	</update>
 		

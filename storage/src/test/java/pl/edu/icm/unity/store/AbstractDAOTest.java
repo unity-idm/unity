@@ -23,6 +23,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
+import pl.edu.icm.unity.store.hz.StoreLoader;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})

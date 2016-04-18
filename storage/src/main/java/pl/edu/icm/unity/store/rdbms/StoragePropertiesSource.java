@@ -7,7 +7,7 @@ package pl.edu.icm.unity.store.rdbms;
 import java.util.Properties;
 
 /**
- * Provides access to raw configuration of the storage layer, used to instantiate {@link DBConfiguration}.
+ * Provides access to raw configuration of the storage layer, used to instantiate {@link RDBMSConfiguration}.
  * @author K. Benedyczak
  */
 public interface StoragePropertiesSource

@@ -117,7 +117,7 @@ CREATE TABLE EVENTS_QUEUE(
 		LISTENER_ID 	VARCHAR(256),
 		NEXT_PROCESSING <include refid="dateTimeType"/>,
 		FAILURES		INT,
-		EVENT			VARCHAR(64535)
+		<include refid="valuesColumn"/>
 		<include refid="tableOpts"/>		
 	</sql>
 	<sql id="sql-initEventsTableIdx">

@@ -22,7 +22,7 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 @Repository(IdentityTypeRDBMSStore.BEAN)
 public class IdentityTypeRDBMSStore extends GenericRDBMSCRUD<IdentityType, BaseBean> implements IdentityTypeDAO
 {
-	public static final String BEAN = "IdentityTypeRDBMSStore";
+	public static final String BEAN = DAO_ID + "rdbms";
 	
 	@Autowired
 	public IdentityTypeRDBMSStore(IdentityTypeJsonSerializer jsonSerializer, DBLimit dbLimits)

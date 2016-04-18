@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.store.rdbms;
+package pl.edu.icm.unity.store;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,11 +12,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
-import org.h2.Driver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,67 +25,73 @@ import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
-import eu.unicore.util.db.DBPropertiesHelper;
+import pl.edu.icm.unity.base.internal.StorageEngine;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.store.rdbms.StoragePropertiesSource;
 
 /**
- * Database configuration
+ * Unity storage configuration
  * @author K. Benedyczak
  */
 @Component
-public class DBConfiguration extends PropertiesHelper
+public class StorageConfiguration extends PropertiesHelper
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, DBConfiguration.class);
-	public enum Dialect {h2, mysql, psql};
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, StorageConfiguration.class);
 
 	@DocumentationReferencePrefix
-	public static final String PREFIX = "unityServer.db.";
+	public static final String PREFIX = "unityServer.storage.";
 	
-	public static final String DBCONFIG_FILE = "mapconfigFile";
+	public static final String ENGINE = "engine";
 	public static final String IGNORE_ALTERNATIVE_DB_CONFIG = "ignoreAlternativeDbConfig";
-	public static final String MAX_POOL_SIZE = "maxConnectionPoolSize";
-	public static final String MIN_POOL_SIZE = "minConnectionPoolSize";
-	public static final String MAX_IDLE_CONNECTION_TIME = "maxIdleConnectionLifetime";
 	
 	/**
 	 * System property: if set it is providing an alternative path to a file with DB configuration.
-	 * It can also accept predefined values 'h2' or 'mysql' which load default h2 or mysql configurations. 
+	 * It can also accept predefined values which load default storage configurations for tests - see 
+	 * test resources of this class for available configs. 
 	 */
 	public static final String ALTERNATIVE_DB_CONFIG = "unityDbConfig";
 	
-	
 	@DocumentationReferenceMeta
-	public static final Map<String, PropertyMD> META;
+	public static final Map<String, PropertyMD> META = new HashMap<>();
+
+	private PropertiesHelper engineConfig;
+	
 	static 
 	{
-		META = DBPropertiesHelper.getMetadata(Driver.class, "jdbc:h2:file:./data/unitydb.bin", 
-				Dialect.h2, "");
-		META.put(DBCONFIG_FILE, new PropertyMD().setPath().setHidden().
-				setDescription("Path of the low level database file with mappings configuration."));
-		META.put(MAX_IDLE_CONNECTION_TIME, new PropertyMD("1800").
-				setDescription("Time in seconds after which an idle connection "
-						+ "is closed (and recreated if needed). Set to 0 to disable. "
-						+ "This setting is needed if stale connections become unoperational "
-						+ "what unfortunately do happen."));
-		META.put(MAX_POOL_SIZE, new PropertyMD("10").
-				setDescription("Maximum number of DB connections allowed in pool"));
-		META.put(MIN_POOL_SIZE, new PropertyMD("1").
-				setDescription("Minimum number of DB connections to be kept in pool"));
-		
+		META.put(ENGINE, new PropertyMD(StorageEngine.hz).setCanHaveSubkeys().
+				setDescription("Storage engine to be used."));
 		META.put(IGNORE_ALTERNATIVE_DB_CONFIG, new PropertyMD("false").setHidden().
 				setDescription("For unity tests: if set in the main configuration then the system "
 						+ "property with alternative DB config is ignored. It is useful "
 						+ "when test case works only with specific DB configuration and"
 						+ "manual, general purpose config has no sense."));
+		
 	}
 	
 	@Autowired
-	public DBConfiguration(StoragePropertiesSource src) throws ConfigurationException
+	public StorageConfiguration(Map<String, StorageConfigurationFactory> storageConfFactories, 
+			StoragePropertiesSource src) throws ConfigurationException
 	{
-		super(PREFIX, loadDbConfig(src.getProperties()), META, log);
+		super(PREFIX, loadEngineSpecificProperties(src.getProperties()), META, log);
+		
+		StorageEngine engine = getEnumValue(ENGINE, StorageEngine.class);
+		String beanName = StorageConfigurationFactory.BEAN_PFX + engine;
+		StorageConfigurationFactory cfgFactory = storageConfFactories.get(beanName);
+		if (cfgFactory == null)
+			throw new InternalException("There is no configuration factory with bean name " + beanName + 
+					", this is bug");
+		
+		engineConfig = cfgFactory.getInstance(properties);
 	}
 	
-	private static Properties loadDbConfig(Properties main)
+	@SuppressWarnings("unchecked")
+	public <T extends PropertiesHelper> T getEngineConfig()
+	{
+		return (T) engineConfig;
+	}
+	
+	private static Properties loadEngineSpecificProperties(Properties main)
 	{
 		String alternativeDB = System.getProperty(ALTERNATIVE_DB_CONFIG);
 		String ignoreAlt = main.getProperty(PREFIX+IGNORE_ALTERNATIVE_DB_CONFIG);
@@ -108,7 +114,7 @@ public class DBConfiguration extends PropertiesHelper
 		{
 			String path = "/dbConfigs/" + alternativeDB + ".conf";
 			log.info("Loading alternative DB config from classpath resource " + path);
-			is = DBConfiguration.class.getResourceAsStream(path);
+			is = StorageConfiguration.class.getResourceAsStream(path);
 		}
 
 		try
@@ -129,10 +135,5 @@ public class DBConfiguration extends PropertiesHelper
 			}
 		}
 		return p;
-	}
-	
-	public Properties getProperties()
-	{
-		return properties;
 	}
 }

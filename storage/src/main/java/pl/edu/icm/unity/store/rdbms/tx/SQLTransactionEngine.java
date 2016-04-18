@@ -11,7 +11,6 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.internal.Transactional;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.rdbms.DBSessionManager;
 import pl.edu.icm.unity.store.tx.TransactionEngine;
@@ -24,7 +23,7 @@ import pl.edu.icm.unity.store.tx.TxPersistenceException;
  * RDBMS based transactions layer implementation
  * @author K. Benedyczak
  */
-@Component
+@Component(TransactionEngine.NAME_PFX + "rdbms")
 public class SQLTransactionEngine implements TransactionEngine
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, TransactionalAspect.class);
@@ -35,16 +34,16 @@ public class SQLTransactionEngine implements TransactionEngine
 	private DBSessionManager dbSessionMan;
 	
 	@Override
-	public Object runInTransaction(ProceedingJoinPoint pjp, Transactional transactional) throws Throwable 
+	public Object runInTransaction(ProceedingJoinPoint pjp, int maxRetries, boolean autoCommit) throws Throwable 
 	{
 		int retry = 0;
 		do
 		{
-			setupTransactionSession(pjp, transactional);
+			setupTransactionSession(pjp);
 			try
 			{
 				Object retVal = pjp.proceed();
-				commitIfNeeded(pjp, transactional);
+				commitIfNeeded(pjp, autoCommit);
 				return retVal;
 			} catch (TxPersistenceException pe)
 			{
@@ -53,7 +52,7 @@ public class SQLTransactionEngine implements TransactionEngine
 			} catch (PersistenceException pe)
 			{
 				retry++;
-				if (retry < transactional.maxRetries())
+				if (retry < maxRetries)
 				{
 					if (log.isDebugEnabled())
 						log.debug("Got persistence error, will do retry #" + retry + 
@@ -68,12 +67,12 @@ public class SQLTransactionEngine implements TransactionEngine
 
 			} finally
 			{
-				cleanupTransaction(pjp, transactional);
+				cleanupTransaction(pjp);
 			}
 		} while(true);
 	}
 	
-	private void setupTransactionSession(ProceedingJoinPoint pjp, Transactional transactional)
+	private void setupTransactionSession(ProceedingJoinPoint pjp)
 	{
 		TransactionsState<SQLTransactionState> transactionsStack = SQLTransactionTL.transactionState.get();
 		
@@ -89,9 +88,9 @@ public class SQLTransactionEngine implements TransactionEngine
 		}
 	}
 	
-	private void commitIfNeeded(ProceedingJoinPoint pjp, Transactional transactional)
+	private void commitIfNeeded(ProceedingJoinPoint pjp, boolean autoCommit)
 	{
-		if (!transactional.autoCommit())
+		if (!autoCommit)
 			return;
 
 		TransactionsState<SQLTransactionState> transactionsStack = SQLTransactionTL.transactionState.get();
@@ -106,7 +105,7 @@ public class SQLTransactionEngine implements TransactionEngine
 		}
 	}
 
-	private void cleanupTransaction(ProceedingJoinPoint pjp, Transactional transactional)
+	private void cleanupTransaction(ProceedingJoinPoint pjp)
 	{
 		TransactionsState<SQLTransactionState> transactionsStack = SQLTransactionTL.transactionState.get();
 		SQLTransactionState ti = transactionsStack.pop();

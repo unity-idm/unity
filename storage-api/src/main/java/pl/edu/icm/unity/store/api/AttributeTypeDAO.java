@@ -12,4 +12,5 @@ import pl.edu.icm.unity.types.basic.AttributeType;
  */
 public interface AttributeTypeDAO extends BasicCRUDDAO<AttributeType>
 {
+	String DAO_ID = "attributeTypesDAO";
 }
