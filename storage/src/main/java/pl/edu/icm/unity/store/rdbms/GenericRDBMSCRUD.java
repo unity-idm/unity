@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
-import pl.edu.icm.unity.store.tx.SQLTransactionTL;
+import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 
 /**
  * Base implementation of RDBMS based CRUD DAO.

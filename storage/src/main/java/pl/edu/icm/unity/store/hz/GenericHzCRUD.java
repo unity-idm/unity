@@ -12,8 +12,8 @@ import java.util.Map;
 import com.hazelcast.core.TransactionalMap;
 
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
+import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.store.rdbmsflush.RDBMSMutationEvent;
-import pl.edu.icm.unity.store.tx.TransactionTL;
 
 /**
  * Generic CRUD implementation on hazelcast map.
@@ -49,7 +49,7 @@ public abstract class GenericHzCRUD<T> implements BasicCRUDDAO<T>
 		if (hMap.containsKey(key))
 			throw new IllegalArgumentException(name + " [" + key + "] already exists");
 		hMap.put(key, obj);
-		TransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, "create", obj));
+		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, "create", obj));
 	}
 	
 	@Override
@@ -60,7 +60,7 @@ public abstract class GenericHzCRUD<T> implements BasicCRUDDAO<T>
 		if (!hMap.containsKey(key))
 			throw new IllegalArgumentException(name + " [" + key + "] does not exists");
 		hMap.put(key, obj);
-		TransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, "update", obj));
+		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, "update", obj));
 	}
 
 	@Override
@@ -69,7 +69,7 @@ public abstract class GenericHzCRUD<T> implements BasicCRUDDAO<T>
 		T removed = getMap().remove(id);
 		if (removed == null)
 			throw new IllegalArgumentException(name + " [" + id + "] does not exists");
-		TransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, "delete", id));
+		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, "delete", id));
 	}
 
 	@Override
@@ -110,6 +110,6 @@ public abstract class GenericHzCRUD<T> implements BasicCRUDDAO<T>
 	
 	protected TransactionalMap<String, T> getMap()
 	{
-		return TransactionTL.getHzContext().getMap(STORE_ID);
+		return HzTransactionTL.getHzContext().getMap(STORE_ID);
 	}
 }

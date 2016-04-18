@@ -10,6 +10,7 @@ import javax.annotation.PostConstruct;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
@@ -18,12 +19,13 @@ import com.hazelcast.core.HazelcastInstance;
 
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.store.hz.tx.HzTransactionalRunner;
 import pl.edu.icm.unity.store.impl.attribute.AttributeTypeHzStore;
 import pl.edu.icm.unity.store.impl.attribute.AttributeTypeRDBMSStore;
 import pl.edu.icm.unity.store.impl.identity.IdentityTypeHzStore;
 import pl.edu.icm.unity.store.impl.identity.IdentityTypeRDBMSStore;
 import pl.edu.icm.unity.store.rdbms.InitDB;
-import pl.edu.icm.unity.store.tx.RDBMSTransactionalRunner;
+import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionalRunner;
 
 /**
  * Loads Hazelcast data from RDBMS at startup.
@@ -44,10 +46,10 @@ public class StoreLoader
 	@Autowired
 	private IdentityTypeRDBMSStore rdbmsIdTypeStore;
 	
-	@Autowired
-	private RDBMSTransactionalRunner rdbmstx;
-	@Autowired
-	private TransactionalRunner tx;
+	@Autowired @Qualifier(SQLTransactionalRunner.NAME)
+	private TransactionalRunner rdbmstx;
+	@Autowired @Qualifier(HzTransactionalRunner.NAME)
+	private TransactionalRunner hztx;
 	
 	@Autowired
 	private InitDB initDB;
@@ -58,7 +60,7 @@ public class StoreLoader
 	public void initializeStores()
 	{
 		rdbmstx.runInTransaction(() -> {
-			tx.runInTransaction(() -> {
+			hztx.runInTransaction(() -> {
 				loadFromPersistentStore();
 			}); 
 		});

@@ -8,7 +8,7 @@ package pl.edu.icm.unity.store.tx;
  * Thrown when a retries of an transaction fails. Wrapped exception is the exception of the last try.
  * @author K. Benedyczak
  */
-class TxPersistenceException extends Exception
+public class TxPersistenceException extends Exception
 {
 	public TxPersistenceException(Exception cause)
 	{

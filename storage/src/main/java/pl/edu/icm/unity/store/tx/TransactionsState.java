@@ -11,21 +11,21 @@ import java.util.Deque;
  * Stores transaction state, useful when transactions are nested
  * @author K. Benedyczak
  */
-public class TransactionsState
+public class TransactionsState<T>
 {
-	private Deque<TransactionState> transactionsStack = new ArrayDeque<>();
+	private Deque<T> transactionsStack = new ArrayDeque<>();
 	
-	public void push(TransactionState transactionInfo)
+	public void push(T transactionInfo)
 	{
 		transactionsStack.push(transactionInfo);
 	}
 	
-	public TransactionState pop()
+	public T pop()
 	{
 		return transactionsStack.pop();
 	}
 
-	public TransactionState getCurrent()
+	public T getCurrent()
 	{
 		if (transactionsStack.isEmpty())
 			throw new IllegalStateException("There is no transaction in the context. This is a bug.");
@@ -40,5 +40,13 @@ public class TransactionsState
 	public boolean isSubtransaction()
 	{
 		return transactionsStack.size() > 1;
+	}
+	
+	public static class TransactionsThreadLocal<T> extends ThreadLocal<TransactionsState<T>>
+	{
+		public TransactionsState<T> initialValue()
+		{
+			return new TransactionsState<>();
+		}
 	}
 }

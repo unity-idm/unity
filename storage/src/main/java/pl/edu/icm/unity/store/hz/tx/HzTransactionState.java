@@ -2,7 +2,7 @@
  * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.store.tx;
+package pl.edu.icm.unity.store.hz.tx;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,17 +12,17 @@ import com.hazelcast.transaction.TransactionContext;
 import pl.edu.icm.unity.store.rdbmsflush.RDBMSEventsBatch;
 import pl.edu.icm.unity.store.rdbmsflush.RDBMSMutationEvent;
 
-public class TransactionState
+public class HzTransactionState
 {
 	private TransactionContext context;
 	private List<RDBMSMutationEvent> rdbmsQueue = new ArrayList<>();
 	
-	public TransactionState(TransactionContext context)
+	public HzTransactionState(TransactionContext context)
 	{
 		this.context = context;
 	}
 	
-	public TransactionState(TransactionState parent)
+	public HzTransactionState(HzTransactionState parent)
 	{
 		this.context = parent.context;
 		this.rdbmsQueue = parent.rdbmsQueue;

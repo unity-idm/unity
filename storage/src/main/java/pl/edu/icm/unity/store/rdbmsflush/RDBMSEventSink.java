@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.hazelcast.core.HazelcastInstance;
@@ -17,9 +18,10 @@ import com.hazelcast.transaction.TransactionContext;
 
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.store.tx.RDBMSTransactionalRunner;
-import pl.edu.icm.unity.store.tx.SQLTransactionTL;
-import pl.edu.icm.unity.store.tx.TransactionTL;
+import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
+import pl.edu.icm.unity.store.hz.tx.HzTransactionalRunner;
+import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
+import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionalRunner;
 
 /**
  * Background thread flushing RBMS mutation events from the global queue to RDBMS.
@@ -39,10 +41,10 @@ public class RDBMSEventSink
 
 	@Autowired
 	private HazelcastInstance hzInstance;
-	@Autowired
-	private TransactionalRunner tx;
-	@Autowired
-	private RDBMSTransactionalRunner rdbmsTx;
+	@Autowired @Qualifier(HzTransactionalRunner.NAME)
+	private TransactionalRunner hztx;
+	@Autowired @Qualifier(SQLTransactionalRunner.NAME)
+	private TransactionalRunner rdbmsTx;
 	@Autowired
 	private RDBMSMutationEventProcessor rdbmsProcessor;
 	
@@ -76,8 +78,8 @@ public class RDBMSEventSink
 	 */
 	private boolean processEvents()
 	{
-		return tx.runInTransactionRet(() -> {
-			TransactionContext hzContext = TransactionTL.getHzContext();
+		return hztx.runInTransactionRet(() -> {
+			TransactionContext hzContext = HzTransactionTL.getHzContext();
 			TransactionalQueue<RDBMSEventsBatch> queue = hzContext.getQueue(RDBMS_EVENTS_QUEUE);
 			
 			RDBMSEventsBatch batch = null;

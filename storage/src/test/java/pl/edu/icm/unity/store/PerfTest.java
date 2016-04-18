@@ -12,16 +12,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.base.utils.StopWatch;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
+import pl.edu.icm.unity.store.hz.tx.HzTransactionalRunner;
 import pl.edu.icm.unity.store.impl.attribute.AttributeTypeHzStore;
 import pl.edu.icm.unity.store.impl.attribute.AttributeTypeRDBMSStore;
+import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionalRunner;
 import pl.edu.icm.unity.store.rdbmsflush.RDBMSEventSink;
-import pl.edu.icm.unity.store.tx.RDBMSTransactionalRunner;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
@@ -35,11 +37,11 @@ public class PerfTest
 	@Autowired
 	private StoreLoader dbCleaner;
 
-	@Autowired
+	@Autowired @Qualifier(HzTransactionalRunner.NAME)
 	private TransactionalRunner txHz;
 	
-	@Autowired
-	private RDBMSTransactionalRunner txSql;
+	@Autowired @Qualifier(SQLTransactionalRunner.NAME)
+	private TransactionalRunner txSql;
 	
 	@Autowired
 	private AttributeTypeHzStore dao;
