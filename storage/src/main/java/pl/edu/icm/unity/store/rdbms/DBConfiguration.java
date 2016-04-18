@@ -42,7 +42,6 @@ public class DBConfiguration extends PropertiesHelper
 	public static final String PREFIX = "unityServer.db.";
 	
 	public static final String DBCONFIG_FILE = "mapconfigFile";
-	public static final String LOCAL_DB_URL = "localDBUrl";
 	public static final String IGNORE_ALTERNATIVE_DB_CONFIG = "ignoreAlternativeDbConfig";
 	public static final String MAX_POOL_SIZE = "maxConnectionPoolSize";
 	public static final String MIN_POOL_SIZE = "minConnectionPoolSize";
@@ -63,9 +62,6 @@ public class DBConfiguration extends PropertiesHelper
 				Dialect.h2, "");
 		META.put(DBCONFIG_FILE, new PropertyMD().setPath().setHidden().
 				setDescription("Path of the low level database file with mappings configuration."));
-		META.put(LOCAL_DB_URL, new PropertyMD("jdbc:h2:file:./data/unity-localdb.bin").
-				setDescription("Location of the local H2 database can be " +
-				"controlled with this connection URL."));
 		META.put(MAX_IDLE_CONNECTION_TIME, new PropertyMD("1800").
 				setDescription("Time in seconds after which an idle connection "
 						+ "is closed (and recreated if needed). Set to 0 to disable. "

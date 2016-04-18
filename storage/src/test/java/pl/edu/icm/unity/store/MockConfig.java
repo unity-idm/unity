@@ -18,7 +18,6 @@ public class MockConfig implements StoragePropertiesSource
 	{
 		Properties ret = new Properties();
 		ret.setProperty("unityServer.db.jdbcUrl", "jdbc:h2:file:./target/data/unitydb.bin");
-		ret.setProperty("unityServer.db.localDBUrl", "jdbc:h2:file:./target/data/unitydb-local.bin");
 		return ret;
 	}
 }

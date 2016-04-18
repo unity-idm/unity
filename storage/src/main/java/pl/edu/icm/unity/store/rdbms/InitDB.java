@@ -37,17 +37,16 @@ public class InitDB
 	public static final String ROOT_GROUP_NAME = "ROOT";
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, InitDB.class);
 	private final String UPDATE_SCHEMA_PFX = "updateSchema-";
-
+	public static final String LAST_SUPPORTED_DB_VERSION = "2_1_5";
+	
 	private long dbVersionAtServerStarup;
 	private DBSessionManager db;
-	private LocalDBSessionManager localDb;
 
 	@Autowired
-	public InitDB(DBSessionManager db, LocalDBSessionManager localDb) 
+	public InitDB(DBSessionManager db) 
 			throws FileNotFoundException, InternalException, IOException, EngineException
 	{
 		this.db = db;
-		this.localDb = localDb;
 	}
 
 	/**
@@ -57,7 +56,6 @@ public class InitDB
 	{
 		log.info("Database will be totally wiped");
 		performUpdate(db, "cleardb-");
-		performUpdate(localDb, "cleardb-");
 		log.info("The whole contents removed");
 		initDB();
 	}
@@ -88,6 +86,11 @@ public class InitDB
 					+ "Please upgrade the server software.");
 		} else if (dbVersionAtServerStarup < dbVersionOfSoftware)
 		{
+			if (dbVersionAtServerStarup < dbVersion2Long(LAST_SUPPORTED_DB_VERSION))
+				throw new InternalException("The database schema version " + dbVersion + 
+						" is older then the last supported version. "
+						+ "Please make sure you are updating Unity from the previous version"
+						+ " and check release notes.");
 			updateSchema(dbVersionAtServerStarup);
 		}
 	}
@@ -124,7 +127,7 @@ public class InitDB
 				session.update(name);
 	}
 	
-	private void performUpdate(SessionManager db, String operationPfx)
+	private void performUpdate(DBSessionManager db, String operationPfx)
 	{
 		Collection<String> ops = new TreeSet<String>(db.getMyBatisConfiguration().getMappedStatementNames());
 		SqlSession session = db.getSqlSession(ExecutorType.BATCH, true);
@@ -144,7 +147,6 @@ public class InitDB
 	{
 		log.info("Initializing DB schema");
 		performUpdate(db, "initdb");
-		performUpdate(localDb, "initdb");
 		SqlSession session = db.getSqlSession(false);
 		try
 		{

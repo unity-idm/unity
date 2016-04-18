@@ -32,7 +32,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
  * @author K. Benedyczak
  */
 @Component
-public class DBSessionManager implements SessionManager
+public class DBSessionManager
 {
 	public static final String DEF_MAPCONFIG_LOCATION = "pl/edu/icm/unity/store/rdbms/mapper/mapconfig.xml";
 
@@ -71,19 +71,16 @@ public class DBSessionManager implements SessionManager
 		return builder.build(reader, properties);
 	}
 
-	@Override
 	public Configuration getMyBatisConfiguration()
 	{
 		return sqlMapFactory.getConfiguration();
 	}
 	
-	@Override
 	public SqlSession getSqlSession(boolean transactional)
 	{
 		return getSqlSession(ExecutorType.SIMPLE, transactional);
 	}
 
-	@Override
 	public SqlSession getSqlSession(ExecutorType executor, boolean transactional)
 	{
 		return sqlMapFactory.openSession(executor, !transactional);

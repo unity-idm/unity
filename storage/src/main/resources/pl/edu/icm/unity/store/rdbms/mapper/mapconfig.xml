@@ -19,6 +19,7 @@
 		<typeAlias alias="TokenB" type="pl.edu.icm.unity.store.rdbms.model.TokenBean" />
 		<typeAlias alias="GroupElementChangeB" type="pl.edu.icm.unity.store.rdbms.model.GroupElementChangeBean" />
 		<typeAlias alias="DBLimitsBean" type="pl.edu.icm.unity.store.rdbms.model.DBLimitsBean" />
+		<typeAlias alias="EventB" type="pl.edu.icm.unity.store.rdbms.model.EventBean" />
 	</typeAliases>
 	
 	<environments default="def">
@@ -61,5 +62,6 @@
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Attributes.xml" />
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Generic.xml" />
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Tokens.xml" />
+		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Events.xml" />
 	</mappers>
 </configuration>

@@ -44,6 +44,12 @@
 	<update id="cleardb-11">
 		DROP TABLE IF EXISTS ATTRIBUTE_TYPES;
 	</update>
+	<update id="cleardb-12">
+		DROP INDEX IF EXISTS EVENTS_DATES_IDX;
+	</update>
+	<update id="cleardb-13">
+		DROP TABLE IF EXISTS EVENTS_QUEUE;
+	</update>
 		
 	<select id="getDBVersion" resultType="String">
 		select VAL from UVOS_FLAG 
@@ -82,5 +88,8 @@
 	</delete>
 	<delete id="deletedb-10">
 		DELETE FROM ATTRIBUTE_TYPES;
+	</delete>
+	<delete id="deletedb-11">
+		DELETE FROM EVENTS_QUEUE;
 	</delete>
 </mapper>

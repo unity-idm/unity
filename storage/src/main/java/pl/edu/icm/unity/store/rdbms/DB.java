@@ -31,19 +31,17 @@ import pl.edu.icm.unity.store.rdbms.model.DBLimitsBean;
 @Component
 public class DB
 {
-	public static final String DB_VERSION = "2_1_5";
+	public static final String DB_VERSION = "2_2_0";
 	
 	private DBLimitsBean limits;
-	private DBLimitsBean localLimits;
 
 	@Autowired
-	public DB(DBSessionManager sessionMan, LocalDBSessionManager localSessionMan, InitDB initDB) 
+	public DB(DBSessionManager sessionMan, InitDB initDB) 
 			throws InternalException, IOException, EngineException
 	{
 		initDB.initIfNeeded();
 		verifyDBVersion(sessionMan);
 		limits = establishDBLimits(sessionMan, InitdbMapper.class);
-		localLimits = establishDBLimits(localSessionMan, pl.edu.icm.unity.store.rdbms.mapper.local.InitdbMapper.class);
 	}
 	
 	private final void verifyDBVersion(DBSessionManager sessionMan) throws InternalException
@@ -69,12 +67,7 @@ public class DB
 		return new DBLimit(limits);
 	}
 
-	public DBLimitsBean getLocalDBLimits()
-	{
-		return localLimits;
-	}
-	
-	public String checkCurrentVersion(SessionManager sessionMan) throws Exception
+	public String checkCurrentVersion(DBSessionManager sessionMan) throws Exception
 	{
 		SqlSession sqlMap = sessionMan.getSqlSession(false);
 		try
@@ -86,7 +79,8 @@ public class DB
 		}
 	}
 	
-	private final DBLimitsBean establishDBLimits(SessionManager sessionMan, Class<? extends InitdbMapper> mapperClass) throws InternalException
+	private final DBLimitsBean establishDBLimits(DBSessionManager sessionMan, 
+			Class<? extends InitdbMapper> mapperClass) throws InternalException
 	{
 		SqlSession sqlMap = sessionMan.getSqlSession(false);
 		try
