@@ -23,14 +23,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
-import pl.edu.icm.unity.store.hz.StoreLoader;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
 public abstract class AbstractDAOTest<T>
 {
 	@Autowired
-	private StoreLoader dbCleaner;
+	private StorageCleaner dbCleaner;
 
 	@Autowired
 	protected TransactionalRunner tx;
@@ -38,7 +37,7 @@ public abstract class AbstractDAOTest<T>
 	@Before
 	public void cleanDB()
 	{
-		dbCleaner.resetDatabase();
+		dbCleaner.reset();
 	}
 
 	protected abstract BasicCRUDDAO<T> getDAO();

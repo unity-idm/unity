@@ -26,7 +26,6 @@ import com.hazelcast.core.HazelcastException;
 import com.hazelcast.core.TransactionalMap;
 
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
-import pl.edu.icm.unity.store.hz.StoreLoader;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionalRunner;
 
@@ -38,12 +37,12 @@ public class HzTransactionTest
 	private TransactionalRunner tx;
 	
 	@Autowired
-	private StoreLoader initDB;
+	private StorageCleaner initDB;
 	
 	@After
 	public void cleanDB()
 	{
-		initDB.resetDatabase();
+		initDB.reset();
 	}
 	
 	@Test

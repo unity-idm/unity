@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
-import pl.edu.icm.unity.base.internal.StorageEngine;
 import pl.edu.icm.unity.store.StorageConfiguration;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 
@@ -28,7 +27,6 @@ public class DefaultAttributeTypeDAOFactory
 	public AttributeTypeDAO getDefaultAttributeTypeDAO(StorageConfiguration cfg, 
 			Map<String, AttributeTypeDAO> atDAOs)
 	{
-		StorageEngine engine = cfg.getEnumValue(StorageConfiguration.ENGINE, StorageEngine.class);
-		return atDAOs.get(AttributeTypeDAO.DAO_ID + engine.name());
+		return atDAOs.get(AttributeTypeDAO.DAO_ID + cfg.getEngine().name());
 	}
 }

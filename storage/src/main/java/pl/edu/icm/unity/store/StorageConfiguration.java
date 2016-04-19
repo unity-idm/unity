@@ -85,6 +85,11 @@ public class StorageConfiguration extends PropertiesHelper
 		engineConfig = cfgFactory.getInstance(properties);
 	}
 	
+	public StorageEngine getEngine()
+	{
+		return getEnumValue(StorageConfiguration.ENGINE, StorageEngine.class);
+	}
+	
 	@SuppressWarnings("unchecked")
 	public <T extends PropertiesHelper> T getEngineConfig()
 	{

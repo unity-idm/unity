@@ -19,7 +19,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.base.utils.StopWatch;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
-import pl.edu.icm.unity.store.hz.StoreLoader;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionalRunner;
 import pl.edu.icm.unity.store.impl.attribute.AttributeTypeHzStore;
 import pl.edu.icm.unity.store.impl.attribute.AttributeTypeRDBMSStore;
@@ -37,7 +36,7 @@ public class PerfTest
 	private final int N = 500;
 	
 	@Autowired
-	private StoreLoader dbCleaner;
+	private StorageCleaner dbCleaner;
 
 	@Autowired @Qualifier(HzTransactionalRunner.NAME)
 	private TransactionalRunner txHz;
@@ -57,7 +56,7 @@ public class PerfTest
 	@Before
 	public void cleanDB()
 	{
-		dbCleaner.resetDatabase();
+		dbCleaner.reset();
 	}
 
 

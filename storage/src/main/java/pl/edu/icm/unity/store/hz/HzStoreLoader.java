@@ -17,25 +17,31 @@ import org.springframework.stereotype.Component;
 import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.HazelcastInstance;
 
+import pl.edu.icm.unity.base.internal.StorageEngine;
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.store.StorageConfiguration;
+import pl.edu.icm.unity.store.StorageCleaner;
+import pl.edu.icm.unity.store.StoreLoaderInternal;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionalRunner;
 import pl.edu.icm.unity.store.impl.attribute.AttributeTypeHzStore;
 import pl.edu.icm.unity.store.impl.attribute.AttributeTypeRDBMSStore;
 import pl.edu.icm.unity.store.impl.identity.IdentityTypeHzStore;
 import pl.edu.icm.unity.store.impl.identity.IdentityTypeRDBMSStore;
-import pl.edu.icm.unity.store.rdbms.InitDB;
+import pl.edu.icm.unity.store.rdbms.DB;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionalRunner;
 
 /**
  * Loads Hazelcast data from RDBMS at startup.
  * @author K. Benedyczak
  */
-@Component
+@Component(HzStoreLoader.NAME)
 @DependsOn(value = {"AttributeSyntaxFactoriesRegistry", "IdentityTypesRegistry"})
-public class StoreLoader
+public class HzStoreLoader implements StoreLoaderInternal
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, StoreLoader.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, HzStoreLoader.class);
+	
+	public static final String NAME = StorageCleaner.BEAN_PFX + "hz";
 	
 	@Autowired
 	private AttributeTypeHzStore atTypeStore;
@@ -52,13 +58,18 @@ public class StoreLoader
 	private TransactionalRunner hztx;
 	
 	@Autowired
-	private InitDB initDB;
+	private DB initDB;
 	@Autowired
 	private HazelcastInstance hzInstance;
+	@Autowired 
+	private StorageConfiguration cfg;
 	
 	@PostConstruct
-	public void initializeStores()
+	public void init() throws Exception
 	{
+		if (cfg.getEngine() != StorageEngine.hz)
+			return;
+		initDB.initialize();
 		rdbmstx.runInTransaction(() -> {
 			hztx.runInTransaction(() -> {
 				loadFromPersistentStore();
@@ -78,12 +89,12 @@ public class StoreLoader
 	/**
 	 * Use with care - only for maintenance in case of tests or expert tools.
 	 */
-	public void resetDatabase()
+	@Override
+	public void reset()
 	{
-		initDB.resetDatabase();
+		initDB.reset();
 		Collection<DistributedObject> distributedObjects = hzInstance.getDistributedObjects();
 		for (DistributedObject obj: distributedObjects)
 				obj.destroy();
-		initializeStores();
 	}
 }

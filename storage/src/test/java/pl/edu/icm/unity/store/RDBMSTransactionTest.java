@@ -25,7 +25,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
-import pl.edu.icm.unity.store.rdbms.InitDB;
 import pl.edu.icm.unity.store.rdbms.mapper.AttributeTypesMapper;
 import pl.edu.icm.unity.store.rdbms.model.AttributeTypeBean;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
@@ -40,12 +39,12 @@ public class RDBMSTransactionTest
 	private TransactionalRunner tx;
 	
 	@Autowired
-	private InitDB initDB;
+	private StorageCleaner initDB;
 	
 	@After
 	public void cleanDB()
 	{
-		initDB.resetDatabase();
+		initDB.reset();
 	}
 	
 	@Test
