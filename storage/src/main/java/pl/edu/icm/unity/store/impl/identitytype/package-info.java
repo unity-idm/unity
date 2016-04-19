@@ -10,4 +10,4 @@
  * Identity related storage implementation
  * @author K. Benedyczak
  */
-package pl.edu.icm.unity.store.impl.identity;
+package pl.edu.icm.unity.store.impl.identitytype;

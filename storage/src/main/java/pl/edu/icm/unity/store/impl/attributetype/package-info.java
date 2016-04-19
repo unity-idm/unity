@@ -10,4 +10,4 @@
  * Attribute related storage
  * @author K. Benedyczak
  */
-package pl.edu.icm.unity.store.impl.attribute;
+package pl.edu.icm.unity.store.impl.attributetype;

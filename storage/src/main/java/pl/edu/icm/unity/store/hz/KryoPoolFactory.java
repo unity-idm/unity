@@ -14,7 +14,7 @@ import com.esotericsoftware.kryo.pool.KryoPool;
 import com.hazelcast.query.impl.AttributeType;
 
 import pl.edu.icm.unity.base.attributes.AttributeTypeSerializer;
-import pl.edu.icm.unity.store.impl.identity.IdentityTypeJsonSerializer;
+import pl.edu.icm.unity.store.impl.identitytype.IdentityTypeJsonSerializer;
 import pl.edu.icm.unity.store.rdbmsflush.RDBMSEventsBatch;
 import pl.edu.icm.unity.store.rdbmsflush.RDBMSMutationEvent;
 import pl.edu.icm.unity.types.basic.IdentityType;

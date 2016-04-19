@@ -24,10 +24,10 @@ import pl.edu.icm.unity.store.StorageConfiguration;
 import pl.edu.icm.unity.store.StorageCleaner;
 import pl.edu.icm.unity.store.StoreLoaderInternal;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionalRunner;
-import pl.edu.icm.unity.store.impl.attribute.AttributeTypeHzStore;
-import pl.edu.icm.unity.store.impl.attribute.AttributeTypeRDBMSStore;
-import pl.edu.icm.unity.store.impl.identity.IdentityTypeHzStore;
-import pl.edu.icm.unity.store.impl.identity.IdentityTypeRDBMSStore;
+import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeHzStore;
+import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeRDBMSStore;
+import pl.edu.icm.unity.store.impl.identitytype.IdentityTypeHzStore;
+import pl.edu.icm.unity.store.impl.identitytype.IdentityTypeRDBMSStore;
 import pl.edu.icm.unity.store.rdbms.DB;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionalRunner;
 
