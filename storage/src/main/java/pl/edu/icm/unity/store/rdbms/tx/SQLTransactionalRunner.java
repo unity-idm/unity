@@ -32,4 +32,18 @@ public class SQLTransactionalRunner implements TransactionalRunner
 	{
 		return code.run();
 	}
+	
+	@TransactionalExt(storageEngine=StorageEngine.rdbms, autoCommit = false)
+	@Override
+	public void runInTransactionNoAutoCommit(TxRunnable code)
+	{
+		code.run();
+	}
+	
+	@TransactionalExt(storageEngine=StorageEngine.rdbms, autoCommit = false)
+	@Override
+	public <T> T runInTransactionNoAutoCommitRet(TxRunnableRet<T> code)
+	{
+		return code.run();
+	}
 }

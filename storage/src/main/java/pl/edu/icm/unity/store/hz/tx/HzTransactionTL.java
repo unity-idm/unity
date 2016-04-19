@@ -22,11 +22,17 @@ public class HzTransactionTL
 	static ThreadLocal<TransactionsState<HzTransactionState>> transactionState = 
 			new TransactionsState.TransactionsThreadLocal<>();
 	
+	public static void manualCommit()
+	{
+		transactionState.get().getCurrent().getHzContext().commitTransaction();
+		transactionState.get().getCurrent().getHzContext().beginTransaction();
+	}
+	
 	public static TransactionContext getHzContext()
 	{
 		return transactionState.get().getCurrent().getHzContext();
 	}
-
+	
 	public static void enqueueRDBMSMutation(RDBMSMutationEvent event)
 	{
 		transactionState.get().getCurrent().enqueueEvent(event);

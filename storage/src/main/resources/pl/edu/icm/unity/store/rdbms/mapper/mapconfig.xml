@@ -32,7 +32,7 @@
 				<property name="password" value="${password}" />
 				<property name="defaultAutoCommit" value="true" />
 			
-				<property name="defaultTransactionIsolationLevel" value="4" /> 
+				<property name="defaultTransactionIsolationLevel" value="1" /> 
 				
 				<property name="poolMaximumActiveConnections" value="20" />
 				<property name="poolMaximumIdleConnections" value="10" />

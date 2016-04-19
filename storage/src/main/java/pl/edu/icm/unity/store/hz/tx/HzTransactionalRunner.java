@@ -32,4 +32,19 @@ public class HzTransactionalRunner implements TransactionalRunner
 	{
 		return code.run();
 	}
+	
+	@TransactionalExt(storageEngine=StorageEngine.hz, autoCommit = false)
+	@Override
+	public void runInTransactionNoAutoCommit(TxRunnable code)
+	{
+		code.run();
+		
+	}
+	
+	@TransactionalExt(storageEngine=StorageEngine.hz, autoCommit = false)
+	@Override
+	public <T> T runInTransactionNoAutoCommitRet(TxRunnableRet<T> code)
+	{
+		return code.run();
+	}
 }

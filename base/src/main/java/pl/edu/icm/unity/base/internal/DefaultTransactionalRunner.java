@@ -30,5 +30,19 @@ public class DefaultTransactionalRunner implements TransactionalRunner
 	{
 		return code.run();
 	}
+	
+	@Transactional(autoCommit = false)
+	@Override
+	public void runInTransactionNoAutoCommit(TxRunnable code)
+	{
+		code.run();
+	}
+	
+	@Transactional(autoCommit = false)
+	@Override
+	public <T> T runInTransactionNoAutoCommitRet(TxRunnableRet<T> code)
+	{
+		return code.run();
+	}
 
 }
