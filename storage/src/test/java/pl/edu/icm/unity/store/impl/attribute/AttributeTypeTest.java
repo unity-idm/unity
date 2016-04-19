@@ -2,7 +2,7 @@
  * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.store;
+package pl.edu.icm.unity.store.impl.attribute;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -12,8 +12,10 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.store.AbstractDAOTest;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
+import pl.edu.icm.unity.store.mocks.MockAttributeSyntax;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;

@@ -49,6 +49,7 @@ public class HazelcastMemberInitializer
 		GlobalSerializerConfig globalSCfg = new GlobalSerializerConfig();
 		globalSCfg.setImplementation(globalSerializer);
 		serializationConfig.setGlobalSerializerConfig(globalSCfg);
-		return Hazelcast.newHazelcastInstance(config);
+		
+		return Hazelcast.getOrCreateHazelcastInstance(config);
 	}
 }

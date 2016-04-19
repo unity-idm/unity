@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.store.rdbms.StoragePropertiesSource;
 
 @Component
-public class MockConfig implements StoragePropertiesSource
+public class TestsConfiguration implements StoragePropertiesSource
 {
 	@Autowired
 	private Environment env;

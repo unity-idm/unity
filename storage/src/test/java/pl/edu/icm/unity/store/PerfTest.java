@@ -23,6 +23,7 @@ import pl.edu.icm.unity.store.hz.StoreLoader;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionalRunner;
 import pl.edu.icm.unity.store.impl.attribute.AttributeTypeHzStore;
 import pl.edu.icm.unity.store.impl.attribute.AttributeTypeRDBMSStore;
+import pl.edu.icm.unity.store.mocks.MockAttributeSyntax;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionalRunner;
 import pl.edu.icm.unity.store.rdbmsflush.RDBMSEventSink;
 import pl.edu.icm.unity.types.I18nString;

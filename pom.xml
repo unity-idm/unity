@@ -46,6 +46,7 @@
 		<module>core</module>
 		<module>engine</module>
 		<module>persistence</module>
+		<module>base</module>
 		<module>storage-api</module>
 		<module>storage</module>
 		<module>std-extensions</module>
