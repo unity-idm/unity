@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 
+import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.api.ldap.model.cursor.SingletonCursor;
@@ -224,7 +225,8 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 		if (authnResult.getStatus() == Status.success && 
 				!authnResult.getAuthenticatedEntity().isUsedOutdatedCredential())
 		{
-			LdapPrincipal policyConfig = new LdapPrincipal();
+			LdapPrincipal policyConfig = new LdapPrincipal(
+				schemaManager, bindContext.getDn(), AuthenticationLevel.SIMPLE);
 			bindContext.setCredentials(null);
 			policyConfig.setUserPassword(new byte[][] { StringConstants.EMPTY_BYTES });
 			DefaultCoreSession mods = new DefaultCoreSession(policyConfig,

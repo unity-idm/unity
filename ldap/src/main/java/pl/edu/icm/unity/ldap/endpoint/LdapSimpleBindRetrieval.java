@@ -38,7 +38,7 @@ public class LdapSimpleBindRetrieval extends AbstractCredentialRetrieval<Passwor
 	}
 
 
-	private String extractUsernameFromDN(Dn dn)
+	public static String extractUsernameFromDN(Dn dn)
 	{
 		//FIXME - this should be configurable and more flexible. 
 		//Currently ANYTHING=usernameOrEmail must be used as bind DN
