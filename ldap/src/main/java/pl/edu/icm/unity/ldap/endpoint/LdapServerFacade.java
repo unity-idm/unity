@@ -97,10 +97,16 @@ public class LdapServerFacade
         ds.getChangeLog().setEnabled(false);
 
         // prepare the working dir with all the required settings
-        prepareWorkDir(deleteWorkDir);
+        boolean shouldStartClose = prepareWorkDir(deleteWorkDir);
 
         // load the required settings
         loadSettings();
+
+        // see https://issues.apache.org/jira/browse/DIRSERVER-1954
+        if (shouldStartClose) {
+            ds.startup();
+            ds.shutdown();
+        }
 
         //
         setUnityInterceptor(interceptor);
@@ -119,9 +125,12 @@ public class LdapServerFacade
      * Apache DS has to be initialised with schemas etc. - this directory
      * will be used to hold all the required configuration which is then
      * loaded
+     *
+     * @return True if the work directory has been cleand
      */
-    private File prepareWorkDir(boolean delete_work_dir) throws IOException
+    private boolean prepareWorkDir(boolean delete_work_dir) throws IOException
     {
+        boolean fromScratch = false;
         File workdirF = new File(workdir);
         if (delete_work_dir && workdirF.exists())
         {
@@ -132,6 +141,7 @@ public class LdapServerFacade
 
         if (shouldExtract)
         {
+            fromScratch = true;
             InputStream jarZipIs = LdapServerFacade.class.getClassLoader().getResourceAsStream(
                 partitionResource);
             ZipInputStream zis = new ZipInputStream(jarZipIs);
@@ -150,7 +160,7 @@ public class LdapServerFacade
             zis.close();
         }
 
-        return workdirF;
+        return fromScratch;
     }
 
     /**
