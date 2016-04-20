@@ -42,11 +42,11 @@
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-server-web-common</artifactId>
+			<artifactId>unity-server-engine</artifactId>
 			<version>${project.version}</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
@@ -81,14 +81,6 @@
 		<dependency>
 			<groupId>org.apache.directory.server</groupId>
 			<artifactId>apacheds-core-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.directory.shared</groupId>
-			<artifactId>shared-ldap-schema-data</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.directory.shared</groupId>
-			<artifactId>shared-ldap-schema</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.directory.api</groupId>
