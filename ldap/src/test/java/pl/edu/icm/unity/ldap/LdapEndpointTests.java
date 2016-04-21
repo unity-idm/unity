@@ -17,6 +17,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +38,11 @@ public class LdapEndpointTests extends DBIntegrationTestBase
 		"unity.ldapServer.userQuery=cn\n" +
 		"unity.ldapServer.groupMember=member\n" +
 		"unity.ldapServer.groupMemberUserRegexp=cn\n" +
-		"unity.ldapServer.returnedUserAttributes=cn,entryDN,jpegPhoto\n";
+		"unity.ldapServer.returnedUserAttributes=cn,entryDN,jpegPhoto\n" +
+        "unity.ldapServer.tls=true\n" +
+        "unity.ldapServer.certPassword=test.p4ss\n" +
+        "unity.ldapServer.keystoreName=ldap.test.keystore\n"
+        ;
 
     public static final String ldapClientConfiguration =
         "ldap.servers.1=" + ldapEndpointHostname + "\n" +
@@ -46,6 +51,15 @@ public class LdapEndpointTests extends DBIntegrationTestBase
         "ldap.authenticateOnly=true\n" +
         "ldap.trustAllServerCertificates=true\n" +
         "ldap.translationProfile=dummy\n";
+
+    public static LdapClientConfiguration getLdapClientConfig(String conf) throws IOException
+    {
+        Properties p = new Properties();
+        p.load(new StringReader(conf));
+        LdapProperties lp = new LdapProperties(p);
+        LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, null);
+        return clientConfig;
+    }
 
 	@Test
 	public void testBind() throws Exception
@@ -58,22 +72,21 @@ public class LdapEndpointTests extends DBIntegrationTestBase
 		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
 
-		// now test bind
-		Properties p = new Properties();
-        p.load(new StringReader(ldapClientConfiguration));
-		LdapProperties lp = new LdapProperties(p);
-
-		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, null);
-
-		LdapClient client = new LdapClient("test");
+        LdapClient client = new LdapClient("test");
 
         // test binding that should SUCCEED
-        client.bindAndSearch("admin", "a", clientConfig);
+        for (String s : new String[] {
+            "ldap.connectionMode=plain",
+            "ldap.connectionMode=startTLS",
+        })
+        {
+            client.bindAndSearch("admin", "a", getLdapClientConfig(ldapClientConfiguration + s));
+        }
 
         // test binding that should FAIL
         try
         {
-            client.bindAndSearch("user1", "wrong", clientConfig);
+            client.bindAndSearch("user1", "wrong", getLdapClientConfig(ldapClientConfiguration));
             fail("authenticated with a wrong password");
         } catch (LdapAuthenticationException e)
         {

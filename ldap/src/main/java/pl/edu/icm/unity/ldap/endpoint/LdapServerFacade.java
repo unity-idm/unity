@@ -33,12 +33,20 @@ import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import pl.edu.icm.unity.ldaputils.LDAPAttributeTypesConverter;
+import sun.security.x509.*;
 
 import java.io.*;
+import java.security.*;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -87,6 +95,12 @@ public class LdapServerFacade
         return da;
     }
 
+    /**
+     * Initialise the LDAP server and the directory service.
+     *
+     * @param deleteWorkDir - should we reuse the LDAP initialisation data
+     * @param interceptor - unity's LDAP interceptor
+     */
     public void init(boolean deleteWorkDir, BaseInterceptor interceptor) throws Exception
     {
         impl = new LdapServer();
@@ -95,25 +109,44 @@ public class LdapServerFacade
 
         ds = new DefaultDirectoryService();
         ds.getChangeLog().setEnabled(false);
+        // ?
+        ds.setDenormalizeOpAttrsEnabled(true);
 
         // prepare the working dir with all the required settings
         boolean shouldStartClose = prepareWorkDir(deleteWorkDir);
 
-        // load the required settings
-        loadSettings();
+        // load the required data
+        loadData();
 
         // see https://issues.apache.org/jira/browse/DIRSERVER-1954
-        if (shouldStartClose) {
+        if (shouldStartClose)
+        {
             ds.startup();
             ds.shutdown();
         }
-
-        //
-        setUnityInterceptor(interceptor);
-
-        //
         impl.setDirectoryService(ds);
-        ds.startup();
+
+        // "inject" unity's code
+        setUnityInterceptor(interceptor);
+    }
+
+
+    /**
+     * Enable TLS support
+     */
+    public void initTLS(String keystoreFileName, String password, boolean forceTls)
+    {
+        // TLS support
+        try {
+            impl.setKeystoreFile(LdapServerKeys.getKeystore(keystoreFileName, password).getAbsolutePath());
+            impl.setCertificatePassword(password);
+            StartTlsHandler handler = new StartTlsHandler();
+            impl.addExtendedOperationHandler(handler);
+            // force TLS on every connection
+            impl.setConfidentialityRequired(forceTls);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public String getAdminDN()
@@ -126,7 +159,7 @@ public class LdapServerFacade
      * will be used to hold all the required configuration which is then
      * loaded
      *
-     * @return True if the work directory has been cleand
+     * @return True if the work directory has been cleaned
      */
     private boolean prepareWorkDir(boolean delete_work_dir) throws IOException
     {
@@ -141,16 +174,22 @@ public class LdapServerFacade
 
         if (shouldExtract)
         {
+            // indicate that we start for the first time
             fromScratch = true;
+
+            // copy resources (kind-of minimalistic version from apacheds) to the destination directory
             InputStream jarZipIs = LdapServerFacade.class.getClassLoader().getResourceAsStream(
                 partitionResource);
             ZipInputStream zis = new ZipInputStream(jarZipIs);
             ZipEntry entry;
-            while ((entry = zis.getNextEntry()) != null) {
+            while ((entry = zis.getNextEntry()) != null)
+            {
                 File entryDestination = new File(workdirF,  entry.getName());
-                if (entry.isDirectory()) {
+                if (entry.isDirectory())
+                {
                     entryDestination.mkdirs();
-                } else {
+                } else
+                {
                     entryDestination.getParentFile().mkdirs();
                     OutputStream out = new FileOutputStream(entryDestination);
                     IOUtils.copy(zis, out);
@@ -164,9 +203,9 @@ public class LdapServerFacade
     }
 
     /**
-     *
+     * Load data required by the ldap directory implementation from a directory.
      */
-    private void loadSettings() throws Exception
+    private void loadData() throws Exception
     {
         File schemaPartitionDirectory = new File(ds.getInstanceLayout()
                 .getPartitionsDirectory(), "schema");
@@ -196,7 +235,7 @@ public class LdapServerFacade
     private void setUnityInterceptor(BaseInterceptor injectedInterceptor)
     {
         List<Interceptor> interceptors = ds.getInterceptors();
-        // Find Normalization interceptor in chain
+        // find Normalization interceptor in chain
         int insertionPosition = -1;
         for (int pos = 0; pos < interceptors.size(); ++pos)
         {
@@ -212,39 +251,12 @@ public class LdapServerFacade
         ds.setInterceptors(interceptors);
     }
 
-    public void changeAdminPasswordBeforeStart(String password) throws LdapException
-    {
-        Dn systemDN = new Dn(ServerDNConstants.ADMIN_SYSTEM_DN);
-        Partition p = ds.getPartitionNexus().getPartition(systemDN);
-        List<Modification> lmods = new ArrayList<>();
-        // magic constants
-        // https://tools.ietf.org/html/rfc4519 - Page 27
-        Attribute da = getAttribute("userPassword", "2.5.4.35");
-        da.add(password);
-        DefaultModification dm = new DefaultModification(
-                ModificationOperation.REPLACE_ATTRIBUTE, da);
-        lmods.add(dm);
-        p.modify(new ModifyOperationContext(null, systemDN, lmods));
-    }
-
-    public void addUser(String cn, String password, String displayName) throws LdapException
-    {
-        Dn userDN = new Dn("cn=" + cn + "," + ServerDNConstants.SYSTEM_DN);
-        Entry serverEntry = new DefaultEntry(ds.getSchemaManager(), userDN);
-        serverEntry.put(SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC,
-                SchemaConstants.PERSON_OC,
-                SchemaConstants.ORGANIZATIONAL_PERSON_OC,
-                SchemaConstants.INET_ORG_PERSON_OC);
-        serverEntry.put(SchemaConstants.UID_AT, PartitionNexus.ADMIN_UID);
-        serverEntry.put(SchemaConstants.USER_PASSWORD_AT, Strings.getBytesUtf8(password));
-        serverEntry.put(SchemaConstants.DISPLAY_NAME_AT, displayName);
-        serverEntry.put(SchemaConstants.CN_AT, cn);
-        serverEntry.add(SchemaConstants.ENTRY_CSN_AT, ds.getCSN().toString());
-        ds.getPartitionNexus().add(new AddOperationContext(null, userDN, serverEntry));
-    }
-
+    /**
+     * Start the directory service and the embedded ldap server
+     */
     public void start() throws Exception
     {
+        ds.startup();
         impl.start();
     }
 }
