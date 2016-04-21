@@ -142,7 +142,7 @@ public class LdapClient
 	{
 		if (configuration.isBindAsUser())
 		{
-			log.error("LDAP verification of externaly verified credentials (as TLS verified certificates)"
+			log.error("LDAP verification of externally verified credentials (as TLS verified certificates)"
 					+ " can be only performed when the LDAP subsystem is configured to bind "
 					+ "with a system credential");
 			throw new LdapAuthenticationException("Can't authenticate");

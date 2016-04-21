@@ -30,10 +30,13 @@ public class LdapServerProperties extends PropertiesHelper
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<>();
 	
-	public static final String HOST = "host"; 
-	public static final String LDAP_PORT = "ldapPort"; 
-	public static final String LDAPS_PORT = "ldapsPort"; 
-	public static final String GROUP_QUERY = "groupQuery"; 
+	public static final String HOST = "host";
+	public static final String LDAP_PORT = "ldapPort";
+	public static final String LDAPS_PORT = "ldapsPort";
+	public static final String TLS_SUPPORT = "tls";
+	public static final String CERT_PASSWORD = "certPassword";
+	public static final String KEYSTORE_FILENAME = "keystoreName";
+	public static final String GROUP_QUERY = "groupQuery";
 	public static final String USER_QUERY = "userQuery"; 
 	public static final String GROUP_MEMBER = "groupMember"; 
 	public static final String GROUP_MEMBER_USER_REGEXP = "groupMemberUserRegexp"; 
@@ -45,6 +48,10 @@ public class LdapServerProperties extends PropertiesHelper
 		META.put(HOST, new PropertyMD().setCategory(main).setDescription("LDAP server host settings"));
 		META.put(LDAP_PORT, new PropertyMD().setCategory(main).setDescription("LDAP server port settings"));
 		META.put(LDAPS_PORT, new PropertyMD().setCategory(main).setDescription("LDAPs server port settings"));
+
+		META.put(TLS_SUPPORT, new PropertyMD().setCategory(main).setDescription("LDAP tls support"));
+		META.put(CERT_PASSWORD, new PropertyMD().setCategory(main).setDescription("LDAP certificate password if self created"));
+		META.put(KEYSTORE_FILENAME, new PropertyMD().setCategory(main).setDescription("LDAP keystore filename relative to working directory"));
 
 		META.put(GROUP_QUERY, new PropertyMD().setCategory(main).setDescription("LDAP group query token"));
 		META.put(USER_QUERY, new PropertyMD().setCategory(main).setDescription("LDAP user query token"));

@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.ldap.endpoint;
 
+import java.io.File;
 import java.io.StringReader;
 import java.util.List;
 import java.util.Properties;
@@ -26,90 +27,102 @@ import eu.unicore.util.configuration.ConfigurationException;
  */
 public class LdapEndpoint extends AbstractEndpoint
 {
-	private static final Logger LOG = Log.getLogger(Log.U_SERVER_LDAP_ENDPOINT, LdapServerProperties.class);
-	
-	public static final String SERVER_WORK_DIRECTORY = "/ldapServer"; 
-	
-	private LdapServerProperties configuration;
+    private static final Logger LOG = Log.getLogger(Log.U_SERVER_LDAP_ENDPOINT, LdapServerProperties.class);
 
-	private SessionManagement sessionMan;
+    public static final String SERVER_WORK_DIRECTORY = "/ldapServer";
 
-	private AttributesManagement attributesMan;
+    private LdapServerProperties configuration;
 
-	private IdentitiesManagement identitiesMan;
+    private SessionManagement sessionMan;
 
-	private UnityServerConfiguration mainConfig;
+    private AttributesManagement attributesMan;
 
-	private NetworkServer httpServer;
+    private IdentitiesManagement identitiesMan;
 
-	private UserMapper userMapper;
+    private UnityServerConfiguration mainConfig;
 
-	public LdapEndpoint(NetworkServer server, SessionManagement sessionMan,
-			AttributesManagement attributesMan, IdentitiesManagement identitiesMan, 
-			UnityServerConfiguration mainConfig, UserMapper userMapper)
-	{
-		this.httpServer = server;
-		this.sessionMan = sessionMan;
-		this.attributesMan = attributesMan;
-		this.identitiesMan = identitiesMan;
-		this.mainConfig = mainConfig;
-		this.userMapper = userMapper;
-	}
+    private NetworkServer httpServer;
 
-	@Override
-	protected void setSerializedConfiguration(String serializedState)
-	{
-		properties = new Properties();
-		try
-		{
-			properties.load(new StringReader(serializedState));
-			configuration = new LdapServerProperties(properties);
-		} catch (Exception e)
-		{
-			throw new ConfigurationException("Can't initialize the the LDAP"
-					+ " endpoint's configuration", e);
-		}
-	}
+    private UserMapper userMapper;
 
-	@Override
-	public void start() throws EngineException
-	{
-		LdapSimpleBindRetrieval rpr = (LdapSimpleBindRetrieval) (authenticators.get(0)
-				.getPrimaryAuthenticator());
-		startLdapEmbeddedServer(rpr);
-	}
-	
-	@Override
-	public void updateAuthenticationOptions(List<AuthenticationOption> authenticationOptions)
-			throws UnsupportedOperationException
-	{
-	}
+    public LdapEndpoint(NetworkServer server, SessionManagement sessionMan,
+            AttributesManagement attributesMan, IdentitiesManagement identitiesMan,
+            UnityServerConfiguration mainConfig, UserMapper userMapper)
+    {
+        this.httpServer = server;
+        this.sessionMan = sessionMan;
+        this.attributesMan = attributesMan;
+        this.identitiesMan = identitiesMan;
+        this.mainConfig = mainConfig;
+        this.userMapper = userMapper;
+    }
 
-	private void startLdapEmbeddedServer(LdapSimpleBindRetrieval rpr)
-	{
-		String host = configuration.getValue(LdapServerProperties.HOST);
-		if (null == host || host.isEmpty())
-		{
-			host = httpServer.getAdvertisedAddress().getHost();
-		}
-		int port = configuration.getIntValue(LdapServerProperties.LDAP_PORT);
+    @Override
+    protected void setSerializedConfiguration(String serializedState)
+    {
+        properties = new Properties();
+        try
+        {
+            properties.load(new StringReader(serializedState));
+            configuration = new LdapServerProperties(properties);
+        } catch (Exception e)
+        {
+            throw new ConfigurationException("Can't initialize the the LDAP"
+                    + " endpoint's configuration", e);
+        }
+    }
 
-		String workDirectory = mainConfig.getValue(UnityServerConfiguration.WORKSPACE_DIRECTORY) 
-				+ SERVER_WORK_DIRECTORY;
-		LdapApacheDSInterceptor ladi = new LdapApacheDSInterceptor(rpr, sessionMan,
-				this.description.getRealm(), attributesMan, identitiesMan,
-				configuration, userMapper);
-		LdapServerFacade ldf = new LdapServerFacade(host, port, 
-				"ldap server interface", workDirectory);
-		ladi.setLdapServerFacade(ldf);
-		try
-		{
-			ldf.init(false, ladi);
-			ldf.start();
+    @Override
+    public void start() throws EngineException
+    {
+        LdapSimpleBindRetrieval rpr = (LdapSimpleBindRetrieval) (authenticators.get(0)
+                .getPrimaryAuthenticator());
+        startLdapEmbeddedServer(rpr);
+    }
 
-		} catch (Exception e)
-		{
-			LOG.error("LDAP embedded server failed to start", e);
-		}
-	}
+    @Override
+    public void updateAuthenticationOptions(List<AuthenticationOption> authenticationOptions)
+            throws UnsupportedOperationException
+    {
+    }
+
+    private void startLdapEmbeddedServer(LdapSimpleBindRetrieval rpr)
+    {
+        String host = configuration.getValue(LdapServerProperties.HOST);
+        if (null == host || host.isEmpty())
+        {
+            host = httpServer.getAdvertisedAddress().getHost();
+        }
+        int port = configuration.getIntValue(LdapServerProperties.LDAP_PORT);
+
+        String workDirectory = new File(
+            mainConfig.getValue(UnityServerConfiguration.WORKSPACE_DIRECTORY),
+            SERVER_WORK_DIRECTORY).getPath();
+
+        boolean tlsSupport = configuration.getBooleanValue(LdapServerProperties.TLS_SUPPORT);
+        String keystoreBaseName = configuration.getValue(LdapServerProperties.KEYSTORE_FILENAME);
+        String keystoreFileName = new File(workDirectory, keystoreBaseName).getPath();
+        String certPass = configuration.getValue(LdapServerProperties.CERT_PASSWORD);
+
+        LdapApacheDSInterceptor ladi = new LdapApacheDSInterceptor(
+            rpr, sessionMan, this.description.getRealm(), attributesMan, identitiesMan, configuration, userMapper
+        );
+        LdapServerFacade lsf = new LdapServerFacade(
+            host, port, "ldap server interface", workDirectory
+        );
+        ladi.setLdapServerFacade(lsf);
+
+        try
+        {
+            lsf.init(false, ladi);
+            if (tlsSupport) {
+                lsf.initTLS(keystoreFileName, certPass, false);
+            }
+            lsf.start();
+
+        } catch (Exception e)
+        {
+            LOG.error("LDAP embedded server failed to start", e);
+        }
+    }
 }
