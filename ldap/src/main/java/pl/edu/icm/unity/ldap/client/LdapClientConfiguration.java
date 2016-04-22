@@ -4,15 +4,17 @@
  */
 package pl.edu.icm.unity.ldap.client;
 
-import static pl.edu.icm.unity.ldap.client.LdapProperties.*;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.PORTS;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.SERVERS;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.SYSTEM_DN;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.SYSTEM_PASSWORD;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.USER_DN_SEARCH_KEY;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.USER_DN_TEMPLATE;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.ldap.client.LdapProperties.BindAs;
-import pl.edu.icm.unity.server.api.PKIManagement;
+import java.util.regex.Pattern;
 
 import com.unboundid.ldap.sdk.DereferencePolicy;
 import com.unboundid.ldap.sdk.Filter;
@@ -22,6 +24,9 @@ import com.unboundid.ldap.sdk.SearchScope;
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.ldap.client.LdapProperties.BindAs;
+import pl.edu.icm.unity.server.api.PKIManagement;
 
 /**
  * Manages configuration of the LDAP client.
@@ -49,6 +54,7 @@ public class LdapClientConfiguration
 	private String systemDN;
 	private String systemPassword;
 	private String userPasswordAttribute;
+	private Pattern userExtractPattern = null;
 	
 	public LdapClientConfiguration(LdapProperties ldapProperties, PKIManagement pkiManagement)
 	{
@@ -175,10 +181,16 @@ public class LdapClientConfiguration
 			spec.setAttributes(attrsA);
 			spec.setScope(ldapProperties.getEnumValue(key+LdapProperties.ADV_SEARCH_SCOPE, 
 					pl.edu.icm.unity.ldap.client.LdapProperties.SearchScope.class));
-			extraSearches.add(spec);
+			
 			if (searchUserQueryKey != null && searchUserQueryKey.equals(key))
 				searchUserQuery = spec;
+			else
+				extraSearches.add(spec);
 		}
+		
+		String userExtractPattern = ldapProperties.getValue(LdapProperties.USER_ID_EXTRACTOR_REGEXP);
+		if (userExtractPattern != null)
+			this.userExtractPattern = Pattern.compile(userExtractPattern);
 	}
 
 	public String[] getServers()
@@ -217,6 +229,11 @@ public class LdapClientConfiguration
 		return SearchScope.SUB;
 	}
 	
+	public boolean isSearchGroupsInLdap()
+	{
+		return ldapProperties.getBooleanValue(LdapProperties.GROUPS_SEARCH_IN_LDAP);
+	}
+	
 	public int getSearchTimeLimit()
 	{
 		return ldapProperties.getIntValue(LdapProperties.SEARCH_TIME_LIMIT);
@@ -224,7 +241,7 @@ public class LdapClientConfiguration
 	
 	public int getAttributesLimit()
 	{
-		return 1000;
+		return ldapProperties.getIntValue(LdapProperties.RESULT_ENTRIES_LIMIT);
 	}
 	
 	public DereferencePolicy getDereferencePolicy()
@@ -315,5 +332,10 @@ public class LdapClientConfiguration
 	public String getUserPasswordAttribute()
 	{
 		return userPasswordAttribute;
+	}
+
+	public Pattern getUserExtractPattern()
+	{
+		return userExtractPattern;
 	}
 }

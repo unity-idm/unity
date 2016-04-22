@@ -623,3 +623,17 @@ Example rule definition:
 }
 ---- 
 
+
+'''
+
++@Path("/import/user/{identity}")+ +
++@QueryParam("type")+ +
++@POST+ +
++@Produces(MediaType.APPLICATION_JSON)+ +
+
+Triggers import of the given identity, optionally providing also intended type, though the type is usually not needed.
+Unity will trigger configured importers in order, stopping at the first which successfully imports the given user.
+The result is a very detailed dump of import information, starting from status, with unprocessed imported data
+and processed data after applying the translation profile.
+
+

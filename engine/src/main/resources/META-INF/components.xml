@@ -39,6 +39,7 @@
 	<bean primary="true" class="pl.edu.icm.unity.engine.ConfirmationConfigurationManagementImpl"/>
 	<bean primary="true" class="pl.edu.icm.unity.engine.BulkProcessingManagementImpl"/>
 	<bean primary="true" class="pl.edu.icm.unity.engine.EnquiryManagementImpl"/>
+	<bean primary="true" class="pl.edu.icm.unity.engine.UserImportManagementImpl"/>
 
 	<!-- Those beans are the same as the 'primary' beans above, but do not perform authorization. 
 	Must be used with qualifier. -->
@@ -102,7 +103,11 @@
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
-	
+	<bean primary="false" class="pl.edu.icm.unity.engine.UserImportManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+		
 	<!-- Currently simplistic -->
 	<bean class="pl.edu.icm.unity.engine.PKIManagementImpl"/>
 	<bean class="pl.edu.icm.unity.engine.SharedEndpointManagementImpl"/>
@@ -120,6 +125,7 @@
 	<bean class="pl.edu.icm.unity.engine.internal.SessionManagementImpl"/>
 	<bean class="pl.edu.icm.unity.engine.internal.AuthenticatorsManagementImpl"/>
 	<bean class="pl.edu.icm.unity.engine.internal.EntitiesScheduledUpdater"/>
+	<bean class="pl.edu.icm.unity.engine.userimport.UserImportServiceImpl"/>
 
 	<bean class="pl.edu.icm.unity.engine.registration.SharedRegistrationManagment"/>
 	<bean class="pl.edu.icm.unity.engine.registration.SharedEnquiryManagment"/>

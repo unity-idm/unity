@@ -1,7 +1,7 @@
 Unity Manual
 ============
 Unity Team <unity-idm-discuss@lists.sourceforge.net>
-:revnumber: 1.9.1
+:revnumber: 1.9.2-SNAPSHOT
 :numbered:
 :toc: left
 :linkcss:
@@ -33,6 +33,8 @@ include::translation.txt[]
 include::external-idps.txt[]
 
 include::endpoints.txt[]
+
+include::user-import.txt[]
 
 include::features_changelog.txt[]
 

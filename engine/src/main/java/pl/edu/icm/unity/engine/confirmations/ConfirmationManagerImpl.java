@@ -178,10 +178,12 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	private boolean checkSendingLimit(String address)
 	{
 		confirmationReqCache.evictExpiredElements();
-		Results results = confirmationReqCache.createQuery().includeValues().addCriteria(Query.VALUE.ilike(address)).execute();
+		Results results = confirmationReqCache.createQuery().includeValues().addCriteria(
+				Query.VALUE.ilike(address)).execute();
 		if (results.size() >= requestLimit)
 		{		
-			log.warn("Limit of sent confirmation requests to " + address + " was reached.( Limit=" +requestLimit + "/24H)");
+			log.warn("Limit of sent confirmation requests to " + address + 
+					" was reached. (Limit=" +requestLimit + "/24H)");
 			return false;
 		}
 		return true;

@@ -31,6 +31,10 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
 			<artifactId>unity-server-engine</artifactId>
 			<version>${project.version}</version>

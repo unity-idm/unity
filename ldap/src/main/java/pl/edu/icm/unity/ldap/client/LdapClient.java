@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.ldap.client;
 
+import static pl.edu.icm.unity.ldap.client.LdapUtils.nonEmpty;
+
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
@@ -18,16 +20,7 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.ldap.client.LdapClientConfiguration.ConnectionMode;
-import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
-import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
-import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.stdext.identity.X500Identity;
-
 import com.unboundid.ldap.sdk.Attribute;
-import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.DereferencePolicy;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.FailoverServerSet;
@@ -35,7 +28,6 @@ import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.ReadOnlySearchRequest;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchRequest;
@@ -45,8 +37,14 @@ import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 
 import eu.emi.security.authn.x509.X509CertChainValidator;
-import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.security.canl.SSLContextCreator;
+import pl.edu.icm.unity.ldap.client.LdapClientConfiguration.ConnectionMode;
+import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
+import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
+import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
+import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.stdext.identity.X500Identity;
 
 /**
  * LDAP v3 client code. Immutable -> thread safe.
@@ -73,12 +71,14 @@ import eu.unicore.security.canl.SSLContextCreator;
 public class LdapClient
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP, LdapClient.class);
-	public static final String ORIGINAL_GROUP_NAME = "originalGroupName";
+
 	private String idpName;
+	private LdapGroupHelper groupHelper;
 	
 	public LdapClient(String idpName)
 	{
 		this.idpName = idpName;
+		this.groupHelper = new LdapGroupHelper();
 	}
 
 	/**
@@ -92,11 +92,13 @@ public class LdapClient
 	 * @throws KeyManagementException
 	 * @throws NoSuchAlgorithmException
 	 */
-	public RemotelyAuthenticatedInput bindAndSearch(String user, String password, 
+	public RemotelyAuthenticatedInput bindAndSearch(String userOrig, String password, 
 			LdapClientConfiguration configuration) throws LDAPException, LdapAuthenticationException, 
 			KeyManagementException, NoSuchAlgorithmException
 	{
 		LDAPConnection connection = createConnection(configuration);
+		
+		String user = LdapUtils.extractUsername(userOrig, configuration.getUserExtractPattern());
 		
 		String dn = establishUserDN(user, configuration, connection);
 		log.debug("Established user's DN is: " + dn);
@@ -134,7 +136,7 @@ public class LdapClient
 	 * @throws KeyManagementException
 	 * @throws NoSuchAlgorithmException
 	 */
-	public RemotelyAuthenticatedInput search(String user, LdapClientConfiguration configuration) 
+	public RemotelyAuthenticatedInput search(String userOrig, LdapClientConfiguration configuration) 
 			throws LDAPException, LdapAuthenticationException, 
 			KeyManagementException, NoSuchAlgorithmException
 	{
@@ -146,6 +148,7 @@ public class LdapClient
 			throw new LdapAuthenticationException("Can't authenticate");
 		}
 		
+		String user = LdapUtils.extractUsername(userOrig, configuration.getUserExtractPattern());
 		
 		LDAPConnection connection = createConnection(configuration);
 		
@@ -339,7 +342,7 @@ public class LdapClient
 					throws LDAPException
 	{
 		if (nonEmpty(configuration.getMemberOfAttribute()))
-			findMemberOfGroups(ret, userEntry, configuration);
+			groupHelper.findMemberOfGroups(ret, userEntry, configuration);
 		
 		if (nonEmpty(configuration.getGroupsBaseName()))
 			searchGroupsForMember(connection, ret, userEntry, configuration);
@@ -359,32 +362,36 @@ public class LdapClient
 		String base = configuration.getGroupsBaseName();
 		List<GroupSpecification> gss = configuration.getGroupSpecifications();
 		Map<String, GroupSpecification> gsByObjectClass = new HashMap<>(gss.size());
-		StringBuilder searchFilter = new StringBuilder(128);
-		searchFilter.append("(|");
 		Set<String> attributes = new HashSet<>();
 		attributes.add("objectClass");
+
+		String searchFilter = groupHelper.buildGroupFilter(userEntry, gss, 
+				configuration.isSearchGroupsInLdap());
 
 		for (GroupSpecification gs: gss)
 		{
 			String oc = gs.getObjectClass();
-			searchFilter.append("(objectClass=").append(oc).append(")");
 			gsByObjectClass.put(oc, gs);
 			if (nonEmpty(gs.getMemberAttribute()))
 				attributes.add(gs.getMemberAttribute());
 			if (nonEmpty(gs.getGroupNameAttribute()))
 				attributes.add(gs.getGroupNameAttribute());
 		}
-		searchFilter.append(")");
 		Filter filter;
 		try
 		{
-			filter = Filter.create(searchFilter.toString());
+			filter = Filter.create(searchFilter);
 		} catch (LDAPException e)
 		{
 			throw new LDAPException(e.getResultCode(), 
 					"Specification of group object class is wrong. Unable to create a filter, " +
 					"which was: " + searchFilter, e);
 		}
+
+		if (log.isDebugEnabled())
+			log.debug("Will search groups, from base "+ base + " with filter " + searchFilter +
+					" collecting attributes " + attributes);
+		
 		ReadOnlySearchRequest searchRequest = new SearchRequest(base, SearchScope.SUB, 
 					configuration.getDereferencePolicy(), 
 					configuration.getAttributesLimit(), configuration.getSearchTimeLimit(), 
@@ -399,90 +406,13 @@ public class LdapClient
 				GroupSpecification gs = gsByObjectClass.get(clazz);
 				if (gs != null)
 				{
-					findMemberInGroup(ret, userEntry, groupEntry, gs);
+					groupHelper.findMemberInGroup(ret, userEntry, groupEntry, gs);
 					break;
 				}
 			}
 		}
 	}	
 
-	private void findMemberInGroup(Map<String, RemoteGroupMembership> ret, SearchResultEntry userEntry, 
-			SearchResultEntry groupEntry, GroupSpecification gs)
-	{
-		String memberAttribute = gs.getMemberAttribute();
-		Attribute membersA = groupEntry.getAttribute(memberAttribute);
-		if (membersA == null)
-			return;
-		String[] members = membersA.getValues();
-		if (nonEmpty(gs.getMatchByMemberAttribute()))
-		{
-			String matchAttributeName = gs.getMatchByMemberAttribute();
-			Attribute matchAttribute = userEntry.getAttribute(matchAttributeName);
-			if (matchAttribute == null)
-				return;
-			String matchValue = matchAttribute.getValue();
-			if (matchValue == null)
-				return;
-			
-			for (String m: members)
-			{
-				if (m.equals(matchValue))
-				{
-					RemoteGroupMembership gm = createGroupMembership(groupEntry.getDN(), 
-							gs.getGroupNameAttribute()); 
-					if (gm != null)
-						ret.put(gm.getName(), gm);
-					break;
-				}
-			}			
-		} else
-		{
-			for (String m: members)
-			{
-				if (X500NameUtils.equal(m, userEntry.getDN()))
-				{
-					RemoteGroupMembership gm = createGroupMembership(groupEntry.getDN(), 
-							gs.getGroupNameAttribute()); 
-					if (gm != null)
-						ret.put(gm.getName(), gm);
-					break;
-				}
-			}
-		}
-	}
-
-	/**
-	 * Simple variant: user's attributes contain information about user's group membership.
-	 * @param ret
-	 * @param userEntry
-	 * @param configuration
-	 */
-	private void findMemberOfGroups(Map<String, RemoteGroupMembership> ret,
-			SearchResultEntry userEntry, LdapClientConfiguration configuration)
-	{
-		Attribute ga = userEntry.getAttribute(configuration.getMemberOfAttribute());
-		if (ga != null)
-		{
-			String[] groups = ga.getValues();
-			String memberOfGroupAttr = configuration.getMemberOfGroupAttribute();
-			for (int i=0; i<groups.length; i++)
-			{
-				RemoteGroupMembership gm = createGroupMembership(groups[i], memberOfGroupAttr); 
-				if (gm != null)
-					ret.put(gm.getName(), gm);
-			}
-		}
-	}
-	
-	private RemoteGroupMembership createGroupMembership(String groupDn, String memberOfGroupAttr)
-	{
-		String groupName = nonEmpty(memberOfGroupAttr) ? extractNameFromDn(memberOfGroupAttr, groupDn) : groupDn;
-		if (groupName == null)
-			return null;
-		RemoteGroupMembership rg = new RemoteGroupMembership(groupName);
-		rg.getMetadata().put(ORIGINAL_GROUP_NAME, groupDn);
-		return rg;
-	}
 	
 	private void performAdditionalQueries(LDAPConnection connection, LdapClientConfiguration configuration, 
 			String user, RemotelyAuthenticatedInput principalData) throws LDAPException
@@ -535,44 +465,6 @@ public class LdapClient
 		{
 			principalData.addAttribute(new RemoteAttribute(e.getKey(), e.getValue().toArray()));
 		}
-	}
-	
-	/**
-	 * Returns a value of the nameAttribute in dn. If not found then null is returned. This is intended 
-	 * as in the code using this method this is a normal, not exceptional condition.
-	 * @param nameAttribute
-	 * @param dn
-	 * @return
-	 * @throws LDAPException if the dn is invalid
-	 */
-	private static String extractNameFromDn(String nameAttribute, String dn)
-	{
-		RDN[] rdns;
-		try
-		{
-			rdns = DN.getRDNs(dn);
-		} catch (LDAPException e)
-		{
-			log.warn("Found a string which is not a DN, what was expected. Most probably the LDAP " +
-					"configuration is invalid wrt the schema used by the LDAP server. " +
-					"Expected as DN: " + dn, e);
-			return null;
-		}
-		for (RDN rdn: rdns)
-		{
-			String[] attrNames = rdn.getAttributeNames();
-			String[] attrValues = rdn.getAttributeValues();
-			if (attrNames.length == 1 && attrValues.length == 1 && attrNames[0].equals(nameAttribute))
-			{
-				return attrValues[0];
-			}
-		}
-		return null;
-	}
-	
-	private static boolean nonEmpty(String a)
-	{
-		return a != null && !a.isEmpty();
 	}
 }
 

@@ -19,6 +19,7 @@ import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
+import pl.edu.icm.unity.server.api.UserImportManagement;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
@@ -73,6 +74,9 @@ public class RESTAdminEndpointFactory implements EndpointFactory
 	private BulkProcessingManagement bulkProcessingManagement;
 	@Autowired
 	private EntityActionsRegistry entityActionsRegistry;
+	@Autowired
+	private UserImportManagement userImportManagement;
+	
 	
 	/**
 	 * We depend on app context in order to work around of the dependency cycle. 
@@ -95,7 +99,8 @@ public class RESTAdminEndpointFactory implements EndpointFactory
 		return new RESTAdminEndpoint(msg, sessionMan, server, "", identitiesMan, groupsMan, attributesMan,
 				authnProcessor, identityTypesRegistry, attributeTypeSerializer,
 				attributeSyntaxFactoriesRegistry, cofirmationManager, endpointManagement,
-				registrationManagement, bulkProcessingManagement, entityActionsRegistry);
+				registrationManagement, bulkProcessingManagement, entityActionsRegistry,
+				userImportManagement);
 	}
 
 }

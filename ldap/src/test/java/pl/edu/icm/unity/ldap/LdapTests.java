@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocketFactory;
@@ -29,6 +30,7 @@ import pl.edu.icm.unity.ldap.client.LdapAuthenticationException;
 import pl.edu.icm.unity.ldap.client.LdapClient;
 import pl.edu.icm.unity.ldap.client.LdapClientConfiguration;
 import pl.edu.icm.unity.ldap.client.LdapProperties;
+import pl.edu.icm.unity.ldap.client.LdapUtils;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
@@ -49,6 +51,7 @@ import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
 import static pl.edu.icm.unity.ldap.client.LdapProperties.*;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 public class LdapTests
@@ -524,6 +527,14 @@ public class LdapTests
 			if (!ra.getValues().get(i).equals(values[i]))
 				return false;
 		return true;
+	}
+	
+	@Test
+	public void extractorReturnsId()
+	{
+		String extracted = LdapUtils.extractUsername("CN=myId,CN=b,O=foo", Pattern.compile("CN=([^,]+),CN=.*"));
+		
+		assertThat(extracted, is("myId"));
 	}
 }
 

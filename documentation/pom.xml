@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>pl.edu.icm.unity</groupId>
 		<artifactId>unity-server-parent</artifactId>
-		<version>1.9.1</version>
+		<version>1.9.2-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -188,6 +188,7 @@
 								<argument>pl.edu.icm.unity.oauth.rp.OAuthRPProperties|ref-oauthRPProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.home.HomeEndpointProperties|ref-homeEndpointProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWellKnownURLProperties|ref-connectIdWellKnownURLProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.engine.userimport.UserImportProperties|ref-genericUserImportProperties.txt|</argument>
 							</arguments>
 						</configuration>
 						<goals>

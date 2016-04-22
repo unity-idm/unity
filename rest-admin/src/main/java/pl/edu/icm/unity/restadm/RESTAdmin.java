@@ -49,6 +49,8 @@ import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
+import pl.edu.icm.unity.server.api.UserImportManagement;
+import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.bulkops.EntityAction;
 import pl.edu.icm.unity.server.bulkops.EntityActionFactory;
 import pl.edu.icm.unity.server.bulkops.ProcessingRule;
@@ -106,6 +108,7 @@ public class RESTAdmin
 	private RegistrationsManagement registrationManagement;
 	private BulkProcessingManagement bulkProcessingManagement;
 	private EntityActionsRegistry entityActionsRegistry;
+	private UserImportManagement userImportManagement;
 	
 	public RESTAdmin(IdentitiesManagement identitiesMan, GroupsManagement groupsMan,
 			AttributesManagement attributesMan, IdentityTypesRegistry identityTypesRegistry,
@@ -113,7 +116,9 @@ public class RESTAdmin
 			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry,
 			ConfirmationManager confirmationManager, EndpointManagement endpointManagement,
 			RegistrationsManagement registrationManagement, 
-			BulkProcessingManagement bulkProcessingManagement, EntityActionsRegistry entityActionsRegistry)
+			BulkProcessingManagement bulkProcessingManagement, 
+			EntityActionsRegistry entityActionsRegistry,
+			UserImportManagement userImportManagement)
 	{
 		super();
 		this.identitiesMan = identitiesMan;
@@ -127,6 +132,7 @@ public class RESTAdmin
 		this.registrationManagement = registrationManagement;
 		this.bulkProcessingManagement = bulkProcessingManagement;
 		this.entityActionsRegistry = entityActionsRegistry;
+		this.userImportManagement = userImportManagement;
 	}
 
 	@Path("/resolve/{identityType}/{identityValue}")
@@ -613,21 +619,21 @@ public class RESTAdmin
 		return mapper.writeValueAsString(invitation.toRESTVariant());
 	}
 	
-	@Path("invitation/{code}")
+	@Path("/invitation/{code}")
 	@DELETE
 	public void removeInvitation(@PathParam("code") String code) throws EngineException
 	{
 		registrationManagement.removeInvitation(code);
 	}
 
-	@Path("invitation/{code}/send")
+	@Path("/invitation/{code}/send")
 	@POST
 	public void sendInvitation(@PathParam("code") String code) throws EngineException, IOException
 	{
 		registrationManagement.sendInvitation(code);
 	}
 
-	@Path("invitation")
+	@Path("/invitation")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
@@ -660,7 +666,7 @@ public class RESTAdmin
 		return ret;
 	}
 	
-	@Path("bulkProcessing/instant")
+	@Path("/bulkProcessing/instant")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
@@ -690,6 +696,16 @@ public class RESTAdmin
 				return "timeout";
 			}
 		}
+	}
+	
+	@Path("/import/user/{identity}")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	public String importUser(@PathParam("identity") String identity,
+			@QueryParam("type") String identityType) throws EngineException, IOException
+	{
+		AuthenticationResult importUser = userImportManagement.importUser(identity, identityType);
+		return mapper.writeValueAsString(importUser);
 	}
 }
 

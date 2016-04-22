@@ -19,6 +19,7 @@ import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.RegistrationsManagement;
+import pl.edu.icm.unity.server.api.UserImportManagement;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
@@ -45,6 +46,7 @@ public class RESTAdminEndpoint extends RESTEndpoint
 	private RegistrationsManagement registrationManagement;
 	private BulkProcessingManagement bulkProcessingManagement;
 	private EntityActionsRegistry entityActionsRegistry;
+	private UserImportManagement userImportManagement;
 	
 	public RESTAdminEndpoint(UnityMessageSource msg, SessionManagement sessionMan,
 			NetworkServer server, String servletPath, IdentitiesManagement identitiesMan,
@@ -55,7 +57,9 @@ public class RESTAdminEndpoint extends RESTEndpoint
 			ConfirmationManager confirmationManager,
 			EndpointManagement endpointManagement,
 			RegistrationsManagement registrationManagement, 
-			BulkProcessingManagement bulkProcessingManagement, EntityActionsRegistry entityActionsRegistry)
+			BulkProcessingManagement bulkProcessingManagement, 
+			EntityActionsRegistry entityActionsRegistry,
+			UserImportManagement userImportManagement)
 	{
 		super(msg, sessionMan, authnProcessor, server, servletPath);
 		this.identitiesMan = identitiesMan;
@@ -69,6 +73,7 @@ public class RESTAdminEndpoint extends RESTEndpoint
 		this.registrationManagement = registrationManagement;
 		this.bulkProcessingManagement = bulkProcessingManagement;
 		this.entityActionsRegistry = entityActionsRegistry;
+		this.userImportManagement = userImportManagement;
 	}
 
 	@Override
@@ -87,7 +92,7 @@ public class RESTAdminEndpoint extends RESTEndpoint
 			ret.add(new RESTAdmin(identitiesMan, groupsMan, attributesMan, identityTypesRegistry, 
 					attributeTypeSerializer, attributeSyntaxFactoriesRegistry,
 					confirmationManager, endpointManagement, registrationManagement,
-					bulkProcessingManagement, entityActionsRegistry));
+					bulkProcessingManagement, entityActionsRegistry, userImportManagement));
 			installExceptionHandlers(ret);
 			return ret;
 		}

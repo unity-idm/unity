@@ -62,12 +62,15 @@ public class LdapProperties extends PropertiesHelper
 
 	public static final String BIND_AS = "bindAs";
 	
+
+	public static final String USER_ID_EXTRACTOR_REGEXP = "usernameExtractorRegexp";
 	public static final String USER_DN_TEMPLATE = "userDNTemplate";
 	public static final String USER_DN_SEARCH_KEY = "userDNSearchKey";
 	
 	public static final String BIND_ONLY = "authenticateOnly";
 	public static final String ATTRIBUTES = "attributes.";
 	public static final String SEARCH_TIME_LIMIT = "searchTimeLimit";
+	public static final String RESULT_ENTRIES_LIMIT = "returnedEntriesLimit";
 	public static final String VALID_USERS_FILTER = "validUsersFilter";
 	public static final String MEMBER_OF_ATTRIBUTE = "memberOfAttribute";
 	public static final String MEMBER_OF_GROUP_ATTRIBUTE = "memberOfGroupAttribute";
@@ -82,6 +85,7 @@ public class LdapProperties extends PropertiesHelper
 	public static final String ADV_SEARCH_SCOPE = "scope";
 	
 	public static final String GROUPS_BASE_NAME = "groupsBaseName";
+	public static final String GROUPS_SEARCH_IN_LDAP = "delegateGroupFiltering";
 	public static final String GROUP_DEFINITION_PFX = "groups.";
 	public static final String GROUP_DEFINITION_OC = "objectClass";
 	public static final String GROUP_DEFINITION_MEMBER_ATTR = "memberAttribute";
@@ -126,7 +130,8 @@ public class LdapProperties extends PropertiesHelper
 		META.put(USER_DN_TEMPLATE, new PropertyMD().setCategory(main).setDescription("Template of a DN of " +
 				"the user that should be used to log in. The tempalte must possess a single occurence " +
 				"of a special string: '\\{USERNAME\\}'. The username provided by the client" +
-				" will be substituted. Mutually exclusive with " + USER_DN_TEMPLATE + " and at least one of them must be defined."));
+				" will be substituted. Mutually exclusive with " + USER_DN_SEARCH_KEY + 
+				" and at least one of them must be defined."));
 		META.put(USER_DN_SEARCH_KEY, new PropertyMD().setCategory(main).setDescription("A key of one of "
 				+ "the advanced search definitions. The search must be defined and must return "
 				+ "a single entry. The DN of this entry will be treated as a DN of the user being "
@@ -135,6 +140,13 @@ public class LdapProperties extends PropertiesHelper
 				". Mutually exclusive with " + USER_DN_TEMPLATE + " and at least one of them must be defined."
 				+ " To use this mode the " + SYSTEM_DN + " and " + SYSTEM_PASSWORD + " must be also set "
 				+ "to run the initial search."));
+		META.put(USER_ID_EXTRACTOR_REGEXP, new PropertyMD().setCategory(main).setDescription("This setting is mainly "
+				+ "useful when searching for users whose name is given as X.500 name (a DN). If defined "
+				+ "must contain a regular expression (Perl style) with a single matching group. "
+				+ "This regular expression will be applied for the username provided to the system, "
+				+ "and the contents of the matching group will be used instead of the full name, "
+				+ "in the '\\{USERNAME\\}' variable. For instance this can be used to get 'uid' "
+				+ "attribute value from a DN."));
 		
 		META.put(BIND_ONLY, new PropertyMD("false").setCategory(main).setDescription("If true then the user is only authenticated" +
 				" and no LDAP attributes (including groups) are collected for the user. " +
@@ -144,7 +156,11 @@ public class LdapProperties extends PropertiesHelper
 		META.put(SEARCH_TIME_LIMIT, new PropertyMD("60").setCategory(main).setDescription("Amount of time (in seconds) " +
 				"for which a search query may be executed. Note that depending on configuration there " +
 				"might be up to two queries performed per a single authentication. The LDAP server " +
-				"might have more strict limit."));
+				"might have stricter limit."));
+		META.put(RESULT_ENTRIES_LIMIT, new PropertyMD("1000").setCategory(main).setDescription(
+				"Maximum amount of entries that is to be loaded."
+				+ "If the limit is exceeded the query will fail. The LDAP server " +
+				"might have stricter limit."));
 
 		META.put(SYSTEM_DN, new PropertyMD().setCategory(main).setDescription("Relevant and mandatory only if " +
 				BIND_AS + " is set to " + BindAs.system + ". The value must be the DN of the system "
@@ -156,6 +172,10 @@ public class LdapProperties extends PropertiesHelper
 		META.put(GROUPS_BASE_NAME, new PropertyMD().setCategory(groups).setDescription("Base DN under which all groups are defined. " +
 				"Groups need not to be immediatelly under this DN. If not defined, then groups " +
 				"are not searched for the membership of the user."));
+		META.put(GROUPS_SEARCH_IN_LDAP, new PropertyMD("true").setCategory(groups).
+				setDescription("If enabled then user's groups are searched at LDAP "
+						+ "server using advanced filter. This is much faster however can fail "
+						+ "when group member is specified as a DN and not by some siple attribute."));
 		META.put(GROUP_DEFINITION_PFX, new PropertyMD().setStructuredList(true).setCategory(groups).setDescription("Group " +
 				"definitions should be defined under this prefix."));
 		META.put(GROUP_DEFINITION_OC, new PropertyMD().setMandatory().setCategory(groups).setStructuredListEntry(GROUP_DEFINITION_PFX).
