@@ -12,17 +12,11 @@ import javax.ws.rs.core.Response;
 
 import org.apache.http.HttpHeaders;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.oauth.as.OAuthProcessor;
-import pl.edu.icm.unity.oauth.as.OAuthToken;
-import pl.edu.icm.unity.server.api.internal.Token;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerTokenError;
+
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.internal.TokensManagement;
 
 /**
  * RESTful implementation of the user information token resource
@@ -31,13 +25,11 @@ import com.nimbusds.oauth2.sdk.token.BearerTokenError;
  */
 @Produces("application/json")
 @Path(OAuthTokenEndpoint.USER_INFO_PATH)
-public class UserInfoResource extends BaseOAuthResource
+public class UserInfoResource extends BaseTokenResource
 {
-	private TokensManagement tokensManagement;
-	
 	public UserInfoResource(TokensManagement tokensManagement)
 	{
-		this.tokensManagement = tokensManagement;
+		super(tokensManagement);
 	}
 
 	@Path("/")
@@ -45,31 +37,16 @@ public class UserInfoResource extends BaseOAuthResource
 	public Response getToken(@HeaderParam("Authorization") String bearerToken) 
 			throws EngineException, JsonProcessingException
 	{
-		if (bearerToken == null)
-			return makeBearerError(BearerTokenError.MISSING_TOKEN, "To access the user info endpoint "
-					+ "an access token must be used for authorization");
-		
-		BearerAccessToken accessToken;
+		TokensPair internalAccessToken;
 		try
 		{
-			accessToken = BearerAccessToken.parse(bearerToken);
-		} catch (ParseException e)
+			internalAccessToken = super.resolveBearerToken(bearerToken);
+		} catch (OAuthTokenException e)
 		{
-			return makeBearerError(BearerTokenError.INVALID_TOKEN, "Must use Bearer access token");
+			return e.getErrorResponse();
 		}
 		
-		Token internalAccessToken;
-		try
-		{
-			internalAccessToken = tokensManagement.getTokenById(OAuthProcessor.INTERNAL_ACCESS_TOKEN, 
-					accessToken.getValue());
-		} catch (WrongArgumentException e)
-		{
-			return makeBearerError(BearerTokenError.INVALID_TOKEN);
-		}
-		
-		OAuthToken parsedAccessToken = parseInternalToken(internalAccessToken);
-		String contents = parsedAccessToken.getUserInfo();
+		String contents = internalAccessToken.parsedToken.getUserInfo();
 		if (contents == null)
 			return makeBearerError(BearerTokenError.INSUFFICIENT_SCOPE);
 		return toResponse(Response.ok(contents).header(HttpHeaders.CONTENT_TYPE, "application/json"));

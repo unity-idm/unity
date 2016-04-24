@@ -81,6 +81,10 @@ public class ClientCredentialsProcessor
 		internalToken.setClientId(loginSession.getEntityId());
 		internalToken.setClientUsername(client);
 		internalToken.setSubject(client);
+		internalToken.setTokenValidity(config.getIntValue(OAuthASProperties.ACCESS_TOKEN_VALIDITY));
+		int maxExtendedValidity = config.isSet(OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY) ?
+				config.getIntValue(OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY) : 0;
+		internalToken.setMaxExtendedValidity(maxExtendedValidity);
 		
 		OAuthProcessor oauthProcessor = new OAuthProcessor();
 		String usersGroup = getUsersGroup(attributes);

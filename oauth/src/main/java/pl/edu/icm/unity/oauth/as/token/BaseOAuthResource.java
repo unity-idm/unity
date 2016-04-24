@@ -13,11 +13,6 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.oauth.as.OAuthToken;
-import pl.edu.icm.unity.server.api.internal.Token;
-import pl.edu.icm.unity.server.utils.Log;
-
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.ErrorObject;
@@ -25,6 +20,11 @@ import com.nimbusds.oauth2.sdk.SerializeException;
 import com.nimbusds.oauth2.sdk.TokenErrorResponse;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.token.BearerTokenError;
+
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.server.api.internal.Token;
+import pl.edu.icm.unity.server.utils.Log;
 
 /**
  * Common code inherited by OAuth resources

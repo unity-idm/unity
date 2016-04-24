@@ -13,20 +13,13 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
-import net.minidev.json.JSONObject;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.oauth.as.OAuthProcessor;
-import pl.edu.icm.unity.oauth.as.OAuthToken;
-import pl.edu.icm.unity.server.api.internal.Token;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.nimbusds.jwt.util.DateUtils;
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
-import com.nimbusds.oauth2.sdk.token.BearerTokenError;
+
+import net.minidev.json.JSONObject;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.internal.TokensManagement;
 
 /**
  * Non standard functionality: allows for validation of a given access token.
@@ -50,18 +43,16 @@ import com.nimbusds.oauth2.sdk.token.BearerTokenError;
  */
 @Produces("application/json")
 @Path(OAuthTokenEndpoint.TOKEN_INFO_PATH)
-public class TokenInfoResource extends BaseOAuthResource
+public class TokenInfoResource extends BaseTokenResource
 {
 	public static final String SCOPE = "scope";
 	public static final String EXPIRATION = "exp";
 	public static final String SUBJECT = "sub";
 	public static final String CLIENT = "client_id";
 	
-	private TokensManagement tokensManagement;
-	
 	public TokenInfoResource(TokensManagement tokensManagement)
 	{
-		this.tokensManagement = tokensManagement;
+		super(tokensManagement);
 	}
 
 	@Path("/")
@@ -69,34 +60,18 @@ public class TokenInfoResource extends BaseOAuthResource
 	public Response getToken(@HeaderParam("Authorization") String bearerToken) 
 			throws EngineException, JsonProcessingException
 	{
-		if (bearerToken == null)
-			return makeBearerError(BearerTokenError.MISSING_TOKEN, "To access the token info endpoint "
-					+ "an access token must be used for authorization");
-		
-		BearerAccessToken accessToken;
+		TokensPair tokens;
 		try
 		{
-			accessToken = BearerAccessToken.parse(bearerToken);
-		} catch (ParseException e)
+			tokens = super.resolveBearerToken(bearerToken);
+		} catch (OAuthTokenException e)
 		{
-			return makeBearerError(BearerTokenError.INVALID_TOKEN, "Must use Bearer access token");
+			return e.getErrorResponse();
 		}
 		
-		Token internalAccessToken;
-		try
-		{
-			internalAccessToken = tokensManagement.getTokenById(OAuthProcessor.INTERNAL_ACCESS_TOKEN, 
-					accessToken.getValue());
-		} catch (WrongArgumentException e)
-		{
-			return makeBearerError(BearerTokenError.INVALID_TOKEN, "Wrong token");
-		}
-		
-		OAuthToken parsedAccessToken = parseInternalToken(internalAccessToken);
-		
-		JSONObject contents = toJSON(parsedAccessToken.getSubject(), parsedAccessToken.getClientUsername(), 
-				internalAccessToken.getExpires(), 
-				parsedAccessToken.getScope());
+		JSONObject contents = toJSON(tokens.parsedToken.getSubject(), tokens.parsedToken.getClientUsername(), 
+				tokens.tokenSrc.getExpires(), 
+				tokens.parsedToken.getScope());
 		return toResponse(Response.ok(contents.toJSONString()));
 	}
 	
