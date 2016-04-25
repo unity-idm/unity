@@ -5,11 +5,8 @@
 package pl.edu.icm.unity.store.rdbmsflush;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.SqlSession;
@@ -37,20 +34,17 @@ public class RDBMSMutationEventProcessor
 	@Autowired
 	public RDBMSMutationEventProcessor(Map<String, RDBMSDAO> daos)
 	{
-		Set<String> nonDAOMethods = Arrays.stream(Object.class.getMethods()).
-				map(m -> m.getName()).
-				collect(Collectors.toSet());
 		daoMethods = new HashMap<>();
 		for (Map.Entry<String, RDBMSDAO> entry: daos.entrySet())
 		{
 			Map<String, Method> methods = new HashMap<>();
 			daoMethods.put(entry.getKey(), methods);
 			
-			Method[] methodsA = entry.getValue().getClass().getMethods();
+			Class<? extends RDBMSDAO> clazz = entry.getValue().getClass();
+			Method[] methodsA = clazz.getMethods();
 			for (Method m: methodsA)
 			{
-				String name = m.getName();
-				if (nonDAOMethods.contains(name))
+				if (m.getDeclaringClass().equals(Object.class) || m.isSynthetic())
 					continue;
 				
 				if (methods.put(m.getName(), m) != null)

@@ -13,15 +13,13 @@ import java.util.List;
  */
 public interface BasicCRUDMapper<BEAN>
 {
-	void create(BEAN obj);
+	long create(BEAN obj);
 	
-	void update(BEAN obj);
-
-	void delete(String id);
-
-	BEAN getByName(String id);
+	void updateByKey(long key, BEAN obj);
 
 	List<BEAN> getAll();
 	
 	BEAN getByKey(long key);
+	
+	void deleteByKey(long key);
 }

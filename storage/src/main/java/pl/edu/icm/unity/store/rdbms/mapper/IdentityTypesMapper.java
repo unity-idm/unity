@@ -4,10 +4,10 @@
  */
 package pl.edu.icm.unity.store.rdbms.mapper;
 
-import pl.edu.icm.unity.store.rdbms.BasicCRUDMapper;
+import pl.edu.icm.unity.store.rdbms.NamedCRUDMapper;
 import pl.edu.icm.unity.store.rdbms.model.BaseBean;
 
-public interface IdentityTypesMapper extends BasicCRUDMapper<BaseBean>
+public interface IdentityTypesMapper extends NamedCRUDMapper<BaseBean>
 {
 
 }

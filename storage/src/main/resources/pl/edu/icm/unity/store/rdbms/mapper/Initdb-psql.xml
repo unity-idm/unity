@@ -44,10 +44,6 @@
 		);
 	</sql>
 
-	<select id="getDBLimits" resultType="DBLimitsBean">
-		select 200 AS nameLimit, 60000 AS contentsLimit 
-	</select>
-
 	<update id="initdb-04-01">
 		CREATE INDEX IDENTITIES_ENTITY_ID_IDX ON IDENTITIES (ENTITY_ID);
 	</update>

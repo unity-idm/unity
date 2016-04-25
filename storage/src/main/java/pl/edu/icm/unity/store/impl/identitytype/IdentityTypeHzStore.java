@@ -7,7 +7,7 @@ package pl.edu.icm.unity.store.impl.identitytype;
 import org.springframework.stereotype.Repository;
 
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
-import pl.edu.icm.unity.store.hz.GenericHzCRUD;
+import pl.edu.icm.unity.store.hz.GenericNamedHzCRUD;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
 /**
@@ -16,7 +16,7 @@ import pl.edu.icm.unity.types.basic.IdentityType;
  * @author K. Benedyczak
  */
 @Repository(IdentityTypeHzStore.STORE_ID)
-public class IdentityTypeHzStore extends GenericHzCRUD<IdentityType> implements IdentityTypeDAO
+public class IdentityTypeHzStore extends GenericNamedHzCRUD<IdentityType> implements IdentityTypeDAO
 {
 	public static final String STORE_ID = DAO_ID + "hz";
 	private static final String NAME = "identity type";
@@ -28,11 +28,11 @@ public class IdentityTypeHzStore extends GenericHzCRUD<IdentityType> implements 
 
 	
 	@Override
-	public void create(IdentityType idType) throws IllegalArgumentException
+	public long create(IdentityType idType) throws IllegalArgumentException
 	{
 		if (idType.getDescription() == null)
 			idType.setDescription(idType.getIdentityTypeProvider().getDefaultDescription());
-		super.create(idType);
+		return super.create(idType);
 	}
 
 	@Override

@@ -14,19 +14,19 @@ import java.util.Map;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.store.AbstractDAOTest;
-import pl.edu.icm.unity.store.api.BasicCRUDDAO;
+import pl.edu.icm.unity.store.AbstractNamedDAOTest;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
+import pl.edu.icm.unity.store.api.NamedCRUDDAO;
 import pl.edu.icm.unity.store.mocks.MockIdentityTypeDef;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
-public class IdentityTypeTest extends AbstractDAOTest<IdentityType>
+public class IdentityTypeTest extends AbstractNamedDAOTest<IdentityType>
 {
 	@Autowired
 	private IdentityTypeDAO idTypeDAO;
 
 	@Override
-	protected BasicCRUDDAO<IdentityType> getDAO()
+	protected NamedCRUDDAO<IdentityType> getDAO()
 	{
 		return idTypeDAO;
 	}

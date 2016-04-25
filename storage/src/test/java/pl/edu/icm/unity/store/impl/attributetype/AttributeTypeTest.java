@@ -12,21 +12,21 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.store.AbstractDAOTest;
+import pl.edu.icm.unity.store.AbstractNamedDAOTest;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
-import pl.edu.icm.unity.store.api.BasicCRUDDAO;
+import pl.edu.icm.unity.store.api.NamedCRUDDAO;
 import pl.edu.icm.unity.store.mocks.MockAttributeSyntax;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
-public class AttributeTypeTest extends AbstractDAOTest<AttributeType>
+public class AttributeTypeTest extends AbstractNamedDAOTest<AttributeType>
 {
 	@Autowired
 	private AttributeTypeDAO attrTypeDAO;
 	
 	@Override
-	protected BasicCRUDDAO<AttributeType> getDAO()
+	protected NamedCRUDDAO<AttributeType> getDAO()
 	{
 		return attrTypeDAO;
 	}

@@ -4,8 +4,6 @@
 	<settings>
 		<setting name="lazyLoadingEnabled" value="false"/>
 		<setting name="aggressiveLazyLoading" value="false"/>
-		
-		<!-- <setting name="localCacheScope" value="STATEMENT"/> -->
 	</settings>
 
 	<typeAliases>
@@ -18,7 +16,6 @@
 		<typeAlias alias="GenericObjectB" type="pl.edu.icm.unity.store.rdbms.model.GenericObjectBean" />
 		<typeAlias alias="TokenB" type="pl.edu.icm.unity.store.rdbms.model.TokenBean" />
 		<typeAlias alias="GroupElementChangeB" type="pl.edu.icm.unity.store.rdbms.model.GroupElementChangeBean" />
-		<typeAlias alias="DBLimitsBean" type="pl.edu.icm.unity.store.rdbms.model.DBLimitsBean" />
 		<typeAlias alias="EventB" type="pl.edu.icm.unity.store.rdbms.model.EventBean" />
 	</typeAliases>
 	
@@ -53,6 +50,7 @@
 		
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/IdentityTypes.xml" />
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/AttributeTypes.xml" />
+		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Entities.xml" />
 		
 		
 		

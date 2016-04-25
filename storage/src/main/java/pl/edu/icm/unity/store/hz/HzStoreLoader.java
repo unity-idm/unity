@@ -80,9 +80,9 @@ public class HzStoreLoader implements StoreLoaderInternal
 	private void loadFromPersistentStore()
 	{
 		log.info("Loading identity types");
-		idTypeStore.initHazelcast(rdbmsIdTypeStore);
+		idTypeStore.initHazelcast(rdbmsIdTypeStore, hzInstance);
 		log.info("Loading attribute types");
-		atTypeStore.initHazelcast(rdbmsAtTypeStore);
+		atTypeStore.initHazelcast(rdbmsAtTypeStore, hzInstance);
 		log.info("Population of the in-memory data store completed");
 	}
 	

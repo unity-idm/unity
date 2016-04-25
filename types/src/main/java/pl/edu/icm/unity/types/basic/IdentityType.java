@@ -7,14 +7,17 @@ package pl.edu.icm.unity.types.basic;
 import java.util.HashMap;
 import java.util.Map;
 
+import pl.edu.icm.unity.types.NamedObject;
+
 /**
  * Type of identity. This class uses {@link IdentityTypeDefinition} implementation and there is always 
  * 1-1 relationship between them. This class adds stateful configuration which can be freely 
  * modified by administrator.
  * @author K. Benedyczak
  */
-public class IdentityType
+public class IdentityType implements NamedObject
 {
+	private String name;
 	private IdentityTypeDefinition identityTypeProvider;
 	private String description;
 	private Map<String, String> extractedAttributes;
@@ -25,6 +28,7 @@ public class IdentityType
 
 	public IdentityType(IdentityTypeDefinition identityTypeProvider)
 	{
+		this.name = identityTypeProvider.getId();
 		this.identityTypeProvider = identityTypeProvider;
 		this.description = identityTypeProvider.getDefaultDescription();
 		setExtractedAttributes(new HashMap<String, String>());
@@ -33,6 +37,7 @@ public class IdentityType
 	public IdentityType(IdentityTypeDefinition identityTypeProvider, String description,
 			Map<String, String> extractedAttributes)
 	{
+		this.name = identityTypeProvider.getId();
 		this.identityTypeProvider = identityTypeProvider;
 		this.description = description;
 		setExtractedAttributes(extractedAttributes);
@@ -104,6 +109,12 @@ public class IdentityType
 		this.minVerifiedInstances = minVerifiedInstances;
 	}
 
+	@Override
+	public String getName()
+	{
+		return name;
+	}
+	
 	public String toString()
 	{
 		return "[" + getIdentityTypeProvider().toString() + "] " + description;

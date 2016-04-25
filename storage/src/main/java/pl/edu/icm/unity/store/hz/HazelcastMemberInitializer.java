@@ -99,6 +99,7 @@ public class HazelcastMemberInitializer
 		for (String member: members)
 			tcpIpConfig.addMember(member);
 		tcpIpConfig.setEnabled(true);
+		
 		return config;
 	}
 }

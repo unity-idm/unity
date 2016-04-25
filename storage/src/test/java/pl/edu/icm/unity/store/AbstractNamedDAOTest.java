@@ -23,10 +23,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
+import pl.edu.icm.unity.store.api.NamedCRUDDAO;
+import pl.edu.icm.unity.types.NamedObject;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
-public abstract class AbstractDAOTest<T>
+public abstract class AbstractNamedDAOTest<T extends NamedObject>
 {
 	@Autowired
 	private StorageCleaner dbCleaner;
@@ -40,7 +42,7 @@ public abstract class AbstractDAOTest<T>
 		dbCleaner.reset();
 	}
 
-	protected abstract BasicCRUDDAO<T> getDAO();
+	protected abstract NamedCRUDDAO<T> getDAO();
 	protected abstract T getObject(String name);
 	protected abstract void mutateObject(T src);
 	protected abstract String getName(T obj);
@@ -50,7 +52,7 @@ public abstract class AbstractDAOTest<T>
 	public void shouldReturnCreatedByName()
 	{
 		tx.runInTransaction(() -> {
-			BasicCRUDDAO<T> dao = getDAO();
+			NamedCRUDDAO<T> dao = getDAO();
 			T obj = getObject("name1");
 
 			dao.create(obj);
@@ -65,7 +67,7 @@ public abstract class AbstractDAOTest<T>
 	public void shouldReturnUpdated()
 	{
 		tx.runInTransaction(() -> {
-			BasicCRUDDAO<T> dao = getDAO();
+			NamedCRUDDAO<T> dao = getDAO();
 			T obj = getObject("name1");
 			dao.create(obj);
 
@@ -83,7 +85,7 @@ public abstract class AbstractDAOTest<T>
 	public void shouldReturnTwoCreatedWithinCollections()
 	{
 		tx.runInTransaction(() -> {
-			BasicCRUDDAO<T> dao = getDAO();
+			NamedCRUDDAO<T> dao = getDAO();
 			T obj = getObject("name1");
 			T obj2 = getObject("name2");
 
@@ -121,7 +123,7 @@ public abstract class AbstractDAOTest<T>
 	public void shouldNotReturnRemoved()
 	{
 		tx.runInTransaction(() -> {
-			BasicCRUDDAO<T> dao = getDAO();
+			NamedCRUDDAO<T> dao = getDAO();
 			T obj = getObject("name1");
 			dao.create(obj);
 
@@ -137,7 +139,7 @@ public abstract class AbstractDAOTest<T>
 	public void shouldFailOnRemovingAbsent()
 	{
 		tx.runInTransaction(() -> {
-			BasicCRUDDAO<T> dao = getDAO();
+			NamedCRUDDAO<T> dao = getDAO();
 			T obj = getObject("name1");
 
 			catchException(dao).delete(getName(obj));
@@ -163,7 +165,7 @@ public abstract class AbstractDAOTest<T>
 	public void shouldFailOnUpdatingAbsent()
 	{
 		tx.runInTransaction(() -> {
-			BasicCRUDDAO<T> dao = getDAO();
+			NamedCRUDDAO<T> dao = getDAO();
 			T obj = getObject("name1");
 
 			catchException(dao).update(obj);

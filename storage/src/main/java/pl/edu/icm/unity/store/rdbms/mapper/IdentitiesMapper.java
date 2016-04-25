@@ -6,7 +6,6 @@ package pl.edu.icm.unity.store.rdbms.mapper;
 
 import java.util.List;
 
-import pl.edu.icm.unity.store.rdbms.model.BaseBean;
 import pl.edu.icm.unity.store.rdbms.model.IdentityBean;
 
 /**
@@ -15,13 +14,6 @@ import pl.edu.icm.unity.store.rdbms.model.IdentityBean;
  */
 public interface IdentitiesMapper
 {
-	void insertEntity(BaseBean arg);
-	void insertEntityWithId(BaseBean arg);
-	List<BaseBean> getEntities();	
-	BaseBean getEntityById(long id);
-	void updateEntity(BaseBean arg);
-	void deleteEntity(long id);
-	
 	void updateIdentityEntity(IdentityBean arg);
 	
 	void insertIdentity(IdentityBean arg);

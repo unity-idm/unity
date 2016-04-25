@@ -44,11 +44,6 @@
 		)  engine=InnoDB, character set utf8
 	</sql>
 
-	<select id="getDBLimits" resultType="DBLimitsBean">
-		select 200 AS nameLimit, 60000 AS contentsLimit 
-	</select>
-
-
 	<update id="resetIndex-00">
 		ALTER TABLE TOKENS AUTO_INCREMENT=1;
 	</update>

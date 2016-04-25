@@ -8,7 +8,6 @@
 
 package pl.edu.icm.unity.store.rdbms;
 
-import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +16,9 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.internal.StorageEngine;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.store.StorageConfiguration;
 import pl.edu.icm.unity.store.StorageCleaner;
+import pl.edu.icm.unity.store.StorageConfiguration;
 import pl.edu.icm.unity.store.StoreLoaderInternal;
-import pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper;
-import pl.edu.icm.unity.store.rdbms.model.DBLimitsBean;
 
 
 /**
@@ -38,8 +35,6 @@ public class DB implements StoreLoaderInternal
 	public static final String DB_VERSION = "2_2_0";
 	
 	public static final String NAME = StorageCleaner.BEAN_PFX + "rdbms";
-
-	private DBLimitsBean limits;
 
 	private InitDB initDB;
 
@@ -73,11 +68,6 @@ public class DB implements StoreLoaderInternal
 				" while you are using now version:" + DB.DB_VERSION);
 	}
 	
-	public DBLimit getDBLimits()
-	{
-		return new DBLimit(limits);
-	}
-
 	public String checkCurrentVersion(DBSessionManager sessionMan) throws Exception
 	{
 		SqlSession sqlMap = sessionMan.getSqlSession(false);
@@ -90,29 +80,11 @@ public class DB implements StoreLoaderInternal
 		}
 	}
 	
-	private final DBLimitsBean establishDBLimits(DBSessionManager sessionMan, 
-			Class<? extends InitdbMapper> mapperClass) throws InternalException
-	{
-		SqlSession sqlMap = sessionMan.getSqlSession(false);
-		try
-		{
-			InitdbMapper mapper = sqlMap.getMapper(mapperClass);
-			return mapper.getDBLimits();
-		} catch (PersistenceException e)
-		{
-			throw new InternalException("Can't establish DB limits", e);
-		} finally
-		{
-			sqlMap.close();
-		}
-	}
-
 	public void initialize() throws Exception
 	{
 		log.info("Initializing RDBMS storage engine");
 		initDB.initIfNeeded();
 		verifyDBVersion(sessionMan);
-		limits = establishDBLimits(sessionMan, InitdbMapper.class);
 	}
 
 	@Override

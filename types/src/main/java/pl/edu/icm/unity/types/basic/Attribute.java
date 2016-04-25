@@ -10,6 +10,7 @@ import java.util.List;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.types.InitializationValidator;
+import pl.edu.icm.unity.types.NamedObject;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -20,7 +21,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * its syntax, visibility and list of values.
  * @author K. Benedyczak
  */
-public class Attribute<T> implements InitializationValidator
+public class Attribute<T> implements InitializationValidator, NamedObject
 {
 	private AttributeValueSyntax<T> attributeSyntax;
 	private String name;
@@ -68,6 +69,7 @@ public class Attribute<T> implements InitializationValidator
 	{
 		return visibility;
 	}
+	@Override
 	public String getName()
 	{
 		return name;

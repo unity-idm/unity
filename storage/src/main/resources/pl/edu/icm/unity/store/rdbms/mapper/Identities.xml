@@ -10,27 +10,6 @@
 		<result property="contents" column="CONTENTS"/>
 	</resultMap>
 
-	<insert id="insertEntity" parameterType="BaseB" useGeneratedKeys="true" keyProperty="id">
-		INSERT INTO ENTITIES (CONTENTS) VALUES (#{contents})
-	</insert>
-	
-	<insert id="insertEntityWithId" parameterType="BaseB">
-		INSERT INTO ENTITIES (ID, CONTENTS) VALUES (#{id}, #{contents})
-	</insert>
-	
-	<update id="updateEntity" parameterType="BaseB">
-		UPDATE ENTITIES SET CONTENTS = #{contents} WHERE ID = #{id}
-	</update>	
-
-	<select id="getEntities" resultType="BaseB">
-		select * from ENTITIES
-	</select>
-
-	<select id="getEntityById" parameterType="long" resultType="BaseB">
-		select * from ENTITIES where ID = #{value}
-	</select>
-
-
 	<select id="getIdentities" resultMap="identityResult">
 		select * from IDENTITIES
 	</select>
@@ -60,10 +39,6 @@
 		DELETE FROM IDENTITIES
 	</delete>
 
-	<delete id="deleteEntity" parameterType="long">
-		DELETE FROM ENTITIES WHERE ID = #{value}
-	</delete>
-	
 	<select id="getIdentityByName" resultMap="identityResult" parameterType="string">
 		select * from IDENTITIES WHERE NAME = #{value}
 	</select>

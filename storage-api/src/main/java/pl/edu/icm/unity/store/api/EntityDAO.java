@@ -4,13 +4,11 @@
  */
 package pl.edu.icm.unity.store.api;
 
-import pl.edu.icm.unity.types.basic.AttributeType;
-
 /**
- * {@link AttributeType} DAO
+ * Entitites DAO
  * @author K. Benedyczak
  */
-public interface AttributeTypeDAO extends NamedCRUDDAO<AttributeType>
+public interface EntityDAO extends BasicCRUDDAO<StoredEntity>
 {
-	String DAO_ID = "attributeTypesDAO";
+	String DAO_ID = "EntityDAO";
 }

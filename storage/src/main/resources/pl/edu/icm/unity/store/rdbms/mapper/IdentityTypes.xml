@@ -15,6 +15,10 @@
 		DELETE FROM IDENTITY_TYPES WHERE NAME = #{value}
 	</delete>
 
+	<delete id="deleteByKey" parameterType="long">
+		DELETE FROM IDENTITY_TYPES WHERE ID = #{value}
+	</delete>
+
 	<select id="getAll" resultType="BaseB">
 		select * from IDENTITY_TYPES
 	</select>

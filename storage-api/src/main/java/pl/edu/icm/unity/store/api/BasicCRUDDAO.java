@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.store.api;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Basic DAO with typical CRUD operations.
@@ -13,17 +12,13 @@ import java.util.Map;
  */
 public interface BasicCRUDDAO<T>
 {	
-	void create(T obj);
+	long create(T obj);
 	
-	void update(T obj);
+	void updateByKey(long id, T obj);
 
-	void delete(String id);
+	void deleteByKey(long id);
 
-	T get(String id);
+	T getByKey(long id);
 
-	boolean exists(String id);
-	
-	Map<String, T> getAsMap();
-	
 	List<T> getAll();
 }
