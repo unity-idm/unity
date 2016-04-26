@@ -63,16 +63,22 @@ public abstract class GenericBasicHzCRUD<T> implements BasicCRUDDAO<T>
 		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, "update", obj));
 	}
 
-	@Override
-	public void deleteByKey(long id)
+	public T deleteByKeyRet(long id)
 	{
 		TransactionalMap<Long, T> hMap = getMap();
 		T removed = hMap.remove(id);
 		if (removed == null)
 			throw new IllegalArgumentException(name + " [" + id + "] does not exists");
 		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, "deleteByKey", id));
+		return removed;
 	}
-
+	
+	@Override
+	public void deleteByKey(long id)
+	{
+		deleteByKeyRet(id);
+	}
+	
 	@Override
 	public T getByKey(long id)
 	{

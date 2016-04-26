@@ -72,14 +72,21 @@ public abstract class GenericNamedHzCRUD<T extends NamedObject> extends GenericB
 			throw new IllegalArgumentException(name + " [" + id + "] does not exists");
 		super.deleteByKey(removed);
 	}
-
+	
+	@Override
+	public void deleteByKey(long key)
+	{
+		T removed = super.deleteByKeyRet(key);
+		getNameMap().remove(removed.getName());
+	}
+	
 	@Override
 	public T get(String id)
 	{
 		Long key = getNameMap().get(id);
 		if (key == null)
 			throw new IllegalArgumentException(name + " [" + id + "] does not exists");
-		return getMap().get(id);
+		return getMap().get(key);
 	}
 
 	@Override

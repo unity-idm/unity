@@ -44,6 +44,7 @@
 		)  engine=InnoDB, character set utf8
 	</sql>
 
+
 	<update id="resetIndex-00">
 		ALTER TABLE TOKENS AUTO_INCREMENT=1;
 	</update>

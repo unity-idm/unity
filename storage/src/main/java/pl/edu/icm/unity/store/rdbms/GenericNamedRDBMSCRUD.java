@@ -4,9 +4,12 @@
  */
 package pl.edu.icm.unity.store.rdbms;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.ibatis.exceptions.PersistenceException;
 
 import pl.edu.icm.unity.store.api.NamedCRUDDAO;
 import pl.edu.icm.unity.store.impl.StorageLimits;
@@ -24,6 +27,9 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 {
 	private Class<? extends NamedCRUDMapper<DBT>> namedMapperClass;
 	
+	public static final String SQL_DUP_1_ERROR = "23000";
+	public static final String SQL_DUP_2_ERROR = "23505";
+	
 	public GenericNamedRDBMSCRUD(Class<? extends NamedCRUDMapper<DBT>> namedMapperClass,
 			RDBMSObjectSerializer<T, DBT> jsonSerializer, String elementName, StorageLimits limits)
 	{
@@ -37,7 +43,21 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 	public long create(T obj)
 	{
 		limits.checkNameLimit(getNameId(obj));
-		return super.create(obj);
+		try
+		{
+			return super.create(obj);
+		} catch (PersistenceException e)
+		{
+			Throwable causeO = e.getCause();
+			if (!(causeO instanceof SQLException))
+				throw e;
+			SQLException cause = (SQLException) causeO;
+			if (cause.getSQLState().equals(SQL_DUP_1_ERROR) || 
+					cause.getSQLState().equals(SQL_DUP_2_ERROR))
+				throw new IllegalArgumentException(elementName + " [" + obj.getName() + 
+						"] already exist", e);
+			throw e;
+		}
 	}
 
 	@Override
@@ -49,7 +69,8 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 			throw new IllegalArgumentException(elementName + " [" + obj.getName() + 
 					"] does not exist");
 		DBT toUpdate = jsonSerializer.toDB(obj);
-		mapper.updateByKey(byName.getId(), toUpdate);		
+		toUpdate.setId(byName.getId());
+		mapper.updateByKey(toUpdate);		
 	}
 
 	@Override

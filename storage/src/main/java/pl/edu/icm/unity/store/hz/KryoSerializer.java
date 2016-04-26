@@ -19,8 +19,6 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
 
-import pl.edu.icm.unity.store.rdbmsflush.RDBMSEventsBatch;
-
 /**
  * Kryo based default global serializer for Hazelcast
  * @author K. Benedyczak
@@ -38,7 +36,7 @@ public class KryoSerializer implements StreamSerializer<Object>
 		Kryo kryo = kryoP.borrow();
 		try
 		{
-			kryo.writeObject(output, batch);
+			kryo.writeClassAndObject(output, batch);
 		} finally
 		{
 			kryoP.release(kryo);
@@ -55,7 +53,7 @@ public class KryoSerializer implements StreamSerializer<Object>
 		Kryo kryo = kryoP.borrow();
 		try
 		{
-		        return kryo.readObject(input, RDBMSEventsBatch.class);
+		        return kryo.readClassAndObject(input);
 		} finally
 		{
 			kryoP.release(kryo);

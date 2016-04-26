@@ -62,9 +62,41 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject>
 			assertAreEqual(obj, ret);
 		});
 	}
-
+	
 	@Test
-	public void shouldReturnUpdated()
+	public void createdExists()
+	{
+		tx.runInTransaction(() -> {
+			NamedCRUDDAO<T> dao = getDAO();
+			T obj = getObject("name1");
+
+			dao.create(obj);
+			boolean ret = dao.exists(getName(obj));
+
+			assertThat(ret, is(true));
+		});
+	}
+	
+	@Test
+	public void shouldReturnCreatedByKey()
+	{
+		tx.runInTransaction(() -> {
+			NamedCRUDDAO<T> dao = getDAO();
+			T obj = getObject("name1");
+
+			long key1 = dao.create(obj);
+			dao.deleteByKey(key1);
+			long key2 = dao.create(obj);
+			T ret = dao.getByKey(key2);
+
+			assertThat(key1 != key2, is(true));
+			assertThat(ret, is(notNullValue()));
+			assertAreEqual(obj, ret);
+		});
+	}
+	
+	@Test
+	public void shouldReturnUpdatedByName()
 	{
 		tx.runInTransaction(() -> {
 			NamedCRUDDAO<T> dao = getDAO();
@@ -75,6 +107,24 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject>
 			dao.update(obj);
 
 			T ret = dao.get(getName(obj));
+
+			assertThat(ret, is(notNullValue()));
+			assertAreEqual(obj, ret);
+		});
+	}
+
+	@Test
+	public void shouldReturnUpdatedByKey()
+	{
+		tx.runInTransaction(() -> {
+			NamedCRUDDAO<T> dao = getDAO();
+			T obj = getObject("name1");
+			long key = dao.create(obj);
+
+			mutateObject(obj);
+			dao.updateByKey(key, obj);
+
+			T ret = dao.getByKey(key);
 
 			assertThat(ret, is(notNullValue()));
 			assertAreEqual(obj, ret);
@@ -120,7 +170,7 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject>
 	}
 
 	@Test
-	public void shouldNotReturnRemoved()
+	public void shouldNotReturnRemovedByName()
 	{
 		tx.runInTransaction(() -> {
 			NamedCRUDDAO<T> dao = getDAO();
@@ -134,7 +184,22 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject>
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
 		});
 	}
+	
+	@Test
+	public void shouldNotReturnRemovedByKey()
+	{
+		tx.runInTransaction(() -> {
+			NamedCRUDDAO<T> dao = getDAO();
+			T obj = getObject("name1");
+			long key = dao.create(obj);
 
+			dao.deleteByKey(key);
+
+			catchException(dao).getByKey(key);
+
+			assertThat(caughtException(), isA(IllegalArgumentException.class));
+		});
+	}
 	@Test
 	public void shouldFailOnRemovingAbsent()
 	{
@@ -156,7 +221,6 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject>
 			T obj = getObject("name1");
 			dao.create(obj);
 			catchException(dao).create(obj);
-
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
 		});
 	}

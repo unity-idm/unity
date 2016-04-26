@@ -39,7 +39,8 @@ public abstract class GenericRDBMSCRUD<T, DBT extends BaseBean> implements Basic
 		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);
 		DBT toAdd = jsonSerializer.toDB(obj);
 		limits.checkContentsLimit(toAdd.getContents());
-		return mapper.create(toAdd);
+		mapper.create(toAdd);
+		return toAdd.getId();
 	}
 
 	@Override
@@ -49,7 +50,8 @@ public abstract class GenericRDBMSCRUD<T, DBT extends BaseBean> implements Basic
 		assertExists(key, mapper);
 		DBT toUpdate = jsonSerializer.toDB(obj);
 		limits.checkContentsLimit(toUpdate.getContents());
-		mapper.updateByKey(key, toUpdate);		
+		toUpdate.setId(key);
+		mapper.updateByKey(toUpdate);		
 	}
 
 	@Override

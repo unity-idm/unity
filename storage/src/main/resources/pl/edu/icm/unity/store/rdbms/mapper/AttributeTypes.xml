@@ -10,13 +10,14 @@
 		<result property="valueSyntaxId" column="VALUE_SYNTAX_ID"/>
 	</resultMap>
 
-	<insert id="create" parameterType="AttributeTypeB">
-		INSERT INTO ATTRIBUTE_TYPES (NAME, VALUE_SYNTAX_ID, CONTENTS) VALUES (#{name}, #{valueSyntaxId}, #{contents})
+	<insert id="create" parameterType="AttributeTypeB" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+		INSERT INTO ATTRIBUTE_TYPES (NAME, VALUE_SYNTAX_ID, CONTENTS) 
+			VALUES (#{name}, #{valueSyntaxId}, #{contents})
 	</insert>	
 
-	<update id="update" parameterType="AttributeTypeB">
-		UPDATE ATTRIBUTE_TYPES SET VALUE_SYNTAX_ID=#{valueSyntaxId}, CONTENTS=#{contents}
-			WHERE NAME=#{name} 
+	<update id="updateByKey" parameterType="AttributeTypeB">
+		UPDATE ATTRIBUTE_TYPES SET NAME=#{name}, VALUE_SYNTAX_ID=#{valueSyntaxId}, CONTENTS=#{contents}
+			WHERE ID=#{id} 
 	</update>	
 
 	<delete id="delete" parameterType="string">
