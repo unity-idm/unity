@@ -9,9 +9,6 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.JsonSerializer;
 import pl.edu.icm.unity.store.api.StoredEntity;
@@ -20,10 +17,12 @@ import pl.edu.icm.unity.store.rdbms.model.BaseBean;
 import pl.edu.icm.unity.types.EntityInformation;
 import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.EntityState;
-import pl.edu.icm.unity.types.basic.Entity;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
- * Serializes {@link Entity} to/from DB form.
+ * Serializes {@link StoredEntity} to/from DB form.
  * @author K. Benedyczak
  */
 @Component

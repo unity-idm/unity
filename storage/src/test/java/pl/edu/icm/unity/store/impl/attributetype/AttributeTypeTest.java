@@ -66,12 +66,6 @@ public class AttributeTypeTest extends AbstractNamedDAOTest<AttributeType>
 	}
 
 	@Override
-	protected String getName(AttributeType obj)
-	{
-		return obj.getName();
-	}
-
-	@Override
 	protected void assertAreEqual(AttributeType obj, AttributeType cmp)
 	{
 		assertThat(obj.getName(), is(cmp.getName()));

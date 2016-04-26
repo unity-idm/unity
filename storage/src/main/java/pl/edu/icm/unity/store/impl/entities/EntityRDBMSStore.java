@@ -13,6 +13,7 @@ import pl.edu.icm.unity.store.impl.StorageLimits;
 import pl.edu.icm.unity.store.rdbms.GenericRDBMSCRUD;
 import pl.edu.icm.unity.store.rdbms.mapper.EntitiesMapper;
 import pl.edu.icm.unity.store.rdbms.model.BaseBean;
+import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 
 
 /**
@@ -29,5 +30,22 @@ public class EntityRDBMSStore extends GenericRDBMSCRUD<StoredEntity, BaseBean>
 	public EntityRDBMSStore(EntityJsonSerializer jsonSerializer, StorageLimits limits)
 	{
 		super(EntitiesMapper.class, jsonSerializer, "entity", limits);
+	}
+	
+	@Override
+	public long create(StoredEntity obj)
+	{
+		long ret = super.create(obj);
+		obj.setId(ret);
+		return ret;
+	}
+
+	@Override
+	public void createWithId(StoredEntity obj)
+	{
+		EntitiesMapper mapper = SQLTransactionTL.getSql().getMapper(EntitiesMapper.class);
+		BaseBean toAdd = jsonSerializer.toDB(obj);
+		limits.checkContentsLimit(toAdd.getContents());
+		mapper.createWithKey(toAdd);
 	}
 }

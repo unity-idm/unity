@@ -26,6 +26,8 @@ import pl.edu.icm.unity.store.StoreLoaderInternal;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionalRunner;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeHzStore;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeRDBMSStore;
+import pl.edu.icm.unity.store.impl.entities.EntityHzStore;
+import pl.edu.icm.unity.store.impl.entities.EntityRDBMSStore;
 import pl.edu.icm.unity.store.impl.identitytype.IdentityTypeHzStore;
 import pl.edu.icm.unity.store.impl.identitytype.IdentityTypeRDBMSStore;
 import pl.edu.icm.unity.store.rdbms.DB;
@@ -48,9 +50,13 @@ public class HzStoreLoader implements StoreLoaderInternal
 	@Autowired
 	private IdentityTypeHzStore idTypeStore;
 	@Autowired
+	private EntityHzStore entityStore;
+	@Autowired
 	private AttributeTypeRDBMSStore rdbmsAtTypeStore;
 	@Autowired
 	private IdentityTypeRDBMSStore rdbmsIdTypeStore;
+	@Autowired
+	private EntityRDBMSStore rdbmsEntityStore;
 	
 	@Autowired @Qualifier(SQLTransactionalRunner.NAME)
 	private TransactionalRunner rdbmstx;
@@ -83,6 +89,8 @@ public class HzStoreLoader implements StoreLoaderInternal
 		idTypeStore.initHazelcast(rdbmsIdTypeStore, hzInstance);
 		log.info("Loading attribute types");
 		atTypeStore.initHazelcast(rdbmsAtTypeStore, hzInstance);
+		log.info("Loading entities");
+		entityStore.initHazelcast(rdbmsEntityStore, hzInstance);
 		log.info("Population of the in-memory data store completed");
 	}
 	

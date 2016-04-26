@@ -6,7 +6,7 @@
 		INSERT INTO ENTITIES (CONTENTS) VALUES (#{contents})
 	</insert>
 	
-	<update id="update" parameterType="BaseB">
+	<update id="updateByKey" parameterType="BaseB">
 		UPDATE ENTITIES SET CONTENTS = #{contents} WHERE ID = #{id}
 	</update>	
 

@@ -46,8 +46,8 @@ public abstract class GenericBasicHzCRUD<T> implements BasicCRUDDAO<T>
 	{
 		TransactionalMap<Long, T> hMap = getMap();
 		long key = index.incrementAndGet();
-		if (hMap.containsKey(key))
-			throw new IllegalArgumentException(name + " [" + key + "] already exists");
+		while (hMap.containsKey(key))
+			key = index.incrementAndGet();
 		hMap.put(key, obj);
 		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, "create", obj));
 		return key;

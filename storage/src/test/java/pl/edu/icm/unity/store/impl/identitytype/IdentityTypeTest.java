@@ -57,12 +57,6 @@ public class IdentityTypeTest extends AbstractNamedDAOTest<IdentityType>
 	}
 
 	@Override
-	protected String getName(IdentityType obj)
-	{
-		return obj.getIdentityTypeProvider().getId();
-	}
-
-	@Override
 	protected void assertAreEqual(IdentityType obj, IdentityType cmp)
 	{
 		assertThat(obj.getIdentityTypeProvider().getId(), is(cmp.getIdentityTypeProvider().getId()));
@@ -82,21 +76,34 @@ public class IdentityTypeTest extends AbstractNamedDAOTest<IdentityType>
 			idTypeDAO.create(obj);
 
 			List<IdentityType> all = idTypeDAO.getAll();
-			Map<String, IdentityType> asMap = idTypeDAO.getAsMap();
 
 			assertThat(all, is(notNullValue()));
-			assertThat(asMap, is(notNullValue()));
 
 			assertThat(all.size(), is(1));
-			assertThat(asMap.size(), is(1));
-
-			assertThat(asMap.containsKey(getName(obj)), is(true));
-
-			assertAreEqual(asMap.get(getName(obj)), obj);
 
 			IdentityType fromList = all.get(0);
 
 			assertAreEqual(fromList, obj);
+		});
+	}
+	
+	@Test
+	@Override
+	public void shouldReturnTwoCreatedWithinCollectionsByName()
+	{
+		tx.runInTransaction(() -> {
+			IdentityType obj = getObject("");
+			idTypeDAO.create(obj);
+
+			Map<String, IdentityType> asMap = idTypeDAO.getAsMap();
+
+			assertThat(asMap, is(notNullValue()));
+
+			assertThat(asMap.size(), is(1));
+
+			assertThat(asMap.containsKey(obj.getName()), is(true));
+
+			assertAreEqual(asMap.get(obj.getName()), obj);
 		});
 	}
 }

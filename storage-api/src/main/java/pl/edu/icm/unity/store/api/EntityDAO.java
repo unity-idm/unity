@@ -11,4 +11,6 @@ package pl.edu.icm.unity.store.api;
 public interface EntityDAO extends BasicCRUDDAO<StoredEntity>
 {
 	String DAO_ID = "EntityDAO";
+	
+	void createWithId(StoredEntity obj);
 }
