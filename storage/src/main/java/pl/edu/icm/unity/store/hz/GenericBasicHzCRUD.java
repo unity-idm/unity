@@ -7,10 +7,13 @@ package pl.edu.icm.unity.store.hz;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IAtomicLong;
 import com.hazelcast.core.TransactionalMap;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.store.rdbmsflush.RDBMSMutationEvent;
@@ -19,22 +22,31 @@ import pl.edu.icm.unity.store.rdbmsflush.RDBMSMutationEvent;
  * Generic BasicCRUDDAO implementation on hazelcast map.
  * @author K. Benedyczak
  */
-public abstract class GenericBasicHzCRUD<T> implements BasicCRUDDAO<T>
+public abstract class GenericBasicHzCRUD<T> implements BasicCRUDDAO<T>, HzDAO
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, GenericBasicHzCRUD.class);
+
 	protected final String STORE_ID;
 	protected final String name;
 	protected final String rdbmsCounterpartDaoName;
-	private IAtomicLong index;
+	protected IAtomicLong index;
+	private BasicCRUDDAO<T> rdbmsDAO;
+	private HazelcastInstance hzInstance;
 	
-	public GenericBasicHzCRUD(String storeId, String name, String rdbmsCounterpartDaoName)
+	public GenericBasicHzCRUD(String storeId, String name, String rdbmsCounterpartDaoName,
+			BasicCRUDDAO<T> rdbmsDAO, HazelcastInstance hzInstance)
 	{
 		STORE_ID = storeId;
 		this.name = name;
 		this.rdbmsCounterpartDaoName = rdbmsCounterpartDaoName;
+		this.rdbmsDAO = rdbmsDAO;
+		this.hzInstance = hzInstance;
 	}
 
-	public void initHazelcast(BasicCRUDDAO<T> rdbmsDAO, HazelcastInstance hzInstance)
+	@Override
+	public void populateFromRDBMS()
 	{
+		log.info("Loading " + name + " from persistent storage");
 		index = hzInstance.getAtomicLong(STORE_ID);
 		List<T> all = rdbmsDAO.getAll();
 		for (T element: all)

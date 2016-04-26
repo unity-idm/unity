@@ -4,11 +4,14 @@
  */
 package pl.edu.icm.unity.store.impl.attributetype;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.hz.GenericNamedHzCRUD;
 import pl.edu.icm.unity.types.basic.AttributeType;
+
+import com.hazelcast.core.HazelcastInstance;
 
 
 /**
@@ -21,9 +24,10 @@ public class AttributeTypeHzStore extends GenericNamedHzCRUD<AttributeType> impl
 	public static final String STORE_ID = DAO_ID + "hz";
 	private static final String NAME = "attribute type";
 
-	public AttributeTypeHzStore()
+	@Autowired
+	public AttributeTypeHzStore(AttributeTypeRDBMSStore rdbmsStore, HazelcastInstance hzInstance)
 	{
-		super(STORE_ID, NAME, AttributeTypeRDBMSStore.BEAN);
+		super(STORE_ID, NAME, AttributeTypeRDBMSStore.BEAN, rdbmsStore, hzInstance);
 	}
 
 	@Override

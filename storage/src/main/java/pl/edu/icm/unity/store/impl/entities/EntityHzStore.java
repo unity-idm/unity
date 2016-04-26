@@ -4,15 +4,17 @@
  */
 package pl.edu.icm.unity.store.impl.entities;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
-import com.hazelcast.core.TransactionalMap;
 
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.StoredEntity;
 import pl.edu.icm.unity.store.hz.GenericBasicHzCRUD;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.store.rdbmsflush.RDBMSMutationEvent;
+
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.TransactionalMap;
 
 
 /**
@@ -26,9 +28,10 @@ public class EntityHzStore extends GenericBasicHzCRUD<StoredEntity> implements E
 	public static final String STORE_ID = DAO_ID + "hz";
 	private static final String NAME = "entity";
 
-	public EntityHzStore()
+	@Autowired
+	public EntityHzStore(EntityRDBMSStore rdbmsDAO, HazelcastInstance hzInstance)
 	{
-		super(STORE_ID, NAME, EntityRDBMSStore.BEAN);
+		super(STORE_ID, NAME, EntityRDBMSStore.BEAN, rdbmsDAO, hzInstance);
 	}
 	
 	@Override

@@ -4,34 +4,39 @@
  */
 package pl.edu.icm.unity.store.hz;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.stereotype.Component;
-
-import com.hazelcast.core.DistributedObject;
-import com.hazelcast.core.HazelcastInstance;
 
 import pl.edu.icm.unity.base.internal.StorageEngine;
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.store.StorageConfiguration;
 import pl.edu.icm.unity.store.StorageCleaner;
+import pl.edu.icm.unity.store.StorageConfiguration;
 import pl.edu.icm.unity.store.StoreLoaderInternal;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionalRunner;
-import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeHzStore;
-import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeRDBMSStore;
-import pl.edu.icm.unity.store.impl.entities.EntityHzStore;
-import pl.edu.icm.unity.store.impl.entities.EntityRDBMSStore;
-import pl.edu.icm.unity.store.impl.identitytype.IdentityTypeHzStore;
-import pl.edu.icm.unity.store.impl.identitytype.IdentityTypeRDBMSStore;
 import pl.edu.icm.unity.store.rdbms.DB;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionalRunner;
+
+import com.google.common.collect.Sets;
+import com.hazelcast.core.DistributedObject;
+import com.hazelcast.core.HazelcastInstance;
 
 /**
  * Loads Hazelcast data from RDBMS at startup.
@@ -45,18 +50,12 @@ public class HzStoreLoader implements StoreLoaderInternal
 	
 	public static final String NAME = StorageCleaner.BEAN_PFX + "hz";
 	
+	
 	@Autowired
-	private AttributeTypeHzStore atTypeStore;
+	private ApplicationContext appContext;
+	
 	@Autowired
-	private IdentityTypeHzStore idTypeStore;
-	@Autowired
-	private EntityHzStore entityStore;
-	@Autowired
-	private AttributeTypeRDBMSStore rdbmsAtTypeStore;
-	@Autowired
-	private IdentityTypeRDBMSStore rdbmsIdTypeStore;
-	@Autowired
-	private EntityRDBMSStore rdbmsEntityStore;
+	private List<HzDAO> hzStores;
 	
 	@Autowired @Qualifier(SQLTransactionalRunner.NAME)
 	private TransactionalRunner rdbmstx;
@@ -83,14 +82,45 @@ public class HzStoreLoader implements StoreLoaderInternal
 		});
 	}
 
+	private List<HzDAO> getSortedDaos()
+	{
+		GenericApplicationContext ctx = (GenericApplicationContext) appContext;
+		DefaultListableBeanFactory beanFactory = ctx.getDefaultListableBeanFactory();
+		
+		Map<String, HzDAO> beansOfType = beanFactory.getBeansOfType(HzDAO.class);
+		Map<String, Set<String>> dependencies = new HashMap<>();
+		for (String bean: beansOfType.keySet())
+			dependencies.put(bean, Sets.newHashSet(
+					beanFactory.getDependenciesForBean(bean)));
+		
+		Comparator<String> depCmp = new Comparator<String>()
+		{
+			@Override
+			public int compare(String o1, String o2)
+			{
+				if (dependencies.get(o1).contains(o2))
+					return 1;
+				if (dependencies.get(o2).contains(o1))
+					return -1;
+				return 0;
+			}
+		};
+
+		List<String> sortedBeans = new ArrayList<>(beansOfType.keySet());
+		Collections.sort(sortedBeans, depCmp);
+
+		List<HzDAO> ret = new ArrayList<>();
+		for (String bean: sortedBeans)
+			ret.add(beansOfType.get(bean));
+		
+		return ret;
+	}
+	
 	private void loadFromPersistentStore()
 	{
-		log.info("Loading identity types");
-		idTypeStore.initHazelcast(rdbmsIdTypeStore, hzInstance);
-		log.info("Loading attribute types");
-		atTypeStore.initHazelcast(rdbmsAtTypeStore, hzInstance);
-		log.info("Loading entities");
-		entityStore.initHazelcast(rdbmsEntityStore, hzInstance);
+		List<HzDAO> sortedDaos = getSortedDaos();
+		for (HzDAO dao: sortedDaos)
+			dao.populateFromRDBMS();
 		log.info("Population of the in-memory data store completed");
 	}
 	
