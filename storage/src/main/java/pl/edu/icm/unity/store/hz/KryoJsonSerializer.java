@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.JsonSerializer;
+import pl.edu.icm.unity.store.impl.StorageLimits;
 
 /**
  * Kryo serializer delegating the actual work to {@link JsonSerializer} 
@@ -31,6 +32,7 @@ public class KryoJsonSerializer<T> extends Serializer<T>
 	{
 		ObjectNode json = jsonSerializer.toJson(object);
 		byte[] asBytes = JsonUtil.serialize2Bytes(json);
+		StorageLimits.checkContentsLimit(asBytes);
 		output.writeInt(asBytes.length);
 		output.writeBytes(asBytes);
 	}

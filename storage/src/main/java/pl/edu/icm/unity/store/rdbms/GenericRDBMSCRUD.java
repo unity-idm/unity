@@ -21,16 +21,13 @@ public abstract class GenericRDBMSCRUD<T, DBT extends BaseBean> implements Basic
 	private Class<? extends BasicCRUDMapper<DBT>> mapperClass;
 	protected final RDBMSObjectSerializer<T, DBT> jsonSerializer;
 	protected final String elementName;
-	protected final StorageLimits limits;
 	
 	public GenericRDBMSCRUD(Class<? extends BasicCRUDMapper<DBT>> mapperClass,
-			RDBMSObjectSerializer<T, DBT> jsonSerializer, String elementName,
-			StorageLimits limits)
+			RDBMSObjectSerializer<T, DBT> jsonSerializer, String elementName)
 	{
 		this.mapperClass = mapperClass;
 		this.jsonSerializer = jsonSerializer;
 		this.elementName = elementName;
-		this.limits = limits;
 	}
 
 	@Override
@@ -38,7 +35,7 @@ public abstract class GenericRDBMSCRUD<T, DBT extends BaseBean> implements Basic
 	{
 		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);
 		DBT toAdd = jsonSerializer.toDB(obj);
-		limits.checkContentsLimit(toAdd.getContents());
+		StorageLimits.checkContentsLimit(toAdd.getContents());
 		mapper.create(toAdd);
 		return toAdd.getId();
 	}
@@ -49,7 +46,7 @@ public abstract class GenericRDBMSCRUD<T, DBT extends BaseBean> implements Basic
 		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);
 		assertExists(key, mapper);
 		DBT toUpdate = jsonSerializer.toDB(obj);
-		limits.checkContentsLimit(toUpdate.getContents());
+		StorageLimits.checkContentsLimit(toUpdate.getContents());
 		toUpdate.setId(key);
 		mapper.updateByKey(toUpdate);		
 	}

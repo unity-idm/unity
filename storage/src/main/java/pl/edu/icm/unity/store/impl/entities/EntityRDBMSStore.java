@@ -27,9 +27,9 @@ public class EntityRDBMSStore extends GenericRDBMSCRUD<StoredEntity, BaseBean>
 	public static final String BEAN = DAO_ID + "rdbms";
 
 	@Autowired
-	public EntityRDBMSStore(EntityJsonSerializer jsonSerializer, StorageLimits limits)
+	public EntityRDBMSStore(EntityJsonSerializer jsonSerializer)
 	{
-		super(EntitiesMapper.class, jsonSerializer, "entity", limits);
+		super(EntitiesMapper.class, jsonSerializer, "entity");
 	}
 	
 	@Override
@@ -45,7 +45,7 @@ public class EntityRDBMSStore extends GenericRDBMSCRUD<StoredEntity, BaseBean>
 	{
 		EntitiesMapper mapper = SQLTransactionTL.getSql().getMapper(EntitiesMapper.class);
 		BaseBean toAdd = jsonSerializer.toDB(obj);
-		limits.checkContentsLimit(toAdd.getContents());
+		StorageLimits.checkContentsLimit(toAdd.getContents());
 		mapper.createWithKey(toAdd);
 	}
 }

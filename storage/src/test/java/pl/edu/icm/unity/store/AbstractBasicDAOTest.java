@@ -32,7 +32,7 @@ public abstract class AbstractBasicDAOTest<T>
 
 	@Autowired
 	protected TransactionalRunner tx;
-
+	
 	@Before
 	public void cleanDB()
 	{

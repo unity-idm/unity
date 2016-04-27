@@ -106,4 +106,16 @@ public class IdentityTypeTest extends AbstractNamedDAOTest<IdentityType>
 			assertAreEqual(asMap.get(obj.getName()), obj);
 		});
 	}
+	
+	@Test
+	public void shouldFailOnCreatingWithTooLongName()
+	{
+		//nop
+	}
+
+	@Test
+	public void shouldFailOnUpdatingToTooLongName()
+	{
+		//nop
+	}
 }

@@ -10,6 +10,7 @@ import java.util.Map;
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
 import pl.edu.icm.unity.store.api.NamedCRUDDAO;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
+import pl.edu.icm.unity.store.impl.StorageLimits;
 import pl.edu.icm.unity.store.rdbmsflush.RDBMSMutationEvent;
 import pl.edu.icm.unity.types.NamedObject;
 
@@ -22,8 +23,6 @@ import com.hazelcast.core.TransactionalMap;
  */
 public abstract class GenericNamedHzCRUD<T extends NamedObject> extends GenericBasicHzCRUD<T> implements NamedCRUDDAO<T>
 {
-	//TODO use limits to have consistency with data sizes
-
 	public GenericNamedHzCRUD(String storeId, String name, String rdbmsCounterpartDaoName,
 			BasicCRUDDAO<T> rdbmsDAO, HazelcastInstance hzInstance)
 	{
@@ -33,6 +32,7 @@ public abstract class GenericNamedHzCRUD<T extends NamedObject> extends GenericB
 	@Override
 	public long create(T obj) throws IllegalArgumentException
 	{
+		StorageLimits.checkNameLimit(obj.getName());
 		TransactionalMap<String, Long> nameMap = getNameMap();
 		if (nameMap.containsKey(obj.getName()))
 			throw new IllegalArgumentException(name + " [" + obj.getName() + "] already exists");
@@ -59,6 +59,7 @@ public abstract class GenericNamedHzCRUD<T extends NamedObject> extends GenericB
 			throw new IllegalArgumentException(name + " [" + id + "] does not exists");
 		if (!old.getName().equals(obj.getName()))
 		{
+			StorageLimits.checkNameLimit(obj.getName());
 			TransactionalMap<String, Long> nameMap = getNameMap();
 			nameMap.remove(old.getName());
 			nameMap.put(obj.getName(), id);

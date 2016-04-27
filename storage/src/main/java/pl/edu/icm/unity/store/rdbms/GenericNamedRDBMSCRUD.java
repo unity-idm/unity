@@ -31,16 +31,16 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 	public static final String SQL_DUP_2_ERROR = "23505";
 	
 	public GenericNamedRDBMSCRUD(Class<? extends NamedCRUDMapper<DBT>> namedMapperClass,
-			RDBMSObjectSerializer<T, DBT> jsonSerializer, String elementName, StorageLimits limits)
+			RDBMSObjectSerializer<T, DBT> jsonSerializer, String elementName)
 	{
-		super(namedMapperClass, jsonSerializer, elementName, limits);
+		super(namedMapperClass, jsonSerializer, elementName);
 		this.namedMapperClass = namedMapperClass;
 	}
 
 	@Override
 	public long create(T obj)
 	{
-		limits.checkNameLimit(obj.getName());
+		StorageLimits.checkNameLimit(obj.getName());
 		try
 		{
 			return super.create(obj);
@@ -74,7 +74,7 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 	@Override
 	public void updateByKey(long key, T obj)
 	{
-		limits.checkNameLimit(obj.getName());
+		StorageLimits.checkNameLimit(obj.getName());
 		super.updateByKey(key, obj);
 	}
 	

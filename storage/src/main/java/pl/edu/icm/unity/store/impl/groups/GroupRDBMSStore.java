@@ -28,15 +28,15 @@ public class GroupRDBMSStore extends GenericNamedRDBMSCRUD<Group, GroupBean> imp
 	public static final String BEAN = DAO_ID + "rdbms";
 
 	@Autowired
-	public GroupRDBMSStore(GroupJsonSerializer jsonSerializer, StorageLimits limits)
+	public GroupRDBMSStore(GroupJsonSerializer jsonSerializer)
 	{
-		super(GroupsMapper.class, jsonSerializer, NAME, limits);
+		super(GroupsMapper.class, jsonSerializer, NAME);
 	}
 	
 	@Override
 	public void updateByKey(long key, Group obj)
 	{
-		limits.checkNameLimit(obj.getName());
+		StorageLimits.checkNameLimit(obj.getName());
 		GroupsMapper mapper = SQLTransactionTL.getSql().getMapper(GroupsMapper.class);
 		GroupBean old = mapper.getByKey(key);
 		if (old == null)
@@ -51,7 +51,7 @@ public class GroupRDBMSStore extends GenericNamedRDBMSCRUD<Group, GroupBean> imp
 			updateChilderenPaths(old.getName(), obj.getName(), mapper);
 		}
 		GroupBean toUpdate = jsonSerializer.toDB(obj);
-		limits.checkContentsLimit(toUpdate.getContents());
+		StorageLimits.checkContentsLimit(toUpdate.getContents());
 		toUpdate.setId(key);
 		mapper.updateByKey(toUpdate);		
 	}

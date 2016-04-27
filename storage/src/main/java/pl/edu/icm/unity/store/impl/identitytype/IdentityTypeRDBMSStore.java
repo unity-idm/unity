@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
-import pl.edu.icm.unity.store.impl.StorageLimits;
 import pl.edu.icm.unity.store.rdbms.GenericNamedRDBMSCRUD;
 import pl.edu.icm.unity.store.rdbms.mapper.IdentityTypesMapper;
 import pl.edu.icm.unity.store.rdbms.model.BaseBean;
@@ -25,8 +24,8 @@ public class IdentityTypeRDBMSStore extends GenericNamedRDBMSCRUD<IdentityType, 
 	public static final String BEAN = DAO_ID + "rdbms";
 	
 	@Autowired
-	public IdentityTypeRDBMSStore(IdentityTypeJsonSerializer jsonSerializer, StorageLimits dbLimits)
+	public IdentityTypeRDBMSStore(IdentityTypeJsonSerializer jsonSerializer)
 	{
-		super(IdentityTypesMapper.class, jsonSerializer, "identity type", dbLimits);
+		super(IdentityTypesMapper.class, jsonSerializer, "identity type");
 	}
 }

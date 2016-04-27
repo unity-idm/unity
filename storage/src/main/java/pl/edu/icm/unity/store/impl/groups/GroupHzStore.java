@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.hz.GenericNamedHzCRUD;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
+import pl.edu.icm.unity.store.impl.StorageLimits;
 import pl.edu.icm.unity.store.rdbmsflush.RDBMSMutationEvent;
 import pl.edu.icm.unity.types.basic.Group;
 
@@ -35,6 +36,7 @@ public class GroupHzStore extends GenericNamedHzCRUD<Group> implements GroupDAO
 	@Override
 	public void updateByKey(long id, Group obj)
 	{
+		StorageLimits.checkNameLimit(obj.getName());
 		TransactionalMap<Long, Group> hMap = getMap();
 		Group old = hMap.get(id);
 		if (old == null)

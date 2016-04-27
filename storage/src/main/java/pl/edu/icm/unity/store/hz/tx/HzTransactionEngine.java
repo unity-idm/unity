@@ -70,7 +70,7 @@ public class HzTransactionEngine implements TransactionEngine
 					rollback(pjp);
 					throw pe;
 				}
-			} catch (HazelcastException pe) //TODO this should be checked if is correct
+			} catch (HazelcastException pe)
 			{
 				log.debug("Got persistence error, rolling back transaction", pe);				
 				rollback(pjp);

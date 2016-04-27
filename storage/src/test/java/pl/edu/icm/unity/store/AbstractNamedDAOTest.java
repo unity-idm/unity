@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
 import pl.edu.icm.unity.store.api.NamedCRUDDAO;
+import pl.edu.icm.unity.store.impl.StorageLimits;
 import pl.edu.icm.unity.types.NamedObject;
 
 public abstract class AbstractNamedDAOTest<T extends NamedObject> extends AbstractBasicDAOTest<T>
@@ -147,5 +148,41 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject> extends Abstra
 
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
 		});
+	}
+
+	@Test
+	public void shouldFailOnCreatingWithTooLongName()
+	{
+		tx.runInTransaction(() -> {
+			NamedCRUDDAO<T> dao = getDAO();
+			T obj = getObject(genTooLongName());
+
+			catchException(dao).create(obj);
+
+			assertThat(caughtException(), isA(IllegalArgumentException.class));
+		});
+	}
+
+	@Test
+	public void shouldFailOnUpdatingToTooLongName()
+	{
+		tx.runInTransaction(() -> {
+			NamedCRUDDAO<T> dao = getDAO();
+			T obj = getObject("name1");
+			long key = dao.create(obj);
+			
+			obj = getObject(genTooLongName());
+			catchException(dao).updateByKey(key, obj);
+
+			assertThat(caughtException(), isA(IllegalArgumentException.class));
+		});
+	}
+	
+	private String genTooLongName()
+	{
+		char[] name = new char[StorageLimits.NAME_LIMIT+1];
+		for (int i=0; i<name.length; i++)
+			name[i] = 'a';
+		return new String(name);
 	}
 }
