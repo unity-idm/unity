@@ -17,9 +17,9 @@ public interface BasicCRUDMapper<BEAN>
 	
 	void updateByKey(BEAN obj);
 
+	void deleteByKey(long key);
+
 	List<BEAN> getAll();
 	
 	BEAN getByKey(long key);
-	
-	void deleteByKey(long key);
 }

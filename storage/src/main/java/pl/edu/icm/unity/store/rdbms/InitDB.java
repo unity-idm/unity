@@ -20,9 +20,11 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.store.impl.groups.GroupJsonSerializer;
 import pl.edu.icm.unity.store.rdbms.mapper.GroupsMapper;
 import pl.edu.icm.unity.store.rdbms.model.GroupBean;
 
@@ -34,7 +36,6 @@ import pl.edu.icm.unity.store.rdbms.model.GroupBean;
 @Component
 public class InitDB
 {
-	public static final String ROOT_GROUP_NAME = "ROOT";
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, InitDB.class);
 	private final String UPDATE_SCHEMA_PFX = "updateSchema-";
 	public static final String LAST_SUPPORTED_DB_VERSION = "2_1_5";
@@ -152,9 +153,10 @@ public class InitDB
 		{
 			session.insert("initVersion");
 			GroupsMapper groups = session.getMapper(GroupsMapper.class);
-			GroupBean root = new GroupBean();
-			root.setName(ROOT_GROUP_NAME);
-			groups.insertGroup(root);
+			GroupBean root = new GroupBean("/", null);
+			root.setContents(JsonUtil.serialize2Bytes(
+					GroupJsonSerializer.createRootGroupContents()));
+			groups.create(root);
 		} finally
 		{
 			session.close();

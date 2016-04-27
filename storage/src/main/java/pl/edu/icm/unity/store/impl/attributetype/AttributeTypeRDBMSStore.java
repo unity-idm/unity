@@ -30,10 +30,4 @@ public class AttributeTypeRDBMSStore extends GenericNamedRDBMSCRUD<AttributeType
 	{
 		super(AttributeTypesMapper.class, jsonSerializer, "attribute type", limits);
 	}
-
-	@Override
-	protected String getNameId(AttributeType obj)
-	{
-		return obj.getName();
-	}
 }

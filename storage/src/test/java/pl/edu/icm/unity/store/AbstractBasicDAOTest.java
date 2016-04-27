@@ -85,6 +85,7 @@ public abstract class AbstractBasicDAOTest<T>
 	{
 		tx.runInTransaction(() -> {
 			BasicCRUDDAO<T> dao = getDAO();
+			int initial = dao.getAll().size();
 			T obj = getObject("name1");
 			T obj2 = getObject("name2");
 
@@ -94,21 +95,25 @@ public abstract class AbstractBasicDAOTest<T>
 
 			assertThat(all, is(notNullValue()));
 
-			assertThat(all.size(), is(2));
+			assertThat(all.size(), is(initial + 2));
 
-			T fromList = all.get(0);
-			T fromList2 = all.get(1);
-			try
+			boolean objFound = false;
+			boolean obj2Found = false;
+			for (T el: all)
 			{
-				assertAreEqual(fromList, obj);
-			} catch (Throwable t)
-			{
-				fromList = all.get(1);
-				fromList2 = all.get(0);
+				try
+				{
+					assertAreEqual(el, obj);
+					objFound = true;
+				} catch (Throwable t) {}
+				try
+				{
+					assertAreEqual(el, obj2);
+					obj2Found = true;
+				} catch (Throwable t) {}
 			}
-
-			assertAreEqual(fromList, obj);
-			assertAreEqual(fromList2, obj2);
+			assertThat(objFound, is(true));
+			assertThat(obj2Found, is(true));
 		});
 	}
 

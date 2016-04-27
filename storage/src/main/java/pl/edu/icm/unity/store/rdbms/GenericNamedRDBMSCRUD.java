@@ -37,12 +37,10 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 		this.namedMapperClass = namedMapperClass;
 	}
 
-	protected abstract String getNameId(T obj);
-	
 	@Override
 	public long create(T obj)
 	{
-		limits.checkNameLimit(getNameId(obj));
+		limits.checkNameLimit(obj.getName());
 		try
 		{
 			return super.create(obj);
@@ -73,6 +71,13 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 		mapper.updateByKey(toUpdate);		
 	}
 
+	@Override
+	public void updateByKey(long key, T obj)
+	{
+		limits.checkNameLimit(obj.getName());
+		super.updateByKey(key, obj);
+	}
+	
 	@Override
 	public void delete(String id)
 	{
@@ -108,7 +113,7 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 		for (DBT bean: allInDB)
 		{
 			T obj = jsonSerializer.fromDB(bean);
-			ret.put(getNameId(obj), obj);
+			ret.put(obj.getName(), obj);
 		}
 		return ret;
 	}

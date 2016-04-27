@@ -75,6 +75,7 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject> extends Abstra
 	{
 		tx.runInTransaction(() -> {
 			NamedCRUDDAO<T> dao = getDAO();
+			int initial = dao.getAll().size();
 			T obj = getObject("name1");
 			T obj2 = getObject("name2");
 
@@ -84,13 +85,13 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject> extends Abstra
 
 			assertThat(asMap, is(notNullValue()));
 
-			assertThat(asMap.size(), is(2));
+			assertThat(asMap.size(), is(2 + initial));
 
-			assertThat(asMap.containsKey("name1"), is(true));
-			assertThat(asMap.containsKey("name2"), is(true));
+			assertThat(asMap.containsKey(obj.getName()), is(true));
+			assertThat(asMap.containsKey(obj2.getName()), is(true));
 
-			assertAreEqual(asMap.get("name1"), obj);
-			assertAreEqual(asMap.get("name2"), obj2);
+			assertAreEqual(asMap.get(obj.getName()), obj);
+			assertAreEqual(asMap.get(obj2.getName()), obj2);
 		});
 	}
 

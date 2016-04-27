@@ -29,10 +29,4 @@ public class AttributeTypeHzStore extends GenericNamedHzCRUD<AttributeType> impl
 	{
 		super(STORE_ID, NAME, AttributeTypeRDBMSStore.BEAN, rdbmsStore, hzInstance);
 	}
-
-	@Override
-	protected String getKey(AttributeType at)
-	{
-		return at.getName();
-	}
 }

@@ -283,4 +283,80 @@ public class AttributeStatement2
 				fixedAttribute.toString())
 				+ " if '" + condition + "' is true";
 	}
+
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((condition == null) ? 0 : condition.hashCode());
+		result = prime
+				* result
+				+ ((conflictResolution == null) ? 0 : conflictResolution.hashCode());
+		result = prime
+				* result
+				+ ((dynamicAttributeExpression == null) ? 0
+						: dynamicAttributeExpression.hashCode());
+		result = prime
+				* result
+				+ ((dynamicAttributeType == null) ? 0 : dynamicAttributeType
+						.hashCode());
+		result = prime
+				* result
+				+ ((extraAttributesGroup == null) ? 0 : extraAttributesGroup
+						.hashCode());
+		result = prime * result
+				+ ((fixedAttribute == null) ? 0 : fixedAttribute.hashCode());
+		result = prime * result + ((visibility == null) ? 0 : visibility.hashCode());
+		return result;
+	}
+
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AttributeStatement2 other = (AttributeStatement2) obj;
+		if (condition == null)
+		{
+			if (other.condition != null)
+				return false;
+		} else if (!condition.equals(other.condition))
+			return false;
+		if (conflictResolution != other.conflictResolution)
+			return false;
+		if (dynamicAttributeExpression == null)
+		{
+			if (other.dynamicAttributeExpression != null)
+				return false;
+		} else if (!dynamicAttributeExpression.equals(other.dynamicAttributeExpression))
+			return false;
+		if (dynamicAttributeType == null)
+		{
+			if (other.dynamicAttributeType != null)
+				return false;
+		} else if (!dynamicAttributeType.equals(other.dynamicAttributeType))
+			return false;
+		if (extraAttributesGroup == null)
+		{
+			if (other.extraAttributesGroup != null)
+				return false;
+		} else if (!extraAttributesGroup.equals(other.extraAttributesGroup))
+			return false;
+		if (fixedAttribute == null)
+		{
+			if (other.fixedAttribute != null)
+				return false;
+		} else if (!fixedAttribute.equals(other.fixedAttribute))
+			return false;
+		if (visibility != other.visibility)
+			return false;
+		return true;
+	}
 }

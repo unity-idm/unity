@@ -8,13 +8,13 @@
 
 package pl.edu.icm.unity.types.basic;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import pl.edu.icm.unity.types.I18nDescribedObject;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.NamedObject;
 
 /**
  * Group holds set of other elements: other groups and identities. This class only denotes group, 
@@ -28,10 +28,8 @@ import pl.edu.icm.unity.types.I18nString;
  * 
  * @author K. Benedyczak
  */
-public class Group extends I18nDescribedObject implements Serializable
+public class Group extends I18nDescribedObject implements NamedObject
 {
-	private static final long serialVersionUID = 1L;
-	
 	private String[] path;
 	
 	private AttributeStatement2[] attributeStatements = new AttributeStatement2[0];
@@ -53,20 +51,7 @@ public class Group extends I18nDescribedObject implements Serializable
 
 	public Group(String path)
 	{
-		if (path.equals("/"))
-		{
-			this.path = new String[0];
-			this.displayedName = new I18nString(toString());
-			this.description = new I18nString();
-			return;
-		}
-		if (path.startsWith("/"))
-			path = path.substring(1);
-		if (path.endsWith("/"))
-			path = path.substring(0, path.length() - 1);
-		this.path = path.split("/");
-		if (this.path.length == 1 && this.path[0].equals(""))
-			this.path = new String[0];
+		setPath(path);
 		displayedName = new I18nString(toString());
 		description = new I18nString();
 	}
@@ -103,10 +88,34 @@ public class Group extends I18nDescribedObject implements Serializable
 	{
 		return path;
 	}
+	
+	@Override
 	public String getName()
+	{
+		return toString();
+	}
+	
+	public void setPath(String path)
+	{
+		if (path.equals("/"))
+		{
+			this.path = new String[0];
+			return;
+		}
+		if (path.startsWith("/"))
+			path = path.substring(1);
+		if (path.endsWith("/"))
+			path = path.substring(0, path.length() - 1);
+		this.path = path.split("/");
+		if (this.path.length == 1 && this.path[0].equals(""))
+			this.path = new String[0];
+	}
+	
+	public String getRelativeName()
 	{
 		return path.length == 0 ? "/" : path[path.length - 1];
 	}
+
 	public String getParentPath()
 	{
 		if (path.length == 0)

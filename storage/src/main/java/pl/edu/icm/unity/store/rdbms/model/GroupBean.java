@@ -11,24 +11,24 @@ package pl.edu.icm.unity.store.rdbms.model;
  */
 public class GroupBean extends BaseBean
 {
-	private Long parent;
+	private String parentPath;
 	
 	public GroupBean() 
 	{
 	}
 	
-	public GroupBean(Long parent, String name) 
+	public GroupBean(String path, String parentPath) 
 	{
-		this.parent = parent;
-		setName(name);
+		this.parentPath = parentPath;
+		setName(path);
 	}
 	
-	public Long getParent()
+	public String getParent()
 	{
-		return parent;
+		return parentPath;
 	}
-	public void setParent(Long parent)
+	public void setParent(String parentPath)
 	{
-		this.parent = parent;
+		this.parentPath = parentPath;
 	}
 }

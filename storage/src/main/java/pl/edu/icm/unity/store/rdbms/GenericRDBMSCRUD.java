@@ -62,7 +62,7 @@ public abstract class GenericRDBMSCRUD<T, DBT extends BaseBean> implements Basic
 		mapper.deleteByKey(id);
 	}
 
-	private void assertExists(long id, BasicCRUDMapper<DBT> mapper)
+	protected void assertExists(long id, BasicCRUDMapper<DBT> mapper)
 	{
 		if (mapper.getByKey(id) == null)
 			throw new IllegalArgumentException(elementName + " with key [" + id + 

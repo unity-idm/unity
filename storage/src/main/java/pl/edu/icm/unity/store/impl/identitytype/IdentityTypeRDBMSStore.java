@@ -29,10 +29,4 @@ public class IdentityTypeRDBMSStore extends GenericNamedRDBMSCRUD<IdentityType, 
 	{
 		super(IdentityTypesMapper.class, jsonSerializer, "identity type", dbLimits);
 	}
-
-	@Override
-	protected String getNameId(IdentityType obj)
-	{
-		return obj.getIdentityTypeProvider().getId();
-	}
 }

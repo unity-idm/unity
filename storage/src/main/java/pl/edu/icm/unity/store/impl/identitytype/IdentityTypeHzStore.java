@@ -38,10 +38,4 @@ public class IdentityTypeHzStore extends GenericNamedHzCRUD<IdentityType> implem
 			idType.setDescription(idType.getIdentityTypeProvider().getDefaultDescription());
 		return super.create(idType);
 	}
-
-	@Override
-	protected String getKey(IdentityType idType)
-	{
-		return idType.getIdentityTypeProvider().getId();
-	}
 }

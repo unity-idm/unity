@@ -7,14 +7,14 @@ package pl.edu.icm.unity.store.hz;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.TransactionalMap;
-
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
 import pl.edu.icm.unity.store.api.NamedCRUDDAO;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.store.rdbmsflush.RDBMSMutationEvent;
 import pl.edu.icm.unity.types.NamedObject;
+
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.TransactionalMap;
 
 /**
  * Generic CRUD implementation on hazelcast map.
@@ -22,13 +22,13 @@ import pl.edu.icm.unity.types.NamedObject;
  */
 public abstract class GenericNamedHzCRUD<T extends NamedObject> extends GenericBasicHzCRUD<T> implements NamedCRUDDAO<T>
 {
+	//TODO use limits to have consistency with data sizes
+
 	public GenericNamedHzCRUD(String storeId, String name, String rdbmsCounterpartDaoName,
 			BasicCRUDDAO<T> rdbmsDAO, HazelcastInstance hzInstance)
 	{
 		super(storeId, name, rdbmsCounterpartDaoName, rdbmsDAO, hzInstance);
 	}
-
-	protected abstract String getKey(T obj);
 
 	@Override
 	public long create(T obj) throws IllegalArgumentException
