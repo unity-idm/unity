@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.store.hz;
 
+import com.hazelcast.core.HazelcastInstance;
+
 /**
  * All Hazelcast based DAOs implement this interface. It is used
  * to populate data from persistent store upon startup.
@@ -11,5 +13,5 @@ package pl.edu.icm.unity.store.hz;
  */
 public interface HzDAO
 {
-	void populateFromRDBMS();
+	void populateFromRDBMS(HazelcastInstance hzInstance);
 }

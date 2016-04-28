@@ -11,8 +11,6 @@ import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.hz.GenericNamedHzCRUD;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
-import com.hazelcast.core.HazelcastInstance;
-
 /**
  * Hazelcast store of {@link IdentityType}s.
  * 
@@ -25,9 +23,9 @@ public class IdentityTypeHzStore extends GenericNamedHzCRUD<IdentityType> implem
 	private static final String NAME = "identity type";
 
 	@Autowired
-	public IdentityTypeHzStore(IdentityTypeRDBMSStore rdbmsStore, HazelcastInstance hzInstance)
+	public IdentityTypeHzStore(IdentityTypeRDBMSStore rdbmsStore)
 	{
-		super(STORE_ID, NAME, IdentityTypeRDBMSStore.BEAN, rdbmsStore, hzInstance);
+		super(STORE_ID, NAME, IdentityTypeRDBMSStore.BEAN, rdbmsStore);
 	}
 
 	

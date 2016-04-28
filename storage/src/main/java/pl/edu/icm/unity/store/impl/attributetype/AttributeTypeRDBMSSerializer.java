@@ -21,7 +21,7 @@ import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
  * @author K. Benedyczak
  */
 @Component
-public class AttributeTypeJsonSerializer implements RDBMSObjectSerializer<AttributeType, AttributeTypeBean>
+public class AttributeTypeRDBMSSerializer implements RDBMSObjectSerializer<AttributeType, AttributeTypeBean>
 {
 	@Autowired
 	private AttributeSyntaxFactoriesRegistry typesRegistry;

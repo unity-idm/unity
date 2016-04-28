@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.base.utils.JsonSerializer;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
+import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
 import pl.edu.icm.unity.store.impl.attribute.AttributeJsonSerializer;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.store.rdbms.model.GroupBean;
@@ -35,7 +35,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * @author K. Benedyczak
  */
 @Component
-public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBean>, JsonSerializer<Group>
+public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBean>, 
+			JsonSerializerForKryo<Group>
 {
 	@Autowired
 	private ObjectMapper mapper;
@@ -177,5 +178,11 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 		}
 
 		return ret;
+	}
+
+	@Override
+	public Class<? extends Group> getClazz()
+	{
+		return Group.class;
 	}
 }

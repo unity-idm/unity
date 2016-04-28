@@ -44,13 +44,26 @@ public abstract class GenericRDBMSCRUD<T, DBT extends BaseBean> implements Basic
 	public void updateByKey(long key, T obj)
 	{
 		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);
-		assertExists(key, mapper);
+		DBT old = mapper.getByKey(key);
+		if (old == null)
+			throw new IllegalArgumentException(elementName + " with key [" + key + 
+					"] does not exist");
+		preUpdateCheck(old, obj);
 		DBT toUpdate = jsonSerializer.toDB(obj);
 		StorageLimits.checkContentsLimit(toUpdate.getContents());
 		toUpdate.setId(key);
 		mapper.updateByKey(toUpdate);		
 	}
 
+	/**
+	 * For extensions
+	 * @param old
+	 * @param updated
+	 */
+	protected void preUpdateCheck(DBT old, T updated)
+	{
+	}
+	
 	@Override
 	public void deleteByKey(long id)
 	{

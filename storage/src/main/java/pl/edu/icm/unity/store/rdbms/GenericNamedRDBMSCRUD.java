@@ -66,6 +66,7 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 		if (byName == null)
 			throw new IllegalArgumentException(elementName + " [" + obj.getName() + 
 					"] does not exist");
+		preUpdateCheck(byName, obj);
 		DBT toUpdate = jsonSerializer.toDB(obj);
 		toUpdate.setId(byName.getId());
 		mapper.updateByKey(toUpdate);		
@@ -96,7 +97,18 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 					"] does not exist");
 		return jsonSerializer.fromDB(byName);
 	}
-
+	
+	@Override
+	public long getKeyForName(String id)
+	{
+		NamedCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(namedMapperClass);
+		DBT byName = mapper.getByName(id);
+		if (byName == null)
+			throw new IllegalArgumentException(elementName + " [" + id + 
+					"] does not exist");
+		return byName.getId();
+	}
+	
 	@Override
 	public boolean exists(String id)
 	{

@@ -120,7 +120,7 @@ public class HzStoreLoader implements StoreLoaderInternal
 	{
 		List<HzDAO> sortedDaos = getSortedDaos();
 		for (HzDAO dao: sortedDaos)
-			dao.populateFromRDBMS();
+			dao.populateFromRDBMS(hzInstance);
 		log.info("Population of the in-memory data store completed");
 	}
 	

@@ -22,7 +22,7 @@ public class EntityInformation
 		this.entityState = state;
 	}
 
-	public EntityInformation()
+	protected EntityInformation()
 	{
 	}
 	

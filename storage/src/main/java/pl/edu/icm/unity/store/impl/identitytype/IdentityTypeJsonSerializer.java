@@ -10,17 +10,17 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.base.registries.IdentityTypesRegistry;
+import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
+import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
+import pl.edu.icm.unity.store.rdbms.model.BaseBean;
+import pl.edu.icm.unity.types.basic.IdentityType;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.base.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.base.utils.JsonSerializer;
-import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
-import pl.edu.icm.unity.store.rdbms.model.BaseBean;
-import pl.edu.icm.unity.types.basic.IdentityType;
 
 /**
  * Handles serialization of {@link IdentityType} metadata. The metadata
@@ -29,7 +29,7 @@ import pl.edu.icm.unity.types.basic.IdentityType;
  */
 @Component
 public class IdentityTypeJsonSerializer implements RDBMSObjectSerializer<IdentityType, BaseBean>,
-	JsonSerializer<IdentityType>
+	JsonSerializerForKryo<IdentityType>
 {
 	@Autowired
 	private ObjectMapper mapper;
@@ -133,6 +133,12 @@ public class IdentityTypeJsonSerializer implements RDBMSObjectSerializer<Identit
 			target.setMinVerifiedInstances(0);
 			target.setMaxInstances(Integer.MAX_VALUE);
 		}
+	}
+
+	@Override
+	public Class<IdentityType> getClazz()
+	{
+		return IdentityType.class;
 	}
 }
 

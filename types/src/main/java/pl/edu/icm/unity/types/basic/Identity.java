@@ -10,6 +10,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.types.NamedObject;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 /**
@@ -17,7 +18,7 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
  * 
  * @author K. Benedyczak
  */
-public class Identity extends IdentityParam
+public class Identity extends IdentityParam implements NamedObject
 {
 	private Long entityId;
 	@JsonIgnore
@@ -36,7 +37,7 @@ public class Identity extends IdentityParam
 	}
 	
 	public Identity(IdentityType type, String value, Long entityId, String realm, String target, String remoteIdp,
-			String translationProfile, Date creationTs, Date updateTs, ConfirmationInfo ci) throws IllegalIdentityValueException
+			String translationProfile, Date creationTs, Date updateTs, ConfirmationInfo ci)
 	{
 		super(type.getIdentityTypeProvider().getId(), value);
 		this.entityId = entityId;
@@ -45,7 +46,7 @@ public class Identity extends IdentityParam
 		this.target = target;
 		this.realm = realm;
 		if (type.getIdentityTypeProvider().isTargeted() && (target == null || realm == null))
-			throw new IllegalIdentityValueException("The target and realm must be set for targeted identity");
+			throw new IllegalArgumentException("The target and realm must be set for targeted identity");
 		setRemoteIdp(remoteIdp);
 		setTranslationProfile(translationProfile);
 		setCreationTs(creationTs);
@@ -152,6 +153,12 @@ public class Identity extends IdentityParam
 	}
 
 	@Override
+	public String getName()
+	{
+		return getComparableValue();
+	}
+
+	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
@@ -161,6 +168,48 @@ public class Identity extends IdentityParam
 		result = prime * result + ((entityId == null) ? 0 : entityId.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
+	}
+
+	public boolean equalsFull(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Identity other = (Identity) obj;
+		if (getComparableValue() == null)
+		{
+			if (other.getComparableValue() != null)
+				return false;
+		} else if (!getComparableValue().equals(other.getComparableValue()))
+			return false;
+		if (creationTs == null)
+		{
+			if (other.creationTs != null)
+				return false;
+		} else if (!creationTs.equals(other.creationTs))
+			return false;
+		if (entityId == null)
+		{
+			if (other.entityId != null)
+				return false;
+		} else if (!entityId.equals(other.entityId))
+			return false;
+		if (type == null)
+		{
+			if (other.type != null)
+				return false;
+		} else if (!type.equals(other.type))
+			return false;
+		if (updateTs == null)
+		{
+			if (other.updateTs != null)
+				return false;
+		} else if (!updateTs.equals(other.updateTs))
+			return false;
+		return true;
 	}
 
 	@Override
@@ -193,7 +242,4 @@ public class Identity extends IdentityParam
 			return false;
 		return true;
 	}
-
-	
-	
 }

@@ -25,7 +25,7 @@ public class AttributeTypeRDBMSStore extends GenericNamedRDBMSCRUD<AttributeType
 	public static final String BEAN = DAO_ID + "rdbms";
 
 	@Autowired
-	public AttributeTypeRDBMSStore(AttributeTypeJsonSerializer jsonSerializer)
+	public AttributeTypeRDBMSStore(AttributeTypeRDBMSSerializer jsonSerializer)
 	{
 		super(AttributeTypesMapper.class, jsonSerializer, "attribute type");
 	}

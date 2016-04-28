@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.base.utils.JsonSerializer;
 import pl.edu.icm.unity.store.api.StoredEntity;
+import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.store.rdbms.model.BaseBean;
 import pl.edu.icm.unity.types.EntityInformation;
@@ -26,7 +26,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * @author K. Benedyczak
  */
 @Component
-public class EntityJsonSerializer implements RDBMSObjectSerializer<StoredEntity, BaseBean>, JsonSerializer<StoredEntity>
+public class EntityJsonSerializer implements RDBMSObjectSerializer<StoredEntity, BaseBean>, 
+		JsonSerializerForKryo<StoredEntity>
 {
 	@Autowired
 	private ObjectMapper mapper;
@@ -92,6 +93,12 @@ public class EntityJsonSerializer implements RDBMSObjectSerializer<StoredEntity,
 		if (main.has("RemovalByUserTime"))
 			ret.setRemovalByUserTime(new Date(main.get("RemovalByUserTime").asLong()));		
 		return ret;
+	}
+
+	@Override
+	public Class<StoredEntity> getClazz()
+	{
+		return StoredEntity.class;
 	}
 
 

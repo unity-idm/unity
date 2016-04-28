@@ -14,7 +14,6 @@ import pl.edu.icm.unity.store.impl.StorageLimits;
 import pl.edu.icm.unity.store.rdbmsflush.RDBMSMutationEvent;
 import pl.edu.icm.unity.types.basic.Group;
 
-import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.TransactionalMap;
 
 
@@ -28,9 +27,9 @@ public class GroupHzStore extends GenericNamedHzCRUD<Group> implements GroupDAO
 	public static final String STORE_ID = DAO_ID + "hz";
 
 	@Autowired
-	public GroupHzStore(GroupRDBMSStore rdbmsStore, HazelcastInstance hzInstance)
+	public GroupHzStore(GroupRDBMSStore rdbmsStore)
 	{
-		super(STORE_ID, NAME, GroupRDBMSStore.BEAN, rdbmsStore, hzInstance);
+		super(STORE_ID, NAME, GroupRDBMSStore.BEAN, rdbmsStore);
 	}
 	
 	@Override

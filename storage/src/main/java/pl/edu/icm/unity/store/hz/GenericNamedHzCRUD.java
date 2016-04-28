@@ -14,7 +14,6 @@ import pl.edu.icm.unity.store.impl.StorageLimits;
 import pl.edu.icm.unity.store.rdbmsflush.RDBMSMutationEvent;
 import pl.edu.icm.unity.types.NamedObject;
 
-import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.TransactionalMap;
 
 /**
@@ -24,9 +23,9 @@ import com.hazelcast.core.TransactionalMap;
 public abstract class GenericNamedHzCRUD<T extends NamedObject> extends GenericBasicHzCRUD<T> implements NamedCRUDDAO<T>
 {
 	public GenericNamedHzCRUD(String storeId, String name, String rdbmsCounterpartDaoName,
-			BasicCRUDDAO<T> rdbmsDAO, HazelcastInstance hzInstance)
+			BasicCRUDDAO<T> rdbmsDAO)
 	{
-		super(storeId, name, rdbmsCounterpartDaoName, rdbmsDAO, hzInstance);
+		super(storeId, name, rdbmsCounterpartDaoName, rdbmsDAO);
 	}
 
 	@Override
@@ -57,6 +56,7 @@ public abstract class GenericNamedHzCRUD<T extends NamedObject> extends GenericB
 		T old = hMap.get(id);
 		if (old == null)
 			throw new IllegalArgumentException(name + " [" + id + "] does not exists");
+		preUpdateCheck(old, obj);
 		if (!old.getName().equals(obj.getName()))
 		{
 			StorageLimits.checkNameLimit(obj.getName());
@@ -108,6 +108,15 @@ public abstract class GenericNamedHzCRUD<T extends NamedObject> extends GenericB
 		for (String key: nameMap.keySet())
 			ret.put(key, hMap.get(nameMap.get(key)));
 		return ret;
+	}
+
+	@Override
+	public long getKeyForName(String id)
+	{
+		Long key = getNameMap().get(id);
+		if (key == null)
+			throw new IllegalArgumentException(name + " [" + id + "] does not exists");
+		return key;
 	}
 
 	protected TransactionalMap<String, Long> getNameMap()

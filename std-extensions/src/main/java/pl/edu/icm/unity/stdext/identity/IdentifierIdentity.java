@@ -13,7 +13,6 @@ import java.util.Set;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -60,11 +59,11 @@ public class IdentifierIdentity extends AbstractStaticIdentityTypeProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void validate(String value) throws IllegalIdentityValueException
+	public void validate(String value)
 	{
 		if (value == null || value.trim().length() == 0)
 		{
-			throw new IllegalIdentityValueException("Identifier must be non empty");
+			throw new IllegalArgumentException("Identifier must be non empty");
 		}
 	}
 

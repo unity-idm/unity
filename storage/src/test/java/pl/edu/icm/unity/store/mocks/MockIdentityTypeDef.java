@@ -61,7 +61,7 @@ public class MockIdentityTypeDef implements IdentityTypeDefinition
 	}
 
 	@Override
-	public void validate(String value) throws IllegalIdentityValueException
+	public void validate(String value)
 	{
 	}
 

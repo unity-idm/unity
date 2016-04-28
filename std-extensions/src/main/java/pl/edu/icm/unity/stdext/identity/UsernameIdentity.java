@@ -79,11 +79,11 @@ public class UsernameIdentity extends AbstractStaticIdentityTypeProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void validate(String value) throws IllegalIdentityValueException
+	public void validate(String value)
 	{
 		if (value == null || value.trim().length() == 0)
 		{
-			throw new IllegalIdentityValueException("Username must be non empty");
+			throw new IllegalArgumentException("Username must be non empty");
 		}
 	}
 	

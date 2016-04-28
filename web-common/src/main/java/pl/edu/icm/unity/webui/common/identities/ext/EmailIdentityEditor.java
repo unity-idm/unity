@@ -71,7 +71,7 @@ public class EmailIdentityEditor implements IdentityEditor
 		try
 		{
 			new EmailIdentity().validate(emailVal);
-		} catch (IllegalIdentityValueException e)
+		} catch (IllegalArgumentException e)
 		{
 			field.setComponentError(new UserError(e.getMessage()));
 			throw e;

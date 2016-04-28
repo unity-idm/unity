@@ -15,10 +15,7 @@ import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import eu.emi.security.authn.x509.helpers.JavaAndBCStyle;
-import eu.emi.security.authn.x509.impl.X500NameUtils;
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
@@ -27,6 +24,8 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import eu.emi.security.authn.x509.helpers.JavaAndBCStyle;
+import eu.emi.security.authn.x509.impl.X500NameUtils;
 
 /**
  * X.500 identity type definition
@@ -148,14 +147,14 @@ public class X500Identity extends AbstractStaticIdentityTypeProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void validate(String value) throws IllegalIdentityValueException
+	public void validate(String value)
 	{
 		try
 		{
 			X500NameUtils.getX500Principal(value);
 		} catch (Exception e)
 		{
-			throw new IllegalIdentityValueException("DN is invalid: " + 
+			throw new IllegalArgumentException("DN is invalid: " + 
 					e.getMessage(), e);
 		}
 	}

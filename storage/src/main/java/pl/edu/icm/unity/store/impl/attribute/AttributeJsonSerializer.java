@@ -11,9 +11,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.utils.JsonSerializer;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
+import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * @author K. Benedyczak
  */
 @Component
-public class AttributeJsonSerializer implements JsonSerializer<Attribute<?>>
+public class AttributeJsonSerializer implements JsonSerializerForKryo<Attribute<?>>
 {
 	@Autowired
 	private ObjectMapper mapper;
@@ -101,5 +101,12 @@ public class AttributeJsonSerializer implements JsonSerializer<Attribute<?>>
 			throw new InternalException("Can't perform JSON deserialization", e);
 		}
 		target.setValues(pValues);
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Class<Attribute> getClazz()
+	{
+		return Attribute.class;
 	}
 }

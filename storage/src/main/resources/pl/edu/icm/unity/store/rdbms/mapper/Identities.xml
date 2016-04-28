@@ -10,37 +10,39 @@
 		<result property="contents" column="CONTENTS"/>
 	</resultMap>
 
-	<select id="getIdentities" resultMap="identityResult">
-		select * from IDENTITIES
-	</select>
-
-	<select id="getIdentitiesByEntity" parameterType="long" resultMap="identityResult">
-		select * from IDENTITIES where IDENTITIES.ENTITY_ID = #{value}
-	</select>
-	
-	<insert id="insertIdentity" parameterType="IdentityB" useGeneratedKeys="true" keyProperty="id">
+	<insert id="create" parameterType="IdentityB" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO IDENTITIES (NAME, CONTENTS, TYPE_ID, ENTITY_ID) 
 			VALUES (#{name}, #{contents}, #{typeId}, #{entityId})
 	</insert>
 	
-	<update id="updateIdentity" parameterType="IdentityB">
-		UPDATE IDENTITIES SET CONTENTS = #{contents} WHERE NAME = #{name}
+	<update id="updateByKey" parameterType="IdentityB">
+		UPDATE IDENTITIES SET CONTENTS = #{contents}, ENTITY_ID = #{entityId} WHERE ID = #{id}
 	</update>
 
-	<update id="updateIdentityEntity" parameterType="IdentityB">
-		UPDATE IDENTITIES SET ENTITY_ID = #{entityId} WHERE NAME = #{name}
-	</update>
-	
-	<delete id="deleteIdentity" parameterType="string">
+	<delete id="deleteByKey" parameterType="long">
+		DELETE FROM IDENTITIES WHERE ID = #{value}
+	</delete>
+
+	<delete id="delete" parameterType="string">
 		DELETE FROM IDENTITIES WHERE NAME = #{value}
 	</delete>
 
-	<delete id="deleteAllIdentities">
-		DELETE FROM IDENTITIES
-	</delete>
+	<select id="getAll" resultMap="identityResult">
+		select * from IDENTITIES
+	</select>
 
-	<select id="getIdentityByName" resultMap="identityResult" parameterType="string">
+	<select id="getByKey" resultMap="identityResult" parameterType="long">
+		select * from IDENTITIES WHERE ID = #{value}
+	</select>
+
+	<select id="getByName" resultMap="identityResult" parameterType="string">
 		select * from IDENTITIES WHERE NAME = #{value}
 	</select>
-	
+
+
+	<!-- non standard -->
+
+	<select id="getByEntity" parameterType="long" resultMap="identityResult">
+		select * from IDENTITIES where IDENTITIES.ENTITY_ID = #{value}
+	</select>
 </mapper>

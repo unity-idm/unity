@@ -11,8 +11,6 @@ import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.hz.GenericNamedHzCRUD;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
-import com.hazelcast.core.HazelcastInstance;
-
 
 /**
  * Hazelcast impl of {@link AttributeTypeDAO}
@@ -25,8 +23,8 @@ public class AttributeTypeHzStore extends GenericNamedHzCRUD<AttributeType> impl
 	private static final String NAME = "attribute type";
 
 	@Autowired
-	public AttributeTypeHzStore(AttributeTypeRDBMSStore rdbmsStore, HazelcastInstance hzInstance)
+	public AttributeTypeHzStore(AttributeTypeRDBMSStore rdbmsStore)
 	{
-		super(STORE_ID, NAME, AttributeTypeRDBMSStore.BEAN, rdbmsStore, hzInstance);
+		super(STORE_ID, NAME, AttributeTypeRDBMSStore.BEAN, rdbmsStore);
 	}
 }

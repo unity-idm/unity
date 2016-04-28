@@ -61,7 +61,7 @@ public interface IdentityTypeDefinition
 	 * @param value
 	 * @throws IllegalIdentityValueException
 	 */
-	public void validate(String value) throws IllegalIdentityValueException;
+	public void validate(String value) throws IllegalArgumentException;
 	
 	/**
 	 * Comparable value must be guaranteed to be unique for the type, i.e. if two

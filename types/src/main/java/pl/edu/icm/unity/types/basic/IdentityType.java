@@ -146,7 +146,7 @@ public class IdentityType implements NamedObject
 		{
 			if (other.identityTypeProvider != null)
 				return false;
-		} else if (!identityTypeProvider.equals(other.identityTypeProvider))
+		} else if (!identityTypeProvider.getId().equals(other.identityTypeProvider.getId()))
 			return false;
 		return true;
 	}

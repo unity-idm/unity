@@ -14,8 +14,6 @@ import pl.edu.icm.unity.types.NamedObject;
  */
 public interface NamedCRUDDAO<T extends NamedObject> extends BasicCRUDDAO<T>
 {	
-	T get(String id);
-	
 	void delete(String id);
 	
 	void update(T obj);
@@ -23,5 +21,8 @@ public interface NamedCRUDDAO<T extends NamedObject> extends BasicCRUDDAO<T>
 	boolean exists(String id);
 	
 	Map<String, T> getAsMap();
+
+	T get(String id);
 	
+	long getKeyForName(String id);
 }

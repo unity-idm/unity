@@ -31,20 +31,18 @@ public abstract class GenericBasicHzCRUD<T> implements BasicCRUDDAO<T>, HzDAO
 	protected final String rdbmsCounterpartDaoName;
 	protected IAtomicLong index;
 	private BasicCRUDDAO<T> rdbmsDAO;
-	private HazelcastInstance hzInstance;
 	
 	public GenericBasicHzCRUD(String storeId, String name, String rdbmsCounterpartDaoName,
-			BasicCRUDDAO<T> rdbmsDAO, HazelcastInstance hzInstance)
+			BasicCRUDDAO<T> rdbmsDAO)
 	{
 		STORE_ID = storeId;
 		this.name = name;
 		this.rdbmsCounterpartDaoName = rdbmsCounterpartDaoName;
 		this.rdbmsDAO = rdbmsDAO;
-		this.hzInstance = hzInstance;
 	}
 
 	@Override
-	public void populateFromRDBMS()
+	public void populateFromRDBMS(HazelcastInstance hzInstance)
 	{
 		log.info("Loading " + name + " from persistent storage");
 		index = hzInstance.getAtomicLong(STORE_ID);
@@ -69,12 +67,23 @@ public abstract class GenericBasicHzCRUD<T> implements BasicCRUDDAO<T>, HzDAO
 	public void updateByKey(long id, T obj)
 	{
 		TransactionalMap<Long, T> hMap = getMap();
-		if (!hMap.containsKey(id))
+		T old = hMap.get(id);
+		if (old == null)
 			throw new IllegalArgumentException(name + " [" + id + "] does not exists");
+		preUpdateCheck(old, obj);
 		hMap.put(id, obj);
 		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, "update", obj));
 	}
 
+	/**
+	 * For extensions
+	 * @param old
+	 * @param updated
+	 */
+	protected void preUpdateCheck(T old, T updated)
+	{
+	}
+	
 	public T deleteByKeyRet(long id)
 	{
 		TransactionalMap<Long, T> hMap = getMap();

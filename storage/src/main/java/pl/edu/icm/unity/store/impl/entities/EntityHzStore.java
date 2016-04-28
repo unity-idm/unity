@@ -13,7 +13,6 @@ import pl.edu.icm.unity.store.hz.GenericBasicHzCRUD;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.store.rdbmsflush.RDBMSMutationEvent;
 
-import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.TransactionalMap;
 
 
@@ -29,9 +28,9 @@ public class EntityHzStore extends GenericBasicHzCRUD<StoredEntity> implements E
 	private static final String NAME = "entity";
 
 	@Autowired
-	public EntityHzStore(EntityRDBMSStore rdbmsDAO, HazelcastInstance hzInstance)
+	public EntityHzStore(EntityRDBMSStore rdbmsDAO)
 	{
-		super(STORE_ID, NAME, EntityRDBMSStore.BEAN, rdbmsDAO, hzInstance);
+		super(STORE_ID, NAME, EntityRDBMSStore.BEAN, rdbmsDAO);
 	}
 	
 	@Override
