@@ -145,7 +145,7 @@ public class UserAccountComponent extends VerticalLayout
 			final UserIdentitiesPanel idsPanel = new UserIdentitiesPanel(msg, 
 					identityEditorRegistry, idsMan, theUser.getEntityId());
 			final UserAttributesPanel attrsPanel = new UserAttributesPanel(msg, attributeHandlerRegistry, 
-					attributesMan, config, theUser.getEntityId());
+					attributesMan, idsMan, config, theUser.getEntityId());
 			ConnectIdWizardProvider connectIdProvider = new ConnectIdWizardProvider(msg, 
 					sandboxURL, sandboxNotifier, inputTranslationEngine, new WizardFinishedCallback()
 					{
@@ -160,7 +160,7 @@ public class UserAccountComponent extends VerticalLayout
 							try
 							{
 								idsPanel.refresh();
-								attrsPanel.refreshEditable();
+								attrsPanel.refresh();
 							} catch (EngineException e)
 							{
 								NotificationPopup.showError(msg, msg.getMessage("error"), e);
