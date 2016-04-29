@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.hz.GenericNamedHzCRUD;
+import pl.edu.icm.unity.store.impl.entities.EntityHzStore;
 import pl.edu.icm.unity.types.basic.Identity;
 
 import com.hazelcast.core.TransactionalMap;
@@ -30,9 +31,10 @@ public class IdentityHzStore extends GenericNamedHzCRUD<Identity> implements Ide
 	public static final String STORE_ID = DAO_ID + "hz";
 
 	@Autowired
-	public IdentityHzStore(IdentityRDBMSStore rdbmsStore)
+	public IdentityHzStore(IdentityRDBMSStore rdbmsStore, EntityHzStore entityDAO)
 	{
 		super(STORE_ID, NAME, IdentityRDBMSStore.BEAN, rdbmsStore);
+		entityDAO.addRemovalHandler(this::cascadeEntityRemoval);
 	}
 
 	@Override
@@ -45,6 +47,13 @@ public class IdentityHzStore extends GenericNamedHzCRUD<Identity> implements Ide
 		Predicate<Long, Identity> predicate = e.get("entityId").equal(entityId);
 		ret.addAll(hMap.values(predicate));
 		return ret;
+	}
+	
+	private void cascadeEntityRemoval(long id, String name)
+	{
+		List<Identity> byEntity = getByEntity(id);
+		for (Identity childId: byEntity)
+			delete(childId.getName());
 	}
 	
 	@Override

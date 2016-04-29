@@ -61,6 +61,23 @@ public class IdentityTest extends AbstractNamedDAOTest<Identity>
 		});
 	}
 	
+	@Test
+	public void allIdentitiesAreRemovedWhenTheirEntityIsRemoved()
+	{
+		tx.runInTransaction(() -> {
+			Identity obj = getObject("name1");
+			dao.create(obj);
+			Identity obj2 = getObject("name2");
+			dao.create(obj2);
+			
+			entDao.deleteByKey(entity);
+			
+			List<Identity> ret = dao.getAll();
+
+			assertThat(ret, is(notNullValue()));
+			assertThat(ret.isEmpty(), is(true));
+		});
+	}	
 	
 	@Test
 	public void shouldReturnAllCreatedByEntity()

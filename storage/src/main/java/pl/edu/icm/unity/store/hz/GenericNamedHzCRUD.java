@@ -46,7 +46,7 @@ public abstract class GenericNamedHzCRUD<T extends NamedObject> extends GenericB
 		Long key = getNameMap().get(obj.getName());
 		if (key == null)
 			throw new IllegalArgumentException(name + " [" + obj.getName() + "] does not exists");
-		super.updateByKey(key, obj);
+		updateByKey(key, obj);
 	}
 
 	@Override
@@ -57,6 +57,7 @@ public abstract class GenericNamedHzCRUD<T extends NamedObject> extends GenericB
 		if (old == null)
 			throw new IllegalArgumentException(name + " [" + id + "] does not exists");
 		preUpdateCheck(old, obj);
+		firePreUpdate(id, old.getName(), obj, old);
 		if (!old.getName().equals(obj.getName()))
 		{
 			StorageLimits.checkNameLimit(obj.getName());
@@ -80,7 +81,12 @@ public abstract class GenericNamedHzCRUD<T extends NamedObject> extends GenericB
 	@Override
 	public void deleteByKey(long key)
 	{
-		T removed = super.deleteByKeyRet(key);
+		deleteByKey(key, true);
+	}
+	
+	protected void deleteByKey(long key, boolean fireEvent)
+	{
+		T removed = super.deleteByKeyRet(key, fireEvent);
 		getNameMap().remove(removed.getName());
 	}
 	
@@ -110,6 +116,18 @@ public abstract class GenericNamedHzCRUD<T extends NamedObject> extends GenericB
 		return ret;
 	}
 
+	@Override
+	public void firePreRemove(long modifiedId, String modifiedName, T removed)
+	{
+		super.firePreRemove(modifiedId, removed.getName(), removed);
+	}
+	
+	@Override
+	public void firePreUpdate(long modifiedId, String modifiedName, T updated, T old)
+	{
+		super.firePreUpdate(modifiedId, old.getName(), updated, old);
+	}
+	
 	@Override
 	public long getKeyForName(String id)
 	{

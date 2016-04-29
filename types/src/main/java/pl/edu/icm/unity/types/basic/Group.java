@@ -68,6 +68,21 @@ public class Group extends I18nDescribedObject implements NamedObject
 		return target;
 	}
 	
+	public static boolean isChild(String group, String potentialParent)
+	{
+		int gLen = group.length();
+		int pLen = potentialParent.length();
+		if (gLen <= pLen)
+			return false;
+		if (pLen == 1 && potentialParent.charAt(0) == '/')
+			return true;
+		if (group.charAt(pLen) != '/')
+			return false;
+		if (!group.startsWith(potentialParent))
+			return false;
+		return true;
+	}
+	
 	public boolean isChild(Group test)
 	{
 		String []tPath = test.getPath();

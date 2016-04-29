@@ -52,6 +52,24 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 	
 	
 	@Test
+	public void childGroupsAreRemovedOnParentRemoval()
+	{
+		tx.runInTransaction(() -> {
+			long key = dao.create(new Group("/A"));
+			dao.create(new Group("/A/B"));
+			dao.create(new Group("/A/B/C"));
+			dao.create(new Group("/A/D"));
+
+			dao.deleteByKey(key);
+
+			assertThat(dao.exists("/A"), is(false));
+			assertThat(dao.exists("/A/B"), is(false));
+			assertThat(dao.exists("/A/B/C"), is(false));
+			assertThat(dao.exists("/A/D"), is(false));
+		});
+	}
+	
+	@Test
 	public void childGroupNamesAreUpdatedOnParentRename()
 	{
 		tx.runInTransaction(() -> {

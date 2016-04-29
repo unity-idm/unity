@@ -9,9 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.hz.GenericNamedHzCRUD;
-import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
-import pl.edu.icm.unity.store.impl.StorageLimits;
-import pl.edu.icm.unity.store.rdbmsflush.RDBMSMutationEvent;
 import pl.edu.icm.unity.types.basic.Group;
 
 import com.hazelcast.core.TransactionalMap;
@@ -30,40 +27,40 @@ public class GroupHzStore extends GenericNamedHzCRUD<Group> implements GroupDAO
 	public GroupHzStore(GroupRDBMSStore rdbmsStore)
 	{
 		super(STORE_ID, NAME, GroupRDBMSStore.BEAN, rdbmsStore);
+		addRemovalHandler(this::cascadeParentRemoval);
+		addUpdateHandler(this::cascadeParentRename);
 	}
 	
 	@Override
-	public void updateByKey(long id, Group obj)
+	protected void preUpdateCheck(Group old, Group updated)
 	{
-		StorageLimits.checkNameLimit(obj.getName());
-		TransactionalMap<Long, Group> hMap = getMap();
-		Group old = hMap.get(id);
-		if (old == null)
-			throw new IllegalArgumentException(name + " [" + id + "] does not exists");
-		if (!old.getName().equals(obj.getName()))
-		{
-			if (!old.getParentPath().equals(obj.getParentPath()))
-				throw new IllegalArgumentException("It is not allowed to change group path, "
-						+ "only rename is possible for " + old.getName() + 
-						" (trying to rename to " + obj.getName() + ")");
-			TransactionalMap<String, Long> nameMap = getNameMap();
-			nameMap.remove(old.getName());
-			nameMap.put(obj.getName(), id);
-			updateChilderenPaths(old.getName(), obj.getName(), hMap, nameMap);
-		}
-		hMap.put(id, obj);
-		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, "update", obj));
+		if (!old.getParentPath().equals(updated.getParentPath()))
+			throw new IllegalArgumentException("It is not allowed to change group path, "
+					+ "only rename is possible for " + old.getName() + 
+					" (trying to rename to " + updated.getName() + ")");
 	}
-	
 
-	private void updateChilderenPaths(String oldPath, String newPath, TransactionalMap<Long, Group> hMap,
-			TransactionalMap<String, Long> nameMap)
+	private void cascadeParentRemoval(long id, String name)
 	{
+		TransactionalMap<String, Long> nameMap = getNameMap();
+		
+		for (String group: nameMap.keySet())
+		{
+			if (Group.isChild(group, name))
+				deleteByKey(nameMap.get(group), false);
+		}
+	}
+
+	private void cascadeParentRename(long id, String oldPath, Group newObj)
+	{
+		TransactionalMap<Long, Group> hMap = getMap();
+		TransactionalMap<String, Long> nameMap = getNameMap();
+		String newPath = newObj.getName(); 
 		int oldPathLen = oldPath.length();
 		for (long key: hMap.keySet())
 		{
 			Group gb = hMap.get(key);
-			if (gb.getName().startsWith(oldPath) && !gb.getName().equals(oldPath))
+			if (Group.isChild(gb.getName(), oldPath))
 			{
 				String updatedPath = newPath + gb.getName().substring(oldPathLen);
 				nameMap.remove(gb.getName());
