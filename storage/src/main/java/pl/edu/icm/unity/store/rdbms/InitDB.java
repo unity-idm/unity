@@ -25,7 +25,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.impl.groups.GroupJsonSerializer;
-import pl.edu.icm.unity.store.rdbms.mapper.GroupsMapper;
+import pl.edu.icm.unity.store.impl.groups.GroupsMapper;
 import pl.edu.icm.unity.store.rdbms.model.GroupBean;
 
 /**

@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.rdbms.GenericNamedRDBMSCRUD;
-import pl.edu.icm.unity.store.rdbms.mapper.AttributeTypesMapper;
 import pl.edu.icm.unity.store.rdbms.model.AttributeTypeBean;
 import pl.edu.icm.unity.types.basic.AttributeType;
 

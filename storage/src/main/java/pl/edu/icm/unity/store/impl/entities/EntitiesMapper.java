@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE file for licensing information.
  */
-package pl.edu.icm.unity.store.rdbms.mapper;
+package pl.edu.icm.unity.store.impl.entities;
 
 import pl.edu.icm.unity.store.rdbms.BasicCRUDMapper;
 import pl.edu.icm.unity.store.rdbms.model.BaseBean;

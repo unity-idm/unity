@@ -11,7 +11,6 @@ import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.StoredEntity;
 import pl.edu.icm.unity.store.impl.StorageLimits;
 import pl.edu.icm.unity.store.rdbms.GenericRDBMSCRUD;
-import pl.edu.icm.unity.store.rdbms.mapper.EntitiesMapper;
 import pl.edu.icm.unity.store.rdbms.model.BaseBean;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 

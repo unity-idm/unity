@@ -25,7 +25,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
-import pl.edu.icm.unity.store.rdbms.mapper.AttributeTypesMapper;
+import pl.edu.icm.unity.store.impl.attributetype.AttributeTypesMapper;
 import pl.edu.icm.unity.store.rdbms.model.AttributeTypeBean;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionalRunner;
