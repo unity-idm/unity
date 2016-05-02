@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -74,7 +75,6 @@ public class HzStoreLoader implements StoreLoaderInternal
 	{
 		if (cfg.getEngine() != StorageEngine.hz)
 			return;
-		initDB.initialize();
 		rdbmstx.runInTransaction(() -> {
 			hztx.runInTransaction(() -> {
 				loadFromPersistentStore();
@@ -82,12 +82,14 @@ public class HzStoreLoader implements StoreLoaderInternal
 		});
 	}
 
-	private List<HzDAO> getSortedDaos()
+	private LinkedHashSet<HzDAO> getSortedDaos()
 	{
 		GenericApplicationContext ctx = (GenericApplicationContext) appContext;
 		DefaultListableBeanFactory beanFactory = ctx.getDefaultListableBeanFactory();
 		
-		Map<String, HzDAO> beansOfType = beanFactory.getBeansOfType(HzDAO.class);
+		Map<String, HzDAO> beansOfType = beanFactory.getBeansOfType(HzDAO.class, true, true);
+		log.debug("All HzDAOs: " + beansOfType.keySet());
+		log.debug("All HzDAOs list: " + hzStores);
 		Map<String, Set<String>> dependencies = new HashMap<>();
 		for (String bean: beansOfType.keySet())
 			dependencies.put(bean, Sets.newHashSet(
@@ -109,7 +111,7 @@ public class HzStoreLoader implements StoreLoaderInternal
 		List<String> sortedBeans = new ArrayList<>(beansOfType.keySet());
 		Collections.sort(sortedBeans, depCmp);
 
-		List<HzDAO> ret = new ArrayList<>();
+		LinkedHashSet<HzDAO> ret = new LinkedHashSet<>();
 		for (String bean: sortedBeans)
 			ret.add(beansOfType.get(bean));
 		
@@ -118,7 +120,7 @@ public class HzStoreLoader implements StoreLoaderInternal
 	
 	private void loadFromPersistentStore()
 	{
-		List<HzDAO> sortedDaos = getSortedDaos();
+		Set<HzDAO> sortedDaos = getSortedDaos();
 		for (HzDAO dao: sortedDaos)
 			dao.populateFromRDBMS(hzInstance);
 		log.info("Population of the in-memory data store completed");

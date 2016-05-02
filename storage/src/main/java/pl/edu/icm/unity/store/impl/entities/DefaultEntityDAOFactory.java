@@ -19,7 +19,7 @@ import pl.edu.icm.unity.store.api.EntityDAO;
  * @author K. Benedyczak
  */
 @Configuration
-public class DefaultEntityTypeDAOFactory
+public class DefaultEntityDAOFactory
 {
 	@Bean
 	@Primary

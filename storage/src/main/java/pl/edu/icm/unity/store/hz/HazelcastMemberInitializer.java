@@ -6,6 +6,7 @@ package pl.edu.icm.unity.store.hz;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -19,6 +20,7 @@ import com.hazelcast.config.GlobalSerializerConfig;
 import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.config.SerializationConfig;
+import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.config.TcpIpConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -60,6 +62,12 @@ public class HazelcastMemberInitializer
 		GlobalSerializerConfig globalSCfg = new GlobalSerializerConfig();
 		globalSCfg.setImplementation(globalSerializer);
 		serializationConfig.setGlobalSerializerConfig(globalSCfg);
+		
+		//Workaround for Hazelcast issue https://github.com/hazelcast/hazelcast/issues/6287
+		SerializerConfig serializerConfigMap = new SerializerConfig();
+		serializerConfigMap.setTypeClass(Map.class);
+		serializerConfigMap.setImplementation(globalSerializer);
+		serializationConfig.addSerializerConfig(serializerConfigMap);
 		
 		return Hazelcast.getOrCreateHazelcastInstance(config);
 	}

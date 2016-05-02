@@ -8,7 +8,6 @@ import java.text.DateFormat;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
-import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
@@ -34,7 +33,7 @@ public class UnityApplication
 	}
 	private static final Logger log = Log.getLogger(Log.U_SERVER, UnityApplication.class);
 
-	private AbstractApplicationContext container;
+	private ClassPathXmlApplicationContext container;
 
 	private String[] activeProfiles;
 	
@@ -57,7 +56,7 @@ public class UnityApplication
 		env.setActiveProfiles(UnityServerConfiguration.PROFILE_PRODUCTION);
 		for (String profile: activeProfiles)
 			env.addActiveProfile(profile);
-		
+		container.setAllowBeanDefinitionOverriding(false);
 		container.refresh();
 
 		container.registerShutdownHook();

@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.store.hz;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -34,6 +35,7 @@ public class KryoPoolFactory
 			kryo.register(ser.getClazz(), new KryoJsonSerializer<>(ser));
 		kryo.register(RDBMSEventsBatch.class);
 		kryo.register(RDBMSMutationEvent.class);
+		kryo.register(Map.class);
 		return kryo;
 	}
 	
