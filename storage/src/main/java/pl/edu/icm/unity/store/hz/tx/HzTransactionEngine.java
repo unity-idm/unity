@@ -19,8 +19,8 @@ import com.hazelcast.core.TransactionalQueue;
 import com.hazelcast.transaction.TransactionContext;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.store.rdbmsflush.RDBMSEventSink;
-import pl.edu.icm.unity.store.rdbmsflush.RDBMSEventsBatch;
+import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSEventSink;
+import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSEventsBatch;
 import pl.edu.icm.unity.store.tx.TransactionEngine;
 import pl.edu.icm.unity.store.tx.TransactionalAspect;
 import pl.edu.icm.unity.store.tx.TransactionsState;

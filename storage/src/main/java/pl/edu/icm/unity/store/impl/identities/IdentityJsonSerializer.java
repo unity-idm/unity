@@ -13,7 +13,6 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
-import pl.edu.icm.unity.store.rdbms.model.IdentityBean;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;

@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.store.impl.entities;
 
+import pl.edu.icm.unity.store.rdbms.BaseBean;
 import pl.edu.icm.unity.store.rdbms.BasicCRUDMapper;
-import pl.edu.icm.unity.store.rdbms.model.BaseBean;
 
 /**
  * Access to entities operations.

@@ -2,7 +2,9 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.store.rdbms.model;
+package pl.edu.icm.unity.store.impl.identities;
+
+import pl.edu.icm.unity.store.rdbms.BaseBean;
 
 
 /**

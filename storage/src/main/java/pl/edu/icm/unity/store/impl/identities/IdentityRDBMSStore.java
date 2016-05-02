@@ -12,7 +12,6 @@ import org.springframework.stereotype.Repository;
 
 import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.rdbms.GenericNamedRDBMSCRUD;
-import pl.edu.icm.unity.store.rdbms.model.IdentityBean;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 import pl.edu.icm.unity.types.basic.Identity;
 

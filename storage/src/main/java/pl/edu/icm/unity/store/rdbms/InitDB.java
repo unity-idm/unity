@@ -24,9 +24,9 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.store.impl.groups.GroupBean;
 import pl.edu.icm.unity.store.impl.groups.GroupJsonSerializer;
 import pl.edu.icm.unity.store.impl.groups.GroupsMapper;
-import pl.edu.icm.unity.store.rdbms.model.GroupBean;
 
 /**
  * Initializes DB schema and inserts the initial data. It is checked if DB was already initialized.

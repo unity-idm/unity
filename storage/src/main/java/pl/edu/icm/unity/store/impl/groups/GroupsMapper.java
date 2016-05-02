@@ -7,7 +7,6 @@ package pl.edu.icm.unity.store.impl.groups;
 import java.util.List;
 
 import pl.edu.icm.unity.store.rdbms.NamedCRUDMapper;
-import pl.edu.icm.unity.store.rdbms.model.GroupBean;
 
 
 /**

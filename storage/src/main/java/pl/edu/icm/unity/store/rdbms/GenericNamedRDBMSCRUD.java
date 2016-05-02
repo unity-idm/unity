@@ -13,7 +13,6 @@ import org.apache.ibatis.exceptions.PersistenceException;
 
 import pl.edu.icm.unity.store.api.NamedCRUDDAO;
 import pl.edu.icm.unity.store.impl.StorageLimits;
-import pl.edu.icm.unity.store.rdbms.model.BaseBean;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 import pl.edu.icm.unity.types.NamedObject;
 

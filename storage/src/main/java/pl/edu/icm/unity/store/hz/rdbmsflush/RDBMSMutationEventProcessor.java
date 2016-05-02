@@ -2,7 +2,7 @@
  * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.store.rdbmsflush;
+package pl.edu.icm.unity.store.hz.rdbmsflush;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;

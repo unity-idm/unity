@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import pl.edu.icm.unity.store.rdbmsflush.RDBMSEventsBatch;
-import pl.edu.icm.unity.store.rdbmsflush.RDBMSMutationEvent;
+import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSEventsBatch;
+import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSMutationEvent;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.pool.KryoFactory;

@@ -6,6 +6,8 @@ package pl.edu.icm.unity.store.rdbms.model;
 
 import java.util.Date;
 
+import pl.edu.icm.unity.store.rdbms.BaseBean;
+
 public class TokenBean extends BaseBean
 {
 	private String type;

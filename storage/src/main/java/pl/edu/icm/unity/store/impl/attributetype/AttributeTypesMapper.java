@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.store.impl.attributetype;
 
 import pl.edu.icm.unity.store.rdbms.NamedCRUDMapper;
-import pl.edu.icm.unity.store.rdbms.model.AttributeTypeBean;
 
 public interface AttributeTypesMapper extends NamedCRUDMapper<AttributeTypeBean>
 {

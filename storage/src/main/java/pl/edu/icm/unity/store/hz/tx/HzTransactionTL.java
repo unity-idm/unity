@@ -6,8 +6,8 @@ package pl.edu.icm.unity.store.hz.tx;
 
 import com.hazelcast.transaction.TransactionContext;
 
-import pl.edu.icm.unity.store.rdbmsflush.RDBMSEventsBatch;
-import pl.edu.icm.unity.store.rdbmsflush.RDBMSMutationEvent;
+import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSEventsBatch;
+import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSMutationEvent;
 import pl.edu.icm.unity.store.tx.TransactionsState;
 
 /**

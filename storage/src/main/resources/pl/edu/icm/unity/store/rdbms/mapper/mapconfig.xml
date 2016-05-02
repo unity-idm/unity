@@ -7,12 +7,13 @@
 	</settings>
 
 	<typeAliases>
-		<typeAlias alias="BaseB" type="pl.edu.icm.unity.store.rdbms.model.BaseBean" />
-		<typeAlias alias="GroupB" type="pl.edu.icm.unity.store.rdbms.model.GroupBean" />
-		<typeAlias alias="IdentityB" type="pl.edu.icm.unity.store.rdbms.model.IdentityBean" />
-		<typeAlias alias="AttributeB" type="pl.edu.icm.unity.store.rdbms.model.AttributeBean" />
-		<typeAlias alias="AttributeTypeB" type="pl.edu.icm.unity.store.rdbms.model.AttributeTypeBean" />
-		<typeAlias alias="GroupElementB" type="pl.edu.icm.unity.store.rdbms.model.GroupElementBean" />
+		<typeAlias alias="BaseB" type="pl.edu.icm.unity.store.rdbms.BaseBean" />
+		<typeAlias alias="GroupB" type="pl.edu.icm.unity.store.impl.groups.GroupBean" />
+		<typeAlias alias="IdentityB" type="pl.edu.icm.unity.store.impl.identities.IdentityBean" />
+		<typeAlias alias="AttributeB" type="pl.edu.icm.unity.store.impl.attribute.AttributeBean" />
+		<typeAlias alias="AttributeTypeB" type="pl.edu.icm.unity.store.impl.attributetype.AttributeTypeBean" />
+		<typeAlias alias="GroupElementB" type="pl.edu.icm.unity.store.impl.membership.GroupElementBean" />
+		
 		<typeAlias alias="GenericObjectB" type="pl.edu.icm.unity.store.rdbms.model.GenericObjectBean" />
 		<typeAlias alias="TokenB" type="pl.edu.icm.unity.store.rdbms.model.TokenBean" />
 		<typeAlias alias="EventB" type="pl.edu.icm.unity.store.rdbms.model.EventBean" />

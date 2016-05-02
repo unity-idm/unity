@@ -6,8 +6,6 @@ package pl.edu.icm.unity.store.impl.attribute;
 
 import java.util.List;
 
-import pl.edu.icm.unity.store.rdbms.model.AttributeBean;
-
 
 
 /**

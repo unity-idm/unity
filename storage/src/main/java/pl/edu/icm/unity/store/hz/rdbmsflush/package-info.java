@@ -11,4 +11,4 @@
  * the queued events and applies them to database.
  * @author K. Benedyczak
  */
-package pl.edu.icm.unity.store.rdbmsflush;
+package pl.edu.icm.unity.store.hz.rdbmsflush;

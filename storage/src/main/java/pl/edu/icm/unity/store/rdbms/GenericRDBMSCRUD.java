@@ -9,7 +9,6 @@ import java.util.List;
 
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
 import pl.edu.icm.unity.store.impl.StorageLimits;
-import pl.edu.icm.unity.store.rdbms.model.BaseBean;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 
 /**

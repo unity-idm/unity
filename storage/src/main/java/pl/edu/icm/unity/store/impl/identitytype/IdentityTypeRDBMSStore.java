@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
+import pl.edu.icm.unity.store.rdbms.BaseBean;
 import pl.edu.icm.unity.store.rdbms.GenericNamedRDBMSCRUD;
-import pl.edu.icm.unity.store.rdbms.model.BaseBean;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
 /**

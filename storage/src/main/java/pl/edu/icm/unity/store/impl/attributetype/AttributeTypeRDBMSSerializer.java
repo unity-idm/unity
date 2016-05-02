@@ -12,7 +12,6 @@ import pl.edu.icm.unity.base.attributes.AttributeTypeSerializer;
 import pl.edu.icm.unity.base.attributes.AttributeValueSyntaxFactory;
 import pl.edu.icm.unity.base.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
-import pl.edu.icm.unity.store.rdbms.model.AttributeTypeBean;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 

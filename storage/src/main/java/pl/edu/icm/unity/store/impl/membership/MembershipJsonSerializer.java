@@ -13,7 +13,6 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
-import pl.edu.icm.unity.store.rdbms.model.GroupElementBean;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

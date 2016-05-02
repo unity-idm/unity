@@ -9,8 +9,8 @@ import java.util.List;
 
 import com.hazelcast.transaction.TransactionContext;
 
-import pl.edu.icm.unity.store.rdbmsflush.RDBMSEventsBatch;
-import pl.edu.icm.unity.store.rdbmsflush.RDBMSMutationEvent;
+import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSEventsBatch;
+import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSMutationEvent;
 
 public class HzTransactionState
 {

@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
+import pl.edu.icm.unity.store.rdbms.BaseBean;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
-import pl.edu.icm.unity.store.rdbms.model.BaseBean;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
 import com.fasterxml.jackson.databind.JsonNode;

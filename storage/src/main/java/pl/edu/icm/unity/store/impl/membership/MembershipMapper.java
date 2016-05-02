@@ -6,8 +6,6 @@ package pl.edu.icm.unity.store.impl.membership;
 
 import java.util.List;
 
-import pl.edu.icm.unity.store.rdbms.model.GroupElementBean;
-
 
 /**
  * Access to the GroupMembership.xml operations.

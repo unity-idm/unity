@@ -12,7 +12,6 @@ import org.springframework.stereotype.Repository;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.impl.StorageLimits;
 import pl.edu.icm.unity.store.rdbms.GenericNamedRDBMSCRUD;
-import pl.edu.icm.unity.store.rdbms.model.GroupBean;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 import pl.edu.icm.unity.types.basic.Group;
 
