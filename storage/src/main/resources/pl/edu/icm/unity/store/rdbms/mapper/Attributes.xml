@@ -11,6 +11,7 @@
 		<result property="values" column="VALUES"/>
 		<result property="name" column="NAME"/>
 		<result property="valueSyntaxId" column="VALUE_SYNTAX_ID"/>
+		<result property="group" column="GROUP"/>
 	</resultMap>
 
 	<insert id="create" parameterType="AttributeB" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
@@ -28,42 +29,34 @@
 	</delete>
 
 	<select id="getAll" resultMap="attributeResult">
-		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID from ATTRIBUTES A, ATTRIBUTE_TYPES AT
-			WHERE A.TYPE_ID = AT.ID     
+		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID, G.NAME AS GROUP 
+			from ATTRIBUTES A, ATTRIBUTE_TYPES AT, GROUPS G
+			WHERE A.TYPE_ID = AT.ID AND G.ID = A.GROUP_ID  
 	</select>
 
 	<select id="getByKey" parameterType="long" resultMap="attributeResult">
-		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID from ATTRIBUTES A, ATTRIBUTE_TYPES AT
-			WHERE A.ID = #{id} AND A.TYPE_ID = AT.ID     
+		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID, G.NAME AS GROUP 
+			from ATTRIBUTES A, ATTRIBUTE_TYPES AT, GROUPS G
+			WHERE A.ID = #{id} AND A.TYPE_ID = AT.ID AND G.ID = A.GROUP_ID
 	</select>
 
 
 	<!-- non standard -->
-
-	<update id="updateAttribute" parameterType="AttributeB">
-		UPDATE ATTRIBUTES SET <include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.values"/> = #{values} 
-			WHERE TYPE_ID = #{typeId} AND ENTITY_ID = #{entityId} AND GROUP_ID = #{groupId}
-	</update>
-
-	<delete id="deleteAttribute" parameterType="AttributeB">
-		DELETE FROM ATTRIBUTES WHERE TYPE_ID = #{typeId} AND ENTITY_ID = #{entityId} 
-			AND GROUP_ID = #{groupId}
-	</delete>
-
 	<delete id="deleteAttributesInGroup" parameterType="AttributeB">
 		DELETE FROM ATTRIBUTES WHERE ENTITY_ID = #{entityId} AND GROUP_ID = #{groupId}
 	</delete>
 
 	<select id="getAttributes" parameterType="AttributeB" resultMap="attributeResult">
-		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID from ATTRIBUTES A, ATTRIBUTE_TYPES AT
+		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID, G.NAME AS GROUP 
+		from ATTRIBUTES A, ATTRIBUTE_TYPES AT, GROUPS G
 		<where>
 			<if test="entityId != null">
 				A.ENTITY_ID = #{entityId}
 			</if>
-			<if test="groupId != null">
-				AND A.GROUP_ID = #{groupId}
+			<if test="group != null">
+				AND G.NAME = #{group}
 			</if>
-			AND A.TYPE_ID = AT.ID
+			AND A.TYPE_ID = AT.ID AND G.ID = A.GROUP_ID
 			<if test="name != null">
 				AND AT.NAME = #{name}
 			</if>

@@ -11,7 +11,7 @@ import java.util.Arrays;
  * In DB representation of basic data which is present in the most of tables.
  * @author K. Benedyczak
  */
-public class BaseBean
+public class BaseBean implements GenericDBBean
 {
 	private Long id;
 	private String name;
@@ -27,10 +27,12 @@ public class BaseBean
 		this.contents = contents;
 	}
 	
+	@Override
 	public Long getId()
 	{
 		return id;
 	}
+	@Override
 	public void setId(Long id)
 	{
 		this.id = id;
@@ -43,10 +45,12 @@ public class BaseBean
 	{
 		this.name = name;
 	}
+	@Override
 	public byte[] getContents()
 	{
 		return contents;
 	}
+	@Override
 	public void setContents(byte[] contents)
 	{
 		this.contents = contents;

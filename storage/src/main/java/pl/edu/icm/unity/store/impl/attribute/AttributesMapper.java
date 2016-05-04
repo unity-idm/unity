@@ -16,8 +16,6 @@ import pl.edu.icm.unity.store.rdbms.BasicCRUDMapper;
  */
 public interface AttributesMapper extends BasicCRUDMapper<AttributeBean>
 {
-	void updateAttribute(AttributeBean a);
-	void deleteAttribute(AttributeBean a);
 	void deleteAttributesInGroup(AttributeBean a);
 
 	List<AttributeBean> getAttributes(AttributeBean a);

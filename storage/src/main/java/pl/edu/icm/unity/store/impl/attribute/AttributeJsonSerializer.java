@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.store.impl.attribute;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -13,8 +14,10 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
+import pl.edu.icm.unity.store.api.StoredAttribute;
 import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
@@ -30,7 +33,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * @author K. Benedyczak
  */
 @Component
-public class AttributeJsonSerializer implements JsonSerializerForKryo<Attribute<?>>
+public class AttributeJsonSerializer implements JsonSerializerForKryo<StoredAttribute>
 {
 	@Autowired
 	private ObjectMapper mapper;
@@ -39,23 +42,55 @@ public class AttributeJsonSerializer implements JsonSerializerForKryo<Attribute<
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public Attribute<?> fromJson(ObjectNode main)
+	public StoredAttribute fromJson(ObjectNode main)
 	{
 		if (main == null)
 			return null;
-		String name = main.get("name").asText();
-		AttributeType type = atDAO.get(name);
+		@SuppressWarnings("rawtypes")
+		AttributeExt ret = new AttributeExt();
+
+		fillCommon(main, ret);
+		fromJsonBaseExt(main, ret);
+
+		ret.setDirect(true);
+		long entityId = main.get("entityId").asLong();
+		return new StoredAttribute(ret, entityId);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Attribute<?> fromJsonBasic(ObjectNode main)
+	{
+		if (main == null)
+			return null;
 		@SuppressWarnings("rawtypes")
 		Attribute ret = new Attribute();
-		ret.setAttributeSyntax(type.getValueType());
-		ret.setGroupPath(main.get("groupPath").asText());
-		ret.setName(name);
-
+		fillCommon(main, ret);
 		fromJsonBase(main, ret);
 		return ret;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private void fillCommon(ObjectNode main, Attribute ret)
+	{
+		String name = main.get("name").asText();
+		ret.setName(name);
+		AttributeType type = atDAO.get(name);
+		ret.setAttributeSyntax(type.getValueType());
+		ret.setGroupPath(main.get("groupPath").asText());
+	}
+	
 	@Override
+	public ObjectNode toJson(StoredAttribute src)
+	{
+		ObjectNode root = toJson(src.getAttribute());
+		if (src.getAttribute().getCreationTs() != null)
+			root.put("creationTs", src.getAttribute().getCreationTs().getTime());
+		if (src.getAttribute().getUpdateTs() != null)
+			root.put("updateTs", src.getAttribute().getUpdateTs().getTime());
+		root.put("entityId", src.getEntityId());
+		return root;
+	}
+	
 	public ObjectNode toJson(Attribute<?> src)
 	{
 		ObjectNode root = toJsonBase(src);
@@ -63,7 +98,7 @@ public class AttributeJsonSerializer implements JsonSerializerForKryo<Attribute<
 		root.put("groupPath", src.getGroupPath());
 		return root;
 	}
-
+	
 	protected <T> ObjectNode toJsonBase(Attribute<T> src)
 	{
 		ObjectNode root = mapper.createObjectNode();
@@ -79,6 +114,16 @@ public class AttributeJsonSerializer implements JsonSerializerForKryo<Attribute<
 		return root;
 	}
 	
+	protected <T> void fromJsonBaseExt(ObjectNode main, AttributeExt<T> target)
+	{
+		fromJsonBase(main, target);
+		
+		if (main.has("creationTs"))
+			target.setCreationTs(new Date(main.get("creationTs").asLong()));
+		if (main.has("updateTs"))
+			target.setUpdateTs(new Date(main.get("updateTs").asLong()));
+	}
+
 	protected <T> void fromJsonBase(ObjectNode main, Attribute<T> target)
 	{
 		target.setVisibility(AttributeVisibility.valueOf(main.get("visibility").asText()));
@@ -87,7 +132,6 @@ public class AttributeJsonSerializer implements JsonSerializerForKryo<Attribute<
 			target.setTranslationProfile(main.get("translationProfile").asText());
 		if (main.has("remoteIdp"))
 			target.setRemoteIdp(main.get("remoteIdp").asText());
-		
 		ArrayNode values = main.withArray("values");
 		List<T> pValues = new ArrayList<T>(values.size());
 		Iterator<JsonNode> it = values.iterator();

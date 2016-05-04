@@ -15,7 +15,7 @@ import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
  * Base implementation of RDBMS based CRUD DAO.
  * @author K. Benedyczak
  */
-public abstract class GenericRDBMSCRUD<T, DBT extends BaseBean> implements BasicCRUDDAO<T>, RDBMSDAO
+public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean> implements BasicCRUDDAO<T>, RDBMSDAO
 {
 	private Class<? extends BasicCRUDMapper<DBT>> mapperClass;
 	protected final RDBMSObjectSerializer<T, DBT> jsonSerializer;

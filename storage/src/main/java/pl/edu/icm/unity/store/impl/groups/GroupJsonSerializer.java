@@ -166,7 +166,8 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 		
 		if (as.has("fixedAttribute"))
 		{
-			Attribute<?> fixed = attributeSerializer.fromJson((ObjectNode) as.get("fixedAttribute"));
+			Attribute<?> fixed = attributeSerializer.fromJsonBasic(
+					(ObjectNode) as.get("fixedAttribute"));
 			ret.setFixedAttribute(fixed);
 		} else if (as.has("dynamicAttributeName"))
 		{

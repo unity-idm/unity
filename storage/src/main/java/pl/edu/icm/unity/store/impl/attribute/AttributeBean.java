@@ -4,17 +4,20 @@
  */
 package pl.edu.icm.unity.store.impl.attribute;
 
+import pl.edu.icm.unity.store.rdbms.GenericDBBean;
+
 /**
  * In DB attribute representation. It contains also syntax id and name which are stored in the 
  * table with attribute types.
  * @author K. Benedyczak
  */
-public class AttributeBean
+public class AttributeBean implements GenericDBBean
 {
 	private Long id;
 	private Long typeId;
 	private Long groupId;
 	private Long entityId;
+	private String group;
 	private byte[] values;
 
 	private String name;
@@ -75,5 +78,24 @@ public class AttributeBean
 	public void setValueSyntaxId(String valueSyntaxId)
 	{
 		this.valueSyntaxId = valueSyntaxId;
+	}
+	public String getGroup()
+	{
+		return group;
+	}
+	public void setGroup(String group)
+	{
+		this.group = group;
+	}
+	
+	@Override
+	public byte[] getContents()
+	{
+		return getValues();
+	}
+	@Override
+	public void setContents(byte[] contents)
+	{
+		setValues(contents);
 	}
 }
