@@ -6,17 +6,19 @@ package pl.edu.icm.unity.store.impl.attribute;
 
 import java.util.List;
 
+import pl.edu.icm.unity.store.rdbms.BasicCRUDMapper;
+
 
 
 /**
  * Access to the Attributes.xml operations.
  * @author K. Benedyczak
  */
-public interface AttributesMapper
+public interface AttributesMapper extends BasicCRUDMapper<AttributeBean>
 {
-	public List<AttributeBean> getAttributes(AttributeBean a);
-	public void insertAttribute(AttributeBean a);
-	public void updateAttribute(AttributeBean a);
-	public void deleteAttribute(AttributeBean a);
-	public void deleteAttributesInGroup(AttributeBean a);
+	void updateAttribute(AttributeBean a);
+	void deleteAttribute(AttributeBean a);
+	void deleteAttributesInGroup(AttributeBean a);
+
+	List<AttributeBean> getAttributes(AttributeBean a);
 }

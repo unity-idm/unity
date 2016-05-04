@@ -13,6 +13,47 @@
 		<result property="valueSyntaxId" column="VALUE_SYNTAX_ID"/>
 	</resultMap>
 
+	<insert id="create" parameterType="AttributeB" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+		INSERT INTO ATTRIBUTES (TYPE_ID, ENTITY_ID, GROUP_ID, <include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.values"/>) 
+			VALUES (#{typeId}, #{entityId}, #{groupId}, #{values}) 
+	</insert>
+
+	<update id="updateByKey" parameterType="AttributeB">
+		UPDATE ATTRIBUTES SET <include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.values"/> = #{values} 
+			WHERE ID = #{id}
+	</update>
+
+	<delete id="deleteByKey" parameterType="long">
+		DELETE FROM ATTRIBUTES WHERE ID = #{id}
+	</delete>
+
+	<select id="getAll" resultMap="attributeResult">
+		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID from ATTRIBUTES A, ATTRIBUTE_TYPES AT
+			WHERE A.TYPE_ID = AT.ID     
+	</select>
+
+	<select id="getByKey" parameterType="long" resultMap="attributeResult">
+		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID from ATTRIBUTES A, ATTRIBUTE_TYPES AT
+			WHERE A.ID = #{id} AND A.TYPE_ID = AT.ID     
+	</select>
+
+
+	<!-- non standard -->
+
+	<update id="updateAttribute" parameterType="AttributeB">
+		UPDATE ATTRIBUTES SET <include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.values"/> = #{values} 
+			WHERE TYPE_ID = #{typeId} AND ENTITY_ID = #{entityId} AND GROUP_ID = #{groupId}
+	</update>
+
+	<delete id="deleteAttribute" parameterType="AttributeB">
+		DELETE FROM ATTRIBUTES WHERE TYPE_ID = #{typeId} AND ENTITY_ID = #{entityId} 
+			AND GROUP_ID = #{groupId}
+	</delete>
+
+	<delete id="deleteAttributesInGroup" parameterType="AttributeB">
+		DELETE FROM ATTRIBUTES WHERE ENTITY_ID = #{entityId} AND GROUP_ID = #{groupId}
+	</delete>
+
 	<select id="getAttributes" parameterType="AttributeB" resultMap="attributeResult">
 		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID from ATTRIBUTES A, ATTRIBUTE_TYPES AT
 		<where>
@@ -28,28 +69,4 @@
 			</if>
 		</where>
 	</select>
-
-	<select id="getEntitiesWithAttribute" parameterType="AttributeB" resultMap="attributeResult">
-		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID from ATTRIBUTES A, ATTRIBUTE_TYPES AT
-			WHERE A.GROUP_ID = #{groupId} AND A.TYPE_ID = AT.ID     
-	</select>
-	
-	<insert id="insertAttribute" parameterType="AttributeB">
-		INSERT INTO ATTRIBUTES (TYPE_ID, ENTITY_ID, GROUP_ID, <include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.values"/>) 
-			VALUES (#{typeId}, #{entityId}, #{groupId}, #{values}) 
-	</insert>
-
-	<update id="updateAttribute" parameterType="AttributeB">
-		UPDATE ATTRIBUTES SET <include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.values"/> = #{values} 
-			WHERE TYPE_ID = #{typeId} AND ENTITY_ID = #{entityId} AND GROUP_ID = #{groupId}
-	</update>
-	
-	<delete id="deleteAttribute" parameterType="AttributeB">
-		DELETE FROM ATTRIBUTES WHERE TYPE_ID = #{typeId} AND ENTITY_ID = #{entityId} 
-			AND GROUP_ID = #{groupId}
-	</delete>
-	
-	<delete id="deleteAttributesInGroup" parameterType="AttributeB">
-		DELETE FROM ATTRIBUTES WHERE ENTITY_ID = #{entityId} AND GROUP_ID = #{groupId}
-	</delete>
 </mapper>
