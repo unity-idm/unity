@@ -72,7 +72,10 @@ public class RegistrationRequestHandler extends BaseRequestHandler<RegistrationR
 			Iterator<JsonNode> idsIt = ids.iterator();
 			while (idsIt.hasNext())
 			{
-				ObjectNode id = (ObjectNode) idsIt.next();
+				JsonNode entry = idsIt.next();
+				if (entry.isNull() || !(entry.isObject()))
+					continue;
+				ObjectNode id = (ObjectNode) entry;
 				JsonNode extIdp = id.remove("externalIdp");
 				if (extIdp != null)
 					id.set("remoteIdp", extIdp);
