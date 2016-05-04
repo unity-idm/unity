@@ -102,7 +102,7 @@ The core platform provides persistence of the service state (i.e. managed entiti
 extensions management, orchestration and several cross cutting features. Such core features
 are preferences management, notifications, registrations support etc. 
  
-Unity is written solely in Java 7, which is the single, hard installation requirement. All used technologies 
+Unity is written solely in Java 8, which is the single, hard installation requirement. All used technologies 
 are as lightweight as possible. Unity works as set of services available via an embedded HTTP server 
 (Jetty). Therefore there is no need to install it on top of an existing HTTP or servlet server, or 
 even worse to setup a JEE container. 

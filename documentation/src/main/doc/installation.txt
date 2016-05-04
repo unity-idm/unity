@@ -9,8 +9,19 @@ Unity theoretically can be run on Windows server, however we neither provide sta
 test it. If you would love to run Unity on Windows machine, write to the support mailing list. 
 
 Unity is distributed with everything needed to install and run the system except of Java. 
-Java Runtime Environment 7 must be installed, both OpenJDK and Oracle distributions are supported.
+Java Runtime Environment 8 must be installed, both OpenJDK and Oracle distributions are supported.
 It is strongly advised to use the latest, updated version of the JRE.
+
+[NOTE]
+THe current OpenJDK may cause troubles (depending on distribution) as it has sometimes certain 
+ciphers disabled and clients (as web browsers) may be unable to find common, safe ciphers suites
+for bootstrapping TLS connection. If your browser is unable to connect to Unity then most probably 
+this is the case.
+
+[NOTE]
+In case of the Oracle JDK, the unlimited strength cryptography policy needs to be 
+installed, as otherwise only the low quality key sizes are supported and even the demo certificate 
+of Unity is not working.
 
 === Fresh installation
 
