@@ -40,7 +40,7 @@ public class AttributeRDBMSSerializer implements RDBMSObjectSerializer<StoredAtt
 		bean.setGroupId(groupId);
 		long typeId = atDAO.getKeyForName(object.getAttribute().getName());
 		bean.setTypeId(typeId);
-		bean.setValues(JsonUtil.serialize2Bytes(jsonSerializer.toJsonBase(object.getAttribute())));
+		bean.setValues(JsonUtil.serialize2Bytes(jsonSerializer.toJsonBaseExt(object.getAttribute())));
 		return bean;
 	}
 
@@ -51,10 +51,10 @@ public class AttributeRDBMSSerializer implements RDBMSObjectSerializer<StoredAtt
 		AttributeExt attr = new AttributeExt();
 		attr.setName(bean.getName());
 		attr.setGroupPath(bean.getGroup());
-		AttributeType type = atDAO.get(bean.getValueSyntaxId());
+		AttributeType type = atDAO.get(bean.getName());
 		attr.setAttributeSyntax(type.getValueType());
 		attr.setDirect(true);
-		jsonSerializer.fromJsonBase(JsonUtil.parse(bean.getValues()), attr);
+		jsonSerializer.fromJsonBaseExt(JsonUtil.parse(bean.getValues()), attr);
 		return new StoredAttribute(attr, bean.getEntityId());
 	}
 }

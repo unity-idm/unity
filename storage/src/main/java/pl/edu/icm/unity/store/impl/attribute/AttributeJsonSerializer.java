@@ -82,20 +82,32 @@ public class AttributeJsonSerializer implements JsonSerializerForKryo<StoredAttr
 	@Override
 	public ObjectNode toJson(StoredAttribute src)
 	{
-		ObjectNode root = toJson(src.getAttribute());
-		if (src.getAttribute().getCreationTs() != null)
-			root.put("creationTs", src.getAttribute().getCreationTs().getTime());
-		if (src.getAttribute().getUpdateTs() != null)
-			root.put("updateTs", src.getAttribute().getUpdateTs().getTime());
+		ObjectNode root = toJsonBaseExt(src.getAttribute());
+		storeCommon(root, src.getAttribute());
 		root.put("entityId", src.getEntityId());
 		return root;
 	}
 	
-	public ObjectNode toJson(Attribute<?> src)
+	public ObjectNode toJsonBasic(Attribute<?> src)
 	{
 		ObjectNode root = toJsonBase(src);
+		storeCommon(root, src);
+		return root;
+	}
+	
+	private void storeCommon(ObjectNode root, Attribute<?> src)
+	{
 		root.put("name", src.getName());
 		root.put("groupPath", src.getGroupPath());
+	}
+	
+	protected <T> ObjectNode toJsonBaseExt(AttributeExt<T> src)
+	{
+		ObjectNode root = toJsonBase(src);
+		if (src.getCreationTs() != null)
+			root.put("creationTs", src.getCreationTs().getTime());
+		if (src.getUpdateTs() != null)
+			root.put("updateTs", src.getUpdateTs().getTime());
 		return root;
 	}
 	

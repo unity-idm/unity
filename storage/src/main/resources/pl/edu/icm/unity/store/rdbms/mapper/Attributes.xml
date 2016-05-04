@@ -11,7 +11,7 @@
 		<result property="values" column="VALUES"/>
 		<result property="name" column="NAME"/>
 		<result property="valueSyntaxId" column="VALUE_SYNTAX_ID"/>
-		<result property="group" column="GROUP"/>
+		<result property="group" column="GROUP_PATH"/>
 	</resultMap>
 
 	<insert id="create" parameterType="AttributeB" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
@@ -29,13 +29,13 @@
 	</delete>
 
 	<select id="getAll" resultMap="attributeResult">
-		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID, G.NAME AS GROUP 
+		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID, G.NAME AS GROUP_PATH 
 			from ATTRIBUTES A, ATTRIBUTE_TYPES AT, GROUPS G
 			WHERE A.TYPE_ID = AT.ID AND G.ID = A.GROUP_ID  
 	</select>
 
 	<select id="getByKey" parameterType="long" resultMap="attributeResult">
-		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID, G.NAME AS GROUP 
+		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID, G.NAME AS GROUP_PATH 
 			from ATTRIBUTES A, ATTRIBUTE_TYPES AT, GROUPS G
 			WHERE A.ID = #{id} AND A.TYPE_ID = AT.ID AND G.ID = A.GROUP_ID
 	</select>
@@ -47,7 +47,7 @@
 	</delete>
 
 	<select id="getAttributes" parameterType="AttributeB" resultMap="attributeResult">
-		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID, G.NAME AS GROUP 
+		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID, G.NAME AS GROUP_PATH 
 		from ATTRIBUTES A, ATTRIBUTE_TYPES AT, GROUPS G
 		<where>
 			<if test="entityId != null">

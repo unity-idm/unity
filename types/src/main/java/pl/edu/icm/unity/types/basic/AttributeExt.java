@@ -89,4 +89,43 @@ public class AttributeExt<T> extends Attribute<T>
 	{
 		this.updateTs = updateTs;
 	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((creationTs == null) ? 0 : creationTs.hashCode());
+		result = prime * result + (direct ? 1231 : 1237);
+		result = prime * result + ((updateTs == null) ? 0 : updateTs.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		@SuppressWarnings("rawtypes")
+		AttributeExt other = (AttributeExt) obj;
+		if (creationTs == null)
+		{
+			if (other.creationTs != null)
+				return false;
+		} else if (!creationTs.equals(other.creationTs))
+			return false;
+		if (direct != other.direct)
+			return false;
+		if (updateTs == null)
+		{
+			if (other.updateTs != null)
+				return false;
+		} else if (!updateTs.equals(other.updateTs))
+			return false;
+		return true;
+	}
 }

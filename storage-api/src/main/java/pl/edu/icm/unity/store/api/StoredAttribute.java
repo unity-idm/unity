@@ -29,4 +29,35 @@ public class StoredAttribute
 	{
 		return entityId;
 	}
+	
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((attribute == null) ? 0 : attribute.hashCode());
+		result = prime * result + (int) (entityId ^ (entityId >>> 32));
+		return result;
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		StoredAttribute other = (StoredAttribute) obj;
+		if (attribute == null)
+		{
+			if (other.attribute != null)
+				return false;
+		} else if (!attribute.equals(other.attribute))
+			return false;
+		if (entityId != other.entityId)
+			return false;
+		return true;
+	}
 }

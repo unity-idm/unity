@@ -35,7 +35,7 @@ public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, Attri
 	@Autowired
 	public AttributeRDBMSStore(AttributeRDBMSSerializer dbSerializer, GroupDAO groupDAO)
 	{
-		super(AttributesMapper.class, dbSerializer, "attribute");
+		super(AttributesMapper.class, dbSerializer, NAME);
 		this.groupDAO = groupDAO;
 	}
 

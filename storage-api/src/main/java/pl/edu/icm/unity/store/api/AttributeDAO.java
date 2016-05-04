@@ -11,6 +11,7 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 public interface AttributeDAO extends BasicCRUDDAO<StoredAttribute>
 {
 	String DAO_ID = "AttributeDAO";
+	String NAME = "attribute";
 
 	void updateAttribute(StoredAttribute a);
 	void deleteAttribute(String attribute, long entityId, String group);
