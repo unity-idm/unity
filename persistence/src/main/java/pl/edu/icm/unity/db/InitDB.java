@@ -79,6 +79,13 @@ public class InitDB
 			return;
 		}
 		
+		if (dbVersion == null)
+		{
+			throw new InternalException("The database seems to be corrupted "
+					+ "(the schema version table is empty). Most probably the only possible "
+					+ "way to fix this is to drop it and create a new, empty one.");
+		}
+		
 		dbVersionAtServerStarup = dbVersion2Long(dbVersion);
 		long dbVersionOfSoftware = dbVersion2Long(DB.DB_VERSION);
 		if (dbVersionAtServerStarup > dbVersionOfSoftware)
