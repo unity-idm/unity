@@ -59,15 +59,15 @@ public class TestJettyServer
 		httpServer.start();
 		httpServer.deployHandler(handler);
 		URL url = httpServer.getUrls()[0];
+		String baseURL = "https://127.0.0.1:" + url.getPort();
 		int THREADS = 20;
 		try
 		{
-			HttpClient client = createClient(url.toString() + "/test/1");
-			
 			DOSser[] th = new DOSser[THREADS];
 			for (int i=0; i<THREADS; i++)
 			{
-				th[i] = new DOSser(client, url.toString());
+				HttpClient client = createClient(baseURL + "/test/1");
+				th[i] = new DOSser(client, baseURL);
 				th[i].start();
 			}
 			
@@ -79,7 +79,7 @@ public class TestJettyServer
 					killed ++;
 			}
 			
-			assertThat(killed > 3, is(true));
+			assertThat("Killed: "+ killed, killed > 3, is(true));
 		
 		} finally
 		{
@@ -97,6 +97,7 @@ public class TestJettyServer
 		DefaultClientConfiguration secCfg = new DefaultClientConfiguration(validator, cred);
 		secCfg.getHttpClientProperties().setProperty(HttpClientProperties.CONNECT_TIMEOUT, "2000");
 		secCfg.getHttpClientProperties().setProperty(HttpClientProperties.SO_TIMEOUT, "2000");
+		
 
 		return HttpUtils.createClient(url, secCfg);
 	}
