@@ -74,7 +74,7 @@ public abstract class GenericNamedHzCRUD<T extends NamedObject> extends GenericB
 	{
 		Long removed = getNameMap().remove(id);
 		if (removed == null)
-			throw new IllegalArgumentException(name + " [" + id + "] does not exists");
+			throw new IllegalArgumentException(name + " [" + id + "] does not exist");
 		super.deleteByKey(removed);
 	}
 	

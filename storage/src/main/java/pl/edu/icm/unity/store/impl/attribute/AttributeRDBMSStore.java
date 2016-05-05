@@ -53,7 +53,7 @@ public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, Attri
 		AttributeBean oldSingle = old.get(0);
 		preUpdateCheck(oldSingle, a);
 		toUpdate.setId(oldSingle.getId());
-		mapper.updateByKey(oldSingle);		
+		mapper.updateByKey(toUpdate);		
 	}
 
 	@Override

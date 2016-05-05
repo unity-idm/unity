@@ -159,10 +159,9 @@ public class AttributeJsonSerializer implements JsonSerializerForKryo<StoredAttr
 		target.setValues(pValues);
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	public Class<Attribute> getClazz()
+	public Class<StoredAttribute> getClazz()
 	{
-		return Attribute.class;
+		return StoredAttribute.class;
 	}
 }

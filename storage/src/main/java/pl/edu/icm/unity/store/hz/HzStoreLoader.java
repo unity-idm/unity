@@ -25,6 +25,10 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Sets;
+import com.hazelcast.core.DistributedObject;
+import com.hazelcast.core.HazelcastInstance;
+
 import pl.edu.icm.unity.base.internal.StorageEngine;
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.base.utils.Log;
@@ -34,10 +38,6 @@ import pl.edu.icm.unity.store.StoreLoaderInternal;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionalRunner;
 import pl.edu.icm.unity.store.rdbms.DB;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionalRunner;
-
-import com.google.common.collect.Sets;
-import com.hazelcast.core.DistributedObject;
-import com.hazelcast.core.HazelcastInstance;
 
 /**
  * Loads Hazelcast data from RDBMS at startup.
@@ -89,7 +89,7 @@ public class HzStoreLoader implements StoreLoaderInternal
 		
 		Map<String, HzDAO> beansOfType = beanFactory.getBeansOfType(HzDAO.class, true, true);
 		log.debug("All HzDAOs: " + beansOfType.keySet());
-		log.debug("All HzDAOs list: " + hzStores);
+		
 		Map<String, Set<String>> dependencies = new HashMap<>();
 		for (String bean: beansOfType.keySet())
 			dependencies.put(bean, Sets.newHashSet(
@@ -101,9 +101,9 @@ public class HzStoreLoader implements StoreLoaderInternal
 			public int compare(String o1, String o2)
 			{
 				if (dependencies.get(o1).contains(o2))
-					return 1;
-				if (dependencies.get(o2).contains(o1))
 					return -1;
+				if (dependencies.get(o2).contains(o1))
+					return 1;
 				return 0;
 			}
 		};
@@ -114,7 +114,8 @@ public class HzStoreLoader implements StoreLoaderInternal
 		LinkedHashSet<HzDAO> ret = new LinkedHashSet<>();
 		for (String bean: sortedBeans)
 			ret.add(beansOfType.get(bean));
-		
+		log.debug("All HzDAOs injected as list: " + hzStores);
+		log.debug("All HzDAOs sorted: " + sortedBeans);
 		return ret;
 	}
 	

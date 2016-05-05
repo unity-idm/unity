@@ -28,7 +28,7 @@ import pl.edu.icm.unity.store.api.BasicCRUDDAO;
 public abstract class AbstractBasicDAOTest<T>
 {
 	@Autowired
-	private StorageCleaner dbCleaner;
+	protected StorageCleaner dbCleaner;
 
 	@Autowired
 	protected TransactionalRunner tx;

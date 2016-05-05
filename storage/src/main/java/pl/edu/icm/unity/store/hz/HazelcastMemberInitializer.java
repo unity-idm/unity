@@ -42,7 +42,8 @@ public class HazelcastMemberInitializer
 	
 	@Autowired
 	@Bean
-	public HazelcastInstance getHazelcastInstance(KryoSerializer globalSerializer, StorageConfiguration systemCfg)
+	public HazelcastInstance getHazelcastInstance(KryoSerializer globalSerializer, StorageConfiguration systemCfg,
+			List<MapConfigProvider> mapConfigProviders)
 	{
 		Config config;
 		if (systemCfg.getEnumValue(StorageConfiguration.ENGINE, StorageEngine.class) != StorageEngine.hz)
@@ -62,6 +63,9 @@ public class HazelcastMemberInitializer
 		GlobalSerializerConfig globalSCfg = new GlobalSerializerConfig();
 		globalSCfg.setImplementation(globalSerializer);
 		serializationConfig.setGlobalSerializerConfig(globalSCfg);
+		
+		for (MapConfigProvider mcp: mapConfigProviders)
+			config.addMapConfig(mcp.getMapConfig());
 		
 		//Workaround for Hazelcast issue https://github.com/hazelcast/hazelcast/issues/6287
 		SerializerConfig serializerConfigMap = new SerializerConfig();
