@@ -7,23 +7,23 @@ package pl.edu.icm.unity.types.registration;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeParamRepresentation;
 
 /**
- * Base of enquiry and registration requests, fully resolved and used server-side.
+ * Base of enquiry and registration requests, useful for client side (attributes are not resolved).
  * 
  * @author K. Benedyczak
  */
-public class BaseRegistrationInput extends GenericBaseRegistrationInput
+public class RESTBaseRegistrationInput extends GenericBaseRegistrationInput
 {
-	private List<Attribute<?>> attributes = new ArrayList<>();
-	
-	public List<Attribute<?>> getAttributes()
+	private List<AttributeParamRepresentation> attributes = new ArrayList<>();
+
+	public List<AttributeParamRepresentation> getAttributes()
 	{
 		return attributes;
 	}
 
-	public void setAttributes(List<Attribute<?>> attributes)
+	public void setAttributes(List<AttributeParamRepresentation> attributes)
 	{
 		this.attributes = attributes;
 	}
@@ -46,7 +46,7 @@ public class BaseRegistrationInput extends GenericBaseRegistrationInput
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		BaseRegistrationInput other = (BaseRegistrationInput) obj;
+		RESTBaseRegistrationInput other = (RESTBaseRegistrationInput) obj;
 		if (attributes == null)
 		{
 			if (other.attributes != null)

@@ -10,15 +10,15 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.json.FullAttributeSerializer;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
-import pl.edu.icm.unity.types.registration.RegistrationRequestState;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.db.json.FullAttributeSerializer;
+import pl.edu.icm.unity.types.registration.RegistrationRequest;
+import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 
 /**
  * Handler for {@link RegistrationRequestState}
@@ -48,7 +48,8 @@ public class RegistrationRequestHandler extends BaseRequestHandler<RegistrationR
 		JsonNode n = root.get("RegistrationCode");
 		if (n != null && !n.isNull())
 			retReq.setRegistrationCode(n.asText());
-		
+		if (root.has("CreatedEntity"))
+			ret.setCreatedEntityId(root.get("CreatedEntity").asLong());
 		return ret;
 	}
 	
@@ -57,6 +58,8 @@ public class RegistrationRequestHandler extends BaseRequestHandler<RegistrationR
 	{
 		ObjectNode ret = super.toObjectNode(value, sql);
 		ret.set("RegistrationCode", jsonMapper.valueToTree(value.getRequest().getRegistrationCode()));
+		if (value.getCreatedEntityId() != null)
+			ret.put("CreatedEntity", value.getCreatedEntityId());
 		return ret;
 	}
 

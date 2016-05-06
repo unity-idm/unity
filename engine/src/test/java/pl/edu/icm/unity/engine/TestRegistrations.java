@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -18,6 +19,8 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.engine.builders.RegistrationRequestBuilder;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
@@ -48,8 +51,8 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
-import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
+import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
@@ -64,8 +67,6 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
-
-import com.google.common.collect.Lists;
 
 public class TestRegistrations extends DBIntegrationTestBase
 {
@@ -270,7 +271,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 	}
 	
 	@Test
-	public void testRequestWithNull() throws EngineException
+	public void requestWithNullCodeIsAcceptedForFormWithoutCode() throws EngineException
 	{
 		initAndCreateForm(true, null);
 		RegistrationRequest request = getRequest();
@@ -278,11 +279,37 @@ public class TestRegistrations extends DBIntegrationTestBase
 		registrationsMan.submitRegistrationRequest(request, 
 				new RegistrationContext(false, false, TriggeringMode.manualAtLogin));
 		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
-		assertEquals(request.getRegistrationCode(), fromDb.getRequest().getRegistrationCode());
+		assertThat(fromDb.getRequest().getRegistrationCode(), is(nullValue()));
+	}
+	
+	
+	@Test
+	public void addedCommentsAreReturned() throws EngineException
+	{
+		RegistrationContext defContext = new RegistrationContext(false, false, TriggeringMode.manualAtLogin);
+		initAndCreateForm(false, null);
+		RegistrationRequest request = getRequest();
+		String id = registrationsMan.submitRegistrationRequest(request, defContext);
+		
+		registrationsMan.processRegistrationRequest(id, null, 
+				RegistrationRequestAction.update, "pub1", "priv1");
+		registrationsMan.processRegistrationRequest(id, null, 
+				RegistrationRequestAction.update, "a2", "p2");
+
+		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
+		assertEquals(4, fromDb.getAdminComments().size());
+		assertEquals("pub1", fromDb.getAdminComments().get(0).getContents());
+		assertThat(fromDb.getAdminComments().get(0).isPublicComment(), is(true));
+		assertEquals("priv1", fromDb.getAdminComments().get(1).getContents());
+		assertThat(fromDb.getAdminComments().get(1).isPublicComment(), is(false));
+		assertEquals("a2", fromDb.getAdminComments().get(2).getContents());
+		assertThat(fromDb.getAdminComments().get(2).isPublicComment(), is(true));
+		assertEquals("p2", fromDb.getAdminComments().get(3).getContents());
+		assertThat(fromDb.getAdminComments().get(3).isPublicComment(), is(false));
 	}
 	
 	@Test
-	public void testRequests() throws EngineException
+	public void addedRequestIsReturned() throws EngineException
 	{
 		RegistrationContext defContext = new RegistrationContext(false, false, TriggeringMode.manualAtLogin);
 		initAndCreateForm(false, null);
@@ -290,39 +317,38 @@ public class TestRegistrations extends DBIntegrationTestBase
 		String id1 = registrationsMan.submitRegistrationRequest(request, defContext);
 		
 		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
+		assertThat(fromDb.getAdminComments().isEmpty(), is(true));
 		assertEquals(request, fromDb.getRequest());
 		assertEquals(0, fromDb.getAdminComments().size());
 		assertEquals(RegistrationRequestStatus.pending, fromDb.getStatus());
 		assertEquals(id1, fromDb.getRequestId());
 		assertNotNull(fromDb.getTimestamp());
+	}
+	
+	@Test
+	public void droppedRequestIsNotReturned() throws EngineException
+	{
+		RegistrationContext defContext = new RegistrationContext(false, false, TriggeringMode.manualAtLogin);
+		initAndCreateForm(false, null);
+		RegistrationRequest request = getRequest();
+		String id = registrationsMan.submitRegistrationRequest(request, defContext);
 		
-		registrationsMan.processRegistrationRequest(fromDb.getRequestId(), null, 
-				RegistrationRequestAction.update, "pub1", "priv1");
-		fromDb = registrationsMan.getRegistrationRequests().get(0);
-		assertEquals(request, fromDb.getRequest());
-		assertEquals(2, fromDb.getAdminComments().size());
-		assertEquals("priv1", fromDb.getAdminComments().get(1).getContents());
-		assertEquals("pub1", fromDb.getAdminComments().get(0).getContents());
-		assertEquals(RegistrationRequestStatus.pending, fromDb.getStatus());
-		assertEquals(id1, fromDb.getRequestId());
-		assertNotNull(fromDb.getTimestamp());
-
-		registrationsMan.processRegistrationRequest(fromDb.getRequestId(), null, 
-				RegistrationRequestAction.update, "a2", "p2");
-		fromDb = registrationsMan.getRegistrationRequests().get(0);
-		assertEquals(4, fromDb.getAdminComments().size());
-		assertEquals("p2", fromDb.getAdminComments().get(3).getContents());
-		assertEquals("a2", fromDb.getAdminComments().get(2).getContents());
-		
-		registrationsMan.processRegistrationRequest(fromDb.getRequestId(), null, 
+		registrationsMan.processRegistrationRequest(id, null, 
 				RegistrationRequestAction.drop, null, null);
 		assertEquals(0, registrationsMan.getRegistrationRequests().size());
-		
-		request = getRequest();
+	}
+	
+	@Test
+	public void rejectedRequestIsReturned() throws EngineException
+	{
+		RegistrationContext defContext = new RegistrationContext(false, false, TriggeringMode.manualAtLogin);
+		initAndCreateForm(false, null);
+
+		RegistrationRequest request = getRequest();
 		String id2 = registrationsMan.submitRegistrationRequest(request, defContext);
 		registrationsMan.processRegistrationRequest(id2, null, 
 				RegistrationRequestAction.reject, "a2", "p2");
-		fromDb = registrationsMan.getRegistrationRequests().get(0);
+		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(request, fromDb.getRequest());
 		assertEquals(2, fromDb.getAdminComments().size());
 		assertEquals("p2", fromDb.getAdminComments().get(1).getContents());
@@ -330,12 +356,21 @@ public class TestRegistrations extends DBIntegrationTestBase
 		assertEquals(RegistrationRequestStatus.rejected, fromDb.getStatus());
 		assertEquals(id2, fromDb.getRequestId());
 		assertNotNull(fromDb.getTimestamp());
-		
-		request = getRequest();
+	}
+	
+	@Test
+	public void acceptedRequestIsFullyApplied() throws EngineException
+	{
+		RegistrationContext defContext = new RegistrationContext(false, false, TriggeringMode.manualAtLogin);
+		initAndCreateForm(false, null);
+		RegistrationRequest request = getRequest();
 		String id3 = registrationsMan.submitRegistrationRequest(request, defContext);
+
+		
 		registrationsMan.processRegistrationRequest(id3, null, 
 				RegistrationRequestAction.accept, "a2", "p2");
-		fromDb = registrationsMan.getRegistrationRequests().get(1);
+		
+		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(request, fromDb.getRequest());
 		assertEquals(2, fromDb.getAdminComments().size());
 		assertEquals("p2", fromDb.getAdminComments().get(1).getContents());
@@ -348,6 +383,8 @@ public class TestRegistrations extends DBIntegrationTestBase
 		assertEquals(EntityState.valid, added.getState());
 		assertEquals(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT,
 				added.getCredentialInfo().getCredentialRequirementId());
+		assertThat(fromDb.getCreatedEntityId(), is(added.getId()));
+		
 		CredentialPublicInformation cpi = added.getCredentialInfo().getCredentialsState().get(
 				EngineInitialization.DEFAULT_CREDENTIAL);
 		assertEquals(LocalCredentialState.correct, cpi.getState());
@@ -369,26 +406,26 @@ public class TestRegistrations extends DBIntegrationTestBase
 		VerifiableEmail email = (VerifiableEmail) attrs.iterator().next().getValues().get(0);
 		assertEquals("foo@example.com", email.getValue());
 		assertEquals(false, email.getConfirmationInfo().isConfirmed());
+	}	
+	
+	@Test
+	public void updateOfRequestIdentityUponAcceptIsRespected() throws EngineException
+	{
+		RegistrationContext defContext = new RegistrationContext(false, false, TriggeringMode.manualAtLogin);
+		initAndCreateForm(false, null);
 		
-		
-		// accept with updates -> check if results are fine
+		RegistrationRequest request = getRequest();
 		IdentityParam userIp = new IdentityParam(UsernameIdentity.ID, "some-user");
-
-		request = getRequest();
 		IdentityParam ip = new IdentityParam(X500Identity.ID, "CN=registration test2");
 		request.setIdentities(Lists.newArrayList(ip, userIp));
 		String id4 = registrationsMan.submitRegistrationRequest(request, defContext);
 		
 		request = getRequest();
-		ip = new IdentityParam(X500Identity.ID, "CN=registration test updated");
-		request.setIdentities(Lists.newArrayList(ip, userIp));
+		IdentityParam changed = new IdentityParam(X500Identity.ID, "CN=registration test updated");
+		request.setIdentities(Lists.newArrayList(changed, userIp));
 		registrationsMan.processRegistrationRequest(id4, request, 
 				RegistrationRequestAction.accept, "a2", "p2");
 		idsMan.getEntity(new EntityParam(new IdentityTaV(X500Identity.ID, "CN=registration test updated")));
-		
-		
-		//TODO test notifications
-		
 	}
 
 	@Test

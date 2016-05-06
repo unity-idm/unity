@@ -6,6 +6,8 @@ package pl.edu.icm.unity.types.registration;
 
 import pl.edu.icm.unity.Constants;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -55,6 +57,15 @@ public class RegistrationContext
 		this.triggeringMode = triggeringMode;
 	}
 	
+	@JsonCreator
+	public RegistrationContext(JsonNode object)
+	{
+		this(object.get("tryAutoAccept").asBoolean(),
+			object.get("isOnIdpEndpoint").asBoolean(),
+			TriggeringMode.valueOf(object.get("triggeringMode").asText()));
+	}
+	
+	@JsonValue
 	public JsonNode toJson()
 	{
 		ObjectNode root = Constants.MAPPER.createObjectNode();
@@ -62,13 +73,5 @@ public class RegistrationContext
 		root.put("isOnIdpEndpoint", isOnIdpEndpoint);
 		root.put("triggeringMode", triggeringMode.name());
 		return root;
-	}
-	
-	public static RegistrationContext fromJson(JsonNode object)
-	{
-		return new RegistrationContext(
-				object.get("tryAutoAccept").asBoolean(),
-				object.get("isOnIdpEndpoint").asBoolean(),
-				TriggeringMode.valueOf(object.get("triggeringMode").asText()));
 	}
 }

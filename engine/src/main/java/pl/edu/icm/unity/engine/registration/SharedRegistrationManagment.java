@@ -107,7 +107,6 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 		
 		registrationRequestValidator.validateTranslatedRequest(form, currentRequest.getRequest(), 
 				translatedRequest, sql);
-		requestDB.update(currentRequest.getRequestId(), currentRequest, sql);
 
 		List<Attribute<?>> rootAttributes = new ArrayList<>(translatedRequest.getAttributes().size());
 		Map<String, List<Attribute<?>>> remainingAttributesByGroup = new HashMap<String, List<Attribute<?>>>();
@@ -122,6 +121,9 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 				translatedRequest.getEntityState(), 
 				false, rootAttributes, true, sql);
 
+		currentRequest.setCreatedEntityId(initial.getEntityId());
+		requestDB.update(currentRequest.getRequestId(), currentRequest, sql);
+		
 		while (identitiesIterator.hasNext())
 		{
 			IdentityParam idParam = identitiesIterator.next();
