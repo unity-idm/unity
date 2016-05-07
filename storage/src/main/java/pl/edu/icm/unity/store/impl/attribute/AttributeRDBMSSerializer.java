@@ -13,8 +13,7 @@ import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.StoredAttribute;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic2.AttributeExt2;
 
 
 /**
@@ -28,8 +27,6 @@ public class AttributeRDBMSSerializer implements RDBMSObjectSerializer<StoredAtt
 	private AttributeTypeDAO atDAO;
 	@Autowired
 	private GroupDAO groupDAO;
-	@Autowired
-	private AttributeJsonSerializer jsonSerializer;
 	
 	@Override
 	public AttributeBean toDB(StoredAttribute object)
@@ -40,21 +37,15 @@ public class AttributeRDBMSSerializer implements RDBMSObjectSerializer<StoredAtt
 		bean.setGroupId(groupId);
 		long typeId = atDAO.getKeyForName(object.getAttribute().getName());
 		bean.setTypeId(typeId);
-		bean.setValues(JsonUtil.serialize2Bytes(jsonSerializer.toJsonBaseExt(object.getAttribute())));
+		bean.setValues(JsonUtil.serialize2Bytes(object.getAttribute().toJsonBase()));
 		return bean;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public StoredAttribute fromDB(AttributeBean bean)
 	{
-		AttributeExt attr = new AttributeExt();
-		attr.setName(bean.getName());
-		attr.setGroupPath(bean.getGroup());
-		AttributeType type = atDAO.get(bean.getName());
-		attr.setAttributeSyntax(type.getValueType());
-		attr.setDirect(true);
-		jsonSerializer.fromJsonBaseExt(JsonUtil.parse(bean.getValues()), attr);
+		AttributeExt2 attr = new AttributeExt2(bean.getName(), bean.getValueSyntaxId(), bean.getGroup(), 
+				JsonUtil.parse(bean.getValues()));
 		return new StoredAttribute(attr, bean.getEntityId());
 	}
 }

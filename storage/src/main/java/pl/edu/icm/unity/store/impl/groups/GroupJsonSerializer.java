@@ -10,24 +10,23 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.store.api.AttributeTypeDAO;
-import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
-import pl.edu.icm.unity.store.impl.attribute.AttributeJsonSerializer;
-import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.I18nStringJsonUtil;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeStatement2;
-import pl.edu.icm.unity.types.basic.AttributeStatement2.ConflictResolution;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
-import pl.edu.icm.unity.types.basic.Group;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.store.api.AttributeTypeDAO;
+import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
+import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.I18nStringJsonUtil;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic2.Attribute2;
+import pl.edu.icm.unity.types.basic2.AttributeStatement2;
+import pl.edu.icm.unity.types.basic2.AttributeStatement2.ConflictResolution;
+import pl.edu.icm.unity.types.basic2.Group;
 
 /**
  * Serialization to from Json and to from RDBMS beans. 
@@ -40,9 +39,6 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 	@Autowired
 	private ObjectMapper mapper;
 
-	@Autowired
-	private AttributeJsonSerializer attributeSerializer;
-	
 	@Autowired
 	private AttributeTypeDAO atDAO;
 	
@@ -144,7 +140,7 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 			main.put("dynamicAttributeName", as.getDynamicAttributeType().getName());
 		} else if (as.getFixedAttribute() != null)
 		{
-			ObjectNode attrJson = attributeSerializer.toJsonBasic(as.getFixedAttribute());
+			ObjectNode attrJson = as.getFixedAttribute().toJson();
 			main.set("fixedAttribute", attrJson);
 		}
 		return main;
@@ -166,8 +162,7 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 		
 		if (as.has("fixedAttribute"))
 		{
-			Attribute<?> fixed = attributeSerializer.fromJsonBasic(
-					(ObjectNode) as.get("fixedAttribute"));
+			Attribute2 fixed = new Attribute2((ObjectNode) as.get("fixedAttribute"));
 			ret.setFixedAttribute(fixed);
 		} else if (as.has("dynamicAttributeName"))
 		{

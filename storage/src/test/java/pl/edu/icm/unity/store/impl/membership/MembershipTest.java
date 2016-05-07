@@ -30,7 +30,7 @@ import pl.edu.icm.unity.store.api.StoredEntity;
 import pl.edu.icm.unity.store.mocks.MockIdentityTypeDef;
 import pl.edu.icm.unity.types.EntityInformation;
 import pl.edu.icm.unity.types.EntityState;
-import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic2.Group;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.IdentityType;
 

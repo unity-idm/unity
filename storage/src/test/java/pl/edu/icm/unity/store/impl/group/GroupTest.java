@@ -21,12 +21,12 @@ import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.NamedCRUDDAO;
 import pl.edu.icm.unity.store.mocks.MockAttributeSyntax;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeStatement2;
-import pl.edu.icm.unity.types.basic.AttributeStatement2.ConflictResolution;
+import pl.edu.icm.unity.types.basic2.Attribute2;
+import pl.edu.icm.unity.types.basic2.AttributeStatement2;
+import pl.edu.icm.unity.types.basic2.AttributeStatement2.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
-import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic2.Group;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -123,8 +123,8 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 		ret.setDisplayedName(new I18nString("dname"));
 		ret.setAttributesClasses(Sets.newHashSet("ac1", "ac2"));
 		
-		Attribute<String> fixedAt = new Attribute<String>("at", new MockAttributeSyntax(), 
-				"/A/" + name, AttributeVisibility.local, Lists.newArrayList("v1"));
+		Attribute2 fixedAt = new Attribute2("at", MockAttributeSyntax.ID, 
+				"/A/" + name, Lists.newArrayList("v1"));
 		AttributeType dynAt = new AttributeType("dynAt", new MockAttributeSyntax());
 		ret.setAttributeStatements(new AttributeStatement2[] {
 			new AttributeStatement2("cnd1", "/A", ConflictResolution.overwrite, 
@@ -142,8 +142,8 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 		ret.setDisplayedName(new I18nString("dname2"));
 		ret.setAttributesClasses(Sets.newHashSet("ac1"));
 		
-		Attribute<String> fixedAt = new Attribute<String>("at2", new MockAttributeSyntax(), 
-				 ret.getName(), AttributeVisibility.full, Lists.newArrayList("v2"));
+		Attribute2 fixedAt = new Attribute2("at2", MockAttributeSyntax.ID, 
+				 ret.getName(), Lists.newArrayList("v2"));
 		AttributeType dynAt = new AttributeType("dynAt2", new MockAttributeSyntax());
 		ret.setAttributeStatements(new AttributeStatement2[] {
 			new AttributeStatement2("cnd3", "/A", ConflictResolution.merge, 

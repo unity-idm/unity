@@ -24,9 +24,9 @@ import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeHzStore;
 import pl.edu.icm.unity.store.impl.entities.EntityHzStore;
 import pl.edu.icm.unity.store.impl.groups.GroupHzStore;
-import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic2.AttributeExt2;
+import pl.edu.icm.unity.types.basic2.Group;
 
 
 /**
@@ -151,12 +151,12 @@ public class AttributeHzStore extends GenericBasicHzCRUD<StoredAttribute> implem
 	}
 	
 	@Override
-	public List<AttributeExt<?>> getAttributes(String attribute, long entityId, String group)
+	public List<AttributeExt2> getAttributes(String attribute, long entityId, String group)
 	{
 		PredicateBuilder pBuilder = getAttributePredicate(attribute, entityId, group);
 		TransactionalMap<Long, StoredAttribute> hMap = getMap();
 		Collection<StoredAttribute> values = hMap.values(pBuilder);
-		List<AttributeExt<?>> ret = new ArrayList<>(values.size());
+		List<AttributeExt2> ret = new ArrayList<>(values.size());
 		for (StoredAttribute sa: values)
 			ret.add(sa.getAttribute());
 		return ret;

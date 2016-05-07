@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.store.api;
 
-import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic2.AttributeExt2;
 
 /**
  * Information about stored attribute. AttributeExt plus entityId. 
@@ -12,16 +12,16 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
  */
 public class StoredAttribute
 {
-	private AttributeExt<?> attribute;
+	private AttributeExt2 attribute;
 	private long entityId;
 
-	public StoredAttribute(AttributeExt<?> attribute, long entityId)
+	public StoredAttribute(AttributeExt2 attribute, long entityId)
 	{
 		super();
 		this.attribute = attribute;
 		this.entityId = entityId;
 	}
-	public AttributeExt<?> getAttribute()
+	public AttributeExt2 getAttribute()
 	{
 		return attribute;
 	}

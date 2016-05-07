@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.store.api;
 
-import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic2.Group;
 
 /**
  * Group DAO

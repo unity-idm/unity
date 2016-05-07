@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.hz.GenericNamedHzCRUD;
-import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic2.Group;
 
 import com.hazelcast.core.TransactionalMap;
 

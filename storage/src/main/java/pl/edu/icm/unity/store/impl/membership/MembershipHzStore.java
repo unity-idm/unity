@@ -21,7 +21,7 @@ import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSMutationEvent;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.store.impl.entities.EntityHzStore;
 import pl.edu.icm.unity.store.impl.groups.GroupHzStore;
-import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic2.Group;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 
 import com.hazelcast.core.HazelcastInstance;
