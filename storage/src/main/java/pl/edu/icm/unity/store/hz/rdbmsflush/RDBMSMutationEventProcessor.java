@@ -30,7 +30,6 @@ public class RDBMSMutationEventProcessor
 	private Map<String, Map<String, Method>> daoMethods;
 	private Map<String, RDBMSDAO> daos;
 	
-	
 	@Autowired
 	public RDBMSMutationEventProcessor(Map<String, RDBMSDAO> daos)
 	{

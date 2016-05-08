@@ -29,13 +29,13 @@ public abstract class GenericNamedHzCRUD<T extends NamedObject> extends GenericB
 	}
 
 	@Override
-	public long create(T obj) throws IllegalArgumentException
+	public long createNoPropagateToRDBMS(T obj) throws IllegalArgumentException
 	{
 		StorageLimits.checkNameLimit(obj.getName());
 		TransactionalMap<String, Long> nameMap = getNameMap();
 		if (nameMap.containsKey(obj.getName()))
 			throw new IllegalArgumentException(name + " [" + obj.getName() + "] already exists");
-		long key = super.create(obj);
+		long key = super.createNoPropagateToRDBMS(obj);
 		nameMap.put(obj.getName(), key);
 		return key;
 	}

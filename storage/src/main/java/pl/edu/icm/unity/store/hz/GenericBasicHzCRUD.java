@@ -52,17 +52,23 @@ public abstract class GenericBasicHzCRUD<T> implements BasicCRUDDAO<T>, HzDAO
 		index = hzInstance.getAtomicLong(STORE_ID);
 		List<T> all = rdbmsDAO.getAll();
 		for (T element: all)
-			create(element);
+			createNoPropagateToRDBMS(element);
 	}
-	
-	@Override
-	public long create(T obj) throws IllegalArgumentException
+
+	protected long createNoPropagateToRDBMS(T obj) throws IllegalArgumentException
 	{
 		TransactionalMap<Long, T> hMap = getMap();
 		long key = index.incrementAndGet();
 		while (hMap.containsKey(key))
 			key = index.incrementAndGet();
 		hMap.put(key, obj);
+		return key;
+	}
+	
+	@Override
+	public long create(T obj) throws IllegalArgumentException
+	{
+		long key = createNoPropagateToRDBMS(obj);
 		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, "create", obj));
 		return key;
 	}

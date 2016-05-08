@@ -75,7 +75,7 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 	}
 	
 	/**
-	 * @return minial contents for the initialization of the root group '/'.
+	 * @return minimal contents for the initialization of the root group '/'.
 	 * Needs to be static as it is created early on startup when real DAO infrastructure is not ready.
 	 */
 	public static ObjectNode createRootGroupContents()
