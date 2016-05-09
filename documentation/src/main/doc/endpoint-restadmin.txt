@@ -537,7 +537,24 @@ that this method expects existing form id.
 The optional boolean +ignoreRequests+ query parameter can be used to force form
 update even if it has attached pending requests. Beware, however, that those
 requests can easily become invalid.
- 
+
+
+'''
+
++@Path("/registrationRequests")+ +
++@GET+ +
+
+Returns an array with all registration requests which are stored in the system.
+
+
+'''
+
++@Path("/registrationRequest/{requestId}")+ +
++@GET+ +
+
+Returns a registration request by its id.
+
+
 
 '''
 

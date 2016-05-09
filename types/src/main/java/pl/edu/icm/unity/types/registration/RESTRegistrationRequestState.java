@@ -8,7 +8,7 @@ package pl.edu.icm.unity.types.registration;
  * Specialization of {@link UserRequestState} for {@link RegistrationRequest}s.
  * @author K. Benedyczak
  */
-public class RegistrationRequestState extends UserRequestState<RegistrationRequest>
+public class RESTRegistrationRequestState extends BasicUserRequestState<RESTRegistrationRequest>
 {
 	private Long createdEntityId;
 

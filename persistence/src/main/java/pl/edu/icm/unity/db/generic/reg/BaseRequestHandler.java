@@ -163,7 +163,7 @@ public abstract class BaseRequestHandler<R extends BaseRegistrationInput, T exte
 
 			n = root.get("Context");
 			if (n != null)
-				ret.setRegistrationContext(RegistrationContext.fromJson(n));
+				ret.setRegistrationContext(new RegistrationContext(n));
 			else
 				ret.setRegistrationContext(new RegistrationContext(true, true, 
 						TriggeringMode.manualAtLogin));

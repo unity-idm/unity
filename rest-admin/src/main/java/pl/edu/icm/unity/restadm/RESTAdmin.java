@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
@@ -80,6 +81,7 @@ import pl.edu.icm.unity.types.bulkops.ProcessingRuleParam;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
@@ -599,6 +601,27 @@ public class RESTAdmin
 		registrationManagement.updateForm(form, ignoreRequests);
 	}
 	
+	@Path("/registrationRequests")
+	@GET
+	public String getRegistrationRequests() throws EngineException, JsonProcessingException
+	{
+		List<RegistrationRequestState> requests = registrationManagement.getRegistrationRequests();
+		return mapper.writeValueAsString(requests);
+	}
+	
+	@Path("/registrationRequest/{requestId}")
+	@GET
+	public String getRegistrationRequest(@PathParam("requestId") String requestId) 
+			throws EngineException, JsonProcessingException
+	{
+		List<RegistrationRequestState> requests = registrationManagement.getRegistrationRequests();
+		Optional<RegistrationRequestState> request = requests.stream().
+				filter(r -> r.getRequestId().equals(requestId)).
+				findAny();
+		if (!request.isPresent())
+			throw new WrongArgumentException("There is no request with id " + requestId);
+		return mapper.writeValueAsString(request.get());
+	}
 	
 	@Path("/invitations")
 	@GET

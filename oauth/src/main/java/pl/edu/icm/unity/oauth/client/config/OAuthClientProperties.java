@@ -28,7 +28,7 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, OAuthClientProperties.class);
 	
-	public enum Providers {custom, google, facebook, dropbox, github, microsoft};
+	public enum Providers {custom, google, facebook, dropbox, github, microsoft, orcid};
 	
 	@DocumentationReferencePrefix
 	public static final String P = "unity.oauth2.client.";
@@ -91,6 +91,9 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 			break;
 		case microsoft:
 			providers.put(key, new MicrosoftProviderProperties(properties, P+key, pkiManagement));
+			break;
+		case orcid:
+			providers.put(key, new OrcidProviderProperties(properties, P+key, pkiManagement));
 			break;
 		case custom:
 			providers.put(key, new CustomProviderProperties(properties, P+key, pkiManagement));
