@@ -1,0 +1,36 @@
+{
+	"ver": "2",
+	"name": "orcidProfile",
+	"description": "Orcid authN",
+	"rules": [
+		{
+			"condition": {
+				"conditionValue": "true"
+			}, 
+			"action": {
+				"name": "mapIdentity",
+				"parameters": [
+					"identifier",
+					"attr['orcid']",
+					"Password requirement",
+					"CREATE_OR_MATCH"
+				]
+			}			
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			}, 
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"cn",
+					"/",
+					"attr['name']",
+					"full",
+					"CREATE_OR_UPDATE"
+				]
+			}			
+		}		
+	]
+}
