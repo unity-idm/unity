@@ -1,7 +1,7 @@
 Unity Manual
 ============
 Unity Team <unity-idm-discuss@lists.sourceforge.net>
-:revnumber: 1.9.2-SNAPSHOT
+:revnumber: 1.9.2
 :numbered:
 :toc: left
 :linkcss:
