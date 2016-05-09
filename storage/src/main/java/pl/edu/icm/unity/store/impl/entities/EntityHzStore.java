@@ -25,7 +25,6 @@ import com.hazelcast.core.TransactionalMap;
 public class EntityHzStore extends GenericBasicHzCRUD<StoredEntity> implements EntityDAO
 {
 	public static final String STORE_ID = DAO_ID + "hz";
-	private static final String NAME = "entity";
 
 	@Autowired
 	public EntityHzStore(EntityRDBMSStore rdbmsDAO)

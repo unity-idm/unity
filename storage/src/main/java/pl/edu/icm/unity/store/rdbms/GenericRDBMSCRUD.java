@@ -94,8 +94,13 @@ public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean> implements 
 	{
 		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);
 		List<DBT> allInDB = mapper.getAll();
-		List<T> ret = new ArrayList<>(allInDB.size());
-		for (DBT bean: allInDB)
+		return convertList(allInDB);
+	}
+	
+	protected List<T> convertList(List<DBT> fromDB)
+	{
+		List<T> ret = new ArrayList<>(fromDB.size());
+		for (DBT bean: fromDB)
 		{
 			T obj = jsonSerializer.fromDB(bean);
 			ret.add(obj);

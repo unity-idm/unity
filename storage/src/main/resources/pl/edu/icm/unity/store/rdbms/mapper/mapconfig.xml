@@ -13,9 +13,9 @@
 		<typeAlias alias="AttributeB" type="pl.edu.icm.unity.store.impl.attribute.AttributeBean" />
 		<typeAlias alias="AttributeTypeB" type="pl.edu.icm.unity.store.impl.attributetype.AttributeTypeBean" />
 		<typeAlias alias="GroupElementB" type="pl.edu.icm.unity.store.impl.membership.GroupElementBean" />
+		<typeAlias alias="TokenB" type="pl.edu.icm.unity.store.impl.tokens.TokenBean" />
 		
 		<typeAlias alias="GenericObjectB" type="pl.edu.icm.unity.store.rdbms.model.GenericObjectBean" />
-		<typeAlias alias="TokenB" type="pl.edu.icm.unity.store.rdbms.model.TokenBean" />
 		<typeAlias alias="EventB" type="pl.edu.icm.unity.store.rdbms.model.EventBean" />
 	</typeAliases>
 	

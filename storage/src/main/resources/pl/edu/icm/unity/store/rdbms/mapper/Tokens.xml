@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="pl.edu.icm.unity.store.rdbms.mapper.TokensMapper">
+<mapper namespace="pl.edu.icm.unity.store.impl.tokens.TokensMapper">
 
 	<resultMap id="tokenResult" type="TokenB">
 		<result property="id" column="ID"/>
@@ -13,38 +13,43 @@
 		<result property="contents" column="CONTENTS"/>
 	</resultMap>
 
-	<insert id="insertToken" parameterType="TokenB" useGeneratedKeys="true" keyProperty="id">
+	<insert id="create" parameterType="TokenB" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO TOKENS(NAME, CONTENTS, TYPE, ENTITY_ID, CREATED, EXPIRES) 
 			VALUES (#{name}, #{contents}, #{type}, #{owner}, #{created}, #{expires})
 	</insert>
 
-	<delete id="deleteToken" parameterType="TokenB">
-		DELETE FROM TOKENS WHERE NAME = #{name} AND TYPE = #{type}
+	<update id="updateByKey" parameterType="TokenB">
+		UPDATE TOKENS SET EXPIRES=#{expires}, CONTENTS=#{contents} WHERE ID=#{id}  
+	</update>
+
+	<delete id="deleteByKey" parameterType="long">
+		DELETE FROM TOKENS WHERE ID = #{id}
 	</delete>
 
-	<update id="updateToken" parameterType="TokenB">
-		UPDATE TOKENS SET EXPIRES=#{expires}, CONTENTS=#{contents} WHERE NAME=#{name} AND TYPE=#{type}  
-	</update>
-	<update id="updateTokenExpiration" parameterType="TokenB">
-		UPDATE TOKENS SET EXPIRES=#{expires} WHERE NAME=#{name} AND TYPE=#{type}  
-	</update>
-	<update id="updateTokenContents" parameterType="TokenB">
-		UPDATE TOKENS SET CONTENTS=#{contents} WHERE NAME=#{name} AND TYPE=#{type}  
-	</update>
-	
-	<select id="selectTokenById" parameterType="TokenB" resultMap="tokenResult">
-		SELECT * FROM TOKENS WHERE NAME=#{name} AND TYPE = #{type}
+	<select id="getByKey" parameterType="long" resultMap="tokenResult">
+		SELECT * FROM TOKENS WHERE ID=#{id}
 	</select>
 
-	<select id="selectTokensByOwner" parameterType="TokenB" resultMap="tokenResult">
+	<select id="getAll" resultMap="tokenResult">
+		SELECT * FROM TOKENS
+	</select>
+
+
+	<!-- non standard -->
+
+	<select id="getByOwner" parameterType="TokenB" resultMap="tokenResult">
 		SELECT  * FROM TOKENS WHERE ENTITY_ID=#{owner} AND TYPE = #{type}
 	</select>
 
-	<select id="selectTokensByType" parameterType="string" resultMap="tokenResult">
+	<select id="getById" parameterType="TokenB" resultMap="tokenResult">
+		SELECT * FROM TOKENS WHERE NAME=#{name} AND TYPE = #{type}
+	</select>
+
+	<select id="getByType" parameterType="string" resultMap="tokenResult">
 		SELECT  * FROM TOKENS WHERE TYPE = #{value}
 	</select>
 
-	<select id="selectExpiredTokens" resultMap="tokenResult">
+	<select id="getExpired" resultMap="tokenResult">
 		SELECT * FROM TOKENS WHERE EXPIRES &lt; NOW()
 	</select>
 </mapper>

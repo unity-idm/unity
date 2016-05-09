@@ -28,7 +28,7 @@ public class EntityRDBMSStore extends GenericRDBMSCRUD<StoredEntity, BaseBean>
 	@Autowired
 	public EntityRDBMSStore(EntityJsonSerializer jsonSerializer)
 	{
-		super(EntitiesMapper.class, jsonSerializer, "entity");
+		super(EntitiesMapper.class, jsonSerializer, NAME);
 	}
 	
 	@Override
