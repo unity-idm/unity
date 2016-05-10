@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.store.generic;
+package pl.edu.icm.unity.store.objstore;
 
 /**
  * Implementation is notified about the pre- add/update/remove operations on a 

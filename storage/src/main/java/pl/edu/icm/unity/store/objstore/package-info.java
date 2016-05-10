@@ -10,4 +10,4 @@
  * Handling of generic types. 
  * @author K. Benedyczak
  */
-package pl.edu.icm.unity.store.generic;
+package pl.edu.icm.unity.store.objstore;
