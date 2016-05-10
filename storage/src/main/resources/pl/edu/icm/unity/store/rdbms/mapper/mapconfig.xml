@@ -15,8 +15,7 @@
 		<typeAlias alias="GroupElementB" type="pl.edu.icm.unity.store.impl.membership.GroupElementBean" />
 		<typeAlias alias="TokenB" type="pl.edu.icm.unity.store.impl.tokens.TokenBean" />
 		<typeAlias alias="GenericObjectB" type="pl.edu.icm.unity.store.impl.objstore.GenericObjectBean" />
-		
-		<typeAlias alias="EventB" type="pl.edu.icm.unity.store.rdbms.model.EventBean" />
+		<typeAlias alias="EventB" type="pl.edu.icm.unity.store.impl.events.EventBean" />
 	</typeAliases>
 	
 	<environments default="def">
@@ -57,8 +56,6 @@
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Attributes.xml" />
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Generic.xml" />
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Tokens.xml" />
-				
-		
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Events.xml" />
 	</mappers>
 </configuration>

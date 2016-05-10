@@ -13,7 +13,7 @@ import pl.edu.icm.unity.store.hz.MapConfigProvider;
 
 
 /**
- * Configures tokens map: indices on owner, type and name.
+ * Configures generic objects map: indices on type and name.
  * @author K. Benedyczak
  */
 @Component
