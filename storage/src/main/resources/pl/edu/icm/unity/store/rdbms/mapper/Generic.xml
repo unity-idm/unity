@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="pl.edu.icm.unity.store.rdbms.mapper.GenericMapper">
+<mapper namespace="pl.edu.icm.unity.store.impl.objstore.GenericMapper">
 
 	<resultMap id="objectResult" type="GenericObjectB">
 		<result property="id" column="ID"/>
@@ -12,30 +12,38 @@
 		<result property="lastUpdate" column="LAST_UPDATE"/>
 	</resultMap>
 
-	<insert id="insertObject" parameterType="GenericObjectB" useGeneratedKeys="true" keyProperty="id">
-		INSERT INTO VAR_OBJECTS(NAME, CONTENTS, TYPE, SUB_TYPE) VALUES (#{name}, #{contents}, #{type}, #{subType})
-	</insert>
-
-	<insert id="insertObject2" parameterType="GenericObjectB" useGeneratedKeys="true" keyProperty="id">
+	<insert id="create" parameterType="GenericObjectB" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO VAR_OBJECTS(NAME, CONTENTS, TYPE, SUB_TYPE, LAST_UPDATE) 
 			VALUES (#{name}, #{contents}, #{type}, #{subType}, #{lastUpdate})
 	</insert>
 	
-	<delete id="deleteObjectByNameType" parameterType="GenericObjectB">
-		DELETE FROM VAR_OBJECTS WHERE NAME = #{name} AND TYPE = #{type}
+	<update id="updateByKey" parameterType="GenericObjectB">
+		UPDATE VAR_OBJECTS SET CONTENTS=#{contents}, NAME = #{name}, LAST_UPDATE = #{lastUpdate}
+			WHERE ID=#{id}  
+	</update>
+	
+	<delete id="deleteByKey" parameterType="long">
+		DELETE FROM VAR_OBJECTS WHERE ID = #{id}  
 	</delete>
-
-	<delete id="deleteObjectsByType" parameterType="string">
+	
+	<select id="getAll" resultMap="objectResult">
+		SELECT * FROM VAR_OBJECTS
+	</select>
+	
+	<select id="getByKey" parameterType="long" resultMap="objectResult">
+		SELECT * FROM VAR_OBJECTS WHERE ID = #{id}  
+	</select>
+	
+	
+	<!-- custom operations -->
+	
+	<delete id="deleteByType" parameterType="string">
 		DELETE FROM VAR_OBJECTS WHERE TYPE = #{value}
 	</delete>
 
-	<delete id="deleteAll">
-		DELETE FROM VAR_OBJECTS
-	</delete>
-	
-	<update id="updateByNameType" parameterType="GenericObjectB">
-		UPDATE VAR_OBJECTS SET CONTENTS=#{contents}, LAST_UPDATE=NOW() WHERE NAME=#{name} AND TYPE=#{type}  
-	</update>
+	<select id="selectObjectByNameType" parameterType="GenericObjectB" resultMap="objectResult">
+		SELECT * FROM VAR_OBJECTS WHERE NAME = #{name} AND TYPE = #{type}
+	</select>
 	
 	<select id="selectObjectsByType" parameterType="string" resultMap="objectResult">
 		SELECT * FROM VAR_OBJECTS WHERE type = #{value}
@@ -43,10 +51,6 @@
 
 	<select id="selectObjectTypes" resultType="string">
 		SELECT DISTINCT type FROM VAR_OBJECTS
-	</select>
-
-	<select id="selectObjectByNameType" parameterType="GenericObjectB" resultMap="objectResult">
-		SELECT * FROM VAR_OBJECTS WHERE NAME = #{name} AND TYPE = #{type}
 	</select>
 
 	<select id="selectObjectNamesByType" parameterType="GenericObjectB" resultType="string">

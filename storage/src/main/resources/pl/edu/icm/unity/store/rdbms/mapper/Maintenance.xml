@@ -15,36 +15,30 @@
 		DROP TABLE IF EXISTS TOKENS;
 	</update>
 	<update id="cleardb-02">
-		DROP TABLE IF EXISTS VAR_BIG_OBJECTS;
-	</update>
-	<update id="cleardb-03">
 		DROP TABLE IF EXISTS VAR_OBJECTS;
 	</update>
-	<update id="cleardb-04">
-		DROP TABLE IF EXISTS GROUP_LINKS;
-	</update>
-	<update id="cleardb-05">
+	<update id="cleardb-03">
 		DROP TABLE IF EXISTS GROUP_ENTITIES;
 	</update>
-	<update id="cleardb-06">
+	<update id="cleardb-04">
 		DROP TABLE IF EXISTS ATTRIBUTES;
 	</update>
-	<update id="cleardb-07">
+	<update id="cleardb-05">
 		DROP TABLE IF EXISTS GROUPS;
 	</update>
-	<update id="cleardb-08">
+	<update id="cleardb-06">
 		DROP TABLE IF EXISTS IDENTITIES;
 	</update>
-	<update id="cleardb-09">
+	<update id="cleardb-07">
 		DROP TABLE IF EXISTS ENTITIES;
 	</update>
-	<update id="cleardb-10">
+	<update id="cleardb-08">
 		DROP TABLE IF EXISTS IDENTITY_TYPES;
 	</update>
-	<update id="cleardb-11">
+	<update id="cleardb-09">
 		DROP TABLE IF EXISTS ATTRIBUTE_TYPES;
 	</update>
-	<update id="cleardb-12">
+	<update id="cleardb-10">
 		DROP TABLE IF EXISTS EVENTS_QUEUE;
 	</update>
 		
@@ -57,36 +51,30 @@
 		DELETE FROM TOKENS;
 	</delete>
 	<delete id="deletedb-01">
-		DELETE FROM VAR_BIG_OBJECTS;
-	</delete>
-	<delete id="deletedb-02">
 		DELETE FROM VAR_OBJECTS;
 	</delete>
-	<delete id="deletedb-03">
-		DELETE FROM GROUP_LINKS;
-	</delete>
-	<delete id="deletedb-04">
+	<delete id="deletedb-02">
 		DELETE FROM GROUP_ENTITIES;
 	</delete>
-	<delete id="deletedb-05">
+	<delete id="deletedb-03">
 		DELETE FROM ATTRIBUTES;
 	</delete>
-	<delete id="deletedb-06">
+	<delete id="deletedb-04">
 		DELETE FROM GROUPS;
 	</delete>
-	<delete id="deletedb-07">
+	<delete id="deletedb-05">
 		DELETE FROM IDENTITIES;
 	</delete>
-	<delete id="deletedb-08">
+	<delete id="deletedb-06">
 		DELETE FROM ENTITIES;
 	</delete>
-	<delete id="deletedb-09">
+	<delete id="deletedb-07">
 		DELETE FROM IDENTITY_TYPES;
 	</delete>
-	<delete id="deletedb-10">
+	<delete id="deletedb-08">
 		DELETE FROM ATTRIBUTE_TYPES;
 	</delete>
-	<delete id="deletedb-11">
+	<delete id="deletedb-09">
 		DELETE FROM EVENTS_QUEUE;
 	</delete>
 </mapper>
