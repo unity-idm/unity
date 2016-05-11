@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.store.api.generic.CredentialDB;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.objstore.DependencyNotificationManager;
-import pl.edu.icm.unity.store.objstore.GenericObjectsDB;
+import pl.edu.icm.unity.store.objstore.GenericObjectsDAOImpl;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
 /**
@@ -18,7 +18,7 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
  * @author K. Benedyczak
  */
 @Component
-public class CredentialDBImpl extends GenericObjectsDB<CredentialDefinition> implements CredentialDB
+public class CredentialDBImpl extends GenericObjectsDAOImpl<CredentialDefinition> implements CredentialDB
 {
 	@Autowired
 	public CredentialDBImpl(CredentialHandler handler,

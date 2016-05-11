@@ -36,6 +36,9 @@ public class GenericRDBMSStore extends GenericRDBMSCRUD<GenericObjectBean, Gener
 	public void removeObject(String name, String type)
 	{
 		GenericObjectBean toRemove = getObjectByNameType(name, type);
+		if (toRemove == null)
+			throw new IllegalArgumentException("Trying to remove not existing object [" 
+					+ name + "//" + type + "]");
 		GenericMapper mapper = SQLTransactionTL.getSql().getMapper(GenericMapper.class);
 		mapper.deleteByKey(toRemove.getId());
 	}
@@ -51,6 +54,9 @@ public class GenericRDBMSStore extends GenericRDBMSCRUD<GenericObjectBean, Gener
 	public void updateObject(String name, String type, byte[] contents)
 	{
 		GenericObjectBean toUpdate = getObjectByNameType(name, type);
+		if (toUpdate == null)
+			throw new IllegalArgumentException("Trying to update not existing object [" 
+					+ name + "//" + type + "]");
 		GenericMapper mapper = SQLTransactionTL.getSql().getMapper(GenericMapper.class);
 		toUpdate.setContents(contents);
 		toUpdate.setLastUpdate(new Date());
@@ -76,11 +82,7 @@ public class GenericRDBMSStore extends GenericRDBMSCRUD<GenericObjectBean, Gener
 	{
 		GenericMapper mapper = SQLTransactionTL.getSql().getMapper(GenericMapper.class);
 		
-		GenericObjectBean ret = mapper.selectObjectByNameType(new GenericObjectBean(name, type));
-		if (ret == null)
-			throw new IllegalArgumentException(elementName + " with key [" + name + "//" + type + 
-					"] does not exist");
-		return ret;
+		return mapper.selectObjectByNameType(new GenericObjectBean(name, type));
 	}
 
 	@Override

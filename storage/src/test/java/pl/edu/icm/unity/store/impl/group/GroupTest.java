@@ -15,10 +15,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.store.AbstractNamedDAOTest;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.NamedCRUDDAO;
+import pl.edu.icm.unity.store.impl.AbstractNamedDAOTest;
 import pl.edu.icm.unity.store.mocks.MockAttributeSyntax;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic2.Attribute2;

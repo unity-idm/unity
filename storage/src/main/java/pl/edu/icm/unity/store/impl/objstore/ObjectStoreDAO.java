@@ -23,6 +23,12 @@ public interface ObjectStoreDAO extends BasicCRUDDAO<GenericObjectBean>
 
 	Set<String> getNamesOfType(String type);
 	List<GenericObjectBean> getObjectsOfType(String type);
+	/**
+	 * Note - this method contrary to other DAOs may return null
+	 * @param name
+	 * @param type
+	 * @return null if not found, otherwise the object
+	 */
 	GenericObjectBean getObjectByNameType(String name, String type);
 	Set<String> getObjectTypes();
 	void removeObject(String name, String type);

@@ -36,5 +36,5 @@ public interface GenericObjectsDAO<T>
 	void removeAllNoCheck();
 	void update(String current, T newValue);
 	void updateTS(String id);
-	void insert(String name, T newValue);
+	void insert(T newValue);
 }

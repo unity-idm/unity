@@ -30,7 +30,7 @@ import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
  * 
  * @author K. Benedyczak
  */
-public class GenericObjectsDB<T> implements GenericObjectsDAO<T>
+public class GenericObjectsDAOImpl<T> implements GenericObjectsDAO<T>
 {
 	protected GenericEntityHandler<T> handler;
 	protected ObjectStoreDAO dbGeneric;
@@ -38,7 +38,7 @@ public class GenericObjectsDB<T> implements GenericObjectsDAO<T>
 	protected DependencyNotificationManager notificationManager;
 	protected String objectName;
 	
-	public GenericObjectsDB(GenericEntityHandler<T> handler, ObjectStoreDAO dbGeneric, 
+	public GenericObjectsDAOImpl(GenericEntityHandler<T> handler, ObjectStoreDAO dbGeneric, 
 			DependencyNotificationManager notificationManager, Class<T> handledObjectClass,
 			String name)
 	{
@@ -52,11 +52,13 @@ public class GenericObjectsDB<T> implements GenericObjectsDAO<T>
 	}
 
 
+	@Override
 	public boolean exists(String name)
 	{
 		return dbGeneric.getObjectByNameType(name, type) != null;
 	}
 	
+	@Override
 	public void assertExist(Collection<String> names)
 	{
 		Set<String> all = dbGeneric.getNamesOfType(type);
@@ -70,6 +72,7 @@ public class GenericObjectsDB<T> implements GenericObjectsDAO<T>
 			+ missing.toString());
 	}	
 	
+	@Override
 	public T get(String name)
 	{
 		GenericObjectBean raw = dbGeneric.getObjectByNameType(name, type);
@@ -78,6 +81,7 @@ public class GenericObjectsDB<T> implements GenericObjectsDAO<T>
 		return handler.fromBlob(raw);
 	}
 	
+	@Override
 	public List<T> getAll()
 	{
 		List<GenericObjectBean> allRaw = dbGeneric.getObjectsOfType(type);
@@ -87,6 +91,7 @@ public class GenericObjectsDB<T> implements GenericObjectsDAO<T>
 		return ret;
 	}
 
+	@Override
 	public List<Map.Entry<T, Date>> getAllWithUpdateTimestamps()
 	{
 		List<GenericObjectBean> allRaw = dbGeneric.getObjectsOfType(type);
@@ -98,6 +103,7 @@ public class GenericObjectsDB<T> implements GenericObjectsDAO<T>
 		return ret;
 	}
 
+	@Override
 	public List<Map.Entry<String, Date>> getAllNamesWithUpdateTimestamps()
 	{
 		List<GenericObjectBean> allRaw = dbGeneric.getObjectsOfType(type);
@@ -108,6 +114,8 @@ public class GenericObjectsDB<T> implements GenericObjectsDAO<T>
 					raw.getName(), raw.getLastUpdate()));
 		return ret;
 	}
+
+	@Override
 	public Set<String> getAllNames()
 	{
 		List<GenericObjectBean> allRaw = dbGeneric.getObjectsOfType(type);
@@ -117,6 +125,7 @@ public class GenericObjectsDB<T> implements GenericObjectsDAO<T>
 		return ret;
 	}
 	
+	@Override
 	public Map<String, T> getAllAsMap()
 	{
 		List<GenericObjectBean> allRaw = dbGeneric.getObjectsOfType(type);
@@ -126,6 +135,7 @@ public class GenericObjectsDB<T> implements GenericObjectsDAO<T>
 		return ret;
 	}
 	
+	@Override
 	public void remove(String name)
 	{
 		T removed = get(name);
@@ -133,31 +143,38 @@ public class GenericObjectsDB<T> implements GenericObjectsDAO<T>
 		dbGeneric.removeObject(name, type);
 	}
 
+	@Override
 	public void removeAllNoCheck()
 	{
 		dbGeneric.removeObjectsByType(type);
 	}
 	
+	@Override
 	public void update(String current, T newValue)
 	{
 		T updated = get(current);
 		notificationManager.firePreUpdateEvent(type, updated, newValue);
 		GenericObjectBean blob = handler.toBlob(newValue);
-		dbGeneric.updateObject(blob.getName(), blob.getType(), blob.getContents());
+		blob.setLastUpdate(new Date());
+		dbGeneric.updateObject(current, blob.getType(), blob.getContents());
 	}
 
+	@Override
 	public void updateTS(String id)
 	{
 		GenericObjectBean raw = dbGeneric.getObjectByNameType(id, type);
 		if (raw == null)
 			throw new IllegalArgumentException("There is no [" + id + "] " + objectName);
+		raw.setLastUpdate(new Date());
 		dbGeneric.updateObject(id, type, raw.getContents());
 	}
 
-	public void insert(String name, T newValue)
+	@Override
+	public void insert(T newValue)
 	{
 		notificationManager.firePreAddEvent(type, newValue);
 		GenericObjectBean blob = handler.toBlob(newValue);
+		blob.setLastUpdate(new Date());
 		dbGeneric.create(blob);
 	}
 }

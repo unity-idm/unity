@@ -9,6 +9,7 @@ import static com.googlecode.catchexception.CatchException.caughtException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.util.Date;
@@ -18,7 +19,7 @@ import java.util.Set;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.store.AbstractBasicDAOTest;
+import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;
 
 public class ObjectStoreTest extends AbstractBasicDAOTest<GenericObjectBean>
 {
@@ -83,12 +84,12 @@ public class ObjectStoreTest extends AbstractBasicDAOTest<GenericObjectBean>
 	}
 
 	@Test
-	public void missingObjectRetrievalFails()
+	public void missingObjectRetrievalReturnNull()
 	{
 		tx.runInTransaction(() -> {
-			catchException(dao).getObjectByNameType("name1", "type");
+			GenericObjectBean ret = dao.getObjectByNameType("name1", "type");
 
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			assertThat(ret, is(nullValue()));
 		});
 	}
 

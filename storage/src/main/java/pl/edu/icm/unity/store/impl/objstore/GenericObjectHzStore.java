@@ -77,9 +77,17 @@ public class GenericObjectHzStore extends GenericBasicHzCRUD<GenericObjectBean> 
 		PredicateBuilder pBuilder = getPredicate(type, name);
 		Collection<GenericObjectBean> values = hMap.values(pBuilder);
 		if (values.isEmpty())
+			return null;
+		return values.iterator().next();
+	}
+
+	public GenericObjectBean getObjectByNameTypeNonNull(String name, String type)
+	{
+		GenericObjectBean ret = getObjectByNameType(name, type);
+		if (ret == null)
 			throw new IllegalArgumentException("Object with key [" + type + "//" + name +
 					"] does not exist");
-		return values.iterator().next();
+		return ret;
 	}
 
 	@Override
@@ -96,7 +104,7 @@ public class GenericObjectHzStore extends GenericBasicHzCRUD<GenericObjectBean> 
 	@Override
 	public void removeObject(String name, String type)
 	{
-		GenericObjectBean toRemove = getObjectByNameType(name, type);
+		GenericObjectBean toRemove = getObjectByNameTypeNonNull(name, type);
 		deleteByKey(toRemove.getId());
 	}
 
@@ -111,7 +119,7 @@ public class GenericObjectHzStore extends GenericBasicHzCRUD<GenericObjectBean> 
 	@Override
 	public void updateObject(String name, String type, byte[] contents)
 	{
-		GenericObjectBean toUpdate = getObjectByNameType(name, type);
+		GenericObjectBean toUpdate = getObjectByNameTypeNonNull(name, type);
 		toUpdate.setContents(contents);
 		toUpdate.setLastUpdate(new Date());
 		updateByKey(toUpdate.getId(), toUpdate);
@@ -120,8 +128,11 @@ public class GenericObjectHzStore extends GenericBasicHzCRUD<GenericObjectBean> 
 	@Override
 	protected void preUpdateCheck(GenericObjectBean old, GenericObjectBean updated)
 	{
-		if (!old.getSubType().equals(updated.getSubType()) || !old.getType().equals(updated.getType()))
-			throw new IllegalArgumentException("Changing object typing is illegal");
+		if (!old.getType().equals(updated.getType()))
+			throw new IllegalArgumentException("Changing object type is illegal");
+		if ((old.getSubType() != null && !old.getSubType().equals(updated.getSubType())) ||
+				(old.getSubType() == null && updated.getSubType() != null))
+			throw new IllegalArgumentException("Changing object subtype is illegal");
 	}
 	
 	private PredicateBuilder getPredicate(String type, String value)

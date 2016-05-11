@@ -13,7 +13,7 @@ import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.objstore.DependencyChangeListener;
 import pl.edu.icm.unity.store.objstore.DependencyNotificationManager;
-import pl.edu.icm.unity.store.objstore.GenericObjectsDB;
+import pl.edu.icm.unity.store.objstore.GenericObjectsDAOImpl;
 import pl.edu.icm.unity.store.objstore.cred.CredentialHandler;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -27,7 +27,7 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
  * @author K. Benedyczak
  */
 @Component
-public class AuthenticatorInstanceDBImpl extends GenericObjectsDB<AuthenticatorInstance> 
+public class AuthenticatorInstanceDBImpl extends GenericObjectsDAOImpl<AuthenticatorInstance> 
 		implements AuthenticatorInstanceDB
 {
 	@Autowired
