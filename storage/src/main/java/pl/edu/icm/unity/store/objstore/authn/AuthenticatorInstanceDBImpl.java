@@ -33,7 +33,7 @@ public class AuthenticatorInstanceDBImpl extends GenericObjectsDAOImpl<Authentic
 			ObjectStoreDAO dbGeneric, CredentialDBImpl credentialDB)
 	{
 		super(handler, dbGeneric, AuthenticatorInstance.class, "authenticator");
-		credentialDB.addRemovalHandler(this::restrictCredentialUpdate);
+		credentialDB.addRemovalHandler(this::restrictCredentialRemoval);
 		credentialDB.addUpdateHandler(this::credentialUpdateChangesOurTS);
 	}
 	
@@ -47,7 +47,7 @@ public class AuthenticatorInstanceDBImpl extends GenericObjectsDAOImpl<Authentic
 		}
 	}
 	
-	private void restrictCredentialUpdate(long removedId, String removedName)
+	private void restrictCredentialRemoval(long removedId, String removedName)
 	{
 		List<AuthenticatorInstance> auths = getAll();
 		for (AuthenticatorInstance authenticator: auths)

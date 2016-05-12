@@ -165,12 +165,14 @@ public class ObjectStoreTest extends AbstractBasicDAOTest<GenericObjectBean>
 			GenericObjectBean obj = getObject("name1");
 			long key = dao.create(obj);
 			
-			dao.updateObject("name1", "type", new byte[] {'z'});
+			obj.setContents(new byte[] {'z'});
+			obj.setLastUpdate(new Date());
+			dao.updateObject("name1", "type", obj);
 
 			GenericObjectBean ret = dao.getByKey(key);
 			assertThat(dao.getAll().size(), is(1));
 			assertThat(ret.getContents(), is(new byte[] {'z'}));
-			assertThat(System.currentTimeMillis() - ret.getLastUpdate().getTime() < 5000, is(true));
+			assertThat(ret.getLastUpdate(), is(obj.getLastUpdate()));
 		});
 	}
 
@@ -178,7 +180,7 @@ public class ObjectStoreTest extends AbstractBasicDAOTest<GenericObjectBean>
 	public void updateOfMissingObjectFails()
 	{
 		tx.runInTransaction(() -> {
-			catchException(dao).updateObject("name1", "type", new byte[] {});
+			catchException(dao).updateObject("name1", "type", getObject("name1"));
 
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
 		});	

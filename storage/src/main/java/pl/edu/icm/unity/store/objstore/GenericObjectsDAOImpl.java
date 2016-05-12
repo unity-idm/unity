@@ -176,7 +176,7 @@ public class GenericObjectsDAOImpl<T extends NamedObject> implements GenericObje
 		
 		GenericObjectBean blob = handler.toBlob(newValue);
 		blob.setLastUpdate(new Date());
-		dbGeneric.updateObject(current, blob.getType(), blob.getContents());
+		dbGeneric.updateObject(current, blob.getType(), blob);
 	}
 
 	@Override
@@ -186,7 +186,7 @@ public class GenericObjectsDAOImpl<T extends NamedObject> implements GenericObje
 		if (raw == null)
 			throw new IllegalArgumentException("There is no [" + id + "] " + objectName);
 		raw.setLastUpdate(new Date());
-		dbGeneric.updateObject(id, type, raw.getContents());
+		dbGeneric.updateObject(id, type, raw);
 	}
 
 	@Override

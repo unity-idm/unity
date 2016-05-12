@@ -6,7 +6,6 @@ package pl.edu.icm.unity.store.impl.objstore;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -117,11 +116,12 @@ public class GenericObjectHzStore extends GenericBasicHzCRUD<GenericObjectBean> 
 	}
 
 	@Override
-	public void updateObject(String name, String type, byte[] contents)
+	public void updateObject(String name, String type, GenericObjectBean obj)
 	{
 		GenericObjectBean toUpdate = getObjectByNameTypeNonNull(name, type);
-		toUpdate.setContents(contents);
-		toUpdate.setLastUpdate(new Date());
+		toUpdate.setContents(obj.getContents());
+		toUpdate.setName(obj.getName());
+		toUpdate.setLastUpdate(obj.getLastUpdate());
 		updateByKey(toUpdate.getId(), toUpdate);
 	}
 	

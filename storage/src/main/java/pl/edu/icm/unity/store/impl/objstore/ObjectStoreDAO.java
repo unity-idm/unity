@@ -33,7 +33,7 @@ public interface ObjectStoreDAO extends BasicCRUDDAO<GenericObjectBean>
 	Set<String> getObjectTypes();
 	void removeObject(String name, String type);
 	void removeObjectsByType(String type);
-	void updateObject(String name, String type, byte[] contents); 
+	void updateObject(String name, String type, GenericObjectBean updated); 
 }
 
 

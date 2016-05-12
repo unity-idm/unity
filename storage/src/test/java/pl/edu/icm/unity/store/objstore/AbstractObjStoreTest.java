@@ -161,7 +161,7 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 			mutateObject(obj);
 			dao.update("name1", obj);
 
-			T ret = dao.get("name1");
+			T ret = dao.get(obj.getName());
 
 			assertThat(ret, is(notNullValue()));
 			assertAreEqual(obj, ret);

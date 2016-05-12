@@ -51,7 +51,6 @@ public class AuthenticatorInstanceTest extends AbstractObjStoreTest<Authenticato
 			dao.insert(obj);
 
 			catchException(credentialDB).remove("localCred");
-			caughtException().printStackTrace();
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
 		});
 	}

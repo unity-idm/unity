@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.store.impl.objstore;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -51,15 +50,16 @@ public class GenericRDBMSStore extends GenericRDBMSCRUD<GenericObjectBean, Gener
 	}
 
 	@Override
-	public void updateObject(String name, String type, byte[] contents)
+	public void updateObject(String name, String type, GenericObjectBean obj)
 	{
 		GenericObjectBean toUpdate = getObjectByNameType(name, type);
 		if (toUpdate == null)
 			throw new IllegalArgumentException("Trying to update not existing object [" 
 					+ name + "//" + type + "]");
 		GenericMapper mapper = SQLTransactionTL.getSql().getMapper(GenericMapper.class);
-		toUpdate.setContents(contents);
-		toUpdate.setLastUpdate(new Date());
+		toUpdate.setContents(obj.getContents());
+		toUpdate.setName(obj.getName());
+		toUpdate.setLastUpdate(obj.getLastUpdate());
 		mapper.updateByKey(toUpdate);
 	}
 	
