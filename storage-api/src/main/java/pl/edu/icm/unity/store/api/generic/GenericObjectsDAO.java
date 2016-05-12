@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import pl.edu.icm.unity.types.NamedObject;
+
 /**
  * Engine handling DB operations on the generic objects table on a specified type.
  * The implementation is fully type agnostic by using Java generic type, however the intention is to
@@ -22,7 +24,7 @@ import java.util.Set;
  * 
  * @author K. Benedyczak
  */
-public interface GenericObjectsDAO<T>
+public interface GenericObjectsDAO<T extends NamedObject>
 {
 	boolean exists(String name);
 	void assertExist(Collection<String> names);

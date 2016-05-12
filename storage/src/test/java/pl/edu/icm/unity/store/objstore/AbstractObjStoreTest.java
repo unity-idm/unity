@@ -29,10 +29,11 @@ import com.google.common.collect.Lists;
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.store.StorageCleaner;
 import pl.edu.icm.unity.store.api.generic.GenericObjectsDAO;
+import pl.edu.icm.unity.types.NamedObject;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
-public abstract class AbstractObjStoreTest<T>
+public abstract class AbstractObjStoreTest<T extends NamedObject>
 {
 	@Autowired
 	protected StorageCleaner dbCleaner;

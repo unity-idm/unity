@@ -12,6 +12,8 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.store.ReferenceRemovalHandler;
+import pl.edu.icm.unity.store.ReferenceUpdateHandler;
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
 import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSMutationEvent;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
@@ -146,7 +148,7 @@ public abstract class GenericBasicHzCRUD<T> implements BasicCRUDDAO<T>, HzDAO
 	protected void firePreRemove(long modifiedId, String modifiedName, T removed)
 	{
 		for (ReferenceRemovalHandler handler: deleteHandlers)
-			handler.preUpdateCheck(modifiedId, modifiedName);
+			handler.preRemoveCheck(modifiedId, modifiedName);
 	}
 
 	protected void firePreUpdate(long modifiedId, String modifiedName, T newVal, T oldVal)

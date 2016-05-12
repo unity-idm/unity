@@ -14,9 +14,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import pl.edu.icm.unity.store.ReferenceRemovalHandler;
+import pl.edu.icm.unity.store.ReferenceUpdateHandler;
 import pl.edu.icm.unity.store.api.generic.GenericObjectsDAO;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
+import pl.edu.icm.unity.types.NamedObject;
 
 /**
  * Engine handling DB operations on the generic objects table on a specified type.
@@ -30,21 +33,20 @@ import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
  * 
  * @author K. Benedyczak
  */
-public class GenericObjectsDAOImpl<T> implements GenericObjectsDAO<T>
+public class GenericObjectsDAOImpl<T extends NamedObject> implements GenericObjectsDAO<T>
 {
 	protected GenericEntityHandler<T> handler;
 	protected ObjectStoreDAO dbGeneric;
 	protected String type;
-	protected DependencyNotificationManager notificationManager;
 	protected String objectName;
+	private Set<ReferenceRemovalHandler> deleteHandlers = new HashSet<>();
+	private Set<ReferenceUpdateHandler<T>> updateHandlers = new HashSet<>();
 	
 	public GenericObjectsDAOImpl(GenericEntityHandler<T> handler, ObjectStoreDAO dbGeneric, 
-			DependencyNotificationManager notificationManager, Class<T> handledObjectClass,
-			String name)
+			Class<T> handledObjectClass, String name)
 	{
 		this.handler = handler;
 		this.dbGeneric = dbGeneric;
-		this.notificationManager = notificationManager;
 		if (!handledObjectClass.equals(this.handler.getModelClass()))
 			throw new IllegalArgumentException("Handler and model object are incomatible");
 		this.type = handler.getType();
@@ -147,8 +149,12 @@ public class GenericObjectsDAOImpl<T> implements GenericObjectsDAO<T>
 	@Override
 	public void remove(String name)
 	{
-		T removed = get(name);
-		notificationManager.firePreRemoveEvent(type, removed);
+		GenericObjectBean raw = dbGeneric.getObjectByNameType(name, type);
+		if (raw == null)
+			throw new IllegalArgumentException("There is no [" + name + "] " + objectName);
+		T removed = handler.fromBlob(raw);
+		
+		firePreRemove(raw.getId(), name, removed);
 		dbGeneric.removeObject(name, type);
 	}
 
@@ -161,8 +167,13 @@ public class GenericObjectsDAOImpl<T> implements GenericObjectsDAO<T>
 	@Override
 	public void update(String current, T newValue)
 	{
-		T updated = get(current);
-		notificationManager.firePreUpdateEvent(type, updated, newValue);
+		GenericObjectBean raw = dbGeneric.getObjectByNameType(current, type);
+		if (raw == null)
+			throw new IllegalArgumentException("There is no [" + current + "] " + objectName);
+		T updated = handler.fromBlob(raw);
+
+		firePreUpdate(raw.getId(), current, newValue, updated);
+		
 		GenericObjectBean blob = handler.toBlob(newValue);
 		blob.setLastUpdate(new Date());
 		dbGeneric.updateObject(current, blob.getType(), blob.getContents());
@@ -186,4 +197,25 @@ public class GenericObjectsDAOImpl<T> implements GenericObjectsDAO<T>
 		dbGeneric.create(blob);
 	}
 
+	public void addRemovalHandler(ReferenceRemovalHandler handler)
+	{
+		deleteHandlers.add(handler);
+	}
+	
+	public void addUpdateHandler(ReferenceUpdateHandler<T> handler)
+	{
+		updateHandlers.add(handler);
+	}
+
+	protected void firePreRemove(long modifiedId, String modifiedName, T removed)
+	{
+		for (ReferenceRemovalHandler handler: deleteHandlers)
+			handler.preRemoveCheck(modifiedId, modifiedName);
+	}
+
+	protected void firePreUpdate(long modifiedId, String modifiedName, T newVal, T oldVal)
+	{
+		for (ReferenceUpdateHandler<T> handler: updateHandlers)
+			handler.preUpdateCheck(modifiedId, modifiedName, newVal);
+	}
 }

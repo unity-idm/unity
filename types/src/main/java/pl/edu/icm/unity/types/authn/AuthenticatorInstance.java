@@ -4,12 +4,15 @@
  */
 package pl.edu.icm.unity.types.authn;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import pl.edu.icm.unity.types.NamedObject;
 
 /**
  * Describes a configured authenticator instance in implementation agnostic way.  
  * @author K. Benedyczak
  */
-public class AuthenticatorInstance
+public class AuthenticatorInstance implements NamedObject
 {
 	private String id;
 	private AuthenticatorTypeDescription typeDescription;
@@ -27,6 +30,12 @@ public class AuthenticatorInstance
 	public void setLocalCredentialName(String localCredentialName)
 	{
 		this.localCredentialName = localCredentialName;
+	}
+	@JsonIgnore
+	@Override
+	public String getName()
+	{
+		return getId();
 	}
 	public String getId()
 	{

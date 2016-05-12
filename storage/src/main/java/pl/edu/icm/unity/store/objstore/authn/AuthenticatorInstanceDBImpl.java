@@ -11,10 +11,8 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
-import pl.edu.icm.unity.store.objstore.DependencyChangeListener;
-import pl.edu.icm.unity.store.objstore.DependencyNotificationManager;
 import pl.edu.icm.unity.store.objstore.GenericObjectsDAOImpl;
-import pl.edu.icm.unity.store.objstore.cred.CredentialHandler;
+import pl.edu.icm.unity.store.objstore.cred.CredentialDBImpl;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
@@ -32,45 +30,31 @@ public class AuthenticatorInstanceDBImpl extends GenericObjectsDAOImpl<Authentic
 {
 	@Autowired
 	public AuthenticatorInstanceDBImpl(AuthenticatorInstanceHandler handler,
-			ObjectStoreDAO dbGeneric, DependencyNotificationManager notificationManager)
+			ObjectStoreDAO dbGeneric, CredentialDBImpl credentialDB)
 	{
-		super(handler, dbGeneric, notificationManager, AuthenticatorInstance.class,
-				"authenticator");
-		notificationManager.addListener(new CredentialChangeListener());
+		super(handler, dbGeneric, AuthenticatorInstance.class, "authenticator");
+		credentialDB.addRemovalHandler(this::restrictCredentialUpdate);
+		credentialDB.addUpdateHandler(this::credentialUpdateChangesOurTS);
 	}
 	
-	private class CredentialChangeListener implements DependencyChangeListener<CredentialDefinition>
+	private void credentialUpdateChangesOurTS(long modifiedId, String modifiedName, CredentialDefinition newValue)
 	{
-		@Override
-		public String getDependencyObjectType()
+		List<AuthenticatorInstance> auths = getAll();
+		for (AuthenticatorInstance authenticator: auths)
 		{
-			return CredentialHandler.CREDENTIAL_OBJECT_TYPE;
+			if (modifiedName.equals(authenticator.getLocalCredentialName()))
+				updateTS(authenticator.getId());
 		}
-
-		@Override
-		public void preUpdate(CredentialDefinition oldObject,
-				CredentialDefinition updatedObject)
+	}
+	
+	private void restrictCredentialUpdate(long removedId, String removedName)
+	{
+		List<AuthenticatorInstance> auths = getAll();
+		for (AuthenticatorInstance authenticator: auths)
 		{
-			List<AuthenticatorInstance> auths = getAll();
-			for (AuthenticatorInstance authenticator: auths)
-			{
-				if (updatedObject.getName().equals(authenticator.getLocalCredentialName()))
-				{
-					updateTS(authenticator.getId());
-				}
-			}
-		}
-
-		@Override
-		public void preRemove(CredentialDefinition removedObject)
-		{
-			List<AuthenticatorInstance> auths = getAll();
-			for (AuthenticatorInstance authenticator: auths)
-			{
-				if (removedObject.getName().equals(authenticator.getLocalCredentialName()))
-					throw new IllegalArgumentException("The credential is used by an authenticator " 
-							+ authenticator.getId());
-			}
+			if (removedName.equals(authenticator.getLocalCredentialName()))
+				throw new IllegalArgumentException("The credential is used by an authenticator " 
+						+ authenticator.getId());
 		}
 	}
 }

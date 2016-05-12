@@ -5,7 +5,9 @@
 package pl.edu.icm.unity.base.confirmations;
 
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.types.NamedObject;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -16,7 +18,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * @author P. Piernik
  * 
  */
-public class ConfirmationConfiguration
+public class ConfirmationConfiguration implements NamedObject
 {
 	private String typeToConfirm;
 	private String nameToConfirm;
@@ -35,6 +37,13 @@ public class ConfirmationConfiguration
 		this.nameToConfirm = nameToConfirm;
 		this.notificationChannel = notificationChannel;
 		this.msgTemplate = msgTemplate;
+	}
+
+	@Override
+	@JsonIgnore
+	public String getName()
+	{
+		return typeToConfirm+nameToConfirm;
 	}
 
 	public String getMsgTemplate()
@@ -116,5 +125,4 @@ public class ConfirmationConfiguration
 					"Can't serialize confirmation configuration to JSON", e);
 		}
 	}
-
 }
