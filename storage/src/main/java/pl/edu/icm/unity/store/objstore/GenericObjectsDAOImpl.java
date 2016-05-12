@@ -181,7 +181,6 @@ public class GenericObjectsDAOImpl<T> implements GenericObjectsDAO<T>
 	@Override
 	public void insert(T newValue)
 	{
-		notificationManager.firePreAddEvent(type, newValue);
 		GenericObjectBean blob = handler.toBlob(newValue);
 		blob.setLastUpdate(new Date());
 		dbGeneric.create(blob);

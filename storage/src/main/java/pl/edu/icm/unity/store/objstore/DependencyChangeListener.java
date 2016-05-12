@@ -17,7 +17,6 @@ package pl.edu.icm.unity.store.objstore;
 public interface DependencyChangeListener<T>
 {
 	public String getDependencyObjectType();
-	public void preAdd(T newObject);
 	public void preUpdate(T oldObject, T updatedObject);
 	public void preRemove(T removedObject);
 }

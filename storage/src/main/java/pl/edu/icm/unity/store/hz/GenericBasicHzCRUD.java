@@ -143,13 +143,13 @@ public abstract class GenericBasicHzCRUD<T> implements BasicCRUDDAO<T>, HzDAO
 		updateHandlers.add(handler);
 	}
 
-	public void firePreRemove(long modifiedId, String modifiedName, T removed)
+	protected void firePreRemove(long modifiedId, String modifiedName, T removed)
 	{
 		for (ReferenceRemovalHandler handler: deleteHandlers)
 			handler.preUpdateCheck(modifiedId, modifiedName);
 	}
 
-	public void firePreUpdate(long modifiedId, String modifiedName, T newVal, T oldVal)
+	protected void firePreUpdate(long modifiedId, String modifiedName, T newVal, T oldVal)
 	{
 		for (ReferenceUpdateHandler<T> handler: updateHandlers)
 			handler.preUpdateCheck(modifiedId, modifiedName, newVal);

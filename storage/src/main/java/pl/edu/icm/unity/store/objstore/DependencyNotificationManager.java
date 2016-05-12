@@ -43,18 +43,6 @@ public class DependencyNotificationManager
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void firePreAddEvent(String type, Object added)
-	{
-		List<DependencyChangeListener<?>> listeners = listenersByType.get(type);
-		if (listeners == null)
-			return;
-		for (DependencyChangeListener listener: listeners)
-		{
-			listener.preAdd(added);
-		}
-	}
-	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void firePreUpdateEvent(String type, Object old, Object updated)
 	{
 		List<DependencyChangeListener<?>> listeners = listenersByType.get(type);

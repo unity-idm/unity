@@ -48,9 +48,6 @@ public class AuthenticatorInstanceDBImpl extends GenericObjectsDAOImpl<Authentic
 		}
 
 		@Override
-		public void preAdd(CredentialDefinition newObject) { }
-
-		@Override
 		public void preUpdate(CredentialDefinition oldObject,
 				CredentialDefinition updatedObject)
 		{
