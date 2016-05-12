@@ -32,6 +32,7 @@ public interface GenericObjectsDAO<T>
 	List<Map.Entry<String, Date>> getAllNamesWithUpdateTimestamps();
 	Set<String> getAllNames();
 	Map<String, T> getAllAsMap();
+	Date getUpdateTimestamp(String name);
 	void remove(String name);
 	void removeAllNoCheck();
 	void update(String current, T newValue);

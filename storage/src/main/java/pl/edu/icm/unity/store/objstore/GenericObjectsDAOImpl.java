@@ -116,6 +116,15 @@ public class GenericObjectsDAOImpl<T> implements GenericObjectsDAO<T>
 	}
 
 	@Override
+	public Date getUpdateTimestamp(String name)
+	{
+		GenericObjectBean raw = dbGeneric.getObjectByNameType(name, type);
+		if (raw == null)
+			throw new IllegalArgumentException("There is no [" + name + "] " + objectName);
+		return raw.getLastUpdate();
+	}
+	
+	@Override
 	public Set<String> getAllNames()
 	{
 		List<GenericObjectBean> allRaw = dbGeneric.getObjectsOfType(type);
@@ -177,4 +186,5 @@ public class GenericObjectsDAOImpl<T> implements GenericObjectsDAO<T>
 		blob.setLastUpdate(new Date());
 		dbGeneric.create(blob);
 	}
+
 }
