@@ -25,19 +25,16 @@ import com.vaadin.ui.VerticalLayout;
 public class TranslationProfileViewer extends VerticalLayout
 {	
 	private UnityMessageSource msg;
-	private TypesRegistryBase<? extends TranslationActionFactory> registry;
 	protected Label name;
 	protected Label description;
 	private FormLayout rules;
 	private FormLayout main;
 	
 	
-	public TranslationProfileViewer(UnityMessageSource msg, 
-			TypesRegistryBase<? extends TranslationActionFactory> registry)
+	public TranslationProfileViewer(UnityMessageSource msg)
 	{
 		super();
 		this.msg = msg;
-		this.registry = registry;
 		initUI();
 	}
 
@@ -60,7 +57,8 @@ public class TranslationProfileViewer extends VerticalLayout
 	}
 
 	public <T extends TranslationActionInstance, R extends TranslationRuleInstance<T>> 
-			void setInput(TranslationProfileInstance<T, R> profile)
+			void setInput(TranslationProfileInstance<T, R> profile, 
+					TypesRegistryBase<? extends TranslationActionFactory> registry)
 	{       
 		setEmpty();
 		if (profile == null)

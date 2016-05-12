@@ -147,11 +147,11 @@ public class TranslationProfilesComponent extends VerticalLayout
 				Collection<TranslationProfileInstance<?, ?>> items = getItems(table.getValue());
 				if (items.size() > 1 || items.isEmpty())
 				{
-					viewer.setInput(null);
+					viewer.setInput(null, getCurrentActionsRegistry());
 					return;
 				}	
 				TranslationProfileInstance<?, ?> item = items.iterator().next();
-				viewer.setInput(item);
+				viewer.setInput(item, getCurrentActionsRegistry());
 			}
 		});
 		table.addActionHandler(new RefreshActionHandler());
@@ -195,7 +195,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
 		profileType.addValueChangeListener(toolbar.getValueChangeListener());
 
-		viewer = new TranslationProfileViewer(msg, getCurrentActionsRegistry());
+		viewer = new TranslationProfileViewer(msg);
 		
 		VerticalLayout left = new VerticalLayout();
 		left.setSpacing(true);
@@ -230,7 +230,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 			default:
 				throw new IllegalStateException("unknown profile type");
 			}
-			viewer.setInput(null);
+			viewer.setInput(null, getCurrentActionsRegistry());
 			removeAllComponents();
 			addComponent(main);
 		} catch (Exception e)
