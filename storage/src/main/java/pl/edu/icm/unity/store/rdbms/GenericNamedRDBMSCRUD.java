@@ -66,6 +66,7 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 			throw new IllegalArgumentException(elementName + " [" + obj.getName() + 
 					"] does not exist");
 		preUpdateCheck(byName, obj);
+		firePreUpdate(byName.getId(), byName.getName(), obj, byName);
 		DBT toUpdate = jsonSerializer.toDB(obj);
 		toUpdate.setId(byName.getId());
 		mapper.updateByKey(toUpdate);		
@@ -82,7 +83,11 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 	public void delete(String id)
 	{
 		NamedCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(namedMapperClass);
-		assertExists(id, mapper);
+		DBT toRemove = mapper.getByName(id);
+		if (toRemove == null)
+			throw new IllegalArgumentException(elementName + " [" + id + 
+					"] does not exist");
+		firePreRemove(toRemove.getId(), id, toRemove);
 		mapper.delete(id);
 	}
 
@@ -128,16 +133,16 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 		}
 		return ret;
 	}
-
-	private void assertExists(String id, NamedCRUDMapper<DBT> mapper)
-	{
-		if (!exists(id, mapper))
-			throw new IllegalArgumentException(elementName + " [" + id + 
-					"] does not exist");
-	}
 	
-	private boolean exists(String id, NamedCRUDMapper<DBT> mapper)
+	@Override
+	protected void firePreRemove(long modifiedId, String modifiedName, DBT old)
 	{
-		return mapper.getByName(id) != null;
+		super.firePreRemove(modifiedId, old.getName(), old);
+	}
+
+	@Override
+	protected void firePreUpdate(long modifiedId, String modifiedName, T newVal, DBT old)
+	{
+		super.firePreUpdate(modifiedId, old.getName(), newVal, old);
 	}
 }

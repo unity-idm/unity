@@ -12,6 +12,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.store.ReferenceAwareDAO;
 import pl.edu.icm.unity.store.ReferenceRemovalHandler;
 import pl.edu.icm.unity.store.ReferenceUpdateHandler;
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
@@ -26,7 +27,7 @@ import com.hazelcast.core.TransactionalMap;
  * Generic BasicCRUDDAO implementation on hazelcast map.
  * @author K. Benedyczak
  */
-public abstract class GenericBasicHzCRUD<T> implements BasicCRUDDAO<T>, HzDAO
+public abstract class GenericBasicHzCRUD<T> implements BasicCRUDDAO<T>, HzDAO, ReferenceAwareDAO<T>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, GenericBasicHzCRUD.class);
 
@@ -135,11 +136,13 @@ public abstract class GenericBasicHzCRUD<T> implements BasicCRUDDAO<T>, HzDAO
 		return ret;
 	}
 	
+	@Override
 	public void addRemovalHandler(ReferenceRemovalHandler handler)
 	{
 		deleteHandlers.add(handler);
 	}
 	
+	@Override
 	public void addUpdateHandler(ReferenceUpdateHandler<T> handler)
 	{
 		updateHandlers.add(handler);

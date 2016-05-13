@@ -7,7 +7,6 @@ package pl.edu.icm.unity.store.impl.attributetype;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.rdbms.GenericNamedRDBMSCRUD;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
@@ -18,7 +17,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
  */
 @Repository(AttributeTypeRDBMSStore.BEAN)
 public class AttributeTypeRDBMSStore extends GenericNamedRDBMSCRUD<AttributeType, AttributeTypeBean> 
-					implements AttributeTypeDAO
+					implements AttributeTypeDAOInternal
 {
 	public static final String BEAN = DAO_ID + "rdbms";
 

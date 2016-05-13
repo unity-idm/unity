@@ -60,7 +60,7 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 			T obj = getObject("name1");
 
 			dao.insert(obj);
-			boolean ret = dao.exists("name1");
+			boolean ret = dao.exists(obj.getName());
 
 			assertThat(ret, is(true));
 		});
@@ -74,7 +74,7 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 			T obj = getObject("name1");
 
 			dao.insert(obj);
-			dao.assertExist(Lists.newArrayList("name1"));
+			dao.assertExist(Lists.newArrayList(obj.getName()));
 		});
 	}
 
@@ -110,7 +110,7 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 			T obj = getObject("name1");
 
 			dao.insert(obj);
-			T ret = dao.get("name1");
+			T ret = dao.get(obj.getName());
 
 			assertThat(ret, is(notNullValue()));
 			assertAreEqual(obj, ret);
@@ -157,9 +157,10 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 			GenericObjectsDAO<T> dao = getDAO();
 			T obj = getObject("name1");
 			dao.insert(obj);
-
+			String originalName = obj.getName();
+			
 			mutateObject(obj);
-			dao.update("name1", obj);
+			dao.update(originalName, obj);
 
 			T ret = dao.get(obj.getName());
 
@@ -176,14 +177,13 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 			T obj = getObject("name1");
 			dao.insert(obj);
 
-			mutateObject(obj);
-			dao.updateTS("name1");
+			dao.updateTS(obj.getName());
 
 			List<Entry<String, Date>> ret = dao.getAllNamesWithUpdateTimestamps();
 
 			assertThat(ret, is(notNullValue()));
 			assertThat(ret.size(), is(1));
-			assertThat(ret.get(0).getKey(), is("name1"));
+			assertThat(ret.get(0).getKey(), is(obj.getName()));
 			assertThat(System.currentTimeMillis() - ret.get(0).getValue().getTime() < 5000, is(true));
 		});
 	}
@@ -244,8 +244,8 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 			assertThat(all, is(notNullValue()));
 
 			assertThat(all.size(), is(initial + 2));
-			assertThat(all.get("name1"), is(obj));
-			assertThat(all.get("name2"), is(obj2));
+			assertThat(all.get(obj.getName()), is(obj));
+			assertThat(all.get(obj2.getName()), is(obj2));
 			assertThat(allNames, is(all.keySet()));
 		});
 	}
@@ -258,9 +258,9 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 			T obj = getObject("name1");
 			dao.insert(obj);
 
-			dao.remove("name1");
+			dao.remove(obj.getName());
 
-			catchException(dao).get("name1");
+			catchException(dao).get(obj.getName());
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
 		});
 	}
@@ -275,7 +275,7 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 
 			dao.removeAllNoCheck();
 
-			catchException(dao).get("name1");
+			catchException(dao).get(obj.getName());
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
 		});
 	}

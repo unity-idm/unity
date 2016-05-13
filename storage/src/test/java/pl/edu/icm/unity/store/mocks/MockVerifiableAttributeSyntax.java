@@ -13,9 +13,9 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 
 @Component
-public class MockAttributeSyntax implements AttributeValueSyntax<String>
+public class MockVerifiableAttributeSyntax implements AttributeValueSyntax<String>
 {
-	public static final String ID = "mockString";
+	public static final String ID = "verifiableMockString";
 
 	@Override
 	public String getSerializedConfiguration() throws InternalException
@@ -78,7 +78,7 @@ public class MockAttributeSyntax implements AttributeValueSyntax<String>
 	@Override
 	public boolean isVerifiable()
 	{
-		return false;
+		return true;
 	}
 
 	@Override

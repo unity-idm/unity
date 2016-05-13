@@ -5,8 +5,13 @@
 package pl.edu.icm.unity.store.rdbms;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import pl.edu.icm.unity.store.ReferenceAwareDAO;
+import pl.edu.icm.unity.store.ReferenceRemovalHandler;
+import pl.edu.icm.unity.store.ReferenceUpdateHandler;
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
 import pl.edu.icm.unity.store.impl.StorageLimits;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
@@ -15,11 +20,14 @@ import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
  * Base implementation of RDBMS based CRUD DAO.
  * @author K. Benedyczak
  */
-public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean> implements BasicCRUDDAO<T>, RDBMSDAO
+public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean> 
+		implements BasicCRUDDAO<T>, RDBMSDAO, ReferenceAwareDAO<T>
 {
 	private Class<? extends BasicCRUDMapper<DBT>> mapperClass;
 	protected final RDBMSObjectSerializer<T, DBT> jsonSerializer;
 	protected final String elementName;
+	private Set<ReferenceRemovalHandler> deleteHandlers = new HashSet<>();
+	private Set<ReferenceUpdateHandler<T>> updateHandlers = new HashSet<>();
 	
 	public GenericRDBMSCRUD(Class<? extends BasicCRUDMapper<DBT>> mapperClass,
 			RDBMSObjectSerializer<T, DBT> jsonSerializer, String elementName)
@@ -48,6 +56,7 @@ public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean> implements 
 			throw new IllegalArgumentException(elementName + " with key [" + key + 
 					"] does not exist");
 		preUpdateCheck(old, obj);
+		firePreUpdate(key, null, obj, old);
 		DBT toUpdate = jsonSerializer.toDB(obj);
 		StorageLimits.checkContentsLimit(toUpdate.getContents());
 		toUpdate.setId(key);
@@ -67,7 +76,11 @@ public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean> implements 
 	public void deleteByKey(long id)
 	{
 		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);
-		assertExists(id, mapper);
+		DBT toRemove = mapper.getByKey(id);
+		if (toRemove == null)
+			throw new IllegalArgumentException(elementName + " with key [" + id + 
+					"] does not exist");
+		firePreRemove(id, null, toRemove);
 		mapper.deleteByKey(id);
 	}
 
@@ -106,5 +119,29 @@ public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean> implements 
 			ret.add(obj);
 		}
 		return ret;
+	}
+	
+	@Override
+	public void addRemovalHandler(ReferenceRemovalHandler handler)
+	{
+		deleteHandlers.add(handler);
+	}
+	
+	@Override
+	public void addUpdateHandler(ReferenceUpdateHandler<T> handler)
+	{
+		updateHandlers.add(handler);
+	}
+
+	protected void firePreRemove(long modifiedId, String modifiedName, DBT old)
+	{
+		for (ReferenceRemovalHandler handler: deleteHandlers)
+			handler.preRemoveCheck(modifiedId, modifiedName);
+	}
+
+	protected void firePreUpdate(long modifiedId, String modifiedName, T newVal, DBT old)
+	{
+		for (ReferenceUpdateHandler<T> handler: updateHandlers)
+			handler.preUpdateCheck(modifiedId, modifiedName, newVal);
 	}
 }

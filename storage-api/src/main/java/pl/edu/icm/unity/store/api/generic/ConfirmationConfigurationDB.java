@@ -13,4 +13,6 @@ import pl.edu.icm.unity.base.confirmations.ConfirmationConfiguration;
  */
 public interface ConfirmationConfigurationDB extends GenericObjectsDAO<ConfirmationConfiguration>
 {
+	public final String ATTRIBUTE_CONFIG_TYPE = "attribute";
+	public final String IDENTITY_CONFIG_TYPE = "identity";
 }

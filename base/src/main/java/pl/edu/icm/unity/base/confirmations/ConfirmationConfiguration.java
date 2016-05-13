@@ -125,4 +125,54 @@ public class ConfirmationConfiguration implements NamedObject
 					"Can't serialize confirmation configuration to JSON", e);
 		}
 	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((msgTemplate == null) ? 0 : msgTemplate.hashCode());
+		result = prime * result + ((nameToConfirm == null) ? 0 : nameToConfirm.hashCode());
+		result = prime * result + ((notificationChannel == null) ? 0
+				: notificationChannel.hashCode());
+		result = prime * result + ((typeToConfirm == null) ? 0 : typeToConfirm.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ConfirmationConfiguration other = (ConfirmationConfiguration) obj;
+		if (msgTemplate == null)
+		{
+			if (other.msgTemplate != null)
+				return false;
+		} else if (!msgTemplate.equals(other.msgTemplate))
+			return false;
+		if (nameToConfirm == null)
+		{
+			if (other.nameToConfirm != null)
+				return false;
+		} else if (!nameToConfirm.equals(other.nameToConfirm))
+			return false;
+		if (notificationChannel == null)
+		{
+			if (other.notificationChannel != null)
+				return false;
+		} else if (!notificationChannel.equals(other.notificationChannel))
+			return false;
+		if (typeToConfirm == null)
+		{
+			if (other.typeToConfirm != null)
+				return false;
+		} else if (!typeToConfirm.equals(other.typeToConfirm))
+			return false;
+		return true;
+	}
 }

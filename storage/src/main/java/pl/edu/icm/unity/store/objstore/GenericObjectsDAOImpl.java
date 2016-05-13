@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import pl.edu.icm.unity.store.ReferenceAwareDAO;
 import pl.edu.icm.unity.store.ReferenceRemovalHandler;
 import pl.edu.icm.unity.store.ReferenceUpdateHandler;
 import pl.edu.icm.unity.store.api.generic.GenericObjectsDAO;
@@ -33,7 +34,7 @@ import pl.edu.icm.unity.types.NamedObject;
  * 
  * @author K. Benedyczak
  */
-public class GenericObjectsDAOImpl<T extends NamedObject> implements GenericObjectsDAO<T>
+public class GenericObjectsDAOImpl<T extends NamedObject> implements GenericObjectsDAO<T>, ReferenceAwareDAO<T>
 {
 	protected GenericEntityHandler<T> handler;
 	protected ObjectStoreDAO dbGeneric;
@@ -194,14 +195,19 @@ public class GenericObjectsDAOImpl<T extends NamedObject> implements GenericObje
 	{
 		GenericObjectBean blob = handler.toBlob(newValue);
 		blob.setLastUpdate(new Date());
+		if (exists(newValue.getName()))
+			throw new IllegalArgumentException("The [" + newValue.getName() + "] " + objectName +
+					" already exists");
 		dbGeneric.create(blob);
 	}
 
+	@Override
 	public void addRemovalHandler(ReferenceRemovalHandler handler)
 	{
 		deleteHandlers.add(handler);
 	}
 	
+	@Override
 	public void addUpdateHandler(ReferenceUpdateHandler<T> handler)
 	{
 		updateHandlers.add(handler);
