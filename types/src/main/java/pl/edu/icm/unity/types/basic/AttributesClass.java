@@ -110,4 +110,49 @@ public class AttributesClass extends DescribedObjectImpl
 	{
 		this.parentClasses = new HashSet<String>(parentClasses);
 	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + (allowArbitrary ? 1231 : 1237);
+		result = prime * result + ((allowed == null) ? 0 : allowed.hashCode());
+		result = prime * result + ((mandatory == null) ? 0 : mandatory.hashCode());
+		result = prime * result + ((parentClasses == null) ? 0 : parentClasses.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AttributesClass other = (AttributesClass) obj;
+		if (allowArbitrary != other.allowArbitrary)
+			return false;
+		if (allowed == null)
+		{
+			if (other.allowed != null)
+				return false;
+		} else if (!allowed.equals(other.allowed))
+			return false;
+		if (mandatory == null)
+		{
+			if (other.mandatory != null)
+				return false;
+		} else if (!mandatory.equals(other.mandatory))
+			return false;
+		if (parentClasses == null)
+		{
+			if (other.parentClasses != null)
+				return false;
+		} else if (!parentClasses.equals(other.parentClasses))
+			return false;
+		return true;
+	}
 }
