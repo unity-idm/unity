@@ -19,7 +19,7 @@ public class BaseRegistrationInput
 {
 	private String formId;
 	private List<IdentityParam> identities = new ArrayList<>();
-	private List<Attribute<?>> attributes = new ArrayList<>();
+	private List<Attribute> attributes = new ArrayList<>();
 	private List<CredentialParamValue> credentials = new ArrayList<>();
 	private List<Selection> groupSelections = new ArrayList<>();
 	private List<Selection> agreements = new ArrayList<>();
@@ -50,12 +50,12 @@ public class BaseRegistrationInput
 		this.identities = identities;
 	}
 
-	public List<Attribute<?>> getAttributes()
+	public List<Attribute> getAttributes()
 	{
 		return attributes;
 	}
 
-	public void setAttributes(List<Attribute<?>> attributes)
+	public void setAttributes(List<Attribute> attributes)
 	{
 		this.attributes = attributes;
 	}

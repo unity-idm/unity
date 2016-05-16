@@ -23,12 +23,12 @@ import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.NamedCRUDDAO;
 import pl.edu.icm.unity.store.impl.AbstractNamedDAOTest;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeStatement;
+import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
-import pl.edu.icm.unity.types.basic2.Attribute2;
-import pl.edu.icm.unity.types.basic2.AttributeStatement2;
-import pl.edu.icm.unity.types.basic2.AttributeStatement2.ConflictResolution;
-import pl.edu.icm.unity.types.basic2.Group;
+import pl.edu.icm.unity.types.basic.Group;
 
 public class GroupTest extends AbstractNamedDAOTest<Group>
 {
@@ -122,12 +122,12 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 		ret.setDisplayedName(new I18nString("dname"));
 		ret.setAttributesClasses(Sets.newHashSet("ac1", "ac2"));
 		
-		Attribute2 fixedAt = new Attribute2("at", "syntax", 
+		Attribute fixedAt = new Attribute("at", "syntax", 
 				"/A/" + name, Lists.newArrayList("v1"));
-		ret.setAttributeStatements(new AttributeStatement2[] {
-			new AttributeStatement2("cnd1", "/A", ConflictResolution.overwrite, 
+		ret.setAttributeStatements(new AttributeStatement[] {
+			new AttributeStatement("cnd1", "/A", ConflictResolution.overwrite, 
 					fixedAt),
-			new AttributeStatement2("cnd2", "/A", ConflictResolution.skip, 
+			new AttributeStatement("cnd2", "/A", ConflictResolution.skip, 
 					AttributeVisibility.full, "dynAt", "dynAExpr")
 		});
 		return ret;
@@ -140,12 +140,12 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 		ret.setDisplayedName(new I18nString("dname2"));
 		ret.setAttributesClasses(Sets.newHashSet("ac1"));
 		
-		Attribute2 fixedAt = new Attribute2("at2", "syntax", 
+		Attribute fixedAt = new Attribute("at2", "syntax", 
 				 ret.getName(), Lists.newArrayList("v2"));
-		ret.setAttributeStatements(new AttributeStatement2[] {
-			new AttributeStatement2("cnd3", "/A", ConflictResolution.merge, 
+		ret.setAttributeStatements(new AttributeStatement[] {
+			new AttributeStatement("cnd3", "/A", ConflictResolution.merge, 
 					fixedAt),
-			new AttributeStatement2("cnd4", "/A", ConflictResolution.merge, 
+			new AttributeStatement("cnd4", "/A", ConflictResolution.merge, 
 					AttributeVisibility.full, "dynAt2", "dynAExpr2")
 		});
 	}

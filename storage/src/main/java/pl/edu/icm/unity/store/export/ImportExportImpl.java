@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import pl.edu.icm.unity.store.api.ImportExport;
+import pl.edu.icm.unity.store.impl.attribute.AttributeIE;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypesIE;
 import pl.edu.icm.unity.store.impl.entities.EntityIE;
 import pl.edu.icm.unity.store.impl.identities.IdentityIE;
@@ -47,8 +48,10 @@ public class ImportExportImpl implements ImportExport
 	private EntityIE entitiesIE;
 	
 	@Autowired
-	private IdentityIE identitiesIE;	
+	private IdentityIE identitiesIE;
 	
+	@Autowired
+	private AttributeIE attributesIE;
 	
 	@Override
 	public void store(OutputStream os) throws IOException
@@ -88,10 +91,10 @@ public class ImportExportImpl implements ImportExport
 //		jg.writeFieldName("groupMembers");
 //		groupMembersIE.serialize(sql, jg);
 //		jg.flush();
-//
-//		jg.writeFieldName("attributes");
-//		attributesIE.serialize(sql, jg);
-//		jg.flush();
+
+		jg.writeFieldName("attributes");
+		attributesIE.serialize(jg);
+		jg.flush();
 //
 //		jg.writeFieldName("genericObjects");
 //		genericsIE.serialize(sql, jg);
@@ -130,10 +133,10 @@ public class ImportExportImpl implements ImportExport
 //		
 //		JsonUtils.nextExpect(jp, "groupMembers");
 //		groupMembersIE.deserialize(sql, jp);
-//
-//		JsonUtils.nextExpect(jp, "attributes");
-//		attributesIE.deserialize(sql, jp);
-//
+
+		JsonUtils.nextExpect(jp, "attributes");
+		attributesIE.deserialize(jp, header);
+
 //		JsonUtils.nextExpect(jp, "genericObjects");
 //		genericsIE.deserialize(sql, jp);
 	}

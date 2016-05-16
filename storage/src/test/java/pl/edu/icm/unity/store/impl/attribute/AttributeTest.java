@@ -25,10 +25,10 @@ import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.StoredAttribute;
 import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;
 import pl.edu.icm.unity.types.EntityInformation;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic2.Attribute2;
-import pl.edu.icm.unity.types.basic2.AttributeExt2;
-import pl.edu.icm.unity.types.basic2.Group;
+import pl.edu.icm.unity.types.basic.Group;
 
 public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 {
@@ -82,7 +82,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 			obj4 = new StoredAttribute(obj4.getAttribute(), entityId2);
 			dao.create(obj4);
 			
-			List<AttributeExt2> attributes = dao.getAttributes(null, 
+			List<AttributeExt> attributes = dao.getAttributes(null, 
 					obj.getEntityId(), 
 					"/A");
 			
@@ -111,7 +111,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 			obj4 = new StoredAttribute(obj4.getAttribute(), entityId2);
 			dao.create(obj4);
 			
-			List<AttributeExt2> attributes = dao.getAttributes(null, 
+			List<AttributeExt> attributes = dao.getAttributes(null, 
 					obj.getEntityId(), 
 					null);
 			
@@ -136,7 +136,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 			obj3.getAttribute().setGroupPath("/C");
 			dao.create(obj3);
 			
-			List<AttributeExt2> attributes = dao.getAttributes(obj.getAttribute().getName(), 
+			List<AttributeExt> attributes = dao.getAttributes(obj.getAttribute().getName(), 
 					obj.getEntityId(), 
 					null);
 			
@@ -153,7 +153,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 			StoredAttribute obj = getObject("");
 			dao.create(obj);
 			
-			List<AttributeExt2> attributes = dao.getAttributes(obj.getAttribute().getName(), 
+			List<AttributeExt> attributes = dao.getAttributes(obj.getAttribute().getName(), 
 					obj.getEntityId(), 
 					obj.getAttribute().getGroupPath());
 			
@@ -161,10 +161,10 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 		});
 	}
 	
-	private void assertAllAndOnlyAllIn(List<AttributeExt2> expected, List<AttributeExt2> attributes)
+	private void assertAllAndOnlyAllIn(List<AttributeExt> expected, List<AttributeExt> attributes)
 	{
 		assertThat(attributes.size(), is(expected.size()));
-		Comparator<AttributeExt2> cmp = (a, b) -> {
+		Comparator<AttributeExt> cmp = (a, b) -> {
 			String n1 = a.getName() + "@" + a.getGroupPath();
 			String n2 = b.getName() + "@" + b.getGroupPath();
 			return n1.compareTo(n2);
@@ -195,7 +195,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 			
 			dao.deleteAttributesInGroup(entityId, "/A");
 			
-			List<AttributeExt2> attributes = dao.getAttributes(null, entityId, null);
+			List<AttributeExt> attributes = dao.getAttributes(null, entityId, null);
 			
 			assertAllAndOnlyAllIn(Lists.newArrayList(obj3.getAttribute()), 
 					attributes);
@@ -220,7 +220,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 			
 			dao.deleteAttribute("attr", entityId, "/A");
 			
-			List<AttributeExt2> attributes = dao.getAttributes(null, entityId, null);
+			List<AttributeExt> attributes = dao.getAttributes(null, entityId, null);
 			
 			assertAllAndOnlyAllIn(Lists.newArrayList(obj2.getAttribute(), obj3.getAttribute()), 
 					attributes);
@@ -238,7 +238,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 			mutateObject(obj);
 			dao.updateAttribute(obj);
 
-			List<AttributeExt2> attributes = dao.getAttributes("attr", entityId, "/A");
+			List<AttributeExt> attributes = dao.getAttributes("attr", entityId, "/A");
 
 			assertAllAndOnlyAllIn(Lists.newArrayList(obj.getAttribute()), 
 					attributes);
@@ -263,7 +263,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 			
 			atDao.delete("attr");
 			
-			List<AttributeExt2> attributes = dao.getAttributes(null, entityId, null);
+			List<AttributeExt> attributes = dao.getAttributes(null, entityId, null);
 			
 			assertAllAndOnlyAllIn(Lists.newArrayList(obj2.getAttribute()), 
 					attributes);
@@ -292,7 +292,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 
 			entityDAO.deleteByKey(entityId);
 			
-			List<AttributeExt2> attributes = dao.getAttributes(null, entityId, null);
+			List<AttributeExt> attributes = dao.getAttributes(null, entityId, null);
 			assertThat(attributes.isEmpty(), is(true));
 			
 			attributes = dao.getAttributes(null, entityId2, null);
@@ -319,7 +319,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 			
 			groupDAO.delete("/A");
 			
-			List<AttributeExt2> attributes = dao.getAttributes(null, entityId, null);
+			List<AttributeExt> attributes = dao.getAttributes(null, entityId, null);
 			
 			assertAllAndOnlyAllIn(Lists.newArrayList(obj3.getAttribute()), 
 					attributes);
@@ -337,7 +337,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 			long groupKey = groupDAO.getKeyForName("/A");
 			groupDAO.updateByKey(groupKey, new Group("/ZZ"));
 			
-			List<AttributeExt2> attributes = dao.getAttributes(null, entityId, null);
+			List<AttributeExt> attributes = dao.getAttributes(null, entityId, null);
 			
 			obj.getAttribute().setGroupPath("/ZZ");
 			assertAllAndOnlyAllIn(Lists.newArrayList(obj.getAttribute()), 
@@ -357,7 +357,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 			
 			atDao.updateByKey(atKey, new AttributeType("attrZZ", "syntax"));
 			
-			List<AttributeExt2> attributes = dao.getAttributes(null, entityId, null);
+			List<AttributeExt> attributes = dao.getAttributes(null, entityId, null);
 			
 			obj.getAttribute().setName("attrZZ");
 			assertAllAndOnlyAllIn(Lists.newArrayList(obj.getAttribute()), 
@@ -374,20 +374,20 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 	@Override
 	protected StoredAttribute getObject(String id)
 	{
-		Attribute2 attr = new Attribute2("attr", 
+		Attribute attr = new Attribute("attr", 
 				"syntax", 
 				"/A", 
 				Lists.newArrayList("v1", "v2"), 
 				"remoteIdp", 
 				"translationProfile");
-		AttributeExt2 a = new AttributeExt2(attr, true, new Date(100), new Date(1000));
+		AttributeExt a = new AttributeExt(attr, true, new Date(100), new Date(1000));
 		return new StoredAttribute(a, entityId);
 	}
 
 	@Override
 	protected void mutateObject(StoredAttribute src)
 	{
-		AttributeExt2 a = (AttributeExt2) src.getAttribute();
+		AttributeExt a = (AttributeExt) src.getAttribute();
 		a.setRemoteIdp("remoteIdp2");
 		a.setTranslationProfile("translationProfile2");
 		a.setValues(Lists.newArrayList("w1"));

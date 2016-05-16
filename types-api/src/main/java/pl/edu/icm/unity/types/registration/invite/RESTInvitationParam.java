@@ -8,24 +8,24 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-import pl.edu.icm.unity.types.basic.AttributeParamRepresentation;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.types.basic.Attribute;
 
 /**
  * Stores pre-filled input for the form which is a base of invitation of a user.
  * Invitation can optionally hold a contact address where the invitation link shall be sent.
  * <p>
  * This variant is intended for usage with REST API and is serializable to/from JSON.
- * 
+ * TODO remove this
  * @author Krzysztof Benedyczak
  */
 public class RESTInvitationParam extends InvitationParamBase
 {
-	private Map<Integer, PrefilledEntry<AttributeParamRepresentation>> attributes = new HashMap<>();
+	private Map<Integer, PrefilledEntry<Attribute>> attributes = new HashMap<>();
 	
 	public RESTInvitationParam(String formId, Instant expiration, String contactAddress, String channelId)
 	{
@@ -44,7 +44,7 @@ public class RESTInvitationParam extends InvitationParamBase
 		fromJson(json);
 	}
 	
-	public Map<Integer, PrefilledEntry<AttributeParamRepresentation>> getAttributes()
+	public Map<Integer, PrefilledEntry<Attribute>> getAttributes()
 	{
 		return attributes;
 	}
@@ -60,7 +60,7 @@ public class RESTInvitationParam extends InvitationParamBase
 	private void fromJson(ObjectNode json)
 	{
 		JsonNode n = json.get("attributes");
-		fill((ObjectNode) n, getAttributes(), AttributeParamRepresentation.class);
+		fill((ObjectNode) n, getAttributes(), Attribute.class);
 	}
 	
 	@Override

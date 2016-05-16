@@ -13,7 +13,7 @@ import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.StoredAttribute;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic2.AttributeExt2;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 
 
 /**
@@ -44,7 +44,7 @@ public class AttributeRDBMSSerializer implements RDBMSObjectSerializer<StoredAtt
 	@Override
 	public StoredAttribute fromDB(AttributeBean bean)
 	{
-		AttributeExt2 attr = new AttributeExt2(bean.getName(), bean.getValueSyntaxId(), bean.getGroup(), 
+		AttributeExt attr = new AttributeExt(bean.getName(), bean.getValueSyntaxId(), bean.getGroup(), 
 				JsonUtil.parse(bean.getValues()));
 		return new StoredAttribute(attr, bean.getEntityId());
 	}

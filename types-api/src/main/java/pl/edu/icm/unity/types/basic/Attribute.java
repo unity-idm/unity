@@ -4,123 +4,211 @@
  */
 package pl.edu.icm.unity.types.basic;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.types.InitializationValidator;
-import pl.edu.icm.unity.types.NamedObject;
-
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.types.NamedObject;
+import pl.edu.icm.unity.types.basic.Attribute;
 
 /**
  * Represents an attribute instance.
- * Attribute has group where it is valid (or valid and defined depending on context),
- * its syntax, visibility and list of values.
+ * Attribute has a group where it is valid (or valid and defined depending on context) and list of values.
+ * Values type of this class are of String class. While for String attributes this is a natural encoding 
+ * for some other the string is an effect of some sort of serialization as Base64. Values can be (de)serialized using
+ * proper value syntax object. The value syntax name is stored with an attribute for convenience, although it
+ * duplicates an information stored in {@link AttributeType} of this attribute.  
+ * <p> 
  * @author K. Benedyczak
  */
-public class Attribute<T> implements InitializationValidator, NamedObject
+public class Attribute implements NamedObject
 {
-	private AttributeValueSyntax<T> attributeSyntax;
 	private String name;
+	private String valueSyntax;
 	private String groupPath;
-	private AttributeVisibility visibility;
-	private List<T> values = Collections.emptyList();
+	private List<String> values = Collections.emptyList();
 	private String translationProfile;
 	private String remoteIdp;
 	
-	public Attribute(String name, AttributeValueSyntax<T> attributeSyntax, String groupPath, AttributeVisibility visibility,
-			List<T> values)
+	/**
+	 * Simplified, without remoteIdp and translationProfile info
+	 * @param name
+	 * @param valueSyntax
+	 * @param groupPath
+	 * @param values
+	 */
+	public Attribute(String name, String valueSyntax, String groupPath, List<String> values)
 	{
-		this.attributeSyntax = attributeSyntax;
 		this.name = name;
+		this.valueSyntax = valueSyntax;
 		this.groupPath = groupPath;
-		this.visibility = visibility;
-		setValues(values);
+		this.values = new ArrayList<>(values);
 	}
 	
-	public Attribute(String name, AttributeValueSyntax<T> attributeSyntax, String groupPath, AttributeVisibility visibility,
-			List<T> values, String remoteIdp, String translationProfile)
+	/**
+	 * Full constructor
+	 * @param name
+	 * @param valueSyntax
+	 * @param groupPath
+	 * @param values
+	 * @param remoteIdp
+	 * @param translationProfile
+	 */
+	public Attribute(String name, String valueSyntax, String groupPath, List<String> values, 
+			String remoteIdp, String translationProfile)
 	{
-		this(name, attributeSyntax, groupPath, visibility, values);
+		this(name, valueSyntax, groupPath, values);
 		this.remoteIdp = remoteIdp;
 		this.translationProfile = translationProfile;
 	}
 	
-	public Attribute()
+	/**
+	 * Full deserialization from JSON
+	 * @param src
+	 */
+	@JsonCreator
+	public Attribute(ObjectNode src)
 	{
+		fromJson(src);
+	}
+
+	/**
+	 * Partial deserialization from JSON
+	 * @param name
+	 * @param valueSyntax
+	 * @param groupPath
+	 * @param src
+	 */
+	public Attribute(String name, String valueSyntax, String groupPath, ObjectNode src)
+	{
+		this.name = name;
+		this.valueSyntax = valueSyntax;
+		this.groupPath = groupPath;
+		fromJsonBase(src);
 	}
 	
-	public AttributeValueSyntax<T> getAttributeSyntax()
-	{
-		return attributeSyntax;
-	}
 	public String getGroupPath()
 	{
 		return groupPath;
 	}
-	public List<T> getValues()
+	
+	public List<String> getValues()
 	{
 		return values;
 	}
-	public AttributeVisibility getVisibility()
-	{
-		return visibility;
-	}
+	
 	@Override
 	public String getName()
 	{
 		return name;
 	}
-	public void setAttributeSyntax(AttributeValueSyntax<T> attributeSyntax)
-	{
-		this.attributeSyntax = attributeSyntax;
-	}
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-	public void setGroupPath(String groupPath)
-	{
-		this.groupPath = groupPath;
-	}
-	public void setVisibility(AttributeVisibility visibility)
-	{
-		this.visibility = visibility;
-	}
-	public void setValues(List<T> values)
-	{
-		if (values == null)
-			this.values = Collections.emptyList();
-		else
-			this.values = values;
-	}
+
 	public String getTranslationProfile()
 	{
 		return translationProfile;
-	}
-	public void setTranslationProfile(String translationProfile)
-	{
-		this.translationProfile = translationProfile;
 	}
 
 	public String getRemoteIdp()
 	{
 		return remoteIdp;
 	}
+	
+	public String getValueSyntax()
+	{
+		return valueSyntax;
+	}
+	
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public void setValueSyntax(String valueSyntax)
+	{
+		this.valueSyntax = valueSyntax;
+	}
+
+	public void setGroupPath(String groupPath)
+	{
+		this.groupPath = groupPath;
+	}
+
+	public void setValues(List<String> values)
+	{
+		this.values = values;
+	}
+
+	public void setTranslationProfile(String translationProfile)
+	{
+		this.translationProfile = translationProfile;
+	}
 
 	public void setRemoteIdp(String remoteIdp)
 	{
 		this.remoteIdp = remoteIdp;
 	}
-
+	
+	
 	@JsonValue
 	public ObjectNode toJson()
 	{
-		AttributeParamRepresentation cutDown = new AttributeParamRepresentation(this);
-		return Constants.MAPPER.valueToTree(cutDown);
+		ObjectNode root = toJsonBase();
+		root.put("name", getName());
+		root.put("groupPath", getGroupPath());
+		root.put("valueSyntax", valueSyntax);
+		return root;
+	}
+	
+	
+	protected final void fromJson(ObjectNode main)
+	{
+		this.name = main.get("name").asText();
+		this.groupPath = main.get("groupPath").asText();
+		this.valueSyntax = main.get("valueSyntax").asText();
+		fromJsonBase(main);
+	}
+	
+	protected final void fromJsonBase(ObjectNode main)
+	{
+		if (main.has("translationProfile"))
+			translationProfile = main.get("translationProfile").asText();
+		if (main.has("remoteIdp"))
+			remoteIdp = main.get("remoteIdp").asText();
+		
+		ArrayNode values = main.withArray("values");
+		this.values = new ArrayList<>(values.size());
+		Iterator<JsonNode> it = values.iterator();
+		try
+		{
+			while(it.hasNext())
+				this.values.add(it.next().asText());
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't perform JSON deserialization", e);
+		}
+	}
+	
+	protected ObjectNode toJsonBase()
+	{
+		ObjectNode root = Constants.MAPPER.createObjectNode();
+		if (getRemoteIdp() != null)
+			root.put("remoteIdp", getRemoteIdp());
+		if (getTranslationProfile() != null)
+			root.put("translationProfile", getTranslationProfile());
+		ArrayNode values = root.putArray("values");
+		for (String value: getValues())
+			values.add(value);
+		return root;
 	}
 	
 	@Override
@@ -138,22 +226,19 @@ public class Attribute<T> implements InitializationValidator, NamedObject
 		sb.append("]");
 		return sb.toString();
 	}
-	
 
 	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((attributeSyntax == null) ? 0 : attributeSyntax.getValueSyntaxId().hashCode());
 		result = prime * result + ((groupPath == null) ? 0 : groupPath.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((translationProfile == null) ? 0 : translationProfile.hashCode());
 		result = prime * result + ((remoteIdp == null) ? 0 : remoteIdp.hashCode());
-		for (Object v: values)
-			result = prime * result + ((v == null) ? 0 : attributeSyntax.hashCode(v));
-		result = prime * result + ((visibility == null) ? 0 : visibility.hashCode());
+		result = prime * result + ((translationProfile == null) ? 0
+				: translationProfile.hashCode());
+		result = prime * result + ((valueSyntax == null) ? 0 : valueSyntax.hashCode());
+		result = prime * result + ((values == null) ? 0 : values.hashCode());
 		return result;
 	}
 
@@ -164,17 +249,9 @@ public class Attribute<T> implements InitializationValidator, NamedObject
 			return true;
 		if (obj == null)
 			return false;
-		if (!(obj instanceof Attribute))
+		if (getClass() != obj.getClass())
 			return false;
-		Attribute<?> other = (Attribute<?>) obj;
-		
-		if (attributeSyntax == null || other.attributeSyntax == null)
-		{
-			if (attributeSyntax != other.attributeSyntax)
-				return false;
-		} else if (!attributeSyntax.getValueSyntaxId().equals(other.attributeSyntax.getValueSyntaxId()))
-			return false;
-		
+		Attribute other = (Attribute) obj;
 		if (groupPath == null)
 		{
 			if (other.groupPath != null)
@@ -187,40 +264,30 @@ public class Attribute<T> implements InitializationValidator, NamedObject
 				return false;
 		} else if (!name.equals(other.name))
 			return false;
-		if (translationProfile == null)
-		{
-			if (other.translationProfile != null)
-				return false;
-		} else if (!translationProfile.equals(other.translationProfile))
-			return false;
 		if (remoteIdp == null)
 		{
 			if (other.remoteIdp != null)
 				return false;
 		} else if (!remoteIdp.equals(other.remoteIdp))
 			return false;
-	
-		if (values.size() != other.values.size())
-			return false;
-		for (int i=0; i<values.size(); i++)
-			if (!attributeSyntax.areEqual(values.get(i), other.values.get(i)))
+		if (translationProfile == null)
+		{
+			if (other.translationProfile != null)
 				return false;
-		
-		if (visibility != other.visibility)
+		} else if (!translationProfile.equals(other.translationProfile))
+			return false;
+		if (valueSyntax == null)
+		{
+			if (other.valueSyntax != null)
+				return false;
+		} else if (!valueSyntax.equals(other.valueSyntax))
+			return false;
+		if (values == null)
+		{
+			if (other.values != null)
+				return false;
+		} else if (!values.equals(other.values))
 			return false;
 		return true;
-	}
-
-	@Override
-	public void validateInitialization() throws IllegalAttributeValueException
-	{
-		if (attributeSyntax == null)
-			throw new IllegalAttributeValueException("Atribute value type must be set");
-		if (name == null)
-			throw new IllegalAttributeValueException("Atribute name must be set");
-		if (groupPath == null)
-			throw new IllegalAttributeValueException("Atribute group must be set");
-		if (visibility == null)
-			throw new IllegalAttributeValueException("Atribute visibility must be set");
 	}
 }

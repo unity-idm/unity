@@ -8,12 +8,12 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-import pl.edu.icm.unity.types.basic.AttributeParamRepresentation;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.types.basic.Attribute;
 
 /**
  * Complete invitation as stored in the system. 
@@ -21,11 +21,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * What's more information on sent invitations is maintained.
  * <p>
  * This variant is intended for use with REST API and is JSON serializable
+ * TODO - remove this
  * @author Krzysztof Benedyczak
  */
 public class RESTInvitationWithCode extends InvitationWithCodeBase
 {
-	private Map<Integer, PrefilledEntry<AttributeParamRepresentation>> attributes = new HashMap<>();
+	private Map<Integer, PrefilledEntry<Attribute>> attributes = new HashMap<>();
 
 	public RESTInvitationWithCode(String formId, Instant expiration, String contactAddress,
 			String facilityId, String registrationCode)
@@ -41,7 +42,7 @@ public class RESTInvitationWithCode extends InvitationWithCodeBase
 	}
 
 	public RESTInvitationWithCode(InvitationWithCodeBase base,
-			Map<Integer, PrefilledEntry<AttributeParamRepresentation>> attributes)
+			Map<Integer, PrefilledEntry<Attribute>> attributes)
 	{
 		super(base, base.getRegistrationCode(), base.getLastSentTime(), base.getNumberOfSends());
 		this.getAttributes().putAll(attributes);
@@ -55,7 +56,7 @@ public class RESTInvitationWithCode extends InvitationWithCodeBase
 	}
 	
 	
-	public Map<Integer, PrefilledEntry<AttributeParamRepresentation>> getAttributes()
+	public Map<Integer, PrefilledEntry<Attribute>> getAttributes()
 	{
 		return attributes;
 	}
@@ -71,7 +72,7 @@ public class RESTInvitationWithCode extends InvitationWithCodeBase
 	private void fromJson(ObjectNode json)
 	{
 		JsonNode n = json.get("attributes");
-		fill((ObjectNode) n, getAttributes(), AttributeParamRepresentation.class);
+		fill((ObjectNode) n, getAttributes(), Attribute.class);
 	}
 	
 	@Override

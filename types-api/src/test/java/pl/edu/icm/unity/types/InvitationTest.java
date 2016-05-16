@@ -14,7 +14,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import pl.edu.icm.unity.types.basic.AttributeParamRepresentation;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.Selection;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
@@ -45,12 +45,9 @@ public class InvitationTest
 	{
 		RESTInvitationWithCode complete = new RESTInvitationWithCode(
 				"formId", Instant.now().truncatedTo(ChronoUnit.SECONDS), "add", "chan", "registrationCode");
-		AttributeParamRepresentation attrP = new AttributeParamRepresentation();
-		attrP.setGroupPath("/");
-		attrP.setName("attr");
-		List<Object> vals = new ArrayList<>();
+		List<String> vals = new ArrayList<>();
 		vals.add("value");
-		attrP.setValues(vals);
+		Attribute attrP = new Attribute("attr", "string", "/", vals);
 		complete.getAttributes().put(0, new PrefilledEntry<>(attrP, PrefilledEntryMode.READ_ONLY));
 		complete.getIdentities().put(0, new PrefilledEntry<>(new IdentityParam("idType", 
 				"user-id"), PrefilledEntryMode.READ_ONLY));

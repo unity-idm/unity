@@ -17,7 +17,7 @@ import pl.edu.icm.unity.store.impl.StorageLimits;
 import pl.edu.icm.unity.store.rdbms.GenericRDBMSCRUD;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic2.AttributeExt2;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 
 
 /**
@@ -79,10 +79,10 @@ public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, Attri
 	}
 
 	@Override
-	public List<AttributeExt2> getAttributes(String attribute, long entityId, String group)
+	public List<AttributeExt> getAttributes(String attribute, long entityId, String group)
 	{
 		List<AttributeBean> existing = getAttributesFiltering(attribute, entityId, group);
-		List<AttributeExt2> ret = new ArrayList<>(existing.size());
+		List<AttributeExt> ret = new ArrayList<>(existing.size());
 		for (AttributeBean ab: existing)
 			ret.add(jsonSerializer.fromDB(ab).getAttribute());
 		return ret;

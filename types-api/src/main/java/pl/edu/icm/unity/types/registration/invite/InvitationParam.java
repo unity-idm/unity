@@ -17,9 +17,9 @@ import pl.edu.icm.unity.types.basic.Attribute;
  */
 public class InvitationParam extends InvitationParamBase
 {
-	private Map<Integer, PrefilledEntry<Attribute<?>>> attributes = new HashMap<>();
+	private Map<Integer, PrefilledEntry<Attribute>> attributes = new HashMap<>();
 	
-	public InvitationParam(InvitationParamBase source, Map<Integer, PrefilledEntry<Attribute<?>>> attributes)
+	public InvitationParam(InvitationParamBase source, Map<Integer, PrefilledEntry<Attribute>> attributes)
 	{
 		super(source.getFormId(), source.getExpiration(), source.getContactAddress(), 
 				source.getChannelId());
@@ -38,7 +38,7 @@ public class InvitationParam extends InvitationParamBase
 		super(formId, expiration);
 	}
 
-	public Map<Integer, PrefilledEntry<Attribute<?>>> getAttributes()
+	public Map<Integer, PrefilledEntry<Attribute>> getAttributes()
 	{
 		return attributes;
 	}

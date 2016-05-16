@@ -32,7 +32,7 @@ public class Group extends I18nDescribedObject implements NamedObject
 {
 	private String[] path;
 	
-	private AttributeStatement2[] attributeStatements = new AttributeStatement2[0];
+	private AttributeStatement[] attributeStatements = new AttributeStatement[0];
 	private Set<String> attributesClasses = new HashSet<String>();
 	private boolean displayedNameSet = false;
 
@@ -143,12 +143,12 @@ public class Group extends I18nDescribedObject implements NamedObject
 		return sb.toString();
 	}
 	
-	public AttributeStatement2[] getAttributeStatements()
+	public AttributeStatement[] getAttributeStatements()
 	{
 		return attributeStatements;
 	}
 
-	public void setAttributeStatements(AttributeStatement2[] attributeStatements)
+	public void setAttributeStatements(AttributeStatement[] attributeStatements)
 	{
 		this.attributeStatements = attributeStatements;
 	}

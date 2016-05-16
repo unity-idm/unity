@@ -13,6 +13,9 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.TransactionalMap;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
@@ -21,11 +24,8 @@ import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSMutationEvent;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.store.impl.entities.EntityHzStore;
 import pl.edu.icm.unity.store.impl.groups.GroupHzStore;
-import pl.edu.icm.unity.types.basic2.Group;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupMembership;
-
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.TransactionalMap;
 
 
 /**

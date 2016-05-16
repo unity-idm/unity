@@ -82,7 +82,7 @@ public interface IdentityTypeDefinition
 	 * for each extracted.
 	 * @return
 	 */
-	public List<Attribute<?>> extractAttributes(String from, Map<String, String> toExtract);
+	public List<Attribute> extractAttributes(String from, Map<String, String> toExtract);
 	
 	/**
 	 * Similar to {@link #toString()}, but allows for less verbose

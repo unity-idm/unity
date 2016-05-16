@@ -24,10 +24,12 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
  * Statement can assign attribute in two alternative ways: either attribute name is provided and 
  * an MVEL expression is used to produce values or a fixed attribute is given. The later variant is 
  * quite static but allows for editing assigned attribute with the full power of Unity attribute editors in the UI.
- *   
+ * <p>
+ * 
+ * TODO: serialization and use proper AttributeType, remove visibility
  * @author K. Benedyczak
  */
-public class AttributeStatement2
+public class AttributeStatement
 {
 	public enum ConflictResolution {
 		/**
@@ -62,8 +64,8 @@ public class AttributeStatement2
 	private String extraAttributesGroup;
 	private ConflictResolution conflictResolution;
 	
-	private Attribute<?> fixedAttribute;
-	private AttributeType dynamicAttributeType;
+	private Attribute fixedAttribute;
+	private String dynamicAttributeType;
 	private String dynamicAttributeExpression;
 	private AttributeVisibility visibility = AttributeVisibility.full;
 	private Serializable compiledDynamicAttributeExpression;
@@ -77,9 +79,9 @@ public class AttributeStatement2
 	 * @param conflictResolution
 	 * @param fixedAttribute
 	 */
-	public AttributeStatement2(String condition, 
+	public AttributeStatement(String condition, 
 			String extraAttributesGroup, ConflictResolution conflictResolution,
-			Attribute<?> fixedAttribute)
+			Attribute fixedAttribute)
 	{
 		this.condition = condition;
 		this.extraAttributesGroup = extraAttributesGroup;
@@ -97,9 +99,9 @@ public class AttributeStatement2
 	 * @param dynamicAttributeType
 	 * @param dynamicAttributeExpression
 	 */
-	public AttributeStatement2(String condition, String extraAttributesGroup, 
+	public AttributeStatement(String condition, String extraAttributesGroup, 
 			ConflictResolution conflictResolution, AttributeVisibility visibility,
-			AttributeType dynamicAttributeType, String dynamicAttributeExpression)
+			String dynamicAttributeType, String dynamicAttributeExpression)
 	{
 		this.condition = condition;
 		this.visibility = visibility;
@@ -109,7 +111,7 @@ public class AttributeStatement2
 		this.dynamicAttributeExpression = dynamicAttributeExpression;
 	}
 
-	public AttributeStatement2()
+	public AttributeStatement()
 	{
 	}
 
@@ -119,7 +121,7 @@ public class AttributeStatement2
 	 * @param toAssign
 	 * @return
 	 */
-	public static AttributeStatement2 getFixedEverybodyStatement(Attribute<?> toAssign)
+	public static AttributeStatement getFixedEverybodyStatement(Attribute toAssign)
 	{
 		return getFixedStatement(toAssign, null, "true");
 	}
@@ -132,13 +134,13 @@ public class AttributeStatement2
 	 * @param condition
 	 * @return
 	 */
-	public static AttributeStatement2 getFixedStatement(Attribute<?> toAssign, String extraGroup, String condition)
+	public static AttributeStatement getFixedStatement(Attribute toAssign, String extraGroup, String condition)
 	{
-		AttributeStatement2 ret = new AttributeStatement2();
+		AttributeStatement ret = new AttributeStatement();
 		ret.setCondition(condition);
 		ret.setConflictResolution(ConflictResolution.skip);
 		ret.setFixedAttribute(toAssign);
-		return new AttributeStatement2(condition, 
+		return new AttributeStatement(condition, 
 				extraGroup, 
 				ConflictResolution.skip, 
 				toAssign);
@@ -177,19 +179,19 @@ public class AttributeStatement2
 	{
 		this.conflictResolution = conflictResolution;
 	}
-	public Attribute<?> getFixedAttribute()
+	public Attribute getFixedAttribute()
 	{
 		return fixedAttribute;
 	}
-	public void setFixedAttribute(Attribute<?> fixedAttribute)
+	public void setFixedAttribute(Attribute fixedAttribute)
 	{
 		this.fixedAttribute = fixedAttribute;
 	}
-	public AttributeType getDynamicAttributeType()
+	public String getDynamicAttributeType()
 	{
 		return dynamicAttributeType;
 	}
-	public void setDynamicAttributeType(AttributeType dynamicAttributeType)
+	public void setDynamicAttributeType(String dynamicAttributeType)
 	{
 		this.dynamicAttributeType = dynamicAttributeType;
 	}
@@ -239,7 +241,7 @@ public class AttributeStatement2
 	 */
 	public String getAssignedAttributeName()
 	{
-		return dynamicAttributeMode() ? dynamicAttributeType.getName() : fixedAttribute.getName();
+		return dynamicAttributeMode() ? dynamicAttributeType : fixedAttribute.getName();
 			
 	}
 
@@ -279,7 +281,7 @@ public class AttributeStatement2
 	public String toString()
 	{
 		return "Assign " + (dynamicAttributeMode() ? 
-				(dynamicAttributeType.getName() + "= expr(" + dynamicAttributeExpression) + ")":
+				(dynamicAttributeType + "= expr(" + dynamicAttributeExpression) + ")":
 				fixedAttribute.toString())
 				+ " if '" + condition + "' is true";
 	}
@@ -322,7 +324,7 @@ public class AttributeStatement2
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AttributeStatement2 other = (AttributeStatement2) obj;
+		AttributeStatement other = (AttributeStatement) obj;
 		if (condition == null)
 		{
 			if (other.condition != null)

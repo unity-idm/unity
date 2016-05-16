@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.store.api.StoredAttribute;
 import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic2.AttributeExt2;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 
 
 /**
@@ -26,7 +26,7 @@ public class AttributeJsonSerializer implements JsonSerializerForKryo<StoredAttr
 	{
 		if (main == null)
 			return null;
-		AttributeExt2 ret = new AttributeExt2(main);
+		AttributeExt ret = new AttributeExt(main);
 		long entityId = main.get("entityId").asLong();
 		return new StoredAttribute(ret, entityId);
 	}

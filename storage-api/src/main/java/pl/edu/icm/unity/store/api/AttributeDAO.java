@@ -6,7 +6,7 @@ package pl.edu.icm.unity.store.api;
 
 import java.util.List;
 
-import pl.edu.icm.unity.types.basic2.AttributeExt2;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 
 public interface AttributeDAO extends BasicCRUDDAO<StoredAttribute>
 {
@@ -24,6 +24,6 @@ public interface AttributeDAO extends BasicCRUDDAO<StoredAttribute>
 	 * @param group
 	 * @return
 	 */
-	List<AttributeExt2> getAttributes(String attribute, long entityId, String group);
+	List<AttributeExt> getAttributes(String attribute, long entityId, String group);
 
 }

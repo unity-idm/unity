@@ -20,11 +20,11 @@ import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.I18nStringJsonUtil;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeStatement;
+import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
-import pl.edu.icm.unity.types.basic2.Attribute2;
-import pl.edu.icm.unity.types.basic2.AttributeStatement2;
-import pl.edu.icm.unity.types.basic2.AttributeStatement2.ConflictResolution;
-import pl.edu.icm.unity.types.basic2.Group;
+import pl.edu.icm.unity.types.basic.Group;
 
 /**
  * Serialization to from Json and to from RDBMS beans. 
@@ -89,7 +89,7 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 		main.set("i18nDescription", I18nStringJsonUtil.toJson(src.getDescription()));
 		main.set("displayedName", I18nStringJsonUtil.toJson(src.getDisplayedName()));
 		ArrayNode ases = main.putArray("attributeStatements");
-		for (AttributeStatement2 as: src.getAttributeStatements())
+		for (AttributeStatement as: src.getAttributeStatements())
 			ases.add(serializeAS(as));
 		ArrayNode aces = main.putArray("attributesClasses");
 		for (String ac: src.getAttributesClasses())
@@ -107,7 +107,7 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 		
 		ArrayNode jsonStatements = (ArrayNode) main.get("attributeStatements");
 		int asLen = jsonStatements.size();
-		AttributeStatement2[] statements = new AttributeStatement2[asLen];
+		AttributeStatement[] statements = new AttributeStatement[asLen];
 		int i=0;
 		for (JsonNode n: jsonStatements)
 			statements[i++] = deserializeAS(n);
@@ -120,7 +120,7 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 		target.setAttributesClasses(acs);
 	}
 	
-	private JsonNode serializeAS(AttributeStatement2 as)
+	private JsonNode serializeAS(AttributeStatement as)
 	{
 		ObjectNode main = mapper.createObjectNode();
 		main.put("resolution", as.getConflictResolution().name());
@@ -141,9 +141,9 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 		return main;
 	}
 	
-	private AttributeStatement2 deserializeAS(JsonNode as)
+	private AttributeStatement deserializeAS(JsonNode as)
 	{
-		AttributeStatement2 ret = new AttributeStatement2();
+		AttributeStatement ret = new AttributeStatement();
 		String resolution = as.get("resolution").asText();
 		ret.setConflictResolution(ConflictResolution.valueOf(resolution));
 
@@ -157,7 +157,7 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 		
 		if (as.has("fixedAttribute"))
 		{
-			Attribute2 fixed = new Attribute2((ObjectNode) as.get("fixedAttribute"));
+			Attribute fixed = new Attribute((ObjectNode) as.get("fixedAttribute"));
 			ret.setFixedAttribute(fixed);
 		} else if (as.has("dynamicAttributeName"))
 		{

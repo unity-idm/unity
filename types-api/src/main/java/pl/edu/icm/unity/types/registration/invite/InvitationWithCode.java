@@ -8,10 +8,9 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeParamRepresentation;
-
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.types.basic.Attribute;
 
 /**
  * Complete invitation as stored in the system. 
@@ -22,7 +21,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public class InvitationWithCode extends InvitationWithCodeBase
 {
-	private Map<Integer, PrefilledEntry<Attribute<?>>> attributes = new HashMap<>();
+	private Map<Integer, PrefilledEntry<Attribute>> attributes = new HashMap<>();
 
 	public InvitationWithCode(String formId, Instant expiration, String contactAddress,
 			String facilityId, String registrationCode)
@@ -37,29 +36,20 @@ public class InvitationWithCode extends InvitationWithCodeBase
 		this.getAttributes().putAll(base.getAttributes());
 	}
 
-	public InvitationWithCode(ObjectNode json, Map<Integer, PrefilledEntry<Attribute<?>>> attributes)
+	public InvitationWithCode(ObjectNode json, Map<Integer, PrefilledEntry<Attribute>> attributes)
 	{
 		super(json);
 		this.attributes.putAll(attributes);
 	}
 	
-	public Map<Integer, PrefilledEntry<Attribute<?>>> getAttributes()
+	public Map<Integer, PrefilledEntry<Attribute>> getAttributes()
 	{
 		return attributes;
 	}
 
 	public RESTInvitationWithCode toRESTVariant()
 	{
-		Map<Integer, PrefilledEntry<AttributeParamRepresentation>> attributes = new HashMap<>(this.attributes.size());
-		for (Map.Entry<Integer, PrefilledEntry<Attribute<?>>> entry: this.attributes.entrySet())
-		{
-			PrefilledEntry<Attribute<?>> value = entry.getValue();
-			AttributeParamRepresentation convertedAttribute = 
-					new AttributeParamRepresentation(value.getEntry()); 
-			attributes.put(entry.getKey(), new PrefilledEntry<AttributeParamRepresentation>(
-					convertedAttribute, value.getMode()));
-		}
-		return new RESTInvitationWithCode(this, attributes);
+		return new RESTInvitationWithCode(this, getAttributes());
 	}
 	
 	@Override
