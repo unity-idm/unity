@@ -15,21 +15,20 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.NamedCRUDDAO;
 import pl.edu.icm.unity.store.impl.AbstractNamedDAOTest;
-import pl.edu.icm.unity.store.mocks.MockAttributeSyntax;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic2.Attribute2;
 import pl.edu.icm.unity.types.basic2.AttributeStatement2;
 import pl.edu.icm.unity.types.basic2.AttributeStatement2.ConflictResolution;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic2.Group;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 public class GroupTest extends AbstractNamedDAOTest<Group>
 {
@@ -43,10 +42,10 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 	public void createReferenced()
 	{
 		tx.runInTransaction(() -> {
-			atDao.create(new AttributeType("dynAt", new MockAttributeSyntax()));
-			atDao.create(new AttributeType("at", new MockAttributeSyntax()));
-			atDao.create(new AttributeType("dynAt2", new MockAttributeSyntax()));
-			atDao.create(new AttributeType("at2", new MockAttributeSyntax()));
+			atDao.create(new AttributeType("dynAt", "syntax"));
+			atDao.create(new AttributeType("at", "syntax"));
+			atDao.create(new AttributeType("dynAt2", "syntax"));
+			atDao.create(new AttributeType("at2", "syntax"));
 		});
 	}
 	
@@ -123,14 +122,13 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 		ret.setDisplayedName(new I18nString("dname"));
 		ret.setAttributesClasses(Sets.newHashSet("ac1", "ac2"));
 		
-		Attribute2 fixedAt = new Attribute2("at", MockAttributeSyntax.ID, 
+		Attribute2 fixedAt = new Attribute2("at", "syntax", 
 				"/A/" + name, Lists.newArrayList("v1"));
-		AttributeType dynAt = new AttributeType("dynAt", new MockAttributeSyntax());
 		ret.setAttributeStatements(new AttributeStatement2[] {
 			new AttributeStatement2("cnd1", "/A", ConflictResolution.overwrite, 
 					fixedAt),
 			new AttributeStatement2("cnd2", "/A", ConflictResolution.skip, 
-					AttributeVisibility.full, dynAt, "dynAExpr")
+					AttributeVisibility.full, "dynAt", "dynAExpr")
 		});
 		return ret;
 	}
@@ -142,14 +140,13 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 		ret.setDisplayedName(new I18nString("dname2"));
 		ret.setAttributesClasses(Sets.newHashSet("ac1"));
 		
-		Attribute2 fixedAt = new Attribute2("at2", MockAttributeSyntax.ID, 
+		Attribute2 fixedAt = new Attribute2("at2", "syntax", 
 				 ret.getName(), Lists.newArrayList("v2"));
-		AttributeType dynAt = new AttributeType("dynAt2", new MockAttributeSyntax());
 		ret.setAttributeStatements(new AttributeStatement2[] {
 			new AttributeStatement2("cnd3", "/A", ConflictResolution.merge, 
 					fixedAt),
 			new AttributeStatement2("cnd4", "/A", ConflictResolution.merge, 
-					AttributeVisibility.full, dynAt, "dynAExpr2")
+					AttributeVisibility.full, "dynAt2", "dynAExpr2")
 		});
 	}
 

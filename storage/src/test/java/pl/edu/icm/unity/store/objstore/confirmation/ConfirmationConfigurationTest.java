@@ -20,8 +20,6 @@ import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.generic.ConfirmationConfigurationDB;
 import pl.edu.icm.unity.store.api.generic.GenericObjectsDAO;
 import pl.edu.icm.unity.store.api.generic.MessageTemplateDB;
-import pl.edu.icm.unity.store.mocks.MockAttributeSyntax;
-import pl.edu.icm.unity.store.mocks.MockVerifiableAttributeSyntax;
 import pl.edu.icm.unity.store.objstore.AbstractObjStoreTest;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.I18nString;
@@ -48,7 +46,7 @@ public class ConfirmationConfigurationTest extends AbstractObjStoreTest<Confirma
 	public void attributeTypeRemovalRemovesConfirmationConfig()
 	{
 		tx.runInTransaction(() -> {
-			AttributeType created = new AttributeType("attr", new MockVerifiableAttributeSyntax());
+			AttributeType created = new AttributeType("attr", "syntaxId");
 			attributeTypeDAO.create(created);
 			
 			ConfirmationConfiguration obj = getObject("attr");
@@ -64,35 +62,18 @@ public class ConfirmationConfigurationTest extends AbstractObjStoreTest<Confirma
 	public void attributeTypeRenameIsPropagated()
 	{
 		tx.runInTransaction(() -> {
-			AttributeType created = new AttributeType("attr", new MockVerifiableAttributeSyntax());
+			AttributeType created = new AttributeType("attr", "syntaxId");
 			long atKey = attributeTypeDAO.create(created);
 			
 			ConfirmationConfiguration obj = getObject("attr");
 			dao.insert(obj);
 
-			AttributeType renamed = new AttributeType("attr2", new MockVerifiableAttributeSyntax());
+			AttributeType renamed = new AttributeType("attr2", "syntaxId");
 			attributeTypeDAO.updateByKey(atKey, renamed);
 			
 			assertThat(dao.exists(obj.getName()), is(false));
 			obj.setNameToConfirm("attr2");
 			assertThat(dao.exists(obj.getName()), is(true));
-		});
-	}
-	
-	@Test
-	public void attributeTypeChangeToNonVerifiableRemovesConfirmationConfig()
-	{
-		tx.runInTransaction(() -> {
-			AttributeType created = new AttributeType("attr", new MockVerifiableAttributeSyntax());
-			attributeTypeDAO.create(created);
-			
-			ConfirmationConfiguration obj = getObject("attr");
-			dao.insert(obj);
-			
-			AttributeType changed = new AttributeType("attr", new MockAttributeSyntax());
-			attributeTypeDAO.update(changed);
-			
-			assertThat(dao.exists(obj.getName()), is(false));
 		});
 	}
 	

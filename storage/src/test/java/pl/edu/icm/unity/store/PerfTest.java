@@ -24,11 +24,9 @@ import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSEventSink;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionalRunner;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeHzStore;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeRDBMSStore;
-import pl.edu.icm.unity.store.mocks.MockAttributeSyntax;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionalRunner;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
@@ -121,12 +119,11 @@ public class PerfTest
 	
 	protected AttributeType getObject(String name)
 	{
-		AttributeType created = new AttributeType(name, new MockAttributeSyntax());
+		AttributeType created = new AttributeType(name, "syntax");
 		created.setDescription(new I18nString("desc"));
 		created.setDisplayedName(new I18nString("Attribute 1"));
 		created.setFlags(8);
 		created.setUniqueValues(true);
-		created.setVisibility(AttributeVisibility.local);
 		created.setMaxElements(10);
 		created.setMinElements(1);
 		created.setSelfModificable(true);

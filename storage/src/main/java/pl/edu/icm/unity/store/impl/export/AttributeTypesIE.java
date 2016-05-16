@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.base.attributes.AttributeTypeSerializer;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
@@ -25,9 +24,6 @@ public class AttributeTypesIE extends AbstractIEBase<AttributeType>
 	@Autowired
 	private AttributeTypeDAO dbAttributes;
 	
-	@Autowired
-	private AttributeTypeSerializer attrSerializer;
-	
 	@Override
 	protected List<AttributeType> getAllToExport()
 	{
@@ -37,7 +33,7 @@ public class AttributeTypesIE extends AbstractIEBase<AttributeType>
 	@Override
 	protected ObjectNode toJsonSingle(AttributeType exportedObj)
 	{
-		return attrSerializer.toJson(exportedObj);
+		return exportedObj.toJson();
 	}
 
 	@Override
@@ -49,7 +45,7 @@ public class AttributeTypesIE extends AbstractIEBase<AttributeType>
 	@Override
 	protected AttributeType fromJsonSingle(ObjectNode src)
 	{
-		return attrSerializer.fromJson(src);
+		return new AttributeType(src);
 	}
 }
 

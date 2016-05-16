@@ -16,12 +16,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.I18nStringJsonUtil;
-import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic2.Attribute2;
 import pl.edu.icm.unity.types.basic2.AttributeStatement2;
@@ -39,9 +37,6 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 	@Autowired
 	private ObjectMapper mapper;
 
-	@Autowired
-	private AttributeTypeDAO atDAO;
-	
 	@Override
 	public Group fromJson(ObjectNode main)
 	{
@@ -137,7 +132,7 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 		if (as.dynamicAttributeMode())
 		{
 			main.put("dynamicAttributeExpression", as.getDynamicAttributeExpression());
-			main.put("dynamicAttributeName", as.getDynamicAttributeType().getName());
+			main.put("dynamicAttributeName", as.getDynamicAttributeType());
 		} else if (as.getFixedAttribute() != null)
 		{
 			ObjectNode attrJson = as.getFixedAttribute().toJson();
@@ -168,8 +163,7 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 		{
 			ret.setDynamicAttributeExpression(as.get("dynamicAttributeExpression").asText());
 			String aTypeName = as.get("dynamicAttributeName").asText();
-			AttributeType aType = atDAO.get(aTypeName); 
-			ret.setDynamicAttributeType(aType);
+			ret.setDynamicAttributeType(aTypeName);
 		}
 
 		return ret;

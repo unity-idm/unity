@@ -7,7 +7,8 @@ package pl.edu.icm.unity.store.impl.attributetype;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.attributes.AttributeTypeSerializer;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
@@ -17,12 +18,23 @@ import pl.edu.icm.unity.types.basic.AttributeType;
  */
 @Component
 @Primary
-public class AttributeTypeKryoSerializer extends AttributeTypeSerializer 
-	implements JsonSerializerForKryo<AttributeType>
+public class AttributeTypeKryoSerializer implements JsonSerializerForKryo<AttributeType>
 {
 	@Override
 	public Class<?> getClazz()
 	{
 		return AttributeType.class;
+	}
+
+	@Override
+	public AttributeType fromJson(ObjectNode src)
+	{
+		return new AttributeType(src);
+	}
+
+	@Override
+	public ObjectNode toJson(AttributeType src)
+	{
+		return src.toJson();
 	}
 }

@@ -26,7 +26,6 @@ import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.api.StoredAttribute;
 import pl.edu.icm.unity.store.api.StoredEntity;
 import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;
-import pl.edu.icm.unity.store.mocks.MockAttributeSyntax;
 import pl.edu.icm.unity.store.mocks.MockIdentityTypeDef;
 import pl.edu.icm.unity.types.EntityInformation;
 import pl.edu.icm.unity.types.EntityState;
@@ -66,9 +65,9 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 			groupDAO.create(new Group("/A"));
 			groupDAO.create(new Group("/B"));
 			groupDAO.create(new Group("/C"));
-			atDao.create(new AttributeType("attr", new MockAttributeSyntax()));
-			atDao.create(new AttributeType("attr2", new MockAttributeSyntax()));
-			atDao.create(new AttributeType("attr3", new MockAttributeSyntax()));
+			atDao.create(new AttributeType("attr", "syntax"));
+			atDao.create(new AttributeType("attr2", "syntax"));
+			atDao.create(new AttributeType("attr3", "syntax"));
 		});
 	}
 	
@@ -366,7 +365,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 			
 			long atKey = atDao.getKeyForName("attr");
 			
-			atDao.updateByKey(atKey, new AttributeType("attrZZ", new MockAttributeSyntax()));
+			atDao.updateByKey(atKey, new AttributeType("attrZZ", "syntax"));
 			
 			List<AttributeExt2> attributes = dao.getAttributes(null, entityId, null);
 			
@@ -386,7 +385,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 	protected StoredAttribute getObject(String id)
 	{
 		Attribute2 attr = new Attribute2("attr", 
-				MockAttributeSyntax.ID, 
+				"syntax", 
 				"/A", 
 				Lists.newArrayList("v1", "v2"), 
 				"remoteIdp", 

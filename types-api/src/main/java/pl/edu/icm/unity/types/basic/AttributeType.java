@@ -5,12 +5,21 @@
 package pl.edu.icm.unity.types.basic;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.types.I18nDescribedObject;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.InitializationValidator;
 import pl.edu.icm.unity.types.NamedObject;
 
@@ -19,8 +28,6 @@ import pl.edu.icm.unity.types.NamedObject;
  * are subject to constraints defined in {@link AttributeValueSyntax} interface, 
  * with pluggable implementation. This class adds universal functionality:
  * descriptions, values cardinality limits and more.
- * <p>
- * The class is compared only using the name.
  */
 public class AttributeType extends I18nDescribedObject implements InitializationValidator, NamedObject
 {
@@ -38,12 +45,12 @@ public class AttributeType extends I18nDescribedObject implements Initialization
 	public static final int INSTANCES_IMMUTABLE_FLAG = 0x02;
 	
 	private String name;
-	private AttributeValueSyntax<?> valueType;
+	private String valueSyntax;
+	private String valueSyntaxConfiguration;
 	private int minElements = 0;
 	private int maxElements = 1;
 	private boolean uniqueValues = false;
 	private boolean selfModificable = false;
-	private AttributeVisibility visibility = AttributeVisibility.full;
 	private int flags = 0;
 	private Map<String, String> metadata = new HashMap<>();
 	
@@ -52,18 +59,24 @@ public class AttributeType extends I18nDescribedObject implements Initialization
 	{
 	}
 	
-	public AttributeType(String name, AttributeValueSyntax<?> syntax)
+	public AttributeType(String name, String valueSyntax)
 	{
 		this.name = name;
-		this.valueType = syntax;
+		this.valueSyntax = valueSyntax;
 		this.displayedName = new I18nString(name);
 	}
 	
-	public AttributeType(String name, AttributeValueSyntax<?> syntax, I18nString displayedName, I18nString description)
+	public AttributeType(String name, String valueSyntax, I18nString displayedName, I18nString description)
 	{
-		this(name, syntax);
+		this(name, valueSyntax);
 		this.description = description;
 		this.displayedName = displayedName;
+	}
+
+	@JsonCreator
+	public AttributeType(ObjectNode root)
+	{
+		fromJson(root);
 	}
 
 	/**
@@ -73,9 +86,9 @@ public class AttributeType extends I18nDescribedObject implements Initialization
 	 * @param syntax
 	 * @param msg
 	 */
-	public AttributeType(String name, AttributeValueSyntax<?> syntax, MessageSource msg)
+	public AttributeType(String name, String valueSyntax, MessageSource msg)
 	{
-		this(name, syntax, loadNames(name, msg), loadDescriptions(name, msg));
+		this(name, valueSyntax, loadNames(name, msg), loadDescriptions(name, msg));
 	}
 	
 	/**
@@ -85,10 +98,10 @@ public class AttributeType extends I18nDescribedObject implements Initialization
 	 * @param syntax
 	 * @param msg
 	 */
-	public AttributeType(String name, AttributeValueSyntax<?> syntax, MessageSource msg, String msgKey, 
+	public AttributeType(String name, String valueSyntax, MessageSource msg, String msgKey, 
 			Object[] args)
 	{
-		this(name, syntax, loadNames(name, msg), loadDescriptions(msgKey, msg, args));
+		this(name, valueSyntax, loadNames(name, msg), loadDescriptions(msgKey, msg, args));
 	}
 	
 	private static I18nString loadDescriptions(String msgKey, MessageSource msg, Object... args)
@@ -126,15 +139,23 @@ public class AttributeType extends I18nDescribedObject implements Initialization
 			displayedName = new I18nString(name);
 	}
 	
-	public AttributeValueSyntax<?> getValueType()
+	public String getValueSyntax()
 	{
-		return valueType;
+		return valueSyntax;
 	}
-	public void setValueType(AttributeValueSyntax<?> valueType)
+	public void setValueSyntax(String valueSyntax)
 	{
-		if (valueType == null)
+		if (valueSyntax == null)
 			throw new IllegalArgumentException("Argument can not be null");
-		this.valueType = valueType;
+		this.valueSyntax = valueSyntax;
+	}
+	public String getValueSyntaxConfiguration()
+	{
+		return valueSyntaxConfiguration;
+	}
+	public void setValueSyntaxConfiguration(String valueSyntaxConfiguration)
+	{
+		this.valueSyntaxConfiguration = valueSyntaxConfiguration;
 	}
 	public int getMinElements()
 	{
@@ -164,16 +185,6 @@ public class AttributeType extends I18nDescribedObject implements Initialization
 	{
 		this.selfModificable = selfModificable;
 	}
-	public AttributeVisibility getVisibility()
-	{
-		return visibility;
-	}
-	public void setVisibility(AttributeVisibility visibility)
-	{
-		if (visibility == null)
-			throw new IllegalArgumentException("Argument can not be null");
-		this.visibility = visibility;
-	}
 	public boolean isUniqueValues()
 	{
 		return uniqueValues;
@@ -196,7 +207,7 @@ public class AttributeType extends I18nDescribedObject implements Initialization
 	@Override
 	public void validateInitialization() throws IllegalAttributeTypeException
 	{
-		if (valueType == null)
+		if (valueSyntax == null)
 			throw new IllegalAttributeTypeException("Attribute values type must be set for attribute type");
 		if (maxElements < minElements)
 			throw new IllegalAttributeTypeException("Max elements limit can not be less then min elements limit");
@@ -216,12 +227,109 @@ public class AttributeType extends I18nDescribedObject implements Initialization
 		this.metadata = metadata;
 	}
 
+	/**
+	 * Serializes to JSON without syntax ID and name
+	 * @return
+	 */
+	public ObjectNode toJsonBase()
+	{
+		ObjectNode root = Constants.MAPPER.createObjectNode();
+		root.put("flags", getFlags());
+		root.put("maxElements", getMaxElements());
+		root.put("minElements", getMinElements());
+		root.put("selfModificable", isSelfModificable());
+		root.put("uniqueValues", isUniqueValues());
+		root.put("syntaxState", getValueSyntaxConfiguration());
+		root.set("displayedName", I18nStringJsonUtil.toJson(getDisplayedName()));
+		root.set("i18nDescription", I18nStringJsonUtil.toJson(getDescription()));
+		ObjectNode metaN = root.putObject("metadata");
+		for (Map.Entry<String, String> entry: getMetadata().entrySet())
+			metaN.put(entry.getKey(), entry.getValue());
+		return root;
+	}
+	
+	/**
+	 * As {@link #toJsonBase(AttributeType)} but also adds information about attribute type name and syntax
+	 * @param src
+	 * @return
+	 */
+	@JsonValue
+	public ObjectNode toJson()
+	{
+		ObjectNode root = toJsonBase();
+		root.put("name", getName());
+		root.put("syntaxId", getValueSyntax());
+		return root;
+	}
+
+	/**
+	 * Initializes base state from JSON everything besides name and syntax
+	 * @param main
+	 * @param target
+	 */
+	public void fromJsonBase(ObjectNode main)
+	{
+		setFlags(main.get("flags").asInt());
+		setMaxElements(main.get("maxElements").asInt());
+		setMinElements(main.get("minElements").asInt());
+		setSelfModificable(main.get("selfModificable").asBoolean());
+		setUniqueValues(main.get("uniqueValues").asBoolean());
+		JsonNode valueSyntaxState = main.get("syntaxState");
+		if (valueSyntaxState != null && !valueSyntaxState.isNull())
+			setValueSyntaxConfiguration(valueSyntaxState.asText());
+		setDisplayedName(I18nStringJsonUtil.fromJson(main.get("displayedName")));
+		if (getDisplayedName().getDefaultValue() == null)
+			getDisplayedName().setDefaultValue(getName());
+		setDescription(I18nStringJsonUtil.fromJson(main.get("i18nDescription"), 
+				main.get("description")));
+		if (main.has("metadata"))
+		{
+			JsonNode metaNode = main.get("metadata");
+			Iterator<Entry<String, JsonNode>> it = metaNode.fields();
+			Map<String, String> meta = getMetadata();
+			while(it.hasNext())
+			{
+				Entry<String, JsonNode> entry = it.next();
+				meta.put(entry.getKey(), entry.getValue().asText());
+			}	
+		}
+	}
+
+	/**
+	 * Complete JSON deserialization
+	 * @param main
+	 */
+	private void fromJson(ObjectNode main) 
+	{
+		setName(main.get("name").asText());
+		setValueSyntax(main.get("syntaxId").asText());
+		fromJsonBase(main);
+	}
+
+	@Override
+	public String toString()
+	{
+		return "AttributeType [description=" + description + ", name=" + name
+				+ ", valueSyntax=" + valueSyntax + ", minElements=" + minElements
+				+ ", maxElements=" + maxElements + ", uniqueValues=" + uniqueValues
+				+ ", selfModificable=" + selfModificable + ", flags=" + flags + "]";
+	}
+
 	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = 1;
+		int result = super.hashCode();
+		result = prime * result + flags;
+		result = prime * result + maxElements;
+		result = prime * result + ((metadata == null) ? 0 : metadata.hashCode());
+		result = prime * result + minElements;
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + (selfModificable ? 1231 : 1237);
+		result = prime * result + (uniqueValues ? 1231 : 1237);
+		result = prime * result + ((valueSyntax == null) ? 0 : valueSyntax.hashCode());
+		result = prime * result + ((valueSyntaxConfiguration == null) ? 0
+				: valueSyntaxConfiguration.hashCode());
 		return result;
 	}
 
@@ -230,28 +338,45 @@ public class AttributeType extends I18nDescribedObject implements Initialization
 	{
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!super.equals(obj))
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
 		AttributeType other = (AttributeType) obj;
+		if (flags != other.flags)
+			return false;
+		if (maxElements != other.maxElements)
+			return false;
+		if (metadata == null)
+		{
+			if (other.metadata != null)
+				return false;
+		} else if (!metadata.equals(other.metadata))
+			return false;
+		if (minElements != other.minElements)
+			return false;
 		if (name == null)
 		{
 			if (other.name != null)
 				return false;
 		} else if (!name.equals(other.name))
 			return false;
+		if (selfModificable != other.selfModificable)
+			return false;
+		if (uniqueValues != other.uniqueValues)
+			return false;
+		if (valueSyntax == null)
+		{
+			if (other.valueSyntax != null)
+				return false;
+		} else if (!valueSyntax.equals(other.valueSyntax))
+			return false;
+		if (valueSyntaxConfiguration == null)
+		{
+			if (other.valueSyntaxConfiguration != null)
+				return false;
+		} else if (!valueSyntaxConfiguration.equals(other.valueSyntaxConfiguration))
+			return false;
 		return true;
 	}
-
-	@Override
-	public String toString()
-	{
-		return "AttributeType [description=" + description + ", name=" + name
-				+ ", valueType=" + valueType + ", minElements=" + minElements
-				+ ", maxElements=" + maxElements + ", uniqueValues=" + uniqueValues
-				+ ", selfModificable=" + selfModificable + ", visibility="
-				+ visibility + ", flags=" + flags + "]";
-	}
-
 }

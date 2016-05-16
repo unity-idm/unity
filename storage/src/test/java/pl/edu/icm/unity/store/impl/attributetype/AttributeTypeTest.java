@@ -15,10 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.NamedCRUDDAO;
 import pl.edu.icm.unity.store.impl.AbstractNamedDAOTest;
-import pl.edu.icm.unity.store.mocks.MockAttributeSyntax;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
 public class AttributeTypeTest extends AbstractNamedDAOTest<AttributeType>
 {
@@ -34,18 +32,18 @@ public class AttributeTypeTest extends AbstractNamedDAOTest<AttributeType>
 	@Override
 	protected AttributeType getObject(String name)
 	{
-		AttributeType created = new AttributeType(name, new MockAttributeSyntax());
+		AttributeType created = new AttributeType(name, "syntax");
 		created.setDescription(new I18nString("desc"));
 		created.setDisplayedName(new I18nString("Attribute 1"));
 		created.setFlags(8);
 		created.setUniqueValues(true);
-		created.setVisibility(AttributeVisibility.local);
 		created.setMaxElements(10);
 		created.setMinElements(1);
 		created.setSelfModificable(true);
 		Map<String, String> meta = new HashMap<>();
 		meta.put("1", "a");
 		created.setMetadata(meta);
+		created.setValueSyntaxConfiguration("some config");
 		return created;
 	}
 
@@ -56,26 +54,18 @@ public class AttributeTypeTest extends AbstractNamedDAOTest<AttributeType>
 		src.setDisplayedName(new I18nString("Attribute 1 updated"));
 		src.setFlags(4);
 		src.setUniqueValues(false);
-		src.setVisibility(AttributeVisibility.full);
 		src.setMaxElements(4);
 		src.setMinElements(2);
 		src.setSelfModificable(false);
 		Map<String, String> meta = new HashMap<>();
 		meta.put("2", "b");
+		src.setValueSyntaxConfiguration(null);
 		src.setMetadata(meta);
 	}
 
 	@Override
 	protected void assertAreEqual(AttributeType obj, AttributeType cmp)
 	{
-		assertThat(obj.getName(), is(cmp.getName()));
-		assertThat(obj.getDisplayedName(), is(cmp.getDisplayedName()));
-		assertThat(obj.getDescription(), is(cmp.getDescription()));
-		assertThat(obj.getFlags(), is(cmp.getFlags()));
-		assertThat(obj.getMaxElements(), is(cmp.getMaxElements()));
-		assertThat(obj.getMinElements(), is(cmp.getMinElements()));
-		assertThat(obj.getValueType().getValueSyntaxId(), is(cmp.getValueType().getValueSyntaxId()));
-		assertThat(obj.getVisibility(), is(cmp.getVisibility()));
-		assertThat(obj.getMetadata(), is(cmp.getMetadata()));
+		assertThat(obj, is(cmp));
 	}
 }

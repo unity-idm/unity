@@ -9,7 +9,6 @@ import java.io.Serializable;
 import org.mvel2.MVEL;
 
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
 
@@ -67,7 +66,7 @@ public class AttributeStatement2
 	private ConflictResolution conflictResolution;
 	
 	private Attribute2 fixedAttribute;
-	private AttributeType dynamicAttributeType;
+	private String dynamicAttributeType;
 	private String dynamicAttributeExpression;
 	private AttributeVisibility visibility = AttributeVisibility.full;
 	private Serializable compiledDynamicAttributeExpression;
@@ -103,7 +102,7 @@ public class AttributeStatement2
 	 */
 	public AttributeStatement2(String condition, String extraAttributesGroup, 
 			ConflictResolution conflictResolution, AttributeVisibility visibility,
-			AttributeType dynamicAttributeType, String dynamicAttributeExpression)
+			String dynamicAttributeType, String dynamicAttributeExpression)
 	{
 		this.condition = condition;
 		this.visibility = visibility;
@@ -189,11 +188,11 @@ public class AttributeStatement2
 	{
 		this.fixedAttribute = fixedAttribute;
 	}
-	public AttributeType getDynamicAttributeType()
+	public String getDynamicAttributeType()
 	{
 		return dynamicAttributeType;
 	}
-	public void setDynamicAttributeType(AttributeType dynamicAttributeType)
+	public void setDynamicAttributeType(String dynamicAttributeType)
 	{
 		this.dynamicAttributeType = dynamicAttributeType;
 	}
@@ -243,7 +242,7 @@ public class AttributeStatement2
 	 */
 	public String getAssignedAttributeName()
 	{
-		return dynamicAttributeMode() ? dynamicAttributeType.getName() : fixedAttribute.getName();
+		return dynamicAttributeMode() ? dynamicAttributeType : fixedAttribute.getName();
 			
 	}
 
@@ -283,7 +282,7 @@ public class AttributeStatement2
 	public String toString()
 	{
 		return "Assign " + (dynamicAttributeMode() ? 
-				(dynamicAttributeType.getName() + "= expr(" + dynamicAttributeExpression) + ")":
+				(dynamicAttributeType + "= expr(" + dynamicAttributeExpression) + ")":
 				fixedAttribute.toString())
 				+ " if '" + condition + "' is true";
 	}

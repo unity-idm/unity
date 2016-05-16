@@ -84,10 +84,7 @@ public class ConfirmationConfigurationDBImpl extends GenericObjectsDAOImpl<Confi
 		if (!exists(oldConfigName))
 			return;
 
-		if (!newValue.getValueType().isVerifiable())
-		{
-			remove(oldConfigName);
-		} else if (!modifiedName.equals(newValue.getName()))
+		if (!modifiedName.equals(newValue.getName()))
 		{
 			ConfirmationConfiguration toUpdate = get(oldConfigName);
 			toUpdate.setNameToConfirm(newValue.getName());
