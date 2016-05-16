@@ -43,6 +43,7 @@
 
 	<modules>
 		<module>types</module>
+		<module>types-api</module>
 		<module>core</module>
 		<module>engine</module>
 		<module>persistence</module>

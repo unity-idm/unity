@@ -47,7 +47,7 @@
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-types</artifactId>
+			<artifactId>unity-types-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
