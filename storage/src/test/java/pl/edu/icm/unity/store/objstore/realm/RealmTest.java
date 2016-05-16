@@ -34,7 +34,7 @@ public class RealmTest extends AbstractObjStoreTest<AuthenticationRealm>
 	}
 
 	@Override
-	protected void mutateObject(AuthenticationRealm src)
+	protected AuthenticationRealm mutateObject(AuthenticationRealm src)
 	{
 		src.setName("name-Changed");
 		src.setAllowForRememberMeDays(67);
@@ -42,6 +42,7 @@ public class RealmTest extends AbstractObjStoreTest<AuthenticationRealm>
 		src.setBlockFor(777);
 		src.setDescription("description2");
 		src.setMaxInactivity(666);
+		return src;
 	}
 
 	@Override

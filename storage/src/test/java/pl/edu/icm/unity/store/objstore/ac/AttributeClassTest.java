@@ -41,7 +41,7 @@ public class AttributeClassTest extends AbstractObjStoreTest<AttributesClass>
 	}
 
 	@Override
-	protected void mutateObject(AttributesClass ret)
+	protected AttributesClass mutateObject(AttributesClass ret)
 	{
 		ret.setAllowArbitrary(true);
 		ret.setAllowed(Sets.newHashSet("allowed3"));
@@ -49,6 +49,7 @@ public class AttributeClassTest extends AbstractObjStoreTest<AttributesClass>
 		ret.setDescription("description3");
 		ret.setName("name-changed");
 		ret.setParentClassName(Sets.newHashSet("parent2"));
+		return ret;
 	}
 
 	@Override

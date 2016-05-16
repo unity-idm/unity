@@ -102,7 +102,7 @@ public class AuthenticatorInstanceTest extends AbstractObjStoreTest<Authenticato
 	}
 
 	@Override
-	protected void mutateObject(AuthenticatorInstance ret)
+	protected AuthenticatorInstance mutateObject(AuthenticatorInstance ret)
 	{
 		ret.setLocalCredentialName("localCred2");
 		ret.setRetrievalJsonConfiguration("rc2");
@@ -115,6 +115,7 @@ public class AuthenticatorInstanceTest extends AbstractObjStoreTest<Authenticato
 		typeDesc.setVerificationMethodDescription("vmd2");
 		ret.setTypeDescription(typeDesc);
 		ret.setVerificatorJsonConfiguration("vc2");
+		return ret;
 	}
 
 	@Override

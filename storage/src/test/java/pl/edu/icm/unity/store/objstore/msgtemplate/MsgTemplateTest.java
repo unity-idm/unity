@@ -36,11 +36,12 @@ public class MsgTemplateTest extends AbstractObjStoreTest<MessageTemplate>
 	}
 
 	@Override
-	protected void mutateObject(MessageTemplate src)
+	protected MessageTemplate mutateObject(MessageTemplate src)
 	{
 		src.setName("name-Changed");
 		src.setDescription("description2");
 		src.setMessage(new I18nMessage(new I18nString("s2"), new I18nString("b2")));
+		return src;
 	}
 
 	@Override

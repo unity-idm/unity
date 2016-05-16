@@ -37,12 +37,13 @@ public class NotificationChannelTest extends AbstractObjStoreTest<NotificationCh
 	}
 
 	@Override
-	protected void mutateObject(NotificationChannel src)
+	protected NotificationChannel mutateObject(NotificationChannel src)
 	{
 		src.setName("name-Changed");
 		src.setConfiguration("configuration2");
 		src.setDescription("description2");
 		src.setFacilityId("facilityId2");
+		return src;
 	}
 
 	@Override

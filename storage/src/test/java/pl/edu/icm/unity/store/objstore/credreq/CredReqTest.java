@@ -65,11 +65,12 @@ public class CredReqTest extends AbstractObjStoreTest<CredentialRequirements>
 	}
 
 	@Override
-	protected void mutateObject(CredentialRequirements ret)
+	protected CredentialRequirements mutateObject(CredentialRequirements ret)
 	{
 		ret.setDescription("description2");
 		ret.setName("name-changed");
 		ret.setRequiredCredentials(Sets.newHashSet("cred3"));
+		return ret;
 	}
 
 	@Override

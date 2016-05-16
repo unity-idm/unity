@@ -49,7 +49,7 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 
 	protected abstract GenericObjectsDAO<T> getDAO();
 	protected abstract T getObject(String id);
-	protected abstract void mutateObject(T src);
+	protected abstract T mutateObject(T src);
 	protected abstract void assertAreEqual(T obj, T cmp);
 
 	@Test
@@ -159,13 +159,13 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 			dao.insert(obj);
 			String originalName = obj.getName();
 			
-			mutateObject(obj);
-			dao.update(originalName, obj);
+			T changed = mutateObject(obj);
+			dao.update(originalName, changed);
 
-			T ret = dao.get(obj.getName());
+			T ret = dao.get(changed.getName());
 
 			assertThat(ret, is(notNullValue()));
-			assertAreEqual(obj, ret);
+			assertAreEqual(changed, ret);
 		});
 	}
 	

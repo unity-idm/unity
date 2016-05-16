@@ -147,12 +147,13 @@ public class ConfirmationConfigurationTest extends AbstractObjStoreTest<Confirma
 	}
 
 	@Override
-	protected void mutateObject(ConfirmationConfiguration cc)
+	protected ConfirmationConfiguration mutateObject(ConfirmationConfiguration cc)
 	{
 		cc.setMsgTemplate("msgTemplate2");
 		cc.setNameToConfirm("attr2");
 		cc.setNotificationChannel("notificationChannel2");
 		cc.setTypeToConfirm(ConfirmationConfigurationDB.IDENTITY_CONFIG_TYPE);
+		return cc;
 	}
 
 	@Override

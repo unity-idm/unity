@@ -36,12 +36,13 @@ public class CredentialTest extends AbstractObjStoreTest<CredentialDefinition>
 	}
 
 	@Override
-	protected void mutateObject(CredentialDefinition src)
+	protected CredentialDefinition mutateObject(CredentialDefinition src)
 	{
 		src.setName("name-Changed");
 		src.setDescription(new I18nString("dName2"));
 		src.setDisplayedName(new I18nString("dName2"));
 		src.setJsonConfiguration("[1,2,3]");
+		return src;
 	}
 
 	@Override
