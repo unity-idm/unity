@@ -24,15 +24,12 @@ import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.store.StorageCleaner;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
-import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.api.StoredEntity;
-import pl.edu.icm.unity.store.mocks.MockIdentityTypeDef;
 import pl.edu.icm.unity.types.EntityInformation;
 import pl.edu.icm.unity.types.EntityState;
-import pl.edu.icm.unity.types.basic2.Group;
 import pl.edu.icm.unity.types.basic.GroupMembership;
-import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.types.basic2.Group;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
@@ -43,9 +40,6 @@ public class MembershipTest
 
 	@Autowired
 	private GroupDAO groupDao;
-
-	@Autowired
-	private IdentityTypeDAO itDao;
 
 	@Autowired
 	private EntityDAO entDao;
@@ -71,7 +65,6 @@ public class MembershipTest
 	public void createReferenced()
 	{
 		tx.runInTransaction(() -> {
-			itDao.create(new IdentityType(new MockIdentityTypeDef()));
 			entity = entDao.create(new StoredEntity(null, 
 					new EntityInformation(EntityState.valid)));
 			entity2 = entDao.create(new StoredEntity(null, 

@@ -15,6 +15,7 @@ public class IdentityBean extends BaseBean
 {
 	private Long entityId;
 	private Long typeId;
+	private String typeName;
 	
 	public IdentityBean() 
 	{
@@ -37,5 +38,15 @@ public class IdentityBean extends BaseBean
 	public void setTypeId(Long typeId)
 	{
 		this.typeId = typeId;
+	}
+
+	public String getTypeName()
+	{
+		return typeName;
+	}
+
+	public void setTypeName(String typeName)
+	{
+		this.typeName = typeName;
 	}
 }

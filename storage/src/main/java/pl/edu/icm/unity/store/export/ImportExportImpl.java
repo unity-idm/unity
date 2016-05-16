@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypesIE;
+import pl.edu.icm.unity.store.impl.identitytype.IdentityTypeIE;
 
 /**
  * Import/export functionality. 
@@ -36,6 +37,9 @@ public class ImportExportImpl implements ImportExport
 	
 	@Autowired
 	private AttributeTypesIE attributeTypesIE;
+
+	@Autowired
+	private IdentityTypeIE identityTypesIE;
 	
 	@Override
 	public void store(OutputStream os) throws IOException
@@ -56,10 +60,10 @@ public class ImportExportImpl implements ImportExport
 		attributeTypesIE.serialize(jg);
 		jg.flush();
 
-//		jg.writeFieldName("identityTypes");
-//		identityTypesIE.serialize(sql, jg);
-//		jg.flush();
-//
+		jg.writeFieldName("identityTypes");
+		identityTypesIE.serialize(jg);
+		jg.flush();
+
 //		jg.writeFieldName("entities");
 //		entitiesIE.serialize(sql, jg);
 //		jg.flush();
@@ -103,8 +107,8 @@ public class ImportExportImpl implements ImportExport
 		JsonUtils.nextExpect(jp, "attributeTypes");
 		attributeTypesIE.deserialize(jp, header);
 		
-//		JsonUtils.nextExpect(jp, "identityTypes");
-//		identityTypesIE.deserialize(sql, jp);
+		JsonUtils.nextExpect(jp, "identityTypes");
+		identityTypesIE.deserialize(jp, header);
 //
 //		JsonUtils.nextExpect(jp, "entities");
 //		entitiesIE.deserialize(sql, jp);

@@ -27,13 +27,4 @@ public class IdentityTypeHzStore extends GenericNamedHzCRUD<IdentityType> implem
 	{
 		super(STORE_ID, NAME, IdentityTypeRDBMSStore.BEAN, rdbmsStore);
 	}
-
-	
-	@Override
-	public long create(IdentityType idType) throws IllegalArgumentException
-	{
-		if (idType.getDescription() == null)
-			idType.setDescription(idType.getIdentityTypeProvider().getDefaultDescription());
-		return super.create(idType);
-	}
 }

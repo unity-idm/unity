@@ -4,6 +4,11 @@
  */
 package pl.edu.icm.unity.types.basic;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.InitializationValidator;
 
@@ -38,6 +43,12 @@ public class IdentityTaV implements InitializationValidator
 		this(type, value);
 		this.target = target;
 		this.realm = realm;
+	}
+
+	@JsonCreator
+	public IdentityTaV(ObjectNode src)
+	{
+		fromJson(src);
 	}
 
 	public String getValue()
@@ -82,6 +93,44 @@ public class IdentityTaV implements InitializationValidator
 	{
 		this.realm = realm;
 	}
+	
+	protected void fromJson(ObjectNode src)
+	{
+		setTypeId(src.get("typeId").asText());
+		fromJsonBase(src);
+	}
+	
+	@JsonValue
+	public ObjectNode toJson()
+	{
+		ObjectNode main = toJsonBase();
+		main.put("typeId", getTypeId());
+		return main;
+	}
+
+	public ObjectNode toJsonBase()
+	{
+		ObjectNode main = Constants.MAPPER.createObjectNode();
+		
+		main.put("value", getValue());
+		
+		if (getRealm() != null)
+			main.put("realm", getRealm());
+		if (getTarget() != null)
+			main.put("target", getTarget());
+		return main;
+	}
+	
+	public void fromJsonBase(ObjectNode main)
+	{
+		if (main.has("value"))
+			setValue(main.get("value").asText());
+		if (main.has("realm"))
+			setRealm(main.get("realm").asText());
+		if (main.has("target"))
+			setTarget(main.get("target").asText());
+	}
+
 	
 	@Override
 	public void validateInitialization() throws IllegalIdentityValueException

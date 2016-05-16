@@ -19,15 +19,12 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.store.api.EntityDAO;
-import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.api.StoredEntity;
 import pl.edu.icm.unity.store.api.Token;
 import pl.edu.icm.unity.store.api.TokenDAO;
 import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;
-import pl.edu.icm.unity.store.mocks.MockIdentityTypeDef;
 import pl.edu.icm.unity.types.EntityInformation;
 import pl.edu.icm.unity.types.EntityState;
-import pl.edu.icm.unity.types.basic.IdentityType;
 
 public class TokenTest extends AbstractBasicDAOTest<Token>
 {
@@ -35,8 +32,6 @@ public class TokenTest extends AbstractBasicDAOTest<Token>
 	private TokenDAO dao;
 	@Autowired
 	private EntityDAO entityDAO;
-	@Autowired
-	private IdentityTypeDAO itDao;
 	
 	private long entityId;
 	private long entityId2;
@@ -46,7 +41,6 @@ public class TokenTest extends AbstractBasicDAOTest<Token>
 	{
 		dbCleaner.reset();
 		tx.runInTransaction(() -> {
-			itDao.create(new IdentityType(new MockIdentityTypeDef()));
 			entityId = entityDAO.create(new StoredEntity(null, 
 					new EntityInformation(EntityState.valid)));
 			entityId2 = entityDAO.create(new StoredEntity(null, 

@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.api.NamedCRUDDAO;
 import pl.edu.icm.unity.store.impl.AbstractNamedDAOTest;
-import pl.edu.icm.unity.store.mocks.MockIdentityTypeDef;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
 public class IdentityTypeTest extends AbstractNamedDAOTest<IdentityType>
@@ -34,7 +33,9 @@ public class IdentityTypeTest extends AbstractNamedDAOTest<IdentityType>
 	@Override
 	protected IdentityType getObject(String name)
 	{
-		IdentityType idType = new IdentityType(new MockIdentityTypeDef());
+		IdentityType idType = new IdentityType(name);
+		idType.setIdentityTypeProvider("identityTypeProvider");
+		idType.setIdentityTypeProviderSettings("{}");
 		idType.setDescription("d");
 		idType.setMaxInstances(10);
 		idType.setMinInstances(0);
@@ -47,6 +48,7 @@ public class IdentityTypeTest extends AbstractNamedDAOTest<IdentityType>
 	@Override
 	protected void mutateObject(IdentityType src)
 	{
+		src.setIdentityTypeProviderSettings("{ccc=1}");
 		src.setDescription("d2");
 		src.setMaxInstances(20);
 		src.setMinInstances(1);
@@ -59,12 +61,7 @@ public class IdentityTypeTest extends AbstractNamedDAOTest<IdentityType>
 	@Override
 	protected void assertAreEqual(IdentityType obj, IdentityType cmp)
 	{
-		assertThat(obj.getIdentityTypeProvider().getId(), is(cmp.getIdentityTypeProvider().getId()));
-		assertThat(obj.getDescription(), is (cmp.getDescription()));
-		assertThat(obj.getMaxInstances(), is (cmp.getMaxInstances()));
-		assertThat(obj.getMinInstances(), is (cmp.getMinInstances()));
-		assertThat(obj.isSelfModificable(), is(cmp.isSelfModificable()));
-		assertThat(obj.getExtractedAttributes(), is(cmp.getExtractedAttributes()));
+		assertThat(obj, is(cmp));
 	}
 
 	@Test

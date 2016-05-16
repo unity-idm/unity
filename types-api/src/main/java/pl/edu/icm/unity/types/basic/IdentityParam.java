@@ -4,11 +4,13 @@
  */
 package pl.edu.icm.unity.types.basic;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.JsonNode;
 
 
 /**
@@ -39,8 +41,13 @@ public class IdentityParam extends IdentityTaV implements VerifiableElement
 		this.translationProfile = translationProfile;
 		this.remoteIdp = remoteIdp;
 	}
-
-	@JsonIgnore
+	
+	@JsonCreator
+	public IdentityParam(ObjectNode src)
+	{
+		fromJson(src);
+	}
+	
 	public boolean isLocal()
 	{
 		return remoteIdp == null;
@@ -92,12 +99,53 @@ public class IdentityParam extends IdentityTaV implements VerifiableElement
 		return confirmationInfo;
 	}
 
-	@JsonIgnore
 	@Override
 	public boolean isConfirmed()
 	{
 		return confirmationInfo != null && confirmationInfo.isConfirmed();
 	}
+	
+	@Override
+	@JsonValue
+	public ObjectNode toJson()
+	{
+		return super.toJson();
+	}
+
+	@Override
+	public ObjectNode toJsonBase()
+	{
+		ObjectNode main = super.toJsonBase();
+		if (getTranslationProfile() != null)
+			main.put("translationProfile", getTranslationProfile());
+		if (getRemoteIdp() != null)
+			main.put("remoteIdp", getRemoteIdp());
+		if (getConfirmationInfo() != null)
+			main.put("confirmationInfo", getConfirmationInfo().getSerializedConfiguration());
+		if (getMetadata() != null)
+			main.set("metadata", getMetadata());
+		return main;
+	}
+	
+	@Override
+	public void fromJsonBase(ObjectNode main)
+	{
+		super.fromJsonBase(main);
+		if (main.has("translationProfile"))
+			setTranslationProfile(main.get("translationProfile").asText());
+		if (main.has("remoteIdp"))
+			setRemoteIdp(main.get("remoteIdp").asText());
+		if (main.has("confirmationInfo"))
+		{
+			ConfirmationInfo conData = new ConfirmationInfo();
+			conData.setSerializedConfiguration(main.get("confirmationInfo").asText());
+			setConfirmationInfo(conData);
+		}
+		if (main.has("metadata"))
+			setMetadata(main.get("metadata"));
+	}
+
+	
 	
 	@Override
 	public int hashCode()

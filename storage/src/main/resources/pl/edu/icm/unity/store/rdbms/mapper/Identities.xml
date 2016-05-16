@@ -6,7 +6,7 @@
 		<result property="id" column="ID"/>
 		<result property="name" column="NAME"/>
 		<result property="entityId" column="ENTITY_ID"/>
-		<result property="typeId" column="TYPE_ID"/>
+		<result property="typeName" column="TYPE_NAME"/>
 		<result property="contents" column="CONTENTS"/>
 	</resultMap>
 
@@ -28,21 +28,25 @@
 	</delete>
 
 	<select id="getAll" resultMap="identityResult">
-		select * from IDENTITIES
+		select IDENTITIES.*, IDENTITY_TYPES.NAME AS TYPE_NAME from IDENTITIES, IDENTITY_TYPES 
+		WHERE IDENTITIES.TYPE_ID = IDENTITY_TYPES.ID 
 	</select>
 
 	<select id="getByKey" resultMap="identityResult" parameterType="long">
-		select * from IDENTITIES WHERE ID = #{value}
+		select IDENTITIES.*, IDENTITY_TYPES.NAME AS TYPE_NAME from IDENTITIES, IDENTITY_TYPES 
+		WHERE IDENTITIES.ID = #{value} AND IDENTITIES.TYPE_ID = IDENTITY_TYPES.ID 
 	</select>
 
 	<select id="getByName" resultMap="identityResult" parameterType="string">
-		select * from IDENTITIES WHERE NAME = #{value}
+		select IDENTITIES.*, IDENTITY_TYPES.NAME AS TYPE_NAME from IDENTITIES, IDENTITY_TYPES 
+		WHERE IDENTITIES.NAME = #{value} AND IDENTITIES.TYPE_ID = IDENTITY_TYPES.ID 
 	</select>
 
 
 	<!-- non standard -->
 
 	<select id="getByEntity" parameterType="long" resultMap="identityResult">
-		select * from IDENTITIES where IDENTITIES.ENTITY_ID = #{value}
+		select IDENTITIES.*, IDENTITY_TYPES.NAME AS TYPE_NAME from IDENTITIES, IDENTITY_TYPES 
+		WHERE IDENTITIES.ENTITY_ID = #{value} AND IDENTITIES.TYPE_ID = IDENTITY_TYPES.ID 
 	</select>
 </mapper>

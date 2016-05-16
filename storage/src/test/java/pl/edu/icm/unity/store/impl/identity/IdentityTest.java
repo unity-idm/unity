@@ -9,30 +9,27 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-
 import java.util.Date;
 import java.util.List;
-
 
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.api.NamedCRUDDAO;
 import pl.edu.icm.unity.store.api.StoredEntity;
 import pl.edu.icm.unity.store.impl.AbstractNamedDAOTest;
-import pl.edu.icm.unity.store.mocks.MockIdentityTypeDef;
 import pl.edu.icm.unity.types.EntityInformation;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityType;
-
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class IdentityTest extends AbstractNamedDAOTest<Identity>
 {
@@ -52,7 +49,7 @@ public class IdentityTest extends AbstractNamedDAOTest<Identity>
 	public void createReferenced()
 	{
 		tx.runInTransaction(() -> {
-			itDao.create(new IdentityType(new MockIdentityTypeDef()));
+			itDao.create(new IdentityType("username"));
 			entity = entDao.create(new StoredEntity(null, 
 					new EntityInformation(EntityState.valid)));
 			entity2 = entDao.create(new StoredEntity(null, 
@@ -112,16 +109,21 @@ public class IdentityTest extends AbstractNamedDAOTest<Identity>
 	@Override
 	protected Identity getObject(String name)
 	{
-		return new Identity(new IdentityType(new MockIdentityTypeDef()), 
-				name, 
-				entity, 
-				"realm", 
-				"target", 
-				"remoteIdp", 
-				"translationProfile", 
-				new Date(100), 
-				new Date(110), 
-				null);
+		ObjectNode meta = Constants.MAPPER.createObjectNode();
+		Identity ret = new Identity();
+		ret.setValue(name);
+		ret.setComparableValue(name);
+		ret.setTypeId("username");
+		ret.setCreationTs(new Date(100324));
+		ret.setEntityId(entity);
+		ret.setMetadata(meta);
+		ret.setRealm("realm");
+		ret.setRemoteIdp("remoteIdp");
+		ret.setTarget("target");
+		ret.setTranslationProfile("translationProfile");
+		ret.setUpdateTs(new Date(100));
+		ret.setCreationTs(new Date(101));
+		return ret;
 	}
 
 	@Override
@@ -144,6 +146,6 @@ public class IdentityTest extends AbstractNamedDAOTest<Identity>
 	@Override
 	protected void assertAreEqual(Identity obj, Identity cmp)
 	{
-		assertThat(obj.equalsFull(cmp), is(true));
+		assertThat(obj, is(cmp));
 	}
 }
