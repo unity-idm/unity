@@ -38,4 +38,48 @@ public class CredentialInfo
 	{
 		return credentialsState;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "CredentialInfo [credentialRequirementId=" + credentialRequirementId
+				+ ", credentialsState=" + credentialsState + "]";
+	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((credentialRequirementId == null) ? 0
+				: credentialRequirementId.hashCode());
+		result = prime * result
+				+ ((credentialsState == null) ? 0 : credentialsState.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CredentialInfo other = (CredentialInfo) obj;
+		if (credentialRequirementId == null)
+		{
+			if (other.credentialRequirementId != null)
+				return false;
+		} else if (!credentialRequirementId.equals(other.credentialRequirementId))
+			return false;
+		if (credentialsState == null)
+		{
+			if (other.credentialsState != null)
+				return false;
+		} else if (!credentialsState.equals(other.credentialsState))
+			return false;
+		return true;
+	}
 }

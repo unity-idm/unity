@@ -23,10 +23,8 @@ import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.StoredAttribute;
-import pl.edu.icm.unity.store.api.StoredEntity;
 import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;
 import pl.edu.icm.unity.types.EntityInformation;
-import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic2.Attribute2;
 import pl.edu.icm.unity.types.basic2.AttributeExt2;
@@ -52,10 +50,8 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 	{
 		dbCleaner.reset();
 		tx.runInTransaction(() -> {
-			entityId = entityDAO.create(new StoredEntity(null, 
-					new EntityInformation(EntityState.valid)));
-			entityId2 = entityDAO.create(new StoredEntity(null, 
-					new EntityInformation(EntityState.valid)));
+			entityId = entityDAO.create(new EntityInformation());
+			entityId2 = entityDAO.create(new EntityInformation());
 			groupDAO.create(new Group("/A"));
 			groupDAO.create(new Group("/B"));
 			groupDAO.create(new Group("/C"));

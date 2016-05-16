@@ -4,14 +4,16 @@
  */
 package pl.edu.icm.unity.store.api;
 
+import pl.edu.icm.unity.types.EntityInformation;
+
 /**
- * Entitites DAO
+ * Entities DAO
  * @author K. Benedyczak
  */
-public interface EntityDAO extends BasicCRUDDAO<StoredEntity>
+public interface EntityDAO extends BasicCRUDDAO<EntityInformation>
 {
 	String DAO_ID = "EntityDAO";
 	String NAME = "entity";
 	
-	void createWithId(StoredEntity obj);
+	void createWithId(EntityInformation obj);
 }

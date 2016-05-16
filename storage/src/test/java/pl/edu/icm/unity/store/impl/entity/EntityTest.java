@@ -14,13 +14,12 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.store.api.EntityDAO;
-import pl.edu.icm.unity.store.api.StoredEntity;
 import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;
 import pl.edu.icm.unity.types.EntityInformation;
 import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.EntityState;
 
-public class EntityTest extends AbstractBasicDAOTest<StoredEntity>
+public class EntityTest extends AbstractBasicDAOTest<EntityInformation>
 {
 	@Autowired
 	private EntityDAO dao;
@@ -32,27 +31,27 @@ public class EntityTest extends AbstractBasicDAOTest<StoredEntity>
 	}
 
 	@Override
-	protected StoredEntity getObject(String id)
+	protected EntityInformation getObject(String id)
 	{
-		EntityInformation ei = new EntityInformation(EntityState.valid);
+		EntityInformation ei = new EntityInformation();
+		ei.setId(123l);
 		ei.setRemovalByUserTime(new Date(2000));
 		ei.setScheduledOperation(EntityScheduledOperation.DISABLE);
 		ei.setScheduledOperationTime(new Date(1000));
-		return new StoredEntity(123l, ei);
+		return ei;
 	}
 
 	@Override
-	protected void mutateObject(StoredEntity src)
+	protected void mutateObject(EntityInformation src)
 	{
-		EntityInformation ei = new EntityInformation(EntityState.authenticationDisabled);
-		ei.setRemovalByUserTime(new Date(3000));
-		ei.setScheduledOperation(EntityScheduledOperation.REMOVE);
-		ei.setScheduledOperationTime(new Date(5000));
-		src.setEntityInformation(ei);
+		src.setEntityState(EntityState.authenticationDisabled);
+		src.setRemovalByUserTime(new Date(3000));
+		src.setScheduledOperation(EntityScheduledOperation.REMOVE);
+		src.setScheduledOperationTime(new Date(5000));
 	}
 
 	@Override
-	protected void assertAreEqual(StoredEntity obj, StoredEntity cmp)
+	protected void assertAreEqual(EntityInformation obj, EntityInformation cmp)
 	{
 		assertThat(obj, is(cmp));
 	}
@@ -61,11 +60,11 @@ public class EntityTest extends AbstractBasicDAOTest<StoredEntity>
 	public void insertedWithIdIsReturned()
 	{
 		tx.runInTransaction(() -> {
-			StoredEntity obj = getObject("name1");
+			EntityInformation obj = getObject("name1");
 			long key = obj.getId();
 			dao.createWithId(obj);
 
-			StoredEntity ret = dao.getByKey(key);
+			EntityInformation ret = dao.getByKey(key);
 
 			assertThat(obj.getId(), is(key));
 			assertThat(ret, is(notNullValue()));
@@ -77,11 +76,11 @@ public class EntityTest extends AbstractBasicDAOTest<StoredEntity>
 	public void regularInsertAfterInsertedWithIdSucceeds()
 	{
 		tx.runInTransaction(() -> {
-			StoredEntity obj = getObject("name1");
+			EntityInformation obj = getObject("name1");
 			long key = obj.getId();
 			dao.createWithId(obj);
 
-			StoredEntity obj2 = getObject("");
+			EntityInformation obj2 = getObject("");
 			dao.create(obj2);
 			
 			assertThat(obj2.getId() != key, is(true));

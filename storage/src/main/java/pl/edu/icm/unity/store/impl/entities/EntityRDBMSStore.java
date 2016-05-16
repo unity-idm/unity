@@ -8,11 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import pl.edu.icm.unity.store.api.EntityDAO;
-import pl.edu.icm.unity.store.api.StoredEntity;
 import pl.edu.icm.unity.store.impl.StorageLimits;
 import pl.edu.icm.unity.store.rdbms.BaseBean;
 import pl.edu.icm.unity.store.rdbms.GenericRDBMSCRUD;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
+import pl.edu.icm.unity.types.EntityInformation;
 
 
 /**
@@ -20,7 +20,7 @@ import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
  * @author K. Benedyczak
  */
 @Repository(EntityRDBMSStore.BEAN)
-public class EntityRDBMSStore extends GenericRDBMSCRUD<StoredEntity, BaseBean> 
+public class EntityRDBMSStore extends GenericRDBMSCRUD<EntityInformation, BaseBean> 
 					implements EntityDAO
 {
 	public static final String BEAN = DAO_ID + "rdbms";
@@ -32,7 +32,7 @@ public class EntityRDBMSStore extends GenericRDBMSCRUD<StoredEntity, BaseBean>
 	}
 	
 	@Override
-	public long create(StoredEntity obj)
+	public long create(EntityInformation obj)
 	{
 		long ret = super.create(obj);
 		obj.setId(ret);
@@ -40,7 +40,7 @@ public class EntityRDBMSStore extends GenericRDBMSCRUD<StoredEntity, BaseBean>
 	}
 
 	@Override
-	public void createWithId(StoredEntity obj)
+	public void createWithId(EntityInformation obj)
 	{
 		EntitiesMapper mapper = SQLTransactionTL.getSql().getMapper(EntitiesMapper.class);
 		BaseBean toAdd = jsonSerializer.toDB(obj);

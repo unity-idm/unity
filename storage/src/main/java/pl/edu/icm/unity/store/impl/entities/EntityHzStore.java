@@ -7,13 +7,13 @@ package pl.edu.icm.unity.store.impl.entities;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.hazelcast.core.TransactionalMap;
+
 import pl.edu.icm.unity.store.api.EntityDAO;
-import pl.edu.icm.unity.store.api.StoredEntity;
 import pl.edu.icm.unity.store.hz.GenericBasicHzCRUD;
 import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSMutationEvent;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
-
-import com.hazelcast.core.TransactionalMap;
+import pl.edu.icm.unity.types.EntityInformation;
 
 
 /**
@@ -22,7 +22,7 @@ import com.hazelcast.core.TransactionalMap;
  * @author K. Benedyczak
  */
 @Repository(EntityHzStore.STORE_ID)
-public class EntityHzStore extends GenericBasicHzCRUD<StoredEntity> implements EntityDAO
+public class EntityHzStore extends GenericBasicHzCRUD<EntityInformation> implements EntityDAO
 {
 	public static final String STORE_ID = DAO_ID + "hz";
 
@@ -33,7 +33,7 @@ public class EntityHzStore extends GenericBasicHzCRUD<StoredEntity> implements E
 	}
 	
 	@Override
-	public long create(StoredEntity obj) throws IllegalArgumentException
+	public long create(EntityInformation obj) throws IllegalArgumentException
 	{
 		long ret = super.create(obj);
 		obj.setId(ret);
@@ -41,9 +41,9 @@ public class EntityHzStore extends GenericBasicHzCRUD<StoredEntity> implements E
 	}
 
 	@Override
-	public void createWithId(StoredEntity obj)
+	public void createWithId(EntityInformation obj)
 	{
-		TransactionalMap<Long, StoredEntity> hMap = getMap();
+		TransactionalMap<Long, EntityInformation> hMap = getMap();
 		long key = obj.getId();
 		if (hMap.containsKey(key))
 			throw new IllegalArgumentException(name + " [" + key + "] already exists");

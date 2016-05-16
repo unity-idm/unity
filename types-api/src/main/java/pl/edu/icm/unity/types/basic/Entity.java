@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.types.basic;
 
+import java.util.Arrays;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import pl.edu.icm.unity.types.EntityInformation;
@@ -11,27 +13,20 @@ import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 
 /**
- * Represents an entity.
+ * Represents an entity with complete information - as retrieved from the system.
  * @author K. Benedyczak
  */
 public class Entity
 {
-	private Long id;
 	private EntityInformation entityInformation;
 	private Identity[] identities;
 	private CredentialInfo credentialInfo;
 	
-	public Entity(Long id, Identity[] identities, EntityInformation info, CredentialInfo credentialInfo)
+	public Entity(Identity[] identities, EntityInformation info, CredentialInfo credentialInfo)
 	{
-		this.id = id;
 		this.identities = identities;
 		this.credentialInfo = credentialInfo;
 		this.entityInformation = info;
-	}
-
-	public Entity(Long id, Identity[] identities, EntityState state, CredentialInfo credentialInfo)
-	{
-		this(id, identities, new EntityInformation(state), credentialInfo);
 	}
 
 	/**
@@ -42,10 +37,6 @@ public class Entity
 	{
 	}
 	
-	public Long getId()
-	{
-		return id;
-	}
 	public Identity[] getIdentities()
 	{
 		return identities;
@@ -66,11 +57,26 @@ public class Entity
 	{
 		return entityInformation;
 	}
-	
+
+	@Override
+	public String toString()
+	{
+		return "Entity [entityInformation=" + entityInformation + ", identities="
+				+ Arrays.toString(identities) + ", credentialInfo=" + credentialInfo
+				+ "]";
+	}
+
 	@Override
 	public int hashCode()
 	{
-		return id.hashCode();
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((credentialInfo == null) ? 0 : credentialInfo.hashCode());
+		result = prime * result
+				+ ((entityInformation == null) ? 0 : entityInformation.hashCode());
+		result = prime * result + Arrays.hashCode(identities);
+		return result;
 	}
 
 	@Override
@@ -83,18 +89,20 @@ public class Entity
 		if (getClass() != obj.getClass())
 			return false;
 		Entity other = (Entity) obj;
-		if (id == null)
+		if (credentialInfo == null)
 		{
-			if (other.id != null)
+			if (other.credentialInfo != null)
 				return false;
-		} else if (!id.equals(other.id))
+		} else if (!credentialInfo.equals(other.credentialInfo))
+			return false;
+		if (entityInformation == null)
+		{
+			if (other.entityInformation != null)
+				return false;
+		} else if (!entityInformation.equals(other.entityInformation))
+			return false;
+		if (!Arrays.equals(identities, other.identities))
 			return false;
 		return true;
-	}
-
-	@Override
-	public String toString()
-	{
-		return String.valueOf(id);
 	}
 }

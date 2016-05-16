@@ -25,9 +25,7 @@ import pl.edu.icm.unity.store.StorageCleaner;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
-import pl.edu.icm.unity.store.api.StoredEntity;
 import pl.edu.icm.unity.types.EntityInformation;
-import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic2.Group;
 
@@ -65,10 +63,8 @@ public class MembershipTest
 	public void createReferenced()
 	{
 		tx.runInTransaction(() -> {
-			entity = entDao.create(new StoredEntity(null, 
-					new EntityInformation(EntityState.valid)));
-			entity2 = entDao.create(new StoredEntity(null, 
-					new EntityInformation(EntityState.valid)));
+			entity = entDao.create(new EntityInformation());
+			entity2 = entDao.create(new EntityInformation());
 			groupDao.create(new Group("/A"));
 			groupDao.create(new Group("/B"));
 		});

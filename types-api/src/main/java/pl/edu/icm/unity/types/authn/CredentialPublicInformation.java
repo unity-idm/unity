@@ -40,4 +40,43 @@ public class CredentialPublicInformation
 	{
 		return extraInformation;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "CredentialPublicInformation [state=" + state + ", extraInformation="
+				+ extraInformation + "]";
+	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((extraInformation == null) ? 0 : extraInformation.hashCode());
+		result = prime * result + ((state == null) ? 0 : state.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CredentialPublicInformation other = (CredentialPublicInformation) obj;
+		if (extraInformation == null)
+		{
+			if (other.extraInformation != null)
+				return false;
+		} else if (!extraInformation.equals(other.extraInformation))
+			return false;
+		if (state != other.state)
+			return false;
+		return true;
+	}
 }
