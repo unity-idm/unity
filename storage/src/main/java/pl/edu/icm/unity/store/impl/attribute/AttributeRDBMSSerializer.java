@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
-import pl.edu.icm.unity.store.api.StoredAttribute;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
+import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 

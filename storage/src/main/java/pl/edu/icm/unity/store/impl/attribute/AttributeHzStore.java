@@ -17,13 +17,13 @@ import com.hazelcast.query.EntryObject;
 import com.hazelcast.query.PredicateBuilder;
 
 import pl.edu.icm.unity.store.api.AttributeDAO;
-import pl.edu.icm.unity.store.api.StoredAttribute;
 import pl.edu.icm.unity.store.hz.GenericBasicHzCRUD;
 import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSMutationEvent;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeHzStore;
 import pl.edu.icm.unity.store.impl.entities.EntityHzStore;
 import pl.edu.icm.unity.store.impl.groups.GroupHzStore;
+import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Group;

@@ -6,6 +6,7 @@ package pl.edu.icm.unity.store.api;
 
 import java.util.List;
 
+import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 
 public interface AttributeDAO extends BasicCRUDDAO<StoredAttribute>

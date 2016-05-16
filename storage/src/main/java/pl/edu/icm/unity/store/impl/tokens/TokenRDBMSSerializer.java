@@ -6,8 +6,8 @@ package pl.edu.icm.unity.store.impl.tokens;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.store.api.Token;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
+import pl.edu.icm.unity.store.types.Token;
 
 /**
  * Serializes {@link Token} to/from RDBMS {@link TokenBean} form.

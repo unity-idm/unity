@@ -12,9 +12,9 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.api.AttributeDAO;
-import pl.edu.icm.unity.store.api.StoredAttribute;
 import pl.edu.icm.unity.store.export.AbstractIEBase;
 import pl.edu.icm.unity.store.export.DumpHeader;
+import pl.edu.icm.unity.store.types.StoredAttribute;
 
 /**
  * Handles import/export of entities.

@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.store.api.StoredAttribute;
 import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
+import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 

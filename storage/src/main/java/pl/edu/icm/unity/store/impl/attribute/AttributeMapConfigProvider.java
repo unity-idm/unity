@@ -12,8 +12,8 @@ import com.hazelcast.config.MapIndexConfig;
 import com.hazelcast.query.extractor.ValueCollector;
 import com.hazelcast.query.extractor.ValueExtractor;
 
-import pl.edu.icm.unity.store.api.StoredAttribute;
 import pl.edu.icm.unity.store.hz.MapConfigProvider;
+import pl.edu.icm.unity.store.types.StoredAttribute;
 
 
 /**
