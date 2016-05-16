@@ -22,6 +22,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
 /**
+ * TODO remove and integrate with AttributeType, refactored
  * @author K. Benedyczak
  */
 @Component
