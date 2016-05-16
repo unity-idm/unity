@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.store.impl.export;
+package pl.edu.icm.unity.store.export;
 
 import java.io.IOException;
 import java.util.List;
@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * Generic base code for importers and exporters.
  * @author K. Benedyczak
  */
-abstract class AbstractIEBase<T>
+public abstract class AbstractIEBase<T>
 {
 	/**
 	 * @return all objects to be exported
@@ -34,7 +34,7 @@ abstract class AbstractIEBase<T>
 	 * @param src
 	 * @return
 	 */
-	protected abstract T fromJsonSingle(ObjectNode src);
+	protected abstract T fromJsonSingle(ObjectNode src, DumpHeader header);
 
 	/**
 	 * Stores in imported object in db
@@ -48,11 +48,7 @@ abstract class AbstractIEBase<T>
 		List<T> all = getAllToExport();
 		jg.writeStartArray();
 		for (T obj: all)
-		{
-			jg.writeStartObject();
 			serializeToJson(jg, obj);
-			jg.writeEndObject();
-		}
 		jg.writeEndArray();
 	}
 	
@@ -62,22 +58,21 @@ abstract class AbstractIEBase<T>
 		jg.writeTree(asJson);
 	}
 	
-	public void deserialize(JsonParser input) throws IOException
+	public void deserialize(JsonParser input, DumpHeader header) throws IOException
 	{
 		JsonUtils.expect(input, JsonToken.START_ARRAY);
 		while(input.nextToken() == JsonToken.START_OBJECT)
 		{
-			T obj = deserializeFromJson(input);
-			JsonUtils.nextExpect(input, JsonToken.END_OBJECT);
+			T obj = deserializeFromJson(input, header);
 			createSingle(obj);
 		}
 		JsonUtils.expect(input, JsonToken.END_ARRAY);
 	}
 
-	private T deserializeFromJson(JsonParser input) throws IOException
+	private T deserializeFromJson(JsonParser input, DumpHeader header) throws IOException
 	{
 		ObjectNode read = input.readValueAsTree();
-		return fromJsonSingle(read);
+		return fromJsonSingle(read, header);
 	}
 }
 

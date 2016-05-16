@@ -10,6 +10,7 @@ import static org.junit.Assert.assertThat;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
@@ -29,6 +30,12 @@ public class AttributeTypeTest extends AbstractNamedDAOTest<AttributeType>
 		return attrTypeDAO;
 	}
 
+	@Test
+	public void importExportIsIdempotent()
+	{
+		super.importExportIsIdempotent();
+	}
+	
 	@Override
 	protected AttributeType getObject(String name)
 	{

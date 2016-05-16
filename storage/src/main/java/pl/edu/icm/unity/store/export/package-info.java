@@ -10,4 +10,4 @@
  * Implementation of import/export functionality.
  * @author K. Benedyczak
  */
-package pl.edu.icm.unity.store.impl.export;
+package pl.edu.icm.unity.store.export;

@@ -10,7 +10,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 
 import org.junit.Before;
@@ -23,6 +26,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.store.StorageCleaner;
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
+import pl.edu.icm.unity.store.api.ImportExport;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
@@ -33,6 +37,9 @@ public abstract class AbstractBasicDAOTest<T>
 
 	@Autowired
 	protected TransactionalRunner tx;
+	
+	@Autowired
+	protected ImportExport ie;
 	
 	@Before
 	public void cleanDB()
@@ -157,5 +164,44 @@ public abstract class AbstractBasicDAOTest<T>
 
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
 		});
+	}
+	
+	//TODO - enable for all DAOs and remove from individual subclasses, provide similar for objstore
+	public void importExportIsIdempotent()
+	{
+		tx.runInTransaction(() -> {
+			BasicCRUDDAO<T> dao = getDAO();
+			T obj = getObject("name1");
+			long key = dao.create(obj);
+
+			ByteArrayOutputStream os = new ByteArrayOutputStream();
+			try
+			{
+				ie.store(os);
+			} catch (Exception e)
+			{
+				e.printStackTrace();
+				fail("Export failed " + e);
+			}
+
+			dao.deleteByKey(key);
+			
+			
+			ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
+			try
+			{
+				ie.load(is);
+			} catch (Exception e)
+			{
+				e.printStackTrace();
+				fail("Import failed " + e);
+			}
+
+			List<T> all = dao.getAll();
+
+			assertThat(all.size(), is(1));
+			assertAreEqual(all.get(0), obj);
+		});
+
 	}
 }

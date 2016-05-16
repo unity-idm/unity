@@ -4,8 +4,9 @@
  */
 package pl.edu.icm.unity.store.api;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Provides feature to export and import database dumps to a file. 
@@ -15,6 +16,6 @@ import java.io.IOException;
  */
 public interface ImportExport
 {
-	void loadFromFile(File file) throws IOException;
-	void storeToFile(File file) throws IOException;
+	void load(InputStream is) throws IOException;
+	void store(OutputStream os) throws IOException;
 }
