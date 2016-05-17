@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.export.AbstractIEBase;
-import pl.edu.icm.unity.store.export.DumpHeader;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
 /**
@@ -45,13 +44,8 @@ public class IdentityTypeIE extends AbstractIEBase<IdentityType>
 	}
 
 	@Override
-	protected IdentityType fromJsonSingle(ObjectNode src, DumpHeader header)
+	protected IdentityType fromJsonSingle(ObjectNode src)
 	{
-		if (header.getVersionMajor() < DumpHeader.V_INITIAL2)
-		{
-			src.put("identityTypeProvider", src.get("name").asText());
-		}
-		
 		return new IdentityType(src);
 	}
 }

@@ -27,7 +27,6 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.Group;
 
 public class GroupTest extends AbstractNamedDAOTest<Group>
@@ -128,7 +127,7 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 			new AttributeStatement("cnd1", "/A", ConflictResolution.overwrite, 
 					fixedAt),
 			new AttributeStatement("cnd2", "/A", ConflictResolution.skip, 
-					AttributeVisibility.full, "dynAt", "dynAExpr")
+					"dynAt", "dynAExpr")
 		});
 		return ret;
 	}
@@ -146,7 +145,7 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 			new AttributeStatement("cnd3", "/A", ConflictResolution.merge, 
 					fixedAt),
 			new AttributeStatement("cnd4", "/A", ConflictResolution.merge, 
-					AttributeVisibility.full, "dynAt2", "dynAExpr2")
+					"dynAt2", "dynAExpr2")
 		});
 	}
 

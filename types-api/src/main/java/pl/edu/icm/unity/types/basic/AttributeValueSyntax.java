@@ -55,6 +55,7 @@ public interface AttributeValueSyntax<T> extends JsonSerializable
 	 * @return value in the byte array form
 	 * @throws InternalException 
 	 */
+	@Deprecated
 	byte[] serialize(T value) throws InternalException;
 
 	/**
@@ -62,6 +63,7 @@ public interface AttributeValueSyntax<T> extends JsonSerializable
 	 * @return value in the form of an object directly serializable to Json (either simple object, map or JsonNode).
 	 * @throws InternalException 
 	 */
+	@Deprecated
 	Object serializeSimple(T value) throws InternalException;
 
 	/**
@@ -69,6 +71,7 @@ public interface AttributeValueSyntax<T> extends JsonSerializable
 	 * @return domain object
 	 * @throws InternalException 
 	 */
+	@Deprecated
 	T deserializeSimple(Object value) throws InternalException;
 	
 	/**
@@ -76,6 +79,7 @@ public interface AttributeValueSyntax<T> extends JsonSerializable
 	 * @return domain object
 	 * @throws InternalException 
 	 */
+	@Deprecated
 	T deserialize(byte []raw) throws InternalException;
 	
 	
@@ -92,4 +96,11 @@ public interface AttributeValueSyntax<T> extends JsonSerializable
 	 * @throws IllegalAttributeValueException if the conversion can not be performed.
 	 */
 	T convertFromString(String stringRepresentation) throws IllegalAttributeValueException;
+	
+	/**
+	 * Reverse of {@link #convertFromString(String)}
+	 * @param value
+	 * @return value converted to string.
+	 */
+	String convertToString(T value);
 }

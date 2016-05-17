@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.export.AbstractIEBase;
-import pl.edu.icm.unity.store.export.DumpHeader;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
 /**
@@ -45,7 +44,7 @@ public class AttributeTypesIE extends AbstractIEBase<AttributeType>
 	}
 
 	@Override
-	protected AttributeType fromJsonSingle(ObjectNode src, DumpHeader header)
+	protected AttributeType fromJsonSingle(ObjectNode src)
 	{
 		return new AttributeType(src);
 	}

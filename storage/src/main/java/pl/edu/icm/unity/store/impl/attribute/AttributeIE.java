@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.export.AbstractIEBase;
-import pl.edu.icm.unity.store.export.DumpHeader;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 
 /**
@@ -48,7 +47,7 @@ public class AttributeIE extends AbstractIEBase<StoredAttribute>
 	}
 
 	@Override
-	protected StoredAttribute fromJsonSingle(ObjectNode src, DumpHeader header)
+	protected StoredAttribute fromJsonSingle(ObjectNode src)
 	{
 		return serializer.fromJson(src);
 	}

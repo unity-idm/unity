@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
 /**
  * Helpers for JSON streaming API
@@ -41,5 +42,11 @@ public class JsonUtils
 			throw new IOException("Expected " + tokenType + 
 					", got: " + jp.getCurrentToken() + 
 					" " + jp.getCurrentLocation());
+	}
+	
+	public static ArrayNode deserialize2Array(JsonParser input, String expectedCategory) throws IOException
+	{
+		nextExpect(input, expectedCategory);
+		return input.readValueAsTree();
 	}
 }

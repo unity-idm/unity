@@ -10,12 +10,6 @@ package pl.edu.icm.unity.store.export;
  */
 public class DumpHeader
 {
-	/**
-	 * Initial version number of Unity 2 schema.
-	 */
-	public static final int V_INITIAL2 = 3;
-	
-	
 	private int versionMajor;
 	private int versionMinor;
 	private long timestamp;

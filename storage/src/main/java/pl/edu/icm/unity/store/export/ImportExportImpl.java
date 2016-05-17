@@ -23,6 +23,7 @@ import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.impl.attribute.AttributeIE;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypesIE;
 import pl.edu.icm.unity.store.impl.entities.EntityIE;
+import pl.edu.icm.unity.store.impl.groups.GroupIE;
 import pl.edu.icm.unity.store.impl.identities.IdentityIE;
 import pl.edu.icm.unity.store.impl.identitytype.IdentityTypeIE;
 
@@ -39,6 +40,9 @@ public class ImportExportImpl implements ImportExport
 	private ObjectMapper objectMapper;
 	
 	@Autowired
+	private DumpUpdater updater;
+	
+	@Autowired
 	private AttributeTypesIE attributeTypesIE;
 
 	@Autowired
@@ -49,6 +53,9 @@ public class ImportExportImpl implements ImportExport
 	
 	@Autowired
 	private IdentityIE identitiesIE;
+	
+	@Autowired
+	private GroupIE groupsIE;
 	
 	@Autowired
 	private AttributeIE attributesIE;
@@ -84,10 +91,10 @@ public class ImportExportImpl implements ImportExport
 		identitiesIE.serialize(jg);
 		jg.flush();
 
-//		jg.writeFieldName("groups");
-//		groupsIE.serialize(sql, jg);
-//		jg.flush();
-//
+		jg.writeFieldName("groups");
+		groupsIE.serialize(jg);
+		jg.flush();
+
 //		jg.writeFieldName("groupMembers");
 //		groupMembersIE.serialize(sql, jg);
 //		jg.flush();
@@ -108,34 +115,41 @@ public class ImportExportImpl implements ImportExport
 	@Override
 	public void load(InputStream is) throws IOException
 	{
+		if (!is.markSupported())
+			throw new IOException("Only InputStreams supporting mark()&reset() are allowed to load from.");
+		
 		JsonFactory jsonF = new JsonFactory(objectMapper);
 		JsonParser jp = jsonF.createParser(is);
 		JsonUtils.nextExpect(jp, JsonToken.START_OBJECT);
 		
 		DumpHeader header = loadHeader(jp);
+
+		is.mark(-1);
+		updater.update(is, header);
+		is.reset();
 		
 		JsonUtils.nextExpect(jp, "contents");
 		
 		JsonUtils.nextExpect(jp, "attributeTypes");
-		attributeTypesIE.deserialize(jp, header);
+		attributeTypesIE.deserialize(jp);
 		
 		JsonUtils.nextExpect(jp, "identityTypes");
-		identityTypesIE.deserialize(jp, header);
+		identityTypesIE.deserialize(jp);
 
 		JsonUtils.nextExpect(jp, "entities");
-		entitiesIE.deserialize(jp, header);
+		entitiesIE.deserialize(jp);
 
 		JsonUtils.nextExpect(jp, "identities");
-		identitiesIE.deserialize(jp, header);
-//
-//		JsonUtils.nextExpect(jp, "groups");
-//		groupsIE.deserialize(sql, jp, header);
-//		
+		identitiesIE.deserialize(jp);
+
+		JsonUtils.nextExpect(jp, "groups");
+		groupsIE.deserialize(jp);
+		
 //		JsonUtils.nextExpect(jp, "groupMembers");
 //		groupMembersIE.deserialize(sql, jp);
 
 		JsonUtils.nextExpect(jp, "attributes");
-		attributesIE.deserialize(jp, header);
+		attributesIE.deserialize(jp);
 
 //		JsonUtils.nextExpect(jp, "genericObjects");
 //		genericsIE.deserialize(sql, jp);

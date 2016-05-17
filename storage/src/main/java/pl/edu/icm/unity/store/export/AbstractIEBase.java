@@ -34,7 +34,7 @@ public abstract class AbstractIEBase<T>
 	 * @param src
 	 * @return
 	 */
-	protected abstract T fromJsonSingle(ObjectNode src, DumpHeader header);
+	protected abstract T fromJsonSingle(ObjectNode src);
 
 	/**
 	 * Stores in imported object in db
@@ -58,21 +58,23 @@ public abstract class AbstractIEBase<T>
 		jg.writeTree(asJson);
 	}
 	
-	public void deserialize(JsonParser input, DumpHeader header) throws IOException
+	public void deserialize(JsonParser input) 
+			throws IOException
 	{
 		JsonUtils.expect(input, JsonToken.START_ARRAY);
 		while(input.nextToken() == JsonToken.START_OBJECT)
 		{
-			T obj = deserializeFromJson(input, header);
+			T obj = deserializeFromJson(input);
 			createSingle(obj);
 		}
 		JsonUtils.expect(input, JsonToken.END_ARRAY);
 	}
 
-	private T deserializeFromJson(JsonParser input, DumpHeader header) throws IOException
+	private T deserializeFromJson(JsonParser input)
+			throws IOException
 	{
 		ObjectNode read = input.readValueAsTree();
-		return fromJsonSingle(read, header);
+		return fromJsonSingle(read);
 	}
 }
 

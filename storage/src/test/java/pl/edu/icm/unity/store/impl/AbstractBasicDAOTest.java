@@ -14,6 +14,7 @@ import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.junit.Before;
@@ -186,7 +187,7 @@ public abstract class AbstractBasicDAOTest<T>
 
 			dao.deleteByKey(key);
 			
-			
+			String dump = new String(os.toByteArray(), StandardCharsets.UTF_8);
 			ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
 			try
 			{
@@ -194,7 +195,8 @@ public abstract class AbstractBasicDAOTest<T>
 			} catch (Exception e)
 			{
 				e.printStackTrace();
-				fail("Import failed " + e);
+				
+				fail("Import failed " + e + "\nDump:\n" + dump);
 			}
 
 			List<T> all = dao.getAll();

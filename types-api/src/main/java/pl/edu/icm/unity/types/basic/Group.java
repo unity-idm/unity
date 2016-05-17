@@ -12,8 +12,16 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.types.I18nDescribedObject;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.NamedObject;
 
 /**
@@ -54,6 +62,12 @@ public class Group extends I18nDescribedObject implements NamedObject
 		setPath(path);
 		displayedName = new I18nString(toString());
 		description = new I18nString();
+	}
+
+	@JsonCreator
+	public Group(ObjectNode src)
+	{
+		fromJson(src);
 	}
 
 	@Override
@@ -189,6 +203,57 @@ public class Group extends I18nDescribedObject implements NamedObject
 		for (int i=0; i<path.length; i++)
 			ret.append("/").append(path[i]);
 		return ret.toString();
+	}
+
+	private void fromJson(ObjectNode main)
+	{
+		setPath(main.get("path").asText());
+		fromJsonBase(main);
+	}
+
+	@JsonValue
+	public ObjectNode toJson()
+	{
+		ObjectNode main = toJsonBase();
+		main.put("path", getName());
+		return main;
+	}
+	
+	public ObjectNode toJsonBase()
+	{
+		ObjectNode main = Constants.MAPPER.createObjectNode();
+		main.set("i18nDescription", I18nStringJsonUtil.toJson(getDescription()));
+		main.set("displayedName", I18nStringJsonUtil.toJson(getDisplayedName()));
+		ArrayNode ases = main.putArray("attributeStatements");
+		for (AttributeStatement as: getAttributeStatements())
+			ases.add(as.toJson());
+		ArrayNode aces = main.putArray("attributesClasses");
+		for (String ac: getAttributesClasses())
+			aces.add(ac);
+		return main;
+	}
+
+	public void fromJsonBase(ObjectNode main)
+	{
+		setDescription(I18nStringJsonUtil.fromJson(main.get("i18nDescription"),
+				main.get("description")));
+		setDisplayedName(main.has("displayedName") ? 
+				I18nStringJsonUtil.fromJson(main.get("displayedName")) : 
+					new I18nString(toString()));
+		
+		ArrayNode jsonStatements = (ArrayNode) main.get("attributeStatements");
+		int asLen = jsonStatements.size();
+		AttributeStatement[] statements = new AttributeStatement[asLen];
+		int i=0;
+		for (JsonNode n: jsonStatements)
+			statements[i++] = new AttributeStatement((ObjectNode) n);
+		setAttributeStatements(statements);
+
+		ArrayNode jsonAcs = (ArrayNode) main.get("attributesClasses");
+		Set<String> acs = new HashSet<>();
+		for (JsonNode e: jsonAcs)
+			acs.add(e.asText());
+		setAttributesClasses(acs);
 	}
 
 	@Override

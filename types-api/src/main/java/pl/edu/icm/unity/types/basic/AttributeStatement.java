@@ -8,6 +8,12 @@ import java.io.Serializable;
 
 import org.mvel2.MVEL;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 
 
@@ -24,9 +30,6 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
  * Statement can assign attribute in two alternative ways: either attribute name is provided and 
  * an MVEL expression is used to produce values or a fixed attribute is given. The later variant is 
  * quite static but allows for editing assigned attribute with the full power of Unity attribute editors in the UI.
- * <p>
- * 
- * TODO: serialization and use proper AttributeType, remove visibility
  * @author K. Benedyczak
  */
 public class AttributeStatement
@@ -67,7 +70,6 @@ public class AttributeStatement
 	private Attribute fixedAttribute;
 	private String dynamicAttributeType;
 	private String dynamicAttributeExpression;
-	private AttributeVisibility visibility = AttributeVisibility.full;
 	private Serializable compiledDynamicAttributeExpression;
 	
 	
@@ -100,11 +102,10 @@ public class AttributeStatement
 	 * @param dynamicAttributeExpression
 	 */
 	public AttributeStatement(String condition, String extraAttributesGroup, 
-			ConflictResolution conflictResolution, AttributeVisibility visibility,
+			ConflictResolution conflictResolution, 
 			String dynamicAttributeType, String dynamicAttributeExpression)
 	{
 		this.condition = condition;
-		this.visibility = visibility;
 		this.extraAttributesGroup = extraAttributesGroup;
 		this.conflictResolution = conflictResolution;
 		this.dynamicAttributeType = dynamicAttributeType;
@@ -115,6 +116,11 @@ public class AttributeStatement
 	{
 	}
 
+	@JsonCreator
+	public AttributeStatement(ObjectNode src)
+	{
+		fromJson(src);
+	}
 
 	/**
 	 * Creates a simple statement that assigns a given attribute to everybody
@@ -150,10 +156,6 @@ public class AttributeStatement
 	{
 		return condition;
 	}
-	public AttributeVisibility getDynamicAttributeVisibility()
-	{
-		return visibility;
-	}
 	public String getExtraAttributesGroup()
 	{
 		return extraAttributesGroup;
@@ -162,10 +164,6 @@ public class AttributeStatement
 	{
 		this.condition = condition;
 		this.compiledCondition = MVEL.compileExpression(condition);
-	}
-	public void setDynamicAttributeVisibility(AttributeVisibility visibility)
-	{
-		this.visibility = visibility;
 	}
 	public void setExtraAttributesGroup(String extraAttributesGroup)
 	{
@@ -286,7 +284,49 @@ public class AttributeStatement
 				+ " if '" + condition + "' is true";
 	}
 
+	@JsonValue
+	public JsonNode toJson()
+	{
+		ObjectNode main = Constants.MAPPER.createObjectNode();
+		main.put("resolution", getConflictResolution().name());
 
+		main.put("condition", getCondition());
+		if (getExtraAttributesGroup() != null)
+			main.put("extraGroupName", getExtraAttributesGroup());
+		if (dynamicAttributeMode())
+		{
+			main.put("dynamicAttributeExpression", getDynamicAttributeExpression());
+			main.put("dynamicAttributeName", getDynamicAttributeType());
+		} else if (getFixedAttribute() != null)
+		{
+			ObjectNode attrJson = getFixedAttribute().toJson();
+			main.set("fixedAttribute", attrJson);
+		}
+		return main;
+	}
+	
+	private void fromJson(JsonNode as)
+	{
+		String resolution = as.get("resolution").asText();
+		setConflictResolution(ConflictResolution.valueOf(resolution));
+
+		setCondition(as.get("condition").asText());
+		
+		if (as.has("extraGroupName"))
+			setExtraAttributesGroup(as.get("extraGroupName").asText());
+		
+		if (as.has("fixedAttribute"))
+		{
+			Attribute fixed = new Attribute((ObjectNode) as.get("fixedAttribute"));
+			setFixedAttribute(fixed);
+		} else if (as.has("dynamicAttributeName"))
+		{
+			setDynamicAttributeExpression(as.get("dynamicAttributeExpression").asText());
+			String aTypeName = as.get("dynamicAttributeName").asText();
+			setDynamicAttributeType(aTypeName);
+		}
+	}
+	
 	@Override
 	public int hashCode()
 	{
@@ -310,7 +350,6 @@ public class AttributeStatement
 						.hashCode());
 		result = prime * result
 				+ ((fixedAttribute == null) ? 0 : fixedAttribute.hashCode());
-		result = prime * result + ((visibility == null) ? 0 : visibility.hashCode());
 		return result;
 	}
 
@@ -356,8 +395,6 @@ public class AttributeStatement
 			if (other.fixedAttribute != null)
 				return false;
 		} else if (!fixedAttribute.equals(other.fixedAttribute))
-			return false;
-		if (visibility != other.visibility)
 			return false;
 		return true;
 	}

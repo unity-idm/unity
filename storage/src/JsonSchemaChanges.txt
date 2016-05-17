@@ -1,8 +1,0 @@
-Group representation/attribute statement:
--) was 'fixedAttribute-*'; with id being attr type key. Now there is fixedAttribute object
-with regular serialized attribute inside.
--) was extraGroup=groupKey
-	is extraGroupName=groupPath
-	
-   
-

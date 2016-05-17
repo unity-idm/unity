@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.export.AbstractIEBase;
-import pl.edu.icm.unity.store.export.DumpHeader;
 import pl.edu.icm.unity.types.EntityInformation;
 
 /**
@@ -45,7 +44,7 @@ public class EntityIE extends AbstractIEBase<EntityInformation>
 	}
 
 	@Override
-	protected EntityInformation fromJsonSingle(ObjectNode src, DumpHeader header)
+	protected EntityInformation fromJsonSingle(ObjectNode src)
 	{
 		return new EntityInformation(src);
 	}
