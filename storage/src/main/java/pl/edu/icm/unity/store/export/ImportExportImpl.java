@@ -27,6 +27,7 @@ import pl.edu.icm.unity.store.impl.groups.GroupIE;
 import pl.edu.icm.unity.store.impl.identities.IdentityIE;
 import pl.edu.icm.unity.store.impl.identitytype.IdentityTypeIE;
 import pl.edu.icm.unity.store.impl.membership.MembershipIE;
+import pl.edu.icm.unity.store.objstore.ac.AttributeClassIE;
 
 /**
  * Import/export functionality. 
@@ -63,6 +64,9 @@ public class ImportExportImpl implements ImportExport
 	
 	@Autowired
 	private AttributeIE attributesIE;
+	
+	@Autowired
+	private AttributeClassIE acIE;
 	
 	@Override
 	public void store(OutputStream os) throws IOException
@@ -106,11 +110,19 @@ public class ImportExportImpl implements ImportExport
 		jg.writeFieldName("attributes");
 		attributesIE.serialize(jg);
 		jg.flush();
-//
-//		jg.writeFieldName("genericObjects");
-//		genericsIE.serialize(sql, jg);
-//		jg.flush();
+
 		
+		jg.writeObjectFieldStart("genericObjects");
+		
+		
+		jg.writeFieldName("attributeClasses");
+		acIE.serialize(jg);
+		jg.flush();
+
+		//TODO - all remaining generics 
+		
+		
+		jg.writeEndObject(); //genericObjects
 		jg.writeEndObject(); //contents
 		jg.writeEndObject(); //root
 		jg.close();
@@ -155,8 +167,12 @@ public class ImportExportImpl implements ImportExport
 		JsonUtils.nextExpect(jp, "attributes");
 		attributesIE.deserialize(jp);
 
-//		JsonUtils.nextExpect(jp, "genericObjects");
-//		genericsIE.deserialize(sql, jp);
+		JsonUtils.nextExpect(jp, "genericObjects");
+
+		JsonUtils.nextExpect(jp, "attributeClasses");
+		acIE.deserialize(jp);
+		
+		jp.close();
 	}
 	
 	private DumpHeader loadHeader(JsonParser jp) throws JsonParseException, IOException

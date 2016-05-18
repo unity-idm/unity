@@ -50,7 +50,7 @@ public class ConfirmationConfigurationTest extends AbstractObjStoreTest<Confirma
 			attributeTypeDAO.create(created);
 			
 			ConfirmationConfiguration obj = getObject("attr");
-			dao.insert(obj);
+			dao.create(obj);
 
 			attributeTypeDAO.delete("attr");
 			
@@ -66,7 +66,7 @@ public class ConfirmationConfigurationTest extends AbstractObjStoreTest<Confirma
 			long atKey = attributeTypeDAO.create(created);
 			
 			ConfirmationConfiguration obj = getObject("attr");
-			dao.insert(obj);
+			dao.create(obj);
 
 			AttributeType renamed = new AttributeType("attr2", "syntaxId");
 			attributeTypeDAO.updateByKey(atKey, renamed);
@@ -84,12 +84,12 @@ public class ConfirmationConfigurationTest extends AbstractObjStoreTest<Confirma
 			MessageTemplate msgT = new MessageTemplate("msgTemplate", "description",
 					new I18nMessage(new I18nString("s"), new I18nString("b")),
 					"consumer");
-			msgTmplDAO.insert(msgT);
+			msgTmplDAO.create(msgT);
 			
 			ConfirmationConfiguration obj = getObject("name1");
-			dao.insert(obj);
+			dao.create(obj);
 
-			catchException(msgTmplDAO).remove("msgTemplate");
+			catchException(msgTmplDAO).delete("msgTemplate");
 			
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
 		});
@@ -102,10 +102,10 @@ public class ConfirmationConfigurationTest extends AbstractObjStoreTest<Confirma
 			MessageTemplate msgT = new MessageTemplate("msgTemplate", "description",
 					new I18nMessage(new I18nString("s"), new I18nString("b")),
 					ConfirmationTemplateDef.NAME);
-			msgTmplDAO.insert(msgT);
+			msgTmplDAO.create(msgT);
 			
 			ConfirmationConfiguration obj = getObject("name1");
-			dao.insert(obj);
+			dao.create(obj);
 
 			MessageTemplate msgT2 = new MessageTemplate("msgTemplate", "description",
 					new I18nMessage(new I18nString("s"), new I18nString("b")),

@@ -148,7 +148,7 @@ public class GenericObjectsDAOImpl<T extends NamedObject> implements GenericObje
 	}
 	
 	@Override
-	public void remove(String name)
+	public void delete(String name)
 	{
 		GenericObjectBean raw = dbGeneric.getObjectByNameType(name, type);
 		if (raw == null)
@@ -160,7 +160,7 @@ public class GenericObjectsDAOImpl<T extends NamedObject> implements GenericObje
 	}
 
 	@Override
-	public void removeAllNoCheck()
+	public void deleteAllNoCheck()
 	{
 		dbGeneric.removeObjectsByType(type);
 	}
@@ -191,7 +191,7 @@ public class GenericObjectsDAOImpl<T extends NamedObject> implements GenericObje
 	}
 
 	@Override
-	public void insert(T newValue)
+	public void create(T newValue)
 	{
 		GenericObjectBean blob = handler.toBlob(newValue);
 		blob.setLastUpdate(new Date());

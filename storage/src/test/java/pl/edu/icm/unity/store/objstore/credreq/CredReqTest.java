@@ -44,12 +44,12 @@ public class CredReqTest extends AbstractObjStoreTest<CredentialRequirements>
 			CredentialDefinition cred = new CredentialDefinition("typeId", "cred1", 
 					new I18nString("dName"), new I18nString("desc"));
 			cred.setJsonConfiguration("{}");
-			credentialDB.insert(cred);
+			credentialDB.create(cred);
 			
 			CredentialRequirements obj = getObject("name1");
-			dao.insert(obj);
+			dao.create(obj);
 
-			catchException(credentialDB).remove("cred1");
+			catchException(credentialDB).delete("cred1");
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
 		});
 	}

@@ -45,12 +45,12 @@ public class AuthenticatorInstanceTest extends AbstractObjStoreTest<Authenticato
 			CredentialDefinition cred = new CredentialDefinition("typeId", "localCred", 
 					new I18nString("dName"), new I18nString("desc"));
 			cred.setJsonConfiguration("{}");
-			credentialDB.insert(cred);
+			credentialDB.create(cred);
 			
 			AuthenticatorInstance obj = getObject("name1");
-			dao.insert(obj);
+			dao.create(obj);
 
-			catchException(credentialDB).remove("localCred");
+			catchException(credentialDB).delete("localCred");
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
 		});
 	}
@@ -62,10 +62,10 @@ public class AuthenticatorInstanceTest extends AbstractObjStoreTest<Authenticato
 			CredentialDefinition cred = new CredentialDefinition("typeId", "localCred", 
 					new I18nString("dName"), new I18nString("desc"));
 			cred.setJsonConfiguration("{}");
-			credentialDB.insert(cred);
+			credentialDB.create(cred);
 			
 			AuthenticatorInstance obj = getObject("name1");
-			dao.insert(obj);
+			dao.create(obj);
 
 			Date ts = dao.getUpdateTimestamp("name1");
 			try

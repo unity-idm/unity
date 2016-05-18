@@ -27,6 +27,8 @@ import pl.edu.icm.unity.types.DescribedObjectImpl;
  * classes allows for arbitrary attributes, then effectively all attributes are allowed.
  * <p>
  * All mandatory attributes are always allowed.
+ * <p>
+ * This class uses the default JSON serialization.
  * @author K. Benedyczak
  */
 public class AttributesClass extends DescribedObjectImpl
@@ -109,6 +111,14 @@ public class AttributesClass extends DescribedObjectImpl
 	public void setParentClassName(Set<String> parentClasses)
 	{
 		this.parentClasses = new HashSet<String>(parentClasses);
+	}
+
+	@Override
+	public String toString()
+	{
+		return "AttributesClass [allowed=" + allowed + ", mandatory=" + mandatory
+				+ ", allowArbitrary=" + allowArbitrary + ", parentClasses="
+				+ parentClasses + "]";
 	}
 
 	@Override

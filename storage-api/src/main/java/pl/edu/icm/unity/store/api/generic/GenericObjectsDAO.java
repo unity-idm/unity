@@ -35,9 +35,9 @@ public interface GenericObjectsDAO<T extends NamedObject>
 	Set<String> getAllNames();
 	Map<String, T> getAllAsMap();
 	Date getUpdateTimestamp(String name);
-	void remove(String name);
-	void removeAllNoCheck();
+	void delete(String name);
+	void deleteAllNoCheck();
 	void update(String current, T newValue);
 	void updateTS(String id);
-	void insert(T newValue);
+	void create(T newValue);
 }

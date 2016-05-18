@@ -10,7 +10,11 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +32,7 @@ import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.store.StorageCleaner;
+import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.api.generic.GenericObjectsDAO;
 import pl.edu.icm.unity.types.NamedObject;
 
@@ -40,6 +45,9 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 
 	@Autowired
 	protected TransactionalRunner tx;
+	
+	@Autowired
+	protected ImportExport ie;
 	
 	@Before
 	public void cleanDB()
@@ -59,7 +67,7 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 			GenericObjectsDAO<T> dao = getDAO();
 			T obj = getObject("name1");
 
-			dao.insert(obj);
+			dao.create(obj);
 			boolean ret = dao.exists(obj.getName());
 
 			assertThat(ret, is(true));
@@ -73,7 +81,7 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 			GenericObjectsDAO<T> dao = getDAO();
 			T obj = getObject("name1");
 
-			dao.insert(obj);
+			dao.create(obj);
 			dao.assertExist(Lists.newArrayList(obj.getName()));
 		});
 	}
@@ -109,7 +117,7 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 			GenericObjectsDAO<T> dao = getDAO();
 			T obj = getObject("name1");
 
-			dao.insert(obj);
+			dao.create(obj);
 			T ret = dao.get(obj.getName());
 
 			assertThat(ret, is(notNullValue()));
@@ -124,7 +132,7 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 			GenericObjectsDAO<T> dao = getDAO();
 			T obj = getObject("name1");
 
-			dao.insert(obj);
+			dao.create(obj);
 			List<Entry<T, Date>> ret = dao.getAllWithUpdateTimestamps();
 
 			assertThat(ret, is(notNullValue()));
@@ -141,7 +149,7 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 			GenericObjectsDAO<T> dao = getDAO();
 			T obj = getObject("name1");
 
-			dao.insert(obj);
+			dao.create(obj);
 			List<T> ret = dao.getAll();
 
 			assertThat(ret, is(notNullValue()));
@@ -156,7 +164,7 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 		tx.runInTransaction(() -> {
 			GenericObjectsDAO<T> dao = getDAO();
 			T obj = getObject("name1");
-			dao.insert(obj);
+			dao.create(obj);
 			String originalName = obj.getName();
 			
 			T changed = mutateObject(obj);
@@ -175,7 +183,7 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 		tx.runInTransaction(() -> {
 			GenericObjectsDAO<T> dao = getDAO();
 			T obj = getObject("name1");
-			dao.insert(obj);
+			dao.create(obj);
 
 			dao.updateTS(obj.getName());
 
@@ -197,8 +205,8 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 			T obj = getObject("name1");
 			T obj2 = getObject("name2");
 
-			dao.insert(obj);
-			dao.insert(obj2);
+			dao.create(obj);
+			dao.create(obj2);
 			
 			List<T> all = dao.getAll();
 
@@ -235,8 +243,8 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 			T obj = getObject("name1");
 			T obj2 = getObject("name2");
 
-			dao.insert(obj);
-			dao.insert(obj2);
+			dao.create(obj);
+			dao.create(obj2);
 			
 			Map<String, T> all = dao.getAllAsMap();
 			Set<String> allNames = dao.getAllNames();
@@ -256,9 +264,9 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 		tx.runInTransaction(() -> {
 			GenericObjectsDAO<T> dao = getDAO();
 			T obj = getObject("name1");
-			dao.insert(obj);
+			dao.create(obj);
 
-			dao.remove(obj.getName());
+			dao.delete(obj.getName());
 
 			catchException(dao).get(obj.getName());
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
@@ -271,9 +279,9 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 		tx.runInTransaction(() -> {
 			GenericObjectsDAO<T> dao = getDAO();
 			T obj = getObject("name1");
-			dao.insert(obj);
+			dao.create(obj);
 
-			dao.removeAllNoCheck();
+			dao.deleteAllNoCheck();
 
 			catchException(dao).get(obj.getName());
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
@@ -286,7 +294,7 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 		tx.runInTransaction(() -> {
 			GenericObjectsDAO<T> dao = getDAO();
 
-			catchException(dao).remove("name1");
+			catchException(dao).delete("name1");
 
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
 		});
@@ -316,5 +324,43 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
 		});
 	}
+	
+	@Test
+	public void importExportIsIdempotent()
+	{
+		tx.runInTransaction(() -> {
+			GenericObjectsDAO<T> dao = getDAO();
+			T obj = getObject("name1");
+			dao.create(obj);
+			
+			ByteArrayOutputStream os = new ByteArrayOutputStream();
+			try
+			{
+				ie.store(os);
+			} catch (Exception e)
+			{
+				e.printStackTrace();
+				fail("Export failed " + e);
+			}
 
+			dbCleaner.reset();
+			
+			String dump = new String(os.toByteArray(), StandardCharsets.UTF_8);
+			ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
+			try
+			{
+				ie.load(is);
+			} catch (Exception e)
+			{
+				e.printStackTrace();
+				
+				fail("Import failed " + e + "\nDump:\n" + dump);
+			}
+
+			List<T> all = dao.getAll();
+
+			assertThat(all.size(), is(1));
+			assertAreEqual(all.get(0), obj);
+		});
+	}
 }

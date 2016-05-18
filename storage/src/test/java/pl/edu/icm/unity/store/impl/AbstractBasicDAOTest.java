@@ -245,6 +245,5 @@ public abstract class AbstractBasicDAOTest<T>
 			assertThat(all.size(), is(1));
 			assertAreEqual(all.get(0), obj);
 		});
-
 	}
 }

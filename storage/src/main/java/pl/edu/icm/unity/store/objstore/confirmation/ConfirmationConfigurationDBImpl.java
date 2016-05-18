@@ -75,7 +75,7 @@ public class ConfirmationConfigurationDBImpl extends GenericObjectsDAOImpl<Confi
 	{
 		String configName = ATTRIBUTE_CONFIG_TYPE + removedName; 
 		if (exists(configName))
-			remove(configName);
+			delete(configName);
 	}
 	
 	private void propagateAttributeTypeUpdate(long modifiedId, String modifiedName, AttributeType newValue)
