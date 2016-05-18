@@ -4,9 +4,16 @@
  */
 package pl.edu.icm.unity.types.authn;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nDescribedObject;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.NamedObject;
 
 
@@ -55,6 +62,12 @@ public class CredentialDefinition extends I18nDescribedObject implements NamedOb
 		this.name = name;
 	}
 	
+	@JsonCreator
+	public CredentialDefinition(ObjectNode root)
+	{
+		fromJson(root);
+	}
+	
 	private static I18nString loadNames(String name, MessageSource msg)
 	{
 		return new I18nString("CredDef." + name + ".displayedName", msg);
@@ -86,6 +99,45 @@ public class CredentialDefinition extends I18nDescribedObject implements NamedOb
 	public void setName(String name)
 	{
 		this.name = name;
+	}
+
+	@JsonValue
+	public ObjectNode toJson()
+	{
+		ObjectNode root = Constants.MAPPER.createObjectNode();
+		root.put("typeId", getTypeId());
+		root.put("name", getName());
+		root.put("jsonConfiguration", getJsonConfiguration());
+		root.set("displayedName", I18nStringJsonUtil.toJson(getDisplayedName()));
+		root.set("i18nDescription", I18nStringJsonUtil.toJson(getDescription()));
+		return root;
+	}
+	
+	private void fromJson(ObjectNode root)
+	{
+		JsonNode n;
+		n = root.get("name");
+		setName(n.asText());
+
+		n = root.get("typeId");
+		setTypeId(n.asText());
+		
+		n = root.get("jsonConfiguration");
+		setJsonConfiguration(n.asText());
+
+		if (root.has("displayedName"))
+			setDisplayedName(I18nStringJsonUtil.fromJson(root.get("displayedName")));
+		else
+			setDisplayedName(new I18nString(getName()));
+
+		setDescription(I18nStringJsonUtil.fromJson(root.get("i18nDescription"), 
+				root.get("description")));
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "CredentialDefinition [name=" + name + ", typeId=" + typeId + "]";
 	}
 
 	@Override
