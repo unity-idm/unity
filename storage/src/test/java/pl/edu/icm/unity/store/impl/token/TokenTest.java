@@ -193,6 +193,12 @@ public class TokenTest extends AbstractBasicDAOTest<Token>
 		});
 	}	
 
+	@Override
+	@Test
+	public void importExportIsIdempotent()
+	{
+		//empty - tokens are not subject of import/export
+	}
 	
 	@Override
 	protected TokenDAO getDAO()

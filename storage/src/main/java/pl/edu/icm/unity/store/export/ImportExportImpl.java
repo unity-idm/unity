@@ -26,6 +26,7 @@ import pl.edu.icm.unity.store.impl.entities.EntityIE;
 import pl.edu.icm.unity.store.impl.groups.GroupIE;
 import pl.edu.icm.unity.store.impl.identities.IdentityIE;
 import pl.edu.icm.unity.store.impl.identitytype.IdentityTypeIE;
+import pl.edu.icm.unity.store.impl.membership.MembershipIE;
 
 /**
  * Import/export functionality. 
@@ -56,6 +57,9 @@ public class ImportExportImpl implements ImportExport
 	
 	@Autowired
 	private GroupIE groupsIE;
+
+	@Autowired
+	private MembershipIE membershipIE;
 	
 	@Autowired
 	private AttributeIE attributesIE;
@@ -95,9 +99,9 @@ public class ImportExportImpl implements ImportExport
 		groupsIE.serialize(jg);
 		jg.flush();
 
-//		jg.writeFieldName("groupMembers");
-//		groupMembersIE.serialize(sql, jg);
-//		jg.flush();
+		jg.writeFieldName("groupMembers");
+		membershipIE.serialize(jg);
+		jg.flush();
 
 		jg.writeFieldName("attributes");
 		attributesIE.serialize(jg);
@@ -145,8 +149,8 @@ public class ImportExportImpl implements ImportExport
 		JsonUtils.nextExpect(jp, "groups");
 		groupsIE.deserialize(jp);
 		
-//		JsonUtils.nextExpect(jp, "groupMembers");
-//		groupMembersIE.deserialize(sql, jp);
+		JsonUtils.nextExpect(jp, "groupMembers");
+		membershipIE.deserialize(jp);
 
 		JsonUtils.nextExpect(jp, "attributes");
 		attributesIE.deserialize(jp);

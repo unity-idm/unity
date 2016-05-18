@@ -22,4 +22,6 @@ public interface MembershipMapper
 	List<GroupElementBean> getEntityMembership(long entityId);
 
 	List<GroupElementBean> getMembers(long groupId);
+	
+	List<GroupElementBean> getAll();
 }

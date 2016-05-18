@@ -28,6 +28,7 @@ import com.hazelcast.core.TransactionalMap;
 import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionalRunner;
+import pl.edu.icm.unity.store.tx.TransactionTL;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
@@ -190,7 +191,7 @@ public class HzTransactionTest
 	{
 		tx.runInTransactionNoAutoCommit(() -> {
 			getMap().put("n1", "v1");
-			HzTransactionTL.manualCommit();
+			TransactionTL.manualCommit();
 			getMap().put("n2", "v2");
 		});
 		

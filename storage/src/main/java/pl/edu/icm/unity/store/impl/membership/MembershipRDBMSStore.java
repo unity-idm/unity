@@ -83,6 +83,15 @@ public class MembershipRDBMSStore implements MembershipDAO
 		List<GroupElementBean> entityMembershipB = mapper.getMembers(groupId);
 		return deserializeList(entityMembershipB);
 	}
+
+	@Override
+	public List<GroupMembership> getAll()
+	{
+		MembershipMapper mapper = SQLTransactionTL.getSql().getMapper(MembershipMapper.class);
+		List<GroupElementBean> entityMembershipB = mapper.getAll();
+		return deserializeList(entityMembershipB);
+	}
+	
 	
 	private List<GroupMembership> deserializeList(List<GroupElementBean> entityMembershipB)
 	{
@@ -91,4 +100,5 @@ public class MembershipRDBMSStore implements MembershipDAO
 			ret.add(jsonSerializer.fromDB(geb));
 		return ret;
 	}
+
 }

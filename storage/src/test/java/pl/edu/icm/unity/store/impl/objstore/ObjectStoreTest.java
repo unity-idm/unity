@@ -186,6 +186,14 @@ public class ObjectStoreTest extends AbstractBasicDAOTest<GenericObjectBean>
 		});	
 	}
 	
+	@Test
+	@Override
+	public void importExportIsIdempotent()
+	{
+		//generic objects are exported and imported in a different way, this is tested 
+		//within object store abstraction
+	}
+	
 	@Override
 	protected GenericObjectBean getObject(String id)
 	{

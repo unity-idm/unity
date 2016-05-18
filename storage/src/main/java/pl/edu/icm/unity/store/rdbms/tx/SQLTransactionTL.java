@@ -14,11 +14,16 @@ import pl.edu.icm.unity.store.tx.TransactionsState;
  */
 public class SQLTransactionTL
 {
-	static ThreadLocal<TransactionsState<SQLTransactionState>> transactionState = 
+	private static ThreadLocal<TransactionsState<SQLTransactionState>> transactionState = 
 			new TransactionsState.TransactionsThreadLocal<>();
 	
 	public static SqlSession getSql()
 	{
 		return transactionState.get().getCurrent().getSql();
+	}
+
+	public static TransactionsState<SQLTransactionState> getState()
+	{
+		return transactionState.get();
 	}
 }

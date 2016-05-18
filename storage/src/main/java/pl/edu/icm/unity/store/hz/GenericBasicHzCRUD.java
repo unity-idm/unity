@@ -53,6 +53,10 @@ public abstract class GenericBasicHzCRUD<T> implements BasicCRUDDAO<T>, HzDAO, R
 	{
 		log.info("Loading " + name + " from persistent storage");
 		index = hzInstance.getAtomicLong(STORE_ID);
+		if (getMap().size() != 0)
+			throw new IllegalStateException("In-memory data is non empty before loading " + name + 
+					", have " + getMap().size() + " entries");
+
 		List<T> all = rdbmsDAO.getAll();
 		for (T element: all)
 			createNoPropagateToRDBMS(element);

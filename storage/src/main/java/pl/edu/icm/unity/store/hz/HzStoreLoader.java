@@ -23,6 +23,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.StorageCleaner;
 import pl.edu.icm.unity.store.StorageConfiguration;
 import pl.edu.icm.unity.store.StoreLoaderInternal;
+import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionalRunner;
 import pl.edu.icm.unity.store.impl.attribute.AttributeHzStore;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeHzStore;
@@ -133,6 +134,7 @@ public class HzStoreLoader implements StoreLoaderInternal
 		Collection<DistributedObject> distributedObjects = hzInstance.getDistributedObjects();
 		for (DistributedObject obj: distributedObjects)
 			obj.destroy();
+		HzTransactionTL.resetTransaction();
 		loadTransactional();
 	}
 }

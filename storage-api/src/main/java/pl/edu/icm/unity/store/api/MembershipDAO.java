@@ -27,4 +27,6 @@ public interface MembershipDAO
 	List<GroupMembership> getEntityMembership(long entityId);
 
 	List<GroupMembership> getMembers(String group);
+	
+	List<GroupMembership> getAll();
 }

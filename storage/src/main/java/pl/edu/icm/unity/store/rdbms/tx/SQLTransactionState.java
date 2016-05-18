@@ -6,7 +6,9 @@ package pl.edu.icm.unity.store.rdbms.tx;
 
 import org.apache.ibatis.session.SqlSession;
 
-public class SQLTransactionState
+import pl.edu.icm.unity.store.tx.TransactionState;
+
+public class SQLTransactionState implements TransactionState
 {
 	private SqlSession sql;
 	
@@ -18,5 +20,11 @@ public class SQLTransactionState
 	public SqlSession getSql()
 	{
 		return sql;
+	}
+
+	@Override
+	public void manualCommit()
+	{
+		sql.commit();
 	}
 }

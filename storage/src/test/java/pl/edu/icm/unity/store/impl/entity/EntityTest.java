@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.store.impl.entity;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;
+import pl.edu.icm.unity.store.tx.TransactionTL;
 import pl.edu.icm.unity.types.EntityInformation;
 import pl.edu.icm.unity.types.EntityScheduledOperation;
 import pl.edu.icm.unity.types.EntityState;
@@ -71,7 +73,26 @@ public class EntityTest extends AbstractBasicDAOTest<EntityInformation>
 			assertAreEqual(obj, ret);
 		});
 	}
+	
+	@Test
+	public void uniqueIndexesAreAssigned()
+	{
+		tx.runInTransaction(() -> {
+			long id1 = dao.create(new EntityInformation());
+			long id2 = dao.create(new EntityInformation());
 
+			assertThat(id1, is(not(id2)));
+			
+			TransactionTL.manualCommit();
+			
+			EntityInformation ret1 = dao.getByKey(id1);
+			EntityInformation ret2 = dao.getByKey(id2);
+
+			assertThat(ret1.getId(), is(id1));
+			assertThat(ret2.getId(), is(id2));
+		});
+	}
+	
 	@Test
 	public void regularInsertAfterInsertedWithIdSucceeds()
 	{

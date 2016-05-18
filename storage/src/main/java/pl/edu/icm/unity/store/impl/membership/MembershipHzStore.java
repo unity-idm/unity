@@ -225,6 +225,16 @@ public class MembershipHzStore implements MembershipDAO, HzDAO
 			return new ArrayList<>(0);
 		return new ArrayList<>(map.values());
 	}
+
+	@Override
+	public List<GroupMembership> getAll()
+	{
+		TransactionalMap<String, Map<Long, GroupMembership>> byGroupMap = getByGroupMap();
+		List<GroupMembership> ret = new ArrayList<>(1000);
+		for (Map<Long, GroupMembership> map: byGroupMap.values())
+			ret.addAll(map.values());
+		return ret;
+	}
 	
 	private TransactionalMap<Long, Map<String, GroupMembership>> getByEntityMap()
 	{
@@ -235,4 +245,5 @@ public class MembershipHzStore implements MembershipDAO, HzDAO
 	{
 		return HzTransactionTL.getHzContext().getMap(STORE_ID + "_byGroup");
 	}
+
 }

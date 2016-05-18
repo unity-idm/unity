@@ -22,7 +22,6 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSEventSink;
 import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSEventsBatch;
 import pl.edu.icm.unity.store.tx.TransactionEngine;
-import pl.edu.icm.unity.store.tx.TransactionalAspect;
 import pl.edu.icm.unity.store.tx.TransactionsState;
 import pl.edu.icm.unity.store.tx.TxEngineUtils;
 import pl.edu.icm.unity.store.tx.TxPersistenceException;
@@ -34,7 +33,7 @@ import pl.edu.icm.unity.store.tx.TxPersistenceException;
 @Component(TransactionEngine.NAME_PFX + "hz")
 public class HzTransactionEngine implements TransactionEngine
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, TransactionalAspect.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER, HzTransactionEngine.class);
 	public static final long RETRY_BASE_DELAY = 50;
 	public static final long RETRY_MAX_DELAY = 200;
 	
@@ -56,7 +55,7 @@ public class HzTransactionEngine implements TransactionEngine
 			} catch (TxPersistenceException pe)
 			{
 				TransactionsState<HzTransactionState> transactionsStack = 
-						HzTransactionTL.transactionState.get();
+						HzTransactionTL.getState();
 				if (transactionsStack.isSubtransaction())
 				{
 					if (log.isDebugEnabled())
@@ -76,7 +75,7 @@ public class HzTransactionEngine implements TransactionEngine
 				rollback(pjp);
 				
 				TransactionsState<HzTransactionState> transactionsStack = 
-						HzTransactionTL.transactionState.get();
+						HzTransactionTL.getState();
 				if (transactionsStack.isSubtransaction())
 				{
 					if (log.isDebugEnabled())
@@ -114,7 +113,7 @@ public class HzTransactionEngine implements TransactionEngine
 	private void setupTransactionSession(ProceedingJoinPoint pjp) 
 			throws Exception
 	{
-		TransactionsState<HzTransactionState> transactionsStack = HzTransactionTL.transactionState.get();
+		TransactionsState<HzTransactionState> transactionsStack = HzTransactionTL.getState();
 		
 		if (transactionsStack.isEmpty())
 		{
@@ -127,21 +126,60 @@ public class HzTransactionEngine implements TransactionEngine
 		}
 	}
 	
+	/**
+	 * Commits the current transaction and starts new. Ensures that new context is used, as this 
+	 * is required by Hazelcast
+	 * @throws InterruptedException
+	 */
+	private void forceCommit()
+	{
+		enqueueRDBMSBatch();
+		TransactionsState<HzTransactionState> transactionsStack = HzTransactionTL.getState();
+		HzTransactionState ti = transactionsStack.pop();
+		ti.getHzContext().commitTransaction();
+		
+		createNewTransaction();
+	}
+	
+	/**
+	 * If there is a running transaction it is dropped and a new one is started.
+	 * If there is no transaction running does nothing. 
+	 * @throws InterruptedException
+	 */
+	private void resetTransaction()
+	{
+		TransactionsState<HzTransactionState> transactionsStack = HzTransactionTL.getState();
+		if (transactionsStack.isEmpty())
+			return;
+		HzTransactionState state = null;
+		while (!transactionsStack.isEmpty())
+			state = transactionsStack.pop();
+		if (state != null)
+			state.getHzContext().rollbackTransaction();
+		createNewTransaction();
+	}
+	
 	private void createNewTransaction(ProceedingJoinPoint pjp) 
 			throws Exception
 	{
-		TransactionsState<HzTransactionState> transactionsStack = HzTransactionTL.transactionState.get();
 		if (log.isTraceEnabled())
 			log.trace("Starting a new transaction for " + pjp.toShortString());
+		createNewTransaction();
+	}
+	
+	private void createNewTransaction()
+	{
+		TransactionsState<HzTransactionState> transactionsStack = HzTransactionTL.getState();
 		TransactionContext newTransactionContext = hazelcastInstance.newTransactionContext();
 		newTransactionContext.beginTransaction();
-		transactionsStack.push(new HzTransactionState(newTransactionContext));
+		transactionsStack.push(new HzTransactionState(newTransactionContext, this::forceCommit, 
+				this::resetTransaction));
 	}
 	
 	private void commitIfNeeded(ProceedingJoinPoint pjp, boolean autoCommit) 
 			throws Exception
 	{
-		TransactionsState<HzTransactionState> transactionsStack = HzTransactionTL.transactionState.get();
+		TransactionsState<HzTransactionState> transactionsStack = HzTransactionTL.getState();
 		HzTransactionState ti = transactionsStack.getCurrent();
 		
 		if (!transactionsStack.isSubtransaction())
@@ -164,20 +202,26 @@ public class HzTransactionEngine implements TransactionEngine
 		}
 	}
 
-	private void enqueueRDBMSBatch() throws InterruptedException
+	private void enqueueRDBMSBatch()
 	{
 		RDBMSEventsBatch currentRDBMSBatch = HzTransactionTL.getCurrentRDBMSBatch();
 		if (currentRDBMSBatch.getEvents().isEmpty())
 			return;
 		TransactionContext hzContext = HzTransactionTL.getHzContext();
 		TransactionalQueue<Object> queue = hzContext.getQueue(RDBMSEventSink.RDBMS_EVENTS_QUEUE);
-		queue.offer(currentRDBMSBatch, 30, TimeUnit.SECONDS);
+		try
+		{
+			queue.offer(currentRDBMSBatch, 30, TimeUnit.SECONDS);
+		} catch (InterruptedException e)
+		{
+			throw new IllegalStateException("Failed to inser transaction data to persistence queue", e);
+		}
 	}
 
 	
 	private void rollback(ProceedingJoinPoint pjp) throws IllegalStateException, SecurityException, SystemException
 	{
-		TransactionsState<HzTransactionState> transactionsStack = HzTransactionTL.transactionState.get();
+		TransactionsState<HzTransactionState> transactionsStack = HzTransactionTL.getState();
 		HzTransactionState ti = transactionsStack.getCurrent();
 		if (!transactionsStack.isSubtransaction())
 		{
@@ -189,7 +233,7 @@ public class HzTransactionEngine implements TransactionEngine
 	
 	private void removeTransactionFromStack(ProceedingJoinPoint pjp)
 	{
-		TransactionsState<HzTransactionState> transactionsStack = HzTransactionTL.transactionState.get();
+		TransactionsState<HzTransactionState> transactionsStack = HzTransactionTL.getState();
 		transactionsStack.pop();
 		
 		if (transactionsStack.isEmpty())

@@ -11,7 +11,7 @@ import java.util.Deque;
  * Stores transaction state, useful when transactions are nested
  * @author K. Benedyczak
  */
-public class TransactionsState<T>
+public class TransactionsState<T extends TransactionState>
 {
 	private Deque<T> transactionsStack = new ArrayDeque<>();
 	
@@ -42,7 +42,8 @@ public class TransactionsState<T>
 		return transactionsStack.size() > 1;
 	}
 	
-	public static class TransactionsThreadLocal<T> extends ThreadLocal<TransactionsState<T>>
+	public static class TransactionsThreadLocal<T extends TransactionState> 
+			extends ThreadLocal<TransactionsState<T>>
 	{
 		public TransactionsState<T> initialValue()
 		{

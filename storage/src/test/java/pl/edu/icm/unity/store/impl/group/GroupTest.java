@@ -10,6 +10,12 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -105,7 +111,52 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 		});
 	}
 	
-	
+	/**
+	 * Overridden as we always have the '/' extra added.
+	 */
+	@Test
+	@Override
+	public void importExportIsIdempotent()
+	{
+		tx.runInTransaction(() -> {
+			Group obj = getObject("name1");
+			dao.create(obj);
+			
+			ByteArrayOutputStream os = new ByteArrayOutputStream();
+			try
+			{
+				ie.store(os);
+			} catch (Exception e)
+			{
+				e.printStackTrace();
+				fail("Export failed " + e);
+			}
+
+			dbCleaner.reset();
+			
+			String dump = new String(os.toByteArray(), StandardCharsets.UTF_8);
+			ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
+			try
+			{
+				ie.load(is);
+			} catch (Exception e)
+			{
+				e.printStackTrace();
+				
+				fail("Import failed " + e + "\nDump:\n" + dump);
+			}
+
+			List<Group> all = dao.getAll();
+
+			assertThat(all.size(), is(2));
+			Group g = all.get(0);
+			if (g.getName().equals("/"))
+				g = all.get(1);
+			assertAreEqual(g, obj);
+		});
+
+	}
+
 	
 	@Override
 	protected NamedCRUDDAO<Group> getDAO()

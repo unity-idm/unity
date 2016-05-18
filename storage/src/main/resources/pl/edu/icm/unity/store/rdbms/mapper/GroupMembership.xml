@@ -18,6 +18,11 @@
 		DELETE FROM GROUP_ENTITIES WHERE GROUP_ID=#{groupId} AND ENTITY_ID=#{elementId}
 	</delete>
 
+	<select id="getAll" resultMap="groupMember">
+		select GROUP_ENTITIES.*, GROUPS.NAME from ENTITIES, GROUP_ENTITIES, GROUPS 
+		where GROUP_ENTITIES.GROUP_ID = GROUPS.ID AND GROUP_ENTITIES.ENTITY_ID = ENTITIES.ID
+	</select>
+
 	<select id="getMembers" parameterType="long" resultMap="groupMember">
 		select GROUP_ENTITIES.*, GROUPS.NAME from ENTITIES, GROUP_ENTITIES, GROUPS 
 		where GROUP_ENTITIES.GROUP_ID = #{value} AND GROUP_ENTITIES.ENTITY_ID = ENTITIES.ID

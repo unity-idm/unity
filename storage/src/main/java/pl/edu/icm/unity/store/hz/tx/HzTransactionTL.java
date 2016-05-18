@@ -19,14 +19,8 @@ import pl.edu.icm.unity.store.tx.TransactionsState;
  */
 public class HzTransactionTL
 {
-	static ThreadLocal<TransactionsState<HzTransactionState>> transactionState = 
+	private static ThreadLocal<TransactionsState<HzTransactionState>> transactionState = 
 			new TransactionsState.TransactionsThreadLocal<>();
-	
-	public static void manualCommit()
-	{
-		transactionState.get().getCurrent().getHzContext().commitTransaction();
-		transactionState.get().getCurrent().getHzContext().beginTransaction();
-	}
 	
 	public static TransactionContext getHzContext()
 	{
@@ -41,5 +35,17 @@ public class HzTransactionTL
 	public static RDBMSEventsBatch getCurrentRDBMSBatch()
 	{
 		return transactionState.get().getCurrent().getBatch();
+	}
+	
+	public static void resetTransaction()
+	{
+		if (transactionState.get().isEmpty())
+			return;
+		transactionState.get().getCurrent().resetTransaction();
+	}
+
+	public static TransactionsState<HzTransactionState> getState()
+	{
+		return transactionState.get();
 	}
 }

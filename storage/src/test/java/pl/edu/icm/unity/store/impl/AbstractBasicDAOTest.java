@@ -28,6 +28,7 @@ import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.store.StorageCleaner;
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
 import pl.edu.icm.unity.store.api.ImportExport;
+import pl.edu.icm.unity.store.tx.TransactionTL;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
@@ -127,6 +128,46 @@ public abstract class AbstractBasicDAOTest<T>
 	}
 
 	@Test
+	public void shouldReturnTwoCreatedWithinCollectionsWithCommit()
+	{
+		tx.runInTransaction(() -> {
+			BasicCRUDDAO<T> dao = getDAO();
+			int initial = dao.getAll().size();
+			T obj = getObject("name1");
+			T obj2 = getObject("name2");
+
+			dao.create(obj);
+			dao.create(obj2);
+	
+			TransactionTL.manualCommit();
+			
+			List<T> all = dao.getAll();
+
+			assertThat(all, is(notNullValue()));
+
+			assertThat(all.size(), is(initial + 2));
+
+			boolean objFound = false;
+			boolean obj2Found = false;
+			for (T el: all)
+			{
+				try
+				{
+					assertAreEqual(el, obj);
+					objFound = true;
+				} catch (Throwable t) {}
+				try
+				{
+					assertAreEqual(el, obj2);
+					obj2Found = true;
+				} catch (Throwable t) {}
+			}
+			assertThat(objFound, is(true));
+			assertThat(obj2Found, is(true));
+		});
+	}
+	
+	@Test
 	public void shouldNotReturnRemovedByKey()
 	{
 		tx.runInTransaction(() -> {
@@ -167,14 +208,14 @@ public abstract class AbstractBasicDAOTest<T>
 		});
 	}
 	
-	//TODO - enable for all DAOs and remove from individual subclasses, provide similar for objstore
+	@Test
 	public void importExportIsIdempotent()
 	{
 		tx.runInTransaction(() -> {
 			BasicCRUDDAO<T> dao = getDAO();
 			T obj = getObject("name1");
-			long key = dao.create(obj);
-
+			dao.create(obj);
+			
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
 			try
 			{
@@ -185,7 +226,7 @@ public abstract class AbstractBasicDAOTest<T>
 				fail("Export failed " + e);
 			}
 
-			dao.deleteByKey(key);
+			dbCleaner.reset();
 			
 			String dump = new String(os.toByteArray(), StandardCharsets.UTF_8);
 			ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());

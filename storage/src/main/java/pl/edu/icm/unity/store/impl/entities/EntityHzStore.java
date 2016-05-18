@@ -18,7 +18,9 @@ import pl.edu.icm.unity.types.EntityInformation;
 
 /**
  * Hazelcast implementation of entity store.
- * 
+ * Note on creation: the methods {@link #createNoPropagateToRDBMS(EntityInformation)} (internal) and
+ * {@link #createWithId(EntityInformation)} preserves the id given in input. The {@link #create(EntityInformation)} 
+ * invents a new id.  
  * @author K. Benedyczak
  */
 @Repository(EntityHzStore.STORE_ID)
@@ -33,21 +35,35 @@ public class EntityHzStore extends GenericBasicHzCRUD<EntityInformation> impleme
 	}
 	
 	@Override
-	public long create(EntityInformation obj) throws IllegalArgumentException
-	{
-		long ret = super.create(obj);
-		obj.setId(ret);
-		return ret;
-	}
-
-	@Override
-	public void createWithId(EntityInformation obj)
+	protected long createNoPropagateToRDBMS(EntityInformation obj) throws IllegalArgumentException
 	{
 		TransactionalMap<Long, EntityInformation> hMap = getMap();
 		long key = obj.getId();
 		if (hMap.containsKey(key))
 			throw new IllegalArgumentException(name + " [" + key + "] already exists");
 		hMap.put(key, obj);
+		index.incrementAndGet();
+		return key;
+	}
+
+	@Override
+	public long create(EntityInformation obj) throws IllegalArgumentException
+	{
+		TransactionalMap<Long, EntityInformation> hMap = getMap();
+		long key = index.incrementAndGet();
+		while (hMap.containsKey(key))
+			key = index.incrementAndGet();
+		obj.setId(key);
+		hMap.put(key, obj);
+		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, 
+				"createWithId", obj));
+		return key;
+	}
+	
+	@Override
+	public void createWithId(EntityInformation obj)
+	{
+		createNoPropagateToRDBMS(obj);
 		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, 
 				"createWithId", obj));
 	}

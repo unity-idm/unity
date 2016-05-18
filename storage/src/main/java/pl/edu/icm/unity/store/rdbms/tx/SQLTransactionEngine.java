@@ -74,7 +74,7 @@ public class SQLTransactionEngine implements TransactionEngine
 	
 	private void setupTransactionSession(ProceedingJoinPoint pjp)
 	{
-		TransactionsState<SQLTransactionState> transactionsStack = SQLTransactionTL.transactionState.get();
+		TransactionsState<SQLTransactionState> transactionsStack = SQLTransactionTL.getState();
 		
 		if (transactionsStack.isEmpty())
 		{
@@ -93,7 +93,7 @@ public class SQLTransactionEngine implements TransactionEngine
 		if (!autoCommit)
 			return;
 
-		TransactionsState<SQLTransactionState> transactionsStack = SQLTransactionTL.transactionState.get();
+		TransactionsState<SQLTransactionState> transactionsStack = SQLTransactionTL.getState();
 		SQLTransactionState ti = transactionsStack.getCurrent();
 		
 		if (!transactionsStack.isSubtransaction())
@@ -107,7 +107,7 @@ public class SQLTransactionEngine implements TransactionEngine
 
 	private void cleanupTransaction(ProceedingJoinPoint pjp)
 	{
-		TransactionsState<SQLTransactionState> transactionsStack = SQLTransactionTL.transactionState.get();
+		TransactionsState<SQLTransactionState> transactionsStack = SQLTransactionTL.getState();
 		SQLTransactionState ti = transactionsStack.pop();
 		
 		if (transactionsStack.isEmpty())

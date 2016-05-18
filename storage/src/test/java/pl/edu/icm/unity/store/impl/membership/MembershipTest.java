@@ -84,11 +84,7 @@ public class MembershipTest
 			assertThat(entityMembership.size(), is(1));
 			GroupMembership aM = entityMembership.get(0); 
 			
-			assertThat(aM.getGroup(), is("/A"));
-			assertThat(aM.getEntityId(), is(entity));
-			assertThat(aM.getCreationTs(), is(now));
-			assertThat(aM.getRemoteIdp(), is("idp"));
-			assertThat(aM.getTranslationProfile(), is("tp"));
+			assertThat(aM, is(gm));
 		});
 	}	
 
@@ -99,6 +95,20 @@ public class MembershipTest
 			dao.create(new GroupMembership("/A", entity, null));
 			
 			List<GroupMembership> entityMembership = dao.getMembers("/A");
+			assertThat(entityMembership.size(), is(1));
+
+			assertThat(entityMembership.get(0).getGroup(), is("/A"));
+			assertThat(entityMembership.get(0).getEntityId(), is(entity));
+		});
+	}	
+
+	@Test
+	public void shouldReturnCreatedMembershipByGetAll()
+	{
+		tx.runInTransaction(() -> {
+			dao.create(new GroupMembership("/A", entity, null));
+			
+			List<GroupMembership> entityMembership = dao.getAll();
 			assertThat(entityMembership.size(), is(1));
 
 			assertThat(entityMembership.get(0).getGroup(), is("/A"));
