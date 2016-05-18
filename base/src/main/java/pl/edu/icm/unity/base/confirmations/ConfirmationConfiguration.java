@@ -4,13 +4,12 @@
  */
 package pl.edu.icm.unity.base.confirmations;
 
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.NamedObject;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.types.NamedObject;
 
 /**
  * Confirmation subsystem configuration entry
@@ -39,8 +38,13 @@ public class ConfirmationConfiguration implements NamedObject
 		this.msgTemplate = msgTemplate;
 	}
 
+	@JsonCreator
+	public ConfirmationConfiguration(ObjectNode root)
+	{
+		fromJson(root);
+	}
+	
 	@Override
-	@JsonIgnore
 	public String getName()
 	{
 		return typeToConfirm+nameToConfirm;
@@ -86,44 +90,31 @@ public class ConfirmationConfiguration implements NamedObject
 		this.typeToConfirm = typeToConfirm;
 	}
 
-	public ConfirmationConfiguration(String json, ObjectMapper jsonMapper)
+	private void fromJson(ObjectNode root)
 	{
-		fromJson(json, jsonMapper);
+		setNameToConfirm(root.get("nameToConfirm").asText());
+		setTypeToConfirm(root.get("typeToConfirm").asText());
+		setMsgTemplate(root.get("msgTemplate").asText());
+		setNotificationChannel(root.get("notificationChannel").asText());
 	}
 
-	private void fromJson(String json, ObjectMapper jsonMapper)
+	@JsonValue
+	public ObjectNode toJson()
 	{
-		try
-		{
-			ObjectNode root = (ObjectNode) jsonMapper.readTree(json);
-			setNameToConfirm(root.get("nameToConfirm").asText());
-			setTypeToConfirm(root.get("typeToConfirm").asText());
-			setMsgTemplate(root.get("msgTemplate").asText());
-			setNotificationChannel(root.get("notificationChannel").asText());
-
-		} catch (Exception e)
-		{
-			throw new InternalException(
-					"Can't deserialize confirmation configuration from JSON", e);
-		}
-
+		ObjectNode root = Constants.MAPPER.createObjectNode();
+		root.put("nameToConfirm", getNameToConfirm());
+		root.put("typeToConfirm", getTypeToConfirm());
+		root.put("msgTemplate", getMsgTemplate());
+		root.put("notificationChannel", getNotificationChannel());
+		return root;
 	}
 
-	public String toJson(ObjectMapper jsonMapper)
+	@Override
+	public String toString()
 	{
-		try
-		{
-			ObjectNode root = jsonMapper.createObjectNode();
-			root.put("nameToConfirm", getNameToConfirm());
-			root.put("typeToConfirm", getTypeToConfirm());
-			root.put("msgTemplate", getMsgTemplate());
-			root.put("notificationChannel", getNotificationChannel());
-			return jsonMapper.writeValueAsString(root);
-		} catch (JsonProcessingException e)
-		{
-			throw new InternalException(
-					"Can't serialize confirmation configuration to JSON", e);
-		}
+		return "ConfirmationConfiguration [typeToConfirm=" + typeToConfirm
+				+ ", nameToConfirm=" + nameToConfirm + ", notificationChannel="
+				+ notificationChannel + ", msgTemplate=" + msgTemplate + "]";
 	}
 
 	@Override

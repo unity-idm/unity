@@ -4,13 +4,12 @@
  */
 package pl.edu.icm.unity.store.objstore.confirmation;
 
-import java.nio.charset.StandardCharsets;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.confirmations.ConfirmationConfiguration;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.objstore.DefaultEntityHandler;
@@ -36,15 +35,14 @@ public class ConfirmationConfigurationHandler extends
 	@Override
 	public GenericObjectBean toBlob(ConfirmationConfiguration value)
 	{
-		String json = value.toJson(jsonMapper);
 		return new GenericObjectBean(value.getName(),
-				json.getBytes(StandardCharsets.UTF_8), supportedType);
+				JsonUtil.serialize2Bytes(value.toJson()), supportedType);
 	}
 
 	@Override
 	public ConfirmationConfiguration fromBlob(GenericObjectBean blob)
 	{
-		return new ConfirmationConfiguration(new String(blob.getContents(), StandardCharsets.UTF_8), jsonMapper);
+		return new ConfirmationConfiguration(JsonUtil.parse(blob.getContents()));
 	}
 
 }
