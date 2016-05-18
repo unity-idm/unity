@@ -18,6 +18,15 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public abstract class AbstractIEBase<T>
 {
+	private int sortKey;
+	private String storeKey;
+	
+	public AbstractIEBase(int sortKey, String storeKey)
+	{
+		this.sortKey = sortKey;
+		this.storeKey = storeKey;
+	}
+
 	/**
 	 * @return all objects to be exported
 	 */
@@ -43,6 +52,16 @@ public abstract class AbstractIEBase<T>
 	protected abstract void createSingle(T toCreate);
 	
 	
+	public int getSortKey()
+	{
+		return sortKey;
+	}
+
+	public String getStoreKey()
+	{
+		return storeKey;
+	}
+
 	public void serialize(JsonGenerator jg) throws IOException
 	{
 		List<T> all = getAllToExport();

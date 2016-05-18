@@ -23,9 +23,15 @@ import pl.edu.icm.unity.types.basic.Group;
 @Component
 public class GroupIE extends AbstractIEBase<Group>
 {
-	@Autowired
 	private GroupDAO dao;
 	
+	@Autowired
+	public GroupIE(GroupDAO dao)
+	{
+		super(4, "groups");
+		this.dao = dao;
+	}
+
 	@Override
 	protected List<Group> getAllToExport()
 	{

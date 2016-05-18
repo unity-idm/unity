@@ -22,9 +22,15 @@ import pl.edu.icm.unity.types.basic.Identity;
 @Component
 public class IdentityIE extends AbstractIEBase<Identity>
 {
-	@Autowired
 	private IdentityDAO dbIds;
 	
+	@Autowired
+	public IdentityIE(IdentityDAO dbIds)
+	{
+		super(3, "identities");
+		this.dbIds = dbIds;
+	}
+
 	@Override
 	protected List<Identity> getAllToExport()
 	{

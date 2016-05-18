@@ -22,9 +22,15 @@ import pl.edu.icm.unity.types.basic.GroupMembership;
 @Component
 public class MembershipIE extends AbstractIEBase<GroupMembership>
 {
-	@Autowired
 	private MembershipDAO dao;
 	
+	@Autowired
+	public MembershipIE(MembershipDAO dao)
+	{
+		super(5, "groupMembers");
+		this.dao = dao;
+	}
+
 	@Override
 	protected List<GroupMembership> getAllToExport()
 	{

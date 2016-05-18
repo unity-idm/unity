@@ -9,7 +9,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import pl.edu.icm.unity.types.NamedObject;
 
 /**
- * Describes a configured authenticator instance in implementation agnostic way.  
+ * Describes a configured authenticator instance in implementation agnostic way.
+ * <p>
+ * Uses default JSON serialization.  
  * @author K. Benedyczak
  */
 public class AuthenticatorInstance implements NamedObject
@@ -31,6 +33,7 @@ public class AuthenticatorInstance implements NamedObject
 	{
 		this.localCredentialName = localCredentialName;
 	}
+	
 	@JsonIgnore
 	@Override
 	public String getName()

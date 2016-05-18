@@ -22,8 +22,14 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 @Component
 public class AttributeTypesIE extends AbstractIEBase<AttributeType>
 {
-	@Autowired
 	private AttributeTypeDAO dbAttributes;
+	
+	@Autowired
+	public AttributeTypesIE(AttributeTypeDAO dbAttributes)
+	{
+		super(0, "attributeTypes");
+		this.dbAttributes = dbAttributes;
+	}
 	
 	@Override
 	protected List<AttributeType> getAllToExport()

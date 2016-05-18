@@ -9,21 +9,21 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import pl.edu.icm.unity.store.api.generic.GenericObjectsDAO;
+import pl.edu.icm.unity.store.api.generic.AttributeClassDB;
 import pl.edu.icm.unity.store.objstore.GenericObjectIEBase;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 
 /**
- * Handles import/export of entities.
+ * Handles import/export of {@link AttributesClass}.
  * @author K. Benedyczak
  */
 @Component
 public class AttributeClassIE extends GenericObjectIEBase<AttributesClass>
 {
 	@Autowired
-	public AttributeClassIE(GenericObjectsDAO<AttributesClass> dao, ObjectMapper jsonMapper)
+	public AttributeClassIE(AttributeClassDB dao, ObjectMapper jsonMapper)
 	{
-		super(dao, jsonMapper, AttributesClass.class);
+		super(dao, jsonMapper, AttributesClass.class, 100, "attributeClasses");
 	}
 }
 

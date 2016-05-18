@@ -7,6 +7,8 @@ package pl.edu.icm.unity.types.authn;
 /**
  * Describes an available authenticator. The contents is determined from implementations,
  * it is not modifiable at runtime.
+ * <p>
+ * Uses default JSON serialization.
  * @author K. Benedyczak
  */
 public class AuthenticatorTypeDescription

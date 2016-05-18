@@ -22,12 +22,17 @@ import pl.edu.icm.unity.store.types.StoredAttribute;
 @Component
 public class AttributeIE extends AbstractIEBase<StoredAttribute>
 {
-	@Autowired
 	private AttributeDAO dao;
-	
-	@Autowired
 	private AttributeJsonSerializer serializer;
 	
+	@Autowired
+	public AttributeIE(AttributeDAO dao, AttributeJsonSerializer serializer)
+	{
+		super(6, "attributes");
+		this.dao = dao;
+		this.serializer = serializer;
+	}
+
 	@Override
 	protected List<StoredAttribute> getAllToExport()
 	{

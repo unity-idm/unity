@@ -7,6 +7,8 @@ package pl.edu.icm.unity.store.export;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,14 +22,6 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import pl.edu.icm.unity.store.api.ImportExport;
-import pl.edu.icm.unity.store.impl.attribute.AttributeIE;
-import pl.edu.icm.unity.store.impl.attributetype.AttributeTypesIE;
-import pl.edu.icm.unity.store.impl.entities.EntityIE;
-import pl.edu.icm.unity.store.impl.groups.GroupIE;
-import pl.edu.icm.unity.store.impl.identities.IdentityIE;
-import pl.edu.icm.unity.store.impl.identitytype.IdentityTypeIE;
-import pl.edu.icm.unity.store.impl.membership.MembershipIE;
-import pl.edu.icm.unity.store.objstore.ac.AttributeClassIE;
 
 /**
  * Import/export functionality. 
@@ -38,36 +32,23 @@ public class ImportExportImpl implements ImportExport
 {
 	public static final int VERSION = 3;
 
-	@Autowired
 	private ObjectMapper objectMapper;
-	
-	@Autowired
 	private DumpUpdater updater;
-	
-	@Autowired
-	private AttributeTypesIE attributeTypesIE;
+	private List<AbstractIEBase<?>> implementations;
 
 	@Autowired
-	private IdentityTypeIE identityTypesIE;
+	public ImportExportImpl(ObjectMapper objectMapper, DumpUpdater updater,
+			List<AbstractIEBase<?>> implementations)
+	{
+		this.objectMapper = objectMapper;
+		this.updater = updater;
+		this.implementations = implementations;
+		Collections.sort(implementations, (i1, i2) -> {
+			return i1.getSortKey() < i2.getSortKey() ? -1 :
+				i1.getSortKey() > i2.getSortKey() ? 1 : 0;
+		});
+	}
 
-	@Autowired
-	private EntityIE entitiesIE;
-	
-	@Autowired
-	private IdentityIE identitiesIE;
-	
-	@Autowired
-	private GroupIE groupsIE;
-
-	@Autowired
-	private MembershipIE membershipIE;
-	
-	@Autowired
-	private AttributeIE attributesIE;
-	
-	@Autowired
-	private AttributeClassIE acIE;
-	
 	@Override
 	public void store(OutputStream os) throws IOException
 	{
@@ -83,46 +64,13 @@ public class ImportExportImpl implements ImportExport
 
 		jg.writeObjectFieldStart("contents");
 
-		jg.writeFieldName("attributeTypes");
-		attributeTypesIE.serialize(jg);
-		jg.flush();
+		for (AbstractIEBase<?> impl: implementations)
+		{
+			jg.writeFieldName(impl.getStoreKey());
+			impl.serialize(jg);
+			jg.flush();
+		}
 
-		jg.writeFieldName("identityTypes");
-		identityTypesIE.serialize(jg);
-		jg.flush();
-
-		jg.writeFieldName("entities");
-		entitiesIE.serialize(jg);
-		jg.flush();
-
-		jg.writeFieldName("identities");
-		identitiesIE.serialize(jg);
-		jg.flush();
-
-		jg.writeFieldName("groups");
-		groupsIE.serialize(jg);
-		jg.flush();
-
-		jg.writeFieldName("groupMembers");
-		membershipIE.serialize(jg);
-		jg.flush();
-
-		jg.writeFieldName("attributes");
-		attributesIE.serialize(jg);
-		jg.flush();
-
-		
-		jg.writeObjectFieldStart("genericObjects");
-		
-		
-		jg.writeFieldName("attributeClasses");
-		acIE.serialize(jg);
-		jg.flush();
-
-		//TODO - all remaining generics 
-		
-		
-		jg.writeEndObject(); //genericObjects
 		jg.writeEndObject(); //contents
 		jg.writeEndObject(); //root
 		jg.close();
@@ -146,32 +94,11 @@ public class ImportExportImpl implements ImportExport
 		
 		JsonUtils.nextExpect(jp, "contents");
 		
-		JsonUtils.nextExpect(jp, "attributeTypes");
-		attributeTypesIE.deserialize(jp);
-		
-		JsonUtils.nextExpect(jp, "identityTypes");
-		identityTypesIE.deserialize(jp);
-
-		JsonUtils.nextExpect(jp, "entities");
-		entitiesIE.deserialize(jp);
-
-		JsonUtils.nextExpect(jp, "identities");
-		identitiesIE.deserialize(jp);
-
-		JsonUtils.nextExpect(jp, "groups");
-		groupsIE.deserialize(jp);
-		
-		JsonUtils.nextExpect(jp, "groupMembers");
-		membershipIE.deserialize(jp);
-
-		JsonUtils.nextExpect(jp, "attributes");
-		attributesIE.deserialize(jp);
-
-		JsonUtils.nextExpect(jp, "genericObjects");
-
-		JsonUtils.nextExpect(jp, "attributeClasses");
-		acIE.deserialize(jp);
-		
+		for (AbstractIEBase<?> impl: implementations)
+		{
+			JsonUtils.nextExpect(jp, impl.getStoreKey());
+			impl.deserialize(jp);
+		}
 		jp.close();
 	}
 	

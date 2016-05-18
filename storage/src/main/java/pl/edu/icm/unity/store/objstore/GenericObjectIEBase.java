@@ -24,8 +24,10 @@ public class GenericObjectIEBase<T extends NamedObject> extends AbstractIEBase<T
 	private ObjectMapper jsonMapper;
 	private Class<T> clazz;
 	
-	public GenericObjectIEBase(GenericObjectsDAO<T> dao, ObjectMapper jsonMapper, Class<T> clazz)
+	public GenericObjectIEBase(GenericObjectsDAO<T> dao, ObjectMapper jsonMapper, Class<T> clazz,
+			int sortKey, String name)
 	{
+		super(sortKey, name);
 		this.dao = dao;
 		this.jsonMapper = jsonMapper;
 		this.clazz = clazz;

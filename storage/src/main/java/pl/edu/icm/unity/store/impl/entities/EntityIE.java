@@ -22,9 +22,15 @@ import pl.edu.icm.unity.types.EntityInformation;
 @Component
 public class EntityIE extends AbstractIEBase<EntityInformation>
 {
-	@Autowired
 	private EntityDAO dbIds;
 	
+	@Autowired
+	public EntityIE(EntityDAO dbIds)
+	{
+		super(2, "entities");
+		this.dbIds = dbIds;
+	}
+
 	@Override
 	protected List<EntityInformation> getAllToExport()
 	{
