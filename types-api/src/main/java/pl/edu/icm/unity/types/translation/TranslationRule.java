@@ -11,8 +11,8 @@ package pl.edu.icm.unity.types.translation;
  */
 public class TranslationRule
 {
-	private String condition;
-	private TranslationAction action;
+	protected String condition;
+	protected TranslationAction action;
 
 	public TranslationRule(String condition, TranslationAction action)
 	{
@@ -20,6 +20,10 @@ public class TranslationRule
 		this.action = action;
 	}
 
+	protected TranslationRule()
+	{
+	}
+	
 	public String getCondition()
 	{
 		return condition;

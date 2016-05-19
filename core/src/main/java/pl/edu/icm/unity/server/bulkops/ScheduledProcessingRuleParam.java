@@ -9,6 +9,7 @@ package pl.edu.icm.unity.server.bulkops;
  * 
  * @author K. Benedyczak
  */
+@Deprecated
 public class ScheduledProcessingRuleParam extends ProcessingRule
 {
 	protected String cronExpression;

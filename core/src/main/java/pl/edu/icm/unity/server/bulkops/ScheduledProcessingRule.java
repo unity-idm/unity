@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * 
  * @author K. Benedyczak
  */
+@Deprecated
 public class ScheduledProcessingRule extends ScheduledProcessingRuleParam
 {
 	private String id;

@@ -38,6 +38,10 @@ import pl.edu.icm.unity.types.basic.VerifiableEmail;
 /**
  * Updates a JSON dump before it is actually imported.
  * Changes are performed in JSON contents, input stream is reset after the changes are performed.
+ * 
+ * TODO this code needs a lot more is only partial and in general wrong from API standpoint 
+ * (must parse everything first, then update,... and return updated).
+ * 
  * @author K. Benedyczak
  */
 @Component
@@ -89,9 +93,9 @@ public class UpdateFrom1_9_x implements Update
 		ArrayNode groups = JsonUtils.deserialize2Array(jp, "groups");
 		updateGroups(groups, attributeTypesById);
 		
-//		JsonUtils.nextExpect(jp, "groupMembers");
-//		groupMembersIE.deserialize(sql, jp);
-
+		ArrayNode members = JsonUtils.deserialize2Array(jp, "groupMembers");
+		//TODO
+		
 		ArrayNode attributes = JsonUtils.deserialize2Array(jp, "attributes");
 		for (JsonNode node: attributes)
 			updateStoredAttribute((ObjectNode) node, attributeTypesByName);

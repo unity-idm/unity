@@ -12,6 +12,7 @@ import org.mvel2.MVEL;
  * Processing rule is a pair: condition and action.
  * @author K. Benedyczak
  */
+@Deprecated
 public class ProcessingRule
 {
 	private String condition;
