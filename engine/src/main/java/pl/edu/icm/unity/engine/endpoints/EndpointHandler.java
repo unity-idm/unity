@@ -41,6 +41,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * @author K. Benedyczak
  */
 @Component
+@Deprecated
 public class EndpointHandler extends DefaultEntityHandler<EndpointInstance>
 {
 	public static final String ENDPOINT_OBJECT_TYPE = "endpointDefinition";

@@ -108,4 +108,61 @@ public class EndpointConfiguration
 				+ description + ", authenticationOptions=" + authenticationOptions
 				+ ", configuration=" + configuration + ", realm=" + realm + "]";
 	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((authenticationOptions == null) ? 0
+				: authenticationOptions.hashCode());
+		result = prime * result + ((configuration == null) ? 0 : configuration.hashCode());
+		result = prime * result + ((description == null) ? 0 : description.hashCode());
+		result = prime * result + ((displayedName == null) ? 0 : displayedName.hashCode());
+		result = prime * result + ((realm == null) ? 0 : realm.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		EndpointConfiguration other = (EndpointConfiguration) obj;
+		if (authenticationOptions == null)
+		{
+			if (other.authenticationOptions != null)
+				return false;
+		} else if (!authenticationOptions.equals(other.authenticationOptions))
+			return false;
+		if (configuration == null)
+		{
+			if (other.configuration != null)
+				return false;
+		} else if (!configuration.equals(other.configuration))
+			return false;
+		if (description == null)
+		{
+			if (other.description != null)
+				return false;
+		} else if (!description.equals(other.description))
+			return false;
+		if (displayedName == null)
+		{
+			if (other.displayedName != null)
+				return false;
+		} else if (!displayedName.equals(other.displayedName))
+			return false;
+		if (realm == null)
+		{
+			if (other.realm != null)
+				return false;
+		} else if (!realm.equals(other.realm))
+			return false;
+		return true;
+	}
 }
