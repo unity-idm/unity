@@ -174,6 +174,7 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 
 			assertThat(ret, is(notNullValue()));
 			assertAreEqual(changed, ret);
+			assertThat(changed != ret, is(true));
 		});
 	}
 	

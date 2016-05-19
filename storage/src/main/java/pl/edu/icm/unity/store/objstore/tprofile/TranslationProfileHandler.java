@@ -4,13 +4,10 @@
  */
 package pl.edu.icm.unity.store.objstore.tprofile;
 
-import java.nio.charset.StandardCharsets;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
@@ -36,9 +33,8 @@ public class TranslationProfileHandler extends DefaultEntityHandler<TranslationP
 	@Override
 	public GenericObjectBean toBlob(TranslationProfile value)
 	{
-		ObjectNode jsonObject = value.toJsonObject();
-		String json = JsonUtil.serialize(jsonObject);
-		return new GenericObjectBean(value.getName(), json.getBytes(StandardCharsets.UTF_8), supportedType, 
+		byte[] contents = JsonUtil.serialize2Bytes(value.toJsonObject());
+		return new GenericObjectBean(value.getName(), contents, supportedType, 
 				value.getProfileType().toString());
 	}
 

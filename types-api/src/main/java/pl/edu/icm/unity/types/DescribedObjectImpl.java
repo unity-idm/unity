@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.types;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -22,7 +21,6 @@ public class DescribedObjectImpl extends DescribedObjectROImpl
 		super(name, description);
 	}
 	
-	@JsonCreator
 	public DescribedObjectImpl(ObjectNode root)
 	{
 		super(root);

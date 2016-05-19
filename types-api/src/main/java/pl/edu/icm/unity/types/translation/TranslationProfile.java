@@ -57,9 +57,6 @@ public class TranslationProfile extends DescribedObjectROImpl
 		return root;
 	}
 	
-
-	
-
 	private void storePreable(ObjectNode root)
 	{
 		root.put("ver", "2");
@@ -140,6 +137,12 @@ public class TranslationProfile extends DescribedObjectROImpl
 		return parameters;
 	}
 	
+	@Override
+	public String toString()
+	{
+		return "TranslationProfile [profileType=" + profileType + ", name=" + name + "]";
+	}
+
 	@Override
 	public int hashCode()
 	{

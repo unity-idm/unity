@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.types;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
@@ -29,7 +27,6 @@ public class DescribedObjectROImpl implements DescribedObject
 		this.description = description;
 	}
 	
-	@JsonCreator
 	public DescribedObjectROImpl(ObjectNode root)
 	{
 		fromJsonDescObj(root);
@@ -58,7 +55,6 @@ public class DescribedObjectROImpl implements DescribedObject
 		name = root.get("name").asText();
 	}
 	
-	@JsonValue
 	public ObjectNode toJson()
 	{
 		ObjectNode root = Constants.MAPPER.createObjectNode();

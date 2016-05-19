@@ -23,7 +23,8 @@ public class NotificationChannelIE extends GenericObjectIEBase<NotificationChann
 	@Autowired
 	public NotificationChannelIE(NotificationChannelDB dao, ObjectMapper jsonMapper)
 	{
-		super(dao, jsonMapper, NotificationChannel.class, 106, "notificationChannels");
+		super(dao, jsonMapper, NotificationChannel.class, 106, 
+				NotificationChannelHandler.NOTIFICATION_CHANNEL_ID);
 	}
 }
 

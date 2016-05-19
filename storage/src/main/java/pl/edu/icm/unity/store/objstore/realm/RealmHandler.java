@@ -4,17 +4,12 @@
  */
 package pl.edu.icm.unity.store.objstore.realm;
 
-import java.io.IOException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.objstore.DefaultEntityHandler;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -37,38 +32,13 @@ public class RealmHandler extends DefaultEntityHandler<AuthenticationRealm>
 	@Override
 	public GenericObjectBean toBlob(AuthenticationRealm value)
 	{
-		try
-		{
-			ObjectNode root = jsonMapper.createObjectNode();
-			root.put("allowForRememberMeDays", value.getAllowForRememberMeDays());
-			root.put("blockAfterUnsuccessfulLogins", value.getBlockAfterUnsuccessfulLogins());
-			root.put("blockFor", value.getBlockFor());
-			root.put("maxInactivity", value.getMaxInactivity());
-			root.put("description", value.getDescription());
-			byte[] contents = jsonMapper.writeValueAsBytes(root);
-			return new GenericObjectBean(value.getName(), contents, supportedType);
-		} catch (JsonProcessingException e)
-		{
-			throw new InternalException("Can't serialize to JSON authentication realm state", e);
-		}
+		return new GenericObjectBean(value.getName(), 
+				JsonUtil.serialize2Bytes(value.toJson()), supportedType);
 	}
 
 	@Override
 	public AuthenticationRealm fromBlob(GenericObjectBean blob)
 	{
-		try
-		{
-			JsonNode root = jsonMapper.readTree(blob.getContents());
-			int allowForRememberMeDays = root.get("allowForRememberMeDays").asInt();
-			int blockAfterUnsuccessfulLogins = root.get("blockAfterUnsuccessfulLogins").asInt();
-			int blockFor = root.get("blockFor").asInt();
-			int maxInactivity = root.get("maxInactivity").asInt();
-			String description = root.get("description").asText();
-			return new AuthenticationRealm(blob.getName(), description, blockAfterUnsuccessfulLogins,
-					blockFor, allowForRememberMeDays, maxInactivity);
-		} catch (IOException e)
-		{
-			throw new InternalException("Can't deserialize JSON authentication realm state", e);
-		}
+		return new AuthenticationRealm(JsonUtil.parse(blob.getContents()));
 	}
 }
