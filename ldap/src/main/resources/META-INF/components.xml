@@ -5,6 +5,11 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<context:annotation-config/>
+
+	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
+		<property name="bundle" value="pl/edu/icm/unity/ldap/messages/messages"/>
+	</bean>
+
 	<bean class="pl.edu.icm.unity.ldap.client.LdapVerificatorFactory"/>
 	<bean class="pl.edu.icm.unity.ldap.client.LdapDNVerificatorFactory"/>
 	<bean class="pl.edu.icm.unity.ldap.client.LdapImporterFactory"/>
