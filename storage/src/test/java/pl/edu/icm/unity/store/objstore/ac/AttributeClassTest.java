@@ -4,9 +4,6 @@
  */
 package pl.edu.icm.unity.store.objstore.ac;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Sets;
@@ -50,11 +47,5 @@ public class AttributeClassTest extends AbstractObjStoreTest<AttributesClass>
 		ret.setName("name-changed");
 		ret.setParentClassName(Sets.newHashSet("parent2"));
 		return ret;
-	}
-
-	@Override
-	protected void assertAreEqual(AttributesClass obj, AttributesClass cmp)
-	{
-		assertThat(obj, is(cmp));
 	}
 }

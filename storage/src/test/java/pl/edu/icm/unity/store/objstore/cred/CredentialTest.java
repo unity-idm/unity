@@ -4,9 +4,6 @@
  */
 package pl.edu.icm.unity.store.objstore.cred;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.store.api.generic.CredentialDB;
@@ -43,11 +40,5 @@ public class CredentialTest extends AbstractObjStoreTest<CredentialDefinition>
 		src.setDisplayedName(new I18nString("dName2"));
 		src.setJsonConfiguration("[1,2,3]");
 		return src;
-	}
-
-	@Override
-	protected void assertAreEqual(CredentialDefinition obj, CredentialDefinition cmp)
-	{
-		assertThat(obj, is(cmp));
 	}
 }

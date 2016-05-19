@@ -138,10 +138,4 @@ public class IdentityTest extends AbstractNamedDAOTest<Identity>
 		ret.setTranslationProfile("translationProfile2");
 		ret.setUpdateTs(new Date(100444));
 	}
-
-	@Override
-	protected void assertAreEqual(Identity obj, Identity cmp)
-	{
-		assertThat(obj, is(cmp));
-	}
 }

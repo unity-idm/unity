@@ -4,9 +4,6 @@
  */
 package pl.edu.icm.unity.store.objstore.bulk;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.store.api.generic.GenericObjectsDAO;
@@ -38,11 +35,5 @@ public class ProcessingRuleTest extends AbstractObjStoreTest<ScheduledProcessing
 	{
 		TranslationAction action = new TranslationAction("action2", new String[] {"p3"});
 		return new ScheduledProcessingRule("condition2", action, "cronExpression2", "modified-id");
-	}
-
-	@Override
-	protected void assertAreEqual(ScheduledProcessingRule obj, ScheduledProcessingRule cmp)
-	{
-		assertThat(obj, is(cmp));
 	}
 }

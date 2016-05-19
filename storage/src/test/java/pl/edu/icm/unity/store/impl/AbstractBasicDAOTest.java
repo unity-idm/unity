@@ -52,7 +52,7 @@ public abstract class AbstractBasicDAOTest<T>
 	protected abstract BasicCRUDDAO<T> getDAO();
 	protected abstract T getObject(String id);
 	protected abstract void mutateObject(T src);
-	protected abstract void assertAreEqual(T obj, T cmp);
+	//protected abstract void assertAreEqual(T obj, T cmp);
 
 	@Test
 	public void shouldReturnCreatedByKey()
@@ -68,7 +68,7 @@ public abstract class AbstractBasicDAOTest<T>
 
 			assertThat(key1 != key2, is(true));
 			assertThat(ret, is(notNullValue()));
-			assertAreEqual(obj, ret);
+			assertThat(ret, is(obj));
 		});
 	}
 	
@@ -86,7 +86,7 @@ public abstract class AbstractBasicDAOTest<T>
 			T ret = dao.getByKey(key);
 
 			assertThat(ret, is(notNullValue()));
-			assertAreEqual(obj, ret);
+			assertThat(ret, is(obj));
 		});
 	}
 
@@ -111,16 +111,10 @@ public abstract class AbstractBasicDAOTest<T>
 			boolean obj2Found = false;
 			for (T el: all)
 			{
-				try
-				{
-					assertAreEqual(el, obj);
+				if (el.equals(obj))
 					objFound = true;
-				} catch (Throwable t) {}
-				try
-				{
-					assertAreEqual(el, obj2);
+				if (el.equals(obj2))
 					obj2Found = true;
-				} catch (Throwable t) {}
 			}
 			assertThat(objFound, is(true));
 			assertThat(obj2Found, is(true));
@@ -151,16 +145,10 @@ public abstract class AbstractBasicDAOTest<T>
 			boolean obj2Found = false;
 			for (T el: all)
 			{
-				try
-				{
-					assertAreEqual(el, obj);
+				if (el.equals(obj))
 					objFound = true;
-				} catch (Throwable t) {}
-				try
-				{
-					assertAreEqual(el, obj2);
+				if (el.equals(obj2))
 					obj2Found = true;
-				} catch (Throwable t) {}
 			}
 			assertThat(objFound, is(true));
 			assertThat(obj2Found, is(true));
@@ -243,7 +231,7 @@ public abstract class AbstractBasicDAOTest<T>
 			List<T> all = dao.getAll();
 
 			assertThat(all.size(), is(1));
-			assertAreEqual(all.get(0), obj);
+			assertThat(all.get(0), is(obj));
 		});
 	}
 }

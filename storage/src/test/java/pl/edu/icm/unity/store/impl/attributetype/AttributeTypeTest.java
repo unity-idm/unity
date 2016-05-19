@@ -4,9 +4,6 @@
  */
 package pl.edu.icm.unity.store.impl.attributetype;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,11 +58,5 @@ public class AttributeTypeTest extends AbstractNamedDAOTest<AttributeType>
 		meta.put("2", "b");
 		src.setValueSyntaxConfiguration(null);
 		src.setMetadata(meta);
-	}
-
-	@Override
-	protected void assertAreEqual(AttributeType obj, AttributeType cmp)
-	{
-		assertThat(obj, is(cmp));
 	}
 }

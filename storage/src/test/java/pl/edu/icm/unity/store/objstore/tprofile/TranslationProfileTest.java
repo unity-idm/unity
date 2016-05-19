@@ -4,9 +4,6 @@
  */
 package pl.edu.icm.unity.store.objstore.tprofile;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,11 +45,5 @@ public class TranslationProfileTest extends AbstractObjStoreTest<TranslationProf
 				new TranslationRule("condition3", new TranslationAction("action3", 
 						new String[] {"p3", "p4"})));
 		return new TranslationProfile("name-changed", "description2", ProfileType.OUTPUT, rules);
-	}
-
-	@Override
-	protected void assertAreEqual(TranslationProfile obj, TranslationProfile cmp)
-	{
-		assertThat(obj, is(cmp));
 	}
 }

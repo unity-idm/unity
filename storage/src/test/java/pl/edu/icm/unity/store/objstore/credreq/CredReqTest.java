@@ -6,7 +6,6 @@ package pl.edu.icm.unity.store.objstore.credreq;
 
 import static com.googlecode.catchexception.CatchException.catchException;
 import static com.googlecode.catchexception.CatchException.caughtException;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertThat;
 
@@ -71,11 +70,5 @@ public class CredReqTest extends AbstractObjStoreTest<CredentialRequirements>
 		ret.setName("name-changed");
 		ret.setRequiredCredentials(Sets.newHashSet("cred3"));
 		return ret;
-	}
-
-	@Override
-	protected void assertAreEqual(CredentialRequirements obj, CredentialRequirements cmp)
-	{
-		assertThat(obj, is(cmp));
 	}
 }

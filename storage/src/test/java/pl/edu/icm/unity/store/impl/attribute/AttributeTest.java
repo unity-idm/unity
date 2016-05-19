@@ -393,10 +393,4 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 		a.setValues(Lists.newArrayList("w1"));
 		a.setUpdateTs(new Date(2000));
 	}
-
-	@Override
-	protected void assertAreEqual(StoredAttribute obj, StoredAttribute cmp)
-	{
-		assertThat(obj, is(cmp));
-	}
 }

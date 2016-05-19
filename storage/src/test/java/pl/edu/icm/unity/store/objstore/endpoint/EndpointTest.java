@@ -6,7 +6,6 @@ package pl.edu.icm.unity.store.objstore.endpoint;
 
 import static com.googlecode.catchexception.CatchException.catchException;
 import static com.googlecode.catchexception.CatchException.caughtException;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertThat;
 
@@ -100,11 +99,5 @@ public class EndpointTest extends AbstractObjStoreTest<Endpoint>
 				"description2", 
 				authn, "configuration2", "realm2");
 		return new Endpoint("changedName", "typeId2", "addr2", config);
-	}
-
-	@Override
-	protected void assertAreEqual(Endpoint obj, Endpoint cmp)
-	{
-		assertThat(obj, is(cmp));
 	}
 }

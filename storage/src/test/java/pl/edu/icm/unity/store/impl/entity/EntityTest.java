@@ -52,12 +52,6 @@ public class EntityTest extends AbstractBasicDAOTest<EntityInformation>
 		src.setScheduledOperationTime(new Date(5000));
 	}
 
-	@Override
-	protected void assertAreEqual(EntityInformation obj, EntityInformation cmp)
-	{
-		assertThat(obj, is(cmp));
-	}
-	
 	@Test
 	public void insertedWithIdIsReturned()
 	{
@@ -70,7 +64,7 @@ public class EntityTest extends AbstractBasicDAOTest<EntityInformation>
 
 			assertThat(obj.getId(), is(key));
 			assertThat(ret, is(notNullValue()));
-			assertAreEqual(obj, ret);
+			assertThat(ret, is(obj));
 		});
 	}
 	

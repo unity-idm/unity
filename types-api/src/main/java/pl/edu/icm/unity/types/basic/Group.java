@@ -260,7 +260,11 @@ public class Group extends I18nDescribedObject implements NamedObject
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = 1;
+		int result = super.hashCode();
+		result = prime * result + Arrays.hashCode(attributeStatements);
+		result = prime * result
+				+ ((attributesClasses == null) ? 0 : attributesClasses.hashCode());
+		result = prime * result + (displayedNameSet ? 1231 : 1237);
 		result = prime * result + Arrays.hashCode(path);
 		return result;
 	}
@@ -270,14 +274,23 @@ public class Group extends I18nDescribedObject implements NamedObject
 	{
 		if (this == obj)
 			return true;
-		if (obj== null)
+		if (!super.equals(obj))
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
 		Group other = (Group) obj;
+		if (!Arrays.equals(attributeStatements, other.attributeStatements))
+			return false;
+		if (attributesClasses == null)
+		{
+			if (other.attributesClasses != null)
+				return false;
+		} else if (!attributesClasses.equals(other.attributesClasses))
+			return false;
+		if (displayedNameSet != other.displayedNameSet)
+			return false;
 		if (!Arrays.equals(path, other.path))
 			return false;
 		return true;
 	}
-	
 }

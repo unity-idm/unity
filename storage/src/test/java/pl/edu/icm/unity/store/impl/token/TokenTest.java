@@ -99,7 +99,7 @@ public class TokenTest extends AbstractBasicDAOTest<Token>
 			Token ret = dao.getByKey(key);
 
 			assertThat(ret, is(notNullValue()));
-			assertAreEqual(obj, ret);
+			assertThat(ret, is(obj));
 		});
 	}
 
@@ -113,8 +113,7 @@ public class TokenTest extends AbstractBasicDAOTest<Token>
 			Token ret = dao.get(obj.getType(), obj.getValue());
 
 			assertThat(ret, is(notNullValue()));
-			assertAreEqual(obj, ret);
-			
+			assertThat(ret, is(obj));
 		});
 	}	
 	
@@ -226,11 +225,5 @@ public class TokenTest extends AbstractBasicDAOTest<Token>
 	{
 		src.setContents(new byte[] {'b', 'b'});
 		src.setExpires(new Date(2000));
-	}
-
-	@Override
-	protected void assertAreEqual(Token obj, Token cmp)
-	{
-		assertThat(obj, is(cmp));
 	}
 }

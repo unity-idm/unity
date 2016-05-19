@@ -4,9 +4,6 @@
  */
 package pl.edu.icm.unity.store.objstore.realm;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.store.api.generic.GenericObjectsDAO;
@@ -43,11 +40,5 @@ public class RealmTest extends AbstractObjStoreTest<AuthenticationRealm>
 		src.setDescription("description2");
 		src.setMaxInactivity(666);
 		return src;
-	}
-
-	@Override
-	protected void assertAreEqual(AuthenticationRealm obj, AuthenticationRealm cmp)
-	{
-		assertThat(obj, is(cmp));
 	}
 }

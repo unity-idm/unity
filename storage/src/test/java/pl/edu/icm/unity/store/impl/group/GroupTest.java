@@ -8,7 +8,6 @@ import static com.googlecode.catchexception.CatchException.catchException;
 import static com.googlecode.catchexception.CatchException.caughtException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -152,7 +151,7 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 			Group g = all.get(0);
 			if (g.getName().equals("/"))
 				g = all.get(1);
-			assertAreEqual(g, obj);
+			assertThat(g, is(obj));
 		});
 
 	}
@@ -198,15 +197,5 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 			new AttributeStatement("cnd4", "/A", ConflictResolution.merge, 
 					"dynAt2", "dynAExpr2")
 		});
-	}
-
-	@Override
-	protected void assertAreEqual(Group obj, Group cmp)
-	{
-		assertThat(obj.getName(), is(cmp.getName()));
-		assertThat(obj.getDescription(), is (cmp.getDescription()));
-		assertThat(obj.getDisplayedName(), is (cmp.getDisplayedName()));
-		assertThat(obj.getAttributesClasses(), is (cmp.getAttributesClasses()));
-		assertArrayEquals(obj.getAttributeStatements(), cmp.getAttributeStatements());
 	}
 }

@@ -35,7 +35,7 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject> extends Abstra
 			T ret = dao.get(obj.getName());
 
 			assertThat(ret, is(notNullValue()));
-			assertAreEqual(obj, ret);
+			assertThat(ret, is(obj));
 		});
 	}
 	
@@ -67,7 +67,7 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject> extends Abstra
 			T ret = dao.get(obj.getName());
 
 			assertThat(ret, is(notNullValue()));
-			assertAreEqual(obj, ret);
+			assertThat(ret, is(obj));
 		});
 	}
 
@@ -91,8 +91,8 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject> extends Abstra
 			assertThat(asMap.containsKey(obj.getName()), is(true));
 			assertThat(asMap.containsKey(obj2.getName()), is(true));
 
-			assertAreEqual(asMap.get(obj.getName()), obj);
-			assertAreEqual(asMap.get(obj2.getName()), obj2);
+			assertThat(asMap.get(obj.getName()), is(obj));
+			assertThat(asMap.get(obj2.getName()), is(obj2));
 		});
 	}
 

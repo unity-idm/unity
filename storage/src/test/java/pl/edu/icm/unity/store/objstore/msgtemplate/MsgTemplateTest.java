@@ -4,9 +4,6 @@
  */
 package pl.edu.icm.unity.store.objstore.msgtemplate;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
@@ -42,11 +39,5 @@ public class MsgTemplateTest extends AbstractObjStoreTest<MessageTemplate>
 		src.setDescription("description2");
 		src.setMessage(new I18nMessage(new I18nString("s2"), new I18nString("b2")));
 		return src;
-	}
-
-	@Override
-	protected void assertAreEqual(MessageTemplate obj, MessageTemplate cmp)
-	{
-		assertThat(obj, is(cmp));
 	}
 }

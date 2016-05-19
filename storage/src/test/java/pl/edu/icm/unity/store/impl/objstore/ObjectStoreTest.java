@@ -208,10 +208,4 @@ public class ObjectStoreTest extends AbstractBasicDAOTest<GenericObjectBean>
 		src.setContents(new byte[] {'b', 'c'});
 		src.setLastUpdate(new Date(1000));
 	}
-
-	@Override
-	protected void assertAreEqual(GenericObjectBean obj, GenericObjectBean cmp)
-	{
-		assertThat(obj, is(cmp));
-	}
 }

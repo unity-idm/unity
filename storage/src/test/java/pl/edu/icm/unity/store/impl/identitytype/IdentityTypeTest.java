@@ -58,12 +58,6 @@ public class IdentityTypeTest extends AbstractNamedDAOTest<IdentityType>
 		src.getExtractedAttributes().put("cc", "gg");
 	}
 
-	@Override
-	protected void assertAreEqual(IdentityType obj, IdentityType cmp)
-	{
-		assertThat(obj, is(cmp));
-	}
-
 	@Test
 	@Override
 	public void shouldReturnTwoCreatedWithinCollections()
@@ -80,7 +74,7 @@ public class IdentityTypeTest extends AbstractNamedDAOTest<IdentityType>
 
 			IdentityType fromList = all.get(0);
 
-			assertAreEqual(fromList, obj);
+			assertThat(fromList, is(obj));
 		});
 	}
 	
@@ -100,7 +94,7 @@ public class IdentityTypeTest extends AbstractNamedDAOTest<IdentityType>
 
 			assertThat(asMap.containsKey(obj.getName()), is(true));
 
-			assertAreEqual(asMap.get(obj.getName()), obj);
+			assertThat(asMap.get(obj.getName()), is(obj));
 		});
 	}
 	

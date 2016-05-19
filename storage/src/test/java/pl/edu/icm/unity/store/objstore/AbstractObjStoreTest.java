@@ -58,7 +58,6 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 	protected abstract GenericObjectsDAO<T> getDAO();
 	protected abstract T getObject(String id);
 	protected abstract T mutateObject(T src);
-	protected abstract void assertAreEqual(T obj, T cmp);
 
 	@Test
 	public void createdExists()
@@ -121,7 +120,7 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 			T ret = dao.get(obj.getName());
 
 			assertThat(ret, is(notNullValue()));
-			assertAreEqual(obj, ret);
+			assertThat(ret, is(obj));
 		});
 	}
 
@@ -137,7 +136,7 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 
 			assertThat(ret, is(notNullValue()));
 			assertThat(ret.size(), is(1));
-			assertAreEqual(obj, ret.get(0).getKey());
+			assertThat(ret.get(0).getKey(), is (obj));
 			assertThat(ret.get(0).getValue(), is(notNullValue()));
 		});
 	}
@@ -154,7 +153,7 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 
 			assertThat(ret, is(notNullValue()));
 			assertThat(ret.size(), is(1));
-			assertAreEqual(ret.get(0), obj);
+			assertThat(ret.get(0), is(obj));
 		});
 	}
 	
@@ -173,7 +172,7 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 			T ret = dao.get(changed.getName());
 
 			assertThat(ret, is(notNullValue()));
-			assertAreEqual(changed, ret);
+			assertThat(ret, is(changed));
 			assertThat(changed != ret, is(true));
 		});
 	}
@@ -219,16 +218,10 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 			boolean obj2Found = false;
 			for (T el: all)
 			{
-				try
-				{
-					assertAreEqual(el, obj);
+				if (el.equals(obj))
 					objFound = true;
-				} catch (Throwable t) {}
-				try
-				{
-					assertAreEqual(el, obj2);
+				if (el.equals(obj2))
 					obj2Found = true;
-				} catch (Throwable t) {}
 			}
 			assertThat(objFound, is(true));
 			assertThat(obj2Found, is(true));
@@ -361,7 +354,7 @@ public abstract class AbstractObjStoreTest<T extends NamedObject>
 			List<T> all = dao.getAll();
 
 			assertThat(all.size(), is(1));
-			assertAreEqual(all.get(0), obj);
+			assertThat(all.get(0), is(obj));
 		});
 	}
 }

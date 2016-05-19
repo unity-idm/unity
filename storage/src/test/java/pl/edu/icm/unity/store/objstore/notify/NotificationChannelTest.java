@@ -4,9 +4,6 @@
  */
 package pl.edu.icm.unity.store.objstore.notify;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.store.api.generic.GenericObjectsDAO;
@@ -44,11 +41,5 @@ public class NotificationChannelTest extends AbstractObjStoreTest<NotificationCh
 		src.setDescription("description2");
 		src.setFacilityId("facilityId2");
 		return src;
-	}
-
-	@Override
-	protected void assertAreEqual(NotificationChannel obj, NotificationChannel cmp)
-	{
-		assertThat(obj, is(cmp));
 	}
 }

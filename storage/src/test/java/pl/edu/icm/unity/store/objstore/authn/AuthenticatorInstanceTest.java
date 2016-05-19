@@ -117,10 +117,4 @@ public class AuthenticatorInstanceTest extends AbstractObjStoreTest<Authenticato
 		ret.setVerificatorJsonConfiguration("vc2");
 		return ret;
 	}
-
-	@Override
-	protected void assertAreEqual(AuthenticatorInstance obj, AuthenticatorInstance cmp)
-	{
-		assertThat(obj, is(cmp));
-	}
 }

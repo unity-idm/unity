@@ -136,10 +136,4 @@ public class ConfirmationConfigurationTest extends AbstractObjStoreTest<Confirma
 		cc.setTypeToConfirm(ConfirmationConfigurationDB.IDENTITY_CONFIG_TYPE);
 		return cc;
 	}
-
-	@Override
-	protected void assertAreEqual(ConfirmationConfiguration obj, ConfirmationConfiguration cmp)
-	{
-		assertThat(obj, is(cmp));
-	}
 }
