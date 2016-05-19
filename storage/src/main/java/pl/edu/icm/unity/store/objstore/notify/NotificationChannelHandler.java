@@ -4,17 +4,12 @@
  */
 package pl.edu.icm.unity.store.objstore.notify;
 
-import java.io.IOException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.objstore.DefaultEntityHandler;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
@@ -37,33 +32,13 @@ public class NotificationChannelHandler extends DefaultEntityHandler<Notificatio
 	@Override
 	public GenericObjectBean toBlob(NotificationChannel value)
 	{
-		try
-		{
-			ObjectNode root = jsonMapper.createObjectNode();
-			root.put("configuration", value.getConfiguration());
-			root.put("facilityId", value.getFacilityId());
-			root.put("description", value.getDescription());
-			byte[] contents = jsonMapper.writeValueAsBytes(root);
-			return new GenericObjectBean(value.getName(), contents, supportedType);
-		} catch (JsonProcessingException e)
-		{
-			throw new InternalException("Can't serialize JSON notification channel state", e);
-		}
+		return new GenericObjectBean(value.getName(), 
+				JsonUtil.serialize2Bytes(value.toJson()), supportedType);
 	}
 
 	@Override
 	public NotificationChannel fromBlob(GenericObjectBean blob)
 	{
-		try
-		{
-			JsonNode root = jsonMapper.readTree(blob.getContents());
-			String configuration = root.get("configuration").asText();
-			String facility = root.get("facilityId").asText();
-			String description = root.get("description").asText();
-			return new NotificationChannel(blob.getName(), description, configuration, facility);
-		} catch (IOException e)
-		{
-			throw new InternalException("Can't deserialize JSON notification channel state", e);
-		}
+		return new NotificationChannel(JsonUtil.parse(blob.getContents()));
 	}
 }

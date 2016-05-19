@@ -4,6 +4,11 @@
  */
 package pl.edu.icm.unity.types;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
 
 /**
  * Read only implementation of {@link DescribedObject} interface. Useful for extending
@@ -24,6 +29,12 @@ public class DescribedObjectROImpl implements DescribedObject
 		this.description = description;
 	}
 	
+	@JsonCreator
+	public DescribedObjectROImpl(ObjectNode root)
+	{
+		fromJsonDescObj(root);
+	}
+	
 	@Override
 	public String getName()
 	{
@@ -41,6 +52,21 @@ public class DescribedObjectROImpl implements DescribedObject
 		return "DescribedObject [name=" + name + ", description=" + description + "]";
 	}
 
+	protected final void fromJsonDescObj(ObjectNode root)
+	{
+		description = root.get("description").asText(null);
+		name = root.get("name").asText();
+	}
+	
+	@JsonValue
+	public ObjectNode toJson()
+	{
+		ObjectNode root = Constants.MAPPER.createObjectNode();
+		root.put("description", getDescription());
+		root.put("name", getName());
+		return root;
+	}
+	
 	@Override
 	public int hashCode()
 	{

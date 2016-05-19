@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.types;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Bean implementation of {@link DescribedObject} interface. Useful for extending
@@ -18,6 +20,12 @@ public class DescribedObjectImpl extends DescribedObjectROImpl
 	public DescribedObjectImpl(String name, String description)
 	{
 		super(name, description);
+	}
+	
+	@JsonCreator
+	public DescribedObjectImpl(ObjectNode root)
+	{
+		super(root);
 	}
 	
 	public void setName(String name)

@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.types.basic;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import pl.edu.icm.unity.types.DescribedObjectImpl;
 
 /**
@@ -26,6 +29,12 @@ public class NotificationChannel extends DescribedObjectImpl
 	{
 	}
 
+	public NotificationChannel(ObjectNode root)
+	{
+		super(root);
+		fromJson(root);
+	}
+
 	public String getConfiguration()
 	{
 		return configuration;
@@ -46,6 +55,29 @@ public class NotificationChannel extends DescribedObjectImpl
 		this.facilityId = facilityId;
 	}
 
+	@Override
+	public String toString()
+	{
+		return "NotificationChannel [configuration=" + configuration + ", facilityId="
+				+ facilityId + "]";
+	}
+
+	private void fromJson(ObjectNode root)
+	{
+		setConfiguration(root.get("configuration").asText());
+		setFacilityId(root.get("facilityId").asText());
+	}
+	
+	@JsonValue
+	@Override
+	public ObjectNode toJson()
+	{
+		ObjectNode root = super.toJson();
+		root.put("configuration", getConfiguration());
+		root.put("facilityId", getFacilityId());
+		return root;
+	}
+	
 	@Override
 	public int hashCode()
 	{

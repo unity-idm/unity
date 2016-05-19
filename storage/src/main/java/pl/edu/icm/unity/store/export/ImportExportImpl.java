@@ -44,8 +44,11 @@ public class ImportExportImpl implements ImportExport
 		this.updater = updater;
 		this.implementations = implementations;
 		Collections.sort(implementations, (i1, i2) -> {
-			return i1.getSortKey() < i2.getSortKey() ? -1 :
-				i1.getSortKey() > i2.getSortKey() ? 1 : 0;
+			if (i1.getSortKey() == i2.getSortKey())
+				throw new IllegalStateException("Got two ImportExport "
+						+ "implementations with the same sort key: " + i1 + 
+						"; " + i1 + " and " + i2);
+			return i1.getSortKey() < i2.getSortKey() ? -1 : 1;
 		});
 	}
 
