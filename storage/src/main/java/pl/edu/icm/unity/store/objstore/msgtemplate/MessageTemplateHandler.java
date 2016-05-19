@@ -4,13 +4,12 @@
  */
 package pl.edu.icm.unity.store.objstore.msgtemplate;
 
-import java.nio.charset.StandardCharsets;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.objstore.DefaultEntityHandler;
@@ -35,14 +34,12 @@ public class MessageTemplateHandler extends DefaultEntityHandler<MessageTemplate
 	@Override
 	public GenericObjectBean toBlob(MessageTemplate value)
 	{
-		String json = value.toJson(jsonMapper);
-		return new GenericObjectBean(value.getName(), json.getBytes(StandardCharsets.UTF_8), supportedType);
+		return new GenericObjectBean(value.getName(), JsonUtil.serialize2Bytes(value.toJson()), supportedType);
 	}
 
 	@Override
 	public MessageTemplate fromBlob(GenericObjectBean blob)
 	{
-		return new MessageTemplate(new String(blob.getContents(), StandardCharsets.UTF_8), 
-				jsonMapper);
+		return new MessageTemplate(JsonUtil.parse(blob.getContents()));
 	}
 }

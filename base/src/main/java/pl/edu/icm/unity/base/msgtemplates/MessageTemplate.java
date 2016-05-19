@@ -8,16 +8,16 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import pl.edu.icm.unity.exceptions.InternalException;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.types.DescribedObjectImpl;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.I18nString;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Wraps notification message template. It consist of text, subject, supports localization.
@@ -45,89 +45,76 @@ public class MessageTemplate extends DescribedObjectImpl
 		setDescription(description);
 	}
 	
-	public MessageTemplate(String json, ObjectMapper jsonMapper)
+	@JsonCreator
+	public MessageTemplate(ObjectNode root)
 	{
-		fromJson(json, jsonMapper);
+		fromJson(root);
 	}
 	
 
-	private void fromJson(String json, ObjectMapper jsonMapper)
+	private void fromJson(ObjectNode root)
 	{
-		try
+		setName(root.get("name").asText());
+		setDescription(root.get("description").asText());
+		setConsumer(root.get("consumer").asText());
+		ArrayNode messagesA = (ArrayNode) root.get("messages");
+		//note: JSON representation is legacy, that's why standard tool to serialize/deserialize 
+		//is not used. The empty string was used as an only key to store a default value. 
+		I18nString subject = new I18nString();
+		I18nString body = new I18nString();
+		for (int i=0; i<messagesA.size(); i++)
 		{
-			ObjectNode root = (ObjectNode) jsonMapper.readTree(json);
-			setName(root.get("name").asText());
-			setDescription(root.get("description").asText());
-			setConsumer(root.get("consumer").asText());
-			ArrayNode messagesA = (ArrayNode) root.get("messages");
-			//note: JSON representation is legacy, that's why standard tool to serialize/deserialize 
-			//is not used. The empty string was used as an only key to store a default value. 
-			I18nString subject = new I18nString();
-			I18nString body = new I18nString();
-			for (int i=0; i<messagesA.size(); i++)
+			ObjectNode jsonMsg = (ObjectNode) messagesA.get(i);
+			String locale = jsonMsg.get("locale").asText();
+			if (locale.equals(""))
 			{
-				ObjectNode jsonMsg = (ObjectNode) messagesA.get(i);
-				String locale = jsonMsg.get("locale").asText();
-				if (locale.equals(""))
-				{
-					JsonNode n = jsonMsg.get("subject");
-					if (n != null && !n.isNull())
-						subject.setDefaultValue(n.asText());
-					n = jsonMsg.get("body");
-					if (n != null && !n.isNull())
-						body.setDefaultValue(n.asText());
-				} else
-				{
-					JsonNode n = jsonMsg.get("subject");
-					if (n != null && !n.isNull())
-						subject.addValue(locale, n.asText());
-					n = jsonMsg.get("body");
-					if (n != null && !n.isNull())
-						body.addValue(locale, n.asText());
-				}
+				JsonNode n = jsonMsg.get("subject");
+				if (n != null && !n.isNull())
+					subject.setDefaultValue(n.asText());
+				n = jsonMsg.get("body");
+				if (n != null && !n.isNull())
+					body.setDefaultValue(n.asText());
+			} else
+			{
+				JsonNode n = jsonMsg.get("subject");
+				if (n != null && !n.isNull())
+					subject.addValue(locale, n.asText());
+				n = jsonMsg.get("body");
+				if (n != null && !n.isNull())
+					body.addValue(locale, n.asText());
 			}
-			message = new I18nMessage(subject, body);
-		} catch (Exception e)
-		{
-			throw new InternalException("Can't deserialize message template from JSON", e);
 		}
-
+		message = new I18nMessage(subject, body);
 	}
 
-	public String toJson(ObjectMapper jsonMapper)
+	@JsonValue
+	public ObjectNode toJson()
 	{
-		try
+		ObjectNode root = Constants.MAPPER.createObjectNode();
+		root.put("name", getName());
+		root.put("description", getDescription());
+		root.put("consumer", getConsumer());
+		ArrayNode jsonMessages = root.putArray("messages");
+
+		I18nString subject = message.getSubject();
+		I18nString body = message.getBody();
+		Set<String> allUsedLocales = new HashSet<>(body.getMap().keySet());
+		allUsedLocales.addAll(subject.getMap().keySet());
+		for (String locale: allUsedLocales)
 		{
-			ObjectNode root = jsonMapper.createObjectNode();
-			root.put("name", getName());
-			root.put("description", getDescription());
-			root.put("consumer", getConsumer());
-			ArrayNode jsonMessages = root.putArray("messages");
-			
-			I18nString subject = message.getSubject();
-			I18nString body = message.getBody();
-			Set<String> allUsedLocales = new HashSet<>(body.getMap().keySet());
-			allUsedLocales.addAll(subject.getMap().keySet());
-			for (String locale: allUsedLocales)
-			{
-				ObjectNode jsonMsg = jsonMessages.addObject();
-				jsonMsg.put("locale", locale);
-				jsonMsg.put("subject", subject.getValueRaw(locale));
-				jsonMsg.put("body", body.getValueRaw(locale));
-			}
-			if (subject.getDefaultValue() != null || body.getDefaultValue() != null)
-			{
-				ObjectNode jsonMsg = jsonMessages.addObject();
-				jsonMsg.put("locale", "");
-				jsonMsg.put("subject", subject.getDefaultValue());
-				jsonMsg.put("body", body.getDefaultValue());
-			}
-			return jsonMapper.writeValueAsString(root);
-		} catch (JsonProcessingException e)
-		{
-			throw new InternalException("Can't serialize message template to JSON", e);
+			ObjectNode jsonMsg = jsonMessages.addObject();
+			jsonMsg.put("locale", locale);
+			jsonMsg.put("subject", subject.getValueRaw(locale));
+			jsonMsg.put("body", body.getValueRaw(locale));
 		}
-		
+		if (subject.getDefaultValue() != null || body.getDefaultValue() != null)
+		{
+			ObjectNode jsonMsg = jsonMessages.addObject();
+			jsonMsg.put("locale", "");
+			jsonMsg.put("subject", subject.getDefaultValue());
+			jsonMsg.put("body", body.getDefaultValue());
+		}
+		return root;
 	}
 
 	private void setConsumer(String consumer)
@@ -203,6 +190,12 @@ public class MessageTemplate extends DescribedObjectImpl
 		}
 
 		@Override
+		public String toString()
+		{
+			return "Message [body=" + body + ", subject=" + subject + "]";
+		}
+
+		@Override
 		public int hashCode()
 		{
 			final int prime = 31;
@@ -236,6 +229,12 @@ public class MessageTemplate extends DescribedObjectImpl
 				return false;
 			return true;
 		}
+	}
+
+	@Override
+	public String toString()
+	{
+		return "MessageTemplate [message=" + message + ", consumer=" + consumer + "]";
 	}
 
 	@Override
