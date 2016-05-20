@@ -17,9 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;
 import pl.edu.icm.unity.store.tx.TransactionTL;
-import pl.edu.icm.unity.types.EntityInformation;
-import pl.edu.icm.unity.types.EntityScheduledOperation;
-import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.types.basic.EntityInformation;
+import pl.edu.icm.unity.types.basic.EntityScheduledOperation;
+import pl.edu.icm.unity.types.basic.EntityState;
 
 public class EntityTest extends AbstractBasicDAOTest<EntityInformation>
 {

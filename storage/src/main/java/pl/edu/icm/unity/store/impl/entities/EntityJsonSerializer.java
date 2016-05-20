@@ -12,7 +12,7 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
 import pl.edu.icm.unity.store.rdbms.BaseBean;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
-import pl.edu.icm.unity.types.EntityInformation;
+import pl.edu.icm.unity.types.basic.EntityInformation;
 
 /**
  * Serializes {@link StoredEntity} to/from DB form.

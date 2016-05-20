@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
@@ -36,8 +37,8 @@ public class RegistrationFormTest
 			.withDefaultCredentialRequirement("credReq")
 			.build();
 		
-		String jsonStr = UnityTypesFactory.toJsonString(minimal);
-		RegistrationForm minimalParsed = UnityTypesFactory.parse(jsonStr, RegistrationForm.class);
+		String jsonStr = JsonUtil.toJsonString(minimal);
+		RegistrationForm minimalParsed = JsonUtil.parse(jsonStr, RegistrationForm.class);
 		
 		assertThat(minimalParsed, is(minimal));
 	}
@@ -81,8 +82,8 @@ public class RegistrationFormTest
 		MessageSource msg = Mockito.mock(MessageSource.class);
 		complete.setLayout(complete.getDefaultFormLayout(msg));
 		
-		String jsonStr = UnityTypesFactory.toJsonString(complete);
-		RegistrationForm completeParsed = UnityTypesFactory.parse(jsonStr, RegistrationForm.class);
+		String jsonStr = JsonUtil.toJsonString(complete);
+		RegistrationForm completeParsed = JsonUtil.parse(jsonStr, RegistrationForm.class);
 
 		assertThat(completeParsed, is(complete));
 	}

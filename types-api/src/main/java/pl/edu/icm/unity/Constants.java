@@ -17,7 +17,6 @@ public class Constants
 {
 	public static final String SIMPLE_DATE_FORMAT = "yyyy.MM.dd HH:mm:ss";
 	
-	//TODO - remove this, use injected instance
 	public static final ObjectMapper MAPPER = new ObjectMapper();
 	
 	public static final DateTimeFormatter DT_FORMATTER_MEDIUM = 

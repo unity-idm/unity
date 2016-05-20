@@ -13,7 +13,7 @@ import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.hz.GenericBasicHzCRUD;
 import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSMutationEvent;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
-import pl.edu.icm.unity.types.EntityInformation;
+import pl.edu.icm.unity.types.basic.EntityInformation;
 
 
 /**

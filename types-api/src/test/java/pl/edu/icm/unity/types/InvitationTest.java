@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.Selection;
@@ -33,8 +34,8 @@ public class InvitationTest
 		RESTInvitationWithCode minimal = new RESTInvitationWithCode(
 				"formId", Instant.now().truncatedTo(ChronoUnit.SECONDS), null, null, "registrationCode");
 		
-		String jsonStr = UnityTypesFactory.toJsonString(minimal);
-		RESTInvitationWithCode minimalParsed = UnityTypesFactory.parse(jsonStr, 
+		String jsonStr = JsonUtil.toJsonString(minimal);
+		RESTInvitationWithCode minimalParsed = JsonUtil.parse(jsonStr, 
 				RESTInvitationWithCode.class);
 		
 		assertThat(minimalParsed, is(minimal));
@@ -54,10 +55,10 @@ public class InvitationTest
 		complete.getGroupSelections().put(0, new PrefilledEntry<>(new Selection(true), 
 				PrefilledEntryMode.READ_ONLY));
 		
-		String jsonStr = UnityTypesFactory.toJsonString(complete);
+		String jsonStr = JsonUtil.toJsonString(complete);
 		
 		System.out.println(jsonStr);
-		RESTInvitationWithCode completeParsed = UnityTypesFactory.parse(jsonStr, 
+		RESTInvitationWithCode completeParsed = JsonUtil.parse(jsonStr, 
 				RESTInvitationWithCode.class);
 
 		assertThat(completeParsed, is(complete));

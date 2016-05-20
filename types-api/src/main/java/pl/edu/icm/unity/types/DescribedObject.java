@@ -18,5 +18,5 @@ public interface DescribedObject extends NamedObject
 	/**
 	 * @return human readable description of the object.
 	 */
-	public String getDescription();
+	String getDescription();
 }

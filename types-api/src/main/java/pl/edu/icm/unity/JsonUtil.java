@@ -6,6 +6,8 @@ package pl.edu.icm.unity;
 
 import pl.edu.icm.unity.exceptions.InternalException;
 
+import java.util.List;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -54,6 +56,40 @@ public class JsonUtil
 		try
 		{
 			return Constants.MAPPER.writeValueAsBytes(node);
+		} catch (JsonProcessingException e)
+		{
+			throw new InternalException("Can't perform JSON serialization", e);
+		}
+	}
+	
+	public static <T> T parse(String contents, Class<T> clazz)
+	{
+		try
+		{
+			return Constants.MAPPER.readValue(contents, clazz);
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't perform JSON deserialization", e);
+		}
+	}
+
+	public static <T> List<T> parseToList(String contents, Class<T> clazz)
+	{
+		try
+		{
+			return Constants.MAPPER.readValue(contents,
+					Constants.MAPPER.getTypeFactory().constructCollectionType(List.class, clazz));
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't perform JSON deserialization", e);
+		}
+	}
+
+	public static String toJsonString(Object value)
+	{
+		try
+		{
+			return Constants.MAPPER.writeValueAsString(value);
 		} catch (JsonProcessingException e)
 		{
 			throw new InternalException("Can't perform JSON serialization", e);

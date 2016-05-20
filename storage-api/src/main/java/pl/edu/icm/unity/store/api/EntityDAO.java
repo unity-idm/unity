@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.store.api;
 
-import pl.edu.icm.unity.types.EntityInformation;
+import pl.edu.icm.unity.types.basic.EntityInformation;
 
 /**
  * Entities DAO

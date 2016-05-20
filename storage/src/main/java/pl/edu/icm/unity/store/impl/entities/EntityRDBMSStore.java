@@ -12,7 +12,7 @@ import pl.edu.icm.unity.store.impl.StorageLimits;
 import pl.edu.icm.unity.store.rdbms.BaseBean;
 import pl.edu.icm.unity.store.rdbms.GenericRDBMSCRUD;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
-import pl.edu.icm.unity.types.EntityInformation;
+import pl.edu.icm.unity.types.basic.EntityInformation;
 
 
 /**

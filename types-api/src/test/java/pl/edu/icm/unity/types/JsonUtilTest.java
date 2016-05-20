@@ -18,9 +18,10 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 
-public class UnityTypesFactoryTest
+public class JsonUtilTest
 {
 	@Test
 	public void shouldConvertToString() throws JsonParseException, JsonMappingException, IOException
@@ -29,7 +30,7 @@ public class UnityTypesFactoryTest
 		AuthenticationOptionDescription authn =  new AuthenticationOptionDescription("primary", "secondary");
 
 		// when
-		String jsonString = UnityTypesFactory.toJsonString(authn);
+		String jsonString = JsonUtil.toJsonString(authn);
 
 		// then
 		ObjectNode json = Constants.MAPPER.readValue(jsonString, ObjectNode.class);
@@ -44,7 +45,7 @@ public class UnityTypesFactoryTest
 		String jsonString = "{\"primaryAuthenticator\":\"one\",\"mandatory2ndAuthenticator\":\"two\"}";
 
 		// when
-		 AuthenticationOptionDescription authn = UnityTypesFactory.parse(jsonString, AuthenticationOptionDescription.class);
+		 AuthenticationOptionDescription authn = JsonUtil.parse(jsonString, AuthenticationOptionDescription.class);
 
 		// then
 		assertThat(authn, equalTo(new AuthenticationOptionDescription("one", "two")));
@@ -60,7 +61,7 @@ public class UnityTypesFactoryTest
 				+ "]";
 
 		// when
-		List<AuthenticationOptionDescription> authn = UnityTypesFactory.parseToList(
+		List<AuthenticationOptionDescription> authn = JsonUtil.parseToList(
 				jsonString, AuthenticationOptionDescription.class
 		);
 

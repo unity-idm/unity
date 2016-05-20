@@ -8,8 +8,6 @@ import java.util.Arrays;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import pl.edu.icm.unity.types.EntityInformation;
-import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 
 /**

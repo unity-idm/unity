@@ -14,5 +14,5 @@ public interface NamedObject
 	/**
 	 * @return human readable name of the object. Must be unique for the object class.
 	 */
-	public String getName();
+	String getName();
 }
