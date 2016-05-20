@@ -22,7 +22,7 @@ public class EnquiryFormBuilder extends BaseFormBuilder<EnquiryFormBuilder>
 	
 	public EnquiryForm build()
 	{
-		instance.validate();
+		instance.validateEnquiry();
 		return instance;
 	}
 	

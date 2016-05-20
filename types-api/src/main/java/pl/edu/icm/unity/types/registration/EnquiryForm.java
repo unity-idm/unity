@@ -148,6 +148,15 @@ public class EnquiryForm extends BaseForm
 		return new FormLayout(elements);
 	}
 	
+	protected void validateEnquiry()
+	{
+		super.validate();
+		if (type == null)
+			throw new IllegalStateException("Enquiry type must be not-null");
+		if (targetGroups == null)
+			throw new IllegalStateException("Enquiry target groups can not be null");
+	}
+	
 	@Override
 	public int hashCode()
 	{
