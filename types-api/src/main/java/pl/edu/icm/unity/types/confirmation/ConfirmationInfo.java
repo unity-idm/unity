@@ -4,13 +4,11 @@
  */
 package pl.edu.icm.unity.types.confirmation;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.JsonSerializable;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
 
 /**
  * Stores information about confirmation. 
@@ -18,7 +16,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * @author P. Piernik
  * 
  */
-public class ConfirmationInfo implements JsonSerializable
+public class ConfirmationInfo
 {
 	private boolean confirmed;
 	private long confirmationDate;
@@ -27,15 +25,23 @@ public class ConfirmationInfo implements JsonSerializable
 	public ConfirmationInfo()
 	{	
 	}
+	
 	public ConfirmationInfo(int sentRequestAmount)
 	{
 		this.sentRequestAmount = sentRequestAmount;
 	}
+	
 	public ConfirmationInfo(boolean confirmed)
 	{
 		this.confirmed = confirmed;
 		if (confirmed)
 			this.confirmationDate = System.currentTimeMillis();
+	}
+
+	@JsonCreator
+	public ConfirmationInfo(ObjectNode root)
+	{
+		fromJson(root);
 	}
 	
 	public boolean isConfirmed()
@@ -69,34 +75,26 @@ public class ConfirmationInfo implements JsonSerializable
 	}
 
 	@Override
-	public String getSerializedConfiguration() throws InternalException
+	public String toString()
+	{
+		return "ConfirmationInfo [confirmed=" + confirmed + ", confirmationDate="
+				+ confirmationDate + ", sentRequestAmount=" + sentRequestAmount
+				+ "]";
+	}
+
+	@JsonValue
+	public ObjectNode toJson()
 	{
 		ObjectNode main = Constants.MAPPER.createObjectNode();
 		main.put("confirmed", isConfirmed());
 		main.put("confirmationDate", getConfirmationDate());
 		main.put("sentRequestAmount", getSentRequestAmount());
-		try
-		{
-			return Constants.MAPPER.writeValueAsString(main);
-		} catch (JsonProcessingException e)
-		{
-			throw new InternalException("Can't serialize ConfirmationData to JSON", e);
-		}
+		return main;
 	}
 
-	@Override
-	public void setSerializedConfiguration(String json) throws InternalException
+	
+	private void fromJson(ObjectNode jsonN)
 	{
-		JsonNode jsonN;
-		try
-		{
-			jsonN = Constants.MAPPER.readTree(new String(json));
-		} catch (Exception e)
-		{
-			throw new InternalException("Can't deserialize ConfirmationData from JSON",
-					e);
-		}
-
 		setConfirmed(jsonN.get("confirmed").asBoolean(false));
 		setConfirmationDate(jsonN.get("confirmationDate").asLong());
 		setSentRequestAmount(jsonN.get("sentRequestAmount").asInt());

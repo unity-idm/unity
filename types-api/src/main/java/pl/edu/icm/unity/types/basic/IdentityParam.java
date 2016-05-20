@@ -121,7 +121,7 @@ public class IdentityParam extends IdentityTaV implements VerifiableElement
 		if (getRemoteIdp() != null)
 			main.put("remoteIdp", getRemoteIdp());
 		if (getConfirmationInfo() != null)
-			main.put("confirmationInfo", getConfirmationInfo().getSerializedConfiguration());
+			main.set("confirmationInfo", getConfirmationInfo().toJson());
 		if (getMetadata() != null)
 			main.set("metadata", getMetadata());
 		return main;
@@ -136,16 +136,11 @@ public class IdentityParam extends IdentityTaV implements VerifiableElement
 		if (main.has("remoteIdp"))
 			setRemoteIdp(main.get("remoteIdp").asText());
 		if (main.has("confirmationInfo"))
-		{
-			ConfirmationInfo conData = new ConfirmationInfo();
-			conData.setSerializedConfiguration(main.get("confirmationInfo").asText());
-			setConfirmationInfo(conData);
-		}
+			setConfirmationInfo(new ConfirmationInfo((ObjectNode)main.get("confirmationInfo")));
 		if (main.has("metadata"))
 			setMetadata(main.get("metadata"));
 	}
 
-	
 	
 	@Override
 	public int hashCode()

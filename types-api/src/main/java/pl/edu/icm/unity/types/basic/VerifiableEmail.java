@@ -52,9 +52,7 @@ public class VerifiableEmail implements VerifiableElement
 	public VerifiableEmail(JsonNode jsonN) throws InternalException
 	{
 		value = jsonN.get("value").asText();
-		ConfirmationInfo confirmationData = new ConfirmationInfo();
-		confirmationData.setSerializedConfiguration(jsonN.get("confirmationData").asText());
-		setConfirmationInfo(confirmationData);
+		setConfirmationInfo(new ConfirmationInfo((ObjectNode)jsonN.get("confirmationData")));
 		List<String> tags = new ArrayList<>();
 		if (jsonN.has("tags"))
 		{
@@ -70,7 +68,7 @@ public class VerifiableEmail implements VerifiableElement
 	{
 		ObjectNode main = Constants.MAPPER.createObjectNode();
 		main.put("value", getValue());
-		main.put("confirmationData", getConfirmationInfo().getSerializedConfiguration());
+		main.set("confirmationData", getConfirmationInfo().toJson());
 		ArrayNode tagsJ = main.putArray("tags");
 		for (String tag: getTags())
 			tagsJ.add(tag);

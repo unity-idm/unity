@@ -6,7 +6,6 @@ package pl.edu.icm.unity.types.basic;
 
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.JsonSerializable;
 
 /**
  * Base interface defining attribute value type. It provides handling of the 
@@ -24,7 +23,7 @@ import pl.edu.icm.unity.types.JsonSerializable;
  * 
  * @author K. Benedyczak
  */
-public interface AttributeValueSyntax<T> extends JsonSerializable
+public interface AttributeValueSyntax<T>
 {
 	/**
 	 * @return attribute value syntax ID
