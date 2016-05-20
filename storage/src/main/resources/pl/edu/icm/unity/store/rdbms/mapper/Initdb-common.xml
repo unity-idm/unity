@@ -69,7 +69,6 @@ CREATE TABLE GROUP_ENTITIES(
 CREATE TABLE VAR_OBJECTS(
 		<include refid="defaultColsMem"/>,
 		TYPE VARCHAR(100),
-		<include refid="subTypeCol"/>,
 		LAST_UPDATE TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 		UNIQUE(NAME, TYPE)
 		<include refid="tableOpts"/>		

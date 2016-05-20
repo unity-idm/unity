@@ -23,7 +23,7 @@ public class ProcessingRuleIE extends GenericObjectIEBase<ScheduledProcessingRul
 	@Autowired
 	public ProcessingRuleIE(ProcessingRuleDB dao, ObjectMapper jsonMapper)
 	{
-		super(dao, jsonMapper, ScheduledProcessingRule.class, 109, 
+		super(dao, jsonMapper, ScheduledProcessingRule.class, 110, 
 				ProcessingRuleHandler.PROCESSING_RULE_OBJECT_TYPE);
 	}
 }

@@ -130,9 +130,6 @@ public class GenericObjectHzStore extends GenericBasicHzCRUD<GenericObjectBean> 
 	{
 		if (!old.getType().equals(updated.getType()))
 			throw new IllegalArgumentException("Changing object type is illegal");
-		if ((old.getSubType() != null && !old.getSubType().equals(updated.getSubType())) ||
-				(old.getSubType() == null && updated.getSubType() != null))
-			throw new IllegalArgumentException("Changing object subtype is illegal");
 	}
 	
 	private PredicateBuilder getPredicate(String type, String value)

@@ -197,7 +197,7 @@ public class ObjectStoreTest extends AbstractBasicDAOTest<GenericObjectBean>
 	@Override
 	protected GenericObjectBean getObject(String id)
 	{
-		GenericObjectBean ret = new GenericObjectBean(id, new byte[] {'a'}, "type", "subType");
+		GenericObjectBean ret = new GenericObjectBean(id, new byte[] {'a'}, "type");
 		ret.setLastUpdate(new Date(100));
 		return ret;
 	}

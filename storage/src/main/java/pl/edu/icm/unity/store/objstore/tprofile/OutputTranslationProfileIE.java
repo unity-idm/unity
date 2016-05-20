@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import pl.edu.icm.unity.store.api.generic.TranslationProfileDB;
+import pl.edu.icm.unity.store.api.generic.OutputTranslationProfileDB;
 import pl.edu.icm.unity.store.objstore.GenericObjectIEBase;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
@@ -18,13 +18,13 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
  * @author K. Benedyczak
  */
 @Component
-public class TranslationProfileIE extends GenericObjectIEBase<TranslationProfile>
+public class OutputTranslationProfileIE extends GenericObjectIEBase<TranslationProfile>
 {
 	@Autowired
-	public TranslationProfileIE(TranslationProfileDB dao, ObjectMapper jsonMapper)
+	public OutputTranslationProfileIE(OutputTranslationProfileDB dao, ObjectMapper jsonMapper)
 	{
-		super(dao, jsonMapper, TranslationProfile.class, 108, 
-				TranslationProfileHandler.TRANSLATION_PROFILE_OBJECT_TYPE);
+		super(dao, jsonMapper, TranslationProfile.class, 109, 
+				OutputTranslationProfileHandler.TRANSLATION_PROFILE_OBJECT_TYPE);
 	}
 }
 

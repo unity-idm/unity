@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
-import pl.edu.icm.unity.store.api.generic.TranslationProfileDB;
+import pl.edu.icm.unity.store.api.generic.InputTranslationProfileDB;
 import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationAction;
@@ -21,7 +21,7 @@ import pl.edu.icm.unity.types.translation.TranslationRule;
 public class TranslationProfileTest extends AbstractNamedWithTSTest<TranslationProfile>
 {
 	@Autowired
-	private TranslationProfileDB dao;
+	private InputTranslationProfileDB dao;
 	
 	@Override
 	protected NamedCRUDDAOWithTS<TranslationProfile> getDAO()

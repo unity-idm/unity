@@ -7,10 +7,10 @@ package pl.edu.icm.unity.store.api.generic;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
- * Easy access to {@link TranslationProfile} storage.
+ * Easy access to {@link TranslationProfile} storage. Used for output profiles.
  * 
  * @author K. Benedyczak
  */
-public interface TranslationProfileDB extends NamedCRUDDAOWithTS<TranslationProfile>
+public interface OutputTranslationProfileDB extends NamedCRUDDAOWithTS<TranslationProfile>
 {
 }

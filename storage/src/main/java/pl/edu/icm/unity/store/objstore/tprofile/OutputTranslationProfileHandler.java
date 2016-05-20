@@ -12,20 +12,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.objstore.DefaultEntityHandler;
+import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
- * Handler for {@link AbstractTranslationProfileInstance}.
+ * Handler for {@link TranslationProfile}.
  * 
  * @author K. Benedyczak
  */
 @Component
-public class TranslationProfileHandler extends DefaultEntityHandler<TranslationProfile>
+public class OutputTranslationProfileHandler extends DefaultEntityHandler<TranslationProfile>
 {
-	public static final String TRANSLATION_PROFILE_OBJECT_TYPE = "translationProfile";
+	public static final String TRANSLATION_PROFILE_OBJECT_TYPE = "outputTranslationProfile";
 	
 	@Autowired
-	public TranslationProfileHandler(ObjectMapper jsonMapper)
+	public OutputTranslationProfileHandler(ObjectMapper jsonMapper)
 	{
 		super(jsonMapper, TRANSLATION_PROFILE_OBJECT_TYPE, TranslationProfile.class);
 	}
@@ -33,9 +34,11 @@ public class TranslationProfileHandler extends DefaultEntityHandler<TranslationP
 	@Override
 	public GenericObjectBean toBlob(TranslationProfile value)
 	{
+		if (value.getProfileType() != ProfileType.OUTPUT)
+			throw new IllegalArgumentException("Trying to save profile of " + 
+					value.getProfileType() + " as output profile");
 		byte[] contents = JsonUtil.serialize2Bytes(value.toJsonObject());
-		return new GenericObjectBean(value.getName(), contents, supportedType, 
-				value.getProfileType().toString());
+		return new GenericObjectBean(value.getName(), contents, supportedType);
 	}
 
 	@Override

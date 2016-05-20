@@ -11,7 +11,6 @@ import pl.edu.icm.unity.store.rdbms.BaseBean;
 public class GenericObjectBean extends BaseBean
 {
 	private String type;
-	private String subType;
 	private Date lastUpdate;
 
 	public GenericObjectBean()
@@ -29,11 +28,6 @@ public class GenericObjectBean extends BaseBean
 		super(name, contents);
 		this.type = type;
 	}
-	public GenericObjectBean(String name, byte[] contents, String type, String subType)
-	{
-		this(name, contents, type);
-		this.subType = subType;
-	}
 
 	public String getType()
 	{
@@ -45,20 +39,12 @@ public class GenericObjectBean extends BaseBean
 		this.type = type;
 	}
 	
-	public String getSubType()
-	{
-		return subType;
-	}
-	
-	public void setSubType(String subType)
-	{
-		this.subType = subType;
-	}
 	public Date getLastUpdate()
 	{
 		return lastUpdate;
 	}
 	public void setLastUpdate(Date lastUpdate)
+
 	{
 		this.lastUpdate = lastUpdate;
 	}
@@ -69,7 +55,6 @@ public class GenericObjectBean extends BaseBean
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((lastUpdate == null) ? 0 : lastUpdate.hashCode());
-		result = prime * result + ((subType == null) ? 0 : subType.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
@@ -88,12 +73,6 @@ public class GenericObjectBean extends BaseBean
 			if (other.lastUpdate != null)
 				return false;
 		} else if (!lastUpdate.equals(other.lastUpdate))
-			return false;
-		if (subType == null)
-		{
-			if (other.subType != null)
-				return false;
-		} else if (!subType.equals(other.subType))
 			return false;
 		if (type == null)
 		{

@@ -23,7 +23,7 @@ public class EndpointIE extends GenericObjectIEBase<Endpoint>
 	@Autowired
 	public EndpointIE(EndpointDB dao, ObjectMapper jsonMapper)
 	{
-		super(dao, jsonMapper, Endpoint.class, 110, EndpointHandler.ENDPOINT_OBJECT_TYPE);
+		super(dao, jsonMapper, Endpoint.class, 111, EndpointHandler.ENDPOINT_OBJECT_TYPE);
 	}
 }
 

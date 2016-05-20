@@ -7,7 +7,7 @@ package pl.edu.icm.unity.store.objstore.tprofile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.store.api.generic.TranslationProfileDB;
+import pl.edu.icm.unity.store.api.generic.OutputTranslationProfileDB;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.objstore.GenericObjectsDAOImpl;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -18,12 +18,12 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
  * @author K. Benedyczak
  */
 @Component
-public class TranslationProfileDBImpl extends GenericObjectsDAOImpl<TranslationProfile> implements TranslationProfileDB
+public class OutputTranslationProfileDBImpl extends GenericObjectsDAOImpl<TranslationProfile> 
+	implements OutputTranslationProfileDB
 {
-
 	@Autowired
-	public TranslationProfileDBImpl(TranslationProfileHandler handler, ObjectStoreDAO dbGeneric)
+	public OutputTranslationProfileDBImpl(OutputTranslationProfileHandler handler, ObjectStoreDAO dbGeneric)
 	{
-		super(handler, dbGeneric, TranslationProfile.class, "translation profile");
+		super(handler, dbGeneric, TranslationProfile.class, "output translation profile");
 	}
 }

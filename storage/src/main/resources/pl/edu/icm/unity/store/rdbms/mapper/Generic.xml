@@ -7,14 +7,13 @@
 		<result property="id" column="ID"/>
 		<result property="name" column="NAME"/>
 		<result property="type" column="TYPE"/>
-		<result property="subType" column="SUB_TYPE"/>
 		<result property="contents" column="CONTENTS"/>
 		<result property="lastUpdate" column="LAST_UPDATE"/>
 	</resultMap>
 
 	<insert id="create" parameterType="GenericObjectB" useGeneratedKeys="true" keyProperty="id">
-		INSERT INTO VAR_OBJECTS(NAME, CONTENTS, TYPE, SUB_TYPE, LAST_UPDATE) 
-			VALUES (#{name}, #{contents}, #{type}, #{subType}, #{lastUpdate})
+		INSERT INTO VAR_OBJECTS(NAME, CONTENTS, TYPE, LAST_UPDATE) 
+			VALUES (#{name}, #{contents}, #{type}, #{lastUpdate})
 	</insert>
 	
 	<update id="updateByKey" parameterType="GenericObjectB">
