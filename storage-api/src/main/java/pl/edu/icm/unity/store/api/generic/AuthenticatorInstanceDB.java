@@ -10,6 +10,6 @@ import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
  * Easy access to {@link AuthenticatorInstance} storage.
  * @author K. Benedyczak
  */
-public interface AuthenticatorInstanceDB extends GenericObjectsDAO<AuthenticatorInstance>
+public interface AuthenticatorInstanceDB extends NamedCRUDDAOWithTS<AuthenticatorInstance>
 {
 }

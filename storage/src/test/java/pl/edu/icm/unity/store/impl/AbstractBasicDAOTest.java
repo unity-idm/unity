@@ -51,8 +51,7 @@ public abstract class AbstractBasicDAOTest<T>
 
 	protected abstract BasicCRUDDAO<T> getDAO();
 	protected abstract T getObject(String id);
-	protected abstract void mutateObject(T src);
-	//protected abstract void assertAreEqual(T obj, T cmp);
+	protected abstract T mutateObject(T src);
 
 	@Test
 	public void shouldReturnCreatedByKey()
@@ -80,13 +79,13 @@ public abstract class AbstractBasicDAOTest<T>
 			T obj = getObject("name1");
 			long key = dao.create(obj);
 
-			mutateObject(obj);
-			dao.updateByKey(key, obj);
+			T updated = mutateObject(obj);
+			dao.updateByKey(key, updated);
 
 			T ret = dao.getByKey(key);
 
 			assertThat(ret, is(notNullValue()));
-			assertThat(ret, is(obj));
+			assertThat(ret, is(updated));
 		});
 	}
 
@@ -167,6 +166,21 @@ public abstract class AbstractBasicDAOTest<T>
 
 			catchException(dao).getByKey(key);
 
+			assertThat(caughtException(), isA(IllegalArgumentException.class));
+		});
+	}
+	
+	@Test
+	public void shouldNotReturnBulkRemoved()
+	{
+		tx.runInTransaction(() -> {
+			BasicCRUDDAO<T> dao = getDAO();
+			T obj = getObject("name1");
+			long key = dao.create(obj);
+
+			dao.deleteAll();
+
+			catchException(dao).getByKey(key);
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
 		});
 	}

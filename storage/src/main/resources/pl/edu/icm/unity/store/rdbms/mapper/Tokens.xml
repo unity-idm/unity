@@ -26,6 +26,10 @@
 		DELETE FROM TOKENS WHERE ID = #{id}
 	</delete>
 
+	<delete id="deleteAll">
+		DELETE FROM TOKENS
+	</delete>
+
 	<select id="getByKey" parameterType="long" resultMap="tokenResult">
 		SELECT * FROM TOKENS WHERE ID=#{id}
 	</select>

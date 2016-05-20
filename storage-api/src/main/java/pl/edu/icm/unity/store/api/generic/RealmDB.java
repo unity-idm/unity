@@ -11,6 +11,6 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
  * 
  * @author K. Benedyczak
  */
-public interface RealmDB extends GenericObjectsDAO<AuthenticationRealm>
+public interface RealmDB extends NamedCRUDDAOWithTS<AuthenticationRealm>
 {
 }

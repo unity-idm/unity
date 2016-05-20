@@ -221,9 +221,10 @@ public class TokenTest extends AbstractBasicDAOTest<Token>
 	}
 
 	@Override
-	protected void mutateObject(Token src)
+	protected Token mutateObject(Token src)
 	{
 		src.setContents(new byte[] {'b', 'b'});
 		src.setExpires(new Date(2000));
+		return src;
 	}
 }

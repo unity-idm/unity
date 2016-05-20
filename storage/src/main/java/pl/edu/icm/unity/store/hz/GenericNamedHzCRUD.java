@@ -5,7 +5,11 @@
 package pl.edu.icm.unity.store.hz;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+
+import com.hazelcast.core.TransactionalMap;
 
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
 import pl.edu.icm.unity.store.api.NamedCRUDDAO;
@@ -13,8 +17,6 @@ import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSMutationEvent;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.store.impl.StorageLimits;
 import pl.edu.icm.unity.types.NamedObject;
-
-import com.hazelcast.core.TransactionalMap;
 
 /**
  * Generic CRUD implementation on hazelcast map.
@@ -41,12 +43,12 @@ public abstract class GenericNamedHzCRUD<T extends NamedObject> extends GenericB
 	}
 	
 	@Override
-	public void update(T obj)
+	public void updateByName(String current, T newValue)
 	{
-		Long key = getNameMap().get(obj.getName());
+		Long key = getNameMap().get(current);
 		if (key == null)
-			throw new IllegalArgumentException(name + " [" + obj.getName() + "] does not exists");
-		updateByKey(key, obj);
+			throw new IllegalArgumentException(name + " [" + current + "] does not exists");
+		updateByKey(key, newValue);
 	}
 
 	@Override
@@ -104,9 +106,9 @@ public abstract class GenericNamedHzCRUD<T extends NamedObject> extends GenericB
 	{
 		return getNameMap().get(id) != null;
 	}
-	
+
 	@Override
-	public Map<String, T> getAsMap()
+	public Map<String, T> getAllAsMap()
 	{
 		TransactionalMap<Long, T> hMap = getMap();
 		TransactionalMap<String, Long> nameMap = getNameMap();
@@ -116,6 +118,13 @@ public abstract class GenericNamedHzCRUD<T extends NamedObject> extends GenericB
 		return ret;
 	}
 
+	@Override
+	public Set<String> getAllNames()
+	{
+		TransactionalMap<String, Long> nameMap = getNameMap();
+		return new HashSet<>(nameMap.keySet());
+	}
+	
 	@Override
 	public void firePreRemove(long modifiedId, String modifiedName, T removed)
 	{

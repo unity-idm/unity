@@ -7,19 +7,19 @@ package pl.edu.icm.unity.store.objstore.msgtemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
-import pl.edu.icm.unity.store.api.generic.GenericObjectsDAO;
+import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.api.generic.MessageTemplateDB;
-import pl.edu.icm.unity.store.objstore.AbstractObjStoreTest;
+import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.I18nString;
 
-public class MsgTemplateTest extends AbstractObjStoreTest<MessageTemplate>
+public class MsgTemplateTest extends AbstractNamedWithTSTest<MessageTemplate>
 {
 	@Autowired
 	private MessageTemplateDB dao;
 	
 	@Override
-	protected GenericObjectsDAO<MessageTemplate> getDAO()
+	protected NamedCRUDDAOWithTS<MessageTemplate> getDAO()
 	{
 		return dao;
 	}

@@ -6,18 +6,18 @@ package pl.edu.icm.unity.store.objstore.realm;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.store.api.generic.GenericObjectsDAO;
+import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.api.generic.RealmDB;
-import pl.edu.icm.unity.store.objstore.AbstractObjStoreTest;
+import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 
-public class RealmTest extends AbstractObjStoreTest<AuthenticationRealm>
+public class RealmTest extends AbstractNamedWithTSTest<AuthenticationRealm>
 {
 	@Autowired
 	private RealmDB dao;
 	
 	@Override
-	protected GenericObjectsDAO<AuthenticationRealm> getDAO()
+	protected NamedCRUDDAOWithTS<AuthenticationRealm> getDAO()
 	{
 		return dao;
 	}

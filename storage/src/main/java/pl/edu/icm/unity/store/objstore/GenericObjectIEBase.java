@@ -9,7 +9,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.store.api.generic.GenericObjectsDAO;
+import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.export.AbstractIEBase;
 import pl.edu.icm.unity.types.NamedObject;
 
@@ -20,11 +20,11 @@ import pl.edu.icm.unity.types.NamedObject;
  */
 public class GenericObjectIEBase<T extends NamedObject> extends AbstractIEBase<T>
 {
-	private GenericObjectsDAO<T> dao;
+	private NamedCRUDDAOWithTS<T> dao;
 	private ObjectMapper jsonMapper;
 	private Class<T> clazz;
 	
-	public GenericObjectIEBase(GenericObjectsDAO<T> dao, ObjectMapper jsonMapper, Class<T> clazz,
+	public GenericObjectIEBase(NamedCRUDDAOWithTS<T> dao, ObjectMapper jsonMapper, Class<T> clazz,
 			int sortKey, String name)
 	{
 		super(sortKey, name);

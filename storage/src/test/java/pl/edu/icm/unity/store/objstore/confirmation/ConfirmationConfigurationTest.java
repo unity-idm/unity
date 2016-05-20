@@ -18,14 +18,14 @@ import pl.edu.icm.unity.base.confirmations.ConfirmationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.generic.ConfirmationConfigurationDB;
-import pl.edu.icm.unity.store.api.generic.GenericObjectsDAO;
+import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.api.generic.MessageTemplateDB;
-import pl.edu.icm.unity.store.objstore.AbstractObjStoreTest;
+import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
-public class ConfirmationConfigurationTest extends AbstractObjStoreTest<ConfirmationConfiguration>
+public class ConfirmationConfigurationTest extends AbstractNamedWithTSTest<ConfirmationConfiguration>
 {
 	@Autowired
 	private ConfirmationConfigurationDB dao;
@@ -37,7 +37,7 @@ public class ConfirmationConfigurationTest extends AbstractObjStoreTest<Confirma
 	private MessageTemplateDB msgTmplDAO;
 	
 	@Override
-	protected GenericObjectsDAO<ConfirmationConfiguration> getDAO()
+	protected NamedCRUDDAOWithTS<ConfirmationConfiguration> getDAO()
 	{
 		return dao;
 	}
@@ -110,7 +110,7 @@ public class ConfirmationConfigurationTest extends AbstractObjStoreTest<Confirma
 			MessageTemplate msgT2 = new MessageTemplate("msgTemplate", "description",
 					new I18nMessage(new I18nString("s"), new I18nString("b")),
 					"consumer2");
-			catchException(msgTmplDAO).update("msgTemplate", msgT2);
+			catchException(msgTmplDAO).updateByName("msgTemplate", msgT2);
 			
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
 		});

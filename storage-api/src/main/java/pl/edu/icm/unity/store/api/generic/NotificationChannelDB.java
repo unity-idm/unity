@@ -11,6 +11,6 @@ import pl.edu.icm.unity.types.basic.NotificationChannel;
  * 
  * @author K. Benedyczak
  */
-public interface NotificationChannelDB extends GenericObjectsDAO<NotificationChannel>
+public interface NotificationChannelDB extends NamedCRUDDAOWithTS<NotificationChannel>
 {
 }

@@ -46,7 +46,7 @@ public class IdentityTypeTest extends AbstractNamedDAOTest<IdentityType>
 	}
 
 	@Override
-	protected void mutateObject(IdentityType src)
+	protected IdentityType mutateObject(IdentityType src)
 	{
 		src.setIdentityTypeProviderSettings("{ccc=1}");
 		src.setDescription("d2");
@@ -56,6 +56,7 @@ public class IdentityTypeTest extends AbstractNamedDAOTest<IdentityType>
 		src.getExtractedAttributes().clear();
 		src.getExtractedAttributes().put("c", "g");
 		src.getExtractedAttributes().put("cc", "gg");
+		return src;
 	}
 
 	@Test
@@ -86,7 +87,7 @@ public class IdentityTypeTest extends AbstractNamedDAOTest<IdentityType>
 			IdentityType obj = getObject("");
 			idTypeDAO.create(obj);
 
-			Map<String, IdentityType> asMap = idTypeDAO.getAsMap();
+			Map<String, IdentityType> asMap = idTypeDAO.getAllAsMap();
 
 			assertThat(asMap, is(notNullValue()));
 

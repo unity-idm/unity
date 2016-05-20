@@ -17,7 +17,8 @@ import java.util.Set;
 import pl.edu.icm.unity.store.ReferenceAwareDAO;
 import pl.edu.icm.unity.store.ReferenceRemovalHandler;
 import pl.edu.icm.unity.store.ReferenceUpdateHandler;
-import pl.edu.icm.unity.store.api.generic.GenericObjectsDAO;
+import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
+import pl.edu.icm.unity.store.impl.StorageLimits;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.types.NamedObject;
@@ -34,7 +35,7 @@ import pl.edu.icm.unity.types.NamedObject;
  * 
  * @author K. Benedyczak
  */
-public class GenericObjectsDAOImpl<T extends NamedObject> implements GenericObjectsDAO<T>, ReferenceAwareDAO<T>
+public class GenericObjectsDAOImpl<T extends NamedObject> implements NamedCRUDDAOWithTS<T>, ReferenceAwareDAO<T>
 {
 	protected GenericEntityHandler<T> handler;
 	protected ObjectStoreDAO dbGeneric;
@@ -160,14 +161,15 @@ public class GenericObjectsDAOImpl<T extends NamedObject> implements GenericObje
 	}
 
 	@Override
-	public void deleteAllNoCheck()
+	public void deleteAll()
 	{
 		dbGeneric.removeObjectsByType(type);
 	}
 	
 	@Override
-	public void update(String current, T newValue)
+	public void updateByName(String current, T newValue)
 	{
+		StorageLimits.checkNameLimit(newValue.getName());
 		GenericObjectBean raw = dbGeneric.getObjectByNameType(current, type);
 		if (raw == null)
 			throw new IllegalArgumentException("There is no [" + current + "] " + objectName);
@@ -181,6 +183,15 @@ public class GenericObjectsDAOImpl<T extends NamedObject> implements GenericObje
 	}
 
 	@Override
+	public void updateByKey(long id, T obj)
+	{
+		StorageLimits.checkNameLimit(obj.getName());
+		GenericObjectBean raw = handler.toBlob(obj);
+		raw.setLastUpdate(new Date());
+		dbGeneric.updateByKey(id, raw);
+	}
+
+	@Override
 	public void updateTS(String id)
 	{
 		GenericObjectBean raw = dbGeneric.getObjectByNameType(id, type);
@@ -191,16 +202,39 @@ public class GenericObjectsDAOImpl<T extends NamedObject> implements GenericObje
 	}
 
 	@Override
-	public void create(T newValue)
+	public long create(T newValue)
 	{
+		StorageLimits.checkNameLimit(newValue.getName());
 		GenericObjectBean blob = handler.toBlob(newValue);
 		blob.setLastUpdate(new Date());
 		if (exists(newValue.getName()))
 			throw new IllegalArgumentException("The [" + newValue.getName() + "] " + objectName +
 					" already exists");
-		dbGeneric.create(blob);
+		return dbGeneric.create(blob);
 	}
 
+	@Override
+	public void deleteByKey(long id)
+	{
+		dbGeneric.deleteByKey(id);
+	}
+
+	@Override
+	public T getByKey(long id)
+	{
+		GenericObjectBean raw = dbGeneric.getByKey(id);
+		return handler.fromBlob(raw);
+	}
+
+	@Override
+	public long getKeyForName(String id)
+	{
+		GenericObjectBean raw = dbGeneric.getObjectByNameType(id, type);
+		if (raw == null)
+			throw new IllegalArgumentException("There is no [" + id + "] " + objectName);
+		return raw.getId();
+	}
+	
 	@Override
 	public void addRemovalHandler(ReferenceRemovalHandler handler)
 	{

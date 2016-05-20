@@ -15,13 +15,16 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import com.google.common.collect.Lists;
+
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
 import pl.edu.icm.unity.store.api.NamedCRUDDAO;
-import pl.edu.icm.unity.store.impl.StorageLimits;
+import pl.edu.icm.unity.store.tx.TransactionTL;
 import pl.edu.icm.unity.types.NamedObject;
 
 public abstract class AbstractNamedDAOTest<T extends NamedObject> extends AbstractBasicDAOTest<T>
 {
+	@Override
 	protected abstract NamedCRUDDAO<T> getDAO();
 	
 	@Test
@@ -52,25 +55,66 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject> extends Abstra
 			assertThat(ret, is(true));
 		});
 	}
-	
+
 	@Test
-	public void shouldReturnUpdatedByName()
+	public void notCreatedDoesntExist()
+	{
+		tx.runInTransaction(() -> {
+			NamedCRUDDAO<T> dao = getDAO();
+
+			boolean ret = dao.exists("name1");
+
+			assertThat(ret, is(false));
+		});
+	}
+
+
+	@Test
+	public void createdExistsInAssert()
+	{
+		tx.runInTransaction(() -> {
+			NamedCRUDDAO<T> dao = getDAO();
+			T obj = getObject("name1");
+
+			dao.create(obj);
+			dao.assertExist(Lists.newArrayList(obj.getName()));
+		});
+	}
+
+	@Test
+	public void missingBreaksAssert()
+	{
+		tx.runInTransaction(() -> {
+			NamedCRUDDAO<T> dao = getDAO();
+
+			catchException(dao).assertExist(Lists.newArrayList("name1"));
+			
+			assertThat(caughtException(), isA(IllegalArgumentException.class));
+		});
+	}
+
+	@Test
+	public void shouldReturnUpdated()
 	{
 		tx.runInTransaction(() -> {
 			NamedCRUDDAO<T> dao = getDAO();
 			T obj = getObject("name1");
 			dao.create(obj);
+			String originalName = obj.getName();
+			
+			T changed = mutateObject(obj);
+			dao.updateByName(originalName, changed);
 
-			mutateObject(obj);
-			dao.update(obj);
-
-			T ret = dao.get(obj.getName());
+			TransactionTL.manualCommit();
+			
+			T ret = dao.get(changed.getName());
 
 			assertThat(ret, is(notNullValue()));
-			assertThat(ret, is(obj));
+			assertThat(ret, is(changed));
+			assertThat(changed != ret, is(true));
 		});
 	}
-
+	
 	@Test
 	public void shouldReturnTwoCreatedWithinCollectionsByName()
 	{
@@ -82,7 +126,7 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject> extends Abstra
 
 			dao.create(obj);
 			dao.create(obj2);
-			Map<String, T> asMap = dao.getAsMap();
+			Map<String, T> asMap = dao.getAllAsMap();
 
 			assertThat(asMap, is(notNullValue()));
 
@@ -158,7 +202,7 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject> extends Abstra
 			T obj = getObject(genTooLongName());
 
 			catchException(dao).create(obj);
-
+			
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
 		});
 	}

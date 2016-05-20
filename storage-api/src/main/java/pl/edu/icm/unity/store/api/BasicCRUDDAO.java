@@ -18,6 +18,8 @@ public interface BasicCRUDDAO<T>
 
 	void deleteByKey(long id);
 
+	void deleteAll();
+	
 	T getByKey(long id);
 
 	List<T> getAll();

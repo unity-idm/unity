@@ -10,21 +10,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
 
-import pl.edu.icm.unity.store.api.generic.GenericObjectsDAO;
+import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.api.generic.TranslationProfileDB;
-import pl.edu.icm.unity.store.objstore.AbstractObjStoreTest;
+import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 
-public class TranslationProfileTest extends AbstractObjStoreTest<TranslationProfile>
+public class TranslationProfileTest extends AbstractNamedWithTSTest<TranslationProfile>
 {
 	@Autowired
 	private TranslationProfileDB dao;
 	
 	@Override
-	protected GenericObjectsDAO<TranslationProfile> getDAO()
+	protected NamedCRUDDAOWithTS<TranslationProfile> getDAO()
 	{
 		return dao;
 	}
@@ -44,6 +44,7 @@ public class TranslationProfileTest extends AbstractObjStoreTest<TranslationProf
 		List<TranslationRule> rules = Lists.newArrayList(
 				new TranslationRule("condition3", new TranslationAction("action3", 
 						new String[] {"p3", "p4"})));
-		return new TranslationProfile("name-changed", "description2", ProfileType.OUTPUT, rules);
+		return new TranslationProfile("name-changed", "description2", ProfileType.INPUT, rules);
+		// it is not possible to change subtype, so profile type must be left intact.
 	}
 }

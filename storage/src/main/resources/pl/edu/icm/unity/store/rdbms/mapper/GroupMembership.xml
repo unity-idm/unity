@@ -17,7 +17,11 @@
 	<delete id="deleteByKey" parameterType="GroupElementB">
 		DELETE FROM GROUP_ENTITIES WHERE GROUP_ID=#{groupId} AND ENTITY_ID=#{elementId}
 	</delete>
-
+	
+	<delete id="deleteAll">
+		DELETE FROM GROUP_ENTITIES
+	</delete>
+	
 	<select id="getAll" resultMap="groupMember">
 		select GROUP_ENTITIES.*, GROUPS.NAME from ENTITIES, GROUP_ENTITIES, GROUPS 
 		where GROUP_ENTITIES.GROUP_ID = GROUPS.ID AND GROUP_ENTITIES.ENTITY_ID = ENTITIES.ID

@@ -45,7 +45,7 @@ public class AttributeTypeTest extends AbstractNamedDAOTest<AttributeType>
 	}
 
 	@Override
-	protected void mutateObject(AttributeType src)
+	protected AttributeType mutateObject(AttributeType src)
 	{
 		src.setDescription(new I18nString("desc2"));
 		src.setDisplayedName(new I18nString("Attribute 1 updated"));
@@ -58,5 +58,6 @@ public class AttributeTypeTest extends AbstractNamedDAOTest<AttributeType>
 		meta.put("2", "b");
 		src.setValueSyntaxConfiguration(null);
 		src.setMetadata(meta);
+		return src;
 	}
 }

@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.store.rdbms;
 
+import java.util.Set;
+
 /**
  * CRUD interface used by most tables which have unique String name key.
  * @author K. Benedyczak
@@ -14,4 +16,6 @@ public interface NamedCRUDMapper<BEAN> extends BasicCRUDMapper<BEAN>
 	void delete(String id);
 	
 	BEAN getByName(String id);
+	
+	Set<String> getAllNames();
 }

@@ -26,6 +26,10 @@
 		DELETE FROM VAR_OBJECTS WHERE ID = #{id}  
 	</delete>
 	
+	<delete id="deleteAll">
+		DELETE FROM VAR_OBJECTS
+	</delete>
+	
 	<select id="getAll" resultMap="objectResult">
 		SELECT * FROM VAR_OBJECTS
 	</select>

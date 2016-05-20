@@ -18,11 +18,19 @@
 	<delete id="deleteByKey" parameterType="long">
 		DELETE FROM IDENTITY_TYPES WHERE ID = #{value}
 	</delete>
-
+		
+	<delete id="deleteAll">
+		DELETE FROM IDENTITY_TYPES
+	</delete>
+	
 	<select id="getAll" resultType="BaseB">
 		select * from IDENTITY_TYPES
 	</select>
-
+	
+	<select id="getAllNames" resultType="string">
+		select NAME from IDENTITY_TYPES
+	</select>
+	
 	<select id="getByName" parameterType="string" resultType="BaseB">
 		select * from IDENTITY_TYPES where NAME = #{value}
 	</select>

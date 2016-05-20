@@ -9,17 +9,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.store.api.generic.AttributeClassDB;
-import pl.edu.icm.unity.store.api.generic.GenericObjectsDAO;
-import pl.edu.icm.unity.store.objstore.AbstractObjStoreTest;
+import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
+import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 
-public class AttributeClassTest extends AbstractObjStoreTest<AttributesClass>
+public class AttributeClassTest extends AbstractNamedWithTSTest<AttributesClass>
 {
 	@Autowired
 	private AttributeClassDB dao;
 	
 	@Override
-	protected GenericObjectsDAO<AttributesClass> getDAO()
+	protected NamedCRUDDAOWithTS<AttributesClass> getDAO()
 	{
 		return dao;
 	}

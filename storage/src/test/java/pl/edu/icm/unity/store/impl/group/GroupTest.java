@@ -183,7 +183,7 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 	}
 
 	@Override
-	protected void mutateObject(Group ret)
+	protected Group mutateObject(Group ret)
 	{
 		ret.setDescription(new I18nString("desc2"));
 		ret.setDisplayedName(new I18nString("dname2"));
@@ -197,5 +197,6 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 			new AttributeStatement("cnd4", "/A", ConflictResolution.merge, 
 					"dynAt2", "dynAExpr2")
 		});
+		return ret;
 	}
 }

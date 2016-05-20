@@ -6,19 +6,19 @@ package pl.edu.icm.unity.store.objstore.bulk;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.store.api.generic.GenericObjectsDAO;
+import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.api.generic.ProcessingRuleDB;
-import pl.edu.icm.unity.store.objstore.AbstractObjStoreTest;
+import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
 import pl.edu.icm.unity.types.translation.TranslationAction;
 
-public class ProcessingRuleTest extends AbstractObjStoreTest<ScheduledProcessingRule>
+public class ProcessingRuleTest extends AbstractNamedWithTSTest<ScheduledProcessingRule>
 {
 	@Autowired
 	private ProcessingRuleDB dao;
 	
 	@Override
-	protected GenericObjectsDAO<ScheduledProcessingRule> getDAO()
+	protected NamedCRUDDAOWithTS<ScheduledProcessingRule> getDAO()
 	{
 		return dao;
 	}

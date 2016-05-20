@@ -123,7 +123,7 @@ public class IdentityTest extends AbstractNamedDAOTest<Identity>
 	}
 
 	@Override
-	protected void mutateObject(Identity ret)
+	protected Identity mutateObject(Identity ret)
 	{
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectNode meta = mapper.createObjectNode();
@@ -137,5 +137,6 @@ public class IdentityTest extends AbstractNamedDAOTest<Identity>
 		ret.setTarget("target2");
 		ret.setTranslationProfile("translationProfile2");
 		ret.setUpdateTs(new Date(100444));
+		return ret;
 	}
 }

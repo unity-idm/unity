@@ -203,9 +203,10 @@ public class ObjectStoreTest extends AbstractBasicDAOTest<GenericObjectBean>
 	}
 
 	@Override
-	protected void mutateObject(GenericObjectBean src)
+	protected GenericObjectBean mutateObject(GenericObjectBean src)
 	{
 		src.setContents(new byte[] {'b', 'c'});
 		src.setLastUpdate(new Date(1000));
+		return src;
 	}
 }

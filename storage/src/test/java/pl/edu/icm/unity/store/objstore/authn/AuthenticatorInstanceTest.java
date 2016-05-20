@@ -17,14 +17,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.store.api.generic.CredentialDB;
-import pl.edu.icm.unity.store.api.generic.GenericObjectsDAO;
-import pl.edu.icm.unity.store.objstore.AbstractObjStoreTest;
+import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
+import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
-public class AuthenticatorInstanceTest extends AbstractObjStoreTest<AuthenticatorInstance>
+public class AuthenticatorInstanceTest extends AbstractNamedWithTSTest<AuthenticatorInstance>
 {
 	@Autowired
 	private AuthenticatorInstanceDB dao;
@@ -33,7 +33,7 @@ public class AuthenticatorInstanceTest extends AbstractObjStoreTest<Authenticato
 	private CredentialDB credentialDB;
 	
 	@Override
-	protected GenericObjectsDAO<AuthenticatorInstance> getDAO()
+	protected NamedCRUDDAOWithTS<AuthenticatorInstance> getDAO()
 	{
 		return dao;
 	}
@@ -75,7 +75,7 @@ public class AuthenticatorInstanceTest extends AbstractObjStoreTest<Authenticato
 			{
 			}
 			
-			credentialDB.update("localCred", cred);
+			credentialDB.updateByName("localCred", cred);
 			Date ts2 = dao.getUpdateTimestamp("name1");
 			
 			assertThat(ts2.getTime() > ts.getTime(), is(true));

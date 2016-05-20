@@ -26,10 +26,18 @@
 	<delete id="delete" parameterType="string">
 		DELETE FROM IDENTITIES WHERE NAME = #{value}
 	</delete>
-
+		
+	<delete id="deleteAll">
+		DELETE FROM IDENTITIES
+	</delete>
+	
 	<select id="getAll" resultMap="identityResult">
 		select IDENTITIES.*, IDENTITY_TYPES.NAME AS TYPE_NAME from IDENTITIES, IDENTITY_TYPES 
 		WHERE IDENTITIES.TYPE_ID = IDENTITY_TYPES.ID 
+	</select>
+
+	<select id="getAllNames" resultType="string">
+		select NAME from IDENTITIES 
 	</select>
 
 	<select id="getByKey" resultMap="identityResult" parameterType="long">

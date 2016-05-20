@@ -44,12 +44,13 @@ public class EntityTest extends AbstractBasicDAOTest<EntityInformation>
 	}
 
 	@Override
-	protected void mutateObject(EntityInformation src)
+	protected EntityInformation mutateObject(EntityInformation src)
 	{
 		src.setEntityState(EntityState.authenticationDisabled);
 		src.setRemovalByUserTime(new Date(3000));
 		src.setScheduledOperation(EntityScheduledOperation.REMOVE);
 		src.setScheduledOperationTime(new Date(5000));
+		return src;
 	}
 
 	@Test

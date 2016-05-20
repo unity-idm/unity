@@ -88,7 +88,7 @@ public class ConfirmationConfigurationDBImpl extends GenericObjectsDAOImpl<Confi
 		{
 			ConfirmationConfiguration toUpdate = get(oldConfigName);
 			toUpdate.setNameToConfirm(newValue.getName());
-			update(oldConfigName, toUpdate);
+			updateByName(oldConfigName, toUpdate);
 		}
 	}
 }

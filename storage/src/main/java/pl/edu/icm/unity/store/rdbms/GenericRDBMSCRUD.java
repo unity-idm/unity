@@ -83,7 +83,14 @@ public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean>
 		firePreRemove(id, null, toRemove);
 		mapper.deleteByKey(id);
 	}
-
+	
+	@Override
+	public void deleteAll()
+	{
+		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);
+		mapper.deleteAll();
+	}
+	
 	protected void assertExists(long id, BasicCRUDMapper<DBT> mapper)
 	{
 		if (mapper.getByKey(id) == null)

@@ -28,6 +28,10 @@
 		DELETE FROM ATTRIBUTES WHERE ID = #{id}
 	</delete>
 
+	<delete id="deleteAll">
+		DELETE FROM ATTRIBUTES
+	</delete>
+
 	<select id="getAll" resultMap="attributeResult">
 		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID, G.NAME AS GROUP_PATH 
 			from ATTRIBUTES A, ATTRIBUTE_TYPES AT, GROUPS G

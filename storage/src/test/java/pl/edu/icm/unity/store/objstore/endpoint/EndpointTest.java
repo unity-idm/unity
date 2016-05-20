@@ -18,9 +18,9 @@ import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.store.api.generic.EndpointDB;
-import pl.edu.icm.unity.store.api.generic.GenericObjectsDAO;
+import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.api.generic.RealmDB;
-import pl.edu.icm.unity.store.objstore.AbstractObjStoreTest;
+import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -28,7 +28,7 @@ import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 
-public class EndpointTest extends AbstractObjStoreTest<Endpoint>
+public class EndpointTest extends AbstractNamedWithTSTest<Endpoint>
 {
 	@Autowired
 	private EndpointDB dao;
@@ -40,7 +40,7 @@ public class EndpointTest extends AbstractObjStoreTest<Endpoint>
 	private AuthenticatorInstanceDB authnDB;
 	
 	@Override
-	protected GenericObjectsDAO<Endpoint> getDAO()
+	protected NamedCRUDDAOWithTS<Endpoint> getDAO()
 	{
 		return dao;
 	}

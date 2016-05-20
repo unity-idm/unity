@@ -7,18 +7,18 @@ package pl.edu.icm.unity.store.objstore.cred;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.store.api.generic.CredentialDB;
-import pl.edu.icm.unity.store.api.generic.GenericObjectsDAO;
-import pl.edu.icm.unity.store.objstore.AbstractObjStoreTest;
+import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
+import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
-public class CredentialTest extends AbstractObjStoreTest<CredentialDefinition>
+public class CredentialTest extends AbstractNamedWithTSTest<CredentialDefinition>
 {
 	@Autowired
 	private CredentialDB credentialDB;
 	
 	@Override
-	protected GenericObjectsDAO<CredentialDefinition> getDAO()
+	protected NamedCRUDDAOWithTS<CredentialDefinition> getDAO()
 	{
 		return credentialDB;
 	}

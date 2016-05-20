@@ -11,6 +11,6 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
  * 
  * @author K. Benedyczak
  */
-public interface TranslationProfileDB extends GenericObjectsDAO<TranslationProfile>
+public interface TranslationProfileDB extends NamedCRUDDAOWithTS<TranslationProfile>
 {
 }

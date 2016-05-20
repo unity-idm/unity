@@ -22,6 +22,11 @@
 		DELETE FROM ENTITIES WHERE ID = #{value}
 	</delete>
 
+	<delete id="deleteAll">
+		DELETE FROM ENTITIES
+	</delete>
+
+
 
 	<!-- non standard -->
 

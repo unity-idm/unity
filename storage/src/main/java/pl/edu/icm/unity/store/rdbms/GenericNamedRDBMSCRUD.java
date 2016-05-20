@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.ibatis.exceptions.PersistenceException;
 
@@ -58,12 +59,19 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 	}
 
 	@Override
-	public void update(T obj)
+	public void updateByKey(long key, T obj)
+	{
+		StorageLimits.checkNameLimit(obj.getName());
+		super.updateByKey(key, obj);
+	}
+
+	@Override
+	public void updateByName(String current, T obj)
 	{
 		NamedCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(namedMapperClass);
-		DBT byName = mapper.getByName(obj.getName());
+		DBT byName = mapper.getByName(current);
 		if (byName == null)
-			throw new IllegalArgumentException(elementName + " [" + obj.getName() + 
+			throw new IllegalArgumentException(elementName + " [" + current + 
 					"] does not exist");
 		preUpdateCheck(byName, obj);
 		firePreUpdate(byName.getId(), byName.getName(), obj, byName);
@@ -72,13 +80,6 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 		mapper.updateByKey(toUpdate);		
 	}
 
-	@Override
-	public void updateByKey(long key, T obj)
-	{
-		StorageLimits.checkNameLimit(obj.getName());
-		super.updateByKey(key, obj);
-	}
-	
 	@Override
 	public void delete(String id)
 	{
@@ -90,7 +91,7 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 		firePreRemove(toRemove.getId(), id, toRemove);
 		mapper.delete(id);
 	}
-
+	
 	@Override
 	public T get(String id)
 	{
@@ -121,7 +122,7 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 	}
 
 	@Override
-	public Map<String, T> getAsMap()
+	public Map<String, T> getAllAsMap()
 	{
 		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(namedMapperClass);
 		List<DBT> allInDB = mapper.getAll();
@@ -132,6 +133,13 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 			ret.put(obj.getName(), obj);
 		}
 		return ret;
+	}
+
+	@Override
+	public Set<String> getAllNames()
+	{
+		NamedCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(namedMapperClass);
+		return mapper.getAllNames();
 	}
 	
 	@Override

@@ -16,13 +16,13 @@ import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.store.api.generic.CredentialDB;
 import pl.edu.icm.unity.store.api.generic.CredentialRequirementDB;
-import pl.edu.icm.unity.store.api.generic.GenericObjectsDAO;
-import pl.edu.icm.unity.store.objstore.AbstractObjStoreTest;
+import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
+import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 
-public class CredReqTest extends AbstractObjStoreTest<CredentialRequirements>
+public class CredReqTest extends AbstractNamedWithTSTest<CredentialRequirements>
 {
 	@Autowired
 	private CredentialRequirementDB dao;
@@ -31,7 +31,7 @@ public class CredReqTest extends AbstractObjStoreTest<CredentialRequirements>
 	private CredentialDB credentialDB;
 	
 	@Override
-	protected GenericObjectsDAO<CredentialRequirements> getDAO()
+	protected NamedCRUDDAOWithTS<CredentialRequirements> getDAO()
 	{
 		return dao;
 	}

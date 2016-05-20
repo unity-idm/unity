@@ -11,6 +11,6 @@ import pl.edu.icm.unity.types.endpoint.Endpoint;
  * 
  * @author K. Benedyczak
  */
-public interface EndpointDB extends GenericObjectsDAO<Endpoint>
+public interface EndpointDB extends NamedCRUDDAOWithTS<Endpoint>
 {
 }

@@ -22,6 +22,10 @@
 	<delete id="deleteByKey" parameterType="long">
 		DELETE FROM GROUPS WHERE ID = #{value}
 	</delete>
+		
+	<delete id="deleteAll">
+		DELETE FROM GROUPS
+	</delete>
 	
 	<delete id="delete" parameterType="string">
 		DELETE FROM GROUPS WHERE NAME = #{value}
@@ -39,7 +43,9 @@
 		select * from GROUPS 
 	</select>
 
-
+	<select id="getAllNames" resultType="string">
+		select NAME from GROUPS
+	</select>
 
 	<!-- non standard -->
 

@@ -11,6 +11,6 @@ import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
  * 
  * @author K. Benedyczak
  */
-public interface ProcessingRuleDB extends GenericObjectsDAO<ScheduledProcessingRule>
+public interface ProcessingRuleDB extends NamedCRUDDAOWithTS<ScheduledProcessingRule>
 {
 }

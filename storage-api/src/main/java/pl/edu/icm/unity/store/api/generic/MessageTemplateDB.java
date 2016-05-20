@@ -11,6 +11,6 @@ import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
  * 
  * @author K. Benedyczak
  */
-public interface MessageTemplateDB extends GenericObjectsDAO<MessageTemplate>
+public interface MessageTemplateDB extends NamedCRUDDAOWithTS<MessageTemplate>
 {
 }

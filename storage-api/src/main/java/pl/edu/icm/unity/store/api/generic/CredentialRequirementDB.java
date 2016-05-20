@@ -11,6 +11,6 @@ import pl.edu.icm.unity.types.authn.CredentialRequirements;
  * 
  * @author K. Benedyczak
  */
-public interface CredentialRequirementDB extends GenericObjectsDAO<CredentialRequirements>
+public interface CredentialRequirementDB extends NamedCRUDDAOWithTS<CredentialRequirements>
 {
 }

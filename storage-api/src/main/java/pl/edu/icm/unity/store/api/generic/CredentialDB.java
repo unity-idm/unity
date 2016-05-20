@@ -11,6 +11,6 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
  * 
  * @author K. Benedyczak
  */
-public interface CredentialDB extends GenericObjectsDAO<CredentialDefinition>
+public interface CredentialDB extends NamedCRUDDAOWithTS<CredentialDefinition>
 {
 }

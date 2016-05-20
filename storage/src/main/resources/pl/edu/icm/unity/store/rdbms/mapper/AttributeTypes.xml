@@ -24,6 +24,10 @@
 		DELETE FROM ATTRIBUTE_TYPES WHERE NAME=#{value}
 	</delete>	
 
+	<delete id="deleteAll">
+		DELETE FROM ATTRIBUTE_TYPES
+	</delete>
+
 	<delete id="deleteByKey" parameterType="long">
 		DELETE FROM ATTRIBUTE_TYPES WHERE ID=#{value}
 	</delete>	
@@ -31,7 +35,11 @@
 	<select id="getAll" resultMap="attributeTypeResult">
 		select * from ATTRIBUTE_TYPES
 	</select>
-
+	
+	<select id="getAllNames" resultType="string">
+		select NAME from ATTRIBUTE_TYPES
+	</select>
+	
 	<select id="getByName" parameterType="string" resultMap="attributeTypeResult">
 		select * from ATTRIBUTE_TYPES WHERE NAME = #{value}
 	</select>

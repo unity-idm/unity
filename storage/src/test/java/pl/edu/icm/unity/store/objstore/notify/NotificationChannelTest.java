@@ -6,18 +6,18 @@ package pl.edu.icm.unity.store.objstore.notify;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.store.api.generic.GenericObjectsDAO;
+import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.api.generic.NotificationChannelDB;
-import pl.edu.icm.unity.store.objstore.AbstractObjStoreTest;
+import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
 
-public class NotificationChannelTest extends AbstractObjStoreTest<NotificationChannel>
+public class NotificationChannelTest extends AbstractNamedWithTSTest<NotificationChannel>
 {
 	@Autowired
 	private NotificationChannelDB dao;
 	
 	@Override
-	protected GenericObjectsDAO<NotificationChannel> getDAO()
+	protected NamedCRUDDAOWithTS<NotificationChannel> getDAO()
 	{
 		return dao;
 	}

@@ -385,12 +385,13 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 	}
 
 	@Override
-	protected void mutateObject(StoredAttribute src)
+	protected StoredAttribute mutateObject(StoredAttribute src)
 	{
 		AttributeExt a = (AttributeExt) src.getAttribute();
 		a.setRemoteIdp("remoteIdp2");
 		a.setTranslationProfile("translationProfile2");
 		a.setValues(Lists.newArrayList("w1"));
 		a.setUpdateTs(new Date(2000));
+		return src;
 	}
 }

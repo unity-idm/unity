@@ -11,6 +11,6 @@ import pl.edu.icm.unity.types.basic.AttributesClass;
  * 
  * @author K. Benedyczak
  */
-public interface AttributeClassDB extends GenericObjectsDAO<AttributesClass>
+public interface AttributeClassDB extends NamedCRUDDAOWithTS<AttributesClass>
 {
 }
