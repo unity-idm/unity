@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.base.attributes;
 
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-
 /**
  * Implementations allow to instantiate {@link AttributeValueSyntax} instances.
  * 

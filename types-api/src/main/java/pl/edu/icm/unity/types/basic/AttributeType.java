@@ -24,9 +24,7 @@ import pl.edu.icm.unity.types.InitializationValidator;
 import pl.edu.icm.unity.types.NamedObject;
 
 /**
- * Attribute type defines rules for handling attributes. Particular values
- * are subject to constraints defined in {@link AttributeValueSyntax} interface, 
- * with pluggable implementation. This class adds universal functionality:
+ * Attribute type defines rules for handling attributes. This class provides universal configuration:
  * descriptions, values cardinality limits and more.
  */
 public class AttributeType extends I18nDescribedObject implements InitializationValidator, NamedObject

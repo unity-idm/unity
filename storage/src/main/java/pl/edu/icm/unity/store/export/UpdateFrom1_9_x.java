@@ -27,12 +27,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.base.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.base.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.base.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.base.registries.IdentityTypesRegistry;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
 
 /**
