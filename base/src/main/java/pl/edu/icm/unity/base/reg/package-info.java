@@ -2,12 +2,12 @@
  * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE file for licensing information.
  *
- * Created on 20 maj 2016
+ * Created on 23 maj 2016
  * Author: K. Benedyczak
  */
 
 /**
- * Enquiry form repository
+ * Common code related to registrations handling
  * @author K. Benedyczak
  */
-package pl.edu.icm.unity.store.objstore.enq.form;
+package pl.edu.icm.unity.base.reg;

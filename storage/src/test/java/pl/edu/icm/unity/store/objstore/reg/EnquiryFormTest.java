@@ -2,7 +2,7 @@
  * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.store.objstore.enq.form;
+package pl.edu.icm.unity.store.objstore.reg;
 
 import java.util.List;
 
@@ -12,7 +12,6 @@ import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
-import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
@@ -25,7 +24,7 @@ import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 
-public class EnquiryFormTest extends AbstractNamedWithTSTest<EnquiryForm>
+public class EnquiryFormTest extends BaseFormTest<EnquiryForm>
 {
 	@Autowired
 	private EnquiryFormDB dao;
@@ -45,6 +44,10 @@ public class EnquiryFormTest extends AbstractNamedWithTSTest<EnquiryForm>
 				ProfileType.REGISTRATION, rules);
 		EnquiryFormBuilder builder = new EnquiryFormBuilder()
 				.withName(id)
+				.withNotificationsConfiguration()
+					.withAdminsNotificationGroup("/notifyGrp")
+					.withAcceptedTemplate("template")
+					.endNotificationsConfiguration()
 				.withType(EnquiryType.REQUESTED_MANDATORY)
 				.withTargetGroups(new String[] {"/"})
 				.withDescription("desc")
@@ -61,7 +64,7 @@ public class EnquiryFormTest extends AbstractNamedWithTSTest<EnquiryForm>
 				.endIdentityParam()
 				.withAddedAttributeParam()
 					.withAttributeType("email")
-					.withGroup("/")
+					.withGroup("/C")
 					.withOptional(true)
 					.withRetrievalSettings(ParameterRetrievalSettings.interactive)
 					.withShowGroups(true).endAttributeParam()

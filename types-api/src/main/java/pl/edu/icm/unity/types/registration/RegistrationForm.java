@@ -121,7 +121,7 @@ public class RegistrationForm extends BaseForm
 		return defaultCredentialRequirement;
 	}
 
-	void setDefaultCredentialRequirement(String defaultCredentialRequirement)
+	public void setDefaultCredentialRequirement(String defaultCredentialRequirement)
 	{
 		this.defaultCredentialRequirement = defaultCredentialRequirement;
 	}

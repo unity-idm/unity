@@ -82,8 +82,30 @@ public class Group extends I18nDescribedObject implements NamedObject
 		return target;
 	}
 	
+	/**
+	 * @param group
+	 * @param potentialParent
+	 * @return true only if potentialParent is group's parent and is not equal to group
+	 */
 	public static boolean isChild(String group, String potentialParent)
 	{
+		return isChild(group, potentialParent, false);
+	}
+	
+	/**
+	 * @param group
+	 * @param potentialParent
+	 * @return true only if potentialParent is group's parent or is not equal to group
+	 */
+	public static boolean isChildOrSame(String group, String potentialParent)
+	{
+		return isChild(group, potentialParent, true);
+	}
+	
+	private static boolean isChild(String group, String potentialParent, boolean allowSame)
+	{
+		if (allowSame && group.equals(potentialParent))
+			return true;
 		int gLen = group.length();
 		int pLen = potentialParent.length();
 		if (gLen <= pLen)
@@ -95,6 +117,17 @@ public class Group extends I18nDescribedObject implements NamedObject
 		if (!group.startsWith(potentialParent))
 			return false;
 		return true;
+	}
+	
+	/**
+	 * Changes part of this group path, when parent group is renamed.
+	 * @param originalParentName
+	 * @param newParentName
+	 * @return updated path
+	 */
+	public static String renameParent(String group, String originalParentName, String newParentName)
+	{
+		return newParentName + group.substring(originalParentName.length());
 	}
 	
 	public boolean isChild(Group test)

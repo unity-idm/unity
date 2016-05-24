@@ -19,7 +19,7 @@ import pl.edu.icm.unity.types.basic.Group;
  * @author K. Benedyczak
  */
 @Repository(GroupHzStore.STORE_ID)
-public class GroupHzStore extends GenericNamedHzCRUD<Group> implements GroupDAO
+public class GroupHzStore extends GenericNamedHzCRUD<Group> implements GroupDAOInternal
 {
 	public static final String STORE_ID = DAO_ID + "hz";
 

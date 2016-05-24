@@ -2,18 +2,27 @@
  * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.store.objstore.reg.form;
+package pl.edu.icm.unity.store.objstore.reg;
+
+import static com.googlecode.catchexception.CatchException.catchException;
+import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.isA;
+import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
+import pl.edu.icm.unity.store.api.generic.CredentialRequirementDB;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
-import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
@@ -24,10 +33,39 @@ import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 
-public class RegFormTest extends AbstractNamedWithTSTest<RegistrationForm>
+public class RegFormTest extends BaseFormTest<RegistrationForm>
 {
 	@Autowired
 	private RegistrationFormDB dao;
+	
+	@Autowired
+	private CredentialRequirementDB crDB;
+	
+	@Test
+	public void usedCredReqRemovalIsRestricted()
+	{
+		tx.runInTransaction(() -> {
+			crDB.create(new CredentialRequirements("credreq", "", Sets.newHashSet("cred")));
+			
+			RegistrationForm obj = getObject("name1");
+			getDAO().create(obj);
+
+			catchException(crDB).delete("credreq");
+			assertThat(caughtException(), isA(IllegalArgumentException.class));
+		});
+	}
+	
+	@Test
+	public void usedCredReqRenameIsPropagated()
+	{
+		RegistrationForm afterDependencyRename = renameTest(
+				new CredentialRequirements("credreq", "", Sets.newHashSet("cred")), 
+				new CredentialRequirements("changed", "", Sets.newHashSet("cred")), 
+				crDB);
+		
+		assertThat(afterDependencyRename.getDefaultCredentialRequirement(),
+					is("changed"));
+	}
 	
 	@Override
 	protected NamedCRUDDAOWithTS<RegistrationForm> getDAO()
@@ -44,6 +82,10 @@ public class RegFormTest extends AbstractNamedWithTSTest<RegistrationForm>
 				ProfileType.REGISTRATION, rules);
 		RegistrationFormBuilder builder = new RegistrationFormBuilder()
 				.withName(id)
+				.withNotificationsConfiguration()
+					.withAdminsNotificationGroup("/notifyGrp")
+					.withAcceptedTemplate("template")
+					.endNotificationsConfiguration()
 				.withDescription("desc")
 				.withDefaultCredentialRequirement(
 						"credreq")
@@ -61,7 +103,7 @@ public class RegFormTest extends AbstractNamedWithTSTest<RegistrationForm>
 				.endIdentityParam()
 				.withAddedAttributeParam()
 					.withAttributeType("email")
-					.withGroup("/")
+					.withGroup("/C")
 					.withOptional(true)
 					.withRetrievalSettings(ParameterRetrievalSettings.interactive)
 					.withShowGroups(true).endAttributeParam()

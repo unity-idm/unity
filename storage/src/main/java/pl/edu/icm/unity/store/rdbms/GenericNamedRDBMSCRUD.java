@@ -73,11 +73,7 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 		if (byName == null)
 			throw new IllegalArgumentException(elementName + " [" + current + 
 					"] does not exist");
-		preUpdateCheck(byName, obj);
-		firePreUpdate(byName.getId(), byName.getName(), obj, byName);
-		DBT toUpdate = jsonSerializer.toDB(obj);
-		toUpdate.setId(byName.getId());
-		mapper.updateByKey(toUpdate);		
+		updateByKey(byName.getId(), obj);
 	}
 
 	@Override

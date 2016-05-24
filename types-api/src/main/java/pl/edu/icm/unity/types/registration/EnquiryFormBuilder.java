@@ -53,19 +53,22 @@ public class EnquiryFormBuilder extends BaseFormBuilder<EnquiryFormBuilder>
 
 		withNotificationsConfiguration(obj);
 
-		return new EnquiryFormNotificationsBuilder(obj);
+		return new EnquiryFormNotificationsBuilder(obj, this);
 	}
 
 	public static class EnquiryFormNotificationsBuilder
 	{
 		private EnquiryFormNotifications instance;
-
-		protected EnquiryFormNotificationsBuilder(EnquiryFormNotifications aInstance)
+		private EnquiryFormBuilder parent;
+		
+		protected EnquiryFormNotificationsBuilder(EnquiryFormNotifications aInstance,
+				EnquiryFormBuilder parent)
 		{
 			instance = aInstance;
+			this.parent = parent;
 		}
 
-		protected EnquiryFormNotifications getInstance()
+		public EnquiryFormNotifications build()
 		{
 			return instance;
 		}
@@ -73,29 +76,48 @@ public class EnquiryFormBuilder extends BaseFormBuilder<EnquiryFormBuilder>
 		public EnquiryFormNotificationsBuilder withSubmittedTemplate(String aValue)
 		{
 			instance.setSubmittedTemplate(aValue);
-
 			return this;
 		}
-
+		
+		public EnquiryFormNotificationsBuilder withAcceptedTemplate(String aValue)
+		{
+			instance.setAcceptedTemplate(aValue);
+			return this;
+		}
+		
+		public EnquiryFormNotificationsBuilder withRejectedTemplate(String aValue)
+		{
+			instance.setRejectedTemplate(aValue);
+			return this;
+		}
+		
+		public EnquiryFormNotificationsBuilder withUpdatedTemplate(String aValue)
+		{
+			instance.setUpdatedTemplate(aValue);
+			return this;
+		}
+		
 		public EnquiryFormNotificationsBuilder withEnquiryToFillTemplate(String aValue)
 		{
 			instance.setEnquiryToFillTemplate(aValue);
-
 			return this;
 		}
 
 		public EnquiryFormNotificationsBuilder withChannel(String aValue)
 		{
 			instance.setChannel(aValue);
-
 			return this;
 		}
 
 		public EnquiryFormNotificationsBuilder withAdminsNotificationGroup(String aValue)
 		{
 			instance.setAdminsNotificationGroup(aValue);
-
 			return this;
+		}
+		
+		public EnquiryFormBuilder endNotificationsConfiguration()
+		{
+			return parent;
 		}
 	}
 }

@@ -9,7 +9,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.impl.StorageLimits;
 import pl.edu.icm.unity.store.rdbms.GenericNamedRDBMSCRUD;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
@@ -21,7 +20,7 @@ import pl.edu.icm.unity.types.basic.Group;
  * @author K. Benedyczak
  */
 @Repository(GroupRDBMSStore.BEAN)
-public class GroupRDBMSStore extends GenericNamedRDBMSCRUD<Group, GroupBean> implements GroupDAO
+public class GroupRDBMSStore extends GenericNamedRDBMSCRUD<Group, GroupBean> implements GroupDAOInternal
 {
 	public static final String BEAN = DAO_ID + "rdbms";
 
@@ -48,6 +47,8 @@ public class GroupRDBMSStore extends GenericNamedRDBMSCRUD<Group, GroupBean> imp
 						" (trying to rename to " + obj.getName() + ")");
 			updateChilderenPaths(old.getName(), obj.getName(), mapper);
 		}
+		preUpdateCheck(old, obj);
+		firePreUpdate(key, obj.getName(), obj, old);
 		GroupBean toUpdate = jsonSerializer.toDB(obj);
 		StorageLimits.checkContentsLimit(toUpdate.getContents());
 		toUpdate.setId(key);
@@ -60,10 +61,11 @@ public class GroupRDBMSStore extends GenericNamedRDBMSCRUD<Group, GroupBean> imp
 		int oldPathLen = oldPath.length();
 		for (GroupBean gb: all)
 		{
-			if (gb.getName().startsWith(oldPath) && !gb.getName().equals(oldPath))
+			if (Group.isChild(gb.getName(), oldPath) && !gb.getName().equals(oldPath))
 			{
 				String updatedPath = newPath + gb.getName().substring(oldPathLen);
 				String updatedPPath = newPath + gb.getParent().substring(oldPathLen);
+
 				gb.setName(updatedPath);
 				gb.setParent(updatedPPath);
 				mapper.updateByKey(gb);

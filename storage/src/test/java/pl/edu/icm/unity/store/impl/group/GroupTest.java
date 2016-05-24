@@ -80,6 +80,7 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 			dao.create(new Group("/A/B"));
 			dao.create(new Group("/A/B/C"));
 			dao.create(new Group("/A/D"));
+			dao.create(new Group("/AAA"));
 
 			dao.updateByKey(key, new Group("/S"));
 
@@ -92,8 +93,33 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 			assertThat(dao.exists("/S/B"), is(true));
 			assertThat(dao.exists("/S/B/C"), is(true));
 			assertThat(dao.exists("/S/D"), is(true));
+			assertThat(dao.exists("/AAA"), is(true));
 		});
+	}
+	
+	@Test
+	public void childGroupNamesAreUpdatedByNameOnParentRename()
+	{
+		tx.runInTransaction(() -> {
+			dao.create(new Group("/A"));
+			dao.create(new Group("/A/B"));
+			dao.create(new Group("/A/B/C"));
+			dao.create(new Group("/A/D"));
+			dao.create(new Group("/AAA"));
 
+			dao.updateByName("/A", new Group("/S"));
+
+			assertThat(dao.exists("/A"), is(false));
+			assertThat(dao.exists("/A/B"), is(false));
+			assertThat(dao.exists("/A/B/C"), is(false));
+			assertThat(dao.exists("/A/D"), is(false));
+			
+			assertThat(dao.exists("/S"), is(true));
+			assertThat(dao.exists("/S/B"), is(true));
+			assertThat(dao.exists("/S/B/C"), is(true));
+			assertThat(dao.exists("/S/D"), is(true));
+			assertThat(dao.exists("/AAA"), is(true));
+		});
 	}
 	
 	@Test
