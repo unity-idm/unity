@@ -14,7 +14,7 @@ import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseFormNotifications;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 
-public class GroupRenameListener <T extends BaseForm > implements ReferenceUpdateHandler<Group>
+public class GroupRenameListener<T extends BaseForm> implements ReferenceUpdateHandler<Group>
 {
 	private NamedCRUDDAOWithTS<T> dao;
 	

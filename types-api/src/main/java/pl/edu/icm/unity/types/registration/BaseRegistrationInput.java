@@ -4,9 +4,18 @@
  */
 package pl.edu.icm.unity.types.registration;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
@@ -25,6 +34,22 @@ public class BaseRegistrationInput
 	private List<Selection> agreements = new ArrayList<>();
 	private String comments;
 	private String userLocale;
+	
+	public BaseRegistrationInput()
+	{
+	}
+
+	@JsonCreator
+	public BaseRegistrationInput(ObjectNode root)
+	{
+		try
+		{
+			fromJson(root);
+		} catch (IOException e)
+		{
+			throw new IllegalArgumentException("Provided JSON is invalid", e);
+		}
+	}
 	
 	public void validate()
 	{
@@ -111,6 +136,90 @@ public class BaseRegistrationInput
 	}
 
 	@Override
+	public String toString()
+	{
+		return "BaseRegistrationInput [formId=" + formId + ", identities=" + identities
+				+ "]";
+	}
+
+	@JsonValue
+	public ObjectNode toJson()
+	{
+		ObjectMapper jsonMapper = Constants.MAPPER;
+		ObjectNode root = jsonMapper.createObjectNode();
+		root.set("Agreements", jsonMapper.valueToTree(getAgreements()));
+		root.set("Attributes", jsonMapper.valueToTree(getAttributes()));
+		root.set("Comments", jsonMapper.valueToTree(getComments()));
+		root.set("Credentials", jsonMapper.valueToTree(getCredentials()));
+		root.set("FormId", jsonMapper.valueToTree(getFormId()));
+		root.set("GroupSelections", jsonMapper.valueToTree(getGroupSelections()));
+		root.set("Identities", jsonMapper.valueToTree(getIdentities()));
+		root.put("UserLocale", getUserLocale());
+		return root;
+	}
+
+	private void fromJson(ObjectNode root) throws IOException
+	{
+		ObjectMapper jsonMapper = Constants.MAPPER;
+		JsonNode n = root.get("Agreements");
+		if (n != null)
+		{
+			String v = jsonMapper.writeValueAsString(n);
+			List<Selection> r = jsonMapper.readValue(v, 
+					new TypeReference<List<Selection>>(){});
+			setAgreements(r);
+		}
+		
+		n = root.get("Attributes");
+		if (n != null)
+		{
+			String v = jsonMapper.writeValueAsString(n);
+			List<Attribute> r = jsonMapper.readValue(v, 
+					new TypeReference<List<Attribute>>(){});
+			setAttributes(r);	
+		}
+		
+
+		n = root.get("Comments");
+		if (n != null && !n.isNull())
+			setComments(n.asText());
+		
+		n = root.get("Credentials");
+		if (n != null)
+		{
+			String v = jsonMapper.writeValueAsString(n);
+			List<CredentialParamValue> r = jsonMapper.readValue(v, 
+					new TypeReference<List<CredentialParamValue>>(){});
+			setCredentials(r);
+		}
+		
+		n = root.get("FormId");
+		setFormId(n.asText());
+
+		n = root.get("GroupSelections");
+		if (n != null)
+		{
+			String v = jsonMapper.writeValueAsString(n);
+			List<Selection> r = jsonMapper.readValue(v, 
+					new TypeReference<List<Selection>>(){});
+			setGroupSelections(r);
+		}
+
+		n = root.get("Identities");			
+		if (n != null)
+		{
+			String v = jsonMapper.writeValueAsString(n);
+			List<IdentityParam> r = jsonMapper.readValue(v, 
+					new TypeReference<List<IdentityParam>>(){});
+			setIdentities(r);
+		}
+		
+		n = root.get("UserLocale");
+		if (n != null && !n.isNull())
+			setUserLocale(n.asText());
+	}
+	
+	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
@@ -123,6 +232,7 @@ public class BaseRegistrationInput
 		result = prime * result
 				+ ((groupSelections == null) ? 0 : groupSelections.hashCode());
 		result = prime * result + ((identities == null) ? 0 : identities.hashCode());
+		result = prime * result + ((userLocale == null) ? 0 : userLocale.hashCode());
 		return result;
 	}
 
@@ -177,6 +287,12 @@ public class BaseRegistrationInput
 			if (other.identities != null)
 				return false;
 		} else if (!identities.equals(other.identities))
+			return false;
+		if (userLocale == null)
+		{
+			if (other.userLocale != null)
+				return false;
+		} else if (!userLocale.equals(other.userLocale))
 			return false;
 		return true;
 	}

@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.types.registration;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Registration request, tied to a registration form contains data collected
@@ -17,6 +20,19 @@ public class RegistrationRequest extends BaseRegistrationInput
 {
 	private String registrationCode;
 	
+	public RegistrationRequest()
+	{
+	}
+
+	@JsonCreator
+	public RegistrationRequest(ObjectNode root)
+	{
+		super(root);
+		JsonNode n = root.get("RegistrationCode");
+		if (n != null && !n.isNull())
+			setRegistrationCode(n.asText());
+	}
+	
 	public String getRegistrationCode()
 	{
 		return registrationCode;
@@ -27,6 +43,14 @@ public class RegistrationRequest extends BaseRegistrationInput
 		this.registrationCode = registrationCode;
 	}
 
+	@Override
+	public ObjectNode toJson()
+	{
+		ObjectNode ret = super.toJson();
+		ret.put("RegistrationCode", registrationCode);
+		return ret;
+	}
+	
 	@Override
 	public int hashCode()
 	{

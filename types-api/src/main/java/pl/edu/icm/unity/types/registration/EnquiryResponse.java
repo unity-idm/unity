@@ -4,7 +4,8 @@
  */
 package pl.edu.icm.unity.types.registration;
 
-
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Enquiry response, tied to an {@link EnquiryForm}. 
@@ -14,4 +15,13 @@ package pl.edu.icm.unity.types.registration;
  */
 public class EnquiryResponse extends BaseRegistrationInput
 {
+	public EnquiryResponse()
+	{
+	}
+
+	@JsonCreator
+	public EnquiryResponse(ObjectNode root)
+	{
+		super(root);
+	}
 }

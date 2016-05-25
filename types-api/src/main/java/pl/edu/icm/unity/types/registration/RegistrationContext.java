@@ -6,6 +6,7 @@ package pl.edu.icm.unity.types.registration;
 
 import pl.edu.icm.unity.Constants;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -55,6 +56,14 @@ public class RegistrationContext
 		this.triggeringMode = triggeringMode;
 	}
 	
+	public RegistrationContext(JsonNode object)
+	{
+		tryAutoAccept = object.get("tryAutoAccept").asBoolean();
+		isOnIdpEndpoint = object.get("isOnIdpEndpoint").asBoolean();
+		triggeringMode = TriggeringMode.valueOf(object.get("triggeringMode").asText());
+	}
+	
+	@JsonValue
 	public JsonNode toJson()
 	{
 		ObjectNode root = Constants.MAPPER.createObjectNode();
@@ -63,12 +72,43 @@ public class RegistrationContext
 		root.put("triggeringMode", triggeringMode.name());
 		return root;
 	}
+
 	
-	public static RegistrationContext fromJson(JsonNode object)
+	@Override
+	public String toString()
 	{
-		return new RegistrationContext(
-				object.get("tryAutoAccept").asBoolean(),
-				object.get("isOnIdpEndpoint").asBoolean(),
-				TriggeringMode.valueOf(object.get("triggeringMode").asText()));
+		return "RegistrationContext [tryAutoAccept=" + tryAutoAccept + ", isOnIdpEndpoint="
+				+ isOnIdpEndpoint + ", triggeringMode=" + triggeringMode + "]";
+	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (isOnIdpEndpoint ? 1231 : 1237);
+		result = prime * result
+				+ ((triggeringMode == null) ? 0 : triggeringMode.hashCode());
+		result = prime * result + (tryAutoAccept ? 1231 : 1237);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		RegistrationContext other = (RegistrationContext) obj;
+		if (isOnIdpEndpoint != other.isOnIdpEndpoint)
+			return false;
+		if (triggeringMode != other.triggeringMode)
+			return false;
+		if (tryAutoAccept != other.tryAutoAccept)
+			return false;
+		return true;
 	}
 }
