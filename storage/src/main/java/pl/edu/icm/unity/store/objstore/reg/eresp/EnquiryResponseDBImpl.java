@@ -2,32 +2,32 @@
  * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.store.objstore.req;
+package pl.edu.icm.unity.store.objstore.reg.eresp;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
+import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.objstore.GenericObjectsDAOImpl;
 import pl.edu.icm.unity.store.objstore.cred.CredentialDBImpl;
 import pl.edu.icm.unity.store.objstore.reg.RequestCredentialChangeListener;
-import pl.edu.icm.unity.types.registration.RegistrationRequestState;
+import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 
 /**
- * Easy access to {@link RegistrationRequestState} storage.
+ * Easy access to {@link EnquiryResponseState} storage.
  * 
  * @author K. Benedyczak
  */
 @Component
-public class RegistrationRequestDBImpl extends GenericObjectsDAOImpl<RegistrationRequestState> 
-		implements RegistrationRequestDB
+public class EnquiryResponseDBImpl extends GenericObjectsDAOImpl<EnquiryResponseState> 
+		implements EnquiryResponseDB
 {
 	@Autowired
-	public RegistrationRequestDBImpl(RegistrationRequestHandler handler, ObjectStoreDAO dbGeneric, 
+	public EnquiryResponseDBImpl(EnquiryResponseHandler handler, ObjectStoreDAO dbGeneric, 
 			CredentialDBImpl credentialDB)
 	{
-		super(handler, dbGeneric, RegistrationRequestState.class, "registration request");
+		super(handler, dbGeneric, EnquiryResponseState.class, "enquiry response");
 		credentialDB.addUpdateHandler(new RequestCredentialChangeListener<>(this));
 	}
 }

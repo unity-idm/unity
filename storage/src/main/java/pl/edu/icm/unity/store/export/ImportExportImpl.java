@@ -8,7 +8,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -43,13 +45,20 @@ public class ImportExportImpl implements ImportExport
 		this.objectMapper = objectMapper;
 		this.updater = updater;
 		this.implementations = implementations;
-		Collections.sort(implementations, (i1, i2) -> {
-			if (i1.getSortKey() == i2.getSortKey())
-				throw new IllegalStateException("Got two ImportExport "
-						+ "implementations with the same sort key: " + i1 + 
-						"; " + i1 + " and " + i2);
-			return i1.getSortKey() < i2.getSortKey() ? -1 : 1;
-		});
+		Set<String> names = new HashSet<>();
+		Set<Integer> orderKeys = new HashSet<>();
+		for (AbstractIEBase<?> i: implementations)
+		{
+			if (!names.add(i.getStoreKey()))
+				throw new IllegalStateException("BUG: IE implementation for object " + 
+						i.getStoreKey() + " is duplicated");
+			if (!orderKeys.add(i.getSortKey()))
+				throw new IllegalStateException("BUG: 2 IE implementations use the same order " + 
+						i.getSortKey());
+		}
+		
+		Collections.sort(implementations, (i1, i2) ->
+			i1.getSortKey() < i2.getSortKey() ? -1 : 1);
 	}
 
 	@Override

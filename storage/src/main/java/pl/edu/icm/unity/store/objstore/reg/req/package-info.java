@@ -10,4 +10,4 @@
  * Registration requests repository
  * @author K. Benedyczak
  */
-package pl.edu.icm.unity.store.objstore.req;
+package pl.edu.icm.unity.store.objstore.reg.req;
