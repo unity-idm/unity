@@ -42,6 +42,8 @@ import pl.edu.icm.unity.types.basic.VerifiableEmail;
  * TODO this code needs a lot more is only partial and in general wrong from API standpoint 
  * (must parse everything first, then update,... and return updated).
  * 
+ * TODO - InvitationWithCode - 2xtime changed from second to millisecond, apply *1000
+ * 
  * @author K. Benedyczak
  */
 @Component

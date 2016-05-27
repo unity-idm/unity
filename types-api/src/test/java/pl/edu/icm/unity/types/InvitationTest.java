@@ -18,9 +18,9 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.Selection;
+import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
-import pl.edu.icm.unity.types.registration.invite.RESTInvitationWithCode;
 
 /**
  * Unit tests of RESTInvitation* classes
@@ -31,12 +31,12 @@ public class InvitationTest
 	@Test
 	public void mnimalFormSerializationIsIdempotent()
 	{
-		RESTInvitationWithCode minimal = new RESTInvitationWithCode(
+		InvitationWithCode minimal = new InvitationWithCode(
 				"formId", Instant.now().truncatedTo(ChronoUnit.SECONDS), null, null, "registrationCode");
 		
 		String jsonStr = JsonUtil.toJsonString(minimal);
-		RESTInvitationWithCode minimalParsed = JsonUtil.parse(jsonStr, 
-				RESTInvitationWithCode.class);
+		InvitationWithCode minimalParsed = JsonUtil.parse(jsonStr, 
+				InvitationWithCode.class);
 		
 		assertThat(minimalParsed, is(minimal));
 	}
@@ -44,7 +44,7 @@ public class InvitationTest
 	@Test
 	public void completeFormSerializationIsIdempotent()
 	{
-		RESTInvitationWithCode complete = new RESTInvitationWithCode(
+		InvitationWithCode complete = new InvitationWithCode(
 				"formId", Instant.now().truncatedTo(ChronoUnit.SECONDS), "add", "chan", "registrationCode");
 		List<String> vals = new ArrayList<>();
 		vals.add("value");
@@ -58,8 +58,8 @@ public class InvitationTest
 		String jsonStr = JsonUtil.toJsonString(complete);
 		
 		System.out.println(jsonStr);
-		RESTInvitationWithCode completeParsed = JsonUtil.parse(jsonStr, 
-				RESTInvitationWithCode.class);
+		InvitationWithCode completeParsed = JsonUtil.parse(jsonStr, 
+				InvitationWithCode.class);
 
 		assertThat(completeParsed, is(complete));
 	}
