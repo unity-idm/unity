@@ -13,7 +13,6 @@ import pl.edu.icm.unity.test.headlessui.SeleniumTestBase;
 
 /**
  * 
- * 
  * @author P. Piernik
  */
 public class TestRegistrationForm extends SeleniumTestBase
