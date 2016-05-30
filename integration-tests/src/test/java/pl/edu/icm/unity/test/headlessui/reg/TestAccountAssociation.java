@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.test.headlessui.reg;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -17,6 +18,7 @@ import pl.edu.icm.unity.test.headlessui.SeleniumTestBase;
  */
 public class TestAccountAssociation extends SeleniumTestBase
 {
+	@Ignore
 	@Test
 	public void accountAssociationTest() throws Exception
 	{

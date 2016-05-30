@@ -6,6 +6,7 @@ package pl.edu.icm.unity.test.headlessui.reg;
 
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 
@@ -17,6 +18,7 @@ import pl.edu.icm.unity.test.headlessui.SeleniumTestBase;
  */
 public class TestRegistrationForm extends SeleniumTestBase
 {
+	@Ignore
 	@Test
 	public void registrationTest() throws Exception
 	{
