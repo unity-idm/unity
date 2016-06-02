@@ -39,7 +39,6 @@ import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.server.registries.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.TimeUtil;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -146,7 +145,7 @@ public class SessionManagementImpl implements SessionManagement
 	{
 		UUID randomid = UUID.randomUUID();
 		String id = randomid.toString();
-		LoginSession ls = new LoginSession(id, TimeUtil.roundToS(new Date()), absoluteExpiration,
+		LoginSession ls = new LoginSession(id, new Date(), absoluteExpiration,
 				realm.getMaxInactivity()*1000, loggedEntity, 
 				realm.getName());
 		ls.setUsedOutdatedCredential(outdatedCredential);
