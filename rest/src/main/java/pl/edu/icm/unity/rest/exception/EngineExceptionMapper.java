@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.rest.exception;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -13,7 +14,9 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.authn.AuthenticationException;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.JsonError;
 
 /**
  * Maps Unity exceptions to HTTP error responses
@@ -26,14 +29,16 @@ public class EngineExceptionMapper implements ExceptionMapper<EngineException>
 	
 	public Response toResponse(EngineException ex)
 	{
-		if (ex instanceof AuthorizationException)
+		if (ex instanceof AuthorizationException || ex instanceof AuthenticationException)
 		{
 			log.debug("Access denied for rest client", ex);
-			return Response.status(Status.FORBIDDEN).entity(ex.getMessage()).build();
+			return Response.status(Status.FORBIDDEN).entity(new JsonError(ex).toString()).
+					type(MediaType.APPLICATION_JSON).build();
 		} else
 		{
 			log.warn("Engine exception during RESTful API invocation", ex);
-			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();
+			return Response.status(Status.BAD_REQUEST).entity(new JsonError(ex).toString()).
+					type(MediaType.APPLICATION_JSON).build();
 		}
 	}
 }
