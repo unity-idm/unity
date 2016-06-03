@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.store.api.generic;
 
-import pl.edu.icm.unity.base.confirmations.ConfirmationConfiguration;
+import pl.edu.icm.unity.types.confirmation.ConfirmationConfiguration;
 
 /**
  * Easy access to {@link ConfirmationConfiguration} storage.

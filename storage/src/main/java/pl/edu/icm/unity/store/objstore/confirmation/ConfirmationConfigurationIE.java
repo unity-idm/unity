@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import pl.edu.icm.unity.base.confirmations.ConfirmationConfiguration;
 import pl.edu.icm.unity.store.api.generic.ConfirmationConfigurationDB;
 import pl.edu.icm.unity.store.objstore.GenericObjectIEBase;
+import pl.edu.icm.unity.types.confirmation.ConfirmationConfiguration;
 
 /**
  * Handles import/export of {@link ConfirmationConfiguration}.

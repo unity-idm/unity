@@ -13,9 +13,7 @@ import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.base.confirmations.ConfirmationConfiguration;
 import pl.edu.icm.unity.base.confirmations.ConfirmationTemplateDef;
-import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.generic.ConfirmationConfigurationDB;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
@@ -24,6 +22,8 @@ import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.MessageTemplate;
+import pl.edu.icm.unity.types.confirmation.ConfirmationConfiguration;
 
 public class ConfirmationConfigurationTest extends AbstractNamedWithTSTest<ConfirmationConfiguration>
 {

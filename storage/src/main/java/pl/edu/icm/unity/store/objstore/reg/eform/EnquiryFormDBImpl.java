@@ -9,7 +9,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.base.reg.NewEnquiryTemplateDef;
 import pl.edu.icm.unity.base.reg.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
@@ -26,6 +25,7 @@ import pl.edu.icm.unity.store.objstore.reg.CredentialChangeListener;
 import pl.edu.icm.unity.store.objstore.reg.CredentialRenameListener;
 import pl.edu.icm.unity.store.objstore.reg.GroupChangeListener;
 import pl.edu.icm.unity.store.objstore.reg.GroupRenameListener;
+import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
 
