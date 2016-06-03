@@ -11,18 +11,17 @@ import com.esotericsoftware.kryo.io.Output;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.base.utils.JsonSerializer;
 import pl.edu.icm.unity.store.impl.StorageLimits;
 
 /**
- * Kryo serializer delegating the actual work to {@link JsonSerializer} 
+ * Kryo serializer delegating the actual work to {@link JsonSerializerForKryo} 
  * @author K. Benedyczak
  */
 public class KryoJsonSerializer<T> extends Serializer<T>
 {
-	private JsonSerializer<T> jsonSerializer;
+	private JsonSerializerForKryo<T> jsonSerializer;
 
-	public KryoJsonSerializer(JsonSerializer<T> jsonSerializer)
+	public KryoJsonSerializer(JsonSerializerForKryo<T> jsonSerializer)
 	{
 		this.jsonSerializer = jsonSerializer;
 	}

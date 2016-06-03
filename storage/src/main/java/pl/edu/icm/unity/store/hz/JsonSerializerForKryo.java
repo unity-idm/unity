@@ -4,13 +4,16 @@
  */
 package pl.edu.icm.unity.store.hz;
 
-import pl.edu.icm.unity.base.utils.JsonSerializer;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 
 /**
- * Nearly a marker interface: Kryo uses all implementation beans for serialization.
+ * Serialization to/from JSON for Kryo.
  * @author K. Benedyczak
  */
-public interface JsonSerializerForKryo<T> extends JsonSerializer<T>
+public interface JsonSerializerForKryo<T>
 {
+	T fromJson(ObjectNode src);
+	ObjectNode toJson(T src);
 	Class<?> getClazz();
 }
