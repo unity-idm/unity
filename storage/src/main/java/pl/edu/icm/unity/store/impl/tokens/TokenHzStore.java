@@ -16,9 +16,9 @@ import com.hazelcast.core.TransactionalMap;
 import com.hazelcast.query.EntryObject;
 import com.hazelcast.query.PredicateBuilder;
 
+import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.store.api.TokenDAO;
 import pl.edu.icm.unity.store.hz.GenericBasicHzCRUD;
-import pl.edu.icm.unity.store.types.Token;
 
 
 /**

@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
-import pl.edu.icm.unity.store.types.Token;
 
 /**
  * Serializes {@link Token} to/from DB form.

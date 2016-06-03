@@ -4,28 +4,33 @@
  */
 package pl.edu.icm.unity.base.attributes;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.basic.Attribute;
 
 /**
- * Base interface defining attribute value type. It provides handling of the 
- * configuration (typically used server side to validate values), (de)serialization
- * which can be used on both sides and equality test.
+ * Base interface defining attribute value syntax. It provides handling of the 
+ * configuration (typically used server side to validate values), (de)serialization to String
+ * and equality test.
  * <p>
- * Implementations can offer arbitrary constructors, however it is preferable to
- * offer also a special extension of {@link Attribute} class, which uses the 
- * provided implementation of this interface so {@link Attribute} class instances
- * can be easily created without an instance of {@link AttributeValueSyntax}.
- * 
  * Note that validation is only meaningful when the implementation was properly 
- * populated with configuration. So if an instance is created ad-hoc on the client side, 
- * then validation probably won't work as on the server side.
+ * populated with configuration.
  * 
  * @author K. Benedyczak
  */
 public interface AttributeValueSyntax<T>
 {
+	/**
+	 * @return current serialized configuration of the syntax
+	 */
+	JsonNode getSerializedConfiguration();
+	
+	/**
+	 * Initializes from string
+	 * @param json
+	 */
+	void setSerializedConfiguration(JsonNode json);
+	
 	/**
 	 * @return attribute value syntax ID
 	 */
@@ -51,56 +56,61 @@ public interface AttributeValueSyntax<T>
 	int hashCode(Object value);
 	
 	/**
+	 * Performs a simplified serialization of the value object to string. Note that some of the information
+	 * may be lost during this serialization: it is intended for exporting the value to outside world, so the value 
+	 * must be simple. For instance verifiable email will be serialized as an email address string, 
+	 * without confirmation information.
+	 * 
 	 * @param domain object
-	 * @return value in the byte array form
-	 * @throws InternalException 
+	 * @return value in the string form, possibly simplified
 	 */
-	@Deprecated
-	byte[] serialize(T value) throws InternalException;
+	default String serializeSimple(T value)
+	{
+		return convertToString(value);
+	}
 
 	/**
-	 * @param domain object
-	 * @return value in the form of an object directly serializable to Json (either simple object, map or JsonNode).
-	 * @throws InternalException 
-	 */
-	@Deprecated
-	Object serializeSimple(T value) throws InternalException;
-
-	/**
+	 * Many attributes are passed in a string form, especially when obtained externally. Whenever it is possible
+	 * this method should convert string representation to the domain object. Note that this 
+	 * method may not be able to initialize all properties of the domain value object. 
+	 * @see {@link #serializeSimple(Object)}  
 	 * @param value to deserialize
 	 * @return domain object
-	 * @throws InternalException 
+	 * @throws IllegalAttributeValueException 
 	 */
-	@Deprecated
-	T deserializeSimple(Object value) throws InternalException;
+	default T deserializeSimple(String value) throws IllegalAttributeValueException
+	{
+		try
+		{
+			T ret = convertFromString(value);
+			validate(ret);
+			return ret;
+		} catch (Exception e)
+		{
+			throw new IllegalAttributeValueException(value + " can not be deserialized to " +
+					getValueSyntaxId(), e);
+		}
+	}
 	
 	/**
-	 * @param raw data
-	 * @return domain object
-	 * @throws InternalException 
+	 * Converts the value from string representation as produced by {@link #convertToString(Object)}
+	 * @param stringRepresentation
+	 * @return
+	 * @throws IllegalAttributeValueException if the conversion can not be performed.
 	 */
-	@Deprecated
-	T deserialize(byte []raw) throws InternalException;
+	T convertFromString(String stringRepresentation);
+	
+	/**
+	 * Dumps a domain value to string. This method (conversly to {@link #serializeSimple(Object)}) must 
+	 * output a complete value.
+	 * @param value
+	 * @return value converted to string.
+	 */
+	String convertToString(T value);
 	
 	
 	/**
 	 * @return true if values can be confirmed by user
 	 */
 	boolean isVerifiable();
-	
-	/**
-	 * Many attributes are passed in a string form, especially when obtained externally. Whenever it is possible
-	 * this method should convert the string representation to the domain object. 
-	 * @param stringRepresentation
-	 * @return
-	 * @throws IllegalAttributeValueException if the conversion can not be performed.
-	 */
-	T convertFromString(String stringRepresentation) throws IllegalAttributeValueException;
-	
-	/**
-	 * Reverse of {@link #convertFromString(String)}
-	 * @param value
-	 * @return value converted to string.
-	 */
-	String convertToString(T value);
 }

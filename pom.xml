@@ -44,12 +44,14 @@
 		<module>types</module>
 		<module>types-api</module>
 		<module>core</module>
+		<module>engine-api</module>
 		<module>engine</module>
 		<module>persistence</module>
 		<module>base</module>
 		<module>storage-api</module>
 		<module>storage</module>
 		<module>std-extensions</module>
+		<module>std-plugins</module>
 		<module>web-vaadin-widgetset</module>
 		<module>web-common</module>
 		<module>web-admin</module>
@@ -503,6 +505,26 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
+	<!-- the base test dependencies are used for all modules, more advanced as spring are to be defined 
+		directly -->
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+  			<groupId>org.mockito</groupId>
+  			<artifactId>mockito-core</artifactId>  
+			<scope>test</scope>
+  		</dependency>
+  		<dependency>
+			<groupId>eu.codearte.catch-exception</groupId>
+			<artifactId>catch-exception</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
 	<profiles>
 		<profile>
