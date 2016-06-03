@@ -9,8 +9,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.reg.NewEnquiryTemplateDef;
-import pl.edu.icm.unity.base.reg.SubmitRegistrationTemplateDef;
+import pl.edu.icm.unity.base.msgtemplates.reg.NewEnquiryTemplateDef;
+import pl.edu.icm.unity.base.msgtemplates.reg.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeDAOInternal;
 import pl.edu.icm.unity.store.impl.groups.GroupDAOInternal;

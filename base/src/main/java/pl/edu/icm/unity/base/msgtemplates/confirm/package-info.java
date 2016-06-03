@@ -2,12 +2,12 @@
  * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE file for licensing information.
  *
- * Created on 23 maj 2016
+ * Created on 3 cze 2016
  * Author: K. Benedyczak
  */
 
 /**
- * Common code related to registrations handling
+ * Message template definitions of the confirmation subsystem
  * @author K. Benedyczak
  */
-package pl.edu.icm.unity.base.reg;
+package pl.edu.icm.unity.base.msgtemplates.confirm;

@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.store.objstore.reg;
 
-import pl.edu.icm.unity.base.reg.AcceptRegistrationTemplateDef;
-import pl.edu.icm.unity.base.reg.RejectRegistrationTemplateDef;
-import pl.edu.icm.unity.base.reg.UpdateRegistrationTemplateDef;
+import pl.edu.icm.unity.base.msgtemplates.reg.AcceptRegistrationTemplateDef;
+import pl.edu.icm.unity.base.msgtemplates.reg.RejectRegistrationTemplateDef;
+import pl.edu.icm.unity.base.msgtemplates.reg.UpdateRegistrationTemplateDef;
 import pl.edu.icm.unity.store.ReferenceRemovalHandler;
 import pl.edu.icm.unity.store.ReferenceUpdateHandler;
 import pl.edu.icm.unity.types.basic.MessageTemplate;

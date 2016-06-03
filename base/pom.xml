@@ -9,7 +9,8 @@
 	<artifactId>unity-server-base</artifactId>
 	<packaging>jar</packaging>
 	<name>UNITY Server ${m.name} module</name>
-	<description>Basic server utilities and interfaces. Code from this module is used by both engine and storage</description>
+	<description>Basic server utilities and interfaces. 
+	Code from this module is used by both engine and storage</description>
 	
 	<properties>
 		<m.name>base</m.name>

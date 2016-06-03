@@ -2,7 +2,7 @@
  * Copyright (c) 2015, Jirav All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.base.reg;
+package pl.edu.icm.unity.base.msgtemplates.reg;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,22 +13,21 @@ import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
 
 /**
- * Template definition of a message send with an invitation to fill a registration request. 
+ * Defines a template for new enquiry notification - intended for end users.
  * @author Krzysztof Benedyczak
  */
 @Component
-public class InvitationTemplateDef implements MessageTemplateDefinition
+public class NewEnquiryTemplateDef implements MessageTemplateDefinition
 {
-	public static final String NAME = "InvitationWithCode";
+	public static final String NAME = "NewEnquiry";
+	
 	public static final String FORM_NAME = "formName";
-	public static final String CODE = "code";
 	public static final String URL = "url";
-	public static final String EXPIRES = "expires";
 	
 	@Override
 	public String getDescriptionKey()
 	{
-		return "MessageTemplateConsumer.InvitationWithCode.desc";
+		return "MessageTemplateConsumer.NewEnquiry.desc";
 	}
 
 	@Override
@@ -43,12 +42,8 @@ public class InvitationTemplateDef implements MessageTemplateDefinition
 		Map<String, MessageTemplateVariable> vars = new HashMap<>();
 		vars.put(FORM_NAME, new MessageTemplateVariable(FORM_NAME , 
 				"MessageTemplateConsumer.BaseForm.var.formName", false));
-		vars.put(CODE, new MessageTemplateVariable(CODE, 
-				"MessageTemplateConsumer.InvitationWithCode.var.code", false));
 		vars.put(URL, new MessageTemplateVariable(URL, 
-				"MessageTemplateConsumer.InvitationWithCode.var.url", false));
-		vars.put(EXPIRES, new MessageTemplateVariable(EXPIRES, 
-				"MessageTemplateConsumer.InvitationWithCode.var.expires", false));
+				"MessageTemplateConsumer.NewEnquiry.var.url", false));
 		return vars;
 	}
 

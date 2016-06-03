@@ -2,7 +2,7 @@
  * Copyright (c) 2015, Jirav All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.base.reg;
+package pl.edu.icm.unity.base.msgtemplates.reg;
 
 import java.util.HashMap;
 import java.util.Map;

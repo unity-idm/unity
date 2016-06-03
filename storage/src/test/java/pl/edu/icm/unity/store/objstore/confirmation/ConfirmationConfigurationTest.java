@@ -13,7 +13,7 @@ import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.base.confirmations.ConfirmationTemplateDef;
+import pl.edu.icm.unity.base.msgtemplates.confirm.ConfirmationTemplateDef;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.generic.ConfirmationConfigurationDB;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;

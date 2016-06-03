@@ -13,8 +13,8 @@ import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.base.reg.AcceptRegistrationTemplateDef;
-import pl.edu.icm.unity.base.reg.SubmitRegistrationTemplateDef;
+import pl.edu.icm.unity.base.msgtemplates.reg.AcceptRegistrationTemplateDef;
+import pl.edu.icm.unity.base.msgtemplates.reg.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.NamedCRUDDAO;
