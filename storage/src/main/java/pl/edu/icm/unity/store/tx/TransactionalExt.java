@@ -9,8 +9,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import pl.edu.icm.unity.base.internal.StorageEngine;
-import pl.edu.icm.unity.base.internal.Transactional;
+import pl.edu.icm.unity.store.StorageEngine;
+import pl.edu.icm.unity.store.api.tx.Transactional;
 
 /**
  * Extension of the default {@link Transactional} annotation allowing to overwrite the system configured 

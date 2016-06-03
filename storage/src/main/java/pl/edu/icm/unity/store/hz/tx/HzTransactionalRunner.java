@@ -6,8 +6,8 @@ package pl.edu.icm.unity.store.hz.tx;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.internal.StorageEngine;
-import pl.edu.icm.unity.base.internal.TransactionalRunner;
+import pl.edu.icm.unity.store.StorageEngine;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.tx.TransactionalExt;
 
 /**

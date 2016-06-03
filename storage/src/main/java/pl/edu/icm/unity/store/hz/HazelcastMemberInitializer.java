@@ -26,9 +26,9 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.base.internal.StorageEngine;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.StorageConfiguration;
+import pl.edu.icm.unity.store.StorageEngine;
 
 /**
  * Initializes the current instance as Hazelcast cluster member. 

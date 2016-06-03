@@ -13,11 +13,11 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.internal.StorageEngine;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.StorageCleaner;
 import pl.edu.icm.unity.store.StorageConfiguration;
+import pl.edu.icm.unity.store.StorageEngine;
 import pl.edu.icm.unity.store.StoreLoaderInternal;
 
 

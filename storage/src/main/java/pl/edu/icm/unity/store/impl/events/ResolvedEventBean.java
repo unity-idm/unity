@@ -6,7 +6,7 @@ package pl.edu.icm.unity.store.impl.events;
 
 import java.util.Date;
 
-import pl.edu.icm.unity.base.event.Event;
+import pl.edu.icm.unity.store.types.Event;
 
 /**
  * Resolved event for returning into engine

@@ -16,8 +16,8 @@ import com.hazelcast.core.ILock;
 import com.hazelcast.core.TransactionalQueue;
 import com.hazelcast.transaction.TransactionContext;
 
-import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionalRunner;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;

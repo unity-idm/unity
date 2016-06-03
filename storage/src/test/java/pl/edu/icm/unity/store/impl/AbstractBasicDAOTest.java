@@ -24,10 +24,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.store.StorageCleaner;
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
 import pl.edu.icm.unity.store.api.ImportExport;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.tx.TransactionTL;
 
 @RunWith(SpringJUnit4ClassRunner.class)

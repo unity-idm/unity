@@ -2,7 +2,7 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.base.internal;
+package pl.edu.icm.unity.store.api.tx;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

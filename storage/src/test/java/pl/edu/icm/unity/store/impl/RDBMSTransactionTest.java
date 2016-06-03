@@ -24,8 +24,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.store.StorageCleaner;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeBean;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypesMapper;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;

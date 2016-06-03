@@ -16,9 +16,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.base.utils.StopWatch;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.hz.HzStoreLoader;
 import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSEventSink;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionalRunner;

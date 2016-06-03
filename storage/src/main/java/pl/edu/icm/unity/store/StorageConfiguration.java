@@ -25,7 +25,6 @@ import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
-import pl.edu.icm.unity.base.internal.StorageEngine;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.rdbms.StoragePropertiesSource;

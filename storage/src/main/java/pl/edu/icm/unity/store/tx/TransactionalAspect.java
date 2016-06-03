@@ -12,10 +12,10 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.internal.StorageEngine;
-import pl.edu.icm.unity.base.internal.Transactional;
-import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.store.StorageConfiguration;
+import pl.edu.icm.unity.store.StorageEngine;
+import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
 /**
  * Aspect providing transaction functionality. Real functionality is provided by an {@link TransactionEngine} 

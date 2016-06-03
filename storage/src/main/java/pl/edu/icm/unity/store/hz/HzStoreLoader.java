@@ -17,12 +17,12 @@ import org.springframework.stereotype.Component;
 import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.HazelcastInstance;
 
-import pl.edu.icm.unity.base.internal.StorageEngine;
-import pl.edu.icm.unity.base.internal.TransactionalRunner;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.StorageCleaner;
 import pl.edu.icm.unity.store.StorageConfiguration;
+import pl.edu.icm.unity.store.StorageEngine;
 import pl.edu.icm.unity.store.StoreLoaderInternal;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionalRunner;
 import pl.edu.icm.unity.store.impl.attribute.AttributeHzStore;

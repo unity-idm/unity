@@ -7,7 +7,6 @@ package pl.edu.icm.unity.store;
 import java.util.Properties;
 
 import eu.unicore.util.configuration.PropertiesHelper;
-import pl.edu.icm.unity.base.internal.StorageEngine;
 
 /**
  * Implementations of this interface are used to instantiate configuration object of a particular storage engine.

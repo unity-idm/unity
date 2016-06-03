@@ -25,7 +25,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.hazelcast.core.HazelcastException;
 import com.hazelcast.core.TransactionalMap;
 
-import pl.edu.icm.unity.base.internal.TransactionalRunner;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionalRunner;
 import pl.edu.icm.unity.store.tx.TransactionTL;
