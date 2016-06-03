@@ -30,7 +30,7 @@ public class DumpUpdater
 	private UpdateFrom1_9_x updateFrom1_9_x;
 	
 	
-	public void update(InputStream is, DumpHeader header) throws IOException
+	public InputStream update(InputStream is, DumpHeader header) throws IOException
 	{
 		if (header.getVersionMajor() < MIN_SUPPORTED_MAJOR || 
 			(header.getVersionMajor() == MIN_SUPPORTED_MAJOR && 
@@ -40,17 +40,16 @@ public class DumpUpdater
 					+ "Update from 1.8.0 can work, but is not officially supported.");
 		
 		if (header.getVersionMajor() < DumpSchemaVersion.V_INITIAL2.getVersionCode())
-			performUpdate(is, updateFrom1_9_x, DumpSchemaVersion.V_INITIAL2);
+			is = performUpdate(is, updateFrom1_9_x, DumpSchemaVersion.V_INITIAL2);
+		return is;
 	}
 
 	
-	private void performUpdate(InputStream is, Update updateImpl,
+	private InputStream performUpdate(InputStream is, Update updateImpl,
 			DumpSchemaVersion toVersion) throws IOException
 	{
 		log.info("Updating database dump from " + toVersion.getPreviousName() + 
 				" --> " + toVersion.getName() + " [" + toVersion.getVersionCode() + "]");
-		is.mark(-1);
-		updateImpl.update(is);
-		is.reset();
+		return updateImpl.update(is);
 	}
 }

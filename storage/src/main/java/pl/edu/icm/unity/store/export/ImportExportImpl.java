@@ -37,7 +37,8 @@ public class ImportExportImpl implements ImportExport
 	private ObjectMapper objectMapper;
 	private DumpUpdater updater;
 	private List<AbstractIEBase<?>> implementations;
-
+	private JsonFactory jsonF;
+	
 	@Autowired
 	public ImportExportImpl(ObjectMapper objectMapper, DumpUpdater updater,
 			List<AbstractIEBase<?>> implementations)
@@ -59,6 +60,9 @@ public class ImportExportImpl implements ImportExport
 		
 		Collections.sort(implementations, (i1, i2) ->
 			i1.getSortKey() < i2.getSortKey() ? -1 : 1);
+		
+		jsonF = new JsonFactory(objectMapper);
+		jsonF.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
 	}
 
 	@Override
@@ -92,30 +96,30 @@ public class ImportExportImpl implements ImportExport
 	public void load(InputStream is) throws IOException
 	{
 		if (!is.markSupported())
-			throw new IOException("Only InputStreams supporting mark()&reset() are allowed to load from.");
-		
-		JsonFactory jsonF = new JsonFactory(objectMapper);
-		JsonParser jp = jsonF.createParser(is);
-		JsonUtils.nextExpect(jp, JsonToken.START_OBJECT);
-		
-		DumpHeader header = loadHeader(jp);
-
-		is.mark(-1);
-		updater.update(is, header);
+			throw new IllegalArgumentException("Only input streams with mark/reset support can "
+					+ "be used to load imported data");
+		is.mark(1000);
+		DumpHeader header = loadHeader(is);
 		is.reset();
 		
-		JsonUtils.nextExpect(jp, "contents");
+		InputStream isUpdated = updater.update(is, header);
+
+		JsonParser jp2 = jsonF.createParser(isUpdated);
+		
+		JsonUtils.nextExpect(jp2, "contents");
 		
 		for (AbstractIEBase<?> impl: implementations)
 		{
-			JsonUtils.nextExpect(jp, impl.getStoreKey());
-			impl.deserialize(jp);
+			JsonUtils.nextExpect(jp2, impl.getStoreKey());
+			impl.deserialize(jp2);
 		}
-		jp.close();
+		jp2.close();
 	}
 	
-	private DumpHeader loadHeader(JsonParser jp) throws JsonParseException, IOException
+	private DumpHeader loadHeader(InputStream is) throws JsonParseException, IOException
 	{
+		JsonParser jp = jsonF.createParser(is);
+		JsonUtils.nextExpect(jp, JsonToken.START_OBJECT);
 		DumpHeader ret = new DumpHeader();
 		JsonUtils.nextExpect(jp, "versionMajor");
 		ret.setVersionMajor(jp.getIntValue());
@@ -123,6 +127,7 @@ public class ImportExportImpl implements ImportExport
 		ret.setVersionMinor(jp.getIntValue());
 		JsonUtils.nextExpect(jp, "timestamp");
 		ret.setTimestamp(jp.getLongValue());
+		jp.close();
 		return ret;
 	}
 }

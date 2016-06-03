@@ -13,5 +13,11 @@ import java.io.InputStream;
  */
 public interface Update
 {
-	void update(InputStream is) throws IOException;
+	/**
+	 * Performs update on the input stream of original JSON dump. 
+	 * @param is
+	 * @return a new Input stream with updated contents, or the argument stream if unchanged.
+	 * @throws IOException
+	 */
+	InputStream update(InputStream is) throws IOException;
 }

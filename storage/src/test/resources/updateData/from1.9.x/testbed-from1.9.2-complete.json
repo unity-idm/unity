@@ -1,0 +1,3998 @@
+{
+  "versionMajor" : 1,
+  "versionMinor" : 5,
+  "timestamp" : 1464888182416,
+  "contents" : {
+    "attributeTypes" : [ {
+      "id" : 1,
+      "name" : "sys:CredentialRequirements",
+      "contents" : {
+        "flags" : 3,
+        "maxElements" : 1,
+        "minElements" : 1,
+        "selfModificable" : false,
+        "uniqueValues" : false,
+        "visibility" : "local",
+        "syntaxState" : "{\"regexp\":\"\",\"minLength\":0,\"maxLength\":10240}",
+        "displayedName" : {
+          "DefaultValue" : "sys:CredentialRequirements",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : "Defines which credential requirements are set for the owner",
+          "Map" : { }
+        },
+        "metadata" : { }
+      },
+      "valueSyntaxId" : "string"
+    }, {
+      "id" : 2,
+      "name" : "sys:AuthorizationRole",
+      "contents" : {
+        "flags" : 1,
+        "maxElements" : 10,
+        "minElements" : 1,
+        "selfModificable" : false,
+        "uniqueValues" : true,
+        "visibility" : "local",
+        "syntaxState" : "{\"allowed\":[\"Privileged Inspector\",\"Anonymous User\",\"Inspector\",\"Regular User\",\"System Manager\",\"Contents Manager\"]}",
+        "displayedName" : {
+          "DefaultValue" : "sys:AuthorizationRole",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : "Defines what operations are allowed for the bearer. The attribute of this type defines the access in the group where it is defined and in all subgroups. In subgroup it can be redefined to grant more access. Roles:\nSystem Manager - System manager with all privileges.\nContents Manager - Allows for performing all management operations related to groups, entities and attributes. Also allows for reading information about hidden attributes.\nPrivileged Inspector - Allows for reading entities, groups and attributes, including the attributes visible locally only. No modifications are possible\nInspector - Allows for reading entities, groups and attributes. No modifications are possible\nRegular User - Allows owners for reading of the basic system information, retrieval of information about themselves and also for changing passwords and self managed attributes\nAnonymous User - Allows for minimal access to the system: owners can get basic system information and retrieve information about themselves\n",
+          "Map" : { }
+        },
+        "metadata" : { }
+      },
+      "valueSyntaxId" : "enumeration"
+    }, {
+      "id" : 3,
+      "name" : "sys:Preferences",
+      "contents" : {
+        "flags" : 3,
+        "maxElements" : 1,
+        "minElements" : 1,
+        "selfModificable" : false,
+        "uniqueValues" : false,
+        "visibility" : "local",
+        "syntaxState" : "{\"regexp\":\"\",\"minLength\":0,\"maxLength\":10240}",
+        "displayedName" : {
+          "DefaultValue" : "sys:Preferences",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : "Preferences of the user.",
+          "Map" : { }
+        },
+        "metadata" : { }
+      },
+      "valueSyntaxId" : "string"
+    }, {
+      "id" : 4,
+      "name" : "sys:AttributeClasses",
+      "contents" : {
+        "flags" : 3,
+        "maxElements" : 20,
+        "minElements" : 0,
+        "selfModificable" : false,
+        "uniqueValues" : true,
+        "visibility" : "local",
+        "syntaxState" : "{\"regexp\":\"\",\"minLength\":0,\"maxLength\":10240}",
+        "displayedName" : {
+          "DefaultValue" : "sys:AttributeClasses",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : "Attribute classes of the user.",
+          "Map" : { }
+        },
+        "metadata" : { }
+      },
+      "valueSyntaxId" : "string"
+    }, {
+      "id" : 5,
+      "name" : "sys:Credential:Password credential",
+      "contents" : {
+        "flags" : 3,
+        "maxElements" : 1,
+        "minElements" : 1,
+        "selfModificable" : false,
+        "uniqueValues" : false,
+        "visibility" : "local",
+        "syntaxState" : "{\"regexp\":\"\",\"minLength\":0,\"maxLength\":10240}",
+        "displayedName" : {
+          "DefaultValue" : "sys:Credential:Password credential",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : "Credential of Password credential",
+          "Map" : { }
+        },
+        "metadata" : { }
+      },
+      "valueSyntaxId" : "string"
+    }, {
+      "id" : 6,
+      "name" : "sys:Credential:Certificate credential",
+      "contents" : {
+        "flags" : 3,
+        "maxElements" : 1,
+        "minElements" : 1,
+        "selfModificable" : false,
+        "uniqueValues" : false,
+        "visibility" : "local",
+        "syntaxState" : "{\"regexp\":\"\",\"minLength\":0,\"maxLength\":10240}",
+        "displayedName" : {
+          "DefaultValue" : "sys:Credential:Certificate credential",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : "Credential of Certificate credential",
+          "Map" : { }
+        },
+        "metadata" : { }
+      },
+      "valueSyntaxId" : "string"
+    }, {
+      "id" : 7,
+      "name" : "jpegPhoto",
+      "contents" : {
+        "flags" : 0,
+        "maxElements" : 1,
+        "minElements" : 1,
+        "selfModificable" : false,
+        "uniqueValues" : false,
+        "visibility" : "full",
+        "syntaxState" : "{\"maxWidth\":120,\"maxHeight\":120,\"maxSize\":2000000}",
+        "displayedName" : {
+          "DefaultValue" : "jpegPhoto",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : "Small JPEG photo for user's profile",
+          "Map" : { }
+        },
+        "metadata" : { }
+      },
+      "valueSyntaxId" : "jpegImage"
+    }, {
+      "id" : 8,
+      "name" : "cn",
+      "contents" : {
+        "flags" : 0,
+        "maxElements" : 1,
+        "minElements" : 1,
+        "selfModificable" : false,
+        "uniqueValues" : false,
+        "visibility" : "full",
+        "syntaxState" : "{\"regexp\":\"\",\"minLength\":2,\"maxLength\":100}",
+        "displayedName" : {
+          "DefaultValue" : "cn",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : "Common name",
+          "Map" : { }
+        },
+        "metadata" : {
+          "entityDisplayedName" : ""
+        }
+      },
+      "valueSyntaxId" : "string"
+    }, {
+      "id" : 9,
+      "name" : "o",
+      "contents" : {
+        "flags" : 0,
+        "maxElements" : 1,
+        "minElements" : 1,
+        "selfModificable" : false,
+        "uniqueValues" : false,
+        "visibility" : "full",
+        "syntaxState" : "{\"regexp\":\"\",\"minLength\":2,\"maxLength\":33}",
+        "displayedName" : {
+          "DefaultValue" : "o",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : "Organization",
+          "Map" : { }
+        },
+        "metadata" : { }
+      },
+      "valueSyntaxId" : "string"
+    }, {
+      "id" : 11,
+      "name" : "postalcode",
+      "contents" : {
+        "flags" : 0,
+        "maxElements" : 2147483647,
+        "minElements" : 0,
+        "selfModificable" : false,
+        "uniqueValues" : false,
+        "visibility" : "full",
+        "syntaxState" : "{\"regexp\":\"[0-9][0-9]-[0-9][0-9][0-9]\",\"minLength\":0,\"maxLength\":6}",
+        "displayedName" : {
+          "DefaultValue" : "postalcode",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : "Postal code",
+          "Map" : { }
+        },
+        "metadata" : { }
+      },
+      "valueSyntaxId" : "string"
+    }, {
+      "id" : 12,
+      "name" : "height",
+      "contents" : {
+        "flags" : 0,
+        "maxElements" : 1,
+        "minElements" : 1,
+        "selfModificable" : false,
+        "uniqueValues" : false,
+        "visibility" : "full",
+        "syntaxState" : "{\"min\":4.9E-324,\"max\":1.7976931348623157E308}",
+        "displayedName" : {
+          "DefaultValue" : "height",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : "He\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjhHe\n\n\nsdfjkhsdkfjhsd kfjh",
+          "Map" : { }
+        },
+        "metadata" : { }
+      },
+      "valueSyntaxId" : "floatingPoint"
+    }, {
+      "id" : 13,
+      "name" : "urn:unicore:attrType:role",
+      "contents" : {
+        "flags" : 0,
+        "maxElements" : 1,
+        "minElements" : 1,
+        "selfModificable" : false,
+        "uniqueValues" : false,
+        "visibility" : "full",
+        "syntaxState" : "{\"allowed\":[\"server\",\"admin\",\"banned\",\"user\"]}",
+        "displayedName" : {
+          "DefaultValue" : "urn:unicore:attrType:role",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : "User or server role used for UNICORE authorization. The 'user' role provides normal access, 'admin' the full access, 'server' allows for registering in UNICORE registry, 'banned' users have access fully blocked.",
+          "Map" : { }
+        },
+        "metadata" : { }
+      },
+      "valueSyntaxId" : "enumeration"
+    }, {
+      "id" : 14,
+      "name" : "urn:unicore:attrType:xlogin",
+      "contents" : {
+        "flags" : 0,
+        "maxElements" : 16,
+        "minElements" : 1,
+        "selfModificable" : false,
+        "uniqueValues" : false,
+        "visibility" : "full",
+        "syntaxState" : "{\"regexp\":\"\",\"minLength\":1,\"maxLength\":100}",
+        "displayedName" : {
+          "DefaultValue" : "urn:unicore:attrType:xlogin",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : "UNIX account name (uid)",
+          "Map" : { }
+        },
+        "metadata" : { }
+      },
+      "valueSyntaxId" : "string"
+    }, {
+      "id" : 15,
+      "name" : "sys:Credential:Secured password",
+      "contents" : {
+        "flags" : 3,
+        "maxElements" : 1,
+        "minElements" : 1,
+        "selfModificable" : false,
+        "uniqueValues" : false,
+        "visibility" : "local",
+        "syntaxState" : "{\"regexp\":\"\",\"minLength\":0,\"maxLength\":10240}",
+        "displayedName" : {
+          "DefaultValue" : "sys:Credential:Secured password",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : "Credential of Secured password",
+          "Map" : { }
+        },
+        "metadata" : { }
+      },
+      "valueSyntaxId" : "string"
+    }, {
+      "id" : 16,
+      "name" : "sys:oauth:allowedGrantFlows",
+      "contents" : {
+        "flags" : 1,
+        "maxElements" : 5,
+        "minElements" : 1,
+        "selfModificable" : false,
+        "uniqueValues" : true,
+        "visibility" : "local",
+        "syntaxState" : "{\"allowed\":[\"implicit\",\"client\",\"openidHybrid\",\"authorizationCode\"]}",
+        "displayedName" : {
+          "DefaultValue" : "sys:oauth:allowedGrantFlows",
+          "Map" : {
+            "pl" : "Dozwolone granty OAuth",
+            "en" : "OAuth client allowed grants"
+          }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : null,
+          "Map" : {
+            "pl" : "Atrybut klienta OAauth. Definiuje dozwolone granty OAuth dla klienta. Jeśli jest niezdefiniowany tylko Authorization Code grant jest dozwolony.",
+            "en" : "OAuth Client specific attribute. Defines which grants are allowed for the client. If undefined then only the Authorization Code grant is allowed."
+          }
+        },
+        "metadata" : { }
+      },
+      "valueSyntaxId" : "enumeration"
+    }, {
+      "id" : 17,
+      "name" : "sys:oauth:allowedReturnURI",
+      "contents" : {
+        "flags" : 1,
+        "maxElements" : 256,
+        "minElements" : 1,
+        "selfModificable" : false,
+        "uniqueValues" : false,
+        "visibility" : "local",
+        "syntaxState" : "{\"regexp\":\"\",\"minLength\":0,\"maxLength\":10240}",
+        "displayedName" : {
+          "DefaultValue" : "sys:oauth:allowedReturnURI",
+          "Map" : {
+            "pl" : "Powrotny adres klienta OAuth",
+            "en" : "OAuth client return URL"
+          }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : null,
+          "Map" : {
+            "pl" : "Atrybut klienta OAauth. Definiuje dozwolone adresu przekierowań powrotnych. Jest to ważne ustawienie bezpieczeństwa dla grantów authorization code i implicit. Jeśli nie jest ustawiony nie będą one działać dla klienta. ",
+            "en" : "OAuth Client specific attribute. Defines which return redirect URIs are allowed for the client. This is important security measure for the authorization code and implicit grants. If undefined then no URI is allowed and both implicit and authorization code grants will be effectively disabled for the client."
+          }
+        },
+        "metadata" : { }
+      },
+      "valueSyntaxId" : "string"
+    }, {
+      "id" : 18,
+      "name" : "sys:oauth:clientLogo",
+      "contents" : {
+        "flags" : 1,
+        "maxElements" : 1,
+        "minElements" : 1,
+        "selfModificable" : false,
+        "uniqueValues" : false,
+        "visibility" : "local",
+        "syntaxState" : "{\"maxWidth\":400,\"maxHeight\":200,\"maxSize\":4000000}",
+        "displayedName" : {
+          "DefaultValue" : "sys:oauth:clientLogo",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : "OAuth Client specific attribute. Defines a logo which is displayed for the client.",
+          "Map" : { }
+        },
+        "metadata" : { }
+      },
+      "valueSyntaxId" : "jpegImage"
+    }, {
+      "id" : 19,
+      "name" : "sys:oauth:clientName",
+      "contents" : {
+        "flags" : 1,
+        "maxElements" : 1,
+        "minElements" : 1,
+        "selfModificable" : false,
+        "uniqueValues" : false,
+        "visibility" : "local",
+        "syntaxState" : "{\"regexp\":\"\",\"minLength\":0,\"maxLength\":10240}",
+        "displayedName" : {
+          "DefaultValue" : "sys:oauth:clientName",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : "OAuth Client specific attribute. Defines human readable name of the client.",
+          "Map" : { }
+        },
+        "metadata" : { }
+      },
+      "valueSyntaxId" : "string"
+    }, {
+      "id" : 20,
+      "name" : "sys:oauth:groupForClient",
+      "contents" : {
+        "flags" : 1,
+        "maxElements" : 1,
+        "minElements" : 1,
+        "selfModificable" : false,
+        "uniqueValues" : false,
+        "visibility" : "local",
+        "syntaxState" : "{\"regexp\":\"\",\"minLength\":0,\"maxLength\":10240}",
+        "displayedName" : {
+          "DefaultValue" : "sys:oauth:groupForClient",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : "OAuth Client specific attribute. Defines a group path, where users of this client should be present and where their attributes are resolved. This attribute overrides the default group configured per endpoint.",
+          "Map" : { }
+        },
+        "metadata" : { }
+      },
+      "valueSyntaxId" : "string"
+    }, {
+      "id" : 21,
+      "name" : "picture",
+      "contents" : {
+        "flags" : 0,
+        "maxElements" : 10,
+        "minElements" : 0,
+        "selfModificable" : false,
+        "uniqueValues" : false,
+        "visibility" : "full",
+        "syntaxState" : "{\"maxWidth\":900,\"maxHeight\":900,\"maxSize\":1400000}",
+        "displayedName" : {
+          "DefaultValue" : "picture",
+          "Map" : {
+            "pl" : "Zdjęcie",
+            "en" : "Picture"
+          }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : null,
+          "Map" : {
+            "pl" : "Zdjęcie profilowe użytkownika",
+            "en" : "Picture of the user"
+          }
+        },
+        "metadata" : { }
+      },
+      "valueSyntaxId" : "jpegImage"
+    }, {
+      "id" : 22,
+      "name" : "sys:LastAuthentication",
+      "contents" : {
+        "flags" : 3,
+        "maxElements" : 1,
+        "minElements" : 0,
+        "selfModificable" : false,
+        "uniqueValues" : false,
+        "visibility" : "local",
+        "syntaxState" : "{\"regexp\":\"\",\"minLength\":0,\"maxLength\":10240}",
+        "displayedName" : {
+          "DefaultValue" : "sys:LastAuthentication",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : null,
+          "Map" : {
+            "en" : "Stores date and time of the last successful authentication. The format is ISO time in UTC time zone with seconds precision, e.g.: 2011-12-03T10:15:30"
+          }
+        },
+        "metadata" : { }
+      },
+      "valueSyntaxId" : "string"
+    }, {
+      "id" : 23,
+      "name" : "sys:FilledEnquires",
+      "contents" : {
+        "flags" : 1,
+        "maxElements" : 2147483647,
+        "minElements" : 0,
+        "selfModificable" : false,
+        "uniqueValues" : true,
+        "visibility" : "full",
+        "syntaxState" : "{\"regexp\":\"\",\"minLength\":0,\"maxLength\":10240}",
+        "displayedName" : {
+          "DefaultValue" : "sys:FilledEnquires",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : null,
+          "Map" : { }
+        },
+        "metadata" : { }
+      },
+      "valueSyntaxId" : "string"
+    }, {
+      "id" : 24,
+      "name" : "sys:IgnoredEnquires",
+      "contents" : {
+        "flags" : 1,
+        "maxElements" : 2147483647,
+        "minElements" : 0,
+        "selfModificable" : false,
+        "uniqueValues" : true,
+        "visibility" : "full",
+        "syntaxState" : "{\"regexp\":\"\",\"minLength\":0,\"maxLength\":10240}",
+        "displayedName" : {
+          "DefaultValue" : "sys:IgnoredEnquires",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : null,
+          "Map" : { }
+        },
+        "metadata" : { }
+      },
+      "valueSyntaxId" : "string"
+    }, {
+      "id" : 25,
+      "name" : "intAttribute",
+      "contents" : {
+        "flags" : 0,
+        "maxElements" : 1,
+        "minElements" : 1,
+        "selfModificable" : false,
+        "uniqueValues" : false,
+        "visibility" : "full",
+        "syntaxState" : "{\"min\":0,\"max\":9223372036854775807}",
+        "displayedName" : {
+          "DefaultValue" : "intAttribute",
+          "Map" : {
+            "pl" : "całkowity atrybut",
+            "en" : "Int attribute"
+          }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : null,
+          "Map" : { }
+        },
+        "metadata" : { }
+      },
+      "valueSyntaxId" : "integer"
+    }, {
+      "id" : 26,
+      "name" : "email",
+      "contents" : {
+        "flags" : 0,
+        "maxElements" : 1,
+        "minElements" : 1,
+        "selfModificable" : false,
+        "uniqueValues" : false,
+        "visibility" : "full",
+        "syntaxState" : "{}",
+        "displayedName" : {
+          "DefaultValue" : "email",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : null,
+          "Map" : { }
+        },
+        "metadata" : { }
+      },
+      "valueSyntaxId" : "verifiableEmail"
+    } ],
+    "identityTypes" : [ {
+      "id" : 1,
+      "name" : "targetedPersistent",
+      "contents" : {
+        "description" : "Targeted persistent id",
+        "selfModificable" : false,
+        "minInstances" : 0,
+        "maxInstances" : 2147483647,
+        "minVerifiedInstances" : 0,
+        "extractedAttributes" : [ ]
+      }
+    }, {
+      "id" : 2,
+      "name" : "persistent",
+      "contents" : {
+        "description" : "Persistent id",
+        "selfModificable" : false,
+        "minInstances" : 0,
+        "maxInstances" : 2147483647,
+        "minVerifiedInstances" : 0,
+        "extractedAttributes" : [ ]
+      }
+    }, {
+      "id" : 3,
+      "name" : "transient",
+      "contents" : {
+        "description" : "Transient targeted id",
+        "selfModificable" : false,
+        "minInstances" : 0,
+        "maxInstances" : 2147483647,
+        "minVerifiedInstances" : 0,
+        "extractedAttributes" : [ ]
+      }
+    }, {
+      "id" : 4,
+      "name" : "userName",
+      "contents" : {
+        "description" : "Username",
+        "selfModificable" : false,
+        "minInstances" : 0,
+        "maxInstances" : 2147483647,
+        "minVerifiedInstances" : 0,
+        "extractedAttributes" : [ ]
+      }
+    }, {
+      "id" : 5,
+      "name" : "x500Name",
+      "contents" : {
+        "description" : "X.500 Distinguished Name Updated",
+        "selfModificable" : true,
+        "minInstances" : 0,
+        "maxInstances" : 1,
+        "minVerifiedInstances" : 0,
+        "extractedAttributes" : [ ]
+      }
+    }, {
+      "id" : 6,
+      "name" : "identifier",
+      "contents" : {
+        "description" : "Opaque identifier",
+        "selfModificable" : false,
+        "minInstances" : 0,
+        "maxInstances" : 2147483647,
+        "minVerifiedInstances" : 0,
+        "extractedAttributes" : [ ]
+      }
+    }, {
+      "id" : 7,
+      "name" : "email",
+      "contents" : {
+        "description" : "Email",
+        "selfModificable" : false,
+        "minInstances" : 0,
+        "maxInstances" : 2147483647,
+        "minVerifiedInstances" : 0,
+        "extractedAttributes" : [ ]
+      }
+    } ],
+    "entities" : [ {
+      "id" : 1,
+      "name" : null,
+      "contents" : {
+        "state" : "valid"
+      }
+    }, {
+      "id" : 2,
+      "name" : null,
+      "contents" : {
+        "state" : "valid"
+      }
+    }, {
+      "id" : 6,
+      "name" : null,
+      "contents" : {
+        "state" : "valid"
+      }
+    }, {
+      "id" : 7,
+      "name" : null,
+      "contents" : {
+        "state" : "valid"
+      }
+    }, {
+      "id" : 8,
+      "name" : null,
+      "contents" : {
+        "state" : "valid"
+      }
+    }, {
+      "id" : 15,
+      "name" : null,
+      "contents" : {
+        "state" : "valid"
+      }
+    }, {
+      "id" : 17,
+      "name" : null,
+      "contents" : {
+        "state" : "valid"
+      }
+    }, {
+      "id" : 18,
+      "name" : null,
+      "contents" : {
+        "state" : "valid"
+      }
+    }, {
+      "id" : 25,
+      "name" : null,
+      "contents" : {
+        "state" : "valid"
+      }
+    }, {
+      "id" : 29,
+      "name" : null,
+      "contents" : {
+        "state" : "valid"
+      }
+    }, {
+      "id" : 44,
+      "name" : null,
+      "contents" : {
+        "state" : "valid"
+      }
+    }, {
+      "id" : 46,
+      "name" : null,
+      "contents" : {
+        "state" : "valid"
+      }
+    }, {
+      "id" : 47,
+      "name" : null,
+      "contents" : {
+        "state" : "valid"
+      }
+    }, {
+      "id" : 48,
+      "name" : null,
+      "contents" : {
+        "state" : "valid"
+      }
+    } ],
+    "identities" : [ {
+      "id" : 1,
+      "name" : "CiAMFwnAoHWsHwVfQ7lx4Sz/EmE2Lsosc6Ao502jKyr1u6tRGyn7Z1AMuHxrbtIOQkKhNQ9fQa+YX2y+2WWcVw==",
+      "contents" : {
+        "creationTs" : 1464887249209,
+        "updateTs" : 1464887249209,
+        "value" : "admin"
+      },
+      "entityId" : 1,
+      "typeName" : "userName"
+    }, {
+      "id" : 2,
+      "name" : "miMa15wuD2+G0tAuK5FKq/ynDq7ZlRM/sbhrNc4ShWtlABrt0m/+JqUZR0P36hLTCxtQe5w6N/82g5NW6JyGmA==",
+      "contents" : {
+        "creationTs" : 1464887249210,
+        "updateTs" : 1464887249210,
+        "value" : "demo-user"
+      },
+      "entityId" : 2,
+      "typeName" : "userName"
+    }, {
+      "id" : 3,
+      "name" : "Dv9CwUR2FXCl+1yysIqOtr/jd4b0qiIv93ebPtdJ+cUMabu1YfDCflAYv/iBsibznu2MXi9MOIi8FQfAyejoFw==",
+      "contents" : {
+        "creationTs" : 1464887249211,
+        "updateTs" : 1464887249211,
+        "value" : "ab09a1d7-9c20-4929-a77d-3e5fde52758d"
+      },
+      "entityId" : 1,
+      "typeName" : "persistent"
+    }, {
+      "id" : 4,
+      "name" : "7rhLtMbbDP6YBVjVcI8HTC10NZnP7318k2kmtZo4/azUHGNDucHEdS09mko4FFuYTakfTgZ0iWcNCV4aQgOKJg==",
+      "contents" : {
+        "creationTs" : 1464887249212,
+        "updateTs" : 1464887249212,
+        "value" : "1f2456a4-6999-404b-8f96-3883bbc62ba7"
+      },
+      "entityId" : 2,
+      "typeName" : "persistent"
+    }, {
+      "id" : 5,
+      "name" : "AxE99CBPOv7xUf0CEcab7qqWP9xWAkiS00waeazCir9GLT0eilPv8jjwWessk+6VcwWebNP+WvcQQXkWuJZvvw==",
+      "contents" : {
+        "creationTs" : 1464887249213,
+        "updateTs" : 1464887249213,
+        "value" : "cn=user1,ou=users,dc=unity-example,dc=com"
+      },
+      "entityId" : 6,
+      "typeName" : "x500Name"
+    }, {
+      "id" : 6,
+      "name" : "OYch74IalZ0LhWQwT0eIMuzO9a9sONQz2K5bNx5KmU/TDYv91cuq6PoxCuV5Gx9t7ortpnWN5K7dtaN1q8ZVbg==",
+      "contents" : {
+        "creationTs" : 1464887249214,
+        "updateTs" : 1464887249214,
+        "value" : "7b8152fa-93c5-4572-a366-7903f64e65f3"
+      },
+      "entityId" : 6,
+      "typeName" : "persistent"
+    }, {
+      "id" : 7,
+      "name" : "gRl4a5AKVjgzkdz13FSqysNZMQNmvEN8IkwYchMLpRgvzoXP1LUzTOg7n1dRuVMrUSxM1mqIP+3NgRnxQRU8gQ==",
+      "contents" : {
+        "creationTs" : 1464887249214,
+        "updateTs" : 1464887249214,
+        "value" : "test"
+      },
+      "entityId" : 7,
+      "typeName" : "userName"
+    }, {
+      "id" : 8,
+      "name" : "eir7wNlaKvFMs/LdZ8eOYXKrJNnU9KINnxbkm03QWlfcezYLV15w/lPnYzuWlxZ5gyYqBQWDra4p3MBwikWOCw==",
+      "contents" : {
+        "creationTs" : 1464887249215,
+        "updateTs" : 1464887249215,
+        "value" : "d8aefe68-11f2-417f-90ba-30c70f0b90f5"
+      },
+      "entityId" : 7,
+      "typeName" : "persistent"
+    }, {
+      "id" : 9,
+      "name" : "tnrpiHLD2sR+zh+2IdN6XDbfA8tusJkqxft7gky9ZDqEoE8VNx5Iy7+ft1LMfLhWTtWKkBXYGGG70Et2QKUgHg==",
+      "contents" : {
+        "creationTs" : 1464887249254,
+        "updateTs" : 1464887249254,
+        "value" : "krycha"
+      },
+      "entityId" : 8,
+      "typeName" : "userName"
+    }, {
+      "id" : 10,
+      "name" : "vhS4vIZcXAA3kABs/Cn9b7/W2msdicIqTOQifb9D7QO4G7O5oBQK4L62834f8TOCS7nbwFSY3y2mf8Sd1I0qFw==",
+      "contents" : {
+        "creationTs" : 1464887249255,
+        "updateTs" : 1464887249255,
+        "value" : "275fb486-8c7c-47a2-b7cc-61cb61fbe858"
+      },
+      "entityId" : 8,
+      "typeName" : "persistent"
+    }, {
+      "id" : 11,
+      "name" : "o/0vuGaHpL/CZ/UoJjtHZuTEqZnA+0o14cdpd5l29Fp/BjjfJavlXxgzsx3JtuNouOigleuojswJGw/LRRgBTA==",
+      "contents" : {
+        "creationTs" : 1464887249257,
+        "updateTs" : 1464887249257,
+        "value" : "d92f1b59-d593-46ef-8af8-ab7decac20ad",
+        "realm" : "defaultRealm",
+        "target" : "https://unity-2.grid.icm.edu.pl:9081/shibboleth"
+      },
+      "entityId" : 2,
+      "typeName" : "targetedPersistent"
+    }, {
+      "id" : 12,
+      "name" : "ySIjZUC/IQOSxAnM74DLKNAT+geXkeQkF4gf8CBMZbyeW/MLUsvbgTuC4f0juoaRjQZQq0ElNKzSfekQbfPeUw==",
+      "contents" : {
+        "creationTs" : 1464887249257,
+        "updateTs" : 1464887249257,
+        "value" : "3281e594-5e22-4185-96cc-a75ee0f2f9e7",
+        "realm" : "defaultRealm",
+        "target" : "https://unity-2.grid.icm.edu.pl:9081/shibboleth"
+      },
+      "entityId" : 7,
+      "typeName" : "targetedPersistent"
+    }, {
+      "id" : 13,
+      "name" : "FcXK8HoAkZ9Mx4c/r1tn/aaXj3D+kz7Qf2QAhShC6mtcxgLsm0Gv9/tXrp4YctF2JrvIeApGH2Apd9jbUyLJzA==",
+      "contents" : {
+        "creationTs" : 1464887249258,
+        "updateTs" : 1464887249258,
+        "value" : "user1"
+      },
+      "entityId" : 15,
+      "typeName" : "userName"
+    }, {
+      "id" : 14,
+      "name" : "EYyS5Btj7/2en3t0P7BaMVpzWv3bMXmMCfTK4owQyx3bmeVPC8szdskedWv//Qflgvn8OGU+RMset+vKqi5lQw==",
+      "contents" : {
+        "creationTs" : 1464887249259,
+        "updateTs" : 1464887249259,
+        "value" : "bad17871-0528-49b8-9b99-22e886d45f35",
+        "realm" : "defaultRealm",
+        "target" : "https://unity-2.grid.icm.edu.pl:9081/shibboleth"
+      },
+      "entityId" : 15,
+      "typeName" : "targetedPersistent"
+    }, {
+      "id" : 15,
+      "name" : "AcrJagKqRxeFoK0SiGDiMic2bX1iApofLvInu2K8ohjjTOYp/hHju4VUFHC5G8MYXrIehnxf6be7hYg4URdyRQ==",
+      "contents" : {
+        "creationTs" : 1464887249259,
+        "updateTs" : 1464887249259,
+        "value" : "dc64d523-97c5-481b-8a4a-b2a41ea1fb46"
+      },
+      "entityId" : 15,
+      "typeName" : "persistent"
+    }, {
+      "id" : 16,
+      "name" : "gYmWng9mehsm0qK60k3BSjjeVGOXf/b5zzQpGEjO0miJ2slGow4S0Md4NflHno8ScOOhS4jfPGSosqdy7m4Wrw==",
+      "contents" : {
+        "creationTs" : 1464887249260,
+        "updateTs" : 1464887249260,
+        "value" : "test2"
+      },
+      "entityId" : 17,
+      "typeName" : "userName"
+    }, {
+      "id" : 17,
+      "name" : "WI/8/BOUXtwT4H0/91mz1UAkRORuQ9n1TulitLWfuw5CEvfxwQe8hFYw5Gb4qb0dWR3wsJ0TQ+Gk0i9TEHBT7Q==",
+      "contents" : {
+        "creationTs" : 1464887249261,
+        "updateTs" : 1464887249261,
+        "value" : "test3"
+      },
+      "entityId" : 18,
+      "typeName" : "userName"
+    }, {
+      "id" : 18,
+      "name" : "bKsxqYIR62+OU7KpOTUlxYHHYstqfZC8imFnjanZd9q4/AE3ko9w2pNzNt5x/3QRKKMTCKpqv6J8L+65p188Gg==",
+      "contents" : {
+        "creationTs" : 1464887249261,
+        "updateTs" : 1464887249261,
+        "value" : "517ff4e9-5ceb-4428-8165-a9de32ae23ed"
+      },
+      "entityId" : 17,
+      "typeName" : "persistent"
+    }, {
+      "id" : 19,
+      "name" : "v5RJpu9X2QPa1CkfdH60aLIKL6fT6BnTjXIu5+Pn9K10nk2vfN6MNse5MHN7tMwa029rTuWA2jVI4k03BIfjpQ==",
+      "contents" : {
+        "creationTs" : 1464887249262,
+        "updateTs" : 1464887249262,
+        "value" : "b3823095-a830-42b4-ada8-c47b5d7e27ac"
+      },
+      "entityId" : 18,
+      "typeName" : "persistent"
+    }, {
+      "id" : 20,
+      "name" : "AV9MS3VbtttC9iR/E7XPsEHZoXCVYU1ZbLHnaGquaDc8G0c0I+5yyZPyR1l4XSc37RKMCWNFFRgPF6eDIoTOQQ==",
+      "contents" : {
+        "creationTs" : 1464887249263,
+        "updateTs" : 1464887249263,
+        "value" : "b3d111ba-de1a-402a-a8be-34e779c5af90",
+        "realm" : "defaultRealm",
+        "target" : "CN=urc.unity.connectiontest.anonymous.info,OU=Anonymous"
+      },
+      "entityId" : 2,
+      "typeName" : "targetedPersistent"
+    }, {
+      "id" : 21,
+      "name" : "fF0/vmeL/BS1Gl7ZsamumchupRtPdP1mesHFqs7HKZzdsxHytZ8ILtUNI5tDUP6ESK9Qtfoc11q2HDv4YbpKUA==",
+      "contents" : {
+        "creationTs" : 1464887249263,
+        "updateTs" : 1464887249263,
+        "value" : "3ebce049-a889-410f-b853-5ada42e686c5",
+        "realm" : "defaultRealm",
+        "target" : "https://unity-2.grid.icm.edu.pl:9071/DEMO-SITE/services"
+      },
+      "entityId" : 2,
+      "typeName" : "targetedPersistent"
+    }, {
+      "id" : 22,
+      "name" : "OPQwKgZKDrGwYdJnZL8zjLb5pu5m03WZ4dLj3+hdGLVj8Grpujb8CNVA6VRBKy7ymRfeAUYnYrfr+mxO5wKc9w==",
+      "contents" : {
+        "creationTs" : 1464887249264,
+        "updateTs" : 1464887249264,
+        "value" : "b117e73a-3b37-468f-a6ec-a154e4023e00",
+        "realm" : "defaultRealm",
+        "target" : "https://unity-2.grid.icm.edu.pl:9071/services"
+      },
+      "entityId" : 2,
+      "typeName" : "targetedPersistent"
+    }, {
+      "id" : 23,
+      "name" : "jVPuW8DfsAGFYH296MQRC8g7EXFKpso9hbp3utuNe1pCKJSvXEkbu7iqb1F/Csde7JoATlvDBQL7EahEwHfb1A==",
+      "contents" : {
+        "creationTs" : 1464887249314,
+        "updateTs" : 1464887249314,
+        "value" : "4578c762-d9e7-4fbf-a613-b1a05e55818a",
+        "realm" : "defaultRealm",
+        "target" : "CN=Demo UNICORE/X,O=UNICORE,C=EU"
+      },
+      "entityId" : 2,
+      "typeName" : "targetedPersistent"
+    }, {
+      "id" : 24,
+      "name" : "ApXhQzNL1l9Rm5tDI2dMdZQzoh9XyGpOmFNpbMvp6LfNdN+PuVoxy6hi3WsRk7tZcT/UD2iPlQHh73hyMlzL+Q==",
+      "contents" : {
+        "creationTs" : 1464887249314,
+        "updateTs" : 1464887249314,
+        "value" : "ed79ce30-0b11-4ef6-bb43-2e3f741f5fee",
+        "realm" : "defaultRealm",
+        "target" : "https://unity-2.grid.icm.edu.pl:9081/shibboleth"
+      },
+      "entityId" : 6,
+      "typeName" : "targetedPersistent"
+    }, {
+      "id" : 25,
+      "name" : "jMtgvLcFdwQ8zi3GdJlKOTEazazEwnk7ed9581zktWIpa+IQDg844qrft0sFciaDFjuMdIsb1is9bs8ch08XAA==",
+      "contents" : {
+        "creationTs" : 1464887249315,
+        "updateTs" : 1464887249315,
+        "value" : "+uiOSS0TyNzW3XT+KwQaPPEZD6o="
+      },
+      "entityId" : 25,
+      "typeName" : "identifier"
+    }, {
+      "id" : 26,
+      "name" : "T38sHFIXHi6unSV9/B/ydzY7+8MVOVNch7fD+9sod+gThrJjX4JCfQ4kTPk5oMLRI/Keigg+lPBFuWEDmjDE9g==",
+      "contents" : {
+        "creationTs" : 1464887249316,
+        "updateTs" : 1464887249316,
+        "value" : "9990acb8-7f1a-423e-9092-c88701f59831"
+      },
+      "entityId" : 25,
+      "typeName" : "persistent"
+    }, {
+      "id" : 27,
+      "name" : "7AAxJrrV5yFBnPWqehTrohn5YV207ieZeRHLSsIy+lRPuQQEB1uP2gDrTGiXuItdgNlW1js2IfC7J0qDqOfdYg==",
+      "contents" : {
+        "creationTs" : 1464887249317,
+        "updateTs" : 1464887249317,
+        "value" : "CN=Demo UNICORE/X,O=UNICORE,C=EU"
+      },
+      "entityId" : 29,
+      "typeName" : "x500Name"
+    }, {
+      "id" : 28,
+      "name" : "5oe4yUFR9YSvkMTzgeR4KxluKFlJlKrnFx/ync7sJWmXZFYzndiluFS/akbvJLpmORSOox0OcOSAMyt882CrUw==",
+      "contents" : {
+        "creationTs" : 1464887249317,
+        "updateTs" : 1464887249317,
+        "value" : "9e57c65a-f2e4-4e72-9339-db69184268f7"
+      },
+      "entityId" : 29,
+      "typeName" : "persistent"
+    }, {
+      "id" : 29,
+      "name" : "lnTUsg13Rg7Nq1jt2UwNw6MYKHpAH2mtOSE+J1Zq53oTayhe6GZ6xXguhV8K0edSLXlIlu0IBPTPNbxy4BE6IQ==",
+      "contents" : {
+        "creationTs" : 1464887249318,
+        "updateTs" : 1464887249318,
+        "value" : "112eee21-923d-4339-92ba-25aa935fe011",
+        "realm" : "defaultRealm",
+        "target" : ""
+      },
+      "entityId" : 2,
+      "typeName" : "targetedPersistent"
+    }, {
+      "id" : 30,
+      "name" : "j4devD2S5S6s7ILTR74EvUYI+pc/Tpf6xWSpMfyFIuHkpXV5ucfYsjLlsorxFoMQPv/ZT+pmHMqYVkC18Sfmmg==",
+      "contents" : {
+        "creationTs" : 1464887249319,
+        "updateTs" : 1464887249319,
+        "value" : "85903f63-e4f4-4057-9d31-f060044eb844",
+        "realm" : "defaultRealm",
+        "target" : "CN=test"
+      },
+      "entityId" : 2,
+      "typeName" : "targetedPersistent"
+    }, {
+      "id" : 31,
+      "name" : "1GaUKRxj1ylmfPMJkcoN/QE8CaOwHdbdnZ/eF6uoODXkergiqGD/vy7odfvCrn/K1j+Wg8v/cZEiIOrrQ2l9DQ==",
+      "contents" : {
+        "creationTs" : 1464887249320,
+        "updateTs" : 1464887249320,
+        "translationProfile" : "UNICORE profile",
+        "value" : "CN=Steven S,O=ICM,C=PL"
+      },
+      "entityId" : 2,
+      "typeName" : "x500Name"
+    }, {
+      "id" : 32,
+      "name" : "A+RrBCH0LHZRjrcoqV4MJgdb7F0wxVd08jJu2XrSFvM17B/Bjd5jGp2q1PmZdwCroDCECtM5ykLtuTkL9qFXIQ==",
+      "contents" : {
+        "creationTs" : 1464887249320,
+        "updateTs" : 1464887249320,
+        "value" : "hpcs"
+      },
+      "entityId" : 44,
+      "typeName" : "userName"
+    }, {
+      "id" : 33,
+      "name" : "LemuGmhqG+AZO3TbdY+hsn+cCra+kLS9T0IIzEePe1C6R6ufNQQBrBF6HUztF7kkXJzIXvKF54QvSbDTFsyHtw==",
+      "contents" : {
+        "creationTs" : 1464887249321,
+        "updateTs" : 1464887249321,
+        "translationProfile" : "UNICORE profile",
+        "value" : "CN=HPCS demo,O=ICM,C=PL"
+      },
+      "entityId" : 44,
+      "typeName" : "x500Name"
+    }, {
+      "id" : 34,
+      "name" : "vu65X0f/XPPMSDD0iS9N7tH69Noer10CFUmQ09hL7f0Gg2PabRuG9bnBVQk3e8J4xmpMfqVxmYR70yPkRw1OFg==",
+      "contents" : {
+        "creationTs" : 1464887249322,
+        "updateTs" : 1464887249322,
+        "value" : "3275482f-f86a-44dc-9b48-a7a584fcf30f"
+      },
+      "entityId" : 44,
+      "typeName" : "persistent"
+    }, {
+      "id" : 35,
+      "name" : "afUAYBTKC9lF/LVyQXM25FHTqWaOxHnu/n9MusOjc5VZI03x+d+H3j9LVeFw+a1Z0gsc843fCv56Ht63qunv9A==",
+      "contents" : {
+        "creationTs" : 1464887249323,
+        "updateTs" : 1464887249323,
+        "remoteIdp" : "https://accounts.google.com/o/oauth2/token",
+        "translationProfile" : "googleProfile",
+        "value" : "107562911305913164614"
+      },
+      "entityId" : 46,
+      "typeName" : "identifier"
+    }, {
+      "id" : 36,
+      "name" : "VLl7cZm5Pt1W7tp3dKpLl9sod4Z8IkLzeeZzlVWt00U3g+M9kbYdIFcITNL64GAxzjfnYDnBbhi8287b4S2THA==",
+      "contents" : {
+        "creationTs" : 1464887249359,
+        "updateTs" : 1464887249359,
+        "value" : "86e660e3-53a2-4ab0-88df-8cae2c5e3a26"
+      },
+      "entityId" : 46,
+      "typeName" : "persistent"
+    }, {
+      "id" : 37,
+      "name" : "uuU1QT6GL9zGC79gKhl+f5lNy8JcoeD2YDFGOXqdIkPmVNua9X6czq6SejPNDj4hZsbwugi/+PLVIe4bzJ8XNQ==",
+      "contents" : {
+        "creationTs" : 1464887249360,
+        "updateTs" : 1464887249360,
+        "value" : "CN=Demo User,O=UNICORE,C=EU"
+      },
+      "entityId" : 47,
+      "typeName" : "x500Name"
+    }, {
+      "id" : 38,
+      "name" : "Y0JrgK6HE/AmlWoLNFmSMK9EnyGPJ9VZktVqw64UkG6ZC15R5nNNTnmyT6CD+T2y5wyfZQl38yzuI96k39wgsg==",
+      "contents" : {
+        "creationTs" : 1464887249360,
+        "updateTs" : 1464887249360,
+        "value" : "25da93f3-bee8-4560-beb6-f347f0840e68"
+      },
+      "entityId" : 47,
+      "typeName" : "persistent"
+    }, {
+      "id" : 39,
+      "name" : "vjqauItAGBALBpByKcF+L65OThRBmIy0sblMlHYK4U23E+Op1QIVboTTk1hVXxnovR/9r7pwHdCT4rPe1KW8IA==",
+      "contents" : {
+        "creationTs" : 1464887249361,
+        "updateTs" : 1464887249361,
+        "translationProfile" : "UNICORE profile",
+        "value" : "CN=UNICORE Demo user,O=ICM,C=PL"
+      },
+      "entityId" : 47,
+      "typeName" : "x500Name"
+    }, {
+      "id" : 40,
+      "name" : "ePeJKiSGC4rfi2uwcJDDm6IZEku9jNVG6bQRMHS9gK+6DxQV9WIfrD+xB39G7A3TlzvBC0V5Pt/NQyti3u4laA==",
+      "contents" : {
+        "creationTs" : 1464887249362,
+        "updateTs" : 1464887249362,
+        "value" : "4780bfef-2099-46fb-81ef-3206cf3e8b7b",
+        "realm" : "defaultRealm",
+        "target" : "CN=FOO,O=ICM"
+      },
+      "entityId" : 2,
+      "typeName" : "targetedPersistent"
+    }, {
+      "id" : 41,
+      "name" : "aQ9AcJSJf214sbwEjOa5lHxCd4prjc6zlVtKs8tMDyv15gtb/g2RtO7NLnSEP/5crBJK5w446z6j3oxvYbVPEw==",
+      "contents" : {
+        "creationTs" : 1464887249363,
+        "updateTs" : 1464887249363,
+        "value" : "tola",
+        "confirmationInfo" : "{\"confirmed\":false,\"confirmationDate\":0,\"sentRequestAmount\":0}"
+      },
+      "entityId" : 48,
+      "typeName" : "userName"
+    }, {
+      "id" : 42,
+      "name" : "LCV+3vrkrlU9iBZWe3RHneTJ6WD/9RO2/HRqD0KjCpj/tq1tYeZiaOyF3hkqOjq/L72FdxUtbbq1CTdB//Yzdg==",
+      "contents" : {
+        "creationTs" : 1464887249364,
+        "updateTs" : 1464887249364,
+        "value" : "87ceb06c-1cfd-486b-be67-ae2d2a57078b"
+      },
+      "entityId" : 48,
+      "typeName" : "persistent"
+    } ],
+    "groups" : [ {
+      "id" : 1,
+      "name" : "ROOT",
+      "contents" : {
+        "i18nDescription" : {
+          "DefaultValue" : "",
+          "Map" : { }
+        },
+        "displayedName" : {
+          "DefaultValue" : "/",
+          "Map" : { }
+        },
+        "attributeStatements" : [ {
+          "resolution" : "skip",
+          "condition" : "true",
+          "visibility" : "full",
+          "fixedAttribute-attributeId" : 2,
+          "fixedAttribute-attributeGroupId" : 1,
+          "fixedAttribute-attributeValues" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiVW1WbmRXeGhjaUJWYzJWeSJdfQ=="
+        } ],
+        "attributesClasses" : [ ],
+        "description" : ""
+      },
+      "groupPath" : "/"
+    }, {
+      "id" : 2,
+      "name" : "A",
+      "contents" : {
+        "i18nDescription" : {
+          "DefaultValue" : null,
+          "Map" : { }
+        },
+        "displayedName" : {
+          "DefaultValue" : "/A",
+          "Map" : { }
+        },
+        "attributeStatements" : [ ],
+        "attributesClasses" : [ ],
+        "description" : ""
+      },
+      "groupPath" : "/A"
+    }, {
+      "id" : 3,
+      "name" : "D",
+      "contents" : {
+        "i18nDescription" : {
+          "DefaultValue" : null,
+          "Map" : { }
+        },
+        "displayedName" : {
+          "DefaultValue" : "/D",
+          "Map" : { }
+        },
+        "attributeStatements" : [ ],
+        "attributesClasses" : [ ],
+        "description" : ""
+      },
+      "groupPath" : "/D"
+    }, {
+      "id" : 4,
+      "name" : "B",
+      "contents" : {
+        "i18nDescription" : {
+          "DefaultValue" : null,
+          "Map" : { }
+        },
+        "displayedName" : {
+          "DefaultValue" : "/A/B",
+          "Map" : { }
+        },
+        "attributeStatements" : [ ],
+        "attributesClasses" : [ ],
+        "description" : ""
+      },
+      "groupPath" : "/A/B"
+    }, {
+      "id" : 5,
+      "name" : "E",
+      "contents" : {
+        "i18nDescription" : {
+          "DefaultValue" : null,
+          "Map" : {
+            "en" : "with dsc"
+          }
+        },
+        "displayedName" : {
+          "DefaultValue" : "/D/E",
+          "Map" : {
+            "en" : "Some E group"
+          }
+        },
+        "attributeStatements" : [ ],
+        "attributesClasses" : [ "Common attributes" ]
+      },
+      "groupPath" : "/D/E"
+    }, {
+      "id" : 6,
+      "name" : "G",
+      "contents" : {
+        "i18nDescription" : {
+          "DefaultValue" : null,
+          "Map" : { }
+        },
+        "displayedName" : {
+          "DefaultValue" : "/D/G",
+          "Map" : { }
+        },
+        "attributeStatements" : [ ],
+        "attributesClasses" : [ ],
+        "description" : ""
+      },
+      "groupPath" : "/D/G"
+    }, {
+      "id" : 7,
+      "name" : "F",
+      "contents" : {
+        "i18nDescription" : {
+          "DefaultValue" : null,
+          "Map" : { }
+        },
+        "displayedName" : {
+          "DefaultValue" : "/D/F",
+          "Map" : { }
+        },
+        "attributeStatements" : [ ],
+        "attributesClasses" : [ ],
+        "description" : ""
+      },
+      "groupPath" : "/D/F"
+    }, {
+      "id" : 8,
+      "name" : "staff",
+      "contents" : {
+        "i18nDescription" : {
+          "DefaultValue" : "",
+          "Map" : { }
+        },
+        "displayedName" : {
+          "DefaultValue" : "/staff",
+          "Map" : { }
+        },
+        "attributeStatements" : [ {
+          "resolution" : "skip",
+          "visibility" : "full",
+          "condition" : "eattrs contains 'sys:oauth:allowedGrantFlows'",
+          "extraGroup" : "1",
+          "dynamicAttributeName" : "sys:oauth:allowedGrantFlows",
+          "dynamicAttributeExpression" : "eattrs['sys:oauth:allowedGrantFlows']"
+        } ],
+        "attributesClasses" : [ ],
+        "description" : ""
+      },
+      "groupPath" : "/staff"
+    }, {
+      "id" : 9,
+      "name" : "infra",
+      "contents" : {
+        "i18nDescription" : {
+          "DefaultValue" : "",
+          "Map" : { }
+        },
+        "displayedName" : {
+          "DefaultValue" : "/infra",
+          "Map" : { }
+        },
+        "attributeStatements" : [ ],
+        "attributesClasses" : [ ],
+        "description" : ""
+      },
+      "groupPath" : "/infra"
+    }, {
+      "id" : 10,
+      "name" : "C",
+      "contents" : {
+        "i18nDescription" : {
+          "DefaultValue" : null,
+          "Map" : { }
+        },
+        "displayedName" : {
+          "DefaultValue" : "/A/B/C",
+          "Map" : { }
+        },
+        "attributeStatements" : [ ],
+        "attributesClasses" : [ ],
+        "description" : ""
+      },
+      "groupPath" : "/A/B/C"
+    }, {
+      "id" : 11,
+      "name" : "portal",
+      "contents" : {
+        "i18nDescription" : {
+          "DefaultValue" : "",
+          "Map" : { }
+        },
+        "displayedName" : {
+          "DefaultValue" : "/portal",
+          "Map" : { }
+        },
+        "attributeStatements" : [ {
+          "resolution" : "skip",
+          "visibility" : "full",
+          "condition" : "eattrs contains 'cn'",
+          "extraGroup" : "1",
+          "dynamicAttributeName" : "cn",
+          "dynamicAttributeExpression" : "eattrs['cn']"
+        }, {
+          "resolution" : "skip",
+          "visibility" : "full",
+          "condition" : "eattrs contains 'email'",
+          "extraGroup" : "1",
+          "dynamicAttributeName" : "email",
+          "dynamicAttributeExpression" : "eattrs['email']"
+        } ],
+        "attributesClasses" : [ ],
+        "description" : ""
+      },
+      "groupPath" : "/portal"
+    }, {
+      "id" : 12,
+      "name" : "unicore",
+      "contents" : {
+        "i18nDescription" : {
+          "DefaultValue" : "",
+          "Map" : { }
+        },
+        "displayedName" : {
+          "DefaultValue" : "/unicore",
+          "Map" : { }
+        },
+        "attributeStatements" : [ {
+          "resolution" : "skip",
+          "visibility" : "full",
+          "condition" : "eattrs contains 'cn'",
+          "extraGroup" : "1",
+          "dynamicAttributeName" : "cn",
+          "dynamicAttributeExpression" : "eattrs['cn']"
+        } ],
+        "attributesClasses" : [ ],
+        "description" : ""
+      },
+      "groupPath" : "/unicore"
+    }, {
+      "id" : 13,
+      "name" : "kit",
+      "contents" : {
+        "i18nDescription" : {
+          "DefaultValue" : "",
+          "Map" : { }
+        },
+        "displayedName" : {
+          "DefaultValue" : "/infra/kit",
+          "Map" : { }
+        },
+        "attributeStatements" : [ ],
+        "attributesClasses" : [ ],
+        "description" : ""
+      },
+      "groupPath" : "/infra/kit"
+    }, {
+      "id" : 14,
+      "name" : "desy",
+      "contents" : {
+        "i18nDescription" : {
+          "DefaultValue" : "",
+          "Map" : { }
+        },
+        "displayedName" : {
+          "DefaultValue" : "/infra/desy",
+          "Map" : { }
+        },
+        "attributeStatements" : [ ],
+        "attributesClasses" : [ ],
+        "description" : ""
+      },
+      "groupPath" : "/infra/desy"
+    } ],
+    "groupMembers" : [ {
+      "groupPath" : "/",
+      "members" : [ {
+        "entity" : 1,
+        "groupId" : 1,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODY1fQ=="
+      }, {
+        "entity" : 2,
+        "groupId" : 1,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODY2fQ=="
+      }, {
+        "entity" : 6,
+        "groupId" : 1,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODY2fQ=="
+      }, {
+        "entity" : 7,
+        "groupId" : 1,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODY3fQ=="
+      }, {
+        "entity" : 8,
+        "groupId" : 1,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODY3fQ=="
+      }, {
+        "entity" : 15,
+        "groupId" : 1,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODY3fQ=="
+      }, {
+        "entity" : 17,
+        "groupId" : 1,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODY4fQ=="
+      }, {
+        "entity" : 18,
+        "groupId" : 1,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODY4fQ=="
+      }, {
+        "entity" : 25,
+        "groupId" : 1,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODY5fQ=="
+      }, {
+        "entity" : 29,
+        "groupId" : 1,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODY5fQ=="
+      }, {
+        "entity" : 44,
+        "groupId" : 1,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODY5fQ=="
+      }, {
+        "entity" : 46,
+        "groupId" : 1,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODcwfQ=="
+      }, {
+        "entity" : 47,
+        "groupId" : 1,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODcwfQ=="
+      }, {
+        "entity" : 48,
+        "groupId" : 1,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDYyMjEwNDgyNjY2fQ=="
+      } ]
+    }, {
+      "groupPath" : "/A",
+      "members" : [ ]
+    }, {
+      "groupPath" : "/D",
+      "members" : [ ]
+    }, {
+      "groupPath" : "/A/B",
+      "members" : [ ]
+    }, {
+      "groupPath" : "/D/E",
+      "members" : [ ]
+    }, {
+      "groupPath" : "/D/G",
+      "members" : [ ]
+    }, {
+      "groupPath" : "/D/F",
+      "members" : [ ]
+    }, {
+      "groupPath" : "/staff",
+      "members" : [ {
+        "entity" : 1,
+        "groupId" : 8,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODcxfQ=="
+      } ]
+    }, {
+      "groupPath" : "/infra",
+      "members" : [ {
+        "entity" : 25,
+        "groupId" : 9,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODcyfQ=="
+      } ]
+    }, {
+      "groupPath" : "/A/B/C",
+      "members" : [ ]
+    }, {
+      "groupPath" : "/portal",
+      "members" : [ {
+        "entity" : 2,
+        "groupId" : 11,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODcyfQ=="
+      }, {
+        "entity" : 7,
+        "groupId" : 11,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODczfQ=="
+      }, {
+        "entity" : 15,
+        "groupId" : 11,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODc1fQ=="
+      }, {
+        "entity" : 6,
+        "groupId" : 11,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODc2fQ=="
+      } ]
+    }, {
+      "groupPath" : "/unicore",
+      "members" : [ {
+        "entity" : 2,
+        "groupId" : 12,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODc2fQ=="
+      }, {
+        "entity" : 29,
+        "groupId" : 12,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODc3fQ=="
+      }, {
+        "entity" : 44,
+        "groupId" : 12,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODc4fQ=="
+      }, {
+        "entity" : 46,
+        "groupId" : 12,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODc5fQ=="
+      }, {
+        "entity" : 47,
+        "groupId" : 12,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODc5fQ=="
+      } ]
+    }, {
+      "groupPath" : "/infra/kit",
+      "members" : [ ]
+    }, {
+      "groupPath" : "/infra/desy",
+      "members" : [ {
+        "entity" : 25,
+        "groupId" : 14,
+        "contents" : "eyJjcmVhdGlvblRzIjoxNDQ0NDA1NDY1ODgwfQ=="
+      } ]
+    } ],
+    "attributes" : [ {
+      "groupPath" : "/",
+      "entity" : 1,
+      "attributeName" : "sys:CredentialRequirements",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiVUdGemMzZHZjbVFnY21WeGRXbHlaVzFsYm5RPSJdfQ=="
+    }, {
+      "groupPath" : "/",
+      "entity" : 1,
+      "attributeName" : "sys:Credential:Password credential",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiZXlKd1lYTnpkMjl5WkhNaU9sdDdJbWhoYzJnaU9pSkZPR2d6UzIwMFozWTJaRmRMUlZBNFNtVjJOa0UwTVhsNVR6VnVkbTlVVXpGTk9YTlRSazVaUVZaelBTSXNJbk5oYkhRaU9pSXRNamt3TkRReU1UZ3dPREl4TnpZd016RXhOU0lzSW5ScGJXVWlPakUwTmpRNE9EY3lOell5TkRjc0luSmxhR0Z6YUU1MWJXSmxjaUk2TVgxZExDSnZkWFJrWVhSbFpDSTZabUZzYzJWOSJdLCJ1cGRhdGVUcyI6MTQ2NDg4NzI3NjI0OH0="
+    }, {
+      "groupPath" : "/",
+      "entity" : 1,
+      "attributeName" : "sys:AuthorizationRole",
+      "valueSyntaxId" : "enumeration",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiVTNsemRHVnRJRTFoYm1GblpYST0iXX0="
+    }, {
+      "groupPath" : "/",
+      "entity" : 1,
+      "attributeName" : "cn",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoiZnVsbCIsInZhbHVlcyI6WyJVM2x6ZEdWdElFRmtiV2x1YVhOMGNtRjBiM0k9Il19"
+    }, {
+      "groupPath" : "/",
+      "entity" : 2,
+      "attributeName" : "sys:CredentialRequirements",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiVUdGemMzZHZjbVFnY21WeGRXbHlaVzFsYm5RPSJdfQ=="
+    }, {
+      "groupPath" : "/",
+      "entity" : 2,
+      "attributeName" : "sys:AuthorizationRole",
+      "valueSyntaxId" : "enumeration",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiVW1WbmRXeGhjaUJWYzJWeSJdfQ=="
+    }, {
+      "groupPath" : "/",
+      "entity" : 2,
+      "attributeName" : "o",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoiZnVsbCIsInZhbHVlcyI6WyJSWGhoYlhCc1pTQnZjbWRoYm1sNllYUnBiMjQ9Il19"
+    }, {
+      "groupPath" : "/",
+      "entity" : 2,
+      "attributeName" : "cn",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoiZnVsbCIsInZhbHVlcyI6WyJVM1JsZG1WdUlGTT0iXX0="
+    }, {
+      "groupPath" : "/",
+      "entity" : 2,
+      "attributeName" : "sys:Credential:Password credential",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiZXlKd1lYTnpkMjl5WkhNaU9sdDdJbWhoYzJnaU9pSXlTRXRIVGt0MGJGVndVM041TjJORVN6bHBiMEpPTUZKT1VIaEpjRVk1T1RSV1EzVnJjbTV6TDJwelBTSXNJbk5oYkhRaU9pSTNPVGM1TkRJNU5UUTNOalV4TVRnek9URXlJaXdpZEdsdFpTSTZNVFExTWpZNU5UUXlORFUwTnl3aWNtVm9ZWE5vVG5WdFltVnlJam94ZlYwc0ltOTFkR1JoZEdWa0lqcG1ZV3h6WlgwPSJdLCJ1cGRhdGVUcyI6MTQ1MjY5NTQyNDU0OH0="
+    }, {
+      "groupPath" : "/",
+      "entity" : 6,
+      "attributeName" : "sys:CredentialRequirements",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiVUdGemMzZHZjbVFnY21WeGRXbHlaVzFsYm5RPSJdfQ=="
+    }, {
+      "groupPath" : "/",
+      "entity" : 6,
+      "attributeName" : "cn",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoiZnVsbCIsInZhbHVlcyI6WyJkWE5sY2pFPSJdfQ=="
+    }, {
+      "groupPath" : "/",
+      "entity" : 7,
+      "attributeName" : "sys:CredentialRequirements",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiVUdGemMzZHZjbVFnY21WeGRXbHlaVzFsYm5RPSJdfQ=="
+    }, {
+      "groupPath" : "/",
+      "entity" : 7,
+      "attributeName" : "o",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoiZnVsbCIsInZhbHVlcyI6WyJTVzV6ZEdsMGRYUmxJRUU9Il19"
+    }, {
+      "groupPath" : "/",
+      "entity" : 7,
+      "attributeName" : "cn",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoiZnVsbCIsInZhbHVlcyI6WyJZUzExYzJWeSJdfQ=="
+    }, {
+      "groupPath" : "/",
+      "entity" : 8,
+      "attributeName" : "sys:CredentialRequirements",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiVUdGemMzZHZjbVFnY21WeGRXbHlaVzFsYm5RPSJdfQ=="
+    }, {
+      "groupPath" : "/",
+      "entity" : 8,
+      "attributeName" : "cn",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoiZnVsbCIsInZhbHVlcyI6WyJVbTl0WVc0PSJdfQ=="
+    }, {
+      "groupPath" : "/",
+      "entity" : 8,
+      "attributeName" : "sys:Credential:Password credential",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiZXlKd1lYTnpkMjl5WkhNaU9sdDdJbWhoYzJnaU9pSldLemc1T1c1d2VYQjFVRlV4VkZjM05sVktlWFJ0V1UxeGIxQkpVRlJVU2pNMU5FcDFkblpPYmpGSlBTSXNJbk5oYkhRaU9pSXROVFV4TmprMk9URXpJaXdpZEdsdFpTSTZNVFF3TURBeE9USTVPVEF4T1gxZExDSnZkWFJrWVhSbFpDSTZabUZzYzJWOSJdfQ=="
+    }, {
+      "groupPath" : "/",
+      "entity" : 8,
+      "attributeName" : "sys:AuthorizationRole",
+      "valueSyntaxId" : "enumeration",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiVUhKcGRtbHNaV2RsWkNCSmJuTndaV04wYjNJPSJdfQ=="
+    }, {
+      "groupPath" : "/",
+      "entity" : 2,
+      "attributeName" : "sys:Preferences",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiZXlKd2JDNWxaSFV1YVdOdExuVnVhWFI1TG5OaGJXd3VhV1J3TG5CeVpXWmxjbVZ1WTJWekxsTmhiV3hRY21WbVpYSmxibU5sY3lJNkludGNJbk53VTJWMGRHbHVaM05jSWpwN2ZYMGlMQ0p3YkM1bFpIVXVhV050TG5WdWFYUjVMblZ1YVdOdmNtVXVjMkZ0Ykdsa2NDNXdjbVZtWlhKbGJtTmxjeTVUWVcxc1VISmxabVZ5Wlc1alpYTlhhWFJvUlZSRUlqb2llMXdpYzNCVFpYUjBhVzVuYzF3aU9udDlMRndpYzNCRmRHUlRaWFIwYVc1bmMxd2lPbnQ5ZlNKOSJdLCJ1cGRhdGVUcyI6MTQwNTcwNjYzNDc2NX0="
+    }, {
+      "groupPath" : "/",
+      "entity" : 7,
+      "attributeName" : "sys:Preferences",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiZXlKd2JDNWxaSFV1YVdOdExuVnVhWFI1TG5OaGJXd3VhV1J3TG5CeVpXWmxjbVZ1WTJWekxsTmhiV3hRY21WbVpYSmxibU5sY3lJNkludGNJbk53VTJWMGRHbHVaM05jSWpwN2ZYMGlmUT09Il19"
+    }, {
+      "groupPath" : "/",
+      "entity" : 15,
+      "attributeName" : "sys:CredentialRequirements",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiVUdGemMzZHZjbVFnY21WeGRXbHlaVzFsYm5RPSJdfQ=="
+    }, {
+      "groupPath" : "/",
+      "entity" : 15,
+      "attributeName" : "cn",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoiZnVsbCIsInZhbHVlcyI6WyJWWE5sY2pFZ2MzVnlibUZ0WlE9PSJdfQ=="
+    }, {
+      "groupPath" : "/",
+      "entity" : 15,
+      "attributeName" : "sys:Preferences",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiZXlKd2JDNWxaSFV1YVdOdExuVnVhWFI1TG5OaGJXd3VhV1J3TG5CeVpXWmxjbVZ1WTJWekxsTmhiV3hRY21WbVpYSmxibU5sY3lJNkludGNJbk53VTJWMGRHbHVaM05jSWpwN2ZYMGlmUT09Il19"
+    }, {
+      "groupPath" : "/",
+      "entity" : 17,
+      "attributeName" : "sys:CredentialRequirements",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiVTJWamRYSmxaQ0J3WVhOemQyOXlaQ0J2Ym14NSJdfQ=="
+    }, {
+      "groupPath" : "/",
+      "entity" : 17,
+      "attributeName" : "o",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoiZnVsbCIsInZhbHVlcyI6WyJTVU5OIl19"
+    }, {
+      "groupPath" : "/",
+      "entity" : 17,
+      "attributeName" : "cn",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoiZnVsbCIsInZhbHVlcyI6WyJWR1Z6ZENCVmMyVnlNZz09Il19"
+    }, {
+      "groupPath" : "/",
+      "entity" : 17,
+      "attributeName" : "sys:Credential:Password credential",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiZXlKd1lYTnpkMjl5WkhNaU9sdDdJbWhoYzJnaU9pSXhRV1pzWVRSQmNuSmpVRXBLTkc4M09VUTNka2hITmxaNVFXOUhORlZ6ZVZGc05URjVUM0kyVERaSlBTSXNJbk5oYkhRaU9pSXhNams0TXpVeU56TTNJaXdpZEdsdFpTSTZNVFF3TURFMk1ESXhNekl4TVgxZExDSnZkWFJrWVhSbFpDSTZabUZzYzJWOSJdfQ=="
+    }, {
+      "groupPath" : "/",
+      "entity" : 18,
+      "attributeName" : "sys:CredentialRequirements",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiVUdGemMzZHZjbVFnY21WeGRXbHlaVzFsYm5RPSJdfQ=="
+    }, {
+      "groupPath" : "/",
+      "entity" : 18,
+      "attributeName" : "o",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoiZnVsbCIsInZhbHVlcyI6WyJTVU5OIl19"
+    }, {
+      "groupPath" : "/",
+      "entity" : 18,
+      "attributeName" : "cn",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoiZnVsbCIsInZhbHVlcyI6WyJWR1Z6ZENCVmMyVnlNdz09Il19"
+    }, {
+      "groupPath" : "/",
+      "entity" : 18,
+      "attributeName" : "sys:Credential:Password credential",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiZXlKd1lYTnpkMjl5WkhNaU9sdDdJbWhoYzJnaU9pSXpaelZKWmpsd1dXVkdWbWN6VEVjNWVVdDROekJQTWxwaVRWZ3ZNVEEzWkVSbFYxcE9hMGRUZERsQlBTSXNJbk5oYkhRaU9pSXROalUyT0RZek56UWlMQ0owYVcxbElqb3hOREF3TVRZd01qSTROamN4ZlYwc0ltOTFkR1JoZEdWa0lqcG1ZV3h6WlgwPSJdfQ=="
+    }, {
+      "groupPath" : "/",
+      "entity" : 1,
+      "attributeName" : "sys:Preferences",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiZXlKd2JDNWxaSFV1YVdOdExuVnVhWFI1TG5kbFltRmtiV2x1TG1sa1pXNTBhWFJwWlhNdVNXUmxiblJwZEdsbGMxUmhZbXhsVUhKbFptVnlaVzVqWlhNaU9pSjdYQ0pqYjJ4VFpYUjBhVzVuYzF3aU9udGNJbVI1Ym1GdGFXTmNJanA3WENKM2FXUjBhRndpT2pFd01DeGNJbTl5WkdWeVhDSTZOaXhjSW1OdmJHeGhjSE5sWkZ3aU9uUnlkV1Y5TEZ3aWFXUmxiblJwZEhsY0lqcDdYQ0ozYVdSMGFGd2lPaTB4TEZ3aWIzSmtaWEpjSWpveUxGd2lZMjlzYkdGd2MyVmtYQ0k2Wm1Gc2MyVjlMRndpWTNKbFpGSmxjVndpT250Y0luZHBaSFJvWENJNk1UZ3dMRndpYjNKa1pYSmNJam8xTEZ3aVkyOXNiR0Z3YzJWa1hDSTZkSEoxWlgwc1hDSnlaV0ZzYlZ3aU9udGNJbmRwWkhSb1hDSTZNVEF3TEZ3aWIzSmtaWEpjSWpvM0xGd2lZMjlzYkdGd2MyVmtYQ0k2ZEhKMVpYMHNYQ0p6ZEdGMGRYTmNJanA3WENKM2FXUjBhRndpT2pFd01DeGNJbTl5WkdWeVhDSTZNeXhjSW1OdmJHeGhjSE5sWkZ3aU9tWmhiSE5sZlN4Y0ltVnVkR2wwZVZ3aU9udGNJbmRwWkhSb1hDSTZNakF3TEZ3aWIzSmtaWEpjSWpvd0xGd2lZMjlzYkdGd2MyVmtYQ0k2Wm1Gc2MyVjlMRndpZEdGeVoyVjBYQ0k2ZTF3aWQybGtkR2hjSWpveE9EQXNYQ0p2Y21SbGNsd2lPamdzWENKamIyeHNZWEJ6WldSY0lqcDBjblZsZlN4Y0lteHZZMkZzWENJNmUxd2lkMmxrZEdoY0lqb3hNREFzWENKdmNtUmxjbHdpT2pRc1hDSmpiMnhzWVhCelpXUmNJanAwY25WbGZTeGNJblI1Y0dWY0lqcDdYQ0ozYVdSMGFGd2lPakV3TUN4Y0ltOXlaR1Z5WENJNk1TeGNJbU52Ykd4aGNITmxaRndpT21aaGJITmxmU3hjSW5KbGJXOTBaVWxrVUZ3aU9udGNJbmRwWkhSb1hDSTZNakF3TEZ3aWIzSmtaWEpjSWpvNUxGd2lZMjlzYkdGd2MyVmtYQ0k2ZEhKMVpYMHNYQ0p3Y205bWFXeGxYQ0k2ZTF3aWQybGtkR2hjSWpveE1EQXNYQ0p2Y21SbGNsd2lPakV3TEZ3aVkyOXNiR0Z3YzJWa1hDSTZkSEoxWlgxOUxGd2lZMmhsWTJ0Q2IzaFRaWFIwYVc1bmMxd2lPbnRjSW1keWIzVndRbmxGYm5ScGRHbGxjMXdpT25SeWRXVXNYQ0p6YUc5M1ZHRnlaMlYwWldSY0lqcG1ZV3h6WlgxOUluMD0iXSwidXBkYXRlVHMiOjE0MDU2MDM5MTE4MTh9"
+    }, {
+      "groupPath" : "/",
+      "entity" : 6,
+      "attributeName" : "sys:Preferences",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiZXlKd2JDNWxaSFV1YVdOdExuVnVhWFI1TG5OaGJXd3VhV1J3TG5CeVpXWmxjbVZ1WTJWekxsTmhiV3hRY21WbVpYSmxibU5sY3lJNkludGNJbk53VTJWMGRHbHVaM05jSWpwN2ZYMGlmUT09Il19"
+    }, {
+      "groupPath" : "/",
+      "entity" : 17,
+      "attributeName" : "sys:Credential:Secured password",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiZXlKd1lYTnpkMjl5WkhNaU9sdDdJbWhoYzJnaU9pSnBVbTVCTDNwaVZqaGxRMUoyU1c4MlkwbFlkalZwUldwRlFVOXVjMjlKVEVKR1VtRjJOVkZEVTFOblBTSXNJbk5oYkhRaU9pSXhNRFkxTnpjM09ESTNJaXdpZEdsdFpTSTZNVFF3TWpZMU5qRTBOamt4T0gxZExDSnZkWFJrWVhSbFpDSTZabUZzYzJVc0luRjFaWE4wYVc5dUlqb2lXVzkxY2lCd1pYUW5jeUJ1WVcxbElpd2lZVzV6ZDJWeVNHRnphQ0k2SWxWTGEzVXdLM1Z3V2pWR1NsaDFVbU55WXpnM05sb3ZiWFYzWVRCWWIzUXpkbHBsZWtSSk9FVXhkbFU5SW4wPSJdfQ=="
+    }, {
+      "groupPath" : "/",
+      "entity" : 25,
+      "attributeName" : "sys:CredentialRequirements",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiVUdGemMzZHZjbVFnY21WeGRXbHlaVzFsYm5RPSJdfQ=="
+    }, {
+      "groupPath" : "/",
+      "entity" : 25,
+      "attributeName" : "cn",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoiZnVsbCIsInZhbHVlcyI6WyJVR0YxYkNCTmFXeHNZWEk9Il19"
+    }, {
+      "groupPath" : "/",
+      "entity" : 29,
+      "attributeName" : "sys:CredentialRequirements",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiVUdGemMzZHZjbVFnY21WeGRXbHlaVzFsYm5RPSJdLCJjcmVhdGlvblRzIjoxNDA1Njg3OTI3NjQ1LCJ1cGRhdGVUcyI6MTQwNTY4NzkyNzY0NX0="
+    }, {
+      "groupPath" : "/",
+      "entity" : 29,
+      "attributeName" : "cn",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoiZnVsbCIsInZhbHVlcyI6WyJWVzVwWTI5eVpTOVlJSE5sY25abGNnPT0iXSwiY3JlYXRpb25UcyI6MTQwNTY4ODA2MTc3MiwidXBkYXRlVHMiOjE0MDU2ODgwNjE3NzJ9"
+    }, {
+      "groupPath" : "/",
+      "entity" : 29,
+      "attributeName" : "sys:AuthorizationRole",
+      "valueSyntaxId" : "enumeration",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiU1c1emNHVmpkRzl5Il0sImNyZWF0aW9uVHMiOjE0MDU2ODgzMjQ5NjksInVwZGF0ZVRzIjoxNDA1Njg4MzI0OTY5fQ=="
+    }, {
+      "groupPath" : "/",
+      "entity" : 44,
+      "attributeName" : "sys:CredentialRequirements",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiVUdGemMzZHZjbVFnY21WeGRXbHlaVzFsYm5RPSJdLCJjcmVhdGlvblRzIjoxNDA1OTU5NzI3OTczLCJ1cGRhdGVUcyI6MTQwNTk1OTcyNzk3M30="
+    }, {
+      "groupPath" : "/",
+      "entity" : 44,
+      "attributeName" : "cn",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoiZnVsbCIsInZhbHVlcyI6WyJTRkJEVXlCa1pXMXYiXSwiY3JlYXRpb25UcyI6MTQwNTk1OTcyNzk4NSwidXBkYXRlVHMiOjE0MDU5NTk3Mjc5ODV9"
+    }, {
+      "groupPath" : "/",
+      "entity" : 44,
+      "attributeName" : "sys:Credential:Password credential",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiZXlKd1lYTnpkMjl5WkhNaU9sdDdJbWhoYzJnaU9pSXllbUl6ZDAwMmMyVkNNVU5NWTNKYVEyUjZZM3BCYnpkYVIxTm5TSEpETW1KWmJFdDFSVmxqUzJKRlBTSXNJbk5oYkhRaU9pSXRNVEV3TURFM09ETTVPU0lzSW5ScGJXVWlPakUwTURVNU5UazNNamM0TlRoOVhTd2liM1YwWkdGMFpXUWlPbVpoYkhObGZRPT0iXSwiY3JlYXRpb25UcyI6MTQwNTk1OTcyODAxNiwidXBkYXRlVHMiOjE0MDU5NTk3MjgwMTZ9"
+    }, {
+      "groupPath" : "/",
+      "entity" : 44,
+      "attributeName" : "sys:Preferences",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiZXlKd2JDNWxaSFV1YVdOdExuVnVhWFI1TG5WdWFXTnZjbVV1YzJGdGJHbGtjQzV3Y21WbVpYSmxibU5sY3k1VFlXMXNVSEpsWm1WeVpXNWpaWE5YYVhSb1JWUkVJam9pZTF3aWMzQlRaWFIwYVc1bmMxd2lPbnQ5TEZ3aWMzQkZkR1JUWlhSMGFXNW5jMXdpT250OWZTSjkiXSwiY3JlYXRpb25UcyI6MTQwNTk1OTg2ODE4MywidXBkYXRlVHMiOjE0MDU5NTk4NjgxODN9"
+    }, {
+      "groupPath" : "/",
+      "entity" : 46,
+      "attributeName" : "sys:CredentialRequirements",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiVUdGemMzZHZjbVFnY21WeGRXbHlaVzFsYm5RPSJdLCJjcmVhdGlvblRzIjoxNDA2MDM4ODM5NzEyLCJ1cGRhdGVUcyI6MTQwNjAzODgzOTcxMn0="
+    }, {
+      "groupPath" : "/",
+      "entity" : 46,
+      "attributeName" : "cn",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoiZnVsbCIsInJlbW90ZUlkcCI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbS9vL29hdXRoMi90b2tlbiIsInRyYW5zbGF0aW9uUHJvZmlsZSI6Imdvb2dsZVByb2ZpbGUiLCJ2YWx1ZXMiOlsiUzNKNmVYTjZkRzltSUVKbGJtVmtlV042WVdzPSJdLCJjcmVhdGlvblRzIjoxNDA2MDM4ODM5NzE4LCJ1cGRhdGVUcyI6MTQwNjAzODgzOTc0Nn0="
+    }, {
+      "groupPath" : "/",
+      "entity" : 47,
+      "attributeName" : "sys:CredentialRequirements",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiUTJWeWRHbG1hV05oZEdVZ0ppQndZWE56ZDI5eVpBPT0iXSwiY3JlYXRpb25UcyI6MTQwNjY0OTA5MTE4MCwidXBkYXRlVHMiOjE0MDY2NDkwOTExODB9"
+    }, {
+      "groupPath" : "/",
+      "entity" : 47,
+      "attributeName" : "cn",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoiZnVsbCIsInZhbHVlcyI6WyJWVTVKUTA5U1JTQkVaVzF2SUhWelpYST0iXSwiY3JlYXRpb25UcyI6MTQwNjY0OTEwNjY3NSwidXBkYXRlVHMiOjE0MDY2NDkxMDY2NzV9"
+    }, {
+      "groupPath" : "/",
+      "entity" : 1,
+      "attributeName" : "sys:LastAuthentication",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiTWpBeE5pMHdOaTB3TWxReE9Ub3dOem96Tmc9PSJdLCJjcmVhdGlvblRzIjoxNDU5OTQ2NTE4MzQwLCJ1cGRhdGVUcyI6MTQ2NDg4NzI1Njg5M30="
+    }, {
+      "groupPath" : "/",
+      "entity" : 48,
+      "attributeName" : "sys:CredentialRequirements",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiVUdGemMzZHZjbVFnY21WeGRXbHlaVzFsYm5RPSJdLCJjcmVhdGlvblRzIjoxNDYyMjEwNDgyNjY4LCJ1cGRhdGVUcyI6MTQ2MjIxMDQ4MjY2OH0="
+    }, {
+      "groupPath" : "/",
+      "entity" : 48,
+      "attributeName" : "cn",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoiZnVsbCIsInZhbHVlcyI6WyJWRzlzWVNCVVpYTjBiM2R2Il0sImNyZWF0aW9uVHMiOjE0NjIyMTA0OTUxMDgsInVwZGF0ZVRzIjoxNDYyMjEwNDk1MTA4fQ=="
+    }, {
+      "groupPath" : "/",
+      "entity" : 48,
+      "attributeName" : "sys:Credential:Password credential",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiZXlKd1lYTnpkMjl5WkhNaU9sdDdJbWhoYzJnaU9pSkdLemRPU3poWFNsYzBaeXRVWmxCRVQxcHpPRmR5YTNOclpubzRPVXRFTTJacVZ5OVphVXAwY0RJNFBTSXNJbk5oYkhRaU9pSTBOVGd4T0RRMU9EY3lNakF3TVRjMk9EZzFJaXdpZEdsdFpTSTZNVFEyTWpJeE1EVXhPRGcyTXl3aWNtVm9ZWE5vVG5WdFltVnlJam94ZlYwc0ltOTFkR1JoZEdWa0lqcG1ZV3h6WlgwPSJdLCJjcmVhdGlvblRzIjoxNDYyMjEwNTE4ODY0LCJ1cGRhdGVUcyI6MTQ2MjIxMDUxODg2NH0="
+    }, {
+      "groupPath" : "/",
+      "entity" : 48,
+      "attributeName" : "sys:LastAuthentication",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiTWpBeE5pMHdOUzB5TTFReE56b3dORG94TVE9PSJdLCJjcmVhdGlvblRzIjoxNDY0MDE1NzEzNTA4LCJ1cGRhdGVUcyI6MTQ2NDAxNTg1MTg4M30="
+    }, {
+      "groupPath" : "/",
+      "entity" : 1,
+      "attributeName" : "sys:FilledEnquires",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoiZnVsbCIsInZhbHVlcyI6WyJUbVYzSUdWdWNYVnBjbms9Il0sImNyZWF0aW9uVHMiOjE0NjQ4ODgwMDc3MTcsInVwZGF0ZVRzIjoxNDY0ODg4MDA3NzE3fQ=="
+    }, {
+      "groupPath" : "/staff",
+      "entity" : 1,
+      "attributeName" : "cn",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoiZnVsbCIsInZhbHVlcyI6WyJSR1Z0YnlCaFpHMXBiZz09Il19"
+    }, {
+      "groupPath" : "/portal",
+      "entity" : 2,
+      "attributeName" : "jpegPhoto",
+      "valueSyntaxId" : "jpegImage",
+      "values" : "eyJ2aXNpYmlsaXR5IjoiZnVsbCIsInZhbHVlcyI6WyIvOWovNEFBUVNrWkpSZ0FCQWdBQUFRQUJBQUQvMndCREFBZ0dCZ2NHQlFnSEJ3Y0pDUWdLREJRTkRBc0xEQmtTRXc4VUhSb2ZIaDBhSEJ3Z0pDNG5JQ0lzSXh3Y0tEY3BMREF4TkRRMEh5YzVQVGd5UEM0ek5ETC8yd0JEQVFrSkNRd0xEQmdORFJneUlSd2hNakl5TWpJeU1qSXlNakl5TWpJeU1qSXlNakl5TWpJeU1qSXlNakl5TWpJeU1qSXlNakl5TWpJeU1qSXlNakl5TWpML3dBQVJDQUJrQUhnREFTSUFBaEVCQXhFQi84UUFId0FBQVFVQkFRRUJBUUVBQUFBQUFBQUFBQUVDQXdRRkJnY0lDUW9MLzhRQXRSQUFBZ0VEQXdJRUF3VUZCQVFBQUFGOUFRSURBQVFSQlJJaE1VRUdFMUZoQnlKeEZES0JrYUVJSTBLeHdSVlMwZkFrTTJKeWdna0tGaGNZR1JvbEppY29LU28wTlRZM09EazZRMFJGUmtkSVNVcFRWRlZXVjFoWldtTmtaV1puYUdscWMzUjFkbmQ0ZVhxRGhJV0doNGlKaXBLVGxKV1dsNWlabXFLanBLV21wNmlwcXJLenRMVzJ0N2k1dXNMRHhNWEd4OGpKeXRMVDFOWFcxOWpaMnVIaTQrVGw1dWZvNmVyeDh2UDA5ZmIzK1BuNi84UUFId0VBQXdFQkFRRUJBUUVCQVFBQUFBQUFBQUVDQXdRRkJnY0lDUW9MLzhRQXRSRUFBZ0VDQkFRREJBY0ZCQVFBQVFKM0FBRUNBeEVFQlNFeEJoSkJVUWRoY1JNaU1vRUlGRUtSb2JIQkNTTXpVdkFWWW5MUkNoWWtOT0VsOFJjWUdSb21KeWdwS2pVMk56ZzVPa05FUlVaSFNFbEtVMVJWVmxkWVdWcGpaR1ZtWjJocGFuTjBkWFozZUhsNmdvT0VoWWFIaUltS2twT1VsWmFYbUptYW9xT2twYWFucUttcXNyTzB0YmEzdUxtNndzUEV4Y2JIeU1uSzB0UFUxZGJYMk5uYTR1UGs1ZWJuNk9ucTh2UDA5ZmIzK1BuNi85b0FEQU1CQUFJUkF4RUFQd0R6VVZKR09lYVlPbFNSOWE3VWNMSmF6cDU0M2syS1FaVTVHT2UvWSt0YUR1RVVzVDBGYWZoL1EvdFRTelNKOHU3Ymx3UUNPdU1aNXhqcGpybnIyd3hFdGtiNGFPN01GWWJ1RUIyUjBkc012bUFEY01rWngzNkdybHNMcVZGYVJRY1NBcURFQVNmcUJ3Zjg0cnRZOUpENm9GQlV4S20xVkpMWkdRYyttZmxIT01FQVYwOXBaV3lLQjVTRmNZd1FDZjFyejV6c2VwU3A4eU9BaHNHdU0rWWZKR3pEaFVHMXNIcVNvNmdnY1k0QjYwK2Z3N0lnaGx0V01oQ2diMndEM3hrZDhqSGJ0K0ZlbnhXTm9GeXNFYXQvZVVBVk05akN5QU1xa0FkV0hQNG1vVlExZEU4YWZTY1hBYWEybUxqQlh5U0dBNHlCemc5ZXZQdFdiY3BkcE9HMlBsZ0ZDckdDUHBnZFB3eG4rZnRFbW1SY0JWSUk2K3ZUOWF6YjNUb2pFOFR3b1VMYzhkYXVOUWlWQldQTGJQVVdXSVI3bFA4QURra2JRdkdmNWpyMDZWcnhPU3JGM3l3NExmNER2N1ZEcW1nclkzRWtzUlFSeWNnTTNRanRqdU92SFlnZE84OEVNbHZZK2VpMjZtS1JWVkNOeFBIM2lleHdRUDA2MTFRcVBvY0ZXaXRtV0dBeUZBSVljSGprMDVWY1B0SUlQdnhWZTJsTXJiMytWdXE3WFBPTS93QmNuMDQ3OXJVZVRrSG9Ebi9HdXBTZHJubTFJS01yRHdNTnRMRDZqbWlvamhYd0NTUGNVVnBkOXpJNUljY1ZMR1BtNTRxUGdaSFgzcVZDQWNjMUZ6cFk1bHhKRWNuT2NnQTlTQm11dzBZeUNJZk9HWjF3V1pNcU1rWnlPZ0grejdpdVZqalNRcDVwMm9Nbko0QS96elhWNlR0ZUtQSmRFVW5JeGdrZ2R6azQvVHJYRlZkNXM3NkN0QkhRV0svSjVqZ0IyNjRicHovOWV0U0JjaFJnZ2V2dldSYlB0a0toZHZPRDZmbDIrbGJWdmo1ZTljTlIzWjZ0SldpYWNNVGNFRTVxNEkzQ2dFWXo2MVV0cE1LYzhjWVBhcnU4b20zKzhPVG5wei85YXBOV1U1aytVOEdzaTZJTEhPQnhXMU1jQmp1R09tU01kUGVzVzd3NVlqb09LQlBZNWJXb1EwSmtDZ3RHY2duUEdmWWRhbzJzRUxXc29FQkFJSVVna0VnRUhHY2RSMzVJNXhXdmM0S3VwNXoxd2NIMnFHU1NDRzBjS3BXUlFTTjZqSjdqQkI1K24wUHJucnBiSG5WOXpsb2tlTnl5a2lKM1VsQU52VThBa1l6N2ZRSDY2UkNJcEN0dVkrM1FWUmxMdmN4RmdPU1BNeTNZZERqdDM2ZXhxMkJ3SzdxS3VqeWNWcEpDUGd1U09BVG1pbkVab3JjNURrQi9LcEU0UFdvd2NWSW4zcWhIVXpUczJrbStRSWdDRE9TZnI2YzlxMHRQbUgySzQ1MnZGaVhoeUJnWnljZCtNWTc4Y1ZrV09vTllUckp1UGw1QlpNOE5qMi9FMTJoMFl3RHpRU0lyZ1pHTUFBOWxPZU1kVCtIdFhuMWx5VkxkejFNTytlbGZxaWF4ZVR5UkxNd0dTRGhlQXY4QW5wWFNXZTFva0xPTTQ0NXJnSXRYc2RLbE9tM3JzakEvdUdFYk9zaUhPQU1EcjIvQUhubXRPQVhjMFU0ZFhXVXBoZkpBTWljazkyQVBHT094ejFCQnJsYWJPK01rdEVkMGpnYmZUMk5YQytSZ05rRWpBSCtmclhtc1A5cFdDRFUwTnk5c01ySUp2dmpHU1NBcFlrYzQvUDZWMW1tNnhiM0ZqSGNQY3dNMjNJQ3VDYWxxeHBHYWtqWHVaRTJBbkFYSE5aczZsbE8wWjlLNTI5OFNUVG93dG8zRVFPUHRSUTdSMTR4ZytucDA1R2F6amVYbm1TTTg4a3lxcXNqUTUzK2h5aEE0Nm5yazlBQ2FmSTl5SlZGc1dKYmtSWG5tc0RzU1RMQXFlZzVQNlo1cXJlUEVnbGNxMjFTVHRWZ0NGSkpIVGpwa2ZobmpJRkYzRXVvUkltOFMvYVNIVWxNZ3BnRXR4MlBVWjR6ajFyRHVkUVNKaEk1MkVuQ3NyQTlQbUhBUG8zWCtkZFZQWTRLMjVZalUvYUdrM2x0NEc0a1lKUHIrZWZiMHFlczIxMUNLYklRQlIxeFdraDNMdXIwYWF0RThXdEp1YllVVThSN2dlVkdEam51YUtzeXN6Zy83ZXY4QStGNDAvd0IySlIvU3RMejN1RXRwcFczdTBZTEVqcnlhcTN1ancydW5QY0k3bGdJaU1rZnhEbXBJRG16dFQvMHpQL29ScmpwUDNqMUt5dEV0TW00T1FxbDhFSElIUDUxNkZhWGd2dkRpM0xGaXF4aGl2YmNNN3djOXNnLzU2K2ZKOHhVZ2plT3g3MXEyZmlNYVRGTERjZWFZcEViWUNPRWZHTnVjL2RQQit2NTFHS3AzU2tqVEExYlNjSHN6WGgwNkRVSjMzQlJKRXBNRndqRUZEL0N3Nlp3ZWNIdjJycjdLL3Rab2tGNHNWbGM1QzdaR0M3ajErVmlNT01EUEhPRHlBYTVEVDVRczZPSDh3TXEvTnV6NzR6ayt1SzdLeHZvNEZiZU56WngwNStuNTE1L1d4N01GZU54OTVld05BOGRsS0pyai9WZ0poa1E0L2oyOU9vT0NRY0RqTlo2MkZzbmc1OU5OdWpSTEdVVU9vSTZjZGVwQnE3ZXp6R1BhNkNIQ3N5cmtaT1BYdDNxemEyb3VOTm1JUEdPQjAvclR1dzVWMUtPbnd3dnBpeEMzZ3dGVU5DbytWU093NEhIb2NESTlLZzFTM3ROT3RoY1hKWEEvZHh4UnI4OGpIT0ZVZHllZVB4OWFXMGtqZ2tYem9GbWFGc0l3WExvY2M0L0E5dlNyZDBiSjJlNWdnaldWeGhwTm8za2VtZXVCeFEyS01ibm5Wcm9qV0dzdGMzTTRhNXVBWkhWWXR4UmlEd0RrNUE1R0IxNDc0ck44YlJXMXRGYk5FWlZtWTdzT2M3Z1Jra25BNXorZWE2V2E2bFRWMmszWWlpWlMvTzNJM2NEUHZnZnJYQmVKN3FLNnY3bVZDMyt1MktuWUtvQ2creDQ2SDE5cTZhZDIxYzRLdGtta1VyQzhhT1plZUs3aXdsRXRzclY1dkcreGdlbUs3cnc5SnZzQnptdTJsTG9lVmlvNmN4dHI4eXV2L0F2eS93RHJab3BvSlZndzRJNlVWMEhHckhONm93T2dEbm5aSG44TnYrTlZMUDhBNDlMYm9UNVp4bnA5NDFEcUY5cEU5azBkcFp6UlRFakRNMlFCK2RTV3YvSGpiZjdwL3dEUW1yaXBibnExL2hMZ2Fib0N3eDZjVmk2dGNzWkFoY3ZqMU9RSzFXa1lSOHNjRHRuaXVidkczWERITmExSG9ZVVY3MXowandaSWw1Wk51MmtSZ05qdUI3L2ovd0RYcnEvUGpzdHN5UW1TU1ZsU0pGdzJlQ1RqUFE5ODlPT283K1ZlRXRZTnBjUGJzV0paY1IvTmpxZWVmYmsvblhwZG9UZEpGTExMdmEzM0tYRGRXT2V2T005ZWVlRFhsVkl1TWozS00rZUNSY2t2RjFDTXd0NTZTTHlBUmdnSEFPUU92NmZsVmUxOFNYZGhiU1diMlQzRXlvenEwWVhEam52bkE2SGo4czkzRXd5emxia0RjcEhMZFFmcjI3L2xVcjJkbVNua1h6Qjk1ZEFyYzdtNmtFZlFmbFFyTTI1WDBabjIwc3RuSzk3cUV3YWNxWkFnQTJ4NTdqdmphT3A1NjlPYXRKTWIyNFpvbmlaV1ZXT3g4QWtucDduMXFCSTdXSzR3SEx5c1I5OXM3ampHZlRJLy9WVExGMFZFaU9ZMWdta1p4SXZKVWM1NDRPRGpuOFBXazlTTlk5VEExNTNzbzdnRnBGRTZvcFpWTzBoaVNRU0Q2WTZaTmVhWEV6VFhETVNvT0R3cWdBZlFEcFhkK0pEYzNrZDIwSWNRVFRmUDhyakNqSUI1N2NEcmpuUEhGZWZ5STBjakt5a0VERmRsTldpZWRWZDVDSnZKSFBXdTc4TEV0Wm9HNkgwcmlZRkxtTVlPTndCNHJ1ZEdqTVZtRUtsU3JFWUl4M3JvcGJuSGlmaE40U2orR05GL0RQOEFPaW14ejdoODZxNTlUMS9TaXVpNTUvek9FR2dYZlFTV3gvN2JMVjRXOGxwREJESVVMcXB6c1lNUHZIMHFFam1wRkhJcm5qR3p1ZDg2bk1yV0ZtQk1SQTYxemx3ckxLMjZ1bllmTFdIZnhzODN5aWlld1VYcllyNlpCSmRhbmJXOE9QTm1sUkZ6MHlXQUZlbzZSZU1HU1NTRmxVS1JoQVBsT09jWUhBeXBHY0RvZXVLNUR3Ym9ndU5kdHBia01ZMGRUaFFldWVPZTNyWGZhNW83YWJQNTlrelN3eXNPRUs0YWJia25rY2tZQkhiR2ZjMXlWbGRYUFJvT3pzYXBTMG5KTWlLd2xDcTJEZzlNZmdSbjZuQTYxSC9aa2FSblpjU0RKTE5uYWVUd2VnK2JqK2g1d2F5YlRWQmIzRVVzb3VoSEhqZGxOMmNrQWc0UFVBcWNjako3QTFaYlVKYmlGekE1bGtPenkxanpJdzRIQTRIVUhPT0QwUHFLNStWOURzOW92dEljYlcxZ1dhNEwvdkdYRE1WT0NCMngzL21mYXNtUzJubVF4NDh6emNFQUg3NDRIUmdNQTdXNXo2OGpyV2x0dTd0NVk0OHh3RUZRQ1Y4eHllQVNNOWZUdGtqcDh0ZC80WDhQcGJSUE5OR2Z0bkpBRGJkdjVIanFPNDdkdHBPdE9uYzU2dGF4d1d0NlFOQThJbUM1Y204dVhXT1JOMk5tMGJoZ0hxQndPTWNuUElJcnpEVXRQVm94S2h3MlBRL3pyMHZ4L2RtKzE5YktOMEtXUzdEaGxBTGs1YmtkdWd3U01FSGhlZzR4YlJ3eHhOSnp1STJENzN0K0krdld1cEhIdVZkQzB3QlZtY2NrVjBSWEE0SFNzQ0JMdTJra2EwZG5WT1hYYmtmbC9oVitMV0lqOHR5alJPT0NjY2RQenJhRW8yc2NOYWxOeTV0elFSc0dpb3d5c0F5RU1wNkVISW9yUTU3SE5HbmpyUlJXUjBzcVh0ektzL2xLMkY5dXRTMkVFWmFWeXVXampEcm5zZldpaXNYdWRkTDRVZEo0VVZXblRLZy9lZnAzODRuUDlQcFh0a2RqYlhGdTluTEVyUUkwb1ZUNmpiZy9YazgwVVVpMFo0OEw2ZkVsNTVubXorUW1ZL05ZY0hhcmRnUDd4SDBQNDFhbThLYVBIS2hXMUdXczJKeWZjY2V3NFBBL3ZIMFhCUldjTmpvcW1scDJpMkRYRnphaTNWZHBmYklvQVpmbUs4ZHVnOU81OVRVcXl0SHBkemZxQnZnajNLaEh5aytWNW5QYzhrOS9YdVNTVVZzY3g0Yks4bDFjM1ptbGtmNThzQ3h3eElMRW4xT2Vhelk3YUtXeVNkMTNOam9lbjVVVVVBVDZXRk1seGhGWGR0enRHTzlYR2hqdUpwSTVVVmxXUGNBUU9EaWlpa015dFFoWFQ5TnRiNjJ5ak5zekZuS0hPTTllZjFvb29xemxsdWYvMlE9PSJdfQ=="
+    }, {
+      "groupPath" : "/unicore",
+      "entity" : 29,
+      "attributeName" : "sys:AuthorizationRole",
+      "valueSyntaxId" : "enumeration",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiVUhKcGRtbHNaV2RsWkNCSmJuTndaV04wYjNJPSJdLCJjcmVhdGlvblRzIjoxNDA1Njg3OTU3NTc3LCJ1cGRhdGVUcyI6MTQwNTY4Nzk1NzU3N30="
+    }, {
+      "groupPath" : "/unicore",
+      "entity" : 44,
+      "attributeName" : "jpegPhoto",
+      "valueSyntaxId" : "jpegImage",
+      "values" : "eyJ2aXNpYmlsaXR5IjoiZnVsbCIsInZhbHVlcyI6WyIvOWovNEFBUVNrWkpSZ0FCQWdBQUFRQUJBQUQvMndCREFBZ0dCZ2NHQlFnSEJ3Y0pDUWdLREJRTkRBc0xEQmtTRXc4VUhSb2ZIaDBhSEJ3Z0pDNG5JQ0lzSXh3Y0tEY3BMREF4TkRRMEh5YzVQVGd5UEM0ek5ETC8yd0JEQVFrSkNRd0xEQmdORFJneUlSd2hNakl5TWpJeU1qSXlNakl5TWpJeU1qSXlNakl5TWpJeU1qSXlNakl5TWpJeU1qSXlNakl5TWpJeU1qSXlNakl5TWpML3dBQVJDQUJZQUhnREFTSUFBaEVCQXhFQi84UUFId0FBQVFVQkFRRUJBUUVBQUFBQUFBQUFBQUVDQXdRRkJnY0lDUW9MLzhRQXRSQUFBZ0VEQXdJRUF3VUZCQVFBQUFGOUFRSURBQVFSQlJJaE1VRUdFMUZoQnlKeEZES0JrYUVJSTBLeHdSVlMwZkFrTTJKeWdna0tGaGNZR1JvbEppY29LU28wTlRZM09EazZRMFJGUmtkSVNVcFRWRlZXVjFoWldtTmtaV1puYUdscWMzUjFkbmQ0ZVhxRGhJV0doNGlKaXBLVGxKV1dsNWlabXFLanBLV21wNmlwcXJLenRMVzJ0N2k1dXNMRHhNWEd4OGpKeXRMVDFOWFcxOWpaMnVIaTQrVGw1dWZvNmVyeDh2UDA5ZmIzK1BuNi84UUFId0VBQXdFQkFRRUJBUUVCQVFBQUFBQUFBQUVDQXdRRkJnY0lDUW9MLzhRQXRSRUFBZ0VDQkFRREJBY0ZCQVFBQVFKM0FBRUNBeEVFQlNFeEJoSkJVUWRoY1JNaU1vRUlGRUtSb2JIQkNTTXpVdkFWWW5MUkNoWWtOT0VsOFJjWUdSb21KeWdwS2pVMk56ZzVPa05FUlVaSFNFbEtVMVJWVmxkWVdWcGpaR1ZtWjJocGFuTjBkWFozZUhsNmdvT0VoWWFIaUltS2twT1VsWmFYbUptYW9xT2twYWFucUttcXNyTzB0YmEzdUxtNndzUEV4Y2JIeU1uSzB0UFUxZGJYMk5uYTR1UGs1ZWJuNk9ucTh2UDA5ZmIzK1BuNi85b0FEQU1CQUFJUkF4RUFQd0RGUGk2N0UrSnZOWUJRQXBmSTlzMWNoOFZYeVNiSlhabzJHZHVjOU8xWVJRR0lxTUYyZkpxZHdEY0RDakFGUG5kdHhjaU9sWDRneWxWeGFLMk8yOGlvbjhmYWx5SW8waVEvd2daeFhLeWlQQUtqYjZqMHBvM0VESkF6K2ROVkpOYmk1STlqczUvR0QzRVFKaEtZNHh2T1NLYkY0dlZWTzIzSWtJMjdpVHdLNW5BYkREOFI2VTJNZ01mWFBGUjdTUmFwUnRxZEltb1gwbHZzdDlUbGJEYnkwZ3pqMnJZMHZ4SzFyRjVkeTNtdG5tVEdCK1ZjcmFzcVFrQnVTT2FteWhnS05Jc1pJNms4MVNuTG9TNFJQU3JieEpFTGFPZHNFTndDRGdaOU1uOFRrOGNHbi84QUNXNmZGbnpaSTFIWG1SVG5qUFVacnhIeFpLNjNmbDJFb1cySklBVmlCbmtuajF5VFdYRElscEVJaEcwampCK1k1R2ZYL1BwVHBUbkpYa1ZXcFU0dEtCNzdKNHMwMVpseUFNOG41aDBxdEo4UU5BdDVXU1c0S3NHMmxGQmM1K2d5YThPdk5TdUoyWERuYXFCZU9EZ2NENm1xdW1Yc2xycWdaR3dreEtzZjRoOVByVnprNHh1ak9uVGpLU2l6NlF0dkgrZ3RickxBN01wNk1FSS9uVjV0YTBlN2J6VjFDRDVoay9PQlhoOW95UndTQ0lzMEprWmxMZGZmOWMxYmpjbTNrR08zRmMvdEhlNXU2S1NQYUovRVBoMktQZDl1UXNnKzZHd1NhSzhjRWNra2l1ZjlXdmFpam5JNUVjNUV3UzVWU2QyZm13TzNOU0dRaTRLNXlTMlJrMVJXYVJaL05hMG02WVVZcFJmTkhQNXNscE9WQnlNTDNwMzBHVHlGV2JBSTRwRUpLNUl6M3pWY1R5Q1JqTFpYR0NjOHJ6Vm0xV0tkaXBqbVZUMUJYSEZDZGdMRURsMEJ6eHVJcU83dTRiTlBNbGI2S09wcDg5M2IyRnVWVUVoYzRIZk5jVmVYMGwzTzdPU2ZvYUl3NXRRbEt5c2JFdXZUU1o4dHZMUWtuZzRKL0dyTnJjM0pLUzdXWlRncVI4MlRYTGI4UGtZelYyMm53bnpFRDN4M3JlT2hrelJ1VE5jWHpoc3F3NVpHSnptcmM5cUo3Qkh0SlU2SWpLV3k3bkFMRURIeWdIai9BT3QxNStTOW1pVXFzekNOeUM2RGhTUm5HZnpQNTF1NlZxbHBDbVpBTW4veDBZOThucDcwcmp0Y1pjYUZlMnFwT0NwUWdZM0RJL0gvQUQzcXRIRXQzZXBDb0JtM0FFcVRoOE1lZnhIK1JXMjNpNnlsaSt5UGFIeklUZ3R2RWlUSHVmUVk0eGpJUE9UNjJORDhOM0VjaTZqY3hlV0pCdWhqUEpDdDBKL0RwOWMxTFkwalhrZ1dGQkdxZ0tGQVVEb0trdGZ1U0E4OFZhYlRKcEl3RVhudm1uUTJNdHJFd2xVNVBwV0RXcDBKKzdZc0JRcUE0eXBGRlVMKy93REpnVzFYRE5qb0gybjh4eUI2bjZVVlZrWm5LZVkzM1c0eDJxYmU3eHJHZjRtQUhPS3JreGx3TTdzL3BUNVpQcy9sU0p5VmJnVWpWL0NXcnB6OXBrSVBCUEZWbW5FU0Z5Y0tCU1RTdFBJU2VHUE9LN1J2aFRlWG1pMnM0MUNPSzRkTjhzTHFjS0QwR2V1Y1ZjWTNNWlNVVWVVNm5xTWx3N1lCQzd1NTRyTktyZ25qa2VsYVBpSFRuMGJWcHJDUzVpbmVJNFpvemtaOVByV1FKTUVqcGp0V3UyaEJJZ09lZXY4QUt1MHZ2Q1ZxaytuU1c5NmtPbFhpYnZ0TXB3RUlCem4xNmRxNGNraHVjZEtzUzZyZFMya0ZuSmNPMXZBV2FOQ2Z1azlhZHhOSGZYdncyait3cFBaNnVsd3hCd1JIOHA5TWVsY0RlYVpmYWZlTmJ2RzVZZjNSa0dsaTFXK3NrLzBXNmxpQjZxckVBL1d1bzhMZUliNjRXN1I0WVo3bEl3WXBadWlucHlPLy93QmFzcFh2ZEZMWXo5SWd0ZElsajFEWEltOG9IOTNiNCthUWoyUDhQSXIwRFMvRVVtdUw5dGtJQmsvZ1U4SUJ3QitXSzhtMW0xMVZMeDU5VFdWcEhQOEFyVzVCOWdlbjRWYjhNNjIrbFh5QjNQMmRqODY5ZjhtbFlhMzFQWUd1WERyaGo3MUxmWExXOXVzekF1Q1BsUWZ4SDByTlM4dDd1M0U4TXlORW95U0QwK3ZwV0ZxV3RmYkpEYmlaaEpJM2wyeUJjbFY0RE4wN0FFODl4ampBekpvN0xZa2pEMzAwN093eEc0THlIdWVwWG4rRWNmWEJvckMxRjlsdHNHNWJXMndFVS9LV09NazR6NmtjaWlucVRvUnNJSE9Zd3c1NUFhcFlrVVNLeXEyZWd5MmFvcDhzbnl0aFRWa09xaFNXSDNobm4zcE1vc3ozL3dCbXpJOFVaY044b0l5TTFTdmZIUGlDZFgzYXBPdVJ0T3h5TWpyV2RxbDBKSkcybjVSbkdLeUVTVzRiQ0l6NDYrbGF4OTFHVXJTWXJ5bHBTNVlzeE9jdFFNTjBBcUlPVWNoaHoweFVxRHFNRHBSZTRFY3dDakFPZTQ5NnQ2Zm9sM2ZLWkJpSkIzY2Rmb0tiWUlIMU9BTWZsMzVPYTdnT29UNVFLR0NPTXZyRjdHY1JTZk1DdVZiSDNxdStGcGhiYXZ0WlFSSXBHRDZqbXQyK3NvYisyRWNod3c1VnU0TmM1TlpUV0Z5QkpuY1BtUjE3ODlxYXM5QmJIb2IzSUtGR3RvWGpiN3lzdVFhNXEvOEFDOW5kWFBuV3AreGxqeWlqSzU5Z1R4Vi9UdFFXNnNsTHNQTlVmTm5qUHZXYnF1cGh5WVlwTVJrN0diR2QzMEhwNjFEc2kxcVVJWWZzeGtnODlKQ01qekZ6akdEbkg4cy8wclFsa2dpdFRlU0VMS0Q1S0tRQ1VVZmp4OTdqZ2M1T2VLcldFUWFXS1hJOG5KSURrWmZIYkhUMDRxdGZTUHFNM25xaDJxaTRDcU93QUhRQWRNYzk4NTYxUFRVZm9RNnBldk5KUGNmS3lTTVZUZG5LcjlQVEJvcUsrQ3hDS05ncGs2c3FuZ2NtaW81aW5IVXVXa2trcm41Tm9Ya2ttbzdtK1VxWXlPL1E4MWIxclhJcmlIN05id0dHQkdPMUF1MzVlMWMrclBNUWtRM3UvQVZSMDUvL0FGVnBIdVRMc1BkbWM0QXk1NnFCMTlCV2hicGNXbHRndzdWT1NjaXJHbTJoc0pvcG5FZ256OHVCd251RDB6VTNpSFVaNUxLTUxlUE13UHo0NkQ5T2FjdFNZNkhMWEREN1NjZXZQT2FVUzRUUHRVTWNNa3NnampVdTdkQUt1WE9teTJpUmlUbG5QYm9ENmZXaENaTHBTTkpkR1JjRFowelhRUXZjcDFsakE2NHJPMEpyTzFndlA3UWp1QTdiZkthUGJoVHpuT1NQVVZwMmFyZGtCRWtYSXlqT3VGUHNXUEg1VVNUSEZvZUxpNFdSY05HQjN6elZpV3h1N3F5YTRrQ2VRaHlYOUQ3VTc3RkZIR1paOW9DOEZBL0JQVEhIWG5wZzgwOHhUenh0Q0l3VXl4Qlp2bGp4Z2R2WCtYZXBzKzVWMGM0bDViMm93NnlNV1VyczJnanR5VGtFanJTMmdXNG1GM0syeUpEdGNIR2R1ZWNkejJIK1RTYXJaUld6YjR6emtaR0RrKy9QNGY4QTFxcGhwY01HQTNIbkRIR0IxNHA2c1cyeGMxTFVQUG5abFVHSURiR01ZSUEvci9qOUtpamtsYTNHK1FNaStoeitIVHFLbnRZTFd6ak04c2lUTVYycUZib2U1Njl2OG5tcWR4SUhtUDJaQ2lBWVFIcVJuZysyUWY2MW05ZEMwcmFsOXRQRVRmYUpaY3MvellYUHlqbjgvd0Q5ZEZWTFZaYitaSTVXY1F4RERzU2NrZW45S0t6YTEzTlZKVzJMOTFvR21SVE5HbXFDNUlZQVN4SDVEeGs4ZGUvNkdyMm1iTk10ODJzMXRFNllXYVE0Ymc5aDBMRSszU2lpdDFzYzh0eTNEcWYyMWdyVFR5NGo2Q0VubkhKQkdmUWV2NlU2KzBSYmkzWldCajN3ZzdtZkozQS8zZHVjOGpJQTZlaG9vcG9SWDBmd3cxdEd3bGxWeklSeWkrM1FIOFBhdG1UVFlaTFlSeXNKSEFDdTJDUVBiakhidWFLS3V5SmU1VnQ5TTA2VzRCdGJtR01nYkNZMDNNakhPTTRINWtnVkpOZFdka1R1dEpwb2dOaUhhQmwyQklHWFBQVHNEMzQ2WktLbHRscEl5WmRVdUZCbnViUlF4QkcwSU1JQnlCL1QzNTcxTkhtK3RaVmprUmVCa0lUL0FESEJ4NyszNEZGU2ludVpVMGFQYnVyTVhrVWtBL2VKNkFFRDBKd00vd0E2d1pKQ3BJWG9SajFvb3Bra2lTU3ZFcU0rOUVKQVhISFBYLzhBWFRvWm80eDhwTHpZeVNlZ1B0NzBVVkRMUmFlNFMxUkxkSkdDWXhMaGNsbXoxNjg4MFVVVlBLaDh6UC9aIl0sImNyZWF0aW9uVHMiOjE0MDU5NTk3Mjc5OTcsInVwZGF0ZVRzIjoxNDA1OTU5NzI3OTk3fQ=="
+    } ],
+    "genericObjects" : [ {
+      "type" : "messageTemplate",
+      "subType" : "null",
+      "name" : "passwordResetCode",
+      "lastUpdate" : 1399231135414,
+      "contents" : {
+        "name" : "passwordResetCode",
+        "description" : "",
+        "consumer" : "PasswordResetCode",
+        "messages" : [ {
+          "locale" : "",
+          "subject" : "Credential reset code",
+          "body" : "Somebody, hopefully you, requested to reset your credential in the UNITY service.\n\nIf you didn't requested the credential reset simply ignore this message.\n\nIf you did, then use the following code in the credential reset window:\n\n${code}\n\n"
+        } ]
+      }
+    }, {
+      "type" : "messageTemplate",
+      "subType" : "null",
+      "name" : "registrationRequestSubmitted",
+      "lastUpdate" : 1399231135423,
+      "contents" : {
+        "name" : "registrationRequestSubmitted",
+        "description" : "",
+        "consumer" : "RegistrationRequestSubmitted",
+        "messages" : [ {
+          "locale" : "",
+          "subject" : "New registration request",
+          "body" : "A new registration request \"${requestId}\" was submitted to the registration form \"${formName}\"."
+        } ]
+      }
+    }, {
+      "type" : "messageTemplate",
+      "subType" : "null",
+      "name" : "registrationRequestAccepted",
+      "lastUpdate" : 1399231135424,
+      "contents" : {
+        "name" : "registrationRequestAccepted",
+        "description" : "",
+        "consumer" : "RegistrationRequestAccepted",
+        "messages" : [ {
+          "locale" : "",
+          "subject" : "Registration request accepted",
+          "body" : "The registration request \"${requestId}\" was accepted.\n\n${publicComment}\n"
+        } ]
+      }
+    }, {
+      "type" : "messageTemplate",
+      "subType" : "null",
+      "name" : "registrationRequestRejected",
+      "lastUpdate" : 1399231135425,
+      "contents" : {
+        "name" : "registrationRequestRejected",
+        "description" : "",
+        "consumer" : "RegistrationRequestRejected",
+        "messages" : [ {
+          "locale" : "",
+          "subject" : "Registration request rejected",
+          "body" : "The registration request \"${requestId}\" was rejected.\n\n${publicComment}\n"
+        } ]
+      }
+    }, {
+      "type" : "messageTemplate",
+      "subType" : "null",
+      "name" : "registrationRequestUpdated",
+      "lastUpdate" : 1399231135426,
+      "contents" : {
+        "name" : "registrationRequestUpdated",
+        "description" : "",
+        "consumer" : "RegistrationRequestUpdated",
+        "messages" : [ {
+          "locale" : "",
+          "subject" : "Registration request update",
+          "body" : "The registration request \"${requestId}\" was updated.\n\n${publicComment}\n\n${internalComment}\n"
+        } ]
+      }
+    }, {
+      "type" : "messageTemplate",
+      "subType" : null,
+      "name" : "Confirmation template",
+      "lastUpdate" : 1464887496112,
+      "contents" : {
+        "name" : "Confirmation template",
+        "description" : "",
+        "consumer" : "Confirmation",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "Confirm ",
+          "body" : "Confirmation link: ${confirmationLink}"
+        } ]
+      }
+    }, {
+      "type" : "messageTemplate",
+      "subType" : null,
+      "name" : "new enquiry",
+      "lastUpdate" : 1464887741508,
+      "contents" : {
+        "name" : "new enquiry",
+        "description" : "",
+        "consumer" : "NewEnquiry",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "new enq",
+          "body" : "${formName}"
+        } ]
+      }
+    }, {
+      "type" : "messageTemplate",
+      "subType" : null,
+      "name" : "enq filled",
+      "lastUpdate" : 1464887769883,
+      "contents" : {
+        "name" : "enq filled",
+        "description" : "",
+        "consumer" : "EnquiryFilled",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "filled",
+          "body" : "${formName}"
+        } ]
+      }
+    }, {
+      "type" : "confirmationConfiguration",
+      "subType" : null,
+      "name" : "identityemail",
+      "lastUpdate" : 1464887501565,
+      "contents" : {
+        "nameToConfirm" : "email",
+        "typeToConfirm" : "identity",
+        "msgTemplate" : "Confirmation template",
+        "notificationChannel" : "Default e-mail channel"
+      }
+    }, {
+      "type" : "confirmationConfiguration",
+      "subType" : null,
+      "name" : "attributeemail",
+      "lastUpdate" : 1464887562759,
+      "contents" : {
+        "nameToConfirm" : "email",
+        "typeToConfirm" : "attribute",
+        "msgTemplate" : "Confirmation template",
+        "notificationChannel" : "Default e-mail channel"
+      }
+    }, {
+      "type" : "enquiryResponse",
+      "subType" : null,
+      "name" : "78c25b69-eedc-4084-9a1d-aec4818edd3c",
+      "lastUpdate" : 1464888007714,
+      "contents" : {
+        "AdminComments" : [ ],
+        "RequestId" : "78c25b69-eedc-4084-9a1d-aec4818edd3c",
+        "Status" : "pending",
+        "Timestamp" : 1464888007682,
+        "Context" : {
+          "tryAutoAccept" : true,
+          "isOnIdpEndpoint" : false,
+          "triggeringMode" : "manualAdmin"
+        },
+        "Agreements" : [ {
+          "selected" : true,
+          "externalIdp" : null,
+          "translationProfile" : null
+        } ],
+        "Attributes" : [ {
+          "attribute" : {
+            "visibility" : "full",
+            "values" : [ "ZmRnZGY=" ],
+            "name" : "cn",
+            "groupPath" : "/"
+          }
+        } ],
+        "Comments" : "dfgdfg",
+        "Credentials" : [ {
+          "credentialId" : "Password credential",
+          "secrets" : "{\"passwords\":[{\"hash\":\"5n0R3D3A1vED08VQzK4uxHc+VwS6M5NLcp8JHF+lwiQ=\",\"salt\":\"4929384724795229052\",\"time\":1464888007709,\"rehashNumber\":1}],\"outdated\":false}"
+        } ],
+        "FormId" : "New enquiry",
+        "GroupSelections" : [ {
+          "selected" : true,
+          "externalIdp" : null,
+          "translationProfile" : null
+        } ],
+        "Identities" : [ {
+          "typeId" : "userName",
+          "value" : "test",
+          "target" : null,
+          "realm" : null,
+          "translationProfile" : null,
+          "remoteIdp" : null,
+          "confirmationInfo" : {
+            "confirmed" : false,
+            "confirmationDate" : 0,
+            "sentRequestAmount" : 0,
+            "serializedConfiguration" : "{\"confirmed\":false,\"confirmationDate\":0,\"sentRequestAmount\":0}"
+          },
+          "metadata" : null
+        } ],
+        "UserLocale" : "en",
+        "EntityId" : 1
+      }
+    }, {
+      "type" : "enquiryForm",
+      "subType" : null,
+      "name" : "New enquiry",
+      "lastUpdate" : 1464887807590,
+      "contents" : {
+        "Agreements" : [ {
+          "i18nText" : {
+            "DefaultValue" : null,
+            "Map" : {
+              "en" : "Agree"
+            }
+          },
+          "manatory" : false
+        } ],
+        "AttributeParams" : [ {
+          "label" : null,
+          "description" : null,
+          "retrievalSettings" : "interactive",
+          "optional" : false,
+          "attributeType" : "cn",
+          "group" : "/",
+          "showGroups" : false,
+          "useDescription" : false
+        } ],
+        "CollectComments" : true,
+        "CredentialParams" : [ {
+          "credentialName" : "Password credential",
+          "label" : null,
+          "description" : null
+        } ],
+        "Description" : "Enquiry desc",
+        "i18nFormInformation" : {
+          "DefaultValue" : null,
+          "Map" : { }
+        },
+        "GroupParams" : [ {
+          "label" : null,
+          "description" : null,
+          "retrievalSettings" : "interactive",
+          "groupPath" : "/A"
+        } ],
+        "IdentityParams" : [ {
+          "label" : null,
+          "description" : null,
+          "retrievalSettings" : "interactive",
+          "optional" : false,
+          "identityType" : "userName"
+        } ],
+        "Name" : "New enquiry",
+        "DisplayedName" : {
+          "DefaultValue" : "New enquiry",
+          "Map" : {
+            "en" : "Enquiry"
+          }
+        },
+        "TranslationProfile" : {
+          "ver" : "2",
+          "name" : "form profile",
+          "description" : "",
+          "type" : "REGISTRATION",
+          "rules" : [ {
+            "condition" : {
+              "conditionValue" : "true"
+            },
+            "action" : {
+              "name" : "addAttribute",
+              "parameters" : [ "intAttribute", "/", "'111'", "local" ]
+            }
+          } ]
+        },
+        "FormLayout" : {
+          "elements" : [ {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormParameterElement",
+            "type" : "IDENTITY",
+            "formContentsRelated" : true,
+            "index" : 0
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormSeparatorElement",
+            "type" : "SEPARATOR",
+            "formContentsRelated" : false
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormParameterElement",
+            "type" : "CREDENTIAL",
+            "formContentsRelated" : true,
+            "index" : 0
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormParameterElement",
+            "type" : "ATTRIBUTE",
+            "formContentsRelated" : true,
+            "index" : 0
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormParameterElement",
+            "type" : "GROUP",
+            "formContentsRelated" : true,
+            "index" : 0
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.BasicFormElement",
+            "type" : "COMMENTS",
+            "formContentsRelated" : true
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormCaptionElement",
+            "type" : "CAPTION",
+            "formContentsRelated" : false,
+            "value" : {
+              "DefaultValue" : null,
+              "Map" : {
+                "pl" : "Regulaminy",
+                "en" : "Agreements"
+              }
+            }
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormParameterElement",
+            "type" : "AGREEMENT",
+            "formContentsRelated" : true,
+            "index" : 0
+          } ]
+        },
+        "type" : "REQUESTED_OPTIONAL",
+        "targetGroups" : [ "/A/B/C" ],
+        "NotificationsConfiguration" : {
+          "rejectedTemplate" : "registrationRequestRejected",
+          "acceptedTemplate" : "registrationRequestAccepted",
+          "updatedTemplate" : "registrationRequestUpdated",
+          "channel" : "Default e-mail channel",
+          "adminsNotificationGroup" : "/",
+          "enquiryToFillTemplate" : "new enquiry",
+          "submittedTemplate" : "enq filled"
+        }
+      }
+    }, {
+      "type" : "endpointDefinition",
+      "subType" : "WebAdminUI",
+      "name" : "UNITY administration interface",
+      "lastUpdate" : 1464887251404,
+      "contents" : {
+        "description" : {
+          "authenticationOptions" : [ {
+            "primaryAuthenticator" : "pwdWeb"
+          }, {
+            "primaryAuthenticator" : "certWeb"
+          } ],
+          "contextAddress" : "/admin",
+          "description" : "",
+          "id" : "UNITY administration interface",
+          "displayedName" : {
+            "DefaultValue" : "UNITY administration interface",
+            "Map" : { }
+          },
+          "realmName" : "adminRealm",
+          "typeName" : "WebAdminUI"
+        },
+        "state" : "#\n#Thu Jun 02 19:07:31 CEST 2016\nunity.endpoint.web.enableRegistration=true\nunity.endpoint.web.defaultTheme=unityThemeValo\n"
+      }
+    }, {
+      "type" : "endpointDefinition",
+      "subType" : "SAMLWebIdP",
+      "name" : "UNITY SAML web authentication",
+      "lastUpdate" : 1464887251479,
+      "contents" : {
+        "description" : {
+          "authenticationOptions" : [ {
+            "primaryAuthenticator" : "pwdWeb"
+          }, {
+            "primaryAuthenticator" : "samlWeb"
+          }, {
+            "primaryAuthenticator" : "ldapWeb"
+          }, {
+            "primaryAuthenticator" : "oauthWeb"
+          } ],
+          "contextAddress" : "/saml-idp",
+          "description" : "",
+          "id" : "UNITY SAML web authentication",
+          "displayedName" : {
+            "DefaultValue" : "UNITY SAML web authentication",
+            "Map" : { }
+          },
+          "realmName" : "defaultRealm",
+          "typeName" : "SAMLWebIdP"
+        },
+        "state" : "#\n#Thu Jun 02 19:07:31 CEST 2016\nunity.saml.credential=MAIN\nunity.endpoint.web.enableRegistration=true\nunity.saml.authenticationTimeout=20\nunity.saml.validityPeriod=3600\nunity.saml.acceptedSP.uportal.returnURL=https\\://unity-2.grid.icm.edu.pl\\:9070/authn/performSAMLAuthn\nunity.saml.acceptedSP.shib.returnURL=https\\://unity-2.grid.icm.edu.pl\\:9081/Shibboleth.sso/SAML2/POST\nunity.saml.translationProfile=UNICORE profile\nunity.saml.acceptedSP.shib.entity=https\\://unity-2.grid.icm.edu.pl\\:9081/shibboleth\nunity.saml.signResponses=asRequest\nunity.saml.defaultGroup=/unicore\nunity.endpoint.web.defaultTheme=unityThemeValo\nunity.saml.issuerURI=https\\://unity-2.grid.icm.edu.pl\\:9001/saml-idp\nunity.saml.spAcceptPolicy=validRequester\nunity.saml.acceptedSP.uportal.dn=CN\\=Portal,O\\=UNICORE,C\\=EU\nunity.saml.requestValidityPeriod=600\n"
+      }
+    }, {
+      "type" : "endpointDefinition",
+      "subType" : "SAMLUnicoreWebIdP",
+      "name" : "UNITY UNICORE web authentication",
+      "lastUpdate" : 1464887251733,
+      "contents" : {
+        "description" : {
+          "authenticationOptions" : [ {
+            "primaryAuthenticator" : "pwdWeb"
+          }, {
+            "primaryAuthenticator" : "samlWeb"
+          }, {
+            "primaryAuthenticator" : "ldapWeb"
+          }, {
+            "primaryAuthenticator" : "oauthWeb"
+          } ],
+          "contextAddress" : "/unicore-idp",
+          "description" : "",
+          "id" : "UNITY UNICORE web authentication",
+          "displayedName" : {
+            "DefaultValue" : "UNITY UNICORE web authentication",
+            "Map" : { }
+          },
+          "realmName" : "defaultRealm",
+          "typeName" : "SAMLUnicoreWebIdP"
+        },
+        "state" : "#\n#Thu Jun 02 19:07:31 CEST 2016\nunity.saml.credential=MAIN\nunity.endpoint.web.enableRegistration=true\nunity.saml.authenticationTimeout=20\nunity.saml.validityPeriod=3600\nunity.saml.acceptedSP.uportal.returnURL=https\\://unity-2.grid.icm.edu.pl\\:9070/authn/performSAMLAuthn\nunity.saml.acceptedSP.shib.returnURL=https\\://unity-2.grid.icm.edu.pl\\:9081/Shibboleth.sso/SAML2/POST\nunity.saml.translationProfile=UNICORE profile\nunity.saml.acceptedSP.shib.entity=https\\://unity-2.grid.icm.edu.pl\\:9081/shibboleth\nunity.saml.signResponses=asRequest\nunity.saml.defaultGroup=/unicore\nunity.endpoint.web.defaultTheme=unityThemeValo\nunity.saml.issuerURI=https\\://unity-2.grid.icm.edu.pl\\:9001/saml-idp\nunity.saml.spAcceptPolicy=validRequester\nunity.saml.acceptedSP.uportal.dn=CN\\=Portal,O\\=UNICORE,C\\=EU\nunity.saml.requestValidityPeriod=600\n"
+      }
+    }, {
+      "type" : "endpointDefinition",
+      "subType" : "SAMLUnicoreSoapIdP",
+      "name" : "UNITY UNICORE SOAP SAML service",
+      "lastUpdate" : 1464887251942,
+      "contents" : {
+        "description" : {
+          "authenticationOptions" : [ {
+            "primaryAuthenticator" : "pwdWS"
+          }, {
+            "primaryAuthenticator" : "certWS"
+          } ],
+          "contextAddress" : "/unicore-soapidp",
+          "description" : "",
+          "id" : "UNITY UNICORE SOAP SAML service",
+          "displayedName" : {
+            "DefaultValue" : "UNITY UNICORE SOAP SAML service",
+            "Map" : { }
+          },
+          "realmName" : "defaultRealm",
+          "typeName" : "SAMLUnicoreSoapIdP"
+        },
+        "state" : "#\n#Thu Jun 02 19:07:31 CEST 2016\nunity.saml.credential=MAIN\nunity.endpoint.web.enableRegistration=true\nunity.saml.authenticationTimeout=20\nunity.saml.validityPeriod=3600\nunity.saml.acceptedSP.uportal.returnURL=https\\://unity-2.grid.icm.edu.pl\\:9070/authn/performSAMLAuthn\nunity.saml.acceptedSP.shib.returnURL=https\\://unity-2.grid.icm.edu.pl\\:9081/Shibboleth.sso/SAML2/POST\nunity.saml.translationProfile=UNICORE profile\nunity.saml.acceptedSP.shib.entity=https\\://unity-2.grid.icm.edu.pl\\:9081/shibboleth\nunity.saml.signResponses=asRequest\nunity.saml.defaultGroup=/unicore\nunity.saml.issuerURI=https\\://unity-2.grid.icm.edu.pl\\:9001/saml-idp\nunity.saml.spAcceptPolicy=validRequester\nunity.saml.acceptedSP.uportal.dn=CN\\=Portal,O\\=UNICORE,C\\=EU\nunity.saml.requestValidityPeriod=600\n"
+      }
+    }, {
+      "type" : "endpointDefinition",
+      "subType" : "SAMLSoapIdP",
+      "name" : "UNITY SOAP SAML service",
+      "lastUpdate" : 1464887252240,
+      "contents" : {
+        "description" : {
+          "authenticationOptions" : [ {
+            "primaryAuthenticator" : "pwdWS"
+          } ],
+          "contextAddress" : "/soapidp",
+          "description" : "",
+          "id" : "UNITY SOAP SAML service",
+          "displayedName" : {
+            "DefaultValue" : "UNITY SOAP SAML service",
+            "Map" : { }
+          },
+          "realmName" : "defaultRealm",
+          "typeName" : "SAMLSoapIdP"
+        },
+        "state" : "#\n#Thu Jun 02 19:07:32 CEST 2016\nunity.saml.credential=MAIN\nunity.endpoint.web.enableRegistration=true\nunity.saml.authenticationTimeout=20\nunity.saml.validityPeriod=3600\nunity.saml.acceptedSP.uportal.returnURL=https\\://unity-2.grid.icm.edu.pl\\:9070/authn/performSAMLAuthn\nunity.saml.acceptedSP.shib.returnURL=https\\://unity-2.grid.icm.edu.pl\\:9081/Shibboleth.sso/SAML2/POST\nunity.saml.translationProfile=UNICORE profile\nunity.saml.acceptedSP.shib.entity=https\\://unity-2.grid.icm.edu.pl\\:9081/shibboleth\nunity.saml.signResponses=asRequest\nunity.saml.defaultGroup=/unicore\nunity.saml.issuerURI=https\\://unity-2.grid.icm.edu.pl\\:9001/saml-idp\nunity.saml.spAcceptPolicy=validRequester\nunity.saml.acceptedSP.uportal.dn=CN\\=Portal,O\\=UNICORE,C\\=EU\nunity.saml.requestValidityPeriod=600\n"
+      }
+    }, {
+      "type" : "endpointDefinition",
+      "subType" : "UserHomeUI",
+      "name" : "UNITY user's account",
+      "lastUpdate" : 1464887252546,
+      "contents" : {
+        "description" : {
+          "authenticationOptions" : [ {
+            "primaryAuthenticator" : "pwdWeb"
+          }, {
+            "primaryAuthenticator" : "samlWeb"
+          }, {
+            "primaryAuthenticator" : "ldapWeb"
+          }, {
+            "primaryAuthenticator" : "oauthWeb"
+          } ],
+          "contextAddress" : "/home",
+          "description" : "",
+          "id" : "UNITY user's account",
+          "displayedName" : {
+            "DefaultValue" : "UNITY user's account",
+            "Map" : { }
+          },
+          "realmName" : "defaultRealm",
+          "typeName" : "UserHomeUI"
+        },
+        "state" : "#\n#Thu Jun 02 19:07:32 CEST 2016\nunity.endpoint.web.enableRegistration=true\nunity.endpoint.web.defaultTheme=unityThemeValo\n"
+      }
+    }, {
+      "type" : "endpointDefinition",
+      "subType" : "RESTAdmin",
+      "name" : "RESTful administration API",
+      "lastUpdate" : 1464887252574,
+      "contents" : {
+        "description" : {
+          "authenticationOptions" : [ {
+            "primaryAuthenticator" : "pwdRest"
+          } ],
+          "contextAddress" : "/rest-admin",
+          "description" : "",
+          "id" : "RESTful administration API",
+          "displayedName" : {
+            "DefaultValue" : "RESTful administration API",
+            "Map" : { }
+          },
+          "realmName" : "defaultRealm",
+          "typeName" : "RESTAdmin"
+        },
+        "state" : "#\n#Thu Jun 02 19:07:32 CEST 2016\n"
+      }
+    }, {
+      "type" : "endpointDefinition",
+      "subType" : "OAuth2Authz",
+      "name" : "UNITY OAuth2 Authorization Server",
+      "lastUpdate" : 1464887252672,
+      "contents" : {
+        "description" : {
+          "authenticationOptions" : [ {
+            "primaryAuthenticator" : "pwdWeb"
+          }, {
+            "primaryAuthenticator" : "certWeb"
+          } ],
+          "contextAddress" : "/oauth2-as",
+          "description" : "",
+          "id" : "UNITY OAuth2 Authorization Server",
+          "displayedName" : {
+            "DefaultValue" : "UNITY OAuth2 Authorization Server",
+            "Map" : { }
+          },
+          "realmName" : "defaultRealm",
+          "typeName" : "OAuth2Authz"
+        },
+        "state" : "#\n#Thu Jun 02 19:07:32 CEST 2016\nunity.oauth2.as.scopes.2.attributes.3=email\nunity.oauth2.as.scopes.2.attributes.2=c\nunity.oauth2.as.scopes.1.description=Enables the OpenID Conenct support\nunity.oauth2.as.scopes.2.attributes.1=cn\nunity.oauth2.as.issuerUri=https\\://localhost\\:2443/oauth2\nunity.oauth2.as.scopes.1.name=openid\nunity.oauth2.as.clientsGroup=/oauth-clients\nunity.oauth2.as.scopes.2.name=profile\nunity.oauth2.as.signingCredential=MAIN\nunity.oauth2.as.scopes.2.description=Provides access to the user's profile information\nunity.endpoint.web.defaultTheme=unityThemeValo\nunity.oauth2.as.usersGroup=/oauth-users\n"
+      }
+    }, {
+      "type" : "endpointDefinition",
+      "subType" : "OAuth2Token",
+      "name" : "UNITY OAuth2 Token endpoint",
+      "lastUpdate" : 1464887252757,
+      "contents" : {
+        "description" : {
+          "authenticationOptions" : [ {
+            "primaryAuthenticator" : "pwdRest"
+          } ],
+          "contextAddress" : "/oauth2",
+          "description" : "",
+          "id" : "UNITY OAuth2 Token endpoint",
+          "displayedName" : {
+            "DefaultValue" : "UNITY OAuth2 Token endpoint",
+            "Map" : { }
+          },
+          "realmName" : "defaultRealm",
+          "typeName" : "OAuth2Token"
+        },
+        "state" : "#\n#Thu Jun 02 19:07:32 CEST 2016\nunity.oauth2.as.scopes.2.attributes.3=email\nunity.oauth2.as.scopes.2.attributes.2=c\nunity.oauth2.as.scopes.1.description=Enables the OpenID Conenct support\nunity.oauth2.as.scopes.2.attributes.1=cn\nunity.oauth2.as.issuerUri=https\\://localhost\\:2443/oauth2\nunity.oauth2.as.scopes.1.name=openid\nunity.oauth2.as.clientsGroup=/oauth-clients\nunity.oauth2.as.scopes.2.name=profile\nunity.oauth2.as.signingCredential=MAIN\nunity.oauth2.as.scopes.2.description=Provides access to the user's profile information\nunity.oauth2.as.usersGroup=/oauth-users\n"
+      }
+    }, {
+      "type" : "endpointDefinition",
+      "subType" : "WellKnownLinksHandler",
+      "name" : "Account service",
+      "lastUpdate" : 1464887252807,
+      "contents" : {
+        "description" : {
+          "authenticationOptions" : [ {
+            "primaryAuthenticator" : "pwdWeb"
+          } ],
+          "contextAddress" : "/well-known",
+          "description" : "",
+          "id" : "Account service",
+          "displayedName" : {
+            "DefaultValue" : "Account service",
+            "Map" : { }
+          },
+          "realmName" : "defaultRealm",
+          "typeName" : "WellKnownLinksHandler"
+        },
+        "state" : "#\n#Thu Jun 02 19:07:32 CEST 2016\nunity.endpoint.web.defaultTheme=unityThemeValo\n"
+      }
+    }, {
+      "type" : "credentialRequirement",
+      "subType" : "null",
+      "name" : "Password requirement",
+      "lastUpdate" : 1399231133413,
+      "contents" : {
+        "name" : "Password requirement",
+        "description" : "Default password credential requirement",
+        "requiredCredentials" : [ "Password credential" ]
+      }
+    }, {
+      "type" : "credentialRequirement",
+      "subType" : null,
+      "name" : "Certificate & password",
+      "lastUpdate" : 1400171898230,
+      "contents" : {
+        "name" : "Certificate & password",
+        "description" : "",
+        "requiredCredentials" : [ "Password credential", "Certificate credential" ]
+      }
+    }, {
+      "type" : "credentialRequirement",
+      "subType" : null,
+      "name" : "Secured password only",
+      "lastUpdate" : 1402656014242,
+      "contents" : {
+        "name" : "Secured password only",
+        "description" : "",
+        "requiredCredentials" : [ "Secured password" ]
+      }
+    }, {
+      "type" : "invitationWithCode",
+      "subType" : null,
+      "name" : "ec9cc074-5bb1-4921-96ff-9a1df897ead8",
+      "lastUpdate" : 1464888093082,
+      "contents" : {
+        "formId" : "UNICORE Registration",
+        "expiration" : 1465147219,
+        "contactAddress" : "golbi@bixbit.net",
+        "channelId" : "Default e-mail channel",
+        "identities" : {
+          "0" : {
+            "entry" : {
+              "typeId" : "userName",
+              "value" : "sdsd",
+              "target" : null,
+              "realm" : null,
+              "translationProfile" : null,
+              "remoteIdp" : null,
+              "confirmationInfo" : {
+                "confirmed" : false,
+                "confirmationDate" : 0,
+                "sentRequestAmount" : 0,
+                "serializedConfiguration" : "{\"confirmed\":false,\"confirmationDate\":0,\"sentRequestAmount\":0}"
+              },
+              "metadata" : null
+            },
+            "mode" : "DEFAULT"
+          }
+        },
+        "groupSelections" : { },
+        "registrationCode" : "ec9cc074-5bb1-4921-96ff-9a1df897ead8",
+        "numberOfSends" : 0,
+        "attributes" : {
+          "0" : {
+            "attribute" : {
+              "visibility" : "full",
+              "values" : [ "c2Rmc2Rmcw==" ],
+              "name" : "cn",
+              "groupPath" : "/"
+            },
+            "mode" : "DEFAULT"
+          }
+        }
+      }
+    }, {
+      "type" : "processingRule",
+      "subType" : null,
+      "name" : "6da64b5bd2ee-24309cc6-331c-4090-aea3-3146a7440f79",
+      "lastUpdate" : 1464887575945,
+      "contents" : {
+        "id" : "6da64b5bd2ee-24309cc6-331c-4090-aea3-3146a7440f79",
+        "cronExpression" : "0 0 6 * * ?",
+        "condition" : "status == 'DISABLED'",
+        "action" : "changeStatus",
+        "actionParams" : [ "valid" ]
+      }
+    }, {
+      "type" : "authenticator",
+      "subType" : null,
+      "name" : "pwdWeb",
+      "lastUpdate" : 1464887251291,
+      "contents" : {
+        "id" : "pwdWeb",
+        "typeDescription" : {
+          "id" : "password with web-password",
+          "supportedBinding" : "web-vaadin7",
+          "verificationMethod" : "password",
+          "verificationMethodDescription" : "Verifies passwords",
+          "retrievalMethod" : "web-password",
+          "retrievalMethodDescription" : "WebPasswordRetrievalFactory.desc",
+          "local" : true
+        },
+        "retrievalJsonConfiguration" : "{\n\t\"i18nName\" : {\n\t\t\"Map\": {\n\t\t\t\"en\": \"Password\",\n\t\t\t\"pl\": \"Uwierzytelnianie hasłem\"\n\t\t}\n\t}\n}\t\n",
+        "verificatorJsonConfiguration" : null,
+        "localCredentialName" : "Password credential"
+      }
+    }, {
+      "type" : "authenticator",
+      "subType" : null,
+      "name" : "certWeb",
+      "lastUpdate" : 1464887251292,
+      "contents" : {
+        "id" : "certWeb",
+        "typeDescription" : {
+          "id" : "certificate with web-certificate",
+          "supportedBinding" : "web-vaadin7",
+          "verificationMethod" : "certificate",
+          "verificationMethodDescription" : "Verifies certificates",
+          "retrievalMethod" : "web-certificate",
+          "retrievalMethodDescription" : "WebTLSRetrievalFactory.desc",
+          "local" : true
+        },
+        "retrievalJsonConfiguration" : "{\n\t\"i18nName\" : {\n\t\t\"Map\": {\n\t\t\t\"en\": \"Certificate authentication\",\n\t\t\t\"pl\": \"Uwierzytelnianie certyfikatem\"\n\t\t}\n\t}\n}",
+        "verificatorJsonConfiguration" : null,
+        "localCredentialName" : "Certificate credential"
+      }
+    }, {
+      "type" : "authenticator",
+      "subType" : null,
+      "name" : "pwdWS",
+      "lastUpdate" : 1464887251293,
+      "contents" : {
+        "id" : "pwdWS",
+        "typeDescription" : {
+          "id" : "password with cxf-httpbasic",
+          "supportedBinding" : "webservice-cxf2",
+          "verificationMethod" : "password",
+          "verificationMethodDescription" : "Verifies passwords",
+          "retrievalMethod" : "cxf-httpbasic",
+          "retrievalMethodDescription" : "CXFHttpBasicRetrievalFactory.desc",
+          "local" : true
+        },
+        "retrievalJsonConfiguration" : "",
+        "verificatorJsonConfiguration" : null,
+        "localCredentialName" : "Password credential"
+      }
+    }, {
+      "type" : "authenticator",
+      "subType" : null,
+      "name" : "pwdRest",
+      "lastUpdate" : 1464887251294,
+      "contents" : {
+        "id" : "pwdRest",
+        "typeDescription" : {
+          "id" : "password with rest-httpbasic",
+          "supportedBinding" : "jaxrs2",
+          "verificationMethod" : "password",
+          "verificationMethodDescription" : "Verifies passwords",
+          "retrievalMethod" : "rest-httpbasic",
+          "retrievalMethodDescription" : "CXFHttpBasicRetrievalFactory.desc",
+          "local" : true
+        },
+        "retrievalJsonConfiguration" : "",
+        "verificatorJsonConfiguration" : null,
+        "localCredentialName" : "Password credential"
+      }
+    }, {
+      "type" : "authenticator",
+      "subType" : null,
+      "name" : "oauthWeb",
+      "lastUpdate" : 1464887251295,
+      "contents" : {
+        "id" : "oauthWeb",
+        "typeDescription" : {
+          "id" : "oauth2 with web-oauth2",
+          "supportedBinding" : "web-vaadin7",
+          "verificationMethod" : "oauth2",
+          "verificationMethodDescription" : "Handles OAuth2 tokens obtained from remote OAuth providers. Queries about additional user information.",
+          "retrievalMethod" : "web-oauth2",
+          "retrievalMethodDescription" : "OAuth2RetrievalFactory.desc",
+          "local" : false
+        },
+        "retrievalJsonConfiguration" : "",
+        "verificatorJsonConfiguration" : "unity.oauth2.client.providers.google.type=google\nunity.oauth2.client.providers.google.clientId=243303058152-d74cglaca5emp298i1vqafbqr8nsvja3.apps.googleusercontent.com\nunity.oauth2.client.providers.google.clientSecret=jdAkK4JSz3xyuxhKlA4H11Pg\nunity.oauth2.client.providers.google.scopes=profile openid\nunity.oauth2.client.providers.google.translationProfile=googleProfile\nunity.oauth2.client.providers.google.registrationFormForUnknown=UNICORE Registration\nunity.oauth2.client.providers.google.iconUrl=file:conf/authenticators/google.png\n\n\nunity.oauth2.client.providers.fb.type=facebook\nunity.oauth2.client.providers.fb.clientId=724044580952370\nunity.oauth2.client.providers.fb.clientSecret=8bed090f88ac8188c30c252623f4179e\n#unity.oauth2.client.providers.fb.scopes=\nunity.oauth2.client.providers.fb.translationProfile=facebookProfile\nunity.oauth2.client.providers.fb.iconUrl=file:conf/authenticators/fb.png\n\n#unity.oauth2.client.providers.ms.type=custom\n#unity.oauth2.client.providers.ms.name=Microsoft Live Account\n#unity.oauth2.client.providers.ms.clientId=000000004C118D72\n#unity.oauth2.client.providers.ms.clientSecret=yuqwf18f3cHFS4dn5nBODmB4b8-kP3lI\n#unity.oauth2.client.providers.ms.scopes=wl.basic\n#unity.oauth2.client.providers.ms.translationProfile=facebookProfile\n#unity.oauth2.client.providers.ms.authEndpoint=https://login.live.com/oauth20_authorize.srf\n#unity.oauth2.client.providers.ms.accessTokenEndpoint=https://login.live.com/oauth20_token.srf\n#unity.oauth2.client.providers.ms.clientAuthenticationMode=secretPost\n#unity.oauth2.client.providers.ms.profileEndpoint=https://apis.live.net/v5.0/me\n\n\nunity.oauth2.client.providers.ms2.type=microsoft\nunity.oauth2.client.providers.ms2.clientId=000000004C118D72\nunity.oauth2.client.providers.ms2.clientSecret=yuqwf18f3cHFS4dn5nBODmB4b8-kP3lI\nunity.oauth2.client.providers.ms2.iconUrl=file:conf/authenticators/ms.png\nunity.oauth2.client.providers.ms2.translationProfile=msProfile\n\n#unity.oauth2.client.providers.gh.type=github\n#unity.oauth2.client.providers.gh.clientId=\n#unity.oauth2.client.providers.gh.clientSecret=\n#unity.oauth2.client.providers.gh.scopes=\n#unity.oauth2.client.providers.gh.translationProfile=Profile\n\n\n#unity.oauth2.client.providers.dbox.type=dropbox\n#unity.oauth2.client.providers.dbox.clientId=\n#unity.oauth2.client.providers.dbox.clientSecret=\n#unity.oauth2.client.providers.dbox.scopes=\n#unity.oauth2.client.providers.dbox.translationProfile=Profile\n",
+        "localCredentialName" : null
+      }
+    }, {
+      "type" : "authenticator",
+      "subType" : null,
+      "name" : "samlWeb",
+      "lastUpdate" : 1464887251343,
+      "contents" : {
+        "id" : "samlWeb",
+        "typeDescription" : {
+          "id" : "saml2 with web-saml2",
+          "supportedBinding" : "web-vaadin7",
+          "verificationMethod" : "saml2",
+          "verificationMethodDescription" : "Handles SAML assertions obtained from remote IdPs",
+          "retrievalMethod" : "web-saml2",
+          "retrievalMethodDescription" : "WebSAMLRetrievalFactory.desc",
+          "local" : false
+        },
+        "retrievalJsonConfiguration" : "",
+        "verificatorJsonConfiguration" : "#Example configuration for the remote SAML authentication\n\n#unity.saml.requester.metadataSource.dfn.url=https://test-idp.desy.de:8443/idp/profile/Metadata/SAML\n#unity.saml.requester.metadataSource.dfn.perMetadataTranslationProfile=desyProfile\nunity.saml.requester.metadataSource.swiss.url=http://metadata.aai.switch.ch/metadata.switchaai.xml\nunity.saml.requester.metadataSource.swiss.perMetadataTranslationProfile=desyProfile\n\nunity.saml.requester.requesterEntityId=https://unity-2.grid.icm.edu.pl:9001/unitygw/saml-sp-metadata/sp1\nunity.saml.requester.metadataPath=sp1\nunity.saml.requester.requesterCredential=MAIN\nunity.saml.requester.acceptedNameFormats.1=urn:oasis:names:tc:SAML:2.0:nameid-format:persistent\nunity.saml.requester.acceptedNameFormats.2=urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress\nunity.saml.requester.acceptedNameFormats.3=urn:oasis:names:tc:SAML:2.0:nameid-format:transient\n\nunity.saml.requester.remoteIdp.2.name=Demo Shibboleth IdP\nunity.saml.requester.remoteIdp.2.address=https://unity-2.grid.icm.edu.pl:9090/idp/profile/SAML2/Redirect/SSO\nunity.saml.requester.remoteIdp.2.binding=HTTP_REDIRECT\nunity.saml.requester.remoteIdp.2.samlId=https://unity-2.grid.icm.edu.pl/idp/shibboleth\nunity.saml.requester.remoteIdp.2.certificate=SHIB_IDP\nunity.saml.requester.remoteIdp.2.requestedNameFormat=urn:oasis:names:tc:SAML:2.0:nameid-format:transient\nunity.saml.requester.remoteIdp.2.translationProfile=shibProfile\n\nunity.saml.requester.remoteIdp.1.name=Demo Simple SAMLPHP\nunity.saml.requester.remoteIdp.1.address=https://unity-2.grid.icm.edu.pl:9080/simplesaml/saml2/idp/SSOService.php\nunity.saml.requester.remoteIdp.1.binding=HTTP_REDIRECT\nunity.saml.requester.remoteIdp.1.samlId=https://unity-2.grid.icm.edu.pl:9080/simplesaml/saml2/idp/metadata.php\nunity.saml.requester.remoteIdp.1.certificate=SIMPLESAMLPHP\nunity.saml.requester.remoteIdp.1.groupMembershipAttribute=urn:oid:1.3.6.1.4.1.5923.1.1.1.1\nunity.saml.requester.remoteIdp.1.translationProfile=sspProfile\n#unity.saml.requester.remoteIdp.1.registrationFormForUnknown=Form1\n",
+        "localCredentialName" : null
+      }
+    }, {
+      "type" : "authenticator",
+      "subType" : null,
+      "name" : "ldapWeb",
+      "lastUpdate" : 1464887251345,
+      "contents" : {
+        "id" : "ldapWeb",
+        "typeDescription" : {
+          "id" : "ldap with web-password",
+          "supportedBinding" : "web-vaadin7",
+          "verificationMethod" : "ldap",
+          "verificationMethodDescription" : "Verifies password using LDAPv3 protocol",
+          "retrievalMethod" : "web-password",
+          "retrievalMethodDescription" : "WebPasswordRetrievalFactory.desc",
+          "local" : false
+        },
+        "retrievalJsonConfiguration" : "{\n\t\"name\": \"LDAP password\"\n}\t\n",
+        "verificatorJsonConfiguration" : "ldap.servers.1=unity-2.grid.icm.edu.pl\nldap.ports.1=389\n\nldap.userDNTemplate=cn={USERNAME},ou=users,dc=unity-example,dc=com\nldap.groupsBaseName=dc=unity-example,dc=com\nldap.groups.1.objectClass=posixGroup\nldap.groups.1.memberAttribute=memberUid\nldap.groups.1.nameAttribute=cn\nldap.groups.1.matchByMemberAttribute=cn\n\nldap.translationProfile=ldapProfile\n",
+        "localCredentialName" : null
+      }
+    }, {
+      "type" : "authenticator",
+      "subType" : null,
+      "name" : "certWS",
+      "lastUpdate" : 1464887251348,
+      "contents" : {
+        "id" : "certWS",
+        "typeDescription" : {
+          "id" : "certificate with cxf-certificate",
+          "supportedBinding" : "webservice-cxf2",
+          "verificationMethod" : "certificate",
+          "verificationMethodDescription" : "Verifies certificates",
+          "retrievalMethod" : "cxf-certificate",
+          "retrievalMethodDescription" : "CXFTLSRetrievalFactory.desc",
+          "local" : true
+        },
+        "retrievalJsonConfiguration" : "",
+        "verificatorJsonConfiguration" : null,
+        "localCredentialName" : "Certificate credential"
+      }
+    }, {
+      "type" : "registrationRequest",
+      "subType" : null,
+      "name" : "c2b29834-df81-4e70-9c5c-cf0285ee1b31",
+      "lastUpdate" : 1400173952147,
+      "contents" : {
+        "AdminComments" : [ ],
+        "RequestId" : "c2b29834-df81-4e70-9c5c-cf0285ee1b31",
+        "Status" : "accepted",
+        "Timestamp" : 1400173926499,
+        "Agreements" : [ ],
+        "Attributes" : [ {
+          "attribute" : {
+            "visibility" : "full",
+            "values" : [ "S3J6eXN6dG9mIEJlbmVkeWN6YWs=" ],
+            "name" : "cn",
+            "groupPath" : "/"
+          },
+          "externalIdP" : null
+        }, null ],
+        "Comments" : "Hi there!",
+        "Credentials" : [ ],
+        "FormId" : "UNICORE Registration",
+        "GroupSelections" : [ {
+          "selected" : true,
+          "externalIdp" : null
+        } ],
+        "Identities" : [ {
+          "typeId" : "x500Name",
+          "value" : "CN=Krzysztof",
+          "target" : null,
+          "realm" : null,
+          "local" : true,
+          "remoteIdp" : null
+        }, {
+          "typeId" : "identifier",
+          "value" : "107562911305913164614",
+          "target" : null,
+          "realm" : null,
+          "local" : false,
+          "remoteIdp" : null
+        } ],
+        "RegistrationCode" : null
+      }
+    }, {
+      "type" : "registrationRequest",
+      "subType" : null,
+      "name" : "1227dda8-dff7-403f-a7e8-b670d3c42fd8",
+      "lastUpdate" : 1400676062474,
+      "contents" : {
+        "AdminComments" : [ ],
+        "RequestId" : "1227dda8-dff7-403f-a7e8-b670d3c42fd8",
+        "Status" : "accepted",
+        "Timestamp" : 1400675986011,
+        "Agreements" : [ ],
+        "Attributes" : [ {
+          "attribute" : {
+            "visibility" : "full",
+            "values" : [ "S3J6eXN6dG9mIEJlbmVkeWN6YWs=" ],
+            "name" : "cn",
+            "groupPath" : "/"
+          },
+          "externalIdP" : null
+        }, null ],
+        "Comments" : "",
+        "Credentials" : [ ],
+        "FormId" : "UNICORE Registration",
+        "GroupSelections" : [ {
+          "selected" : true,
+          "externalIdp" : null
+        } ],
+        "Identities" : [ {
+          "typeId" : "x500Name",
+          "value" : "CN=KB,OU=ICM",
+          "target" : null,
+          "realm" : null,
+          "local" : true,
+          "remoteIdp" : null
+        }, {
+          "typeId" : "identifier",
+          "value" : "107562911305913164614",
+          "target" : null,
+          "realm" : null,
+          "local" : false,
+          "remoteIdp" : null
+        } ],
+        "RegistrationCode" : null
+      }
+    }, {
+      "type" : "registrationRequest",
+      "subType" : null,
+      "name" : "0f7bba7e-c6e9-46d9-beba-ec43459c61a0",
+      "lastUpdate" : 1402863181019,
+      "contents" : {
+        "AdminComments" : [ ],
+        "RequestId" : "0f7bba7e-c6e9-46d9-beba-ec43459c61a0",
+        "Status" : "accepted",
+        "Timestamp" : 1402863159716,
+        "Agreements" : [ ],
+        "Attributes" : [ {
+          "attribute" : {
+            "visibility" : "full",
+            "values" : [ "S3J6eXN6dG9mIEJlbmVkeWN6YWs=" ],
+            "name" : "cn",
+            "groupPath" : "/"
+          },
+          "externalIdP" : null
+        }, null ],
+        "Comments" : "",
+        "Credentials" : [ ],
+        "FormId" : "UNICORE Registration",
+        "GroupSelections" : [ {
+          "selected" : true,
+          "externalIdp" : null
+        } ],
+        "Identities" : [ {
+          "typeId" : "x500Name",
+          "value" : "CN=kb,o=icm",
+          "target" : null,
+          "realm" : null,
+          "local" : true,
+          "remoteIdp" : null
+        }, {
+          "typeId" : "identifier",
+          "value" : "107562911305913164614",
+          "target" : null,
+          "realm" : null,
+          "local" : false,
+          "remoteIdp" : null
+        } ],
+        "RegistrationCode" : null
+      }
+    }, {
+      "type" : "registrationRequest",
+      "subType" : null,
+      "name" : "f9980eca-3e5a-4891-ae0c-86614e51ced8",
+      "lastUpdate" : 1402909831722,
+      "contents" : {
+        "AdminComments" : [ ],
+        "RequestId" : "f9980eca-3e5a-4891-ae0c-86614e51ced8",
+        "Status" : "accepted",
+        "Timestamp" : 1402909783255,
+        "Agreements" : [ ],
+        "Attributes" : [ {
+          "attribute" : {
+            "visibility" : "full",
+            "values" : [ "S3J6eXN6dG9mIEJlbmVkeWN6YWs=" ],
+            "name" : "cn",
+            "groupPath" : "/"
+          },
+          "externalIdP" : null
+        }, null ],
+        "Comments" : "",
+        "Credentials" : [ ],
+        "FormId" : "UNICORE Registration",
+        "GroupSelections" : [ {
+          "selected" : true,
+          "externalIdp" : null
+        } ],
+        "Identities" : [ {
+          "typeId" : "x500Name",
+          "value" : "CN=Krzysztof,O=ICM,C=PL",
+          "target" : null,
+          "realm" : null,
+          "local" : true,
+          "remoteIdp" : null
+        }, {
+          "typeId" : "identifier",
+          "value" : "107562911305913164614",
+          "target" : null,
+          "realm" : null,
+          "local" : false,
+          "remoteIdp" : null
+        } ],
+        "RegistrationCode" : null
+      }
+    }, {
+      "type" : "registrationRequest",
+      "subType" : null,
+      "name" : "8d5ad5c3-8db7-46c4-a47d-a8092de91ff5",
+      "lastUpdate" : 1402928932948,
+      "contents" : {
+        "AdminComments" : [ ],
+        "RequestId" : "8d5ad5c3-8db7-46c4-a47d-a8092de91ff5",
+        "Status" : "accepted",
+        "Timestamp" : 1402928871210,
+        "Agreements" : [ ],
+        "Attributes" : [ {
+          "attribute" : {
+            "visibility" : "full",
+            "values" : [ "S3J6eXN6dG9mIEJlbmVkeWN6YWs=" ],
+            "name" : "cn",
+            "groupPath" : "/"
+          },
+          "externalIdP" : null
+        }, null ],
+        "Comments" : "hi",
+        "Credentials" : [ ],
+        "FormId" : "UNICORE Registration",
+        "GroupSelections" : [ {
+          "selected" : true,
+          "externalIdp" : null
+        } ],
+        "Identities" : [ {
+          "typeId" : "x500Name",
+          "value" : "CN=KB,O=ICM",
+          "target" : null,
+          "realm" : null,
+          "local" : true,
+          "remoteIdp" : null
+        }, {
+          "typeId" : "identifier",
+          "value" : "107562911305913164614",
+          "target" : null,
+          "realm" : null,
+          "local" : false,
+          "remoteIdp" : null
+        } ],
+        "RegistrationCode" : null
+      }
+    }, {
+      "type" : "registrationRequest",
+      "subType" : null,
+      "name" : "259a4d47-1564-43f7-9c25-257dccdd4a11",
+      "lastUpdate" : 1405699493157,
+      "contents" : {
+        "AdminComments" : [ ],
+        "RequestId" : "259a4d47-1564-43f7-9c25-257dccdd4a11",
+        "Status" : "accepted",
+        "Timestamp" : 1405699410530,
+        "Agreements" : [ {
+          "selected" : true,
+          "externalIdp" : null
+        } ],
+        "Attributes" : [ {
+          "attribute" : {
+            "visibility" : "full",
+            "values" : [ "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" ],
+            "name" : "jpegPhoto",
+            "groupPath" : "/portal"
+          },
+          "externalIdP" : null
+        }, {
+          "attribute" : {
+            "visibility" : "full",
+            "values" : [ "VGVzdCB1c2Vy" ],
+            "name" : "cn",
+            "groupPath" : "/"
+          },
+          "externalIdP" : null
+        } ],
+        "Comments" : "",
+        "Credentials" : [ {
+          "credentialId" : "Password credential",
+          "secrets" : "{\"passwords\":[{\"hash\":\"YKAl7e4+EnD++gcvRRKYroeYfHZo8XgwWnARJ88JmTk=\",\"salt\":\"-1549706300\",\"time\":1405699410529}],\"outdated\":false}"
+        } ],
+        "FormId" : "Unity registration",
+        "GroupSelections" : [ ],
+        "Identities" : [ {
+          "typeId" : "userName",
+          "value" : "test1",
+          "target" : null,
+          "realm" : null,
+          "translationProfile" : null,
+          "remoteIdp" : null
+        } ],
+        "RegistrationCode" : null
+      }
+    }, {
+      "type" : "registrationRequest",
+      "subType" : null,
+      "name" : "29681993-1534-42ff-864c-1038977622e9",
+      "lastUpdate" : 1405699791154,
+      "contents" : {
+        "AdminComments" : [ ],
+        "RequestId" : "29681993-1534-42ff-864c-1038977622e9",
+        "Status" : "accepted",
+        "Timestamp" : 1405699782081,
+        "Agreements" : [ ],
+        "Attributes" : [ {
+          "attribute" : {
+            "visibility" : "full",
+            "values" : [ "cXFxcQ==" ],
+            "name" : "cn",
+            "groupPath" : "/"
+          },
+          "externalIdP" : null
+        }, null ],
+        "Comments" : "q",
+        "Credentials" : [ {
+          "credentialId" : "Password credential",
+          "secrets" : "{\"passwords\":[{\"hash\":\"vhSpBGCJIGmHfyXaKyUarBALy2WgV4JNuz1XAqFOIPU=\",\"salt\":\"2121233330\",\"time\":1405699782080}],\"outdated\":false}"
+        } ],
+        "FormId" : "UNICORE Registration",
+        "GroupSelections" : [ ],
+        "Identities" : [ {
+          "typeId" : "userName",
+          "value" : "q",
+          "target" : null,
+          "realm" : null,
+          "translationProfile" : null,
+          "remoteIdp" : null
+        } ],
+        "RegistrationCode" : null
+      }
+    }, {
+      "type" : "registrationRequest",
+      "subType" : null,
+      "name" : "1947089c-de2b-40e1-8571-05df2b74c396",
+      "lastUpdate" : 1405700321582,
+      "contents" : {
+        "AdminComments" : [ {
+          "date" : 1405700321541,
+          "contents" : "System",
+          "authorEntityId" : 0,
+          "publicComment" : false
+        } ],
+        "RequestId" : "1947089c-de2b-40e1-8571-05df2b74c396",
+        "Status" : "accepted",
+        "Timestamp" : 1405700321510,
+        "Agreements" : [ ],
+        "Attributes" : [ {
+          "attribute" : {
+            "visibility" : "full",
+            "values" : [ "dHR0" ],
+            "name" : "cn",
+            "groupPath" : "/"
+          },
+          "externalIdP" : null
+        }, {
+          "attribute" : {
+            "visibility" : "full",
+            "values" : [ "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" ],
+            "name" : "jpegPhoto",
+            "groupPath" : "/portal"
+          },
+          "externalIdP" : null
+        } ],
+        "Comments" : "",
+        "Credentials" : [ {
+          "credentialId" : "Password credential",
+          "secrets" : "{\"passwords\":[{\"hash\":\"hW467wGo+ksIRNaukGTH+NmZnpph/et9Ynd2Qnf4woA=\",\"salt\":\"-1570100921\",\"time\":1405700321510}],\"outdated\":false}"
+        } ],
+        "FormId" : "UNICORE Registration",
+        "GroupSelections" : [ ],
+        "Identities" : [ {
+          "typeId" : "userName",
+          "value" : "ttt",
+          "target" : null,
+          "realm" : null,
+          "translationProfile" : null,
+          "remoteIdp" : null
+        } ],
+        "RegistrationCode" : null
+      }
+    }, {
+      "type" : "registrationRequest",
+      "subType" : null,
+      "name" : "20f22fd4-891e-49b8-900d-fc0c7edaa445",
+      "lastUpdate" : 1405700447761,
+      "contents" : {
+        "AdminComments" : [ {
+          "date" : 1405700447717,
+          "contents" : "System",
+          "authorEntityId" : 35,
+          "publicComment" : false
+        } ],
+        "RequestId" : "20f22fd4-891e-49b8-900d-fc0c7edaa445",
+        "Status" : "accepted",
+        "Timestamp" : 1405700447684,
+        "Agreements" : [ ],
+        "Attributes" : [ {
+          "attribute" : {
+            "visibility" : "full",
+            "values" : [ "dHR0" ],
+            "name" : "cn",
+            "groupPath" : "/"
+          },
+          "externalIdP" : null
+        }, {
+          "attribute" : {
+            "visibility" : "full",
+            "values" : [ "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" ],
+            "name" : "jpegPhoto",
+            "groupPath" : "/unicore"
+          },
+          "externalIdP" : null
+        } ],
+        "Comments" : "",
+        "Credentials" : [ {
+          "credentialId" : "Password credential",
+          "secrets" : "{\"passwords\":[{\"hash\":\"I2gRGYlRwFDmvAwkaMJfRQoNrTMvKhMBEU3lNzvIylM=\",\"salt\":\"-1095544168\",\"time\":1405700447683}],\"outdated\":false}"
+        } ],
+        "FormId" : "UNICORE Registration",
+        "GroupSelections" : [ ],
+        "Identities" : [ {
+          "typeId" : "userName",
+          "value" : "ttt",
+          "target" : null,
+          "realm" : null,
+          "translationProfile" : null,
+          "remoteIdp" : null
+        } ],
+        "RegistrationCode" : null
+      }
+    }, {
+      "type" : "registrationRequest",
+      "subType" : null,
+      "name" : "3697e8df-a446-4b30-b7e9-804751977f68",
+      "lastUpdate" : 1405718407757,
+      "contents" : {
+        "AdminComments" : [ {
+          "date" : 1405718407734,
+          "contents" : "System",
+          "authorEntityId" : 0,
+          "publicComment" : false
+        } ],
+        "RequestId" : "3697e8df-a446-4b30-b7e9-804751977f68",
+        "Status" : "accepted",
+        "Timestamp" : 1405718407718,
+        "Agreements" : [ ],
+        "Attributes" : [ {
+          "attribute" : {
+            "visibility" : "full",
+            "values" : [ "SFBDUyBkZW1v" ],
+            "name" : "cn",
+            "groupPath" : "/"
+          },
+          "externalIdP" : null
+        }, {
+          "attribute" : {
+            "visibility" : "full",
+            "values" : [ "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" ],
+            "name" : "jpegPhoto",
+            "groupPath" : "/unicore"
+          },
+          "externalIdP" : null
+        } ],
+        "Comments" : "",
+        "Credentials" : [ {
+          "credentialId" : "Password credential",
+          "secrets" : "{\"passwords\":[{\"hash\":\"OGnIgUES+AHZOnfgC/BAb28o/oMua++0hX2WruNYWq4=\",\"salt\":\"1069805987\",\"time\":1405718407717}],\"outdated\":false}"
+        } ],
+        "FormId" : "UNICORE Registration",
+        "GroupSelections" : [ ],
+        "Identities" : [ {
+          "typeId" : "userName",
+          "value" : "hpcs1",
+          "target" : null,
+          "realm" : null,
+          "translationProfile" : null,
+          "remoteIdp" : null
+        } ],
+        "RegistrationCode" : null
+      }
+    }, {
+      "type" : "registrationRequest",
+      "subType" : null,
+      "name" : "9f326efe-3928-46e6-a4e9-6360a5d089fb",
+      "lastUpdate" : 1405929581145,
+      "contents" : {
+        "AdminComments" : [ {
+          "date" : 1405929581124,
+          "contents" : "System",
+          "authorEntityId" : 0,
+          "publicComment" : false
+        } ],
+        "RequestId" : "9f326efe-3928-46e6-a4e9-6360a5d089fb",
+        "Status" : "accepted",
+        "Timestamp" : 1405929581108,
+        "Agreements" : [ ],
+        "Attributes" : [ {
+          "attribute" : {
+            "visibility" : "full",
+            "values" : [ "SFBDUyBEZW1vIHVzZXI=" ],
+            "name" : "cn",
+            "groupPath" : "/"
+          },
+          "externalIdP" : null
+        }, {
+          "attribute" : {
+            "visibility" : "full",
+            "values" : [ "/9j/4AAQSkZJRgABAgAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCABYAHgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDFPi67E+JvNYBQApfI9s1ch8VXySbJXZo2Gduc9O1YRQGIqMF2fJqdwDcDCjAFPndtxciOlX4gylVxaK2O28ion8falyIo0iQ/wgZxXKyiPAKjb6j0po3EDJAz+dNVJNbi5I9js5/GD3EQJhKY4xvOSKbF4vVVO23IkI27iTwK5nAbDD8R6U2MgMfXPFR7SRapRtqdImoX0lvst9TlbDby0gzj2rY0vxK1rF5dy3mtnmTGB+VcrasqQkBuSOamyhgKNIsZI6k81SnLoS4RPSrbxJELaOdsENwCDgZ9Mn8Tk8cGn/8ACW6fFnzZI1HXmRTnjPUZrxHxZK63fl2EoW2JIAViBnknj1yTWXDIlpEIhG0jjB+Y5GfX/PpTpTnJXkVWpU4tKB77J4s01ZlyAM8n5h0qtJ8QNAt5WSW4KsG2lFBc5+gya8OvNSuJ2XDnaqBeODgcD6mqumXslrqgZGwkxKsf4h9PrVzk4xujOnTjKSiz6QtvH+gtbrLA7Mp6MEI/nV5ta0e7bzV1CD5hk/OBXh9oyRwSCIs0JkZlLdff9c1bjcm3kGO3Fc/tHe5u6KSPaJ/EPhuKPd9uQsg+6GwSaK8cEckkiuf9WvaijnI5UjnImCXKqTuz82B25qQyEXBXOSWyMmqKzSLP5rWk3TCjFKL5o5/NktJyoORhe9O+gyeQqzYBHFIhJXJGe+arieQSMZbK4wTnleas2qxTsVMcyqeoK44oTsBYgcugOeNxFR3d3DZp5krfRR1NPnu7ewtyqgkLnA75riry+ku53ZyT9DRGHNqEpWVjYl16aTPlt5aEk8HBP41Ztbm5JSXazKcFSPmya5bfh8jGau20+E+Yge+O9bx0MmaNyZri+cNlWHLIxOc1bntRPYI9pKnREZS2Xc4BYgY+UA8f/W68/JezRKVWZhG5BdBwpIzjP5n863dK1S0hTMgGT/46Me+T096Vx2uMuNCvbVUnBUoQMbhkfj/nvVaOJbu9SFQDNuAJUnD4Y8/iP8ittvF1lLF9ke0PmQnBbeJEmPc+gxxjGQecn1saH4buI5F1G5i8sSDdDGeSFboT+HT65qWxpGvJAsKCNVAUKAoHQVJa/ckB54q02mTSRgIvPfNOhsZbWJhKpyfSsGtToT92xYChUBxlSKKoX9/5MC2q4ZsdA+0/mOQPU/SiqsjM5TzG+63GO1Tb3eNYz/EwA5xVcmMuBndn9KfLJ9n8qROSrcCkav4S1dOftMhB4J4qs04iQuThQKSaVp5CTwx5xXaN8Kby80W1nGoRxXDpvlhdThQegz1zirjG5jKSijynU9RkuHbAIXd3PFZpVcE8cj0rR8Q6c+jatNYSXMU7xHDNGcjPp9ayBJgkdMdq120IJEBzz1/lXaX3hK1SfTpLe9SHSrxN32mU4CEA5z69O1cOSQ3OOlWJdVupbSCzkuHa3gLNGhP3SetO4mjvr34bR/YUns9XS4Yg4Ij+U+mPSuBvNMvtPvGt3jcsP7oyDSxarfWSf6LdSxA9VViAfrXUeFvEN9cLdo8MM9ykYMUs3RT05Hf/AOtWUr3uilsZ+kQWukSx6hrkTeUD+7t8fNIR7H+HkV6BpfiKTXF+2yEAyfwKeEA4A/LFeS6za6ql49xqaytI5/1rcg+wPT8KueGdbfSr5A7n7Ox+dev+TSsNb6nsDXLh1wx96lvrlre3WZgXBHyoP4j6VmpeW93bieGZGiUZJB6fX0rC1LWvtkhtxMwkkby7ZAuSq8Bm6dgCee4xxgZk0dlsSRh76adnYYjcF5D3PUrz/COPrg0Vhai+y22DctrbYCKflLHGScZ9SORRT1J0I2EDnMYYc8gNUsSKJFZVbPQZbNUU+WT5WwpqyHVQpLD7wzz70mUWZ7/7NmR4oy4b5QRkZqle+OfEE6vu1SdcjadjkZHWs7VLoSSNtPyjOMVkIktw2ERnx19K1j7qMpWkxXlLSlyxZic5agYboBUQco5DDnpipUHUYHSi9wI5gFGAc9x71b0/RLu+UyDESDu46/QU2wQPqcAY/Lvyc13AdQnygUMEcZfWL2M4ik+YFcq2PvVd8LTC21faygiRSMH1HNbt9ZQ39sI5Dhhyrdwa5yaymsLkCTO4fMjr357U1Z6C2PQ3uQUKNbQvG33lZcg1zV/4Xs7q5861P2MseUUZXPsCeKv6dqC3Vkpdh5qj5s8Z96zdV1MOTDFJiMnYzYzu+g9PWodkWtShDD9mMkHnpIRkeYucYwc4/ln+laEskEVqbyQhZQfJRSASij8ePvccDnJzxVawiDSxS5Hk5JAcjL47Y6enFVr6R9Rm89UO1UXAVR2AA6ADpjnvnPWp6aj9CHVL15pJ7j5WSRiqbs5Vfp6YNFRXwWIRRsFMnVlU8Dk0VCkU46ly0kklc/JtC8kk1Hc3ylTGR36Hmreta5FcQ/ZreAwwIx2oF2/L2rn1Z5iEiG934CqOnP8A+qtI9yZdh7sznAGXPVQOvoK0LdLi0tsGHapyTkVY020NhNFM4kE+flwOE9wemam8Q6jPJZRhbx5mB+fHQfpzTlqTHQ5a4YfaTj155zSiXCZ9qhjhklkEcal3boBVy502W0SMScs57dAfT60ITJdKRpLoyLgbOma6CF7lOssYHXFZ2hNZ2sF5/aEdwHbb5TR7cKec5yR6itOzVbsgIki5GUZ1wp9ix4/KiSY4tDxcXCyLhowO+easS2N3dWTXEgTyEOS/ofanfYoo4zLPtAXgoH4J6Y4689MHmnmKeeNoRGCmWILN8seMDt6/y71Nn3KujnEvLe1GHWRiyldm0EduScgkdaW0C3Ewu5W2RIdrg4ztzzjuew/yaTVbKK2bfGecjIwcn35/D/61Uw0uGDAbjzhjjA68U9WLbYualqHnzsyqDEBtjGMEAf1/x+lRRyStbjfIGRfQ5/Dp1FT2sFrZxmeWRJmK7VCt0Pc9e3+TzVO4kDzH7MhRAMID1IzwfbIP9azeuhaVtS+2niJvtEsuWf5sLn5Rz+f/AOuiqlqst/MkcrOIYhh2JOSPT+lFZta6s1UtNEX7rQNMimaNNUFyQwAliPyHjJ469/0NXtM2aZb5tZraJ0ws0hw3B7DoWJ9ulFFbrY55bluHU/trBWmnlxH0EJPOOSCM+g9f0p19oi3FuysDHvhB3M+TuB/u7c55GQB09DRRVJCK+j+GGto2EsquZCOUX26A/h7VsyabDJbCOVhI4AV2wSB7cY7dzRRVJJkN6lW30zTpbgG1uYYyBsJjTcyMc4zgfmSBUk11Z2RO60mmiA2IdoGXYEgZc89OwPfjpkoqW2aJIyZdUuFBnubRQxBG0IMIByB/T3571NHm+tZVjkReBkIT/McHHv7fgUVCZT3MqaNHt3VmLyKSAfvE9ACB6E4Gf51gySFSQvQjHrRRTuSSJJK8Soz70QkBccc9f/106GaOMfKS82MknoD7e9FFTa5e2pae4S1RLdJGCYxLhclmz16880UUUlFDcmj/2Q==" ],
+            "name" : "jpegPhoto",
+            "groupPath" : "/unicore"
+          },
+          "externalIdP" : null
+        } ],
+        "Comments" : "",
+        "Credentials" : [ {
+          "credentialId" : "Password credential",
+          "secrets" : "{\"passwords\":[{\"hash\":\"+kVz0hNDJAjfQIMqPIjyAqzgyebbyonDci1YTlkNOGM=\",\"salt\":\"1002779158\",\"time\":1405929581108}],\"outdated\":false}"
+        } ],
+        "FormId" : "UNICORE Registration",
+        "GroupSelections" : [ ],
+        "Identities" : [ {
+          "typeId" : "userName",
+          "value" : "hpcs",
+          "target" : null,
+          "realm" : null,
+          "translationProfile" : null,
+          "remoteIdp" : null
+        } ],
+        "RegistrationCode" : null
+      }
+    }, {
+      "type" : "registrationRequest",
+      "subType" : null,
+      "name" : "22cebbac-b148-4c3b-9153-778ed09b2622",
+      "lastUpdate" : 1405959727952,
+      "contents" : {
+        "AdminComments" : [ {
+          "date" : 1405959727919,
+          "contents" : "System",
+          "authorEntityId" : 0,
+          "publicComment" : false
+        } ],
+        "RequestId" : "22cebbac-b148-4c3b-9153-778ed09b2622",
+        "Status" : "accepted",
+        "Timestamp" : 1405959727859,
+        "Agreements" : [ ],
+        "Attributes" : [ {
+          "attribute" : {
+            "visibility" : "full",
+            "values" : [ "SFBDUyBkZW1v" ],
+            "name" : "cn",
+            "groupPath" : "/"
+          },
+          "externalIdP" : null
+        }, {
+          "attribute" : {
+            "visibility" : "full",
+            "values" : [ "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" ],
+            "name" : "jpegPhoto",
+            "groupPath" : "/unicore"
+          },
+          "externalIdP" : null
+        } ],
+        "Comments" : "",
+        "Credentials" : [ {
+          "credentialId" : "Password credential",
+          "secrets" : "{\"passwords\":[{\"hash\":\"2zb3wM6seB1CLcrZCdzczAo7ZGSgHrC2bYlKuEYcKbE=\",\"salt\":\"-1100178399\",\"time\":1405959727858}],\"outdated\":false}"
+        } ],
+        "FormId" : "UNICORE Registration",
+        "GroupSelections" : [ ],
+        "Identities" : [ {
+          "typeId" : "userName",
+          "value" : "hpcs",
+          "target" : null,
+          "realm" : null,
+          "translationProfile" : null,
+          "remoteIdp" : null
+        } ],
+        "RegistrationCode" : null
+      }
+    }, {
+      "type" : "authenticationRealm",
+      "subType" : null,
+      "name" : "defaultRealm",
+      "lastUpdate" : 1464887251349,
+      "contents" : {
+        "allowForRememberMeDays" : -1,
+        "blockAfterUnsuccessfulLogins" : 4,
+        "blockFor" : 30,
+        "maxInactivity" : 3600,
+        "description" : null
+      }
+    }, {
+      "type" : "authenticationRealm",
+      "subType" : null,
+      "name" : "adminRealm",
+      "lastUpdate" : 1464887251350,
+      "contents" : {
+        "allowForRememberMeDays" : -1,
+        "blockAfterUnsuccessfulLogins" : 4,
+        "blockFor" : 30,
+        "maxInactivity" : 1800,
+        "description" : null
+      }
+    }, {
+      "type" : "credential",
+      "subType" : "null",
+      "name" : "Password credential",
+      "lastUpdate" : 1399231133404,
+      "contents" : {
+        "name" : "Password credential",
+        "description" : "Default password credential with typical security settings.",
+        "typeId" : "password",
+        "jsonConfiguration" : "{\"minLength\": 1,\"historySize\": 1,\"minClassesNum\": 1,\"denySequences\": false,\"maxAge\": 30758400000}"
+      }
+    }, {
+      "type" : "credential",
+      "subType" : "null",
+      "name" : "Certificate credential",
+      "lastUpdate" : 1399231133543,
+      "contents" : {
+        "name" : "Certificate credential",
+        "description" : "Credential allowing for certificate login",
+        "typeId" : "certificate",
+        "jsonConfiguration" : ""
+      }
+    }, {
+      "type" : "credential",
+      "subType" : null,
+      "name" : "Secured password",
+      "lastUpdate" : 1402656193666,
+      "contents" : {
+        "name" : "Secured password",
+        "description" : "",
+        "typeId" : "password",
+        "jsonConfiguration" : "{\"minLength\":12,\"historySize\":5,\"minClassesNum\":3,\"maxAge\":63058176000,\"denySequences\":true,\"resetSettings\":{\"enable\":true,\"codeLength\":4,\"requireEmailConfirmation\":true,\"requireSecurityQuestion\":true,\"questions\":[\"Your pet's name\",\"Your best friend from school\",\"Your mother's maiden name\"],\"securityCodeMsgTemplate\":\"passwordResetCode\"}}"
+      }
+    }, {
+      "type" : "notificationChannel",
+      "subType" : null,
+      "name" : "Default e-mail channel",
+      "lastUpdate" : 1464887251194,
+      "contents" : {
+        "configuration" : "# User name which will be used for From: field of the email. It is also used  \n# as SMTP envelope return address if not overriden below.\nmail.from=root@localhost\n\n# The SMTP server to connect to.\nmail.smtp.host=localhost\n\n# If true, enables the use of the STARTTLS command (if supported by the server) \n# to switch the connection to a TLS-protected connection before issuing any login commands.\n# \n# IMPORTANT! SMTP server's certificate must be trusted to establish the connection.\n# The software will use the same truststore that is defined in main configuration of the server\n# so add SMTP server's CA certificate to it. Otherwise you can turn off the server's certificate verification\n# below, but you expose yourself for the MITM attacks. \n# Defaults to false.\n#mail.smtp.starttls.enable=true\n\n# Relevant only if starttls is enabled. Turns off SMTP server certificate verification.\n#mailx.smtp.trustAll=true\n\n# Email address to use for SMTP MAIL command. This sets the envelope return address. \n# Defaults to mail.from defined above.\n#mail.smtp.from=\n\n# If true, attempt to authenticate the user using the AUTH command. Defaults to false.\n#mail.smtp.auth=true\n\n# User and password used when authentication is enabled above.\n#mailx.smtp.auth.username=XX\n#mailx.smtp.auth.password=XX\n\n# I/O timeout value in milliseconds. Default is infinite timeout.\nmail.smtp.timeoutSocket=15000\n\n# Socket connection timeout value in milliseconds. Default is infinite timeout.\nmail.smtp.connectiontimeout=15000\n\n# The SMTP server port to connect to. Defaults to 25.\n#mail.smtp.port=587\n\n# Set this property to true if you want to see debug messages (are printed to the\n# stderr). Default is false.\n#mail.debug=true\n\n# For other (less frequently used) properties of email client configuration\n# take a look at  \n# https://javamail.java.net/nonav/docs/api/\n# and other documentation of javax-mail package.\n",
+        "facilityId" : "email",
+        "description" : "Default email channel"
+      }
+    }, {
+      "type" : "translationProfile",
+      "subType" : null,
+      "name" : "googleProfile",
+      "lastUpdate" : 1405698920953,
+      "contents" : {
+        "ver" : "2",
+        "name" : "googleProfile",
+        "description" : "Allows to translate remote Google account data into local representation.",
+        "type" : "INPUT",
+        "mode" : "UPDATE_ONLY",
+        "rules" : [ {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapIdentity",
+            "parameters" : [ "identifier", "attr['sub']", "Password requirement", "CREATE_OR_MATCH" ]
+          }
+        }, {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapGroup",
+            "parameters" : [ "'/unicore'" ]
+          }
+        }, {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapAttribute",
+            "parameters" : [ "cn", "/", "attr['name']", "full", "CREATE_OR_UPDATE" ]
+          }
+        } ]
+      }
+    }, {
+      "type" : "translationProfile",
+      "subType" : null,
+      "name" : "facebookProfile",
+      "lastUpdate" : 1405706506605,
+      "contents" : {
+        "ver" : "2",
+        "name" : "facebookProfile",
+        "description" : "Allows to translate remote Facebook account data into local representation.",
+        "type" : "INPUT",
+        "mode" : "UPDATE_ONLY",
+        "rules" : [ {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapIdentity",
+            "parameters" : [ "identifier", "attr['id']", "Password requirement", "CREATE_OR_MATCH" ]
+          }
+        }, {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapGroup",
+            "parameters" : [ "'/unicore'" ]
+          }
+        }, {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapAttribute",
+            "parameters" : [ "cn", "/", "attr['first_name']", "full", "CREATE_OR_UPDATE" ]
+          }
+        } ]
+      }
+    }, {
+      "type" : "translationProfile",
+      "subType" : null,
+      "name" : "shibProfile",
+      "lastUpdate" : 1400160019125,
+      "contents" : {
+        "ver" : "2",
+        "name" : "shibProfile",
+        "description" : "Allows to translate remote SAML Shibboleth IdP data into local representation.",
+        "mode" : "UPDATE_ONLY",
+        "rules" : [ {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapIdentity",
+            "parameters" : [ "userName", "attr['urn:oid:2.5.4.3']", "Password requirement", "CREATE_OR_MATCH" ]
+          }
+        } ]
+      }
+    }, {
+      "type" : "translationProfile",
+      "subType" : null,
+      "name" : "ldapProfile",
+      "lastUpdate" : 1400495103994,
+      "contents" : {
+        "ver" : "2",
+        "name" : "ldapProfile",
+        "description" : "Allows to translate local Open LDAP data into local representation. gr1->/A/B, identity is taken as-is, cn->cn, everything is synced automatically",
+        "mode" : "UPDATE_ONLY",
+        "rules" : [ {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapIdentity",
+            "parameters" : [ "identifier", "id", "Password requirement", "MATCH" ]
+          }
+        }, {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapGroup",
+            "parameters" : [ "'/portal'" ]
+          }
+        } ]
+      }
+    }, {
+      "type" : "translationProfile",
+      "subType" : null,
+      "name" : "sspProfile",
+      "lastUpdate" : 1400159394812,
+      "contents" : {
+        "ver" : "2",
+        "name" : "sspProfile",
+        "description" : "Allows to translate remote Simple Saml Php IdP data into local representation.",
+        "mode" : "UPDATE_ONLY",
+        "rules" : [ {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapIdentity",
+            "parameters" : [ "userName", "attr['urn:oid:0.9.2342.19200300.100.1.1']", "Password requirement", "CREATE_OR_MATCH" ]
+          }
+        }, {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapGroup",
+            "parameters" : [ "'/portal'" ]
+          }
+        } ]
+      }
+    }, {
+      "type" : "translationProfile",
+      "subType" : null,
+      "name" : "msProfile",
+      "lastUpdate" : 1405706253726,
+      "contents" : {
+        "ver" : "2",
+        "name" : "msProfile",
+        "description" : "",
+        "type" : "INPUT",
+        "mode" : "UPDATE_ONLY",
+        "rules" : [ {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapIdentity",
+            "parameters" : [ "identifier", "attr['id']", "Password requirement", "CREATE_OR_MATCH" ]
+          }
+        }, {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapGroup",
+            "parameters" : [ "'/unicore'" ]
+          }
+        }, {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapAttribute",
+            "parameters" : [ "cn", "/", "attr['name']", "full", "CREATE_OR_UPDATE" ]
+          }
+        } ]
+      }
+    }, {
+      "type" : "translationProfile",
+      "subType" : null,
+      "name" : "desyProfile",
+      "lastUpdate" : 1402689427862,
+      "contents" : {
+        "ver" : "2",
+        "name" : "desyProfile",
+        "description" : "",
+        "mode" : "UPDATE_ONLY",
+        "rules" : [ {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapIdentity",
+            "parameters" : [ "identifier", "idsByType['urn:oasis:names:tc:SAML:2.0:nameid-format:persistent']", "Password requirement", "CREATE_OR_MATCH" ]
+          }
+        } ]
+      }
+    }, {
+      "type" : "translationProfile",
+      "subType" : "OUTPUT",
+      "name" : "UNICORE profile",
+      "lastUpdate" : 1405929635820,
+      "contents" : {
+        "ver" : "2",
+        "name" : "UNICORE profile",
+        "description" : "",
+        "type" : "OUTPUT",
+        "rules" : [ {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "createPersistedIdentity",
+            "parameters" : [ "x500Name", "'CN=' + attr['cn'] + ',O=ICM,C=PL'" ]
+          }
+        } ]
+      }
+    }, {
+      "type" : "attributeClass",
+      "subType" : "null",
+      "name" : "Common attributes",
+      "lastUpdate" : 1399231135591,
+      "contents" : {
+        "name" : "Common attributes",
+        "description" : "General purpose attributes, should be enabled for everybody",
+        "allowed" : [ "sys:AuthorizationRole" ],
+        "mandatory" : [ ],
+        "allowArbitrary" : false,
+        "parentClasses" : [ ]
+      }
+    }, {
+      "type" : "attributeClass",
+      "subType" : "null",
+      "name" : "Common identification attributes",
+      "lastUpdate" : 1399231135596,
+      "contents" : {
+        "name" : "Common identification attributes",
+        "description" : "Identification attributes, should be set for everybody to enable common system features",
+        "allowed" : [ "cn", "email" ],
+        "mandatory" : [ "cn", "email" ],
+        "allowArbitrary" : false,
+        "parentClasses" : [ ]
+      }
+    }, {
+      "type" : "attributeClass",
+      "subType" : "null",
+      "name" : "UNICORE portal attributes",
+      "lastUpdate" : 1399231135599,
+      "contents" : {
+        "name" : "UNICORE portal attributes",
+        "description" : "Attributes useful for the UNICORE portal",
+        "allowed" : [ "cn", "email", "jpegPhoto", "o" ],
+        "mandatory" : [ "cn", "email" ],
+        "allowArbitrary" : false,
+        "parentClasses" : [ "Common attributes" ]
+      }
+    }, {
+      "type" : "registrationForm",
+      "subType" : null,
+      "name" : "UNICORE Registration",
+      "lastUpdate" : 1405929451451,
+      "contents" : {
+        "Agreements" : [ ],
+        "AttributeParams" : [ {
+          "label" : "Your name:",
+          "description" : null,
+          "retrievalSettings" : "interactive",
+          "optional" : false,
+          "attributeType" : "cn",
+          "group" : "/",
+          "showGroups" : false,
+          "useDescription" : false
+        }, {
+          "label" : "Profile photo:",
+          "description" : null,
+          "retrievalSettings" : "interactive",
+          "optional" : true,
+          "attributeType" : "jpegPhoto",
+          "group" : "/unicore",
+          "showGroups" : false,
+          "useDescription" : false
+        } ],
+        "CollectComments" : true,
+        "CredentialParams" : [ {
+          "credentialName" : "Password credential",
+          "label" : null,
+          "description" : null
+        } ],
+        "Description" : "",
+        "FormInformation" : "",
+        "GroupParams" : [ ],
+        "IdentityParams" : [ {
+          "label" : "User name:",
+          "description" : null,
+          "retrievalSettings" : "interactive",
+          "optional" : false,
+          "identityType" : "userName"
+        } ],
+        "Name" : "UNICORE Registration",
+        "NotificationsConfiguration" : {
+          "submittedTemplate" : null,
+          "updatedTemplate" : null,
+          "rejectedTemplate" : null,
+          "acceptedTemplate" : null,
+          "channel" : null,
+          "adminsNotificationGroup" : "/"
+        },
+        "PubliclyAvailable" : true,
+        "RegistrationCode" : null,
+        "DefaultCredentialRequirement" : "Password requirement",
+        "TranslationProfile" : {
+          "ver" : "2",
+          "name" : "formProfile",
+          "type" : "REGISTRATION",
+          "rules" : [ {
+            "condition" : {
+              "conditionValue" : "true"
+            },
+            "action" : {
+              "name" : "autoProcess",
+              "parameters" : [ "accept" ]
+            }
+          }, {
+            "condition" : {
+              "conditionValue" : "true"
+            },
+            "action" : {
+              "name" : "addToGroup",
+              "parameters" : [ "/unicore" ]
+            }
+          } ]
+        }
+      }
+    }, {
+      "type" : "registrationForm",
+      "subType" : null,
+      "name" : "Internal user creation",
+      "lastUpdate" : 1400160156533,
+      "contents" : {
+        "Agreements" : [ ],
+        "AttributeParams" : [ {
+          "label" : null,
+          "description" : null,
+          "retrievalSettings" : "interactive",
+          "optional" : false,
+          "attributeType" : "cn",
+          "group" : "/",
+          "showGroups" : false,
+          "useDescription" : false
+        } ],
+        "CollectComments" : false,
+        "CredentialParams" : [ {
+          "credentialName" : "Password credential",
+          "label" : null,
+          "description" : null
+        } ],
+        "Description" : "",
+        "FormInformation" : "",
+        "GroupParams" : [ {
+          "label" : null,
+          "description" : null,
+          "retrievalSettings" : "interactive",
+          "groupPath" : "/portal"
+        } ],
+        "IdentityParams" : [ {
+          "label" : "Username",
+          "description" : null,
+          "retrievalSettings" : "interactive",
+          "optional" : false,
+          "identityType" : "userName"
+        } ],
+        "Name" : "Internal user creation",
+        "NotificationsConfiguration" : {
+          "submittedTemplate" : null,
+          "updatedTemplate" : null,
+          "rejectedTemplate" : null,
+          "acceptedTemplate" : null,
+          "channel" : null,
+          "adminsNotificationGroup" : "/"
+        },
+        "PubliclyAvailable" : false,
+        "RegistrationCode" : null,
+        "DefaultCredentialRequirement" : "Password requirement",
+        "TranslationProfile" : {
+          "ver" : "2",
+          "name" : "formProfile",
+          "type" : "REGISTRATION",
+          "rules" : [ {
+            "condition" : {
+              "conditionValue" : "true"
+            },
+            "action" : {
+              "name" : "addAttribute",
+              "parameters" : [ "o", "/", "['ICM']", "full" ]
+            }
+          } ]
+        }
+      }
+    }, {
+      "type" : "registrationForm",
+      "subType" : null,
+      "name" : "Unity registration",
+      "lastUpdate" : 1422565671812,
+      "contents" : {
+        "Agreements" : [ {
+          "i18nText" : {
+            "DefaultValue" : "All your personal data will be publicly available. Or it will be not available. Depends on admin's mood.",
+            "Map" : { }
+          },
+          "manatory" : true
+        } ],
+        "AttributeParams" : [ {
+          "label" : "Your profile picture:",
+          "description" : null,
+          "retrievalSettings" : "interactive",
+          "optional" : true,
+          "attributeType" : "jpegPhoto",
+          "group" : "/portal",
+          "showGroups" : false,
+          "useDescription" : false
+        }, {
+          "label" : "Your name:",
+          "description" : null,
+          "retrievalSettings" : "interactive",
+          "optional" : false,
+          "attributeType" : "cn",
+          "group" : "/",
+          "showGroups" : false,
+          "useDescription" : false
+        } ],
+        "CollectComments" : true,
+        "CredentialParams" : [ {
+          "credentialName" : "Password credential",
+          "label" : "Password:",
+          "description" : null
+        } ],
+        "Description" : "",
+        "i18nFormInformation" : {
+          "DefaultValue" : "",
+          "Map" : {
+            "pl" : "ółąść"
+          }
+        },
+        "GroupParams" : [ ],
+        "IdentityParams" : [ {
+          "label" : "Your login:",
+          "description" : null,
+          "retrievalSettings" : "interactive",
+          "optional" : false,
+          "identityType" : "userName"
+        } ],
+        "Name" : "Unity registration",
+        "DisplayedName" : {
+          "DefaultValue" : "Unity registration",
+          "Map" : { }
+        },
+        "NotificationsConfiguration" : {
+          "submittedTemplate" : null,
+          "updatedTemplate" : null,
+          "rejectedTemplate" : null,
+          "acceptedTemplate" : null,
+          "channel" : null,
+          "adminsNotificationGroup" : "/"
+        },
+        "PubliclyAvailable" : false,
+        "RegistrationCode" : null,
+        "CaptchaLength" : 0,
+        "RedirectAfterSubmitAndAccept" : null,
+        "DefaultCredentialRequirement" : "Password requirement",
+        "TranslationProfile" : {
+          "ver" : "2",
+          "name" : "formProfile",
+          "type" : "REGISTRATION",
+          "rules" : [ {
+            "condition" : {
+              "conditionValue" : "true"
+            },
+            "action" : {
+              "name" : "addToGroup",
+              "parameters" : [ "/portal" ]
+            }
+          } ]
+        }
+      }
+    }, {
+      "type" : "registrationForm",
+      "subType" : null,
+      "name" : "test",
+      "lastUpdate" : 1454968714838,
+      "contents" : {
+        "Agreements" : [ ],
+        "AttributeParams" : [ ],
+        "CollectComments" : false,
+        "CredentialParams" : [ ],
+        "DefaultCredentialRequirement" : "Password requirement",
+        "Description" : "",
+        "i18nFormInformation" : {
+          "DefaultValue" : null,
+          "Map" : { }
+        },
+        "GroupParams" : [ ],
+        "IdentityParams" : [ {
+          "label" : null,
+          "description" : null,
+          "retrievalSettings" : "automaticAndInteractive",
+          "optional" : false,
+          "identityType" : "x500Name"
+        } ],
+        "Name" : "test",
+        "DisplayedName" : {
+          "DefaultValue" : "test",
+          "Map" : { }
+        },
+        "NotificationsConfiguration" : {
+          "submittedTemplate" : null,
+          "updatedTemplate" : null,
+          "rejectedTemplate" : null,
+          "acceptedTemplate" : null,
+          "channel" : null,
+          "adminsNotificationGroup" : "/"
+        },
+        "PubliclyAvailable" : true,
+        "RegistrationCode" : null,
+        "CaptchaLength" : 0,
+        "TranslationProfile" : {
+          "ver" : "2",
+          "name" : "form profile",
+          "type" : "REGISTRATION",
+          "rules" : [ ]
+        }
+      }
+    }, {
+      "type" : "registrationForm",
+      "subType" : null,
+      "name" : "test2",
+      "lastUpdate" : 1454968780570,
+      "contents" : {
+        "Agreements" : [ ],
+        "AttributeParams" : [ ],
+        "CollectComments" : false,
+        "CredentialParams" : [ ],
+        "DefaultCredentialRequirement" : "Password requirement",
+        "Description" : "",
+        "i18nFormInformation" : {
+          "DefaultValue" : null,
+          "Map" : { }
+        },
+        "GroupParams" : [ {
+          "label" : null,
+          "description" : null,
+          "retrievalSettings" : "interactive",
+          "groupPath" : "/A"
+        } ],
+        "IdentityParams" : [ {
+          "label" : null,
+          "description" : null,
+          "retrievalSettings" : "interactive",
+          "optional" : false,
+          "identityType" : "x500Name"
+        } ],
+        "Name" : "test2",
+        "DisplayedName" : {
+          "DefaultValue" : "test2",
+          "Map" : { }
+        },
+        "NotificationsConfiguration" : {
+          "submittedTemplate" : null,
+          "updatedTemplate" : null,
+          "rejectedTemplate" : null,
+          "acceptedTemplate" : null,
+          "channel" : null,
+          "adminsNotificationGroup" : "/"
+        },
+        "PubliclyAvailable" : true,
+        "RegistrationCode" : null,
+        "CaptchaLength" : 0,
+        "TranslationProfile" : {
+          "ver" : "2",
+          "name" : "form profile",
+          "type" : "REGISTRATION",
+          "rules" : [ ]
+        }
+      }
+    } ]
+  }
+}

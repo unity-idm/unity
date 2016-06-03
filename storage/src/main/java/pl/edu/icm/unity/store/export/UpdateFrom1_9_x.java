@@ -17,9 +17,6 @@ import javax.imageio.ImageIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -39,9 +36,6 @@ import pl.edu.icm.unity.types.basic.VerifiableEmail;
  * Updates a JSON dump before it is actually imported.
  * Changes are performed in JSON contents, input stream is reset after the changes are performed.
  * 
- * TODO this code needs a lot more is only partial and in general wrong from API standpoint 
- * (must parse everything first, then update,... and return updated).
- * 
  * TODO - InvitationWithCode - 2xtime changed from second to millisecond, apply *1000
  * 
  * @author K. Benedyczak
@@ -59,17 +53,37 @@ public class UpdateFrom1_9_x implements Update
 	private AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
 	
 	@Override
-	public void update(InputStream is) throws IOException
+	public InputStream update(InputStream is) throws IOException
 	{
-		JsonFactory jsonF = new JsonFactory(objectMapper);
-		JsonParser jp = jsonF.createParser(is);
-		JsonUtils.nextExpect(jp, JsonToken.START_OBJECT);
-		JsonUtils.nextExpect(jp, "contents");
-		
+		ObjectNode root = (ObjectNode) objectMapper.readTree(is);
+		ObjectNode contents = (ObjectNode) root.get("contents");
 		
 		Map<Long, ObjectNode> attributeTypesById = new HashMap<>();
 		Map<String, ObjectNode> attributeTypesByName = new HashMap<>();
-		ArrayNode attrTypes = JsonUtils.deserialize2Array(jp, "attributeTypes");
+		
+		updateAttributeTypes(attributeTypesById, attributeTypesByName, contents);
+		
+		updateIdentityTypes(contents);
+		
+		updateIdentitites(contents);
+
+		updateGroups(contents, attributeTypesById);
+
+		updateMembers(contents);
+		
+		updateAttributes(contents, attributeTypesByName);
+
+//		JsonUtils.nextExpect(jp, "genericObjects");
+		
+		return new ByteArrayInputStream(objectMapper.writeValueAsBytes(contents));
+	}
+
+	private void updateAttributeTypes(Map<Long, ObjectNode> attributeTypesById, 
+			Map<String, ObjectNode> attributeTypesByName, ObjectNode contents)
+	{
+		ArrayNode attrTypes = (ArrayNode) contents.get("attributeTypes");
+		if (attrTypes == null)
+			return;
 		for (JsonNode node: attrTypes)
 		{
 			long id = node.get("id").asLong();
@@ -77,38 +91,32 @@ public class UpdateFrom1_9_x implements Update
 			attributeTypesById.put(id, (ObjectNode) node);
 			attributeTypesByName.put(name, (ObjectNode) node);
 		}
-		
-		ArrayNode idTypes = JsonUtils.deserialize2Array(jp, "identityTypes");
+	}
+	
+	private void updateIdentityTypes(ObjectNode contents)
+	{
+		ArrayNode idTypes = (ArrayNode) contents.get("identityTypes"); 
+		if (idTypes == null)
+			return;
 		for (JsonNode node: idTypes)
 		{
 			ObjectNode oNode = (ObjectNode) node;
 			oNode.put("identityTypeProvider", node.get("name").asText());
 		}
-
-		JsonUtils.nextExpect(jp, "entities");
-		jp.skipChildren();
-
-		ArrayNode ids = JsonUtils.deserialize2Array(jp, "identities");
+	}
+	
+	private void updateIdentitites(ObjectNode contents)
+	{
+		ArrayNode ids = (ArrayNode) contents.get("identities");
+		if (ids == null)
+			return;
 		for (JsonNode node: ids)
 			setIdentityComparableValue((ObjectNode) node);
-
-		ArrayNode groups = JsonUtils.deserialize2Array(jp, "groups");
-		updateGroups(groups, attributeTypesById);
-		
-		ArrayNode members = JsonUtils.deserialize2Array(jp, "groupMembers");
-		//TODO
-		
-		ArrayNode attributes = JsonUtils.deserialize2Array(jp, "attributes");
-		for (JsonNode node: attributes)
-			updateStoredAttribute((ObjectNode) node, attributeTypesByName);
-
-//		JsonUtils.nextExpect(jp, "genericObjects");
-//		genericsIE.deserialize(sql, jp);
 	}
 	
 	private void setIdentityComparableValue(ObjectNode src)
 	{
-		String type = src.get("typeId").asText();
+		String type = src.get("typeName").asText();
 		IdentityTypeDefinition idTypeDef = idTypesRegistry.getByName(type);
 		String comparable;
 		try
@@ -121,11 +129,15 @@ public class UpdateFrom1_9_x implements Update
 			throw new InternalException("Can't deserialize identity: invalid value [" + 
 					src.get("value") +"]", e);
 		}
+		src.put("typeId", type);
 		src.put("comparableValue", comparable);
 	}
 
-	private void updateGroups(ArrayNode src, Map<Long, ObjectNode> attributeTypesById)
+	private void updateGroups(ObjectNode contents, Map<Long, ObjectNode> attributeTypesById)
 	{
+		ArrayNode src = (ArrayNode) contents.get("groups");
+		if (src == null)
+			return;
 		Map<Long, String> legacyGroupIds = new HashMap<>();
 		for (JsonNode node: src)
 		{
@@ -135,11 +147,11 @@ public class UpdateFrom1_9_x implements Update
 		}
 	
 		for (JsonNode node: src)
-			updateFromPre2Single((ObjectNode) node, legacyGroupIds, attributeTypesById);
+			updateGroup((ObjectNode) node, legacyGroupIds, attributeTypesById);
 	}
 	
 	
-	private void updateFromPre2Single(ObjectNode src, Map<Long, String> legacyGroupIds, 
+	private void updateGroup(ObjectNode src, Map<Long, String> legacyGroupIds, 
 			Map<Long, ObjectNode> attributeTypesById)
 	{
 		String groupPath = src.get("groupPath").asText();
@@ -175,6 +187,24 @@ public class UpdateFrom1_9_x implements Update
 				statement.set("fixedAttribute", target);
 			}
 		}
+	}
+
+	private void updateMembers(ObjectNode contents)
+	{
+		ArrayNode members = (ArrayNode) contents.get("groupMembers");
+		if (members == null)
+			return;
+
+		//TODO
+	}
+
+	private void updateAttributes(ObjectNode contents, Map<String, ObjectNode> attributeTypesByName)
+	{
+		ArrayNode attributes = (ArrayNode) contents.get("attributes");
+		if (attributes == null)
+			return;
+		for (JsonNode node: attributes)
+			updateStoredAttribute((ObjectNode) node, attributeTypesByName);
 	}
 	
 	private void updateStoredAttribute(ObjectNode src, Map<String, ObjectNode> attributeTypesByName)
