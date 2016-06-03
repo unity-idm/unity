@@ -98,6 +98,9 @@ public class OAuthProcessor
 		internalToken.setClientName(ctx.getClientName());
 		internalToken.setClientUsername(ctx.getClientUsername());
 		internalToken.setSubject(identity.getValue());
+		internalToken.setMaxExtendedValidity(ctx.getMaxExtendedAccessTokenValidity());
+		internalToken.setTokenValidity(ctx.getAccessTokenValidity());
+		
 		Date now = new Date();
 		
 		JWT idTokenSigned = null;

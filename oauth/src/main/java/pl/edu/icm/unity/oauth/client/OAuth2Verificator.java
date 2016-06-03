@@ -389,11 +389,13 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		AccessTokenFormat accessTokenFormat = providerCfg.getEnumValue(CustomProviderProperties.ACCESS_TOKEN_FORMAT, 
 				AccessTokenFormat.class);
 
+		Map<String, String> ret = new HashMap<String, String>();
 		BearerAccessToken accessToken;
 		if (accessTokenFormat == AccessTokenFormat.standard)
 		{
 			AccessTokenResponse atResponse = AccessTokenResponse.parse(response);
 			accessToken = extractAccessToken(atResponse);
+			extractUserInfoFromStandardAccessToken(atResponse, ret);
 		} else
 		{
 			if (response.getStatusCode() != 200)
@@ -415,8 +417,9 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				lifetimeStr = DEFAULT_TOKEN_EXPIRATION;
 			}
 			accessToken = new BearerAccessToken(accessTokenVal, Long.parseLong(lifetimeStr), null);
+			extractUserInfoFromHttpParamsAccessToken(map, ret);
 		}
-		Map<String, String> ret = new HashMap<String, String>();
+
 		String userInfoEndpoint = providerCfg.getValue(CustomProviderProperties.PROFILE_ENDPOINT);
 		if (userInfoEndpoint != null)
 		{
@@ -429,6 +432,37 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		
 		log.debug("Received the following attributes from the OAuth provider: " + ret);
 		return ret;
+	}
+	
+	
+	private void extractUserInfoFromStandardAccessToken(AccessTokenResponse atResponse, Map<String, String> ret)
+	{
+		Map<String, Object> customParameters = atResponse.getCustomParameters();
+		for (Map.Entry<String, Object> e: customParameters.entrySet())
+		{
+			if (attributeIgnored(e.getKey()))
+				continue;
+			ret.put(e.getKey(), e.getValue().toString());
+		}
+	}
+
+	private void extractUserInfoFromHttpParamsAccessToken(MultiMap<String> params, Map<String, String> ret)
+	{
+		for (Map.Entry<String, List<String>> param: params.entrySet())
+		{
+			String key = param.getKey();
+			List<String> values = param.getValue();
+			if (attributeIgnored(key) || values.isEmpty())
+				continue;
+			String value = values.size() == 1 ? values.get(0) : values.toString();
+			ret.put(key, value);
+		}
+	}
+	
+	private boolean attributeIgnored(String key)
+	{
+		return key.equals("access_token") || key.equals("expires") || key.equals("expires_in") ||
+				key.equals("id_token");
 	}
 	
 	private BearerAccessToken extractAccessToken(AccessTokenResponse atResponse) throws AuthenticationException

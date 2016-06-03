@@ -7,5 +7,5 @@
 	<context:annotation-config/>
 	<bean class="pl.edu.icm.unity.ldap.client.LdapVerificatorFactory"/>
 	<bean class="pl.edu.icm.unity.ldap.client.LdapDNVerificatorFactory"/>
-	
+	<bean class="pl.edu.icm.unity.ldap.client.LdapImporterFactory"/>	
 </beans>

@@ -4,8 +4,13 @@
  */
 package pl.edu.icm.unity.oauth.as;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static pl.edu.icm.unity.oauth.as.OAuthProcessor.INTERNAL_ACCESS_TOKEN;
+
+import java.util.Date;
 
 import javax.ws.rs.core.Response;
 
@@ -17,6 +22,7 @@ import org.junit.Test;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.token.TokenInfoResource;
+import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -61,4 +67,66 @@ public class TokenInfoResourceTest
 		assertNotNull(parsed.get("exp"));
 	}
 
+	
+	@Test
+	public void tokenValidityIsEnhancedOnRequest() throws Exception
+	{
+		TokensManagement tokensManagement = new MockTokensMan();
+		
+		AuthorizationSuccessResponse respInit = OAuthTestUtils.initOAuthFlowHybrid(tokensManagement, 100, 1000);
+		
+		TokenInfoResource tested = new TokenInfoResource(tokensManagement);
+		
+		String token = new BearerAccessToken(respInit.getAccessToken().getValue()).toAuthorizationHeader();
+		
+		Token tokenBefore = tokensManagement.getTokenById(INTERNAL_ACCESS_TOKEN, respInit.getAccessToken().getValue());
+		Date initialExpiry = tokenBefore.getExpires();
+		Thread.sleep(50);
+		tested.getToken(token);
+		Token tokenAfter = tokensManagement.getTokenById(INTERNAL_ACCESS_TOKEN, respInit.getAccessToken().getValue());
+		
+		assertThat(initialExpiry.before(tokenAfter.getExpires()), is(true));
+	}
+
+	@Test
+	public void tokenValidityIsNeverExceedsMaximum() throws Exception
+	{
+		TokensManagement tokensManagement = new MockTokensMan();
+		
+		AuthorizationSuccessResponse respInit = OAuthTestUtils.initOAuthFlowHybrid(tokensManagement, 100, 101);
+		
+		TokenInfoResource tested = new TokenInfoResource(tokensManagement);
+		
+		String token = new BearerAccessToken(respInit.getAccessToken().getValue()).toAuthorizationHeader();
+		
+		Token tokenBefore = tokensManagement.getTokenById(INTERNAL_ACCESS_TOKEN, respInit.getAccessToken().getValue());
+		Date initialExpiry = tokenBefore.getExpires();
+		Thread.sleep(1010);
+		tested.getToken(token);
+		Token tokenAfter = tokensManagement.getTokenById(INTERNAL_ACCESS_TOKEN, respInit.getAccessToken().getValue());
+		
+		assertThat(initialExpiry.before(tokenAfter.getExpires()), is(true));
+		assertThat(tokenAfter.getExpires().getTime(), is(tokenAfter.getCreated().getTime() + 101000));
+	}
+	
+	@Test
+	public void tokenValidityIsNotEnhancedOnRequestWhenMaxIsDisabled() throws Exception
+	{
+		TokensManagement tokensManagement = new MockTokensMan();
+		
+		AuthorizationSuccessResponse respInit = OAuthTestUtils.initOAuthFlowHybrid(tokensManagement, 100, 0);
+		
+		TokenInfoResource tested = new TokenInfoResource(tokensManagement);
+		
+		String token = new BearerAccessToken(respInit.getAccessToken().getValue()).toAuthorizationHeader();
+		
+		Token tokenBefore = tokensManagement.getTokenById(INTERNAL_ACCESS_TOKEN, respInit.getAccessToken().getValue());
+		Date initialExpiry = tokenBefore.getExpires();
+		Thread.sleep(50);
+		tested.getToken(token);
+		Token tokenAfter = tokensManagement.getTokenById(INTERNAL_ACCESS_TOKEN, respInit.getAccessToken().getValue());
+		
+		assertThat(initialExpiry.getTime(), is(tokenAfter.getExpires().getTime()));
+	}
+	
 }

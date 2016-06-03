@@ -369,7 +369,8 @@ public class AttributeStatementProcessor
 		Boolean result = null;
 		try
 		{
-			result = (Boolean) MVEL.executeExpression(statement.getCompiledCondition(), context);
+			result = (Boolean) MVEL.executeExpression(statement.getCompiledCondition(), context, 
+					new HashMap<>());
 		} catch (Exception e)
 		{
 			log.warn("Error during attribute statement condition evaluation, condition '"
@@ -397,7 +398,8 @@ public class AttributeStatementProcessor
 	private Attribute<?> evaluateStatementValue(AttributeStatement2 statement, 
 			String group, Map<String, Object> context)
 	{
-		Object value = MVEL.executeExpression(statement.getCompiledDynamicAttributeExpression(), context);
+		Object value = MVEL.executeExpression(statement.getCompiledDynamicAttributeExpression(), context, 
+				new HashMap<>());
 		if (value == null)
 		{
 			log.debug("Attribute value evaluated to null, skipping");

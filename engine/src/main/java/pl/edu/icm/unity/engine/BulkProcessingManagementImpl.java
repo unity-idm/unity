@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine;
 
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -50,6 +51,13 @@ public class BulkProcessingManagementImpl implements BulkProcessingManagement
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		bulkProcessingSupport.scheduleImmediateJob(rule);
+	}
+	
+	@Override
+	public void applyRuleSync(ProcessingRule rule, long timeout) throws AuthorizationException, TimeoutException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		bulkProcessingSupport.scheduleImmediateJobSync(rule, timeout);
 	}
 	
 	@Transactional

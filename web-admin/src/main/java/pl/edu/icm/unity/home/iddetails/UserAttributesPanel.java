@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -16,6 +17,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.home.HomeEndpointProperties;
 import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -48,15 +50,18 @@ public class UserAttributesPanel
 
 	private AbstractOrderedLayout parent;
 	private List<AttributeViewer> viewers;
+	private IdentitiesManagement idsMan;
 	
 	public UserAttributesPanel(UnityMessageSource msg,
 			AttributeHandlerRegistry attributeHandlerRegistry,
-			AttributesManagement attributesMan, HomeEndpointProperties config,
+			AttributesManagement attributesMan, IdentitiesManagement idsMan,
+			HomeEndpointProperties config,
 			long entityId) throws EngineException
 	{
 		this.msg = msg;
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
 		this.attributesMan = attributesMan;
+		this.idsMan = idsMan;
 		this.config = config;
 		this.entityId = entityId;
 	}
@@ -73,14 +78,13 @@ public class UserAttributesPanel
 		viewers = new ArrayList<>();
 		Set<String> keys = config.getStructuredListKeys(HomeEndpointProperties.ATTRIBUTES);
 		Map<String, AttributeType> atTypes = attributesMan.getAttributeTypesAsMap();
-
+		Set<String> groups = idsMan.getGroupsForPresentation(new EntityParam(entityId)).
+				stream().map(g -> g.toString()).collect(Collectors.toSet());
 		for (String aKey: keys)
-		{
-			addAttribute(atTypes, aKey);
-		}
+			addAttribute(atTypes, aKey, groups);
 	}
 	
-	private void addAttribute(Map<String, AttributeType> atTypes, String key)
+	private void addAttribute(Map<String, AttributeType> atTypes, String key, Set<String> groups)
 	{		
 		String group = config.getValue(key+HomeEndpointProperties.GWA_GROUP);
 		String attributeName = config.getValue(key+HomeEndpointProperties.GWA_ATTRIBUTE);
@@ -90,6 +94,9 @@ public class UserAttributesPanel
 		AttributeType at = atTypes.get(attributeName);
 		AttributeExt<?> attribute = getAttribute(attributeName, group);
 
+		if (!groups.contains(group))
+			return;
+		
 		if (editable && at.isSelfModificable())
 		{
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry, 
@@ -118,7 +125,7 @@ public class UserAttributesPanel
 			editor.clear();
 	}
 	
-	public void refreshEditable() throws EngineException
+	public void refresh() throws EngineException
 	{
 		clear();
 		initUI();

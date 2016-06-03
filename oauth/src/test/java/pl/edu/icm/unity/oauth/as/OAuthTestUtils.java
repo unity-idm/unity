@@ -64,6 +64,12 @@ public class OAuthTestUtils
 	public static OAuthAuthzContext createContext(ResponseType respType, GrantFlow grant, 
 			long clientEntityId) throws Exception
 	{
+		return createContext(respType, grant, clientEntityId, 100, 0);
+	}
+	
+	public static OAuthAuthzContext createContext(ResponseType respType, GrantFlow grant, 
+			long clientEntityId, int accessTokenValidity, int maxExtValidity) throws Exception
+	{
 		AuthorizationRequest request = new AuthorizationRequest(null, respType, null,
 				new ClientID("clientC"), new URI("https://return.host.com/foo"), 
 				null, new State("state123"));
@@ -71,7 +77,8 @@ public class OAuthTestUtils
 				"the!uvos".toCharArray(), "the!uvos".toCharArray(), null, "pkcs12");
 		OAuthAuthzContext ctx = new OAuthAuthzContext(
 				request, 
-				100, 
+				accessTokenValidity, 
+				maxExtValidity,
 				200, 
 				300, 
 				"https://localhost:2443/oauth-as", 
@@ -86,8 +93,8 @@ public class OAuthTestUtils
 		return ctx;
 	}
 	
-	
-	public static AuthorizationSuccessResponse initOAuthFlowHybrid(TokensManagement tokensMan) throws Exception
+	public static AuthorizationSuccessResponse initOAuthFlowHybrid(TokensManagement tokensMan, int accessTokenValidity, 
+			int maxExtValidity) throws Exception
 	{
 		OAuthProcessor processor = new OAuthProcessor();
 		Collection<Attribute<?>> attributes = new ArrayList<>();
@@ -95,9 +102,14 @@ public class OAuthTestUtils
 		IdentityParam identity = new IdentityParam(UsernameIdentity.ID, "userA");
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.TOKEN, 
 				OIDCResponseTypeValue.ID_TOKEN, ResponseType.Value.CODE),
-				GrantFlow.openidHybrid, 100);
+				GrantFlow.openidHybrid, 100, accessTokenValidity, maxExtValidity);
 		
 		return processor.prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx, tokensMan);
+	}
+	
+	public static AuthorizationSuccessResponse initOAuthFlowHybrid(TokensManagement tokensMan) throws Exception
+	{
+		return initOAuthFlowHybrid(tokensMan, 100, 0);
 	}
 	
 	public static AuthorizationSuccessResponse initOAuthFlowAccessCode(TokensManagement tokensMan, 

@@ -140,7 +140,6 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 				description, authenticators, 
 				registrationConfiguration, properties, handler4Authn);
 		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet, true);
-		authnServletHolder.setInitParameter("closeIdleSessions", "true");
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");
 		context.addServlet(authnServletHolder, VAADIN_RESOURCES);
 		
@@ -229,14 +228,13 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 	protected ServletHolder createServletHolder(Servlet servlet, boolean unrestrictedSessionTime)
 	{
 		ServletHolder holder = new ServletHolder(servlet);
+		holder.setInitParameter("closeIdleSessions", "true");
 
 		if (unrestrictedSessionTime)
 		{
-			holder.setInitParameter("closeIdleSessions", "true");
 			holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(LONG_SESSION));
 		} else
 		{
-			holder.setInitParameter("closeIdleSessions", "true");
 			int sessionTimeout = description.getRealm().getMaxInactivity();
 			int heartBeat = getHeartbeatInterval(sessionTimeout);
 			sessionTimeout = sessionTimeout - heartBeat - heartBeat/2;

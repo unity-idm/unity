@@ -14,6 +14,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Application;
 
+import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
@@ -45,6 +46,7 @@ public class MockRESTEndpoint extends RESTEndpoint
 		{
 			HashSet<Object> ret = new HashSet<>();
 			ret.add(res);
+			installExceptionHandlers(ret);
 			return ret;
 		}
 	}
@@ -57,6 +59,13 @@ public class MockRESTEndpoint extends RESTEndpoint
 		public String getDate() 
 		{
 			return new Date().toString();
+		}
+		
+		@GET
+		@Path("exception")
+		public String getError() throws AuthorizationException 
+		{
+			throw new AuthorizationException("Test exception");
 		}
 	}
 }

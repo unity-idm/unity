@@ -1,0 +1,70 @@
+== Automatic user import
+
+Automatic user import, sounds as an important integration feature. However in Unity it is a minor, 
+extremely rarely used option. In a typical situation "user import" happens as a side effect of user's 
+authentication to Unity, in effect of input translation profile execution, or processing of a registration request.
+
+There is, however, one case when this is not suitable: a so called 3rd party query, i.e. when one service asks 
+Unity about another principal. Currently 3rd party query is only available by using the WebSerice (SOAP) SAML endpoint
+and its AttributeQuery service. In future additional such options may be added. During 3rd party query the query 
+subject is not authenticated (possibly it never logged into Unity) so the authentication facility 
+won't be ever activated. Automatic user import can be used in such cases. 
+
+Unity user import feature works as follows:
+
+. When data about an user is requested by a 3rd-party query to any Unity IdP endpoint, before it is resolved from 
+the local database the import facility is invoked. 
+. The configured importers are tried in order until one finds the requested user or all return nothing.
+. Each import works as follows:
+.. Data about the user is first fetched from remote data store.
+.. It is then postprocessed with a configured input translation profile.
+
+There are two things to note here:
+
+- Import of a user recently checked is not retried for some (configurable) amount of time.
+- The translation profile does the actual application of the imported user to Unity database. Therefore the profile 
+must CREATE the identity if it is missing. Usage of a profile which only matches a user will simply have no 
+effect and is useful merely for testing.
+
+User import is activated by adding one (or more) import configurations in the main unity config as follows:
+
+----
+unityServer.core.userImport.1=conf/ldapImport.properties
+----
+
+The referenced file must contain import configuration. The configuration is composed from two sections. 
+The first one includes all options which are common for all types of importers. Each import is configured with  
+the following mandatory setting:
+
+----
+unity.userImport.importerType=ldap
+unity.userImport.remoteIdpName=Company LDAP
+unity.userImport.inputTranslationProfile=ldap-profile
+----
+
+The first option selects import implementation, one of the available and documented later in this chapter. Remote
+IDP name assigns an IdP name which will be used to identify in Unity the data provided by this import. Finally
+the translation profile specifies the translation profile which is used to postprocess and effectively apply 
+the raw result of user import.  
+
+
+Complete reference of common importer options follows:
+
+include::ref-genericUserImportProperties.txt[]
+
+In the following text available import implementations are described.
+
+=== LDAP import
+
+Import type:: +ldap+
+
+LDAP import allows to fetch user information from LDAP server. The import works exactly as remote 
+LDAP authentication (see <<ldap-authenticator>>) the configuration is also the same. Precisely speaking the import
+from LDAP is performed with the same mode as the certificate base authentication against LDAP 
+(see <<ldap-authenticator-cert>>). The main difference to regular authenticator is 
+that +bindAs=user+ (what is the default value for the +bindAs+ parameter) is disallowed - 
+during import there is no user's credential so binding must be performed with some system identity.   
+
+It is possible to share configuration file of LDAP authenticator and LDAP import. The generic import settings
+(+unity.userImport.*+) will be ignored by the authenticator.
+

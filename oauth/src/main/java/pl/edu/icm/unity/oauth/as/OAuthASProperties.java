@@ -40,6 +40,7 @@ public class OAuthASProperties extends PropertiesHelper
 
 	public static final String ISSUER_URI = "issuerUri";
 	public static final String ACCESS_TOKEN_VALIDITY = "accessTokenValidity";
+	public static final String MAX_EXTEND_ACCESS_TOKEN_VALIDITY = "extendAccessTokenValidityUpTo";
 	public static final String CODE_TOKEN_VALIDITY = "codeTokenValidity";
 	public static final String ID_TOKEN_VALIDITY = "idTokenValidity";
 	public static final String CREDENTIAL = "signingCredential";
@@ -65,6 +66,12 @@ public class OAuthASProperties extends PropertiesHelper
 				setDescription("Controls the maximum validity period of an OpenID Connect Id token (in seconds)."));
 		defaults.put(ACCESS_TOKEN_VALIDITY, new PropertyMD("3600").setPositive().
 				setDescription("Controls the maximum validity period of an Access token (in seconds)."));
+		defaults.put(MAX_EXTEND_ACCESS_TOKEN_VALIDITY, new PropertyMD().setInt().setPositive().
+				setDescription("If defined then Unity will extend lifetime of a previously issued access token"
+						+ " up to this time (so must be larger then " + ACCESS_TOKEN_VALIDITY + 
+						"). Lifetime will be extended on each successful check of the token, and each time"
+						+ "the enhancement will be for the standard validity time. "
+						+ "However the token won't be ever valid after the time specified in this property."));
 		defaults.put(CREDENTIAL, new PropertyMD().setMandatory().
 				setDescription("Name of a credential which is used to sign tokens. "
 						+ "Used only for the OpenId Connect mode, but currently it is always required."));

@@ -6,6 +6,7 @@ package pl.edu.icm.unity.integration.test;
 
 /**
  * See package's description.
+ * 
  * @author P. Piernik
  */
 public class Dummy

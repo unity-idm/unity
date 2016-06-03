@@ -83,8 +83,9 @@ public class RegistrationFormViewer extends BaseFormViewer
 		registrationCode.setValue(code);
 		
 		credentialRequirementAssignment.setValue(form.getDefaultCredentialRequirement());
-		translationProfile.setInput(new RegistrationTranslationProfile(form.getTranslationProfile().getName(), 
-				form.getTranslationProfile().getRules(), registrationActionsRegistry));
+		RegistrationTranslationProfile tProfile = new RegistrationTranslationProfile(form.getTranslationProfile().getName(), 
+				form.getTranslationProfile().getRules(), registrationActionsRegistry);
+		translationProfile.setInput(tProfile, registrationActionsRegistry);
 	}
 	
 	private void initUI()
@@ -126,7 +127,7 @@ public class RegistrationFormViewer extends BaseFormViewer
 		credentialRequirementAssignment.setCaption(
 				msg.getMessage("RegistrationFormViewer.credentialRequirementAssignment"));
 
-		translationProfile = new RegistrationTranslationProfileViewer(msg, registrationActionsRegistry);
+		translationProfile = new RegistrationTranslationProfileViewer(msg);
 		
 		main.addComponents(credentialRequirementAssignment);
 		wrapper.addComponent(translationProfile);

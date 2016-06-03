@@ -150,3 +150,13 @@ together with token revocation. To be able to perform this operation, the client
 OAuth scope: +single_logout+. Having this scope, token revocation can be used to logout the token owner
 by adding the following form parameter to the request: +logout=true+.
  
+==== Dynamic token validity enhancement
+
+Unity allows for enhancing access token validity in effect of a successful request to the token info or user info endpoint
+authorized with the token in question. This feature is very useful in case of state less systems where login "session" management
+is reduced to access token verification.   
+
+To enable this feature set accessToken validity to a proper short time (e.g. 30 minutes) - equal to the intended inactive login session
+time. Additionally set +extendAccessTokenValidityUpTo+ to the intended longest session time (e.g. 12 hours). Then the actively used
+access token can be valid for up to 12 hours, but will automatically expire after 30 minutes without use.
+

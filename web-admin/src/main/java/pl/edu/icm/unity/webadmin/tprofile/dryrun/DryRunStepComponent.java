@@ -160,7 +160,7 @@ public class DryRunStepComponent extends CustomComponent
 		try
 		{
 			InputTranslationProfile tp = tpMan.listInputProfiles().get(profile);
-			profileViewer.setInput(tp);
+			profileViewer.setInput(tp, taRegistry);
 			profileViewer.setVisible(true);
 		} catch (EngineException e)
 		{
@@ -238,7 +238,7 @@ public class DryRunStepComponent extends CustomComponent
 		hr_1 = HtmlTag.hr();
 		resultWrapper.addComponent(hr_1);
 		
-		profileViewer = new TranslationProfileViewer(msg, taRegistry);
+		profileViewer = new TranslationProfileViewer(msg);
 		
 		resultWrapper.addComponent(profileViewer);
 		

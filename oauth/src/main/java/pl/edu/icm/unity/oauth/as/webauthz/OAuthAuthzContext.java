@@ -42,15 +42,18 @@ public class OAuthAuthzContext
 	private boolean skipConsent;
 	private int codeTokenValidity;
 	private int accessTokenValidity;
+	private int maxExtendedAccessTokenValidity;
 	private int idTokenValidity;
 	private String issuerName;
 	private X509Credential credential;
 	
 
-	public OAuthAuthzContext(AuthorizationRequest request, int accessTokenValidity, int codeTokenValidity,
+	public OAuthAuthzContext(AuthorizationRequest request, int accessTokenValidity, int maxExtendedAccessTokenValidity,
+			int codeTokenValidity,
 			int idTokenValidity, String issuerName, X509Credential credential, boolean skipConsent)
 	{
 		super();
+		this.maxExtendedAccessTokenValidity = maxExtendedAccessTokenValidity;
 		this.timestamp = new Date();
 		this.request = request;
 		this.codeTokenValidity = codeTokenValidity;
@@ -194,6 +197,11 @@ public class OAuthAuthzContext
 	public int getAccessTokenValidity()
 	{
 		return accessTokenValidity;
+	}
+
+	public int getMaxExtendedAccessTokenValidity()
+	{
+		return maxExtendedAccessTokenValidity;
 	}
 
 	public int getIdTokenValidity()

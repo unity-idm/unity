@@ -36,7 +36,8 @@ import pl.edu.icm.unity.server.JettyServer;
 public class SeleniumTestBase
 {
 	protected String baseUrl = "https://localhost:2443";
-	public static final int WAIT_TIME_S = 450;
+	public static final int WAIT_TIME_S = Integer.parseInt(
+			System.getProperty("unity.selenium.wait", "30"));
 	public static final int SLEEP_TIME_MS = 250;
 	public static final int SIMPLE_WAIT_TIME_MS = Integer.parseInt(
 			System.getProperty("unity.selenium.delay", "2000"));

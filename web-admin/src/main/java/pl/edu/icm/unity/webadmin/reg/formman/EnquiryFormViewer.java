@@ -76,8 +76,11 @@ public class EnquiryFormViewer extends BaseFormViewer
 		else
 			notViewer.clear();
 		
-		translationProfile.setInput(new RegistrationTranslationProfile(form.getTranslationProfile().getName(), 
-				form.getTranslationProfile().getRules(), registrationActionsRegistry));
+		RegistrationTranslationProfile tProfile = new RegistrationTranslationProfile(
+				form.getTranslationProfile().getName(), 
+				form.getTranslationProfile().getRules(), 
+				registrationActionsRegistry);
+		translationProfile.setInput(tProfile, registrationActionsRegistry);
 	}
 	
 	private void initUI()
@@ -112,7 +115,7 @@ public class EnquiryFormViewer extends BaseFormViewer
 		wrapper.setSpacing(true);
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.assignedTab"));
 		
-		translationProfile = new RegistrationTranslationProfileViewer(msg, registrationActionsRegistry);
+		translationProfile = new RegistrationTranslationProfileViewer(msg);
 		
 		wrapper.addComponent(translationProfile);
 	}

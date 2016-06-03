@@ -7,6 +7,10 @@ package pl.edu.icm.unity.engine.bulkops;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
@@ -18,6 +22,8 @@ import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobKey;
+import org.quartz.JobListener;
+import org.quartz.ListenerManager;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SimpleScheduleBuilder;
@@ -99,6 +105,44 @@ public class BulkProcessingSupport
 		scheduleJob(rule, trigger, generateJobKey(), new Date());
 	}
 
+	public void scheduleImmediateJobSync(ProcessingRule rule, long maxWaitTimeS) throws TimeoutException
+	{
+		Trigger trigger = createImmediateTrigger();
+		String id = generateJobKey();
+		JobDetail job = createJob(id, rule, new Date());
+		log.debug("Scheduling job with id " + id + " and trigger " + trigger);
+		
+		ListenerManager listenerManager;
+		try
+		{
+			listenerManager = scheduler.getListenerManager();
+		} catch (SchedulerException e)
+		{
+			throw new InternalException("Can't schedule processing rule", e);
+		}
+		
+		CompletableFuture<Boolean> jobExecuted = new CompletableFuture<>();
+		
+		listenerManager.addJobListener(new JobListenerImpl(id, jobExecuted));
+		try
+		{
+			scheduler.scheduleJob(job, trigger);
+			try
+			{
+				jobExecuted.get(maxWaitTimeS, TimeUnit.SECONDS);
+			} catch (InterruptedException | ExecutionException e)
+			{
+				throw new InternalException("Waiting was interrupted", e);
+			}			
+		} catch (SchedulerException e)
+		{
+			throw new InternalException("Can't schedule processing rule", e);
+		} finally 
+		{
+			listenerManager.removeJobListener(id);
+		}
+	}
+	
 	public void scheduleJob(ScheduledProcessingRule rule, Date ts)
 	{
 		Trigger trigger = createCronTrigger(rule);
@@ -203,6 +247,40 @@ public class BulkProcessingSupport
 		{
 			this.rule = rule;
 			this.ts = ts;
+		}
+	}
+	
+	private class JobListenerImpl implements JobListener
+	{
+		private String id;
+		private CompletableFuture<Boolean> future;
+		
+		public JobListenerImpl(String id, CompletableFuture<Boolean> future)
+		{
+			this.id = id;
+			this.future = future;
+		}
+
+		@Override
+		public void jobWasExecuted(JobExecutionContext context, JobExecutionException jobException)
+		{
+			future.complete(true);
+		}
+		
+		@Override
+		public void jobToBeExecuted(JobExecutionContext context)
+		{
+		}
+		
+		@Override
+		public void jobExecutionVetoed(JobExecutionContext context)
+		{
+		}
+		
+		@Override
+		public String getName()
+		{
+			return id;
 		}
 	}
 }

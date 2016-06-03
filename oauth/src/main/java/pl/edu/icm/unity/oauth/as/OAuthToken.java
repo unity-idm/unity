@@ -31,6 +31,8 @@ public class OAuthToken
 	private String subject;
 	private String clientName;
 	private String clientUsername;
+	private int maxExtendedValidity;
+	private int tokenValidity;
 	
 	public OAuthToken()
 	{
@@ -52,6 +54,8 @@ public class OAuthToken
 		setClientName(source.getClientName());
 		setClientUsername(source.getClientUsername());
 		setSubject(source.getSubject());
+		setMaxExtendedValidity(source.getMaxExtendedValidity());
+		setTokenValidity(source.getTokenValidity());
 	}
 	
 	public static OAuthToken getInstanceFromJson(byte[] json) 
@@ -187,5 +191,29 @@ public class OAuthToken
 	public void setClientUsername(String clientUsername)
 	{
 		this.clientUsername = clientUsername;
+	}
+
+	public int getMaxExtendedValidity()
+	{
+		return maxExtendedValidity;
+	}
+
+	/**
+	 * Sets to what time this tokens validity can be maximally extended.
+	 * @param maxExtendedValidity
+	 */
+	public void setMaxExtendedValidity(int maxExtendedValidity)
+	{
+		this.maxExtendedValidity = maxExtendedValidity;
+	}
+
+	public int getTokenValidity()
+	{
+		return tokenValidity;
+	}
+
+	public void setTokenValidity(int tokenValidity)
+	{
+		this.tokenValidity = tokenValidity;
 	}
 }

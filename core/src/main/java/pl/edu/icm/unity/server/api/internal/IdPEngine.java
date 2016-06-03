@@ -17,6 +17,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
+import pl.edu.icm.unity.server.api.userimport.UserImportSerivce;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationEngine;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationProfile;
 import pl.edu.icm.unity.server.translation.out.TranslationInput;
@@ -27,6 +28,7 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.IdentityTaV;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.util.configuration.ConfigurationException;
 
@@ -45,17 +47,20 @@ public class IdPEngine
 	private IdentitiesManagement identitiesMan;
 	private OutputTranslationEngine translationEngine;
 	private TranslationProfileManagement profileManagement;
+	private UserImportSerivce userImportService;
 	
 	@Autowired
 	public IdPEngine(AttributesManagement attributesMan, IdentitiesManagement identitiesMan,
 			OutputTranslationEngine translationEngine,
-			@Qualifier("insecure") TranslationProfileManagement profileManagement)
+			@Qualifier("insecure") TranslationProfileManagement profileManagement,
+			UserImportSerivce userImportService)
 	{
 		super();
 		this.attributesMan = attributesMan;
 		this.identitiesMan = identitiesMan;
 		this.translationEngine = translationEngine;
 		this.profileManagement = profileManagement;
+		this.userImportService = userImportService;
 	}
 
 
@@ -76,6 +81,9 @@ public class IdPEngine
 			String requester, String protocol, String protocolSubType, boolean allowIdentityCreate) 
 			throws EngineException
 	{
+		IdentityTaV identityTaV = entity.getIdentity();
+		if (identityTaV != null)
+			userImportService.importUser(identityTaV.getValue(), identityTaV.getTypeId());
 		Collection<String> allGroups = identitiesMan.getGroups(entity).keySet();
 		Collection<AttributeExt<?>> allAttributes = attributesMan.getAttributes(
 				entity, group, null);

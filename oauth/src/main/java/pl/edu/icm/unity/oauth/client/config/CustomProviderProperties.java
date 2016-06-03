@@ -75,8 +75,10 @@ public class CustomProviderProperties extends UnityPropertiesHelper
 		META.put(PROFILE_ENDPOINT, new PropertyMD().
 				setDescription("Location (URL) of OAuth2 provider's user's profile endpoint. "
 						+ "It is used to obtain additional user's attributes. "
-						+ "It can be autodiscovered for OpenID Connect mode. Otherwise it must be"
-						+ " set as otherwise there is no information about the user identity."));
+						+ "It can be autodiscovered for OpenID Connect mode. Otherwise it should be"
+						+ " set as otherwise there is bearly no information about the user identity."
+						+ " If not set then the only information about the user is the one "
+						+ "extracted from the access token (if any)."));
 		META.put(PROVIDER_NAME, new PropertyMD().setMandatory().setCanHaveSubkeys().
 				setDescription("Name of the OAuth provider to be displayed. Can be localized with locale subkeys."));
 		META.put(ICON_URL, new PropertyMD().setCanHaveSubkeys().
@@ -99,7 +101,7 @@ public class CustomProviderProperties extends UnityPropertiesHelper
 		META.put(OPENID_CONNECT, new PropertyMD("false").
 				setDescription("If set to true, then the provider is treated as OpenID "
 						+ "Connect 1.0 provider. For such providers specifying " + 
-						PROFILE_ENDPOINT + " is not mandatory as the basic user information "
+						PROFILE_ENDPOINT + " is not needed as the basic user information "
 						+ "is retrieved together with access token. However the " 
 						+ "discovery endpoint must be set."));
 		META.put(OPENID_DISCOVERY, new PropertyMD().
@@ -145,9 +147,6 @@ public class CustomProviderProperties extends UnityPropertiesHelper
 						" is mandatory in non OpenID Connect mode");
 			if (!isSet(ACCESS_TOKEN_ENDPOINT))
 				throw new ConfigurationException(getKeyDescription(ACCESS_TOKEN_ENDPOINT) + 
-						" is mandatory in non OpenID Connect mode");
-			if (!isSet(PROFILE_ENDPOINT))
-				throw new ConfigurationException(getKeyDescription(PROFILE_ENDPOINT) + 
 						" is mandatory in non OpenID Connect mode");
 		}
 		

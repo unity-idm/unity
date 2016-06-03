@@ -77,6 +77,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String UNITYGW_WEB_CONTENT_PATH = "unityGWWebContentDirectory";
 	public static final String ALLOW_FULL_HTML = "allowFullHtml"; 
 	
+	public static final String IMPORT_PFX = "userImport."; 
+	
 	public static final String ENDPOINTS = "endpoints.";
 	public static final String ENDPOINT_DESCRIPTION = "endpointDescription";
 	public static final String ENDPOINT_TYPE = "endpointType";
@@ -233,7 +235,12 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put(INITIAL_ADMIN_USER_OUTDATED, new PropertyMD("true").setCategory(mainCat).
 				setDescription("If false then the default admin user is not " +
 						"set to outdated state after creation. Useful only for testbeds."));
+		defaults.put(IMPORT_PFX, new PropertyMD().setList(false).setCategory(mainCat).
+				setDescription("List of file paths, where each file contains a definition of a "
+						+ "user import subsystem. Use of user import feature is naturally optional"
+						+ " and so this list typically is empty."));
 
+		
 		defaults.put(TRANSLATION_PROFILES, new PropertyMD().setList(false).setCategory(mainCat).
 				setDescription("List of file paths, where each file contains a definition of a translation profile, " +
 						"used to configure mapping of remote identities to the local representation."));

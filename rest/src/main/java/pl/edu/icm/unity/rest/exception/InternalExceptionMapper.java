@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.rest.exception;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -26,6 +27,6 @@ public class InternalExceptionMapper implements ExceptionMapper<InternalExceptio
 	public Response toResponse(InternalException ex)
 	{
 		log.error("InternalException error during RESTful API invocation", ex);
-		return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		return Response.status(Status.INTERNAL_SERVER_ERROR).type(MediaType.APPLICATION_JSON).build();
 	}
 }

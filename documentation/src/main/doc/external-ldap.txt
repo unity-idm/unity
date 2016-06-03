@@ -1,3 +1,4 @@
+[[ldap-authenticator]]
 === LDAP 
 
 Credential verificator name:: +ldap+ and +ldap-cert+
@@ -95,7 +96,7 @@ The complete LDAP options reference follows:
 
 include::ref-ldapProperties.txt[]
 
-
+[[ldap-authenticator-cert]]
 === LDAP with certificate-based authentication
 
 Credential verificator name:: +ldap-cert+

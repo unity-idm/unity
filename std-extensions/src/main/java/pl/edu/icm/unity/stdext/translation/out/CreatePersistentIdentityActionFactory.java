@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.stdext.translation.out;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.mvel2.MVEL;
@@ -74,7 +75,7 @@ public class CreatePersistentIdentityActionFactory extends AbstractOutputTransla
 		protected void invokeWrapped(TranslationInput input, Object mvelCtx, String currentProfile,
 				TranslationResult result) throws EngineException
 		{
-			Object valueO = MVEL.executeExpression(idValueExpression, mvelCtx);
+			Object valueO = MVEL.executeExpression(idValueExpression, mvelCtx, new HashMap<>());
 			if (valueO == null)
 			{
 				log.debug("Identity value evaluated to null, skipping");
