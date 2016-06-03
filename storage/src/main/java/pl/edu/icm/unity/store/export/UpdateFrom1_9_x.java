@@ -9,10 +9,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.imageio.ImageIO;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,13 +21,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import eu.emi.security.authn.x509.impl.X500NameUtils;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.base.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.base.identity.IdentityTypeDefinition;
-import pl.edu.icm.unity.base.registries.AttributeSyntaxFactoriesRegistry;
-import pl.edu.icm.unity.base.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.base.utils.Escaper;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
 
@@ -46,12 +42,6 @@ public class UpdateFrom1_9_x implements Update
 	@Autowired
 	private ObjectMapper objectMapper;
 	
-	@Autowired 
-	private IdentityTypesRegistry idTypesRegistry;
-	
-	@Autowired 
-	private AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
-	
 	@Override
 	public InputStream update(InputStream is) throws IOException
 	{
@@ -66,6 +56,8 @@ public class UpdateFrom1_9_x implements Update
 		updateIdentityTypes(contents);
 		
 		updateIdentitites(contents);
+		
+		updateEntities(contents);
 
 		updateGroups(contents, attributeTypesById);
 
@@ -75,7 +67,7 @@ public class UpdateFrom1_9_x implements Update
 
 //		JsonUtils.nextExpect(jp, "genericObjects");
 		
-		return new ByteArrayInputStream(objectMapper.writeValueAsBytes(contents));
+		return new ByteArrayInputStream(objectMapper.writeValueAsBytes(root));
 	}
 
 	private void updateAttributeTypes(Map<Long, ObjectNode> attributeTypesById, 
@@ -90,6 +82,10 @@ public class UpdateFrom1_9_x implements Update
 			String name = node.get("name").asText();
 			attributeTypesById.put(id, (ObjectNode) node);
 			attributeTypesByName.put(name, (ObjectNode) node);
+			
+			ObjectNode nodeO = (ObjectNode) node; 
+			nodeO.set("syntaxId", node.get("valueSyntaxId"));
+			nodeO.setAll((ObjectNode)node.get("contents"));
 		}
 	}
 	
@@ -102,8 +98,23 @@ public class UpdateFrom1_9_x implements Update
 		{
 			ObjectNode oNode = (ObjectNode) node;
 			oNode.put("identityTypeProvider", node.get("name").asText());
+			oNode.setAll((ObjectNode)node.get("contents"));
 		}
 	}
+
+	private void updateEntities(ObjectNode contents)
+	{
+		ArrayNode entities = (ArrayNode) contents.get("entities"); 
+		if (entities == null)
+			return;
+		for (JsonNode node: entities)
+		{
+			ObjectNode oNode = (ObjectNode) node;
+			oNode.setAll((ObjectNode)node.get("contents"));
+			oNode.set("entityId", node.get("id"));
+		}
+	}
+
 	
 	private void updateIdentitites(ObjectNode contents)
 	{
@@ -111,26 +122,45 @@ public class UpdateFrom1_9_x implements Update
 		if (ids == null)
 			return;
 		for (JsonNode node: ids)
-			setIdentityComparableValue((ObjectNode) node);
+			updateIdentity((ObjectNode) node);
 	}
 	
-	private void setIdentityComparableValue(ObjectNode src)
+	private void updateIdentity(ObjectNode src)
 	{
 		String type = src.get("typeName").asText();
-		IdentityTypeDefinition idTypeDef = idTypesRegistry.getByName(type);
-		String comparable;
-		try
-		{
-			comparable = idTypeDef.getComparableValue(src.get("value").asText(), 
-					src.get("realm").asText(null),
-					src.get("target").asText(null));
-		} catch (IllegalIdentityValueException e)
-		{
-			throw new InternalException("Can't deserialize identity: invalid value [" + 
-					src.get("value") +"]", e);
-		}
+		ObjectNode contents = (ObjectNode) src.get("contents");
+		String comparable = getComparableIdentityValue(type, 
+				contents.get("value").asText(),
+				JsonUtil.getWithDef(contents, "realm", null),
+				JsonUtil.getWithDef(contents, "target", null));
 		src.put("typeId", type);
 		src.put("comparableValue", comparable);
+	}
+
+	private String getComparableIdentityValue(String type, String value, String realm, String target)
+	{
+		switch (type)
+		{
+		case "identifier":
+		case "persistent":
+		case "userName":
+			return value;
+			
+		case "email":
+			return new VerifiableEmail(value).getComparableValue();
+			
+		case "targetedPersistent":
+			return Escaper.encode(realm, target, value);
+			
+		case "transient":
+			return null;
+			
+		case "x500Name":
+			return X500NameUtils.getComparableForm(value);
+			
+		default:
+			throw new IllegalStateException("Unknown identity type, can't be converted: " + type);
+		}
 	}
 
 	private void updateGroups(ObjectNode contents, Map<Long, ObjectNode> attributeTypesById)
@@ -211,7 +241,7 @@ public class UpdateFrom1_9_x implements Update
 	{
 		String attr = src.get("attributeName").asText();
 		String group = src.get("groupPath").asText();
-		String values = src.get("values").asText();
+		String values = src.remove("values").asText();
 		ObjectNode atDef = attributeTypesByName.get(attr);
 		String attributeSyntax = atDef.get("valueSyntaxId").asText();
 
@@ -219,7 +249,6 @@ public class UpdateFrom1_9_x implements Update
 		src.put("entity", src.get("entity").asLong());
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void toNewAttribute(String oldValues, ObjectNode target, String attributeName, String group,
 			String valueSyntax)
 	{
@@ -227,7 +256,8 @@ public class UpdateFrom1_9_x implements Update
 		target.put("groupPath", group);
 		target.put("valueSyntax", valueSyntax);
 		
-		ObjectNode old = JsonUtil.parse(oldValues);
+		byte[] base64decoded = Base64.getDecoder().decode(oldValues);
+		ObjectNode old = JsonUtil.parse(new String(base64decoded, StandardCharsets.UTF_8));
 		if (old.has("creationTs"))
 			target.put("creationTs", old.get("creationTs").asLong());
 		if (old.has("updateTs"))
@@ -235,21 +265,18 @@ public class UpdateFrom1_9_x implements Update
 		if (old.has("translationProfile"))
 			target.put("translationProfile", old.get("translationProfile").asText());
 		if (old.has("remoteIdp"))
-			target.put("remoteIdp", old.get("remoteIdps").asText());
+			target.put("remoteIdp", old.get("remoteIdp").asText());
 		target.put("direct", true);
 		
 		
 		ArrayNode oldValuesA = old.withArray("values");
 		ArrayNode newValuesA = target.withArray("values");
-		@SuppressWarnings("rawtypes")
-		AttributeValueSyntax syntax = attributeSyntaxFactoriesRegistry.
-				getByName(valueSyntax).createInstance();
 		try
 		{
 			for (JsonNode node: oldValuesA)
 			{
-				Object read = convertLegacyValue(node.binaryValue(), valueSyntax);
-				newValuesA.add(syntax.convertToString(read));
+				String converted = convertLegacyAttributeValue(node.binaryValue(), valueSyntax);
+				newValuesA.add(converted);
 			}
 		} catch (Exception e)
 		{
@@ -257,25 +284,24 @@ public class UpdateFrom1_9_x implements Update
 		}
 	}
 
-	private Object convertLegacyValue(byte[] binaryValue, String valueSyntax) throws IOException
+	private String convertLegacyAttributeValue(byte[] binaryValue, String valueSyntax) throws IOException
 	{
 		switch (valueSyntax)
 		{
 		case "string":
-		case "enum":
+		case "enumeration":
 			return new String(binaryValue, StandardCharsets.UTF_8);
 		case "floatingPoint":
 			ByteBuffer bb = ByteBuffer.wrap(binaryValue);
-			return bb.getDouble();
+			return Double.toString(bb.getDouble());
 		case "integer":
 			bb = ByteBuffer.wrap(binaryValue);
-			return bb.getLong();
+			return Long.toString(bb.getLong());
 		case "verifiableEmail":
 			JsonNode jsonN = Constants.MAPPER.readTree(new String(binaryValue, StandardCharsets.UTF_8));
-			return new VerifiableEmail(jsonN);
+			return JsonUtil.serialize(jsonN);
 		case "jpegImage":
-			ByteArrayInputStream bis = new ByteArrayInputStream(binaryValue);
-			return ImageIO.read(bis);
+			return Base64.getEncoder().encodeToString(binaryValue);
 		default:
 			throw new IllegalStateException("Unknown attribute value type, can't be converted: " 
 					+ valueSyntax);

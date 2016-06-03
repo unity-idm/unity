@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.types.NamedObject;
 
 /**
@@ -193,7 +194,7 @@ public class IdentityType implements NamedObject
 		setMinInstances(main.get("minInstances").asInt());
 		setMinVerifiedInstances(main.get("minVerifiedInstances").asInt());
 		setMaxInstances(main.get("maxInstances").asInt());
-		setIdentityTypeProviderSettings(main.get("identityTypeProviderSettings").asText(null));
+		setIdentityTypeProviderSettings(JsonUtil.getWithDef(main, "identityTypeProviderSettings", null));
 	}
 
 	

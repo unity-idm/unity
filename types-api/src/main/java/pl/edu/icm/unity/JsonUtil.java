@@ -18,6 +18,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public class JsonUtil
 {
+	public static String getWithDef(JsonNode src, String name, String def)
+	{
+		JsonNode n = src.get(name);
+		return n != null ? n.asText() : def;
+	}
+	
 	public static ObjectNode parse(String contents)
 	{
 		try

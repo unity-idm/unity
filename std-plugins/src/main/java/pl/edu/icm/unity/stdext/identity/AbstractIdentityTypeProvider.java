@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.base.identity.IdentityTypeDefinition;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;

@@ -7,7 +7,7 @@ package pl.edu.icm.unity.stdext.util;
 import org.junit.Assert;
 import org.junit.Test;
 
-import pl.edu.icm.unity.stdext.utils.Escaper;
+import pl.edu.icm.unity.base.utils.Escaper;
 
 public class TestEscaper
 {

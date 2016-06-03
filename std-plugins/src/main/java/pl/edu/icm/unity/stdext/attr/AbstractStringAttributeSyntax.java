@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.stdext.attr;
 
-import pl.edu.icm.unity.base.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.exceptions.InternalException;
 
 /**

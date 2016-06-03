@@ -8,8 +8,8 @@ import java.awt.image.BufferedImage;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.base.attributes.AttributeValueSyntaxFactory;
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntaxFactory;
 
 @Component
 public class JpegImageAttributeSyntaxFactory implements AttributeValueSyntaxFactory<BufferedImage>

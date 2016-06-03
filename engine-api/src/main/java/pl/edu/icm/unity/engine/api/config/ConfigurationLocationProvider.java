@@ -10,5 +10,5 @@ package pl.edu.icm.unity.engine.api.config;
  */
 public interface ConfigurationLocationProvider
 {
-	public String getConfigurationLocation();
+	String getConfigurationLocation();
 }

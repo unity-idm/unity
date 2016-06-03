@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.base.attributes;
+package pl.edu.icm.unity.engine.api.attributes;
 
 import com.fasterxml.jackson.databind.JsonNode;
 

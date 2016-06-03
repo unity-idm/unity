@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE file for licensing information.
  */
-package pl.edu.icm.unity.base.registries;
+package pl.edu.icm.unity.engine.api.attributes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.attributes.AttributeValueSyntaxFactory;
+import pl.edu.icm.unity.engine.api.registries.TypesRegistryBase;
 
 
 /**

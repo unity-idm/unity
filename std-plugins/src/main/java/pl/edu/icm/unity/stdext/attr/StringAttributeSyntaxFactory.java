@@ -6,8 +6,8 @@ package pl.edu.icm.unity.stdext.attr;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.base.attributes.AttributeValueSyntaxFactory;
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntaxFactory;
 
 @Component
 public class StringAttributeSyntaxFactory implements AttributeValueSyntaxFactory<String>

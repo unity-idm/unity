@@ -11,7 +11,6 @@ import javax.annotation.PostConstruct;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 import com.hazelcast.core.DistributedObject;
@@ -42,7 +41,6 @@ import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionalRunner;
  * @author K. Benedyczak
  */
 @Component(HzStoreLoader.NAME)
-@DependsOn(value = {"AttributeSyntaxFactoriesRegistry", "IdentityTypesRegistry"})
 public class HzStoreLoader implements StoreLoaderInternal
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, HzStoreLoader.class);

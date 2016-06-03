@@ -99,12 +99,15 @@ public class ImportExportImpl implements ImportExport
 			throw new IllegalArgumentException("Only input streams with mark/reset support can "
 					+ "be used to load imported data");
 		is.mark(1000);
-		DumpHeader header = loadHeader(is);
+		JsonParser jp = jsonF.createParser(is);
+		DumpHeader header = loadHeader(jp);
+		jp.close();
 		is.reset();
 		
 		InputStream isUpdated = updater.update(is, header);
 
 		JsonParser jp2 = jsonF.createParser(isUpdated);
+		loadHeader(jp2);
 		
 		JsonUtils.nextExpect(jp2, "contents");
 		
@@ -116,9 +119,8 @@ public class ImportExportImpl implements ImportExport
 		jp2.close();
 	}
 	
-	private DumpHeader loadHeader(InputStream is) throws JsonParseException, IOException
+	private DumpHeader loadHeader(JsonParser jp) throws JsonParseException, IOException
 	{
-		JsonParser jp = jsonF.createParser(is);
 		JsonUtils.nextExpect(jp, JsonToken.START_OBJECT);
 		DumpHeader ret = new DumpHeader();
 		JsonUtils.nextExpect(jp, "versionMajor");
@@ -127,7 +129,6 @@ public class ImportExportImpl implements ImportExport
 		ret.setVersionMinor(jp.getIntValue());
 		JsonUtils.nextExpect(jp, "timestamp");
 		ret.setTimestamp(jp.getLongValue());
-		jp.close();
 		return ret;
 	}
 }

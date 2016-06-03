@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE file for licensing information.
  */
-package pl.edu.icm.unity.base.registries;
+package pl.edu.icm.unity.engine.api.identity;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,7 +13,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.identity.IdentityTypeDefinition;
+import pl.edu.icm.unity.engine.api.registries.TypesRegistryBase;
 
 /**
  * Maintains a simple registry of available {@link IdentityTypeDefinition}s.
