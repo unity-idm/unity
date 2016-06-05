@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +29,7 @@ import eu.emi.security.authn.x509.impl.X500NameUtils;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Escaper;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.objstore.ac.AttributeClassHandler;
 import pl.edu.icm.unity.store.objstore.authn.AuthenticatorInstanceHandler;
@@ -52,13 +54,12 @@ import pl.edu.icm.unity.types.basic.VerifiableEmail;
  * Updates a JSON dump before it is actually imported.
  * Changes are performed in JSON contents, input stream is reset after the changes are performed.
  * 
- * TODO - InvitationWithCode - 2xtime changed from second to millisecond, apply *1000
- * 
  * @author K. Benedyczak
  */
 @Component
 public class UpdateFrom1_9_x implements Update
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, UpdateFrom1_9_x.class);
 	@Autowired
 	private ObjectMapper objectMapper;
 	
@@ -68,10 +69,9 @@ public class UpdateFrom1_9_x implements Update
 		ObjectNode root = (ObjectNode) objectMapper.readTree(is);
 		ObjectNode contents = (ObjectNode) root.get("contents");
 		
-		Map<Long, ObjectNode> attributeTypesById = new HashMap<>();
-		Map<String, ObjectNode> attributeTypesByName = new HashMap<>();
+		UpdateContext ctx = new UpdateContext();
 		
-		updateAttributeTypes(attributeTypesById, attributeTypesByName, contents);
+		updateAttributeTypes(ctx, contents);
 		
 		updateIdentityTypes(contents);
 		
@@ -79,18 +79,18 @@ public class UpdateFrom1_9_x implements Update
 		
 		updateEntities(contents);
 
-		updateGroups(contents, attributeTypesById);
+		updateGroups(contents, ctx);
 
 		updateMembers(contents);
 		
-		updateAttributes(contents, attributeTypesByName);
+		updateAttributes(contents, ctx);
 
-		updateGenerics(contents);
+		updateGenerics(contents, ctx);
 		
 		return new ByteArrayInputStream(objectMapper.writeValueAsBytes(root));
 	}
 
-	private void updateGenerics(ObjectNode contents)
+	private void updateGenerics(ObjectNode contents, UpdateContext ctx) throws IOException
 	{
 		ArrayNode generics = (ArrayNode) contents.get("genericObjects");
 		if (generics == null)
@@ -100,45 +100,45 @@ public class UpdateFrom1_9_x implements Update
 		Map<String, List<ObjectNode>> genericsByType = sortGenerics(generics);
 		
 		convertGenericType(AttributeClassHandler.ATTRIBUTE_CLASS_OBJECT_TYPE, 
-				genericsByType, newGenerics);
+				genericsByType, newGenerics, ctx);
 		convertGenericType(AuthenticatorInstanceHandler.AUTHENTICATOR_OBJECT_TYPE, 
-				genericsByType, newGenerics);
+				genericsByType, newGenerics, ctx);
 		convertGenericType(ConfirmationConfigurationHandler.CONFIRMATION_CONFIGURATION_OBJECT_TYPE, 
-				genericsByType, newGenerics);
+				genericsByType, newGenerics, ctx);
 		convertGenericType(CredentialHandler.CREDENTIAL_OBJECT_TYPE, 
-				genericsByType, newGenerics);
+				genericsByType, newGenerics, ctx);
 		convertGenericType(CredentialRequirementHandler.CREDENTIAL_REQ_OBJECT_TYPE, 
-				genericsByType, newGenerics);
+				genericsByType, newGenerics, ctx);
 		convertGenericType(MessageTemplateHandler.MESSAGE_TEMPLATE_OBJECT_TYPE, 
-				genericsByType, newGenerics);
+				genericsByType, newGenerics, ctx);
 		convertGenericType(NotificationChannelHandler.NOTIFICATION_CHANNEL_ID, 
-				genericsByType, newGenerics);
+				genericsByType, newGenerics, ctx);
 		convertGenericType(RealmHandler.REALM_OBJECT_TYPE, 
-				genericsByType, newGenerics);
+				genericsByType, newGenerics, ctx);
 		convertGenericType(InputTranslationProfileHandler.TRANSLATION_PROFILE_OBJECT_TYPE, //FIXME
-				genericsByType, newGenerics);
+				genericsByType, newGenerics, ctx);
 		convertGenericType(OutputTranslationProfileHandler.TRANSLATION_PROFILE_OBJECT_TYPE, //FIXME
-				genericsByType, newGenerics);
+				genericsByType, newGenerics, ctx);
 		convertGenericType(ProcessingRuleHandler.PROCESSING_RULE_OBJECT_TYPE, 
-				genericsByType, newGenerics);
+				genericsByType, newGenerics, ctx);
 		convertGenericType(EndpointHandler.ENDPOINT_OBJECT_TYPE, 
-				genericsByType, newGenerics);
+				genericsByType, newGenerics, ctx);
 		convertGenericType(RegistrationFormHandler.REGISTRATION_FORM_OBJECT_TYPE, 
-				genericsByType, newGenerics);
+				genericsByType, newGenerics, ctx);
 		convertGenericType(EnquiryFormHandler.ENQUIRY_FORM_OBJECT_TYPE, 
-				genericsByType, newGenerics);
+				genericsByType, newGenerics, ctx);
 		convertGenericType(RegistrationRequestHandler.REGISTRATION_REQUEST_OBJECT_TYPE, 
-				genericsByType, newGenerics);
+				genericsByType, newGenerics, ctx);
 		convertGenericType(EnquiryResponseHandler.ENQUIRY_RESPONSE_OBJECT_TYPE, 
-				genericsByType, newGenerics);
+				genericsByType, newGenerics, ctx);
 		convertGenericType(InvitationHandler.INVITATION_OBJECT_TYPE, 
-				genericsByType, newGenerics);
+				genericsByType, newGenerics, ctx);
 		
 		contents.remove("genericObjects");
 	}
 	
 	private void convertGenericType(String type, Map<String, List<ObjectNode>> genericsByType, 
-			ObjectNode newGenerics)
+			ObjectNode newGenerics, UpdateContext ctx) throws IOException
 	{
 		ArrayNode typeArray = (ArrayNode) newGenerics.withArray(type);
 		List<ObjectNode> list = genericsByType.get(type);
@@ -147,8 +147,95 @@ public class UpdateFrom1_9_x implements Update
 		
 		for (ObjectNode obj: list)
 		{
-			typeArray.add(obj.get("contents"));
+			ObjectNode content = (ObjectNode) obj.get("contents"); 
+			typeArray.add(content);
+			
+			switch (type)
+			{
+			case RealmHandler.REALM_OBJECT_TYPE:
+			case NotificationChannelHandler.NOTIFICATION_CHANNEL_ID:
+				content.put("name", obj.get("name").asText());
+				break;
+			case EndpointHandler.ENDPOINT_OBJECT_TYPE:
+				updateEndpoint(obj, content);
+				break;
+			case RegistrationRequestHandler.REGISTRATION_REQUEST_OBJECT_TYPE:
+			case EnquiryResponseHandler.ENQUIRY_RESPONSE_OBJECT_TYPE:
+				updateRegistrationOrEnquiryRequest(content, ctx);
+				break;
+			case InvitationHandler.INVITATION_OBJECT_TYPE:
+				updateInvitation(content, ctx);
+				break;
+			}
 		}
+	}
+
+	private void updateInvitation(ObjectNode target, UpdateContext ctx)
+	{
+		long expiry = target.get("expiration").asLong();
+		target.put("expiration", expiry*1000);
+		if (target.has("lastSentTime"))
+		{
+			long lastSent = target.get("lastSentTime").asLong();
+			target.put("lastSentTime", lastSent*1000);
+		}
+		ObjectNode attributesOld = (ObjectNode) target.get("attributes");
+		attributesOld.fields().forEachRemaining(field ->
+		{
+			ObjectNode el = (ObjectNode) field.getValue();
+			ObjectNode oldEntry = (ObjectNode) el.get("attribute");
+			try
+			{
+				updateParamAttribute(oldEntry, ctx);
+				el.set("entry", oldEntry);
+			} catch (Exception e)
+			{
+				log.warn("Can't update invitation perfilled attribute, skipping it", e);
+				el.set("entry", null);
+			}
+		});
+	}
+
+	private void updateRegistrationOrEnquiryRequest(ObjectNode target, UpdateContext ctx) 
+			throws IOException
+	{
+		ArrayNode attributes = (ArrayNode) target.get("Attributes");
+		for (JsonNode attributeN: attributes)
+		{
+			if (attributeN.isNull())
+				continue;
+			ObjectNode attribute = (ObjectNode) attributeN;
+			attribute.setAll((ObjectNode)attribute.get("attribute"));
+			updateParamAttribute(attribute, ctx);
+		}
+	}
+	
+	private void updateParamAttribute(ObjectNode attribute, UpdateContext ctx) throws IOException
+	{
+		attribute.set("remoteIdp", attribute.get("externalIdp"));
+		ObjectNode atDef = ctx.attributeTypesByName.get(attribute.get("name").asText());
+		String attributeSyntax = atDef.get("valueSyntaxId").asText();
+		attribute.put("valueSyntax", attributeSyntax);
+		ArrayNode valuesOld = (ArrayNode) attribute.remove("values");
+		ArrayNode valuesNew = objectMapper.createArrayNode();
+		for (JsonNode valueOld: valuesOld)
+			valuesNew.add(convertLegacyAttributeValue(valueOld.binaryValue(), attributeSyntax));
+		attribute.set("values", valuesNew);
+	}
+
+	private void updateEndpoint(ObjectNode old, ObjectNode target)
+	{
+		ObjectNode oldContent = (ObjectNode) old.get("contents"); 
+		ObjectNode description = (ObjectNode) oldContent.get("description");
+		target.put("name", description.get("id").asText());
+		target.put("typeId", description.get("typeName").asText());
+		target.put("contextAddress", description.get("contextAddress").asText());
+		ObjectNode targetConfig = target.with("configuration");
+		targetConfig.set("displayedName", description.get("displayedName"));
+		targetConfig.set("description", description.get("description"));
+		targetConfig.set("realm", description.get("realmName"));
+		targetConfig.set("authenticationOptions", description.get("authenticationOptions"));
+		targetConfig.set("configuration", oldContent.get("state"));
 	}
 
 	private Map<String, List<ObjectNode>> sortGenerics(ArrayNode generics)
@@ -169,8 +256,7 @@ public class UpdateFrom1_9_x implements Update
 		return genericsByType;
 	}
 
-	private void updateAttributeTypes(Map<Long, ObjectNode> attributeTypesById, 
-			Map<String, ObjectNode> attributeTypesByName, ObjectNode contents)
+	private void updateAttributeTypes(UpdateContext ctx, ObjectNode contents)
 	{
 		ArrayNode attrTypes = (ArrayNode) contents.get("attributeTypes");
 		if (attrTypes == null)
@@ -179,8 +265,8 @@ public class UpdateFrom1_9_x implements Update
 		{
 			long id = node.get("id").asLong();
 			String name = node.get("name").asText();
-			attributeTypesById.put(id, (ObjectNode) node);
-			attributeTypesByName.put(name, (ObjectNode) node);
+			ctx.attributeTypesById.put(id, (ObjectNode) node);
+			ctx.attributeTypesByName.put(name, (ObjectNode) node);
 			
 			ObjectNode nodeO = (ObjectNode) node; 
 			nodeO.set("syntaxId", node.get("valueSyntaxId"));
@@ -272,17 +358,17 @@ public class UpdateFrom1_9_x implements Update
 		}
 	}
 
-	private void updateGroups(ObjectNode contents, Map<Long, ObjectNode> attributeTypesById)
+	private void updateGroups(ObjectNode contents, UpdateContext ctx)
 	{
 		ArrayNode src = (ArrayNode) contents.get("groups");
-		Map<Long, String> legacyGroupIds = new HashMap<>();
+		
 		if (src == null)
 			return;
 		for (JsonNode node: src)
 		{
 			String groupPath = node.get("groupPath").asText();
 			long id = node.get("id").asLong();
-			legacyGroupIds.put(id, groupPath);
+			ctx.legacyGroupIds.put(id, groupPath);
 		}
 	
 		Iterator<JsonNode> iterator = src.iterator();
@@ -294,18 +380,17 @@ public class UpdateFrom1_9_x implements Update
 				iterator.remove();
 				continue;
 			}
-			updateGroup((ObjectNode) node, legacyGroupIds, attributeTypesById);
+			updateGroup((ObjectNode) node, ctx);
 		}
 	}
 	
 	
-	private void updateGroup(ObjectNode src, Map<Long, String> legacyGroupIds, 
-			Map<Long, ObjectNode> attributeTypesById)
+	private void updateGroup(ObjectNode src, UpdateContext ctx)
 	{
 		String groupPath = src.get("groupPath").asText();
 		src.put("path", groupPath);
 		long id = src.get("id").asLong();
-		legacyGroupIds.put(id, groupPath);
+		ctx.legacyGroupIds.put(id, groupPath);
 		
 		if (!src.has("attributesClasses"))
 			src.putArray("attributesClasses");
@@ -323,7 +408,7 @@ public class UpdateFrom1_9_x implements Update
 			if (statement.has("extraGroup"))
 			{
 				long extraGroupId = statement.get("extraGroup").asLong();
-				statement.put("extraGroupName", legacyGroupIds.get(extraGroupId));
+				statement.put("extraGroupName", ctx.legacyGroupIds.get(extraGroupId));
 			}
 			if (statement.has("fixedAttribute-attributeId"))
 			{
@@ -331,8 +416,8 @@ public class UpdateFrom1_9_x implements Update
 				long groupId = statement.get("fixedAttribute-attributeGroupId").asLong();
 				String values = statement.get("fixedAttribute-attributeValues").asText();
 				
-				String group = legacyGroupIds.get(groupId);
-				ObjectNode atDef = attributeTypesById.get(attrId);
+				String group = ctx.legacyGroupIds.get(groupId);
+				ObjectNode atDef = ctx.attributeTypesById.get(attrId);
 				String attributeName = atDef.get("name").asText();
 				String attributeSyntax = atDef.get("valueSyntaxId").asText();
 
@@ -375,21 +460,21 @@ public class UpdateFrom1_9_x implements Update
 	}
 	
 	
-	private void updateAttributes(ObjectNode contents, Map<String, ObjectNode> attributeTypesByName)
+	private void updateAttributes(ObjectNode contents, UpdateContext ctx)
 	{
 		ArrayNode attributes = (ArrayNode) contents.get("attributes");
 		if (attributes == null)
 			return;
 		for (JsonNode node: attributes)
-			updateStoredAttribute((ObjectNode) node, attributeTypesByName);
+			updateStoredAttribute((ObjectNode) node, ctx);
 	}
 	
-	private void updateStoredAttribute(ObjectNode src, Map<String, ObjectNode> attributeTypesByName)
+	private void updateStoredAttribute(ObjectNode src, UpdateContext ctx)
 	{
 		String attr = src.get("attributeName").asText();
 		String group = src.get("groupPath").asText();
 		String values = src.remove("values").asText();
-		ObjectNode atDef = attributeTypesByName.get(attr);
+		ObjectNode atDef = ctx.attributeTypesByName.get(attr);
 		String attributeSyntax = atDef.get("valueSyntaxId").asText();
 
 		toNewAttribute(values, src, attr, group, attributeSyntax);
@@ -453,5 +538,12 @@ public class UpdateFrom1_9_x implements Update
 			throw new IllegalStateException("Unknown attribute value type, can't be converted: " 
 					+ valueSyntax);
 		}
+	}
+	
+	private static class UpdateContext
+	{
+		private Map<Long, ObjectNode> attributeTypesById = new HashMap<>();
+		private Map<String, ObjectNode> attributeTypesByName = new HashMap<>();
+		private Map<Long, String> legacyGroupIds = new HashMap<>();
 	}
 }
