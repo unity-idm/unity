@@ -1,7 +1,7 @@
 {
   "versionMajor" : 1,
   "versionMinor" : 5,
-  "timestamp" : 1464888182416,
+  "timestamp" : 1465125557523,
   "contents" : {
     "attributeTypes" : [ {
       "id" : 1,
@@ -1190,6 +1190,48 @@
       },
       "entityId" : 48,
       "typeName" : "persistent"
+    }, {
+      "id" : 43,
+      "name" : "pPk8YBC07HcDldN57FacWVd27hAHAP8l4BV9IFrQlAtyvRpRMPej9bzdzjxOY0W9VcNnAJTLwFWZWr7wgYYPAA==",
+      "contents" : {
+        "creationTs" : 1465123048144,
+        "updateTs" : 1465123048144,
+        "value" : "golbi@bixbit.net",
+        "confirmationInfo" : "{\"confirmed\":true,\"confirmationDate\":1465123048117,\"sentRequestAmount\":0}"
+      },
+      "entityId" : 46,
+      "typeName" : "email"
+    }, {
+      "id" : 44,
+      "name" : "uk3A+628AnlTTSXD9Wbbq+t1JEmttN7E50//X0F5geeTLC7F6/AsoqtBb+w69YSvWk4Ao9njGcGAw28LW/4Jqg==",
+      "contents" : {
+        "creationTs" : 1465123066195,
+        "updateTs" : 1465123066310,
+        "value" : "kb@bixbit.net",
+        "confirmationInfo" : "{\"confirmed\":false,\"confirmationDate\":0,\"sentRequestAmount\":1}"
+      },
+      "entityId" : 46,
+      "typeName" : "email"
+    }, {
+      "id" : 45,
+      "name" : "sD9QT+rui3gf4j+mLWArXeSVfsqI8ShuRjkSgPGBvrI8AyPPc3z6V7b6VnqVdAHfjjA/tKD/HzJx+YZVgwC94Q==",
+      "contents" : {
+        "value" : "{\"absoluteTTL\":-1,\"relativeTTL\":86400000,\"lastUsage\":1465124991163,\"idValue\":\"888976c9-6931-4515-b9dc-2cb8601acfee\"}",
+        "realm" : "defaultRealm",
+        "target" : "https://dev.unity-idm.eu:9001/unitygw/saml-sp-metadata/sp1"
+      },
+      "entityId" : 2,
+      "typeName" : "transient"
+    }, {
+      "id" : 46,
+      "name" : "2K8fvW+Q2KHBrid7OrLnQexsXbveCeLzQcJWMD3MbZ8W/Yso+pGxPmMBGFsbUulU7DPAR5aWc/BazEykH9TQUw==",
+      "contents" : {
+        "value" : "854ae4ec-fc90-4c19-bf20-6c3c922d8383",
+        "realm" : "defaultRealm",
+        "target" : "https://dev.unity-idm.eu:9001/unitygw/saml-sp-metadata/sp1"
+      },
+      "entityId" : 2,
+      "typeName" : "targetedPersistent"
     } ],
     "groups" : [ {
       "id" : 1,
@@ -1668,7 +1710,7 @@
       "entity" : 2,
       "attributeName" : "sys:Credential:Password credential",
       "valueSyntaxId" : "string",
-      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiZXlKd1lYTnpkMjl5WkhNaU9sdDdJbWhoYzJnaU9pSXlTRXRIVGt0MGJGVndVM041TjJORVN6bHBiMEpPTUZKT1VIaEpjRVk1T1RSV1EzVnJjbTV6TDJwelBTSXNJbk5oYkhRaU9pSTNPVGM1TkRJNU5UUTNOalV4TVRnek9URXlJaXdpZEdsdFpTSTZNVFExTWpZNU5UUXlORFUwTnl3aWNtVm9ZWE5vVG5WdFltVnlJam94ZlYwc0ltOTFkR1JoZEdWa0lqcG1ZV3h6WlgwPSJdLCJ1cGRhdGVUcyI6MTQ1MjY5NTQyNDU0OH0="
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiZXlKd1lYTnpkMjl5WkhNaU9sdDdJbWhoYzJnaU9pSXdlbmxJTDJSTmFVcHpTbU5WVURoQ1ZrVXhUMWxyUjJaSGRWVlhTR2RJU1VkcmVFc3plRkJZVDFJMFBTSXNJbk5oYkhRaU9pSXlNVFF6TWprd09Ea3lPVEV6TlRrNE9UTTFJaXdpZEdsdFpTSTZNVFEyTlRFeU5EazRNVE0xTWl3aWNtVm9ZWE5vVG5WdFltVnlJam94ZlYwc0ltOTFkR1JoZEdWa0lqcG1ZV3h6WlgwPSJdLCJ1cGRhdGVUcyI6MTQ2NTEyNDk4MTM1Mn0="
     }, {
       "groupPath" : "/",
       "entity" : 6,
@@ -1728,7 +1770,7 @@
       "entity" : 2,
       "attributeName" : "sys:Preferences",
       "valueSyntaxId" : "string",
-      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiZXlKd2JDNWxaSFV1YVdOdExuVnVhWFI1TG5OaGJXd3VhV1J3TG5CeVpXWmxjbVZ1WTJWekxsTmhiV3hRY21WbVpYSmxibU5sY3lJNkludGNJbk53VTJWMGRHbHVaM05jSWpwN2ZYMGlMQ0p3YkM1bFpIVXVhV050TG5WdWFYUjVMblZ1YVdOdmNtVXVjMkZ0Ykdsa2NDNXdjbVZtWlhKbGJtTmxjeTVUWVcxc1VISmxabVZ5Wlc1alpYTlhhWFJvUlZSRUlqb2llMXdpYzNCVFpYUjBhVzVuYzF3aU9udDlMRndpYzNCRmRHUlRaWFIwYVc1bmMxd2lPbnQ5ZlNKOSJdLCJ1cGRhdGVUcyI6MTQwNTcwNjYzNDc2NX0="
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiZXlKd2JDNWxaSFV1YVdOdExuVnVhWFI1TG5OaGJXd3VhV1J3TG5CeVpXWmxjbVZ1WTJWekxsTmhiV3hRY21WbVpYSmxibU5sY3lJNkludGNJbk53VTJWMGRHbHVaM05jSWpwN2ZYMGlMQ0p3YkM1bFpIVXVhV050TG5WdWFYUjVMblZ1YVdOdmNtVXVjMkZ0Ykdsa2NDNXdjbVZtWlhKbGJtTmxjeTVUWVcxc1VISmxabVZ5Wlc1alpYTlhhWFJvUlZSRUlqb2llMXdpYzNCVFpYUjBhVzVuYzF3aU9udDlMRndpYzNCRmRHUlRaWFIwYVc1bmMxd2lPbnQ5ZlNKOSJdLCJ1cGRhdGVUcyI6MTQ2NTEyNTUyMzYxNH0="
     }, {
       "groupPath" : "/",
       "entity" : 7,
@@ -1902,7 +1944,7 @@
       "entity" : 1,
       "attributeName" : "sys:LastAuthentication",
       "valueSyntaxId" : "string",
-      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiTWpBeE5pMHdOaTB3TWxReE9Ub3dOem96Tmc9PSJdLCJjcmVhdGlvblRzIjoxNDU5OTQ2NTE4MzQwLCJ1cGRhdGVUcyI6MTQ2NDg4NzI1Njg5M30="
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiTWpBeE5pMHdOaTB3TlZReE16b3dPVG93TUE9PSJdLCJjcmVhdGlvblRzIjoxNDU5OTQ2NTE4MzQwLCJ1cGRhdGVUcyI6MTQ2NTEyNDk0MDQwNn0="
     }, {
       "groupPath" : "/",
       "entity" : 48,
@@ -1933,6 +1975,12 @@
       "attributeName" : "sys:FilledEnquires",
       "valueSyntaxId" : "string",
       "values" : "eyJ2aXNpYmlsaXR5IjoiZnVsbCIsInZhbHVlcyI6WyJUbVYzSUdWdWNYVnBjbms9Il0sImNyZWF0aW9uVHMiOjE0NjQ4ODgwMDc3MTcsInVwZGF0ZVRzIjoxNDY0ODg4MDA3NzE3fQ=="
+    }, {
+      "groupPath" : "/",
+      "entity" : 2,
+      "attributeName" : "sys:LastAuthentication",
+      "valueSyntaxId" : "string",
+      "values" : "eyJ2aXNpYmlsaXR5IjoibG9jYWwiLCJ2YWx1ZXMiOlsiTWpBeE5pMHdOaTB3TlZReE16b3hPRG8wTkE9PSJdLCJjcmVhdGlvblRzIjoxNDY1MTI0OTkwNjA5LCJ1cGRhdGVUcyI6MTQ2NTEyNTUyNDIyNX0="
     }, {
       "groupPath" : "/staff",
       "entity" : 1,
@@ -2291,7 +2339,7 @@
       "type" : "endpointDefinition",
       "subType" : "WebAdminUI",
       "name" : "UNITY administration interface",
-      "lastUpdate" : 1464887251404,
+      "lastUpdate" : 1465125326240,
       "contents" : {
         "description" : {
           "authenticationOptions" : [ {
@@ -2309,13 +2357,13 @@
           "realmName" : "adminRealm",
           "typeName" : "WebAdminUI"
         },
-        "state" : "#\n#Thu Jun 02 19:07:31 CEST 2016\nunity.endpoint.web.enableRegistration=true\nunity.endpoint.web.defaultTheme=unityThemeValo\n"
+        "state" : "#\n#Sun Jun 05 13:15:26 CEST 2016\nunity.endpoint.web.enableRegistration=true\nunity.endpoint.web.defaultTheme=unityThemeValo\n"
       }
     }, {
       "type" : "endpointDefinition",
       "subType" : "SAMLWebIdP",
       "name" : "UNITY SAML web authentication",
-      "lastUpdate" : 1464887251479,
+      "lastUpdate" : 1465125326401,
       "contents" : {
         "description" : {
           "authenticationOptions" : [ {
@@ -2337,13 +2385,13 @@
           "realmName" : "defaultRealm",
           "typeName" : "SAMLWebIdP"
         },
-        "state" : "#\n#Thu Jun 02 19:07:31 CEST 2016\nunity.saml.credential=MAIN\nunity.endpoint.web.enableRegistration=true\nunity.saml.authenticationTimeout=20\nunity.saml.validityPeriod=3600\nunity.saml.acceptedSP.uportal.returnURL=https\\://unity-2.grid.icm.edu.pl\\:9070/authn/performSAMLAuthn\nunity.saml.acceptedSP.shib.returnURL=https\\://unity-2.grid.icm.edu.pl\\:9081/Shibboleth.sso/SAML2/POST\nunity.saml.translationProfile=UNICORE profile\nunity.saml.acceptedSP.shib.entity=https\\://unity-2.grid.icm.edu.pl\\:9081/shibboleth\nunity.saml.signResponses=asRequest\nunity.saml.defaultGroup=/unicore\nunity.endpoint.web.defaultTheme=unityThemeValo\nunity.saml.issuerURI=https\\://unity-2.grid.icm.edu.pl\\:9001/saml-idp\nunity.saml.spAcceptPolicy=validRequester\nunity.saml.acceptedSP.uportal.dn=CN\\=Portal,O\\=UNICORE,C\\=EU\nunity.saml.requestValidityPeriod=600\n"
+        "state" : "#\n#Sun Jun 05 13:15:26 CEST 2016\nunity.saml.credential=MAIN\nunity.endpoint.web.enableRegistration=true\nunity.saml.authenticationTimeout=20\nunity.saml.validityPeriod=3600\nunity.saml.translationProfile=UNICORE profile\nunity.saml.signResponses=asRequest\nunity.saml.acceptedSP.unity.returnURL=https\\://dev.unity-idm.eu\\:9001/unitygw/spSAMLResponseConsumer\nunity.saml.defaultGroup=/\nunity.endpoint.web.defaultTheme=unityThemeValo\nunity.saml.issuerURI=https\\://dev.unity-idm.eu\\:9001/saml-idp\nunity.saml.spAcceptPolicy=validRequester\nunity.saml.acceptedSP.unity.entity=https\\://dev.unity-idm.eu\\:9001/unitygw/saml-sp-metadata/sp1\nunity.saml.requestValidityPeriod=600\n"
       }
     }, {
       "type" : "endpointDefinition",
       "subType" : "SAMLUnicoreWebIdP",
       "name" : "UNITY UNICORE web authentication",
-      "lastUpdate" : 1464887251733,
+      "lastUpdate" : 1465125327768,
       "contents" : {
         "description" : {
           "authenticationOptions" : [ {
@@ -2365,13 +2413,13 @@
           "realmName" : "defaultRealm",
           "typeName" : "SAMLUnicoreWebIdP"
         },
-        "state" : "#\n#Thu Jun 02 19:07:31 CEST 2016\nunity.saml.credential=MAIN\nunity.endpoint.web.enableRegistration=true\nunity.saml.authenticationTimeout=20\nunity.saml.validityPeriod=3600\nunity.saml.acceptedSP.uportal.returnURL=https\\://unity-2.grid.icm.edu.pl\\:9070/authn/performSAMLAuthn\nunity.saml.acceptedSP.shib.returnURL=https\\://unity-2.grid.icm.edu.pl\\:9081/Shibboleth.sso/SAML2/POST\nunity.saml.translationProfile=UNICORE profile\nunity.saml.acceptedSP.shib.entity=https\\://unity-2.grid.icm.edu.pl\\:9081/shibboleth\nunity.saml.signResponses=asRequest\nunity.saml.defaultGroup=/unicore\nunity.endpoint.web.defaultTheme=unityThemeValo\nunity.saml.issuerURI=https\\://unity-2.grid.icm.edu.pl\\:9001/saml-idp\nunity.saml.spAcceptPolicy=validRequester\nunity.saml.acceptedSP.uportal.dn=CN\\=Portal,O\\=UNICORE,C\\=EU\nunity.saml.requestValidityPeriod=600\n"
+        "state" : "#\n#Sun Jun 05 13:15:27 CEST 2016\nunity.saml.credential=MAIN\nunity.endpoint.web.enableRegistration=true\nunity.saml.authenticationTimeout=20\nunity.saml.validityPeriod=3600\nunity.saml.translationProfile=UNICORE profile\nunity.saml.signResponses=asRequest\nunity.saml.acceptedSP.unity.returnURL=https\\://dev.unity-idm.eu\\:9001/unitygw/spSAMLResponseConsumer\nunity.saml.defaultGroup=/\nunity.endpoint.web.defaultTheme=unityThemeValo\nunity.saml.issuerURI=https\\://dev.unity-idm.eu\\:9001/saml-idp\nunity.saml.spAcceptPolicy=validRequester\nunity.saml.acceptedSP.unity.entity=https\\://dev.unity-idm.eu\\:9001/unitygw/saml-sp-metadata/sp1\nunity.saml.requestValidityPeriod=600\n"
       }
     }, {
       "type" : "endpointDefinition",
       "subType" : "SAMLUnicoreSoapIdP",
       "name" : "UNITY UNICORE SOAP SAML service",
-      "lastUpdate" : 1464887251942,
+      "lastUpdate" : 1465125327948,
       "contents" : {
         "description" : {
           "authenticationOptions" : [ {
@@ -2389,13 +2437,13 @@
           "realmName" : "defaultRealm",
           "typeName" : "SAMLUnicoreSoapIdP"
         },
-        "state" : "#\n#Thu Jun 02 19:07:31 CEST 2016\nunity.saml.credential=MAIN\nunity.endpoint.web.enableRegistration=true\nunity.saml.authenticationTimeout=20\nunity.saml.validityPeriod=3600\nunity.saml.acceptedSP.uportal.returnURL=https\\://unity-2.grid.icm.edu.pl\\:9070/authn/performSAMLAuthn\nunity.saml.acceptedSP.shib.returnURL=https\\://unity-2.grid.icm.edu.pl\\:9081/Shibboleth.sso/SAML2/POST\nunity.saml.translationProfile=UNICORE profile\nunity.saml.acceptedSP.shib.entity=https\\://unity-2.grid.icm.edu.pl\\:9081/shibboleth\nunity.saml.signResponses=asRequest\nunity.saml.defaultGroup=/unicore\nunity.saml.issuerURI=https\\://unity-2.grid.icm.edu.pl\\:9001/saml-idp\nunity.saml.spAcceptPolicy=validRequester\nunity.saml.acceptedSP.uportal.dn=CN\\=Portal,O\\=UNICORE,C\\=EU\nunity.saml.requestValidityPeriod=600\n"
+        "state" : "#\n#Sun Jun 05 13:15:27 CEST 2016\nunity.saml.credential=MAIN\nunity.endpoint.web.enableRegistration=true\nunity.saml.authenticationTimeout=20\nunity.saml.validityPeriod=3600\nunity.saml.translationProfile=UNICORE profile\nunity.saml.signResponses=asRequest\nunity.saml.acceptedSP.unity.returnURL=https\\://dev.unity-idm.eu\\:9001/unitygw/spSAMLResponseConsumer\nunity.saml.defaultGroup=/\nunity.saml.issuerURI=https\\://dev.unity-idm.eu\\:9001/saml-idp\nunity.saml.spAcceptPolicy=validRequester\nunity.saml.acceptedSP.unity.entity=https\\://dev.unity-idm.eu\\:9001/unitygw/saml-sp-metadata/sp1\nunity.saml.requestValidityPeriod=600\n"
       }
     }, {
       "type" : "endpointDefinition",
       "subType" : "SAMLSoapIdP",
       "name" : "UNITY SOAP SAML service",
-      "lastUpdate" : 1464887252240,
+      "lastUpdate" : 1465125328175,
       "contents" : {
         "description" : {
           "authenticationOptions" : [ {
@@ -2411,13 +2459,13 @@
           "realmName" : "defaultRealm",
           "typeName" : "SAMLSoapIdP"
         },
-        "state" : "#\n#Thu Jun 02 19:07:32 CEST 2016\nunity.saml.credential=MAIN\nunity.endpoint.web.enableRegistration=true\nunity.saml.authenticationTimeout=20\nunity.saml.validityPeriod=3600\nunity.saml.acceptedSP.uportal.returnURL=https\\://unity-2.grid.icm.edu.pl\\:9070/authn/performSAMLAuthn\nunity.saml.acceptedSP.shib.returnURL=https\\://unity-2.grid.icm.edu.pl\\:9081/Shibboleth.sso/SAML2/POST\nunity.saml.translationProfile=UNICORE profile\nunity.saml.acceptedSP.shib.entity=https\\://unity-2.grid.icm.edu.pl\\:9081/shibboleth\nunity.saml.signResponses=asRequest\nunity.saml.defaultGroup=/unicore\nunity.saml.issuerURI=https\\://unity-2.grid.icm.edu.pl\\:9001/saml-idp\nunity.saml.spAcceptPolicy=validRequester\nunity.saml.acceptedSP.uportal.dn=CN\\=Portal,O\\=UNICORE,C\\=EU\nunity.saml.requestValidityPeriod=600\n"
+        "state" : "#\n#Sun Jun 05 13:15:28 CEST 2016\nunity.saml.credential=MAIN\nunity.endpoint.web.enableRegistration=true\nunity.saml.authenticationTimeout=20\nunity.saml.validityPeriod=3600\nunity.saml.translationProfile=UNICORE profile\nunity.saml.signResponses=asRequest\nunity.saml.acceptedSP.unity.returnURL=https\\://dev.unity-idm.eu\\:9001/unitygw/spSAMLResponseConsumer\nunity.saml.defaultGroup=/\nunity.saml.issuerURI=https\\://dev.unity-idm.eu\\:9001/saml-idp\nunity.saml.spAcceptPolicy=validRequester\nunity.saml.acceptedSP.unity.entity=https\\://dev.unity-idm.eu\\:9001/unitygw/saml-sp-metadata/sp1\nunity.saml.requestValidityPeriod=600\n"
       }
     }, {
       "type" : "endpointDefinition",
       "subType" : "UserHomeUI",
       "name" : "UNITY user's account",
-      "lastUpdate" : 1464887252546,
+      "lastUpdate" : 1465125328432,
       "contents" : {
         "description" : {
           "authenticationOptions" : [ {
@@ -2436,16 +2484,16 @@
             "DefaultValue" : "UNITY user's account",
             "Map" : { }
           },
-          "realmName" : "defaultRealm",
+          "realmName" : "homeRealm",
           "typeName" : "UserHomeUI"
         },
-        "state" : "#\n#Thu Jun 02 19:07:32 CEST 2016\nunity.endpoint.web.enableRegistration=true\nunity.endpoint.web.defaultTheme=unityThemeValo\n"
+        "state" : "#\n#Sun Jun 05 13:15:28 CEST 2016\nunity.endpoint.web.enableRegistration=true\nunity.endpoint.web.defaultTheme=unityThemeValo\n"
       }
     }, {
       "type" : "endpointDefinition",
       "subType" : "RESTAdmin",
       "name" : "RESTful administration API",
-      "lastUpdate" : 1464887252574,
+      "lastUpdate" : 1465125328444,
       "contents" : {
         "description" : {
           "authenticationOptions" : [ {
@@ -2461,13 +2509,13 @@
           "realmName" : "defaultRealm",
           "typeName" : "RESTAdmin"
         },
-        "state" : "#\n#Thu Jun 02 19:07:32 CEST 2016\n"
+        "state" : "#\n#Sun Jun 05 13:15:28 CEST 2016\n"
       }
     }, {
       "type" : "endpointDefinition",
       "subType" : "OAuth2Authz",
       "name" : "UNITY OAuth2 Authorization Server",
-      "lastUpdate" : 1464887252672,
+      "lastUpdate" : 1465125328782,
       "contents" : {
         "description" : {
           "authenticationOptions" : [ {
@@ -2485,13 +2533,13 @@
           "realmName" : "defaultRealm",
           "typeName" : "OAuth2Authz"
         },
-        "state" : "#\n#Thu Jun 02 19:07:32 CEST 2016\nunity.oauth2.as.scopes.2.attributes.3=email\nunity.oauth2.as.scopes.2.attributes.2=c\nunity.oauth2.as.scopes.1.description=Enables the OpenID Conenct support\nunity.oauth2.as.scopes.2.attributes.1=cn\nunity.oauth2.as.issuerUri=https\\://localhost\\:2443/oauth2\nunity.oauth2.as.scopes.1.name=openid\nunity.oauth2.as.clientsGroup=/oauth-clients\nunity.oauth2.as.scopes.2.name=profile\nunity.oauth2.as.signingCredential=MAIN\nunity.oauth2.as.scopes.2.description=Provides access to the user's profile information\nunity.endpoint.web.defaultTheme=unityThemeValo\nunity.oauth2.as.usersGroup=/oauth-users\n"
+        "state" : "#\n#Sun Jun 05 13:15:28 CEST 2016\nunity.oauth2.as.scopes.2.attributes.3=email\nunity.oauth2.as.scopes.2.attributes.2=c\nunity.oauth2.as.scopes.1.description=Enables the OpenID Conenct support\nunity.oauth2.as.scopes.2.attributes.1=cn\nunity.oauth2.as.issuerUri=https\\://localhost\\:2443/oauth2\nunity.oauth2.as.scopes.1.name=openid\nunity.oauth2.as.clientsGroup=/oauth-clients\nunity.oauth2.as.scopes.2.name=profile\nunity.oauth2.as.signingCredential=MAIN\nunity.oauth2.as.scopes.2.description=Provides access to the user's profile information\nunity.endpoint.web.defaultTheme=unityThemeValo\nunity.oauth2.as.usersGroup=/oauth-users\n"
       }
     }, {
       "type" : "endpointDefinition",
       "subType" : "OAuth2Token",
       "name" : "UNITY OAuth2 Token endpoint",
-      "lastUpdate" : 1464887252757,
+      "lastUpdate" : 1465125329004,
       "contents" : {
         "description" : {
           "authenticationOptions" : [ {
@@ -2507,13 +2555,13 @@
           "realmName" : "defaultRealm",
           "typeName" : "OAuth2Token"
         },
-        "state" : "#\n#Thu Jun 02 19:07:32 CEST 2016\nunity.oauth2.as.scopes.2.attributes.3=email\nunity.oauth2.as.scopes.2.attributes.2=c\nunity.oauth2.as.scopes.1.description=Enables the OpenID Conenct support\nunity.oauth2.as.scopes.2.attributes.1=cn\nunity.oauth2.as.issuerUri=https\\://localhost\\:2443/oauth2\nunity.oauth2.as.scopes.1.name=openid\nunity.oauth2.as.clientsGroup=/oauth-clients\nunity.oauth2.as.scopes.2.name=profile\nunity.oauth2.as.signingCredential=MAIN\nunity.oauth2.as.scopes.2.description=Provides access to the user's profile information\nunity.oauth2.as.usersGroup=/oauth-users\n"
+        "state" : "#\n#Sun Jun 05 13:15:29 CEST 2016\nunity.oauth2.as.scopes.2.attributes.3=email\nunity.oauth2.as.scopes.2.attributes.2=c\nunity.oauth2.as.scopes.1.description=Enables the OpenID Conenct support\nunity.oauth2.as.scopes.2.attributes.1=cn\nunity.oauth2.as.issuerUri=https\\://localhost\\:2443/oauth2\nunity.oauth2.as.scopes.1.name=openid\nunity.oauth2.as.clientsGroup=/oauth-clients\nunity.oauth2.as.scopes.2.name=profile\nunity.oauth2.as.signingCredential=MAIN\nunity.oauth2.as.scopes.2.description=Provides access to the user's profile information\nunity.oauth2.as.usersGroup=/oauth-users\n"
       }
     }, {
       "type" : "endpointDefinition",
       "subType" : "WellKnownLinksHandler",
       "name" : "Account service",
-      "lastUpdate" : 1464887252807,
+      "lastUpdate" : 1465125329071,
       "contents" : {
         "description" : {
           "authenticationOptions" : [ {
@@ -2529,7 +2577,7 @@
           "realmName" : "defaultRealm",
           "typeName" : "WellKnownLinksHandler"
         },
-        "state" : "#\n#Thu Jun 02 19:07:32 CEST 2016\nunity.endpoint.web.defaultTheme=unityThemeValo\n"
+        "state" : "#\n#Sun Jun 05 13:15:29 CEST 2016\nunity.endpoint.web.defaultTheme=unityThemeValo\n"
       }
     }, {
       "type" : "credentialRequirement",
@@ -2622,7 +2670,7 @@
       "type" : "authenticator",
       "subType" : null,
       "name" : "pwdWeb",
-      "lastUpdate" : 1464887251291,
+      "lastUpdate" : 1465125325381,
       "contents" : {
         "id" : "pwdWeb",
         "typeDescription" : {
@@ -2642,7 +2690,7 @@
       "type" : "authenticator",
       "subType" : null,
       "name" : "certWeb",
-      "lastUpdate" : 1464887251292,
+      "lastUpdate" : 1465125325396,
       "contents" : {
         "id" : "certWeb",
         "typeDescription" : {
@@ -2662,7 +2710,7 @@
       "type" : "authenticator",
       "subType" : null,
       "name" : "pwdWS",
-      "lastUpdate" : 1464887251293,
+      "lastUpdate" : 1465125325400,
       "contents" : {
         "id" : "pwdWS",
         "typeDescription" : {
@@ -2682,7 +2730,7 @@
       "type" : "authenticator",
       "subType" : null,
       "name" : "pwdRest",
-      "lastUpdate" : 1464887251294,
+      "lastUpdate" : 1465125325402,
       "contents" : {
         "id" : "pwdRest",
         "typeDescription" : {
@@ -2702,7 +2750,7 @@
       "type" : "authenticator",
       "subType" : null,
       "name" : "oauthWeb",
-      "lastUpdate" : 1464887251295,
+      "lastUpdate" : 1465125325427,
       "contents" : {
         "id" : "oauthWeb",
         "typeDescription" : {
@@ -2722,7 +2770,7 @@
       "type" : "authenticator",
       "subType" : null,
       "name" : "samlWeb",
-      "lastUpdate" : 1464887251343,
+      "lastUpdate" : 1465125326114,
       "contents" : {
         "id" : "samlWeb",
         "typeDescription" : {
@@ -2735,14 +2783,14 @@
           "local" : false
         },
         "retrievalJsonConfiguration" : "",
-        "verificatorJsonConfiguration" : "#Example configuration for the remote SAML authentication\n\n#unity.saml.requester.metadataSource.dfn.url=https://test-idp.desy.de:8443/idp/profile/Metadata/SAML\n#unity.saml.requester.metadataSource.dfn.perMetadataTranslationProfile=desyProfile\nunity.saml.requester.metadataSource.swiss.url=http://metadata.aai.switch.ch/metadata.switchaai.xml\nunity.saml.requester.metadataSource.swiss.perMetadataTranslationProfile=desyProfile\n\nunity.saml.requester.requesterEntityId=https://unity-2.grid.icm.edu.pl:9001/unitygw/saml-sp-metadata/sp1\nunity.saml.requester.metadataPath=sp1\nunity.saml.requester.requesterCredential=MAIN\nunity.saml.requester.acceptedNameFormats.1=urn:oasis:names:tc:SAML:2.0:nameid-format:persistent\nunity.saml.requester.acceptedNameFormats.2=urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress\nunity.saml.requester.acceptedNameFormats.3=urn:oasis:names:tc:SAML:2.0:nameid-format:transient\n\nunity.saml.requester.remoteIdp.2.name=Demo Shibboleth IdP\nunity.saml.requester.remoteIdp.2.address=https://unity-2.grid.icm.edu.pl:9090/idp/profile/SAML2/Redirect/SSO\nunity.saml.requester.remoteIdp.2.binding=HTTP_REDIRECT\nunity.saml.requester.remoteIdp.2.samlId=https://unity-2.grid.icm.edu.pl/idp/shibboleth\nunity.saml.requester.remoteIdp.2.certificate=SHIB_IDP\nunity.saml.requester.remoteIdp.2.requestedNameFormat=urn:oasis:names:tc:SAML:2.0:nameid-format:transient\nunity.saml.requester.remoteIdp.2.translationProfile=shibProfile\n\nunity.saml.requester.remoteIdp.1.name=Demo Simple SAMLPHP\nunity.saml.requester.remoteIdp.1.address=https://unity-2.grid.icm.edu.pl:9080/simplesaml/saml2/idp/SSOService.php\nunity.saml.requester.remoteIdp.1.binding=HTTP_REDIRECT\nunity.saml.requester.remoteIdp.1.samlId=https://unity-2.grid.icm.edu.pl:9080/simplesaml/saml2/idp/metadata.php\nunity.saml.requester.remoteIdp.1.certificate=SIMPLESAMLPHP\nunity.saml.requester.remoteIdp.1.groupMembershipAttribute=urn:oid:1.3.6.1.4.1.5923.1.1.1.1\nunity.saml.requester.remoteIdp.1.translationProfile=sspProfile\n#unity.saml.requester.remoteIdp.1.registrationFormForUnknown=Form1\n",
+        "verificatorJsonConfiguration" : "#Example configuration for the remote SAML authentication\n\n#unity.saml.requester.metadataSource.dfn.url=https://test-idp.desy.de:8443/idp/profile/Metadata/SAML\n#unity.saml.requester.metadataSource.dfn.perMetadataTranslationProfile=desyProfile\nunity.saml.requester.metadataSource.swiss.url=http://metadata.aai.switch.ch/metadata.switchaai.xml\nunity.saml.requester.metadataSource.swiss.perMetadataTranslationProfile=desyProfile\n\nunity.saml.requester.requesterEntityId=https://dev.unity-idm.eu:9001/unitygw/saml-sp-metadata/sp1\nunity.saml.requester.metadataPath=sp1\nunity.saml.requester.requesterCredential=MAIN\nunity.saml.requester.acceptedNameFormats.1=urn:oasis:names:tc:SAML:2.0:nameid-format:persistent\nunity.saml.requester.acceptedNameFormats.2=urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress\nunity.saml.requester.acceptedNameFormats.3=urn:oasis:names:tc:SAML:2.0:nameid-format:transient\n\n#unity.saml.requester.remoteIdp.2.name=Demo Shibboleth IdP\n#unity.saml.requester.remoteIdp.2.address=https://unity-2.grid.icm.edu.pl:9090/idp/profile/SAML2/Redirect/SSO\n#unity.saml.requester.remoteIdp.2.binding=HTTP_REDIRECT\n#unity.saml.requester.remoteIdp.2.samlId=https://unity-2.grid.icm.edu.pl/idp/shibboleth\n#unity.saml.requester.remoteIdp.2.certificate=SHIB_IDP\n#unity.saml.requester.remoteIdp.2.requestedNameFormat=urn:oasis:names:tc:SAML:2.0:nameid-format:transient\n#unity.saml.requester.remoteIdp.2.translationProfile=shibProfile\n\n#unity.saml.requester.remoteIdp.1.name=Demo Simple SAMLPHP\n#unity.saml.requester.remoteIdp.1.address=https://unity-2.grid.icm.edu.pl:9080/simplesaml/saml2/idp/SSOService.php\n#unity.saml.requester.remoteIdp.1.binding=HTTP_REDIRECT\n#unity.saml.requester.remoteIdp.1.samlId=https://unity-2.grid.icm.edu.pl:9080/simplesaml/saml2/idp/metadata.php\n#unity.saml.requester.remoteIdp.1.certificate=SIMPLESAMLPHP\n#unity.saml.requester.remoteIdp.1.groupMembershipAttribute=urn:oid:1.3.6.1.4.1.5923.1.1.1.1\n#unity.saml.requester.remoteIdp.1.translationProfile=sspProfile\n#unity.saml.requester.remoteIdp.1.registrationFormForUnknown=Form1\n\n\nunity.saml.requester.remoteIdp.1.name=Loopback Unity SAML IdP/redirect binding\nunity.saml.requester.remoteIdp.1.address=https://dev.unity-idm.eu:9001/saml-idp/saml2idp-web\nunity.saml.requester.remoteIdp.1.binding=HTTP_REDIRECT\nunity.saml.requester.remoteIdp.1.samlId=https://dev.unity-idm.eu:9001/saml-idp\nunity.saml.requester.remoteIdp.1.certificate=MAIN\nunity.saml.requester.remoteIdp.1.requestedNameFormat=urn:oasis:names:tc:SAML:2.0:nameid-format:transient\nunity.saml.requester.remoteIdp.1.translationProfile=localSamlProfile\n",
         "localCredentialName" : null
       }
     }, {
       "type" : "authenticator",
       "subType" : null,
       "name" : "ldapWeb",
-      "lastUpdate" : 1464887251345,
+      "lastUpdate" : 1465125326158,
       "contents" : {
         "id" : "ldapWeb",
         "typeDescription" : {
@@ -2762,7 +2810,7 @@
       "type" : "authenticator",
       "subType" : null,
       "name" : "certWS",
-      "lastUpdate" : 1464887251348,
+      "lastUpdate" : 1465125326160,
       "contents" : {
         "id" : "certWS",
         "typeDescription" : {
@@ -3337,7 +3385,7 @@
       "type" : "authenticationRealm",
       "subType" : null,
       "name" : "defaultRealm",
-      "lastUpdate" : 1464887251349,
+      "lastUpdate" : 1465125326186,
       "contents" : {
         "allowForRememberMeDays" : -1,
         "blockAfterUnsuccessfulLogins" : 4,
@@ -3349,7 +3397,19 @@
       "type" : "authenticationRealm",
       "subType" : null,
       "name" : "adminRealm",
-      "lastUpdate" : 1464887251350,
+      "lastUpdate" : 1465125326187,
+      "contents" : {
+        "allowForRememberMeDays" : -1,
+        "blockAfterUnsuccessfulLogins" : 4,
+        "blockFor" : 30,
+        "maxInactivity" : 1800,
+        "description" : null
+      }
+    }, {
+      "type" : "authenticationRealm",
+      "subType" : null,
+      "name" : "homeRealm",
+      "lastUpdate" : 1465125326188,
       "contents" : {
         "allowForRememberMeDays" : -1,
         "blockAfterUnsuccessfulLogins" : 4,
@@ -3394,7 +3454,7 @@
       "type" : "notificationChannel",
       "subType" : null,
       "name" : "Default e-mail channel",
-      "lastUpdate" : 1464887251194,
+      "lastUpdate" : 1465125325161,
       "contents" : {
         "configuration" : "# User name which will be used for From: field of the email. It is also used  \n# as SMTP envelope return address if not overriden below.\nmail.from=root@localhost\n\n# The SMTP server to connect to.\nmail.smtp.host=localhost\n\n# If true, enables the use of the STARTTLS command (if supported by the server) \n# to switch the connection to a TLS-protected connection before issuing any login commands.\n# \n# IMPORTANT! SMTP server's certificate must be trusted to establish the connection.\n# The software will use the same truststore that is defined in main configuration of the server\n# so add SMTP server's CA certificate to it. Otherwise you can turn off the server's certificate verification\n# below, but you expose yourself for the MITM attacks. \n# Defaults to false.\n#mail.smtp.starttls.enable=true\n\n# Relevant only if starttls is enabled. Turns off SMTP server certificate verification.\n#mailx.smtp.trustAll=true\n\n# Email address to use for SMTP MAIL command. This sets the envelope return address. \n# Defaults to mail.from defined above.\n#mail.smtp.from=\n\n# If true, attempt to authenticate the user using the AUTH command. Defaults to false.\n#mail.smtp.auth=true\n\n# User and password used when authentication is enabled above.\n#mailx.smtp.auth.username=XX\n#mailx.smtp.auth.password=XX\n\n# I/O timeout value in milliseconds. Default is infinite timeout.\nmail.smtp.timeoutSocket=15000\n\n# Socket connection timeout value in milliseconds. Default is infinite timeout.\nmail.smtp.connectiontimeout=15000\n\n# The SMTP server port to connect to. Defaults to 25.\n#mail.smtp.port=587\n\n# Set this property to true if you want to see debug messages (are printed to the\n# stderr). Default is false.\n#mail.debug=true\n\n# For other (less frequently used) properties of email client configuration\n# take a look at  \n# https://javamail.java.net/nonav/docs/api/\n# and other documentation of javax-mail package.\n",
         "facilityId" : "email",
@@ -3624,6 +3684,26 @@
           "action" : {
             "name" : "createPersistedIdentity",
             "parameters" : [ "x500Name", "'CN=' + attr['cn'] + ',O=ICM,C=PL'" ]
+          }
+        } ]
+      }
+    }, {
+      "type" : "translationProfile",
+      "subType" : "INPUT",
+      "name" : "localSamlProfile",
+      "lastUpdate" : 1465125510357,
+      "contents" : {
+        "ver" : "2",
+        "name" : "localSamlProfile",
+        "description" : "",
+        "type" : "INPUT",
+        "rules" : [ {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapIdentity",
+            "parameters" : [ "userName", "'demo-user'", "Password requirement", "CREATE_OR_MATCH" ]
           }
         } ]
       }

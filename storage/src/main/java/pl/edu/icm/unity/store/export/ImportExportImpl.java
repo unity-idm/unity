@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +24,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.api.ImportExport;
 
 /**
@@ -32,6 +34,7 @@ import pl.edu.icm.unity.store.api.ImportExport;
 @Component
 public class ImportExportImpl implements ImportExport
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, ImportExportImpl.class);
 	public static final int VERSION = 3;
 
 	private ObjectMapper objectMapper;
@@ -113,6 +116,7 @@ public class ImportExportImpl implements ImportExport
 		
 		for (AbstractIEBase<?> impl: implementations)
 		{
+			log.debug("Importing " + impl.getStoreKey());
 			JsonUtils.nextExpect(jp2, impl.getStoreKey());
 			impl.deserialize(jp2);
 		}

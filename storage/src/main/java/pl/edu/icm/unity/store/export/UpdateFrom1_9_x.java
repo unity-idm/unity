@@ -11,6 +11,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,7 +117,7 @@ public class UpdateFrom1_9_x implements Update
 	}
 
 	
-	private void updateIdentitites(ObjectNode contents)
+	private void updateIdentitites(ObjectNode contents) throws IOException
 	{
 		ArrayNode ids = (ArrayNode) contents.get("identities");
 		if (ids == null)
@@ -125,7 +126,7 @@ public class UpdateFrom1_9_x implements Update
 			updateIdentity((ObjectNode) node);
 	}
 	
-	private void updateIdentity(ObjectNode src)
+	private void updateIdentity(ObjectNode src) throws IOException
 	{
 		String type = src.get("typeName").asText();
 		ObjectNode contents = (ObjectNode) src.get("contents");
@@ -133,8 +134,18 @@ public class UpdateFrom1_9_x implements Update
 				contents.get("value").asText(),
 				JsonUtil.getWithDef(contents, "realm", null),
 				JsonUtil.getWithDef(contents, "target", null));
+		src.setAll(contents);
 		src.put("typeId", type);
 		src.put("comparableValue", comparable);
+		if (contents.has("confirmationInfo"))
+		{
+			JsonNode ci = objectMapper.readTree(contents.get("confirmationInfo").asText());
+			src.set("confirmationInfo", ci);
+		}
+		if (!contents.has("creationTs"))
+			src.put("creationTs", 0);
+		if (!contents.has("updateTs"))
+			src.put("updateTs", 0);
 	}
 
 	private String getComparableIdentityValue(String type, String value, String realm, String target)
@@ -166,9 +177,9 @@ public class UpdateFrom1_9_x implements Update
 	private void updateGroups(ObjectNode contents, Map<Long, ObjectNode> attributeTypesById)
 	{
 		ArrayNode src = (ArrayNode) contents.get("groups");
+		Map<Long, String> legacyGroupIds = new HashMap<>();
 		if (src == null)
 			return;
-		Map<Long, String> legacyGroupIds = new HashMap<>();
 		for (JsonNode node: src)
 		{
 			String groupPath = node.get("groupPath").asText();
@@ -176,8 +187,17 @@ public class UpdateFrom1_9_x implements Update
 			legacyGroupIds.put(id, groupPath);
 		}
 	
-		for (JsonNode node: src)
+		Iterator<JsonNode> iterator = src.iterator();
+		while (iterator.hasNext())
+		{
+			JsonNode node = iterator.next();
+			if (node.get("name").asText().equals("ROOT"))
+			{
+				iterator.remove();
+				continue;
+			}
 			updateGroup((ObjectNode) node, legacyGroupIds, attributeTypesById);
+		}
 	}
 	
 	
@@ -189,9 +209,15 @@ public class UpdateFrom1_9_x implements Update
 		long id = src.get("id").asLong();
 		legacyGroupIds.put(id, groupPath);
 		
+		if (!src.has("attributesClasses"))
+			src.putArray("attributesClasses");
+		
 		ArrayNode oldStatements = (ArrayNode) src.get("attributeStatements");
 		if (oldStatements == null)
+		{
+			src.putArray("attributeStatements");
 			return;
+		}
 		
 		for (JsonNode statementO: oldStatements)
 		{
@@ -219,15 +245,38 @@ public class UpdateFrom1_9_x implements Update
 		}
 	}
 
-	private void updateMembers(ObjectNode contents)
+	private void updateMembers(ObjectNode contents) throws IOException
 	{
 		ArrayNode members = (ArrayNode) contents.get("groupMembers");
 		if (members == null)
 			return;
-
-		//TODO
+		ArrayNode newMembers = objectMapper.createArrayNode();
+		for (JsonNode node: members)
+			updateGroupMembers((ObjectNode) node, newMembers);
+		contents.replace("groupMembers", newMembers);
 	}
 
+	private void updateGroupMembers(ObjectNode src, ArrayNode newMembers) throws IOException
+	{
+		String group = src.get("groupPath").asText();
+		
+		ArrayNode jsonNode = (ArrayNode) src.get("members");
+		for (JsonNode gMember: jsonNode)
+		{
+			ObjectNode newMember = newMembers.addObject();
+			newMember.put("group", group);
+			newMember.put("entityId", gMember.get("entity").asLong());
+			if (gMember.has("contents"))
+			{
+				String contents64 = gMember.get("contents").asText();
+				String contents = new String(Base64.getDecoder().decode(contents64), 
+						StandardCharsets.UTF_8);
+				newMember.setAll((ObjectNode)objectMapper.readTree(contents));
+			}
+		}
+	}
+	
+	
 	private void updateAttributes(ObjectNode contents, Map<String, ObjectNode> attributeTypesByName)
 	{
 		ArrayNode attributes = (ArrayNode) contents.get("attributes");
@@ -246,7 +295,7 @@ public class UpdateFrom1_9_x implements Update
 		String attributeSyntax = atDef.get("valueSyntaxId").asText();
 
 		toNewAttribute(values, src, attr, group, attributeSyntax);
-		src.put("entity", src.get("entity").asLong());
+		src.put("entityId", src.get("entity").asLong());
 	}
 	
 	private void toNewAttribute(String oldValues, ObjectNode target, String attributeName, String group,
