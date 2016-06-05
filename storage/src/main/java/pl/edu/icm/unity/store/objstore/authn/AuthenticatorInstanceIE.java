@@ -23,7 +23,8 @@ public class AuthenticatorInstanceIE extends GenericObjectIEBase<AuthenticatorIn
 	@Autowired
 	public AuthenticatorInstanceIE(AuthenticatorInstanceDB dao, ObjectMapper jsonMapper)
 	{
-		super(dao, jsonMapper, AuthenticatorInstance.class, 101, "authenticatorInstance");
+		super(dao, jsonMapper, AuthenticatorInstance.class, 101, 
+				AuthenticatorInstanceHandler.AUTHENTICATOR_OBJECT_TYPE);
 	}
 }
 

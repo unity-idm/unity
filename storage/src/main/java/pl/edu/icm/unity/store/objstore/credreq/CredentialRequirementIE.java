@@ -23,7 +23,8 @@ public class CredentialRequirementIE extends GenericObjectIEBase<CredentialRequi
 	@Autowired
 	public CredentialRequirementIE(CredentialRequirementDB dao, ObjectMapper jsonMapper)
 	{
-		super(dao, jsonMapper, CredentialRequirements.class, 104, "credentialRequirements");
+		super(dao, jsonMapper, CredentialRequirements.class, 104, 
+				CredentialRequirementHandler.CREDENTIAL_REQ_OBJECT_TYPE);
 	}
 }
 

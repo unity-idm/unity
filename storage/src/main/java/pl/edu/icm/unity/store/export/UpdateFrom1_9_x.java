@@ -9,9 +9,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,23 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Escaper;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.store.objstore.ac.AttributeClassHandler;
+import pl.edu.icm.unity.store.objstore.authn.AuthenticatorInstanceHandler;
+import pl.edu.icm.unity.store.objstore.bulk.ProcessingRuleHandler;
+import pl.edu.icm.unity.store.objstore.confirmation.ConfirmationConfigurationHandler;
+import pl.edu.icm.unity.store.objstore.cred.CredentialHandler;
+import pl.edu.icm.unity.store.objstore.credreq.CredentialRequirementHandler;
+import pl.edu.icm.unity.store.objstore.endpoint.EndpointHandler;
+import pl.edu.icm.unity.store.objstore.msgtemplate.MessageTemplateHandler;
+import pl.edu.icm.unity.store.objstore.notify.NotificationChannelHandler;
+import pl.edu.icm.unity.store.objstore.realm.RealmHandler;
+import pl.edu.icm.unity.store.objstore.reg.eform.EnquiryFormHandler;
+import pl.edu.icm.unity.store.objstore.reg.eresp.EnquiryResponseHandler;
+import pl.edu.icm.unity.store.objstore.reg.form.RegistrationFormHandler;
+import pl.edu.icm.unity.store.objstore.reg.invite.InvitationHandler;
+import pl.edu.icm.unity.store.objstore.reg.req.RegistrationRequestHandler;
+import pl.edu.icm.unity.store.objstore.tprofile.InputTranslationProfileHandler;
+import pl.edu.icm.unity.store.objstore.tprofile.OutputTranslationProfileHandler;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
 
 /**
@@ -66,9 +85,88 @@ public class UpdateFrom1_9_x implements Update
 		
 		updateAttributes(contents, attributeTypesByName);
 
-//		JsonUtils.nextExpect(jp, "genericObjects");
+		updateGenerics(contents);
 		
 		return new ByteArrayInputStream(objectMapper.writeValueAsBytes(root));
+	}
+
+	private void updateGenerics(ObjectNode contents)
+	{
+		ArrayNode generics = (ArrayNode) contents.get("genericObjects");
+		if (generics == null)
+			return;
+		ObjectNode newGenerics = contents;
+		
+		Map<String, List<ObjectNode>> genericsByType = sortGenerics(generics);
+		
+		convertGenericType(AttributeClassHandler.ATTRIBUTE_CLASS_OBJECT_TYPE, 
+				genericsByType, newGenerics);
+		convertGenericType(AuthenticatorInstanceHandler.AUTHENTICATOR_OBJECT_TYPE, 
+				genericsByType, newGenerics);
+		convertGenericType(ConfirmationConfigurationHandler.CONFIRMATION_CONFIGURATION_OBJECT_TYPE, 
+				genericsByType, newGenerics);
+		convertGenericType(CredentialHandler.CREDENTIAL_OBJECT_TYPE, 
+				genericsByType, newGenerics);
+		convertGenericType(CredentialRequirementHandler.CREDENTIAL_REQ_OBJECT_TYPE, 
+				genericsByType, newGenerics);
+		convertGenericType(MessageTemplateHandler.MESSAGE_TEMPLATE_OBJECT_TYPE, 
+				genericsByType, newGenerics);
+		convertGenericType(NotificationChannelHandler.NOTIFICATION_CHANNEL_ID, 
+				genericsByType, newGenerics);
+		convertGenericType(RealmHandler.REALM_OBJECT_TYPE, 
+				genericsByType, newGenerics);
+		convertGenericType(InputTranslationProfileHandler.TRANSLATION_PROFILE_OBJECT_TYPE, //FIXME
+				genericsByType, newGenerics);
+		convertGenericType(OutputTranslationProfileHandler.TRANSLATION_PROFILE_OBJECT_TYPE, //FIXME
+				genericsByType, newGenerics);
+		convertGenericType(ProcessingRuleHandler.PROCESSING_RULE_OBJECT_TYPE, 
+				genericsByType, newGenerics);
+		convertGenericType(EndpointHandler.ENDPOINT_OBJECT_TYPE, 
+				genericsByType, newGenerics);
+		convertGenericType(RegistrationFormHandler.REGISTRATION_FORM_OBJECT_TYPE, 
+				genericsByType, newGenerics);
+		convertGenericType(EnquiryFormHandler.ENQUIRY_FORM_OBJECT_TYPE, 
+				genericsByType, newGenerics);
+		convertGenericType(RegistrationRequestHandler.REGISTRATION_REQUEST_OBJECT_TYPE, 
+				genericsByType, newGenerics);
+		convertGenericType(EnquiryResponseHandler.ENQUIRY_RESPONSE_OBJECT_TYPE, 
+				genericsByType, newGenerics);
+		convertGenericType(InvitationHandler.INVITATION_OBJECT_TYPE, 
+				genericsByType, newGenerics);
+		
+		contents.remove("genericObjects");
+	}
+	
+	private void convertGenericType(String type, Map<String, List<ObjectNode>> genericsByType, 
+			ObjectNode newGenerics)
+	{
+		ArrayNode typeArray = (ArrayNode) newGenerics.withArray(type);
+		List<ObjectNode> list = genericsByType.get(type);
+		if (list == null)
+			return;
+		
+		for (ObjectNode obj: list)
+		{
+			typeArray.add(obj.get("contents"));
+		}
+	}
+
+	private Map<String, List<ObjectNode>> sortGenerics(ArrayNode generics)
+	{
+		Map<String, List<ObjectNode>> genericsByType = new HashMap<>();
+		
+		for (JsonNode node: generics)
+		{
+			String type = node.get("type").asText();
+			List<ObjectNode> list = genericsByType.get(type);
+			if (list == null)
+			{
+				list = new ArrayList<>();
+				genericsByType.put(type, list);
+			}
+			list.add((ObjectNode) node);
+		}
+		return genericsByType;
 	}
 
 	private void updateAttributeTypes(Map<Long, ObjectNode> attributeTypesById, 

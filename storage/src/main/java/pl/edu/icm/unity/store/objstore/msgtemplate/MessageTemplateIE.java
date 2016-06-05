@@ -23,7 +23,8 @@ public class MessageTemplateIE extends GenericObjectIEBase<MessageTemplate>
 	@Autowired
 	public MessageTemplateIE(MessageTemplateDB dao, ObjectMapper jsonMapper)
 	{
-		super(dao, jsonMapper, MessageTemplate.class, 105, "messageTemplates");
+		super(dao, jsonMapper, MessageTemplate.class, 105, 
+				MessageTemplateHandler.MESSAGE_TEMPLATE_OBJECT_TYPE);
 	}
 }
 

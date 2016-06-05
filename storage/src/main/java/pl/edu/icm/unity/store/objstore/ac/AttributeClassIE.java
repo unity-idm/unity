@@ -23,7 +23,7 @@ public class AttributeClassIE extends GenericObjectIEBase<AttributesClass>
 	@Autowired
 	public AttributeClassIE(AttributeClassDB dao, ObjectMapper jsonMapper)
 	{
-		super(dao, jsonMapper, AttributesClass.class, 100, "attributeClasses");
+		super(dao, jsonMapper, AttributesClass.class, 100, AttributeClassHandler.ATTRIBUTE_CLASS_OBJECT_TYPE);
 	}
 }
 

@@ -23,7 +23,7 @@ public class CredentialIE extends GenericObjectIEBase<CredentialDefinition>
 	@Autowired
 	public CredentialIE(CredentialDB dao, ObjectMapper jsonMapper)
 	{
-		super(dao, jsonMapper, CredentialDefinition.class, 103, "credentialDefinitions");
+		super(dao, jsonMapper, CredentialDefinition.class, 103, CredentialHandler.CREDENTIAL_OBJECT_TYPE);
 	}
 }
 

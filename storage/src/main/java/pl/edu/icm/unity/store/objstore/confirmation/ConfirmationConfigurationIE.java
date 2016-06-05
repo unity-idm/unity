@@ -23,7 +23,8 @@ public class ConfirmationConfigurationIE extends GenericObjectIEBase<Confirmatio
 	@Autowired
 	public ConfirmationConfigurationIE(ConfirmationConfigurationDB dao, ObjectMapper jsonMapper)
 	{
-		super(dao, jsonMapper, ConfirmationConfiguration.class, 102, "confirmationConfiguration");
+		super(dao, jsonMapper, ConfirmationConfiguration.class, 102, 
+				ConfirmationConfigurationHandler.CONFIRMATION_CONFIGURATION_OBJECT_TYPE);
 	}
 }
 

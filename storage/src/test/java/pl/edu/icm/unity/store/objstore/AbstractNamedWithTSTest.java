@@ -10,7 +10,11 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
@@ -72,6 +76,54 @@ public abstract class AbstractNamedWithTSTest<T extends NamedObject> extends Abs
 			catchException(dao).updateTS("missing");
 
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
+		});
+	}
+	
+	/**
+	 * Besides the standard test, checks also if the update timestamp is preserved
+	 */
+	@Override
+	@Test
+	public void importExportIsIdempotent()
+	{
+		tx.runInTransaction(() -> {
+			NamedCRUDDAOWithTS<T> dao = getDAO();
+			T obj = getObject("name1");
+			dao.create(obj);
+	
+			Date updateTimestamp = dao.getUpdateTimestamp(obj.getName());
+			
+			ByteArrayOutputStream os = new ByteArrayOutputStream();
+			try
+			{
+				ie.store(os);
+			} catch (Exception e)
+			{
+				e.printStackTrace();
+				fail("Export failed " + e);
+			}
+
+			dbCleaner.reset();
+			
+			String dump = new String(os.toByteArray(), StandardCharsets.UTF_8);
+			ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
+			try
+			{
+				ie.load(is);
+			} catch (Exception e)
+			{
+				e.printStackTrace();
+				
+				fail("Import failed " + e + "\nDump:\n" + dump);
+			}
+
+			List<T> all = dao.getAll();
+			
+			assertThat(all.size(), is(1));
+			assertThat(all.get(0), is(obj));
+			
+			Date updateTimestamp2 = dao.getUpdateTimestamp(obj.getName());
+			assertThat(updateTimestamp2, is(updateTimestamp));
 		});
 	}
 }
