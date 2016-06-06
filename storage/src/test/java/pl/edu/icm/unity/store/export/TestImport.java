@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.store.export;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.BufferedInputStream;
@@ -17,8 +19,33 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.edu.icm.unity.store.StorageCleaner;
+import pl.edu.icm.unity.store.api.AttributeDAO;
+import pl.edu.icm.unity.store.api.AttributeTypeDAO;
+import pl.edu.icm.unity.store.api.EntityDAO;
+import pl.edu.icm.unity.store.api.GroupDAO;
+import pl.edu.icm.unity.store.api.IdentityDAO;
+import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.api.ImportExport;
+import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
+import pl.edu.icm.unity.store.objstore.ac.AttributeClassHandler;
+import pl.edu.icm.unity.store.objstore.authn.AuthenticatorInstanceHandler;
+import pl.edu.icm.unity.store.objstore.bulk.ProcessingRuleHandler;
+import pl.edu.icm.unity.store.objstore.confirmation.ConfirmationConfigurationHandler;
+import pl.edu.icm.unity.store.objstore.cred.CredentialHandler;
+import pl.edu.icm.unity.store.objstore.credreq.CredentialRequirementHandler;
+import pl.edu.icm.unity.store.objstore.endpoint.EndpointHandler;
+import pl.edu.icm.unity.store.objstore.msgtemplate.MessageTemplateHandler;
+import pl.edu.icm.unity.store.objstore.notify.NotificationChannelHandler;
+import pl.edu.icm.unity.store.objstore.realm.RealmHandler;
+import pl.edu.icm.unity.store.objstore.reg.eform.EnquiryFormHandler;
+import pl.edu.icm.unity.store.objstore.reg.eresp.EnquiryResponseHandler;
+import pl.edu.icm.unity.store.objstore.reg.form.RegistrationFormHandler;
+import pl.edu.icm.unity.store.objstore.reg.invite.InvitationHandler;
+import pl.edu.icm.unity.store.objstore.reg.req.RegistrationRequestHandler;
+import pl.edu.icm.unity.store.objstore.tprofile.InputTranslationProfileHandler;
+import pl.edu.icm.unity.store.objstore.tprofile.OutputTranslationProfileHandler;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
@@ -32,6 +59,24 @@ public class TestImport
 	
 	@Autowired
 	protected ImportExport ie;
+	
+	@Autowired
+	private ObjectStoreDAO genericDao;
+	
+	@Autowired
+	private AttributeTypeDAO atDAO;
+	@Autowired
+	private IdentityTypeDAO itDAO;
+	@Autowired
+	private AttributeDAO attrDAO;
+	@Autowired
+	private IdentityDAO identityDAO;
+	@Autowired
+	private EntityDAO entDAO;
+	@Autowired
+	private GroupDAO groupDAO;
+	@Autowired
+	private MembershipDAO memberDAO;
 	
 	@Before
 	public void cleanDB()
@@ -54,8 +99,66 @@ public class TestImport
 				fail("Import failed " + e);
 			}
 			
-			//TODO verify all
+			assertThat(atDAO.getAll().size(), is(25));
+			assertThat(itDAO.getAll().size(), is(7));
+			assertThat(attrDAO.getAll().size(), is(58));
+			assertThat(identityDAO.getAll().size(), is(46)); //TODO or 45 if no transient?
+			assertThat(entDAO.getAll().size(), is(14));
+			assertThat(groupDAO.getAll().size(), is(14));
+			assertThat(memberDAO.getAll().size(), is(26));
 			
+			
+			assertThat(genericDao.getObjectsOfType(
+					AttributeClassHandler.ATTRIBUTE_CLASS_OBJECT_TYPE).size(), 
+					is(3)); 
+			assertThat(genericDao.getObjectsOfType(
+					AuthenticatorInstanceHandler.AUTHENTICATOR_OBJECT_TYPE ).size(), 
+					is(8)); 
+			assertThat(genericDao.getObjectsOfType(
+					ConfirmationConfigurationHandler.CONFIRMATION_CONFIGURATION_OBJECT_TYPE).size(), 
+					is(2)); 
+			assertThat(genericDao.getObjectsOfType(
+					CredentialHandler.CREDENTIAL_OBJECT_TYPE).size(), 
+					is(3)); 
+			assertThat(genericDao.getObjectsOfType(
+					CredentialRequirementHandler.CREDENTIAL_REQ_OBJECT_TYPE).size(), 
+					is(3)); 
+			assertThat(genericDao.getObjectsOfType(
+					MessageTemplateHandler.MESSAGE_TEMPLATE_OBJECT_TYPE).size(), 
+					is(8)); 
+			assertThat(genericDao.getObjectsOfType(
+					NotificationChannelHandler.NOTIFICATION_CHANNEL_ID).size(), 
+					is(1)); 
+			assertThat(genericDao.getObjectsOfType(
+					RealmHandler.REALM_OBJECT_TYPE).size(), 
+					is(3)); 
+			assertThat(genericDao.getObjectsOfType(
+					InputTranslationProfileHandler.TRANSLATION_PROFILE_OBJECT_TYPE).size(),
+					is(8)); 
+			assertThat(genericDao.getObjectsOfType(
+					OutputTranslationProfileHandler.TRANSLATION_PROFILE_OBJECT_TYPE).size(), 
+					is(1)); 
+			assertThat(genericDao.getObjectsOfType(
+					ProcessingRuleHandler.PROCESSING_RULE_OBJECT_TYPE).size(), 
+					is(1)); 
+			assertThat(genericDao.getObjectsOfType(
+					EndpointHandler.ENDPOINT_OBJECT_TYPE).size(), 
+					is(10)); 
+			assertThat(genericDao.getObjectsOfType(
+					RegistrationFormHandler.REGISTRATION_FORM_OBJECT_TYPE).size(), 
+					is(5)); 
+			assertThat(genericDao.getObjectsOfType(
+					EnquiryFormHandler.ENQUIRY_FORM_OBJECT_TYPE).size(), 
+					is(1)); 
+			assertThat(genericDao.getObjectsOfType(
+					RegistrationRequestHandler.REGISTRATION_REQUEST_OBJECT_TYPE).size(), 
+					is(12)); 
+			assertThat(genericDao.getObjectsOfType(
+					EnquiryResponseHandler.ENQUIRY_RESPONSE_OBJECT_TYPE).size(), 
+					is(1)); 
+			assertThat(genericDao.getObjectsOfType(
+					InvitationHandler.INVITATION_OBJECT_TYPE).size(), 
+					is(1)); 
 		});
 	}
 }

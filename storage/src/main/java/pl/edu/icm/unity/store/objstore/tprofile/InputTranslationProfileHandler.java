@@ -36,7 +36,7 @@ public class InputTranslationProfileHandler extends DefaultEntityHandler<Transla
 	{
 		if (value.getProfileType() != ProfileType.INPUT)
 			throw new IllegalArgumentException("Trying to save profile of " + 
-					value.getProfileType() + " as input profile");
+					value.getProfileType() + " type as input profile");
 		byte[] contents = JsonUtil.serialize2Bytes(value.toJsonObject());
 		return new GenericObjectBean(value.getName(), contents, supportedType);
 	}

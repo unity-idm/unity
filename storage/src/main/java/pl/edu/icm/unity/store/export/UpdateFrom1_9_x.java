@@ -115,10 +115,7 @@ public class UpdateFrom1_9_x implements Update
 				genericsByType, newGenerics, ctx);
 		convertGenericType(RealmHandler.REALM_OBJECT_TYPE, 
 				genericsByType, newGenerics, ctx);
-		convertGenericType(InputTranslationProfileHandler.TRANSLATION_PROFILE_OBJECT_TYPE, //FIXME
-				genericsByType, newGenerics, ctx);
-		convertGenericType(OutputTranslationProfileHandler.TRANSLATION_PROFILE_OBJECT_TYPE, //FIXME
-				genericsByType, newGenerics, ctx);
+		convertTranslationProfiles(genericsByType, newGenerics, ctx);
 		convertGenericType(ProcessingRuleHandler.PROCESSING_RULE_OBJECT_TYPE, 
 				genericsByType, newGenerics, ctx);
 		convertGenericType(EndpointHandler.ENDPOINT_OBJECT_TYPE, 
@@ -167,6 +164,29 @@ public class UpdateFrom1_9_x implements Update
 				updateInvitation(content, ctx);
 				break;
 			}
+		}
+	}
+
+	private void convertTranslationProfiles(Map<String, List<ObjectNode>> genericsByType, 
+			ObjectNode newGenerics, UpdateContext ctx) throws IOException
+	{
+		ArrayNode inputArray = (ArrayNode) newGenerics.withArray(
+				InputTranslationProfileHandler.TRANSLATION_PROFILE_OBJECT_TYPE);
+		ArrayNode outputArray = (ArrayNode) newGenerics.withArray(
+				OutputTranslationProfileHandler.TRANSLATION_PROFILE_OBJECT_TYPE);
+		
+		List<ObjectNode> list = genericsByType.get("translationProfile");
+		if (list == null)
+			return;
+		
+		for (ObjectNode obj: list)
+		{
+			ObjectNode content = (ObjectNode) obj.get("contents");
+			if ((obj.get("subType") != null && obj.get("subType").asText().equals("OUTPUT")) ||
+					(content.get("type") != null && content.get("type").equals("OUTPUT")))
+				outputArray.add(content);
+			else
+				inputArray.add(content);
 		}
 	}
 
