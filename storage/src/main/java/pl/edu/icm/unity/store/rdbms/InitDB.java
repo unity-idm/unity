@@ -30,7 +30,7 @@ import pl.edu.icm.unity.store.impl.groups.GroupsMapper;
 
 /**
  * Initializes DB schema and inserts the initial data. It is checked if DB was already initialized.
- * If so no change is committed. It is responsible for initialization of both the main and the local database.
+ * If so no change is committed.
  * @author K. Benedyczak
  */
 @Component
@@ -38,7 +38,7 @@ public class InitDB
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, InitDB.class);
 	private final String UPDATE_SCHEMA_PFX = "updateSchema-";
-	public static final String LAST_SUPPORTED_DB_VERSION = "2_1_5";
+	public static final String LAST_SUPPORTED_DB_VERSION = "2_2_0";
 	
 	private long dbVersionAtServerStarup;
 	private DBSessionManager db;
