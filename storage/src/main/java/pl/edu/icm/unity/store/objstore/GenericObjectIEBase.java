@@ -4,7 +4,10 @@
  */
 package pl.edu.icm.unity.store.objstore;
 
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Date;
 import java.util.List;
+import java.util.Map.Entry;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -18,7 +21,7 @@ import pl.edu.icm.unity.types.NamedObject;
  * and properly call super-constructor.
  * @author K. Benedyczak
  */
-public class GenericObjectIEBase<T extends NamedObject> extends AbstractIEBase<T>
+public class GenericObjectIEBase<T extends NamedObject> extends AbstractIEBase<Entry<T, Date>>
 {
 	private NamedCRUDDAOWithTS<T> dao;
 	private ObjectMapper jsonMapper;
@@ -34,27 +37,34 @@ public class GenericObjectIEBase<T extends NamedObject> extends AbstractIEBase<T
 	}
 
 	@Override
-	protected List<T> getAllToExport()
+	protected List<Entry<T, Date>> getAllToExport()
 	{
-		return dao.getAll();
+		return dao.getAllWithUpdateTimestamps();
 	}
 
 	@Override
-	protected ObjectNode toJsonSingle(T exportedObj)
+	protected ObjectNode toJsonSingle(Entry<T, Date> exportedObj)
 	{
-		return jsonMapper.convertValue(exportedObj, ObjectNode.class);
+		ObjectNode wrapper = jsonMapper.createObjectNode();
+		ObjectNode obj = jsonMapper.convertValue(exportedObj.getKey(), ObjectNode.class);
+		wrapper.put("_updateTS", exportedObj.getValue().getTime());
+		wrapper.set("obj", obj);
+		return wrapper;
 	}
 
 	@Override
-	protected void createSingle(T toCreate)
+	protected void createSingle(Entry<T, Date> toCreate)
 	{
-		dao.create(toCreate);
+		dao.createWithTS(toCreate.getKey(), toCreate.getValue());
 	}
 
 	@Override
-	protected T fromJsonSingle(ObjectNode src)
+	protected Entry<T, Date> fromJsonSingle(ObjectNode src)
 	{
-		return jsonMapper.convertValue(src, clazz);
+		Date updateTS = new Date(src.get("_updateTS").asLong());
+		ObjectNode obj = (ObjectNode) src.get("obj");
+		T val = jsonMapper.convertValue(obj, clazz);
+		return new SimpleEntry<T, Date>(val, updateTS);
 	}
 }
 

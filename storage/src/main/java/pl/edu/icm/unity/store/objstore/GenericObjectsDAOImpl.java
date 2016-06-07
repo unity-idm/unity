@@ -204,9 +204,15 @@ public class GenericObjectsDAOImpl<T extends NamedObject> implements NamedCRUDDA
 	@Override
 	public long create(T newValue)
 	{
+		return createWithTS(newValue, new Date());
+	}
+
+	@Override
+	public long createWithTS(T newValue, Date updatTS)
+	{
 		StorageLimits.checkNameLimit(newValue.getName());
 		GenericObjectBean blob = handler.toBlob(newValue);
-		blob.setLastUpdate(new Date());
+		blob.setLastUpdate(updatTS);
 		if (exists(newValue.getName()))
 			throw new IllegalArgumentException("The [" + newValue.getName() + "] " + objectName +
 					" already exists");

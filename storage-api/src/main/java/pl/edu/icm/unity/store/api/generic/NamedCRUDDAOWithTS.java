@@ -22,4 +22,5 @@ public interface NamedCRUDDAOWithTS<T extends NamedObject> extends NamedCRUDDAO<
 	List<Map.Entry<String, Date>> getAllNamesWithUpdateTimestamps();
 	Date getUpdateTimestamp(String name);
 	void updateTS(String id);
+	long createWithTS(T newValue, Date updatTS);
 }

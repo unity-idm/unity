@@ -144,8 +144,11 @@ public class UpdateFrom1_9_x implements Update
 		
 		for (ObjectNode obj: list)
 		{
-			ObjectNode content = (ObjectNode) obj.get("contents"); 
-			typeArray.add(content);
+			ObjectNode newGeneric = objectMapper.createObjectNode();
+			typeArray.add(newGeneric);
+			ObjectNode content = (ObjectNode) obj.get("contents");
+			newGeneric.set("_updateTS", obj.get("lastUpdate"));
+			newGeneric.set("obj", content);
 			
 			switch (type)
 			{
@@ -181,12 +184,16 @@ public class UpdateFrom1_9_x implements Update
 		
 		for (ObjectNode obj: list)
 		{
+			ObjectNode newGeneric = objectMapper.createObjectNode();
 			ObjectNode content = (ObjectNode) obj.get("contents");
+			newGeneric.set("_updateTS", obj.get("lastUpdate"));
+			newGeneric.set("obj", content);
+
 			if ((obj.get("subType") != null && obj.get("subType").asText().equals("OUTPUT")) ||
 					(content.get("type") != null && content.get("type").equals("OUTPUT")))
-				outputArray.add(content);
+				outputArray.add(newGeneric);
 			else
-				inputArray.add(content);
+				inputArray.add(newGeneric);
 		}
 	}
 
