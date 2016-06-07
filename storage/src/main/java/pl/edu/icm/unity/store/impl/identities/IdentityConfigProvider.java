@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.store.impl.identities;
 
+import org.springframework.stereotype.Component;
+
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MapIndexConfig;
 
@@ -13,10 +15,8 @@ import pl.edu.icm.unity.store.hz.MapConfigProvider;
 /**
  * Configures identities map: index on entityId
  * @author K. Benedyczak
- * FIXME - must be reenabled after we have clean up with serialization and types. Currently
- * serialization depends on IdentityTypesDAO, what breaks indexing 
  */
-//@Component
+@Component
 public class IdentityConfigProvider implements MapConfigProvider
 {
 	@Override
