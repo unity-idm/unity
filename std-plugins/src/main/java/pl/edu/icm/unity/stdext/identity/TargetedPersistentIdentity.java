@@ -16,11 +16,10 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Escaper;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.identity.IdentityRepresentation;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
@@ -94,24 +93,17 @@ public class TargetedPersistentIdentity extends AbstractIdentityTypeProvider
 	}
 	
 	@Override
-	public String toExternalForm(String realm, String target, String inDbValue) 
-			throws IllegalIdentityValueException
-	{
-		if (realm == null || target == null || inDbValue == null)
-			throw new IllegalIdentityValueException("Insufficient arguments");
-		return inDbValue;
-	}
-
-	@Override
-	public IdentityRepresentation createNewIdentity(String realm, String target, String inDbValue)
-			throws IllegalTypeException
+	public Identity createNewIdentity(String realm, String target, long entityId)
 	{
 		if (realm == null || target == null)
-			throw new IllegalTypeException("Identity can be created only when target is defined");
-		if (inDbValue == null)
-			inDbValue = UUID.randomUUID().toString();
+			throw new IllegalArgumentException("Targeted persistent identity can be created only "
+					+ "when target is defined");
+		String inDbValue = UUID.randomUUID().toString();
 		String cmpVal = Escaper.encode(realm, target, inDbValue);
-		return new IdentityRepresentation(cmpVal, inDbValue);
+		Identity ret = new Identity(ID, inDbValue, entityId, cmpVal);
+		ret.setRealm(realm);
+		ret.setTarget(target);
+		return ret;
 	}
 
 	@Override
@@ -128,13 +120,7 @@ public class TargetedPersistentIdentity extends AbstractIdentityTypeProvider
 	}
 
 	@Override
-	public String toExternalFormNoContext(String inDbValue)
-	{
-		return inDbValue;
-	}
-
-	@Override
-	public boolean isExpired(IdentityRepresentation representation)
+	public boolean isExpired(Identity representation)
 	{
 		return false;
 	}

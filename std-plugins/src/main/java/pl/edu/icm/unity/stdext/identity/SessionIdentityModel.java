@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.stdext.identity;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -20,22 +19,14 @@ public class SessionIdentityModel
 	private ObjectMapper mapper;
 	private PerSessionEntry entry;
 	
-	public SessionIdentityModel(ObjectMapper mapper, String node)
+	public SessionIdentityModel(ObjectMapper mapper, ObjectNode entryVal)
 	{
 		this.mapper = mapper;
-		try
-		{
-			ObjectNode entryVal = (ObjectNode) mapper.readTree(node);
-			entry = new PerSessionEntry(
-					entryVal.get("absoluteTTL").asLong(), 
-					entryVal.get("relativeTTL").asLong(),
-					entryVal.get("lastUsage").asLong(),
-					entryVal.get("idValue").asText());
-		} catch (Exception e)
-		{
-			TargetedPersistentIdentity.log.error("Can't deserialize state from JSON", e);
-		}
-
+		entry = new PerSessionEntry(
+				entryVal.get("absoluteTTL").asLong(), 
+				entryVal.get("relativeTTL").asLong(),
+				entryVal.get("lastUsage").asLong(),
+				entryVal.get("idValue").asText());
 	}
 
 	public SessionIdentityModel(ObjectMapper mapper, LoginSession session, String identity)
@@ -51,20 +42,14 @@ public class SessionIdentityModel
 			entry.relativeTTL = 24*msInHour;
 	}
 	
-	public String serialize()
+	public ObjectNode serialize()
 	{
 		ObjectNode eN = mapper.createObjectNode();
 		eN.put("absoluteTTL", entry.absoluteTTL);
 		eN.put("relativeTTL", entry.relativeTTL);
 		eN.put("lastUsage", entry.lastUsage);
 		eN.put("idValue", entry.idValue);
-		try
-		{
-			return mapper.writeValueAsString(eN);
-		} catch (JsonProcessingException e1)
-		{
-			throw new IllegalStateException("Can't serialize transient identity value to JSON", e1);
-		}
+		return eN;
 	}
 	
 	public PerSessionEntry getEntry()

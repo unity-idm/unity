@@ -4,37 +4,29 @@
  */
 package pl.edu.icm.unity.stdext.identity;
 
-import org.junit.Assert;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
+
 import org.junit.Test;
 
-import pl.edu.icm.unity.engine.api.identity.IdentityRepresentation;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.types.basic.Identity;
 
 public class TestTargetedPersistentIdentity
 {
 	@Test
-	public void test() throws IllegalTypeException, IllegalIdentityValueException
+	public void allFieldsAreSet() throws IllegalTypeException, IllegalIdentityValueException
 	{
 		TargetedPersistentIdentity tested = new TargetedPersistentIdentity();
 		
-		IdentityRepresentation inDb = tested.createNewIdentity("r1", "t1", null);
-		Assert.assertNotNull(tested.toExternalForm("r1", "t1", inDb.getContents()));
-		try
-		{
-			tested.toExternalForm("r2", "t1", inDb.getContents());
-		} catch (IllegalIdentityValueException e)
-		{
-			//OK
-		}
-		try
-		{
-			tested.toExternalForm("r1", "t2", inDb.getContents());
-		} catch (IllegalIdentityValueException e)
-		{
-			//OK
-		}
+		Identity generated = tested.createNewIdentity("r1", "t1", 123l);
 		
-		Assert.assertEquals(inDb.getContents(), tested.toExternalForm("r1", "t1", inDb.getContents()));
+		assertThat(generated.getComparableValue(), is(notNullValue()));
+		assertThat(generated.getValue(), is(notNullValue()));
+		assertThat(generated.getRealm(), is("r1"));
+		assertThat(generated.getTarget(), is("t1"));
+		assertThat(generated.getEntityId(), is(123l));
 	}
 }

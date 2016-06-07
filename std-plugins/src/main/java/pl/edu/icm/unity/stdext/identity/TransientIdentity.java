@@ -10,22 +10,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Escaper;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.identity.IdentityRepresentation;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.identity.SessionIdentityModel.PerSessionEntry;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
@@ -37,14 +36,8 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 public class TransientIdentity extends AbstractIdentityTypeProvider
 {
 	public static final String ID = "transient";
-	private ObjectMapper mapper;
+	private ObjectMapper mapper = Constants.MAPPER;
 	
-	@Autowired
-	public TransientIdentity(ObjectMapper mapper)
-	{
-		this.mapper = mapper;
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -139,34 +132,11 @@ public class TransientIdentity extends AbstractIdentityTypeProvider
 	}
 	
 	@Override
-	public String toExternalForm(String realm, String target, String inDbValue) 
-			throws IllegalIdentityValueException
-	{
-		if (realm == null || target == null || inDbValue == null)
-			throw new IllegalIdentityValueException("No enough arguments");
-		LoginSession ls;
-		try
-		{
-			InvocationContext ctx = InvocationContext.getCurrent();
-			ls = ctx.getLoginSession();
-			if (ls == null)
-				throw new IllegalIdentityValueException("No login session");
-		} catch (Exception e)
-		{
-			throw new IllegalIdentityValueException("Error getting invocation context", e);
-		}
-
-		return toExternalFormNoContext(inDbValue);
-	}
-
-	@Override
-	public IdentityRepresentation createNewIdentity(String realm, String target, String value)
-			throws IllegalTypeException
+	public Identity createNewIdentity(String realm, String target, long entityId)
 	{
 		if (realm == null || target == null)
-			throw new IllegalTypeException("Identity can be created only when target is defined");
-		if (value == null)
-			value = UUID.randomUUID().toString();
+			throw new IllegalArgumentException("Identity can be created only when target is defined");
+		String value = UUID.randomUUID().toString();
 		try
 		{
 			InvocationContext ctx = InvocationContext.getCurrent();
@@ -176,20 +146,26 @@ public class TransientIdentity extends AbstractIdentityTypeProvider
 			
 			SessionIdentityModel model = new SessionIdentityModel(mapper, ls, value);
 			
-			String contents = model.serialize();
+			ObjectNode contents = model.serialize();
 			String comparableValue = getComparableValueInternal(value, realm, target, ls);
-			return new IdentityRepresentation(comparableValue, contents);
+			Identity ret = new Identity(ID, value, entityId, comparableValue);
+			ret.setMetadata(contents);
+			ret.setTarget(target);
+			ret.setRealm(realm);
+			return ret;
 		} catch (Exception e)
 		{
-			throw new IllegalTypeException("Identity can be created only when login session is defined", e);
+			throw new IllegalStateException("Identity can be created only when "
+					+ "login session is defined", e);
 		}
 	}
 
 	@Override
-	public boolean isExpired(IdentityRepresentation representation)
+	public boolean isExpired(Identity representation)
 	{
 		
-		SessionIdentityModel model = new SessionIdentityModel(mapper, representation.getContents());
+		SessionIdentityModel model = new SessionIdentityModel(mapper, 
+				(ObjectNode) representation.getMetadata());
 		PerSessionEntry info = model.getEntry();
 		return info.isExpired();
 	}
@@ -199,14 +175,6 @@ public class TransientIdentity extends AbstractIdentityTypeProvider
 	{
 		return true;
 	}
-
-	@Override
-	public String toExternalFormNoContext(String inDbValue)
-	{
-		SessionIdentityModel model = new SessionIdentityModel(mapper, inDbValue);
-		return model.getEntry().getValue();
-	}
-	
 
 	@Override
 	public String toHumanFriendlyString(MessageSource msg, IdentityParam from)

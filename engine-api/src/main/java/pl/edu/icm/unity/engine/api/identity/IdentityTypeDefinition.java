@@ -10,9 +10,9 @@ import java.util.Set;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
@@ -51,18 +51,18 @@ public interface IdentityTypeDefinition
 	 */
 	boolean isTargeted();
 	
-	
-	/**
-	 * Checks if the identity is expired. 
-	 * @param representation in db representation of the identity
-	 * @return true if expired, false otherwise 
-	 */
-	boolean isExpired(IdentityRepresentation representation); 
-	
 	/**
 	 * @return if true then identities of this type can be confirmed. 
 	 */
-	boolean isVerifiable();
+	boolean isVerifiable();	
+
+	/**
+	 * Checks if the identity is expired. 
+	 * @param identity to be checked
+	 * @return true if expired, false otherwise 
+	 */
+	boolean isExpired(Identity identity); 
+
 	
 	/**
 	 * 
@@ -73,7 +73,7 @@ public interface IdentityTypeDefinition
 	Set<AttributeType> getAttributesSupportedForExtraction();
 	
 	/**
-	 * Validates if the value is valid
+	 * Checks if the value is valid
 	 * @param value
 	 * @throws IllegalIdentityValueException
 	 */
@@ -139,35 +139,15 @@ public interface IdentityTypeDefinition
 	String getHumanFriendlyDescription(MessageSource msg);
 	
 	/**
-	 * Converts the in-DB representation to external form. The implementation may perform arbitrary modifications
-	 * of the inDbValue.
-	 * @param realm authentication realm identifier or null if no realm is defined
-	 * @param target null or an identifier of a receiver of the identity.
-	 * @param inDbValue the in-db representation
-	 * @return 
-	 * @throws IllegalIdentityValueException 
-	 */
-	String toExternalForm(String realm, String target, String inDbValue) 
-			throws IllegalIdentityValueException;
-
-	/**
-	 * Converts the in-DB representation to the external form. The implementation must not use any 
-	 * context information, ignore target or realm.
-	 * @param inDbValue the in-db representation
-	 * @return identity value in external form
-	 */
-	String toExternalFormNoContext(String inDbValue);
-	
-	/**
-	 * Tries to create a new identity. 
+	 * Tries to create a new identity. Can be called only for types which report themself as dynamic.
+	 * 
 	 * @param realm authentication realm identifier or null if no realm is defined
 	 * @param target null or the receiver of the created identity
-	 * @param value externally provided value or null if the implementation is expected to create the value dynamically.
-	 * @return new representation of identity to be stored in database
-	 * @throws IllegalTypeException if the creation failed
+	 * @param entityId entityId to be set in the returned identity
+	 * @return newly generated identity
+	 * @throws IllegalStateException if the creation failed: typically when used on a static type.
 	 */
-	IdentityRepresentation createNewIdentity(String realm, String target, String value) 
-			throws IllegalTypeException;
+	Identity createNewIdentity(String realm, String target, long entityId);
 	
 	/**
 	 * Creates an IdentityParam from a string representation. Typically the method is simplistic (i.e. 

@@ -4,62 +4,56 @@
  */
 package pl.edu.icm.unity.stdext.identity;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
+
 import java.util.Date;
 
-import org.junit.Assert;
 import org.junit.Test;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.identity.IdentityRepresentation;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.types.basic.Identity;
 
 public class TestTransientIdentity
 {
 	@Test
-	public void test() throws IllegalTypeException, InterruptedException, IllegalIdentityValueException
+	public void allFieldsAreSet() throws IllegalTypeException, IllegalIdentityValueException
 	{
-		TransientIdentity tested = new TransientIdentity(Constants.MAPPER);
-		
+		TransientIdentity tested = new TransientIdentity();
 		InvocationContext ctx = new InvocationContext(null, null);
 		InvocationContext.setCurrent(ctx);
-		
 		LoginSession ls = new LoginSession("1", new Date(), new Date(System.currentTimeMillis()+1000), 
 				50, 1, "r1");
 		ctx.setLoginSession(ls);
 		
-		IdentityRepresentation inDb = tested.createNewIdentity("r1", "t1", null);
-		tested.toExternalForm("r1", "t1", inDb.getContents());
-		try
-		{
-			tested.toExternalForm("r2", "t1", inDb.getContents());
-		} catch (IllegalIdentityValueException e)
-		{
-			//OK
-		}
-		try
-		{
-			tested.toExternalForm("r1", "t2", inDb.getContents());
-		} catch (IllegalIdentityValueException e)
-		{
-			//OK
-		}
+		Identity generated = tested.createNewIdentity("r1", "t1", 123l);
 		
-		IdentityRepresentation inDb2 = tested.createNewIdentity("r1", "t1", "test");
-		Assert.assertEquals("test",
-				tested.toExternalForm("r1", "t1", inDb2.getContents()));
+		assertThat(generated.getComparableValue(), is(notNullValue()));
+		assertThat(generated.getValue(), is(notNullValue()));
+		assertThat(generated.getMetadata(), is(notNullValue()));
+		assertThat(generated.getRealm(), is("r1"));
+		assertThat(generated.getTarget(), is("t1"));
+		assertThat(generated.getEntityId(), is(123l));
+	}
+	
+	@Test
+	public void twoSessionsIdIsInCmpValue() throws IllegalTypeException, InterruptedException, IllegalIdentityValueException
+	{
+		TransientIdentity tested = new TransientIdentity();
 		
-		LoginSession ls2 = new LoginSession("2", new Date(), 30, 1, "r1");
-		ctx.setLoginSession(ls2);
-		
-		IdentityRepresentation inDb21 = tested.createNewIdentity("r1", "t1", "test");
-		Assert.assertNotEquals(inDb2.getComparableValue(), inDb21.getComparableValue());
-
+		InvocationContext ctx = new InvocationContext(null, null);
+		InvocationContext.setCurrent(ctx);
+		LoginSession ls = new LoginSession("SESS_ID", new Date(), new Date(System.currentTimeMillis()+1000), 
+				50, 1, "r1");
 		ctx.setLoginSession(ls);
 		
-		IdentityRepresentation inDb22 = tested.createNewIdentity("r1", "t1", "test");
-		Assert.assertEquals(inDb2.getComparableValue(), inDb22.getComparableValue());
+		Identity generated = tested.createNewIdentity("r1", "t1", 123l);
+
+		assertThat(generated.getComparableValue(), containsString("SESS_ID"));
 	}
 }

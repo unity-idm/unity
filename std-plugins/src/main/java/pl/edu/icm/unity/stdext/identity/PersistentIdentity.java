@@ -13,9 +13,9 @@ import java.util.UUID;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.identity.IdentityRepresentation;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
@@ -97,16 +97,13 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	}
 	
 	@Override
-	public String toExternalForm(String realm, String target, String inDbValue)
+	public Identity createNewIdentity(String realm, String target, long entityId)
 	{
-		return inDbValue;
-	}
-
-	@Override
-	public IdentityRepresentation createNewIdentity(String realm, String target, String inDbValue)
-	{
-		String value = inDbValue == null ? UUID.randomUUID().toString() : inDbValue;
-		return new IdentityRepresentation(value, value);
+		String value = UUID.randomUUID().toString();
+		Identity ret = new Identity(ID, value, entityId, value);
+		ret.setRealm(realm);
+		ret.setTarget(target);
+		return ret;
 	}
 
 	@Override
@@ -116,13 +113,7 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	}
 
 	@Override
-	public String toExternalFormNoContext(String inDbValue)
-	{
-		return inDbValue;
-	}
-
-	@Override
-	public boolean isExpired(IdentityRepresentation representation)
+	public boolean isExpired(Identity representation)
 	{
 		return false;
 	}
