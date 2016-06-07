@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
@@ -131,13 +132,11 @@ public class IdentityParam extends IdentityTaV implements VerifiableElement
 	public void fromJsonBase(ObjectNode main)
 	{
 		super.fromJsonBase(main);
-		if (main.has("translationProfile"))
-			setTranslationProfile(main.get("translationProfile").asText());
-		if (main.has("remoteIdp"))
-			setRemoteIdp(main.get("remoteIdp").asText());
-		if (main.has("confirmationInfo"))
+		setTranslationProfile(JsonUtil.getNullable(main, "translationProfile"));
+		setRemoteIdp(JsonUtil.getNullable(main, "remoteIdp"));
+		if (JsonUtil.notNull(main, "confirmationInfo"))
 			setConfirmationInfo(new ConfirmationInfo((ObjectNode)main.get("confirmationInfo")));
-		if (main.has("metadata"))
+		if (JsonUtil.notNull(main, "metadata"))
 			setMetadata(main.get("metadata"));
 	}
 

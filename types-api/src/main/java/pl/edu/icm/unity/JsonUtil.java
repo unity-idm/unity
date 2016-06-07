@@ -18,10 +18,42 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public class JsonUtil
 {
+	/**
+	 * as {@link #getWithDef(JsonNode, String, String)} with the last argument (default) == null
+	 * @param src
+	 * @param name
+	 * @return
+	 */
+	public static String getNullable(JsonNode src, String name)
+	{
+		return getWithDef(src, name, null);
+	}
+	
+	/**
+	 * Safely gets a string value from node. if undefined then given default is returned. If node is null,
+	 * then null is defined.
+	 * @param src
+	 * @param name
+	 * @param def
+	 * @return
+	 */
 	public static String getWithDef(JsonNode src, String name, String def)
 	{
 		JsonNode n = src.get(name);
-		return n != null ? n.asText() : def;
+		return n != null ? 
+				(n.isNull() ? null : n.asText()) 
+				: def;
+	}
+	
+	/**
+	 * @param src
+	 * @param name
+	 * @return true only if the given field exists and is not set to null
+	 */
+	public static boolean notNull(JsonNode src, String name)
+	{
+		JsonNode jsonNode = src.get(name);
+		return jsonNode != null && !jsonNode.isNull();
 	}
 	
 	public static ObjectNode parse(String contents)

@@ -10,6 +10,7 @@ import static org.junit.Assert.fail;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -93,6 +94,7 @@ public class TestImport
 				ie.load(new BufferedInputStream(new FileInputStream(
 						"src/test/resources/updateData/from1.9.x/"
 						+ "testbed-from1.9.2-complete.json")));
+				ie.store(new FileOutputStream("target/afterImport.json"));
 			} catch (Exception e)
 			{
 				e.printStackTrace();
@@ -102,7 +104,7 @@ public class TestImport
 			assertThat(atDAO.getAll().size(), is(25));
 			assertThat(itDAO.getAll().size(), is(7));
 			assertThat(attrDAO.getAll().size(), is(58));
-			assertThat(identityDAO.getAll().size(), is(46)); //TODO or 45 if no transient?
+			assertThat(identityDAO.getAll().size(), is(45));
 			assertThat(entDAO.getAll().size(), is(14));
 			assertThat(groupDAO.getAll().size(), is(14));
 			assertThat(memberDAO.getAll().size(), is(26));
@@ -158,7 +160,9 @@ public class TestImport
 					is(1)); 
 			assertThat(genericDao.getObjectsOfType(
 					InvitationHandler.INVITATION_OBJECT_TYPE).size(), 
-					is(1)); 
+					is(1));
+			
+			
 		});
 	}
 }

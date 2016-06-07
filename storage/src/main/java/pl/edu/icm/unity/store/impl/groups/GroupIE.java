@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.store.impl.groups;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,10 +34,7 @@ public class GroupIE extends AbstractIEBase<Group>
 	@Override
 	protected List<Group> getAllToExport()
 	{
-		//do not export '/'
-		return dao.getAll().stream().
-				filter(g -> !g.getName().equals("/")).
-				collect(Collectors.toList());
+		return dao.getAll();
 	}
 
 	@Override
@@ -50,7 +46,13 @@ public class GroupIE extends AbstractIEBase<Group>
 	@Override
 	protected void createSingle(Group toCreate)
 	{
-		dao.create(toCreate);
+		if (!toCreate.isTopLevel())
+		{
+			dao.create(toCreate);
+		} else
+		{
+			dao.update(toCreate);
+		}
 	}
 
 	@Override

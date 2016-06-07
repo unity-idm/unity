@@ -34,7 +34,8 @@ public class GroupHzStore extends GenericNamedHzCRUD<Group> implements GroupDAOI
 	@Override
 	protected void preUpdateCheck(Group old, Group updated)
 	{
-		if (!old.getParentPath().equals(updated.getParentPath()))
+		if (old.isTopLevel() != updated.isTopLevel() || 
+				(!old.isTopLevel() && !old.getParentPath().equals(updated.getParentPath())))
 			throw new IllegalArgumentException("It is not allowed to change group path, "
 					+ "only rename is possible for " + old.getName() + 
 					" (trying to rename to " + updated.getName() + ")");

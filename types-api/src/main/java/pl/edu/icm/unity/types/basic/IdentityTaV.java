@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.InitializationValidator;
 
@@ -123,12 +124,9 @@ public class IdentityTaV implements InitializationValidator
 	
 	public void fromJsonBase(ObjectNode main)
 	{
-		if (main.has("value"))
-			setValue(main.get("value").asText());
-		if (main.has("realm"))
-			setRealm(main.get("realm").asText());
-		if (main.has("target"))
-			setTarget(main.get("target").asText());
+		setValue(JsonUtil.getNullable(main, "value"));
+		setRealm(JsonUtil.getNullable(main, "realm"));
+		setTarget(JsonUtil.getNullable(main, "target"));
 	}
 
 	

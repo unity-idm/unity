@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.NamedObject;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -180,10 +181,8 @@ public class Attribute implements NamedObject
 	
 	protected final void fromJsonBase(ObjectNode main)
 	{
-		if (main.has("translationProfile"))
-			translationProfile = main.get("translationProfile").asText();
-		if (main.has("remoteIdp"))
-			remoteIdp = main.get("remoteIdp").asText();
+		translationProfile = JsonUtil.getNullable(main, "translationProfile");
+		remoteIdp = JsonUtil.getNullable(main, "remoteIdp");
 		
 		ArrayNode values = main.withArray("values");
 		this.values = new ArrayList<>(values.size());

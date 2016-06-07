@@ -395,11 +395,6 @@ public class UpdateFrom1_9_x implements Update
 		while (iterator.hasNext())
 		{
 			JsonNode node = iterator.next();
-			if (node.get("name").asText().equals("ROOT"))
-			{
-				iterator.remove();
-				continue;
-			}
 			updateGroup((ObjectNode) node, ctx);
 		}
 	}
@@ -408,6 +403,8 @@ public class UpdateFrom1_9_x implements Update
 	private void updateGroup(ObjectNode src, UpdateContext ctx)
 	{
 		String groupPath = src.get("groupPath").asText();
+		ObjectNode contents = (ObjectNode) src.get("contents");
+		src.setAll(contents);
 		src.put("path", groupPath);
 		long id = src.get("id").asLong();
 		ctx.legacyGroupIds.put(id, groupPath);

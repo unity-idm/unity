@@ -11,6 +11,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.Selection;
@@ -123,8 +124,8 @@ public class InvitationParam
 	{
 		formId = json.get("formId").asText();
 		expiration = Instant.ofEpochMilli(json.get("expiration").asLong());
-		contactAddress = json.has("contactAddress") ? json.get("contactAddress").asText() : null;
-		channelId = json.has("channelId") ? json.get("channelId").asText() : null;
+		contactAddress = JsonUtil.getNullable(json, "contactAddress");
+		channelId = JsonUtil.getNullable(json, "channelId");
 		
 		JsonNode n;
 		

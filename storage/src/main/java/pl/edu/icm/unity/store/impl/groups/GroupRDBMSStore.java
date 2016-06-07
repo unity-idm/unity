@@ -41,6 +41,8 @@ public class GroupRDBMSStore extends GenericNamedRDBMSCRUD<Group, GroupBean> imp
 					"] does not exist");
 		if (!old.getName().equals(obj.getName()))
 		{
+			if (old.getName().equals("/"))
+				throw new IllegalArgumentException("It is not allowed to rename the root group");
 			if (!old.getParent().equals(obj.getParentPath()))
 				throw new IllegalArgumentException("It is not allowed to change group path, "
 						+ "only rename is possible for " + old.getName() + 

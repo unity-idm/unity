@@ -8,6 +8,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.types.NamedObject;
@@ -91,6 +92,10 @@ public class Identity extends IdentityParam implements NamedObject
 	protected void fromJson(ObjectNode src)
 	{
 		super.fromJson(src);
+		JsonNode cmpVal = src.get("comparableValue");
+		if (cmpVal.isNull())
+			throw new IllegalArgumentException("Got identity without comparable value, what is invalid: "
+					+ src.toString());
 		setComparableValue(src.get("comparableValue").asText());
 		setEntityId(src.get("entityId").asLong());
 	}
