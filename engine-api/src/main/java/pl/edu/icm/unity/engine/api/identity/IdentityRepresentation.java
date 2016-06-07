@@ -2,7 +2,7 @@
  * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.types.basic;
+package pl.edu.icm.unity.engine.api.identity;
 
 /**
  * Data required to store identity in database.

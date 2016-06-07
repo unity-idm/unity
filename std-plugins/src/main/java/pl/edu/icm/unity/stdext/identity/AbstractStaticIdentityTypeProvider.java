@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.stdext.identity;
 
+import pl.edu.icm.unity.engine.api.identity.IdentityRepresentation;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.types.basic.IdentityRepresentation;
 
 /**
  * Base class for static identity types, which simply store the identity value in the database.

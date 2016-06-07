@@ -12,9 +12,9 @@ import org.junit.Test;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.identity.IdentityRepresentation;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.types.basic.IdentityRepresentation;
 
 public class TestTransientIdentity
 {

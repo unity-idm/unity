@@ -63,9 +63,9 @@ public class BaseRegistrationInputBuilder<T extends BaseRegistrationInput,
 		return (GeneratorT) this;
 	}
 
-	public AddedIdentityIdentityParamBuilder withAddedIdentity()
+	public AddedIdentityIdentityParamBuilder withAddedIdentity(String type, String value)
 	{
-		IdentityParam obj = new IdentityParam();
+		IdentityParam obj = new IdentityParam(type, value);
 
 		withAddedIdentity(obj);
 

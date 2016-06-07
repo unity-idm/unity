@@ -26,10 +26,6 @@ public class IdentityParam extends IdentityTaV implements VerifiableElement
 	private ConfirmationInfo confirmationInfo;
 	private JsonNode metadata;
 	
-	public IdentityParam()
-	{
-	}
-
 	public IdentityParam(String type, String value) 
 	{
 		super(type, value);
@@ -46,8 +42,14 @@ public class IdentityParam extends IdentityTaV implements VerifiableElement
 	@JsonCreator
 	public IdentityParam(ObjectNode src)
 	{
-		fromJson(src);
+		super(src);
 	}
+
+	public IdentityParam(String type, ObjectNode src)
+	{
+		super(type, src);
+	}
+
 	
 	public boolean isLocal()
 	{

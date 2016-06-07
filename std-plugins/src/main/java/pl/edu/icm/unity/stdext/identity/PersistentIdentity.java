@@ -13,10 +13,10 @@ import java.util.UUID;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.identity.IdentityRepresentation;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.basic.IdentityRepresentation;
 
 /**
  * Identity type definition holding a persistent id. It is associated with each and every entity. 

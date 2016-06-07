@@ -48,9 +48,7 @@ public class EnquiryResponseTest extends BaseRequestTest<EnquiryResponseState>
 				.withCredentialId("cred")
 				.withSecrets("sec").endCredential()
 				.withAddedGroupSelection().withSelected(true).endGroupSelection()
-				.withAddedIdentity()
-					.withTypeId("x500")
-					.withValue("CN=registration test")
+				.withAddedIdentity("x500", "CN=registration test")
 				.endIdentity()
 				.build();
 		
@@ -82,9 +80,7 @@ public class EnquiryResponseTest extends BaseRequestTest<EnquiryResponseState>
 				.withSecrets("sec2").endCredential()
 				.withAddedGroupSelection().withSelected(false).endGroupSelection()
 				.withAddedGroupSelection().withSelected(true).endGroupSelection()
-				.withAddedIdentity()
-					.withTypeId("username")
-					.withValue("ss")
+				.withAddedIdentity("username", "ss")
 				.endIdentity()
 				.build();
 

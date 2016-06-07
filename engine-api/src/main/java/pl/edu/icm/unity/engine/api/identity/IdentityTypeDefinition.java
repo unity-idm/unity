@@ -14,7 +14,6 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.basic.IdentityRepresentation;
 
 /**
  * Implementation defined identity type. 
@@ -25,32 +24,45 @@ public interface IdentityTypeDefinition
 	/**
 	 * @return type id
 	 */
-	public String getId();
+	String getId();
 	
 	/**
 	 * @return identity type default description
 	 */
-	public String getDefaultDescription();
+	String getDefaultDescription();
 	
 	/**
 	 * @return if true then the identity type is dynamic, and can not be created manually.
 	 * Dynamic identities are created automatically.
 	 */
-	public boolean isDynamic();
+	boolean isDynamic();
 	
 	/**
 	 * @return false is returned only for dynamic identities, which can not be removed manually. This happens for 
 	 * volatile identities, for instance session-scoped. Those identities can be only reset, i.e. all instances
 	 * of its type can be removed.
 	 */
-	public boolean isRemovable();
+	boolean isRemovable();
 	
 	/**
 	 * @return if true then identities of this type are targeted, i.e. can have a different value 
 	 * for each and every receiver (target). This implies that the authentication realm and target are mandatory
 	 * parameters for the methods as e.g. the {@link #getComparableValue(String, String, String)}.
 	 */
-	public boolean isTargeted();
+	boolean isTargeted();
+	
+	
+	/**
+	 * Checks if the identity is expired. 
+	 * @param representation in db representation of the identity
+	 * @return true if expired, false otherwise 
+	 */
+	boolean isExpired(IdentityRepresentation representation); 
+	
+	/**
+	 * @return if true then identities of this type can be confirmed. 
+	 */
+	boolean isVerifiable();
 	
 	/**
 	 * 
@@ -58,14 +70,14 @@ public interface IdentityTypeDefinition
 	 * It can be assumed that at least name, description and syntax are set. The attribute types from this 
 	 * set need not be defined in the system.
 	 */
-	public Set<AttributeType> getAttributesSupportedForExtraction();
+	Set<AttributeType> getAttributesSupportedForExtraction();
 	
 	/**
 	 * Validates if the value is valid
 	 * @param value
 	 * @throws IllegalIdentityValueException
 	 */
-	public void validate(String value) throws IllegalIdentityValueException;
+	void validate(String value) throws IllegalIdentityValueException;
 	
 	/**
 	 * Comparable value must be guaranteed to be unique for the type, i.e. if two
@@ -77,7 +89,7 @@ public interface IdentityTypeDefinition
 	 * @throws IllegalIdentityValueException if some parameters are null and the implementation 
 	 * requires them to create a comparable value.
 	 */
-	public String getComparableValue(String from, String realm, String target) throws IllegalIdentityValueException;
+	String getComparableValue(String from, String realm, String target) throws IllegalIdentityValueException;
 	
 	/**
 	 * Extract provided attributes.
@@ -86,25 +98,25 @@ public interface IdentityTypeDefinition
 	 * for each extracted.
 	 * @return
 	 */
-	public List<Attribute> extractAttributes(String from, Map<String, String> toExtract);
+	List<Attribute> extractAttributes(String from, Map<String, String> toExtract);
 	
 	/**
 	 * Similar to {@link #toString()}, but allows for less verbose
 	 * and more user-friendly output.
 	 * @return
 	 */
-	public String toPrettyString(IdentityParam from);
+	String toPrettyString(IdentityParam from);
 
 	/**
 	 * Similar to {@link #toPrettyString()}, but doesn't return id type prefix.
 	 * @return
 	 */
-	public String toPrettyStringNoPrefix(IdentityParam from);
+	String toPrettyStringNoPrefix(IdentityParam from);
 
 	/**
 	 * @return full String representation
 	 */
-	public String toString(IdentityParam from);
+	String toString(IdentityParam from);
 	
 	/**
 	 * @param msg
@@ -112,19 +124,19 @@ public interface IdentityTypeDefinition
 	 * @return string representation which is most useful for end-user. Note that this representation may
 	 * even hide the actual value if it is considered cryptic.
 	 */
-	public String toHumanFriendlyString(MessageSource msg, IdentityParam from);
+	String toHumanFriendlyString(MessageSource msg, IdentityParam from);
 
 	/**
 	 * @param msg
 	 * @return Name of the type which can be presented to end user.
 	 */
-	public String getHumanFriendlyName(MessageSource msg);
+	String getHumanFriendlyName(MessageSource msg);
 
 	/**
 	 * @param msg
 	 * @return Description of the type which can be presented to end user.
 	 */
-	public String getHumanFriendlyDescription(MessageSource msg);
+	String getHumanFriendlyDescription(MessageSource msg);
 	
 	/**
 	 * Converts the in-DB representation to external form. The implementation may perform arbitrary modifications
@@ -135,7 +147,7 @@ public interface IdentityTypeDefinition
 	 * @return 
 	 * @throws IllegalIdentityValueException 
 	 */
-	public String toExternalForm(String realm, String target, String inDbValue) 
+	String toExternalForm(String realm, String target, String inDbValue) 
 			throws IllegalIdentityValueException;
 
 	/**
@@ -144,7 +156,7 @@ public interface IdentityTypeDefinition
 	 * @param inDbValue the in-db representation
 	 * @return identity value in external form
 	 */
-	public String toExternalFormNoContext(String inDbValue);
+	String toExternalFormNoContext(String inDbValue);
 	
 	/**
 	 * Tries to create a new identity. 
@@ -154,20 +166,8 @@ public interface IdentityTypeDefinition
 	 * @return new representation of identity to be stored in database
 	 * @throws IllegalTypeException if the creation failed
 	 */
-	public IdentityRepresentation createNewIdentity(String realm, String target, String value) 
+	IdentityRepresentation createNewIdentity(String realm, String target, String value) 
 			throws IllegalTypeException;
-	
-	/**
-	 * Checks if the identity is expired. 
-	 * @param representation in db representation of the identity
-	 * @return true if expired, false otherwise 
-	 */
-	public boolean isExpired(IdentityRepresentation representation); 
-	
-	/**
-	 * @return if true then identities of this type can be confirmed. 
-	 */
-	public boolean isVerifiable();
 	
 	/**
 	 * Creates an IdentityParam from a string representation. Typically the method is simplistic (i.e. 
@@ -179,7 +179,7 @@ public interface IdentityTypeDefinition
 	 * @return 
 	 * @throws IllegalIdentityValueException 
 	 */
-	public IdentityParam convertFromString(String stringRepresentation, 
+	IdentityParam convertFromString(String stringRepresentation, 
 			String remoteIdp, String translationProfile) throws IllegalIdentityValueException;
 }
 

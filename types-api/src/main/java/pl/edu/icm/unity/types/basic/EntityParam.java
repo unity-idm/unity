@@ -37,9 +37,7 @@ public class EntityParam implements InitializationValidator
 	@Override
 	public void validateInitialization() throws IllegalIdentityValueException
 	{
-		if (identity != null)
-			identity.validateInitialization();
-		else if (entityId == null)
+		if (entityId == null)
 			throw new IllegalIdentityValueException("Either identityTaV or entityId must be set in entityParam");
 	}
 

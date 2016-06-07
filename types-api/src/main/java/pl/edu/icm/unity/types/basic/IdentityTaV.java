@@ -10,8 +10,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.types.InitializationValidator;
 
 
 /**
@@ -21,7 +19,7 @@ import pl.edu.icm.unity.types.InitializationValidator;
  * 
  * @author K. Benedyczak
  */
-public class IdentityTaV implements InitializationValidator
+public class IdentityTaV
 {
 	private String typeId;
 	protected String value;
@@ -29,14 +27,11 @@ public class IdentityTaV implements InitializationValidator
 	protected String realm;
 	
 	
-	public IdentityTaV()
-	{
-	}
-	
 	public IdentityTaV(String type, String value) 
 	{
 		this.typeId = type;
 		this.value = value;
+		validateInitialization();
 	}
 
 	public IdentityTaV(String type, String value, String target, String realm) 
@@ -52,6 +47,12 @@ public class IdentityTaV implements InitializationValidator
 		fromJson(src);
 	}
 
+	public IdentityTaV(String type, ObjectNode src)
+	{
+		this.typeId = type;
+		fromJsonBase(src);
+	}
+	
 	public String getValue()
 	{
 		return value;
@@ -130,13 +131,12 @@ public class IdentityTaV implements InitializationValidator
 	}
 
 	
-	@Override
-	public void validateInitialization() throws IllegalIdentityValueException
+	private void validateInitialization()
 	{
 		if (typeId == null)
-			throw new IllegalIdentityValueException("Identity type must be set");
+			throw new IllegalArgumentException("Identity type must not be null");
 		if (value == null)
-			throw new IllegalIdentityValueException("Identity value must be set");
+			throw new IllegalArgumentException("Identity value must not be null");
 	}
 	
 	/**

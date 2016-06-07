@@ -106,12 +106,8 @@ public class IdentityTest extends AbstractNamedDAOTest<Identity>
 	protected Identity getObject(String name)
 	{
 		ObjectNode meta = Constants.MAPPER.createObjectNode();
-		Identity ret = new Identity();
-		ret.setValue(name);
-		ret.setComparableValue(name);
-		ret.setTypeId("username");
+		Identity ret = new Identity("username", name, entity, name);
 		ret.setCreationTs(new Date(100324));
-		ret.setEntityId(entity);
 		ret.setMetadata(meta);
 		ret.setRealm("realm");
 		ret.setRemoteIdp("remoteIdp");

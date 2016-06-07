@@ -54,12 +54,8 @@ public class IdentityJsonSerializer implements RDBMSObjectSerializer<Identity, I
 	@Override
 	public Identity fromDB(IdentityBean bean)
 	{
-		Identity ret = new Identity();
-		ret.setTypeId(bean.getTypeName());
-		ret.setEntityId(bean.getEntityId());
-		ret.setComparableValue(bean.getName());
-		ret.fromJsonBase(JsonUtil.parse(bean.getContents()));
-		return ret;
+		return new Identity(bean.getTypeName(), bean.getEntityId(),
+				bean.getName(), JsonUtil.parse(bean.getContents()));
 	}
 
 	

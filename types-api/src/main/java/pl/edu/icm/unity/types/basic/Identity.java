@@ -25,10 +25,6 @@ public class Identity extends IdentityParam implements NamedObject
 	private Date updateTs;
 	private String comparableValue;
 	
-	public Identity()
-	{
-	}
-	
 	public Identity(String type, String value, Long entityId, String comparableValue)
 	{
 		super(type, value);
@@ -39,9 +35,16 @@ public class Identity extends IdentityParam implements NamedObject
 	@JsonCreator
 	public Identity(ObjectNode src)
 	{
-		fromJson(src);
+		super(src);
 	}
-	
+
+	public Identity(String type, Long entityId, String comparableValue, ObjectNode src)
+	{
+		super(type, src);
+		this.entityId = entityId;
+		this.comparableValue = comparableValue;
+	}
+
 	public long getEntityId()
 	{
 		return entityId;
