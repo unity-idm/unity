@@ -48,4 +48,10 @@ public class DefaultTransactionalRunner implements TransactionalRunner
 		return code.run();
 	}
 
+	@Transactional
+	@Override
+	public void runInTransactionThrowing(TxRunnableThrowing code) throws Exception
+	{
+		code.run();
+	}
 }

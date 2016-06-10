@@ -46,4 +46,11 @@ public class SQLTransactionalRunner implements TransactionalRunner
 	{
 		return code.run();
 	}
+
+	@TransactionalExt(storageEngine=StorageEngine.rdbms)
+	@Override
+	public void runInTransactionThrowing(TxRunnableThrowing code) throws Exception
+	{
+		code.run();
+	}
 }

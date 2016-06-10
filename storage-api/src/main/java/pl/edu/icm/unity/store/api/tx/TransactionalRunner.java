@@ -12,14 +12,16 @@ package pl.edu.icm.unity.store.api.tx;
  */
 public interface TransactionalRunner
 {
-	public void runInTransaction(TxRunnable code);
+	void runInTransaction(TxRunnable code);
 	
-	public <T> T runInTransactionRet(TxRunnableRet<T> code);
+	<T> T runInTransactionRet(TxRunnableRet<T> code);
+	
+	void runInTransactionNoAutoCommit(TxRunnable code);
+	
+	<T> T runInTransactionNoAutoCommitRet(TxRunnableRet<T> code);
 
-	public void runInTransactionNoAutoCommit(TxRunnable code);
-	
-	public <T> T runInTransactionNoAutoCommitRet(TxRunnableRet<T> code);
-	
+	void runInTransactionThrowing(TxRunnableThrowing code) throws Exception;
+
 	public interface TxRunnable
 	{
 		void run();
@@ -29,4 +31,10 @@ public interface TransactionalRunner
 	{
 		T run();
 	}
+	
+	public interface TxRunnableThrowing
+	{
+		void run() throws Exception;
+	}
+
 }
