@@ -7,20 +7,41 @@
 		<result property="id" column="ID"/>
 		<result property="nextProcessing" column="NEXT_PROCESSING"/>
 		<result property="listenerId" column="LISTENER_ID"/>
-		<result property="event" column="VALUES"/>
+		<result property="contents" column="VALUES"/>
 		<result property="failures" column="FAILURES"/>
 	</resultMap>
 
-	<insert id="insertEvent" parameterType="EventB" useGeneratedKeys="true" keyProperty="id">
+	<insert id="create" parameterType="EventB" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO EVENTS_QUEUE(NEXT_PROCESSING, LISTENER_ID, VALUES, FAILURES) 
-			VALUES (#{nextProcessing}, #{listenerId}, #{event}, #{failures})
+			VALUES (#{nextProcessing}, #{listenerId}, #{contents}, #{failures})
 	</insert>
 	
-	<delete id="deleteEvent" parameterType="long">
+	<update id="updateByKey" parameterType="EventB">
+		UPDATE EVENTS_QUEUE SET NEXT_PROCESSING = #{nextProcessing}, LISTENER_ID = #{listenerId}, 
+			VALUES = #{contents}, FAILURES = #{failures} 
+		WHERE ID = #{id}
+	</update>
+	
+	<select id="getAll" resultMap="eventResult">
+		select * from EVENTS_QUEUE
+	</select>
+
+	<select id="getByKey" parameterType="long" resultMap="eventResult">
+		select * from EVENTS_QUEUE where ID = #{value}
+	</select>
+
+	<delete id="deleteByKey" parameterType="long">
 		DELETE FROM EVENTS_QUEUE WHERE ID = #{value}
 	</delete>
 
-	<update id="updateEvent" parameterType="EventB">
+	<delete id="deleteAll">
+		DELETE FROM EVENTS_QUEUE
+	</delete>
+
+	
+	<!-- custom -->
+	
+	<update id="updateExecution" parameterType="EventB">
 		UPDATE EVENTS_QUEUE SET NEXT_PROCESSING=#{nextProcessing}, FAILURES=#{failures} WHERE ID=#{id}  
 	</update>
 

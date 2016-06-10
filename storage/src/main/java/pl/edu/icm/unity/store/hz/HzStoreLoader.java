@@ -27,6 +27,7 @@ import pl.edu.icm.unity.store.hz.tx.HzTransactionalRunner;
 import pl.edu.icm.unity.store.impl.attribute.AttributeHzStore;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeHzStore;
 import pl.edu.icm.unity.store.impl.entities.EntityHzStore;
+import pl.edu.icm.unity.store.impl.events.EventHzStore;
 import pl.edu.icm.unity.store.impl.groups.GroupHzStore;
 import pl.edu.icm.unity.store.impl.identities.IdentityHzStore;
 import pl.edu.icm.unity.store.impl.identitytype.IdentityTypeHzStore;
@@ -73,6 +74,9 @@ public class HzStoreLoader implements StoreLoaderInternal
 	private TokenHzStore tokenDAO;
 	
 	@Autowired
+	private EventHzStore eventDAO;
+
+	@Autowired
 	private GenericObjectHzStore genericObjDAO;
 
 	@Autowired @Qualifier(SQLTransactionalRunner.NAME)
@@ -109,6 +113,7 @@ public class HzStoreLoader implements StoreLoaderInternal
 		membershipDAO.populateFromRDBMS(hzInstance);
 		attributeDAO.populateFromRDBMS(hzInstance);
 		tokenDAO.populateFromRDBMS(hzInstance);
+		eventDAO.populateFromRDBMS(hzInstance);
 		genericObjDAO.populateFromRDBMS(hzInstance);
 		log.info("Population of the in-memory data store completed");
 	}
