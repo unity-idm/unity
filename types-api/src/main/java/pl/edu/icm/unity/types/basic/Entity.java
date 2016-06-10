@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.types.basic;
 
-import java.util.Arrays;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -17,10 +17,10 @@ import pl.edu.icm.unity.types.authn.CredentialInfo;
 public class Entity
 {
 	private EntityInformation entityInformation;
-	private Identity[] identities;
+	private List<Identity> identities;
 	private CredentialInfo credentialInfo;
 	
-	public Entity(Identity[] identities, EntityInformation info, CredentialInfo credentialInfo)
+	public Entity(List<Identity> identities, EntityInformation info, CredentialInfo credentialInfo)
 	{
 		this.identities = identities;
 		this.credentialInfo = credentialInfo;
@@ -35,7 +35,7 @@ public class Entity
 	{
 	}
 	
-	public Identity[] getIdentities()
+	public List<Identity> getIdentities()
 	{
 		return identities;
 	}
@@ -60,7 +60,7 @@ public class Entity
 	public String toString()
 	{
 		return "Entity [entityInformation=" + entityInformation + ", identities="
-				+ Arrays.toString(identities) + ", credentialInfo=" + credentialInfo
+				+ identities + ", credentialInfo=" + credentialInfo
 				+ "]";
 	}
 
@@ -73,7 +73,7 @@ public class Entity
 				+ ((credentialInfo == null) ? 0 : credentialInfo.hashCode());
 		result = prime * result
 				+ ((entityInformation == null) ? 0 : entityInformation.hashCode());
-		result = prime * result + Arrays.hashCode(identities);
+		result = prime * result + ((identities == null) ? 0 : identities.hashCode());
 		return result;
 	}
 
@@ -99,7 +99,11 @@ public class Entity
 				return false;
 		} else if (!entityInformation.equals(other.entityInformation))
 			return false;
-		if (!Arrays.equals(identities, other.identities))
+		if (identities == null)
+		{
+			if (other.identities != null)
+				return false;
+		} else if (!identities.equals(other.identities))
 			return false;
 		return true;
 	}

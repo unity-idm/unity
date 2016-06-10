@@ -298,6 +298,9 @@ public class UpdateFrom1_9_x implements Update
 			ObjectNode nodeO = (ObjectNode) node; 
 			nodeO.set("syntaxId", node.get("valueSyntaxId"));
 			nodeO.setAll((ObjectNode)node.get("contents"));
+			JsonNode oldSyntax = nodeO.remove("syntaxState");
+			ObjectNode syntaxCfg = JsonUtil.parse(oldSyntax.asText());
+			nodeO.set("syntaxState", syntaxCfg);
 		}
 	}
 	

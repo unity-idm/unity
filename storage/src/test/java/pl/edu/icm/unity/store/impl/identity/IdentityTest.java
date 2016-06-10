@@ -95,6 +95,7 @@ public class IdentityTest extends AbstractNamedDAOTest<Identity>
 			assertEquals(obj2, ret.get(1));
 		});
 	}
+
 	
 	@Override
 	protected NamedCRUDDAO<Identity> getDAO()

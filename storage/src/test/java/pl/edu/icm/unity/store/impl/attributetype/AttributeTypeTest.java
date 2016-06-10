@@ -9,6 +9,9 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.NamedCRUDDAO;
 import pl.edu.icm.unity.store.impl.AbstractNamedDAOTest;
@@ -40,7 +43,9 @@ public class AttributeTypeTest extends AbstractNamedDAOTest<AttributeType>
 		Map<String, String> meta = new HashMap<>();
 		meta.put("1", "a");
 		created.setMetadata(meta);
-		created.setValueSyntaxConfiguration("some config");
+		ObjectNode cfg = Constants.MAPPER.createObjectNode();
+		cfg.put("test", "testV");
+		created.setValueSyntaxConfiguration(cfg);
 		return created;
 	}
 

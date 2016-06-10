@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.types.I18nDescribedObject;
@@ -44,7 +45,7 @@ public class AttributeType extends I18nDescribedObject implements Initialization
 	
 	private String name;
 	private String valueSyntax;
-	private String valueSyntaxConfiguration;
+	private JsonNode valueSyntaxConfiguration;
 	private int minElements = 0;
 	private int maxElements = 1;
 	private boolean uniqueValues = false;
@@ -147,11 +148,11 @@ public class AttributeType extends I18nDescribedObject implements Initialization
 			throw new IllegalArgumentException("Argument can not be null");
 		this.valueSyntax = valueSyntax;
 	}
-	public String getValueSyntaxConfiguration()
+	public JsonNode getValueSyntaxConfiguration()
 	{
 		return valueSyntaxConfiguration;
 	}
-	public void setValueSyntaxConfiguration(String valueSyntaxConfiguration)
+	public void setValueSyntaxConfiguration(JsonNode valueSyntaxConfiguration)
 	{
 		this.valueSyntaxConfiguration = valueSyntaxConfiguration;
 	}
@@ -237,7 +238,7 @@ public class AttributeType extends I18nDescribedObject implements Initialization
 		root.put("minElements", getMinElements());
 		root.put("selfModificable", isSelfModificable());
 		root.put("uniqueValues", isUniqueValues());
-		root.put("syntaxState", getValueSyntaxConfiguration());
+		root.set("syntaxState", getValueSyntaxConfiguration());
 		root.set("displayedName", I18nStringJsonUtil.toJson(getDisplayedName()));
 		root.set("i18nDescription", I18nStringJsonUtil.toJson(getDescription()));
 		ObjectNode metaN = root.putObject("metadata");
@@ -272,9 +273,8 @@ public class AttributeType extends I18nDescribedObject implements Initialization
 		setMinElements(main.get("minElements").asInt());
 		setSelfModificable(main.get("selfModificable").asBoolean());
 		setUniqueValues(main.get("uniqueValues").asBoolean());
-		JsonNode valueSyntaxState = main.get("syntaxState");
-		if (valueSyntaxState != null && !valueSyntaxState.isNull())
-			setValueSyntaxConfiguration(valueSyntaxState.asText());
+		if (JsonUtil.notNull(main, "syntaxState"))
+			setValueSyntaxConfiguration((ObjectNode) main.get("syntaxState"));
 		setDisplayedName(I18nStringJsonUtil.fromJson(main.get("displayedName")));
 		if (getDisplayedName().getDefaultValue() == null)
 			getDisplayedName().setDefaultValue(getName());
