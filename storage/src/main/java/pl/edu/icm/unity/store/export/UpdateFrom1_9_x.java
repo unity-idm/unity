@@ -166,6 +166,9 @@ public class UpdateFrom1_9_x implements Update
 			case InvitationHandler.INVITATION_OBJECT_TYPE:
 				updateInvitation(content, ctx);
 				break;
+			case CredentialHandler.CREDENTIAL_OBJECT_TYPE:
+				updateCredential(content, ctx);
+				break;
 			}
 		}
 	}
@@ -330,7 +333,17 @@ public class UpdateFrom1_9_x implements Update
 		}
 	}
 
-	
+
+	private void updateCredential(ObjectNode content, UpdateContext ctx) throws IOException
+	{
+		if (!content.has("jsonConfiguration"))
+			return;
+		String config = content.remove("jsonConfiguration").asText();
+		if (!config.isEmpty())
+			content.set("jsonConfiguration", objectMapper.readTree(config));
+	}
+
+
 	private void updateIdentitites(ObjectNode contents) throws IOException
 	{
 		ArrayNode ids = (ArrayNode) contents.get("identities");

@@ -26,7 +26,7 @@ public class CredentialDefinition extends I18nDescribedObject implements NamedOb
 {
 	private String name;
 	private String typeId;
-	private String jsonConfiguration;
+	private ObjectNode jsonConfiguration;
 
 	public CredentialDefinition()
 	{
@@ -81,11 +81,11 @@ public class CredentialDefinition extends I18nDescribedObject implements NamedOb
 	{
 		this.typeId = typeId;
 	}
-	public String getJsonConfiguration()
+	public ObjectNode getJsonConfiguration()
 	{
 		return jsonConfiguration;
 	}
-	public void setJsonConfiguration(String jsonConfiguration)
+	public void setJsonConfiguration(ObjectNode jsonConfiguration)
 	{
 		this.jsonConfiguration = jsonConfiguration;
 	}
@@ -107,7 +107,7 @@ public class CredentialDefinition extends I18nDescribedObject implements NamedOb
 		ObjectNode root = Constants.MAPPER.createObjectNode();
 		root.put("typeId", getTypeId());
 		root.put("name", getName());
-		root.put("jsonConfiguration", getJsonConfiguration());
+		root.set("jsonConfiguration", getJsonConfiguration());
 		root.set("displayedName", I18nStringJsonUtil.toJson(getDisplayedName()));
 		root.set("i18nDescription", I18nStringJsonUtil.toJson(getDescription()));
 		return root;
@@ -123,7 +123,8 @@ public class CredentialDefinition extends I18nDescribedObject implements NamedOb
 		setTypeId(n.asText());
 		
 		n = root.get("jsonConfiguration");
-		setJsonConfiguration(n.asText());
+		if (n != null)
+			setJsonConfiguration((ObjectNode) n);
 
 		if (root.has("displayedName"))
 			setDisplayedName(I18nStringJsonUtil.fromJson(root.get("displayedName")));

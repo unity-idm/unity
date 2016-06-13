@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.store.api.generic.CredentialDB;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
@@ -45,7 +46,7 @@ public class RegistrationRequestTest extends AbstractNamedWithTSTest<Registratio
 		tx.runInTransaction(() -> {
 			CredentialDefinition cred = new CredentialDefinition("typeId", "cred", 
 					new I18nString("dName"), new I18nString("desc"));
-			cred.setJsonConfiguration("{}");
+			cred.setJsonConfiguration(Constants.MAPPER.createObjectNode());
 			credentialDB.create(cred);
 			
 			RegistrationRequestState obj = getObject("name1");

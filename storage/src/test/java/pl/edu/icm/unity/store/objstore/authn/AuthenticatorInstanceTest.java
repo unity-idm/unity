@@ -15,6 +15,7 @@ import java.util.Date;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.store.api.generic.CredentialDB;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
@@ -44,7 +45,7 @@ public class AuthenticatorInstanceTest extends AbstractNamedWithTSTest<Authentic
 		tx.runInTransaction(() -> {
 			CredentialDefinition cred = new CredentialDefinition("typeId", "localCred", 
 					new I18nString("dName"), new I18nString("desc"));
-			cred.setJsonConfiguration("{}");
+			cred.setJsonConfiguration(Constants.MAPPER.createObjectNode());
 			credentialDB.create(cred);
 			
 			AuthenticatorInstance obj = getObject("name1");
@@ -61,7 +62,7 @@ public class AuthenticatorInstanceTest extends AbstractNamedWithTSTest<Authentic
 		tx.runInTransaction(() -> {
 			CredentialDefinition cred = new CredentialDefinition("typeId", "localCred", 
 					new I18nString("dName"), new I18nString("desc"));
-			cred.setJsonConfiguration("{}");
+			cred.setJsonConfiguration(Constants.MAPPER.createObjectNode());
 			credentialDB.create(cred);
 			
 			AuthenticatorInstance obj = getObject("name1");
