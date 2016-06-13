@@ -6,6 +6,8 @@ package pl.edu.icm.unity.engine.api.internal;
 
 import java.net.URL;
 
+import org.eclipse.jetty.servlet.ServletContextHandler;
+
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.exceptions.EngineException;
 
@@ -24,4 +26,6 @@ public interface NetworkServer
 			throws EngineException;
 	
 	void undeployEndpoint(String id) throws EngineException;
+
+	void deployHandler(ServletContextHandler sharedHandler);
 }

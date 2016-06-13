@@ -6,6 +6,7 @@ package pl.edu.icm.unity.store.hz.tx;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.StorageEngine;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.tx.TransactionalExt;
@@ -49,8 +50,15 @@ public class HzTransactionalRunner implements TransactionalRunner
 
 	@TransactionalExt(storageEngine=StorageEngine.hz)
 	@Override
-	public void runInTransactionThrowing(TxRunnableThrowing code) throws Exception
+	public void runInTransactionThrowing(TxRunnableThrowing code) throws EngineException
 	{
 		code.run();
+	}
+	
+	@TransactionalExt(storageEngine=StorageEngine.hz)
+	@Override
+	public <T> T runInTransactionRetThrowing(TxRunnableThrowingRet<T> code) throws EngineException
+	{
+		return code.run();
 	}
 }

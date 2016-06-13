@@ -123,7 +123,7 @@ public class CredentialDefinition extends I18nDescribedObject implements NamedOb
 		setTypeId(n.asText());
 		
 		n = root.get("jsonConfiguration");
-		if (n != null)
+		if (n != null && !n.isNull())
 			setJsonConfiguration((ObjectNode) n);
 
 		if (root.has("displayedName"))

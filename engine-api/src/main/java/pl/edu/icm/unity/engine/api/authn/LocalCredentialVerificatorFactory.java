@@ -11,7 +11,7 @@ package pl.edu.icm.unity.engine.api.authn;
  */
 public interface LocalCredentialVerificatorFactory extends CredentialVerificatorFactory
 {
-	public LocalCredentialVerificator newInstance();
+	LocalCredentialVerificator newInstance();
 	
-	public boolean isSupportingInvalidation();
+	boolean isSupportingInvalidation();
 }

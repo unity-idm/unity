@@ -14,9 +14,13 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.IdentityType;
 
 /**
  * Implementation defined identity type. 
+ * 
+ * Currently it is stateless, but {@link IdentityType} wraps configuration which in future can be used to 
+ * convert also this interface to be stateful and so configurable. 
  * @author K. Benedyczak
  */
 public interface IdentityTypeDefinition

@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.store.api.tx;
 
+import pl.edu.icm.unity.exceptions.EngineException;
+
 /**
  * Implementations allow for running arbitrary code in transaction. Useful when Transactional annotation won't
  * work because of class which doesn't implement interface or is in unsupported package.
@@ -20,8 +22,10 @@ public interface TransactionalRunner
 	
 	<T> T runInTransactionNoAutoCommitRet(TxRunnableRet<T> code);
 
-	void runInTransactionThrowing(TxRunnableThrowing code) throws Exception;
-
+	void runInTransactionThrowing(TxRunnableThrowing code) throws EngineException;
+	
+	<T> T runInTransactionRetThrowing(TxRunnableThrowingRet<T> code) throws EngineException;
+	
 	public interface TxRunnable
 	{
 		void run();
@@ -34,7 +38,11 @@ public interface TransactionalRunner
 	
 	public interface TxRunnableThrowing
 	{
-		void run() throws Exception;
+		void run() throws EngineException;
 	}
 
+	public interface TxRunnableThrowingRet<T>
+	{
+		T run() throws EngineException;
+	}
 }

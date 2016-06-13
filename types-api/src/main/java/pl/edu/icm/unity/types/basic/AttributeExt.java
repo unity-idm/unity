@@ -43,9 +43,14 @@ public class AttributeExt extends Attribute
 		this(source, source.isDirect(), creationTs, updateTs);
 	}
 
+	/**
+	 * Upcasts {@link Attribute} to AttributeExt, creation and update dates are set to current time. 
+	 * @param baseAttribute
+	 * @param isDirect
+	 */
 	public AttributeExt(Attribute baseAttribute, boolean isDirect)
 	{
-		this(baseAttribute, isDirect, null, null);
+		this(baseAttribute, isDirect, new Date(), new Date());
 	}
 	
 	/**

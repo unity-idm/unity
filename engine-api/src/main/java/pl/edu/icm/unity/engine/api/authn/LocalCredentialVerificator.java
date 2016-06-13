@@ -29,7 +29,7 @@ public interface LocalCredentialVerificator extends CredentialVerificator
 	/**
 	 * @return the name of the credential definition associated with this verificator
 	 */
-	public String getCredentialName();
+	String getCredentialName();
 	
 	/**
 	 * Sets credential definition name for this verificator. This is only required 
@@ -38,7 +38,7 @@ public interface LocalCredentialVerificator extends CredentialVerificator
 	 * 
 	 * @param credential
 	 */
-	public void setCredentialName(String credential);
+	void setCredentialName(String credential);
 	
 	/**
 	 * Prepares the credential for DB insertion. The credential value can be arbitrary, typically in JSON.
@@ -54,7 +54,7 @@ public interface LocalCredentialVerificator extends CredentialVerificator
 	 * @throws IllegalCredentialException if the new credential is not valid
 	 * @throws InternalException 
 	 */
-	public String prepareCredential(String rawCredential, String previousCredential, 
+	String prepareCredential(String rawCredential, String previousCredential, 
 			String currentCredential) 
 			throws IllegalCredentialException, InternalException;
 
@@ -67,7 +67,7 @@ public interface LocalCredentialVerificator extends CredentialVerificator
 	 * @throws IllegalCredentialException
 	 * @throws InternalException
 	 */
-	public String prepareCredential(String rawCredential, String currentCredential) 
+	String prepareCredential(String rawCredential, String currentCredential) 
 			throws IllegalCredentialException, InternalException;
 	
 	/**
@@ -75,17 +75,17 @@ public interface LocalCredentialVerificator extends CredentialVerificator
 	 * @return the current state of the credential, wrt the configuration of the verificator
 	 * @throws InternalException 
 	 */
-	public CredentialPublicInformation checkCredentialState(String currentCredential) throws InternalException;
+	CredentialPublicInformation checkCredentialState(String currentCredential) throws InternalException;
 
 	/**
 	 * @return If the instances can be put into the {@link LocalCredentialState#outdated} state.
 	 */
-	public boolean isSupportingInvalidation();
+	boolean isSupportingInvalidation();
 	
 	/**
 	 * This method is called only for credentials supporting invalidation.
 	 * @param currentCredential the current credential value as stored in DB.
 	 * @return the invalidated credential value, to be stored in database.
 	 */
-	public String invalidate(String currentCredential);
+	String invalidate(String currentCredential);
 }

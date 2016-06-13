@@ -26,7 +26,7 @@ public interface AttributeValueSyntax<T>
 	JsonNode getSerializedConfiguration();
 	
 	/**
-	 * Initializes from string
+	 * Initializes
 	 * @param json
 	 */
 	void setSerializedConfiguration(JsonNode json);
@@ -41,6 +41,15 @@ public interface AttributeValueSyntax<T>
 	 * @param value
 	 */
 	void validate(T value) throws IllegalAttributeValueException;
+
+	/**
+	 * Converts value to string and then validates it
+	 * @param value
+	 */
+	default void validateStringValue(String value) throws IllegalAttributeValueException
+	{
+		validate(convertFromString(value));
+	}
 	
 	/**
 	 * @param value
@@ -48,6 +57,17 @@ public interface AttributeValueSyntax<T>
 	 * @return true only if the two values are the same.
 	 */
 	boolean areEqual(T value, Object another);
+
+	/**
+	 * Converts values from string and then performs equality checking
+	 * @param value
+	 * @param another
+	 * @return true only if the two values are the same.
+	 */
+	default boolean areEqualStringValue(String value, String another)
+	{
+		return areEqual(convertFromString(value), convertFromString(another));
+	}
 
 	/**
 	 * @param value, must be of T type, otherwise the standard hash should be returned.
