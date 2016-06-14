@@ -7,6 +7,8 @@
  */
 
 /**
+ * Root engine implementation. Globally shared code and few implementations which would otherwise end up 
+ * in a single class package.
  * @author K. Benedyczak
  */
 package pl.edu.icm.unity.engine;
