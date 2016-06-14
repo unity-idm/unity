@@ -6,8 +6,8 @@ package pl.edu.icm.unity.stdext.credential;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.authn.LocalCredentialVerificator;
-import pl.edu.icm.unity.engine.api.authn.LocalCredentialVerificatorFactory;
+import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
+import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificatorFactory;
 
 /**
  * Produces verificators of certificates.

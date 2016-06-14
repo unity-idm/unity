@@ -13,5 +13,5 @@ import pl.edu.icm.unity.types.DescribedObject;
  */
 public interface CredentialVerificatorFactory extends DescribedObject
 {
-	public CredentialVerificator newInstance();
+	CredentialVerificator newInstance();
 }

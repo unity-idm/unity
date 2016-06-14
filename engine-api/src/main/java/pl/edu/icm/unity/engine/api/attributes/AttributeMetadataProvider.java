@@ -22,11 +22,11 @@ public interface AttributeMetadataProvider extends DescribedObject
 	 * @param at
 	 * @throws IllegalAttributeTypeException
 	 */
-	public void verify(String metadata, AttributeType at) throws IllegalAttributeTypeException;
+	void verify(String metadata, AttributeType at) throws IllegalAttributeTypeException;
 	
 	/**
 	 * @return true if this metadata can be set for a single attribute only.
 	 */
-	public boolean isSingleton();
+	boolean isSingleton();
 	
 }

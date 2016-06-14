@@ -2,11 +2,10 @@
  * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.api.internal;
+package pl.edu.icm.unity.engine.api.authn;
 
 import java.util.List;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 

@@ -46,9 +46,9 @@ import pl.edu.icm.unity.engine.api.confirmation.states.IdentityConfirmationState
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqAttribiuteConfirmationState;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
-import pl.edu.icm.unity.engine.api.internal.TokensManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.identity.IdentityTypeHelper;

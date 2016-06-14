@@ -6,7 +6,7 @@ package pl.edu.icm.unity.engine.api.endpoint;
 
 import java.net.URL;
 
-import pl.edu.icm.unity.engine.api.internal.NetworkServer;
+import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 
 /**

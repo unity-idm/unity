@@ -17,13 +17,13 @@ import org.bouncycastle.util.Arrays;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.CredentialHelper;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.engine.api.authn.CredentialResetSettings;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
-import pl.edu.icm.unity.engine.api.authn.LocalCredentialVerificator;
+import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
+import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.internal.IdentityResolver;
+import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.exceptions.EngineException;

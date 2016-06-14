@@ -9,9 +9,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import pl.edu.icm.unity.engine.api.authn.LocalCredentialVerificator;
-import pl.edu.icm.unity.engine.api.authn.LocalCredentialVerificatorFactory;
-import pl.edu.icm.unity.engine.api.authn.LocalCredentialsRegistry;
+import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
+import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificatorFactory;
+import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;

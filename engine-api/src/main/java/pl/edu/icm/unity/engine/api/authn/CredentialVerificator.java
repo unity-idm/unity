@@ -6,7 +6,7 @@ package pl.edu.icm.unity.engine.api.authn;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.engine.api.internal.IdentityResolver;
+import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.types.DescribedObject;
 
 /**

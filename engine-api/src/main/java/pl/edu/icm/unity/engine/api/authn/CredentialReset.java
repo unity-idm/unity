@@ -24,20 +24,20 @@ public interface CredentialReset
 	/**
 	 * @return settings of credential reset
 	 */
-	public CredentialResetSettings getSettings();
+	CredentialResetSettings getSettings();
 
 	/**
 	 * Sets the subject for which the operations are made.
 	 * @param subject
 	 */
-	public void setSubject(IdentityTaV subject);
+	void setSubject(IdentityTaV subject);
 	
 	/**
 	 * 
 	 * @return the question for the subject, which must be set before. If the question is
 	 * not defined, a random question is returned, from the configured ones.
 	 */
-	public String getSecurityQuestion();
+	String getSecurityQuestion();
 
 	/**
 	 * Verifies if the static data is about the subject is correct. Currently only the security question
@@ -46,7 +46,7 @@ public interface CredentialReset
 	 * @throws WrongArgumentException
 	 * @throws IllegalIdentityValueException
 	 */
-	public void verifyStaticData(String aswer) throws WrongArgumentException,
+	void verifyStaticData(String aswer) throws WrongArgumentException,
 			IllegalIdentityValueException, TooManyAttempts;
 
 	/**
@@ -54,19 +54,19 @@ public interface CredentialReset
 	 * @param emailCode
 	 * @throws WrongArgumentException
 	 */
-	public void verifyDynamicData(String emailCode) throws WrongArgumentException, TooManyAttempts;
+	void verifyDynamicData(String emailCode) throws WrongArgumentException, TooManyAttempts;
 
 	/**
 	 * Sends a random confirmation code to the receiver.
 	 * 
 	 * @throws EngineException 
 	 */
-	public void sendCode() throws EngineException;
+	void sendCode() throws EngineException;
 
 	/**
 	 * @return JSON with the current credential configuration of the subject
 	 */
-	public ObjectNode getCredentialConfiguration();
+	ObjectNode getCredentialConfiguration();
 
 	/**
 	 * Changes the credential to a new one.
@@ -75,5 +75,5 @@ public interface CredentialReset
 	 *                specific way.
 	 * @throws EngineException 
 	 */
-	public void updateCredential(String newCredential) throws EngineException;
+	void updateCredential(String newCredential) throws EngineException;
 }

@@ -20,8 +20,8 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.internal.NetworkServer;
-import pl.edu.icm.unity.engine.api.internal.SharedEndpointManagement;
+import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
+import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 

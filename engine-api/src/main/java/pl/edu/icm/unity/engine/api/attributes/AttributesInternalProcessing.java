@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.api.internal;
+package pl.edu.icm.unity.engine.api.attributes;
 
 import java.util.List;
 import java.util.Map;
@@ -29,7 +29,7 @@ public interface AttributesInternalProcessing
 	 * @return
 	 * @throws EngineException
 	 */
-	public AttributeType getAttributeTypeWithSingeltonMetadata(String metadataId) throws EngineException;
+	AttributeType getAttributeTypeWithSingeltonMetadata(String metadataId) throws EngineException;
 
 	/**
 	 * Returns all attribute types which have the given metadata set.
@@ -37,7 +37,7 @@ public interface AttributesInternalProcessing
 	 * @return
 	 * @throws EngineException
 	 */
-	public List<AttributeType> getAttributeTypeWithMetadata(String metadataId) throws EngineException;
+	List<AttributeType> getAttributeTypeWithMetadata(String metadataId) throws EngineException;
 	
 	
 	/**
@@ -50,12 +50,12 @@ public interface AttributesInternalProcessing
 	 * @return
 	 * @throws EngineException
 	 */
-	public AttributeExt getAttributeByMetadata(EntityParam entity, String group, String metadataId)
+	AttributeExt getAttributeByMetadata(EntityParam entity, String group, String metadataId)
 			throws EngineException;
 	
 	/**
 	 * @return all attribute types as map. Not authorized anyhow 
 	 * @throws EngineException
 	 */
-	public Map<String, AttributeType> getAttributeTypesAsMap() throws EngineException;
+	Map<String, AttributeType> getAttributeTypesAsMap() throws EngineException;
 }

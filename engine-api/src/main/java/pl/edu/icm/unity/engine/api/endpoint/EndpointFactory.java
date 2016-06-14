@@ -12,6 +12,6 @@ import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
  */
 public interface EndpointFactory
 {
-	public EndpointTypeDescription getDescription();
-	public EndpointInstance newInstance();
+	EndpointTypeDescription getDescription();
+	EndpointInstance newInstance();
 }

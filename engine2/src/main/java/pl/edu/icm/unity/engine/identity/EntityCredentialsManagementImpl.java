@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
-import pl.edu.icm.unity.engine.api.authn.LocalCredentialVerificator;
+import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;

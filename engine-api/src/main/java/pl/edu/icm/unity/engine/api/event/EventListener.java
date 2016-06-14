@@ -17,7 +17,7 @@ public interface EventListener
 	/**
 	 * @return only events of the returned category will be fed to the listener
 	 */
-	public String getCategory();
+	String getCategory();
 	
 	/**
 	 * @return if true is returned then the listener's handle method will be invoked 
@@ -26,14 +26,14 @@ public interface EventListener
 	 * is stored in DB first and if the handle method fails or throws an exception then the handling will be
 	 * repeated after some time.
 	 */
-	public boolean isLightweight();
+	boolean isLightweight();
 	
 	/**
 	 * This method should perform a fast filtering of uninteresting events.
 	 * @param event
 	 * @return true if the event should be handled by this listener
 	 */
-	public boolean isWanted(Event event); 
+	boolean isWanted(Event event); 
 	
 	/**
 	 * Called only on events of a proper category, for which isWanted returned true. 
@@ -41,17 +41,17 @@ public interface EventListener
 	 * @return true if the event was processed successfully. Returning false is relevant only 
 	 * for the heavy-weight listeners.
 	 */
-	public boolean handleEvent(Event event);
+	boolean handleEvent(Event event);
 	
 	/**
 	 * @return system unique and constant ID of the listener instance. It is suggested to form it 
 	 * from the full class name concatenated with listener name if it can have many instances.
 	 */
-	public String getId();
+	String getId();
 	
 	/**
 	 * @return after how many failures the system should give up sending the event. It is suggested
 	 * to return {@link #DEFAULT_MAX_FAILURES}  
 	 */
-	public int getMaxFailures();
+	int getMaxFailures();
 }

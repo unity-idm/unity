@@ -13,7 +13,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.registries.TypesRegistryBase;
+import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 
 /**
  * Maintains a simple registry of available {@link IdentityTypeDefinition}s.

@@ -30,7 +30,7 @@ public interface NotificationProducer
 	 * @return
 	 * @throws EngineException
 	 */
-	public Future<NotificationStatus> sendNotification(EntityParam recipient, String channelName, 
+	Future<NotificationStatus> sendNotification(EntityParam recipient, String channelName, 
 			String templateId, Map<String, String> params, String locale, String preferredAddress) 
 					throws EngineException;
 
@@ -44,7 +44,7 @@ public interface NotificationProducer
 	 * @return
 	 * @throws EngineException
 	 */
-	public Future<NotificationStatus> sendNotification(String recipientAddress, String channelName, 
+	Future<NotificationStatus> sendNotification(String recipientAddress, String channelName, 
 			String templateId, Map<String, String> params, String locale) throws EngineException;
 	
 	/**
@@ -59,6 +59,6 @@ public interface NotificationProducer
 	 * @return
 	 * @throws EngineException
 	 */
-	public void sendNotificationToGroup(String group, String channelName, 
+	void sendNotificationToGroup(String group, String channelName, 
 			String templateId, Map<String, String> params, String locale) throws EngineException;
 }

@@ -11,7 +11,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.registries.TypesRegistryBase;
+import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 
 @Component
 public class AttributeMetadataProvidersRegistry extends TypesRegistryBase<AttributeMetadataProvider>

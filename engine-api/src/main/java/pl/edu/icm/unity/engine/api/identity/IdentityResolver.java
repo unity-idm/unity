@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.api.internal;
+package pl.edu.icm.unity.engine.api.identity;
 
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -33,7 +33,7 @@ public interface IdentityResolver
 	 * @throws IllegalTypeException 
 	 * @throws EngineException 
 	 */
-	public EntityWithCredential resolveIdentity(String identity, String[] identityTypes, String credentialName)
+	EntityWithCredential resolveIdentity(String identity, String[] identityTypes, String credentialName)
 		throws IllegalIdentityValueException, IllegalTypeException, IllegalGroupValueException, EngineException;
 
 	/**
@@ -44,6 +44,6 @@ public interface IdentityResolver
 	 * @return
 	 * @throws EngineException
 	 */
-	public long resolveIdentity(String identity, String[] identityTypes, String target, String realm) 
+	long resolveIdentity(String identity, String[] identityTypes, String target, String realm) 
 			throws EngineException;
 }

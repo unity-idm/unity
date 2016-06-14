@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.api.authn;
+package pl.edu.icm.unity.engine.api.authn.local;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 
@@ -31,7 +31,7 @@ public interface CredentialHelper
 	 * @param dbEncodedCredentialState
 	 * @throws EngineException
 	 */
-	public void updateCredential(long entityId, String credentialName, String dbEncodedCredentialState) 
+	void updateCredential(long entityId, String credentialName, String dbEncodedCredentialState) 
 			throws EngineException;
 	
 	/**
@@ -44,6 +44,6 @@ public interface CredentialHelper
 	 * @param value
 	 * @throws EngineException
 	 */
-	public void setCredential(long entityId, String credentialName, String value,
+	void setCredential(long entityId, String credentialName, String value,
 			LocalCredentialVerificator handler) throws EngineException; 
 }

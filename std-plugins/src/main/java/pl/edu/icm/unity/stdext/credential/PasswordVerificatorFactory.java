@@ -7,9 +7,9 @@ package pl.edu.icm.unity.stdext.credential;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.authn.CredentialHelper;
-import pl.edu.icm.unity.engine.api.authn.LocalCredentialVerificator;
-import pl.edu.icm.unity.engine.api.authn.LocalCredentialVerificatorFactory;
+import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
+import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
+import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 
 /**

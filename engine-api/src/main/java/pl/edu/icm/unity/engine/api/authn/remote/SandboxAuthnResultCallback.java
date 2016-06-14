@@ -9,5 +9,5 @@ import pl.edu.icm.unity.engine.api.authn.SandboxAuthnContext;
  */
 public interface SandboxAuthnResultCallback
 {
-	public void sandboxedAuthenticationDone(SandboxAuthnContext ctx);
+	void sandboxedAuthenticationDone(SandboxAuthnContext ctx);
 }
