@@ -11,9 +11,6 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
@@ -34,15 +31,15 @@ public class TestPassword
 		//we can pass nulls as we don't test the credential reset here.
 		PasswordVerificatorFactory f = new PasswordVerificatorFactory(null, null);
 		LocalCredentialVerificator verificator = f.newInstance();
-		verificator.setSerializedConfiguration(JsonUtil.parse("{" +
+		verificator.setSerializedConfiguration("{" +
 				"\"minLength\": 5," +
 				"\"historySize\": 3," +
 				"\"minClassesNum\": 2," +
 				"\"denySequences\": true," +
 				"\"maxAge\": 100," +
 				"\"max\": 100" +
-				"}"));
-		ObjectNode serialized = verificator.getSerializedConfiguration();
+				"}");
+		String serialized = verificator.getSerializedConfiguration();
 		verificator.setSerializedConfiguration(serialized);
 		
 		assertEquals(LocalCredentialState.notSet, verificator.checkCredentialState(null).getState());
@@ -97,15 +94,15 @@ public class TestPassword
 		//we can pass nulls as we don't test the credential reset here.
 		PasswordVerificatorFactory f = new PasswordVerificatorFactory(null, null);
 		LocalCredentialVerificator verificator = f.newInstance();
-		verificator.setSerializedConfiguration(JsonUtil.parse("{" +
+		verificator.setSerializedConfiguration("{" +
 				"\"minLength\": 5," +
 				"\"historySize\": 3," +
 				"\"minClassesNum\": 2," +
 				"\"denySequences\": true," +
 				"\"maxAge\": 100," +
 				"\"max\": 100" +
-				"}"));
-		ObjectNode serialized = verificator.getSerializedConfiguration();
+				"}");
+		String	 serialized = verificator.getSerializedConfiguration();
 		verificator.setSerializedConfiguration(serialized);
 		
 		PasswordToken pt = new PasswordToken("1asdz");

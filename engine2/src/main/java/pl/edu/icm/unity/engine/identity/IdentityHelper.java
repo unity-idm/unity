@@ -5,8 +5,10 @@
 package pl.edu.icm.unity.engine.identity;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +21,16 @@ import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.engine.group.GroupHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.IdentityDAO;
+import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
@@ -44,6 +50,7 @@ public class IdentityHelper
 	private IdentityTypesRegistry idTypesRegistry;
 	private EntityDAO entityDAO;
 	private IdentityDAO identityDAO;
+	private AttributeDAO attributeDAO;
 	private IdentityTypeHelper idTypeHelper;
 	private AttributesHelper attributeHelper;
 	private GroupHelper groupHelper;
@@ -52,19 +59,64 @@ public class IdentityHelper
 	
 	@Autowired
 	public IdentityHelper(IdentityTypesRegistry idTypesRegistry, EntityDAO entityDAO,
-			IdentityDAO identityDAO, IdentityTypeHelper idTypeHelper,
+			IdentityDAO identityDAO, AttributeDAO attributeDAO, IdentityTypeHelper idTypeHelper,
 			AttributesHelper attributeHelper, GroupHelper groupHelper,
 			EntityCredentialsHelper credentialHelper)
 	{
 		this.idTypesRegistry = idTypesRegistry;
 		this.entityDAO = entityDAO;
 		this.identityDAO = identityDAO;
+		this.attributeDAO = attributeDAO;
 		this.idTypeHelper = idTypeHelper;
 		this.attributeHelper = attributeHelper;
 		this.groupHelper = groupHelper;
 		this.credentialHelper = credentialHelper;
 	}
 
+	/**
+	 * As {@link #getEntitiesBySimpleAttribute(String, String, Set)} with in the '/' group.
+	 * @param attribute
+	 * @param values
+	 * @return
+	 * @throws IllegalTypeException
+	 * @throws IllegalGroupValueException
+	 */
+	public Set<Long> getEntitiesByRootAttribute(String attribute, Set<String> values) 
+			throws IllegalTypeException, IllegalGroupValueException
+	{
+		return getEntitiesBySimpleAttribute("/", attribute, values);
+	}
+	
+	/**
+	 * Returns all entities that have a given attribute defined in the given group, and that the attribute
+	 * value is in the given set of values. This method considers only the first value
+	 * of checked attribute. Also this method will work only for simple attributes, which has unencoded String
+	 * values. 
+	 * 
+	 * @param groupPath
+	 * @param attributeTypeName
+	 * @param values
+	 * @return
+	 * @throws IllegalTypeException
+	 * @throws IllegalGroupValueException
+	 */
+	public Set<Long> getEntitiesBySimpleAttribute(String groupPath, String attributeTypeName, 
+			Set<String> values) 
+			throws IllegalTypeException, IllegalGroupValueException
+	{
+		List<StoredAttribute> attributes = attributeDAO.getAttributes(attributeTypeName, null, groupPath);
+		Set<Long> ret = new HashSet<Long>();
+		for (StoredAttribute sa: attributes)
+		{
+			AttributeExt attribute = sa.getAttribute();
+			if (attribute.getValues().isEmpty())
+				continue;
+			if (values.contains(attribute.getValues().get(0)))
+				ret.add(sa.getEntityId());
+		}
+		return ret;
+	}
+	
 	/**
 	 * Adds an entity with all the complicated logic around it. Does not perform authorization and DB 
 	 * transaction set up: pure business logic.

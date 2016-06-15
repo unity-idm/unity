@@ -8,7 +8,7 @@ import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
 /**
@@ -25,7 +25,7 @@ public interface EndpointManagement
 	/**
 	 * @return list of deployed endpoints
 	 */
-	List<EndpointDescription> getEndpoints() throws EngineException;
+	List<ResolvedEndpoint> getEndpoints() throws EngineException;
 	
 	/**
 	 * Deploys a new instance of an endpoint of id type, at address location.
@@ -36,7 +36,7 @@ public interface EndpointManagement
 	 * @param configuration
 	 * @throws EngineException 
 	 */
-	EndpointDescription deploy(String typeId, String endpointName,  
+	ResolvedEndpoint deploy(String typeId, String endpointName,  
 			String address, EndpointConfiguration configuration) throws EngineException;
 
 

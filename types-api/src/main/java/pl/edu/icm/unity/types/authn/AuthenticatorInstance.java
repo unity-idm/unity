@@ -18,8 +18,8 @@ public class AuthenticatorInstance implements NamedObject
 {
 	private String id;
 	private AuthenticatorTypeDescription typeDescription;
-	private String retrievalJsonConfiguration;
-	private String verificatorJsonConfiguration;
+	private String retrievalConfiguration;
+	private String verificatorConfiguration;
 	private String localCredentialName;
 	
 	/**
@@ -56,21 +56,21 @@ public class AuthenticatorInstance implements NamedObject
 	{
 		this.typeDescription = typeDescription;
 	}
-	public String getRetrievalJsonConfiguration()
+	public String getRetrievalConfiguration()
 	{
-		return retrievalJsonConfiguration;
+		return retrievalConfiguration;
 	}
-	public void setRetrievalJsonConfiguration(String retrievalJsonConfiguration)
+	public void setRetrievalConfiguration(String retrievalJsonConfiguration)
 	{
-		this.retrievalJsonConfiguration = retrievalJsonConfiguration;
+		this.retrievalConfiguration = retrievalJsonConfiguration;
 	}
-	public String getVerificatorJsonConfiguration()
+	public String getVerificatorConfiguration()
 	{
-		return verificatorJsonConfiguration;
+		return verificatorConfiguration;
 	}
-	public void setVerificatorJsonConfiguration(String verificatorJsonConfiguration)
+	public void setVerificatorConfiguration(String verificatorJsonConfiguration)
 	{
-		this.verificatorJsonConfiguration = verificatorJsonConfiguration;
+		this.verificatorConfiguration = verificatorJsonConfiguration;
 	}
 	@Override
 	public int hashCode()
@@ -80,12 +80,12 @@ public class AuthenticatorInstance implements NamedObject
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((localCredentialName == null) ? 0
 				: localCredentialName.hashCode());
-		result = prime * result + ((retrievalJsonConfiguration == null) ? 0
-				: retrievalJsonConfiguration.hashCode());
+		result = prime * result + ((retrievalConfiguration == null) ? 0
+				: retrievalConfiguration.hashCode());
 		result = prime * result
 				+ ((typeDescription == null) ? 0 : typeDescription.hashCode());
-		result = prime * result + ((verificatorJsonConfiguration == null) ? 0
-				: verificatorJsonConfiguration.hashCode());
+		result = prime * result + ((verificatorConfiguration == null) ? 0
+				: verificatorConfiguration.hashCode());
 		return result;
 	}
 	@Override
@@ -110,11 +110,11 @@ public class AuthenticatorInstance implements NamedObject
 				return false;
 		} else if (!localCredentialName.equals(other.localCredentialName))
 			return false;
-		if (retrievalJsonConfiguration == null)
+		if (retrievalConfiguration == null)
 		{
-			if (other.retrievalJsonConfiguration != null)
+			if (other.retrievalConfiguration != null)
 				return false;
-		} else if (!retrievalJsonConfiguration.equals(other.retrievalJsonConfiguration))
+		} else if (!retrievalConfiguration.equals(other.retrievalConfiguration))
 			return false;
 		if (typeDescription == null)
 		{
@@ -122,11 +122,11 @@ public class AuthenticatorInstance implements NamedObject
 				return false;
 		} else if (!typeDescription.equals(other.typeDescription))
 			return false;
-		if (verificatorJsonConfiguration == null)
+		if (verificatorConfiguration == null)
 		{
-			if (other.verificatorJsonConfiguration != null)
+			if (other.verificatorConfiguration != null)
 				return false;
-		} else if (!verificatorJsonConfiguration.equals(other.verificatorJsonConfiguration))
+		} else if (!verificatorConfiguration.equals(other.verificatorConfiguration))
 			return false;
 		return true;
 	}

@@ -67,7 +67,7 @@ public class EndpointTest extends AbstractNamedWithTSTest<Endpoint>
 		tx.runInTransaction(() -> {
 			AuthenticatorInstance ret = new AuthenticatorInstance();
 			ret.setId("pa2");
-			ret.setVerificatorJsonConfiguration("vc");
+			ret.setVerificatorConfiguration("vCfg");
 			authnDB.create(ret);
 			
 			Endpoint obj = getObject("name1");

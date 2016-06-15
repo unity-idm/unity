@@ -108,8 +108,8 @@ public class PreferencesManagementImpl implements PreferencesManagement
 	private String getPreferenceAttribute(long entityId) 
 			throws EngineException
 	{
-		Collection<AttributeExt> preference = dbAttributes.getAttributes(PreferencesAttributeTypeProvider.PREFERENCES,
-				entityId, "/");
+		Collection<AttributeExt> preference = dbAttributes.getEntityAttributes(entityId,
+				PreferencesAttributeTypeProvider.PREFERENCES, "/");
 		if (preference.size() == 0)
 			return null;
 		AttributeExt attr = preference.iterator().next();

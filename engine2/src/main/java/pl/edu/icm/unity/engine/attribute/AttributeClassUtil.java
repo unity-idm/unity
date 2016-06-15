@@ -61,8 +61,8 @@ public abstract class AttributeClassUtil
 	public static AttributeClassHelper getACHelper(long entityId, String groupPath, AttributeDAO dbAttributes, 
 			AttributeClassDB acDB, GroupDAO dbGroups) throws EngineException
 	{
-		Collection<AttributeExt> acAttrs = dbAttributes.getAttributes(ATTRIBUTE_CLASSES_ATTRIBUTE,
-				entityId, groupPath);
+		Collection<AttributeExt> acAttrs = dbAttributes.getEntityAttributes(entityId, 
+				ATTRIBUTE_CLASSES_ATTRIBUTE, groupPath);
 		Group group = dbGroups.get(groupPath);
 		AttributeExt ac = null;
 		if (acAttrs.size() != 0)
@@ -85,8 +85,8 @@ public abstract class AttributeClassUtil
 	public static AttributeClassHelper getACHelper(long entityId, String groupPath, AttributeDAO dbAttributes, 
 			AttributeClassDB acDB, Set<String> acs) throws EngineException
 	{
-		Collection<AttributeExt> acAttrs = dbAttributes.getAttributes(ATTRIBUTE_CLASSES_ATTRIBUTE, 
-				entityId, groupPath);
+		Collection<AttributeExt> acAttrs = dbAttributes.getEntityAttributes(entityId, 
+				ATTRIBUTE_CLASSES_ATTRIBUTE, groupPath);
 		AttributeExt ac = null;
 		if (acAttrs.size() != 0)
 			ac = (AttributeExt) acAttrs.iterator().next();

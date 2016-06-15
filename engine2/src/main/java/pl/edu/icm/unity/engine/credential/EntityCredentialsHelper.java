@@ -88,7 +88,7 @@ public class EntityCredentialsHelper
 		setEntityCredentialRequirementsNoCheck(entityId, credReqId);
 	}
 	
-	private void setEntityCredentialRequirementsNoCheck(long entityId, String credReqId) 
+	public void setEntityCredentialRequirementsNoCheck(long entityId, String credReqId) 
 	{
 		StringAttribute credReq = new StringAttribute(CredentialAttributeTypeProvider.CREDENTIAL_REQUIREMENTS,
 				"/", credReqId);

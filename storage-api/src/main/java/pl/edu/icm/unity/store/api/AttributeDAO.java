@@ -19,12 +19,38 @@ public interface AttributeDAO extends BasicCRUDDAO<StoredAttribute>
 	void deleteAttributesInGroup(long entityId, String group);
 
 	/**
-	 * Group and attribute arguments may be null, what means that there is no filtering by that coordinate.
+	 * Retrieves attributes with given criteria. Any of the arguments can be null, meaning no restriction. 
 	 * @param attribute
 	 * @param entityId
 	 * @param group
 	 * @return
 	 */
-	List<AttributeExt> getAttributes(String attribute, long entityId, String group);
+	List<StoredAttribute> getAttributes(String attribute, Long entityId, String group);
 
+	/**
+	 * Simplified version of {@link #getAttributes(String, Long, String)}. 
+	 * Retrieves attributes with given criteria where attribute name and group can be given or not (then 
+	 * use null as argument). Entity must be always given. Returned list is unwrapped, as attribute owning 
+	 * entity is anyway known.
+	 *    
+	 * @param attribute
+	 * @param entityId
+	 * @param group
+	 * @return
+	 */
+	List<AttributeExt> getEntityAttributes(long entity, String attribute, String group);
+	
+	/**
+	 * Simplified version of {@link #getEntityAttributes(long, String, String)}. 
+	 * Retrieves all attributes of a given entity.
+	 *    
+	 * @param attribute
+	 * @param entityId
+	 * @param group
+	 * @return
+	 */
+	default List<AttributeExt> getAllEntityAttributes(long entity)
+	{
+		return getEntityAttributes(entity, null, null);
+	}
 }

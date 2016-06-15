@@ -79,7 +79,14 @@ public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, Attri
 	}
 
 	@Override
-	public List<AttributeExt> getAttributes(String attribute, long entityId, String group)
+	public List<StoredAttribute> getAttributes(String attribute, Long entityId, String group)
+	{
+		List<AttributeBean> existing = getAttributesFiltering(attribute, entityId, group);
+		return convertList(existing);
+	}
+
+	@Override
+	public List<AttributeExt> getEntityAttributes(long entityId, String attribute, String group)
 	{
 		List<AttributeBean> existing = getAttributesFiltering(attribute, entityId, group);
 		List<AttributeExt> ret = new ArrayList<>(existing.size());

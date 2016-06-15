@@ -169,6 +169,9 @@ public class UpdateFrom1_9_x implements Update
 			case CredentialHandler.CREDENTIAL_OBJECT_TYPE:
 				updateCredential(content, ctx);
 				break;
+			case AuthenticatorInstanceHandler.AUTHENTICATOR_OBJECT_TYPE:
+				updateAuthenticator(content, ctx);
+				break;
 			}
 		}
 	}
@@ -344,6 +347,22 @@ public class UpdateFrom1_9_x implements Update
 	}
 
 
+	private void updateAuthenticator(ObjectNode content, UpdateContext ctx) throws IOException
+	{
+		if (content.has("retrievalJsonConfiguration"))
+		{
+			JsonNode removed = content.remove("retrievalJsonConfiguration");
+			if (!removed.isNull())
+				content.put("retrievalConfiguration", removed.asText());
+		}
+		if (content.has("verificatorJsonConfiguration"))
+		{
+			JsonNode removed = content.remove("verificatorJsonConfiguration");
+			if (!removed.isNull())
+				content.put("verificatorConfiguration", removed.asText());
+		}
+	}
+	
 	private void updateIdentitites(ObjectNode contents) throws IOException
 	{
 		ArrayNode ids = (ArrayNode) contents.get("identities");

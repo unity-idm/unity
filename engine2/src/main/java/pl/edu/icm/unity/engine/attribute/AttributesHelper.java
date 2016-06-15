@@ -154,17 +154,17 @@ public class AttributesHelper
 	private Map<String, Map<String, AttributeExt>> getAllEntityAttributesMap(long entityId) 
 			throws IllegalTypeException, IllegalGroupValueException
 	{
-		List<AttributeExt> attributes = attributeDAO.getAttributes(null, entityId, null);
+		List<StoredAttribute> attributes = attributeDAO.getAttributes(null, entityId, null);
 		Map<String, Map<String, AttributeExt>> ret = new HashMap<>();
-		for (AttributeExt attribute: attributes)
+		for (StoredAttribute attribute: attributes)
 		{
-			Map<String, AttributeExt> attrsInGroup = ret.get(attribute.getGroupPath());
+			Map<String, AttributeExt> attrsInGroup = ret.get(attribute.getAttribute().getGroupPath());
 			if (attrsInGroup == null)
 			{
 				attrsInGroup = new HashMap<>();
-				ret.put(attribute.getGroupPath(), attrsInGroup);
+				ret.put(attribute.getAttribute().getGroupPath(), attrsInGroup);
 			}
-			attrsInGroup.put(attribute.getName(), attribute);
+			attrsInGroup.put(attribute.getAttribute().getName(), attribute.getAttribute());
 		}
 		return ret;
 	}
@@ -242,7 +242,7 @@ public class AttributesHelper
 		AttributeClassHelper acHelper = AttributeClassUtil.getACHelper(group, classes, 
 				acDB, groupDAO);
 		
-		List<AttributeExt> attributes = attributeDAO.getAttributes(null, entityId, group);
+		List<AttributeExt> attributes = attributeDAO.getEntityAttributes(entityId, null, group);
 		Collection<String> attributeNames = attributes.stream().
 				map(a -> a.getName()).
 				collect(Collectors.toList());
@@ -315,7 +315,7 @@ public class AttributesHelper
 		
 		AttributeExt aExt = new AttributeExt(attribute, true);
 		StoredAttribute param = new StoredAttribute(aExt, entityId);
-		List<AttributeExt> existing = attributeDAO.getAttributes(attribute.getName(), entityId, 
+		List<AttributeExt> existing = attributeDAO.getEntityAttributes(entityId, attribute.getName(), 
 				attribute.getGroupPath());
 		if (existing.isEmpty())
 		{
@@ -361,8 +361,8 @@ public class AttributesHelper
 			return;
 		}
 		
-		Collection<AttributeExt> attrs = attributeDAO.getAttributes(attribute.getName(),
-				entityId, attribute.getGroupPath());
+		Collection<AttributeExt> attrs = attributeDAO.getEntityAttributes(entityId, attribute.getName(),
+				attribute.getGroupPath());
 		if (attrs.isEmpty())
 		{
 			setUnconfirmed(attribute);
@@ -467,8 +467,8 @@ public class AttributesHelper
 	public void createOrUpdateAttribute(Attribute toCreate, long entityId)
 	{
 		StoredAttribute sAttr = toStoredAttribute(toCreate, entityId);
-		List<AttributeExt> existing = attributeDAO.getAttributes(toCreate.getName(), 
-				entityId, toCreate.getGroupPath());
+		List<AttributeExt> existing = attributeDAO.getEntityAttributes(entityId, toCreate.getName(), 
+				toCreate.getGroupPath());
 		if (existing.isEmpty())
 			attributeDAO.create(sAttr);
 		else

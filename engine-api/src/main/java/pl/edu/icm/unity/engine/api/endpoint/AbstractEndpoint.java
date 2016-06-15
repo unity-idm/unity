@@ -12,7 +12,7 @@ import java.util.Properties;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 /**
  * Typical boilerplate for all endpoints.
@@ -20,12 +20,12 @@ import pl.edu.icm.unity.types.endpoint.EndpointDescription;
  */
 public abstract class AbstractEndpoint implements EndpointInstance
 {
-	protected EndpointDescription description;
+	protected ResolvedEndpoint description;
 	protected List<AuthenticationOption> authenticators;
 	protected Properties properties;
 	
 	@Override
-	public synchronized void initialize(EndpointDescription description, 
+	public synchronized void initialize(ResolvedEndpoint description, 
 			List<AuthenticationOption> authenticators,
 			String serializedConfiguration)
 	{
@@ -51,7 +51,7 @@ public abstract class AbstractEndpoint implements EndpointInstance
 	protected abstract void setSerializedConfiguration(String serializedState);
 	
 	@Override
-	public EndpointDescription getEndpointDescription()
+	public ResolvedEndpoint getEndpointDescription()
 	{
 		return description;
 	}

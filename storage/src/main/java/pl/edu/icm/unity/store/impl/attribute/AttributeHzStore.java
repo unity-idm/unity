@@ -149,9 +149,18 @@ public class AttributeHzStore extends GenericBasicHzCRUD<StoredAttribute> implem
 			hMap.remove(key);
 		}
 	}
+
+	@Override
+	public List<StoredAttribute> getAttributes(String attribute, Long entityId, String group)
+	{
+		PredicateBuilder pBuilder = getAttributePredicate(attribute, entityId, group);
+		TransactionalMap<Long, StoredAttribute> hMap = getMap();
+		Collection<StoredAttribute> values = hMap.values(pBuilder);
+		return new ArrayList<>(values);
+	}
 	
 	@Override
-	public List<AttributeExt> getAttributes(String attribute, long entityId, String group)
+	public List<AttributeExt> getEntityAttributes(long entityId, String attribute, String group)
 	{
 		PredicateBuilder pBuilder = getAttributePredicate(attribute, entityId, group);
 		TransactionalMap<Long, StoredAttribute> hMap = getMap();

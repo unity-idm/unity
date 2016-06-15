@@ -88,7 +88,7 @@ public class AuthenticatorInstanceTest extends AbstractNamedWithTSTest<Authentic
 		AuthenticatorInstance ret = new AuthenticatorInstance();
 		ret.setId(id);
 		ret.setLocalCredentialName("localCred");
-		ret.setRetrievalJsonConfiguration("rc");
+		ret.setRetrievalConfiguration("");
 		AuthenticatorTypeDescription typeDesc = new AuthenticatorTypeDescription();
 		typeDesc.setId(id);
 		typeDesc.setLocal(true);
@@ -98,7 +98,7 @@ public class AuthenticatorInstanceTest extends AbstractNamedWithTSTest<Authentic
 		typeDesc.setVerificationMethod("verificationMethod");
 		typeDesc.setVerificationMethodDescription("vmd");
 		ret.setTypeDescription(typeDesc);
-		ret.setVerificatorJsonConfiguration("vc");
+		ret.setVerificatorConfiguration("");
 		return ret;
 	}
 
@@ -106,7 +106,7 @@ public class AuthenticatorInstanceTest extends AbstractNamedWithTSTest<Authentic
 	protected AuthenticatorInstance mutateObject(AuthenticatorInstance ret)
 	{
 		ret.setLocalCredentialName("localCred2");
-		ret.setRetrievalJsonConfiguration("rc2");
+		ret.setRetrievalConfiguration("rCfg");
 		AuthenticatorTypeDescription typeDesc = new AuthenticatorTypeDescription();
 		typeDesc.setLocal(true);
 		typeDesc.setRetrievalMethod("retrievalMethod2");
@@ -115,7 +115,7 @@ public class AuthenticatorInstanceTest extends AbstractNamedWithTSTest<Authentic
 		typeDesc.setVerificationMethod("verificationMethod2");
 		typeDesc.setVerificationMethodDescription("vmd2");
 		ret.setTypeDescription(typeDesc);
-		ret.setVerificatorJsonConfiguration("vc2");
+		ret.setVerificatorConfiguration("vCfg");
 		return ret;
 	}
 }

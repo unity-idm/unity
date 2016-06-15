@@ -4,9 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
+import pl.edu.icm.unity.engine.api.utils.StringConfigurable;
 import pl.edu.icm.unity.types.DescribedObject;
 
 /**
@@ -17,7 +16,7 @@ import pl.edu.icm.unity.types.DescribedObject;
  * 
  * @author K. Benedyczak
  */
-public interface CredentialVerificator extends CredentialExchange, DescribedObject
+public interface CredentialVerificator extends CredentialExchange, DescribedObject, StringConfigurable
 {
 	void setIdentityResolver(IdentityResolver identityResolver);
 	
@@ -26,15 +25,4 @@ public interface CredentialVerificator extends CredentialExchange, DescribedObje
 	 * @param name
 	 */
 	void setInstanceName(String name);
-	
-	/**
-	 * @return serialized configuration of this verificator
-	 */
-	ObjectNode getSerializedConfiguration();
-	
-	/**
-	 * sets configuration of this verificator
-	 * @param json
-	 */
-	void setSerializedConfiguration(ObjectNode json);
 }

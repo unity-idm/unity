@@ -31,6 +31,12 @@ public class StoredAttribute
 	}
 	
 	@Override
+	public String toString()
+	{
+		return "StoredAttribute [attribute=" + attribute + ", entityId=" + entityId + "]";
+	}
+	
+	@Override
 	public int hashCode()
 	{
 		final int prime = 31;

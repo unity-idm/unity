@@ -38,7 +38,7 @@ public abstract class AbstractWebEndpoint extends AbstractEndpoint implements We
 	public String getServletUrl(String servletPath)
 	{
 		return getBaseUrl().toExternalForm() +
-				getEndpointDescription().getContextAddress() + 
+				getEndpointDescription().getEndpoint().getContextAddress() + 
 				servletPath;
 	}
 	
@@ -51,6 +51,6 @@ public abstract class AbstractWebEndpoint extends AbstractEndpoint implements We
 	@Override
 	public void destroy() throws EngineException
 	{
-		httpServer.undeployEndpoint(this.getEndpointDescription().getId());
+		httpServer.undeployEndpoint(this.getEndpointDescription().getEndpoint().getName());
 	}
 }

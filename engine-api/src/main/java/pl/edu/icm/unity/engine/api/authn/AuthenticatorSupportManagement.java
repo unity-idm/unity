@@ -13,7 +13,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
  * Provides access to authenticators. Low level, rarely useful. Needed e.g. by sandbox UI.
  * @author K. Benedyczak
  */
-public interface AuthenticatorsManagement
+public interface AuthenticatorSupportManagement
 {
 	/**
 	 * Resolves binding specific authenticator authN implementations for a given 

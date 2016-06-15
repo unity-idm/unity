@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.JsonSerializable;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 /**
  * Generic endpoint instance. Implementations must persist/load only the custom settings using the {@link JsonSerializable}
@@ -36,11 +36,11 @@ public interface EndpointInstance
 	 * @param serializedConfiguration endpoint specific configuration 
 	 * (as returned by {@link #getSerializedConfiguration()}.
 	 */
-	void initialize(EndpointDescription endpointDescription, 
+	void initialize(ResolvedEndpoint endpointDescription, 
 			List<AuthenticationOption> authenticatonOptions,
 			String serializedConfiguration);
 
-	EndpointDescription getEndpointDescription();
+	ResolvedEndpoint getEndpointDescription();
 	
 	/**
 	 * @return the current list of previously configured authenticators (with initialize).

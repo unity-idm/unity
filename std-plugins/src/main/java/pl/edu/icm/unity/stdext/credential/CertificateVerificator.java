@@ -8,17 +8,14 @@ import java.security.cert.X509Certificate;
 
 import org.apache.log4j.Logger;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import eu.emi.security.authn.x509.impl.X500NameUtils;
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalVerificator;
 import pl.edu.icm.unity.engine.api.authn.local.LocalSandboxAuthnContext;
-import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -46,13 +43,13 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 	}
 
 	@Override
-	public ObjectNode getSerializedConfiguration()
+	public String getSerializedConfiguration()
 	{
-		return Constants.MAPPER.createObjectNode();
+		return "";
 	}
 
 	@Override
-	public void setSerializedConfiguration(ObjectNode json)
+	public void setSerializedConfiguration(String json)
 	{
 	}
 

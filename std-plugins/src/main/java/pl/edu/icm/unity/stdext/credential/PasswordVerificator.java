@@ -33,6 +33,7 @@ import edu.vt.middleware.password.Rule;
 import edu.vt.middleware.password.RuleResult;
 import edu.vt.middleware.password.UppercaseCharacterRule;
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
@@ -91,15 +92,15 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	}
 
 	@Override
-	public ObjectNode getSerializedConfiguration() throws InternalException
+	public String getSerializedConfiguration() throws InternalException
 	{
-		return credential.getSerializedConfiguration();
+		return JsonUtil.serialize(credential.getSerializedConfiguration());
 	}
 
 	@Override
-	public void setSerializedConfiguration(ObjectNode json) throws InternalException
+	public void setSerializedConfiguration(String json) throws InternalException
 	{
-		credential.setSerializedConfiguration(json);
+		credential.setSerializedConfiguration(JsonUtil.parse(json));
 	}
 
 	/**
@@ -249,7 +250,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	{
 		return new CredentialResetImpl(notificationProducer, identityResolver, 
 				this, credentialHelper,
-				credentialName, getSerializedConfiguration(), 
+				credentialName, credential.getSerializedConfiguration(), 
 				credential.getPasswordResetSettings());
 	}
 
