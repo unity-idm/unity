@@ -118,6 +118,33 @@ public class IdentityHelper
 	}
 	
 	/**
+	 * It is assumed that the attribute is mapped to string.
+	 * Returned are all entities which have value of the attribute among values of the given attribute
+	 * in any group.
+	 * 
+	 * @param attributeTypeName
+	 * @param value
+	 * @return
+	 * @throws IllegalTypeException
+	 * @throws IllegalGroupValueException
+	 */
+	public Set<Long> getEntitiesWithStringAttribute(String attributeTypeName, String value) 
+			throws IllegalTypeException, IllegalGroupValueException
+	{
+		List<StoredAttribute> attributes = attributeDAO.getAttributes(attributeTypeName, null, null);
+		Set<Long> ret = new HashSet<Long>();
+		for (StoredAttribute sa: attributes)
+		{
+			AttributeExt attribute = sa.getAttribute();
+			if (attribute.getValues().isEmpty())
+				continue;
+			if (attribute.getValues().contains(value))
+				ret.add(sa.getEntityId());
+		}
+		return ret;
+	}
+
+	/**
 	 * Adds an entity with all the complicated logic around it. Does not perform authorization and DB 
 	 * transaction set up: pure business logic.
 	 * Entity is created, initial identity is added to it. Membership in the root group is created,

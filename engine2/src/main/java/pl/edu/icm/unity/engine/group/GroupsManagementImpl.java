@@ -71,6 +71,7 @@ public class GroupsManagementImpl implements GroupsManagement
 	private EntityResolver idResolver;
 	private ConfirmationManager confirmationManager;
 	private TransactionalRunner tx;
+	private AttributeClassUtil acUtil;
 
 	
 	@Autowired
@@ -79,7 +80,7 @@ public class GroupsManagementImpl implements GroupsManagement
 			AttributeTypeDAO attributeTypeDAO, AttributeClassDB acDB,
 			AuthorizationManager authz, AttributesHelper attributesHelper,
 			EntityResolver idResolver, ConfirmationManager confirmationManager,
-			TransactionalRunner tx)
+			AttributeClassUtil acUtil, TransactionalRunner tx)
 	{
 		this.dbGroups = dbGroups;
 		this.membershipDAO = membershipDAO;
@@ -91,6 +92,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		this.attributesHelper = attributesHelper;
 		this.idResolver = idResolver;
 		this.confirmationManager = confirmationManager;
+		this.acUtil = acUtil;
 		this.tx = tx;
 	}
 
@@ -259,8 +261,8 @@ public class GroupsManagementImpl implements GroupsManagement
 		for (GroupMembership membership: gc)
 		{
 			long entity = membership.getEntityId();
-			AttributeClassHelper helper = AttributeClassUtil.getACHelper(entity, path, 
-					dbAttributes, acDB, group.getAttributesClasses());
+			AttributeClassHelper helper = acUtil.getACHelper(entity, path, 
+					group.getAttributesClasses());
 			Collection<String> attributes = getEntityInGroupAttributeNames(entity, path);
 			helper.checkAttribtues(attributes, allTypes);
 		}

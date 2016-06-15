@@ -35,7 +35,6 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.EntityDAO;
-import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.api.generic.AttributeClassDB;
@@ -62,7 +61,7 @@ public class AttributesHelper
 {
 	private AttributeMetadataProvidersRegistry atMetaProvidersRegistry;
 	private AttributeClassDB acDB;
-	private GroupDAO groupDAO;
+	private AttributeClassUtil acUtil;
 	private IdentityDAO identityDAO;
 	private EntityDAO entityDAO;
 	private EntityResolver idResolver;
@@ -76,15 +75,14 @@ public class AttributesHelper
 	
 	@Autowired
 	public AttributesHelper(AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
-			AttributeClassDB acDB, GroupDAO groupDAO, IdentityDAO identityDAO,
+			AttributeClassDB acDB, IdentityDAO identityDAO,
 			EntityDAO entityDAO, EntityResolver idResolver,
 			AttributeTypeDAO attributeTypeDAO, AttributeDAO attributeDAO,
 			MembershipDAO membershipDAO, AttributeStatementProcessor statementsHelper,
-			AttributeTypeHelper atHelper)
+			AttributeTypeHelper atHelper, AttributeClassUtil acUtil)
 	{
 		this.atMetaProvidersRegistry = atMetaProvidersRegistry;
 		this.acDB = acDB;
-		this.groupDAO = groupDAO;
 		this.identityDAO = identityDAO;
 		this.entityDAO = entityDAO;
 		this.idResolver = idResolver;
@@ -93,6 +91,7 @@ public class AttributesHelper
 		this.membershipDAO = membershipDAO;
 		this.statementsHelper = statementsHelper;
 		this.atHelper = atHelper;
+		this.acUtil = acUtil;
 	}
 
 	/**
@@ -239,8 +238,7 @@ public class AttributesHelper
 	public void setAttributeClasses(long entityId, String group, Collection<String> classes) 
 			throws EngineException
 	{
-		AttributeClassHelper acHelper = AttributeClassUtil.getACHelper(group, classes, 
-				acDB, groupDAO);
+		AttributeClassHelper acHelper = acUtil.getACHelper(group, classes);
 		
 		List<AttributeExt> attributes = attributeDAO.getEntityAttributes(entityId, null, group);
 		Collection<String> attributeNames = attributes.stream().
@@ -430,8 +428,7 @@ public class AttributesHelper
 	public void checkGroupAttributeClassesConsistency(List<Attribute> attributes, String path) 
 			throws EngineException
 	{
-		AttributeClassHelper helper = AttributeClassUtil.getACHelper(path, 
-				new ArrayList<String>(0), acDB, groupDAO);
+		AttributeClassHelper helper = acUtil.getACHelper(path, new ArrayList<>(0));
 		Set<String> attributeNames = new HashSet<>(attributes.size());
 		for (Attribute a: attributes)
 			attributeNames.add(a.getName());

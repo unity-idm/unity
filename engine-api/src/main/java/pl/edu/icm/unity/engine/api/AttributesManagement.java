@@ -5,13 +5,10 @@
 package pl.edu.icm.unity.engine.api;
 
 import java.util.Collection;
-import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
@@ -20,100 +17,6 @@ import pl.edu.icm.unity.types.basic.EntityParam;
  */
 public interface AttributesManagement
 {
-	/**
-	 * @return identifiers of all attribute value types which are supported by server. 
-	 * The list is constant for the lifetime of the server as is constructed from the available implementations.
-	 * @throws EngineException
-	 */
-	String[] getSupportedAttributeValueTypes() throws EngineException;
-	
-	/**
-	 * Adds a new attribute type.
-	 * @param at
-	 * @throws EngineException
-	 */
-	void addAttributeType(AttributeType at) throws EngineException;
-
-	/**
-	 * Updates an existing attribute type. Fails if the change break constraints of attributes
-	 * already having this attribute set.
-	 * @param at
-	 * @throws EngineException
-	 */
-	void updateAttributeType(AttributeType at) throws EngineException;
-
-	/**
-	 * Removes attribute type by id.
-	 * @param id
-	 * @param deleteInstances if false then operation will succeed only if no attributes of this type are
-	 * defined. If true then also all instances of this type are removed. 
-	 * @throws EngineException
-	 */
-	void removeAttributeType(String id, boolean deleteInstances) throws EngineException;
-
-	/**
-	 * @return all attribute types
-	 * @throws EngineException
-	 */
-	Collection<AttributeType> getAttributeTypes() throws EngineException;
-
-	/**
-	 * @return all attribute types map with names as keys
-	 * @throws EngineException
-	 */
-	Map<String, AttributeType> getAttributeTypesAsMap() throws EngineException;
-
-	
-	/**
-	 * Defines a new attribute class
-	 * @param clazz
-	 * @throws EngineException
-	 */
-	void addAttributeClass(AttributesClass clazz) throws EngineException;
-	
-	/**
-	 * Removes attribute class
-	 * @param id
-	 * @throws EngineException
-	 */
-	void removeAttributeClass(String id) throws EngineException;
-
-	/**
-	 * Updates an attribute class. The update operation will be successful only if all entities with this class
-	 * fulfill the updated class rules.
-	 * @param updated the updated class. Existing class to be updated is matched by name.
-	 * @throws EngineException
-	 */
-	void updateAttributeClass(AttributesClass updated) throws EngineException;
-
-	/**
-	 * @return all currently defined {@link AttributesClass}es, keys are ac names.
-	 * @throws EngineException
-	 */
-	Map<String, AttributesClass> getAttributeClasses() throws EngineException;
-	
-	/**
-	 * Updates the set of entity's attribute classes in a given group. 
-	 * The entity must have all the requires attributes set and must not have any disallowed attributes,
-	 * otherwise the operation will fail.
-	 * @param entity
-	 * @param classes
-	 * @throws EngineException
-	 */
-	void setEntityAttributeClasses(EntityParam entity, String group, Collection<String> classes) 
-			throws EngineException;
-	
-	/**
-	 * Attribute classes of a given entity in a group
-	 * @param entity
-	 * @param group
-	 * @return
-	 * @throws EngineException
-	 */
-	Collection<AttributesClass> getEntityAttributeClasses(EntityParam entity, String group) 
-			throws EngineException;
-	
-
 	/**
 	 * Creates or updates an attribute.
 	 * @param entity

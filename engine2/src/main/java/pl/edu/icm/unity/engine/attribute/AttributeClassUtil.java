@@ -9,6 +9,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
@@ -24,11 +27,25 @@ import pl.edu.icm.unity.types.basic.Group;
  * 
  * @author K. Benedyczak
  */
-public abstract class AttributeClassUtil
+@Component
+public class AttributeClassUtil
 {
 	private static final AttributeClassHelper EMPTY_AC_HELPER = new AttributeClassHelper();
 	public static final String ATTRIBUTE_CLASSES_ATTRIBUTE = "sys:AttributeClasses"; 
 	
+	private AttributeDAO dbAttributes; 
+	private AttributeClassDB acDB;
+	private GroupDAO dbGroups;
+	
+	@Autowired
+	public AttributeClassUtil(AttributeDAO dbAttributes, AttributeClassDB acDB,
+			GroupDAO dbGroups)
+	{
+		this.dbAttributes = dbAttributes;
+		this.acDB = acDB;
+		this.dbGroups = dbGroups;
+	}
+
 	public static void validateAttributeClasses(Collection<String> toCheck, AttributeClassDB acDB) 
 			throws EngineException
 	{
@@ -40,26 +57,15 @@ public abstract class AttributeClassUtil
 				throw new IllegalTypeException("Attributes class " + check + " is not available");
 	}
 	
-	public static Map<String, AttributesClass> resolveAttributeClasses(AttributeClassDB acDB) 
-			throws EngineException
-	{
-		return acDB.getAllAsMap();
-	}
-	
 	/**
 	 * Creates and returns {@link AttributeClassHelper} initialized with the current state of attribute classes
 	 * for the given entity in a given group. Useful for testing whether changed attributes will match ACs.
 	 * @param entityId
 	 * @param groupPath
-	 * @param dbAttributes
-	 * @param dbGeneric
-	 * @param dbGroups
-	 * @param sql
 	 * @return
 	 * @throws EngineException
 	 */
-	public static AttributeClassHelper getACHelper(long entityId, String groupPath, AttributeDAO dbAttributes, 
-			AttributeClassDB acDB, GroupDAO dbGroups) throws EngineException
+	public AttributeClassHelper getACHelper(long entityId, String groupPath) throws EngineException
 	{
 		Collection<AttributeExt> acAttrs = dbAttributes.getEntityAttributes(entityId, 
 				ATTRIBUTE_CLASSES_ATTRIBUTE, groupPath);
@@ -67,7 +73,7 @@ public abstract class AttributeClassUtil
 		AttributeExt ac = null;
 		if (acAttrs.size() != 0)
 			ac = acAttrs.iterator().next();
-		return getACHelperGeneric(group.getAttributesClasses(), ac == null ? null : ac.getValues(), acDB);
+		return getACHelperGeneric(group.getAttributesClasses(), ac == null ? null : ac.getValues());
 	}
 
 	/**
@@ -76,14 +82,11 @@ public abstract class AttributeClassUtil
 	 * Useful for testing updated group's ACs.
 	 * @param entityId
 	 * @param groupPath
-	 * @param dbAttributes
-	 * @param dbGeneric
-	 * @param dbGroups
 	 * @return
 	 * @throws EngineException
 	 */
-	public static AttributeClassHelper getACHelper(long entityId, String groupPath, AttributeDAO dbAttributes, 
-			AttributeClassDB acDB, Set<String> acs) throws EngineException
+	public AttributeClassHelper getACHelper(long entityId, String groupPath, Set<String> acs) 
+			throws EngineException
 	{
 		Collection<AttributeExt> acAttrs = dbAttributes.getEntityAttributes(entityId, 
 				ATTRIBUTE_CLASSES_ATTRIBUTE, groupPath);
@@ -91,7 +94,7 @@ public abstract class AttributeClassUtil
 		if (acAttrs.size() != 0)
 			ac = (AttributeExt) acAttrs.iterator().next();
 		
-		return getACHelperGeneric(acs, ac == null ? null : ac.getValues(), acDB);
+		return getACHelperGeneric(acs, ac == null ? null : ac.getValues());
 	}
 
 	/**
@@ -101,20 +104,17 @@ public abstract class AttributeClassUtil
 	 * @param entityId
 	 * @param groupPath
 	 * @param acs
-	 * @param dbGeneric
-	 * @param dbGroups
 	 * @return
 	 * @throws EngineException
 	 */
-	public static AttributeClassHelper getACHelper(String groupPath, Collection<String> acs,  
-			AttributeClassDB acDB, GroupDAO dbGroups) throws EngineException
+	public AttributeClassHelper getACHelper(String groupPath, Collection<String> acs) throws EngineException
 	{
 		Group group = dbGroups.get(groupPath);
-		return getACHelperGeneric(group.getAttributesClasses(), acs, acDB);
+		return getACHelperGeneric(group.getAttributesClasses(), acs);
 	}
 	
-	private static AttributeClassHelper getACHelperGeneric(Collection<String> groupAcs, Collection<String> entityAcs,   
-			AttributeClassDB acDB) throws EngineException
+	private AttributeClassHelper getACHelperGeneric(Collection<String> groupAcs, 
+			Collection<String> entityAcs) throws EngineException
 	{
 		Set<String> allAcs = new HashSet<>();
 		if (entityAcs != null)
@@ -123,7 +123,7 @@ public abstract class AttributeClassUtil
 			allAcs.addAll(groupAcs);
 		if (allAcs.size() != 0)
 		{
-			Map<String, AttributesClass> allClasses = resolveAttributeClasses(acDB);
+			Map<String, AttributesClass> allClasses = acDB.getAllAsMap();
 			return new AttributeClassHelper(allClasses, allAcs);
 		}
 		return EMPTY_AC_HELPER;

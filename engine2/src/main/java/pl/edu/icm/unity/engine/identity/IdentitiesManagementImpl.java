@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
@@ -41,14 +42,12 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.MergeConflictException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
-import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
-import pl.edu.icm.unity.store.api.generic.AttributeClassDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
@@ -83,7 +82,6 @@ public class IdentitiesManagementImpl implements EntityManagement
 	private IdentityDAO idDAO;
 	private EntityDAO entityDAO;
 	private GroupDAO groupDAO;
-	private AttributeDAO attributeDAO;
 	private AttributeTypeDAO attributeTypeDAO;
 	private MembershipDAO membershipDAO;
 	private EntityCredentialsHelper credentialsHelper;
@@ -94,10 +92,41 @@ public class IdentitiesManagementImpl implements EntityManagement
 	private EntityResolver idResolver;
 	private AuthorizationManager authz;
 	private IdentityTypesRegistry idTypesRegistry;
-	private AttributeClassDB acDB;
 	private ConfirmationManager confirmationManager;
+	private AttributeClassUtil acUtil;
 	private TransactionalRunner tx;
 	
+	@Autowired
+	public IdentitiesManagementImpl(IdentityTypeDAO idTypeDAO, IdentityTypeHelper idTypeHelper,
+			IdentityDAO idDAO, EntityDAO entityDAO, GroupDAO groupDAO,
+			AttributeTypeDAO attributeTypeDAO, MembershipDAO membershipDAO,
+			EntityCredentialsHelper credentialsHelper, GroupHelper groupHelper,
+			SheduledOperationHelper scheduledOperationHelper,
+			AttributesHelper attributesHelper, IdentityHelper identityHelper,
+			EntityResolver idResolver, AuthorizationManager authz,
+			IdentityTypesRegistry idTypesRegistry,
+			ConfirmationManager confirmationManager, AttributeClassUtil acUtil,
+			TransactionalRunner tx)
+	{
+		this.idTypeDAO = idTypeDAO;
+		this.idTypeHelper = idTypeHelper;
+		this.idDAO = idDAO;
+		this.entityDAO = entityDAO;
+		this.groupDAO = groupDAO;
+		this.attributeTypeDAO = attributeTypeDAO;
+		this.membershipDAO = membershipDAO;
+		this.credentialsHelper = credentialsHelper;
+		this.groupHelper = groupHelper;
+		this.scheduledOperationHelper = scheduledOperationHelper;
+		this.attributesHelper = attributesHelper;
+		this.identityHelper = identityHelper;
+		this.idResolver = idResolver;
+		this.authz = authz;
+		this.idTypesRegistry = idTypesRegistry;
+		this.confirmationManager = confirmationManager;
+		this.acUtil = acUtil;
+		this.tx = tx;
+	}
 
 	@Override
 	public Identity addEntity(IdentityParam toAdd, String credReqId, EntityState initialState,
@@ -666,9 +695,8 @@ public class IdentitiesManagementImpl implements EntityManagement
 				continue;
 			}
 			
-			AttributeClassHelper acHelper = AttributeClassUtil.getACHelper(targetId, 
-					attribute.getGroupPath(), 
-					attributeDAO, acDB, groupDAO);
+			AttributeClassHelper acHelper = acUtil.getACHelper(targetId, 
+					attribute.getGroupPath());
 			if (!acHelper.isAllowed(attribute.getName()))
 			{
 				if (safeMode)
