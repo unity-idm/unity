@@ -495,7 +495,7 @@ public class AttributesHelper
 		return new StoredAttribute(aExt, entityId);
 	}
 	
-	private void validate(Attribute attribute, AttributeType at) 
+	public void validate(Attribute attribute, AttributeType at) 
 			throws IllegalAttributeValueException, IllegalAttributeTypeException
 	{
 		List<String> values = attribute.getValues();

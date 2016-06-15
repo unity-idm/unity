@@ -30,23 +30,6 @@ public interface GroupsManagement
 	void addGroup(Group toAdd) throws EngineException;
 
 	/**
-	 * Links the sourcePath group in targetPath group, so the sourcePath group contents becomes 
-	 * contents of the targetPath. 
-	 * @param targetPath
-	 * @param sourcePath
-	 * @throws EngineException
-	 */
-	void linkGroup(String targetPath, String sourcePath) throws EngineException;
-
-	/**
-	 * Unlinks the sourcePath group from the targetPath group.
-	 * @param targetPath
-	 * @param sourcePath
-	 * @throws EngineException
-	 */
-	void unlinkGroup(String targetPath, String sourcePath) throws EngineException;
-	
-	/**
 	 * Removes a given group. Doesn't work for '/' path.
 	 * @param path
 	 * @param recursive
@@ -54,14 +37,6 @@ public interface GroupsManagement
 	 */
 	void removeGroup(String path, boolean recursive) throws EngineException;
 	
-	/**
-	 * Creates a group normally. Then adds the creator to it and assigns him/her the manager role.
-	 * Requires smaller permissions then addGroup.
-	 * @param toAdd
-	 * @throws EngineException
-	 */
-	void addSelfManagedGroup(Group toAdd) throws EngineException;
-
 	/**
 	 * Adds a new member to the group. The entity must be a member of a parent group. This method should be used
 	 * when adding to a group in effect of remote account mapping. 
