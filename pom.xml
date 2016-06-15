@@ -31,7 +31,7 @@
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
 		<sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
 		<sonar.language>java</sonar.language>
-		<sonar.exclusions>**/*generated*</sonar.exclusions>
+		<sonar.sources>src/main/java</sonar.sources>
 	</properties>
 
 	<scm>
