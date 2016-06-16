@@ -75,7 +75,7 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
  */
 @Component
 @InvocationEventProducer
-public class IdentitiesManagementImpl implements EntityManagement
+public class EntityManagementImpl implements EntityManagement
 {
 	private IdentityTypeDAO idTypeDAO;
 	private IdentityTypeHelper idTypeHelper;
@@ -97,7 +97,7 @@ public class IdentitiesManagementImpl implements EntityManagement
 	private TransactionalRunner tx;
 	
 	@Autowired
-	public IdentitiesManagementImpl(IdentityTypeDAO idTypeDAO, IdentityTypeHelper idTypeHelper,
+	public EntityManagementImpl(IdentityTypeDAO idTypeDAO, IdentityTypeHelper idTypeHelper,
 			IdentityDAO idDAO, EntityDAO entityDAO, GroupDAO groupDAO,
 			AttributeTypeDAO attributeTypeDAO, MembershipDAO membershipDAO,
 			EntityCredentialsHelper credentialsHelper, GroupHelper groupHelper,

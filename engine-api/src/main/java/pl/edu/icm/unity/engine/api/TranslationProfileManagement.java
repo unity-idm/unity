@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.api;
 import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
@@ -21,10 +22,14 @@ public interface TranslationProfileManagement
 {
 	void addProfile(TranslationProfile toAdd) throws EngineException;
 	
-	void removeProfile(String name) throws EngineException;
+	void removeProfile(ProfileType type, String name) throws EngineException;
 	
 	void updateProfile(TranslationProfile updated) throws EngineException;
-	
+
+	TranslationProfile getInputProfile(String name) throws EngineException;
+
+	TranslationProfile getOutputProfile(String name) throws EngineException;
+
 	Map<String, TranslationProfile> listInputProfiles() throws EngineException;
 
 	Map<String, TranslationProfile> listOutputProfiles() throws EngineException;

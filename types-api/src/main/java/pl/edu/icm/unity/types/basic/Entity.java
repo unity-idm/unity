@@ -51,6 +51,12 @@ public class Entity
 		return entityInformation.getState();
 	}
 
+	@JsonIgnore
+	public Long getId()
+	{
+		return entityInformation.getId();
+	}
+
 	public EntityInformation getEntityInformation()
 	{
 		return entityInformation;

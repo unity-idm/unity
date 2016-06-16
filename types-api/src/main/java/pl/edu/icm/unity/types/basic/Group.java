@@ -8,7 +8,10 @@
 
 package pl.edu.icm.unity.types.basic;
 
+import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -117,6 +120,27 @@ public class Group extends I18nDescribedObject implements NamedObject
 		if (!group.startsWith(potentialParent))
 			return false;
 		return true;
+	}
+	
+	/**
+	 * Computes deque of full group names which are not in the collection of existingGroups
+	 * and are on the path to the finalGroup (inclusive). 
+	 * @param finalGroup
+	 * @param existingGroups
+	 * @return
+	 */
+	public static Deque<String> getMissingGroups(String finalGroup, Collection<String> existingGroups)
+	{
+		Group group = new Group(finalGroup);
+		String[] path = group.getPath();
+		final Deque<String> notMember = new ArrayDeque<>(path.length);
+		for (int i=path.length-1; i>=0 && !existingGroups.contains(group.toString()); i--)
+		{
+			notMember.addLast(group.toString());
+			if (!group.isTopLevel())
+				group = new Group(group.getParentPath());
+		}
+		return notMember;
 	}
 	
 	/**

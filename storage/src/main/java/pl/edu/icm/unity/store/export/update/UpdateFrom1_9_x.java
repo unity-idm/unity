@@ -2,7 +2,7 @@
  * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.store.export;
+package pl.edu.icm.unity.store.export.update;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -31,6 +31,7 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Escaper;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.store.export.Update;
 import pl.edu.icm.unity.store.objstore.ac.AttributeClassHandler;
 import pl.edu.icm.unity.store.objstore.authn.AuthenticatorInstanceHandler;
 import pl.edu.icm.unity.store.objstore.bulk.ProcessingRuleHandler;
@@ -172,6 +173,29 @@ public class UpdateFrom1_9_x implements Update
 			case AuthenticatorInstanceHandler.AUTHENTICATOR_OBJECT_TYPE:
 				updateAuthenticator(content, ctx);
 				break;
+			case EnquiryFormHandler.ENQUIRY_FORM_OBJECT_TYPE:
+			case RegistrationFormHandler.REGISTRATION_FORM_OBJECT_TYPE:
+				updateRegistrationOrEnquiryForm(content, ctx);
+			}
+		}
+	}
+
+	//remove 'visibility' action param
+	private void updateRegistrationOrEnquiryForm(ObjectNode content, UpdateContext ctx)
+	{
+		if (content.has("TranslationProfile"))
+		{
+			JsonNode tp = content.get("TranslationProfile");
+			ArrayNode rules = (ArrayNode) tp.get("rules");
+			for (JsonNode rule: rules)
+			{
+				JsonNode action = rule.get("action");
+				String name = action.get("name").asText();
+				if (name.equals("addAttribute"))
+				{
+					ArrayNode params = (ArrayNode) action.get("parameters");
+					params.remove(3);
+				}
 			}
 		}
 	}
@@ -199,10 +223,34 @@ public class UpdateFrom1_9_x implements Update
 					(content.get("type") != null && content.get("type").equals("OUTPUT")))
 				outputArray.add(newGeneric);
 			else
-				inputArray.add(newGeneric);
+				inputArray.add(updateInputProfileContent(newGeneric));
 		}
 	}
 
+	private ObjectNode updateInputProfileContent(ObjectNode content)
+	{
+		if (!content.has("rules"))
+			return content;
+		ArrayNode rules = (ArrayNode) content.get("rules");
+		for (JsonNode rule: rules)
+		{
+			JsonNode action = rule.get("action");
+			String actionName = action.get("name").asText();
+			ArrayNode params = (ArrayNode) action.get("parameters");
+			switch (actionName)
+			{
+			case "mapAttribute":
+				params.remove(3);
+				break;
+			case "multiMapAttribute":
+				params.remove(1);
+				break;
+			}
+		}
+		return content;
+	}
+	
+	
 	private void updateInvitation(ObjectNode target, UpdateContext ctx)
 	{
 		long expiry = target.get("expiration").asLong();
