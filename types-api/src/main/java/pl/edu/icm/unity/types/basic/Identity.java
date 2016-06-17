@@ -21,8 +21,8 @@ import pl.edu.icm.unity.types.NamedObject;
 public class Identity extends IdentityParam implements NamedObject
 {
 	private long entityId;
-	private Date creationTs;
-	private Date updateTs;
+	private Date creationTs = new Date();
+	private Date updateTs = new Date();
 	private String comparableValue;
 	
 	public Identity(String type, String value, Long entityId, String comparableValue)

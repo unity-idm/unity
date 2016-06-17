@@ -10,6 +10,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertThat;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ public class EntityResolverImplTest
 	protected TransactionalRunner tx;
 	
 	@Autowired
-	private EntityResolver dao;
+	private EntityResolver entityResolver;
 	
 	@Autowired
 	private EntityDAO entDAO;
@@ -48,11 +49,19 @@ public class EntityResolverImplTest
 	@Autowired
 	private IdentityTypeDAO itDAO;
 
+	@Before
+	public void clean()
+	{
+		tx.runInTransaction(() -> {
+			itDAO.deleteAll();
+		});
+	}
+	
 	@Test
 	public void shouldFailOnResolvingMissingEPWithId() throws Exception
 	{
 		tx.runInTransactionThrowing(() -> {
-			catchException(dao).getEntityId(new EntityParam(12345l));
+			catchException(entityResolver).getEntityId(new EntityParam(12345l));
 			
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
 		});
@@ -61,7 +70,7 @@ public class EntityResolverImplTest
 	public void shouldFailOnResolvingMissingEPWithTaV() throws Exception
 	{
 		tx.runInTransactionThrowing(() -> {
-			catchException(dao).getEntityId(new EntityParam(new IdentityTaV("username", "missing")));
+			catchException(entityResolver).getEntityId(new EntityParam(new IdentityTaV("userName", "missing")));
 			
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
 		});
@@ -70,7 +79,7 @@ public class EntityResolverImplTest
 	public void shouldFailOnResolvingMissingTaV() throws Exception
 	{
 		tx.runInTransactionThrowing(() -> {
-			catchException(dao).getEntityId(new IdentityTaV("username", "missing"));
+			catchException(entityResolver).getEntityId(new IdentityTaV("userName", "missing"));
 			
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
 		});
@@ -80,7 +89,7 @@ public class EntityResolverImplTest
 	{
 		tx.runInTransactionThrowing(() -> {
 			long entity = entDAO.create(new EntityInformation());
-			long ret = dao.getEntityId(new EntityParam(entity));
+			long ret = entityResolver.getEntityId(new EntityParam(entity));
 			
 			assertThat(ret, is(entity));
 		});
@@ -90,11 +99,11 @@ public class EntityResolverImplTest
 	{
 		tx.runInTransactionThrowing(() -> {
 			long entity = entDAO.create(new EntityInformation());
-			Identity obj = new Identity("username", "name1", entity, "name1");
-			itDAO.create(new IdentityType("username"));
+			Identity obj = new Identity("userName", "name1", entity, "name1");
+			itDAO.create(new IdentityType("userName"));
 			identityDAO.create(obj);
 		
-			long ret = dao.getEntityId(new EntityParam(new IdentityTaV("username", obj.getName())));
+			long ret = entityResolver.getEntityId(new EntityParam(new IdentityTaV("userName", obj.getName())));
 			
 			assertThat(ret, is(entity));
 		});
@@ -104,11 +113,11 @@ public class EntityResolverImplTest
 	{
 		tx.runInTransactionThrowing(() -> {
 			long entity = entDAO.create(new EntityInformation());
-			Identity obj = new Identity("username", "name1", entity, "name1");
-			itDAO.create(new IdentityType("username"));
+			Identity obj = new Identity("userName", "name1", entity, "name1");
+			itDAO.create(new IdentityType("userName"));
 			identityDAO.create(obj);
 
-			long ret = dao.getEntityId(new IdentityTaV("username", obj.getName()));
+			long ret = entityResolver.getEntityId(new IdentityTaV("userName", obj.getName()));
 			
 			assertThat(ret, is(entity));
 		});
