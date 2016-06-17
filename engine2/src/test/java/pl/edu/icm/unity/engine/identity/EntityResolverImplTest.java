@@ -10,9 +10,12 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.store.api.EntityDAO;
@@ -25,6 +28,9 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
+@ActiveProfiles("test")
 public class EntityResolverImplTest
 {
 	@Autowired
@@ -42,13 +48,6 @@ public class EntityResolverImplTest
 	@Autowired
 	private IdentityTypeDAO itDAO;
 
-	@Before
-	public void createReferenced()
-	{
-		tx.runInTransaction(() -> {
-		});
-	}
-	
 	@Test
 	public void shouldFailOnResolvingMissingEPWithId() throws Exception
 	{

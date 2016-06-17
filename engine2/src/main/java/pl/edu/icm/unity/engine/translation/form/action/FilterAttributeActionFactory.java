@@ -25,7 +25,7 @@ import pl.edu.icm.unity.types.translation.TranslationActionType;
  * 
  * @author K. Benedyczak
  */
-@Component
+@Component(FilterAttributeActionFactory.NAME)
 public class FilterAttributeActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	public static final String NAME = "regFilterAttribute";
