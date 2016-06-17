@@ -47,6 +47,7 @@ import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
+import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
@@ -98,7 +99,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			NotificationProducer notificationProducer,
 			ConfirmationFacilitiesRegistry confirmationFacilitiesRegistry,
 			MessageTemplateDB mtDB, ConfirmationConfigurationDB configurationDB,
-			URL advertisedAddress, UnityMessageSource msg, EntityResolver idResolver,
+			NetworkServer server, UnityMessageSource msg, EntityResolver idResolver,
 			Ehcache confirmationReqCache, int requestLimit, String defaultRedirectURL,
 			TransactionalRunner tx, CacheProvider cacheProvider, UnityServerConfiguration mainConf)
 	{
@@ -109,7 +110,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		this.confirmationFacilitiesRegistry = confirmationFacilitiesRegistry;
 		this.mtDB = mtDB;
 		this.configurationDB = configurationDB;
-		this.advertisedAddress = advertisedAddress;
+		this.advertisedAddress = server.getAdvertisedAddress();
 		this.msg = msg;
 		this.idResolver = idResolver;
 		this.confirmationReqCache = confirmationReqCache;
