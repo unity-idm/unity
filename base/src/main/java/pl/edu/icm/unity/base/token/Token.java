@@ -75,6 +75,11 @@ public class Token
 	{
 		return expires;
 	}
+	@JsonIgnore
+	public boolean isExpired()
+	{
+		return expires.after(new Date());
+	}
 	public void setExpires(Date expires)
 	{
 		this.expires = expires;
