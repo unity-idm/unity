@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.engine.identity;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 
@@ -208,7 +207,7 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 	{
 		String newCred = prepareEntityCredentialInternal(entityId, credentialId, rawCredential, 
 				currentRawCredential);
-		setPreviouslyPreparedEntityCredentialInternal(entityId, newCred, credentialId);
+		credHelper.setPreviouslyPreparedEntityCredentialInternal(entityId, newCred, credentialId);
 	}
 	
 	/**
@@ -240,22 +239,5 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 				
 		return currentRawCredential == null ? handler.prepareCredential(rawCredential, currentCredential) :
 				handler.prepareCredential(rawCredential, currentRawCredential, currentCredential);
-	}
-
-	/**
-	 * Sets a credential which was previously prepared (i.e. hashed etc). Absolutely no checking is performed.
-	 * @param entityId
-	 * @param newCred
-	 * @param credentialId
-	 * @param sqlMap
-	 * @throws EngineException
-	 */
-	private void setPreviouslyPreparedEntityCredentialInternal(long entityId, String newCred, 
-			String credentialId) throws EngineException
-	{
-		String credentialAttributeName = CredentialAttributeTypeProvider.CREDENTIAL_PREFIX+credentialId;
-		StringAttribute newCredentialA = new StringAttribute(credentialAttributeName, 
-				"/", Collections.singletonList(newCred));
-		attributesHelper.createOrUpdateAttribute(newCredentialA, entityId);
 	}
 }

@@ -210,9 +210,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		long entity = InvocationContext.getCurrent().getLoginSession().getEntityId();
 		Set<String> allGroups = tx.runInTransactionRetThrowing(() -> {
 			authz.checkAuthorization(true, AuthzCapability.read);
-			return membershipDAO.getEntityMembership(entity).stream().
-				map(m -> m.getGroup()).
-				collect(Collectors.toSet());
+			return membershipDAO.getEntityMembershipSimple(entity);
 		});
 		if (!allGroups.contains(path))
 			throw new AuthorizationException("Access is denied. The operation "

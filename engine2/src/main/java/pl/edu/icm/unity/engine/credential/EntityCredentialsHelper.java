@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.credential;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,4 +95,21 @@ public class EntityCredentialsHelper
 				"/", credReqId);
 		attributesHelper.createOrUpdateAttribute(credReq, entityId);
 	}
-}
+
+	
+	/**
+	 * Sets a credential which was previously prepared (i.e. hashed etc). Absolutely no checking is performed.
+	 * @param entityId
+	 * @param newCred
+	 * @param credentialId
+	 * @param sqlMap
+	 * @throws EngineException
+	 */
+	public void setPreviouslyPreparedEntityCredentialInternal(long entityId, String newCred, 
+			String credentialId) throws EngineException
+	{
+		String credentialAttributeName = CredentialAttributeTypeProvider.CREDENTIAL_PREFIX+credentialId;
+		StringAttribute newCredentialA = new StringAttribute(credentialAttributeName, 
+				"/", Collections.singletonList(newCred));
+		attributesHelper.createOrUpdateAttribute(newCredentialA, entityId);
+	}}

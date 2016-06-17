@@ -91,6 +91,7 @@ public class RegistrationRequestTest extends AbstractNamedWithTSTest<Registratio
 		state.setRequestId(id);
 		state.setStatus(RegistrationRequestStatus.pending);
 		state.setTimestamp(new Date(123));
+		state.setCreatedEntityId(123l);
 		return state;
 	}
 
@@ -123,6 +124,7 @@ public class RegistrationRequestTest extends AbstractNamedWithTSTest<Registratio
 		state.setRequestId("requestId2");
 		state.setStatus(RegistrationRequestStatus.accepted);
 		state.setTimestamp(new Date(12300));
+		state.setCreatedEntityId(678l);
 		return state;
 	}
 }

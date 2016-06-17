@@ -79,7 +79,7 @@ public class AttributesManagementImpl implements AttributesManagement
 			fullAuthz = checkSetAttributeAuthz(entityId, at, attribute);
 			checkIfAllowed(entityId, attribute.getGroupPath(), attribute.getName());
 
-			attributesHelper.addAttribute(entityId, update, at, fullAuthz, attribute);
+			attributesHelper.addAttribute(entityId, attribute, at, update, fullAuthz);
 		});
 		confirmationManager.sendVerificationQuiet(entity, attribute, false);
 	}

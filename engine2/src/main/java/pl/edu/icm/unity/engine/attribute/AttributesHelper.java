@@ -46,7 +46,6 @@ import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
-import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
@@ -114,10 +113,7 @@ public class AttributesHelper
 			filterMap(directAttributesByGroup, groupPath, attributeTypeName);
 			return directAttributesByGroup;
 		}
-		List<GroupMembership> entityMembership = membershipDAO.getEntityMembership(entityId);
-		Set<String> allGroups = entityMembership.stream().
-				map(m -> m.getGroup()).
-				collect(Collectors.toSet());
+		Set<String> allGroups = membershipDAO.getEntityMembershipSimple(entityId);
 		List<String> groups = groupPath == null ? new ArrayList<>(allGroups) : Lists.newArrayList(groupPath);
 		Map<String, Map<String, AttributeExt>> ret = new HashMap<>();
 		
@@ -265,10 +261,7 @@ public class AttributesHelper
 		}
 		if (groupPath != null)
 		{
-			List<GroupMembership> membership = membershipDAO.getEntityMembership(entityId);
-			Set<String> allGroups = membership.stream().
-					map(m -> m.getGroup()).
-					collect(Collectors.toSet());
+			Set<String> allGroups = membershipDAO.getEntityMembershipSimple(entityId);
 			if (!allGroups.contains(groupPath))
 				throw new IllegalGroupValueException("The entity is not a member of the group " 
 						+ groupPath);
@@ -286,23 +279,34 @@ public class AttributesHelper
 			ret.addAll(entry.values());
 		return ret;
 	}
+
+	/**
+	 * As {@link #addAttribute(long, Attribute, AttributeType, boolean, boolean)} but the attribute type 
+	 * is automatically resolved
+	 */
+	public void addAttribute(long entityId, Attribute attribute, boolean update, boolean honorInitialConfirmation) 
+			throws EngineException
+	{
+		AttributeType at = attributeTypeDAO.get(attribute.getName());
+		addAttribute(entityId, attribute, at, update, honorInitialConfirmation);
+	}
 	
 	/**
 	 * Adds an attribute. This method performs engine level checks: whether the attribute type is not immutable,
 	 * and properly sets unverified state if attribute is added by ordinary user (not an admin).
 	 * <p>
 	 * 
-	 * @param sql
 	 * @param entityId
 	 * @param update
 	 * @param at
-	 * @param honorInitialConfirmation if true then operation is run by privileged user, otherwise it is modification of self 
+	 * @param honorInitialConfirmation if true then operation is run by privileged user, 
+	 * otherwise it is modification of self 
 	 * possessed attribute and verification status must be set to unverified.
 	 * @param attribute
 	 * @throws EngineException
 	 */
-	public void addAttribute(long entityId, boolean update,
-			AttributeType at, boolean honorInitialConfirmation, Attribute attribute) throws EngineException
+	public void addAttribute(long entityId, Attribute attribute, AttributeType at, boolean update,
+			boolean honorInitialConfirmation) throws EngineException
 	{
 		if (at.isInstanceImmutable())
 			throw new SchemaConsistencyException("The attribute with name " + at.getName() + 
@@ -449,11 +453,9 @@ public class AttributesHelper
 	public void addAttributesList(List<Attribute> attributes, long entityId, boolean honorInitialConfirmation) 
 			throws EngineException
 	{
+		Map<String, AttributeType> typesMap = attributeTypeDAO.getAllAsMap();
 		for (Attribute a: attributes)
-		{
-			AttributeType at = attributeTypeDAO.get(a.getName());
-			addAttribute(entityId, true, at, honorInitialConfirmation, a);
-		}
+			addAttribute(entityId, a, typesMap.get(a.getName()), true, honorInitialConfirmation);
 	}
 	
 	/**
@@ -492,6 +494,13 @@ public class AttributesHelper
 		return new StoredAttribute(aExt, entityId);
 	}
 	
+	/**
+	 * Checks if the given {@link Attribute} is valid wrt the {@link AttributeType} constraints
+	 * @param attribute
+	 * @param at
+	 * @throws IllegalAttributeValueException
+	 * @throws IllegalAttributeTypeException
+	 */
 	public void validate(Attribute attribute, AttributeType at) 
 			throws IllegalAttributeValueException, IllegalAttributeTypeException
 	{
