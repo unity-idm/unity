@@ -100,7 +100,6 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			ConfirmationFacilitiesRegistry confirmationFacilitiesRegistry,
 			MessageTemplateDB mtDB, ConfirmationConfigurationDB configurationDB,
 			NetworkServer server, UnityMessageSource msg, EntityResolver idResolver,
-			Ehcache confirmationReqCache, int requestLimit, String defaultRedirectURL,
 			TransactionalRunner tx, CacheProvider cacheProvider, UnityServerConfiguration mainConf)
 	{
 		this.idTypeHelper = idTypeHelper;
@@ -113,9 +112,6 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		this.advertisedAddress = server.getAdvertisedAddress();
 		this.msg = msg;
 		this.idResolver = idResolver;
-		this.confirmationReqCache = confirmationReqCache;
-		this.requestLimit = requestLimit;
-		this.defaultRedirectURL = defaultRedirectURL;
 		this.tx = tx;
 		
 		CacheConfiguration cacheConfig = new CacheConfiguration(CACHE_ID, 0);

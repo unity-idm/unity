@@ -1,0 +1,36 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd"
+  xmlns:aop="http://www.springframework.org/schema/aop">
+
+	<context:annotation-config/>
+	<context:component-scan base-package="pl.edu.icm.unity.engine"/>
+	<aop:aspectj-autoproxy/>
+	
+	<!-- Those beans are the same as the 'primary' beans above, but do not perform authorization. 
+	Must be used with qualifier. -->
+	
+	<bean primary="false" name="noauthz" class="pl.edu.icm.unity.engine.authz.InternalNoAuthzImpl"/>
+	
+	<bean primary="false" class="pl.edu.icm.unity.engine.group.GroupsManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean primary="false" class="pl.edu.icm.unity.engine.identity.EntityManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean primary="false" class="pl.edu.icm.unity.engine.attribute.AttributesManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<!-- 
+	<bean primary="false" class="pl.edu.icm.unity.engine.authn.AuthenticationManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	 -->
+</beans>
