@@ -27,10 +27,4 @@
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
-	<!-- 
-	<bean primary="false" class="pl.edu.icm.unity.engine.authn.AuthenticationManagementImpl">
-		<qualifier value="insecure"/>
-		<constructor-arg name="authz" ref="noauthz"/>
-	</bean>
-	 -->
 </beans>

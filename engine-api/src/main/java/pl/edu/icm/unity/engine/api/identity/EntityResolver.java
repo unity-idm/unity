@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.api.identity;
 
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
@@ -14,6 +15,14 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
  */
 public interface EntityResolver
 {
+	/**
+	 * Resolves {@link IdentityTaV} into a full Identity, if missing throws exception
+	 * @param entity
+	 * @return 
+	 * @throws IllegalIdentityValueException
+	 */
+	Identity getFullIdentity(IdentityTaV entity) throws IllegalIdentityValueException;
+	
 	/**
 	 * Resolves {@link IdentityTaV}, if missing throws exception
 	 * @param entity

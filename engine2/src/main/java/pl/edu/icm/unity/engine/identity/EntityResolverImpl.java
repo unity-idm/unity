@@ -40,11 +40,7 @@ public class EntityResolverImpl implements EntityResolver
 	@Override
 	public long getEntityId(IdentityTaV entity) throws IllegalIdentityValueException
 	{
-		IdentityTypeDefinition idTypeDef = idTypesRegistry.getByName(entity.getTypeId());
-		String comparableValue = idTypeDef.getComparableValue(entity.getValue(), entity.getRealm(), 
-				entity.getTarget());
-		Identity identity = identityDAO.get(comparableValue);
-		return identity.getEntityId();
+		return getFullIdentity(entity).getEntityId();
 	}
 
 	@Override
@@ -54,5 +50,14 @@ public class EntityResolverImpl implements EntityResolver
 			return getEntityId(entity.getIdentity());
 		entityDAO.getByKey(entity.getEntityId());
 		return entity.getEntityId();
+	}
+
+	@Override
+	public Identity getFullIdentity(IdentityTaV entity) throws IllegalIdentityValueException
+	{
+		IdentityTypeDefinition idTypeDef = idTypesRegistry.getByName(entity.getTypeId());
+		String comparableValue = idTypeDef.getComparableValue(entity.getValue(), entity.getRealm(), 
+				entity.getTarget());
+		return identityDAO.get(comparableValue);
 	}
 }

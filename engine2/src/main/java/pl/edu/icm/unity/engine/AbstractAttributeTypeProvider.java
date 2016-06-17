@@ -26,7 +26,6 @@ public abstract class AbstractAttributeTypeProvider implements SystemAttributesP
 	public AbstractAttributeTypeProvider(UnityMessageSource msg)
 	{
 		this.msg = msg;
-		systemAttributes = Lists.newArrayList(getAttributeType());
 	}
 	
 	protected abstract AttributeType getAttributeType();
@@ -40,6 +39,7 @@ public abstract class AbstractAttributeTypeProvider implements SystemAttributesP
 	@Override
 	public List<AttributeType> getSystemAttributes()
 	{
-		return systemAttributes;
+		
+		return systemAttributes == null ? Lists.newArrayList(getAttributeType()) : systemAttributes;
 	}
 }
