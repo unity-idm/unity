@@ -27,7 +27,7 @@ import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.store.rdbms.StoragePropertiesSource;
+import pl.edu.icm.unity.store.api.StoragePropertiesSource;
 
 /**
  * Unity storage configuration

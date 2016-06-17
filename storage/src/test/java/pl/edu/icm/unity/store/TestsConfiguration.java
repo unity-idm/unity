@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.store.rdbms.StoragePropertiesSource;
+import pl.edu.icm.unity.store.api.StoragePropertiesSource;
 
 @Component
 public class TestsConfiguration implements StoragePropertiesSource
