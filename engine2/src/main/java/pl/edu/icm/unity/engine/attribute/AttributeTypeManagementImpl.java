@@ -43,6 +43,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 	private IdentityTypeDAO dbIdentities;
 	private AttributeMetadataProvidersRegistry atMetaProvidersRegistry;
 	private AuthorizationManager authz;
+	private AttributeTypeHelper atHelper;
 
 
 	@Autowired
@@ -50,7 +51,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 			AttributeTypeDAO attributeTypeDAO, AttributeDAO attributeDAO,
 			IdentityTypeDAO dbIdentities,
 			AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
-			AuthorizationManager authz)
+			AuthorizationManager authz, AttributeTypeHelper atHelper)
 	{
 		this.attrValueTypesReg = attrValueTypesReg;
 		this.attributeTypeDAO = attributeTypeDAO;
@@ -58,6 +59,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		this.dbIdentities = dbIdentities;
 		this.atMetaProvidersRegistry = atMetaProvidersRegistry;
 		this.authz = authz;
+		this.atHelper = atHelper;
 	}
 
 	@Override
@@ -80,11 +82,13 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		if (toAdd.getFlags() != 0)
 			throw new IllegalAttributeTypeException("Custom attribute types must not have any flags set");
 		authz.checkAuthorization(AuthzCapability.maintenance);
+		atHelper.setDefaultSyntaxConfiguration(toAdd);
 		Collection<AttributeType> existingAts = attributeTypeDAO.getAll();
 		verifyATMetadata(toAdd, existingAts);
 		attributeTypeDAO.create(toAdd);
 	}
 
+	
 	@Override
 	@Transactional
 	public void updateAttributeType(AttributeType at) throws EngineException

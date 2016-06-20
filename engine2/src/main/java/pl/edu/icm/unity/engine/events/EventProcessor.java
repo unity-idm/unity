@@ -26,6 +26,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.event.EventListener;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.store.api.EventDAO;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
 /**
  * Takes events from producers and dispatches them to all registered {@link EventListener}s.
@@ -45,11 +46,11 @@ public class EventProcessor
 	private EventsProcessingThread asyncProcessor;
 	
 	@Autowired
-	public EventProcessor(ExecutorsService executorsService, EventDAO dbEvents)
+	public EventProcessor(ExecutorsService executorsService, EventDAO dbEvents, TransactionalRunner tx)
 	{
 		executorService = executorsService.getService();
 		this.dbEvents = dbEvents;
-		this.asyncProcessor = new EventsProcessingThread(this, dbEvents);
+		this.asyncProcessor = new EventsProcessingThread(this, dbEvents, tx);
 		this.asyncProcessor.start();
 	}
 

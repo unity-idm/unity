@@ -311,6 +311,38 @@ public class AttributesHelper
 		if (at.isInstanceImmutable())
 			throw new SchemaConsistencyException("The attribute with name " + at.getName() + 
 					" can not be manually modified");
+		addAttributeInternal(entityId, attribute, at, update, honorInitialConfirmation);
+	}
+
+	/**
+	 * As {@link #addSystemAttribute(long, Attribute, AttributeType, boolean)} but the attribute type 
+	 * is automatically resolved
+	 */
+	public void addSystemAttribute(long entityId, Attribute attribute, boolean update) 
+			throws EngineException
+	{
+		AttributeType at = attributeTypeDAO.get(attribute.getName());
+		addSystemAttribute(entityId, attribute, at, update);
+	}
+	
+	/**
+	 * Adds a system attribute. Use only internally.
+	 * 
+	 * @param entityId
+	 * @param update
+	 * @param at
+	 * @param attribute
+	 * @throws EngineException
+	 */
+	public void addSystemAttribute(long entityId, Attribute attribute, AttributeType at, boolean update) 
+			throws EngineException
+	{
+		addAttributeInternal(entityId, attribute, at, update, true);
+	}
+	
+	private void addAttributeInternal(long entityId, Attribute attribute, AttributeType at, boolean update,
+			boolean honorInitialConfirmation) throws EngineException
+	{
 		enforceCorrectConfirmationState(entityId, update, attribute, honorInitialConfirmation);
 		
 		validate(attribute, at);
@@ -334,7 +366,7 @@ public class AttributesHelper
 			attributeDAO.updateAttribute(param);
 		}
 	}
-
+	
 	/**
 	 * Makes sure that the initial confirmation state is correctly set. This works as follows:
 	 * - if honorInitialConfirmation is true then we assume that admin is performing the modification

@@ -13,6 +13,7 @@ import pl.edu.icm.unity.base.event.EventExecution;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.event.EventListener;
 import pl.edu.icm.unity.store.api.EventDAO;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
 /**
  * Processes heavy-weight events: takes pending ones from DB and tries to invoke them one by one.
@@ -27,9 +28,11 @@ public class EventsProcessingThread extends Thread
 	public static final long MAX_DELAY = 3600000;
 	private EventDAO dbEvents;
 	private EventProcessor eventProcessor;
+	private TransactionalRunner tx;
 	
-	public EventsProcessingThread(EventProcessor processor, EventDAO dbEvents)
+	public EventsProcessingThread(EventProcessor processor, EventDAO dbEvents, TransactionalRunner tx)
 	{
+		this.tx = tx;
 		setDaemon(true);
 		this.dbEvents = dbEvents;
 		this.eventProcessor = processor;
@@ -45,9 +48,12 @@ public class EventsProcessingThread extends Thread
 				{
 					wait(INTERVAL);
 				} catch (InterruptedException e) {}
-				List<EventExecution> events = dbEvents.getEligibleForProcessing(new Date());
-				for (EventExecution event: events)
-					handleHeavyweightEvent(event);
+
+				tx.runInTransaction(() -> {
+					List<EventExecution> events = dbEvents.getEligibleForProcessing(new Date());
+					for (EventExecution event: events)
+						handleHeavyweightEvent(event);
+				});
 			}
 		}
 	}

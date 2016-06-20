@@ -36,7 +36,8 @@ public interface AttributesManagement
 	void removeAttribute(EntityParam entity, String groupPath, String attributeTypeId) throws EngineException;
 
 	/**
-	 * Returns visible attributes of an entity. The two last arguments can be null, meaning that there is no restriction.
+	 * Returns visible attributes of an entity. The two last arguments can be null, 
+	 * meaning that there is no restriction.
 	 * @param entity
 	 * @param groupPath
 	 * @param attributeTypeId

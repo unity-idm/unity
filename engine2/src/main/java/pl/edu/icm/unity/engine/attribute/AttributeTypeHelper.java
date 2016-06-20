@@ -53,4 +53,17 @@ public class AttributeTypeHelper
 		ret.setSerializedConfiguration(at.getValueSyntaxConfiguration());
 		return ret;
 	}
+	
+	
+	/**
+	 * If the parameter type has no syntax configuration set, it will be set to the default syntax configuration.
+	 * @param unconfigured
+	 */
+	public void setDefaultSyntaxConfiguration(AttributeType unconfigured)
+	{
+		if (unconfigured.getValueSyntaxConfiguration() != null)
+			return;
+		AttributeValueSyntax<?> syntax = getUnconfiguredSyntax(unconfigured.getValueSyntax());
+		unconfigured.setValueSyntaxConfiguration(syntax.getSerializedConfiguration());
+	}
 }

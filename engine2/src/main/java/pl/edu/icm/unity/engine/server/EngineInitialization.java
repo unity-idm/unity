@@ -63,6 +63,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.ServerInitializer;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.wellknown.PublicWellKnownURLServlet;
+import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.engine.bulkops.BulkOperationsUpdater;
@@ -141,7 +142,9 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	private TransactionalRunner tx;
 	@Autowired
-	private AttributeTypeDAO dbAttributes;
+	private AttributeTypeDAO attributeTypeDAO;
+	@Autowired
+	private AttributeTypeHelper atHelper;
 	@Autowired
 	private IdentityTypeDAO dbIdentities;
 	@Autowired
@@ -486,7 +489,7 @@ public class EngineInitialization extends LifecycleBase
 	{
 		log.info("Checking if all system attribute types are defined");
 		tx.runInTransaction(() -> {
-			Map<String, AttributeType> existing = dbAttributes.getAllAsMap();
+			Map<String, AttributeType> existing = attributeTypeDAO.getAllAsMap();
 			for (SystemAttributesProvider attrTypesProvider: sysTypeProviders)
 				for (AttributeType at: attrTypesProvider.getSystemAttributes())
 				{
@@ -494,11 +497,12 @@ public class EngineInitialization extends LifecycleBase
 					if (existingAt == null)
 					{
 						log.info("Adding a system attribute type: " + at.getName());
-						dbAttributes.create(at);
+						atHelper.setDefaultSyntaxConfiguration(at);
+						attributeTypeDAO.create(at);
 					} else if (attrTypesProvider.requiresUpdate(existingAt))
 					{
 						log.info("Updating a system attribute type: " + at.getName());
-						dbAttributes.update(at);
+						attributeTypeDAO.update(at);
 					}
 				}
 		});
