@@ -340,7 +340,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	private void sendVerification(EntityParam entity, Attribute attribute, boolean force) 
 			throws EngineException
 	{
-		AttributeValueSyntax<?> syntax = atTypeHelper.getUnconfiguredSyntax(attribute.getName());
+		AttributeValueSyntax<?> syntax = atTypeHelper.getUnconfiguredSyntax(attribute.getValueSyntax());
 		if (!syntax.isVerifiable())
 			return;
 		for (String valA : attribute.getValues())

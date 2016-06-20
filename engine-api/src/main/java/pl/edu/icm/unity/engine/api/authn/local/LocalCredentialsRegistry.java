@@ -15,7 +15,6 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialType;
@@ -64,7 +63,7 @@ public class LocalCredentialsRegistry
 		if (fact == null)
 			throw new IllegalCredentialException("The credential type " + def.getTypeId() + " is unknown");
 		LocalCredentialVerificator validator = fact.newInstance();
-		validator.setSerializedConfiguration(JsonUtil.toJsonString(def.getConfiguration()));
+		validator.setSerializedConfiguration(def.getConfiguration());
 		return validator;
 	}
 }

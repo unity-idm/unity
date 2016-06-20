@@ -150,10 +150,12 @@ public class EntityManagementImpl implements EntityManagement
 					extractAttributes, attributes, true);
 		}); 
 		
-		//careful - must be after the transaction is committed
-		EntityParam added = new EntityParam(ret.getEntityId());
-		confirmationManager.sendVerificationsQuiet(added, attributes, false);
-		confirmationManager.sendVerificationQuiet(added, ret, false);
+		//careful - must be after the main transaction is committed
+		tx.runInTransaction(() -> {
+			EntityParam added = new EntityParam(ret.getEntityId());
+			confirmationManager.sendVerificationsQuiet(added, attributes, false);
+			confirmationManager.sendVerificationQuiet(added, ret, false);
+		});
 		return ret;
 	}
 	
@@ -178,7 +180,10 @@ public class EntityManagementImpl implements EntityManagement
 				identityHelper.addExtractedAttributes(toCreate);
 			return toCreate;
 		});
-		confirmationManager.sendVerification(new EntityParam(ret.getEntityId()), ret, false);
+		
+		tx.runInTransactionThrowing(() -> {
+			confirmationManager.sendVerification(new EntityParam(ret.getEntityId()), ret, false);
+		});
 		return ret;
 	}
 
