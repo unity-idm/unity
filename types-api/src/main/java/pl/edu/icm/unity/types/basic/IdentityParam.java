@@ -43,11 +43,13 @@ public class IdentityParam extends IdentityTaV implements VerifiableElement
 	public IdentityParam(ObjectNode src)
 	{
 		super(src);
+		fromJson(src);
 	}
 
 	public IdentityParam(String type, ObjectNode src)
 	{
 		super(type, src);
+		fromJsonBase(src);
 	}
 
 	
@@ -115,6 +117,11 @@ public class IdentityParam extends IdentityTaV implements VerifiableElement
 		return super.toJson();
 	}
 
+	private final void fromJson(ObjectNode main)
+	{
+		fromJsonBase(main);
+	}
+	
 	@Override
 	public ObjectNode toJsonBase()
 	{
@@ -129,11 +136,11 @@ public class IdentityParam extends IdentityTaV implements VerifiableElement
 			main.set("metadata", getMetadata());
 		return main;
 	}
+
 	
-	@Override
-	public void fromJsonBase(ObjectNode main)
+	
+	private final void fromJsonBase(ObjectNode main)
 	{
-		super.fromJsonBase(main);
 		setTranslationProfile(JsonUtil.getNullable(main, "translationProfile"));
 		setRemoteIdp(JsonUtil.getNullable(main, "remoteIdp"));
 		if (JsonUtil.notNull(main, "confirmationInfo"))

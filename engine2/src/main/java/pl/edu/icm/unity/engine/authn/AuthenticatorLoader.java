@@ -10,9 +10,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorsRegistry;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
@@ -66,10 +63,10 @@ public class AuthenticatorLoader
 		{
 			CredentialDefinition credDef = credDB.get(localCredential);
 			CredentialHolder credential = new CredentialHolder(credDef, localCredReg);
-			ObjectNode localCredentialConfig = credential.getCredentialDefinition().
-					getJsonConfiguration();
+			String localCredentialConfig = credential.getCredentialDefinition().
+					getConfiguration();
 			return new AuthenticatorImpl(identityResolver, authReg,	authnInstance.getId(), 
-					authnInstance, JsonUtil.serialize(localCredentialConfig));
+					authnInstance, localCredentialConfig);
 		} else
 			return new AuthenticatorImpl(identityResolver, authReg, 
 				authnInstance.getId(), authnInstance);

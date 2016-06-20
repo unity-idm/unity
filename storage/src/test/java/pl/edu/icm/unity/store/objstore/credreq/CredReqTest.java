@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Sets;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.store.api.generic.CredentialDB;
 import pl.edu.icm.unity.store.api.generic.CredentialRequirementDB;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
@@ -43,7 +42,7 @@ public class CredReqTest extends AbstractNamedWithTSTest<CredentialRequirements>
 		tx.runInTransaction(() -> {
 			CredentialDefinition cred = new CredentialDefinition("typeId", "cred1", 
 					new I18nString("dName"), new I18nString("desc"));
-			cred.setJsonConfiguration(Constants.MAPPER.createObjectNode());
+			cred.setConfiguration("");
 			credentialDB.create(cred);
 			
 			CredentialRequirements obj = getObject("name1");

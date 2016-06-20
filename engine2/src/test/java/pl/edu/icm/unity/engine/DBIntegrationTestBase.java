@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
 
-import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
@@ -148,11 +147,11 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	{
 		CredentialDefinition credDef = new CredentialDefinition(
 				PasswordVerificatorFactory.NAME, "credential1");
-		credDef.setJsonConfiguration(JsonUtil.parse("{\"minLength\": " + minLen + ", " +
+		credDef.setConfiguration("{\"minLength\": " + minLen + ", " +
 				"\"historySize\": 5," +
 				"\"minClassesNum\": 1," +
 				"\"denySequences\": " + denySeq + "," +
-				"\"maxAge\": 30758400}"));
+				"\"maxAge\": 30758400}");
 		credMan.addCredentialDefinition(credDef);
 		
 		CredentialRequirements cr = new CredentialRequirements(CRED_REQ_PASS, "", 

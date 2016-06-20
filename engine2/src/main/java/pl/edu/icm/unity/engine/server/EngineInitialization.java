@@ -594,11 +594,11 @@ public class EngineInitialization extends LifecycleBase
 		I18nString description = new I18nString("CredDef.standardPassword.desc", msg); 
 		CredentialDefinition credDef = new CredentialDefinition(PasswordVerificatorFactory.NAME,
 				adminCredName, description, msg);
-		credDef.setJsonConfiguration(JsonUtil.parse("{\"minLength\": 1," +
+		credDef.setConfiguration("{\"minLength\": 1," +
 				"\"historySize\": 1," +
 				"\"minClassesNum\": 1," +
 				"\"denySequences\": false," +
-				"\"maxAge\": 30758400000}"));
+				"\"maxAge\": 30758400000}");
 		credMan.addCredentialDefinition(credDef);
 		return credDef;
 	}
@@ -853,7 +853,7 @@ public class EngineInitialization extends LifecycleBase
 			CredentialDefinition credentialDefinition = new CredentialDefinition(typeId, name, 
 					new I18nString(name), 
 					new I18nString(description));
-			credentialDefinition.setJsonConfiguration(JsonUtil.parse(jsonConfiguration));
+			credentialDefinition.setConfiguration(jsonConfiguration);
 			
 			if (!existing.containsKey(name))
 			{

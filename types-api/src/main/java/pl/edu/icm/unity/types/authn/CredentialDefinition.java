@@ -19,14 +19,18 @@ import pl.edu.icm.unity.types.NamedObject;
 
 /**
  * Configured instance of {@link CredentialType}.
- * 
+ * <p>
+ * Note: configuration is stored as a plain String. This is not JsonObject as while credentials 
+ * typically use JSON for configuration, verificators use often properties format, and local verificator configuration
+ * is the same as its local credential's one. Therefore to have uniform handling we use universal string
+ * also here. 
  * @author K. Benedyczak
  */
 public class CredentialDefinition extends I18nDescribedObject implements NamedObject
 {
 	private String name;
 	private String typeId;
-	private ObjectNode jsonConfiguration;
+	private String configuration;
 
 	public CredentialDefinition()
 	{
@@ -81,13 +85,13 @@ public class CredentialDefinition extends I18nDescribedObject implements NamedOb
 	{
 		this.typeId = typeId;
 	}
-	public ObjectNode getJsonConfiguration()
+	public String getConfiguration()
 	{
-		return jsonConfiguration;
+		return configuration;
 	}
-	public void setJsonConfiguration(ObjectNode jsonConfiguration)
+	public void setConfiguration(String configuration)
 	{
-		this.jsonConfiguration = jsonConfiguration;
+		this.configuration = configuration;
 	}
 
 	@Override
@@ -107,7 +111,7 @@ public class CredentialDefinition extends I18nDescribedObject implements NamedOb
 		ObjectNode root = Constants.MAPPER.createObjectNode();
 		root.put("typeId", getTypeId());
 		root.put("name", getName());
-		root.set("jsonConfiguration", getJsonConfiguration());
+		root.put("configuration", getConfiguration());
 		root.set("displayedName", I18nStringJsonUtil.toJson(getDisplayedName()));
 		root.set("i18nDescription", I18nStringJsonUtil.toJson(getDescription()));
 		return root;
@@ -122,9 +126,9 @@ public class CredentialDefinition extends I18nDescribedObject implements NamedOb
 		n = root.get("typeId");
 		setTypeId(n.asText());
 		
-		n = root.get("jsonConfiguration");
+		n = root.get("configuration");
 		if (n != null && !n.isNull())
-			setJsonConfiguration((ObjectNode) n);
+			setConfiguration(n.asText());
 
 		if (root.has("displayedName"))
 			setDisplayedName(I18nStringJsonUtil.fromJson(root.get("displayedName")));
@@ -146,7 +150,7 @@ public class CredentialDefinition extends I18nDescribedObject implements NamedOb
 	{
 		CredentialDefinition ret = new CredentialDefinition(typeId, name, 
 				displayedName.clone(), description.clone());
-		ret.setJsonConfiguration(jsonConfiguration);
+		ret.setConfiguration(configuration);
 		return ret;
 	}
 	
@@ -156,7 +160,7 @@ public class CredentialDefinition extends I18nDescribedObject implements NamedOb
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result
-				+ ((jsonConfiguration == null) ? 0 : jsonConfiguration.hashCode());
+				+ ((configuration == null) ? 0 : configuration.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((typeId == null) ? 0 : typeId.hashCode());
 		return result;
@@ -172,11 +176,11 @@ public class CredentialDefinition extends I18nDescribedObject implements NamedOb
 		if (getClass() != obj.getClass())
 			return false;
 		CredentialDefinition other = (CredentialDefinition) obj;
-		if (jsonConfiguration == null)
+		if (configuration == null)
 		{
-			if (other.jsonConfiguration != null)
+			if (other.configuration != null)
 				return false;
-		} else if (!jsonConfiguration.equals(other.jsonConfiguration))
+		} else if (!configuration.equals(other.configuration))
 			return false;
 		if (name == null)
 		{

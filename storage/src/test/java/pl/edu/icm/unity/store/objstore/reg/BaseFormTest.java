@@ -13,7 +13,6 @@ import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.base.msgtemplates.reg.AcceptRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
@@ -51,7 +50,7 @@ public abstract class BaseFormTest<T extends BaseForm> extends AbstractNamedWith
 		tx.runInTransaction(() -> {
 			CredentialDefinition cred = new CredentialDefinition("typeId", "cred", 
 					new I18nString("dName"), new I18nString("desc"));
-			cred.setJsonConfiguration(Constants.MAPPER.createObjectNode());
+			cred.setConfiguration("");
 			credentialDB.create(cred);
 			
 			T obj = getObject("name1");

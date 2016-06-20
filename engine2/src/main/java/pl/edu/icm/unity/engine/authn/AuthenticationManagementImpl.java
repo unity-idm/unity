@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorsRegistry;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
@@ -97,8 +96,7 @@ public class AuthenticationManagementImpl implements AuthenticatorManagement
 		{
 			CredentialDefinition credentialDef = credentialDB.get(credentialName);
 			CredentialHolder credential = new CredentialHolder(credentialDef, localCredReg);
-			String credentialConfiguration = JsonUtil.serialize(credential.getCredentialDefinition().
-					getJsonConfiguration());
+			String credentialConfiguration = credential.getCredentialDefinition().getConfiguration();
 			authenticator = new AuthenticatorImpl(identityResolver, authReg, id, typeId, 
 					jsonRetrievalConfig, credentialName, credentialConfiguration);
 
@@ -149,8 +147,7 @@ public class AuthenticationManagementImpl implements AuthenticatorManagement
 			{
 				CredentialDefinition credentialDef = credentialDB.get(localCredential);
 				CredentialHolder credential = new CredentialHolder(credentialDef, localCredReg);
-				verificatorConfigCopy = JsonUtil.serialize(credential.getCredentialDefinition().
-						getJsonConfiguration());
+				verificatorConfigCopy = credential.getCredentialDefinition().getConfiguration();
 				verifyIfLocalCredentialMatchesVerificator(current, credential, 
 						localCredential);
 			}

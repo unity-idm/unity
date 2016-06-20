@@ -390,8 +390,7 @@ public class UpdateFrom1_9_x implements Update
 		if (!content.has("jsonConfiguration"))
 			return;
 		String config = content.remove("jsonConfiguration").asText();
-		if (!config.isEmpty())
-			content.set("jsonConfiguration", objectMapper.readTree(config));
+		content.put("configuration", config);
 	}
 
 

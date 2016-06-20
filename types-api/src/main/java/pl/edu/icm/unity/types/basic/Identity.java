@@ -56,11 +56,20 @@ public class Identity extends IdentityParam implements NamedObject
 	public Identity(ObjectNode src)
 	{
 		super(src);
+		fromJson(src);
 	}
 
+	/**
+	 * Partial creation from JSON (used by RDBMS storage)
+	 * @param type
+	 * @param entityId
+	 * @param comparableValue
+	 * @param src
+	 */
 	public Identity(String type, long entityId, String comparableValue, ObjectNode src)
 	{
 		super(type, src);
+		fromJsonBase(src);
 		this.entityId = entityId;
 		this.comparableValue = comparableValue;
 	}
@@ -111,10 +120,9 @@ public class Identity extends IdentityParam implements NamedObject
 		return getComparableValue();
 	}
 
-	@Override
-	protected void fromJson(ObjectNode src)
+	private final void fromJson(ObjectNode src)
 	{
-		super.fromJson(src);
+		fromJsonBase(src);
 		JsonNode cmpVal = src.get("comparableValue");
 		if (cmpVal.isNull())
 			throw new IllegalArgumentException("Got identity without comparable value, what is invalid: "
@@ -142,10 +150,8 @@ public class Identity extends IdentityParam implements NamedObject
 		return main;
 	}
 	
-	@Override
-	public void fromJsonBase(ObjectNode main)
+	private void fromJsonBase(ObjectNode main)
 	{
-		super.fromJsonBase(main);
 		if (main.has("creationTs"))
 			setCreationTs(new Date(main.get("creationTs").asLong()));
 		if (main.has("updateTs"))

@@ -96,7 +96,7 @@ public class IdentityTaV
 		this.realm = realm;
 	}
 	
-	protected void fromJson(ObjectNode src)
+	private final void fromJson(ObjectNode src)
 	{
 		setTypeId(src.get("typeId").asText());
 		fromJsonBase(src);
@@ -123,7 +123,7 @@ public class IdentityTaV
 		return main;
 	}
 	
-	public void fromJsonBase(ObjectNode main)
+	private final void fromJsonBase(ObjectNode main)
 	{
 		setValue(JsonUtil.getNullable(main, "value"));
 		setRealm(JsonUtil.getNullable(main, "realm"));

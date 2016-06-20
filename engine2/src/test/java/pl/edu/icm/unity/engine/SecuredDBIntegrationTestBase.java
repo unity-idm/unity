@@ -19,7 +19,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
@@ -49,6 +48,9 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 @ActiveProfiles("test")
 public abstract class SecuredDBIntegrationTestBase
 {
+	public static final String CR_MOCK = "crMock";
+	public static final String CRED_MOCK = "credential1";
+	
 	@Autowired
 	protected GroupsManagement groupsMan;
 	@Autowired
@@ -161,11 +163,11 @@ public abstract class SecuredDBIntegrationTestBase
 	protected void setupMockAuthn() throws Exception
 	{
 		CredentialDefinition credDef = new CredentialDefinition(
-				MockPasswordVerificatorFactory.ID, "credential1");
-		credDef.setJsonConfiguration(JsonUtil.parse("[8]"));
+				MockPasswordVerificatorFactory.ID, CRED_MOCK);
+		credDef.setConfiguration("8");
 		credMan.addCredentialDefinition(credDef);
 		
-		CredentialRequirements cr = new CredentialRequirements("crMock", "mock cred req", 
+		CredentialRequirements cr = new CredentialRequirements(CR_MOCK, "mock cred req", 
 				Collections.singleton(credDef.getName()));
 		credReqMan.addCredentialRequirement(cr);
 	}

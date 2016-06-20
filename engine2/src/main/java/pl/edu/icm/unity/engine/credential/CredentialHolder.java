@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.engine.credential;
 
-import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
@@ -32,7 +31,7 @@ public class CredentialHolder
 		if (fact == null)
 			throw new IllegalArgumentException("The credential type " + def.getTypeId() + " is unknown");
 		LocalCredentialVerificator handler = fact.newInstance();
-		handler.setSerializedConfiguration(JsonUtil.serialize(def.getJsonConfiguration()));
+		handler.setSerializedConfiguration(def.getConfiguration());
 		this.handler = handler;
 	}
 	
