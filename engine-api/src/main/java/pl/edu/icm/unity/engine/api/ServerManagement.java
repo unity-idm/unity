@@ -35,7 +35,7 @@ public interface ServerManagement
 	 * @param from file to load data from
 	 * @throws EngineException
 	 */
-	public void importDb(File from, boolean resetIndexes) throws EngineException;
+	public void importDb(File from) throws EngineException;
 	
 	/**
 	 * Reload main configuration file if changed

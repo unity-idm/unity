@@ -10,12 +10,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
+import pl.edu.icm.unity.engine.attribute.AttributesHelper;
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeStatement;
+import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupMembership;
+import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 
 /**
  * Shared group-related utility methods
@@ -26,15 +35,18 @@ public class GroupHelper
 {
 	private MembershipDAO membershipDAO;
 	private EntityResolver entityResolver;
-
+	private AttributeTypeDAO attributeTypeDAO;
+	private AttributesHelper attributesHelper;
 	
 	@Autowired
-	public GroupHelper(MembershipDAO membershipDAO, EntityResolver entityResolver)
+	public GroupHelper(MembershipDAO membershipDAO, EntityResolver entityResolver,
+			AttributeTypeDAO attributeTypeDAO, AttributesHelper attributesHelper)
 	{
 		this.membershipDAO = membershipDAO;
 		this.entityResolver = entityResolver;
+		this.attributeTypeDAO = attributeTypeDAO;
+		this.attributesHelper = attributesHelper;
 	}
-
 
 	/**
 	 * Adds entity to the given group. The entity must be a member of the parent group
@@ -64,6 +76,45 @@ public class GroupHelper
 
 		GroupMembership param = new GroupMembership(path, entityId, creationTs, translationProfile, idp);
 		membershipDAO.create(param);
+	}
+
+	/**
+	 * Checks if all group's attribute statements seems correct.
+	 * @param group
+	 * @throws IllegalAttributeValueException
+	 * @throws IllegalAttributeTypeException
+	 * @throws IllegalTypeException
+	 */
+	public void validateGroupStatements(Group group) throws IllegalAttributeValueException, 
+		IllegalAttributeTypeException, IllegalTypeException
+	{
+		AttributeStatement[] statements = group.getAttributeStatements();
+		String path = group.toString();
+		for (AttributeStatement statement: statements)
+			validateGroupStatement(path, statement);
+	}
+
+	/**
+	 * Checks if the given group's statement seems correct
+	 * @param group
+	 * @param statement
+	 * @throws IllegalAttributeValueException
+	 * @throws IllegalAttributeTypeException
+	 * @throws IllegalTypeException
+	 */
+	public void validateGroupStatement(String group, AttributeStatement statement) 
+			throws IllegalAttributeValueException, IllegalAttributeTypeException, IllegalTypeException
+	{
+		statement.validate(group);
+		String attributeName = statement.getAssignedAttributeName();
+		AttributeType at = attributeTypeDAO.get(attributeName);
+		if (at.isInstanceImmutable())
+			throw new IllegalAttributeTypeException("Can not assign attribute " + at.getName() +
+					" in attribute statement as the attribute type is an internal, system attribute.");
+
+		Attribute fixedAttribute = statement.getFixedAttribute();
+		if (statement.getConflictResolution() != ConflictResolution.merge && fixedAttribute != null)
+			attributesHelper.validate(fixedAttribute, at);
 	}
 
 }

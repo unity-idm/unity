@@ -4,7 +4,9 @@
  */
 package pl.edu.icm.unity.stdext.attr;
 
+import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import pl.edu.icm.unity.types.basic.Attribute;
 
@@ -20,8 +22,16 @@ public class JpegImageAttribute extends Attribute
 		super(name, JpegImageAttributeSyntax.ID, groupPath, values, remoteIdp, translationProfile);
 	}
 
-	public JpegImageAttribute(String name, String groupPath, List<String> values)
+	public JpegImageAttribute(String name, String groupPath, List<BufferedImage> values)
 	{
-		super(name, JpegImageAttributeSyntax.ID, groupPath, values);
+		super(name, JpegImageAttributeSyntax.ID, groupPath, convert(values));
+	}
+	
+	private static List<String> convert(List<BufferedImage> values)
+	{
+		JpegImageAttributeSyntax syntax = new JpegImageAttributeSyntax();
+		return values.stream().
+				map(v -> syntax.convertToString(v)).
+				collect(Collectors.toList());
 	}
 }

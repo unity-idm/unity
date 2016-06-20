@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
@@ -74,6 +75,7 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
  * @author K. Benedyczak
  */
 @Component
+@Primary
 @InvocationEventProducer
 public class EntityManagementImpl implements EntityManagement
 {
@@ -170,7 +172,7 @@ public class EntityManagementImpl implements EntityManagement
 					>= identityType.getMaxInstances())
 				throw new SchemaConsistencyException("Can not add another identity of this type as "
 						+ "the configured maximum number of instances was reached.");
-			Identity toCreate = idTypeHelper.upcastIdentityParam(toAdd);
+			Identity toCreate = idTypeHelper.upcastIdentityParam(toAdd, entityId);
 			idDAO.create(toCreate);
 			if (extractAttributes && fullAuthz)
 				identityHelper.addExtractedAttributes(toCreate);
@@ -296,7 +298,7 @@ public class EntityManagementImpl implements EntityManagement
 		for (IdentityParam add: toAdd)
 			identityHelper.insertIdentity(add, entityId, false);
 		for (IdentityParam remove: toRemove)
-			idDAO.delete(idTypeHelper.upcastIdentityParam(remove).getComparableValue());
+			idDAO.delete(idTypeHelper.upcastIdentityParam(remove, entityId).getComparableValue());
 	}
 	
 	private void verifyLimitsOfIdentities(IdentityType type, Set<Identity> existing, Set<IdentityParam> requested, 

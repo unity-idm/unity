@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
@@ -31,6 +32,7 @@ import pl.edu.icm.unity.types.authn.CredentialRequirements;
  * @author K. Benedyczak
  */
 @Component
+@Primary
 @InvocationEventProducer
 @Transactional
 public class CredentialReqManagementImpl implements CredentialRequirementManagement

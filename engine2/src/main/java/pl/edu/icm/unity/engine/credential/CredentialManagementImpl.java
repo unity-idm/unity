@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.CredentialManagement;
@@ -42,6 +43,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
  * @author K. Benedyczak
  */
 @Component
+@Primary
 @InvocationEventProducer
 @Transactional
 public class CredentialManagementImpl implements CredentialManagement

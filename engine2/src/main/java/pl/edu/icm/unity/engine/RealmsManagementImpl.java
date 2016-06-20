@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.RealmsManagement;
@@ -23,6 +24,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
  * @author K. Benedyczak
  */
 @Component
+@Primary
 @InvocationEventProducer
 @Transactional
 public class RealmsManagementImpl implements RealmsManagement

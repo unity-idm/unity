@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.JsonUtil;
@@ -39,6 +40,7 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
  * @author K. Benedyczak
  */
 @Component
+@Primary
 @InvocationEventProducer
 public class AuthenticationManagementImpl implements AuthenticatorManagement
 {

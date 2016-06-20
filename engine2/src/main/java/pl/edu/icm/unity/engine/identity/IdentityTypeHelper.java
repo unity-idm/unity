@@ -4,12 +4,12 @@
  */
 package pl.edu.icm.unity.engine.identity;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -23,23 +23,32 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 @Component
 public class IdentityTypeHelper
 {
-	private IdentityDAO identityDAO;
 	private IdentityTypesRegistry idImplRegistry;
 	private IdentityTypeDAO idTypeDAO;
 	
+	
+	@Autowired
+	public IdentityTypeHelper(IdentityTypesRegistry idImplRegistry, IdentityTypeDAO idTypeDAO)
+	{
+		this.idImplRegistry = idImplRegistry;
+		this.idTypeDAO = idTypeDAO;
+	}
+
 	/**
 	 * Creates a full {@link Identity} object from simple {@link IdentityParam} 
-	 * using {@link IdentityType} of the argument.
+	 * using {@link IdentityType} of the argument. The returned identity is assumed to be a new one, 
+	 * i.e. this operation is not resolving the existing Identity using the given parameter.
 	 * 
 	 * @param toUpcast
 	 * @return
 	 * @throws IllegalIdentityValueException 
 	 */
-	public Identity upcastIdentityParam(IdentityParam toUpcast) throws IllegalIdentityValueException
+	public Identity upcastIdentityParam(IdentityParam toUpcast, long entityId) throws IllegalIdentityValueException
 	{
 		IdentityTypeDefinition idDef = idImplRegistry.getByName(toUpcast.getTypeId());
-		return identityDAO.get(idDef.getComparableValue(toUpcast.getValue(), 
-				toUpcast.getRealm(), toUpcast.getTarget()));
+		String comparableValue = idDef.getComparableValue(toUpcast.getValue(), 
+				toUpcast.getRealm(), toUpcast.getTarget()); 
+		return new Identity(toUpcast, entityId, comparableValue);
 	}
 	
 	public IdentityType getIdentityType(String idType)

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
@@ -29,6 +30,7 @@ import pl.edu.icm.unity.types.basic.MessageTemplate;
  * @author P. Piernik
  */
 @Component
+@Primary
 @InvocationEventProducer
 public class MessageTemplateManagementImpl implements MessageTemplateManagement
 {

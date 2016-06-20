@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -28,10 +29,7 @@ import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
@@ -41,8 +39,6 @@ import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeStatement;
-import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
@@ -57,6 +53,7 @@ import pl.edu.icm.unity.types.basic.GroupMembership;
  * @author K. Benedyczak
  */
 @Component
+@Primary
 @InvocationEventProducer
 public class GroupsManagementImpl implements GroupsManagement
 {
@@ -101,7 +98,7 @@ public class GroupsManagementImpl implements GroupsManagement
 	public void addGroup(Group toAdd) throws EngineException
 	{
 		authz.checkAuthorization(toAdd.getParentPath(), AuthzCapability.groupModify);
-		validateGroupStatements(toAdd);
+		groupHelper.validateGroupStatements(toAdd);
 		AttributeClassUtil.validateAttributeClasses(toAdd.getAttributesClasses(), acDB);
 		dbGroups.create(toAdd);
 	}
@@ -251,7 +248,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		if (!path.equals(group.toString()))
 			throw new IllegalGroupValueException("Changing group name is currently "
 					+ "unsupported. Only displayed name can be changed.");
-		validateGroupStatements(group);
+		groupHelper.validateGroupStatements(group);
 		AttributeClassUtil.validateAttributeClasses(group.getAttributesClasses(), acDB);
 		List<GroupMembership> gc = membershipDAO.getMembers(path);
 		Map<String, AttributeType> allTypes = attributeTypeDAO.getAllAsMap();
@@ -274,30 +271,6 @@ public class GroupsManagementImpl implements GroupsManagement
 		return attributes.stream().
 				map(a -> a.getName()).
 				collect(Collectors.toSet());
-	}
-
-	private void validateGroupStatements(Group group) throws IllegalAttributeValueException, 
-		IllegalAttributeTypeException, IllegalTypeException
-	{
-		AttributeStatement[] statements = group.getAttributeStatements();
-		String path = group.toString();
-		for (AttributeStatement statement: statements)
-			validateGroupStatement(path, statement);
-	}
-
-	private void validateGroupStatement(String group, AttributeStatement statement) 
-			throws IllegalAttributeValueException, IllegalAttributeTypeException, IllegalTypeException
-	{
-		statement.validate(group);
-		String attributeName = statement.getAssignedAttributeName();
-		AttributeType at = attributeTypeDAO.get(attributeName);
-		if (at.isInstanceImmutable())
-			throw new IllegalAttributeTypeException("Can not assign attribute " + at.getName() +
-					" in attribute statement as the attribute type is an internal, system attribute.");
-
-		Attribute fixedAttribute = statement.getFixedAttribute();
-		if (statement.getConflictResolution() != ConflictResolution.merge && fixedAttribute != null)
-			attributesHelper.validate(fixedAttribute, at);
 	}
 
 	@Transactional

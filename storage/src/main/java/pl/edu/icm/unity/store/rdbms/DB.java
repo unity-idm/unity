@@ -15,10 +15,11 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.store.StorageCleaner;
+import pl.edu.icm.unity.store.StorageCleanerImpl;
 import pl.edu.icm.unity.store.StorageConfiguration;
 import pl.edu.icm.unity.store.StorageEngine;
 import pl.edu.icm.unity.store.StoreLoaderInternal;
+import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 
 
 /**
@@ -34,7 +35,7 @@ public class DB implements StoreLoaderInternal
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, DB.class);
 	public static final String DB_VERSION = "2_2_0";
 	
-	public static final String NAME = StorageCleaner.BEAN_PFX + "rdbms";
+	public static final String NAME = StorageCleanerImpl.BEAN_PFX + "rdbms";
 
 	private InitDB initDB;
 
@@ -91,5 +92,17 @@ public class DB implements StoreLoaderInternal
 	public void reset()
 	{
 		initDB.resetDatabase();
+	}
+
+	@Override
+	public void deleteEverything()
+	{
+		initDB.deleteEverything(SQLTransactionTL.getSql());
+	}
+
+	@Override
+	public void runPostImportCleanup()
+	{
+		initDB.runPostImportCleanup(SQLTransactionTL.getSql());
 	}
 }

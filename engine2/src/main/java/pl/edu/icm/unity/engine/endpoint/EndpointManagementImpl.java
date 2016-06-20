@@ -12,6 +12,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -42,6 +43,7 @@ import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
  * @author K. Benedyczak
  */
 @Component
+@Primary
 @InvocationEventProducer
 public class EndpointManagementImpl implements EndpointManagement
 {

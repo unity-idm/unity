@@ -25,11 +25,31 @@ public class Identity extends IdentityParam implements NamedObject
 	private Date updateTs = new Date();
 	private String comparableValue;
 	
-	public Identity(String type, String value, Long entityId, String comparableValue)
+	public Identity(String type, String value, long entityId, String comparableValue)
 	{
 		super(type, value);
 		this.entityId = entityId;
 		this.comparableValue = comparableValue;
+	}
+
+	/**
+	 * Allows for creating {@link Identity} out of {@link IdentityParam}.
+	 * @param idParam
+	 * @param entityId
+	 * @param comparableValue
+	 */
+	public Identity(IdentityParam idParam, long entityId, String comparableValue)
+	{
+		super(idParam.getTypeId(), idParam.getValue());
+		this.entityId = entityId;
+		this.comparableValue = comparableValue;
+		
+		setConfirmationInfo(idParam.getConfirmationInfo());
+		setMetadata(idParam.getMetadata());
+		setRemoteIdp(idParam.getRemoteIdp());
+		setRealm(idParam.getRealm());
+		setTarget(idParam.getTarget());
+		setTranslationProfile(idParam.getTranslationProfile());
 	}
 	
 	@JsonCreator
@@ -38,7 +58,7 @@ public class Identity extends IdentityParam implements NamedObject
 		super(src);
 	}
 
-	public Identity(String type, Long entityId, String comparableValue, ObjectNode src)
+	public Identity(String type, long entityId, String comparableValue, ObjectNode src)
 	{
 		super(type, src);
 		this.entityId = entityId;

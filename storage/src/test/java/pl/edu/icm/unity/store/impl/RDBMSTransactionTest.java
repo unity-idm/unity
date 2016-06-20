@@ -24,7 +24,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import pl.edu.icm.unity.store.StorageCleaner;
+import pl.edu.icm.unity.store.StorageCleanerImpl;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeBean;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypesMapper;
@@ -40,7 +40,7 @@ public class RDBMSTransactionTest
 	private TransactionalRunner tx;
 	
 	@Autowired
-	private StorageCleaner initDB;
+	private StorageCleanerImpl initDB;
 	
 	@After
 	public void cleanDB()

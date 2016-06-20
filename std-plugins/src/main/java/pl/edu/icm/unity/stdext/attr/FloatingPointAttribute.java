@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.stdext.attr;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import pl.edu.icm.unity.types.basic.Attribute;
 
@@ -20,9 +21,16 @@ public class FloatingPointAttribute extends Attribute
 		super(name, FloatingPointAttributeSyntax.ID, groupPath, values, remoteIdp, translationProfile);
 	}
 
-	public FloatingPointAttribute(String name, String groupPath,
-			List<String> values)
+	public FloatingPointAttribute(String name, String groupPath, List<Double> values)
 	{
-		super(name, FloatingPointAttributeSyntax.ID, groupPath, values);
+		super(name, FloatingPointAttributeSyntax.ID, groupPath, convert(values));
+	}
+	
+	private static List<String> convert(List<Double> values)
+	{
+		FloatingPointAttributeSyntax syntax = new FloatingPointAttributeSyntax();
+		return values.stream().
+				map(v -> syntax.convertToString(v)).
+				collect(Collectors.toList());
 	}
 }

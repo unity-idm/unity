@@ -38,7 +38,7 @@ public class HzTransactionTest
 	private TransactionalRunner tx;
 	
 	@Autowired
-	private StorageCleaner initDB;
+	private StorageCleanerImpl initDB;
 	
 	@After
 	public void cleanDB()

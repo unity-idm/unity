@@ -106,21 +106,16 @@ public class InitDB
 	/**
 	 * Deletes all main DB records except version
 	 * @param session
-	 * @param resetIndexes if false indexes are not reset to the initial value. Useful for tests, 
-	 * normally indexes should be reset.
 	 */
-	public void deleteEverything(SqlSession session, boolean resetIndexes)
+	public void deleteEverything(SqlSession session)
 	{
 		Collection<String> ops = new TreeSet<String>(db.getMyBatisConfiguration().getMappedStatementNames());
 		for (String name: ops)
 			if (name.startsWith("deletedb-"))
 				session.update(name);
-		if (resetIndexes)
-		{
-			for (String name: ops)
-				if (name.startsWith("resetIndex-"))
-					session.update(name);
-		}
+		for (String name: ops)
+			if (name.startsWith("resetIndex-"))
+				session.update(name);
 	}
 
 	/**

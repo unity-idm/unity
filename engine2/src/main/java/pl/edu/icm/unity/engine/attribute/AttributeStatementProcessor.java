@@ -15,6 +15,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.apache.log4j.NDC;
 import org.mvel2.MVEL;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -61,6 +62,16 @@ public class AttributeStatementProcessor
 	private AttributeTypeDAO atDAO;
 	private AttributeTypeHelper atHelper;
 	
+
+	
+	@Autowired
+	public AttributeStatementProcessor(GroupDAO groupDAO, AttributeTypeDAO atDAO,
+			AttributeTypeHelper atHelper)
+	{
+		this.groupDAO = groupDAO;
+		this.atDAO = atDAO;
+		this.atHelper = atHelper;
+	}
 
 	/**
 	 * Collects all attributes for the given entity in the given group.

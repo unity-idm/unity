@@ -17,7 +17,7 @@ import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.HazelcastInstance;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.store.StorageCleaner;
+import pl.edu.icm.unity.store.StorageCleanerImpl;
 import pl.edu.icm.unity.store.StorageConfiguration;
 import pl.edu.icm.unity.store.StorageEngine;
 import pl.edu.icm.unity.store.StoreLoaderInternal;
@@ -46,7 +46,7 @@ public class HzStoreLoader implements StoreLoaderInternal
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, HzStoreLoader.class);
 	
-	public static final String NAME = StorageCleaner.BEAN_PFX + "hz";
+	public static final String NAME = StorageCleanerImpl.BEAN_PFX + "hz";
 	
 	
 	@Autowired
@@ -134,10 +134,29 @@ public class HzStoreLoader implements StoreLoaderInternal
 	public void reset()
 	{
 		initDB.reset();
+		reloadHzFromRDBMS();
+	}
+
+	@Override
+	public void deleteEverything()
+	{
+		initDB.deleteEverything();
+		reloadHzFromRDBMS();
+	}
+
+	private void reloadHzFromRDBMS()
+	{
+		
 		Collection<DistributedObject> distributedObjects = hzInstance.getDistributedObjects();
 		for (DistributedObject obj: distributedObjects)
 			obj.destroy();
 		HzTransactionTL.resetTransaction();
 		loadTransactional();
+	}
+	
+	@Override
+	public void runPostImportCleanup()
+	{
+		initDB.runPostImportCleanup();
 	}
 }

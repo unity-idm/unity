@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
@@ -19,6 +20,7 @@ import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
 import pl.edu.icm.unity.engine.credential.CredentialRequirementsHolder;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
+import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
@@ -41,19 +43,28 @@ import pl.edu.icm.unity.types.basic.EntityParam;
  * @author K. Benedyczak
  */
 @Component
+@Primary
+@InvocationEventProducer
 public class EntityCredentialsManagementImpl implements EntityCredentialManagement
 {
-	@Autowired
 	private EntityResolver idResolver;
-	@Autowired
 	private AttributeDAO attributeDAO;
-	@Autowired
 	private AuthorizationManager authz;
-	@Autowired
 	private AttributesHelper attributesHelper;
-	@Autowired
 	private EntityCredentialsHelper credHelper;
 	
+	@Autowired
+	public EntityCredentialsManagementImpl(EntityResolver idResolver, AttributeDAO attributeDAO,
+			AuthorizationManager authz, AttributesHelper attributesHelper,
+			EntityCredentialsHelper credHelper)
+	{
+		this.idResolver = idResolver;
+		this.attributeDAO = attributeDAO;
+		this.authz = authz;
+		this.attributesHelper = attributesHelper;
+		this.credHelper = credHelper;
+	}
+
 	@Override
 	@Transactional
 	public void setEntityCredentialRequirements(EntityParam entity, String requirementId) throws EngineException

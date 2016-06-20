@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import pl.edu.icm.unity.store.StorageCleaner;
+import pl.edu.icm.unity.store.StorageCleanerImpl;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.EntityDAO;
@@ -53,7 +53,7 @@ import pl.edu.icm.unity.store.objstore.tprofile.OutputTranslationProfileHandler;
 public class TestImport
 {
 	@Autowired
-	protected StorageCleaner dbCleaner;
+	protected StorageCleanerImpl dbCleaner;
 
 	@Autowired
 	protected TransactionalRunner tx;

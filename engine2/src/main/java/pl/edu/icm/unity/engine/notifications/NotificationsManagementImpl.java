@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
@@ -26,6 +27,7 @@ import pl.edu.icm.unity.types.basic.NotificationChannel;
  * @author K. Benedyczak
  */
 @Component
+@Primary
 @InvocationEventProducer
 public class NotificationsManagementImpl implements NotificationsManagement
 {

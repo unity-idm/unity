@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.AttributesManagement;
@@ -36,6 +37,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
  * @author K. Benedyczak
  */
 @Component
+@Primary
 @InvocationEventProducer
 public class AttributesManagementImpl implements AttributesManagement
 {

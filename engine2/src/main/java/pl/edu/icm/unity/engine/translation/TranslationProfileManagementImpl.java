@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.translation;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
@@ -27,6 +28,7 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
  * @author K. Benedyczak
  */
 @Component
+@Primary
 @InvocationEventProducer
 @Transactional
 public class TranslationProfileManagementImpl implements TranslationProfileManagement

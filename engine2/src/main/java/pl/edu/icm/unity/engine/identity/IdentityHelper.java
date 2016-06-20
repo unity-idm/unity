@@ -240,7 +240,7 @@ public class IdentityHelper
 		}
 
 		Date ts = new Date();
-		Identity identity = idTypeHelper.upcastIdentityParam(toAdd);
+		Identity identity = idTypeHelper.upcastIdentityParam(toAdd, entityId);
 		identity.setCreationTs(ts);
 		identity.setUpdateTs(ts);
 		identityDAO.create(identity);
