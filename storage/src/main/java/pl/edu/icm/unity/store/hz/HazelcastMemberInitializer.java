@@ -5,9 +5,11 @@
 package pl.edu.icm.unity.store.hz;
 
 import java.io.File;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,9 +50,8 @@ public class HazelcastMemberInitializer
 		Config config;
 		if (systemCfg.getEnumValue(StorageConfiguration.ENGINE, StorageEngine.class) != StorageEngine.hz)
 		{
-			log.info("Hazelcast subsystem is not enabled, loading minimal, not clustered vaersion.");
-			HzConfiguration def = new HzConfiguration(new Properties());
-			config = createConfig(def);
+			log.info("Hazelcast subsystem is disabled.");
+			return createMockInstance();
 		} else
 		{
 			HzConfiguration cfg = systemCfg.getEngineConfig();
@@ -113,5 +114,22 @@ public class HazelcastMemberInitializer
 		tcpIpConfig.setEnabled(true);
 		
 		return config;
+	}
+
+	/**
+	 * @return a no-op dynamic proxy implementing {@link HazelcastInstance}. Used as a blind stopper
+	 * when non-hazelcast storage engine is being used.
+	 */
+	private HazelcastInstance createMockInstance()
+	{
+		return (HazelcastInstance) Proxy.newProxyInstance(getClass().getClassLoader(), 
+				new Class[] {HazelcastInstance.class}, 
+				new InvocationHandler() {
+			@Override
+			public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+			{
+				return null;
+			}
+		});
 	}
 }
