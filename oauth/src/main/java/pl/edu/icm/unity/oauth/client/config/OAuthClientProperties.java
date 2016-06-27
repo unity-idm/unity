@@ -15,6 +15,7 @@ import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityPropertiesHelper;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
+import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
@@ -53,7 +54,10 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 		META.put(SELECTED_ICON_SCALE, new PropertyMD(ScaleMode.none).setDescription("Controls whether and how "
 				+ "the icon of a provider should be scalled. Note that this setting"
 				+ " controls only the size of the icon of the currently selected provider."));
-
+		META.put(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION, new PropertyMD("true").
+				setDescription("Default setting allowing to globally control whether "
+				+ "account association feature is enabled. "
+				+ "Used for those providers, for which the setting is not set explicitly."));
 		META.put(CustomProviderProperties.PROVIDER_TYPE, new PropertyMD(Providers.custom).setHidden().
 				setStructuredListEntry(PROVIDERS));
 		

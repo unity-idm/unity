@@ -113,9 +113,10 @@ public class CustomProviderProperties extends UnityPropertiesHelper
 		META.put(CommonWebAuthnProperties.TRANSLATION_PROFILE, new PropertyMD().setMandatory().
 				setDescription("Translation profile which will be used to map received user "
 						+ "information to a local representation."));
-		META.put(CommonWebAuthnProperties.ENABLE_ASSOCIATION, new PropertyMD("true").
+		META.put(CommonWebAuthnProperties.ENABLE_ASSOCIATION, new PropertyMD().
 				setDescription("If true then unknown remote user gets an option to associate "
-						+ "the remote identity with an another local (already existing) account."));
+						+ "the remote identity with an another local "
+						+ "(already existing) account. Overrides the global setting."));
 		META.put(CLIENT_HOSTNAME_CHECKING, new PropertyMD(ServerHostnameCheckingMode.FAIL).
 				setDescription("Controls how to react on the DNS name mismatch with "
 						+ "the server's certificate. Unless in testing environment "

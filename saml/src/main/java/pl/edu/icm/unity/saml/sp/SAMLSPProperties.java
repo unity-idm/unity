@@ -143,8 +143,10 @@ public class SAMLSPProperties extends SamlProperties
 		META.put(CommonWebAuthnProperties.REGISTRATION_FORM, new PropertyMD().setCategory(idp).setStructuredListEntry(IDP_PREFIX).setDescription(
 				"Name of a registration form to be shown for a remotely authenticated principal who " +
 				"has no local account. If unset such users will be denied."));	
-		META.put(CommonWebAuthnProperties.ENABLE_ASSOCIATION, new PropertyMD("true").setCategory(idp).setStructuredListEntry(IDP_PREFIX).setDescription(
-				"If true then unknown remote user gets an option to associate the remote identity with an another local (already existing) account."));	
+		META.put(CommonWebAuthnProperties.ENABLE_ASSOCIATION, new PropertyMD().setCategory(idp).
+				setStructuredListEntry(IDP_PREFIX).setDescription(
+				"If true then unknown remote user gets an option to associate the remote identity "
+				+ "with an another local (already existing) account. Overrides the global setting."));	
 		META.put(REQUESTER_ID, new PropertyMD().setMandatory().setCategory(common).setDescription(
 				"SAML entity ID (must be a URI) of the local SAML requester (or service provider)."));
 		META.put(CREDENTIAL, new PropertyMD().setCategory(common).setDescription(
@@ -169,6 +171,9 @@ public class SAMLSPProperties extends SamlProperties
 				"Default setting of request signing. Used for those IdPs, for which the setting is not set explicitly."));
 		META.put(DEF_REQUESTED_NAME_FORMAT, new PropertyMD().setCategory(common).setDescription(
 				"Default setting of requested identity format. Used for those IdPs, for which the setting is not set explicitly."));	
+		META.put(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION, new PropertyMD("true").setCategory(common).setDescription(
+				"Default setting allowing to globally control whether account association feature is enabled. "
+				+ "Used for those IdPs, for which the setting is not set explicitly."));	
 		META.put(ICON_SCALE, new PropertyMD().setCategory(webRetrieval).setDeprecated().
 				setDescription("Deprecated, use either authentication UI icon scalling or "
 						+ "the " + SELECTED_PROVDER_ICON_SCALE));
