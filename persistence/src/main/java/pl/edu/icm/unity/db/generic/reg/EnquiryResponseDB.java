@@ -31,7 +31,6 @@ public class EnquiryResponseDB extends GenericObjectsDB<EnquiryResponseState>
 	{
 		super(handler, dbGeneric, notificationManager, EnquiryResponseState.class,
 				"enquiry response");
-		notificationManager.addListener(new RequestCredentialChangeListener(authnRegistry, credentialDB,
-				sql -> getAll(sql)));
+		notificationManager.addListener(new RequestCredentialChangeListener(sql -> getAll(sql)));
 	}
 }

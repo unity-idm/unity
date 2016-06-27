@@ -31,7 +31,6 @@ public class RegistrationRequestDB extends GenericObjectsDB<RegistrationRequestS
 	{
 		super(handler, dbGeneric, notificationManager, RegistrationRequestState.class,
 				"registration request");
-		notificationManager.addListener(new RequestCredentialChangeListener(authnRegistry, credentialDB,
-				sql -> getAll(sql)));
+		notificationManager.addListener(new RequestCredentialChangeListener(sql -> getAll(sql)));
 	}
 }

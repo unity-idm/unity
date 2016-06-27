@@ -205,7 +205,7 @@ public class CredentialResetSettingsEditor
 		enable.setValue(initial.isEnabled());
 		codeLength.setValue(initial.getCodeLength());
 		requireEmailConfirmation.setValue(initial.isRequireEmailConfirmation());
-		requireQuestionConfirmation.setValue(initial.isRequireEmailConfirmation());
+		requireQuestionConfirmation.setValue(initial.isRequireSecurityQuestion());
 		for (String question: initial.getQuestions())
 			questions.addEntry(question);
 		codeMessageTemplate.setValue(initial.getSecurityCodeMsgTemplate());

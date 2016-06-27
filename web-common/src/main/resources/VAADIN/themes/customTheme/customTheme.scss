@@ -4,6 +4,9 @@ $v-background-color: #66FF99 !default;
 //We base our theme on Vaadin Valo theme
 @import "../valo/valo.scss";
 
+//stepper's add on style need to be included to have stepper widget all right
+@import "../../addons/stepper/stepper.scss";
+
 //And reuse the default Unity's theme definitions
 @import "../common/common.scss";
 
@@ -14,6 +17,8 @@ $v-background-color: #66FF99 !default;
 	//we include Valo
 	@include valo;
 	
+	//and stepper
+	@include stepper;
 	
 	//let's override one of the variables used by Unity's default theme (imported below)
 	$headerBackgroundImage: 	none;

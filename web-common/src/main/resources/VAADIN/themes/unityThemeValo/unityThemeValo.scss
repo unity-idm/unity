@@ -1,9 +1,12 @@
 @import "../valo/valo.scss";
+@import "../../addons/stepper/stepper.scss";
 @import "../common/common.scss";
 
 @mixin unityThemeValo {
 
 	@include valo;
+	
+	@include stepper;
 	
 	@include unityCommon;
 }
