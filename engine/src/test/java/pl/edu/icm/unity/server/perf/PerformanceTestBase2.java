@@ -1,13 +1,12 @@
+package pl.edu.icm.unity.server.perf;
 /*
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.test.performance;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
@@ -20,33 +19,31 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.db.DBAttributes;
 import pl.edu.icm.unity.engine.SecuredDBIntegrationTestBase;
-import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.AttributesManagement;
-import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
-import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.authn.InvocationContext;
-import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.GroupsManagement;
+import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.internal.IdentityResolver;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
+import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
+import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.store.api.AttributeDAO;
-import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.store.types.StoredAttribute;
+import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeStatement;
-import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
+import pl.edu.icm.unity.types.basic.AttributeStatement2;
+import pl.edu.icm.unity.types.basic.AttributeStatement2.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -67,12 +64,10 @@ public class PerformanceTestBase2 extends SecuredDBIntegrationTestBase
 	@Autowired
 	protected TransactionalRunner tx;
 	@Autowired
-	protected AttributeDAO attributeDAO;
+	protected DBAttributes attributeDAO;
 	@Autowired
 	@Qualifier("insecure")
-	protected EntityManagement idsMan;
-	@Autowired
-	protected EntityCredentialManagement eCredMan;
+	protected IdentitiesManagement idsMan;
 	@Autowired
 	@Qualifier("insecure")
 	protected GroupsManagement groupsMan;
@@ -80,18 +75,21 @@ public class PerformanceTestBase2 extends SecuredDBIntegrationTestBase
 	@Qualifier("insecure")
 	protected AttributesManagement attrsMan;
 	@Autowired
-	protected AttributeTypeManagement attrTypesMan;
-	@Autowired
 	protected SessionManagement sessionMan;
 	@Autowired
 	protected IdentityResolver identityResolver;
 	
+	
 	@Before
 	@Override
-	public void clear() throws Exception
+	public void clear() throws EngineException
 	{
 		//insecureServerMan.resetDatabase();
-
+	}
+	
+	@Before
+	public void setup() throws Exception
+	{
 		Logger.getLogger("unity.server").setLevel(Level.OFF);
 		Logger.getLogger("pl.edu.icm.unity.store").setLevel(Level.OFF);
 		
@@ -136,9 +134,9 @@ public class PerformanceTestBase2 extends SecuredDBIntegrationTestBase
 		for (int i = 0; i < entities; i++)
 		{
 			Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID,
-					"user" + i), CR_MOCK, EntityState.valid, false);
+					"user" + i), "crMock", EntityState.valid, false);
 
-			eCredMan.setEntityCredential(new EntityParam(added1), "credential1",
+			idsMan.setEntityCredential(new EntityParam(added1), "credential1",
 					new PasswordToken("PassWord8743#%$^&*").toJson());
 			
 			for (int j=0; j<identitiesPerEntity; j++)
@@ -192,14 +190,15 @@ public class PerformanceTestBase2 extends SecuredDBIntegrationTestBase
 
 	private void fillGroupStatements(Group toFill, int statements)
 	{
-		AttributeStatement[] attributeStatements = new AttributeStatement[statements];
+		AttributeStatement2[] attributeStatements = new AttributeStatement2[statements];
 		for (int i=0; i<statements; i++)
 		{
 			String attr = STRING_ATTR_PFX + i;
-			attributeStatements[i] = new AttributeStatement("true", 
+			attributeStatements[i] = new AttributeStatement2("true", 
 					toFill.getParentPath(), 
 					ConflictResolution.skip, 
-					AS_STRING_ATTR_PFX + i, 
+					AttributeVisibility.full,
+					new AttributeType(AS_STRING_ATTR_PFX + i, new StringAttributeSyntax()), 
 					"eattrs['" + attr + "']");
 		}
 		toFill.setAttributeStatements(attributeStatements);
@@ -215,25 +214,25 @@ public class PerformanceTestBase2 extends SecuredDBIntegrationTestBase
 		for (int i = 0; i < attributeTypes; i++)
 		{
 			AttributeType type = new AttributeType(STRING_ATTR_PFX + i,
-					StringAttributeSyntax.ID);
+					new StringAttributeSyntax());
 			type.setMaxElements(1000);
-			attrTypesMan.addAttributeType(type);
+			attrsMan.addAttributeType(type);
 		}
 
 		for (int i = 0; i < attributeStatements; i++)
 		{
 			AttributeType type = new AttributeType(AS_STRING_ATTR_PFX + i,
-					StringAttributeSyntax.ID);
+					new StringAttributeSyntax());
 			type.setMaxElements(1000);
-			attrTypesMan.addAttributeType(type);
+			attrsMan.addAttributeType(type);
 		}
 
 		for (int i = 0; i < attributeTypes; i++)
 		{
 			AttributeType type = new AttributeType("jpeg_" + i,
-					JpegImageAttributeSyntax.ID);
+					new JpegImageAttributeSyntax());
 			type.setMaxElements(1000);
-			attrTypesMan.addAttributeType(type);
+			attrsMan.addAttributeType(type);
 		}
 		
 	}
@@ -252,13 +251,12 @@ public class PerformanceTestBase2 extends SecuredDBIntegrationTestBase
 					
 					for (int i=0; i<attrs; i++)
 					{
-						StringAttribute attribute = new StringAttribute(STRING_ATTR_PFX + i, group, 
-								Lists.newArrayList("val1", "sooooooooome loooooonger vaaaaal" + 
-										r.nextLong()));
-						AttributeExt ae = new AttributeExt(attribute, true, 
-								new Date(), new Date());
-						StoredAttribute sa = new StoredAttribute(ae, resolved.getId());
-						attributeDAO.create(sa);
+						List<String> values = Lists.newArrayList("val1", 
+								"sooooooooome loooooonger vaaaaal" + r.nextLong());
+						StringAttribute attribute = new StringAttribute(STRING_ATTR_PFX + i, 
+								group, AttributeVisibility.full, values);
+						attributeDAO.addAttribute(resolved.getId(), attribute, false, 
+								SqlSessionTL.get());
 					}
 				}
 			});

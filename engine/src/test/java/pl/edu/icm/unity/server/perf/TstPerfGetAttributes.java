@@ -1,4 +1,4 @@
-package pl.edu.icm.unity.test.performance;
+package pl.edu.icm.unity.server.perf;
 /*
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
@@ -9,14 +9,17 @@ import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.base.utils.StopWatch;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.StopWatch;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
@@ -74,11 +77,12 @@ public class TstPerfGetAttributes extends PerformanceTestBase2
 		watch.printTotal("Time elapsed: {0}");
 		log.info("CREATED TEST DB CONTENTS ");
 		*/
+		
 		//warm-up
 		getAll();
 
 		log.info("STARTING TEST...");
-//		System.in.read();
+		
 		for (int i = 0; i < TEST_REPETITIONS; i++)
 		{
 			timer.startTimer();

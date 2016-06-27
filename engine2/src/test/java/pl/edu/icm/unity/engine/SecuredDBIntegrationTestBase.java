@@ -34,7 +34,6 @@ import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.endpoint.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.server.JettyServer;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.NamedObject;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -89,7 +88,7 @@ public abstract class SecuredDBIntegrationTestBase
 	protected RealmsManagement realmsMan;
 	
 	@Before
-	public void clear() throws EngineException
+	public void clear() throws Exception
 	{
 		insecureServerMan.resetDatabase();
 	}
