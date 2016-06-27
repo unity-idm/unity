@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui.common.credentials.ext;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
@@ -53,7 +54,7 @@ public class CertificateCredentialEditor implements CredentialEditor
 	}
 
 	@Override
-	public void setCredentialError(String message)
+	public void setCredentialError(EngineException message)
 	{
 	}
 

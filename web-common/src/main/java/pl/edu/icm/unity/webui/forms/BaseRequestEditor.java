@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -159,18 +158,10 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		
 		if (category == Category.CREDENTIAL)
 		{
-			String info = e.getMessage();
+			EngineException error = e;
 			if (e.getCause() != null && e.getCause() instanceof IllegalCredentialException)
-			{
-				IllegalCredentialException ice = (IllegalCredentialException) e.getCause();
-				info = ice.getMessage() + ": ";
-				if (ice.getDetails() != null)
-					info += ice.getDetails().stream()
-						.map(ss -> ss.getValue(msg))
-						.collect(Collectors.joining(" "));
-					
-			}
-			credentialParamEditors.get(position).setCredentialError(info);
+				error = (IllegalCredentialException) e.getCause();
+			credentialParamEditors.get(position).setCredentialError(error);
 		}
 	}
 	

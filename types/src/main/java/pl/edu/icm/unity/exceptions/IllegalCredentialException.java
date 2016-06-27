@@ -5,7 +5,9 @@
 package pl.edu.icm.unity.exceptions;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nStringSource;
 
 /**
@@ -35,5 +37,20 @@ public class IllegalCredentialException extends EngineException
 	public List<I18nStringSource> getDetails()
 	{
 		return details;
+	}
+	
+	/**
+	 * Formats information about error reason.
+	 * @param msg
+	 * @return
+	 */
+	public String formatDetails(MessageSource msg)
+	{
+		String info = getMessage() + ": ";
+		if (getDetails() != null)
+			info += getDetails().stream()
+				.map(ss -> ss.getValue(msg))
+				.collect(Collectors.joining(" "));
+		return info;
 	}
 }

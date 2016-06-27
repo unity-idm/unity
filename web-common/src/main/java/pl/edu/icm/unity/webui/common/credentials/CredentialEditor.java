@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webui.common.credentials;
 
 import com.vaadin.ui.Component;
 
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
@@ -46,10 +47,10 @@ public interface CredentialEditor
 	
 	/**
 	 * Signals that the UI should render an error on the dialog with credentials.
-	 * Additionally the previousy entered values should be reset.
-	 * @param message either an error message or null to clear the previous error.
+	 * Additionally the previously entered values should be reset.
+	 * @param error either an error or null to clear the previous error.
 	 */
-	public void setCredentialError(String message);
+	public void setCredentialError(EngineException error);
 	
 	/**
 	 * Signals that the UI should render an error on the dialog with the previous credential.
