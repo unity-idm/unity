@@ -7,7 +7,6 @@ package pl.edu.icm.unity.oauth.rp.verificator;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,9 +14,13 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
+
+import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.client.UserProfileFetcher;
-import pl.edu.icm.unity.oauth.client.UserProfileFetcher.ClientAuthnMode;
+import pl.edu.icm.unity.oauth.client.profile.OpenIdProfileFetcher;
+import pl.edu.icm.unity.oauth.client.profile.PlainProfileFetcher;
 import pl.edu.icm.unity.oauth.rp.AccessTokenExchange;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties;
 import pl.edu.icm.unity.oauth.rp.verificator.ResultsCache.CacheEntry;
@@ -36,13 +39,6 @@ import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.server.utils.CacheProvider;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
-
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
-
-import eu.emi.security.authn.x509.X509CertChainValidator;
-import eu.unicore.util.configuration.ConfigurationException;
-import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 
 /**
  * Verificator of bearer access token.
@@ -195,39 +191,21 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 	{
 		boolean openIdMode = verificatorProperties.getBooleanValue(OAuthRPProperties.OPENID_MODE);
 		String profileEndpoint = verificatorProperties.getValue(OAuthRPProperties.PROFILE_ENDPOINT);
-		ServerHostnameCheckingMode checkingMode = verificatorProperties.getEnumValue(
-				OAuthRPProperties.CLIENT_HOSTNAME_CHECKING, 
-				ServerHostnameCheckingMode.class);
-		X509CertChainValidator validator = verificatorProperties.getValidator();
 		Map<String, String> attrs = new HashMap<>();
 		if (profileEndpoint == null)
 		{
 			log.debug("The profile endpoint is not defined, skipping the profile fetching");
 			return attrs;
 		}
-		if (openIdMode)
+		UserProfileFetcher profileFetcher = openIdMode ? new OpenIdProfileFetcher() : 
+			new PlainProfileFetcher();
+		
+		try
 		{
-			try
-			{
-				UserProfileFetcher.fetchOpenIdUserInfo(accessToken, new URI(profileEndpoint), 
-						attrs, checkingMode, validator);
-			} catch (Exception e)
-			{
-				throw new AuthenticationException("Can not fetch user's profile information", e);
-			}
-		} else
+			profileFetcher.fetchProfile(accessToken, profileEndpoint, verificatorProperties);
+		} catch (Exception e)
 		{
-			ClientAuthnMode selectedMethod = verificatorProperties.getEnumValue(
-					OAuthRPProperties.CLIENT_AUTHN_MODE, 
-					ClientAuthnMode.class);
-			try
-			{
-				UserProfileFetcher.fetchUserInfo(accessToken, selectedMethod, 
-						profileEndpoint, attrs, checkingMode, validator);
-			} catch (ParseException | IOException e)
-			{
-				throw new AuthenticationException("Can not fetch user's profile information", e);
-			}
+			throw new AuthenticationException("Can not fetch user's profile information", e);
 		}
 		return attrs;
 	}

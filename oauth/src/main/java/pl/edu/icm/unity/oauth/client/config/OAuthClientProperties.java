@@ -11,15 +11,15 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import eu.unicore.util.configuration.ConfigurationException;
+import eu.unicore.util.configuration.DocumentationReferenceMeta;
+import eu.unicore.util.configuration.DocumentationReferencePrefix;
+import eu.unicore.util.configuration.PropertyMD;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityPropertiesHelper;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
-import eu.unicore.util.configuration.ConfigurationException;
-import eu.unicore.util.configuration.DocumentationReferenceMeta;
-import eu.unicore.util.configuration.DocumentationReferencePrefix;
-import eu.unicore.util.configuration.PropertyMD;
 
 /**
  * Configuration of OAuth client.
