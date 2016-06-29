@@ -202,7 +202,8 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 		
 		try
 		{
-			profileFetcher.fetchProfile(accessToken, profileEndpoint, verificatorProperties);
+			attrs.putAll(profileFetcher.fetchProfile(accessToken, profileEndpoint, verificatorProperties, 
+					attrs));
 		} catch (Exception e)
 		{
 			throw new AuthenticationException("Can not fetch user's profile information", e);

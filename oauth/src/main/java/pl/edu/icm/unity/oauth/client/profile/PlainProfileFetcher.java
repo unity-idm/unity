@@ -40,7 +40,7 @@ public class PlainProfileFetcher implements UserProfileFetcher
 	
 	@Override
 	public Map<String, String> fetchProfile(BearerAccessToken accessToken, String userInfoEndpoint,
-			BaseRemoteASProperties providerConfig) throws Exception
+			BaseRemoteASProperties providerConfig, Map<String, String> attributesSoFar) throws Exception
 	{
 		Map<String, String> ret = new HashMap<>();
 		

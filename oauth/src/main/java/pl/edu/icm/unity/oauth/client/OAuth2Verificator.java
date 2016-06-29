@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.util.MultiMap;
 import org.eclipse.jetty.util.UrlEncoded;
@@ -180,9 +181,12 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 					new URI(responseConsumerAddress),
 					scope, 
 					new State(context.getRelayState()));
+			
 		}
 		
-		context.setRequest(req, req.toURI(), providerKey);
+		URIBuilder uriBuilder = new URIBuilder(req.toURI());
+		uriBuilder.addParameters(providerCfg.getAdditionalAuthzParams());
+		context.setRequest(req, uriBuilder.build(), providerKey);
 		contextManagement.addAuthnContext(context);
 		return context;
 	}
@@ -326,7 +330,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		UserProfileFetcher userAttributesFetcher = providerCfg.getUserAttributesResolver();
 		if (userInfoEndpoint != null && userAttributesFetcher != null)
 		{
-			ret.putAll(userAttributesFetcher.fetchProfile(accessToken, userInfoEndpoint, providerCfg));
+			ret.putAll(userAttributesFetcher.fetchProfile(accessToken, userInfoEndpoint, providerCfg,
+					ret));
 		}
 		
 		log.debug("Received the following attributes from the OAuth provider: " + ret);
@@ -415,7 +420,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		UserProfileFetcher userAttributesFetcher = providerCfg.getUserAttributesResolver();
 		if (userInfoEndpoint != null && userAttributesFetcher != null)
 		{
-			ret.putAll(userAttributesFetcher.fetchProfile(accessToken, userInfoEndpoint, providerCfg));
+			ret.putAll(userAttributesFetcher.fetchProfile(accessToken, userInfoEndpoint, providerCfg,
+					ret));
 		}
 		
 		log.debug("Received the following attributes from the OAuth provider: " + ret);

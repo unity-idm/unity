@@ -33,7 +33,7 @@ public class OpenIdProfileFetcher implements UserProfileFetcher
 {
 	@Override
 	public Map<String, String> fetchProfile(BearerAccessToken accessToken, String userInfoEndpoint,
-			BaseRemoteASProperties providerConfig) throws Exception
+			BaseRemoteASProperties providerConfig, Map<String, String> attributesSoFar) throws Exception
 	{
 		UserInfoRequest uiRequest = new UserInfoRequest(new URI(userInfoEndpoint), accessToken);
 		ServerHostnameCheckingMode checkingMode = providerConfig.getEnumValue(

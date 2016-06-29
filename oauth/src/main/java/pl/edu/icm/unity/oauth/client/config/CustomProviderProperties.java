@@ -4,10 +4,14 @@
  */
 package pl.edu.icm.unity.oauth.client.config;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
 
 import eu.emi.security.authn.x509.X509CertChainValidator;
@@ -50,6 +54,7 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 	public static final String OPENID_CONNECT = "openIdConnect";
 	public static final String OPENID_DISCOVERY = "openIdConnectDiscoveryEndpoint";
 	public static final String ICON_URL = "iconUrl";
+	public static final String ADDITIONAL_AUTHZ_PARAMS = "extraAuthzParams.";
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
@@ -122,6 +127,10 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 		META.put(CLIENT_TRUSTSTORE, new PropertyMD().setDescription("Name of the truststore which should be used"
 				+ " to validate TLS peer's certificates. "
 				+ "If undefined then the system Java tuststore is used."));
+		META.put(ADDITIONAL_AUTHZ_PARAMS, new PropertyMD().setList(false).
+				setDescription("Allows to specify non-standard, fixed parameters which shall be "
+						+ "added to the query string of the authorization redirect request. "
+						+ "format must be: PARAM=VALUE"));
 	}
 	
 	private X509CertChainValidator validator = null;
@@ -186,5 +195,30 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 	public X509CertChainValidator getValidator()
 	{
 		return validator;
+	}
+	
+	public List<NameValuePair> getAdditionalAuthzParams()
+	{
+		List<String> raw = getListOfValues(ADDITIONAL_AUTHZ_PARAMS);
+		List<NameValuePair> ret = new ArrayList<>(raw.size());
+		for (String rawParam: raw)
+		{
+			int splitAt = rawParam.indexOf('=');
+			if (splitAt == -1)
+			{
+				log.warn("Specification of extra authz query parameter is invalid, no '=': " + 
+						rawParam + " ignoring it");
+				continue;
+			}
+			if (splitAt == rawParam.length()-1)
+			{
+				log.warn("Specification of extra authz query parameter is invalid, no value: " + 
+						rawParam + " ignoring it");
+				continue;
+			}
+			ret.add(new BasicNameValuePair(
+					rawParam.substring(0, splitAt), rawParam.substring(splitAt+1)));
+		}
+		return ret;
 	}
 }
