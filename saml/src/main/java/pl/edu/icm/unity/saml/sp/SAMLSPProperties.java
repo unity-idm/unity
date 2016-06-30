@@ -309,6 +309,16 @@ public class SAMLSPProperties extends SamlProperties
 					" must be set if metadata publication is enabled.");
 	}
 	
+	@Override
+	public synchronized void setProperties(Properties properties) throws ConfigurationException
+	{
+		long start = System.currentTimeMillis();
+		super.setProperties(properties);
+		log.info("Updated trusted IdPs configuration with " + getStructuredListKeys(IDP_PREFIX).size() 
+				+ " explicit trusted providers, took " + (System.currentTimeMillis() - start) + "ms");
+	}
+
+	
 	public X509Credential getRequesterCredential()
 	{
 		String credential = getValue(SAMLSPProperties.CREDENTIAL);

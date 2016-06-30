@@ -80,7 +80,7 @@ public class RemoteMetaManager
 		return virtualConfiguration.clone();
 	}
 
-	public synchronized void setVirtualConfiguration(Properties virtualConfigurationProperties)
+	private synchronized void setVirtualConfiguration(Properties virtualConfigurationProperties)
 	{
 		this.virtualConfiguration.setProperties(virtualConfigurationProperties);
 	}
