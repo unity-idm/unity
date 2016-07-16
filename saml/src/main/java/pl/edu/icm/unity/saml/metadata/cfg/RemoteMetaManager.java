@@ -72,6 +72,7 @@ public class RemoteMetaManager
 		{
 			reloadSingle(key, virtualConfigProps, configuration);
 		}
+		log.trace("Full reloading of metadata completed, updated virtal configuration is ready to be applied");
 		setVirtualConfiguration(virtualConfigProps);
 	}
 	
@@ -145,6 +146,7 @@ public class RemoteMetaManager
 		}
 		
 		converter.convertToProperties(metadata, virtualProps, configuration, key);
+		log.trace("Converted metadata from " + url + " to virtual configuration");
 	}
 
 	public void setValidationDate(Date validationDate)
