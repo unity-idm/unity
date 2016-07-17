@@ -17,6 +17,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response.Status;
+
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -32,7 +35,6 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
 /**
  * Tests REST integration basic. Note that more detailed tests of {@link AuthenticationInterceptor}
@@ -77,23 +79,46 @@ public class TestRESTCore extends TestRESTBase
 	@Test
 	public void basicGetIsServed() throws Exception
 	{
-		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
-		assertEquals(1, endpoints.size());
-
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
 		HttpContext localcontext = getClientContext(client, host);
 		
 		HttpGet get = new HttpGet("/mock/mock-rest/test/r1");
 		HttpResponse response = client.execute(host, get, localcontext);
-		assertEquals(response.getStatusLine().toString(), 200, response.getStatusLine().getStatusCode());
-		System.out.println(EntityUtils.toString(response.getEntity()));
 		
+		System.out.println(EntityUtils.toString(response.getEntity()));
+		assertEquals(response.getStatusLine().toString(), 200, response.getStatusLine().getStatusCode());
+	}
+	
+	@Test
+	public void requestNotAuthenticatedIsForbidden() throws Exception
+	{
+		HttpClient client = getClient();
+		HttpHost host = new HttpHost("localhost", 53456, "https");
+		HttpGet get = new HttpGet("/mock/mock-rest/test/r1");
+
 		//no password, should fail.
 		HttpResponse response2 = client.execute(host, get);
-		assertEquals(response2.getStatusLine().toString(), 500, response2.getStatusLine().getStatusCode());
-	}
 
+		assertThat(response2.getStatusLine().getStatusCode(), is(Status.FORBIDDEN.getStatusCode()));
+	}
+	
+	@Test
+	public void exceptionIsMappedToHTTPError() throws Exception
+	{
+		HttpClient client = getClient();
+		HttpHost host = new HttpHost("localhost", 53456, "https");
+		HttpContext localcontext = getClientContext(client, host);
+		
+		HttpGet get = new HttpGet("/mock/mock-rest/test/r1/exception");
+		HttpResponse response = client.execute(host, get, localcontext);
+		String entity = EntityUtils.toString(response.getEntity());
+		System.out.println(entity);
+		assertThat(response.getStatusLine().getStatusCode(), is(Status.FORBIDDEN.getStatusCode()));
+		assertThat(response.getEntity().getContentType().getValue(), is(MediaType.APPLICATION_JSON));
+		assertThat(entity, containsString("Test exception"));
+	}
+	
 	@Test
 	public void allowedCorsOriginIsAccepted() throws Exception
 	{

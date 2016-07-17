@@ -17,6 +17,12 @@ import pl.edu.icm.unity.Constants;
  */
 public class TimeUtil
 {
+	/**
+	 * TODO this method shall be removed (and all its usages) after MySQL timestamp store is updated to 
+	 * millisecond precision
+	 * @param what
+	 * @return
+	 */
 	public static Date roundToS(Date what)
 	{
 		return what == null ? null : new Date((what.getTime()/1000)*1000);

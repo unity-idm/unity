@@ -29,6 +29,7 @@ import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.utils.ExecutorsService;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.TimeUtil;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
@@ -73,7 +74,8 @@ public class TokensManagementImpl implements TokensManagement
 	{
 		SqlSession sql = SqlSessionTL.get();
 		long entity = idResolver.getEntityId(owner, sql);
-		dbTokens.addToken(value, type, contents, entity, created, expires, sql);
+		dbTokens.addToken(value, type, contents, entity, TimeUtil.roundToS(created), 
+				TimeUtil.roundToS(expires), sql);
 	}
 	
 	@Transactional
@@ -82,7 +84,8 @@ public class TokensManagementImpl implements TokensManagement
 			Date created, Date expires) 
 			throws WrongArgumentException, IllegalTypeException
 	{
-		dbTokens.addToken(value, type, contents, created, expires, SqlSessionTL.get());
+		dbTokens.addToken(value, type, contents, TimeUtil.roundToS(created), 
+				TimeUtil.roundToS(expires), SqlSessionTL.get());
 	}
 	
 	@Transactional
@@ -97,7 +100,7 @@ public class TokensManagementImpl implements TokensManagement
 	public void updateToken(String type, String value, Date expires, byte[] contents)
 			throws WrongArgumentException
 	{
-		dbTokens.updateToken(value, type, expires, contents, SqlSessionTL.get());
+		dbTokens.updateToken(value, type, TimeUtil.roundToS(expires), contents, SqlSessionTL.get());
 	}
 
 	@Transactional(autoCommit=false)
