@@ -3,7 +3,7 @@
 	<groupId>pl.edu.icm.unity</groupId>
 	<artifactId>unity-server-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>1.9.3-SNAPSHOT</version>
+	<version>1.9.3</version>
 	<name>UNITY aggregation and parent module</name>
 	<organization>
 		<name>Unity</name>
@@ -37,7 +37,7 @@
 	<scm>
 		<connection>${scm.base}</connection>
 		<developerConnection>${scm.base}</developerConnection>
-		<tag>HEAD</tag>
+		<tag>unity-server-parent-1.9.3</tag>
     </scm>
 
 	<modules>
