@@ -11,6 +11,7 @@ import static org.junit.Assert.assertThat;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.ws.rs.core.Response.Status;
 
@@ -23,6 +24,12 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import pl.edu.icm.unity.rest.TestRESTBase;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
@@ -38,6 +45,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
+import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.AttributeRepresentation;
@@ -49,12 +57,6 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 
 public class TestQuery extends TestRESTBase
@@ -156,6 +158,47 @@ public class TestQuery extends TestRESTBase
 		assertThat(parsed.get(0).getVisibility(), is(AttributeVisibility.local));
 		System.out.println("Attributes in /:\n" + formatJson(contents));
 	}
+	
+	@Test
+	public void queryByPersistentIdWorks() throws Exception
+	{
+		long entityId = createTestContents();
+		
+		HttpClient client = getClient();
+		HttpHost host = new HttpHost("localhost", 53456, "https");
+		HttpContext localcontext = getClientContext(client, host);
+
+		Entity entity = idsMan.getEntity(new EntityParam(entityId));
+		Identity persistent = Stream.of(entity.getIdentities()).
+			filter(i -> i.getTypeId().equals(PersistentIdentity.ID)).
+			findFirst().
+			get();
+				
+		
+		HttpGet getGroups = new HttpGet("/restadm/v1/entity/"+persistent.getValue()+"/groups");
+		HttpResponse response = client.execute(host, getGroups, localcontext);
+		String contents = EntityUtils.toString(response.getEntity());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		System.out.println("User's groups:\n" + contents);
+	}
+
+	@Test
+	public void queryWithExplicitIdTypeWorks() throws Exception
+	{
+		createTestContents();
+		
+		HttpClient client = getClient();
+		HttpHost host = new HttpHost("localhost", 53456, "https");
+		HttpContext localcontext = getClientContext(client, host);
+
+		HttpGet getGroups = new HttpGet("/restadm/v1/entity/tested/groups?identityType=" 
+				+ UsernameIdentity.ID);
+		HttpResponse response = client.execute(host, getGroups, localcontext);
+		String contents = EntityUtils.toString(response.getEntity());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		System.out.println("User's groups:\n" + contents);
+	}
+	
 	
 	private HttpResponse executeQuery(HttpRequest request) throws Exception
 	{
