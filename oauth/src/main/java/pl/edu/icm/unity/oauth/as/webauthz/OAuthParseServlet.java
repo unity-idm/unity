@@ -191,7 +191,8 @@ public class OAuthParseServlet extends HttpServlet
 					oauthConfig.getIntValue(OAuthASProperties.ID_TOKEN_VALIDITY),
 					oauthConfig.getValue(OAuthASProperties.ISSUER_URI),
 					oauthConfig.getCredential(),
-					oauthConfig.getBooleanValue(OAuthASProperties.SKIP_CONSENT));
+					oauthConfig.getBooleanValue(OAuthASProperties.SKIP_CONSENT),
+					oauthConfig.getValue(OAuthASProperties.IDENTITY_TYPE_FOR_SUBJECT));
 			validate(context);
 		} catch (OAuthValidationException e)
 		{

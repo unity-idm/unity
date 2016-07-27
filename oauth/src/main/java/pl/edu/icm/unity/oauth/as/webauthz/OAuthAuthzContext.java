@@ -46,14 +46,17 @@ public class OAuthAuthzContext
 	private int idTokenValidity;
 	private String issuerName;
 	private X509Credential credential;
+	private String subjectIdentityType;
 	
 
 	public OAuthAuthzContext(AuthorizationRequest request, int accessTokenValidity, int maxExtendedAccessTokenValidity,
 			int codeTokenValidity,
-			int idTokenValidity, String issuerName, X509Credential credential, boolean skipConsent)
+			int idTokenValidity, String issuerName, X509Credential credential, boolean skipConsent,
+			String subjectIdentityType)
 	{
 		super();
 		this.maxExtendedAccessTokenValidity = maxExtendedAccessTokenValidity;
+		this.subjectIdentityType = subjectIdentityType;
 		this.timestamp = new Date();
 		this.request = request;
 		this.codeTokenValidity = codeTokenValidity;
@@ -222,6 +225,16 @@ public class OAuthAuthzContext
 	public void setClientEntityId(long clientEntityId)
 	{
 		this.clientEntityId = clientEntityId;
+	}
+
+	public static long getAuthnTimeout()
+	{
+		return AUTHN_TIMEOUT;
+	}
+
+	public String getSubjectIdentityType()
+	{
+		return subjectIdentityType;
 	}
 
 
