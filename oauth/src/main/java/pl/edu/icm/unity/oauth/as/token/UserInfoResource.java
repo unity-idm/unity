@@ -41,6 +41,7 @@ public class UserInfoResource extends BaseTokenResource
 		try
 		{
 			internalAccessToken = super.resolveBearerToken(bearerToken);
+			extendValidityIfNeeded(internalAccessToken.tokenSrc, internalAccessToken.parsedToken);
 		} catch (OAuthTokenException e)
 		{
 			return e.getErrorResponse();
