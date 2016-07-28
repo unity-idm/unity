@@ -33,6 +33,7 @@ import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.endpoint.InternalEndpointManagement;
+import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
 import pl.edu.icm.unity.engine.server.JettyServer;
 import pl.edu.icm.unity.types.NamedObject;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;

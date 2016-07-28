@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.Collection;
 
 import org.apache.log4j.Logger;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -43,7 +44,7 @@ public class TstPerfGetAttributes extends PerformanceTestBase2
 
 	private final int ATTRIBUTES = 10; 
 	
-	
+	@Ignore
 	@Test
 	public void testGetAttributes() throws EngineException, IOException
 	{

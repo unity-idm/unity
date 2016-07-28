@@ -56,7 +56,7 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 /**
  * Contains all necessary db and time method for integration tests
  */
-public class PerformanceTestBase2 extends SecuredDBIntegrationTestBase
+public abstract class PerformanceTestBase2 extends SecuredDBIntegrationTestBase
 {
 	private final static String STRING_ATTR_PFX = "string_";
 

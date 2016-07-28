@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -24,6 +25,7 @@ import pl.edu.icm.unity.types.basic.GroupContents;
  */
 public class TstPerfGetAttrWithStatment extends PerformanceTestBase
 {
+	@Ignore
 	@Test
 	public void testGetAttributesWithStatment() throws EngineException, IOException
 	{
