@@ -18,11 +18,9 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import pl.edu.icm.unity.exceptions.EngineException;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
@@ -30,6 +28,8 @@ import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.HttpClientProperties;
 import eu.unicore.util.httpclient.HttpUtils;
+import pl.edu.icm.unity.engine.UnityIntegrationTest;
+import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
  * Tests Jetty server features
@@ -37,8 +37,8 @@ import eu.unicore.util.httpclient.HttpUtils;
  * @author K. Benedyczak
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"classpath*:META-INF/components.xml", "classpath:META-INF/test-dos.xml"})
-@ActiveProfiles("test")
+@UnityIntegrationTest
+@TestPropertySource(properties = { "unityConfig: src/test/resources/dosTest.conf" })
 public class TestJettyServer 
 {
 	@Autowired

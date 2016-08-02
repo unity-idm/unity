@@ -416,7 +416,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		else 
 			configFile = locProvider.getConfigurationLocation();
 			
-		log.debug("Using configuration file: " + configFile);
+		log.info("Using configuration file: " + configFile);
 		return configFile;
 	}
 		
