@@ -48,7 +48,26 @@ public class TstPerfGetAttributes extends PerformanceTestBase2
 	@Test
 	public void testGetAttributes() throws EngineException, IOException
 	{
-		/*
+		//createDBContents();
+		
+		//warm-up
+		getAll();
+
+		log.info("STARTING TEST...");
+		//System.in.read();
+		for (int i = 0; i < TEST_REPETITIONS; i++)
+		{
+			timer.startTimer();
+			getAll();
+			timer.stopTimer(ENTITIES, "Get complete user info");
+		}
+		timer.calculateResults("Get complete user info");
+
+		log.info("TESTING FINISHED");
+	}
+	
+	protected void createDBContents() throws EngineException, IOException
+	{
 		log.info("CREATING TEST DB CONTENTS...");
 		StopWatch watch = new StopWatch();
 		
@@ -74,21 +93,6 @@ public class TstPerfGetAttributes extends PerformanceTestBase2
 
 		watch.printTotal("Time elapsed: {0}");
 		log.info("CREATED TEST DB CONTENTS ");
-		*/
-		//warm-up
-		getAll();
-
-		log.info("STARTING TEST...");
-//		System.in.read();
-		for (int i = 0; i < TEST_REPETITIONS; i++)
-		{
-			timer.startTimer();
-			getAll();
-			timer.stopTimer(ENTITIES, "Get complete user info");
-		}
-		timer.calculateResults("Get complete user info");
-
-		log.info("TESTING FINISHED");
 	}
 	
 	private void getAll() throws EngineException
