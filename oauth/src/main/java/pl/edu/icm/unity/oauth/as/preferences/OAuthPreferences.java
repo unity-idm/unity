@@ -49,7 +49,7 @@ public class OAuthPreferences extends IdPPreferences
 		}
 	}
 	
-	public static OAuthPreferences getPreferences(PreferencesManagement preferencesMan) throws EngineException
+	public static OAuthPreferences getPreferences(PreferencesManagement preferencesMan)
 	{
 		OAuthPreferences ret = new OAuthPreferences();
 		initPreferencesGeneric(preferencesMan, ret, OAuthPreferences.ID);
