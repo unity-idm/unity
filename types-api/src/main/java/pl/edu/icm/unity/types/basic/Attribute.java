@@ -149,6 +149,13 @@ public class Attribute implements NamedObject
 		this.values = values;
 	}
 
+	public void setValues(String... values)
+	{
+		List<String> valuesL = new ArrayList<>(values.length);
+		Collections.addAll(valuesL, values);
+		setValues(valuesL);
+	}
+
 	public void setTranslationProfile(String translationProfile)
 	{
 		this.translationProfile = translationProfile;

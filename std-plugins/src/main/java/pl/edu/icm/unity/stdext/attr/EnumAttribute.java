@@ -6,6 +6,8 @@ package pl.edu.icm.unity.stdext.attr;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import pl.edu.icm.unity.types.basic.Attribute;
 
 /**
@@ -23,5 +25,10 @@ public class EnumAttribute extends Attribute
 	public EnumAttribute(String name, String groupPath, List<String> values)
 	{
 		super(name, EnumAttributeSyntax.ID, groupPath, values);
+	}
+	
+	public EnumAttribute(String name, String groupPath, String value)
+	{
+		super(name, EnumAttributeSyntax.ID, groupPath, Lists.newArrayList(value));
 	}
 }

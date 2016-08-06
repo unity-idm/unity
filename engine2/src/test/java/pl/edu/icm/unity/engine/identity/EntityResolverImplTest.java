@@ -54,7 +54,7 @@ public class EntityResolverImplTest
 			itDAO.deleteAll();
 		});
 	}
-	
+
 	@Test
 	public void shouldFailOnResolvingMissingEPWithId() throws Exception
 	{

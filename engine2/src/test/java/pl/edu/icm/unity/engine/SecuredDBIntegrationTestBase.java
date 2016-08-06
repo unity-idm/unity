@@ -9,6 +9,7 @@ import static org.junit.Assert.fail;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.Before;
@@ -17,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import pl.edu.icm.unity.engine.api.AttributeClassManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
@@ -24,6 +27,7 @@ import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
@@ -51,11 +55,17 @@ public abstract class SecuredDBIntegrationTestBase
 	@Autowired
 	protected GroupsManagement groupsMan;
 	@Autowired
+	protected IdentityTypesManagement idTypeMan;
+	@Autowired
 	protected EntityManagement idsMan;
 	@Autowired
 	protected EntityCredentialManagement eCredMan;
 	@Autowired
+	protected AttributeClassManagement acMan;
+	@Autowired
 	protected AttributesManagement attrsMan;
+	@Autowired
+	protected AttributeTypeManagement aTypeMan;
 	@Autowired
 	@Qualifier("insecure")
 	protected AttributesManagement insecureAttrsMan;
@@ -75,9 +85,15 @@ public abstract class SecuredDBIntegrationTestBase
 	@Autowired
 	protected IdentityResolver identityResolver;
 	@Autowired
+	@Qualifier("insecure")
+	protected CredentialManagement insecureCredMan;
+	@Autowired
 	protected CredentialManagement credMan;
 	@Autowired
 	protected CredentialRequirementManagement credReqMan;
+	@Autowired
+	@Qualifier("insecure")
+	protected CredentialRequirementManagement insecureCredReqMan;
 	@Autowired
 	protected NotificationsManagement notMan;
 	@Autowired
@@ -140,7 +156,7 @@ public abstract class SecuredDBIntegrationTestBase
 		return null;
 	}
 
-	protected Identity getIdentityByType(Identity[] objs, String type)
+	protected Identity getIdentityByType(List<Identity> objs, String type)
 	{
 		for (Identity a: objs)
 			if (a.getTypeId().equals(type))
@@ -148,7 +164,7 @@ public abstract class SecuredDBIntegrationTestBase
 		return null;
 	}
 
-	protected Collection<Identity> getIdentitiesByType(Identity[] objs, String type)
+	protected Collection<Identity> getIdentitiesByType(List<Identity> objs, String type)
 	{
 		Set<Identity> ret = new HashSet<>();
 		for (Identity a: objs)
@@ -162,10 +178,10 @@ public abstract class SecuredDBIntegrationTestBase
 		CredentialDefinition credDef = new CredentialDefinition(
 				MockPasswordVerificatorFactory.ID, CRED_MOCK);
 		credDef.setConfiguration("8");
-		credMan.addCredentialDefinition(credDef);
+		insecureCredMan.addCredentialDefinition(credDef);
 		
 		CredentialRequirements cr = new CredentialRequirements(CR_MOCK, "mock cred req", 
 				Collections.singleton(credDef.getName()));
-		credReqMan.addCredentialRequirement(cr);
+		insecureCredReqMan.addCredentialRequirement(cr);
 	}
 }

@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
@@ -48,6 +49,11 @@ public class VerifiableEmail implements VerifiableElement
 		this.tags = value == null ? new ArrayList<>() : extractTags(value);
 	}
 
+	public static VerifiableEmail fromJsonString(String serializedValue)
+	{
+		return new VerifiableEmail(JsonUtil.parse(serializedValue));
+	}
+	
 	@JsonCreator
 	public VerifiableEmail(JsonNode jsonN) throws InternalException
 	{
@@ -73,6 +79,11 @@ public class VerifiableEmail implements VerifiableElement
 		for (String tag: getTags())
 			tagsJ.add(tag);
 		return main;
+	}
+
+	public String toJsonString()
+	{
+		return JsonUtil.serialize(toJson());
 	}
 	
 	@Override

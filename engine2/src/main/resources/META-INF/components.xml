@@ -21,6 +21,14 @@
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
+	<bean class="pl.edu.icm.unity.engine.attribute.AttributeTypeManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean class="pl.edu.icm.unity.engine.attribute.AttributeClassManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
 	<bean class="pl.edu.icm.unity.engine.attribute.AttributesManagementImpl">
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
