@@ -124,9 +124,9 @@ public abstract class SecuredDBIntegrationTestBase
 		}
 	}
 	
-	protected Attribute getAttributeByName(Collection<? extends Attribute> attrs, String name)
+	protected <T extends Attribute> T getAttributeByName(Collection<T> attrs, String name)
 	{
-		for (Attribute a: attrs)
+		for (T a: attrs)
 			if (a.getName().equals(name))
 				return a;
 		return null;

@@ -148,7 +148,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 	public void shouldNotAddConfirmedAttributeIfAddedByUser() throws Exception
 	{
 		setupPasswordAuthn();
-		Identity id = createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
 		EntityParam entity = new EntityParam(id.getEntityId());
 		AttributeType atT = new AttributeType(InitializerCommon.EMAIL_ATTR,
 				VerifiableEmailAttributeSyntax.ID);
@@ -175,7 +175,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 	public void shouldPreservedOneConfirmationStateIfChangedByUser() throws Exception
 	{
 		setupPasswordAuthn();
-		Identity id = createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
 		EntityParam entity = new EntityParam(id.getEntityId());
 		AttributeType atT = new AttributeType(InitializerCommon.EMAIL_ATTR,
 				VerifiableEmailAttributeSyntax.ID);
@@ -218,7 +218,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 	public void shouldThrowExceptionIfUserRemoveLastConfirmedValue() throws Exception
 	{
 		setupPasswordAuthn();
-		Identity id = createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
 		EntityParam entity = new EntityParam(id.getEntityId());
 		AttributeType atT = new AttributeType(InitializerCommon.EMAIL_ATTR,
 				VerifiableEmailAttributeSyntax.ID);
@@ -736,7 +736,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 	{
 		setupPasswordAuthn();
 		
-		Identity id = createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
 		EntityParam entity = new EntityParam(id.getEntityId());
 		AttributeType atT = new AttributeType(InitializerCommon.EMAIL_ATTR,
 				VerifiableEmailAttributeSyntax.ID);

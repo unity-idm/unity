@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.msgtemplates.reg.BaseRegistrationTemplateDef;
@@ -40,6 +42,7 @@ import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
  * @author K. Benedyczak
  */
 @Component
+@Primary
 @InvocationEventProducer
 @Transactional
 public class InvitationManagementImpl implements InvitationManagement
@@ -51,6 +54,19 @@ public class InvitationManagementImpl implements InvitationManagement
 	private UnityMessageSource msg;
 	private InvitationDB invitationDB;
 	private SharedEndpointManagement sharedEndpointMan;
+
+	@Autowired
+	public InvitationManagementImpl(RegistrationFormDB formsDB, AuthorizationManager authz,
+			NotificationProducer notificationProducer, UnityMessageSource msg,
+			InvitationDB invitationDB, SharedEndpointManagement sharedEndpointMan)
+	{
+		this.formsDB = formsDB;
+		this.authz = authz;
+		this.notificationProducer = notificationProducer;
+		this.msg = msg;
+		this.invitationDB = invitationDB;
+		this.sharedEndpointMan = sharedEndpointMan;
+	}
 
 	@Override
 	public String addInvitation(InvitationParam invitation) throws EngineException

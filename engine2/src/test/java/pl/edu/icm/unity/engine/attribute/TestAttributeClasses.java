@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine;
+package pl.edu.icm.unity.engine.attribute;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Sets;
 
+import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
@@ -73,7 +74,7 @@ public class TestAttributeClasses extends DBIntegrationTestBase
 		{
 			acMan.removeAttributeClass("foo");
 			fail("Managed to remove an AC which doesn't exist");
-		} catch (WrongArgumentException e) {}
+		} catch (IllegalArgumentException e) {}
 
 		
 		AttributesClass ac = new AttributesClass("ac1", "desc", Collections.singleton("a2"), 

@@ -74,7 +74,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 		endpointMan.deploy(MockEndpointFactory.NAME, "endpoint1", "/foo", cfg);
 		
 		EndpointConfiguration cfg2 = new EndpointConfiguration(
-				new I18nString("endpoint1I"), "ada", null, null, REALM_NAME);
+				new I18nString("endpoint1I"), "ada", new ArrayList<>(), "", REALM_NAME);
 		endpointMan.updateEndpoint("endpoint1", cfg2);
 
 		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();

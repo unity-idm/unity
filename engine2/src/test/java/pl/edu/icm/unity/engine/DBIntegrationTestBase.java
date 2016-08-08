@@ -63,7 +63,6 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	
 	protected void setupUserContext(String user, boolean outdated) throws Exception
 	{
-		setupMockAuthn();
 		setupUserContext(sessionMan, identityResolver, user, outdated);
 	}
 
@@ -88,10 +87,15 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 		return new AuthenticationRealm("DEFAULT_AUTHN_REALM", 
 				"For tests", 5, 10, -1, 30*60);
 	}
-	
-	protected Identity createUsernameUser(String role) throws Exception
+
+	protected Identity createUsernameUser(String username) throws Exception
 	{
-		return createUsernameUser("user1", role, "mockPassword1");
+		return createUsernameUser(username, null, "mockpassword1", CR_MOCK);
+	}
+	
+	protected Identity createUsernameUserWithRole(String role) throws Exception
+	{
+		return createUsernameUser("mockuser", role, "mockPassword1", CRED_REQ_PASS);
 	}
 
 	/**
@@ -102,10 +106,10 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	 * @return
 	 * @throws Exception
 	 */
-	protected Identity createUsernameUser(String username, String role, String password) throws Exception
+	protected Identity createUsernameUser(String username, String role, String password, String cr) throws Exception
 	{
 		Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, username), 
-				CRED_REQ_PASS, EntityState.valid, false);
+				cr, EntityState.valid, false);
 		eCredMan.setEntityCredential(new EntityParam(added1), "credential1", 
 				new PasswordToken(password).toJson());
 		if (role != null)

@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.attribute;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
@@ -46,6 +48,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 	private AttributeMetadataProvidersRegistry atMetaProvidersRegistry;
 	private AuthorizationManager authz;
 	private AttributeTypeHelper atHelper;
+	private AttributesHelper aHelper;
 
 
 	@Autowired
@@ -53,7 +56,8 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 			AttributeTypeDAO attributeTypeDAO, AttributeDAO attributeDAO,
 			IdentityTypeDAO dbIdentities,
 			AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
-			AuthorizationManager authz, AttributeTypeHelper atHelper)
+			AuthorizationManager authz, AttributeTypeHelper atHelper,
+			AttributesHelper aHelper)
 	{
 		this.attrValueTypesReg = attrValueTypesReg;
 		this.attributeTypeDAO = attributeTypeDAO;
@@ -62,6 +66,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		this.atMetaProvidersRegistry = atMetaProvidersRegistry;
 		this.authz = authz;
 		this.atHelper = atHelper;
+		this.aHelper = aHelper;
 	}
 
 	@Override
@@ -107,12 +112,30 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		}
 		Collection<AttributeType> existingAts = attributeTypeDAO.getAll();
 		verifyATMetadata(at, existingAts);
-
+		verifyAttributesConsistencyWithUpdatedType(at);
+		
 		attributeTypeDAO.update(at);
 		if (!at.getValueSyntax().equals(atExisting.getValueSyntax()))
 			clearAttributeExtractionFromIdentities(at.getName());
 	}
 
+	private void verifyAttributesConsistencyWithUpdatedType(AttributeType at) throws IllegalAttributeTypeException
+	{
+		List<StoredAttribute> allAttributesOfType = attributeDAO.getAttributes(at.getName(), null, null);
+		for (StoredAttribute sa: allAttributesOfType)
+		{
+			try
+			{
+				aHelper.validate(sa.getAttribute(), at);
+			} catch (Exception e)
+			{
+				throw new IllegalAttributeTypeException("Can't update the attribute type as at least " +
+						"one attribute instance will be in conflict with the new type. " +
+						"The conflicting attribute which was found: " + sa.getAttribute(), e);
+			}
+		}
+	}
+	
 	/**
 	 * Sets all user-controlled (mutable) elements of attribute type which has immutable type.
 	 * @param at

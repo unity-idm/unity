@@ -564,7 +564,7 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg, outtactionReg);
 		
 		setupPasswordAuthn();
-		createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
 		setupUserContext("user1", false);
 		InvocationContext.getCurrent().getLoginSession().addAuthenticatedIdentities(Sets.newHashSet("user1"));
 		
@@ -615,7 +615,7 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 				new IdentityParam(UsernameIdentity.ID, "added"), "dummy"));
 		
 		setupPasswordAuthn();
-		Identity baseUser = createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		Identity baseUser = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
 		EntityParam baseUserP = new EntityParam(baseUser);
 		
 		inputTrEngine.mergeWithExisting(result, baseUserP);

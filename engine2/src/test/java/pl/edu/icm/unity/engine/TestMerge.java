@@ -56,8 +56,8 @@ public class TestMerge extends DBIntegrationTestBase
 	@Test
 	public void sourceEntityRemoved() throws Exception
 	{
-		Identity target = createUsernameUser("target", AuthorizationManagerImpl.USER_ROLE, "p1");
-		Identity merged = createUsernameUser("merged", AuthorizationManagerImpl.USER_ROLE, "p2");
+		Identity target = createUsernameUser("target", AuthorizationManagerImpl.USER_ROLE, "p1", CRED_REQ_PASS);
+		Identity merged = createUsernameUser("merged", AuthorizationManagerImpl.USER_ROLE, "p2", CRED_REQ_PASS);
 		idsMan.mergeEntities(new EntityParam(target), new EntityParam(merged), false);
 		
 		try
@@ -73,8 +73,8 @@ public class TestMerge extends DBIntegrationTestBase
 	@Test
 	public void regularIdentitiesAdded() throws Exception
 	{
-		Identity target = createUsernameUser("target", AuthorizationManagerImpl.USER_ROLE, "p1");
-		Identity merged = createUsernameUser("merged", AuthorizationManagerImpl.USER_ROLE, "p2");
+		Identity target = createUsernameUser("target", AuthorizationManagerImpl.USER_ROLE, "p1", CRED_REQ_PASS);
+		Identity merged = createUsernameUser("merged", AuthorizationManagerImpl.USER_ROLE, "p2", CRED_REQ_PASS);
 		Entity mergedFull = idsMan.getEntity(new EntityParam(merged), "tt", true, "/");
 		Entity targetFull = idsMan.getEntity(new EntityParam(merged), null, true, "/");
 		idsMan.addIdentity(new IdentityParam(IdentifierIdentity.ID, "id"), new EntityParam(merged), false);
@@ -109,8 +109,8 @@ public class TestMerge extends DBIntegrationTestBase
 	@Test
 	public void groupMembershipsAdded() throws Exception
 	{
-		Identity target = createUsernameUser("target", AuthorizationManagerImpl.USER_ROLE, "p1");
-		Identity merged = createUsernameUser("merged", AuthorizationManagerImpl.USER_ROLE, "p2");
+		Identity target = createUsernameUser("target", AuthorizationManagerImpl.USER_ROLE, "p1", CRED_REQ_PASS);
+		Identity merged = createUsernameUser("merged", AuthorizationManagerImpl.USER_ROLE, "p2", CRED_REQ_PASS);
 
 		groupsMan.addGroup(new Group("/A"));
 		groupsMan.addGroup(new Group("/B"));
@@ -132,8 +132,8 @@ public class TestMerge extends DBIntegrationTestBase
 	@Test
 	public void onlyNewAttributesAdded() throws Exception
 	{
-		Identity target = createUsernameUser("target", AuthorizationManagerImpl.USER_ROLE, "p1");
-		Identity merged = createUsernameUser("merged", AuthorizationManagerImpl.USER_ROLE, "p2");
+		Identity target = createUsernameUser("target", AuthorizationManagerImpl.USER_ROLE, "p1", CRED_REQ_PASS);
+		Identity merged = createUsernameUser("merged", AuthorizationManagerImpl.USER_ROLE, "p2", CRED_REQ_PASS);
 		
 		groupsMan.addGroup(new Group("/A"));
 		groupsMan.addMemberFromParent("/A", new EntityParam(merged));
@@ -170,8 +170,8 @@ public class TestMerge extends DBIntegrationTestBase
 	@Test
 	public void attributeClassesUnchanged() throws Exception
 	{
-		Identity target = createUsernameUser("target", AuthorizationManagerImpl.USER_ROLE, "p1");
-		Identity merged = createUsernameUser("merged", AuthorizationManagerImpl.USER_ROLE, "p2");
+		Identity target = createUsernameUser("target", AuthorizationManagerImpl.USER_ROLE, "p1", CRED_REQ_PASS);
+		Identity merged = createUsernameUser("merged", AuthorizationManagerImpl.USER_ROLE, "p2", CRED_REQ_PASS);
 
 		acMan.addAttributeClass(new AttributesClass("acT", "", new HashSet<String>(), 
 				new HashSet<String>(), true, new HashSet<String>()));
@@ -191,8 +191,8 @@ public class TestMerge extends DBIntegrationTestBase
 	@Test
 	public void credentialRequirementUnchanged() throws Exception
 	{
-		Identity target = createUsernameUser("target", AuthorizationManagerImpl.USER_ROLE, "p1");
-		Identity merged = createUsernameUser("merged", AuthorizationManagerImpl.USER_ROLE, "p2");
+		Identity target = createUsernameUser("target", AuthorizationManagerImpl.USER_ROLE, "p1", CRED_REQ_PASS);
+		Identity merged = createUsernameUser("merged", AuthorizationManagerImpl.USER_ROLE, "p2", CRED_REQ_PASS);
 
 		crMan.addCredentialRequirement(new CredentialRequirements("crT", "", new HashSet<String>()));
 		crMan.addCredentialRequirement(new CredentialRequirements("crM", "", new HashSet<String>()));
@@ -209,8 +209,8 @@ public class TestMerge extends DBIntegrationTestBase
 	@Test
 	public void newCredentialAdded() throws Exception
 	{
-		Identity target = createUsernameUser("target", AuthorizationManagerImpl.USER_ROLE, "p1");
-		Identity merged = createUsernameUser("merged", AuthorizationManagerImpl.USER_ROLE, "p2");
+		Identity target = createUsernameUser("target", AuthorizationManagerImpl.USER_ROLE, "p1", CRED_REQ_PASS);
+		Identity merged = createUsernameUser("merged", AuthorizationManagerImpl.USER_ROLE, "p2", CRED_REQ_PASS);
 		setupPasswordAndCertAuthn();
 		crMan.addCredentialRequirement(new CredentialRequirements("pandc", "", Sets.newHashSet(
 				"credential2", "credential1")));
@@ -240,8 +240,8 @@ public class TestMerge extends DBIntegrationTestBase
 	@Test
 	public void credentialConflictsDetectedInSafeMode() throws Exception
 	{
-		Identity target = createUsernameUser("target", null, "p1");
-		Identity merged = createUsernameUser("merged", null, "p2");
+		Identity target = createUsernameUser("target", null, "p1", CRED_REQ_PASS);
+		Identity merged = createUsernameUser("merged", null, "p2", CRED_REQ_PASS);
 
 		try
 		{
@@ -259,8 +259,8 @@ public class TestMerge extends DBIntegrationTestBase
 	@Test
 	public void attributeConflictsDetectedInSafeMode() throws Exception
 	{
-		Identity target = createUsernameUser("target", null, "p1");
-		Identity merged = createUsernameUser("merged", null, "p2");
+		Identity target = createUsernameUser("target", null, "p1", CRED_REQ_PASS);
+		Identity merged = createUsernameUser("merged", null, "p2", CRED_REQ_PASS);
 		eCredMan.setEntityCredentialStatus(new EntityParam(target), "credential1", LocalCredentialState.notSet);
 		aTypeMan.addAttributeType(new AttributeType("a", StringAttributeSyntax.ID));
 		attrsMan.setAttribute(new EntityParam(target), new StringAttribute("a", "/", 

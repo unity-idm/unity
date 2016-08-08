@@ -45,7 +45,7 @@ public class TestGroups extends DBIntegrationTestBase
 	public void testGetContentsWithLimitedAuthz() throws Exception
 	{
 		setupPasswordAuthn();
-		createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
 		Group a = new Group("/A");
 		groupsMan.addGroup(a);
 		Group ab = new Group("/A/B");

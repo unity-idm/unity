@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.msgtemplates.reg.AcceptRegistrationTemplateDef;
@@ -59,6 +61,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
  * @author K. Benedyczak
  */
 @Component
+@Primary
 @InvocationEventProducer
 public class EnquiryManagementImpl implements EnquiryManagement
 {
@@ -77,7 +80,33 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	private AttributesHelper dbAttributes;
 	private MembershipDAO dbShared;
 	
-	
+	@Autowired
+	public EnquiryManagementImpl(EnquiryFormDB enquiryFormDB, EnquiryResponseDB requestDB,
+			NotificationProducer notificationProducer,
+			RegistrationConfirmationSupport confirmationsSupport,
+			UnityMessageSource msg, AuthorizationManager authz,
+			BaseFormValidator baseFormValidator,
+			EnquiryResponseValidator enquiryResponseValidator,
+			SharedEndpointManagement sharedEndpointMan, TransactionalRunner tx,
+			SharedEnquiryManagment internalManagment, EntityResolver identitiesResolver,
+			AttributesHelper dbAttributes, MembershipDAO dbShared)
+	{
+		this.enquiryFormDB = enquiryFormDB;
+		this.requestDB = requestDB;
+		this.notificationProducer = notificationProducer;
+		this.confirmationsSupport = confirmationsSupport;
+		this.msg = msg;
+		this.authz = authz;
+		this.baseFormValidator = baseFormValidator;
+		this.enquiryResponseValidator = enquiryResponseValidator;
+		this.sharedEndpointMan = sharedEndpointMan;
+		this.tx = tx;
+		this.internalManagment = internalManagment;
+		this.identitiesResolver = identitiesResolver;
+		this.dbAttributes = dbAttributes;
+		this.dbShared = dbShared;
+	}
+
 	@Transactional
 	@Override
 	public void addEnquiry(EnquiryForm form) throws EngineException

@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.msgtemplates.reg.AcceptRegistrationTemplateDef;
@@ -46,6 +48,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
  * @author K. Benedyczak
  */
 @Component
+@Primary
 @InvocationEventProducer
 public class RegistrationsManagementImpl implements RegistrationsManagement
 {
@@ -61,6 +64,29 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private TransactionalRunner tx;
 	private RegistrationRequestValidator registrationRequestValidator;
 	private BaseFormValidator baseValidator;
+
+	@Autowired
+	public RegistrationsManagementImpl(RegistrationFormDB formsDB,
+			RegistrationRequestDB requestDB, CredentialRequirementDB credentialReqDB,
+			RegistrationConfirmationSupport confirmationsSupport,
+			AuthorizationManager authz, NotificationProducer notificationProducer,
+			SharedRegistrationManagment internalManagment, UnityMessageSource msg,
+			TransactionalRunner tx,
+			RegistrationRequestValidator registrationRequestValidator,
+			BaseFormValidator baseValidator)
+	{
+		this.formsDB = formsDB;
+		this.requestDB = requestDB;
+		this.credentialReqDB = credentialReqDB;
+		this.confirmationsSupport = confirmationsSupport;
+		this.authz = authz;
+		this.notificationProducer = notificationProducer;
+		this.internalManagment = internalManagment;
+		this.msg = msg;
+		this.tx = tx;
+		this.registrationRequestValidator = registrationRequestValidator;
+		this.baseValidator = baseValidator;
+	}
 
 	@Override
 	@Transactional
