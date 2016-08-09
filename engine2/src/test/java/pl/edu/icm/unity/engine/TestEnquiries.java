@@ -112,7 +112,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 	{
 		catchException(enquiryManagement).removeEnquiry("missing", true);
 		
-		assertThat(caughtException(), isA(WrongArgumentException.class));
+		assertThat(caughtException(), isA(IllegalArgumentException.class));
 	}
 	
 	@Test 
@@ -122,7 +122,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 		
 		catchException(enquiryManagement).addEnquiry(form);
 		
-		assertThat(caughtException(), isA(WrongArgumentException.class));
+		assertThat(caughtException(), isA(IllegalArgumentException.class));
 	}
 	
 	@Test 
@@ -148,7 +148,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 		credParam.setCredentialName("missing");
 		testFormBuilder.withCredentialParams(Collections.singletonList(credParam));
 		
-		checkUpdateOrAdd(testFormBuilder.build(), "cred", WrongArgumentException.class);
+		checkUpdateOrAdd(testFormBuilder.build(), "cred", IllegalArgumentException.class);
 	}
 
 	
@@ -161,7 +161,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 		GroupRegistrationParam groupParam = form.getGroupParams().get(0);
 		groupParam.setGroupPath("/missing");
 		testFormBuilder.withGroupParams(Collections.singletonList(groupParam));
-		checkUpdateOrAdd(testFormBuilder.build(), "group", IllegalGroupValueException.class);
+		checkUpdateOrAdd(testFormBuilder.build(), "group", IllegalArgumentException.class);
 	}
 
 	@Test 
@@ -172,7 +172,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 		IdentityRegistrationParam idParam = form.getIdentityParams().get(0);
 		idParam.setIdentityType("missing");
 		testFormBuilder.withIdentityParams(Collections.singletonList(idParam));
-		checkUpdateOrAdd(testFormBuilder.build(), "id", IllegalTypeException.class);
+		checkUpdateOrAdd(testFormBuilder.build(), "id", IllegalArgumentException.class);
 	}
 
 	@Test
@@ -181,13 +181,13 @@ public class TestEnquiries extends DBIntegrationTestBase
 		initAndCreateEnquiry(null);
 		
 		catchException(aTypeMan).removeAttributeType(InitializerCommon.EMAIL_ATTR, true);
-		assertThat(caughtException(), isA(SchemaConsistencyException.class));
+		assertThat(caughtException(), isA(IllegalArgumentException.class));
 
 		catchException(groupsMan).removeGroup("/B", true);
-		assertThat(caughtException(), isA(SchemaConsistencyException.class));
+		assertThat(caughtException(), isA(IllegalArgumentException.class));
 
 		catchException(credMan).removeCredentialDefinition(EngineInitialization.DEFAULT_CREDENTIAL);
-		assertThat(caughtException(), isA(SchemaConsistencyException.class));
+		assertThat(caughtException(), isA(IllegalArgumentException.class));
 	}
 	
 	
@@ -380,7 +380,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 		{
 			enquiryManagement.addEnquiry(form);
 			fail("Added the form with illegal " + msg);
-		} catch (EngineException e) 
+		} catch (Exception e) 
 		{
 			assertTrue(e.toString(), e.getClass().isAssignableFrom(exception));
 		}
@@ -388,7 +388,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 		{
 			enquiryManagement.updateEnquiry(form, true);
 			fail("Updated the form with illegal " + msg);
-		} catch (EngineException e) 
+		} catch (Exception e) 
 		{
 			assertTrue(e.toString(), e.getClass().isAssignableFrom(exception));
 		}

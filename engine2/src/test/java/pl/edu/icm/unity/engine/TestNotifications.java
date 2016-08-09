@@ -100,7 +100,7 @@ public class TestNotifications extends DBIntegrationTestBase
 		{
 			notMan.updateNotificationChannel("wrong", emailCfg2);
 			fail("Managed to update not existing channel");
-		} catch (WrongArgumentException e)
+		} catch (IllegalArgumentException e)
 		{
 		}
 		notMan.updateNotificationChannel("ch1", emailCfg2);
@@ -113,7 +113,7 @@ public class TestNotifications extends DBIntegrationTestBase
 		{
 			notMan.removeNotificationChannel("wrong");
 			fail("Managed to remove not existing channel");
-		} catch (WrongArgumentException e)
+		} catch (IllegalArgumentException e)
 		{
 		}
 		notMan.removeNotificationChannel("ch1");

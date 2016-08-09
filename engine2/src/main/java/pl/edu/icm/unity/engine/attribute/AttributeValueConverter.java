@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.attribute;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
@@ -21,6 +22,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 @Component
 public class AttributeValueConverter
 {
+	@Autowired
 	private AttributeTypeHelper atHelper;
 	
 	/**

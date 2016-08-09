@@ -180,7 +180,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 			.submitRegistrationRequest(request, REG_CONTEXT);
 	
 		assertThat(caughtException(), allOf(
-				isA(WrongArgumentException.class),
+				isA(IllegalArgumentException.class),
 				hasMessageThat(containsString("invitation"))));
 	}
 

@@ -51,7 +51,7 @@ public abstract class RegistrationTranslationAction extends TranslationActionIns
 			{
 				LOG.debug("Error performing translation action", e);
 			}			
-			throw new EngineException(e);
+			throw new EngineException("Error invoking translation action", e);
 		} finally
 		{
 			NDC.pop();			
