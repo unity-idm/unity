@@ -32,7 +32,6 @@ import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
 import pl.edu.icm.unity.engine.translation.ExecutionBreakException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -138,7 +137,7 @@ public class InputTranslationEngine
 			{
 				idsMan.getEntity(new EntityParam(checked.getIdentity()));
 				return checked;
-			} catch (IllegalIdentityValueException e)
+			} catch (IllegalArgumentException e)
 			{
 				//OK
 			} catch (EngineException e)
@@ -174,7 +173,7 @@ public class InputTranslationEngine
 				}
 				existing = found;
 				result.addAuthenticatedWith(checked.getIdentity().getValue());
-			} catch (IllegalIdentityValueException e)
+			} catch (IllegalArgumentException e)
 			{
 				if (checked.getMode() == IdentityEffectMode.REQUIRE_MATCH)
 				{
@@ -281,7 +280,7 @@ public class InputTranslationEngine
 				idsMan.getEntity(new EntityParam(checked.getIdentity()));
 				log.debug("Identity was mapped to existing identity.");
 				throw new ExecutionBreakException();
-			} catch (IllegalIdentityValueException e)
+			} catch (IllegalArgumentException e)
 			{
 				if (checked.getMode() == IdentityEffectMode.REQUIRE_MATCH)
 				{

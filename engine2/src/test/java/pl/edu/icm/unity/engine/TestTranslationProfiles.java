@@ -37,21 +37,17 @@ import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
 import pl.edu.icm.unity.engine.api.translation.in.AttributeEffectMode;
 import pl.edu.icm.unity.engine.api.translation.in.GroupEffectMode;
 import pl.edu.icm.unity.engine.api.translation.in.IdentityEffectMode;
-import pl.edu.icm.unity.engine.api.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.in.MappedAttribute;
 import pl.edu.icm.unity.engine.api.translation.in.MappedGroup;
 import pl.edu.icm.unity.engine.api.translation.in.MappedIdentity;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
-import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
-import pl.edu.icm.unity.engine.translation.TranslationCondition;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationProfile;
-import pl.edu.icm.unity.engine.translation.in.InputTranslationRule;
 import pl.edu.icm.unity.engine.translation.in.action.BlindStopperInputAction;
 import pl.edu.icm.unity.engine.translation.in.action.EntityChangeActionFactory;
 import pl.edu.icm.unity.engine.translation.in.action.MapAttributeActionFactory;
@@ -65,7 +61,6 @@ import pl.edu.icm.unity.engine.translation.out.action.CreateAttributeActionFacto
 import pl.edu.icm.unity.engine.translation.out.action.CreatePersistentAttributeActionFactory;
 import pl.edu.icm.unity.engine.translation.out.action.CreatePersistentIdentityActionFactory;
 import pl.edu.icm.unity.engine.translation.out.action.FilterAttributeActionFactory;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
@@ -100,29 +95,31 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 	@Autowired
 	protected TranslationProfileManagement tprofMan;
 	@Autowired
-	protected InputTranslationActionsRegistry intactionReg;
-	@Autowired
-	protected OutputTranslationActionsRegistry outtactionReg;
-	@Autowired
 	protected InputTranslationEngine inputTrEngine;
 	@Autowired
 	protected OutputTranslationEngine outputTrEngine;
 	@Autowired
 	protected RemoteAuthnResultProcessor remoteProcessor;
+	@Autowired
+	protected InputTranslationActionsRegistry intactionReg;
+	@Autowired
+	protected OutputTranslationActionsRegistry outtactionReg;
+
 	
 	@Test
 	public void testInputPersistence() throws Exception
 	{
 		assertEquals(0, tprofMan.listInputProfiles().size());
 		List<TranslationRule> rules = new ArrayList<>();
-		InputTranslationAction action1 = intactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+		TranslationAction action1 = new TranslationAction( 
+				MapIdentityActionFactory.NAME, new String[] {
 				IdentifierIdentity.ID, 
 				"'joe'", 
 				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				IdentityEffectMode.CREATE_OR_MATCH.toString());
+				IdentityEffectMode.CREATE_OR_MATCH.toString()});
 		rules.add(new TranslationRule("true", action1));
-		InputTranslationAction action2 = intactionReg.getByName(MapGroupActionFactory.NAME).getInstance(
-				"'/A'"); 
+		TranslationAction action2 = new TranslationAction(MapGroupActionFactory.NAME, new String[] {
+				"'/A'"}); 
 		rules.add(new TranslationRule("true", action2));
 		
 		TranslationProfile toAdd = new TranslationProfile("p1", "", ProfileType.INPUT, rules);
@@ -154,12 +151,12 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 	{
 		assertEquals(0, tprofMan.listInputProfiles().size());
 		List<TranslationRule> rules = new ArrayList<>();
-		OutputTranslationAction action1 = outtactionReg.getByName(CreateAttributeActionFactory.NAME).getInstance(
+		TranslationAction action1 = new TranslationAction(CreateAttributeActionFactory.NAME, new String[] {
 				"dynAttr", 
-				"'joe'");
+				"'joe'"});
 		rules.add(new TranslationRule("true", action1));
-		OutputTranslationAction action2 = outtactionReg.getByName(FilterAttributeActionFactory.NAME).getInstance(
-				"attr"); 
+		TranslationAction action2 = new TranslationAction(FilterAttributeActionFactory.NAME, new String[] {
+				"attr"}); 
 		rules.add(new TranslationRule("true", action2));
 		
 		TranslationProfile toAdd = new TranslationProfile("p1", "", ProfileType.OUTPUT, rules);
@@ -196,26 +193,26 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		
 		groupsMan.addGroup(new Group("/A"));
 		
-		List<InputTranslationRule> rules = new ArrayList<>();
-		InputTranslationAction action1 = intactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+		List<TranslationRule> rules = new ArrayList<>();
+		TranslationAction action1 = new TranslationAction(MapIdentityActionFactory.NAME, new String[] {
 				X500Identity.ID, 
 				"'CN=' + attr['cn'] + ',O=ICM,UID=' + id", 
 				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				IdentityEffectMode.CREATE_OR_MATCH.toString());
-		rules.add(new InputTranslationRule(action1, new TranslationCondition()));
-		InputTranslationAction action2 = intactionReg.getByName(MapGroupActionFactory.NAME).getInstance(
-				"'/A'", GroupEffectMode.REQUIRE_EXISTING_GROUP.name()); 
-		rules.add(new InputTranslationRule(action2, new TranslationCondition()));
-		InputTranslationAction action2prim = intactionReg.getByName(MapGroupActionFactory.NAME).getInstance(
-				"'/A/newGr'", GroupEffectMode.CREATE_GROUP_IF_MISSING.name()); 
-		rules.add(new InputTranslationRule(action2prim, new TranslationCondition()));
-		InputTranslationAction action3 = intactionReg.getByName(MapAttributeActionFactory.NAME).getInstance(
+				IdentityEffectMode.CREATE_OR_MATCH.toString()});
+		rules.add(new TranslationRule("true", action1));
+		TranslationAction action2 = new TranslationAction(MapGroupActionFactory.NAME, new String[] {
+				"'/A'", GroupEffectMode.REQUIRE_EXISTING_GROUP.name()}); 
+		rules.add(new TranslationRule("true", action2));
+		TranslationAction action2prim = new TranslationAction(MapGroupActionFactory.NAME, new String[] {
+				"'/A/newGr'", GroupEffectMode.CREATE_GROUP_IF_MISSING.name()}); 
+		rules.add(new TranslationRule("true", action2prim));
+		TranslationAction action3 = new TranslationAction(MapAttributeActionFactory.NAME, new String[] {
 				"o", "/A", "groups",
-				AttributeEffectMode.CREATE_OR_UPDATE.toString()); 
-		rules.add(new InputTranslationRule(action3, new TranslationCondition()));
-		InputTranslationAction action4 = intactionReg.getByName(EntityChangeActionFactory.NAME).getInstance(
-				EntityScheduledOperation.REMOVE.toString(), "1"); 
-		rules.add(new InputTranslationRule(action4, new TranslationCondition()));
+				AttributeEffectMode.CREATE_OR_UPDATE.toString()}); 
+		rules.add(new TranslationRule("true", action3));
+		TranslationAction action4 = new TranslationAction(EntityChangeActionFactory.NAME, new String[] {
+				EntityScheduledOperation.REMOVE.toString(), "1"}); 
+		rules.add(new TranslationRule("true", action4));
 		
 		TranslationProfile tp1Cfg = new TranslationProfile("p1", "", ProfileType.INPUT, rules);
 		
@@ -290,22 +287,22 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		attr.setTranslationProfile("p1");
 		attrsMan.setAttribute(ep, attr, false);
 		
-		List<InputTranslationRule> rules = new ArrayList<>();
-		InputTranslationAction action1 = intactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+		List<TranslationRule> rules = new ArrayList<>();
+		TranslationAction action1 = new TranslationAction(MapIdentityActionFactory.NAME, new String[] {
 				IdentifierIdentity.ID, 
 				"'id'", 
 				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				IdentityEffectMode.MATCH.toString());
-		rules.add(new InputTranslationRule(action1, new TranslationCondition()));
-		InputTranslationAction action2 = intactionReg.getByName(MapGroupActionFactory.NAME).getInstance(
-				"'/A'", GroupEffectMode.REQUIRE_EXISTING_GROUP.name()); 
-		rules.add(new InputTranslationRule(action2, new TranslationCondition()));
-		InputTranslationAction action3 = intactionReg.getByName(MapAttributeActionFactory.NAME).getInstance(
+				IdentityEffectMode.MATCH.toString()});
+		rules.add(new TranslationRule("true", action1));
+		TranslationAction action2 = new TranslationAction(MapGroupActionFactory.NAME, new String[] {
+				"'/A'", GroupEffectMode.REQUIRE_EXISTING_GROUP.name()}); 
+		rules.add(new TranslationRule("true", action2));
+		TranslationAction action3 = new TranslationAction(MapAttributeActionFactory.NAME, new String[] {
 				"o", "/A", "['groups']",
-				AttributeEffectMode.CREATE_OR_UPDATE.toString()); 
-		rules.add(new InputTranslationRule(action3, new TranslationCondition()));
-		InputTranslationAction action4 = intactionReg.getByName(RemoveStaleDataActionFactory.NAME).getInstance(); 
-		rules.add(new InputTranslationRule(action4, new TranslationCondition()));
+				AttributeEffectMode.CREATE_OR_UPDATE.toString()}); 
+		rules.add(new TranslationRule("true", action3));
+		TranslationAction action4 = new TranslationAction(RemoveStaleDataActionFactory.NAME, new String[] {}); 
+		rules.add(new TranslationRule("true", action4));
 		TranslationProfile tp1Cfg = new TranslationProfile("p1", "", ProfileType.INPUT, rules);
 		InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, intactionReg);
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
@@ -349,19 +346,19 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 	@Test
 	public void testInputCreateOrUpdateIdentityMapping() throws Exception
 	{
-		List<InputTranslationRule> rules = new ArrayList<>();
-		InputTranslationAction action1 = intactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+		List<TranslationRule> rules = new ArrayList<>();
+		TranslationAction action1 = new TranslationAction(MapIdentityActionFactory.NAME, new String[] {
 				IdentifierIdentity.ID, 
 				"'test'", 
 				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				IdentityEffectMode.UPDATE_OR_MATCH.toString());
-		rules.add(new InputTranslationRule(action1, new TranslationCondition()));
-		InputTranslationAction action2 = intactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+				IdentityEffectMode.UPDATE_OR_MATCH.toString()});
+		rules.add(new TranslationRule("true", action1));
+		TranslationAction action2 = new TranslationAction(MapIdentityActionFactory.NAME, new String[] {
 				IdentifierIdentity.ID, 
 				"'test-base'", 
 				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				IdentityEffectMode.MATCH.toString());
-		rules.add(new InputTranslationRule(action2, new TranslationCondition()));
+				IdentityEffectMode.MATCH.toString()});
+		rules.add(new TranslationRule("true", action2));
 		TranslationProfile tp1Cfg = new TranslationProfile("p1", "", ProfileType.INPUT, rules);
 		InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, intactionReg);
 		
@@ -375,7 +372,7 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		{
 			idsMan.getEntity(ep);
 			fail("Entity created");
-		} catch (IllegalIdentityValueException e)
+		} catch (IllegalArgumentException e)
 		{
 			//ok
 		}
@@ -383,7 +380,7 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		{
 			idsMan.getEntity(ep2);
 			fail("Entity created");
-		} catch (IllegalIdentityValueException e)
+		} catch (IllegalArgumentException e)
 		{
 			//ok
 		}
@@ -398,7 +395,7 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		try
 		{
 			idsMan.getEntity(ep);
-		} catch (IllegalIdentityValueException e)
+		} catch (IllegalArgumentException e)
 		{
 			fail("Entity not created");
 		}
@@ -411,29 +408,29 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		oType.setMaxElements(10);
 		aTypeMan.addAttributeType(oType);
 		
-		List<InputTranslationRule> rules = new ArrayList<>();
-		InputTranslationAction action1 = intactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+		List<TranslationRule> rules = new ArrayList<>();
+		TranslationAction action1 = new TranslationAction(MapIdentityActionFactory.NAME, new String[] {
 				EmailIdentity.ID, 
 				"'id1@example.com[CONFIRMED]'", 
 				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				IdentityEffectMode.CREATE_OR_MATCH.toString());
-		rules.add(new InputTranslationRule(action1, new TranslationCondition()));
-		InputTranslationAction action2 =  intactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+				IdentityEffectMode.CREATE_OR_MATCH.toString()});
+		rules.add(new TranslationRule("true", action1));
+		TranslationAction action2 =  new TranslationAction(MapIdentityActionFactory.NAME, new String[] {
 				EmailIdentity.ID, 
 				"'id2@example.com[UNCONFIRMED]'", 
 				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				IdentityEffectMode.CREATE_OR_MATCH.toString()); 
-		rules.add(new InputTranslationRule(action2, new TranslationCondition()));
-		InputTranslationAction action3 =  intactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+				IdentityEffectMode.CREATE_OR_MATCH.toString()}); 
+		rules.add(new TranslationRule("true", action2));
+		TranslationAction action3 =  new TranslationAction(MapIdentityActionFactory.NAME, new String[] {
 				EmailIdentity.ID, 
 				"'id3@example.com'", 
 				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				IdentityEffectMode.CREATE_OR_MATCH.toString()); 
-		rules.add(new InputTranslationRule(action3, new TranslationCondition()));
-		InputTranslationAction action4 = intactionReg.getByName(MapAttributeActionFactory.NAME).getInstance(
+				IdentityEffectMode.CREATE_OR_MATCH.toString()}); 
+		rules.add(new TranslationRule("true", action3));
+		TranslationAction action4 = new TranslationAction(MapAttributeActionFactory.NAME, new String[] {
 				"email", "/", "['id4@example.com[CONFIRMED]', 'id5@example.com[UNCONFIRMED]', 'id6@example.com']",
-				AttributeEffectMode.CREATE_OR_UPDATE.toString()); 
-		rules.add(new InputTranslationRule(action4, new TranslationCondition()));
+				AttributeEffectMode.CREATE_OR_UPDATE.toString()}); 
+		rules.add(new TranslationRule("true", action4));
 		TranslationProfile tp1Cfg = new TranslationProfile("p1", "", ProfileType.INPUT, rules);
 		
 		InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, intactionReg);
@@ -493,20 +490,20 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		
 		groupsMan.addGroup(new Group("/A"));
 		
-		List<InputTranslationRule> rules = new ArrayList<>();
-		InputTranslationAction action1 = intactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+		List<TranslationRule> rules = new ArrayList<>();
+		TranslationAction action1 = new TranslationAction(MapIdentityActionFactory.NAME, new String[] {
 				X500Identity.ID, 
 				"'CN=' + attr['cn'] + ',O=ICM,UID=' + id", 
 				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				IdentityEffectMode.MATCH.toString());
-		rules.add(new InputTranslationRule(action1, new TranslationCondition()));
-		InputTranslationAction action2 = intactionReg.getByName(MapGroupActionFactory.NAME).getInstance(
-				"'/A'"); 
-		rules.add(new InputTranslationRule(action2, new TranslationCondition()));
-		InputTranslationAction action3 = intactionReg.getByName(MapAttributeActionFactory.NAME).getInstance(
+				IdentityEffectMode.MATCH.toString()});
+		rules.add(new TranslationRule("true", action1));
+		TranslationAction action2 = new TranslationAction(MapGroupActionFactory.NAME, new String[] {
+				"'/A'"}); 
+		rules.add(new TranslationRule("true", action2));
+		TranslationAction action3 = new TranslationAction(MapAttributeActionFactory.NAME, new String[] {
 				"o", "/A", "groups",
-				AttributeEffectMode.CREATE_OR_UPDATE.toString()); 
-		rules.add(new InputTranslationRule(action3, new TranslationCondition()));
+				AttributeEffectMode.CREATE_OR_UPDATE.toString()}); 
+		rules.add(new TranslationRule("true", action3));
 		TranslationProfile tp1Cfg = new TranslationProfile("p1", "", ProfileType.INPUT, rules);
 
 		InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, intactionReg);
@@ -551,21 +548,21 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		Entity userE = idsMan.getEntity(new EntityParam(user));
 		
 		List<TranslationRule> rules = new ArrayList<>();
-		OutputTranslationAction action1 = outtactionReg.getByName(
-				CreatePersistentIdentityActionFactory.NAME).getInstance(
+		TranslationAction action1 = new TranslationAction(
+				CreatePersistentIdentityActionFactory.NAME, new String[] {
 						X500Identity.ID, 
-						"'CN=foo,O=ICM,DC=' + authenticatedWith[0]");
+						"'CN=foo,O=ICM,DC=' + authenticatedWith[0]"});
 		rules.add(new TranslationRule("true", action1));
-		OutputTranslationAction action2 = outtactionReg.getByName(
-				CreatePersistentAttributeActionFactory.NAME).getInstance(
-						"o", "'ICM'", "/"); 
+		TranslationAction action2 = new TranslationAction(
+				CreatePersistentAttributeActionFactory.NAME, new String[] {
+						"o", "'ICM'", "/"}); 
 		rules.add(new TranslationRule("true", action2));
 		TranslationProfile tp1Cfg = new TranslationProfile("p1", "", ProfileType.OUTPUT, rules);
 		OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg, outtactionReg);
 		
 		setupPasswordAuthn();
 		createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
-		setupUserContext("user1", false);
+		setupUserContext(DEF_USER, false);
 		InvocationContext.getCurrent().getLoginSession().addAuthenticatedIdentities(Sets.newHashSet("user1"));
 		
 		TranslationInput input = new TranslationInput(new ArrayList<Attribute>(), userE, 
@@ -653,19 +650,19 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		Identity toBeMappedOn = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "known"), 
 				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT,
 				EntityState.valid, false);
-		List<InputTranslationRule> rules = new ArrayList<>();
-		InputTranslationAction action1 = intactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+		List<TranslationRule> rules = new ArrayList<>();
+		TranslationAction action1 = new TranslationAction(MapIdentityActionFactory.NAME, new String[] {
 				IdentifierIdentity.ID, 
 				"'unknown'", 
 				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				IdentityEffectMode.MATCH.toString());
-		rules.add(new InputTranslationRule(action1, new TranslationCondition()));
-		InputTranslationAction action2 = intactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+				IdentityEffectMode.MATCH.toString()});
+		rules.add(new TranslationRule("true", action1));
+		TranslationAction action2 = new TranslationAction(MapIdentityActionFactory.NAME, new String[] {
 				IdentifierIdentity.ID, 
 				"'known'", 
 				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				IdentityEffectMode.MATCH.toString());
-		rules.add(new InputTranslationRule(action2, new TranslationCondition()));
+				IdentityEffectMode.MATCH.toString()});
+		rules.add(new TranslationRule("true", action2));
 		TranslationProfile tp1Cfg = new TranslationProfile("p1", "", ProfileType.INPUT, rules);
 
 		tprofMan.addProfile(tp1Cfg);
@@ -682,19 +679,19 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 	{
 		aTypeMan.addAttributeType(new AttributeType("email", VerifiableEmailAttributeSyntax.ID));
 		
-		List<InputTranslationRule> rules = new ArrayList<>();
-		InputTranslationAction action1 = intactionReg.getByName(MapIdentityActionFactory.NAME).getInstance(
+		List<TranslationRule> rules = new ArrayList<>();
+		TranslationAction action1 = new TranslationAction(MapIdentityActionFactory.NAME, new String[] {
 				EmailIdentity.ID, 
 				"'a+tag@example.com'", 
 				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				IdentityEffectMode.CREATE_OR_MATCH.toString());
-		rules.add(new InputTranslationRule(action1, new TranslationCondition()));
-		InputTranslationAction action2 = intactionReg.getByName(MapAttributeActionFactory.NAME).getInstance(
+				IdentityEffectMode.CREATE_OR_MATCH.toString()});
+		rules.add(new TranslationRule("true", action1));
+		TranslationAction action2 = new TranslationAction(MapAttributeActionFactory.NAME, new String[] {
 				"email", 
 				"/",
 				"'b+tag@example.com'",
-				AttributeEffectMode.CREATE_OR_UPDATE.toString());
-		rules.add(new InputTranslationRule(action2, new TranslationCondition()));
+				AttributeEffectMode.CREATE_OR_UPDATE.toString()});
+		rules.add(new TranslationRule("true", action2));
 		TranslationProfile tp1Cfg = new TranslationProfile("p1", "", ProfileType.INPUT, rules);
 
 		InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, intactionReg);
@@ -723,11 +720,11 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 	public void profileWithStaleActionsIsLoaded() throws Exception
 	{
 		aTypeMan.addAttributeType(new AttributeType("someAttr", StringAttributeSyntax.ID));
-		List<InputTranslationRule> rules = new ArrayList<>();
-		InputTranslationAction action = (InputTranslationAction) intactionReg.getByName(
-				MapAttributeActionFactory.NAME).getInstance("someAttr", "/", "'val'", "full", 
-						"CREATE_ONLY"); 
-		rules.add(new InputTranslationRule(action, new TranslationCondition()));
+		List<TranslationRule> rules = new ArrayList<>();
+		TranslationAction action = (TranslationAction) new TranslationAction(
+				MapAttributeActionFactory.NAME, new String[] {"someAttr", "/", "'val'",  
+						"CREATE_ONLY"}); 
+		rules.add(new TranslationRule("true", action));
 		
 		TranslationProfile toAdd = new TranslationProfile("p1", "", ProfileType.INPUT, rules);
 		tprofMan.addProfile(toAdd);
