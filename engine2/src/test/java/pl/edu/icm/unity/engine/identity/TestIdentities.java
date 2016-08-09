@@ -2,10 +2,11 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine;
+package pl.edu.icm.unity.engine.identity;
 
 import static com.googlecode.catchexception.CatchException.catchException;
 import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -29,12 +30,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Sets;
 
+import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
-import pl.edu.icm.unity.engine.identity.EntitiesScheduledUpdater;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
@@ -62,6 +62,7 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 public class TestIdentities extends DBIntegrationTestBase
 {
+	
 	@Autowired
 	private EntitiesScheduledUpdater entitiesUpdater;
 	private EntityParam entityParam;
@@ -98,7 +99,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		{
 			idsMan.getEntity(ep2);
 			fail("Entity not removed");
-		} catch (IllegalIdentityValueException e)
+		} catch (IllegalArgumentException e)
 		{
 			//ok
 		}
@@ -111,7 +112,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
 		EntityParam ep1 = new EntityParam(id.getEntityId());
 		
-		setupUserContext("user1", false);
+		setupUserContext(DEF_USER, false);
 		
 		idsMan.scheduleRemovalByUser(ep1, new Date(System.currentTimeMillis()+200));
 		idsMan.getEntity(ep1);
@@ -122,7 +123,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		{
 			idsMan.getEntity(ep1);
 			fail("Entity not removed");
-		} catch (IllegalIdentityValueException e)
+		} catch (IllegalArgumentException e)
 		{
 			//ok
 		}
@@ -135,14 +136,14 @@ public class TestIdentities extends DBIntegrationTestBase
 		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
 		EntityParam ep1 = new EntityParam(id.getEntityId());
 		
-		setupUserContext("user1", false);
+		setupUserContext(DEF_USER, false);
 		
 		idsMan.scheduleRemovalByUser(ep1, new Date(System.currentTimeMillis()));
 		try
 		{
 			idsMan.getEntity(ep1);
 			fail("Entity not removed");
-		} catch (IllegalIdentityValueException e)
+		} catch (IllegalArgumentException e)
 		{
 			//ok
 		}
@@ -155,9 +156,9 @@ public class TestIdentities extends DBIntegrationTestBase
 		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
 		EntityParam ep1 = new EntityParam(id.getEntityId());
 
-		setupUserContext("user1", false);
+		setupUserContext(DEF_USER, false);
 		idsMan.scheduleRemovalByUser(ep1, new Date(System.currentTimeMillis()+500));
-		setupUserContext("user1", false);
+		setupUserContext(DEF_USER, false);
 		entitiesUpdater.updateEntities();
 		
 		Entity entity = idsMan.getEntity(ep1);
@@ -219,7 +220,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		setupPasswordAuthn();
 		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
 		
-		IdentityType idType = new IdentityType(EmailIdentity.ID);
+		IdentityType idType = new IdentityType(EmailIdentity.ID, EmailIdentity.ID);
 		idType.setSelfModificable(true);
 		idType.setMinInstances(2);
 		idType.setMaxInstances(2);
@@ -235,7 +236,7 @@ public class TestIdentities extends DBIntegrationTestBase
 
 		idsMan.addIdentity(emailId, entityParam, false);
 
-		setupUserContext("user1", false);
+		setupUserContext(DEF_USER, false);
 		
 		idsMan.setIdentities(entityParam, Sets.newHashSet(EmailIdentity.ID), 
 				Sets.newHashSet(emailId, emailId2));
@@ -288,7 +289,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		setupPasswordAuthn();
 		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
 		
-		IdentityType idType = new IdentityType(EmailIdentity.ID);
+		IdentityType idType = new IdentityType(EmailIdentity.ID, EmailIdentity.ID);
 		idType.setSelfModificable(true);
 		idType.setMinInstances(2);
 		idType.setMaxInstances(3);
@@ -312,7 +313,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		idsMan.addIdentity(emailId4, entityParam, false);
 		idsMan.addIdentity(emailId5, entityParam, false);
 
-		setupUserContext("user1", false);
+		setupUserContext(DEF_USER, false);
 
 		//still above limit, but removing works
 		idsMan.setIdentities(entityParam, Sets.newHashSet(EmailIdentity.ID), 
@@ -323,7 +324,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		idsMan.setIdentities(entityParam, Sets.newHashSet(EmailIdentity.ID), 
 				new HashSet<IdentityParam>());
 
-		setupUserContext("user1", false);
+		setupUserContext(DEF_USER, false);
 
 		//still under limit, but adding and changing works
 		idsMan.setIdentities(entityParam, Sets.newHashSet(EmailIdentity.ID), 
@@ -340,7 +341,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		setupPasswordAuthn();
 		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
 		
-		IdentityType idType = new IdentityType(EmailIdentity.ID);
+		IdentityType idType = new IdentityType(EmailIdentity.ID, EmailIdentity.ID);
 		idType.setSelfModificable(true);
 		idType.setMinInstances(2);
 		idType.setMaxInstances(2);
@@ -368,7 +369,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		setupPasswordAuthn();
 		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
 		EntityParam ep1 = new EntityParam(id.getEntityId());
-		IdentityType idType = new IdentityType(EmailIdentity.ID);
+		IdentityType idType = new IdentityType(EmailIdentity.ID, EmailIdentity.ID);
 		idType.setSelfModificable(true);
 		idTypeMan.updateIdentityType(idType);
 		Collection<IdentityType> identityTypes = idTypeMan.getIdentityTypes();
@@ -378,7 +379,7 @@ public class TestIdentities extends DBIntegrationTestBase
 			else
 				assertFalse(idTypeI.isSelfModificable());
 		
-		setupUserContext("user1", false);
+		setupUserContext(DEF_USER, false);
 		
 		idsMan.addIdentity(new IdentityParam(EmailIdentity.ID, "email1@custom.net"), ep1, false);
 		idsMan.addIdentity(new IdentityParam(EmailIdentity.ID, "email2@custom.net"), ep1, false);
@@ -406,7 +407,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		setupPasswordAuthn();
 		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
 		EntityParam ep1 = new EntityParam(id.getEntityId());
-		IdentityType idType = new IdentityType(EmailIdentity.ID);
+		IdentityType idType = new IdentityType(EmailIdentity.ID, EmailIdentity.ID);
 		idType.setSelfModificable(true);
 		idType.setMinInstances(2);
 		idType.setMaxInstances(3);
@@ -422,7 +423,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		identityParam.setConfirmationInfo(new ConfirmationInfo(true));
 		idsMan.addIdentity(identityParam, ep1, false);
 		
-		setupUserContext("user1", false);
+		setupUserContext(DEF_USER, false);
 		
 		idsMan.addIdentity(new IdentityParam(EmailIdentity.ID, "email1@custom.net"), ep1, false);
 		idsMan.addIdentity(new IdentityParam(EmailIdentity.ID, "email2@custom.net"), ep1, false);
@@ -469,10 +470,9 @@ public class TestIdentities extends DBIntegrationTestBase
 		Entity full = idsMan.getEntity(new EntityParam(added), null, true, null);
 		assertEquals(2, full.getIdentities().size());
 	}
-	
-	
+
 	@Test
-	public void testSyntaxes() throws Exception
+	public void typesForAllSyntaxesAreReturned() throws Exception
 	{
 		Collection<IdentityType> idTypes = idTypeMan.getIdentityTypes();
 		assertEquals(7, idTypes.size());
@@ -482,9 +482,13 @@ public class TestIdentities extends DBIntegrationTestBase
 		assertNotNull(getIdentityTypeByName(idTypes, UsernameIdentity.ID));
 		assertNotNull(getIdentityTypeByName(idTypes, TransientIdentity.ID));
 		assertNotNull(getIdentityTypeByName(idTypes, IdentifierIdentity.ID));
-		
+	}
+
+	@Test
+	public void addingUnknownAttributeExtractionIsNotAllowed() throws Exception
+	{
+		Collection<IdentityType> idTypes = idTypeMan.getIdentityTypes();
 		IdentityType toUpdate = getIdentityTypeByName(idTypes, X500Identity.ID);
-		toUpdate.setDescription("fiu fiu");
 		Map<String, String> extracted = new HashMap<String, String>();
 		extracted.put("cn", "cn");
 		toUpdate.setExtractedAttributes(extracted);
@@ -493,7 +497,17 @@ public class TestIdentities extends DBIntegrationTestBase
 			idTypeMan.updateIdentityType(toUpdate);
 			fail("managed to set attributes extraction with undefined attribute t");
 		} catch(IllegalAttributeTypeException e) {}
+	}
+	
+	@Test
+	public void addingOneUnknownAttributeExtractionIsNotAllowed() throws Exception
+	{
+		Collection<IdentityType> idTypes = idTypeMan.getIdentityTypes();
 		aTypeMan.addAttributeType(new AttributeType("cn", StringAttributeSyntax.ID));
+
+		IdentityType toUpdate = getIdentityTypeByName(idTypes, X500Identity.ID);
+		Map<String, String> extracted = new HashMap<String, String>();
+		extracted.put("cn", "cn");
 		extracted.put("unknown", "cn");
 		toUpdate.setExtractedAttributes(extracted);
 		try
@@ -501,36 +515,74 @@ public class TestIdentities extends DBIntegrationTestBase
 			idTypeMan.updateIdentityType(toUpdate);
 			fail("managed to set attributes extraction with unsupported attribute t");
 		} catch(IllegalAttributeTypeException e) {}
-		extracted.remove("unknown");
-		
+	}
+	
+	@Test
+	public void updatedTypeIsReturned() throws Exception
+	{
+		Collection<IdentityType> idTypes = idTypeMan.getIdentityTypes();
+		aTypeMan.addAttributeType(new AttributeType("cn", StringAttributeSyntax.ID));
 		AttributeType at = new AttributeType("country", StringAttributeSyntax.ID);
 		at.setMaxElements(0);
 		aTypeMan.addAttributeType(at);
+
+		IdentityType toUpdate = getIdentityTypeByName(idTypes, X500Identity.ID);
+		toUpdate.setDescription("fiu fiu");
+		Map<String, String> extracted = new HashMap<String, String>();
+		extracted.put("cn", "cn");
 		extracted.put("c", "country");
 		toUpdate.setExtractedAttributes(extracted);
 		idTypeMan.updateIdentityType(toUpdate);
 		
-		
 		idTypes = idTypeMan.getIdentityTypes();
 		IdentityType updated = getIdentityTypeByName(idTypes, X500Identity.ID);
-		assertEquals("fiu fiu", updated.getDescription());
-		assertEquals(2, updated.getExtractedAttributes().size());
-		Set<String> extractedkeySet = updated.getExtractedAttributes().keySet();
-		assertTrue(extractedkeySet.contains("cn"));
-		assertEquals("cn", updated.getExtractedAttributes().get("cn"));
+		assertThat(updated, is(toUpdate));
+	}
+	
+	@Test
+	public void configuredAttribtuesAreExtractedFromAddedIdentity() throws Exception
+	{
+		Collection<IdentityType> idTypes = idTypeMan.getIdentityTypes();
+
+		aTypeMan.addAttributeType(new AttributeType("cn", StringAttributeSyntax.ID));
+		AttributeType at = new AttributeType("country", StringAttributeSyntax.ID);
+		at.setMaxElements(0);
+		aTypeMan.addAttributeType(at);
+
+		IdentityType toUpdate = getIdentityTypeByName(idTypes, X500Identity.ID);
+		Map<String, String> extracted = new HashMap<String, String>();
+		extracted.put("cn", "cn");
+		extracted.put("c", "country");
+		toUpdate.setExtractedAttributes(extracted);
+		idTypeMan.updateIdentityType(toUpdate);
 		
 		setupMockAuthn();
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi, dc=ddd, ou=org unit,C=pl");
 		Identity added = idsMan.addEntity(idParam, "crMock", EntityState.valid, true);
 		
 		Collection<AttributeExt> attributes = attrsMan.getAttributes(new EntityParam(added), "/", null);
-		assertEquals(1, attributes.size());
+		assertEquals(1 + DEF_ATTRS, attributes.size());
 		Attribute cnAttr = getAttributeByName(attributes, "cn");
 		assertEquals(cnAttr.getValues().get(0), "golbi");
+	}
+	
+	@Test
+	public void removedAttributeIsRemovedFromExtractedAttributes() throws Exception
+	{
+		aTypeMan.addAttributeType(new AttributeType("cn", StringAttributeSyntax.ID));
+		aTypeMan.addAttributeType(new AttributeType("country", StringAttributeSyntax.ID));
+
+		Collection<IdentityType> idTypes = idTypeMan.getIdentityTypes();
+		IdentityType toUpdate = getIdentityTypeByName(idTypes, X500Identity.ID);
+		Map<String, String> extracted = new HashMap<String, String>();
+		extracted.put("cn", "cn");
+		extracted.put("c", "country");
+		toUpdate.setExtractedAttributes(extracted);
+		idTypeMan.updateIdentityType(toUpdate);
 		
 		aTypeMan.removeAttributeType("cn", true);
 		idTypes = idTypeMan.getIdentityTypes();
-		updated = getIdentityTypeByName(idTypes, X500Identity.ID);
+		IdentityType updated = getIdentityTypeByName(idTypes, X500Identity.ID);
 		assertEquals(1, updated.getExtractedAttributes().size());
 		assertEquals("c", updated.getExtractedAttributes().keySet().iterator().next());
 		assertEquals("country", updated.getExtractedAttributes().values().iterator().next());
@@ -676,13 +728,13 @@ public class TestIdentities extends DBIntegrationTestBase
 		{
 			groupsMan.removeMember("/", new EntityParam(id.getEntityId()));
 			fail("removed member from /");
-		} catch(IllegalGroupValueException e) {}
+		} catch(IllegalArgumentException e) {}
 
 		try
 		{
 			groupsMan.removeMember("/test2", new EntityParam(id.getEntityId()));
 			fail("removed non member");
-		} catch(IllegalGroupValueException e) {}
+		} catch(IllegalArgumentException e) {}
 
 		groupsMan.addMemberFromParent("/test2", new EntityParam(id.getEntityId()));
 		groupsMan.addMemberFromParent("/test2/test", new EntityParam(id.getEntityId()));
@@ -707,7 +759,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		{
 			idsMan.getEntity(new EntityParam(id2));
 			fail("Removed entity is still available");
-		} catch (IllegalIdentityValueException e) {}
+		} catch (IllegalArgumentException e) {}
 		
 		contents = groupsMan.getContents("/", GroupContents.MEMBERS);
 		assertEquals(1, contents.getMembers().size());

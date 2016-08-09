@@ -45,6 +45,8 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 {
 	public static final String CRED_REQ_PASS = "cr-pass";
+	public static final String DEF_USER = "mockuser1";
+	public static final String DEF_PASSWORD = "mockpassword1";
 	
 	@Autowired
 	private SessionManagement sessionMan;
@@ -90,12 +92,12 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 
 	protected Identity createUsernameUser(String username) throws Exception
 	{
-		return createUsernameUser(username, null, "mockpassword1", CR_MOCK);
+		return createUsernameUser(username, null, DEF_PASSWORD, CR_MOCK);
 	}
 	
 	protected Identity createUsernameUserWithRole(String role) throws Exception
 	{
-		return createUsernameUser("mockuser", role, "mockPassword1", CRED_REQ_PASS);
+		return createUsernameUser(DEF_USER, role, DEF_PASSWORD, CRED_REQ_PASS);
 	}
 
 	/**

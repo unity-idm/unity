@@ -473,10 +473,9 @@ public class EngineInitialization extends LifecycleBase
 				if (!defined.containsKey(it.getId()))
 				{
 					log.info("Adding identity type " + it.getId());
-					IdentityType idType = new IdentityType(it.getId());
+					IdentityType idType = new IdentityType(it.getId(), it.getId());
 					idType.setDescription(idType.getDescription());
 					idType.setExtractedAttributes(idType.getExtractedAttributes());
-					idType.setIdentityTypeProvider(it.getId());
 					dbIdentities.create(idType);
 					coldStart = true;
 				}

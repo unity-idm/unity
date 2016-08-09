@@ -18,6 +18,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.edu.icm.unity.engine.UnityIntegrationTest;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
@@ -97,8 +98,8 @@ public class EntityResolverImplTest
 	{
 		tx.runInTransactionThrowing(() -> {
 			long entity = entDAO.create(new EntityInformation());
-			Identity obj = new Identity("userName", "name1", entity, "name1");
-			itDAO.create(new IdentityType("userName"));
+			Identity obj = new Identity(UsernameIdentity.ID, "name1", entity, "name1");
+			itDAO.create(new IdentityType(UsernameIdentity.ID, UsernameIdentity.ID));
 			identityDAO.create(obj);
 		
 			long ret = entityResolver.getEntityId(new EntityParam(new IdentityTaV("userName", obj.getName())));
@@ -111,8 +112,8 @@ public class EntityResolverImplTest
 	{
 		tx.runInTransactionThrowing(() -> {
 			long entity = entDAO.create(new EntityInformation());
-			Identity obj = new Identity("userName", "name1", entity, "name1");
-			itDAO.create(new IdentityType("userName"));
+			Identity obj = new Identity(UsernameIdentity.ID, "name1", entity, "name1");
+			itDAO.create(new IdentityType(UsernameIdentity.ID, UsernameIdentity.ID));
 			identityDAO.create(obj);
 
 			long ret = entityResolver.getEntityId(new IdentityTaV("userName", obj.getName()));

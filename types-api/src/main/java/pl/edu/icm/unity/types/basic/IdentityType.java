@@ -37,14 +37,18 @@ public class IdentityType implements NamedObject
 	public IdentityType(String name)
 	{
 		this.name = name;
-		
+	}
+	
+	public IdentityType(String name, String identityTypeProvider)
+	{
+		this(name);
+		this.identityTypeProvider = identityTypeProvider;
 	}
 	
 	public IdentityType(String name, String identityTypeProvider, String description,
 			Map<String, String> extractedAttributes)
 	{
-		this(name);
-		this.identityTypeProvider = identityTypeProvider;
+		this(name, identityTypeProvider);
 		this.description = description;
 		setExtractedAttributes(extractedAttributes);
 	}

@@ -198,7 +198,7 @@ public class IdentityHelper
 			extracted.setGroupPath("/");
 			try
 			{
-				attributeHelper.createAttribute(extracted, entityId);
+				attributeHelper.addAttribute(entityId, extracted, false, true);
 			} catch (Exception e)
 			{
 				log.warn("Can not add extracted attribute " + extracted.getName() 

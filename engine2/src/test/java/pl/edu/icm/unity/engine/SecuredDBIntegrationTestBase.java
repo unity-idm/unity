@@ -49,6 +49,7 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 @UnityIntegrationTest
 public abstract class SecuredDBIntegrationTestBase
 {
+	protected static final int DEF_ATTRS = 1; //Credential requirement attribute (in / group)
 	public static final String CR_MOCK = "crMock";
 	public static final String CRED_MOCK = "credential1";
 	

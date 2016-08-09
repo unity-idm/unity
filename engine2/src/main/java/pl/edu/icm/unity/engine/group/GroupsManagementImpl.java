@@ -145,7 +145,8 @@ public class GroupsManagementImpl implements GroupsManagement
 		}); 
 		
 		//careful - must be after the transaction is committed
-		confirmationManager.sendVerificationsQuiet(entity, attributes, false);	}
+		confirmationManager.sendVerificationsQuiet(entity, attributes, false);	
+	}
 
 	@Override
 	@Transactional
@@ -154,7 +155,18 @@ public class GroupsManagementImpl implements GroupsManagement
 		entity.validateInitialization();
 		long entityId = idResolver.getEntityId(entity);
 		authz.checkAuthorization(authz.isSelf(entityId), path, AuthzCapability.groupModify);
-		membershipDAO.deleteByKey(entityId, path);
+		
+		if (path.equals("/"))
+			throw new IllegalArgumentException("The entity can not be removed from the root group");
+		
+		Set<String> entityMembership = membershipDAO.getEntityMembershipSimple(entityId);
+		if (!entityMembership.contains(path))
+			throw new IllegalArgumentException("The entity is not a member of the group " + path);
+		for (String group: entityMembership)
+		{
+			if (Group.isChildOrSame(group, path))
+				membershipDAO.deleteByKey(entityId, group);
+		}
 	}
 
 	@Override

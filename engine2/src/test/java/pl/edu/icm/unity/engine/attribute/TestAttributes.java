@@ -36,7 +36,6 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 public class TestAttributes extends DBIntegrationTestBase
 {
 	private EntityParam entity;
-	private static final int DEF_ATTRS = 1; //Credential requirement attribute (in / group)
 	
 	@Before
 	public void setup() throws Exception
