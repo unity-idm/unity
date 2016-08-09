@@ -337,6 +337,38 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 	}
 	
 	@Test
+	public void updated2ndAttributeIsReturned()
+	{
+		tx.runInTransaction(() -> {
+			AttributeDAO dao = getDAO();
+			StoredAttribute obj = getObject("");
+			dao.create(obj);
+			Attribute attr = new Attribute("attr2", 
+					"syntax", 
+					"/A", 
+					Lists.newArrayList("v1", "v2"), 
+					"remoteIdp", 
+					"translationProfile");
+			AttributeExt a = new AttributeExt(attr, true, new Date(100), new Date(1000));
+			StoredAttribute obj2 = new StoredAttribute(a, entityId);
+			dao.create(obj2);
+
+			mutateObject(obj2);
+			dao.updateAttribute(obj2);
+
+			List<AttributeExt> attributes = dao.getEntityAttributes(entityId, "attr", "/A");
+
+			assertAllAndOnlyAllIn(Lists.newArrayList(obj.getAttribute()), 
+					attributes);
+
+			List<AttributeExt> attributes2 = dao.getEntityAttributes(entityId, "attr2", "/A");
+
+			assertAllAndOnlyAllIn(Lists.newArrayList(obj2.getAttribute()), 
+					attributes2);
+		});
+	}
+	
+	@Test
 	public void attributesAreRemovedWhenTypeIsRemoved()
 	{
 		tx.runInTransaction(() -> {

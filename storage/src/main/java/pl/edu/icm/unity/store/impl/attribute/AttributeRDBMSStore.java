@@ -45,8 +45,8 @@ public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, Attri
 		AttributesMapper mapper = SQLTransactionTL.getSql().getMapper(AttributesMapper.class);
 		AttributeBean toUpdate = jsonSerializer.toDB(a);
 		StorageLimits.checkContentsLimit(toUpdate.getContents());
-
-		List<AttributeBean> old = mapper.getAttributes(toUpdate);
+		List<AttributeBean> old = getAttributesFiltering(a.getAttribute().getName(), a.getEntityId(), 
+				a.getAttribute().getGroupPath());
 		if (old.isEmpty())
 			throw new IllegalArgumentException(elementName + " [" + a.getAttribute().getName() + 
 					"] does not exist");
