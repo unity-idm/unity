@@ -323,7 +323,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 		StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 		int i = toSkipBackwards+1;
 		while (i < stackTrace.length && 
-				(stackTrace[i].getClassName().contains("Transactional") || 
+				(stackTrace[i].getClassName().contains("Transaction") || 
 				!stackTrace[i].getClassName().contains("pl.edu.icm.unity.")))
 			i++;
 		if (i >= stackTrace.length)
