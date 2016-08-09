@@ -108,6 +108,8 @@ public class GroupsManagementImpl implements GroupsManagement
 	public void removeGroup(String path, boolean recursive) throws EngineException
 	{
 		authz.checkAuthorization(path, AuthzCapability.groupModify);
+		if ("/".equals(path))
+			throw new IllegalGroupValueException("Removing the root group is forbidden");
 		if (!recursive && !getSubGroups(path).isEmpty())
 			throw new IllegalGroupValueException("The group contains subgroups");
 		dbGroups.delete(path);
@@ -290,9 +292,17 @@ public class GroupsManagementImpl implements GroupsManagement
 	public Set<String> getChildGroups(String root) throws EngineException
 	{
 		authz.checkAuthorization(root, AuthzCapability.read);
-		return getSubGroups(root);
+		return getSubGroupsInclusive(root);
 	}
 	
+	private Set<String> getSubGroupsInclusive(String root)
+	{
+		Set<String> allGroups = dbGroups.getAllNames();
+		return allGroups.stream().
+				filter(g -> Group.isChildOrSame(g, root)).
+				collect(Collectors.toSet());
+	}
+
 	private Set<String> getSubGroups(String root)
 	{
 		Set<String> allGroups = dbGroups.getAllNames();

@@ -18,7 +18,6 @@ import org.junit.Test;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -54,11 +53,11 @@ public class TestGroups extends DBIntegrationTestBase
 		Group ac = new Group("/A/C");
 		groupsMan.addGroup(ac);
 		
-		EntityParam ep = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user1"));
+		EntityParam ep = new EntityParam(new IdentityTaV(UsernameIdentity.ID, DEF_USER));
 		groupsMan.addMemberFromParent("/A", ep);
 		groupsMan.addMemberFromParent("/A/B", ep);
 		
-		setupUserContext("user1", false);
+		setupUserContext(DEF_USER, false);
 		
 		GroupContents rootC = groupsMan.getContents("/", GroupContents.EVERYTHING);
 		assertEquals(1, rootC.getSubGroups().size());
@@ -97,7 +96,7 @@ public class TestGroups extends DBIntegrationTestBase
 		{
 			groupsMan.addGroup(tooBig);
 			fail("Managed to add a too big group");
-		} catch (WrongArgumentException e)
+		} catch (IllegalArgumentException e)
 		{
 			//OK
 		}
