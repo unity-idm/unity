@@ -41,16 +41,13 @@
     </scm>
 
 	<modules>
-		<module>types</module>
 		<module>types-api</module>
-		<module>core</module>
 		<module>engine-api</module>
-		<module>engine</module>
+		<module>engine2</module>
 		<module>persistence</module>
 		<module>base</module>
 		<module>storage-api</module>
 		<module>storage</module>
-		<module>std-extensions</module>
 		<module>std-plugins</module>
 		<module>web-vaadin-widgetset</module>
 		<module>web-common</module>
