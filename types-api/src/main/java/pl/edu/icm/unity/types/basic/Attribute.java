@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -19,16 +20,15 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.NamedObject;
-import pl.edu.icm.unity.types.basic.Attribute;
 
 /**
  * Represents an attribute instance.
  * Attribute has a group where it is valid (or valid and defined depending on context) and list of values.
- * Values type of this class are of String class. While for String attributes this is a natural encoding 
+ * Values type of this class are of String class. While for String attributes this is a natural encoding
  * for some other the string is an effect of some sort of serialization as Base64. Values can be (de)serialized using
  * proper value syntax object. The value syntax name is stored with an attribute for convenience, although it
- * duplicates an information stored in {@link AttributeType} of this attribute.  
- * <p> 
+ * duplicates an information stored in {@link AttributeType} of this attribute.
+ * <p>
  * @author K. Benedyczak
  */
 public class Attribute implements NamedObject
@@ -39,7 +39,7 @@ public class Attribute implements NamedObject
 	private List<String> values = Collections.emptyList();
 	private String translationProfile;
 	private String remoteIdp;
-	
+
 	/**
 	 * Simplified, without remoteIdp and translationProfile info
 	 * @param name
@@ -54,7 +54,7 @@ public class Attribute implements NamedObject
 		this.groupPath = groupPath;
 		this.values = new ArrayList<>(values);
 	}
-	
+
 	/**
 	 * Full constructor
 	 * @param name
@@ -64,14 +64,14 @@ public class Attribute implements NamedObject
 	 * @param remoteIdp
 	 * @param translationProfile
 	 */
-	public Attribute(String name, String valueSyntax, String groupPath, List<String> values, 
+	public Attribute(String name, String valueSyntax, String groupPath, List<String> values,
 			String remoteIdp, String translationProfile)
 	{
 		this(name, valueSyntax, groupPath, values);
 		this.remoteIdp = remoteIdp;
 		this.translationProfile = translationProfile;
 	}
-	
+
 	/**
 	 * Full deserialization from JSON
 	 * @param src
@@ -96,17 +96,17 @@ public class Attribute implements NamedObject
 		this.groupPath = groupPath;
 		fromJsonBase(src);
 	}
-	
+
 	public String getGroupPath()
 	{
 		return groupPath;
 	}
-	
+
 	public List<String> getValues()
 	{
 		return values;
 	}
-	
+
 	@Override
 	public String getName()
 	{
@@ -122,12 +122,12 @@ public class Attribute implements NamedObject
 	{
 		return remoteIdp;
 	}
-	
+
 	public String getValueSyntax()
 	{
 		return valueSyntax;
 	}
-	
+
 
 	public void setName(String name)
 	{
@@ -144,6 +144,7 @@ public class Attribute implements NamedObject
 		this.groupPath = groupPath;
 	}
 
+	@JsonSetter
 	public void setValues(List<String> values)
 	{
 		this.values = values;
@@ -165,8 +166,8 @@ public class Attribute implements NamedObject
 	{
 		this.remoteIdp = remoteIdp;
 	}
-	
-	
+
+
 	@JsonValue
 	public ObjectNode toJson()
 	{
@@ -176,8 +177,8 @@ public class Attribute implements NamedObject
 		root.put("valueSyntax", valueSyntax);
 		return root;
 	}
-	
-	
+
+
 	protected final void fromJson(ObjectNode main)
 	{
 		this.name = main.get("name").asText();
@@ -185,12 +186,12 @@ public class Attribute implements NamedObject
 		this.valueSyntax = main.get("valueSyntax").asText();
 		fromJsonBase(main);
 	}
-	
+
 	protected final void fromJsonBase(ObjectNode main)
 	{
 		translationProfile = JsonUtil.getNullable(main, "translationProfile");
 		remoteIdp = JsonUtil.getNullable(main, "remoteIdp");
-		
+
 		ArrayNode values = main.withArray("values");
 		this.values = new ArrayList<>(values.size());
 		Iterator<JsonNode> it = values.iterator();
@@ -203,7 +204,7 @@ public class Attribute implements NamedObject
 			throw new InternalException("Can't perform JSON deserialization", e);
 		}
 	}
-	
+
 	protected ObjectNode toJsonBase()
 	{
 		ObjectNode root = Constants.MAPPER.createObjectNode();
@@ -216,7 +217,7 @@ public class Attribute implements NamedObject
 			values.add(value);
 		return root;
 	}
-	
+
 	@Override
 	public String toString()
 	{

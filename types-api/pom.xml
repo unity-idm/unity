@@ -14,7 +14,7 @@
 	especially useful for REST clients as JSON serialization is provided.</description>
 
 	<properties>
-		<m.name>types</m.name>
+		<m.name>types-api</m.name>
 	</properties>
 
 	<scm>

@@ -10,10 +10,10 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
+import com.googlecode.catchexception.CatchException;
+
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
-
-import com.googlecode.catchexception.CatchException;
 
 public class TestEmailIdentity
 {
@@ -35,12 +35,12 @@ public class TestEmailIdentity
 		checkIfValid("email@e.pl");
 		checkIfValid("email+tag+tag2@long.long.example.com");
 	}
-	
-	private void checkIfInvalid(String toCheck) throws IllegalIdentityValueException
+
+	private void checkIfInvalid(String toCheck) throws IllegalArgumentException
 	{
 		EmailIdentity emailId = new EmailIdentity();
 		catchException(emailId).validate(toCheck);
-		assertThat(CatchException.caughtException(), instanceOf(IllegalIdentityValueException.class));
+		assertThat(CatchException.caughtException(), instanceOf(IllegalArgumentException.class));
 	}
 
 	private void checkIfValid(String toCheck) throws IllegalIdentityValueException
