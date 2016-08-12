@@ -27,8 +27,6 @@ import org.springframework.core.env.CommandLinePropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
@@ -36,6 +34,10 @@ import eu.unicore.util.configuration.FilePropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 import eu.unicore.util.jetty.HttpServerProperties;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.initializers.InitializerMode;
+import pl.edu.icm.unity.engine.api.initializers.InitializerType;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 
 /**
  * Principal options are defined here: ids and corresponding default values.
@@ -45,19 +47,19 @@ import eu.unicore.util.jetty.HttpServerProperties;
 public class UnityServerConfiguration extends UnityFilePropertiesHelper
 {
 	public static final String PROFILE_PRODUCTION = "production";
-	
+
 	public enum LogoutMode {internalOnly, internalAndSyncPeers, internalAndAsyncPeers}
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, UnityServerConfiguration.class);
 	public static final String CONFIGURATION_FILE = "conf/unityServer.conf";
 	public static final String DEFAULT_EMAIL_CHANNEL = "Default e-mail channel";
 
-	public static final String SYSTEM_ALLOW_FULL_HTML = "unity.server.allowFullHtml"; 
-	
+	public static final String SYSTEM_ALLOW_FULL_HTML = "unity.server.allowFullHtml";
+
 	public static final String BASE_PREFIX = "unityServer.";
 
 	@DocumentationReferencePrefix
 	public static final String P = BASE_PREFIX + "core.";
-	
+
 	public static final String ENABLED_LOCALES = "enabledLocales.";
 	public static final String DEFAULT_LOCALE = "defaultLocale";
 	public static final String MAIL_CONF = "mailConfig";
@@ -76,26 +78,26 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String WELL_KNOWN_URL_THEME = "wellKnownUrlUITheme";
 	public static final String WELL_KNOWN_URL_TEMPLATE = "wellKnownUrlUITemplate";
 	public static final String UNITYGW_WEB_CONTENT_PATH = "unityGWWebContentDirectory";
-	public static final String ALLOW_FULL_HTML = "allowFullHtml"; 
-	
-	public static final String IMPORT_PFX = "userImport."; 
-	
+	public static final String ALLOW_FULL_HTML = "allowFullHtml";
+
+	public static final String IMPORT_PFX = "userImport.";
+
 	public static final String ENDPOINTS = "endpoints.";
 	public static final String ENDPOINT_DESCRIPTION = "endpointDescription";
 	public static final String ENDPOINT_TYPE = "endpointType";
 	public static final String ENDPOINT_CONFIGURATION = "endpointConfigurationFile";
 	public static final String ENDPOINT_ADDRESS = "contextPath";
-	public static final String ENDPOINT_NAME = "endpointName";	
-	public static final String ENDPOINT_DISPLAYED_NAME = "endpointDisplayedName";	
+	public static final String ENDPOINT_NAME = "endpointName";
+	public static final String ENDPOINT_DISPLAYED_NAME = "endpointDisplayedName";
 	public static final String ENDPOINT_AUTHENTICATORS = "endpointAuthenticators";
 	public static final String ENDPOINT_REALM = "endpointRealm";
-	
+
 	public static final String INITIALIZERS = "initializers.";
 	public static final String UPDATE_INTERVAL = "asyncStateUpdateInterval";
 	public static final String WORKSPACE_DIRECTORY = "workspaceDirectory";
 	public static final String MAIN_CREDENTIAL = "credential";
 	public static final String MAIN_TRUSTSTORE = "truststore";
-	
+
 	public static final String REALMS = "realms.";
 	public static final String REALM_NAME = "realmName";
 	public static final String REALM_DESCRIPTION = "realmDescription";
@@ -103,14 +105,14 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String REALM_BLOCK_FOR = "blockFor";
 	public static final String REALM_MAX_INACTIVITY = "maxInactivity";
 	public static final String REALM_REMEMBER_ME = "enableRememberMeFor";
-	
+
 	public static final String AUTHENTICATORS = "authenticators.";
 	public static final String AUTHENTICATOR_NAME = "authenticatorName";
 	public static final String AUTHENTICATOR_TYPE = "authenticatorType";
 	public static final String AUTHENTICATOR_CREDENTIAL = "localCredential";
 	public static final String AUTHENTICATOR_VERIFICATOR_CONFIG = "verificatorConfigurationFile";
 	public static final String AUTHENTICATOR_RETRIEVAL_CONFIG = "retrievalConfigurationFile";
-	
+
 	public static final String CREDENTIALS = "credentials.";
 	public static final String CREDENTIAL_NAME = "credentialName";
 	public static final String CREDENTIAL_TYPE = "credentialType";
@@ -121,24 +123,29 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String CREDENTIAL_REQ_NAME = "credentialReqName";
 	public static final String CREDENTIAL_REQ_DESCRIPTION = "credentialReqDescription";
 	public static final String CREDENTIAL_REQ_CONTENTS = "credentialReqContents.";
-	
+
 	public static final String INITIAL_ADMIN_USER = "initialAdminUsername";
 	public static final String INITIAL_ADMIN_PASSWORD = "initialAdminPassword";
 	public static final String INITIAL_ADMIN_USER_OUTDATED = "initialAdminOutdated";
-	
+
 	public static final String TRANSLATION_PROFILES = "translationProfiles.";
-	
+
 	public static final String WIPE_DB_AT_STARTUP = "wipeDbAtStartup";
-	
+
 	public static final String CONFIRMATION_REQUEST_LIMIT = "confirmationRequestLimit";
 	public static final String CONFIRMATION_DEFAULT_RETURN_URL = "defaultPostConfirmationReturnURL";
 	public static final String CONFIRMATION_AUTO_REDIRECT = "automaticRedirectAfterConfirmation";
 
+	public static final String CONTENT_INITIALIZERS = "contentInit.";
+	public static final String CONTENT_INITIALIZERS_FILE = "file";
+	public static final String CONTENT_INITIALIZERS_TYPE = "type";
+	public static final String CONTENT_INITIALIZERS_MODE = "mode";
+
 	@DocumentationReferenceMeta
-	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
-	
-	public static final Map<String, Locale> SUPPORTED_LOCALES = new HashMap<String, Locale>();
-	
+	public final static Map<String, PropertyMD> defaults=new HashMap<>();
+
+	public static final Map<String, Locale> SUPPORTED_LOCALES = new HashMap<>();
+
 	static
 	{
 		DocumentationCategory mainCat = new DocumentationCategory("General settings", "1");
@@ -148,7 +155,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		DocumentationCategory initRealmCat = new DocumentationCategory("Content initializers: authentication realms", "5");
 		DocumentationCategory initEndpointsCat = new DocumentationCategory("Content initializers: endpoints", "6");
 		DocumentationCategory otherCat = new DocumentationCategory("Other", "8");
-		
+
 		defaults.put(ENABLED_LOCALES, new PropertyMD().setList(true).setCategory(mainCat).
 				setDescription("List of enabled locales. " +
 				"Each entry must have a language code as 'en' or 'pl' first, " +
@@ -175,7 +182,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 						+ "use other management means for those artefacts (as REST interface). "
 						+ "Then set it to false, to have only incremental changes from configuration "
 						+ "- elements not present in configuration will not be removed then. "
-						+ "Note that this option is ignored if " + IGNORE_CONFIGURED_CONTENTS_SETTING + 
+						+ "Note that this option is ignored if " + IGNORE_CONFIGURED_CONTENTS_SETTING +
 						" is true."));
 		defaults.put(LOGOUT_MODE, new PropertyMD(LogoutMode.internalAndSyncPeers).setCategory(mainCat).
 				setDescription("Controls the way how the logout operation is performed. "
@@ -241,12 +248,12 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 						+ "user import subsystem. Use of user import feature is naturally optional"
 						+ " and so this list typically is empty."));
 
-		
+
 		defaults.put(TRANSLATION_PROFILES, new PropertyMD().setList(false).setCategory(mainCat).
 				setDescription("List of file paths, where each file contains a definition of a translation profile, " +
 						"used to configure mapping of remote identities to the local representation."));
 
-		
+
 		defaults.put(ENDPOINTS, new PropertyMD().setStructuredList(true).setCategory(initEndpointsCat).
 				setDescription("List of initially enabled endpoints"));
 		defaults.put(ENDPOINT_TYPE, new PropertyMD().setStructuredListEntry(ENDPOINTS).setMandatory().setCategory(initEndpointsCat).
@@ -308,7 +315,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 						+ "IMPORTANT! This is an insecure option. Use it only for realms "
 						+ "containing only endpoints with low security requirements."));
 
-		
+
 		defaults.put(CREDENTIALS, new PropertyMD().setStructuredList(true).setCategory(initCredCat).
 				setDescription("List of initially defined credentials"));
 		defaults.put(CREDENTIAL_NAME, new PropertyMD().setStructuredListEntry(CREDENTIALS).setMandatory().setCategory(initCredCat).
@@ -328,10 +335,10 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				setDescription("Credential requirement description"));
 		defaults.put(CREDENTIAL_REQ_CONTENTS, new PropertyMD().setStructuredListEntry(CREDENTIAL_REQS).setList(false).setCategory(initCredReqCat).
 				setDescription("Credential requirement contents, i.e. credentials that belongs to it"));
-		
+
 		defaults.put(WIPE_DB_AT_STARTUP, new PropertyMD("false").setHidden().
 				setDescription("For testing: if set to true then DB will be fully cleared at server startup"));
-		
+
 		defaults.put(CONFIRMATION_REQUEST_LIMIT, new PropertyMD("3").setCategory(mainCat).
 				setDescription("Defines number of confirmation request that can be send to particular address in day"));
 		defaults.put(CONFIRMATION_DEFAULT_RETURN_URL, new PropertyMD().setCategory(mainCat).
@@ -341,15 +348,27 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put(CONFIRMATION_AUTO_REDIRECT, new PropertyMD("false").setCategory(mainCat).
 				setDescription("If false Unity will show its confirmation screen after email verification. "
 						+ "If true and a return URL is defined for the confirmation then the screen is not shown and redirect is immediate."));
-		
+
 		defaults.put(MAIN_TRUSTSTORE, new PropertyMD().setMandatory().setCategory(mainCat).
 				setDescription("Name of the truststore to be used by the server."));
 		defaults.put(MAIN_CREDENTIAL, new PropertyMD().setMandatory().setCategory(mainCat).
 				setDescription("Name of the credential to be used by the server."));
 		defaults.put(HttpServerProperties.DEFAULT_PREFIX, new PropertyMD().setCanHaveSubkeys().setCategory(otherCat).
 				setDescription("Properties starting with this prefix are used to configure Jetty HTTP server settings. See separate table for details."));
-		
-		
+
+		defaults.put(CONTENT_INITIALIZERS, new PropertyMD().setStructuredList(true).setCategory(mainCat).
+				setDescription("List of content initializators that will be executed on the startup."));
+		defaults.put(CONTENT_INITIALIZERS_FILE, new PropertyMD().setStructuredListEntry(CONTENT_INITIALIZERS).setMandatory().setCategory(mainCat).
+				setDescription("A file with content that will be evaulated by initializer."));
+		defaults.put(CONTENT_INITIALIZERS_TYPE, new PropertyMD().setStructuredListEntry(CONTENT_INITIALIZERS).setMandatory().setCategory(mainCat).
+				setDescription("Type of initializator, supported values: " + InitializerType.typeNamesToString() + ". "
+						+ InitializerType.JSON.typeName() + ": means the configured file is a json with content, with schema"
+						+ " exported by Unity. When this type is selected, the mode option is required; "
+						+ InitializerType.GROOVY.typeName() + ": means the provided file is groovy script"
+						+ " that will be executed during startup When this type is configured, the mode option is ignored."));
+		defaults.put(CONTENT_INITIALIZERS_MODE, new PropertyMD("").setStructuredListEntry(CONTENT_INITIALIZERS).setCategory(mainCat).
+				setDescription("Mode of initializator, supported values: " + InitializerMode.modesToString()));
+
 		SUPPORTED_LOCALES.put("en", new Locale("en"));
 		SUPPORTED_LOCALES.put("pl", new Locale("pl"));
 		SUPPORTED_LOCALES.put("de", new Locale("de"));
@@ -359,35 +378,35 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	private UnityPKIConfiguration pkiConf;
 	private Map<String, Locale> enabledLocales;
 	private Locale defaultLocale;
-	
+
 	@Autowired
 	public UnityServerConfiguration(Environment env, ConfigurationLocationProvider locProvider) throws ConfigurationException, IOException
 	{
 		super(P, getConfigurationFile(env, locProvider), defaults, log);
 		pkiConf = new UnityPKIConfiguration(FilePropertiesHelper.load(getFileValue(PKI_CONF, false)));
 		jp = new UnityHttpServerConfiguration(properties);
-			
+
 		enabledLocales = loadEnabledLocales();
 		defaultLocale = safeLocaleDecode(getValue(DEFAULT_LOCALE));
 		if (!isLocaleSupported(defaultLocale))
 			throw new ConfigurationException("The default locale is not among enabled ones.");
 
 		checkRealmNames();
-		
+
 		File workspace = new File(getValue(WORKSPACE_DIRECTORY));
 		if (!workspace.exists())
 			workspace.mkdirs();
-		
-		if (getBooleanValue(IGNORE_CONFIGURED_CONTENTS_SETTING) && 
+
+		if (getBooleanValue(IGNORE_CONFIGURED_CONTENTS_SETTING) &&
 				getBooleanValue(WIPE_DB_AT_STARTUP))
-			throw new ConfigurationException("Using " + WIPE_DB_AT_STARTUP + " and " + 
+			throw new ConfigurationException("Using " + WIPE_DB_AT_STARTUP + " and " +
 				IGNORE_CONFIGURED_CONTENTS_SETTING + " settings together makes really no sense: "
 						+ "database will be cleaned and not populated with any contents "
 						+ "so it won't be possible to anyhow log in.");
 		if (getBooleanValue(ALLOW_FULL_HTML))
 			System.setProperty(SYSTEM_ALLOW_FULL_HTML, "true");
 	}
-	
+
 	private void checkRealmNames()
 	{
 		Set<String> realmKeys = getStructuredListKeys(UnityServerConfiguration.REALMS);
@@ -405,33 +424,33 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 							+ "digits and letters: " + name);
 		}
 	}
-	
+
 	private static String getConfigurationFile(Environment env, ConfigurationLocationProvider locProvider)
 	{
 		String configFile;
-		String[] nonOptionArgs = env.getProperty(CommandLinePropertySource.DEFAULT_NON_OPTION_ARGS_PROPERTY_NAME, 
+		String[] nonOptionArgs = env.getProperty(CommandLinePropertySource.DEFAULT_NON_OPTION_ARGS_PROPERTY_NAME,
 				String[].class);
 		if (nonOptionArgs != null && nonOptionArgs.length > 0)
 			configFile = nonOptionArgs[0];
-		else 
+		else
 			configFile = locProvider.getConfigurationLocation();
-			
+
 		log.info("Using configuration file: " + configFile);
 		return configFile;
 	}
-		
+
 	/**
-	 * @return map with enabled locales. Key is the user-friendly label. 
+	 * @return map with enabled locales. Key is the user-friendly label.
 	 */
 	private Map<String, Locale> loadEnabledLocales()
 	{
 		List<String> locales = getListOfValues(ENABLED_LOCALES);
 		if (locales.isEmpty())
 		{
-			locales = new ArrayList<String>();
+			locales = new ArrayList<>();
 			locales.add("en English");
 		}
-		Map<String, Locale> ret = new LinkedHashMap<String, Locale>();
+		Map<String, Locale> ret = new LinkedHashMap<>();
 		for (String locale: locales)
 		{
 			locale = locale.trim() + " ";
@@ -445,7 +464,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		}
 		return ret;
 	}
-	
+
 	public boolean isLocaleSupported(Locale toSearch)
 	{
 		for (Locale l: enabledLocales.values())
@@ -453,7 +472,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				return true;
 		return false;
 	}
-	
+
 	public static Locale safeLocaleDecode(String inputRaw)
 	{
 		if (inputRaw == null)
@@ -475,7 +494,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	{
 		return jp;
 	}
-	
+
 	public Locale getDefaultLocale()
 	{
 		return defaultLocale;
@@ -490,12 +509,12 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	{
 		return pkiConf;
 	}
-	
+
 	public List<AuthenticationOptionDescription> getEndpointAuth(String endpointKey)
 	{
 		String spec = getValue(endpointKey+UnityServerConfiguration.ENDPOINT_AUTHENTICATORS);
-		String[] authenticatorSets = spec.split(";");		
-		List<AuthenticationOptionDescription> endpointAuthn = new ArrayList<AuthenticationOptionDescription>();
+		String[] authenticatorSets = spec.split(";");
+		List<AuthenticationOptionDescription> endpointAuthn = new ArrayList<>();
 		for (String authenticatorSet : authenticatorSets)
 		{
 			String[] authenticators = authenticatorSet.split(",");
@@ -508,7 +527,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		}
 		return endpointAuthn;
 	}
-	
+
 	/**
 	 * Returns either a theme configured with the key given as argument or the default theme if the
 	 * specific one is not defined. If neither is available returns default theme.
@@ -523,7 +542,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 			return getValue(THEME);
 		return defaultTheme;
 	}
-	
+
 	public Properties getProperties()
 	{
 		return properties;
