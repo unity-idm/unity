@@ -92,9 +92,9 @@ public class RegistrationConfirmationSupport
 			AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(attr.getValueSyntax());
 			if (syntax.isVerifiable())
 			{
-				for (Object v : attr.getValues())
+				for (String v : attr.getValues())
 				{
-					VerifiableElement val = (VerifiableElement) v;
+					VerifiableElement val = (VerifiableElement) syntax.convertFromString(v);
 					if (val.isConfirmed())
 						continue;
 					BaseConfirmationState state;

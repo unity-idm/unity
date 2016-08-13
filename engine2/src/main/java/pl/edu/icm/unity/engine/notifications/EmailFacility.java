@@ -194,16 +194,17 @@ public class EmailFacility implements NotificationFacility
 			AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(emailAttr.getValueSyntax());
 			if (!useConfirmed || syntax.isVerifiable())
 			{
-				for (Object emailO: emailAttr.getValues())
+				for (String emailO: emailAttr.getValues())
 				{
-					if (!useConfirmed)
+					if (syntax.isVerifiable())
 					{
-						return emailO.toString();
-					} else if (syntax.isVerifiable())
-					{
-						VerifiableEmail email = (VerifiableEmail) emailO;
+						VerifiableEmail email = (VerifiableEmail) 
+								syntax.convertFromString(emailO);
 						if (!useConfirmed || email.isConfirmed())
 							return email.getValue();
+					} else if (!useConfirmed)
+					{
+						return emailO.toString();
 					}
 				}
 			}

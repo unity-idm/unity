@@ -239,7 +239,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		{
 			credMan.removeCredentialDefinition("credential1");
 			fail("Managed to remove credential used by authenticator");
-		} catch (IllegalCredentialException e) {}
+		} catch (IllegalArgumentException e) {}
 		authnMan.removeAuthenticator(authInstance.getId());
 		
 		

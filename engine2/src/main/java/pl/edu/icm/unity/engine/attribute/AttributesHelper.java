@@ -391,7 +391,7 @@ public class AttributesHelper
 		
 		if (!update)
 		{
-			setUnconfirmed(attribute);
+			setUnconfirmed(attribute, syntax);
 			return;
 		}
 		
@@ -399,7 +399,7 @@ public class AttributesHelper
 				attribute.getGroupPath());
 		if (attrs.isEmpty())
 		{
-			setUnconfirmed(attribute);
+			setUnconfirmed(attribute, syntax);
 			return;
 		}
 		
@@ -438,9 +438,10 @@ public class AttributesHelper
 		
 		if (!oneConfirmedValuePreserved)
 		{
-			for (Object existingValue: updated.getValues())
+			for (String existingValue: updated.getValues())
 			{
-				VerifiableElement existingValueCasted = (VerifiableElement) existingValue;
+				Object existingAsObject = syntax.convertFromString(existingValue);
+				VerifiableElement existingValueCasted = (VerifiableElement) existingAsObject;
 				if (existingValueCasted.getConfirmationInfo().isConfirmed())
 					throw new IllegalAttributeValueException("At least " + 
 							"one confirmed value must be preserved");
@@ -448,11 +449,11 @@ public class AttributesHelper
 		}
 	}
 	
-	private void setUnconfirmed(Attribute attribute)
+	private void setUnconfirmed(Attribute attribute, AttributeValueSyntax<?> syntax)
 	{
-		for (Object v : attribute.getValues())
+		for (String v : attribute.getValues())
 		{
-			VerifiableElement val = (VerifiableElement) v;
+			VerifiableElement val = (VerifiableElement) syntax.convertFromString(v);
 			val.setConfirmationInfo(new ConfirmationInfo(0));
 		}
 	}
