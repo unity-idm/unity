@@ -270,7 +270,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		{
 			credMan.removeCredentialDefinition("credential1");
 			fail("Managed to remove credential used by cred req");
-		} catch (IllegalCredentialException e) {}
+		} catch (IllegalArgumentException e) {}
 		
 		//add identity with cred requirements with notSet state
 		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "CN=test"), 

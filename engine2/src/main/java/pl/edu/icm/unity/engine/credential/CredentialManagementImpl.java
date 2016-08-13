@@ -57,18 +57,19 @@ public class CredentialManagementImpl implements CredentialManagement
 	private AuthorizationManager authz;
 	private UnityMessageSource msg;
 	
-
 	@Autowired
 	public CredentialManagementImpl(LocalCredentialsRegistry localCredReg,
 			CredentialDB credentialDB, CredentialRequirementDB credentialRequirementDB,
 			IdentityHelper identityHelper, AttributeTypeDAO attributeTypeDAO,
-			AuthorizationManager authz, UnityMessageSource msg)
+			AttributeDAO attributeDAO, AuthorizationManager authz,
+			UnityMessageSource msg)
 	{
 		this.localCredReg = localCredReg;
 		this.credentialDB = credentialDB;
 		this.credentialRequirementDB = credentialRequirementDB;
 		this.identityHelper = identityHelper;
 		this.attributeTypeDAO = attributeTypeDAO;
+		this.attributeDAO = attributeDAO;
 		this.authz = authz;
 		this.msg = msg;
 	}
