@@ -64,7 +64,7 @@ public class TestMerge extends DBIntegrationTestBase
 		{
 			idsMan.getEntity(new EntityParam(merged.getEntityId()));
 			fail("Merged entity still valid");
-		} catch (IllegalIdentityValueException e)
+		} catch (IllegalArgumentException e)
 		{
 			//OK
 		}

@@ -15,7 +15,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.api.BulkProcessingManagement;
-import pl.edu.icm.unity.engine.api.bulkops.EntityAction;
 import pl.edu.icm.unity.engine.bulkops.action.ChangeStatusActionFactory;
 import pl.edu.icm.unity.engine.bulkops.action.RemoveEntityActionFactory;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
@@ -27,18 +26,13 @@ import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
+import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 
 public class TestBulkActions extends DBIntegrationTestBase
 {
 	@Autowired
 	private BulkProcessingManagement bulkMan;
-	
-	@Autowired
-	private ChangeStatusActionFactory changeEntityActionFactory;
-
-	@Autowired
-	private RemoveEntityActionFactory removeEntityActionFactory;
 	
 	@Test
 	public void immediateRuleIsExecuted() throws Exception
@@ -50,7 +44,7 @@ public class TestBulkActions extends DBIntegrationTestBase
 		TranslationRule rule = new TranslationRule("idsByType['userName'] contains 'test-user' and "
 				+ "status == 'valid' and "
 				+ "credReq == '" + EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT + "'", 
-				changeEntityActionFactory.getInstance(
+				new TranslationAction(ChangeStatusActionFactory.NAME, 
 						EntityStateLimited.disabled.toString()));
 		
 		bulkMan.applyRule(rule);
@@ -92,7 +86,8 @@ public class TestBulkActions extends DBIntegrationTestBase
 		ScheduledProcessingRuleParam rule = new ScheduledProcessingRuleParam("idsByType['userName'] contains 'test-user' and "
 				+ "status == 'valid' and "
 				+ "credReq == '" + EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT + "'", 
-				changeEntityActionFactory.getInstance(EntityStateLimited.disabled.toString()),
+				new TranslationAction(ChangeStatusActionFactory.NAME, 
+						EntityStateLimited.disabled.toString()),
 				"0/2 * * * * ?");
 		
 		bulkMan.scheduleRule(rule);
@@ -129,7 +124,7 @@ public class TestBulkActions extends DBIntegrationTestBase
 		String id = bulkMan.scheduleRule(rule);
 		
 		ScheduledProcessingRule rule2 = new ScheduledProcessingRule("false", 
-				changeEntityActionFactory.getInstance(
+				new TranslationAction(ChangeStatusActionFactory.NAME, 
 						EntityStateLimited.disabled.toString()), 
 				"20 10 10 * * ?", id);
 		bulkMan.updateScheduledRule(rule2);
@@ -158,7 +153,7 @@ public class TestBulkActions extends DBIntegrationTestBase
 	
 	private ScheduledProcessingRuleParam createTestRule()
 	{
-		EntityAction action = removeEntityActionFactory.getInstance();
-		return new ScheduledProcessingRuleParam("true", action, "10 10 10 * * ?");
+		TranslationAction taction = new TranslationAction(RemoveEntityActionFactory.NAME);
+		return new ScheduledProcessingRuleParam("true", taction, "10 10 10 * * ?");
 	}
 }

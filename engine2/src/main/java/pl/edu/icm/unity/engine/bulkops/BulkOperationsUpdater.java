@@ -47,8 +47,7 @@ public class BulkOperationsUpdater extends ScheduledUpdaterBase
 	@Override
 	protected void updateInternal() throws EngineException
 	{
-		Collection<RuleWithTS> scheduledRulesWithTS;
-		scheduledRulesWithTS = bulkSupport.getScheduledRulesWithTS();
+		Collection<RuleWithTS> scheduledRulesWithTS = bulkSupport.getScheduledRulesWithTS();
 		
 		tx.runInTransactionThrowing(() -> {
 			Map<String, AbstractMap.SimpleEntry<Date, ScheduledProcessingRule>> rulesInDb = 
@@ -57,11 +56,11 @@ public class BulkOperationsUpdater extends ScheduledUpdaterBase
 			Set<AbstractMap.SimpleEntry<Date, ScheduledProcessingRule>> toUpdate = new HashSet<>();
 			for (RuleWithTS rule: scheduledRulesWithTS)
 			{
-				Map.Entry<Date, ScheduledProcessingRule> fromDb = rulesInDb.remove(rule.rule.getId());
+				Map.Entry<Date, ScheduledProcessingRule> fromDb = rulesInDb.remove(rule.ruleId);
 				if (fromDb == null)
-					toRemove.add(rule.rule.getId());
+					toRemove.add(rule.ruleId);
 				else if (!fromDb.getKey().equals(rule.ts))
-					toUpdate.add(new AbstractMap.SimpleEntry<>(rule.ts, rule.rule));
+					toUpdate.add(new AbstractMap.SimpleEntry<>(fromDb.getKey(), fromDb.getValue()));
 			}
 
 			for (AbstractMap.SimpleEntry<Date, ScheduledProcessingRule> toAdd: rulesInDb.values())

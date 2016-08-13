@@ -16,7 +16,7 @@ public class TranslationAction
 	private String name;
 	private String[] parameters;
 
-	public TranslationAction(String name, String[] parameters)
+	public TranslationAction(String name, String... parameters)
 	{
 		this.name = name;
 		this.parameters = parameters;
