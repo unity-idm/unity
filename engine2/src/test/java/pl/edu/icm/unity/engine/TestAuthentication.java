@@ -345,7 +345,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		setupAdmin();
 		setupPasswordAuthn();
 		createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
-		EntityParam user = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user1")); 
+		EntityParam user = new EntityParam(new IdentityTaV(UsernameIdentity.ID, DEF_USER)); 
 		assertFalse(eCredMan.isCurrentCredentialRequiredForChange(user, "credential1"));
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty").toJson());
 	}

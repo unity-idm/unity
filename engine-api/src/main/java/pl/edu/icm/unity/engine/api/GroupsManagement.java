@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.api;
 import java.util.List;
 import java.util.Set;
 
+import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributesClass;
@@ -22,6 +23,13 @@ import pl.edu.icm.unity.types.basic.GroupContents;
  */
 public interface GroupsManagement
 {
+	/**
+	 * @param group
+	 * @return true if the given group exists
+	 * @throws AuthorizationException 
+	 */
+	boolean isPresent(String group) throws AuthorizationException;
+	
 	/**
 	 * Adds a new group
 	 * @param toAdd group to add

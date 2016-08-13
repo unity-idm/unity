@@ -31,7 +31,6 @@ import pl.edu.icm.unity.engine.api.translation.in.MappedIdentity;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
 import pl.edu.icm.unity.engine.translation.ExecutionBreakException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -284,7 +283,7 @@ public class InputTranslationEngine
 			{
 				if (checked.getMode() == IdentityEffectMode.REQUIRE_MATCH)
 				{
-					log.info("The identity " + checked.getIdentity() + " doesn't exists "
+					log.info("The identity " + checked.getIdentity() + " doesn't exist "
 							+ "in local database, but the profile requires so. Skipping.");
 					throw new ExecutionBreakException();
 				} else
@@ -406,7 +405,7 @@ public class InputTranslationEngine
 					try
 					{
 						groupsMan.removeMember(membership.getGroup(), principal);
-					} catch (EngineException e)
+					} catch (Exception e)
 					{
 						log.error("Can not remove stale group membership in " 
 								+ membership.getGroup(), e);
@@ -424,10 +423,9 @@ public class InputTranslationEngine
 		List<Attribute> attributes = attributesByGroup.get(group);
 		if (attributes == null)
 			attributes = new ArrayList<Attribute>();
-		try
-		{
-			groupsMan.addMemberFromParent(group, who, attributes, idp, profile);
-		} catch (IllegalGroupValueException missingGroup)
+		
+		boolean present = groupsMan.isPresent(group);
+		if (!present)
 		{
 			if (createMissingGroups == GroupEffectMode.CREATE_GROUP_IF_MISSING)
 			{
@@ -438,12 +436,15 @@ public class InputTranslationEngine
 			} else if (createMissingGroups == GroupEffectMode.REQUIRE_EXISTING_GROUP)
 			{
 				log.debug("Entity should be added to a group " + group + " which is missing, failing.");
-				throw missingGroup;
+				throw new ExecutionBreakException();
 			} else
 			{
 				log.debug("Entity should be added to a group " + group + " which is missing, ignoring.");
 				return;
 			}
+		} else
+		{
+			groupsMan.addMemberFromParent(group, who, attributes, idp, profile);
 		}
 		
 		currentGroups.add(group);
@@ -521,7 +522,7 @@ public class InputTranslationEngine
 					try
 					{
 						attrMan.removeAttribute(principal, a.getGroupPath(), a.getName());
-					} catch (EngineException e)
+					} catch (Exception e)
 					{
 						log.error("Can not remove stale attribute " + a, e);
 					}

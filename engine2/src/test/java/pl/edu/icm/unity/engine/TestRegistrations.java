@@ -35,7 +35,6 @@ import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -107,7 +106,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		{
 			registrationsMan.removeForm("mising", true);
 			fail("Removed non existing form");
-		} catch (WrongArgumentException e) {/*ok*/}
+		} catch (IllegalArgumentException e) {/*ok*/}
 	}
 	
 	@Test 
@@ -118,7 +117,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		{
 			registrationsMan.addForm(form);
 			fail("Added the same form twice");
-		} catch (WrongArgumentException e) {/*ok*/}
+		} catch (IllegalArgumentException e) {/*ok*/}
 	}
 	
 	@Test 
@@ -131,7 +130,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		attrReg.setAttributeType("missing");
 		testFormBuilder.withAttributeParams(Collections.singletonList(attrReg));
 		
-		checkUpdateOrAdd(testFormBuilder.build(), "attr(2)", WrongArgumentException.class);
+		checkUpdateOrAdd(testFormBuilder.build(), "attr(2)", IllegalArgumentException.class);
 	}
 	
 	@Test 
@@ -144,7 +143,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		credParam.setCredentialName("missing");
 		testFormBuilder.withCredentialParams(Collections.singletonList(credParam));
 		
-		checkUpdateOrAdd(testFormBuilder.build(), "cred", WrongArgumentException.class);
+		checkUpdateOrAdd(testFormBuilder.build(), "cred", IllegalArgumentException.class);
 	}
 
 	
@@ -154,7 +153,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		initAndCreateForm(false, null);
 		RegistrationFormBuilder testFormBuilder = getFormBuilder(false, null, true);
 		testFormBuilder.withDefaultCredentialRequirement("missing");
-		checkUpdateOrAdd(testFormBuilder.build(), "cred req", WrongArgumentException.class);
+		checkUpdateOrAdd(testFormBuilder.build(), "cred req", IllegalArgumentException.class);
 	}
 	
 	@Test 
@@ -641,7 +640,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		{
 			registrationsMan.addForm(form);
 			fail("Added the form with illegal " + msg);
-		} catch (EngineException e) 
+		} catch (Exception e) 
 		{
 			assertTrue(e.toString(), e.getClass().isAssignableFrom(exception));
 		}
@@ -649,7 +648,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		{
 			registrationsMan.updateForm(form, false);
 			fail("Updated the form with illegal " + msg);
-		} catch (EngineException e) 
+		} catch (Exception e) 
 		{
 			assertTrue(e.toString(), e.getClass().isAssignableFrom(exception));
 		}
