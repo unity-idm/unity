@@ -89,7 +89,7 @@ public class RegistrationConfirmationSupport
 		{
 			if (attr == null)
 				continue;
-			AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(attr.getName());
+			AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(attr.getValueSyntax());
 			if (syntax.isVerifiable())
 			{
 				for (Object v : attr.getValues())

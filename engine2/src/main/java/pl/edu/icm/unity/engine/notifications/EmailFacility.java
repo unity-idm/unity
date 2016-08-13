@@ -191,7 +191,7 @@ public class EmailFacility implements NotificationFacility
 
 		if (emailAttr != null)
 		{
-			AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(emailAttr.getName());
+			AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(emailAttr.getValueSyntax());
 			if (!useConfirmed || syntax.isVerifiable())
 			{
 				for (Object emailO: emailAttr.getValues())

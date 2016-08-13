@@ -89,7 +89,7 @@ public class AttributeFacility extends UserFacility<AttribiuteConfirmationState>
 				attrState.getType());
 		for (AttributeExt attr : allAttrs)
 		{
-			AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(attr.getName());
+			AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(attr.getValueSyntax());
 			if (syntax.isVerifiable())
 			{
 				updateConfirmationForAttributeValues(attr.getValues(), syntax, attrState.getValue());
