@@ -106,7 +106,7 @@ public class InitDB
 	}
 	
 	/**
-	 * Deletes all main DB records except version
+	 * Deletes all main DB records except version. After deletion creates the root group.
 	 * @param session
 	 */
 	public void deleteEverything(SqlSession session)
@@ -118,6 +118,7 @@ public class InitDB
 		for (String name: ops)
 			if (name.startsWith("resetIndex-"))
 				session.update(name);
+		createRootGroup(session);
 	}
 
 	/**
@@ -156,15 +157,20 @@ public class InitDB
 		try
 		{
 			session.insert("initVersion");
-			GroupsMapper groups = session.getMapper(GroupsMapper.class);
-			GroupBean root = new GroupBean("/", null);
-			root.setContents(JsonUtil.serialize2Bytes(
-					GroupJsonSerializer.createRootGroupContents()));
-			groups.create(root);
+			createRootGroup(session);
 		} finally
 		{
 			session.close();
 		}
+	}
+	
+	private void createRootGroup(SqlSession session)
+	{
+		GroupsMapper groups = session.getMapper(GroupsMapper.class);
+		GroupBean root = new GroupBean("/", null);
+		root.setContents(JsonUtil.serialize2Bytes(
+				GroupJsonSerializer.createRootGroupContents()));
+		groups.create(root);
 	}
 	
 	public static long dbVersion2Long(String version)
