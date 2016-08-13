@@ -12,7 +12,7 @@
 	<description>Engine API, used by endpoints and plugins</description>
 	
 	<properties>
-		<m.name>base</m.name>
+		<m.name>engine-api</m.name>
 	</properties>
 
 	<scm>

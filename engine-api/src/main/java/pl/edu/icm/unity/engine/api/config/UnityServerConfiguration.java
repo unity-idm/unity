@@ -128,8 +128,6 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	
 	public static final String TRANSLATION_PROFILES = "translationProfiles.";
 	
-	public static final String WIPE_DB_AT_STARTUP = "wipeDbAtStartup";
-	
 	public static final String CONFIRMATION_REQUEST_LIMIT = "confirmationRequestLimit";
 	public static final String CONFIRMATION_DEFAULT_RETURN_URL = "defaultPostConfirmationReturnURL";
 	public static final String CONFIRMATION_AUTO_REDIRECT = "automaticRedirectAfterConfirmation";
@@ -329,9 +327,6 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put(CREDENTIAL_REQ_CONTENTS, new PropertyMD().setStructuredListEntry(CREDENTIAL_REQS).setList(false).setCategory(initCredReqCat).
 				setDescription("Credential requirement contents, i.e. credentials that belongs to it"));
 		
-		defaults.put(WIPE_DB_AT_STARTUP, new PropertyMD("false").setHidden().
-				setDescription("For testing: if set to true then DB will be fully cleared at server startup"));
-		
 		defaults.put(CONFIRMATION_REQUEST_LIMIT, new PropertyMD("3").setCategory(mainCat).
 				setDescription("Defines number of confirmation request that can be send to particular address in day"));
 		defaults.put(CONFIRMATION_DEFAULT_RETURN_URL, new PropertyMD().setCategory(mainCat).
@@ -378,12 +373,6 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		if (!workspace.exists())
 			workspace.mkdirs();
 		
-		if (getBooleanValue(IGNORE_CONFIGURED_CONTENTS_SETTING) && 
-				getBooleanValue(WIPE_DB_AT_STARTUP))
-			throw new ConfigurationException("Using " + WIPE_DB_AT_STARTUP + " and " + 
-				IGNORE_CONFIGURED_CONTENTS_SETTING + " settings together makes really no sense: "
-						+ "database will be cleaned and not populated with any contents "
-						+ "so it won't be possible to anyhow log in.");
 		if (getBooleanValue(ALLOW_FULL_HTML))
 			System.setProperty(SYSTEM_ALLOW_FULL_HTML, "true");
 	}

@@ -42,12 +42,14 @@ public class InitDB
 	
 	private long dbVersionAtServerStarup;
 	private DBSessionManager db;
+	private ContentsUpdater contentsUpdater;
 
 	@Autowired
-	public InitDB(DBSessionManager db) 
+	public InitDB(DBSessionManager db, ContentsUpdater contentsUpdater) 
 			throws FileNotFoundException, InternalException, IOException, EngineException
 	{
 		this.db = db;
+		this.contentsUpdater = contentsUpdater;
 	}
 
 	/**
@@ -198,7 +200,7 @@ public class InitDB
 	}
 
 	
-	public void updateContents(ContentsUpdater contentsUpdater) throws IOException, EngineException
+	public void updateContents() throws IOException, EngineException
 	{
 		SqlSession session = db.getSqlSession(true);
 		try
