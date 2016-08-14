@@ -92,7 +92,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 	private UnityServerConfiguration mainConfig;
 
 	@Test
-	public void shouldNotPreservedConfirmationStateIfChangedByAdmin() throws Exception
+	public void shouldNotPreserveConfirmationStateIfChangedByAdmin() throws Exception
 	{
 		setupMockAuthn();
 		setupAdmin();

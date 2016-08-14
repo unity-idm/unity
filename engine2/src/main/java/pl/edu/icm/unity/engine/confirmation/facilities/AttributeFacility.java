@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.confirmation.ConfirmationRedirectURLBuilder.ConfirmedElementType;
@@ -27,6 +28,7 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
  * 
  * @author P. Piernik
  */
+@Component
 public class AttributeFacility extends UserFacility<AttribiuteConfirmationState>
 {
 	private AttributeDAO dbAttributes;

@@ -23,7 +23,6 @@ import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.utils.TimeUtil;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.store.api.TokenDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
@@ -67,7 +66,7 @@ public class TokensManagementImpl implements TokensManagement
 	@Override
 	public void addToken(String type, String value, EntityParam owner, byte[] contents,
 			Date created, Date expires) 
-			throws WrongArgumentException, IllegalIdentityValueException, IllegalTypeException
+			throws IllegalIdentityValueException, IllegalTypeException
 	{
 		long entity = idResolver.getEntityId(owner);
 		addTokenInternal(type, value, contents, created, expires, entity);
@@ -77,7 +76,7 @@ public class TokensManagementImpl implements TokensManagement
 	@Override
 	public void addToken(String type, String value, byte[] contents,
 			Date created, Date expires) 
-			throws WrongArgumentException, IllegalTypeException
+			throws IllegalTypeException
 	{
 		addTokenInternal(type, value, contents, created, expires, null);
 	}
@@ -94,7 +93,7 @@ public class TokensManagementImpl implements TokensManagement
 	
 	@Transactional
 	@Override
-	public void removeToken(String type, String value) throws WrongArgumentException
+	public void removeToken(String type, String value)
 	{
 		dbTokens.delete(type, value);
 	}
@@ -102,21 +101,22 @@ public class TokensManagementImpl implements TokensManagement
 	@Transactional
 	@Override
 	public void updateToken(String type, String value, Date expires, byte[] contents)
-			throws WrongArgumentException
 	{
-		Token token = new Token(type, value, null);
-		token.setContents(contents);
-		token.setExpires(TimeUtil.roundToS(expires));		
+		Token token = getTokenById(type, value);
+		if (contents != null)
+			token.setContents(contents);
+		if (expires != null)
+			token.setExpires(TimeUtil.roundToS(expires));		
 		dbTokens.update(token);
 	}
 
 	@Transactional(autoCommit=false)
 	@Override
-	public Token getTokenById(String type, String value) throws WrongArgumentException
+	public Token getTokenById(String type, String value)
 	{
 		Token token = dbTokens.get(type, value);
 		if (token.isExpired())
-			throw new WrongArgumentException("There is no such token");
+			throw new IllegalArgumentException("There is no such token");
 		return token;
 	}
 	
@@ -126,7 +126,8 @@ public class TokensManagementImpl implements TokensManagement
 			throws IllegalIdentityValueException, IllegalTypeException
 	{
 		long entity = idResolver.getEntityId(owner);
-		return dbTokens.getOwned(type, entity);
+		List<Token> tokens = dbTokens.getOwned(type, entity);
+		return filterExpired(tokens);
 	}
 	
 	@Transactional
@@ -134,13 +135,18 @@ public class TokensManagementImpl implements TokensManagement
 	public List<Token> getAllTokens(String type)
 	{
 		List<Token> tokens = dbTokens.getByType(type);
+		return filterExpired(tokens);
+	}
+
+	private List<Token> filterExpired(List<Token> tokens)
+	{
 		List<Token> ret = new ArrayList<>(tokens.size());;
 		for (Token t: tokens)
 			if (!t.isExpired())
 				ret.add(t);
 		return ret;
 	}
-
+	
 	@Override
 	public synchronized void addTokenExpirationListener(TokenExpirationListener listener, String type)
 	{
