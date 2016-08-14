@@ -22,10 +22,12 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
+import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.attribute.AttributeValueConverter;
 import pl.edu.icm.unity.engine.translation.form.RegistrationMVELContext.ContextKey;
 import pl.edu.icm.unity.engine.translation.form.RegistrationMVELContext.RequestSubmitStatus;
@@ -347,6 +349,7 @@ public class TestFormProfileActions
 		assertThat(((String)context.get(ContextKey.registrationForm.name())), is("form"));
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Map<String, Object> createContext()
 	{
 		RegistrationRequest request = mock(RegistrationRequest.class);
@@ -401,7 +404,12 @@ public class TestFormProfileActions
 				automaticGRP
 				));
 		when(form.getName()).thenReturn("form");
+		AttributeTypeHelper atHelper = mock(AttributeTypeHelper.class);
+		
+		when(atHelper.getUnconfiguredSyntaxForAttributeName(anyString())).thenReturn(
+				(AttributeValueSyntax) new StringAttributeSyntax());
+		
 		return new RegistrationMVELContext(form, request, RequestSubmitStatus.submitted,
-				TriggeringMode.manualAtLogin, false, "requestId");
+				TriggeringMode.manualAtLogin, false, "requestId", atHelper);
 	}
 }

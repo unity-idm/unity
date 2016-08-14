@@ -16,6 +16,7 @@ import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
+import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.translation.ExecutionBreakException;
 import pl.edu.icm.unity.engine.translation.TranslationCondition;
 import pl.edu.icm.unity.engine.translation.TranslationProfileInstance;
@@ -45,10 +46,13 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 						<RegistrationTranslationAction, RegistrationTranslationRule>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, BaseFormTranslationProfile.class);
+	private AttributeTypeHelper atHelper;
 	
-	public BaseFormTranslationProfile(TranslationProfile profile, RegistrationActionsRegistry registry)
+	public BaseFormTranslationProfile(TranslationProfile profile, RegistrationActionsRegistry registry, 
+			AttributeTypeHelper atHelper)
 	{
 		super(profile, registry);
+		this.atHelper = atHelper;
 	}
 	
 	public TranslatedRegistrationRequest translate(BaseForm form, 
@@ -60,7 +64,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 				RequestSubmitStatus.submitted, 
 				request.getRegistrationContext().triggeringMode, 
 				request.getRegistrationContext().isOnIdpEndpoint,
-				request.getRequestId());
+				request.getRequestId(), atHelper);
 		return executeFilteredActions(form, request.getRequest(), mvelCtx, null);
 	}
 	
@@ -70,7 +74,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 		Map<String, Object> mvelCtx = new RegistrationMVELContext(form, request.getRequest(), status, 
 				request.getRegistrationContext().triggeringMode, 
 				request.getRegistrationContext().isOnIdpEndpoint,
-				request.getRequestId());
+				request.getRequestId(), atHelper);
 		TranslatedRegistrationRequest result;
 		try
 		{
@@ -88,7 +92,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 			RegistrationContext context, String requestId)
 	{
 		Map<String, Object> mvelCtx = new RegistrationMVELContext(form, request, RequestSubmitStatus.submitted, 
-				context.triggeringMode, context.isOnIdpEndpoint, requestId);
+				context.triggeringMode, context.isOnIdpEndpoint, requestId, atHelper);
 		TranslatedRegistrationRequest result;
 		try
 		{
@@ -105,7 +109,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 			RegistrationContext context, String requestId)
 	{
 		Map<String, Object> mvelCtx = new RegistrationMVELContext(form, request, RequestSubmitStatus.submitted, 
-				context.triggeringMode, context.isOnIdpEndpoint, requestId);
+				context.triggeringMode, context.isOnIdpEndpoint, requestId, atHelper);
 		TranslatedRegistrationRequest result;
 		try
 		{
@@ -158,7 +162,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 	{
 		RegistrationMVELContext mvelCtx = new RegistrationMVELContext(form, request, 
 				RequestSubmitStatus.submitted, 
-				regContxt.triggeringMode, regContxt.isOnIdpEndpoint, requestId);
+				regContxt.triggeringMode, regContxt.isOnIdpEndpoint, requestId, atHelper);
 		mvelCtx.addConfirmationContext(cType, cName, cValue);
 		TranslatedRegistrationRequest result;
 		try

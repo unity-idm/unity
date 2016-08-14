@@ -420,6 +420,7 @@ public class AttributesHelper
 					VerifiableElement newValueCasted = (VerifiableElement) newAsObject;
 					VerifiableElement existingValueCasted = (VerifiableElement) existingAsObject;
 					newValueCasted.setConfirmationInfo(existingValueCasted.getConfirmationInfo());
+					attribute.getValues().set(i, syntax.convertToString(newValueCasted));
 					if (existingValueCasted.getConfirmationInfo().isConfirmed())
 						oneConfirmedValuePreserved = true;
 				}
@@ -433,6 +434,7 @@ public class AttributesHelper
 				Object newAsObject = syntax.convertFromString(attribute.getValues().get(i));
 				VerifiableElement val = (VerifiableElement) newAsObject;
 				val.setConfirmationInfo(new ConfirmationInfo(0));
+				attribute.getValues().set(i, syntax.convertToString(val));
 			}
 		}
 		
@@ -449,13 +451,16 @@ public class AttributesHelper
 		}
 	}
 	
-	private void setUnconfirmed(Attribute attribute, AttributeValueSyntax<?> syntax)
+	private <T extends VerifiableElement> void setUnconfirmed(Attribute attribute, AttributeValueSyntax<T> syntax)
 	{
+		List<String> updated = new ArrayList<>(attribute.getValues().size());
 		for (String v : attribute.getValues())
 		{
-			VerifiableElement val = (VerifiableElement) syntax.convertFromString(v);
+			T val = syntax.convertFromString(v);
 			val.setConfirmationInfo(new ConfirmationInfo(0));
+			updated.add(syntax.convertToString(val));
 		}
+		attribute.setValues(updated);
 	}
 	
 	/**

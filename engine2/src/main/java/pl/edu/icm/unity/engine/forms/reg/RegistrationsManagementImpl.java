@@ -143,8 +143,10 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		
 		Long entityId = tryAutoProcess(form, requestFull, context);
 		
-		confirmationsSupport.sendAttributeConfirmationRequest(requestFull, entityId, form);
-		confirmationsSupport.sendIdentityConfirmationRequest(requestFull, entityId, form);	
+		tx.runInTransactionThrowing(() -> {
+			confirmationsSupport.sendAttributeConfirmationRequest(requestFull, entityId, form);
+			confirmationsSupport.sendIdentityConfirmationRequest(requestFull, entityId, form);	
+		});
 		
 		return requestFull.getRequestId();
 	}

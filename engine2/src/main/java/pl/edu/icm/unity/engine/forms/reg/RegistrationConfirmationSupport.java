@@ -165,13 +165,15 @@ public class RegistrationConfirmationSupport
 	private RegistrationTranslationProfile getRegistrationProfile(RegistrationForm form)
 	{
 		TranslationProfile translationProfile = form.getTranslationProfile();
-		return new RegistrationTranslationProfile(translationProfile, registrationTranslationActionsRegistry);
+		return new RegistrationTranslationProfile(translationProfile, registrationTranslationActionsRegistry,
+				atHelper);
 	}	
 
 	private EnquiryTranslationProfile getEnquiryProfile(EnquiryForm form)
 	{
 		TranslationProfile translationProfile = form.getTranslationProfile();
-		return new EnquiryTranslationProfile(translationProfile, registrationTranslationActionsRegistry);
+		return new EnquiryTranslationProfile(translationProfile, registrationTranslationActionsRegistry,
+				atHelper);
 	}	
 	
 	private String getRedirectUrlForAttribute(UserRequestState<?> requestState, BaseForm form,

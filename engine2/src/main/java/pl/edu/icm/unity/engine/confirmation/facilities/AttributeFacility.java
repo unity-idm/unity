@@ -87,8 +87,8 @@ public class AttributeFacility extends UserFacility<AttribiuteConfirmationState>
 	{
 		AttribiuteConfirmationState attrState = new AttribiuteConfirmationState(state);
 		Collection<AttributeExt> allAttrs = dbAttributes.getEntityAttributes(
-				attrState.getOwnerEntityId(), attrState.getGroup(),
-				attrState.getType());
+				attrState.getOwnerEntityId(),
+				attrState.getType(), attrState.getGroup());
 		for (AttributeExt attr : allAttrs)
 		{
 			AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(attr.getValueSyntax());

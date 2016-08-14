@@ -21,6 +21,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
+import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.engine.forms.BaseSharedRegistrationSupport;
@@ -61,6 +62,8 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 	private InternalFacilitiesManagement facilitiesManagement;
 	private RegistrationActionsRegistry registrationTranslationActionsRegistry;
 	private EnquiryResponseValidator responseValidator;
+
+	private AttributeTypeHelper atHelper;
 	
 	@Autowired
 	public SharedEnquiryManagment(UnityMessageSource msg,
@@ -71,7 +74,8 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 			RegistrationConfirmationRewriteSupport confirmationsSupport,
 			InternalFacilitiesManagement facilitiesManagement,
 			RegistrationActionsRegistry registrationTranslationActionsRegistry,
-			EnquiryResponseValidator responseValidator)
+			EnquiryResponseValidator responseValidator,
+			AttributeTypeHelper atHelper)
 	{
 		super(msg, notificationProducer, attributesHelper, groupHelper,
 				entityCredentialsHelper);
@@ -81,6 +85,7 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 		this.facilitiesManagement = facilitiesManagement;
 		this.registrationTranslationActionsRegistry = registrationTranslationActionsRegistry;
 		this.responseValidator = responseValidator;
+		this.atHelper = atHelper;
 	}
 
 	/**
@@ -101,7 +106,7 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 		currentRequest.setStatus(RegistrationRequestStatus.accepted);
 
 		EnquiryTranslationProfile translationProfile = new EnquiryTranslationProfile(
-				form.getTranslationProfile(), registrationTranslationActionsRegistry);
+				form.getTranslationProfile(), registrationTranslationActionsRegistry, atHelper);
 		TranslatedRegistrationRequest translatedRequest = translationProfile.translate(form, currentRequest);
 		
 		responseValidator.validateTranslatedRequest(form, currentRequest.getRequest(), 
@@ -179,7 +184,7 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 			String logMessageTemplate) throws EngineException
 	{
 		EnquiryTranslationProfile translationProfile = new EnquiryTranslationProfile(
-				form.getTranslationProfile(), registrationTranslationActionsRegistry);
+				form.getTranslationProfile(), registrationTranslationActionsRegistry, atHelper);
 		
 		AutomaticRequestAction autoProcessAction = translationProfile.getAutoProcessAction(
 				form, fullResponse, RequestSubmitStatus.submitted);

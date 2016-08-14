@@ -515,7 +515,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 	}
 
 	@Test
-	public void shouldAutoAcceptRegistrationRequestAfterConfirmAttribute()
+	public void shouldAutoAcceptRegistrationRequestAfterConfirmingAttribute()
 			throws EngineException
 	{
 		commonInitializer.initializeCommonAttributeTypes();
@@ -660,7 +660,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 	}
 	
 	@Test
-	public void shouldSkipProcessRejectedRequest() throws EngineException
+	public void shouldSkipProcessingOfRejectedRequest() throws EngineException
 	{
 		commonInitializer.initializeCommonAttributeTypes();
 		commonInitializer.initializeMainAttributeClass();
@@ -669,7 +669,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 		TranslationAction a1 = new TranslationAction(AutoProcessActionFactory.NAME, 
 				new String[] {AutomaticRequestAction.accept.toString()});
 		TranslationProfile tp = new TranslationProfile("form", "", ProfileType.REGISTRATION, 
-				Lists.newArrayList(new TranslationRule("attr[\"email\"].confirmed ==  true", a1)));
+				Lists.newArrayList(new TranslationRule("attr[\"email\"].confirmed == true", a1)));
 		RegistrationForm form = getFormBuilder().withTranslationProfile(tp).build();
 		
 		registrationsMan.addForm(form);
