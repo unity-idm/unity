@@ -74,7 +74,7 @@ public class PreferencesManagementImpl implements PreferencesManagement
 				AuthzCapability.attributeModify);
 		String raw = getPreferenceAttribute(entityId);
 		String updated = setPreference(raw, preferenceId, value);
-		storePreferenceAttribute(entityId, updated);
+		storePreferenceAttribute(entityId, updated, raw != null);
 	}
 
 	@Override
@@ -102,7 +102,7 @@ public class PreferencesManagementImpl implements PreferencesManagement
 				AuthzCapability.attributeModify);
 		String raw = getPreferenceAttribute(entityId);
 		String updated = setPreference(raw, preferenceId, null);
-		storePreferenceAttribute(entityId, updated);
+		storePreferenceAttribute(entityId, updated, raw != null);
 	}
 	
 	private String getPreferenceAttribute(long entityId) 
@@ -117,12 +117,15 @@ public class PreferencesManagementImpl implements PreferencesManagement
 		return values.size() > 0 ? (String)values.get(0) : null;
 	}
 	
-	private void storePreferenceAttribute(long entityId, String value) 
+	private void storePreferenceAttribute(long entityId, String value, boolean update) 
 			throws IllegalAttributeValueException, IllegalTypeException, IllegalAttributeTypeException, IllegalGroupValueException
 	{
 		StringAttribute sa = new StringAttribute(PreferencesAttributeTypeProvider.PREFERENCES, "/", value);
 		AttributeExt atExt = new AttributeExt(sa, true, new Date(), new Date());
-		dbAttributes.create(new StoredAttribute(atExt, entityId));
+		if (update)
+			dbAttributes.updateAttribute(new StoredAttribute(atExt, entityId));
+		else
+			dbAttributes.create(new StoredAttribute(atExt, entityId));
 	}
 	
 	private String extractPreference(String raw, String preferenceId)
