@@ -151,7 +151,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		return requestFull.getRequestId();
 	}
 
-	private RegistrationForm recordRequestAndReturnForm(RegistrationRequestState requestFull) throws EngineException
+	private RegistrationForm recordRequestAndReturnForm(RegistrationRequestState requestFull) 
+			throws EngineException
 	{
 		return tx.runInTransactionRetThrowing(() -> {
 			RegistrationRequest request = requestFull.getRequest();
@@ -162,7 +163,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		});
 	}
 
-	private void sendNotification(RegistrationForm form, RegistrationRequestState requestFull) throws EngineException
+	private void sendNotification(RegistrationForm form, RegistrationRequestState requestFull) 
+			throws EngineException
 	{
 		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
 		if (notificationsCfg.getChannel() != null && notificationsCfg.getSubmittedTemplate() != null

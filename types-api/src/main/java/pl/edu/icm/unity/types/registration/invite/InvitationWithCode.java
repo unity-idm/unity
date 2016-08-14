@@ -40,6 +40,7 @@ public class InvitationWithCode extends InvitationParam implements NamedObject
 		this.numberOfSends = numberOfSends;
 		this.getIdentities().putAll(base.getIdentities());
 		this.getGroupSelections().putAll(base.getGroupSelections());
+		this.getAttributes().putAll(base.getAttributes());
 	}
 
 	@JsonCreator

@@ -27,6 +27,7 @@ import pl.edu.icm.unity.engine.mock.MockNotificationFacility;
 import pl.edu.icm.unity.engine.mock.MockNotificationFacility.Message;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -180,7 +181,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 			.submitRegistrationRequest(request, REG_CONTEXT);
 	
 		assertThat(caughtException(), allOf(
-				isA(IllegalArgumentException.class),
+				isA(IllegalFormContentsException.class),
 				hasMessageThat(containsString("invitation"))));
 	}
 
@@ -238,7 +239,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 		assertThat(storedReq.getRequest().getAttributes().size(), is(1));
 		assertThat(storedReq.getRequest().getAttributes().get(0).getValues().size(), is(1));
 		assertThat(storedReq.getRequest().getAttributes().get(0).getValues().get(0), 
-				is(new VerifiableEmail("enforced@example.com")));
+				is(new VerifiableEmail("enforced@example.com").toJsonString()));
 	}
 
 	@Test
