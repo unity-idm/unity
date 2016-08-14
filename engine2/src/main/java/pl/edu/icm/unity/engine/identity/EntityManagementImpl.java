@@ -808,7 +808,11 @@ public class EntityManagementImpl implements EntityManagement
 	private List<Identity> getIdentitiesForEntity(long entityId, String target, boolean allowCreate) 
 			throws IllegalTypeException
 	{
-		List<Identity> ret = idDAO.getByEntity(entityId);
+		List<Identity> all = idDAO.getByEntity(entityId);
+		List<Identity> ret = new ArrayList<>(all.size() + 4);
+		for (Identity id: all)
+			if (id.getTarget() == null || id.getTarget().equals(target))
+				ret.add(id);
 		Set<String> presentTypes = new HashSet<String>();
 		for (Identity id: ret)
 			presentTypes.add(id.getTypeId());

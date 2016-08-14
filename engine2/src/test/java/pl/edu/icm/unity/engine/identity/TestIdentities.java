@@ -594,27 +594,62 @@ public class TestIdentities extends DBIntegrationTestBase
 	}
 
 	@Test
-	public void testDynamic() throws Exception
+	public void dynamicIdentitiesNotAddedWhenNotRequested() throws Exception
 	{
 		setupMockAuthn();
 		setupAdmin();
-
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
 		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
-		assertNotNull(id.getEntityId());
-		assertEquals("CN=golbi", id.getValue());
-		assertEquals(true, id.isLocal());
-		
 		EntityParam entityParam = new EntityParam(id.getEntityId());
 		
 		Entity e1 = idsMan.getEntity(entityParam, null, false, "/");
+	
 		assertEquals(1, e1.getIdentities().size());
 		assertEquals(X500Identity.ID, e1.getIdentities().get(0).getTypeId());
+	}
+
+	@Test
+	public void onlyPersistentAddedWhenAllowedWithoutTarget() throws Exception
+	{
+		setupMockAuthn();
+		setupAdmin();
+		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		EntityParam entityParam = new EntityParam(id.getEntityId());
 		
 		Entity e2 = idsMan.getEntity(entityParam, null, true, "/");
+		
 		assertEquals(2, e2.getIdentities().size());
 		assertNotNull(getByType(e2, X500Identity.ID));
 		assertTrue(getByType(e2, PersistentIdentity.ID).getValue().length() > 0);
+	}
+
+	@Test
+	public void allAddedWhenAllowedWithTarget() throws Exception
+	{
+		setupMockAuthn();
+		setupAdmin();
+		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		EntityParam entityParam = new EntityParam(id.getEntityId());
+		
+		Entity e3 = idsMan.getEntity(entityParam, "target1", true, "/");
+
+		assertEquals(4, e3.getIdentities().size());
+		assertNotNull(getByType(e3, X500Identity.ID));
+		assertTrue(getByType(e3, PersistentIdentity.ID).getValue().length() > 0);
+		assertTrue(getByType(e3, TargetedPersistentIdentity.ID).getValue().length() > 0);
+		assertTrue(getByType(e3, TransientIdentity.ID).getValue().length() > 0);
+	}
+	
+	@Test
+	public void differentTargetedIdentitiesAreCreatedForDifferentTargets() throws Exception
+	{
+		setupMockAuthn();
+		setupAdmin();
+		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		EntityParam entityParam = new EntityParam(id.getEntityId());
 		
 		Entity e3 = idsMan.getEntity(entityParam, "target1", true, "/");
 		assertEquals(4, e3.getIdentities().size());
@@ -636,10 +671,17 @@ public class TestIdentities extends DBIntegrationTestBase
 				getByType(e4, TargetedPersistentIdentity.ID).getValue());
 		assertEquals(getByType(e3, PersistentIdentity.ID).getValue(), 
 				getByType(e4, PersistentIdentity.ID).getValue());
+		Entity e2 = idsMan.getEntity(entityParam, null, true, "/");
 		assertEquals(getByType(e2, PersistentIdentity.ID).getValue(), 
 				getByType(e4, PersistentIdentity.ID).getValue());
-		
-		
+	}	
+	
+	@Test
+	public void getEntityTriggersCreationOfPersistentIdentity() throws Exception
+	{
+		setupMockAuthn();
+		setupAdmin();
+
 		IdentityParam idParam2 = new IdentityParam(X500Identity.ID, "CN=golbi2");
 		Identity id2 = idsMan.addEntity(idParam2, "crMock", EntityState.valid, false);
 		EntityParam entityParam2 = new EntityParam(id2.getEntityId());
