@@ -21,6 +21,7 @@ import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TxManager;
+import pl.edu.icm.unity.store.types.StoredIdentity;
 import pl.edu.icm.unity.types.basic.Identity;
 
 /**
@@ -75,7 +76,7 @@ public class IdentityFacility extends UserFacility<IdentityConfirmationState>
 				idState.getType(), idState.getValue());
 		for (Identity id : confirmedList)
 		{
-			idDAO.update(id);
+			idDAO.update(new StoredIdentity(id));
 		}
 		
 		txMan.commit();
@@ -100,7 +101,7 @@ public class IdentityFacility extends UserFacility<IdentityConfirmationState>
 			if (id.getTypeId().equals(idState.getType()) && id.getValue().equals(idState.getValue()))
 			{
 				updateConfirmationInfo(id, idState.getValue());
-				idDAO.update(id);
+				idDAO.update(new StoredIdentity(id));
 			}
 		}
 	}

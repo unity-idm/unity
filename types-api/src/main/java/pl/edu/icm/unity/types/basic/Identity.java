@@ -66,12 +66,11 @@ public class Identity extends IdentityParam implements NamedObject
 	 * @param comparableValue
 	 * @param src
 	 */
-	public Identity(String type, long entityId, String comparableValue, ObjectNode src)
+	public Identity(String type, long entityId, ObjectNode src)
 	{
 		super(type, src);
 		fromJsonBase(src);
 		this.entityId = entityId;
-		this.comparableValue = comparableValue;
 	}
 
 	public long getEntityId()
@@ -123,11 +122,6 @@ public class Identity extends IdentityParam implements NamedObject
 	private final void fromJson(ObjectNode src)
 	{
 		fromJsonBase(src);
-		JsonNode cmpVal = src.get("comparableValue");
-		if (cmpVal.isNull())
-			throw new IllegalArgumentException("Got identity without comparable value, what is invalid: "
-					+ src.toString());
-		setComparableValue(src.get("comparableValue").asText());
 		setEntityId(src.get("entityId").asLong());
 	}
 	
@@ -136,7 +130,6 @@ public class Identity extends IdentityParam implements NamedObject
 	public ObjectNode toJson()
 	{
 		ObjectNode main = super.toJson();
-		main.put("comparableValue", getComparableValue());
 		main.put("entityId", getEntityId());
 		return main;
 	}
@@ -145,6 +138,7 @@ public class Identity extends IdentityParam implements NamedObject
 	public ObjectNode toJsonBase()
 	{
 		ObjectNode main = super.toJsonBase();
+		main.put("comparableValue", getComparableValue());
 		main.put("creationTs", getCreationTs().getTime());
 		main.put("updateTs", getUpdateTs().getTime());
 		return main;
@@ -152,6 +146,11 @@ public class Identity extends IdentityParam implements NamedObject
 	
 	private void fromJsonBase(ObjectNode main)
 	{
+		JsonNode cmpVal = main.get("comparableValue");
+		if (cmpVal.isNull())
+			throw new IllegalArgumentException("Got identity without comparable value, what is invalid: "
+					+ main.toString());
+		setComparableValue(main.get("comparableValue").asText());
 		if (main.has("creationTs"))
 			setCreationTs(new Date(main.get("creationTs").asLong()));
 		if (main.has("updateTs"))

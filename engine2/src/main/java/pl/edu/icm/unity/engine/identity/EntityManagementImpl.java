@@ -51,6 +51,7 @@ import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.store.types.StoredIdentity;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -175,7 +176,7 @@ public class EntityManagementImpl implements EntityManagement
 				throw new SchemaConsistencyException("Can not add another identity of this type as "
 						+ "the configured maximum number of instances was reached.");
 			Identity toCreate = idTypeHelper.upcastIdentityParam(toAdd, entityId);
-			idDAO.create(toCreate);
+			idDAO.create(new StoredIdentity(toCreate));
 			if (extractAttributes && fullAuthz)
 				identityHelper.addExtractedAttributes(toCreate);
 			return toCreate;
@@ -265,8 +266,9 @@ public class EntityManagementImpl implements EntityManagement
 			checkVerifiedMinCountForRemoval(identities, toRemove, identityType);
 		}
 		IdentityTypeDefinition typeDefinition = idTypeHelper.getTypeDefinition(identityType);
-		idDAO.delete(typeDefinition.getComparableValue(toRemove.getValue(), toRemove.getRealm(), 
-				toRemove.getTarget()));
+		String cmpValue = typeDefinition.getComparableValue(toRemove.getValue(), toRemove.getRealm(), 
+				toRemove.getTarget()); 
+		idDAO.delete(StoredIdentity.toInDBIdentityValue(identityType.getName(), cmpValue));
 	}
 
 
@@ -303,7 +305,11 @@ public class EntityManagementImpl implements EntityManagement
 		for (IdentityParam add: toAdd)
 			identityHelper.insertIdentity(add, entityId, false);
 		for (IdentityParam remove: toRemove)
-			idDAO.delete(idTypeHelper.upcastIdentityParam(remove, entityId).getComparableValue());
+		{
+			String comparableValue = idTypeHelper.upcastIdentityParam(remove, entityId).
+					getComparableValue();
+			idDAO.delete(StoredIdentity.toInDBIdentityValue(remove.getTypeId(), comparableValue));
+		}
 	}
 	
 	private void verifyLimitsOfIdentities(IdentityType type, Set<Identity> existing, Set<IdentityParam> requested, 
@@ -773,7 +779,7 @@ public class EntityManagementImpl implements EntityManagement
 				continue;
 			}
 			id.setEntityId(targetId);
-			idDAO.update(id);
+			idDAO.update(new StoredIdentity(id));
 		}
 	}
 	
@@ -785,22 +791,23 @@ public class EntityManagementImpl implements EntityManagement
 	private void resetIdentityForEntity(long entityId, String type, String realm, String target) 
 			throws IllegalTypeException
 	{
-		List<Identity> all = idDAO.getByEntity(entityId);
+		List<StoredIdentity> all = idDAO.getByEntityFull(entityId);
 		IdentityType resolvedType = idTypeDAO.get(type);
 		IdentityTypeDefinition idTypeImpl = idTypeHelper.getTypeDefinition(resolvedType); 
 		if (!idTypeImpl.isDynamic())
 			throw new IllegalTypeException("Reset is possible for "
 					+ "dynamic identity types only");
 
-		for (Identity id: all)
+		for (StoredIdentity sid: all)
 		{
+			Identity id = sid.getIdentity();
 			if (id.getTypeId().equals(type))
 			{
 				if (realm != null && !realm.equals(id.getRealm()))
 					continue;
 				if (target != null && !target.equals(id.getTarget()))
 					continue;
-				idDAO.delete(id.getComparableValue());
+				idDAO.delete(sid.getName());
 			}
 		}
 	}
@@ -844,7 +851,7 @@ public class EntityManagementImpl implements EntityManagement
 		if (idTypeImpl.isTargeted() && (realm == null || target == null))
 			return null;
 		Identity newId = idTypeImpl.createNewIdentity(realm, target, entityId);
-		idDAO.create(newId);
+		idDAO.create(new StoredIdentity(newId));
 		return newId;
 	}
 }

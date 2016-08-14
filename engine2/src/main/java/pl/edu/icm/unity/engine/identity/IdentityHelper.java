@@ -29,6 +29,7 @@ import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.types.StoredAttribute;
+import pl.edu.icm.unity.store.types.StoredIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityInformation;
@@ -243,7 +244,7 @@ public class IdentityHelper
 		Identity identity = idTypeHelper.upcastIdentityParam(toAdd, entityId);
 		identity.setCreationTs(ts);
 		identity.setUpdateTs(ts);
-		identityDAO.create(identity);
+		identityDAO.create(new StoredIdentity(identity));
 		
 		return identity;
 	}

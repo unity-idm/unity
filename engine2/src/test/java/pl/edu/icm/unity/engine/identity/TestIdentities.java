@@ -709,6 +709,22 @@ public class TestIdentities extends DBIntegrationTestBase
 		fail("No such type");
 		return null;
 	}
+
+	@Test
+	public void identitiesWithSameTypeAndDifferentTypeAreDistinguished() throws Exception
+	{
+		setupMockAuthn();
+		IdentityParam idParam = new IdentityParam(UsernameIdentity.ID, "id");
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		IdentityParam idParam2 = new IdentityParam(IdentifierIdentity.ID, "id");
+		idsMan.addIdentity(idParam2, new EntityParam(id.getEntityId()), false);
+		
+		Entity ret = idsMan.getEntity(new EntityParam(id.getEntityId()), null, false, "/");
+		
+		assertThat(ret.getIdentities().size(), is(2));
+		assertThat(getIdentityByType(ret.getIdentities(), UsernameIdentity.ID).getValue(), is("id"));
+		assertThat(getIdentityByType(ret.getIdentities(), IdentifierIdentity.ID).getValue(), is("id"));
+	}
 	
 	@Test
 	public void testCreate() throws Exception

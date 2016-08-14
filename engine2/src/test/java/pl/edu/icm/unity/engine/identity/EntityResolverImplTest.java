@@ -23,6 +23,7 @@ import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.store.types.StoredIdentity;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -100,7 +101,7 @@ public class EntityResolverImplTest
 			long entity = entDAO.create(new EntityInformation());
 			Identity obj = new Identity(UsernameIdentity.ID, "name1", entity, "name1");
 			itDAO.create(new IdentityType(UsernameIdentity.ID, UsernameIdentity.ID));
-			identityDAO.create(obj);
+			identityDAO.create(new StoredIdentity(obj));
 		
 			long ret = entityResolver.getEntityId(new EntityParam(new IdentityTaV("userName", obj.getName())));
 			
@@ -114,7 +115,7 @@ public class EntityResolverImplTest
 			long entity = entDAO.create(new EntityInformation());
 			Identity obj = new Identity(UsernameIdentity.ID, "name1", entity, "name1");
 			itDAO.create(new IdentityType(UsernameIdentity.ID, UsernameIdentity.ID));
-			identityDAO.create(obj);
+			identityDAO.create(new StoredIdentity(obj));
 
 			long ret = entityResolver.getEntityId(new IdentityTaV("userName", obj.getName()));
 			

@@ -25,11 +25,12 @@ import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.api.NamedCRUDDAO;
 import pl.edu.icm.unity.store.impl.AbstractNamedDAOTest;
+import pl.edu.icm.unity.store.types.StoredIdentity;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
-public class IdentityTest extends AbstractNamedDAOTest<Identity>
+public class IdentityTest extends AbstractNamedDAOTest<StoredIdentity>
 {
 	@Autowired
 	private IdentityDAO dao;
@@ -57,14 +58,14 @@ public class IdentityTest extends AbstractNamedDAOTest<Identity>
 	public void allIdentitiesAreRemovedWhenTheirEntityIsRemoved()
 	{
 		tx.runInTransaction(() -> {
-			Identity obj = getObject("name1");
+			StoredIdentity obj = getObject("name1");
 			dao.create(obj);
-			Identity obj2 = getObject("name2");
+			StoredIdentity obj2 = getObject("name2");
 			dao.create(obj2);
 			
 			entDao.deleteByKey(entity);
 			
-			List<Identity> ret = dao.getAll();
+			List<StoredIdentity> ret = dao.getAll();
 
 			assertThat(ret, is(notNullValue()));
 			assertThat(ret.isEmpty(), is(true));
@@ -75,18 +76,18 @@ public class IdentityTest extends AbstractNamedDAOTest<Identity>
 	public void shouldReturnAllCreatedByEntity()
 	{
 		tx.runInTransaction(() -> {
-			Identity obj = getObject("name1");
+			StoredIdentity obj = getObject("name1");
 			dao.create(obj);
-			Identity obj2 = getObject("name2");
+			StoredIdentity obj2 = getObject("name2");
 			dao.create(obj2);
 			
-			List<Identity> ret = dao.getByEntity(entity);
+			List<StoredIdentity> ret = dao.getByEntityFull(entity);
 
 			assertThat(ret, is(notNullValue()));
 			assertThat(ret.size(), is(2));
-			if (ret.get(0).getValue().equals("name2"))
+			if (ret.get(0).getIdentity().getValue().equals("name2"))
 			{
-				Identity tmp = ret.get(0);
+				StoredIdentity tmp = ret.get(0);
 				ret.add(0, ret.get(1));
 				ret.add(1, tmp);
 			}
@@ -96,15 +97,22 @@ public class IdentityTest extends AbstractNamedDAOTest<Identity>
 		});
 	}
 
+	@Override
+	@Test
+	public void shouldFailOnCreatingWithTooLongName()
+	{
+		//this test is skipped: we do allow for creating identities with very long names.
+	}
+
 	
 	@Override
-	protected NamedCRUDDAO<Identity> getDAO()
+	protected NamedCRUDDAO<StoredIdentity> getDAO()
 	{
 		return dao;
 	}
 
 	@Override
-	protected Identity getObject(String name)
+	protected StoredIdentity getObject(String name)
 	{
 		ObjectNode meta = Constants.MAPPER.createObjectNode();
 		Identity ret = new Identity("username", name, entity, name);
@@ -116,16 +124,17 @@ public class IdentityTest extends AbstractNamedDAOTest<Identity>
 		ret.setTranslationProfile("translationProfile");
 		ret.setUpdateTs(new Date(100));
 		ret.setCreationTs(new Date(101));
-		return ret;
+		return new StoredIdentity(ret);
 	}
 
 	@Override
-	protected Identity mutateObject(Identity ret)
+	protected StoredIdentity mutateObject(StoredIdentity sret)
 	{
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectNode meta = mapper.createObjectNode();
 		meta.put("1", "v");
 		
+		Identity ret = sret.getIdentity();
 		ret.setCreationTs(new Date(100324));
 		ret.setEntityId(entity2);
 		ret.setMetadata(meta);
@@ -134,6 +143,6 @@ public class IdentityTest extends AbstractNamedDAOTest<Identity>
 		ret.setTarget("target2");
 		ret.setTranslationProfile("translationProfile2");
 		ret.setUpdateTs(new Date(100444));
-		return ret;
+		return sret;
 	}
 }

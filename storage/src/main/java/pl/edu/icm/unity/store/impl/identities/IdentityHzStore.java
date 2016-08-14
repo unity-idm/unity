@@ -6,19 +6,21 @@ package pl.edu.icm.unity.store.impl.identities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
-import pl.edu.icm.unity.store.api.IdentityDAO;
-import pl.edu.icm.unity.store.hz.GenericNamedHzCRUD;
-import pl.edu.icm.unity.store.impl.entities.EntityHzStore;
-import pl.edu.icm.unity.types.basic.Identity;
 
 import com.hazelcast.core.TransactionalMap;
 import com.hazelcast.query.EntryObject;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.PredicateBuilder;
+
+import pl.edu.icm.unity.store.api.IdentityDAO;
+import pl.edu.icm.unity.store.hz.GenericNamedHzCRUD;
+import pl.edu.icm.unity.store.impl.entities.EntityHzStore;
+import pl.edu.icm.unity.store.types.StoredIdentity;
+import pl.edu.icm.unity.types.basic.Identity;
 
 
 /**
@@ -26,7 +28,7 @@ import com.hazelcast.query.PredicateBuilder;
  * @author K. Benedyczak
  */
 @Repository(IdentityHzStore.STORE_ID)
-public class IdentityHzStore extends GenericNamedHzCRUD<Identity> implements IdentityDAO
+public class IdentityHzStore extends GenericNamedHzCRUD<StoredIdentity> implements IdentityDAO
 {
 	public static final String STORE_ID = DAO_ID + "hz";
 
@@ -38,27 +40,35 @@ public class IdentityHzStore extends GenericNamedHzCRUD<Identity> implements Ide
 	}
 
 	@Override
-	public List<Identity> getByEntity(long entityId)
+	public List<StoredIdentity> getByEntityFull(long entityId)
 	{
-		TransactionalMap<Long, Identity> hMap = getMap();
-		List<Identity> ret = new ArrayList<>();
+		TransactionalMap<Long, StoredIdentity> hMap = getMap();
+		List<StoredIdentity> ret = new ArrayList<>();
 		EntryObject e = new PredicateBuilder().getEntryObject();
 		@SuppressWarnings("unchecked")
-		Predicate<Long, Identity> predicate = e.get("entityId").equal(entityId);
+		Predicate<Long, StoredIdentity> predicate = e.get("entityId").equal(entityId);
 		ret.addAll(hMap.values(predicate));
 		return ret;
 	}
 	
+	@Override
+	public List<Identity> getByEntity(long entityId)
+	{
+		return getByEntityFull(entityId).stream().map(si -> si.getIdentity()).collect(Collectors.toList());
+	}
+	
 	private void cascadeEntityRemoval(long id, String name)
 	{
-		List<Identity> byEntity = getByEntity(id);
-		for (Identity childId: byEntity)
+		List<StoredIdentity> byEntity = getByEntityFull(id);
+		for (StoredIdentity childId: byEntity)
 			delete(childId.getName());
 	}
 	
 	@Override
-	protected void preUpdateCheck(Identity old, Identity updated)
+	protected void preUpdateCheck(StoredIdentity sold, StoredIdentity supdated)
 	{
+		Identity old = sold.getIdentity();
+		Identity updated = supdated.getIdentity();
 		if (!old.getTypeId().equals(updated.getTypeId()))
 			throw new IllegalArgumentException("Can not change identity type from " + 
 					old.getTypeId() + " to " + updated.getTypeId());
