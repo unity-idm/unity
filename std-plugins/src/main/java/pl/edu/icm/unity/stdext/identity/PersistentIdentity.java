@@ -102,7 +102,7 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 		String value = UUID.randomUUID().toString();
 		Identity ret = new Identity(ID, value, entityId, value);
 		ret.setRealm(realm);
-		ret.setTarget(target);
+		ret.setTarget(null);
 		return ret;
 	}
 

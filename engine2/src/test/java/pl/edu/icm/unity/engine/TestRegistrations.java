@@ -25,24 +25,21 @@ import com.google.common.collect.Lists;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
-import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.form.action.AddAttributeActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AddAttributeClassActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AddToGroupActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.stdext.utils.EmailUtils;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -77,9 +74,6 @@ public class TestRegistrations extends DBIntegrationTestBase
 {
 	@Autowired
 	private InitializerCommon commonInitializer;
-	
-	@Autowired
-	private RegistrationActionsRegistry registry;
 
 	@Test 
 	public void addedFormIsReturned() throws Exception
@@ -107,7 +101,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		{
 			registrationsMan.removeForm("mising", true);
 			fail("Removed non existing form");
-		} catch (WrongArgumentException e) {/*ok*/}
+		} catch (IllegalArgumentException e) {/*ok*/}
 	}
 	
 	@Test 
@@ -118,7 +112,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		{
 			registrationsMan.addForm(form);
 			fail("Added the same form twice");
-		} catch (WrongArgumentException e) {/*ok*/}
+		} catch (IllegalArgumentException e) {/*ok*/}
 	}
 	
 	@Test 
@@ -131,7 +125,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		attrReg.setAttributeType("missing");
 		testFormBuilder.withAttributeParams(Collections.singletonList(attrReg));
 		
-		checkUpdateOrAdd(testFormBuilder.build(), "attr(2)", WrongArgumentException.class);
+		checkUpdateOrAdd(testFormBuilder.build(), "attr(2)", IllegalArgumentException.class);
 	}
 	
 	@Test 
@@ -144,7 +138,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		credParam.setCredentialName("missing");
 		testFormBuilder.withCredentialParams(Collections.singletonList(credParam));
 		
-		checkUpdateOrAdd(testFormBuilder.build(), "cred", WrongArgumentException.class);
+		checkUpdateOrAdd(testFormBuilder.build(), "cred", IllegalArgumentException.class);
 	}
 
 	
@@ -154,7 +148,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		initAndCreateForm(false, null);
 		RegistrationFormBuilder testFormBuilder = getFormBuilder(false, null, true);
 		testFormBuilder.withDefaultCredentialRequirement("missing");
-		checkUpdateOrAdd(testFormBuilder.build(), "cred req", WrongArgumentException.class);
+		checkUpdateOrAdd(testFormBuilder.build(), "cred req", IllegalArgumentException.class);
 	}
 	
 	@Test 
@@ -166,7 +160,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		GroupRegistrationParam groupParam = form.getGroupParams().get(0);
 		groupParam.setGroupPath("/missing");
 		testFormBuilder.withGroupParams(Collections.singletonList(groupParam));
-		checkUpdateOrAdd(testFormBuilder.build(), "group", IllegalGroupValueException.class);
+		checkUpdateOrAdd(testFormBuilder.build(), "group", IllegalArgumentException.class);
 	}
 
 	@Test 
@@ -177,7 +171,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		IdentityRegistrationParam idParam = form.getIdentityParams().get(0);
 		idParam.setIdentityType("missing");
 		testFormBuilder.withIdentityParams(Collections.singletonList(idParam));
-		checkUpdateOrAdd(testFormBuilder.build(), "id", IllegalTypeException.class);
+		checkUpdateOrAdd(testFormBuilder.build(), "id", IllegalArgumentException.class);
 	}
 
 	@Test
@@ -261,7 +255,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		try
 		{
 			aTypeMan.removeAttributeType("email", true);
-		} catch (SchemaConsistencyException e)
+		} catch (IllegalArgumentException e)
 		{
 			//OK
 		}
@@ -269,7 +263,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		try
 		{
 			groupsMan.removeGroup("/B", true);
-		} catch (SchemaConsistencyException e)
+		} catch (IllegalArgumentException e)
 		{
 			//OK
 		}
@@ -323,7 +317,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		
 		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertThat(fromDb.getAdminComments().isEmpty(), is(true));
-		assertEquals(request, fromDb.getRequest());
+		assertThat(fromDb.getRequest(), is(request));
 		assertEquals(0, fromDb.getAdminComments().size());
 		assertEquals(RegistrationRequestStatus.pending, fromDb.getStatus());
 		assertEquals(id1, fromDb.getRequestId());
@@ -466,59 +460,95 @@ public class TestRegistrations extends DBIntegrationTestBase
 		assertThat(groups.containsKey("/A/B/C"), is(true));
 	}
 	
-	
 	@Test
-	public void testRequestsWithAutoAccept() throws EngineException
+	public void requestWithAutoAcceptIsAccepted() throws EngineException
 	{
 		RegistrationContext defContext = new RegistrationContext(true, false, TriggeringMode.manualAtLogin);
 		initAndCreateForm(false, "true");
 		RegistrationRequest request = getRequest();
+		
 		registrationsMan.submitRegistrationRequest(request, defContext);
+		
 		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
-		clearDB();
-		
+	}
+
+	@Test
+	public void requestWithoutAutoAcceptIsPending() throws EngineException
+	{
+		RegistrationContext defContext = new RegistrationContext(true, false, TriggeringMode.manualAtLogin);
 		initAndCreateForm(false, "false");
-		request = getRequest();
-		registrationsMan.submitRegistrationRequest(request, defContext);
-		fromDb = registrationsMan.getRegistrationRequests().get(0);
-		assertEquals(RegistrationRequestStatus.pending, fromDb.getStatus());
-		clearDB();
+		RegistrationRequest request = getRequest();
 		
+		registrationsMan.submitRegistrationRequest(request, defContext);
+		
+		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
+		assertEquals(RegistrationRequestStatus.pending, fromDb.getStatus());
+	}
+
+	@Test
+	public void requestWithMetAutoAcceptConditionIsAccepted() throws EngineException
+	{
+		RegistrationContext defContext = new RegistrationContext(true, false, TriggeringMode.manualAtLogin);
 		initAndCreateForm(false, "idsByType[\"" + X500Identity.ID +"\"] != null");
-		request = getRequest();	
-		registrationsMan.submitRegistrationRequest(request, defContext);
-		fromDb = registrationsMan.getRegistrationRequests().get(0);
-		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
-		clearDB();
+		RegistrationRequest request = getRequest();
 		
+		registrationsMan.submitRegistrationRequest(request, defContext);
+		
+		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
+		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
+	}
+
+	@Test
+	public void requestWithMetAutoAcceptConditionIsAccepted2() throws EngineException
+	{
+		RegistrationContext defContext = new RegistrationContext(true, false, TriggeringMode.manualAtLogin);
 		initAndCreateForm(false, "attr[\"email\"].toString() == \"foo@example.com\"");
-		request = getRequest();
-		registrationsMan.submitRegistrationRequest(request, defContext);
-		fromDb = registrationsMan.getRegistrationRequests().get(0);
-		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
-		clearDB();
+		RegistrationRequest request = getRequest();
 		
+		registrationsMan.submitRegistrationRequest(request, defContext);
+		
+		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
+		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
+	}
+
+	@Test
+	public void requestWithNotMetAutoAcceptConditionIsPending() throws EngineException
+	{
+		RegistrationContext defContext = new RegistrationContext(true, false, TriggeringMode.manualAtLogin);
 		initAndCreateForm(false, "attrs[\"email\"][0] == \"NoAccept\"");
-		request = getRequest();
-		registrationsMan.submitRegistrationRequest(request, defContext);
-		fromDb = registrationsMan.getRegistrationRequests().get(0);
-		assertEquals(RegistrationRequestStatus.pending, fromDb.getStatus());
-		clearDB();
-				
-		initAndCreateForm(false, "agrs[0] == true");
-		request = getRequest();
-		registrationsMan.submitRegistrationRequest(request, defContext);
-		fromDb = registrationsMan.getRegistrationRequests().get(0);
-		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
-		clearDB();
+		RegistrationRequest request = getRequest();
 		
-		initAndCreateForm(false, "agrs[0] == false");
-		request = getRequest();
 		registrationsMan.submitRegistrationRequest(request, defContext);
-		fromDb = registrationsMan.getRegistrationRequests().get(0);
+		
+		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(RegistrationRequestStatus.pending, fromDb.getStatus());
-		clearDB();		
+	}
+
+	@Test
+	public void requestWithMetAutoAcceptConditionIsAccepted3() throws EngineException
+	{
+		RegistrationContext defContext = new RegistrationContext(true, false, TriggeringMode.manualAtLogin);	
+		initAndCreateForm(false, "agrs[0] == true");
+		RegistrationRequest request = getRequest();
+		
+		registrationsMan.submitRegistrationRequest(request, defContext);
+		
+		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
+		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
+	}
+
+	@Test
+	public void requestWithNotMetAutoAcceptConditionIsPending2() throws EngineException
+	{
+		RegistrationContext defContext = new RegistrationContext(true, false, TriggeringMode.manualAtLogin);
+		initAndCreateForm(false, "agrs[0] == false");
+		RegistrationRequest request = getRequest();
+		
+		registrationsMan.submitRegistrationRequest(request, defContext);
+
+		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
+		assertEquals(RegistrationRequestStatus.pending, fromDb.getStatus());
 	}
 
 	
@@ -598,6 +628,10 @@ public class TestRegistrations extends DBIntegrationTestBase
 	
 	private RegistrationRequest getRequest()
 	{
+		//note - we could use more easily VerifiableEmailAttribute, but then strict equals wouldn't work
+		//when testing returned request.
+		Attribute emailA = new Attribute(InitializerCommon.EMAIL_ATTR, VerifiableEmailAttributeSyntax.ID, "/",
+				Lists.newArrayList(EmailUtils.convertFromString("foo@example.com").toJsonString()));
 		return new RegistrationRequestBuilder()
 				.withFormId("f1")
 				.withComments("comments")
@@ -605,9 +639,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 				.withAddedAgreement()
 				.withSelected(true)
 				.endAgreement()
-				.withAddedAttribute(
-						new VerifiableEmailAttribute(InitializerCommon.EMAIL_ATTR, "/",
-								"foo@example.com"))
+				.withAddedAttribute(emailA)
 				.withAddedCredential()
 				.withCredentialId(EngineInitialization.DEFAULT_CREDENTIAL)
 				.withSecrets(new PasswordToken("abc").toJson()).endCredential()
@@ -641,7 +673,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		{
 			registrationsMan.addForm(form);
 			fail("Added the form with illegal " + msg);
-		} catch (EngineException e) 
+		} catch (Exception e) 
 		{
 			assertTrue(e.toString(), e.getClass().isAssignableFrom(exception));
 		}
@@ -649,7 +681,7 @@ public class TestRegistrations extends DBIntegrationTestBase
 		{
 			registrationsMan.updateForm(form, false);
 			fail("Updated the form with illegal " + msg);
-		} catch (EngineException e) 
+		} catch (Exception e) 
 		{
 			assertTrue(e.toString(), e.getClass().isAssignableFrom(exception));
 		}
@@ -679,20 +711,4 @@ public class TestRegistrations extends DBIntegrationTestBase
 		registrationsMan.addForm(form);
 		return form;
 	}
-	
-	private void clearDB() throws EngineException
-	{			
-		for (RegistrationForm f:registrationsMan.getForms())
-			registrationsMan.removeForm(f.getName(), true);
-		groupsMan.removeGroup("/A", true);
-		groupsMan.removeGroup("/B", true);
-		try
-		{
-			idsMan.removeEntity(new EntityParam(new IdentityTaV(X500Identity.ID, "CN=registration test")));
-		} catch (IllegalIdentityValueException e)
-		{
-			//ok
-		}
-	}
-	
 }

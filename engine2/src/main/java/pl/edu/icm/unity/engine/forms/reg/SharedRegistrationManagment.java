@@ -21,6 +21,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
+import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.engine.forms.BaseSharedRegistrationSupport;
@@ -60,6 +61,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 	private RegistrationRequestValidator registrationRequestValidator;
 	private RegistrationActionsRegistry registrationTranslationActionsRegistry;
 	private IdentityHelper identityHelper;
+	private AttributeTypeHelper atHelper;
 
 	@Autowired
 	public SharedRegistrationManagment(UnityMessageSource msg,
@@ -71,7 +73,8 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			InternalFacilitiesManagement facilitiesManagement,
 			RegistrationRequestValidator registrationRequestValidator,
 			RegistrationActionsRegistry registrationTranslationActionsRegistry,
-			IdentityHelper identityHelper)
+			IdentityHelper identityHelper,
+			AttributeTypeHelper atHelper)
 	{
 		super(msg, notificationProducer, attributesHelper, groupHelper,
 				entityCredentialsHelper);
@@ -81,6 +84,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 		this.registrationRequestValidator = registrationRequestValidator;
 		this.registrationTranslationActionsRegistry = registrationTranslationActionsRegistry;
 		this.identityHelper = identityHelper;
+		this.atHelper = atHelper;
 	}
 
 	/**
@@ -102,7 +106,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 		currentRequest.setStatus(RegistrationRequestStatus.accepted);
 
 		RegistrationTranslationProfile translationProfile = new RegistrationTranslationProfile(
-				form.getTranslationProfile(), registrationTranslationActionsRegistry);
+				form.getTranslationProfile(), registrationTranslationActionsRegistry, atHelper);
 		TranslatedRegistrationRequest translatedRequest = translationProfile.translate(form, currentRequest);
 		
 		registrationRequestValidator.validateTranslatedRequest(form, currentRequest.getRequest(), 
@@ -172,7 +176,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			throws EngineException
 	{
 		RegistrationTranslationProfile translationProfile = new RegistrationTranslationProfile(
-				form.getTranslationProfile(), registrationTranslationActionsRegistry);
+				form.getTranslationProfile(), registrationTranslationActionsRegistry, atHelper);
 		
 		AutomaticRequestAction autoProcessAction = translationProfile.getAutoProcessAction(
 				form, requestFull, RequestSubmitStatus.submitted);

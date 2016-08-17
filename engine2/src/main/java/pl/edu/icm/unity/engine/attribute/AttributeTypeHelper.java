@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntaxFactory;
+import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
 /**
@@ -24,16 +25,29 @@ public class AttributeTypeHelper
 {
 	private Map<String, AttributeValueSyntax<?>> unconfiguredSyntaxes;
 	private AttributeSyntaxFactoriesRegistry atSyntaxRegistry;
+	private AttributeTypeDAO attributeTypeDAO;
 	
 	@Autowired
-	public AttributeTypeHelper(AttributeSyntaxFactoriesRegistry atSyntaxRegistry)
+	public AttributeTypeHelper(AttributeSyntaxFactoriesRegistry atSyntaxRegistry, 
+			AttributeTypeDAO attributeTypeDAO)
 	{
 		this.atSyntaxRegistry = atSyntaxRegistry;
+		this.attributeTypeDAO = attributeTypeDAO;
 		unconfiguredSyntaxes = new HashMap<>();
 		for (AttributeValueSyntaxFactory<?> f: atSyntaxRegistry.getAll())
 			unconfiguredSyntaxes.put(f.getId(), f.createInstance());
 	}
+
+	public AttributeValueSyntax<?> getUnconfiguredSyntaxForAttributeName(String attribute)
+	{
+		AttributeType attributeType = attributeTypeDAO.get(attribute);
+		return getUnconfiguredSyntax(attributeType.getValueSyntax());
+	}
 	
+	/**
+	 * @param name attribute syntax name
+	 * @return a value syntax object which was NOT configured with the type settings
+	 */
 	public AttributeValueSyntax<?> getUnconfiguredSyntax(String name)
 	{
 		AttributeValueSyntax<?> ret = unconfiguredSyntaxes.get(name);

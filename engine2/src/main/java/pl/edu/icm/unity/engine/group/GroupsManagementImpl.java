@@ -294,6 +294,13 @@ public class GroupsManagementImpl implements GroupsManagement
 		authz.checkAuthorization(root, AuthzCapability.read);
 		return getSubGroupsInclusive(root);
 	}
+
+	@Override
+	public boolean isPresent(String group) throws AuthorizationException
+	{
+		authz.checkAuthorization(group, AuthzCapability.read);
+		return dbGroups.exists(group);
+	}
 	
 	private Set<String> getSubGroupsInclusive(String root)
 	{

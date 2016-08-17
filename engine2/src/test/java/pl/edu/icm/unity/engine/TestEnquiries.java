@@ -31,9 +31,6 @@ import pl.edu.icm.unity.engine.translation.form.action.AddAttributeActionFactory
 import pl.edu.icm.unity.engine.translation.form.action.AddToGroupActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -135,7 +132,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 		attrReg.setAttributeType("missing");
 		testFormBuilder.withAttributeParams(Collections.singletonList(attrReg));
 		
-		checkUpdateOrAdd(testFormBuilder.build(), "attr(2)", WrongArgumentException.class);
+		checkUpdateOrAdd(testFormBuilder.build(), "attr(2)", IllegalArgumentException.class);
 	}
 	
 	@Test 

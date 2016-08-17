@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -391,7 +392,7 @@ public class AttributesHelper
 		
 		if (!update)
 		{
-			setUnconfirmed(attribute);
+			setUnconfirmed(attribute, syntax);
 			return;
 		}
 		
@@ -399,7 +400,7 @@ public class AttributesHelper
 				attribute.getGroupPath());
 		if (attrs.isEmpty())
 		{
-			setUnconfirmed(attribute);
+			setUnconfirmed(attribute, syntax);
 			return;
 		}
 		
@@ -420,6 +421,7 @@ public class AttributesHelper
 					VerifiableElement newValueCasted = (VerifiableElement) newAsObject;
 					VerifiableElement existingValueCasted = (VerifiableElement) existingAsObject;
 					newValueCasted.setConfirmationInfo(existingValueCasted.getConfirmationInfo());
+					attribute.getValues().set(i, syntax.convertToString(newValueCasted));
 					if (existingValueCasted.getConfirmationInfo().isConfirmed())
 						oneConfirmedValuePreserved = true;
 				}
@@ -433,14 +435,16 @@ public class AttributesHelper
 				Object newAsObject = syntax.convertFromString(attribute.getValues().get(i));
 				VerifiableElement val = (VerifiableElement) newAsObject;
 				val.setConfirmationInfo(new ConfirmationInfo(0));
+				attribute.getValues().set(i, syntax.convertToString(val));
 			}
 		}
 		
 		if (!oneConfirmedValuePreserved)
 		{
-			for (Object existingValue: updated.getValues())
+			for (String existingValue: updated.getValues())
 			{
-				VerifiableElement existingValueCasted = (VerifiableElement) existingValue;
+				Object existingAsObject = syntax.convertFromString(existingValue);
+				VerifiableElement existingValueCasted = (VerifiableElement) existingAsObject;
 				if (existingValueCasted.getConfirmationInfo().isConfirmed())
 					throw new IllegalAttributeValueException("At least " + 
 							"one confirmed value must be preserved");
@@ -448,13 +452,16 @@ public class AttributesHelper
 		}
 	}
 	
-	private void setUnconfirmed(Attribute attribute)
+	private <T extends VerifiableElement> void setUnconfirmed(Attribute attribute, AttributeValueSyntax<T> syntax)
 	{
-		for (Object v : attribute.getValues())
+		List<String> updated = new ArrayList<>(attribute.getValues().size());
+		for (String v : attribute.getValues())
 		{
-			VerifiableElement val = (VerifiableElement) v;
+			T val = syntax.convertFromString(v);
 			val.setConfirmationInfo(new ConfirmationInfo(0));
+			updated.add(syntax.convertToString(val));
 		}
+		attribute.setValues(updated);
 	}
 	
 	/**

@@ -64,16 +64,6 @@ public class BulkProcessingSupport
 	@Autowired
 	private EntityActionsRegistry actionsRegistry;
 	
-	public synchronized Collection<ScheduledProcessingRule> getScheduledRules()
-	{
-		Set<JobKey> jobs = getCurrentJobs();
-		return jobs.stream().
-			map(this::getJobDetail).
-			filter(this::filterProcessingJobs).
-			map(job -> (ScheduledProcessingRule) job.getJobDataMap().get(RULE_KEY)).
-			collect(Collectors.toList());
-	}
-	
 	public synchronized Collection<RuleWithTS> getScheduledRulesWithTS()
 	{
 		Set<JobKey> jobs = getCurrentJobs();
@@ -81,10 +71,8 @@ public class BulkProcessingSupport
 			map(this::getJobDetail).
 			filter(this::filterProcessingJobs).
 			map(job -> {
-				ScheduledProcessingRule rule = (ScheduledProcessingRule) 
-						job.getJobDataMap().get(RULE_KEY);
 				Date ts = (Date) job.getJobDataMap().get(TS_KEY);
-				return new RuleWithTS(rule, ts);
+				return new RuleWithTS(job.getKey().getName(), ts);
 			}).
 			collect(Collectors.toList());
 	}
@@ -218,7 +206,7 @@ public class BulkProcessingSupport
 	
 	private boolean filterProcessingJobs(JobDetail job)
 	{
-		return job.getJobDataMap().get(RULE_KEY) instanceof ScheduledProcessingRule;
+		return job.getJobDataMap().get(RULE_KEY) instanceof TranslationRule;
 	}
 	
 	private JobDetail getJobDetail(JobKey key)
@@ -255,12 +243,12 @@ public class BulkProcessingSupport
 	
 	public static class RuleWithTS
 	{
-		public final ScheduledProcessingRule rule;
+		public final String ruleId;
 		public final Date ts;
 
-		public RuleWithTS(ScheduledProcessingRule rule, Date ts)
+		public RuleWithTS(String ruleId, Date ts)
 		{
-			this.rule = rule;
+			this.ruleId = ruleId;
 			this.ts = ts;
 		}
 	}

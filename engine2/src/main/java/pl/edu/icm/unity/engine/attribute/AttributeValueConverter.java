@@ -35,7 +35,7 @@ public class AttributeValueConverter
 	public List<String> externalValuesToInternal(String attributeName, List<?> externalValues) 
 			throws IllegalAttributeValueException
 	{
-		AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(attributeName);
+		AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntaxForAttributeName(attributeName);
 		return externalValuesToInternal(syntax, externalValues);
 	}
 
@@ -67,7 +67,7 @@ public class AttributeValueConverter
 	 */
 	public List<String> internalValuesToExternal(String attributeName, List<String> internalValues) 
 	{
-		AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(attributeName);
+		AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntaxForAttributeName(attributeName);
 		return internalValuesToExternal(syntax, internalValues);
 	}
 
@@ -88,6 +88,4 @@ public class AttributeValueConverter
 		}
 		return ret;
 	}
-
-
 }

@@ -14,7 +14,18 @@ import pl.edu.icm.unity.store.api.StorageCleaner;
  */
 public interface StoreLoaderInternal
 {
+	/**
+	 * Database tables are dropped and database is recreated. This is the most complete 
+	 * reset of the database.
+	 */
 	void reset();
+	
+	/**
+	 * Similar in effect to {@link #reset()} however transaction-friendly. Everything in database is 
+	 * removed, besides (maybe) some fundamental meta tables. The root group is created afterwards.
+	 */
 	void deleteEverything();
+	
+	
 	void runPostImportCleanup();
 }

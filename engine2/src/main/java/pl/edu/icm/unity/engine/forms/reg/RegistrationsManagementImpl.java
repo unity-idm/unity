@@ -27,7 +27,6 @@ import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.forms.BaseFormValidator;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.store.api.generic.CredentialRequirementDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
@@ -143,13 +142,16 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		
 		Long entityId = tryAutoProcess(form, requestFull, context);
 		
-		confirmationsSupport.sendAttributeConfirmationRequest(requestFull, entityId, form);
-		confirmationsSupport.sendIdentityConfirmationRequest(requestFull, entityId, form);	
+		tx.runInTransactionThrowing(() -> {
+			confirmationsSupport.sendAttributeConfirmationRequest(requestFull, entityId, form);
+			confirmationsSupport.sendIdentityConfirmationRequest(requestFull, entityId, form);	
+		});
 		
 		return requestFull.getRequestId();
 	}
 
-	private RegistrationForm recordRequestAndReturnForm(RegistrationRequestState requestFull) throws EngineException
+	private RegistrationForm recordRequestAndReturnForm(RegistrationRequestState requestFull) 
+			throws EngineException
 	{
 		return tx.runInTransactionRetThrowing(() -> {
 			RegistrationRequest request = requestFull.getRequest();
@@ -160,7 +162,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		});
 	}
 
-	private void sendNotification(RegistrationForm form, RegistrationRequestState requestFull) throws EngineException
+	private void sendNotification(RegistrationForm form, RegistrationRequestState requestFull) 
+			throws EngineException
 	{
 		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
 		if (notificationsCfg.getChannel() != null && notificationsCfg.getSubmittedTemplate() != null
@@ -253,22 +256,22 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		if (form.isByInvitationOnly())
 		{
 			if (!form.isPubliclyAvailable())
-				throw new WrongArgumentException("Registration form which "
+				throw new IllegalArgumentException("Registration form which "
 						+ "is by invitation only must be public");
 			if (form.getRegistrationCode() != null)
-				throw new WrongArgumentException("Registration form which "
+				throw new IllegalArgumentException("Registration form which "
 						+ "is by invitation only must not have a static registration code");
 		}
 		
 		if (form.getDefaultCredentialRequirement() == null)
-			throw new WrongArgumentException("Credential requirement must be set for the form");
+			throw new IllegalArgumentException("Credential requirement must be set for the form");
 		if (credentialReqDB.get(form.getDefaultCredentialRequirement()) == null)
-			throw new WrongArgumentException("Credential requirement " + 
+			throw new IllegalArgumentException("Credential requirement " + 
 					form.getDefaultCredentialRequirement() + " does not exist");
 
 		RegistrationFormNotifications notCfg = form.getNotificationsConfiguration();
 		if (notCfg == null)
-			throw new WrongArgumentException("NotificationsConfiguration must be set in the form.");
+			throw new IllegalArgumentException("NotificationsConfiguration must be set in the form.");
 		baseValidator.checkTemplate(notCfg.getAcceptedTemplate(), AcceptRegistrationTemplateDef.NAME,
 				"accepted registration request");
 		baseValidator.checkTemplate(notCfg.getRejectedTemplate(), RejectRegistrationTemplateDef.NAME,
@@ -280,7 +283,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		baseValidator.checkTemplate(notCfg.getInvitationTemplate(), InvitationTemplateDef.NAME,
 				"invitation");
 		if (form.getCaptchaLength() > RegistrationForm.MAX_CAPTCHA_LENGTH)
-			throw new WrongArgumentException("Captcha can not be longer then " + 
+			throw new IllegalArgumentException("Captcha can not be longer then " + 
 					RegistrationForm.MAX_CAPTCHA_LENGTH + " characters");
 	}
 }

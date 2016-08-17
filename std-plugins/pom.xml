@@ -13,7 +13,7 @@
 		attribute syntaxes, identity types, credentials</description>
 	
 	<properties>
-		<m.name>base</m.name>
+		<m.name>std-plugins</m.name>
 	</properties>
 
 	<scm>

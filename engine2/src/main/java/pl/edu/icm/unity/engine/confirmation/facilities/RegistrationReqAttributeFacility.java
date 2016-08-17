@@ -93,7 +93,7 @@ public class RegistrationReqAttributeFacility extends RegistrationFacility<Regis
 		{
 			if (attr == null)
 				continue;
-			AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(attr.getName());
+			AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(attr.getValueSyntax());
 			if (syntax.isVerifiable())
 				updateConfirmationForAttributeValues(attr.getValues(), syntax, attrState.getValue());
 		}

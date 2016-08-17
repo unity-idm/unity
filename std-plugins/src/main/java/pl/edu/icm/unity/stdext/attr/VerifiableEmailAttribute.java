@@ -4,13 +4,11 @@
  */
 package pl.edu.icm.unity.stdext.attr;
 
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.google.common.collect.Lists;
-
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.stdext.utils.EmailUtils;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
 
@@ -20,21 +18,9 @@ import pl.edu.icm.unity.types.basic.VerifiableEmail;
  */
 public class VerifiableEmailAttribute extends Attribute
 {
-
-	public VerifiableEmailAttribute(String name, String groupPath,
-			List<String> values, String remoteIdp, String translationProfile)
-	{
-		super(name, VerifiableEmailAttributeSyntax.ID, groupPath, values, remoteIdp, translationProfile);
-	}
-
-	public VerifiableEmailAttribute(String name, String groupPath, List<String> values)
-	{
-		super(name, VerifiableEmailAttributeSyntax.ID, groupPath, values);
-	}
-
 	public VerifiableEmailAttribute(String name, String groupPath, String value)
 	{
-		super(name, VerifiableEmailAttributeSyntax.ID, groupPath, Lists.newArrayList(value));
+		this(name, groupPath, EmailUtils.convertFromString(value));
 	}
 
 	/**

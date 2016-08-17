@@ -309,15 +309,13 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		assertEquals(2, getGroupstatements("/A").length);
 		
 		aTypeMan.removeAttributeType("a1", true);
+		assertEquals(2, getGroupstatements("/A").length);
+		
+		statementsCleaner.updateGroups();
 		assertEquals(1, getGroupstatements("/A").length);
 		
-		statementsCleaner.updateGroups();
-		
 		groupsMan.removeGroup("/A/B", true);
-		assertEquals(0, getGroupstatements("/A").length);
-
 		statementsCleaner.updateGroups();
-		
 		assertEquals(0, getGroupstatements("/A").length);
 	}
 

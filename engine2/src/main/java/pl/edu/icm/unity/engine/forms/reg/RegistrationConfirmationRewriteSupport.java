@@ -100,7 +100,7 @@ public class RegistrationConfirmationRewriteSupport
 			if (inRequest)
 				break;
 			AttributeValueSyntax<?> syntax = attributeTypeHelper.getUnconfiguredSyntax(
-					attribute.getName());
+					attribute.getValueSyntax());
 			if (syntax.isVerifiable()
 					&& attribute.getName().equals(oldState.getType())
 					&& attribute.getValues() != null)

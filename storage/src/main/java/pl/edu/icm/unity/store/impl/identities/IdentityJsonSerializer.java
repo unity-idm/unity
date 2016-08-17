@@ -13,6 +13,7 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
+import pl.edu.icm.unity.store.types.StoredIdentity;
 import pl.edu.icm.unity.types.basic.Identity;
 
 
@@ -21,30 +22,31 @@ import pl.edu.icm.unity.types.basic.Identity;
  * @author K. Benedyczak
  */
 @Component
-public class IdentityJsonSerializer implements RDBMSObjectSerializer<Identity, IdentityBean>, 
-		JsonSerializerForKryo<Identity>
+public class IdentityJsonSerializer implements RDBMSObjectSerializer<StoredIdentity, IdentityBean>, 
+		JsonSerializerForKryo<StoredIdentity>
 {
 	@Autowired
 	private IdentityTypeDAO idTypeDAO;
 	
 	@Override
-	public Identity fromJson(ObjectNode src)
+	public StoredIdentity fromJson(ObjectNode src)
 	{
-		return new Identity(src);
+		return new StoredIdentity(new Identity(src));
 	}
 
 	@Override
-	public ObjectNode toJson(Identity src)
+	public ObjectNode toJson(StoredIdentity src)
 	{
-		return src.toJson();
+		return src.getIdentity().toJson();
 	}
 
 	@Override
-	public IdentityBean toDB(Identity object)
+	public IdentityBean toDB(StoredIdentity sobject)
 	{
+		Identity object = sobject.getIdentity();
 		IdentityBean idB = new IdentityBean();
 		idB.setEntityId(object.getEntityId());
-		idB.setName(object.getComparableValue());
+		idB.setName(sobject.getName());
 		long typeKey = idTypeDAO.getKeyForName(object.getTypeId());
 		idB.setTypeId(typeKey);
 		idB.setContents(JsonUtil.serialize2Bytes(object.toJsonBase()));
@@ -52,16 +54,16 @@ public class IdentityJsonSerializer implements RDBMSObjectSerializer<Identity, I
 	}
 
 	@Override
-	public Identity fromDB(IdentityBean bean)
+	public StoredIdentity fromDB(IdentityBean bean)
 	{
-		return new Identity(bean.getTypeName(), bean.getEntityId(),
-				bean.getName(), JsonUtil.parse(bean.getContents()));
+		return new StoredIdentity(new Identity(bean.getTypeName(), bean.getEntityId(),
+				JsonUtil.parse(bean.getContents())));
 	}
 
 	
 	@Override
-	public Class<? extends Identity> getClazz()
+	public Class<? extends StoredIdentity> getClazz()
 	{
-		return Identity.class;
+		return StoredIdentity.class;
 	}
 }

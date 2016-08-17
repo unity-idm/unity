@@ -19,7 +19,6 @@ import pl.edu.icm.unity.base.msgtemplates.confirm.ConfirmationTemplateDef;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
-import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.ConfirmationManager;
 import pl.edu.icm.unity.engine.api.confirmation.ConfirmationStatus;
@@ -33,7 +32,6 @@ import pl.edu.icm.unity.engine.builders.ConfirmationConfigurationBuilder;
 import pl.edu.icm.unity.engine.builders.NotificationChannelBuilder;
 import pl.edu.icm.unity.engine.confirmation.ConfirmationManagerImpl;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
-import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -83,8 +81,6 @@ public class TestConfirmations extends DBIntegrationTestBase
 	@Autowired
 	private MessageTemplateManagement templateMan;
 	@Autowired
-	private NotificationsManagement notificationsMan;
-	@Autowired
 	private TokensManagement tokensMan;
 	@Autowired
 	private ConfirmationConfigurationManagement configurationMan;
@@ -94,11 +90,9 @@ public class TestConfirmations extends DBIntegrationTestBase
 	private InitializerCommon commonInitializer;
 	@Autowired
 	private UnityServerConfiguration mainConfig;
-	@Autowired
-	private RegistrationActionsRegistry registry;
 
 	@Test
-	public void shouldNotPreservedConfirmationStateIfChangedByAdmin() throws Exception
+	public void shouldNotPreserveConfirmationStateIfChangedByAdmin() throws Exception
 	{
 		setupMockAuthn();
 		setupAdmin();
@@ -156,7 +150,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 		atT.setSelfModificable(true);
 		aTypeMan.addAttributeType(atT);
 
-		setupUserContext("user1", false);
+		setupUserContext(DEF_USER, false);
 
 		VerifiableEmail e1 = new VerifiableEmail("a@example.com", new ConfirmationInfo(true));
 		VerifiableEmail e2 = new VerifiableEmail("b@example.com", new ConfirmationInfo(false));
@@ -196,7 +190,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 		Assert.assertTrue(VerifiableEmail.fromJsonString(returned.getValues().get(0)).isConfirmed());
 		Assert.assertFalse(VerifiableEmail.fromJsonString(returned.getValues().get(1)).isConfirmed());
 
-		setupUserContext("user1", false);
+		setupUserContext(DEF_USER, false);
 
 		e1 = new VerifiableEmail("a@example.com", new ConfirmationInfo(false));
 		e2 = new VerifiableEmail("b@example.com", new ConfirmationInfo(true));
@@ -239,7 +233,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 		Assert.assertTrue(VerifiableEmail.fromJsonString(returned.getValues().get(0)).isConfirmed());
 		Assert.assertFalse(VerifiableEmail.fromJsonString(returned.getValues().get(1)).isConfirmed());
 
-		setupUserContext("user1", false);
+		setupUserContext(DEF_USER, false);
 		e1 = new VerifiableEmail("c@example.com", new ConfirmationInfo(false));
 		e2 = new VerifiableEmail("b@example.com", new ConfirmationInfo(false));
 		at1 = new VerifiableEmailAttribute(InitializerCommon.EMAIL_ATTR, "/",
@@ -521,7 +515,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 	}
 
 	@Test
-	public void shouldAutoAcceptRegistrationRequestAfterConfirmAttribute()
+	public void shouldAutoAcceptRegistrationRequestAfterConfirmingAttribute()
 			throws EngineException
 	{
 		commonInitializer.initializeCommonAttributeTypes();
@@ -666,7 +660,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 	}
 	
 	@Test
-	public void shouldSkipProcessRejectedRequest() throws EngineException
+	public void shouldSkipProcessingOfRejectedRequest() throws EngineException
 	{
 		commonInitializer.initializeCommonAttributeTypes();
 		commonInitializer.initializeMainAttributeClass();
@@ -675,7 +669,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 		TranslationAction a1 = new TranslationAction(AutoProcessActionFactory.NAME, 
 				new String[] {AutomaticRequestAction.accept.toString()});
 		TranslationProfile tp = new TranslationProfile("form", "", ProfileType.REGISTRATION, 
-				Lists.newArrayList(new TranslationRule("attr[\"email\"].confirmed ==  true", a1)));
+				Lists.newArrayList(new TranslationRule("attr[\"email\"].confirmed == true", a1)));
 		RegistrationForm form = getFormBuilder().withTranslationProfile(tp).build();
 		
 		registrationsMan.addForm(form);

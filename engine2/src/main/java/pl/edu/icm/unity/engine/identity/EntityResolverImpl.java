@@ -13,6 +13,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.IdentityDAO;
+import pl.edu.icm.unity.store.types.StoredIdentity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -58,6 +59,7 @@ public class EntityResolverImpl implements EntityResolver
 		IdentityTypeDefinition idTypeDef = idTypesRegistry.getByName(entity.getTypeId());
 		String comparableValue = idTypeDef.getComparableValue(entity.getValue(), entity.getRealm(), 
 				entity.getTarget());
-		return identityDAO.get(comparableValue);
+		return identityDAO.get(StoredIdentity.toInDBIdentityValue(entity.getTypeId(), comparableValue))
+				.getIdentity();
 	}
 }

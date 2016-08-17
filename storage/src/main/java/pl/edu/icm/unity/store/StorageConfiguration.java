@@ -44,6 +44,8 @@ public class StorageConfiguration extends PropertiesHelper
 	public static final String ENGINE = "engine";
 	public static final String IGNORE_ALTERNATIVE_DB_CONFIG = "ignoreAlternativeDbConfig";
 	
+	public static final String WIPE_DB_AT_STARTUP = "wipeDbAtStartup";
+	
 	/**
 	 * System property: if set it is providing an alternative path to a file with DB configuration.
 	 * It can also accept predefined values which load default storage configurations for tests - see 
@@ -60,6 +62,9 @@ public class StorageConfiguration extends PropertiesHelper
 	{
 		META.put(ENGINE, new PropertyMD(StorageEngine.hz).setCanHaveSubkeys().
 				setDescription("Storage engine to be used."));
+		META.put(WIPE_DB_AT_STARTUP, new PropertyMD("false").setHidden().
+				setDescription("For testing: if set to true then DB will be fully "
+						+ "cleared at server startup"));		
 		META.put(IGNORE_ALTERNATIVE_DB_CONFIG, new PropertyMD("false").setHidden().
 				setDescription("For unity tests: if set in the main configuration then the system "
 						+ "property with alternative DB config is ignored. It is useful "

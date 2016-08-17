@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.export.AbstractIEBase;
+import pl.edu.icm.unity.store.types.StoredIdentity;
 import pl.edu.icm.unity.types.basic.Identity;
 
 /**
@@ -22,7 +23,7 @@ import pl.edu.icm.unity.types.basic.Identity;
  * @author K. Benedyczak
  */
 @Component
-public class IdentityIE extends AbstractIEBase<Identity>
+public class IdentityIE extends AbstractIEBase<StoredIdentity>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, IdentityIE.class);
 	private IdentityDAO dbIds;
@@ -35,30 +36,30 @@ public class IdentityIE extends AbstractIEBase<Identity>
 	}
 
 	@Override
-	protected List<Identity> getAllToExport()
+	protected List<StoredIdentity> getAllToExport()
 	{
 		return dbIds.getAll();
 	}
 
 	@Override
-	protected ObjectNode toJsonSingle(Identity exportedObj)
+	protected ObjectNode toJsonSingle(StoredIdentity exportedObj)
 	{
-		return exportedObj.toJson();
+		return exportedObj.getIdentity().toJson();
 	}
 
 	@Override
-	protected void createSingle(Identity toCreate)
+	protected void createSingle(StoredIdentity toCreate)
 	{
 		if (toCreate != null)
 			dbIds.create(toCreate);
 	}
 
 	@Override
-	protected Identity fromJsonSingle(ObjectNode src)
+	protected StoredIdentity fromJsonSingle(ObjectNode src)
 	{
 		try
 		{
-			return new Identity(src);
+			return new StoredIdentity(new Identity(src));
 		} catch (IllegalArgumentException e)
 		{
 			if (log.isDebugEnabled())

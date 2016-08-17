@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
@@ -74,9 +76,10 @@ public class RegistrationMVELContext extends HashMap<String, Object>
 	 * @param requestId
 	 */
 	public RegistrationMVELContext(BaseForm form, BaseRegistrationInput response,
-			RequestSubmitStatus status, TriggeringMode triggered, boolean idpEndpoint, String requestId)
+			RequestSubmitStatus status, TriggeringMode triggered, boolean idpEndpoint, String requestId, 
+			AttributeTypeHelper atHelper)
 	{
-		initCommon(form, response, status, triggered, idpEndpoint, requestId);
+		initCommon(form, response, status, triggered, idpEndpoint, requestId, atHelper);
 	}
 	
 	/**
@@ -89,21 +92,23 @@ public class RegistrationMVELContext extends HashMap<String, Object>
 	 * @param requestId
 	 */
 	public RegistrationMVELContext(RegistrationForm form, RegistrationRequest request,
-			RequestSubmitStatus status, TriggeringMode triggered, boolean idpEndpoint, String requestId)
+			RequestSubmitStatus status, TriggeringMode triggered, boolean idpEndpoint, String requestId, 
+			AttributeTypeHelper atHelper)
 	{
-		initCommon(form, request, status, triggered, idpEndpoint, requestId);
+		initCommon(form, request, status, triggered, idpEndpoint, requestId, atHelper);
 		put(ContextKey.validCode.name(), request.getRegistrationCode() != null);
 	}
 
 	private void initCommon(BaseForm form, BaseRegistrationInput request,
-			RequestSubmitStatus status, TriggeringMode triggered, boolean idpEndpoint, String requestId)
+			RequestSubmitStatus status, TriggeringMode triggered, boolean idpEndpoint, String requestId, 
+			AttributeTypeHelper atHelper)
 	{
 		createBaseMvelContext(form, status, triggered, idpEndpoint);
 		
 		put(ContextKey.userLocale.name(), request.getUserLocale());
 		put(ContextKey.requestId.name(), requestId);
 		
-		setupAttributes(form, request);
+		setupAttributes(form, request, atHelper);
 		setupIdentities(form, request);
 		setupGroups(form, request);
 		setupAgreements(request);
@@ -130,12 +135,12 @@ public class RegistrationMVELContext extends HashMap<String, Object>
 		put(PostConfirmationContextKey.confirmedElementType.toString(), confirmedElementType);
 	}
 	
-	private void setupAttributes(BaseForm form, BaseRegistrationInput request)
+	private void setupAttributes(BaseForm form, BaseRegistrationInput request, AttributeTypeHelper atHelper)
 	{
 		Map<String, Object> attr = new HashMap<>();
-		Map<String, List<String>> attrs = new HashMap<>();
+		Map<String, List<Object>> attrs = new HashMap<>();
 		Map<String, Object> rattr = new HashMap<>();
-		Map<String, List<String>> rattrs = new HashMap<>();
+		Map<String, List<Object>> rattrs = new HashMap<>();
 		
 		for (int i=0; i<request.getAttributes().size(); i++)
 		{
@@ -143,20 +148,33 @@ public class RegistrationMVELContext extends HashMap<String, Object>
 			Attribute attribute = request.getAttributes().get(i);
 			if (attribute == null)
 				continue;
-			Object v = attribute.getValues().isEmpty() ? "" : attribute.getValues().get(0);
+			List<Object> values = attributeValuesAsDomainObjects(attribute.getName(), 
+					attribute.getValues(), atHelper);
+			Object v = values.isEmpty() ? "" : values.get(0);
+			
 			attr.put(attribute.getName(), v);
-			attrs.put(attribute.getName(), attribute.getValues());
+			attrs.put(attribute.getName(), values);
 
 			if (attributeRegistrationParam.getRetrievalSettings().isAutomaticOnly())
 			{
 				rattr.put(attribute.getName(), v);
-				rattrs.put(attribute.getName(), attribute.getValues());				
+				rattrs.put(attribute.getName(), values);				
 			}
 		}
 		put(ContextKey.attr.name(), attr);
 		put(ContextKey.attrs.name(), attrs);
 		put(ContextKey.rattr.name(), rattr);
 		put(ContextKey.rattrs.name(), rattrs);
+	}
+	
+	private List<Object> attributeValuesAsDomainObjects(String attributeName, List<String> values, 
+			AttributeTypeHelper atHelper)
+	{
+		AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntaxForAttributeName(attributeName);
+		List<Object> ret = new ArrayList<>(values.size());
+		for (String value: values)
+			ret.add(syntax.convertFromString(value));
+		return ret;
 	}
 	
 	private void setupIdentities(BaseForm form, BaseRegistrationInput request)

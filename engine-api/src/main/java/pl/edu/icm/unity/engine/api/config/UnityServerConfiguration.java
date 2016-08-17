@@ -396,7 +396,6 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		File workspace = new File(getValue(WORKSPACE_DIRECTORY));
 		if (!workspace.exists())
 			workspace.mkdirs();
-
 		if (getBooleanValue(IGNORE_CONFIGURED_CONTENTS_SETTING) &&
 				getBooleanValue(WIPE_DB_AT_STARTUP))
 			throw new ConfigurationException("Using " + WIPE_DB_AT_STARTUP + " and " +

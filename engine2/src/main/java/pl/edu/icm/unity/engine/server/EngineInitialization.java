@@ -88,8 +88,6 @@ import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.store.rdbms.ContentsUpdater;
-import pl.edu.icm.unity.store.rdbms.InitDB;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
@@ -135,10 +133,6 @@ public class EngineInitialization extends LifecycleBase
 	private EndpointManagement endpointManager;
 	@Autowired
 	private UnityServerConfiguration config;
-	@Autowired
-	private ContentsUpdater contentsUpdater;
-	@Autowired
-	private InitDB initDB;
 	@Autowired
 	private TransactionalRunner tx;
 	@Autowired
@@ -214,11 +208,6 @@ public class EngineInitialization extends LifecycleBase
 	@Override
 	public void start()
 	{
-		updateDatabase();
-		
-		if (config.getBooleanValue(UnityServerConfiguration.WIPE_DB_AT_STARTUP))
-			initDB.resetDatabase();
-		
 		boolean skipLoading = config.getBooleanValue(
 				UnityServerConfiguration.IGNORE_CONFIGURED_CONTENTS_SETTING);
 		if (!skipLoading)
@@ -238,20 +227,6 @@ public class EngineInitialization extends LifecycleBase
 		return ENGINE_INITIALIZATION_MOMENT;
 	}
 
-	private void updateDatabase()
-	{
-		try
-		{
-			initDB.updateContents(contentsUpdater);
-		} catch (Exception e)
-		{
-			log.fatal("Update of database contents failded. You have to:\n1) Restore DB from backup\n"
-					+ "2) Use the previous version of Unity\n"
-					+ "3) Report this problem with the exception following this message to the Unity support mailing list"); 
-			throw new InternalException("Update of the database contents failed", e);
-		}
-	}
-	
 	private void initializeBackgroundTasks()
 	{
 		int interval = config.getIntValue(UnityServerConfiguration.UPDATE_INTERVAL);

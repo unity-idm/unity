@@ -17,6 +17,7 @@ import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
+import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
@@ -37,15 +38,18 @@ public class GroupHelper
 	private EntityResolver entityResolver;
 	private AttributeTypeDAO attributeTypeDAO;
 	private AttributesHelper attributesHelper;
+	private GroupDAO groupDAO;
 	
 	@Autowired
 	public GroupHelper(MembershipDAO membershipDAO, EntityResolver entityResolver,
-			AttributeTypeDAO attributeTypeDAO, AttributesHelper attributesHelper)
+			AttributeTypeDAO attributeTypeDAO, AttributesHelper attributesHelper,
+			GroupDAO groupDAO)
 	{
 		this.membershipDAO = membershipDAO;
 		this.entityResolver = entityResolver;
 		this.attributeTypeDAO = attributeTypeDAO;
 		this.attributesHelper = attributesHelper;
+		this.groupDAO = groupDAO;
 	}
 
 	/**
@@ -110,11 +114,17 @@ public class GroupHelper
 		AttributeType at = attributeTypeDAO.get(attributeName);
 		if (at.isInstanceImmutable())
 			throw new IllegalAttributeTypeException("Can not assign attribute " + at.getName() +
-					" in attribute statement as the attribute type is an internal, system attribute.");
+					" in attribute statement as the attribute type is an internal, "
+					+ "system attribute.");
 
 		Attribute fixedAttribute = statement.getFixedAttribute();
 		if (statement.getConflictResolution() != ConflictResolution.merge && fixedAttribute != null)
 			attributesHelper.validate(fixedAttribute, at);
+		
+		if (statement.getExtraAttributesGroup() != null && 
+				!groupDAO.exists(statement.getExtraAttributesGroup()))
+			throw new IllegalArgumentException("Group " + statement.getExtraAttributesGroup() + 
+					" does not exist");
 	}
 
 }

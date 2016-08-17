@@ -15,6 +15,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.store.types.StoredIdentity;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
@@ -43,14 +44,16 @@ public class IdentityCleaner
 	public void removeExpiredIdentities()
 	{
 		Map<String, IdentityType> types = idTypeDAO.getAllAsMap();
-		for (Identity identity: identityDAO.getAll())
+		for (StoredIdentity sidentity: identityDAO.getAll())
 		{
+			Identity identity = sidentity.getIdentity();
 			IdentityType identityType = types.get(identity.getTypeId());
 			IdentityTypeDefinition typeDefinition = idTypeHelper.getTypeDefinition(identityType);
 			if (typeDefinition.isExpired(identity))
 			{
 				log.debug("Removing expired identity " + identity);
-				identityDAO.delete(identity.getComparableValue());
+				identityDAO.delete(StoredIdentity.toInDBIdentityValue(identityType.getName(), 
+						identity.getComparableValue()));
 			}
 		}
 	}

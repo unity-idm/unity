@@ -239,7 +239,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		{
 			credMan.removeCredentialDefinition("credential1");
 			fail("Managed to remove credential used by authenticator");
-		} catch (IllegalCredentialException e) {}
+		} catch (IllegalArgumentException e) {}
 		authnMan.removeAuthenticator(authInstance.getId());
 		
 		
@@ -270,7 +270,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		{
 			credMan.removeCredentialDefinition("credential1");
 			fail("Managed to remove credential used by cred req");
-		} catch (IllegalCredentialException e) {}
+		} catch (IllegalArgumentException e) {}
 		
 		//add identity with cred requirements with notSet state
 		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "CN=test"), 
@@ -345,7 +345,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		setupAdmin();
 		setupPasswordAuthn();
 		createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
-		EntityParam user = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user1")); 
+		EntityParam user = new EntityParam(new IdentityTaV(UsernameIdentity.ID, DEF_USER)); 
 		assertFalse(eCredMan.isCurrentCredentialRequiredForChange(user, "credential1"));
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty").toJson());
 	}

@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.translation.form;
 
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
+import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -16,9 +17,10 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
  */
 public class RegistrationTranslationProfile extends BaseFormTranslationProfile
 {
-	public RegistrationTranslationProfile(TranslationProfile profile, RegistrationActionsRegistry registry)
+	public RegistrationTranslationProfile(TranslationProfile profile, RegistrationActionsRegistry registry,
+			AttributeTypeHelper atHelper)
 	{
-		super(profile, registry);
+		super(profile, registry, atHelper);
 	}
 	
 	@Override

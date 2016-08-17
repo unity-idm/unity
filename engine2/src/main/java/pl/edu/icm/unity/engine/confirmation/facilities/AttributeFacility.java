@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.confirmation.ConfirmationRedirectURLBuilder.ConfirmedElementType;
@@ -27,6 +28,7 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
  * 
  * @author P. Piernik
  */
+@Component
 public class AttributeFacility extends UserFacility<AttribiuteConfirmationState>
 {
 	private AttributeDAO dbAttributes;
@@ -85,11 +87,11 @@ public class AttributeFacility extends UserFacility<AttribiuteConfirmationState>
 	{
 		AttribiuteConfirmationState attrState = new AttribiuteConfirmationState(state);
 		Collection<AttributeExt> allAttrs = dbAttributes.getEntityAttributes(
-				attrState.getOwnerEntityId(), attrState.getGroup(),
-				attrState.getType());
+				attrState.getOwnerEntityId(),
+				attrState.getType(), attrState.getGroup());
 		for (AttributeExt attr : allAttrs)
 		{
-			AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(attr.getName());
+			AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(attr.getValueSyntax());
 			if (syntax.isVerifiable())
 			{
 				updateConfirmationForAttributeValues(attr.getValues(), syntax, attrState.getValue());
