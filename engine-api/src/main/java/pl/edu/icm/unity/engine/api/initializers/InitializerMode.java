@@ -21,4 +21,15 @@ public enum InitializerMode
 	{
 		return Arrays.asList(values()).stream().map(InitializerMode::name).collect(Collectors.joining(", "));
 	}
+
+	public static InitializerMode of(String name)
+	{
+		return Arrays.asList(values())
+				.stream()
+				.filter(type -> type.name().equalsIgnoreCase(name))
+				.findFirst()
+				.orElseThrow(() -> {
+					throw new IllegalArgumentException("No enum const InitializerMode." + name);
+				});
+	}
 }

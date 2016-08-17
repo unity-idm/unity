@@ -24,6 +24,17 @@ public enum InitializerType
 		this.typeName = typeName;
 	}
 
+	public static InitializerType of(String name)
+	{
+		return Arrays.asList(values())
+				.stream()
+				.filter(type -> type.name().equalsIgnoreCase(name))
+				.findFirst()
+				.orElseThrow(() -> {
+					throw new IllegalArgumentException("No enum const InitializerType." + name);
+				});
+	}
+
 	public static String typeNamesToString()
 	{
 		return Arrays.asList(values()).stream().map(InitializerType::typeName).collect(Collectors.joining(", "));
