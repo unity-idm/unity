@@ -44,7 +44,6 @@
 		<module>types-api</module>
 		<module>engine-api</module>
 		<module>engine2</module>
-		<module>persistence</module>
 		<module>base</module>
 		<module>storage-api</module>
 		<module>storage</module>
