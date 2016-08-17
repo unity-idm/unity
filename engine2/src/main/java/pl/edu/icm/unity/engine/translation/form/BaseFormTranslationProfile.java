@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.NDC;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.confirmation.ConfirmationRedirectURLBuilder;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
@@ -30,6 +31,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
@@ -59,6 +61,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 			UserRequestState<? extends BaseRegistrationInput> request) 
 			throws EngineException
 	{
+		log.debug("Executing form profile to postprocess the submitted data");
 		NDC.push("[TrProfile " + profile.getName() + "]");
 		Map<String, Object> mvelCtx = new RegistrationMVELContext(form, request.getRequest(), 
 				RequestSubmitStatus.submitted, 
@@ -71,6 +74,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 	public AutomaticRequestAction getAutoProcessAction(BaseForm form, 
 			UserRequestState<? extends BaseRegistrationInput> request, RequestSubmitStatus status)
 	{
+		log.debug("Consulting form profile to establish automatic processing action");
 		Map<String, Object> mvelCtx = new RegistrationMVELContext(form, request.getRequest(), status, 
 				request.getRegistrationContext().triggeringMode, 
 				request.getRegistrationContext().isOnIdpEndpoint,
@@ -85,12 +89,14 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 			log.error("Couldn't establish automatic request processing action from profile", e);
 			return null;
 		}
+		log.debug("Established automatic processing action: " + result.getAutoAction());
 		return result.getAutoAction();
 	}
 
 	public I18nMessage getPostSubmitMessage(BaseForm form, BaseRegistrationInput request,
 			RegistrationContext context, String requestId)
 	{
+		log.debug("Consulting form profile to establish post-submit message");
 		Map<String, Object> mvelCtx = new RegistrationMVELContext(form, request, RequestSubmitStatus.submitted, 
 				context.triggeringMode, context.isOnIdpEndpoint, requestId, atHelper);
 		TranslatedRegistrationRequest result;
@@ -108,6 +114,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 	public String getPostSubmitRedirectURL(BaseForm form, BaseRegistrationInput request,
 			RegistrationContext context, String requestId)
 	{
+		log.debug("Consulting form profile to establish post-submit redirect URL");
 		Map<String, Object> mvelCtx = new RegistrationMVELContext(form, request, RequestSubmitStatus.submitted, 
 				context.triggeringMode, context.isOnIdpEndpoint, requestId, atHelper);
 		TranslatedRegistrationRequest result;
@@ -124,6 +131,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 
 	public String getPostCancelledRedirectURL(BaseForm form, RegistrationContext context)
 	{
+		log.debug("Consulting form profile to establish post-cancel redirect URL");
 		Map<String, Object> mvelCtx = new RegistrationMVELContext(form, RequestSubmitStatus.notSubmitted, 
 				context.triggeringMode, context.isOnIdpEndpoint);
 		TranslatedRegistrationRequest result;
@@ -150,16 +158,19 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 	public String getPostConfirmationRedirectURL(BaseForm form, UserRequestState<?> request,
 			Attribute confirmed, String requestId)
 	{
+		AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntaxForAttributeName(confirmed.getName());
+		VerifiableElement parsed = (VerifiableElement) syntax.convertFromString(confirmed.getValues().get(0));
 		return getPostConfirmationRedirectURL(form, request.getRequest(), request.getRegistrationContext(),
 				requestId,
 				ConfirmationRedirectURLBuilder.ConfirmedElementType.attribute.toString(), 
-				confirmed.getName(), confirmed.getValues().get(0).toString());
+				confirmed.getName(), parsed.getValue());
 	}
 	
 	private String getPostConfirmationRedirectURL(BaseForm form, BaseRegistrationInput request,
 			RegistrationContext regContxt, String requestId, 
 			String cType, String cName, String cValue)
 	{
+		log.debug("Consulting form profile to establish post-confirmation redirect URL");
 		RegistrationMVELContext mvelCtx = new RegistrationMVELContext(form, request, 
 				RequestSubmitStatus.submitted, 
 				regContxt.triggeringMode, regContxt.isOnIdpEndpoint, requestId, atHelper);

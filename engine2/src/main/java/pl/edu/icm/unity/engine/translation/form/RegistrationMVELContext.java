@@ -203,7 +203,7 @@ public class RegistrationMVELContext extends HashMap<String, Object>
 				valsObj = new ArrayList<>();
 				idsByTypeObj.put(identityParam.getTypeId(), valsObj);
 			}
-			valsObj.add(identityParam.getValue());
+			valsObj.add(identityParam);
 			
 			
 			if (identityRegistrationParam.getRetrievalSettings().isAutomaticOnly())
@@ -222,7 +222,7 @@ public class RegistrationMVELContext extends HashMap<String, Object>
 					rvalsObj = new ArrayList<>();
 					ridsByTypeObj.put(identityParam.getTypeId(), rvalsObj);
 				}
-				rvalsObj.add(identityParam.getValue());			
+				rvalsObj.add(identityParam);			
 			}
 		}
 
