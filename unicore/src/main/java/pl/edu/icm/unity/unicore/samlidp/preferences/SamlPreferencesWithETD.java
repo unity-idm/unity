@@ -107,7 +107,7 @@ public class SamlPreferencesWithETD extends SamlPreferences
 	}
 	
 	public static SamlPreferencesWithETD getPreferences(PreferencesManagement preferencesMan, 
-			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry) throws EngineException
+			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry)
 	{
 		SamlPreferencesWithETD ret = new SamlPreferencesWithETD(attributeSyntaxFactoriesRegistry);
 		initPreferencesGeneric(preferencesMan, ret, SamlPreferencesWithETD.ID);

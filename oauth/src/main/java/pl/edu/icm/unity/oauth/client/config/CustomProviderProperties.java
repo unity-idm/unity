@@ -4,35 +4,43 @@
  */
 package pl.edu.icm.unity.oauth.client.config;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.oauth.client.UserProfileFetcher.ClientAuthnMode;
-import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityPropertiesHelper;
-import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.oauth.BaseRemoteASProperties;
+import pl.edu.icm.unity.oauth.client.UserProfileFetcher;
+import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
+import pl.edu.icm.unity.oauth.client.profile.OpenIdProfileFetcher;
+import pl.edu.icm.unity.oauth.client.profile.PlainProfileFetcher;
+import pl.edu.icm.unity.server.api.PKIManagement;
+import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.UnityPropertiesHelper;
+import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 /**
  * Configuration of OAuth client for custom provider.
  * @author K. Benedyczak
  */
-public class CustomProviderProperties extends UnityPropertiesHelper
+public class CustomProviderProperties extends UnityPropertiesHelper implements BaseRemoteASProperties
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, CustomProviderProperties.class);
 	
 	public enum AccessTokenFormat {standard, httpParams};
+	public enum ClientAuthnMode {secretPost, secretBasic};
 	
 	@DocumentationReferencePrefix
 	public static final String P = "unity.oauth2.client.CLIENT_ID.";
@@ -40,18 +48,13 @@ public class CustomProviderProperties extends UnityPropertiesHelper
 	public static final String PROVIDER_TYPE = "type";
 	public static final String PROVIDER_LOCATION = "authEndpoint";
 	public static final String ACCESS_TOKEN_ENDPOINT = "accessTokenEndpoint";
-	public static final String PROFILE_ENDPOINT = "profileEndpoint";
 	public static final String PROVIDER_NAME = "name";
-	public static final String CLIENT_ID = "clientId";
-	public static final String CLIENT_SECRET = "clientSecret";
-	public static final String CLIENT_AUTHN_MODE = "clientAuthenticationMode";
 	public static final String SCOPES = "scopes";
 	public static final String ACCESS_TOKEN_FORMAT = "accessTokenFormat";
 	public static final String OPENID_CONNECT = "openIdConnect";
 	public static final String OPENID_DISCOVERY = "openIdConnectDiscoveryEndpoint";
 	public static final String ICON_URL = "iconUrl";
-	public static final String CLIENT_TRUSTSTORE = "httpClientTruststore";
-	public static final String CLIENT_HOSTNAME_CHECKING = "httpClientHostnameChecking";
+	public static final String ADDITIONAL_AUTHZ_PARAMS = "extraAuthzParams.";
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
@@ -113,9 +116,10 @@ public class CustomProviderProperties extends UnityPropertiesHelper
 		META.put(CommonWebAuthnProperties.TRANSLATION_PROFILE, new PropertyMD().setMandatory().
 				setDescription("Translation profile which will be used to map received user "
 						+ "information to a local representation."));
-		META.put(CommonWebAuthnProperties.ENABLE_ASSOCIATION, new PropertyMD("true").
+		META.put(CommonWebAuthnProperties.ENABLE_ASSOCIATION, new PropertyMD().
 				setDescription("If true then unknown remote user gets an option to associate "
-						+ "the remote identity with an another local (already existing) account."));
+						+ "the remote identity with an another local "
+						+ "(already existing) account. Overrides the global setting."));
 		META.put(CLIENT_HOSTNAME_CHECKING, new PropertyMD(ServerHostnameCheckingMode.FAIL).
 				setDescription("Controls how to react on the DNS name mismatch with "
 						+ "the server's certificate. Unless in testing environment "
@@ -123,6 +127,10 @@ public class CustomProviderProperties extends UnityPropertiesHelper
 		META.put(CLIENT_TRUSTSTORE, new PropertyMD().setDescription("Name of the truststore which should be used"
 				+ " to validate TLS peer's certificates. "
 				+ "If undefined then the system Java tuststore is used."));
+		META.put(ADDITIONAL_AUTHZ_PARAMS, new PropertyMD().setList(false).
+				setDescription("Allows to specify non-standard, fixed parameters which shall be "
+						+ "added to the query string of the authorization redirect request. "
+						+ "format must be: PARAM=VALUE"));
 	}
 	
 	private X509CertChainValidator validator = null;
@@ -172,14 +180,45 @@ public class CustomProviderProperties extends UnityPropertiesHelper
 		}
 	}
 
+	public UserProfileFetcher getUserAttributesResolver()
+	{
+		boolean openIdConnectMode = getBooleanValue(OPENID_CONNECT);
+		return openIdConnectMode ? new OpenIdProfileFetcher() : new PlainProfileFetcher();
+	}
+	
 	public Properties getProperties()
 	{
 		return properties;
 	}
 	
-	
+	@Override
 	public X509CertChainValidator getValidator()
 	{
 		return validator;
+	}
+	
+	public List<NameValuePair> getAdditionalAuthzParams()
+	{
+		List<String> raw = getListOfValues(ADDITIONAL_AUTHZ_PARAMS);
+		List<NameValuePair> ret = new ArrayList<>(raw.size());
+		for (String rawParam: raw)
+		{
+			int splitAt = rawParam.indexOf('=');
+			if (splitAt == -1)
+			{
+				log.warn("Specification of extra authz query parameter is invalid, no '=': " + 
+						rawParam + " ignoring it");
+				continue;
+			}
+			if (splitAt == rawParam.length()-1)
+			{
+				log.warn("Specification of extra authz query parameter is invalid, no value: " + 
+						rawParam + " ignoring it");
+				continue;
+			}
+			ret.add(new BasicNameValuePair(
+					rawParam.substring(0, splitAt), rawParam.substring(splitAt+1)));
+		}
+		return ret;
 	}
 }

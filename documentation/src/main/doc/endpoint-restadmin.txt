@@ -13,6 +13,14 @@ server's base URL, endpoint deployment's path (as configured) and API version (c
 Example query path can be similar to:
 
    https://unity.example.com/rest-admin/v1/entity/1
+   
+
+NOTE: All operations which are operating on a single entity allow since version 1.9.4 to use
+three different types of entity selectors. Entity can be specified as an integer number being the internal 
+database identifier of entity in Unity --- this is the only option available in older versions. Alternatively
+entity's persistentId can be used. Finally any other identity can be used to select identity, however then 
+a query parameter +identityType+ must be used to provide the intended identity type.
+
 
 ==== API reference
 
@@ -61,6 +69,7 @@ Example output:
 '''
 
 +@Path("/entity/{entityId}")+ +
++@QueryParam("identityType")+ +
 +@GET+ +
 
 Returns information about a given entity, including its status and all identities.
@@ -102,6 +111,7 @@ Example output:
 '''
 	
 +@Path("/entity/{entityId}/groups")+ +
++@QueryParam("identityType")+ +
 +@GET+ +
  Returns all groups the entity is member of.
 
@@ -116,6 +126,7 @@ Example output:
 +@Path("/entity/{entityId}/attributes")+ +
 +@QueryParam("group")+ +
 +@QueryParam("effective")+ +
++@QueryParam("identityType")+ +
 +@GET+ +
 
 Returns attributes of a given entity in a selected group. Values are encoded using simple mapping if possible
@@ -194,6 +205,7 @@ Example output:
 '''
 
 +@Path("/entity/{entityId}/identity/{type}/{value}")+ +
++@QueryParam("identityType")+ +
 +@POST+ +
 
 Creates a new identity for the given entity. No content is returned. Note that for e-mail identities the regular Unity
@@ -202,6 +214,7 @@ conventions can be used to control confirmation state and tags - see <<email-enc
 '''
 
 +@Path("/entity/{entityId}")+ +
++@QueryParam("identityType")+ +
 +@DELETE+ +
 
 Removes the given entity. No content is returned.
@@ -210,6 +223,7 @@ Removes the given entity. No content is returned.
 
 +@Path("/entity/{entityId}/removal-schedule")+ +
 +@QueryParam("when")+
++@QueryParam("identityType")+ +
 +@PUT+ +
 
 Sets the entity in the state where it can only login and schedules its removal at given 
@@ -221,6 +235,7 @@ allowed to be called on self .
 +@Path("/entity/{entityId}/admin-schedule")+ +
 +@QueryParam("when")+
 +@QueryParam("operation")+
++@QueryParam("identityType")+ +
 +@PUT+ +
 
 Schedules an operation to be invoked at a given time on an entity. Must be called by privileged user. Allowed
@@ -236,6 +251,7 @@ Removes the given identity. No content is returned.
 '''
 
 +@Path("/group/{groupPath}/entity/{entityId}")+ +
++@QueryParam("identityType")+ +
 +@POST+ +
 
 Adds the given entity as a member to a group. Note that group must be URL encoded, the +/+ character should be 
@@ -244,6 +260,7 @@ given as +%2F+. No content is returned.
 '''
 
 +@Path("/group/{groupPath}/entity/{entityId}")+ +
++@QueryParam("identityType")+ +
 +@DELETE+ +
 
 Removes a given entity from a group. Note that group must be URL encoded, the +/+ character should be 
@@ -252,6 +269,7 @@ given as +%2F+. No content is returned.
 '''
 
 +@Path("/entity/{entityId}/attribute")+ +
++@QueryParam("identityType")+ +
 +@PUT+ +
 +@Consumes(MediaType.APPLICATION_JSON)+ +
 
@@ -277,6 +295,7 @@ and +direct+ shall not be used. No content is returned. Example attribute encode
 '''
 
 +@Path("/entity/{entityId}/attributes")+ +
++@QueryParam("identityType")+ +
 +@PUT+ +
 +@Consumes(MediaType.APPLICATION_JSON)+ +
 
@@ -287,6 +306,7 @@ set attribute operation.
 '''
 
 +@Path("/entity/{entityId}/attribute/{attributeName}")+ +
++@QueryParam("identityType")+ +
 +@QueryParam("group")+ +
 +@DELETE+ +
 
@@ -295,6 +315,7 @@ Removes the given attribute of an entity. No content is returned.
 '''
 
 +@Path("/entity/{entityId}/credential-adm/{credential}")+ +
++@QueryParam("identityType")+ +
 +@PUT+ +
 +@Consumes(MediaType.APPLICATION_JSON)+ +
 
@@ -310,6 +331,7 @@ is carried in the JSON body. No content is returned. For the password credential
 '''
 
 +@Path("/entity/{entityId}/credential/{credential}")+ +
++@QueryParam("identityType")+ +
 +@PUT+ +
 +@Consumes(MediaType.APPLICATION_JSON)+ +
 
@@ -405,6 +427,7 @@ Triggers sending of confirmation message of identity. Nearly always it is a re-s
 
 +@Path("/confirmation-trigger/entity/{entityId}/attribute/{attributeName}")+ +
 +@QueryParam("group")+ +
++@QueryParam("identityType")+ +
 +@POST+ +
 
 Triggers sending of confirmation message for an attribute. Nearly always it is a re-send.

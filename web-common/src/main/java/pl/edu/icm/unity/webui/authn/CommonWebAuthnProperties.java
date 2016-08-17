@@ -8,10 +8,10 @@ package pl.edu.icm.unity.webui.authn;
  * Groups definitions of property names which are used in multiple authenticators. 
  * @author K. Benedyczak
  */
-public interface CommonWebAuthnProperties
+public final class CommonWebAuthnProperties
 {
-	static final String REGISTRATION_FORM = "registrationFormForUnknown";
-	static final String TRANSLATION_PROFILE = "translationProfile";
-	static final String ENABLE_ASSOCIATION = "enableAccountAssociation";
-
+	public static final String REGISTRATION_FORM = "registrationFormForUnknown";
+	public static final String TRANSLATION_PROFILE = "translationProfile";
+	public static final String ENABLE_ASSOCIATION = "enableAccountAssociation";
+	public static final String DEF_ENABLE_ASSOCIATION = "defaultEnableAccountAssociation";
 }

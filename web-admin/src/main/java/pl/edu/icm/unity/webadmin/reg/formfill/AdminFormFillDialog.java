@@ -4,19 +4,20 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formfill;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
-import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.forms.BaseRequestEditor;
-
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
+import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.forms.BaseRequestEditor;
 
 /**
  * Dialog allowing to fill an enquiry or registration form. Intended to be used from the AdminUI.
@@ -84,8 +85,10 @@ public class AdminFormFillDialog<T extends BaseRegistrationInput> extends Abstra
 			T request = editor.getRequest();
 			if (callback.newRequest(request, autoAccept))
 				close();
-		} catch (FormValidationException e) 
+		} catch (Exception e) 
 		{
+			if (e instanceof IllegalFormContentsException)
+				editor.markErrorsFromException((IllegalFormContentsException) e);
 			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
 			return;
 		}
@@ -93,7 +96,7 @@ public class AdminFormFillDialog<T extends BaseRegistrationInput> extends Abstra
 	
 	public interface Callback<T>
 	{
-		boolean newRequest(T request, boolean autoAccept);
+		boolean newRequest(T request, boolean autoAccept) throws WrongArgumentException;
 		void cancelled();
 	}
 	

@@ -4,18 +4,21 @@
  */
 package pl.edu.icm.unity.webui.common.provider;
 
+import org.apache.log4j.Logger;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
+import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.JsonSerializable;
 import pl.edu.icm.unity.types.basic.EntityParam;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 
 /**
@@ -25,6 +28,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public abstract class IdPPreferences implements JsonSerializable
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdPPreferences.class);
 	protected final ObjectMapper mapper = Constants.MAPPER;
 
 	@Override
@@ -61,7 +65,6 @@ public abstract class IdPPreferences implements JsonSerializable
 	protected abstract void deserializeAll(ObjectNode main);
 	
 	public static void initPreferencesGeneric(PreferencesManagement preferencesMan, JsonSerializable toInit, String id) 
-			throws EngineException
 	{
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		EntityParam entity = new EntityParam(ae.getEntityId());
@@ -70,10 +73,15 @@ public abstract class IdPPreferences implements JsonSerializable
 
 	public static void initPreferencesGeneric(PreferencesManagement preferencesMan, JsonSerializable toInit, 
 			String id, EntityParam entity) 
-			throws EngineException
 	{
-		String raw = preferencesMan.getPreference(entity, id);
-		toInit.setSerializedConfiguration(raw);
+		try
+		{
+			String raw = preferencesMan.getPreference(entity, id);
+			toInit.setSerializedConfiguration(raw);
+		} catch (Exception e)
+		{
+			log.debug("It was impossible to establish preferences for " + entity + " will use defaults", e);
+		}
 	}
 	
 	public static void savePreferencesGeneric(PreferencesManagement preferencesMan, JsonSerializable preferences, String id) 

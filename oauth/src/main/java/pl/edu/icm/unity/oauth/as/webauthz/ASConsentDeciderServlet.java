@@ -15,6 +15,15 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
+import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
+import com.nimbusds.oauth2.sdk.AuthorizationResponse;
+import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
+import com.nimbusds.oauth2.sdk.ErrorObject;
+import com.nimbusds.oauth2.sdk.OAuth2Error;
+import com.nimbusds.oauth2.sdk.SerializeException;
+import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+
+import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
@@ -30,20 +39,9 @@ import pl.edu.icm.unity.server.translation.ExecutionFailException;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.RoutingServlet;
-import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-
-import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
-import com.nimbusds.oauth2.sdk.AuthorizationResponse;
-import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
-import com.nimbusds.oauth2.sdk.ErrorObject;
-import com.nimbusds.oauth2.sdk.OAuth2Error;
-import com.nimbusds.oauth2.sdk.SerializeException;
-import com.nimbusds.oauth2.sdk.http.HTTPResponse;
-
-import eu.unicore.samly2.exceptions.SAMLRequesterException;
 
 /**
  * Invoked after authentication, main OAuth AS servlet. It decides whether the request should be
@@ -153,7 +151,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 		try
 		{
 			TranslationResult userInfo = getUserInfo(oauthCtx);
-			IdentityParam selectedIdentity = getIdentity(userInfo);
+			IdentityParam selectedIdentity = getIdentity(userInfo, oauthCtx.getSubjectIdentityType());
 			log.debug("Authentication of " + selectedIdentity);
 			Collection<Attribute<?>> attributes = processor.filterAttributes(userInfo, oauthCtx.getRequestedAttrs());
 			respDoc = processor.prepareAuthzResponseAndRecordInternalState(attributes, selectedIdentity, 
@@ -199,14 +197,15 @@ public class ASConsentDeciderServlet extends HttpServlet
 		return translationResult;
 	}
 	
-	protected IdentityParam getIdentity(TranslationResult userInfo) 
+	protected IdentityParam getIdentity(TranslationResult userInfo, String subjectIdentityType) 
 			throws EngineException, SAMLRequesterException
 	{
 		for (IdentityParam id: userInfo.getIdentities())
-			if (TargetedPersistentIdentity.ID.equals(id.getTypeId()))
+			if (subjectIdentityType.equals(id.getTypeId()))
 				return id;
-		throw new IllegalStateException("There is no targeted persistent identity "
-					+ "for the authenticated user");
+		throw new IllegalStateException("There is no " + subjectIdentityType + " identity "
+				+ "for the authenticated user, sub claim can not be created. "
+				+ "Probably the endpoint is misconfigured.");
 	}
 	
 	private OAuthAuthzContext getOAuthContext(HttpServletRequest req)

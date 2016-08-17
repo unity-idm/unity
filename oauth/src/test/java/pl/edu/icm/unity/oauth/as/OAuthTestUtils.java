@@ -26,6 +26,7 @@ import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
+import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
@@ -83,7 +84,8 @@ public class OAuthTestUtils
 				300, 
 				"https://localhost:2443/oauth-as", 
 				credential,
-				false);
+				false,
+				TargetedPersistentIdentity.ID);
 		ctx.setClientEntityId(clientEntityId);
 		ctx.setClientUsername("clientC");
 		ctx.setFlow(grant);

@@ -290,7 +290,7 @@ public class CredentialsPanel extends VerticalLayout
 		{
 			NotificationPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
 			credEditor.setPreviousCredentialError(null);
-			credEditor.setCredentialError(e.getMessage());
+			credEditor.setCredentialError(e);
 			return;
 		} catch (Exception e)
 		{

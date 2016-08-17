@@ -21,10 +21,6 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 
-import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
-import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
@@ -32,6 +28,9 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import net.minidev.json.JSONObject;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
+import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 
 /**
  * Wrapper of {@link HTTPRequest} with customized TLS setup.
@@ -109,6 +108,8 @@ public class CustomHTTPSRequest extends HTTPRequest
 			conn.setRequestProperty("Authorization", wrapped.getAuthorization());
 
 		conn.setRequestMethod(method.name());
+		for (Map.Entry<String,String> header: wrapped.getHeaders().entrySet())
+			conn.setRequestProperty(header.getKey(), header.getValue());
 
 		if (method.equals(HTTPRequest.Method.POST) || method.equals(Method.PUT)) {
 
@@ -142,6 +143,7 @@ public class CustomHTTPSRequest extends HTTPRequest
 		BufferedReader reader;
 
 		try {
+			
 			// Open a connection, then send method and headers
 			reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), 
 					StandardCharsets.UTF_8));
@@ -281,5 +283,11 @@ public class CustomHTTPSRequest extends HTTPRequest
 	public JSONObject getQueryAsJSONObject() throws ParseException
 	{
 		return wrapped.getQueryAsJSONObject();
+	}
+	
+	@Override
+	public void setHeader(final String name, final String value) 
+	{
+		wrapped.setHeader(name, value);
 	}
 }

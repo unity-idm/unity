@@ -13,6 +13,20 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.google.gwt.thirdparty.guava.common.collect.Lists;
+import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
+import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
+import com.nimbusds.oauth2.sdk.ErrorObject;
+import com.nimbusds.oauth2.sdk.OAuth2Error;
+import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+import com.vaadin.annotations.Theme;
+import com.vaadin.server.Resource;
+import com.vaadin.server.VaadinRequest;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
+
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
@@ -30,7 +44,6 @@ import pl.edu.icm.unity.server.translation.ExecutionFailException;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -48,20 +61,6 @@ import pl.edu.icm.unity.webui.common.provider.SPInfoComponent;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
-
-import com.google.gwt.thirdparty.guava.common.collect.Lists;
-import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
-import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
-import com.nimbusds.oauth2.sdk.ErrorObject;
-import com.nimbusds.oauth2.sdk.OAuth2Error;
-import com.nimbusds.oauth2.sdk.http.HTTPResponse;
-import com.vaadin.annotations.Theme;
-import com.vaadin.server.Resource;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * UI of the authorization endpoint, responsible for getting consent after resource owner login.
@@ -188,7 +187,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 			
 			TranslationResult translationResult = getUserInfo(ctx);
 			
-			createIdentityPart(translationResult, eiLayout);
+			createIdentityPart(translationResult, eiLayout, ctx.getSubjectIdentityType());
 			
 			attrsPresenter = new ExposedAttributesComponent(msg, handlersRegistry, 
 					oauthProcessor.filterAttributes(translationResult, ctx.getRequestedAttrs()));
@@ -215,19 +214,21 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		contents.addComponent(rememberCB);
 	}
 	
-	private void createIdentityPart(TranslationResult translationResult, VerticalLayout contents) 
+	private void createIdentityPart(TranslationResult translationResult, VerticalLayout contents,
+			String subjectIdentityType) 
 			throws EngineException
 	{
 		IdentityParam validIdentity = null;
 		for (IdentityParam id: translationResult.getIdentities())
-			if (TargetedPersistentIdentity.ID.equals(id.getTypeId()))
+			if (subjectIdentityType.equals(id.getTypeId()))
 			{
 				validIdentity = id;
 				break;
 			}
 		if (validIdentity == null)
-			throw new IllegalStateException("There is no targeted persistent identity "
-					+ "for the authenticated user");
+			throw new IllegalStateException("There is no " + subjectIdentityType + " identity "
+					+ "for the authenticated user, sub claim can not be created. "
+					+ "Probably the endpoint is misconfigured.");
 		idSelector = new IdentitySelectorComponent(msg, identityTypesRegistry, 
 				Lists.newArrayList(validIdentity));
 		contents.addComponent(idSelector);

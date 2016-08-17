@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
@@ -85,7 +86,7 @@ public class AdminRegistrationFormLauncher implements RegistrationFormDialogProv
 	}
 
 	protected boolean addRequest(RegistrationRequest request, boolean andAccept, RegistrationForm form, 
-			TriggeringMode mode)
+			TriggeringMode mode) throws WrongArgumentException
 	{
 		RegistrationContext context = new RegistrationContext(!andAccept, 
 				idpLoginController.isLoginInProgress(), mode);
@@ -94,6 +95,9 @@ public class AdminRegistrationFormLauncher implements RegistrationFormDialogProv
 		{
 			id = registrationsManagement.submitRegistrationRequest(request, context);
 			bus.fireEvent(new RegistrationRequestChangedEvent(id));
+		}  catch (WrongArgumentException e)
+		{
+			throw e;
 		} catch (EngineException e)
 		{
 			new PostFormFillingHandler(idpLoginController, form, msg, 
@@ -160,7 +164,8 @@ public class AdminRegistrationFormLauncher implements RegistrationFormDialogProv
 				editor, new AdminFormFillDialog.Callback<RegistrationRequest>()
 				{
 					@Override
-					public boolean newRequest(RegistrationRequest request, boolean autoAccept)
+					public boolean newRequest(RegistrationRequest request, boolean autoAccept) 
+							throws WrongArgumentException
 					{
 						return addRequest(request, autoAccept, form, mode);
 					}

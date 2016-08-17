@@ -274,12 +274,16 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			log.error("Runtime error during OAuth2 response processing or principal mapping", e);
 			authnResult = new AuthenticationResult(Status.deny, null);
 		}
-		CustomProviderProperties providerProps = credentialExchange.getSettings().getProvider(
+		
+		OAuthClientProperties clientProperties = credentialExchange.getSettings();
+		CustomProviderProperties providerProps = clientProperties.getProvider(
 				authnContext.getProviderConfigKey()); 
 		String regFormForUnknown = providerProps.getValue(CommonWebAuthnProperties.REGISTRATION_FORM);
 		if (regFormForUnknown != null)
 			authnResult.setFormForUnknownPrincipal(regFormForUnknown);
-		boolean enableAssociation = providerProps.getBooleanValue(CommonWebAuthnProperties.ENABLE_ASSOCIATION);
+		boolean enableAssociation = providerProps.isSet(CommonWebAuthnProperties.ENABLE_ASSOCIATION) ?
+				providerProps.getBooleanValue(CommonWebAuthnProperties.ENABLE_ASSOCIATION) :
+				clientProperties.getBooleanValue(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION);
 		authnResult.setEnableAssociation(enableAssociation);
 		
 		if (authnResult.getStatus() == Status.success || 
