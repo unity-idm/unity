@@ -12,7 +12,7 @@ import javax.ws.rs.ext.Provider;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.base.utils.Log;
 
 /**
  * Maps NullPointerException to HTTP error responses. No details are exposed to the client.

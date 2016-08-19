@@ -10,16 +10,16 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
+import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.api.internal.NetworkServer;
-import pl.edu.icm.unity.server.api.internal.SessionManagement;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * RESTful endpoint for managing simple JWT authn: issuing, refreshing and invalidation of tokens.
@@ -30,13 +30,13 @@ public class JWTManagementEndpoint extends RESTEndpoint
 {
 	private TokensManagement tokensMan;
 	private PKIManagement pkiManagement;
-	private IdentitiesManagement identitiesMan;
+	private EntityManagement identitiesMan;
 	private JWTAuthenticationProperties config;
 	
 	public JWTManagementEndpoint(UnityMessageSource msg, SessionManagement sessionMan,
 			AuthenticationProcessor authenticationProcessor,
 			String servletPath, TokensManagement tokensMan,
-			PKIManagement pkiManagement, NetworkServer networkServer, IdentitiesManagement identitiesMan)
+			PKIManagement pkiManagement, NetworkServer networkServer, EntityManagement identitiesMan)
 	{
 		super(msg, sessionMan, authenticationProcessor, networkServer, servletPath);
 		this.tokensMan = tokensMan;

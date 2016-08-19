@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.types.JsonError;
 
 /**

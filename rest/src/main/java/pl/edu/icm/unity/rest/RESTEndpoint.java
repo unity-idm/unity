@@ -32,6 +32,16 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
+import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
+import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
+import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
 import pl.edu.icm.unity.rest.exception.EngineExceptionMapper;
@@ -40,17 +50,7 @@ import pl.edu.icm.unity.rest.exception.JSONExceptionMapper;
 import pl.edu.icm.unity.rest.exception.JSONParseExceptionMapper;
 import pl.edu.icm.unity.rest.exception.JSONParsingExceptionMapper;
 import pl.edu.icm.unity.rest.exception.NPEExceptionMapper;
-import pl.edu.icm.unity.server.api.internal.NetworkServer;
-import pl.edu.icm.unity.server.api.internal.SessionManagement;
-import pl.edu.icm.unity.server.authn.AuthenticationOption;
-import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
-import pl.edu.icm.unity.server.endpoint.AbstractWebEndpoint;
-import pl.edu.icm.unity.server.endpoint.BindingAuthn;
-import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * JAX-RS (REST) endpoint based on CXF.
@@ -106,7 +106,7 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 	protected void addNotProtectedPaths(String... paths)
 	{
 		for (String path: paths)
-			notProtectedPaths.add(description.getContextAddress() + path);
+			notProtectedPaths.add(description.getEndpoint().getContextAddress() + path);
 	}
 	
 	protected abstract Application getApplication();
@@ -132,7 +132,7 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 	public ServletContextHandler getServletContextHandler()
 	{
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
-		context.setContextPath(description.getContextAddress());
+		context.setContextPath(description.getEndpoint().getContextAddress());
 		
 		CXFNonSpringServlet cxfServlet = new CXFNonSpringServlet();
 		Bus bus = BusFactory.newInstance().createBus();

@@ -7,9 +7,9 @@ package pl.edu.icm.unity.rest.jwt.authn;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.authn.CredentialVerificator;
-import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
+import pl.edu.icm.unity.engine.api.authn.CredentialVerificatorFactory;
 
 /**
  * Factory of JWT verificators.

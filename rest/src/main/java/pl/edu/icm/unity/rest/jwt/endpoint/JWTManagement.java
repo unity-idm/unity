@@ -7,6 +7,7 @@ package pl.edu.icm.unity.rest.jwt.endpoint;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import javax.ws.rs.BadRequestException;
@@ -21,25 +22,23 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties;
-import pl.edu.icm.unity.rest.jwt.JWTUtils;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Identity;
-
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.JWTClaimsSet;
 
 import eu.emi.security.authn.x509.X509Credential;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties;
+import pl.edu.icm.unity.rest.jwt.JWTUtils;
+import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
+import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Identity;
 
 /**
  * JWT tokens management implementation implemented as JAX-RS resource object.
@@ -52,13 +51,13 @@ public class JWTManagement
 	public static final String JWT_TOKEN_ID = "simpleJWT";
 	
 	private TokensManagement tokensMan;
-	private IdentitiesManagement identitiesMan;
+	private EntityManagement identitiesMan;
 	private PKIManagement pkiManagement;
 	private String audience;
 	private String issuer;
 	private JWTAuthenticationProperties config;
 
-	public JWTManagement(TokensManagement tokensMan, PKIManagement pkiManagement, IdentitiesManagement identitiesMan,
+	public JWTManagement(TokensManagement tokensMan, PKIManagement pkiManagement, EntityManagement identitiesMan,
 			String realm, String address, JWTAuthenticationProperties config)
 	{
 		this.tokensMan = tokensMan;
@@ -99,7 +98,7 @@ public class JWTManagement
 		try
 		{
 			tokensMan.getTokenById(JWT_TOKEN_ID, claims.getJWTID());
-		} catch (WrongArgumentException e)
+		} catch (IllegalArgumentException e)
 		{
 			throw new ClientErrorException(Response.Status.GONE);
 		}
@@ -120,7 +119,7 @@ public class JWTManagement
 		try
 		{
 			tokensMan.removeToken(JWT_TOKEN_ID, claims.getJWTID());
-		} catch (WrongArgumentException e)
+		} catch (IllegalArgumentException e)
 		{
 			throw new ClientErrorException(Response.Status.GONE);
 		}
@@ -215,7 +214,7 @@ public class JWTManagement
 					+ "entity id is " + entityId.getEntityId(), e);
 			throw new InternalServerErrorException();
 		}
-		Identity[] ids = entity.getIdentities();
+		List<Identity> ids = entity.getIdentities();
 		for (Identity id: ids)
 		{
 			if (PersistentIdentity.ID.equals(id.getTypeId()))
