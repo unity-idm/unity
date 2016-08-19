@@ -54,7 +54,7 @@ import static pl.edu.icm.unity.ldap.client.LdapProperties.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
-public class LdapTests
+public class LdapTest
 {
 	private static InMemoryDirectoryServer ds;
 	private static String port;
@@ -485,7 +485,7 @@ public class LdapTests
 		LdapClient client = new LdapClient("test");
 		RemotelyAuthenticatedInput ret = client.bindAndSearch("User2 Surname", "user1", clientConfig);
 
-		assertEquals(5, ret.getAttributes().size());
+		assertEquals(1, ret.getAttributes().size());
 		assertTrue(containsAttribute(ret.getAttributes(), "sn", "User2 Surname"));
 	}
 
