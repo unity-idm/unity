@@ -6,11 +6,5 @@
 
 	<context:annotation-config/>
 
-	<bean class="pl.edu.icm.unity.ws.authn.ext.HttpBasicRetrievalFactory"/>
-	<bean class="pl.edu.icm.unity.ws.authn.ext.TLSRetrievalFactory"/>
-	<bean class="pl.edu.icm.unity.ws.authn.ext.JWTRetrievalFactory"/>
-
-	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
-		<property name="bundle" value="pl/edu/icm/unity/ws/messages/messages"/>
-	</bean>
+	<context:component-scan base-package="pl.edu.icm.unity.ws"/>
 </beans>
