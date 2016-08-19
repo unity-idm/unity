@@ -65,7 +65,7 @@ public class UserConfirmationState extends BaseConfirmationState
 	}
 	
 	@Override
-	protected void setSerializedConfiguration(ObjectNode main) throws WrongArgumentException
+	protected void setSerializedConfiguration(ObjectNode main)
 	{
 		super.setSerializedConfiguration(main);
 		try
@@ -73,7 +73,7 @@ public class UserConfirmationState extends BaseConfirmationState
 			ownerEntityId = main.get("ownerEntityId").asLong();	
 		} catch (Exception e)
 		{
-			throw new WrongArgumentException("Can't perform JSON deserialization", e);
+			throw new IllegalArgumentException("Can't perform JSON deserialization", e);
 		}
 
 	}

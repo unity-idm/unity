@@ -16,7 +16,6 @@ import pl.edu.icm.unity.engine.api.confirmation.ConfirmationStatus;
 import pl.edu.icm.unity.engine.api.confirmation.states.IdentityConfirmationState;
 import pl.edu.icm.unity.engine.identity.IdentityTypeHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
@@ -107,7 +106,7 @@ public class IdentityFacility extends UserFacility<IdentityConfirmationState>
 	}
 
 	@Override
-	public IdentityConfirmationState parseState(String state) throws WrongArgumentException
+	public IdentityConfirmationState parseState(String state)
 	{
 		return new IdentityConfirmationState(state);
 	}

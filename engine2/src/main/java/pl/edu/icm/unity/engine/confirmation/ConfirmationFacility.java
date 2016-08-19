@@ -7,7 +7,6 @@ package pl.edu.icm.unity.engine.confirmation;
 import pl.edu.icm.unity.engine.api.confirmation.ConfirmationStatus;
 import pl.edu.icm.unity.engine.api.confirmation.states.BaseConfirmationState;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.DescribedObject;
 
 /**
@@ -44,7 +43,7 @@ public interface ConfirmationFacility<T extends BaseConfirmationState> extends D
 	
 	/**
 	 * Parses the given state string token
-	 * @throws {@link WrongArgumentException} if the token is of incompatible type 
+	 * @throws {@link IllegalArgumentException} if the token is of incompatible type 
 	 */
-	T parseState(String contents) throws WrongArgumentException;
+	T parseState(String contents);
 }

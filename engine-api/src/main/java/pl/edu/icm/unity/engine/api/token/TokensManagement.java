@@ -10,7 +10,6 @@ import java.util.List;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
@@ -39,12 +38,11 @@ public interface TokensManagement
 	 * @param created creation timestamp. It is guaranteed to be stored with second precision, though implementation
 	 * might also store the full time.
 	 * @param expires precision as in created case.
-	 * @throws WrongArgumentException
 	 * @throws IllegalIdentityValueException
 	 * @throws IllegalTypeException
 	 */
 	void addToken(String type, String value, EntityParam owner, byte[] contents, Date created, Date expires) 
-			throws WrongArgumentException, IllegalIdentityValueException, IllegalTypeException;
+			throws IllegalIdentityValueException, IllegalTypeException;
 
 	/**
 	 * Adds a new token without owner
@@ -54,20 +52,18 @@ public interface TokensManagement
 	 * @param created creation timestamp. It is guaranteed to be stored with second precision, though implementation
 	 * might also store the full time.
 	 * @param expires precision as in created case.
-	 * @throws WrongArgumentException
 	 * @throws IllegalIdentityValueException
 	 * @throws IllegalTypeException
 	 */
 	void addToken(String type, String value, byte[] contents, Date created, Date expires) 
-			throws WrongArgumentException, IllegalTypeException;
+			throws IllegalTypeException;
 	
 	/**
 	 * Removes the token
 	 * @param type
 	 * @param value
-	 * @throws WrongArgumentException
 	 */
-	void removeToken(String type, String value) throws WrongArgumentException;
+	void removeToken(String type, String value);
 	
 	/**
 	 * Update the token. Only contents and expiration time can be updated - the type and value are used to look up 
@@ -76,18 +72,16 @@ public interface TokensManagement
 	 * @param value
 	 * @param expires if null -> leave unchanged
 	 * @param contents if null -> leave unchanged
-	 * @throws WrongArgumentException
 	 */
-	void updateToken(String type, String value, Date expires, byte[] contents) throws WrongArgumentException;
+	void updateToken(String type, String value, Date expires, byte[] contents);
 	
 	/**
 	 * Returns a specified token 
 	 * @param type
 	 * @param value
 	 * @return
-	 * @throws WrongArgumentException 
 	 */
-	Token getTokenById(String type, String value) throws WrongArgumentException;
+	Token getTokenById(String type, String value);
 	
 	/**
 	 * Returns all tokens of the entity

@@ -55,7 +55,6 @@ import pl.edu.icm.unity.engine.endpoint.SharedEndpointManagementImpl;
 import pl.edu.icm.unity.engine.identity.IdentityTypeHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.store.api.generic.ConfirmationConfigurationDB;
 import pl.edu.icm.unity.store.api.generic.MessageTemplateDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
@@ -225,7 +224,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		}
 		if (!(template != null && template.getConsumer().equals(
 				ConfirmationTemplateDef.NAME)))
-			throw new WrongArgumentException("Illegal type of template");
+			throw new IllegalArgumentException("Illegal type of template");
 
 		String link = advertisedAddress.toExternalForm()
 				+ SharedEndpointManagementImpl.CONTEXT_PATH
@@ -263,7 +262,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			try
 			{
 				tk = tokensMan.getTokenById(ConfirmationManagerImpl.CONFIRMATION_TOKEN_TYPE, token);
-			} catch (WrongArgumentException e)
+			} catch (IllegalArgumentException e)
 			{
 				String redirectURL = new ConfirmationRedirectURLBuilder(defaultRedirectURL, 
 						Status.elementConfirmationError).
@@ -320,7 +319,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		try
 		{
 			state = facility.parseState(baseState);
-		} catch (WrongArgumentException e)
+		} catch (IllegalArgumentException e)
 		{
 			throw new InternalException("Bug: token can not be parsed by its own facility", e);
 		}

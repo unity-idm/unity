@@ -23,7 +23,6 @@ import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqIdentityCo
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
@@ -66,7 +65,7 @@ public class RegistrationConfirmationRewriteSupport
 			try
 			{
 				state = new RegistrationConfirmationState(tk.getContentsString());
-			} catch (WrongArgumentException e)
+			} catch (IllegalArgumentException e)
 			{
 				//OK - not a registration token
 				continue;

@@ -18,7 +18,6 @@ import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.forms.enquiry.SharedEnquiryManagment;
 import pl.edu.icm.unity.engine.forms.reg.SharedRegistrationManagment;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
@@ -105,7 +104,7 @@ public class RegistrationReqAttributeFacility extends RegistrationFacility<Regis
 	}
 
 	@Override
-	public RegistrationReqAttribiuteConfirmationState parseState(String state) throws WrongArgumentException
+	public RegistrationReqAttribiuteConfirmationState parseState(String state)
 	{
 		return new RegistrationReqAttribiuteConfirmationState(state);
 	}

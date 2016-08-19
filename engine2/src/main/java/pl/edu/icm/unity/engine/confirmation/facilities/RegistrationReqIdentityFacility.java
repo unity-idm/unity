@@ -17,7 +17,6 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.forms.enquiry.SharedEnquiryManagment;
 import pl.edu.icm.unity.engine.forms.reg.SharedRegistrationManagment;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
@@ -105,7 +104,7 @@ public class RegistrationReqIdentityFacility extends RegistrationFacility<Regist
 	}
 
 	@Override
-	public RegistrationReqIdentityConfirmationState parseState(String state) throws WrongArgumentException
+	public RegistrationReqIdentityConfirmationState parseState(String state)
 	{
 		return new RegistrationReqIdentityConfirmationState(state);
 	}

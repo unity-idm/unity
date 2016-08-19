@@ -182,7 +182,7 @@ public class SessionManagementImpl implements SessionManagement
 			tokensManagement.removeToken(SESSION_TOKEN_TYPE, id);
 			if (log.isDebugEnabled())
 				log.debug("Removed session with id " + id);
-		} catch (WrongArgumentException e)
+		} catch (IllegalArgumentException e)
 		{
 			//not found - ok
 		}
