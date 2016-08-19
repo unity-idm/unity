@@ -4,6 +4,39 @@
  */
 package pl.edu.icm.unity.ldap;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.ADV_SEARCH_ATTRIBUTES;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.ADV_SEARCH_BASE;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.ADV_SEARCH_FILTER;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.ADV_SEARCH_PFX;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.ATTRIBUTES;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.BIND_AS;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.BIND_ONLY;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.CONNECTION_MODE;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.GROUPS_BASE_NAME;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.GROUP_DEFINITION_MATCHBY_MEMBER_ATTR;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.GROUP_DEFINITION_MEMBER_ATTR;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.GROUP_DEFINITION_NAME_ATTR;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.GROUP_DEFINITION_OC;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.GROUP_DEFINITION_PFX;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.MEMBER_OF_ATTRIBUTE;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.MEMBER_OF_GROUP_ATTRIBUTE;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.PORTS;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.PREFIX;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.SERVERS;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.SYSTEM_DN;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.SYSTEM_PASSWORD;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.TLS_TRUST_ALL;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.TRANSLATION_PROFILE;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.TRUSTSTORE;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.USER_DN_SEARCH_KEY;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.USER_DN_TEMPLATE;
+import static pl.edu.icm.unity.ldap.client.LdapProperties.VALID_USERS_FILTER;
+
 import java.net.InetAddress;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -24,18 +57,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.ldap.client.LdapAuthenticationException;
-import pl.edu.icm.unity.ldap.client.LdapClient;
-import pl.edu.icm.unity.ldap.client.LdapClientConfiguration;
-import pl.edu.icm.unity.ldap.client.LdapProperties;
-import pl.edu.icm.unity.ldap.client.LdapUtils;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
-import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
 import com.unboundid.ldap.listener.InMemoryListenerConfig;
@@ -50,9 +71,17 @@ import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
-import static pl.edu.icm.unity.ldap.client.LdapProperties.*;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteGroupMembership;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.ldap.client.LdapAuthenticationException;
+import pl.edu.icm.unity.ldap.client.LdapClient;
+import pl.edu.icm.unity.ldap.client.LdapClientConfiguration;
+import pl.edu.icm.unity.ldap.client.LdapProperties;
+import pl.edu.icm.unity.ldap.client.LdapUtils;
 
 public class LdapTests
 {

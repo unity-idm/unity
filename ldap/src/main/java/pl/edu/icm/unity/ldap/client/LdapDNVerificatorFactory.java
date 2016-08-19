@@ -5,14 +5,12 @@
 package pl.edu.icm.unity.ldap.client;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.api.TranslationProfileManagement;
-import pl.edu.icm.unity.server.authn.CredentialVerificator;
-import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
-import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
+import pl.edu.icm.unity.engine.api.authn.CredentialVerificatorFactory;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.stdext.credential.CertificateExchange;
 
 /**
@@ -26,16 +24,14 @@ public class LdapDNVerificatorFactory implements CredentialVerificatorFactory
 {
 	public static final String NAME = "ldap-cert";
 	
-	private TranslationProfileManagement profileManagement;
-	private InputTranslationEngine trEngine;
 	private PKIManagement pkiManagement;
 
+	private RemoteAuthnResultProcessor processor;
+
 	@Autowired
-	public LdapDNVerificatorFactory(@Qualifier("insecure") TranslationProfileManagement profileManagement, 
-			InputTranslationEngine trEngine, PKIManagement pkiManagement)
+	public LdapDNVerificatorFactory(RemoteAuthnResultProcessor processor, PKIManagement pkiManagement)
 	{
-		this.profileManagement = profileManagement;
-		this.trEngine = trEngine;
+		this.processor = processor;
 		this.pkiManagement = pkiManagement;
 	}
 
@@ -54,7 +50,7 @@ public class LdapDNVerificatorFactory implements CredentialVerificatorFactory
 	@Override
 	public CredentialVerificator newInstance()
 	{
-		return new LdapVerificator(getName(), getDescription(), profileManagement, trEngine, pkiManagement,
+		return new LdapVerificator(getName(), getDescription(), processor, pkiManagement,
 				CertificateExchange.ID);
 	}
 }
