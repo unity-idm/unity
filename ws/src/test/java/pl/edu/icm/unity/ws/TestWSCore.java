@@ -70,7 +70,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		WSClientFactory factoryBad = new WSClientFactory(clientCfg);
 		MockWSSEI wsProxyBad = factoryBad.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
 				MockWSEndpointFactory.SERVLET_PATH);
-		clientCfg.setHttpPassword("mockPassword1");
+		clientCfg.setHttpPassword(DEF_PASSWORD);
 		WSClientFactory factoryOK = new WSClientFactory(clientCfg);
 		MockWSSEI wsProxyOK = factoryOK.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
 				MockWSEndpointFactory.SERVLET_PATH);
@@ -192,7 +192,7 @@ public class TestWSCore extends DBIntegrationTestBase
 
 		clientCfg.setSslAuthn(true);
 		clientCfg.setHttpAuthn(true);
-		clientCfg.setHttpPassword("mockPassword1");
+		clientCfg.setHttpPassword(DEF_PASSWORD);
 		factory = new WSClientFactory(clientCfg);
 		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
 				MockWSEndpointFactory.SERVLET_PATH);
