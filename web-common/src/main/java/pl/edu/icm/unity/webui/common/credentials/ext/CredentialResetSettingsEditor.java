@@ -6,17 +6,6 @@ package pl.edu.icm.unity.webui.common.credentials.ext;
 
 import org.vaadin.risto.stepper.IntStepper;
 
-import pl.edu.icm.unity.server.api.MessageTemplateManagement;
-import pl.edu.icm.unity.server.authn.CredentialResetSettings;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.stdext.credential.PasswordResetTemplateDef;
-import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.ListOfElements;
-import pl.edu.icm.unity.webui.common.ListOfElements.RemoveHandler;
-import pl.edu.icm.unity.webui.common.TextFieldWithButton;
-import pl.edu.icm.unity.webui.common.TextFieldWithButton.ButtonHandler;
-
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.Sizeable.Unit;
@@ -24,6 +13,17 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
+
+import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
+import pl.edu.icm.unity.engine.api.authn.CredentialResetSettings;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.stdext.credential.PasswordResetTemplateDef;
+import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.ListOfElements;
+import pl.edu.icm.unity.webui.common.ListOfElements.RemoveHandler;
+import pl.edu.icm.unity.webui.common.TextFieldWithButton;
+import pl.edu.icm.unity.webui.common.TextFieldWithButton.ButtonHandler;
 
 /**
  * Part of UI, insertable into FormLayout, useful for {@link CredentialResetSettings} editing or viewing.

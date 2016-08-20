@@ -6,8 +6,10 @@ package pl.edu.icm.unity.webui.common.identities;
 
 import java.util.Collection;
 
+import com.vaadin.ui.AbstractOrderedLayout;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityType;
@@ -16,8 +18,6 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.Editor;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.EditorProvider;
-
-import com.vaadin.ui.AbstractOrderedLayout;
 
 /**
  * Editor component allowing to edit identities of a fixed {@link IdentityType}.

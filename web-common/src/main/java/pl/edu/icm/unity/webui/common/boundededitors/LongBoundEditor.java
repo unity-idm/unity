@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common.boundededitors;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 import pl.edu.icm.unity.webui.common.LongRangeValidator;
 import pl.edu.icm.unity.webui.common.StringToLongConverter;

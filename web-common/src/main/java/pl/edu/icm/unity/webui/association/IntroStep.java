@@ -6,12 +6,12 @@ package pl.edu.icm.unity.webui.association;
 
 import org.vaadin.teemu.wizards.WizardStep;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
-
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
 /**
  * Shows introduction with information on the association feature.

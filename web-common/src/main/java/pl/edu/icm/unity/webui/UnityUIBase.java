@@ -11,19 +11,17 @@ import java.util.Stack;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
-import pl.edu.icm.unity.server.authn.AuthenticationOption;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
-import pl.edu.icm.unity.webui.authn.CancelHandler;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-
 import com.vaadin.annotations.Push;
 import com.vaadin.server.DefaultErrorHandler;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.shared.communication.PushMode;
 import com.vaadin.ui.UI;
+
+import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
+import pl.edu.icm.unity.webui.authn.CancelHandler;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 /**
  * All Unity {@link UI}s should extend this class. It provides a common logic. 

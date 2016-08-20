@@ -7,9 +7,9 @@ package pl.edu.icm.unity.sandbox.wizard;
 import com.vaadin.server.BrowserWindowOpener;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.UI;
 
 /**
  * This class extends {@link BrowserWindowOpener} with handy options.

@@ -6,10 +6,10 @@ package pl.edu.icm.unity.wellknownurl;
 
 import java.util.Properties;
 
-import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
-
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewProvider;
+
+import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 
 /**
  * Implementations provide {@link View}s for registration in {@link SecuredNavigationUI}.

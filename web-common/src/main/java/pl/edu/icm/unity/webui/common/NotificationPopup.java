@@ -6,15 +6,14 @@ package pl.edu.icm.unity.webui.common;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.exceptions.AuthorizationException;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-
 import com.vaadin.server.Page;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.themes.ValoTheme;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.exceptions.AuthorizationException;
 
 
 /**

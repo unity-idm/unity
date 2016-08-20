@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webui.common;
 import java.util.Collection;
 import java.util.List;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.EditorProvider;
 
 /**

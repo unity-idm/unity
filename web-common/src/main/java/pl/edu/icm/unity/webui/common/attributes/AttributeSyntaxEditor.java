@@ -4,10 +4,10 @@
  */
 package pl.edu.icm.unity.webui.common.attributes;
 
-import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-
 import com.vaadin.ui.Component;
+
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 
 /**
  * Attribute type editor, with possibility to retrieve the edited type.

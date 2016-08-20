@@ -13,9 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.authn.LogoutProcessor;
-import pl.edu.icm.unity.server.authn.LogoutProcessorFactory;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
 
 /**
  * Uses available {@link LogoutProcessorFactory}ies to produce logout processors and forwards requests to them

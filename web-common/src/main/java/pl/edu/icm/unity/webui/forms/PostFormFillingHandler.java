@@ -6,16 +6,14 @@ package pl.edu.icm.unity.webui.forms;
 
 import org.apache.log4j.Logger;
 
+import com.vaadin.server.Page;
+
+import pl.edu.icm.unity.engine.api.EnquiryManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.registration.RegistrationRedirectURLBuilder;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.server.api.EnquiryManagement;
-import pl.edu.icm.unity.server.api.RegistrationsManagement;
-import pl.edu.icm.unity.server.api.internal.IdPLoginController;
-import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder;
-import pl.edu.icm.unity.server.api.registration.RegistrationRedirectURLBuilder.Status;
-import pl.edu.icm.unity.server.translation.form.BaseFormTranslationProfile;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
@@ -27,8 +25,6 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-
-import com.vaadin.server.Page;
 
 /**
  * Performs UI-related actions after registration request/enquiry response submission or cancellation.

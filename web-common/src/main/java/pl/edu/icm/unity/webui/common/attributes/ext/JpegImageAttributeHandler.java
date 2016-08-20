@@ -15,28 +15,6 @@ import java.util.Random;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-
-import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.AbstractUploadReceiver;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.ComponentsContainer;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.LimitedOuputStream;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
-import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
-import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
-import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
-import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
 
 import com.vaadin.event.MouseEvents;
 import com.vaadin.event.MouseEvents.ClickEvent;
@@ -52,12 +30,31 @@ import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.SucceededEvent;
 
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
+import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.AbstractUploadReceiver;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.ComponentsContainer;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.LimitedOuputStream;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
+import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
+import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
+import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
+import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
+
 /**
  * Jpeg image attribute handler for the web
  * @author K. Benedyczak
  */
 @org.springframework.stereotype.Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedImage>, WebAttributeHandlerFactory
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, JpegImageAttributeHandler.class);
@@ -88,7 +85,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 	}
 
 	private Resource getValueAsImage(BufferedImage value,
-			AttributeValueSyntax<BufferedImage> syntax, int maxWidth, int maxHeight)
+			JpegImageAttributeSyntax syntax, int maxWidth, int maxHeight)
 	{
 		try
 		{
@@ -127,7 +124,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 			break;
 		}
 		
-		image.setSource(getValueAsImage(value, syntax, width, height));
+		image.setSource(getValueAsImage(value, (JpegImageAttributeSyntax) syntax, width, height));
 		return image;
 	}
 
@@ -282,7 +279,8 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 				
 				if (fos.isOverflow())
 				{
-					NotificationPopup.showError(msg, msg.getMessage("JpegAttributeHandler.uploadFailed"),
+					NotificationPopup.showError(msg, 
+							msg.getMessage("JpegAttributeHandler.uploadFailed"),
 							msg.getMessage("JpegAttributeHandler.imageSizeTooBig"));
 					fos = null;
 					return;
@@ -290,11 +288,15 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 				try
 				{
 					image.setVisible(true);
-					value = syntax.deserialize(((ByteArrayOutputStream)fos.getWrappedStream()).toByteArray());
+					value = syntax.deserialize(((ByteArrayOutputStream)
+							fos.getWrappedStream()).toByteArray());
 					if (scale.getValue())
-						value = scaleIfNeeded(value, syntax.getMaxWidth(), syntax.getMaxHeight());
-					BufferedImage scalledPreview = scaleIfNeeded(value, PREVIEW_WIDTH, PREVIEW_HEIGHT);
-					image.setSource(new SimpleImageSource(scalledPreview, syntax, "jpg").getResource());
+						value = scaleIfNeeded(value, syntax.getMaxWidth(), 
+								syntax.getMaxHeight());
+					BufferedImage scalledPreview = scaleIfNeeded(value, 
+							PREVIEW_WIDTH, PREVIEW_HEIGHT);
+					image.setSource(new SimpleImageSource(scalledPreview, syntax, "jpg").
+							getResource());
 				} catch (Exception e)
 				{
 					NotificationPopup.showError(msg, msg.getMessage("JpegAttributeHandler.uploadInvalid"),
@@ -328,7 +330,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 		private final String extension;
 		
 		public SimpleImageSource(BufferedImage value, 
-				AttributeValueSyntax<BufferedImage> syntax, String extension)
+				JpegImageAttributeSyntax syntax, String extension)
 		{
 			this.isData = syntax.serialize(value);
 			this.extension = extension;
@@ -425,10 +427,10 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 	
 	private class ShowImageDialog extends AbstractDialog
 	{
-		private AttributeValueSyntax<BufferedImage> syntax;
+		private JpegImageAttributeSyntax syntax;
 		private BufferedImage image;
 		
-		public ShowImageDialog(AttributeValueSyntax<BufferedImage> syntax, BufferedImage image)
+		public ShowImageDialog(JpegImageAttributeSyntax syntax, BufferedImage image)
 		{
 			super(JpegImageAttributeHandler.this.msg, 
 					JpegImageAttributeHandler.this.msg.getMessage("JpegAttributeHandler.image"), 

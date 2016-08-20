@@ -9,8 +9,7 @@ import java.util.Properties;
 
 import org.springframework.context.ApplicationContext;
 
-import pl.edu.icm.unity.server.authn.AuthenticationOption;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 
 

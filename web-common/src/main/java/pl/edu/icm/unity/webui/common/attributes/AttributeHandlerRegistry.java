@@ -17,9 +17,9 @@ import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize;
 
@@ -36,6 +36,7 @@ public class AttributeHandlerRegistry
 	private UnityMessageSource msg;
 	private Map<String, WebAttributeHandlerFactory> factoriesByType = new HashMap<>();
 	public static final int DEFAULT_MAX_LEN = 16;
+	
 	
 	@Autowired
 	public AttributeHandlerRegistry(List<WebAttributeHandlerFactory> factories, UnityMessageSource msg)
@@ -54,7 +55,7 @@ public class AttributeHandlerRegistry
 	}
 	
 	@SuppressWarnings("unchecked")
-	public com.vaadin.ui.Component getRepresentation(Attribute<?> attribute, RepresentationSize size)
+	public com.vaadin.ui.Component getRepresentation(Attribute attribute, RepresentationSize size)
 	{
 		VerticalLayout vl = new VerticalLayout();
 		vl.addStyleName(Styles.smallSpacing.toString());
@@ -81,7 +82,7 @@ public class AttributeHandlerRegistry
 		return new HashSet<>(factoriesByType.keySet());
 	}
 	
-	public String getSimplifiedAttributeRepresentation(Attribute<?> attribute, int maxValuesLen)
+	public String getSimplifiedAttributeRepresentation(Attribute attribute, int maxValuesLen)
 	{
 		return getSimplifiedAttributeRepresentation(attribute, maxValuesLen, attribute.getName());
 	}
@@ -93,7 +94,7 @@ public class AttributeHandlerRegistry
 	 * @param maxValuesLen max values length, not less then 16
 	 * @return
 	 */
-	public String getSimplifiedAttributeRepresentation(Attribute<?> attribute, int maxValuesLen, 
+	public String getSimplifiedAttributeRepresentation(Attribute attribute, int maxValuesLen, 
 			String displayedName)
 	{
 		StringBuilder sb = new StringBuilder();
@@ -114,7 +115,7 @@ public class AttributeHandlerRegistry
 	 * @param attribute
 	 * @return
 	 */
-	public String getSimplifiedAttributeValuesRepresentation(Attribute<?> attribute, int maxValuesLen)
+	public String getSimplifiedAttributeValuesRepresentation(Attribute attribute, int maxValuesLen)
 	{
 		if (maxValuesLen < 16)
 			throw new IllegalArgumentException("The max length must be lager then 16");

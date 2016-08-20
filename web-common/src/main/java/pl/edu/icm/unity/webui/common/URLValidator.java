@@ -7,9 +7,9 @@ package pl.edu.icm.unity.webui.common;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-
 import com.vaadin.data.validator.AbstractStringValidator;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 
 /**
  * Vaadin text field validator. Checks if the value is a HTTP(S) URL.

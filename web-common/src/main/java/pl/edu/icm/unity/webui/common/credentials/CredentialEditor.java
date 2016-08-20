@@ -6,9 +6,9 @@ package pl.edu.icm.unity.webui.common.credentials;
 
 import com.vaadin.ui.Component;
 
+import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 
 /**

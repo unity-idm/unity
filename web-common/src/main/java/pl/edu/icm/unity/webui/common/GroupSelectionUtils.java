@@ -11,8 +11,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
 
 
 /**
