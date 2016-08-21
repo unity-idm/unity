@@ -20,6 +20,9 @@ public class TranslationRule
 		this.action = action;
 	}
 
+	/**
+	 * For JSON deserialization
+	 */
 	protected TranslationRule()
 	{
 	}

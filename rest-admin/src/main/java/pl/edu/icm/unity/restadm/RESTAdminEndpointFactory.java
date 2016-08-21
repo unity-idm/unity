@@ -10,25 +10,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.confirmations.ConfirmationManager;
-import pl.edu.icm.unity.json.AttributeTypeSerializer;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.BulkProcessingManagement;
+import pl.edu.icm.unity.engine.api.EndpointManagement;
+import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.InvitationManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.UserImportManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.engine.api.confirmation.ConfirmationManager;
+import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
+import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.BulkProcessingManagement;
-import pl.edu.icm.unity.server.api.EndpointManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.RegistrationsManagement;
-import pl.edu.icm.unity.server.api.UserImportManagement;
-import pl.edu.icm.unity.server.api.internal.NetworkServer;
-import pl.edu.icm.unity.server.api.internal.SessionManagement;
-import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
-import pl.edu.icm.unity.server.endpoint.EndpointFactory;
-import pl.edu.icm.unity.server.endpoint.EndpointInstance;
-import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
-import pl.edu.icm.unity.server.registries.EntityActionsRegistry;
-import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
 /**
@@ -50,7 +50,7 @@ public class RESTAdminEndpointFactory implements EndpointFactory
 	@Autowired
 	private SessionManagement sessionMan;
 	@Autowired
-	private IdentitiesManagement identitiesMan;
+	private EntityManagement identitiesMan;
 	@Autowired
 	private GroupsManagement groupsMan;
 	@Autowired
@@ -60,23 +60,21 @@ public class RESTAdminEndpointFactory implements EndpointFactory
 	@Autowired
 	private IdentityTypesRegistry identityTypesRegistry;
 	@Autowired
-	private AttributeTypeSerializer attributeTypeSerializer;
-	@Autowired
-	private AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
-	@Autowired
-	private ConfirmationManager cofirmationManager;
+	private ConfirmationManager confirmationManager;
 	@Autowired
 	private NetworkServer server;
 	@Autowired
 	private RegistrationsManagement registrationManagement;
-	
 	@Autowired
 	private BulkProcessingManagement bulkProcessingManagement;
 	@Autowired
-	private EntityActionsRegistry entityActionsRegistry;
-	@Autowired
 	private UserImportManagement userImportManagement;
-	
+	@Autowired
+	private EntityCredentialManagement entityCredMan;
+	@Autowired
+	private AttributeTypeManagement attributeTypeMan;
+	@Autowired
+	private InvitationManagement invitationMan;
 	
 	/**
 	 * We depend on app context in order to work around of the dependency cycle. 
@@ -96,11 +94,10 @@ public class RESTAdminEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		EndpointManagement endpointManagement = appContext.getBean(EndpointManagement.class);
-		return new RESTAdminEndpoint(msg, sessionMan, server, "", identitiesMan, groupsMan, attributesMan,
-				authnProcessor, identityTypesRegistry, attributeTypeSerializer,
-				attributeSyntaxFactoriesRegistry, cofirmationManager, endpointManagement,
-				registrationManagement, bulkProcessingManagement, entityActionsRegistry,
-				userImportManagement);
+		return new RESTAdminEndpoint(msg, sessionMan, server, "", identitiesMan, groupsMan, 
+				attributesMan, authnProcessor, identityTypesRegistry, confirmationManager, 
+				endpointManagement, registrationManagement, bulkProcessingManagement, 
+				userImportManagement, entityCredMan, attributeTypeMan, invitationMan);
 	}
 
 }

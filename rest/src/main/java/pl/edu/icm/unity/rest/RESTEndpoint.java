@@ -45,6 +45,7 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
 import pl.edu.icm.unity.rest.exception.EngineExceptionMapper;
+import pl.edu.icm.unity.rest.exception.IllegalArgumentExceptionMapper;
 import pl.edu.icm.unity.rest.exception.InternalExceptionMapper;
 import pl.edu.icm.unity.rest.exception.JSONExceptionMapper;
 import pl.edu.icm.unity.rest.exception.JSONParseExceptionMapper;
@@ -224,6 +225,7 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 	{
 		ret.add(new EngineExceptionMapper());
 		ret.add(new NPEExceptionMapper());
+		ret.add(new IllegalArgumentExceptionMapper());
 		ret.add(new InternalExceptionMapper());
 		ret.add(new JSONParseExceptionMapper());
 		ret.add(new JSONParsingExceptionMapper());

@@ -6,6 +6,7 @@ package pl.edu.icm.unity.types.basic;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -32,6 +33,7 @@ public class EntityInformation
 		this.id = id;
 	}
 
+	@JsonCreator
 	public EntityInformation(ObjectNode json)
 	{
 		fromJson(json);

@@ -7,6 +7,8 @@ package pl.edu.icm.unity.stdext.attr;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Lists;
+
 import pl.edu.icm.unity.types.basic.Attribute;
 
 /**
@@ -21,16 +23,26 @@ public class IntegerAttribute extends Attribute
 		super(name, IntegerAttributeSyntax.ID, groupPath, values, remoteIdp, translationProfile);
 	}
 
-	public IntegerAttribute(String name, String groupPath, List<Long> values)
+	public IntegerAttribute(String name, String groupPath, List<? extends Number> values)
 	{
 		super(name, IntegerAttributeSyntax.ID, groupPath, convert(values));
 	}
 	
-	private static List<String> convert(List<Long> values)
+	public IntegerAttribute(String name, String groupPath, Long... values)
+	{
+		this(name, groupPath, Lists.newArrayList(values));
+	}
+
+	public IntegerAttribute(String name, String groupPath, Integer... values)
+	{
+		this(name, groupPath, Lists.newArrayList(values));
+	}
+	
+	private static List<String> convert(List<? extends Number> values)
 	{
 		IntegerAttributeSyntax syntax = new IntegerAttributeSyntax();
 		return values.stream().
-				map(v -> syntax.convertToString(v)).
+				map(v -> syntax.convertToString(v.longValue())).
 				collect(Collectors.toList());
 	}
 }

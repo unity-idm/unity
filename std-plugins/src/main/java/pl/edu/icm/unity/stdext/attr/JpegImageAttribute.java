@@ -8,6 +8,8 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Lists;
+
 import pl.edu.icm.unity.types.basic.Attribute;
 
 /**
@@ -26,6 +28,11 @@ public class JpegImageAttribute extends Attribute
 	{
 		super(name, JpegImageAttributeSyntax.ID, groupPath, convert(values));
 	}
+	
+	public JpegImageAttribute(String name, String groupPath, BufferedImage... values)
+	{
+		this(name, groupPath, Lists.newArrayList(values));
+	}	
 	
 	private static List<String> convert(List<BufferedImage> values)
 	{

@@ -32,7 +32,7 @@
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-server-engine</artifactId>
+			<artifactId>unity-server-engine2</artifactId>
 			<version>${project.version}</version>
 			<type>test-jar</type>
 			<scope>test</scope>
@@ -43,7 +43,13 @@
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-server-engine</artifactId>
+			<artifactId>unity-server-engine2</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-storage</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>

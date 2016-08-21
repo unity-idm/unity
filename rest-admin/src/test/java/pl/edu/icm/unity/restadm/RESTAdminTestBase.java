@@ -18,7 +18,7 @@ import pl.edu.icm.unity.rest.TestRESTBase;
  *
  * @author Krzysztof Benedyczak
  */
-public class RESTAdminTestBase extends TestRESTBase
+public abstract class RESTAdminTestBase extends TestRESTBase
 {
 	protected HttpContext localcontext;
 	
@@ -36,7 +36,7 @@ public class RESTAdminTestBase extends TestRESTBase
 	public void setup() throws Exception
 	{
 		setupPasswordAuthn();
-		createUsernameUser("System Manager");
+		createUsernameUserWithRole("System Manager");
 		super.deployEndpoint(RESTAdminEndpointFactory.NAME, 
 				"restAdmin", "/restadm");		
 		client = getClient();

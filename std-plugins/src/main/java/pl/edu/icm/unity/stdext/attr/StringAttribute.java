@@ -31,4 +31,21 @@ public class StringAttribute extends Attribute
 	{
 		super(name, StringAttributeSyntax.ID, groupPath, Lists.newArrayList(values));
 	}
+	
+	public static Attribute of(String name, String groupPath,
+			List<String> values, String remoteIdp, String translationProfile)
+	{
+		return new Attribute(name, StringAttributeSyntax.ID, groupPath, values, remoteIdp, 
+				translationProfile);
+	}
+
+	public static Attribute of(String name, String groupPath, List<String> values)
+	{
+		return new Attribute(name, StringAttributeSyntax.ID, groupPath, values);
+	}
+	
+	public static Attribute of(String name, String groupPath, String... values)
+	{
+		return of(name, groupPath, Lists.newArrayList(values));
+	}
 }
