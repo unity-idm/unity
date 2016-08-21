@@ -82,7 +82,7 @@ public class TestRegistrationFormProfile extends DBIntegrationTestBase
 			.endAttributeParam()
 			.build();
 		
-		Attribute confirmed = new VerifiableEmailAttribute("email", "/", "email@example.com");
+		Attribute confirmed = VerifiableEmailAttribute.of("email", "/", "email@example.com");
 		
 		RegistrationRequest request = new RegistrationRequestBuilder()
 				.withFormId("f1")

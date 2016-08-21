@@ -419,7 +419,7 @@ public abstract class PerformanceTestBase extends SecuredDBIntegrationTestBase
 		{
 			BufferedImage im = new BufferedImage(1000, 1000, 1);
 			String typeName = "jpeg_" + r.nextInt((nDefAttr / 4) - 2);
-			Attribute a = new JpegImageAttribute(typeName, enInGroup.get(i%NU),
+			Attribute a = JpegImageAttribute.of(typeName, enInGroup.get(i%NU),
 					Collections.singletonList(im));
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
 			attrsMan.setAttribute(par, a, true);
@@ -429,7 +429,7 @@ public abstract class PerformanceTestBase extends SecuredDBIntegrationTestBase
 		for (int i = 0; i < stringAttr; i++)
 		{
 			String typeName = "string_" + r.nextInt((nDefAttr  / 4) - 2);
-			Attribute a = new StringAttribute(typeName, enInGroup.get(i%NU),
+			Attribute a = StringAttribute.of(typeName, enInGroup.get(i%NU),
 					Collections.singletonList(new String(typeName)));
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
 			attrsMan.setAttribute(par, a, true);
@@ -439,7 +439,7 @@ public abstract class PerformanceTestBase extends SecuredDBIntegrationTestBase
 		for (int i = 0; i < intAttr; i++)
 		{
 			String typeName = "int_" + r.nextInt((nDefAttr / 4) - 2);
-			Attribute a = new IntegerAttribute(typeName, enInGroup.get(i%NU),
+			Attribute a = IntegerAttribute.of(typeName, enInGroup.get(i%NU),
 					Collections.singletonList(new Long(i + 100)));
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
 			attrsMan.setAttribute(par, a, true);
@@ -449,7 +449,7 @@ public abstract class PerformanceTestBase extends SecuredDBIntegrationTestBase
 		for (int i = 0; i < floatAttr; i++)
 		{
 			String typeName = "float_" + r.nextInt((nDefAttr / 4) - 2);
-			Attribute a = new FloatingPointAttribute(typeName, enInGroup.get(i%NU),
+			Attribute a = FloatingPointAttribute.of(typeName, enInGroup.get(i%NU),
 					Collections.singletonList(new Double(i + 100)));
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
 			attrsMan.setAttribute(par, a, true);
@@ -495,7 +495,7 @@ public abstract class PerformanceTestBase extends SecuredDBIntegrationTestBase
 
 			ArrayList<AttributeStatement> asts = new ArrayList<AttributeStatement>();
 
-			Attribute a = new StringAttribute("ex_everybody", path,
+			Attribute a = StringAttribute.of("ex_everybody", path,
 					Collections.singletonList(new String(g.getName()
 							+ "_everybody")));
 			AttributeStatement stFixed = new AttributeStatement("true", null, ConflictResolution.merge, a);

@@ -17,6 +17,7 @@ import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Group;
@@ -29,7 +30,7 @@ public class TestAuthorization extends DBIntegrationTestBase
 {
 	private void setAdminsRole(String role) throws Exception
 	{
-		EnumAttribute roleAt = new EnumAttribute(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
+		Attribute roleAt = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
 				"/", role);
 		EntityParam adminEntity = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "admin"));
 		insecureAttrsMan.setAttribute(adminEntity, roleAt, true);
@@ -50,7 +51,7 @@ public class TestAuthorization extends DBIntegrationTestBase
 		Identity added = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
 				EntityState.valid, false);
 		EntityParam entity = new EntityParam(added.getEntityId());
-		attrsMan.setAttribute(entity, new EnumAttribute(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
+		attrsMan.setAttribute(entity, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
 				"/", AuthorizationManagerImpl.USER_ROLE), false);
 		setupUserContext("user1", false);
 		try
@@ -74,7 +75,7 @@ public class TestAuthorization extends DBIntegrationTestBase
 		groupsMan.addMemberFromParent("/A", entity);
 		attrsMan.removeAttribute(entity, "/", RoleAttributeTypeProvider.AUTHORIZATION_ROLE);
 		
-		attrsMan.setAttribute(entity, new EnumAttribute(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
+		attrsMan.setAttribute(entity, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
 				"/A", AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE), false);
 		setupUserContext("user1", false);
 		try
@@ -91,7 +92,7 @@ public class TestAuthorization extends DBIntegrationTestBase
 		//test if limited role in subgroup won't be effective (should get roles from the parent)
 		groupsMan.addGroup(new Group("/A/G"));
 		groupsMan.addMemberFromParent("/A/G", entity);
-		attrsMan.setAttribute(entity, new EnumAttribute(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
+		attrsMan.setAttribute(entity, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
 				"/A/G", AuthorizationManagerImpl.ANONYMOUS_ROLE), false);
 		groupsMan.addGroup(new Group("/A/G/Z"));
 		
@@ -108,12 +109,12 @@ public class TestAuthorization extends DBIntegrationTestBase
 		
 		//tests outdated credential
 		setupUserContext("admin", false);
-		attrsMan.setAttribute(entity, new EnumAttribute(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
+		attrsMan.setAttribute(entity, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
 				"/", AuthorizationManagerImpl.USER_ROLE), false);
 		setupUserContext("admin", true);
 		try
 		{
-			attrsMan.setAttribute(entity, new EnumAttribute(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
+			attrsMan.setAttribute(entity, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
 					"/", AuthorizationManagerImpl.INSPECTOR_ROLE), true);
 			fail("set attributes with outdated credential");
 		} catch(AuthorizationException e) {}

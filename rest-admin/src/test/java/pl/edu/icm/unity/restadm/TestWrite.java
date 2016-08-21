@@ -83,20 +83,20 @@ public class TestWrite extends RESTAdminTestBase
 		aTypeMan.addAttributeType(email);
 		aTypeMan.addAttributeType(new AttributeType("jpegA", JpegImageAttributeSyntax.ID));
 		
-		setSingleAttribute(entityId, new StringAttribute("stringA", "/", "value1"));
+		setSingleAttribute(entityId, StringAttribute.of("stringA", "/", "value1"));
 
-		setSingleAttribute(entityId, new IntegerAttribute("intA", "/", 123));
+		setSingleAttribute(entityId, IntegerAttribute.of("intA", "/", 123));
 
-		setSingleAttribute(entityId, new FloatingPointAttribute("floatA", "/", 123.1));
+		setSingleAttribute(entityId, FloatingPointAttribute.of("floatA", "/", 123.1));
 
-		setSingleAttribute(entityId, new EnumAttribute("enumA", "/", "V1"));
+		setSingleAttribute(entityId, EnumAttribute.of("enumA", "/", "V1"));
 
-		setSingleAttribute(entityId, new VerifiableEmailAttribute(
+		setSingleAttribute(entityId, VerifiableEmailAttribute.of(
 				"emailA", "/", new VerifiableEmail("some@example.com"),
 				new VerifiableEmail("some2@example.com", new ConfirmationInfo(true))));
 		
 		BufferedImage image = new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
-		setSingleAttribute(entityId, new JpegImageAttribute(
+		setSingleAttribute(entityId, JpegImageAttribute.of(
 				"jpegA", "/", image));
 
 		HttpDelete removeAttribute = new HttpDelete("/restadm/v1/entity/" + entityId + "/attribute/stringA");
@@ -127,8 +127,8 @@ public class TestWrite extends RESTAdminTestBase
 		
 		HttpPut setAttribute = new HttpPut("/restadm/v1/entity/" + entityId + "/attributes");
 		
-		StringAttribute a1 = new StringAttribute("stringA", "/", "value1");
-		EnumAttribute a2 = new EnumAttribute("enumA", "/", "V1");
+		Attribute a1 = StringAttribute.of("stringA", "/", "value1");
+		Attribute a2 = EnumAttribute.of("enumA", "/", "V1");
 		
 		List<Attribute> params = Lists.newArrayList(a1, a2);
 		setAttribute.setEntity(new StringEntity(m.writeValueAsString(params), ContentType.APPLICATION_JSON));

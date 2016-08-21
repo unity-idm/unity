@@ -26,7 +26,6 @@ import com.google.common.collect.Lists;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
-import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.form.action.AddAttributeActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AddToGroupActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
@@ -64,9 +63,6 @@ public class TestEnquiries extends DBIntegrationTestBase
 {
 	@Autowired
 	private InitializerCommon commonInitializer;
-	
-	@Autowired
-	private RegistrationActionsRegistry registry;
 	
 	@Autowired
 	private EnquiryManagement enquiryManagement;

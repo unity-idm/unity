@@ -117,9 +117,9 @@ public class TestGroups extends DBIntegrationTestBase
 
 		AttributeStatement[] statements = new AttributeStatement[2];
 		statements[0] = AttributeStatement.getFixedEverybodyStatement(
-				new StringAttribute("foo", "/A", "val1"));
+				StringAttribute.of("foo", "/A", "val1"));
 		statements[1] = AttributeStatement.getFixedStatement(
-				new StringAttribute("foo", "/A", "val1"),
+				StringAttribute.of("foo", "/A", "val1"),
 				"/A/B", "eattr['foo'] != null");
 		a.setAttributeStatements(statements);
 		groupsMan.updateGroup("/A", a);

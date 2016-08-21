@@ -16,22 +16,22 @@ import pl.edu.icm.unity.types.basic.Attribute;
  * Helper class allowing to create jpeg attributes easily.
  * @author K. Benedyczak
  */
-public class JpegImageAttribute extends Attribute
+public class JpegImageAttribute
 {
-	public JpegImageAttribute(String name, String groupPath,
+	public static Attribute of(String name, String groupPath,
 			List<String> values, String remoteIdp, String translationProfile)
 	{
-		super(name, JpegImageAttributeSyntax.ID, groupPath, values, remoteIdp, translationProfile);
+		return new Attribute(name, JpegImageAttributeSyntax.ID, groupPath, values, remoteIdp, translationProfile);
 	}
 
-	public JpegImageAttribute(String name, String groupPath, List<BufferedImage> values)
+	public static Attribute of(String name, String groupPath, List<BufferedImage> values)
 	{
-		super(name, JpegImageAttributeSyntax.ID, groupPath, convert(values));
+		return new Attribute(name, JpegImageAttributeSyntax.ID, groupPath, convert(values));
 	}
 	
-	public JpegImageAttribute(String name, String groupPath, BufferedImage... values)
+	public static Attribute of(String name, String groupPath, BufferedImage... values)
 	{
-		this(name, groupPath, Lists.newArrayList(values));
+		return of(name, groupPath, Lists.newArrayList(values));
 	}	
 	
 	private static List<String> convert(List<BufferedImage> values)

@@ -57,6 +57,7 @@ import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -230,7 +231,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		idsMan.addIdentity(new IdentityParam(IdentifierIdentity.ID, "id2", "test", "p1"), ep, false);
 		groupsMan.addMemberFromParent("/A", ep, null, "test", "p1");
 		groupsMan.addMemberFromParent("/B", ep, null, "test", "p1");
-		StringAttribute attr = new StringAttribute("o", "/", "v1");
+		Attribute attr = StringAttribute.of("o", "/", "v1");
 		attr.setRemoteIdp("test");
 		attr.setTranslationProfile("p1");
 		attrsMan.setAttribute(ep, attr, false);
@@ -510,7 +511,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		groupsMan.addGroup(new Group("/A"));
 
 		MappingResult result = new MappingResult();
-		result.addAttribute(new MappedAttribute(AttributeEffectMode.CREATE_ONLY, new StringAttribute("o", 
+		result.addAttribute(new MappedAttribute(AttributeEffectMode.CREATE_ONLY, StringAttribute.of("o", 
 				"/A", "org")));
 		result.addGroup(new MappedGroup("/A", GroupEffectMode.ADD_IF_GROUP_EXISTS, "idp", "profile"));
 		result.addIdentity(new MappedIdentity(IdentityEffectMode.CREATE_OR_MATCH, 

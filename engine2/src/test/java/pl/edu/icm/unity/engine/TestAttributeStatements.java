@@ -71,7 +71,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		// test with one statement added to /A for everybody
 		groupA.setAttributeStatements(new AttributeStatement[] {
 				AttributeStatement.getFixedEverybodyStatement(
-				new StringAttribute("a2", "/A", "va1"))});
+				StringAttribute.of("a2", "/A", "va1"))});
 		groupsMan.updateGroup("/A", groupA);
 
 		//              /  A  AB ABC AD AZ
@@ -107,7 +107,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 				"groupName == '/A/B' && groups.size() > 1 && entityId != null", 
 				null, 
 				ConflictResolution.skip,
-				new StringAttribute("a2", "/A/B", "updated"));
+				StringAttribute.of("a2", "/A/B", "updated"));
 		setStatments(groupAB, statement0);
 		
 		//              /  A  AB ABC AD AZ
@@ -123,7 +123,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 				"true",
 				null, 
 				ConflictResolution.skip,
-				new StringAttribute("a2", "/A/B/C", "updated"));
+				StringAttribute.of("a2", "/A/B/C", "updated"));
 		setStatments(groupABC, statementOfABC);
 		AttributeStatement statementOfAB = new AttributeStatement(
 				"eattr['a2'] != null",
@@ -153,7 +153,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 				"true",
 				null, 
 				ConflictResolution.skip,
-				new StringAttribute("a2", "/", "updated"));
+				StringAttribute.of("a2", "/", "updated"));
 		setStatments(new Group("/"), statementOfRoot);
 
 		
@@ -211,7 +211,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		// overwrite direct (-> should skip)
 		AttributeStatement statement0 = new AttributeStatement("true", null, 
 				ConflictResolution.overwrite,
-				new StringAttribute("a1", "/A/B", "updated"));
+				StringAttribute.of("a1", "/A/B", "updated"));
 		
 		setStatments(groupAB, statement0);
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/B", "a1", false);
@@ -222,7 +222,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		// skip
 		AttributeStatement statement1 = new AttributeStatement("true", null, 
 				ConflictResolution.skip,
-				new StringAttribute("a2", "/A/B", "base"));
+				StringAttribute.of("a2", "/A/B", "base"));
 		setStatments(groupAB, statement1);
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/B", "a2", false);
 		assertEquals(1, aRet.size());
@@ -232,7 +232,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		//skip x2
 		AttributeStatement statement11 = new AttributeStatement("true", null, 
 				ConflictResolution.skip,
-				new StringAttribute("a2", "/A/B", "updated"));
+				StringAttribute.of("a2", "/A/B", "updated"));
 		setStatments(groupAB, statement1, statement11);
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/B", "a2", false);
 		assertEquals(1, aRet.size());
@@ -242,7 +242,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		// skip and then overwrite
 		AttributeStatement statement2 = new AttributeStatement("true", null, 
 				ConflictResolution.overwrite,
-				new StringAttribute("a2", "/A/B", "updated2"));
+				StringAttribute.of("a2", "/A/B", "updated2"));
 		groupAB.setAttributeStatements(new AttributeStatement[] {statement1, statement11, statement2});
 		groupsMan.updateGroup("/A/B", groupAB);
 		
@@ -254,10 +254,10 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		// skip, overwrite, merge which should skip
 		AttributeStatement statement31 = new AttributeStatement("true", null, 
 				ConflictResolution.merge,
-				new StringAttribute("a1", "/A/D", "base"));
+				StringAttribute.of("a1", "/A/D", "base"));
 		AttributeStatement statement32 = new AttributeStatement("true", null, 
 				ConflictResolution.merge,
-				new StringAttribute("a1", "/A/D", "merge"));
+				StringAttribute.of("a1", "/A/D", "merge"));
 		groupAD.setAttributeStatements(new AttributeStatement[] {statement31, statement32});
 		groupsMan.updateGroup("/A/D", groupAD);
 		
@@ -269,10 +269,10 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		//add two rules to test merge working
 		AttributeStatement statement4 = new AttributeStatement("true", null, 
 				ConflictResolution.skip,
-				new StringAttribute("a2", "/A/B", "merge1"));
+				StringAttribute.of("a2", "/A/B", "merge1"));
 		AttributeStatement statement5 = new AttributeStatement("true", null, 
 				ConflictResolution.merge,
-				new StringAttribute("a2", "/A/B", "merge2"));
+				StringAttribute.of("a2", "/A/B", "merge2"));
 		groupAB.setAttributeStatements(new AttributeStatement[] {statement4, statement5});
 		groupsMan.updateGroup("/A/B", groupAB);
 
@@ -283,7 +283,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		assertEquals("merge2", aRet.iterator().next().getValues().get(1));
 		
 		//additionally add a direct attribute
-		attrsMan.setAttribute(entity, new StringAttribute("a2", "/A/B", "direct"), false);
+		attrsMan.setAttribute(entity, StringAttribute.of("a2", "/A/B", "direct"), false);
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/B", "a2", false);
 		assertEquals(1, aRet.size());
 		assertEquals(aRet.iterator().next().getValues().toString(), 2, aRet.iterator().next().getValues().size());
@@ -297,10 +297,10 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		setupStateForConditions();
 		
 		AttributeStatement statement1 = new AttributeStatement("true", null, ConflictResolution.overwrite,
-				new StringAttribute("a1", "/A", "updated"));
+				StringAttribute.of("a1", "/A", "updated"));
 		AttributeStatement statement3 = new AttributeStatement("eattr['a1'] != null", "/A/B", 
 				ConflictResolution.skip,
-				new StringAttribute("a2", "/A", "va1"));
+				StringAttribute.of("a2", "/A", "va1"));
 		groupA.setAttributeStatements(new AttributeStatement[] {statement1, statement3});
 		groupsMan.updateGroup("/A", groupA);
 		
@@ -337,13 +337,13 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		setupStateForConditions();
 		
 		AttributeStatement statement1 = AttributeStatement.getFixedEverybodyStatement(
-				new StringAttribute("a1", "/A/D", "any"));
+				StringAttribute.of("a1", "/A/D", "any"));
 		groupAD.setAttributeStatements(new AttributeStatement[] {statement1});
 		groupsMan.updateGroup("/A/D", groupAD);
 		
 		AttributeStatement statement2 = new AttributeStatement("eattr['a1'] != null", "/A/D",
 				ConflictResolution.skip, 
-				new StringAttribute("a2", "/A", "any"));
+				StringAttribute.of("a2", "/A", "any"));
 		groupA.setAttributeStatements(new AttributeStatement[] {statement2});
 		groupsMan.updateGroup("/A", groupA);
 		
@@ -378,7 +378,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		setupStateForConditions();
 	
 		AttributeStatement statement1 = AttributeStatement.getFixedEverybodyStatement(
-				new StringAttribute("a1", "/A/D", "updated"));
+				StringAttribute.of("a1", "/A/D", "updated"));
 		groupA.setAttributeStatements(new AttributeStatement[] {statement1});
 		try
 		{
@@ -396,7 +396,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		} catch (IllegalAttributeValueException e) {}
 		
 		AttributeStatement statement4 = AttributeStatement.getFixedEverybodyStatement(
-				new StringAttribute(CredentialAttributeTypeProvider.CREDENTIAL_REQUIREMENTS, 
+				StringAttribute.of(CredentialAttributeTypeProvider.CREDENTIAL_REQUIREMENTS, 
 						"/A", "foo"));
 		groupA.setAttributeStatements(new AttributeStatement[] {statement4});
 		try
@@ -446,8 +446,8 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		groupsMan.addMemberFromParent("/A/D", entity);
 		groupsMan.addMemberFromParent("/A/B/C", entity);
 		
-		attrsMan.setAttribute(entity, new StringAttribute("a1", "/A", "va1"), false);
-		attrsMan.setAttribute(entity, new StringAttribute("a1", "/A/B", "va1"), false);
+		attrsMan.setAttribute(entity, StringAttribute.of("a1", "/A", "va1"), false);
+		attrsMan.setAttribute(entity, StringAttribute.of("a1", "/A/B", "va1"), false);
 	}
 	
 	private AttributeType createSimpleAT(String name)

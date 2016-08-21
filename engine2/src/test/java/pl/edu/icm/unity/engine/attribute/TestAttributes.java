@@ -25,6 +25,7 @@ import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -51,7 +52,7 @@ public class TestAttributes extends DBIntegrationTestBase
 	@Test
 	public void systemAttributeCantBeRemoved() throws Exception
 	{
-		StringAttribute systemA = new StringAttribute(
+		Attribute systemA = StringAttribute.of(
 				CredentialAttributeTypeProvider.CREDENTIAL_REQUIREMENTS, "/", 
 				"asdsadsa"); 
 		try
@@ -64,7 +65,7 @@ public class TestAttributes extends DBIntegrationTestBase
 	@Test
 	public void systemAttributeCantBeUpdated() throws Exception
 	{
-		StringAttribute systemA = new StringAttribute(
+		Attribute systemA = StringAttribute.of(
 				CredentialAttributeTypeProvider.CREDENTIAL_REQUIREMENTS, "/", 
 				"asdsadsa"); 
 		try
@@ -77,7 +78,7 @@ public class TestAttributes extends DBIntegrationTestBase
 	@Test
 	public void cantSetAttributeInGroupWhereEntityIsntMember() throws Exception
 	{
-		StringAttribute at1 = new StringAttribute("tel", "/test", "123456");
+		Attribute at1 = StringAttribute.of("tel", "/test", "123456");
 		try
 		{
 			attrsMan.setAttribute(entity, at1, false);
@@ -89,10 +90,10 @@ public class TestAttributes extends DBIntegrationTestBase
 	public void addedAttributesAreReturned() throws Exception
 	{
 		groupsMan.addMemberFromParent("/test", entity);
-		StringAttribute at1 = new StringAttribute("tel", "/test", "123456");
+		Attribute at1 = StringAttribute.of("tel", "/test", "123456");
 		attrsMan.setAttribute(entity, at1, false);
 		
-		StringAttribute at2 = new StringAttribute("tel", "/", "1234");
+		Attribute at2 = StringAttribute.of("tel", "/", "1234");
 		attrsMan.setAttribute(entity, at2, false);
 		
 		Collection<AttributeExt> allAts = attrsMan.getAttributes(entity, null, null);
@@ -117,9 +118,9 @@ public class TestAttributes extends DBIntegrationTestBase
 	public void removedAttributeIsNotReturned() throws Exception
 	{
 		groupsMan.addMemberFromParent("/test", entity);
-		StringAttribute at1 = new StringAttribute("tel", "/test", "123456");
+		Attribute at1 = StringAttribute.of("tel", "/test", "123456");
 		attrsMan.setAttribute(entity, at1, false);
-		StringAttribute at2 = new StringAttribute("tel", "/", "1234");
+		Attribute at2 = StringAttribute.of("tel", "/", "1234");
 		attrsMan.setAttribute(entity, at2, false);
 		
 		attrsMan.removeAttribute(entity, "/", "tel");
@@ -135,7 +136,7 @@ public class TestAttributes extends DBIntegrationTestBase
 	public void afterRemovalFromGroupAttributesCantBeGet() throws Exception
 	{
 		groupsMan.addMemberFromParent("/test", entity);
-		StringAttribute at1 = new StringAttribute("tel", "/test", "123456");
+		Attribute at1 = StringAttribute.of("tel", "/test", "123456");
 		attrsMan.setAttribute(entity, at1, false);
 		
 		groupsMan.removeMember("/test", entity);
@@ -150,7 +151,7 @@ public class TestAttributes extends DBIntegrationTestBase
 	public void afterRemovalFromGroupAttributesAreRemoved() throws Exception
 	{
 		groupsMan.addMemberFromParent("/test", entity);
-		StringAttribute at1 = new StringAttribute("tel", "/test", "123456");
+		Attribute at1 = StringAttribute.of("tel", "/test", "123456");
 		attrsMan.setAttribute(entity, at1, false);
 		
 		groupsMan.removeMember("/test", entity);
@@ -163,7 +164,7 @@ public class TestAttributes extends DBIntegrationTestBase
 	public void afterCreateTimestampsAreSame() throws Exception
 	{
 		groupsMan.addMemberFromParent("/test", entity);
-		StringAttribute at1 = new StringAttribute("tel", "/test", "123456");
+		Attribute at1 = StringAttribute.of("tel", "/test", "123456");
 		attrsMan.setAttribute(entity, at1, false);
 		
 		Collection<AttributeExt> allAts = attrsMan.getAttributes(entity, "/test", null);
@@ -179,7 +180,7 @@ public class TestAttributes extends DBIntegrationTestBase
 	public void afterUpdateTimestampsIsChanged() throws Exception
 	{
 		groupsMan.addMemberFromParent("/test", entity);
-		StringAttribute at1 = new StringAttribute("tel", "/test", "123456");
+		Attribute at1 = StringAttribute.of("tel", "/test", "123456");
 		attrsMan.setAttribute(entity, at1, false);
 		Collection<AttributeExt> allAts = attrsMan.getAttributes(entity, "/test", null);
 		assertEquals(1, allAts.size());
@@ -202,7 +203,7 @@ public class TestAttributes extends DBIntegrationTestBase
 	@Test
 	public void existingAttributeSetIsForbiddenWithoutUpdateFlag() throws Exception
 	{
-		StringAttribute at2 = new StringAttribute("tel", "/", "1234");
+		Attribute at2 = StringAttribute.of("tel", "/", "1234");
 		attrsMan.setAttribute(entity, at2, false);
 		try
 		{
@@ -214,7 +215,7 @@ public class TestAttributes extends DBIntegrationTestBase
 	@Test
 	public void updatedAttributeIsReturned() throws Exception
 	{
-		StringAttribute at2 = new StringAttribute("tel", "/", "1234");
+		Attribute at2 = StringAttribute.of("tel", "/", "1234");
 		attrsMan.setAttribute(entity, at2, false);
 		
 		at2.setValues(Collections.singletonList("333"));

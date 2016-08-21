@@ -20,11 +20,11 @@ import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
 import pl.edu.icm.unity.engine.notifications.EmailFacility;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.PasswordResetTemplateDef;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -70,7 +70,7 @@ public class TestNotifications extends DBIntegrationTestBase
 			fail("Managed to send email for an entity without email attribute");
 		} catch(IllegalIdentityValueException e){}
 
-		StringAttribute emailA = new StringAttribute("email", 
+		Attribute emailA = StringAttribute.of("email", 
 				"/", destinationAddress);
 		attrsMan.setAttribute(admin, emailA, false);
 		Future<NotificationStatus> statusFuture = notProducer.sendNotification(admin, "ch1", 

@@ -138,13 +138,13 @@ public class TestMerge extends DBIntegrationTestBase
 		groupsMan.addMemberFromParent("/A", new EntityParam(merged));
 		aTypeMan.addAttributeType(new AttributeType("a", StringAttributeSyntax.ID));
 		aTypeMan.addAttributeType(new AttributeType("b", StringAttributeSyntax.ID));
-		attrsMan.setAttribute(new EntityParam(target), new StringAttribute("a", "/", 
+		attrsMan.setAttribute(new EntityParam(target), StringAttribute.of("a", "/", 
 				"v1"), false);
-		attrsMan.setAttribute(new EntityParam(merged), new StringAttribute("a", "/", 
+		attrsMan.setAttribute(new EntityParam(merged), StringAttribute.of("a", "/", 
 				"v2"), false);
-		attrsMan.setAttribute(new EntityParam(merged), new StringAttribute("b", "/", 
+		attrsMan.setAttribute(new EntityParam(merged), StringAttribute.of("b", "/", 
 				"v1"), false);
-		attrsMan.setAttribute(new EntityParam(merged), new StringAttribute("a", "/A", 
+		attrsMan.setAttribute(new EntityParam(merged), StringAttribute.of("a", "/A", 
 				"v1"), false);
 		
 		idsMan.mergeEntities(new EntityParam(target), new EntityParam(merged), false);
@@ -262,9 +262,9 @@ public class TestMerge extends DBIntegrationTestBase
 		Identity merged = createUsernameUser("merged", null, "p2", CRED_REQ_PASS);
 		eCredMan.setEntityCredentialStatus(new EntityParam(target), "credential1", LocalCredentialState.notSet);
 		aTypeMan.addAttributeType(new AttributeType("a", StringAttributeSyntax.ID));
-		attrsMan.setAttribute(new EntityParam(target), new StringAttribute("a", "/", 
+		attrsMan.setAttribute(new EntityParam(target), StringAttribute.of("a", "/", 
 				"v1"), false);
-		attrsMan.setAttribute(new EntityParam(merged), new StringAttribute("a", "/", 
+		attrsMan.setAttribute(new EntityParam(merged), StringAttribute.of("a", "/", 
 				"v2"), false);
 
 		try

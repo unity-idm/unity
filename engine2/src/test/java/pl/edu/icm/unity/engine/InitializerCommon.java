@@ -29,6 +29,7 @@ import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributesClass;
@@ -96,7 +97,7 @@ public class InitializerCommon
 	public void initializeCommonAttributeStatements() throws EngineException
 	{
 		AttributeStatement everybodyStmt = AttributeStatement.getFixedEverybodyStatement(
-				new EnumAttribute("sys:AuthorizationRole", 
+				EnumAttribute.of("sys:AuthorizationRole", 
 				"/", 
 				"Regular User")); 
 		Group rootGroup = groupsMan.getContents("/", GroupContents.METADATA).getGroup();
@@ -153,7 +154,7 @@ public class InitializerCommon
 	public void assignCnToAdmin() throws EngineException
 	{
 		String adminU = config.getValue(UnityServerConfiguration.INITIAL_ADMIN_USER);
-		StringAttribute cnA = new StringAttribute(CN_ATTR, "/", "Default Administrator");
+		Attribute cnA = StringAttribute.of(CN_ATTR, "/", "Default Administrator");
 		EntityParam entity = new EntityParam(new IdentityTaV(UsernameIdentity.ID, adminU));
 		try
 		{

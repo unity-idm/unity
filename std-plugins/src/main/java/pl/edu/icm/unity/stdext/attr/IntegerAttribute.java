@@ -15,27 +15,28 @@ import pl.edu.icm.unity.types.basic.Attribute;
  * Helper class allowing to create integer attributes easily.
  * @author K. Benedyczak
  */
-public class IntegerAttribute extends Attribute
+public class IntegerAttribute
 {
-	public IntegerAttribute(String name, String groupPath,
+	public static Attribute of(String name, String groupPath,
 			List<String> values, String remoteIdp, String translationProfile)
 	{
-		super(name, IntegerAttributeSyntax.ID, groupPath, values, remoteIdp, translationProfile);
+		return new Attribute(name, IntegerAttributeSyntax.ID, groupPath, values, 
+				remoteIdp, translationProfile);
 	}
 
-	public IntegerAttribute(String name, String groupPath, List<? extends Number> values)
+	public static Attribute of(String name, String groupPath, List<? extends Number> values)
 	{
-		super(name, IntegerAttributeSyntax.ID, groupPath, convert(values));
+		return new Attribute(name, IntegerAttributeSyntax.ID, groupPath, convert(values));
 	}
 	
-	public IntegerAttribute(String name, String groupPath, Long... values)
+	public static Attribute of(String name, String groupPath, Long... values)
 	{
-		this(name, groupPath, Lists.newArrayList(values));
+		return of(name, groupPath, Lists.newArrayList(values));
 	}
 
-	public IntegerAttribute(String name, String groupPath, Integer... values)
+	public static Attribute of(String name, String groupPath, Integer... values)
 	{
-		this(name, groupPath, Lists.newArrayList(values));
+		return of(name, groupPath, Lists.newArrayList(values));
 	}
 	
 	private static List<String> convert(List<? extends Number> values)

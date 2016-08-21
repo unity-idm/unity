@@ -14,24 +14,8 @@ import pl.edu.icm.unity.types.basic.Attribute;
  * Helper class allowing to create string attributes easily.
  * @author K. Benedyczak
  */
-public class StringAttribute extends Attribute
+public class StringAttribute
 {
-	public StringAttribute(String name, String groupPath,
-			List<String> values, String remoteIdp, String translationProfile)
-	{
-		super(name, StringAttributeSyntax.ID, groupPath, values, remoteIdp, translationProfile);
-	}
-
-	public StringAttribute(String name, String groupPath, List<String> values)
-	{
-		super(name, StringAttributeSyntax.ID, groupPath, values);
-	}
-	
-	public StringAttribute(String name, String groupPath, String... values)
-	{
-		super(name, StringAttributeSyntax.ID, groupPath, Lists.newArrayList(values));
-	}
-	
 	public static Attribute of(String name, String groupPath,
 			List<String> values, String remoteIdp, String translationProfile)
 	{

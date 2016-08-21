@@ -15,22 +15,23 @@ import pl.edu.icm.unity.types.basic.Attribute;
  * Helper class allowing to create floating point number attributes easily.
  * @author K. Benedyczak
  */
-public class FloatingPointAttribute extends Attribute
+public class FloatingPointAttribute
 {
-	public FloatingPointAttribute(String name, String groupPath,
+	public static Attribute of(String name, String groupPath,
 			List<String> values, String remoteIdp, String translationProfile)
 	{
-		super(name, FloatingPointAttributeSyntax.ID, groupPath, values, remoteIdp, translationProfile);
+		return new Attribute(name, FloatingPointAttributeSyntax.ID, groupPath, 
+				values, remoteIdp, translationProfile);
 	}
 
-	public FloatingPointAttribute(String name, String groupPath, List<Double> values)
+	public static Attribute of(String name, String groupPath, List<Double> values)
 	{
-		super(name, FloatingPointAttributeSyntax.ID, groupPath, convert(values));
+		return new Attribute(name, FloatingPointAttributeSyntax.ID, groupPath, convert(values));
 	}
 	
-	public FloatingPointAttribute(String name, String groupPath, Double... values)
+	public static Attribute of(String name, String groupPath, Double... values)
 	{
-		this(name, groupPath, Lists.newArrayList(values));
+		return of(name, groupPath, Lists.newArrayList(values));
 	}
 
 	private static List<String> convert(List<Double> values)

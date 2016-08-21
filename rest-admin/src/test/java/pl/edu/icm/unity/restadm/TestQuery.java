@@ -207,17 +207,17 @@ public class TestQuery extends TestRESTBase
 		aTypeMan.addAttributeType(new AttributeType("jpegA", JpegImageAttributeSyntax.ID));
 		aTypeMan.addAttributeType(new AttributeType("emailA", VerifiableEmailAttributeSyntax.ID));
 		
-		attrsMan.setAttribute(e, new StringAttribute("stringA", "/example", 
+		attrsMan.setAttribute(e, StringAttribute.of("stringA", "/example", 
 				"value"), false);
-		attrsMan.setAttribute(e, new IntegerAttribute("intA", "/example", 
+		attrsMan.setAttribute(e, IntegerAttribute.of("intA", "/example", 
 				12), false);
-		attrsMan.setAttribute(e, new FloatingPointAttribute("floatA", "/example", 
+		attrsMan.setAttribute(e, FloatingPointAttribute.of("floatA", "/example", 
 				12.9), false);
-		attrsMan.setAttribute(e, new JpegImageAttribute("jpegA", "/example", 
+		attrsMan.setAttribute(e, JpegImageAttribute.of("jpegA", "/example", 
 				new BufferedImage(100, 50, BufferedImage.TYPE_INT_ARGB)), false);
-		attrsMan.setAttribute(e, new EnumAttribute("enumA", "/example", 
+		attrsMan.setAttribute(e, EnumAttribute.of("enumA", "/example", 
 				"V1"), false);
-		attrsMan.setAttribute(e, new VerifiableEmailAttribute("emailA", "/example", 
+		attrsMan.setAttribute(e, VerifiableEmailAttribute.of("emailA", "/example", 
 				new VerifiableEmail("some@example.com")), false);
 		return id.getEntityId();
 	}

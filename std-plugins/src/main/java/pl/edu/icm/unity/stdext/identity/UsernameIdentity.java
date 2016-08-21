@@ -111,8 +111,7 @@ public class UsernameIdentity extends AbstractStaticIdentityTypeProvider
 		String desiredName = toExtract.get(EXTRACTED_NAME);
 		if (desiredName == null)
 			return Collections.emptyList();
-		Attribute ret = new StringAttribute(desiredName, "/", from);
-		return Lists.newArrayList(ret);
+		return Lists.newArrayList(StringAttribute.of(desiredName, "/", from));
 	}
 
 	/**

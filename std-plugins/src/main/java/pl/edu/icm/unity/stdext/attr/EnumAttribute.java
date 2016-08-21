@@ -14,21 +14,21 @@ import pl.edu.icm.unity.types.basic.Attribute;
  * Helper class allowing to create enumeration attributes easily.
  * @author K. Benedyczak
  */
-public class EnumAttribute extends Attribute
+public class EnumAttribute
 {
-	public EnumAttribute(String name, String groupPath, List<String> values,
+	public static Attribute of(String name, String groupPath, List<String> values,
 			String remoteIdp, String translationProfile)
 	{
-		super(name, EnumAttributeSyntax.ID, groupPath, values, remoteIdp, translationProfile);
+		return new Attribute(name, EnumAttributeSyntax.ID, groupPath, values, remoteIdp, translationProfile);
 	}
 
-	public EnumAttribute(String name, String groupPath, List<String> values)
+	public static Attribute of(String name, String groupPath, List<String> values)
 	{
-		super(name, EnumAttributeSyntax.ID, groupPath, values);
+		return new Attribute(name, EnumAttributeSyntax.ID, groupPath, values);
 	}
 	
-	public EnumAttribute(String name, String groupPath, String value)
+	public static Attribute of(String name, String groupPath, String value)
 	{
-		super(name, EnumAttributeSyntax.ID, groupPath, Lists.newArrayList(value));
+		return new Attribute(name, EnumAttributeSyntax.ID, groupPath, Lists.newArrayList(value));
 	}
 }

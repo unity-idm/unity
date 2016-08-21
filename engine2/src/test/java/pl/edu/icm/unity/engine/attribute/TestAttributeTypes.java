@@ -133,7 +133,7 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		aTypeMan.addAttributeType(at);
 		Identity id = createUsernameUser("user");
 		EntityParam entity = new EntityParam(id.getEntityId());
-		StringAttribute at1 = new StringAttribute("some", "/", "123456");
+		Attribute at1 = StringAttribute.of("some", "/", "123456");
 		attrsMan.setAttribute(entity, at1, false);
 		
 		catchException(aTypeMan).removeAttributeType("some", false);
@@ -149,7 +149,7 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		aTypeMan.addAttributeType(at);
 		Identity id = createUsernameUser("user");
 		EntityParam entity = new EntityParam(id.getEntityId());
-		StringAttribute at1 = new StringAttribute("some", "/", "123456");
+		Attribute at1 = StringAttribute.of("some", "/", "123456");
 		attrsMan.setAttribute(entity, at1, false);
 		
 		aTypeMan.removeAttributeType("some", true);
@@ -196,7 +196,7 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		List<String> vals = Lists.newArrayList("1", "2", "3");
 		Identity id = createUsernameUser("user");
 		EntityParam entity = new EntityParam(id.getEntityId());
-		Attribute at1 = new StringAttribute("some", "/", vals);
+		Attribute at1 = StringAttribute.of("some", "/", vals);
 		attrsMan.setAttribute(entity, at1, false);
 		
 		at.setMinElements(1);
@@ -217,7 +217,7 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		List<String> vals = Lists.newArrayList("1", "2", "3");
 		Identity id = createUsernameUser("user");
 		EntityParam entity = new EntityParam(id.getEntityId());
-		Attribute at1 = new StringAttribute("some", "/", vals);
+		Attribute at1 = StringAttribute.of("some", "/", vals);
 		attrsMan.setAttribute(entity, at1, false);
 		
 		at.setMaxElements(2);
@@ -251,7 +251,7 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		
 		List<String> vals = new ArrayList<String>();
 		Collections.addAll(vals, "MA__g", "MA_ _ _g");
-		StringAttribute atOK = new StringAttribute("some", "/", vals);
+		Attribute atOK = StringAttribute.of("some", "/", vals);
 		attrsMan.setAttribute(entity, atOK, false);
 		
 		//now try to break restrictions:

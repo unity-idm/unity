@@ -64,7 +64,7 @@ public class CredentialHelperImpl implements CredentialHelper
 			throws EngineException 
 	{
 		String credentialAttributeName = CredentialAttributeTypeProvider.CREDENTIAL_PREFIX+credentialName;
-		StringAttribute newCredentialA = new StringAttribute(credentialAttributeName, 
+		Attribute newCredentialA = StringAttribute.of(credentialAttributeName, 
 				"/", Collections.singletonList(value));
 		attributeHelper.addAttribute(entityId, newCredentialA, true, true);
 	}

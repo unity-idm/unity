@@ -243,7 +243,7 @@ public class AttributesHelper
 		Map<String, AttributeType> allTypes = attributeTypeDAO.getAllAsMap();
 		acHelper.checkAttribtues(attributeNames, allTypes);
 
-		StringAttribute classAttr = new StringAttribute(AttributeClassTypeProvider.ATTRIBUTE_CLASSES_ATTRIBUTE, 
+		Attribute classAttr = StringAttribute.of(AttributeClassTypeProvider.ATTRIBUTE_CLASSES_ATTRIBUTE, 
 				group, new ArrayList<>(classes));
 		createOrUpdateAttribute(classAttr, entityId);
 	}
