@@ -28,8 +28,6 @@ public enum InitializerMode
 				.stream()
 				.filter(type -> type.name().equalsIgnoreCase(name))
 				.findFirst()
-				.orElseThrow(() -> {
-					throw new IllegalArgumentException("No enum const InitializerMode." + name);
-				});
+				.orElseThrow(() -> new IllegalArgumentException("No enum const InitializerMode." + name));
 	}
 }

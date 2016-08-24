@@ -30,9 +30,7 @@ public enum InitializerType
 				.stream()
 				.filter(type -> type.name().equalsIgnoreCase(name))
 				.findFirst()
-				.orElseThrow(() -> {
-					throw new IllegalArgumentException("No enum const InitializerType." + name);
-				});
+				.orElseThrow(() -> new IllegalArgumentException("No enum const InitializerType." + name));
 	}
 
 	public static String typeNamesToString()
