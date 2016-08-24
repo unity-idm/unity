@@ -4,9 +4,6 @@
  */
 package pl.edu.icm.unity.webui.common.boundededitors;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.Styles;
-
 import com.vaadin.data.util.converter.Converter;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.Alignment;
@@ -15,6 +12,9 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Shows a checkbox and a textfield to query for a limit number with optional unlimited setting.

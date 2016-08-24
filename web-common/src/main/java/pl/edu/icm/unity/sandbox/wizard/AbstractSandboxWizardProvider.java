@@ -11,13 +11,13 @@ import org.vaadin.teemu.wizards.event.WizardProgressListener;
 import org.vaadin.teemu.wizards.event.WizardStepActivationEvent;
 import org.vaadin.teemu.wizards.event.WizardStepSetChangedEvent;
 
-import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
-import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
-import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier.AuthnResultListener;
-
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.VaadinService;
 import com.vaadin.ui.UI;
+
+import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
+import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
+import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier.AuthnResultListener;
 
 /**
  * Base class for sandbox wizard providers. The class provides the common code used to activate sandbox popup

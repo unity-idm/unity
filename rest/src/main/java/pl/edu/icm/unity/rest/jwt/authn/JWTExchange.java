@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.rest.jwt.authn;
 
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.CredentialExchange;
 
 
 /**

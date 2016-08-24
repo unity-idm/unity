@@ -7,14 +7,13 @@ package pl.edu.icm.unity.webui.common.attributes;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.ui.AbstractOrderedLayout;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub;
-
-import com.vaadin.ui.AbstractOrderedLayout;
 
 /**
  * Attribute editor allowing to edit a fixed attribute type. It can show the (also fixed) group 

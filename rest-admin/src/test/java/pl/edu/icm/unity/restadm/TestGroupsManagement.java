@@ -17,8 +17,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.types.basic.GroupContentsRepresentation;
+import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.types.basic.GroupContents;
 
 /**
  * Groups management test
@@ -37,8 +37,7 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		response = client.execute(host, getGroupContents, localcontext);
 		String contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
-		GroupContentsRepresentation groupContent = Constants.MAPPER.readValue(contents,
-				GroupContentsRepresentation.class);
+		GroupContents groupContent = JsonUtil.parse(contents, GroupContents.class);
 		assertThat(groupContent.getSubGroups().contains("/subgroup"), is(true));
 	}
 
@@ -57,8 +56,7 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		HttpResponse getResponse = client.execute(host, getGroupContents, localcontext);
 		String contents = EntityUtils.toString(getResponse.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), getResponse.getStatusLine().getStatusCode());
-		GroupContentsRepresentation groupContent = Constants.MAPPER.readValue(contents,
-				GroupContentsRepresentation.class);
+		GroupContents groupContent = JsonUtil.parse(contents, GroupContents.class);
 		assertThat(groupContent.getSubGroups().contains("/subgroup"), is(false));
 	}
 }

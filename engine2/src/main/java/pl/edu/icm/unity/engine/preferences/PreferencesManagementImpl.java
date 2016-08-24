@@ -32,6 +32,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.types.StoredAttribute;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
@@ -120,7 +121,7 @@ public class PreferencesManagementImpl implements PreferencesManagement
 	private void storePreferenceAttribute(long entityId, String value, boolean update) 
 			throws IllegalAttributeValueException, IllegalTypeException, IllegalAttributeTypeException, IllegalGroupValueException
 	{
-		StringAttribute sa = new StringAttribute(PreferencesAttributeTypeProvider.PREFERENCES, "/", value);
+		Attribute sa = StringAttribute.of(PreferencesAttributeTypeProvider.PREFERENCES, "/", value);
 		AttributeExt atExt = new AttributeExt(sa, true, new Date(), new Date());
 		if (update)
 			dbAttributes.updateAttribute(new StoredAttribute(atExt, entityId));

@@ -7,13 +7,13 @@ package pl.edu.icm.unity.webui.common.bigtab;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.bigtab.BigTab.TabCallback;
-
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.bigtab.BigTab.TabCallback;
 
 /**
  * Tabs management for {@link BigTabPanel}

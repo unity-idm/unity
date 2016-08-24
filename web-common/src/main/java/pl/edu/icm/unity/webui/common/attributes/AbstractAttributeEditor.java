@@ -4,8 +4,10 @@
  */
 package pl.edu.icm.unity.webui.common.attributes;
 
+import com.vaadin.ui.AbstractOrderedLayout;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -13,8 +15,6 @@ import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.Editor;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.EditorProvider;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
-
-import com.vaadin.ui.AbstractOrderedLayout;
 
 /**
  * Base of the components allowing to edit an attribute. The values are displayed too, however may be 

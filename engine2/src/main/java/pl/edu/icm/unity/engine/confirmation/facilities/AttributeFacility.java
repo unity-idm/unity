@@ -16,7 +16,6 @@ import pl.edu.icm.unity.engine.api.confirmation.ConfirmationStatus;
 import pl.edu.icm.unity.engine.api.confirmation.states.AttribiuteConfirmationState;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
@@ -102,7 +101,7 @@ public class AttributeFacility extends UserFacility<AttribiuteConfirmationState>
 	}
 
 	@Override
-	public AttribiuteConfirmationState parseState(String state) throws WrongArgumentException
+	public AttribiuteConfirmationState parseState(String state)
 	{
 		return new AttribiuteConfirmationState(state);
 	}

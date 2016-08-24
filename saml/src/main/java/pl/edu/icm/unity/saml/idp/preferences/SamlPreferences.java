@@ -141,7 +141,7 @@ public class SamlPreferences extends IdPPreferences
 	}
 	
 	public static SamlPreferences getPreferences(PreferencesManagement preferencesMan,
-			AttributeSyntaxFactoriesRegistry syntaxReg) throws EngineException
+			AttributeSyntaxFactoriesRegistry syntaxReg)
 	{
 		SamlPreferences ret = new SamlPreferences(syntaxReg);
 		initPreferencesGeneric(preferencesMan, ret, SamlPreferences.ID);
@@ -149,7 +149,7 @@ public class SamlPreferences extends IdPPreferences
 	}
 
 	public static SamlPreferences getPreferences(PreferencesManagement preferencesMan,
-			AttributeSyntaxFactoriesRegistry syntaxReg, EntityParam entity) throws EngineException
+			AttributeSyntaxFactoriesRegistry syntaxReg, EntityParam entity)
 	{
 		SamlPreferences ret = new SamlPreferences(syntaxReg);
 		initPreferencesGeneric(preferencesMan, ret, SamlPreferences.ID, entity);

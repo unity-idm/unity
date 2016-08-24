@@ -12,21 +12,20 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.CredentialReset;
+import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.api.TranslationProfileManagement;
-import pl.edu.icm.unity.server.authn.AuthenticationException;
-import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.server.authn.CredentialReset;
-import pl.edu.icm.unity.server.authn.remote.AbstractRemoteVerificator;
-import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
-import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.credential.CertificateExchange;
 import pl.edu.icm.unity.stdext.credential.PasswordExchange;
-import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * Supports {@link PasswordExchange} and verifies the password and username against a configured LDAP 
@@ -44,10 +43,10 @@ public class LdapVerificator extends AbstractRemoteVerificator implements Passwo
 	private String translationProfile;
 	
 	public LdapVerificator(String name, String description, 
-			TranslationProfileManagement profileManagement, InputTranslationEngine trEngine,
+			RemoteAuthnResultProcessor processor,
 			PKIManagement pkiManagement, String exchangeId)
 	{
-		super(name, description, exchangeId, profileManagement, trEngine);
+		super(name, description, exchangeId, processor);
 		this.client = new LdapClient(name);
 		this.pkiManagement = pkiManagement;
 	}

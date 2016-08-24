@@ -6,16 +6,16 @@ package pl.edu.icm.unity.wellknownurl;
 
 import java.util.Collection;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.UnityUIBase;
-import pl.edu.icm.unity.webui.UnityWebUI;
-import pl.edu.icm.unity.webui.common.ErrorComponent;
-
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.navigator.ViewProvider;
 import com.vaadin.server.VaadinRequest;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.webui.UnityUIBase;
+import pl.edu.icm.unity.webui.UnityWebUI;
+import pl.edu.icm.unity.webui.common.ErrorComponent;
 
 /**
  * The Vaadin UI providing a concrete view depending on URL fragment. Actual views are configured via DI.

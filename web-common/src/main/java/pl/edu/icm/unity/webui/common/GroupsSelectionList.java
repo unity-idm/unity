@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import pl.edu.icm.unity.server.api.GroupsManagement;
-
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.TwinColSelect;
+
+import pl.edu.icm.unity.engine.api.GroupsManagement;
 
 
 /**

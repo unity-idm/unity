@@ -4,12 +4,12 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 
 /**
  * Confirmation dialog, witch an additional checkbox. Useful for situations when confirmation

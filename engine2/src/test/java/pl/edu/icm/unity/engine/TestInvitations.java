@@ -172,7 +172,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 		initAndCreateForm(true);
 		InvitationParam invitation = new InvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
 		invitation.getAttributes().put(0, new PrefilledEntry<>(
-				new VerifiableEmailAttribute(InitializerCommon.EMAIL_ATTR, "/",
+				VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, "/",
 						"enforced@example.com"), PrefilledEntryMode.HIDDEN));
 		String code = invitationMan.addInvitation(invitation);
 		RegistrationRequest request = getRequest(code);
@@ -227,7 +227,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 		initAndCreateForm(true);
 		InvitationParam invitation = new InvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
 		invitation.getAttributes().put(0, new PrefilledEntry<>(
-				new VerifiableEmailAttribute(InitializerCommon.EMAIL_ATTR, "/",
+				VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, "/",
 						"enforced@example.com"), PrefilledEntryMode.HIDDEN));
 		String code = invitationMan.addInvitation(invitation);
 		RegistrationRequest request = getRequestWithIdentity(code);
@@ -327,7 +327,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 				.withFormId(TEST_FORM)
 				.withRegistrationCode(code)
 				.withAddedAttribute(
-						new VerifiableEmailAttribute(
+						VerifiableEmailAttribute.of(
 								InitializerCommon.EMAIL_ATTR, "/",
 								"foo@example.com"))
 				.withAddedGroupSelection().withSelected(false).endGroupSelection()

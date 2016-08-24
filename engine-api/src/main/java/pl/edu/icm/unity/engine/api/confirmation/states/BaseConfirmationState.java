@@ -4,13 +4,13 @@
  */
 package pl.edu.icm.unity.engine.api.confirmation.states;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Contains common informations used during confirmation
@@ -90,12 +90,12 @@ public class BaseConfirmationState
 		return state;
 	}
 	
-	protected void setSerializedConfiguration(String json) throws WrongArgumentException
+	protected void setSerializedConfiguration(String json)
 	{
 		setSerializedConfiguration(JsonUtil.parse(json));
 	}
 	
-	protected void setSerializedConfiguration(ObjectNode main) throws WrongArgumentException
+	protected void setSerializedConfiguration(ObjectNode main)
 	{
 		try
 		{
@@ -107,7 +107,7 @@ public class BaseConfirmationState
 				redirectUrl = main.get("redirectUrl").asText();
 		} catch (Exception e)
 		{
-			throw new WrongArgumentException("Can't perform JSON deserialization", e);
+			throw new IllegalArgumentException("Can't perform JSON deserialization", e);
 		}
 
 	}

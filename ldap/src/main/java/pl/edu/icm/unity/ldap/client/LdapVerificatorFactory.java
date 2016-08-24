@@ -5,14 +5,12 @@
 package pl.edu.icm.unity.ldap.client;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.api.TranslationProfileManagement;
-import pl.edu.icm.unity.server.authn.CredentialVerificator;
-import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
-import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
+import pl.edu.icm.unity.engine.api.authn.CredentialVerificatorFactory;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.stdext.credential.PasswordExchange;
 
 /**
@@ -25,17 +23,15 @@ public class LdapVerificatorFactory implements CredentialVerificatorFactory
 {
 	public static final String NAME = "ldap";
 	
-	private TranslationProfileManagement profileManagement;
-	private InputTranslationEngine trEngine;
 	private PKIManagement pkiManagement;
 
+	private RemoteAuthnResultProcessor processor;
+
 	@Autowired
-	public LdapVerificatorFactory(@Qualifier("insecure") TranslationProfileManagement profileManagement, 
-			InputTranslationEngine trEngine, PKIManagement pkiManagement)
+	public LdapVerificatorFactory(PKIManagement pkiManagement, RemoteAuthnResultProcessor processor)
 	{
-		this.profileManagement = profileManagement;
-		this.trEngine = trEngine;
 		this.pkiManagement = pkiManagement;
+		this.processor = processor;
 	}
 
 	@Override
@@ -53,7 +49,7 @@ public class LdapVerificatorFactory implements CredentialVerificatorFactory
 	@Override
 	public CredentialVerificator newInstance()
 	{
-		return new LdapVerificator(getName(), getDescription(), profileManagement, trEngine, pkiManagement,
+		return new LdapVerificator(getName(), getDescription(), processor, pkiManagement,
 				PasswordExchange.ID);
 	}
 }

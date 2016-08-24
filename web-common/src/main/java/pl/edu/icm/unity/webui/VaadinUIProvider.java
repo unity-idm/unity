@@ -9,15 +9,14 @@ import java.util.Properties;
 
 import org.springframework.context.ApplicationContext;
 
-import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
-import pl.edu.icm.unity.server.authn.AuthenticationOption;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
-import pl.edu.icm.unity.webui.authn.CancelHandler;
-
 import com.vaadin.server.UIClassSelectionEvent;
 import com.vaadin.server.UICreateEvent;
 import com.vaadin.server.UIProvider;
 import com.vaadin.ui.UI;
+
+import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
+import pl.edu.icm.unity.webui.authn.CancelHandler;
 
 /**
  * Creates UI object by retrieving it from Spring context.

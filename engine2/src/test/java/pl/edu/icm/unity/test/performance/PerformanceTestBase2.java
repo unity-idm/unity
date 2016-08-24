@@ -40,6 +40,7 @@ import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
@@ -252,7 +253,7 @@ public abstract class PerformanceTestBase2 extends SecuredDBIntegrationTestBase
 					
 					for (int i=0; i<attrs; i++)
 					{
-						StringAttribute attribute = new StringAttribute(STRING_ATTR_PFX + i, group, 
+						Attribute attribute = StringAttribute.of(STRING_ATTR_PFX + i, group, 
 								Lists.newArrayList("val1", "sooooooooome loooooonger vaaaaal" + 
 										r.nextLong()));
 						AttributeExt ae = new AttributeExt(attribute, true, 

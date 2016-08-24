@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.rest.authn.ext;
 
+import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
-import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 
 /**
  * Credential retrieval using username and password from the HTTP Basic Authn.

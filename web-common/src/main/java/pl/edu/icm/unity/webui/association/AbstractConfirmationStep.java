@@ -12,18 +12,17 @@ import org.vaadin.teemu.wizards.event.WizardProgressListener;
 import org.vaadin.teemu.wizards.event.WizardStepActivationEvent;
 import org.vaadin.teemu.wizards.event.WizardStepSetChangedEvent;
 
-import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
-import pl.edu.icm.unity.server.authn.LocalSandboxAuthnContext;
-import pl.edu.icm.unity.server.authn.SandboxAuthnContext;
-import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
-import pl.edu.icm.unity.server.authn.remote.RemoteSandboxAuthnContext;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
-
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.authn.SandboxAuthnContext;
+import pl.edu.icm.unity.engine.api.authn.local.LocalSandboxAuthnContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
+import pl.edu.icm.unity.webui.common.ErrorComponent;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
 /**
  * Shows confirmation of the account association and invokes the operation. 

@@ -38,6 +38,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
@@ -182,7 +183,7 @@ public class SessionManagementImpl implements SessionManagement
 			tokensManagement.removeToken(SESSION_TOKEN_TYPE, id);
 			if (log.isDebugEnabled())
 				log.debug("Removed session with id " + id);
-		} catch (WrongArgumentException e)
+		} catch (IllegalArgumentException e)
 		{
 			//not found - ok
 		}
@@ -269,7 +270,7 @@ public class SessionManagementImpl implements SessionManagement
 		String loginTime = LocalDateTime.ofInstant(
 				started.toInstant().truncatedTo(ChronoUnit.SECONDS), ZoneId.systemDefault())
 				.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-		StringAttribute lastAuthn = new StringAttribute(
+		Attribute lastAuthn = StringAttribute.of(
 				LastAuthenticationAttributeTypeProvider.LAST_AUTHENTICATION, "/", loginTime);
 		attributeHelper.addSystemAttribute(entityId, lastAuthn, true);
 	}

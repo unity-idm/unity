@@ -22,6 +22,13 @@ public class TranslationAction
 		this.parameters = parameters;
 	}
 
+	/**
+	 * For JSON deserialization
+	 */
+	protected TranslationAction()
+	{
+	}
+	
 	public String getName()
 	{
 		return name;

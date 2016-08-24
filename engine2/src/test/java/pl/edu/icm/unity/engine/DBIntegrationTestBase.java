@@ -32,6 +32,7 @@ import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -116,7 +117,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 				new PasswordToken(password).toJson());
 		if (role != null)
 		{
-			EnumAttribute sa = new EnumAttribute(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
+			Attribute sa = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
 				"/", Lists.newArrayList(role));
 			attrsMan.setAttribute(new EntityParam(added1), sa, false);
 		}
@@ -138,7 +139,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 				new EntityParam(added2), false);
 		if (role != null)
 		{
-			EnumAttribute sa = new EnumAttribute(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
+			Attribute sa = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
 				"/", Lists.newArrayList(role));
 			attrsMan.setAttribute(new EntityParam(added2), sa, false);
 		}

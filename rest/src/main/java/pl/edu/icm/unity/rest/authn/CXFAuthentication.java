@@ -7,9 +7,9 @@ package pl.edu.icm.unity.rest.authn;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
 
-import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.CredentialRetrieval;
-import pl.edu.icm.unity.server.endpoint.BindingAuthn;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
+import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 
 /**
  * Defines a contract which must be implemented by {@link CredentialRetrieval}s in order to be used 

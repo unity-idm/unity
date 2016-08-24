@@ -87,8 +87,10 @@ public class RemoteAuthnContext extends RemoteAuthnState implements Serializable
 	}
 	public synchronized boolean isEnableAssociation()
 	{
-		return samlProperties.getBooleanValue(
-				idpKey + CommonWebAuthnProperties.ENABLE_ASSOCIATION);
+		String perIdpKey = idpKey + CommonWebAuthnProperties.ENABLE_ASSOCIATION;
+		return samlProperties.isSet(perIdpKey) ? 
+				samlProperties.getBooleanValue(perIdpKey) :
+				samlProperties.getBooleanValue(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION);
 	}
 	
 	public synchronized SAMLSPProperties getContextConfig()

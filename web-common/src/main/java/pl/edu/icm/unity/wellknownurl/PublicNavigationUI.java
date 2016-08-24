@@ -11,9 +11,9 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-
 import com.vaadin.annotations.Theme;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 
 /**
  * The Vaadin UI providing a concrete view depending on URL fragment. Actual views are configured via DI.

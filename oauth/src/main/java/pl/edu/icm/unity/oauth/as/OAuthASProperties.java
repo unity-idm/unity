@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
@@ -45,6 +46,7 @@ public class OAuthASProperties extends PropertiesHelper
 	public static final String ID_TOKEN_VALIDITY = "idTokenValidity";
 	public static final String CREDENTIAL = "signingCredential";
 	public static final String SKIP_CONSENT = "skipConsent";
+	public static final String IDENTITY_TYPE_FOR_SUBJECT = "identityTypeForSubject";
 	
 	public static final String CLIENTS_GROUP = "clientsGroup";
 	public static final String USERS_GROUP = "usersGroup";
@@ -80,6 +82,10 @@ public class OAuthASProperties extends PropertiesHelper
 						+ " with the information what service requested authorization and what data "
 						+ "is going to be released. Note that user may always choose to disable "
 						+ "the consent screen for each service, even if this setting is set to false."));
+		defaults.put(IDENTITY_TYPE_FOR_SUBJECT, new PropertyMD(TargetedPersistentIdentity.ID).
+				setDescription("Allows for selecting the identity type which is used to create a mandatory "
+						+ "'sub' claim of OAuth token. By default the targeted persistent identifier"
+						+ " is used, but can be changed to use for instance the global persistent identity."));
 		defaults.put(CLIENTS_GROUP, new PropertyMD("/oauth-clients").
 				setDescription("Group in which authorized OAuth Clients must be present. "
 						+ "OAuth related attributes defined in this group are used"

@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.types.endpoint;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 
 /**
@@ -26,6 +28,10 @@ public class ResolvedEndpoint
 		this.type = type;
 	}
 
+	protected ResolvedEndpoint()
+	{
+	}
+	
 	public Endpoint getEndpoint()
 	{
 		return endpoint;
@@ -44,6 +50,7 @@ public class ResolvedEndpoint
 	/**
 	 * @return the same as {@link #getEndpoint()}.getName()
 	 */
+	@JsonIgnore
 	public String getName()
 	{
 		return endpoint.getName();

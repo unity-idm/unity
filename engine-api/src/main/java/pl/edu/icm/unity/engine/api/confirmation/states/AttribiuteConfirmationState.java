@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.engine.api.confirmation.states;
 
-import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.JsonUtil;
 
 /**
  * Contains necessary informations used during the confirmation a attribute
@@ -36,7 +35,7 @@ public class AttribiuteConfirmationState extends UserConfirmationState
 		this.group = group;
 	}
 
-	public AttribiuteConfirmationState(String serializedState) throws WrongArgumentException
+	public AttribiuteConfirmationState(String serializedState)
 	{
 		super();
 		setSerializedConfiguration(serializedState);
@@ -55,7 +54,7 @@ public class AttribiuteConfirmationState extends UserConfirmationState
 		return state;
 	}
 	
-	protected void setSerializedConfiguration(String json) throws WrongArgumentException
+	protected void setSerializedConfiguration(String json)
 	{
 		ObjectNode main = JsonUtil.parse(json);
 		super.setSerializedConfiguration(main);
@@ -64,7 +63,7 @@ public class AttribiuteConfirmationState extends UserConfirmationState
 			group = main.get("group").asText();	
 		} catch (Exception e)
 		{
-			throw new WrongArgumentException("Can't perform JSON deserialization", e);
+			throw new IllegalArgumentException("Can't perform JSON deserialization", e);
 		}
 	}
 }

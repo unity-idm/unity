@@ -4,10 +4,10 @@
  */
 package pl.edu.icm.unity.webui;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
-
 import com.vaadin.ui.UI;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 
 /**
  * All typical Unity endpoint {@link UI}s should extend this class. Extends {@link UnityUIBase}

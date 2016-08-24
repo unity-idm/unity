@@ -10,15 +10,6 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.oauth.client.UserProfileFetcher.ClientAuthnMode;
-import pl.edu.icm.unity.oauth.rp.verificator.InternalTokenVerificator;
-import pl.edu.icm.unity.oauth.rp.verificator.MitreTokenVerificator;
-import pl.edu.icm.unity.oauth.rp.verificator.TokenVerificatorProtocol;
-import pl.edu.icm.unity.oauth.rp.verificator.UnityTokenVerificator;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.utils.Log;
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
@@ -26,12 +17,22 @@ import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.oauth.BaseRemoteASProperties;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
+import pl.edu.icm.unity.oauth.rp.verificator.InternalTokenVerificator;
+import pl.edu.icm.unity.oauth.rp.verificator.MitreTokenVerificator;
+import pl.edu.icm.unity.oauth.rp.verificator.TokenVerificatorProtocol;
+import pl.edu.icm.unity.oauth.rp.verificator.UnityTokenVerificator;
+import pl.edu.icm.unity.server.api.PKIManagement;
+import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.server.utils.Log;
 
 /**
  * Configuration of OAuth RP-alike authenticator.
  * @author K. Benedyczak
  */
-public class OAuthRPProperties extends PropertiesHelper
+public class OAuthRPProperties extends PropertiesHelper implements BaseRemoteASProperties
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, OAuthRPProperties.class);
 	
@@ -44,16 +45,10 @@ public class OAuthRPProperties extends PropertiesHelper
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META=new HashMap<String, PropertyMD>();
 	
-	public static final String PROFILE_ENDPOINT = "profileEndpoint";
 	public static final String CACHE_TIME = "cacheTime";
 	public static final String VERIFICATION_PROTOCOL = "verificationProtocol";
 	public static final String VERIFICATION_ENDPOINT = "verificationEndpoint";
-	public static final String CLIENT_ID = "clientId";
-	public static final String CLIENT_SECRET = "clientSecret";
-	public static final String CLIENT_AUTHN_MODE = "clientAuthenticationMode";
 	public static final String OPENID_MODE = "opeinidConnectMode";
-	public static final String CLIENT_TRUSTSTORE = "httpClientTruststore";
-	public static final String CLIENT_HOSTNAME_CHECKING = "httpClientHostnameChecking";
 	public static final String TRANSLATION_PROFILE = "translationProfile";
 	public static final String REQUIRED_SCOPES = "requiredScopes.";
 	
@@ -140,6 +135,7 @@ public class OAuthRPProperties extends PropertiesHelper
 		return properties;
 	}
 	
+	@Override
 	public X509CertChainValidator getValidator()
 	{
 		return validator;

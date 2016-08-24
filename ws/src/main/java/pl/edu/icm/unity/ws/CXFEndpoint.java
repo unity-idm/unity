@@ -18,17 +18,17 @@ import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
+import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
+import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
-import pl.edu.icm.unity.server.api.internal.NetworkServer;
-import pl.edu.icm.unity.server.api.internal.SessionManagement;
-import pl.edu.icm.unity.server.authn.AuthenticationOption;
-import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
-import pl.edu.icm.unity.server.endpoint.AbstractWebEndpoint;
-import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * Web service endpoint based on CXF
@@ -100,7 +100,7 @@ public abstract class CXFEndpoint extends AbstractWebEndpoint implements WebAppE
 		Bus bus = BusFactory.newInstance().createBus();
 
 		ServletContextHandler context = CXFUtils.getServletContextHandler(
-				description.getContextAddress(), servletPath, bus);
+				description.getEndpoint().getContextAddress(), servletPath, bus);
 		
 		for (Map.Entry<Class<?>, Object> service: services.entrySet())
 			deployWebservice(bus, service.getKey(), service.getValue());

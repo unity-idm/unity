@@ -28,7 +28,12 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 
-import pl.edu.icm.unity.json.AttributeTypeSerializer;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.rest.TestRESTBase;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
@@ -39,15 +44,10 @@ import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 
 public class TestAttributeTypes extends TestRESTBase
 {
+	
 	private ObjectMapper m = new ObjectMapper();
 	
 	{
@@ -58,7 +58,7 @@ public class TestAttributeTypes extends TestRESTBase
 	public void testQuery() throws Exception
 	{
 		setupPasswordAuthn();
-		createUsernameUser("System Manager");
+		createUsernameUserWithRole("System Manager");
 		super.deployEndpoint(RESTAdminEndpointFactory.NAME, 
 				"restAdmin", "/restadm");
 		createTestContents();
@@ -78,7 +78,7 @@ public class TestAttributeTypes extends TestRESTBase
 	public void testAddUpdateRemoveAT() throws Exception
 	{
 		setupPasswordAuthn();
-		createUsernameUser("System Manager");
+		createUsernameUserWithRole("System Manager");
 		super.deployEndpoint(RESTAdminEndpointFactory.NAME, 
 				"restAdmin", "/restadm");
 		
@@ -89,32 +89,28 @@ public class TestAttributeTypes extends TestRESTBase
 		
 		HttpPost addAT = new HttpPost("/restadm/v1/attributeType");
 		
-		AttributeType sAttributeType = new AttributeType("stringA", new StringAttributeSyntax());
+		AttributeType sAttributeType = new AttributeType("stringA", StringAttributeSyntax.ID);
 		Map<String, String> meta = new HashMap<>();
 		meta.put(EntityNameMetadataProvider.NAME, "");
 		sAttributeType.setMetadata(meta);
 		sAttributeType.setMaxElements(1);
 		sAttributeType.setMinElements(1);
 		
-		AttributeTypeSerializer as = new AttributeTypeSerializer();
-		ObjectNode jsonNodeFull = as.toJsonNodeFull(sAttributeType);
-		addAT.setEntity(new StringEntity(new ObjectMapper().writeValueAsString(jsonNodeFull), 
-				ContentType.APPLICATION_JSON));
+		addAT.setEntity(new StringEntity(JsonUtil.toJsonString(sAttributeType), ContentType.APPLICATION_JSON));
 		HttpResponse response = client.execute(host, addAT, localcontext);
 		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
 		assertNull(response.getEntity());
-		assertNotNull(attrsMan.getAttributeTypesAsMap().get("stringA"));
+		assertNotNull(aTypeMan.getAttributeTypesAsMap().get("stringA"));
 
 		sAttributeType.setMetadata(new HashMap<>());
 		sAttributeType.setMaxElements(10);
-		jsonNodeFull = as.toJsonNodeFull(sAttributeType);
 		HttpPut updateAT = new HttpPut("/restadm/v1/attributeType");
-		updateAT.setEntity(new StringEntity(new ObjectMapper().writeValueAsString(jsonNodeFull), 
+		updateAT.setEntity(new StringEntity(JsonUtil.toJsonString(sAttributeType), 
 				ContentType.APPLICATION_JSON));
 		response = client.execute(host, updateAT, localcontext);
 		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
 		assertNull(response.getEntity());
-		AttributeType updated = attrsMan.getAttributeTypesAsMap().get("stringA");
+		AttributeType updated = aTypeMan.getAttributeTypesAsMap().get("stringA");
 		assertNotNull(updated);
 		assertEquals(10, updated.getMaxElements());
 		assertTrue(updated.getMetadata().isEmpty());
@@ -122,23 +118,26 @@ public class TestAttributeTypes extends TestRESTBase
 		
 		HttpDelete remove = new HttpDelete("/restadm/v1/attributeType/stringA?withInstances=true");
 		client.execute(host, remove, localcontext);
-		assertNull(attrsMan.getAttributeTypesAsMap().get("stringA"));
+		assertNull(aTypeMan.getAttributeTypesAsMap().get("stringA"));
 	}
 	
 	protected void createTestContents() throws Exception
 	{
-		AttributeType sAttributeType = new AttributeType("stringA", new StringAttributeSyntax());
+		AttributeType sAttributeType = new AttributeType("stringA", StringAttributeSyntax.ID);
 		Map<String, String> meta = new HashMap<>();
 		meta.put(EntityNameMetadataProvider.NAME, "");
 		sAttributeType.setMetadata(meta);
 		sAttributeType.setMaxElements(1);
 		sAttributeType.setMinElements(1);
-		attrsMan.addAttributeType(sAttributeType);
-		attrsMan.addAttributeType(new AttributeType("intA", new IntegerAttributeSyntax()));
-		attrsMan.addAttributeType(new AttributeType("floatA", new FloatingPointAttributeSyntax()));
-		attrsMan.addAttributeType(new AttributeType("enumA", new EnumAttributeSyntax("V1", "V2")));
-		attrsMan.addAttributeType(new AttributeType("jpegA", new JpegImageAttributeSyntax()));
-		attrsMan.addAttributeType(new AttributeType("emailA", new VerifiableEmailAttributeSyntax()));
+		aTypeMan.addAttributeType(sAttributeType);
+		aTypeMan.addAttributeType(new AttributeType("intA", IntegerAttributeSyntax.ID));
+		aTypeMan.addAttributeType(new AttributeType("floatA", FloatingPointAttributeSyntax.ID));
+		EnumAttributeSyntax enumSyntax = new EnumAttributeSyntax("V1", "V2");
+		AttributeType enumAT = new AttributeType("enumA", EnumAttributeSyntax.ID);
+		enumAT.setValueSyntaxConfiguration(enumSyntax.getSerializedConfiguration());
+		aTypeMan.addAttributeType(enumAT);
+		aTypeMan.addAttributeType(new AttributeType("jpegA", JpegImageAttributeSyntax.ID));
+		aTypeMan.addAttributeType(new AttributeType("emailA", VerifiableEmailAttributeSyntax.ID));
 	}
 	
 	public String formatJson(String contents) throws JsonProcessingException, IOException

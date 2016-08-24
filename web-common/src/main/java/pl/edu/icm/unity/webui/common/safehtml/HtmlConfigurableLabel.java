@@ -4,10 +4,10 @@
  */
 package pl.edu.icm.unity.webui.common.safehtml;
 
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Label;
+
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
 /**
  * This component is a {@link Label} which can behave in two variants depending on configuration.

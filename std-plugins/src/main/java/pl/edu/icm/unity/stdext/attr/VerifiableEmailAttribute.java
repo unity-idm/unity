@@ -16,11 +16,11 @@ import pl.edu.icm.unity.types.basic.VerifiableEmail;
  * Helper class allowing to create verifiable email attributes easily.
  * @author P. Piernik
  */
-public class VerifiableEmailAttribute extends Attribute
+public class VerifiableEmailAttribute
 {
-	public VerifiableEmailAttribute(String name, String groupPath, String value)
+	public static Attribute of(String name, String groupPath, String value)
 	{
-		this(name, groupPath, EmailUtils.convertFromString(value));
+		return of(name, groupPath, EmailUtils.convertFromString(value));
 	}
 
 	/**
@@ -29,9 +29,9 @@ public class VerifiableEmailAttribute extends Attribute
 	 * @param groupPath
 	 * @param values
 	 */
-	public VerifiableEmailAttribute(String name, String groupPath, VerifiableEmail... values)
+	public static Attribute of(String name, String groupPath, VerifiableEmail... values)
 	{
-		super(name, VerifiableEmailAttributeSyntax.ID, groupPath, 
+		return new Attribute(name, VerifiableEmailAttributeSyntax.ID, groupPath, 
 				Stream.of(values).
 				map(v -> JsonUtil.serialize(v.toJson())).collect(Collectors.toList()));
 	}

@@ -7,6 +7,8 @@ package pl.edu.icm.unity.oauth.client.config;
 import java.util.Properties;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.oauth.client.UserProfileFetcher;
+import pl.edu.icm.unity.oauth.client.profile.OrcidProfileFetcher;
 import pl.edu.icm.unity.server.api.PKIManagement;
 
 /**
@@ -30,8 +32,15 @@ public class OrcidProviderProperties extends CustomProviderProperties
 		properties.setProperty(prefix + PROVIDER_LOCATION, "https://orcid.org/oauth/authorize");
 		properties.setProperty(prefix + ACCESS_TOKEN_ENDPOINT, "https://pub.orcid.org/oauth/token");
 		properties.setProperty(prefix + ICON_URL, "file:../common/img/external/orcid-small.png");
+		properties.setProperty(prefix + PROFILE_ENDPOINT, "https://pub.orcid.org/v1.2/");
 		properties.setProperty(prefix + SCOPES, "/authenticate");
+		properties.setProperty(prefix + ADDITIONAL_AUTHZ_PARAMS + "1", "show_login=true");
 		return properties;
 	}
 
+	@Override
+	public UserProfileFetcher getUserAttributesResolver()
+	{
+		return new OrcidProfileFetcher();
+	}
 }

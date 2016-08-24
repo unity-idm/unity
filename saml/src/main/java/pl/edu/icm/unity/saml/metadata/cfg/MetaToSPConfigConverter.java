@@ -60,6 +60,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 		super.convertToProperties(metaDoc, properties, realConfig, configKey);
 	}
 	
+	@Override
 	protected void convertToProperties(EntityDescriptorType meta, Properties properties, 
 			SamlProperties realConfigG, String configKey)
 	{

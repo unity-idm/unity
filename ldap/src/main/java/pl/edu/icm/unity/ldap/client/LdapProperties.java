@@ -10,14 +10,14 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.ldap.client.LdapClientConfiguration.ConnectionMode;
-import pl.edu.icm.unity.server.utils.Log;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.ldap.client.LdapClientConfiguration.ConnectionMode;
 
 /**
  * Low level configuration handling - implemented with {@link Properties} as storage format.

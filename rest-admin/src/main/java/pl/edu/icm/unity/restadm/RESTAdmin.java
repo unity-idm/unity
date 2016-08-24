@@ -5,17 +5,14 @@
 package pl.edu.icm.unity.restadm;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -38,55 +35,45 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.confirmations.ConfirmationManager;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.BulkProcessingManagement;
+import pl.edu.icm.unity.engine.api.EndpointManagement;
+import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.InvitationManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.UserImportManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.confirmation.ConfirmationManager;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.json.AttributeTypeSerializer;
 import pl.edu.icm.unity.rest.exception.JSONParsingException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.BulkProcessingManagement;
-import pl.edu.icm.unity.server.api.EndpointManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.RegistrationsManagement;
-import pl.edu.icm.unity.server.api.UserImportManagement;
-import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.bulkops.EntityAction;
-import pl.edu.icm.unity.server.bulkops.EntityActionFactory;
-import pl.edu.icm.unity.server.bulkops.ProcessingRule;
-import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
-import pl.edu.icm.unity.server.registries.EntityActionsRegistry;
-import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.types.EntityScheduledOperation;
-import pl.edu.icm.unity.types.EntityState;
-import pl.edu.icm.unity.types.UnityTypesFactory;
+import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeParamRepresentation;
-import pl.edu.icm.unity.types.basic.AttributeRepresentation;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.EntityScheduledOperation;
+import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
-import pl.edu.icm.unity.types.basic.GroupContentsRepresentation;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
-import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
-import pl.edu.icm.unity.types.bulkops.ProcessingRuleParam;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
-import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
-import pl.edu.icm.unity.types.registration.invite.RESTInvitationParam;
-import pl.edu.icm.unity.types.registration.invite.RESTInvitationWithCode;
+import pl.edu.icm.unity.types.translation.TranslationRule;
 
 /**
  * RESTful API implementation.
@@ -97,49 +84,51 @@ import pl.edu.icm.unity.types.registration.invite.RESTInvitationWithCode;
 @Path(RESTAdminEndpointFactory.V1_PATH)
 public class RESTAdmin
 {
+	private static final int UUID_LENGTH = 36;
+	
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, RESTAdmin.class);
-	private IdentitiesManagement identitiesMan;
+	private EntityManagement identitiesMan;
 	private GroupsManagement groupsMan;
 	private AttributesManagement attributesMan;
 	private ObjectMapper mapper = Constants.MAPPER;
 	private IdentityTypesRegistry identityTypesRegistry;
-	private AttributeTypeSerializer attrTypeSerializer;
-	private AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
 	private ConfirmationManager confirmationManager;
 	private EndpointManagement endpointManagement;
 	private RegistrationsManagement registrationManagement;
 	private BulkProcessingManagement bulkProcessingManagement;
-	private EntityActionsRegistry entityActionsRegistry;
 	private UserImportManagement userImportManagement;
+	private EntityCredentialManagement entityCredMan;
+	private AttributeTypeManagement attributeTypeMan;
+	private InvitationManagement invitationMan;
 	
-	public RESTAdmin(IdentitiesManagement identitiesMan, GroupsManagement groupsMan,
+	public RESTAdmin(EntityManagement identitiesMan, GroupsManagement groupsMan,
 			AttributesManagement attributesMan, IdentityTypesRegistry identityTypesRegistry,
-			AttributeTypeSerializer attrTypeSerializer,
-			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry,
 			ConfirmationManager confirmationManager, EndpointManagement endpointManagement,
 			RegistrationsManagement registrationManagement, 
 			BulkProcessingManagement bulkProcessingManagement, 
-			EntityActionsRegistry entityActionsRegistry,
-			UserImportManagement userImportManagement)
+			UserImportManagement userImportManagement,
+			EntityCredentialManagement entityCredMan,
+			AttributeTypeManagement attributeTypeMan,
+			InvitationManagement invitationMan)
 	{
-		super();
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
 		this.attributesMan = attributesMan;
 		this.identityTypesRegistry = identityTypesRegistry;
-		this.attrTypeSerializer = attrTypeSerializer;
-		this.attributeSyntaxFactoriesRegistry = attributeSyntaxFactoriesRegistry;
 		this.confirmationManager = confirmationManager;
 		this.endpointManagement = endpointManagement;
 		this.registrationManagement = registrationManagement;
 		this.bulkProcessingManagement = bulkProcessingManagement;
-		this.entityActionsRegistry = entityActionsRegistry;
 		this.userImportManagement = userImportManagement;
+		this.entityCredMan = entityCredMan;
+		this.attributeTypeMan = attributeTypeMan;
+		this.invitationMan = invitationMan;
 	}
 
+	
 	@Path("/resolve/{identityType}/{identityValue}")
 	@GET
-	public String getEntity(@PathParam("identityType") String identityType, 
+	public String getEntityObsolete(@PathParam("identityType") String identityType, 
 			@PathParam("identityValue") String identityValue) 
 			throws EngineException, JsonProcessingException
 	{
@@ -151,35 +140,38 @@ public class RESTAdmin
 	
 	@Path("/entity/{entityId}")
 	@GET
-	public String getEntity(@PathParam("entityId") long entityId) throws EngineException, JsonProcessingException
+	public String getEntity(@PathParam("entityId") String entityId, @QueryParam("identityType") String idType) 
+			throws EngineException, JsonProcessingException
 	{
 		log.debug("getEntity query for " + entityId);
-		Entity entity = identitiesMan.getEntity(new EntityParam(entityId));
+		Entity entity = identitiesMan.getEntity(getEP(entityId, idType));
 		return mapper.writeValueAsString(entity);
 	}
 	
 	@Path("/entity/{entityId}")
 	@DELETE
-	public void removeEntity(@PathParam("entityId") long entityId) throws EngineException, JsonProcessingException
+	public void removeEntity(@PathParam("entityId") String entityId, @QueryParam("identityType") String idType) 
+			throws EngineException, JsonProcessingException
 	{
 		log.debug("removeEntity of " + entityId);
-		identitiesMan.removeEntity(new EntityParam(entityId));
+		identitiesMan.removeEntity(getEP(entityId, idType));
 	}
 
 	@Path("/entity/{entityId}/removal-schedule")
 	@PUT
-	public void scheduleRemoval(@PathParam("entityId") long entityId, @QueryParam("when") long when) 
+	public void scheduleRemoval(@PathParam("entityId") String entityId, @QueryParam("when") long when, 
+			@QueryParam("identityType") String idType) 
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("scheduleRemovalByUser of " + entityId + " on " + when);
 		Date time = new Date(when);
-		identitiesMan.scheduleRemovalByUser(new EntityParam(entityId), time);
+		identitiesMan.scheduleRemovalByUser(getEP(entityId, idType), time);
 	}
 
 	@Path("/entity/{entityId}/admin-schedule")
 	@PUT
-	public void scheduleOperation(@PathParam("entityId") long entityId, @QueryParam("when") long when,
-			@QueryParam("operation") String operationStr) 
+	public void scheduleOperation(@PathParam("entityId") String entityId, @QueryParam("when") long when,
+			@QueryParam("operation") String operationStr, @QueryParam("identityType") String idType) 
 			throws EngineException
 	{
 		log.debug("scheduleEntityChange of " + entityId + " on " + when + " op " + operationStr);
@@ -194,7 +186,7 @@ public class RESTAdmin
 					+ "' is unknown, valid are: " + 
 					Arrays.toString(EntityScheduledOperation.values()));
 		}
-		identitiesMan.scheduleEntityChange(new EntityParam(entityId), time, operation);
+		identitiesMan.scheduleEntityChange(getEP(entityId, idType), time, operation);
 	}
 	
 	@Path("/entity/identity/{type}/{value}")
@@ -215,11 +207,11 @@ public class RESTAdmin
 	@Path("/entity/{entityId}/identity/{type}/{value}")
 	@POST
 	public void addIdentity(@PathParam("type") String type, @PathParam("value") String value, 
-			@PathParam("entityId") long entityId) 
+			@PathParam("entityId") String entityId, @QueryParam("identityType") String idType) 
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("addIdentity of " + value + " type: " + type + " for entity: " + entityId);
-		identitiesMan.addIdentity(resolveIdentity(type, value), new EntityParam(entityId), false);
+		identitiesMan.addIdentity(resolveIdentity(type, value), getEP(entityId, idType), false);
 	}
 
 	private IdentityParam resolveIdentity(String type, String value) throws EngineException
@@ -240,17 +232,19 @@ public class RESTAdmin
 	
 	@Path("/entity/{entityId}/groups")
 	@GET
-	public String getGroups(@PathParam("entityId") long entityId) throws EngineException, JsonProcessingException
+	public String getGroups(@PathParam("entityId") String entityId, @QueryParam("identityType") String idType) 
+			throws EngineException, JsonProcessingException
 	{
 		log.debug("getGroups query for " + entityId);
-		Map<String, GroupMembership> groups = identitiesMan.getGroups(new EntityParam(entityId));
+		Map<String, GroupMembership> groups = identitiesMan.getGroups(getEP(entityId, idType));
 		return mapper.writeValueAsString(groups.keySet());
 	}
 
 	@Path("/entity/{entityId}/attributes")
 	@GET
-	public String getAttributes(@PathParam("entityId") long entityId,
-			@QueryParam("group") String group, @QueryParam("effective") Boolean effective) 
+	public String getAttributes(@PathParam("entityId") String entityId,
+			@QueryParam("group") String group, @QueryParam("effective") Boolean effective, 
+			@QueryParam("identityType") String idType) 
 					throws EngineException, JsonProcessingException
 	{
 		if (group == null)
@@ -258,50 +252,50 @@ public class RESTAdmin
 		if (effective == null)
 			effective = true;
 		log.debug("getAttributes query for " + entityId + " in " + group);
-		Collection<AttributeExt<?>> attributes = attributesMan.getAllAttributes(
-				new EntityParam(entityId), effective, group, null, true);
+		Collection<AttributeExt> attributes = attributesMan.getAllAttributes(
+				getEP(entityId, idType), effective, group, null, true);
 		
-		List<AttributeRepresentation> wrapped = new ArrayList<AttributeRepresentation>(attributes.size());
-		for (AttributeExt<?> a: attributes)
-			wrapped.add(new AttributeRepresentation(a));
-		
-		return mapper.writeValueAsString(wrapped);
+		return mapper.writeValueAsString(attributes);
 	}
 
 	@Path("/entity/{entityId}/attribute/{attributeName}")
 	@DELETE
-	public void removeAttribute(@PathParam("entityId") long entityId, @PathParam("attributeName") String attribute,
-			@QueryParam("group") String group) throws EngineException, JsonProcessingException
+	public void removeAttribute(@PathParam("entityId") String entityId, 
+			@PathParam("attributeName") String attribute,
+			@QueryParam("group") String group, 
+			@QueryParam("identityType") String idType) 
+					throws EngineException, JsonProcessingException
 	{
 		if (group == null)
 			group = "/";
 		log.debug("removeAttribute " + attribute + " of " + entityId + " in " + group);
-		attributesMan.removeAttribute(new EntityParam(entityId), group, attribute);
+		attributesMan.removeAttribute(getEP(entityId, idType), group, attribute);
 	}
 	
 	@Path("/entity/{entityId}/attribute")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void setAttribute(@PathParam("entityId") long entityId, String attribute) 
+	public void setAttribute(@PathParam("entityId") String entityId, String attribute, 
+			@QueryParam("identityType") String idType) 
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("setAttribute for " + entityId);
-		AttributeParamRepresentation attributeParam;
+		Attribute attributeParam;
 		try
 		{
-			attributeParam = mapper.readValue(attribute, 
-					AttributeParamRepresentation.class);
+			attributeParam = mapper.readValue(attribute, Attribute.class);
 		} catch (IOException e)
 		{
 			throw new JSONParsingException("Can't parse the attribute input", e);
 		}
-		setAttribute(attributeParam, entityId);
+		setAttribute(attributeParam, getEP(entityId, idType));
 	}
 
 	@Path("/entity/{entityId}/attributes")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void setAttributes(@PathParam("entityId") long entityId, String attributes) 
+	public void setAttributes(@PathParam("entityId") String entityId, String attributes, 
+			@QueryParam("identityType") String idType) 
 			throws EngineException, IOException
 	{
 		log.debug("Bulk setAttributes for " + entityId);
@@ -310,55 +304,49 @@ public class RESTAdmin
 		if (!root.isArray())
 			throw new JSONParsingException("Can't parse the attributes input: root is not an array");
 		ArrayNode rootA = (ArrayNode) root;
-		List<AttributeParamRepresentation> parsedParams = new ArrayList<>(rootA.size());
+		List<Attribute> parsedParams = new ArrayList<>(rootA.size());
 		for (JsonNode node: rootA)
 		{
 			try
 			{
 				parsedParams.add(mapper.readValue(mapper.writeValueAsString(node), 
-						AttributeParamRepresentation.class));
+						Attribute.class));
 			} catch (IOException e)
 			{
 				throw new JSONParsingException("Can't parse the attribute input", e);
 			}
 		}
-		for (AttributeParamRepresentation ap: parsedParams)
-			setAttribute(ap, entityId);
+		EntityParam ep = getEP(entityId, idType);
+		for (Attribute ap: parsedParams)
+			setAttribute(ap, ep);
 	}
 
-	private void setAttribute(AttributeParamRepresentation attributeParam, long entityId) throws EngineException
+	private void setAttribute(Attribute attributeParam, EntityParam entityParam) 
+			throws EngineException
 	{
 		log.debug("setAttribute: " + attributeParam.getName() + " in " + attributeParam.getGroupPath());
-		Map<String, AttributeType> attributeTypesAsMap = attributesMan.getAttributeTypesAsMap();
-		Attribute<?> apiAttribute = toAPIAttribute(attributeParam, attributeTypesAsMap);
-		attributesMan.setAttribute(new EntityParam(entityId), apiAttribute, true);
-	}
-	
-	private Attribute<?> toAPIAttribute(AttributeParamRepresentation attributeParam,
-			Map<String, AttributeType> attributeTypesAsMap) throws IllegalAttributeTypeException
-	{
-		AttributeType aType = attributeTypesAsMap.get(attributeParam.getName());
-		if (aType == null)
-			throw new IllegalAttributeTypeException("Attribute type " + attributeParam.getName() + 
-					" does not exist");
-		return attributeParam.toAPIAttribute(aType.getValueType());
+		attributesMan.setAttribute(entityParam, attributeParam, true);
 	}
 	
 	@Path("/entity/{entityId}/credential-adm/{credential}")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void setCredentialByAdmin(@PathParam("entityId") long entityId, @PathParam("credential") String credential,
+	public void setCredentialByAdmin(@PathParam("entityId") String entityId, 
+			@PathParam("credential") String credential, 
+			@QueryParam("identityType") String idType,
 			String secrets) 
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("setCredentialByAdmin for " + entityId);
-		identitiesMan.setEntityCredential(new EntityParam(entityId), credential, secrets);
+		entityCredMan.setEntityCredential(getEP(entityId, idType), credential, secrets);
 	}
 	
 	@Path("/entity/{entityId}/credential/{credential}")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void setCredentialByUser(@PathParam("entityId") long entityId, @PathParam("credential") String credential,
+	public void setCredentialByUser(@PathParam("entityId") String entityId, 
+			@PathParam("credential") String credential, 
+			@QueryParam("identityType") String idType,
 			String secretsArray) 
 			throws EngineException, JsonProcessingException
 	{
@@ -379,7 +367,7 @@ public class RESTAdmin
 				throw new  JSONParsingException("Request body JSON array must have at least one element");
 			String newSecrets = mainA.get(0).asText();
 			String oldSecrets = mainA.size() > 1 ? mainA.get(1).asText() : null;
-			identitiesMan.setEntityCredential(new EntityParam(entityId), credential, 
+			entityCredMan.setEntityCredential(getEP(entityId, idType), credential, 
 					newSecrets, oldSecrets);
 		} else
 		{
@@ -390,11 +378,14 @@ public class RESTAdmin
 	
 	@Path("/group/{groupPath}")
 	@GET
-	public String getGroupContents(@PathParam("groupPath") String group) throws EngineException, JsonProcessingException
+	public String getGroupContents(@PathParam("groupPath") String group) 
+			throws EngineException, JsonProcessingException
 	{
 		log.debug("getGroupContents query for " + group);
+		if (!group.startsWith("/"))
+			group = "/" + group;
 		GroupContents contents = groupsMan.getContents(group, GroupContents.GROUPS | GroupContents.MEMBERS);
-		return mapper.writeValueAsString(new GroupContentsRepresentation(contents));
+		return mapper.writeValueAsString(contents);
 	}
 
 	
@@ -405,6 +396,8 @@ public class RESTAdmin
 	{
 		if (recursive == null)
 			recursive = false;
+		if (!group.startsWith("/"))
+			group = "/" + group;
 		log.debug("removeGroup " + group + (recursive ? " [recursive]" : ""));
 		groupsMan.removeGroup(group, recursive);
 	}
@@ -421,20 +414,24 @@ public class RESTAdmin
 	
 	@Path("/group/{groupPath}/entity/{entityId}")
 	@DELETE
-	public void removeMember(@PathParam("groupPath") String group, @PathParam("entityId") long entityId) 
+	public void removeMember(@PathParam("groupPath") String group, 
+			@PathParam("entityId") String entityId, 
+			@QueryParam("identityType") String idType) 
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("removeMember " + entityId + " from " + group);
-		groupsMan.removeMember(group, new EntityParam(entityId));
+		groupsMan.removeMember(group, getEP(entityId, idType));
 	}
 	
 	@Path("/group/{groupPath}/entity/{entityId}")
 	@POST
-	public void addMember(@PathParam("groupPath") String group, @PathParam("entityId") long entityId) 
+	public void addMember(@PathParam("groupPath") String group, 
+			@PathParam("entityId") String entityId, 
+			@QueryParam("identityType") String idType) 
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("addMember " + entityId + " to " + group);
-		groupsMan.addMemberFromParent(group, new EntityParam(entityId));
+		groupsMan.addMemberFromParent(group, getEP(entityId, idType));
 	}
 
 	
@@ -443,11 +440,8 @@ public class RESTAdmin
 	@GET
 	public String getAttributeTypes() throws EngineException, JsonProcessingException
 	{
-		Collection<AttributeType> attributeTypes = attributesMan.getAttributeTypes();
-		ArrayNode root = mapper.createArrayNode();
-		for (AttributeType at: attributeTypes)
-			root.add(attrTypeSerializer.toJsonNodeFull(at));
-		return mapper.writeValueAsString(root);
+		Collection<AttributeType> attributeTypes = attributeTypeMan.getAttributeTypes();
+		return mapper.writeValueAsString(attributeTypes);
 	}
 	
 	@Path("/attributeType")
@@ -456,10 +450,9 @@ public class RESTAdmin
 	public void addAttributeType(String jsonRaw) throws EngineException
 	{
 		log.debug("addAttributeType " + jsonRaw);
-		AttributeType at = attrTypeSerializer.fromJsonFull(jsonRaw.getBytes(StandardCharsets.UTF_8), 
-				attributeSyntaxFactoriesRegistry);
+		AttributeType at = JsonUtil.parse(jsonRaw, AttributeType.class);
 		log.debug("addAttributeType " + at.getName());
-		attributesMan.addAttributeType(at);
+		attributeTypeMan.addAttributeType(at);
 	}
 
 	@Path("/attributeType")
@@ -468,10 +461,9 @@ public class RESTAdmin
 	public void updateAttributeType(String jsonRaw) throws EngineException
 	{
 		log.debug("updateAttributeType " + jsonRaw);
-		AttributeType at = attrTypeSerializer.fromJsonFull(jsonRaw.getBytes(StandardCharsets.UTF_8), 
-				attributeSyntaxFactoriesRegistry);
+		AttributeType at = JsonUtil.parse(jsonRaw, AttributeType.class);
 		log.debug("updateAttributeType " + at.getName());
-		attributesMan.updateAttributeType(at);
+		attributeTypeMan.updateAttributeType(at);
 	}
 	
 	@Path("/attributeType/{toRemove}")
@@ -483,20 +475,21 @@ public class RESTAdmin
 		boolean instances = false;
 		if (withInstances != null)
 			instances = Boolean.parseBoolean(withInstances);
-		attributesMan.removeAttributeType(toRemove, instances);
+		attributeTypeMan.removeAttributeType(toRemove, instances);
 	}
 
 	@Path("/confirmation-trigger/entity/{entityId}/attribute/{attributeName}")
 	@POST
-	public void resendConfirmationForAttribute(@PathParam("entityId") long entityId, 
+	public void resendConfirmationForAttribute(@PathParam("entityId") String entityId, 
 			@PathParam("attributeName") String attribute,
-			@QueryParam("group") String group) throws EngineException, JsonProcessingException
+			@QueryParam("group") String group, 
+			@QueryParam("identityType") String idType) throws EngineException, JsonProcessingException
 	{
 		if (group == null)
 			group = "/";
 		log.debug("confirmation trigger for " + attribute + " of " + entityId + " in " + group);
-		EntityParam entityParam = new EntityParam(entityId);
-		Collection<AttributeExt<?>> attributes = attributesMan.getAttributes(entityParam, group, attribute);
+		EntityParam entityParam = getEP(entityId, idType);
+		Collection<AttributeExt> attributes = attributesMan.getAttributes(entityParam, group, attribute);
 		
 		if (attributes.isEmpty())
 			throw new WrongArgumentException("Attribute is undefined");
@@ -527,7 +520,7 @@ public class RESTAdmin
 	@GET
 	public String getEndpoints() throws EngineException, JsonProcessingException
 	{
-		List<EndpointDescription> endpoints = endpointManagement.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointManagement.getEndpoints();
 		return mapper.writeValueAsString(endpoints);
 	}
 	
@@ -547,7 +540,7 @@ public class RESTAdmin
 			String configurationJson) throws EngineException, IOException
 	{
 		EndpointConfiguration configuration = new EndpointConfiguration(JsonUtil.parse(configurationJson));
-		EndpointDescription deployed = endpointManagement.deploy(typeId, id, address, configuration);
+		ResolvedEndpoint deployed = endpointManagement.deploy(typeId, id, address, configuration);
 		return mapper.writeValueAsString(deployed);
 	}
 
@@ -627,33 +620,30 @@ public class RESTAdmin
 	@GET
 	public String getInvitations() throws EngineException, JsonProcessingException
 	{
-		List<InvitationWithCode> invitations = registrationManagement.getInvitations();
-		List<RESTInvitationWithCode> restInvitations = invitations.stream()
-				.map(InvitationWithCode::toRESTVariant)
-				.collect(Collectors.toList());
-		return mapper.writeValueAsString(restInvitations);
+		List<InvitationWithCode> invitations = invitationMan.getInvitations();
+		return mapper.writeValueAsString(invitations);
 	}
 
 	@Path("/invitation/{code}")
 	@GET
 	public String getInvitation(@PathParam("code") String code) throws EngineException, JsonProcessingException
 	{
-		InvitationWithCode invitation = registrationManagement.getInvitation(code);
-		return mapper.writeValueAsString(invitation.toRESTVariant());
+		InvitationWithCode invitation = invitationMan.getInvitation(code);
+		return mapper.writeValueAsString(invitation);
 	}
 	
 	@Path("/invitation/{code}")
 	@DELETE
 	public void removeInvitation(@PathParam("code") String code) throws EngineException
 	{
-		registrationManagement.removeInvitation(code);
+		invitationMan.removeInvitation(code);
 	}
 
 	@Path("/invitation/{code}/send")
 	@POST
 	public void sendInvitation(@PathParam("code") String code) throws EngineException, IOException
 	{
-		registrationManagement.sendInvitation(code);
+		invitationMan.sendInvitation(code);
 	}
 
 	@Path("/invitation")
@@ -662,31 +652,8 @@ public class RESTAdmin
 	@Produces(MediaType.TEXT_PLAIN)
 	public String addInvitation(String jsonInvitation) throws EngineException, IOException
 	{
-		ObjectNode json = JsonUtil.parse(jsonInvitation);
-		RESTInvitationParam restInvitationParam = new RESTInvitationParam(json);
-
-		Map<Integer, PrefilledEntry<Attribute<?>>> apiPrefilledAttributes = 
-				toAPIPrefilledAttributes(restInvitationParam.getAttributes());
-		
-		InvitationParam invitationParam = new InvitationParam(restInvitationParam, apiPrefilledAttributes);
-		return registrationManagement.addInvitation(invitationParam);
-	}
-	
-	private Map<Integer, PrefilledEntry<Attribute<?>>> toAPIPrefilledAttributes(
-			Map<Integer, PrefilledEntry<AttributeParamRepresentation>> restAttributes) 
-					throws EngineException
-	{
-		Map<String, AttributeType> attributeTypesAsMap = attributesMan.getAttributeTypesAsMap();
-		Map<Integer, PrefilledEntry<Attribute<?>>> ret = new HashMap<>(restAttributes.size());
-		
-		for (Map.Entry<Integer, PrefilledEntry<AttributeParamRepresentation>> restAE: restAttributes.entrySet())
-		{
-			PrefilledEntry<AttributeParamRepresentation> value = restAE.getValue();
-			Attribute<?> apiAttribute = toAPIAttribute(value.getEntry(), attributeTypesAsMap);
-			ret.put(restAE.getKey(), new PrefilledEntry<Attribute<?>>(apiAttribute, value.getMode()));
-		}
-		
-		return ret;
+		InvitationParam invitationParam = JsonUtil.parse(jsonInvitation, InvitationParam.class);
+		return invitationMan.addInvitation(invitationParam);
 	}
 	
 	@Path("/bulkProcessing/instant")
@@ -696,10 +663,7 @@ public class RESTAdmin
 	public String applyBulkProcessingRule(@QueryParam("timeout") Long timeout, String jsonProcessingRule) 
 			throws EngineException
 	{
-		ProcessingRuleParam param = UnityTypesFactory.parse(jsonProcessingRule, ProcessingRuleParam.class);
-		EntityActionFactory actionFactory = entityActionsRegistry.getByName(param.getActionName());
-		EntityAction action = (EntityAction) actionFactory.getInstance(param.getParams());
-		ProcessingRule rule = new ProcessingRule(param.getCondition(), action);
+		TranslationRule rule = JsonUtil.parse(jsonProcessingRule, TranslationRule.class); 
 		
 		if (timeout == null)
 			timeout = -1l;
@@ -729,6 +693,42 @@ public class RESTAdmin
 	{
 		AuthenticationResult importUser = userImportManagement.importUser(identity, identityType);
 		return mapper.writeValueAsString(importUser);
+	}
+	
+	
+
+	/**
+	 * Creates {@link EntityParam} from given entity address and optional type, which can be null.
+	 * If type is null then entityId is checked to have the size of persistentId type and if matching
+	 * then persistentId type is used. Otherwise it is assumed to be internal entityId - a long number.
+	 * If type is not null then it is used as is.
+	 * @param identity
+	 * @param idType
+	 * @return
+	 * @throws WrongArgumentException 
+	 */
+	private EntityParam getEP(String identity, String idType) throws WrongArgumentException
+	{
+		if (idType == null)
+		{
+			if (identity.length() == UUID_LENGTH) 
+				return new EntityParam(new IdentityTaV(PersistentIdentity.ID, identity));
+			
+			try
+			{
+				return new EntityParam(Long.valueOf(identity));
+			} catch (NumberFormatException e)
+			{
+				throw new WrongArgumentException("When addressing identity either it must be "
+						+ "a persistent ID or internal entityId (integer number) or"
+						+ "identity type must be provided. "
+						+ "The provided identifier is neither entityId nor persistentId "
+						+ "and type was not given: " + identity, e);
+			}
+		} else
+		{
+			return new EntityParam(new IdentityTaV(idType, identity));
+		}
 	}
 }
 

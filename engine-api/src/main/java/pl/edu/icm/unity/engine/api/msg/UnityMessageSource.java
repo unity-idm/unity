@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.msg;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -16,6 +17,9 @@ import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
@@ -30,6 +34,11 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
  * automatically sets the proper locale from the {@link InvocationContext}
  * and allows for an easier invocation using varargs.
  * It also sets UTF-8 encoding and disables platform's locale fallback.
+ * <p>
+ * Another improvement is loading of messages from all classpath resources which are under 
+ * messages/per-module-id/messages.properties path and from a respective file which is under 
+ * configured i18n location in the same subdirectory as the per-module-id from classpath.
+ * 
  * @author K. Benedyczak
  */
 @Component
@@ -39,25 +48,29 @@ public class UnityMessageSource extends ReloadableResourceBundleMessageSource im
 	
 	public static final String PROFILE_FAIL_ON_MISSING = "failOnMissingMessage";
 	
-	private static final String DEFAULT_PACKAGE = "pl/edu/icm/unity/"; 
 	private UnityServerConfiguration config;
 	private final boolean failOnMissingMessage;
 	
 	
 	@Autowired
-	public UnityMessageSource(UnityServerConfiguration config,
-			List<UnityMessageBundles> bundles, Environment springEnv)
+	public UnityMessageSource(UnityServerConfiguration config, Environment springEnv) throws IOException
 	{
 		super();
 		this.config = config;
 		List<String> allBundles = new ArrayList<String>();
 		String fsLocation = getFSMessagesDirectory();
-		for (UnityMessageBundles bundle: bundles)
-			bundle.getBundles().forEach(src -> {
-				allBundles.add("file:" + fsLocation + shortenPath(src));
-				allBundles.add("classpath:" + src);
-			});
 		
+		ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+		Resource[] bundles = resolver.getResources("classpath*:messages/*/messages.properties");
+		int suffixLen = ".properties".length();
+		for (Resource bundle: bundles)
+		{
+			String classpath = bundle.getURL().toExternalForm();
+			classpath = classpath.substring(0, classpath.length() - suffixLen);
+			allBundles.add("file:" + fsLocation + getFSPathFromClasspath(classpath));
+			allBundles.add(classpath);
+		}
+			
 		setBasenames(allBundles.toArray(new String[allBundles.size()]));
 		setFallbackToSystemLocale(false);
 		setDefaultEncoding("UTF-8");
@@ -66,13 +79,13 @@ public class UnityMessageSource extends ReloadableResourceBundleMessageSource im
 		failOnMissingMessage = activeProfiles.contains(PROFILE_FAIL_ON_MISSING);
 	}
 	
-	private String shortenPath(String fullPath)
+	private String getFSPathFromClasspath(String classpath)
 	{
-		return fullPath.startsWith(DEFAULT_PACKAGE) ? 
-				fullPath.substring(DEFAULT_PACKAGE.length()) : 
-				fullPath;
+		int lastSlash = classpath.lastIndexOf('/');
+		int oneButLastSlash = classpath.substring(0, lastSlash).lastIndexOf('/');
+		return classpath.substring(oneButLastSlash + 1);
 	}
-	
+
 	private String getFSMessagesDirectory()
 	{
 		String fsMessages = config.getValue(UnityServerConfiguration.MESSAGES_DIRECTORY);
@@ -98,7 +111,8 @@ public class UnityMessageSource extends ReloadableResourceBundleMessageSource im
 			return super.getMessage(code, args, loc);
 		} catch (NoSuchMessageException e)
 		{
-			log.error("A message with code " + code + " is not defined, even in a default message bundle", e);
+			log.error("A message with code " + code + 
+					" is not defined, even in a default message bundle", e);
 			return code;
 		}
 	}

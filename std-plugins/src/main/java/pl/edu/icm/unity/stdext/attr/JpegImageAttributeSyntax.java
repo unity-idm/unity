@@ -211,7 +211,7 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 		return Base64.getEncoder().encodeToString(binary);
 	}
 	
-	private byte[] serialize(BufferedImage value) throws InternalException
+	public byte[] serialize(BufferedImage value) throws InternalException
 	{
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(100000);
 		try
@@ -225,7 +225,7 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 	        return bos.toByteArray(); 
 	}
 
-	private BufferedImage deserialize(byte[] raw) throws InternalException
+	public BufferedImage deserialize(byte[] raw) throws InternalException
 	{
 		ByteArrayInputStream bis = new ByteArrayInputStream(raw);
 		try

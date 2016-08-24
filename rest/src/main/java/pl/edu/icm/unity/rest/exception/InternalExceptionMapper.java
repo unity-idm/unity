@@ -12,8 +12,8 @@ import javax.ws.rs.ext.Provider;
 
 import org.apache.log4j.Logger;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.utils.Log;
 
 /**
  * Maps InternalException to HTTP error responses. No details are exposed to the client.

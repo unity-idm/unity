@@ -193,8 +193,7 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 				throw new IllegalCredentialException("The credential doesn't "
 						+ "support the outdated state");
 			String updated = handler.invalidate(currentCredential);
-			StringAttribute newCredentialA = new StringAttribute(credentialAttributeName, 
-					"/", updated);
+			Attribute newCredentialA = StringAttribute.of(credentialAttributeName, "/", updated);
 			Date now = new Date();
 			AttributeExt added = new AttributeExt(newCredentialA, true, now, now);
 			attributes.put(credentialAttributeName, added);

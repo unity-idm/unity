@@ -182,8 +182,7 @@ public class X500Identity extends AbstractStaticIdentityTypeProvider
 				continue;
 			String extractAs = toExtract.get(attributeName);
 			String[] vals = X500NameUtils.getAttributeValues(from, attributeNameAsn);
-			StringAttribute a = new StringAttribute(extractAs, "/", vals);
-			ret.add(a);
+			ret.add(StringAttribute.of(extractAs, "/", vals));
 		}
 		return ret;
 	}

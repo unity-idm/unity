@@ -4,7 +4,13 @@
  */
 package pl.edu.icm.unity.samlidp.ws;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -260,4 +266,14 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		assertNull(a4);
 	}
 
+	
+	@Test
+	public void gettingPreferencesOfMissingEntityShouldReturnDefaults()
+	{
+		EntityParam missing = new EntityParam(new IdentityTaV("foo", "bar"));
+		SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan, 
+				attributeSyntaxFactoriesRegistry, missing);
+		
+		assertThat(preferences, is(notNullValue()));
+	}
 }

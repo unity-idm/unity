@@ -9,20 +9,19 @@ import java.util.Properties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
-import pl.edu.icm.unity.server.translation.in.MappedIdentity;
-import pl.edu.icm.unity.server.translation.in.MappingResult;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider.WizardFinishedCallback;
-import pl.edu.icm.unity.wellknownurl.PostAssociationRedirectURLBuilder;
-import pl.edu.icm.unity.wellknownurl.SecuredViewProvider;
-import pl.edu.icm.unity.wellknownurl.PostAssociationRedirectURLBuilder.Status;
-
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
+
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.translation.in.MappedIdentity;
+import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
+import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
+import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider.WizardFinishedCallback;
+import pl.edu.icm.unity.wellknownurl.PostAssociationRedirectURLBuilder;
+import pl.edu.icm.unity.wellknownurl.PostAssociationRedirectURLBuilder.Status;
+import pl.edu.icm.unity.wellknownurl.SecuredViewProvider;
 
 
 /**

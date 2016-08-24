@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.ws.authn.ext;
 
+import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.rest.authn.ext.HttpBasicRetrievalBase;
-import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.ws.authn.WebServiceAuthentication;
 
 /**

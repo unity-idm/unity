@@ -96,6 +96,7 @@ import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
@@ -519,7 +520,7 @@ public class EngineInitialization extends LifecycleBase
 				if (config.getBooleanValue(UnityServerConfiguration.INITIAL_ADMIN_USER_OUTDATED))
 					idCredManagement.setEntityCredentialStatus(adminEntity, credDef.getName(),
 							LocalCredentialState.outdated);
-				EnumAttribute roleAt = new EnumAttribute(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
+				Attribute roleAt = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
 						"/", Lists.newArrayList(AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE));
 				attrManagement.setAttribute(adminEntity, roleAt, false);
 				log.warn("IMPORTANT:\n"

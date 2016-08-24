@@ -24,9 +24,9 @@ import com.unboundid.ldap.sdk.SearchScope;
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.ldap.client.LdapProperties.BindAs;
-import pl.edu.icm.unity.server.api.PKIManagement;
 
 /**
  * Manages configuration of the LDAP client.

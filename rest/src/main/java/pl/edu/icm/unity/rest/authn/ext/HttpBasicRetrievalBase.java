@@ -15,15 +15,15 @@ import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.impl.util.Base64;
 
+import eu.unicore.security.HTTPAuthNTokens;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
-import pl.edu.icm.unity.server.authn.AbstractCredentialRetrieval;
-import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.server.authn.CredentialRetrieval;
-import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.credential.PasswordExchange;
-import eu.unicore.security.HTTPAuthNTokens;
 
 /**
  * Base code for retrieving HTTP BASIC authn data from CXF.

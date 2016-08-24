@@ -4,10 +4,6 @@
  */
 package pl.edu.icm.unity.engine.api.confirmation.states;
 
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-
-
-
 /**
  * Contains necessary informations used during the confirmation a identity
  * 
@@ -19,7 +15,7 @@ public class IdentityConfirmationState extends UserConfirmationState
 	public static final String FACILITY_ID = "IdentityFacility";
 	
 	
-	public IdentityConfirmationState(String serializedState) throws WrongArgumentException
+	public IdentityConfirmationState(String serializedState)
 	{
 		super();
 		setSerializedConfiguration(serializedState);

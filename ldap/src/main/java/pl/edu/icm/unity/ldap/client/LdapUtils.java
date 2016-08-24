@@ -13,7 +13,7 @@ import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.RDN;
 
-import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.base.utils.Log;
 
 /**
  * Simple helpers

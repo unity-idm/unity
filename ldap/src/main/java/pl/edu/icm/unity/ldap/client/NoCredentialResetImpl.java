@@ -4,12 +4,14 @@
  */
 package pl.edu.icm.unity.ldap.client;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.engine.api.authn.CredentialReset;
+import pl.edu.icm.unity.engine.api.authn.CredentialResetSettings;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.TooManyAttempts;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.server.authn.CredentialReset;
-import pl.edu.icm.unity.server.authn.CredentialResetSettings;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 public class NoCredentialResetImpl implements CredentialReset
@@ -55,7 +57,7 @@ public class NoCredentialResetImpl implements CredentialReset
 	}
 
 	@Override
-	public String getCredentialConfiguration()
+	public ObjectNode getCredentialConfiguration()
 	{
 		return null;
 	}

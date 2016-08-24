@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -244,7 +243,7 @@ public class AttributesHelper
 		Map<String, AttributeType> allTypes = attributeTypeDAO.getAllAsMap();
 		acHelper.checkAttribtues(attributeNames, allTypes);
 
-		StringAttribute classAttr = new StringAttribute(AttributeClassTypeProvider.ATTRIBUTE_CLASSES_ATTRIBUTE, 
+		Attribute classAttr = StringAttribute.of(AttributeClassTypeProvider.ATTRIBUTE_CLASSES_ATTRIBUTE, 
 				group, new ArrayList<>(classes));
 		createOrUpdateAttribute(classAttr, entityId);
 	}

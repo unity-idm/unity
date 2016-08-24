@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.translation.form;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyList;
@@ -312,12 +313,14 @@ public class TestFormProfileActions
 		assertThat(((Map<String, List<String>>)context.get("idsByType")).get("identifier").size(), is(1));
 		assertThat(((Map<String, List<Object>>)context.get("idsByTypeObj")).get("identifier").size(), is(1));
 		assertThat(((Map<String, List<String>>)context.get("idsByType")).get("identifier").get(0), is("id"));
-		assertThat(((Map<String, List<Object>>)context.get("idsByTypeObj")).get("identifier").get(0), is("id"));
+		assertThat(((Map<String, List<Object>>)context.get("idsByTypeObj")).get("identifier").get(0), 
+				is(instanceOf(IdentityParam.class)));
 
 		assertThat(((Map<String, List<String>>)context.get("idsByType")).get("username").size(), is(1));
 		assertThat(((Map<String, List<Object>>)context.get("idsByTypeObj")).get("username").size(), is(1));
 		assertThat(((Map<String, List<String>>)context.get("idsByType")).get("username").get(0), is("user"));
-		assertThat(((Map<String, List<Object>>)context.get("idsByTypeObj")).get("username").get(0), is("user"));
+		assertThat(((Map<String, List<Object>>)context.get("idsByTypeObj")).get("username").get(0), 
+				is(instanceOf(IdentityParam.class)));
 
 		assertThat(((Map<String, List<String>>)context.get("ridsByType")).containsKey("identifier"), is(false));
 		assertThat(((Map<String, List<Object>>)context.get("ridsByTypeObj")).containsKey("identifier"), is(false));
@@ -327,7 +330,8 @@ public class TestFormProfileActions
 		assertThat(((Map<String, List<String>>)context.get("ridsByType")).get("username").size(), is(1));
 		assertThat(((Map<String, List<Object>>)context.get("ridsByTypeObj")).get("username").size(), is(1));
 		assertThat(((Map<String, List<String>>)context.get("ridsByType")).get("username").get(0), is("user"));
-		assertThat(((Map<String, List<Object>>)context.get("ridsByTypeObj")).get("username").get(0), is("user"));
+		assertThat(((Map<String, List<Object>>)context.get("ridsByTypeObj")).get("username").get(0), 
+				is(instanceOf(IdentityParam.class)));
 		
 		assertThat(((List<String>)context.get("groups")).size(), is(2));
 		assertThat(((List<String>)context.get("rgroups")).size(), is(1));

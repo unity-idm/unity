@@ -29,6 +29,7 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.test.context.TestPropertySource;
 
 import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
 import pl.edu.icm.unity.types.I18nString;
@@ -41,6 +42,7 @@ import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
  * are in the ws module for historical reasons.  
  * @author K. Benedyczak
  */
+@TestPropertySource(properties = { "unityConfig: src/test/resources/unityServerRest.conf" })
 public class TestRESTCore extends TestRESTBase
 {
 	private static final String ALLOWED_ORIGIN1 = "http://someorigin.com";
@@ -51,7 +53,7 @@ public class TestRESTCore extends TestRESTBase
 	public void configureEndpoint() throws Exception
 	{
 		setupPasswordAuthn();
-		createUsernameUser("Regular User");
+		createUsernameUserWithRole("Regular User");
 		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
 				10, 100, -1, 600);
 		realmsMan.addRealm(realm);

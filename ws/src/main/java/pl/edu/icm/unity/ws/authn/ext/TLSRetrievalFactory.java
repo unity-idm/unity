@@ -6,9 +6,9 @@ package pl.edu.icm.unity.ws.authn.ext;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.authn.CredentialExchange;
-import pl.edu.icm.unity.server.authn.CredentialRetrieval;
-import pl.edu.icm.unity.server.authn.CredentialRetrievalFactory;
+import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
+import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
+import pl.edu.icm.unity.engine.api.authn.CredentialRetrievalFactory;
 import pl.edu.icm.unity.stdext.credential.CertificateExchange;
 import pl.edu.icm.unity.ws.authn.WebServiceAuthentication;
 
@@ -16,7 +16,7 @@ import pl.edu.icm.unity.ws.authn.WebServiceAuthentication;
  * Factory of {@link TLSRetrieval}
  * @author K. Benedyczak
  */
-@Component
+@Component("SOAPTLSRetrievalFactory")
 public class TLSRetrievalFactory implements CredentialRetrievalFactory
 {
 	public static final String NAME = "cxf-certificate";

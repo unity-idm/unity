@@ -59,7 +59,6 @@ public class BaseTokenResource extends BaseOAuthResource
 					accessToken.getValue());
 			
 			OAuthToken parsedAccessToken = parseInternalToken(rawToken);
-			extendValidityIfNeeded(rawToken, parsedAccessToken);
 			return new TokensPair(rawToken, parsedAccessToken);
 		} catch (WrongArgumentException e)
 		{

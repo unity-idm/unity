@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.engine.api.confirmation.states;
 
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -39,7 +37,7 @@ public class RegistrationConfirmationState extends BaseConfirmationState
 	}
 
 
-	public RegistrationConfirmationState(String serializedState) throws WrongArgumentException
+	public RegistrationConfirmationState(String serializedState)
 	{
 		super();
 		setSerializedConfiguration(serializedState);
@@ -83,7 +81,7 @@ public class RegistrationConfirmationState extends BaseConfirmationState
 	
 	
 	@Override
-	protected void setSerializedConfiguration(ObjectNode main) throws WrongArgumentException
+	protected void setSerializedConfiguration(ObjectNode main)
 	{
 		super.setSerializedConfiguration(main);
 		try
@@ -95,7 +93,7 @@ public class RegistrationConfirmationState extends BaseConfirmationState
 				
 		} catch (Exception e)
 		{
-			throw new WrongArgumentException("Can't perform JSON deserialization", e);
+			throw new IllegalArgumentException("Can't perform JSON deserialization", e);
 		}
 	}
 }

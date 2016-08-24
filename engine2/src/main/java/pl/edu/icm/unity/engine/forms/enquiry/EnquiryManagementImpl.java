@@ -43,6 +43,7 @@ import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.registration.AdminComment;
@@ -368,7 +369,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	{
 		Set<String> currentValues = getEnquiresFromAttribute(entityId, attributeName);
 		currentValues.add(value);
-		StringAttribute attribute = new StringAttribute(attributeName, "/", new ArrayList<>(currentValues));
+		Attribute attribute = StringAttribute.of(attributeName, "/", new ArrayList<>(currentValues));
 		dbAttributes.addAttribute(entityId, attribute, true, false);
 	}
 	

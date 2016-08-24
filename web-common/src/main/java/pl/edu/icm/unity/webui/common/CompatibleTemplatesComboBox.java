@@ -7,11 +7,11 @@ package pl.edu.icm.unity.webui.common;
 import java.util.HashMap;
 import java.util.Map;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.msgtemplates.MessageTemplate;
-import pl.edu.icm.unity.server.api.MessageTemplateManagement;
-
 import com.vaadin.ui.ComboBox;
+
+import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.basic.MessageTemplate;
 
 /**
  * A {@link ComboBox} showing only the templates which are compatible with a given description.

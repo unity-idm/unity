@@ -10,13 +10,12 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.server.utils.Log;
-
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
+import pl.edu.icm.unity.base.utils.Log;
 
 /**
  * Generic settings for all CXF WS endpoints. Placeholder - currently no configuration.

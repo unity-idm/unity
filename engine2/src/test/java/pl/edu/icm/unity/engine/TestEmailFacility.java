@@ -59,7 +59,7 @@ public class TestEmailFacility extends DBIntegrationTestBase
 
 	private void setEmailAttr(EntityParam entity, VerifiableEmail... emails) throws Exception
 	{
-		VerifiableEmailAttribute attribute = new VerifiableEmailAttribute(InitializerCommon.EMAIL_ATTR, 
+		Attribute attribute = VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, 
 				"/", emails);
 		attrsMan.setAttribute(entity, attribute, true);
 	}
@@ -87,7 +87,7 @@ public class TestEmailFacility extends DBIntegrationTestBase
 				DBIntegrationTestBase.CRED_REQ_PASS, EntityState.valid, false);
 		EntityParam entityP = new EntityParam(entity);
 
-		StringAttribute attribute = new StringAttribute(InitializerCommon.EMAIL_ATTR, 
+		Attribute attribute = StringAttribute.of(InitializerCommon.EMAIL_ATTR, 
 				"/", "email1@ex.com");
 		attrsMan.setAttribute(entityP, attribute, true);
 		
@@ -117,7 +117,7 @@ public class TestEmailFacility extends DBIntegrationTestBase
 				DBIntegrationTestBase.CRED_REQ_PASS, EntityState.valid, false);
 		EntityParam entityP = new EntityParam(entity);
 
-		StringAttribute attribute = new StringAttribute(InitializerCommon.EMAIL_ATTR, 
+		Attribute attribute = StringAttribute.of(InitializerCommon.EMAIL_ATTR, 
 				"/", "email1@ex.com");
 		attrsMan.setAttribute(entityP, attribute, true);
 		
@@ -179,7 +179,7 @@ public class TestEmailFacility extends DBIntegrationTestBase
 	
 	private void setEmailAttr(RegistrationRequestState request, VerifiableEmail... emails) throws Exception
 	{
-		VerifiableEmailAttribute attribute = new VerifiableEmailAttribute(InitializerCommon.EMAIL_ATTR, 
+		Attribute attribute = VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, 
 				"/", emails);
 		List<Attribute> attributes = request.getRequest().getAttributes();
 		attributes.clear();

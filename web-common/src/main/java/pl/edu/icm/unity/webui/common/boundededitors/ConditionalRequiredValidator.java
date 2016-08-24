@@ -4,10 +4,10 @@
  */
 package pl.edu.icm.unity.webui.common.boundededitors;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-
 import com.vaadin.data.validator.AbstractValidator;
 import com.vaadin.ui.CheckBox;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 
 public class ConditionalRequiredValidator<T> extends AbstractValidator<T>
 {

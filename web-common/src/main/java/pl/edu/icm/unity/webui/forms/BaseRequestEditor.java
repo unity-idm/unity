@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -24,18 +23,15 @@ import com.vaadin.ui.Layout;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException.Category;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.authn.AuthenticationException;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -159,18 +155,10 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		
 		if (category == Category.CREDENTIAL)
 		{
-			String info = e.getMessage();
+			EngineException error = e;
 			if (e.getCause() != null && e.getCause() instanceof IllegalCredentialException)
-			{
-				IllegalCredentialException ice = (IllegalCredentialException) e.getCause();
-				info = ice.getMessage() + ": ";
-				if (ice.getDetails() != null)
-					info += ice.getDetails().stream()
-						.map(ss -> ss.getValue(msg))
-						.collect(Collectors.joining(" "));
-					
-			}
-			credentialParamEditors.get(position).setCredentialError(info);
+				error = (IllegalCredentialException) e.getCause();
+			credentialParamEditors.get(position).setCredentialError(error);
 		}
 	}
 	

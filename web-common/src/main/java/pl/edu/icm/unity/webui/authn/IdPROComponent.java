@@ -4,10 +4,6 @@
  */
 package pl.edu.icm.unity.webui.authn;
 
-import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
-import pl.edu.icm.unity.webui.common.ImageUtils;
-import pl.edu.icm.unity.webui.common.Styles;
-
 import com.google.common.html.HtmlEscapers;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;
@@ -15,6 +11,10 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
+import pl.edu.icm.unity.webui.common.ImageUtils;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Small widget showing a component presenting a remote IdP. Not interactive.

@@ -8,8 +8,8 @@ import java.util.Collection;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.MapComboBox;
 

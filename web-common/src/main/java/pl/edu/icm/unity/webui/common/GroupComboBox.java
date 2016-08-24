@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import pl.edu.icm.unity.server.api.GroupsManagement;
-
 import com.vaadin.ui.ComboBox;
+
+import pl.edu.icm.unity.engine.api.GroupsManagement;
 
 
 /**

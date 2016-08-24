@@ -13,26 +13,31 @@ import java.util.List;
 import javax.xml.ws.soap.SOAPFaultException;
 
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.engine.DBIntegrationTestBase;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
-import pl.edu.icm.unity.ws.mock.MockWSEndpointFactory;
-import pl.edu.icm.unity.ws.mock.MockWSSEI;
-import xmlbeans.org.oasis.saml2.assertion.NameIDDocument;
 import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.unicore.security.wsutil.client.WSClientFactory;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
+import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.ws.mock.MockWSEndpointFactory;
+import pl.edu.icm.unity.ws.mock.MockWSSEI;
+import xmlbeans.org.oasis.saml2.assertion.NameIDDocument;
 
 
 public class TestWSCore extends DBIntegrationTestBase
 {
 	public static final String AUTHENTICATOR_WS_PASS = "ApassWS";
 	public static final String AUTHENTICATOR_WS_CERT = "AcertWS";
+	
+	@Autowired
+	private AuthenticatorManagement authnMan;
 	
 	@Test
 	public void testBlockAccess() throws Exception
@@ -58,14 +63,14 @@ public class TestWSCore extends DBIntegrationTestBase
 				"unicore".toCharArray(), "JKS", -1));
 		clientCfg.setSslEnabled(true);
 
-		clientCfg.setHttpUser("user1");
+		clientCfg.setHttpUser(DEF_USER);
 		clientCfg.setHttpPassword("wrong");
 		clientCfg.setSslAuthn(false);
 		clientCfg.setHttpAuthn(true);
 		WSClientFactory factoryBad = new WSClientFactory(clientCfg);
 		MockWSSEI wsProxyBad = factoryBad.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
 				MockWSEndpointFactory.SERVLET_PATH);
-		clientCfg.setHttpPassword("mockPassword1");
+		clientCfg.setHttpPassword(DEF_PASSWORD);
 		WSClientFactory factoryOK = new WSClientFactory(clientCfg);
 		MockWSSEI wsProxyOK = factoryOK.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
 				MockWSEndpointFactory.SERVLET_PATH);
@@ -132,7 +137,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
 				"desc", authnCfg, "", realm.getName());
 		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint1", "/mock", cfg);
-		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
 
 		httpServer.start();
@@ -145,15 +150,15 @@ public class TestWSCore extends DBIntegrationTestBase
 				"unicore".toCharArray(), "JKS", -1));
 		clientCfg.setSslEnabled(true);
 
-		clientCfg.setHttpUser("user1");
-		clientCfg.setHttpPassword("mockPassword1");
+		clientCfg.setHttpUser(DEF_USER);
+		clientCfg.setHttpPassword(DEF_PASSWORD);
 		clientCfg.setSslAuthn(false);
 		clientCfg.setHttpAuthn(true);
 		WSClientFactory factory = new WSClientFactory(clientCfg);
 		MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
 				MockWSEndpointFactory.SERVLET_PATH);
 		NameIDDocument ret = wsProxy.getAuthenticatedUser();
-		assertEquals("[user1]", ret.getNameID().getStringValue());
+		assertEquals("[" + DEF_USER + "]", ret.getNameID().getStringValue());
 		
 		try
 		{
@@ -187,12 +192,12 @@ public class TestWSCore extends DBIntegrationTestBase
 
 		clientCfg.setSslAuthn(true);
 		clientCfg.setHttpAuthn(true);
-		clientCfg.setHttpPassword("mockPassword1");
+		clientCfg.setHttpPassword(DEF_PASSWORD);
 		factory = new WSClientFactory(clientCfg);
 		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
 				MockWSEndpointFactory.SERVLET_PATH);
 		ret = wsProxy.getAuthenticatedUser();
-		assertEquals("[user1]", ret.getNameID().getStringValue());
+		assertEquals("[" + DEF_USER + "]", ret.getNameID().getStringValue());
 		
 
 		List<AuthenticationOptionDescription> authnCfg2 = new ArrayList<AuthenticationOptionDescription>();
@@ -242,7 +247,7 @@ public class TestWSCore extends DBIntegrationTestBase
 	
 	protected void createUsers() throws Exception
 	{
-		createUsernameUser(null);
+		createUsernameUser(DEF_USER, null, DEF_PASSWORD, CRED_REQ_PASS);
 		createCertUser();
 	}
 	
@@ -250,7 +255,9 @@ public class TestWSCore extends DBIntegrationTestBase
 	{
 		setupPasswordAuthn();
 		setupPasswordAndCertAuthn();
-		authnMan.createAuthenticator(AUTHENTICATOR_WS_CERT, "certificate with cxf-certificate", null, "", "credential2");
-		authnMan.createAuthenticator(AUTHENTICATOR_WS_PASS, "password with cxf-httpbasic", null, "", "credential1");
+		authnMan.createAuthenticator(AUTHENTICATOR_WS_CERT, "certificate with cxf-certificate", 
+				null, "", "credential2");
+		authnMan.createAuthenticator(AUTHENTICATOR_WS_PASS, "password with cxf-httpbasic", 
+				null, "", "credential1");
 	}
 }

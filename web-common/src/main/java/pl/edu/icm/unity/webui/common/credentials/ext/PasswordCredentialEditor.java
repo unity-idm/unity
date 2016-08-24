@@ -14,9 +14,10 @@ import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.authn.CredentialResetSettings;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.server.authn.CredentialResetSettings;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.PasswordCredential;
 import pl.edu.icm.unity.stdext.credential.PasswordExtraInfo;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
@@ -174,8 +175,22 @@ public class PasswordCredentialEditor implements CredentialEditor
 	}
 
 	@Override
-	public void setCredentialError(String message)
+	public void setCredentialError(EngineException error)
 	{
+		if (error == null)
+		{
+			password1.setComponentError(null);
+			password2.setComponentError(null);
+			return;
+		}
+		
+		String message = error.getMessage();
+		if (error instanceof IllegalCredentialException)
+		{
+			IllegalCredentialException ice = (IllegalCredentialException) error;
+			message = ice.formatDetails(msg);
+		}
+		
 		password1.setComponentError(message == null ? null : new UserError(message));
 		password2.setComponentError(message == null ? null : new UserError(message));
 		if (message != null)

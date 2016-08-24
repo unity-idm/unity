@@ -42,6 +42,7 @@ import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -110,7 +111,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 				new ConfirmationInfo(true));
 		VerifiableEmail e2 = new VerifiableEmail("b@example.com", new ConfirmationInfo(
 				false));
-		VerifiableEmailAttribute at1 = new VerifiableEmailAttribute(
+		Attribute at1 = VerifiableEmailAttribute.of(
 				InitializerCommon.EMAIL_ATTR, "/", e1, e2);
 		attrsMan.setAttribute(entity, at1, false);
 
@@ -125,7 +126,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 		VerifiableEmail e2P = new VerifiableEmail("b@example.com", new ConfirmationInfo(true));
 		VerifiableEmail e3P = new VerifiableEmail("c@example.com", new ConfirmationInfo(true));
 		
-		VerifiableEmailAttribute at1P = new VerifiableEmailAttribute(
+		Attribute at1P = VerifiableEmailAttribute.of(
 				InitializerCommon.EMAIL_ATTR, "/", e1P,
 				e2P, e3P);
 		attrsMan.setAttribute(entity, at1P, true);
@@ -154,7 +155,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 
 		VerifiableEmail e1 = new VerifiableEmail("a@example.com", new ConfirmationInfo(true));
 		VerifiableEmail e2 = new VerifiableEmail("b@example.com", new ConfirmationInfo(false));
-		VerifiableEmailAttribute at1 = new VerifiableEmailAttribute(
+		Attribute at1 = VerifiableEmailAttribute.of(
 				InitializerCommon.EMAIL_ATTR, "/", e1, e2);
 		attrsMan.setAttribute(entity, at1, false);
 
@@ -180,7 +181,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 		setupAdmin();
 		VerifiableEmail e1 = new VerifiableEmail("a@example.com", new ConfirmationInfo(true));
 		VerifiableEmail e2 = new VerifiableEmail("b@example.com", new ConfirmationInfo(false));
-		VerifiableEmailAttribute at1 = new VerifiableEmailAttribute(
+		Attribute at1 = VerifiableEmailAttribute.of(
 				InitializerCommon.EMAIL_ATTR, "/", e1, e2);
 		attrsMan.setAttribute(entity, at1, true);
 
@@ -196,7 +197,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 		e2 = new VerifiableEmail("b@example.com", new ConfirmationInfo(true));
 		VerifiableEmail e3 = new VerifiableEmail("c@example.com",
 				new ConfirmationInfo(true));
-		at1 = new VerifiableEmailAttribute(InitializerCommon.EMAIL_ATTR, "/",
+		at1 = VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, "/",
 				e3, e2, e1);
 		attrsMan.setAttribute(entity, at1, true);
 
@@ -223,7 +224,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 		setupAdmin();
 		VerifiableEmail e1 = new VerifiableEmail("a@example.com",new ConfirmationInfo(true));
 		VerifiableEmail e2 = new VerifiableEmail("b@example.com", new ConfirmationInfo(false));
-		VerifiableEmailAttribute at1 = new VerifiableEmailAttribute(
+		Attribute at1 = VerifiableEmailAttribute.of(
 				InitializerCommon.EMAIL_ATTR, "/", e1, e2);
 		attrsMan.setAttribute(entity, at1, true);
 
@@ -236,7 +237,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 		setupUserContext(DEF_USER, false);
 		e1 = new VerifiableEmail("c@example.com", new ConfirmationInfo(false));
 		e2 = new VerifiableEmail("b@example.com", new ConfirmationInfo(false));
-		at1 = new VerifiableEmailAttribute(InitializerCommon.EMAIL_ATTR, "/",
+		at1 = VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, "/",
 				e1, e2);
 		try
 		{
@@ -260,7 +261,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 
 		aTypeMan.addAttributeType(new AttributeType(InitializerCommon.EMAIL_ATTR,
 				VerifiableEmailAttributeSyntax.ID));
-		VerifiableEmailAttribute at1 = new VerifiableEmailAttribute(
+		Attribute at1 = VerifiableEmailAttribute.of(
 				InitializerCommon.EMAIL_ATTR, "/test", "example2@ex.com");
 		attrsMan.setAttribute(entity, at1, false);
 		AttribiuteConfirmationState attrState = new AttribiuteConfirmationState(
@@ -307,7 +308,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 		groupsMan.addMemberFromParent("/test", entity);
 		aTypeMan.addAttributeType(new AttributeType(InitializerCommon.EMAIL_ATTR,
 				VerifiableEmailAttributeSyntax.ID));
-		VerifiableEmailAttribute at1 = new VerifiableEmailAttribute(
+		Attribute at1 = VerifiableEmailAttribute.of(
 				InitializerCommon.EMAIL_ATTR, "/test", "example2@ex.com");
 		attrsMan.setAttribute(entity, at1, false);
 		addSimpleConfirmationConfiguration(
@@ -426,7 +427,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 				.withSelected(true)
 				.endAgreement()
 				.withAddedAttribute(
-						new VerifiableEmailAttribute(
+						VerifiableEmailAttribute.of(
 								InitializerCommon.EMAIL_ATTR, "/",
 								"test1@example.com"))
 				.withAddedCredential()
@@ -541,7 +542,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 				.withSelected(true)
 				.endAgreement()
 				.withAddedAttribute(
-						new VerifiableEmailAttribute(
+						VerifiableEmailAttribute.of(
 								InitializerCommon.EMAIL_ATTR, "/",
 								"test2@example.com"))
 				.withAddedCredential()
@@ -611,7 +612,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 		RegistrationRequest request = new RegistrationRequestBuilder()
 				.withFormId("f1")
 				.withAddedAttribute(
-						new VerifiableEmailAttribute(
+						VerifiableEmailAttribute.of(
 								InitializerCommon.EMAIL_ATTR, "/",
 								"test3@example.com"))
 				.withAddedIdentity(new IdentityParam(EmailIdentity.ID, "test33@example.com"))
@@ -686,7 +687,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 				.withSelected(true)
 				.endAgreement()
 				.withAddedAttribute(
-						new VerifiableEmailAttribute(
+						VerifiableEmailAttribute.of(
 								InitializerCommon.EMAIL_ATTR, "/",
 								"test5@example.com"))
 				.withAddedCredential()
@@ -740,7 +741,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 		groupsMan.addGroup(new Group("/test"));
 		groupsMan.addMemberFromParent("/test", entity);
 		
-		VerifiableEmailAttribute at1 = new VerifiableEmailAttribute(
+		Attribute at1 = VerifiableEmailAttribute.of(
 				InitializerCommon.EMAIL_ATTR, "/test", "test6@ex.com");
 		addSimpleConfirmationConfiguration(
 				ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,

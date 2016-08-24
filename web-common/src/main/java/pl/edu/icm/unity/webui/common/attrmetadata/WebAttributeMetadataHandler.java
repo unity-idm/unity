@@ -6,7 +6,7 @@ package pl.edu.icm.unity.webui.common.attrmetadata;
 
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.server.attributes.AttributeMetadataProvider;
+import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvider;
 
 /**
  * Allows for displaying and editing metadata of a {@link AttributeMetadataProvider}.

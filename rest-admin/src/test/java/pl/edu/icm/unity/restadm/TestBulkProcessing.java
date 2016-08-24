@@ -20,13 +20,13 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.server.bulkops.action.RemoveEntityActionFactory;
+import pl.edu.icm.unity.engine.bulkops.action.RemoveEntityActionFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.bulkops.ProcessingRuleParam;
+import pl.edu.icm.unity.types.translation.TranslationAction;
+import pl.edu.icm.unity.types.translation.TranslationRule;
 
 /**
  * Invitations management test
@@ -41,9 +41,9 @@ public class TestBulkProcessing extends RESTAdminTestBase
 		idsMan.addEntity(identityParam, CRED_REQ_PASS, EntityState.valid, false);
 		
 		HttpPost post = new HttpPost("/restadm/v1/bulkProcessing/instant?timeout=20");
-		ProcessingRuleParam param = new ProcessingRuleParam(
+		TranslationRule param = new TranslationRule(
 				"(idsByType contains 'userName') && (idsByType['userName'] contains 'user-to-remove')", 
-				RemoveEntityActionFactory.NAME);
+				new TranslationAction(RemoveEntityActionFactory.NAME));
 		String jsonform = m.writeValueAsString(param);
 		System.out.println("Request to be sent:\n" + jsonform);
 		post.setEntity(new StringEntity(jsonform, ContentType.APPLICATION_JSON));
@@ -53,6 +53,6 @@ public class TestBulkProcessing extends RESTAdminTestBase
 
 		assertThat(contents, is("sync"));
 		catchException(idsMan).getEntity(new EntityParam(identityParam));
-		assertThat(caughtException(), isA(IllegalIdentityValueException.class));
+		assertThat(caughtException(), isA(IllegalArgumentException.class));
 	}
 }

@@ -91,7 +91,7 @@ public class EntityCredentialsHelper
 	
 	public void setEntityCredentialRequirementsNoCheck(long entityId, String credReqId) 
 	{
-		StringAttribute credReq = new StringAttribute(CredentialAttributeTypeProvider.CREDENTIAL_REQUIREMENTS,
+		Attribute credReq = StringAttribute.of(CredentialAttributeTypeProvider.CREDENTIAL_REQUIREMENTS,
 				"/", credReqId);
 		attributesHelper.createOrUpdateAttribute(credReq, entityId);
 	}
@@ -109,7 +109,7 @@ public class EntityCredentialsHelper
 			String credentialId) throws EngineException
 	{
 		String credentialAttributeName = CredentialAttributeTypeProvider.CREDENTIAL_PREFIX+credentialId;
-		StringAttribute newCredentialA = new StringAttribute(credentialAttributeName, 
+		Attribute newCredentialA = StringAttribute.of(credentialAttributeName, 
 				"/", Collections.singletonList(newCred));
 		attributesHelper.createOrUpdateAttribute(newCredentialA, entityId);
 	}}
