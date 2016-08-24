@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.initializers;
 
+import java.io.File;
+
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
 /**
@@ -16,7 +18,7 @@ public class ContentInitConf
 {
 	private InitializerMode mode;
 	private InitializerType type;
-	private String file;
+	private File file;
 
 	public InitializerMode getMode()
 	{
@@ -38,12 +40,12 @@ public class ContentInitConf
 		this.type = type;
 	}
 
-	public String getFile()
+	public File getFile()
 	{
 		return file;
 	}
 
-	public void setFile(String file)
+	public void setFile(File file)
 	{
 		this.file = file;
 	}
@@ -57,7 +59,7 @@ public class ContentInitConf
 	{
 		private InitializerMode mode;
 		private InitializerType type;
-		private String file;
+		private File file;
 
 		public Builder withMode(InitializerMode mode)
 		{
@@ -71,7 +73,7 @@ public class ContentInitConf
 			return this;
 		}
 
-		public Builder withFile(String file)
+		public Builder withFile(File file)
 		{
 			this.file = file;
 			return this;

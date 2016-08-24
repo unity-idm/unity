@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.server;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,9 @@ public class ContentInitialization
 	@Autowired
 	private UnityServerConfiguration config;
 
+	@Autowired
+	protected ContentJsonLoader jsonLoader;
+
 	public void load()
 	{
 		Map<InitializerType, List<ContentInitConf>> inizializers = getContentInitializersConfiguration()
@@ -54,7 +58,7 @@ public class ContentInitialization
 
 	private void initializeContentFromJson(List<ContentInitConf> list)
 	{
-		throw new RuntimeException("not yet implemented");
+		list.stream().forEach(conf -> jsonLoader.load(conf));
 	}
 
 	private void initializeContentFromGroovy(List<ContentInitConf> list)
@@ -68,9 +72,16 @@ public class ContentInitialization
 		List<ContentInitConf> inizializers = new ArrayList<>(initializersList.size());
 		for (String key: initializersList)
 		{
-			String file = config.getValue(key + UnityServerConfiguration.CONTENT_INITIALIZERS_FILE);
-			String typeStr = config.getValue(key + UnityServerConfiguration.CONTENT_INITIALIZERS_TYPE);
-			String modeStr = config.getValue(key + UnityServerConfiguration.CONTENT_INITIALIZERS_MODE);
+			String pathname = config.getValue(key + UnityServerConfiguration.CONTENT_INITIALIZERS_FILE);
+			String typeStr  = config.getValue(key + UnityServerConfiguration.CONTENT_INITIALIZERS_TYPE);
+			String modeStr  = config.getValue(key + UnityServerConfiguration.CONTENT_INITIALIZERS_MODE);
+
+			File file = new File(pathname);
+			if (!file.exists())
+			{
+				throw new InternalException(
+						String.format("Invalid file provided for initializer: '%s' does not exist.", pathname));
+			}
 
 			InitializerType type = null;
 			try
@@ -92,10 +103,11 @@ public class ContentInitialization
 				{
 					throw new InternalException(
 							String.format("Invalid initializer mode provided for file '%s', was: '%s'. "
-									+ "Supported values: ", file, typeStr, InitializerMode.modesToString()), e);
+									+ "Supported values: ", pathname, typeStr, InitializerMode.modesToString()), e);
 
 				}
 			}
+
 			inizializers.add(
 					ContentInitConf.builder()
 						.withFile(file)
