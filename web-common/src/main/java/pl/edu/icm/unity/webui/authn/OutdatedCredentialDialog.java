@@ -9,6 +9,10 @@ import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 
+import pl.edu.icm.unity.engine.api.CredentialManagement;
+import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
+import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
@@ -25,20 +29,25 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog.Callbac
  */
 public class OutdatedCredentialDialog extends AbstractDialog
 {
-	private AuthenticationManagement authnMan;
-	private IdentitiesManagement idsMan;
 	private CredentialEditorRegistry credEditorReg;
 	private WebAuthenticationProcessor authnProcessor;
+	private CredentialManagement credMan;
+	private EntityCredentialManagement ecredMan;
+	private EntityManagement entityMan;
+	private CredentialRequirementManagement credReqMan;
 	
-	public OutdatedCredentialDialog(UnityMessageSource msg, AuthenticationManagement authnMan,
-			IdentitiesManagement idsMan, CredentialEditorRegistry credEditorReg,
+	public OutdatedCredentialDialog(UnityMessageSource msg, CredentialManagement credMan, 
+			EntityCredentialManagement ecredMan, EntityManagement entityMan,
+			CredentialRequirementManagement credReqMan, CredentialEditorRegistry credEditorReg,
 			WebAuthenticationProcessor authnProcessor)
 	{
 		super(msg, msg.getMessage("OutdatedCredentialDialog.caption"), 
 				msg.getMessage("OutdatedCredentialDialog.accept"), 
 				msg.getMessage("OutdatedCredentialDialog.cancel"));
-		this.authnMan = authnMan;
-		this.idsMan = idsMan;
+		this.credMan = credMan;
+		this.ecredMan = ecredMan;
+		this.entityMan = entityMan;
+		this.credReqMan = credReqMan;
 		this.credEditorReg = credEditorReg;
 		this.authnProcessor = authnProcessor;
 		setSizeMode(SizeMode.SMALL);
@@ -57,8 +66,10 @@ public class OutdatedCredentialDialog extends AbstractDialog
 		LoginSession ls = (LoginSession) vss.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY);
 		CredentialsChangeDialog dialog = new CredentialsChangeDialog(msg, 
 				ls.getEntityId(), 
-				authnMan, 
-				idsMan, 
+				credMan, 
+				ecredMan,
+				entityMan,
+				credReqMan,
 				credEditorReg, true,
 				new Callback()
 				{

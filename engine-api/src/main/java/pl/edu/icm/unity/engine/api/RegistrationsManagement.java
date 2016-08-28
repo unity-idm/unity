@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.api;
 
 import java.util.List;
 
+import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -84,4 +85,10 @@ public interface RegistrationsManagement
 	void processRegistrationRequest(String id, RegistrationRequest finalRequest, 
 			RegistrationRequestAction action, String publicComment, 
 			String privateComment) throws EngineException;
+	
+	
+	/**
+	 * @return form automation support for a given form
+	 */
+	FormAutomationSupport getFormAutomationSupport(RegistrationForm form);
 }

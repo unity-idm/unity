@@ -19,6 +19,15 @@ import com.vaadin.server.VaadinSession;
 import com.vaadin.server.communication.ServletBootstrapHandler;
 import com.vaadin.shared.Version;
 
+import freemarker.cache.ClassTemplateLoader;
+import freemarker.cache.FileTemplateLoader;
+import freemarker.cache.MultiTemplateLoader;
+import freemarker.cache.TemplateLoader;
+import freemarker.ext.beans.BeansWrapperBuilder;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 
 /**

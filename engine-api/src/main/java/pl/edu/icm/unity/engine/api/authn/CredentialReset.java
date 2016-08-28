@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.TooManyAttempts;
@@ -66,7 +64,7 @@ public interface CredentialReset
 	/**
 	 * @return JSON with the current credential configuration of the subject
 	 */
-	ObjectNode getCredentialConfiguration();
+	String getCredentialConfiguration();
 
 	/**
 	 * Changes the credential to a new one.

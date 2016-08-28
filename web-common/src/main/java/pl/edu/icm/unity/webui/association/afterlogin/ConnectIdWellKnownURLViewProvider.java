@@ -15,6 +15,7 @@ import com.vaadin.server.Page;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.translation.in.MappedIdentity;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;

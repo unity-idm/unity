@@ -10,6 +10,7 @@ import java.util.Properties;
 import org.springframework.context.ApplicationContext;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 
 
@@ -21,7 +22,7 @@ import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 public class AuthenticationVaadinServlet extends UnityVaadinServlet
 {
 	public AuthenticationVaadinServlet(ApplicationContext applicationContext, 
-			EndpointDescription description,
+			ResolvedEndpoint description,
 			List<AuthenticationOption> authenticators,
 			EndpointRegistrationConfiguration registrationConfiguration,
 			Properties endpointProperties,

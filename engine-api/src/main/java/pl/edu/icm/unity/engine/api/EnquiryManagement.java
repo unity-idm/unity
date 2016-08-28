@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.api;
 
 import java.util.List;
 
+import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
@@ -106,4 +107,9 @@ public interface EnquiryManagement
 	 * @throws EngineException
 	 */
 	List<EnquiryResponseState> getEnquiryResponses() throws EngineException;
+	
+	/**
+	 * @return form automation support for a given form
+	 */
+	FormAutomationSupport getFormAutomationSupport(EnquiryForm form);
 }

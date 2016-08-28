@@ -39,11 +39,6 @@ public class AttributeTypeUtils
 		return val ? msg.getMessage("yes") : msg.getMessage("no");
 	}
 	
-	public static String getVisibilityDesc(UnityMessageSource msg, AttributeType type)
-	{
-		return msg.getMessage("AttributeType.visibility." + type.getVisibility().toString());
-	} 
-
 	public static String getFlagsDesc(UnityMessageSource msg, AttributeType type)
 	{
 		StringBuilder sb = new StringBuilder();

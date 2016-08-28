@@ -12,6 +12,7 @@ import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Image;
 
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
@@ -30,15 +31,17 @@ public class AttributeViewer
 	private UnityMessageSource msg;
 	private AttributeHandlerRegistry registry;
 	private AttributeType attributeType;
-	private Attribute<?> attribute;
+	private Attribute attribute;
 	private boolean showGroup;
 	private List<Component> values;
+	private AttributeTypeSupport aTypeSupport;
 	
-	public AttributeViewer(UnityMessageSource msg, AttributeHandlerRegistry registry,
-			AttributeType attributeType, Attribute<?> attribute, boolean showGroup)
+	public AttributeViewer(UnityMessageSource msg, AttributeHandlerRegistry registry, 
+			AttributeType attributeType, Attribute attribute, boolean showGroup)
 	{
 		this.msg = msg;
 		this.registry = registry;
+		this.aTypeSupport = registry.getaTypeSupport();
 		this.attributeType = attributeType;
 		this.attribute = attribute;
 		this.showGroup = showGroup;
@@ -91,7 +94,7 @@ public class AttributeViewer
 	{
 		@SuppressWarnings("unchecked")
 		AttributeValueSyntax<Object> syntax = (AttributeValueSyntax<Object>) 
-				attribute.getAttributeSyntax();
+			aTypeSupport.getSyntax(attribute); 
 		@SuppressWarnings("unchecked")
 		WebAttributeHandler<Object> handler = (WebAttributeHandler<Object>) 
 				registry.getHandler(syntax.getValueSyntaxId());

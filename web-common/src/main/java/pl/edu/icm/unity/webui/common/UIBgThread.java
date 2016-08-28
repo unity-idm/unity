@@ -10,6 +10,7 @@ import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.UI;
 import com.vaadin.util.CurrentInstance;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 
 /**

@@ -36,6 +36,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 
@@ -48,7 +49,7 @@ public class UnityVaadinServlet extends VaadinServlet
 {
 	private transient ApplicationContext applicationContext;
 	private transient String uiBeanName;
-	private transient EndpointDescription description;
+	private transient ResolvedEndpoint description;
 	private transient List<AuthenticationOption> authenticators;
 	private transient CancelHandler cancelHandler;
 	private transient SandboxAuthnRouter sandboxRouter;
@@ -58,7 +59,7 @@ public class UnityVaadinServlet extends VaadinServlet
 	private String themeConfigKey;
 	
 	public UnityVaadinServlet(ApplicationContext applicationContext, String uiBeanName,
-			EndpointDescription description,
+			ResolvedEndpoint description,
 			List<AuthenticationOption> authenticators,
 			EndpointRegistrationConfiguration registrationConfiguration,
 			Properties endpointProperties,
@@ -69,7 +70,7 @@ public class UnityVaadinServlet extends VaadinServlet
 	}
 	
 	protected UnityVaadinServlet(ApplicationContext applicationContext, String uiBeanName,
-			EndpointDescription description,
+			ResolvedEndpoint description,
 			List<AuthenticationOption> authenticators,
 			EndpointRegistrationConfiguration registrationConfiguration,
 			Properties endpointProperties,

@@ -16,6 +16,7 @@ import com.vaadin.ui.UI;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 
 /**
@@ -27,7 +28,7 @@ public class VaadinUIProvider extends UIProvider
 {
 	private transient ApplicationContext applicationContext;
 	private transient String uiBeanName;
-	private transient EndpointDescription description;
+	private transient ResolvedEndpoint description;
 	private transient List<AuthenticationOption> authenticators;
 	private transient CancelHandler cancelHandler;
 	private transient SandboxAuthnRouter sandboxRouter;
@@ -36,7 +37,7 @@ public class VaadinUIProvider extends UIProvider
 	private transient String themeConfigKey;
 
 	public VaadinUIProvider(ApplicationContext applicationContext, String uiBeanName,
-			EndpointDescription description, List<AuthenticationOption> authenticators,
+			ResolvedEndpoint description, List<AuthenticationOption> authenticators,
 			EndpointRegistrationConfiguration registrationConfiguraiton,
 			Properties properties, String themeConfigKey)
 	{

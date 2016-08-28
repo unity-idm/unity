@@ -6,12 +6,12 @@ package pl.edu.icm.unity.webui.common.provider;
 
 import org.apache.log4j.Logger;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
@@ -25,36 +25,25 @@ import pl.edu.icm.unity.types.basic.EntityParam;
  * in future. 
  * @author K. Benedyczak
  */
-public abstract class IdPPreferences implements JsonSerializable
+public abstract class IdPPreferences
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdPPreferences.class);
 	protected final ObjectMapper mapper = Constants.MAPPER;
 
-	@Override
-	public String getSerializedConfiguration() throws InternalException
+	public ObjectNode getSerializedConfiguration() throws InternalException
 	{
 		ObjectNode main = mapper.createObjectNode();
 		serializeAll(main);
-		try
-		{
-			return mapper.writeValueAsString(main);
-		} catch (JsonProcessingException e)
-		{
-			throw new InternalException("Can't perform JSON serialization", e);
-		}
+		return main;
 	}
 
 	protected abstract void serializeAll(ObjectNode main);
 	
-	@Override
-	public void setSerializedConfiguration(String json) throws InternalException
+	public void setSerializedConfiguration(ObjectNode json) throws InternalException
 	{
-		if (json == null || json.equals(""))
-			return;
 		try
 		{
-			ObjectNode main = mapper.readValue(json, ObjectNode.class);
-			deserializeAll(main);
+			deserializeAll(json);
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't perform JSON deserialization", e);
@@ -63,31 +52,33 @@ public abstract class IdPPreferences implements JsonSerializable
 
 	protected abstract void deserializeAll(ObjectNode main);
 	
-	public static void initPreferencesGeneric(PreferencesManagement preferencesMan, JsonSerializable toInit, String id) 
+	public static void initPreferencesGeneric(PreferencesManagement preferencesMan, IdPPreferences toInit, 
+			String id) 
 	{
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		EntityParam entity = new EntityParam(ae.getEntityId());
 		initPreferencesGeneric(preferencesMan, toInit, id, entity);
 	}
 
-	public static void initPreferencesGeneric(PreferencesManagement preferencesMan, JsonSerializable toInit, 
+	public static void initPreferencesGeneric(PreferencesManagement preferencesMan, IdPPreferences toInit, 
 			String id, EntityParam entity) 
 	{
 		try
 		{
 			String raw = preferencesMan.getPreference(entity, id);
-			toInit.setSerializedConfiguration(raw);
+			toInit.setSerializedConfiguration(JsonUtil.parse(raw));
 		} catch (Exception e)
 		{
 			log.debug("It was impossible to establish preferences for " + entity + " will use defaults", e);
 		}
 	}
 	
-	public static void savePreferencesGeneric(PreferencesManagement preferencesMan, JsonSerializable preferences, String id) 
+	public static void savePreferencesGeneric(PreferencesManagement preferencesMan, 
+			IdPPreferences preferences, String id) 
 			throws EngineException
 	{
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		EntityParam entity = new EntityParam(ae.getEntityId());
-		preferencesMan.setPreference(entity, id, preferences.getSerializedConfiguration());
+		preferencesMan.setPreference(entity, id, JsonUtil.serialize(preferences.getSerializedConfiguration()));
 	}
 }

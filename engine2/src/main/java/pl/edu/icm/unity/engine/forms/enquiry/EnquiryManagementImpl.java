@@ -28,13 +28,14 @@ import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
+import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.forms.BaseFormValidator;
-import pl.edu.icm.unity.engine.forms.reg.RegistrationConfirmationSupport;
+import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
@@ -383,5 +384,11 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		if (form.getType() == EnquiryType.REQUESTED_MANDATORY)
 			throw new WrongArgumentException("The mandatory enquiry can not be marked as ignored");
 		addToAttribute(entityId, EnquiryAttributeTypesProvider.IGNORED_ENQUIRES, enquiryId);
+	}
+
+	@Override
+	public FormAutomationSupport getFormAutomationSupport(EnquiryForm form)
+	{
+		return confirmationsSupport.getEnquiryProfile(form);
 	}
 }

@@ -19,7 +19,9 @@ import com.vaadin.ui.JavaScript;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportManagement;
 import pl.edu.icm.unity.engine.api.authn.SandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
@@ -28,6 +30,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.AuthNTile;
@@ -54,7 +57,7 @@ public abstract class SandboxUIBase extends AuthenticationUI
 	private List<AuthenticationOptionDescription> authnList;
 	private boolean debug;
 	private boolean validationMode;
-	protected AuthenticatorsManagement authenticatorsManagement;
+	protected AuthenticatorSupportManagement authenticatorsManagement;
 
 	public SandboxUIBase(UnityMessageSource msg,
 			LocaleChoiceComponent localeChoice,
@@ -62,8 +65,8 @@ public abstract class SandboxUIBase extends AuthenticationUI
 			RegistrationFormsChooserComponent formsChooser,
 			InsecureRegistrationFormLauncher formLauncher,
 			ExecutorsService execService,
-			AuthenticatorsManagement authenticatorsManagement,
-			IdentitiesManagement idsMan)
+			AuthenticatorSupportManagement authenticatorsManagement,
+			EntityManagement idsMan)
 	{
 		super(msg, localeChoice, authnProcessor, formsChooser, formLauncher, execService, idsMan,
 				null);
@@ -81,17 +84,18 @@ public abstract class SandboxUIBase extends AuthenticationUI
 			List<AuthenticationOption> endpointAuthenticators);
 	
 	@Override
-	public void configure(EndpointDescription description,
+	public void configure(ResolvedEndpoint description,
 			List<AuthenticationOption> authenticators,
 			EndpointRegistrationConfiguration regCfg, Properties endpointProperties) 
 	{
 		
 		this.authnList      = getAllVaadinAuthenticators(authenticators);
-		this.authenticators = getAuthenticatorUIs(authnList, authenticatorsManagement);
+		this.authenticators = getAuthenticatorUIs(authnList);
 		
 		this.registrationConfiguration = new EndpointRegistrationConfiguration(false);
-		this.endpointDescription          = new EndpointDescription(description);
-		this.endpointDescription.setAuthenticatorSets(authnList);
+		this.endpointDescription = description;
+		//TODO - check if this was needed?
+		//this.endpointDescription.setAuthenticatorSets(authnList);
 		config = prepareConfiguration(endpointProperties);
 	}
 	
@@ -204,12 +208,11 @@ public abstract class SandboxUIBase extends AuthenticationUI
 		}
 	}
 	
-	private List<AuthenticationOption> getAuthenticatorUIs(
-			List<AuthenticationOptionDescription> authnList, AuthenticatorsManagement authenticatorsMan) 
+	private List<AuthenticationOption> getAuthenticatorUIs(List<AuthenticationOptionDescription> authnList) 
 	{
 		try
 		{
-			return authenticatorsMan.getAuthenticatorUIs(authnList);
+			return authenticatorsManagement.getAuthenticatorUIs(authnList);
 		} catch (EngineException e)
 		{
 			throw new IllegalStateException("Can not initialize sandbox UI", e);

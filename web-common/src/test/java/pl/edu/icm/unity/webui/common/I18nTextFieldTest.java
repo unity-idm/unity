@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.webui.common;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -11,8 +14,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.mockito.Mockito.*;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 

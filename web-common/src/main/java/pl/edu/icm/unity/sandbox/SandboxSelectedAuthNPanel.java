@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.sandbox;
 
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -23,7 +24,7 @@ import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncher;
 public class SandboxSelectedAuthNPanel extends SelectedAuthNPanel
 {
 	public SandboxSelectedAuthNPanel(UnityMessageSource msg, WebAuthenticationProcessor authnProcessor,
-			IdentitiesManagement idsMan,
+			EntityManagement idsMan,
 			InsecureRegistrationFormLauncher formLauncher, ExecutorsService execService,
 			final CancelHandler cancelHandler, AuthenticationRealm realm)
 	{

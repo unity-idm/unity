@@ -16,6 +16,8 @@ import com.vaadin.server.SessionDestroyEvent;
 import com.vaadin.server.SessionDestroyListener;
 import com.vaadin.server.VaadinService;
 
+import pl.edu.icm.unity.base.utils.Log;
+
 /**
  * Simple implementation of {@link SandboxAuthnRouter} interface, used by
  * {@link SandboxUIBase} to dispatch authn events. 

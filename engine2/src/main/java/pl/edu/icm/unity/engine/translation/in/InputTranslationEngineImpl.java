@@ -25,6 +25,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.translation.in.EntityChange;
 import pl.edu.icm.unity.engine.api.translation.in.GroupEffectMode;
 import pl.edu.icm.unity.engine.api.translation.in.IdentityEffectMode;
+import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.translation.in.MappedAttribute;
 import pl.edu.icm.unity.engine.api.translation.in.MappedGroup;
 import pl.edu.icm.unity.engine.api.translation.in.MappedIdentity;
@@ -48,15 +49,15 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
  * @author K. Benedyczak
  */
 @Component
-public class InputTranslationEngine
+public class InputTranslationEngineImpl implements InputTranslationEngine
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, InputTranslationEngine.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, InputTranslationEngineImpl.class);
 	private EntityManagement idsMan;
 	private AttributesManagement attrMan;
 	private GroupsManagement groupsMan;
 	
 	@Autowired
-	public InputTranslationEngine(@Qualifier("insecure") EntityManagement idsMan, 
+	public InputTranslationEngineImpl(@Qualifier("insecure") EntityManagement idsMan, 
 			@Qualifier("insecure") AttributesManagement attrMan,
 			@Qualifier("insecure") GroupsManagement groupsMan)
 	{
@@ -71,6 +72,7 @@ public class InputTranslationEngine
 	 * @param result
 	 * @throws EngineException
 	 */
+	@Override
 	public void process(MappingResult result) throws EngineException
 	{
 		EntityParam entity = processIdentities(result);
@@ -94,6 +96,7 @@ public class InputTranslationEngine
 	 * @param baseEntity
 	 * @throws EngineException 
 	 */
+	@Override
 	public void mergeWithExisting(MappingResult result, EntityParam baseEntity) throws EngineException
 	{
 		result.setCleanStaleAttributes(false);
@@ -111,6 +114,7 @@ public class InputTranslationEngine
 	 * @param result
 	 * @return true only if no one of mapped identities is present in db.
 	 */
+	@Override
 	public boolean identitiesNotPresentInDb(MappingResult result)
 	{
 		try
@@ -123,11 +127,13 @@ public class InputTranslationEngine
 		}
 	}
 
+	@Override
 	public Entity resolveMappedIdentity(MappedIdentity checked) throws EngineException
 	{
 		return idsMan.getEntity(new EntityParam(checked.getIdentity()));
 	}
 	
+	@Override
 	public MappedIdentity getExistingIdentity(MappingResult result)
 	{
 		for (MappedIdentity checked: result.getIdentities())

@@ -33,18 +33,18 @@ public class ExposedAttributesComponent extends CustomComponent
 	private UnityMessageSource msg;
 	protected AttributeHandlerRegistry handlersRegistry;
 	
-	protected Map<String, Attribute<?>> attributes;
+	protected Map<String, Attribute> attributes;
 	protected ListOfSelectableElements attributesHiding;
 
 	public ExposedAttributesComponent(UnityMessageSource msg, AttributeHandlerRegistry handlersRegistry,
-			Collection<Attribute<?>> attributesCol)
+			Collection<Attribute> attributesCol)
 	{
 		super();
 		this.handlersRegistry = handlersRegistry;
 		this.msg = msg;
 
-		attributes = new HashMap<String, Attribute<?>>();
-		for (Attribute<?> a: attributesCol)
+		attributes = new HashMap<String, Attribute>();
+		for (Attribute a: attributesCol)
 			attributes.put(a.getName(), a);
 		initUI();
 	}
@@ -52,9 +52,9 @@ public class ExposedAttributesComponent extends CustomComponent
 	/**
 	 * @return collection of attributes without the ones hidden by the user.
 	 */
-	public Collection<Attribute<?>> getUserFilteredAttributes()
+	public Collection<Attribute> getUserFilteredAttributes()
 	{
-		return new ArrayList<Attribute<?>>(attributes.values());
+		return new ArrayList<Attribute>(attributes.values());
 	}
 	
 	private void initUI()
@@ -82,7 +82,7 @@ public class ExposedAttributesComponent extends CustomComponent
 		details.addComponent(spacer);
 		
 		ListOfElements<String> attributesList = new ListOfElements<String>(msg);
-		for (Attribute<?> at: attributes.values())
+		for (Attribute at: attributes.values())
 		{
 			String representation = handlersRegistry.getSimplifiedAttributeRepresentation(at, 80);
 			attributesList.addEntry(representation);

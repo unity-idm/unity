@@ -14,7 +14,9 @@ import org.springframework.context.annotation.Scope;
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorsRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
@@ -42,9 +44,9 @@ public class AccountAssociationSandboxUI extends SandboxUIBase
 			WebAuthenticationProcessor authnProcessor,
 			RegistrationFormsChooserComponent formsChooser,
 			InsecureRegistrationFormLauncher formLauncher,
-			ExecutorsService execService, AuthenticationManagement authnManagement,
-			AuthenticatorsManagement authenticatorsManagement,
-			AuthenticatorsRegistry authnRegistry, IdentitiesManagement idsMan)
+			ExecutorsService execService, 
+			AuthenticatorSupportManagement authenticatorsManagement,
+			AuthenticatorsRegistry authnRegistry, EntityManagement idsMan)
 	{
 		super(msg, localeChoice, authnProcessor, formsChooser, formLauncher, execService, 
 				authenticatorsManagement, idsMan);

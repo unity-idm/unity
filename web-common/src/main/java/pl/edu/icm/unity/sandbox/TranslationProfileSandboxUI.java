@@ -15,7 +15,10 @@ import org.springframework.context.annotation.Scope;
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 
+import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorsRegistry;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificatorFactory;
@@ -44,7 +47,7 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationFormsChooserComponent;
 public class TranslationProfileSandboxUI extends SandboxUIBase 
 {
 	private AuthenticatorsRegistry authnRegistry;
-	private AuthenticationManagement authenticationManagement;
+	private AuthenticatorManagement authenticationManagement;
 
 	@Autowired
 	public TranslationProfileSandboxUI(UnityMessageSource msg,
@@ -53,9 +56,9 @@ public class TranslationProfileSandboxUI extends SandboxUIBase
 			RegistrationFormsChooserComponent formsChooser,
 			InsecureRegistrationFormLauncher formLauncher,
 			ExecutorsService execService,
-			AuthenticatorsManagement authenticatorsManagement,
-			AuthenticationManagement authenticationManagement,
-			AuthenticatorsRegistry authnRegistry, IdentitiesManagement idsMan)
+			AuthenticatorSupportManagement authenticatorsManagement,
+			AuthenticatorManagement authenticationManagement,
+			AuthenticatorsRegistry authnRegistry, EntityManagement idsMan)
 	{
 		super(msg, localeChoice, authnProcessor, formsChooser, formLauncher, execService,
 				authenticatorsManagement, idsMan);

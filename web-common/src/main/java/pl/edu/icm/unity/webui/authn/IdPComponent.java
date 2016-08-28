@@ -14,6 +14,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CustomComponent;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
 import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Styles;

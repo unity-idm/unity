@@ -20,9 +20,12 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.ConfirmationManager;
 import pl.edu.icm.unity.engine.api.confirmation.ConfirmationRedirectURLBuilder;
+import pl.edu.icm.unity.engine.api.confirmation.ConfirmationRedirectURLBuilder.Status;
+import pl.edu.icm.unity.engine.api.confirmation.ConfirmationServletProvider;
 import pl.edu.icm.unity.engine.api.confirmation.ConfirmationStatus;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
@@ -131,14 +134,15 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 	protected void appInit(VaadinRequest request)
 	{
 		ConfirmationStatus status = null;
-		String token = request.getParameter(ConfirmationServlet.CONFIRMATION_TOKEN_ARG);
+		String token = request.getParameter(ConfirmationServletProvider.CONFIRMATION_TOKEN_ARG);
 		try
 		{
 			status = confirmationMan.processConfirmation(token);
 		} catch (Exception e)
 		{
 			log.error("Internal unity problem with confirmation", e);
-			String redirectURL = new ConfirmationRedirectURLBuilder(defaultRedirect, Status.elementConfirmationError).
+			String redirectURL = new ConfirmationRedirectURLBuilder(defaultRedirect, 
+					Status.elementConfirmationError).
 				setErrorCode(e.toString()).build();
 			status = new ConfirmationStatus(false, redirectURL, "ConfirmationStatus.internalError");
 		}

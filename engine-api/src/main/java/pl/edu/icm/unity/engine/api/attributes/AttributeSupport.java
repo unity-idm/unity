@@ -18,7 +18,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
  * 
  * @author K. Benedyczak
  */
-public interface AttributesInternalProcessing
+public interface AttributeSupport
 {
 	/**
 	 * Returns attribute type which has the given metadata set. The metadata must be singleton, 

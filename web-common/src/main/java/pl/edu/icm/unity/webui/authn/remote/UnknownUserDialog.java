@@ -16,9 +16,11 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.sandbox.wizard.SandboxWizardDialog;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;

@@ -2,7 +2,7 @@
  * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.forms.reg;
+package pl.edu.icm.unity.engine.forms;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -141,39 +141,39 @@ public class RegistrationConfirmationSupport
 							requestState.getRequestId(),
 							id.getTypeId(), id.getValue(), 
 							requestState.getRequest().getUserLocale(),
-							getRedirectUrlForIdentity(requestState, form, id, profile),
+							getRedirectUrlForIdentity(requestState, id, profile),
 							requestType);
 				} else
 				{
 					state = new IdentityConfirmationState(entityId, 
 							id.getTypeId(), id.getValue(), 
 							requestState.getRequest().getUserLocale(),
-							getRedirectUrlForIdentity(requestState, form, id, profile));
+							getRedirectUrlForIdentity(requestState, id, profile));
 				}
 				confirmationManager.sendConfirmationRequest(state);
 			}
 		}
 	}
 
-	private String getRedirectUrlForIdentity(UserRequestState<?> requestState, BaseForm form,
+	private String getRedirectUrlForIdentity(UserRequestState<?> requestState, 
 			IdentityParam identity, BaseFormTranslationProfile profile)
 	{
-		return profile.getPostConfirmationRedirectURL(form, requestState, identity, 
+		return profile.getPostConfirmationRedirectURL(requestState, identity, 
 				requestState.getRequestId());
 	}
 	
-	private RegistrationTranslationProfile getRegistrationProfile(RegistrationForm form)
+	public RegistrationTranslationProfile getRegistrationProfile(RegistrationForm form)
 	{
 		TranslationProfile translationProfile = form.getTranslationProfile();
 		return new RegistrationTranslationProfile(translationProfile, registrationTranslationActionsRegistry,
-				atHelper);
+				atHelper, form);
 	}	
 
-	private EnquiryTranslationProfile getEnquiryProfile(EnquiryForm form)
+	public EnquiryTranslationProfile getEnquiryProfile(EnquiryForm form)
 	{
 		TranslationProfile translationProfile = form.getTranslationProfile();
 		return new EnquiryTranslationProfile(translationProfile, registrationTranslationActionsRegistry,
-				atHelper);
+				atHelper, form);
 	}	
 	
 	private String getRedirectUrlForAttribute(UserRequestState<?> requestState, BaseForm form,
@@ -183,7 +183,7 @@ public class RegistrationConfirmationSupport
 		if (InvocationContext.getCurrent().getCurrentURLUsed() != null
 				&& InvocationContext.getCurrent().getLoginSession() == null)
 			current = InvocationContext.getCurrent().getCurrentURLUsed();
-		String configured = profile.getPostConfirmationRedirectURL(form, requestState, attr,
+		String configured = profile.getPostConfirmationRedirectURL(requestState, attr,
 				requestState.getRequestId());
 		return configured != null ? configured : current;
 	}

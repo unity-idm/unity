@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.StringJoiner;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.registration.RequestSubmitStatus;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -31,12 +32,6 @@ import pl.edu.icm.unity.types.registration.Selection;
  */
 public class RegistrationMVELContext extends HashMap<String, Object>
 {
-	public enum RequestSubmitStatus 
-	{
-		submitted,
-		notSubmitted
-	}
-	
 	public enum ContextKey
 	{
 		idsByType,

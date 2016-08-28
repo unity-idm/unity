@@ -39,11 +39,13 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 		WebAttributeHandlerFactory
 {
 	private UnityMessageSource msg;
+	private IdentityFormatter formatter;
 
 	@Autowired
-	public VerifiableEmailAttributeHandler(UnityMessageSource msg)
+	public VerifiableEmailAttributeHandler(UnityMessageSource msg, IdentityFormatter formatter)
 	{
 		this.msg = msg;
+		this.formatter = formatter;
 	}
 
 	@Override
@@ -55,7 +57,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 	@Override
 	public WebAttributeHandler<?> createInstance()
 	{
-		return new VerifiableEmailAttributeHandler(msg);
+		return new VerifiableEmailAttributeHandler(msg, formatter);
 	}
 
 	@Override
@@ -63,7 +65,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 			AttributeValueSyntax<VerifiableEmail> syntax, int limited)
 	{
 		StringBuilder rep = new StringBuilder(value.getValue());
-		rep.append(IdentityFormatter.getConfirmationStatusString(msg, value.getConfirmationInfo()));
+		rep.append(formatter.getConfirmationStatusString(value.getConfirmationInfo()));
 		//if we exceeded limit, don't add extra info
 		if (rep.length() > limited)
 			rep = new StringBuilder(value.getValue());
@@ -155,8 +157,8 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 			{
 				if (value != null && value.getConfirmationInfo() != null && 
 						value.getConfirmationInfo().isConfirmed())
-					ret.add(new Label(IdentityFormatter.getConfirmationStatusString(
-							msg, value.getConfirmationInfo())));
+					ret.add(new Label(formatter.getConfirmationStatusString(
+							value.getConfirmationInfo())));
 			}
 			return ret;
 		}

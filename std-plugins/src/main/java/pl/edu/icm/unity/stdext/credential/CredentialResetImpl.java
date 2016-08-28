@@ -16,6 +16,7 @@ import org.bouncycastle.util.Arrays;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.engine.api.authn.CredentialResetSettings;
@@ -198,9 +199,9 @@ public class CredentialResetImpl implements CredentialReset
 	}
 	
 	@Override
-	public ObjectNode getCredentialConfiguration()
+	public String getCredentialConfiguration()
 	{
-		return completeCredentialConfiguration;
+		return JsonUtil.serialize(completeCredentialConfiguration);
 	}
 	
 	@Override

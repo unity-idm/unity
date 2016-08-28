@@ -10,6 +10,7 @@ import com.vaadin.ui.UI;
 
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.sandbox.wizard.AbstractSandboxWizardProvider;

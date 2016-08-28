@@ -6,6 +6,10 @@ package pl.edu.icm.unity.webui.common.credentials;
 
 import com.vaadin.ui.Component;
 
+import pl.edu.icm.unity.engine.api.CredentialManagement;
+import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
+import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -18,8 +22,10 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
  */
 public class CredentialsChangeDialog extends AbstractDialog
 {
-	private AuthenticationManagement authnMan;
-	private IdentitiesManagement idsMan;
+	private CredentialManagement credMan;
+	private CredentialRequirementManagement credReqMan;
+	private EntityCredentialManagement ecredMan;
+	private EntityManagement entityMan;
 	private CredentialEditorRegistry credEditorReg;
 	private Callback callback;
 	private final long entityId;
@@ -27,14 +33,17 @@ public class CredentialsChangeDialog extends AbstractDialog
 	
 	private CredentialsPanel ui;
 	
-	public CredentialsChangeDialog(UnityMessageSource msg, long entityId, AuthenticationManagement authnMan, 
-			IdentitiesManagement idsMan, CredentialEditorRegistry credEditorReg, boolean simpleMode,
+	public CredentialsChangeDialog(UnityMessageSource msg, long entityId, CredentialManagement credMan, 
+			EntityCredentialManagement ecredMan, EntityManagement entityMan,
+			CredentialRequirementManagement credReqMan, CredentialEditorRegistry credEditorReg, boolean simpleMode,
 			Callback callback)
 	{
 		super(msg, msg.getMessage("CredentialChangeDialog.caption"), msg.getMessage("close"));
-		this.authnMan = authnMan;
-		this.idsMan = idsMan;
 		this.entityId = entityId;
+		this.credMan = credMan;
+		this.ecredMan = ecredMan;
+		this.entityMan = entityMan;
+		this.credReqMan = credReqMan;
 		this.credEditorReg = credEditorReg;
 		this.callback = callback;
 		this.simpleMode = simpleMode;
@@ -46,7 +55,8 @@ public class CredentialsChangeDialog extends AbstractDialog
 	{
 		try
 		{
-			ui = new CredentialsPanel(msg, entityId, authnMan, idsMan, credEditorReg, simpleMode);
+			ui = new CredentialsPanel(msg, entityId, credMan, ecredMan, entityMan, credReqMan,
+					credEditorReg, simpleMode);
 		} catch (EngineException e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("error"), e);

@@ -17,6 +17,7 @@ import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -33,15 +34,20 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.Representati
 @Component
 public class AttributeHandlerRegistry
 {
-	private UnityMessageSource msg;
-	private Map<String, WebAttributeHandlerFactory> factoriesByType = new HashMap<>();
 	public static final int DEFAULT_MAX_LEN = 16;
+
+	private UnityMessageSource msg;
+	private AttributeTypeSupport aTypeSupport;
+
+	private Map<String, WebAttributeHandlerFactory> factoriesByType = new HashMap<>();
 	
 	
 	@Autowired
-	public AttributeHandlerRegistry(List<WebAttributeHandlerFactory> factories, UnityMessageSource msg)
+	public AttributeHandlerRegistry(List<WebAttributeHandlerFactory> factories, UnityMessageSource msg,
+			AttributeTypeSupport aTypeSupport)
 	{
 		this.msg = msg;
+		this.aTypeSupport = aTypeSupport;
 		for (WebAttributeHandlerFactory factory: factories)
 			factoriesByType.put(factory.getSupportedSyntaxId(), factory);
 	}
@@ -59,7 +65,7 @@ public class AttributeHandlerRegistry
 	{
 		VerticalLayout vl = new VerticalLayout();
 		vl.addStyleName(Styles.smallSpacing.toString());
-		AttributeValueSyntax<?> syntax = attribute.getAttributeSyntax();
+		AttributeValueSyntax<?> syntax = aTypeSupport.getSyntax(attribute);
 		StringBuilder main = new StringBuilder(attribute.getName());
 		if (attribute.getRemoteIdp() != null)
 		{
@@ -87,6 +93,11 @@ public class AttributeHandlerRegistry
 		return getSimplifiedAttributeRepresentation(attribute, maxValuesLen, attribute.getName());
 	}
 	
+	public AttributeTypeSupport getaTypeSupport()
+	{
+		return aTypeSupport;
+	}
+
 	/**
 	 * Returns a string representing the attribute. The returned format contains the attribute name
 	 * and the values. If the values can not be put in the remaining text len, then are shortened.
@@ -121,7 +132,7 @@ public class AttributeHandlerRegistry
 			throw new IllegalArgumentException("The max length must be lager then 16");
 		StringBuilder sb = new StringBuilder();
 		List<?> values = attribute.getValues();
-		AttributeValueSyntax<?> syntax = attribute.getAttributeSyntax();
+		AttributeValueSyntax<?> syntax = aTypeSupport.getSyntax(attribute);
 		@SuppressWarnings("rawtypes")
 		WebAttributeHandler handler = getHandler(syntax.getValueSyntaxId());
 		int remainingLen = maxValuesLen;

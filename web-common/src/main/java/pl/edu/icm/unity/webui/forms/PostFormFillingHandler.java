@@ -8,10 +8,14 @@ import org.apache.log4j.Logger;
 
 import com.vaadin.server.Page;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
 import pl.edu.icm.unity.engine.api.registration.RegistrationRedirectURLBuilder;
+import pl.edu.icm.unity.engine.api.registration.RegistrationRedirectURLBuilder.Status;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.I18nMessage;
@@ -38,22 +42,22 @@ public class PostFormFillingHandler
 	private UnityMessageSource msg;
 	private boolean doRedirect;
 	private IdPLoginController loginController;
-	private BaseFormTranslationProfile translationProfile;
+	private FormAutomationSupport formSupport;
 	
 	public PostFormFillingHandler(IdPLoginController loginController, 
-			BaseForm form, UnityMessageSource msg, BaseFormTranslationProfile profile)
+			BaseForm form, UnityMessageSource msg, FormAutomationSupport formSupport)
 	{
-		this(loginController, form, msg, profile, true);
+		this(loginController, form, msg, formSupport, true);
 	}
 
 	public PostFormFillingHandler(IdPLoginController loginController, 
-			BaseForm form, UnityMessageSource msg, BaseFormTranslationProfile profile, 
+			BaseForm form, UnityMessageSource msg, FormAutomationSupport formSupport, 
 			boolean doRedirect)
 	{
 		this.loginController = loginController;
 		this.form = form;
 		this.msg = msg;
-		this.translationProfile = profile;
+		this.formSupport = formSupport;
 		this.doRedirect = doRedirect;
 	}
 
@@ -125,8 +129,8 @@ public class PostFormFillingHandler
 	private void submittedGeneric(String requestId, BaseRegistrationInput request, 
 			RegistrationContext context, boolean autoAccepted)
 	{
-		String redirect = translationProfile.getPostSubmitRedirectURL(form, request, context, requestId);
-		I18nMessage message = translationProfile.getPostSubmitMessage(form, request, context, requestId);
+		String redirect = formSupport.getPostSubmitRedirectURL(request, context, requestId);
+		I18nMessage message = formSupport.getPostSubmitMessage(request, context, requestId);
 		if (redirect != null)
 		{
 			String finalRedirect = new RegistrationRedirectURLBuilder(redirect, form.getName(), requestId, 
@@ -161,7 +165,7 @@ public class PostFormFillingHandler
 	 */
 	public void cancelled(boolean showCancelMessage, RegistrationContext context)
 	{
-		String redirect = translationProfile.getPostCancelledRedirectURL(form, context);
+		String redirect = formSupport.getPostCancelledRedirectURL(context);
 		if (redirect != null)
 		{
 			String redirectUpdated = new RegistrationRedirectURLBuilder(redirect, form.getName(), 
@@ -182,7 +186,7 @@ public class PostFormFillingHandler
 			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
 		} else
 		{
-			String redirect = translationProfile.getPostCancelledRedirectURL(form, context);
+			String redirect = formSupport.getPostCancelledRedirectURL(context);
 			if (redirect != null)
 			{
 				String redirectUpdated = new RegistrationRedirectURLBuilder(redirect, 

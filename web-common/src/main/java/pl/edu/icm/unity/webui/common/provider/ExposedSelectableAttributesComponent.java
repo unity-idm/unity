@@ -13,7 +13,8 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
@@ -37,20 +38,24 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 	private UnityMessageSource msg;
 	protected AttributeHandlerRegistry handlersRegistry;
 	
-	protected Map<String, Attribute<?>> attributes;
+	protected Map<String, Attribute> attributes;
 	protected Map<String, SelectableAttributeWithValues<?>> attributesHiding;
-	private AttributesManagement attrMan;
+	private AttributeTypeManagement aTypeMan;
+	private AttributeTypeSupport aTypeSupport;
+	
 
 	public ExposedSelectableAttributesComponent(UnityMessageSource msg, AttributeHandlerRegistry handlersRegistry,
-			AttributesManagement attrMan, Collection<Attribute<?>> attributesCol) throws EngineException
+			AttributeTypeManagement aTypeMan, AttributeTypeSupport aTypeSupport,
+			Collection<Attribute> attributesCol) throws EngineException
 	{
 		super();
 		this.handlersRegistry = handlersRegistry;
 		this.msg = msg;
-		this.attrMan = attrMan;
+		this.aTypeMan = aTypeMan;
+		this.aTypeSupport = aTypeSupport;
 
 		attributes = new HashMap<>();
-		for (Attribute<?> a: attributesCol)
+		for (Attribute a: attributesCol)
 			attributes.put(a.getName(), a);
 		initUI();
 	}
@@ -58,9 +63,9 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 	/**
 	 * @return collection of attributes without the ones hidden by the user.
 	 */
-	public Map<String, Attribute<?>> getUserFilteredAttributes()
+	public Map<String, Attribute> getUserFilteredAttributes()
 	{
-		Map<String, Attribute<?>> ret = new HashMap<>();
+		Map<String, Attribute> ret = new HashMap<>();
 		for (Entry<String, SelectableAttributeWithValues<?>> entry : attributesHiding.entrySet())
 			ret.put(entry.getKey(), entry.getValue().getAttributeWithoutHidden());
 		return ret;
@@ -69,17 +74,17 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 	/**
 	 * @return collection of attributes with values hidden by the user.
 	 */
-	public Map<String, Attribute<?>> getHiddenAttributes()
+	public Map<String, Attribute> getHiddenAttributes()
 	{
-		Map<String, Attribute<?>> ret = new HashMap<>();
+		Map<String, Attribute> ret = new HashMap<>();
 		for (Entry<String, SelectableAttributeWithValues<?>> entry : attributesHiding.entrySet())
 			ret.put(entry.getKey(), entry.getValue().getHiddenAttributeValues());
 		return ret;
 	}
 	
-	public void setInitialState(Map<String, Attribute<?>> savedState)
+	public void setInitialState(Map<String, Attribute> savedState)
 	{
-		for (Entry<String, Attribute<?>> entry : savedState.entrySet())
+		for (Entry<String, Attribute> entry : savedState.entrySet())
 		{
 			SelectableAttributeWithValues<?> selectableAttributeWithValues = 
 					attributesHiding.get(entry.getKey());
@@ -116,19 +121,18 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 		Label hideL = new Label(msg.getMessage("ExposedAttributesComponent.hide"));
 		
 		attributesHiding = new HashMap<>();
-		Map<String, AttributeType> attributeTypes = attrMan.getAttributeTypesAsMap();
+		Map<String, AttributeType> attributeTypes = aTypeMan.getAttributeTypesAsMap();
 		boolean first = true;
-		for (Attribute<?> at: attributes.values())
+		for (Attribute at: attributes.values())
 		{
-			WebAttributeHandler<?> handler = handlersRegistry.getHandler(
-					at.getAttributeSyntax().getValueSyntaxId());
+			WebAttributeHandler<?> handler = handlersRegistry.getHandler(at.getValueSyntax());
 			AttributeType attributeType = attributeTypes.get(at.getName());
 			if (attributeType == null) //can happen for dynamic attributes from output translation profile
-				attributeType = new AttributeType(at.getName(), new StringAttributeSyntax());
+				attributeType = new AttributeType(at.getName(), StringAttributeSyntax.ID);
 			
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			SelectableAttributeWithValues<?> attributeComponent = new SelectableAttributeWithValues(
-					null, hideL, at, attributeType, handler, msg);
+					null, hideL, at, attributeType, handler, msg, aTypeSupport);
 			attributeComponent.setWidth(100, Unit.PERCENTAGE);
 			if (first)
 			{

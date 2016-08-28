@@ -6,7 +6,8 @@ package pl.edu.icm.unity.webui.forms.enquiry;
 
 import com.vaadin.ui.FormLayout;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -30,11 +31,11 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
-			AttributesManagement attrsMan, AuthenticationManagement authnMan,
+			AttributeTypeManagement atMan, CredentialManagement credMan,
 			GroupsManagement groupsMan) throws Exception
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
-				attributeHandlerRegistry, attrsMan, authnMan, groupsMan);
+				attributeHandlerRegistry, atMan, credMan, groupsMan);
 		initUI();
 	}
 	

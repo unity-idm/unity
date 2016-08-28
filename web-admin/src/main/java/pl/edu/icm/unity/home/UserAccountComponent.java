@@ -71,7 +71,7 @@ public class UserAccountComponent extends VerticalLayout
 	private PreferencesHandlerRegistry registry;
 	private PreferencesManagement prefMan;
 	private EndpointManagement endpMan; 
-	private AttributesInternalProcessing attrMan;
+	private AttributeSupport attrMan;
 	private WebAuthenticationProcessor authnProcessor;
 	private AttributeHandlerRegistry attributeHandlerRegistry;
 	private AttributesManagement attributesMan;
@@ -84,7 +84,7 @@ public class UserAccountComponent extends VerticalLayout
 	public UserAccountComponent(UnityMessageSource msg, AuthenticationManagement authnMan,
 			IdentitiesManagement idsMan, CredentialEditorRegistry credEditorReg,
 			PreferencesHandlerRegistry registry, PreferencesManagement prefMan,
-			EndpointManagement endpMan, AttributesInternalProcessing attrMan,
+			EndpointManagement endpMan, AttributeSupport attrMan,
 			WebAuthenticationProcessor authnProcessor,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributesManagement attributesMan, IdentityEditorRegistry identityEditorRegistry,
@@ -220,7 +220,7 @@ public class UserAccountComponent extends VerticalLayout
 	}
 	
 	private UserDetailsPanel getUserInfoComponent(long entityId, IdentitiesManagement idsMan, 
-			AttributesInternalProcessing attrMan) throws EngineException
+			AttributeSupport attrMan) throws EngineException
 	{
 		UserDetailsPanel ret = new UserDetailsPanel(msg);
 		EntityParam param = new EntityParam(entityId);

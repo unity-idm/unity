@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.forms.enquiry;
 
+import static pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport.ENQUIRY_FRAGMENT_PREFIX;
+
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -16,6 +18,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;

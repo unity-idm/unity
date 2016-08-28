@@ -12,9 +12,12 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -43,38 +46,45 @@ import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreate
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class InsecureRegistrationFormLauncher implements RegistrationFormDialogProvider
 {
+	@Autowired
 	protected UnityMessageSource msg;
-	protected RegistrationsManagement registrationsManagement;
-	protected IdentityEditorRegistry identityEditorRegistry;
-	protected CredentialEditorRegistry credentialEditorRegistry;
-	protected AttributeHandlerRegistry attributeHandlerRegistry;
-	protected AttributesManagement attrsMan;
-	protected AuthenticationManagement authnMan;
-	protected GroupsManagement groupsMan;
 	
-	protected EventsBus bus;
-	private IdPLoginController idpLoginController;
+	@Autowired 
+	@Qualifier("insecure")
+	protected RegistrationsManagement registrationsManagement;
 	
 	@Autowired
-	public InsecureRegistrationFormLauncher(UnityMessageSource msg,
-			@Qualifier("insecure") RegistrationsManagement registrationsManagement,
-			IdentityEditorRegistry identityEditorRegistry,
-			CredentialEditorRegistry credentialEditorRegistry,
-			AttributeHandlerRegistry attributeHandlerRegistry,
-			@Qualifier("insecure") AttributesManagement attrsMan, 
-			@Qualifier("insecure") AuthenticationManagement authnMan,
-			@Qualifier("insecure") GroupsManagement groupsMan,
-			IdPLoginController idpLoginController)
+	protected IdentityEditorRegistry identityEditorRegistry;
+	
+	@Autowired
+	protected CredentialEditorRegistry credentialEditorRegistry;
+	
+	@Autowired
+	protected AttributeHandlerRegistry attributeHandlerRegistry;
+	
+	@Autowired
+	@Qualifier("insecure")
+	protected GroupsManagement groupsMan;
+
+	@Autowired
+	@Qualifier("insecure")
+	private InvitationManagement invitationMan;
+	
+	@Autowired
+	@Qualifier("insecure")
+	private AttributeTypeManagement aTypeMan;
+
+	@Autowired
+	@Qualifier("insecure")
+	private CredentialManagement credMan;
+	
+	@Autowired
+	private IdPLoginController idpLoginController;
+	
+	protected EventsBus bus;
+	
+	public InsecureRegistrationFormLauncher()
 	{
-		this.msg = msg;
-		this.registrationsManagement = registrationsManagement;
-		this.identityEditorRegistry = identityEditorRegistry;
-		this.credentialEditorRegistry = credentialEditorRegistry;
-		this.attributeHandlerRegistry = attributeHandlerRegistry;
-		this.attrsMan = attrsMan;
-		this.authnMan = authnMan;
-		this.groupsMan = groupsMan;
-		this.idpLoginController = idpLoginController;
 		this.bus = WebSession.getCurrent().getEventBus();
 	}
 
@@ -92,12 +102,14 @@ public class InsecureRegistrationFormLauncher implements RegistrationFormDialogP
 		} catch (Exception e)
 		{
 			new PostFormFillingHandler(idpLoginController, form, msg, 
-					registrationsManagement.getProfileInstance(form)).submissionError(e, context);
+					registrationsManagement.getFormAutomationSupport(form)).
+						submissionError(e, context);
 			return true;
 		}
 
 		new PostFormFillingHandler(idpLoginController, form, msg, 
-				registrationsManagement.getProfileInstance(form)).submittedRegistrationRequest(id, registrationsManagement,
+				registrationsManagement.getFormAutomationSupport(form)).
+					submittedRegistrationRequest(id, registrationsManagement,
 				request, context);
 		return true;
 	}
@@ -126,7 +138,7 @@ public class InsecureRegistrationFormLauncher implements RegistrationFormDialogP
 				idpLoginController.isLoginInProgress(), mode);
 		RequestEditorCreator editorCreator = new RequestEditorCreator(msg, form, remoteContext, 
 				identityEditorRegistry, credentialEditorRegistry, attributeHandlerRegistry, 
-				registrationsManagement, attrsMan, groupsMan, authnMan);
+				invitationMan, aTypeMan, groupsMan, credMan);
 		editorCreator.invoke(new RequestEditorCreatedCallback()
 		{
 			@Override
@@ -164,7 +176,7 @@ public class InsecureRegistrationFormLauncher implements RegistrationFormDialogP
 					public void cancelled()
 					{
 						new PostFormFillingHandler(idpLoginController, form, msg, 
-								registrationsManagement.getProfileInstance(form)).
+								registrationsManagement.getFormAutomationSupport(form)).
 							cancelled(false, context);
 					}
 				});

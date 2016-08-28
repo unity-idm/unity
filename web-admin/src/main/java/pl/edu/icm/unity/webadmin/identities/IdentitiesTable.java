@@ -151,7 +151,7 @@ public class IdentitiesTable extends CustomComponent
 	private AuthenticationManagement authnMan;
 	private AttributesManagement attrMan;
 	private PreferencesManagement preferencesMan;
-	private AttributesInternalProcessing attrProcessor;
+	private AttributeSupport attrProcessor;
 	private IdentityEditorRegistry identityEditorReg;
 	private AttributeHandlerRegistry attrHandlerRegistry;
 	private CredentialEditorRegistry credEditorsRegistry;
@@ -173,7 +173,7 @@ public class IdentitiesTable extends CustomComponent
 	@Autowired
 	public IdentitiesTable(IdentitiesManagement identitiesMan, GroupsManagement groupsMan, 
 			AuthenticationManagement authnMan, AttributesManagement attrMan,PreferencesManagement preferencesMan,
-			AttributesInternalProcessing attrProcessor,
+			AttributeSupport attrProcessor,
 			IdentityEditorRegistry identityEditorReg, CredentialEditorRegistry credEditorsRegistry,
 			AttributeHandlerRegistry attrHandlerReg, UnityMessageSource msg, ExecutorsService executor)
 	{

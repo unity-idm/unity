@@ -18,6 +18,7 @@ import com.vaadin.server.VaadinRequest;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 
 /**
@@ -40,7 +41,7 @@ public class SecuredNavigationUI extends GenericNavigationUI<SecuredViewProvider
 	}
 	
 	@Override
-	public void configure(EndpointDescription description,
+	public void configure(ResolvedEndpoint description,
 			List<AuthenticationOption> authenticators,
 			EndpointRegistrationConfiguration registrationConfiguration,
 			Properties genericEndpointConfiguration)

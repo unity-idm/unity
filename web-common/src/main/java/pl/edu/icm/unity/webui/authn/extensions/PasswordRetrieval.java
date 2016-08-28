@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui.authn.extensions;
 import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -29,8 +30,10 @@ import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -377,7 +380,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		@Override
 		public void presetEntity(Entity authenticatedEntity)
 		{
-			Identity[] ids = authenticatedEntity.getIdentities();
+			List<Identity> ids = authenticatedEntity.getIdentities();
 			for (Identity id: ids)
 				if (id.getTypeId().equals(UsernameIdentity.ID))
 				{

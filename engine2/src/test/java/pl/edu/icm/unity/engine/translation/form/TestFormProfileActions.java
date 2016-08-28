@@ -24,6 +24,7 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.registration.RequestSubmitStatus;
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
@@ -31,7 +32,6 @@ import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationReques
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.attribute.AttributeValueConverter;
 import pl.edu.icm.unity.engine.translation.form.RegistrationMVELContext.ContextKey;
-import pl.edu.icm.unity.engine.translation.form.RegistrationMVELContext.RequestSubmitStatus;
 import pl.edu.icm.unity.engine.translation.form.action.AddAttributeActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AddAttributeClassActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AddIdentityActionFactory;

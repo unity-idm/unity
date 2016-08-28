@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.api.authn.SandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.local.LocalSandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;

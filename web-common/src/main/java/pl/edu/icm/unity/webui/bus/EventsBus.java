@@ -11,6 +11,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import pl.edu.icm.unity.base.utils.Log;
+
 /**
  * Manages events and their listeners: producers can send events to this object, listeners register
  * and the bus will broadcast each event to all listeners registered for it.

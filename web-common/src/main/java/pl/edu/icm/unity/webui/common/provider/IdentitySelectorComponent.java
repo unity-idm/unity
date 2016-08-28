@@ -16,9 +16,8 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
-import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.common.ExpandCollapseButton;
@@ -33,19 +32,19 @@ import pl.edu.icm.unity.webui.common.Styles;
 public class IdentitySelectorComponent extends CustomComponent
 {
 	private UnityMessageSource msg;
-	private IdentityTypesRegistry typesRegistry;
+	private IdentityTypeSupport idTypeSupport;
 	private List<IdentityParam> validIdentities;
 	
 	protected IdentityParam selectedIdentity;
 	protected ComboBox identitiesCB;
 	
-	public IdentitySelectorComponent(UnityMessageSource msg, IdentityTypesRegistry typesRegistry,
+	public IdentitySelectorComponent(UnityMessageSource msg, IdentityTypeSupport typesRegistry,
 			List<IdentityParam> validIdentities)
 	{
 		super();
 		this.msg = msg;
 		this.validIdentities = validIdentities;
-		this.typesRegistry = typesRegistry;
+		this.idTypeSupport = typesRegistry;
 		initUI();
 	}
 	
@@ -98,7 +97,7 @@ public class IdentitySelectorComponent extends CustomComponent
 		{
 			Identity casted = (Identity) selectedIdentity;
 			identityValue = casted.getComparableValue();
-			IdentityTypeDefinition idType = casted.getType().getIdentityTypeProvider();
+			IdentityTypeDefinition idType = idTypeSupport.getTypeDefinition(casted.getTypeId());
 			if (idType.isDynamic() || idType.isTargeted())
 				return null;
 		}
@@ -160,7 +159,7 @@ public class IdentitySelectorComponent extends CustomComponent
 		{
 			VerticalLayout ret = new VerticalLayout();
 			ret.setSpacing(true);
-			IdentityTypeDefinition idTypeDef = typesRegistry.getByName(identity.getTypeId());
+			IdentityTypeDefinition idTypeDef = idTypeSupport.getTypeDefinition(identity.getTypeId());
 			String displayedValue = idTypeDef.toHumanFriendlyString(msg, identity);
 			if (!displayedValue.equals(identity.getValue()))
 			{
@@ -171,7 +170,7 @@ public class IdentitySelectorComponent extends CustomComponent
 			typeDesc.addStyleName(Styles.vLabelSmall.toString());
 			ret.addComponent(typeDesc);
 			return ret;
-		} catch (IllegalTypeException e)
+		} catch (IllegalArgumentException e)
 		{
 			return new Label(msg.getMessage(
 					"IdentitySelectorComponent.identityType", identity.getTypeId()));
@@ -182,9 +181,9 @@ public class IdentitySelectorComponent extends CustomComponent
 	{
 		try
 		{
-			IdentityTypeDefinition idTypeDef = typesRegistry.getByName(identity.getTypeId());
+			IdentityTypeDefinition idTypeDef = idTypeSupport.getTypeDefinition(identity.getTypeId());
 			return idTypeDef.toHumanFriendlyString(msg, identity);
-		} catch (IllegalTypeException e)
+		} catch (IllegalArgumentException e)
 		{
 			return identity.getValue();
 		}

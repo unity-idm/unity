@@ -11,6 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.confirmation.ConfirmationServletProvider;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.SimpleVaadinServletFactory;
 
@@ -20,7 +21,7 @@ import pl.edu.icm.unity.webui.SimpleVaadinServletFactory;
  *
  */
 @Component
-public class ConfirmationServletFactory extends SimpleVaadinServletFactory implements ConfirmationServlet
+public class ConfirmationServletFactory extends SimpleVaadinServletFactory implements ConfirmationServletProvider
 {
 	@Autowired
 	public ConfirmationServletFactory(ApplicationContext applicationContext, UnityMessageSource msg, 
@@ -29,6 +30,6 @@ public class ConfirmationServletFactory extends SimpleVaadinServletFactory imple
 		super(applicationContext, config, msg, ConfirmationUI.class.getSimpleName(), new Properties(),
 				UnityServerConfiguration.CONFIRMATION_THEME, 
 				UnityServerConfiguration.CONFIRMATION_TEMPLATE, 
-				ConfirmationServlet.SERVLET_PATH);
+				ConfirmationServletProvider.SERVLET_PATH);
 	}
 }

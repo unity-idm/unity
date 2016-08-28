@@ -14,6 +14,7 @@ import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.authn.CredentialResetSettings;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -53,7 +54,7 @@ public class PasswordCredentialEditor implements CredentialEditor
 		this.required = required;
 		this.askAboutCurrent = askAboutCurrent;
 		helper = new PasswordCredential();
-		helper.setSerializedConfiguration(credentialConfiguration);
+		helper.setSerializedConfiguration(JsonUtil.parse(credentialConfiguration));
 		
 		ComponentsContainer ret = new ComponentsContainer();
 
