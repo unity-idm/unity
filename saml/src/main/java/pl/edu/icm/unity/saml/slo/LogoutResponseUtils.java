@@ -4,12 +4,12 @@
  */
 package pl.edu.icm.unity.saml.slo;
 
-import xmlbeans.org.oasis.saml2.assertion.NameIDType;
-import xmlbeans.org.oasis.saml2.protocol.LogoutRequestType;
-import xmlbeans.org.oasis.saml2.protocol.LogoutResponseDocument;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.proto.LogoutResponse;
+import xmlbeans.org.oasis.saml2.assertion.NameIDType;
+import xmlbeans.org.oasis.saml2.protocol.LogoutRequestType;
+import xmlbeans.org.oasis.saml2.protocol.LogoutResponseDocument;
 
 /**
  * Helpers to produce logout responses

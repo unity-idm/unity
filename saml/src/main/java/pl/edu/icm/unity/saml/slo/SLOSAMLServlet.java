@@ -14,7 +14,6 @@ import org.apache.xmlbeans.XmlException;
 
 import pl.edu.icm.unity.saml.SamlHttpServlet;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
-import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.LogoutRequestDocument;
 

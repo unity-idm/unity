@@ -7,7 +7,28 @@ package pl.edu.icm.unity.samlmeta;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.*;
+import static pl.edu.icm.unity.saml.SamlProperties.METADATA_ISSUER_CERT;
+import static pl.edu.icm.unity.saml.SamlProperties.METADATA_SIGNATURE;
+import static pl.edu.icm.unity.saml.SamlProperties.METADATA_URL;
+import static pl.edu.icm.unity.saml.SamlProperties.POST_LOGOUT_URL;
+import static pl.edu.icm.unity.saml.SamlProperties.PUBLISH_METADATA;
+import static pl.edu.icm.unity.saml.SamlProperties.REDIRECT_LOGOUT_RET_URL;
+import static pl.edu.icm.unity.saml.SamlProperties.REDIRECT_LOGOUT_URL;
+import static pl.edu.icm.unity.saml.SamlProperties.SOAP_LOGOUT_URL;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_CERTIFICATE;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_CERTIFICATES;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_ENCRYPT;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_ENTITY;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_LOGO;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_NAME;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_PREFIX;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_RETURN_URL;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.CREDENTIAL;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.DEFAULT_GROUP;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.GROUP;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ISSUER_URI;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.P;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.SPMETA_PREFIX;
 
 import java.io.ByteArrayInputStream;
 import java.security.cert.X509Certificate;
@@ -17,17 +38,17 @@ import java.util.Set;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import eu.emi.security.authn.x509.impl.CertificateUtils;
+import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.utils.ExecutorsService;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-import eu.emi.security.authn.x509.impl.CertificateUtils;
-import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 
 public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 {

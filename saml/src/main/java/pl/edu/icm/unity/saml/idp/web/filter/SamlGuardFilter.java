@@ -21,7 +21,6 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
-import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**

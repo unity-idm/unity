@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.bouncycastle.util.encoders.Base64;
 
-import pl.edu.icm.unity.server.utils.Log;
 import eu.unicore.samly2.binding.HttpRedirectBindingSupport;
 
 /**

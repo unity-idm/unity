@@ -15,15 +15,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.apache.xml.security.utils.Base64;
 
+import eu.unicore.samly2.exceptions.SAMLServerException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.saml.web.ResponseHandlerBase;
-import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
-import eu.unicore.samly2.exceptions.SAMLServerException;
 
 /**
  * Creates an appropriate SAML error response. Additionally allows to show a plain error page, 

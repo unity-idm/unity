@@ -6,11 +6,10 @@ package pl.edu.icm.unity.saml.idp.ws;
 
 import org.apache.log4j.Logger;
 
+import eu.unicore.samly2.webservice.SAMLLogoutInterface;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor;
-import pl.edu.icm.unity.server.utils.Log;
 import xmlbeans.org.oasis.saml2.protocol.LogoutRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.LogoutResponseDocument;
-import eu.unicore.samly2.webservice.SAMLLogoutInterface;
 
 /**
  * Implementation of the SAML Single Logout protocol, SOAP binding.

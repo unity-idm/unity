@@ -4,13 +4,13 @@
  */
 package pl.edu.icm.unity.saml.validator;
 
-import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
-import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLResponderException;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
+import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
+import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 
 /**
  * Adds Unity limitations to standard Web SSO validation:

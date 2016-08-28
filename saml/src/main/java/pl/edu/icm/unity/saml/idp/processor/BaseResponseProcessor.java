@@ -17,6 +17,13 @@ import java.util.TimeZone;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlObject;
 
+import eu.emi.security.authn.x509.X509Credential;
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.assertion.Assertion;
+import eu.unicore.samly2.exceptions.SAMLServerException;
+import eu.unicore.samly2.proto.AssertionResponse;
+import eu.unicore.security.dsig.DSigException;
+import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.GroupChooser;
@@ -24,8 +31,6 @@ import pl.edu.icm.unity.saml.idp.SamlAttributeMapper;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAssertionResponseContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
-import pl.edu.icm.unity.server.translation.out.TranslationResult;
-import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
 import xmlbeans.org.oasis.saml2.assertion.EncryptedAssertionDocument;
@@ -36,12 +41,6 @@ import xmlbeans.org.oasis.saml2.assertion.SubjectConfirmationType;
 import xmlbeans.org.oasis.saml2.assertion.SubjectType;
 import xmlbeans.org.oasis.saml2.protocol.RequestAbstractType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
-import eu.emi.security.authn.x509.X509Credential;
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.assertion.Assertion;
-import eu.unicore.samly2.exceptions.SAMLServerException;
-import eu.unicore.samly2.proto.AssertionResponse;
-import eu.unicore.security.dsig.DSigException;
 
 /**
  * Base class for all processors which return SAML Response. I.e. processors for Authentication and

@@ -10,11 +10,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.LogoutProcessor;
+import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.saml.slo.SAMLInternalLogoutContext.AsyncLogoutFinishCallback;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.authn.LogoutProcessor;
-import pl.edu.icm.unity.server.registries.SessionParticipantTypesRegistry;
-import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**

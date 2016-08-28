@@ -6,7 +6,7 @@ package pl.edu.icm.unity.saml.slo;
 
 import java.util.Date;
 
-import pl.edu.icm.unity.server.api.internal.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
 
 /**
  * Common code for {@link SAMLExternalLogoutContext} and {@link SAMLInternalLogoutContext}
