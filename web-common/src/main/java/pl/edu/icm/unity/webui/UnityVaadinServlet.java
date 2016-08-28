@@ -34,11 +34,11 @@ import com.vaadin.util.CurrentInstance;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
-import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
 
 
 /**

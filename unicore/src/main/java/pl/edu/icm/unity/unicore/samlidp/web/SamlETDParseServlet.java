@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.exceptions.SAMLValidationException;
-import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
@@ -18,6 +17,7 @@ import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
 import pl.edu.icm.unity.saml.idp.web.filter.SamlParseServlet;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.unicore.samlidp.saml.WebAuthWithETDRequestValidator;
+import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**
  * Extension of the {@link SamlParseServlet}. It changes the default SAML SSO 

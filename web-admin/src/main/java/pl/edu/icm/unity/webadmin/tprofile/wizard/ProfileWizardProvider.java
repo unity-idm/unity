@@ -6,15 +6,15 @@ package pl.edu.icm.unity.webadmin.tprofile.wizard;
 
 import org.vaadin.teemu.wizards.Wizard;
 
-import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
-import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
-import pl.edu.icm.unity.sandbox.wizard.AbstractSandboxWizardProvider;
 import pl.edu.icm.unity.server.authn.remote.RemoteSandboxAuthnContext;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditDialog.Callback;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditor;
 import pl.edu.icm.unity.webui.association.IntroStep;
 import pl.edu.icm.unity.webui.association.SandboxStep;
+import pl.edu.icm.unity.webui.sandbox.SandboxAuthnEvent;
+import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
+import pl.edu.icm.unity.webui.sandbox.wizard.AbstractSandboxWizardProvider;
 
 import com.vaadin.ui.UI;
 

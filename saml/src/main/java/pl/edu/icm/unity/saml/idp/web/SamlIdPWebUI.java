@@ -18,7 +18,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
@@ -47,14 +46,15 @@ import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.provider.ExposedSelectableAttributesComponent;
-import pl.edu.icm.unity.webui.common.provider.IdPButtonsBar;
-import pl.edu.icm.unity.webui.common.provider.IdPButtonsBar.Action;
-import pl.edu.icm.unity.webui.common.provider.IdentitySelectorComponent;
-import pl.edu.icm.unity.webui.common.provider.SPInfoComponent;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
+import pl.edu.icm.unity.webui.idpcommon.EopException;
+import pl.edu.icm.unity.webui.idpcommon.ExposedSelectableAttributesComponent;
+import pl.edu.icm.unity.webui.idpcommon.IdPButtonsBar;
+import pl.edu.icm.unity.webui.idpcommon.IdentitySelectorComponent;
+import pl.edu.icm.unity.webui.idpcommon.SPInfoComponent;
+import pl.edu.icm.unity.webui.idpcommon.IdPButtonsBar.Action;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 

@@ -29,7 +29,7 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
-import pl.edu.icm.unity.wellknownurl.PublicViewProvider;
+import pl.edu.icm.unity.webui.wellknownurl.PublicViewProvider;
 
 /**
  * Provides access to public registration forms via well-known links

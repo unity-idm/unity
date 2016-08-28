@@ -17,7 +17,7 @@ import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.common.provider.IdPPreferences;
+import pl.edu.icm.unity.webui.idpcommon.IdPPreferences;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

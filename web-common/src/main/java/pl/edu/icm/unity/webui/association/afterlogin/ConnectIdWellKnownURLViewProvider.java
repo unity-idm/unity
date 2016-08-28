@@ -18,11 +18,11 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.translation.in.MappedIdentity;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
-import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider.WizardFinishedCallback;
-import pl.edu.icm.unity.wellknownurl.PostAssociationRedirectURLBuilder;
-import pl.edu.icm.unity.wellknownurl.PostAssociationRedirectURLBuilder.Status;
-import pl.edu.icm.unity.wellknownurl.SecuredViewProvider;
+import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
+import pl.edu.icm.unity.webui.wellknownurl.PostAssociationRedirectURLBuilder;
+import pl.edu.icm.unity.webui.wellknownurl.SecuredViewProvider;
+import pl.edu.icm.unity.webui.wellknownurl.PostAssociationRedirectURLBuilder.Status;
 
 
 /**

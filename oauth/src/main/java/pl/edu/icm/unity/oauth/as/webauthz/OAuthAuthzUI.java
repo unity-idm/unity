@@ -28,7 +28,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
@@ -53,14 +52,15 @@ import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.ext.JpegImageAttributeHandler;
-import pl.edu.icm.unity.webui.common.provider.ExposedAttributesComponent;
-import pl.edu.icm.unity.webui.common.provider.IdPButtonsBar;
-import pl.edu.icm.unity.webui.common.provider.IdPButtonsBar.Action;
-import pl.edu.icm.unity.webui.common.provider.IdentitySelectorComponent;
-import pl.edu.icm.unity.webui.common.provider.SPInfoComponent;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
+import pl.edu.icm.unity.webui.idpcommon.EopException;
+import pl.edu.icm.unity.webui.idpcommon.ExposedAttributesComponent;
+import pl.edu.icm.unity.webui.idpcommon.IdPButtonsBar;
+import pl.edu.icm.unity.webui.idpcommon.IdentitySelectorComponent;
+import pl.edu.icm.unity.webui.idpcommon.SPInfoComponent;
+import pl.edu.icm.unity.webui.idpcommon.IdPButtonsBar.Action;
 
 /**
  * UI of the authorization endpoint, responsible for getting consent after resource owner login.

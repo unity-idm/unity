@@ -8,12 +8,12 @@ import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.HomeEndpointProperties;
-import pl.edu.icm.unity.sandbox.wizard.SandboxWizardDialog;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.sandbox.wizard.SandboxWizardDialog;
 
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;

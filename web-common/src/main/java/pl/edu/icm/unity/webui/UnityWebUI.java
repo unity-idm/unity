@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Properties;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
-import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
+import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
 
 /**
  * In principle all UI should implement this interface, to be injected with 

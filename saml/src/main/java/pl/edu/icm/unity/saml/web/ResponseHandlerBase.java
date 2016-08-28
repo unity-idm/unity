@@ -19,11 +19,11 @@ import eu.unicore.samly2.binding.HttpPostBindingSupport;
 import eu.unicore.samly2.binding.HttpRedirectBindingSupport;
 import eu.unicore.samly2.binding.SAMLMessageType;
 import eu.unicore.samly2.exceptions.SAMLServerException;
-import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**
  * Base code for producing responses which are returned (some with the help of Freemarker) to the user's browser.

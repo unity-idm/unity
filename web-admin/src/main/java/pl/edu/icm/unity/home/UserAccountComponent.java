@@ -21,7 +21,6 @@ import pl.edu.icm.unity.home.iddetails.EntityRemovalButton;
 import pl.edu.icm.unity.home.iddetails.UserAttributesPanel;
 import pl.edu.icm.unity.home.iddetails.UserDetailsPanel;
 import pl.edu.icm.unity.home.iddetails.UserIdentitiesPanel;
-import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.AuthenticationManagement;
 import pl.edu.icm.unity.server.api.EndpointManagement;
@@ -51,6 +50,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialsPanel;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesHandlerRegistry;
+import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
 
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;

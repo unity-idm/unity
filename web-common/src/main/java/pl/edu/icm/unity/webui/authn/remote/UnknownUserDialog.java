@@ -21,13 +21,13 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
-import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
-import pl.edu.icm.unity.sandbox.wizard.SandboxWizardDialog;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.webui.association.atlogin.ConnectIdAtLoginWizardProvider;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncher;
+import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
+import pl.edu.icm.unity.webui.sandbox.wizard.SandboxWizardDialog;
 
 /**
  * Dialog presented to users who were correctly authenticated with a remote IdP

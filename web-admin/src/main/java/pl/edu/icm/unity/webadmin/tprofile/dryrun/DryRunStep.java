@@ -6,10 +6,10 @@ package pl.edu.icm.unity.webadmin.tprofile.dryrun;
 
 import org.vaadin.teemu.wizards.WizardStep;
 
-import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.registries.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.sandbox.SandboxAuthnEvent;
 
 import com.vaadin.ui.Component;
 

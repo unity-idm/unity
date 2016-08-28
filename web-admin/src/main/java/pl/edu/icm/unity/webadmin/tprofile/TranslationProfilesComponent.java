@@ -15,8 +15,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
-import pl.edu.icm.unity.sandbox.wizard.SandboxWizardDialog;
 import pl.edu.icm.unity.server.api.EndpointManagement;
 import pl.edu.icm.unity.server.api.TranslationProfileManagement;
 import pl.edu.icm.unity.server.registries.InputTranslationActionsRegistry;
@@ -41,6 +39,8 @@ import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.NameProvider;
+import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
+import pl.edu.icm.unity.webui.sandbox.wizard.SandboxWizardDialog;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;

@@ -25,7 +25,6 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
@@ -42,6 +41,7 @@ import pl.edu.icm.unity.server.utils.RoutingServlet;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**
  * Invoked after authentication, main OAuth AS servlet. It decides whether the request should be

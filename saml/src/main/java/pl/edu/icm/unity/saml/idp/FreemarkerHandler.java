@@ -6,7 +6,7 @@ package pl.edu.icm.unity.saml.idp;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.idpcommon.FreemarkerHandlerBase;
+import pl.edu.icm.unity.webui.idpcommon.FreemarkerHandlerBase;
 
 /**
  * As we are not in the servlet environment, we need a thin Freemarker wrapper.

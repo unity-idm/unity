@@ -10,12 +10,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.web.ResponseHandlerBase;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.LogoutRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.LogoutResponseDocument;
 import eu.unicore.samly2.elements.NameID;

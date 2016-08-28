@@ -23,7 +23,6 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
@@ -33,7 +32,8 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.TopHeader;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryWellKnownURLView.Callback;
-import pl.edu.icm.unity.wellknownurl.SecuredViewProvider;
+import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
+import pl.edu.icm.unity.webui.wellknownurl.SecuredViewProvider;
 
 /**
  * Standalone view presenting enquiry form.

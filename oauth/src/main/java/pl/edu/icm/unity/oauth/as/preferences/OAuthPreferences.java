@@ -12,7 +12,7 @@ import java.util.Set;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.webui.common.provider.IdPPreferences;
+import pl.edu.icm.unity.webui.idpcommon.IdPPreferences;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;

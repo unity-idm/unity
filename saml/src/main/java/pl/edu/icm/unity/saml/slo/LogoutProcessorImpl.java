@@ -10,12 +10,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.slo.SAMLInternalLogoutContext.AsyncLogoutFinishCallback;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.LogoutProcessor;
 import pl.edu.icm.unity.server.registries.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**
  * Performs a logout of additional session participants, in case of logout initiated directly in Unity.
