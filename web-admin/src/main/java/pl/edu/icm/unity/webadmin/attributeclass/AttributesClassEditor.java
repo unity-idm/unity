@@ -10,9 +10,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.ui.AbstractTextField;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.TwinColSelect;
+
+import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -20,13 +27,6 @@ import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
-
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.ui.AbstractTextField;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.TwinColSelect;
 
 /**
  * Editing component of an {@link AttributesClass} instance.

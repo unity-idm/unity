@@ -13,12 +13,10 @@ import java.util.TreeSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.IdentityType;

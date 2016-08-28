@@ -7,25 +7,6 @@ package pl.edu.icm.unity.webadmin.attributetype;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
-import pl.edu.icm.unity.webui.common.EnumComboBox;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.FormValidator;
-import pl.edu.icm.unity.webui.common.RequiredTextField;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
-import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
-import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
-import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
-import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
-
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.converter.StringToIntegerConverter;
@@ -38,6 +19,24 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.webui.common.EnumComboBox;
+import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.FormValidator;
+import pl.edu.icm.unity.webui.common.RequiredTextField;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
+import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
+import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
+import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
  * Allows to edit an attribute type. Can be configured to edit an existing attribute (name is fixed)

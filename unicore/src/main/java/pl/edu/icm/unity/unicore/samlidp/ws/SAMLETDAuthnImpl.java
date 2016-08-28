@@ -10,15 +10,16 @@ import java.util.Date;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.log4j.Logger;
 
+import eu.unicore.samly2.exceptions.SAMLServerException;
+import eu.unicore.samly2.webservice.SAMLAuthnInterface;
+import eu.unicore.security.etd.DelegationRestrictions;
+import pl.edu.icm.unity.engine.api.PreferencesManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.ws.SAMLAuthnImpl;
-import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.api.internal.IdPEngine;
-import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
-import pl.edu.icm.unity.server.translation.out.TranslationResult;
-import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD;
@@ -28,9 +29,6 @@ import pl.edu.icm.unity.unicore.samlidp.saml.SoapAuthWithETDRequestValidator;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
-import eu.unicore.samly2.exceptions.SAMLServerException;
-import eu.unicore.samly2.webservice.SAMLAuthnInterface;
-import eu.unicore.security.etd.DelegationRestrictions;
 
 /**
  * Implementation of the SAML authentication protocol over SOAP.

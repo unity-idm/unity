@@ -25,29 +25,40 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Lists;
+import com.vaadin.data.Container;
+import com.vaadin.data.Container.Filter;
+import com.vaadin.data.Container.Filterable;
+import com.vaadin.data.Item;
+import com.vaadin.data.Property.ValueChangeNotifier;
+import com.vaadin.event.Action;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.ProgressBar;
+import com.vaadin.ui.Table.TableDragMode;
+import com.vaadin.ui.TreeTable;
+import com.vaadin.ui.UI;
+
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.PreferencesManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.iddetails.EntityDetailsDialog;
 import pl.edu.icm.unity.home.iddetails.EntityDetailsPanel;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.api.internal.AttributesInternalProcessing;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.utils.ExecutorsService;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
-import pl.edu.icm.unity.types.EntityInformation;
-import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
@@ -65,20 +76,6 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
-
-import com.google.common.collect.Lists;
-import com.vaadin.data.Container;
-import com.vaadin.data.Container.Filter;
-import com.vaadin.data.Container.Filterable;
-import com.vaadin.data.Item;
-import com.vaadin.data.Property.ValueChangeNotifier;
-import com.vaadin.event.Action;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.ProgressBar;
-import com.vaadin.ui.Table.TableDragMode;
-import com.vaadin.ui.TreeTable;
-import com.vaadin.ui.UI;
 
 /**
  * Displays a tree table with identities. Can present contents in two modes: 
@@ -679,8 +676,8 @@ public class IdentitiesTable extends CustomComponent
 	}
 	
 	@SuppressWarnings("unchecked")
-	private Object addRow(Identity id, Entity ent, Map<String, Attribute<?>> rootAttributes,
-			Map<String, Attribute<?>> curAttributes)
+	private Object addRow(Identity id, Entity ent, Map<String, Attribute> rootAttributes,
+			Map<String, Attribute> curAttributes)
 	{
 		String label = null;
 		if (entityNameAttribute != null && rootAttributes.containsKey(entityNameAttribute))
@@ -739,7 +736,7 @@ public class IdentitiesTable extends CustomComponent
 			String propId = (String) propertyId;
 			if (!propId.startsWith(ATTR_COL_PREFIX))
 				continue;
-			Attribute<?> attribute = getAttributeForColumnProperty(propId, rootAttributes, curAttributes);
+			Attribute attribute = getAttributeForColumnProperty(propId, rootAttributes, curAttributes);
 			String val;
 			if (attribute == null)
 				val = msg.getMessage("Identities.attributeUndefined");
@@ -848,8 +845,8 @@ public class IdentitiesTable extends CustomComponent
 			filterable.addContainerFilter(filter);
 	}
 		
-	private Attribute<?> getAttributeForColumnProperty(String propId, Map<String, Attribute<?>> rootAttributes, 
-			Map<String, Attribute<?>> curAttributes)
+	private Attribute getAttributeForColumnProperty(String propId, Map<String, Attribute> rootAttributes, 
+			Map<String, Attribute> curAttributes)
 	{
 		if (propId.startsWith(ATTR_CURRENT_COL_PREFIX))
 		{
@@ -867,9 +864,9 @@ public class IdentitiesTable extends CustomComponent
 		Entity resolvedEntity = showTargeted ? identitiesMan
 				.getEntityNoContext(new EntityParam(entity), this.group) : identitiesMan
 				.getEntity(new EntityParam(entity), null, false, this.group);
-		Collection<AttributeExt<?>> rawCurAttrs = attrMan.getAllAttributes(new EntityParam(entity), 
+		Collection<AttributeExt> rawCurAttrs = attrMan.getAllAttributes(new EntityParam(entity), 
 				true, this.group, null, true);
-		Collection<AttributeExt<?>> rawRootAttrs = new ArrayList<AttributeExt<?>>();
+		Collection<AttributeExt> rawRootAttrs = new ArrayList<AttributeExt>();
 		try
 		{
 			rawRootAttrs = attrMan.getAllAttributes(new EntityParam(entity), 
@@ -879,11 +876,11 @@ public class IdentitiesTable extends CustomComponent
 			log.debug("can not resolve attributes in '/' for entity, " + entity + 
 					" only group's attributes will be available: " + e.toString());
 		}
-		Map<String, Attribute<?>> rootAttrs = new HashMap<String, Attribute<?>>(rawRootAttrs.size());
-		Map<String, Attribute<?>> curAttrs = new HashMap<String, Attribute<?>>(rawRootAttrs.size());
-		for (Attribute<?> a: rawRootAttrs)
+		Map<String, Attribute> rootAttrs = new HashMap<String, Attribute>(rawRootAttrs.size());
+		Map<String, Attribute> curAttrs = new HashMap<String, Attribute>(rawRootAttrs.size());
+		for (Attribute a: rawRootAttrs)
 			rootAttrs.put(a.getName(), a);
-		for (Attribute<?> a: rawCurAttrs)
+		for (Attribute a: rawCurAttrs)
 			curAttrs.put(a.getName(), a);
 		IdentitiesAndAttributes resolved = new IdentitiesAndAttributes(resolvedEntity, 
 				resolvedEntity.getIdentities(),	rootAttrs, curAttrs);
@@ -1429,11 +1426,11 @@ public class IdentitiesTable extends CustomComponent
 	{
 		private Entity entity;
 		private Set<Identity> identities;
-		private Map<String, Attribute<?>> rootAttributes;
-		private Map<String, Attribute<?>> currentAttributes;
+		private Map<String, Attribute> rootAttributes;
+		private Map<String, Attribute> currentAttributes;
 
 		public IdentitiesAndAttributes(Entity entity, Identity[] identities, 
-				Map<String, Attribute<?>> rootAttributes, Map<String, Attribute<?>> currentAttributes)
+				Map<String, Attribute> rootAttributes, Map<String, Attribute> currentAttributes)
 		{
 			this.identities = new LinkedHashSet<>(); 
 			Collections.addAll(this.identities, identities);
@@ -1452,12 +1449,12 @@ public class IdentitiesTable extends CustomComponent
 			return identities;
 		}
 
-		public Map<String, Attribute<?>> getRootAttributes()
+		public Map<String, Attribute> getRootAttributes()
 		{
 			return rootAttributes;
 		}
 
-		public Map<String, Attribute<?>> getCurrentAttributes()
+		public Map<String, Attribute> getCurrentAttributes()
 		{
 			return currentAttributes;
 		}

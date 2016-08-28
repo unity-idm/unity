@@ -19,17 +19,21 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.vaadin.event.Action;
+import com.vaadin.event.Transferable;
+import com.vaadin.event.dd.DragAndDropEvent;
+import com.vaadin.event.dd.DropHandler;
+import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
+import com.vaadin.ui.Table.TableTransferable;
+import com.vaadin.ui.Tree;
+
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.utils.GroupUtils;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
@@ -49,14 +53,6 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
-
-import com.vaadin.event.Action;
-import com.vaadin.event.Transferable;
-import com.vaadin.event.dd.DragAndDropEvent;
-import com.vaadin.event.dd.DropHandler;
-import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
-import com.vaadin.ui.Table.TableTransferable;
-import com.vaadin.ui.Tree;
 
 /**
  * Tree with groups obtained dynamically from the engine.

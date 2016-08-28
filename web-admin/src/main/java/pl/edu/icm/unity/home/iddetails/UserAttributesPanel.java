@@ -13,24 +13,21 @@ import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
+import com.vaadin.ui.AbstractOrderedLayout;
+
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.home.HomeEndpointProperties;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewer;
 import pl.edu.icm.unity.webui.common.attributes.FixedAttributeEditor;
-
-import com.vaadin.ui.AbstractOrderedLayout;
 
 /**
  * Shows (optionally in edit mode) all configured attributes.
@@ -92,7 +89,7 @@ public class UserAttributesPanel
 		boolean editable = config.getBooleanValue(key+HomeEndpointProperties.GWA_EDITABLE);
 		
 		AttributeType at = atTypes.get(attributeName);
-		AttributeExt<?> attribute = getAttribute(attributeName, group);
+		AttributeExt attribute = getAttribute(attributeName, group);
 
 		if (!groups.contains(group))
 			return;
@@ -131,9 +128,9 @@ public class UserAttributesPanel
 		initUI();
 	}
 	
-	private AttributeExt<?> getAttribute(String attributeName, String group)
+	private AttributeExt getAttribute(String attributeName, String group)
 	{
-		Collection<AttributeExt<?>> attributes;
+		Collection<AttributeExt> attributes;
 		try
 		{
 			attributes = attributesMan.getAttributes(
@@ -160,7 +157,7 @@ public class UserAttributesPanel
 		{
 			try
 			{
-				Attribute<?> a = ae.getAttribute();
+				Attribute a = ae.getAttribute();
 				if (a != null)
 					updateAttribute(a);
 				else
@@ -172,7 +169,7 @@ public class UserAttributesPanel
 		}
 	}
 	
-	private void updateAttribute(Attribute<?> a) throws EngineException
+	private void updateAttribute(Attribute a) throws EngineException
 	{
 		attributesMan.setAttribute(new EntityParam(entityId), a, true);
 	}

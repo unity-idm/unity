@@ -4,11 +4,11 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
+import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.registries.TypesRegistryBase;
-import pl.edu.icm.unity.server.translation.TranslationActionFactory;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.webui.common.LayoutEmbeddable;

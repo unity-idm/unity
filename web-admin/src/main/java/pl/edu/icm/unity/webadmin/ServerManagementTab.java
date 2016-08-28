@@ -9,7 +9,9 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.bulk.BulkProcessingComponent;
 import pl.edu.icm.unity.webadmin.confirmations.ConfirmationConfigurationsComponent;
 import pl.edu.icm.unity.webadmin.msgtemplate.MessageTemplatesComponent;
@@ -17,9 +19,6 @@ import pl.edu.icm.unity.webadmin.serverman.AuthenticatorsComponent;
 import pl.edu.icm.unity.webadmin.serverman.EndpointsComponent;
 import pl.edu.icm.unity.webadmin.serverman.ImportExportComponent;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfilesComponent;
-
-import com.vaadin.ui.VerticalLayout;
-
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
 

@@ -6,9 +6,15 @@ package pl.edu.icm.unity.webadmin.reg.reqman;
 
 import java.util.ArrayList;
 
+import com.vaadin.ui.Component;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Layout;
+import com.vaadin.ui.Panel;
+
+import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
@@ -26,12 +32,6 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.Representati
 import pl.edu.icm.unity.webui.common.identities.IdentityFormatter;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
-
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Layout;
-import com.vaadin.ui.Panel;
 
 /**
  * Shows request contents and provides a possibility to edit it. Base for extending by request type specific components.
@@ -137,7 +137,7 @@ public class RequestReviewPanelBase extends CustomComponent
 			}
 		}
 		
-		ret.setAttributes(new ArrayList<Attribute<?>>(attributes.getSelection().size()));
+		ret.setAttributes(new ArrayList<Attribute>(attributes.getSelection().size()));
 		for (int i=0, j=0; i<orig.getAttributes().size(); i++)
 		{
 			if (orig.getAttributes().get(i) == null)
@@ -194,7 +194,7 @@ public class RequestReviewPanelBase extends CustomComponent
 		agreementsP.setVisible(agreements.getComponentCount() > 0);
 		
 		attributes.clearEntries();
-		for (Attribute<?> ap: request.getAttributes())
+		for (Attribute ap: request.getAttributes())
 		{
 			if (ap == null)
 				continue;

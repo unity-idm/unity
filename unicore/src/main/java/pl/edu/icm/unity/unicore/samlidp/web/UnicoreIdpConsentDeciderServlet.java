@@ -14,19 +14,17 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import eu.unicore.samly2.SAMLConstants;
+import pl.edu.icm.unity.engine.api.PreferencesManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServlet;
-import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.api.internal.IdPEngine;
-import pl.edu.icm.unity.server.api.internal.SessionManagement;
-import pl.edu.icm.unity.server.authn.AuthenticationException;
-import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
-import pl.edu.icm.unity.server.translation.out.TranslationResult;
-import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD;
@@ -34,7 +32,6 @@ import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETD
 import pl.edu.icm.unity.unicore.samlidp.saml.AuthnWithETDResponseProcessor;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
-import eu.unicore.samly2.SAMLConstants;
 
 /**
  * Trivial extension of {@link IdpConsentDeciderServlet}, which uses UNICORE preferences instead of SAML preferences

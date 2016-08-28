@@ -16,26 +16,24 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.EndpointManagement;
-import pl.edu.icm.unity.server.api.ServerManagement;
-import pl.edu.icm.unity.server.api.TranslationProfileManagement;
-import pl.edu.icm.unity.server.api.internal.NetworkServer;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
-import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.Styles;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.EndpointManagement;
+import pl.edu.icm.unity.engine.api.ServerManagement;
+import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.webui.common.ErrorComponent;
+import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Displays list of endpoint component 

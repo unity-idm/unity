@@ -4,7 +4,13 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formman;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.BaseForm;
@@ -18,12 +24,6 @@ import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
-
-import com.vaadin.shared.ui.label.ContentMode;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * Read only UI displaying common parts of a {@link BaseForm}.

@@ -4,13 +4,13 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class I18nTextActionParameterComponent extends I18nTextField implements ActionParameterComponent
 {

@@ -6,22 +6,22 @@ package pl.edu.icm.unity.webadmin.attribute;
 
 import java.util.List;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
-import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
-import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
-import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
-
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
+import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
  * Renders attribute values panel.
@@ -50,7 +50,7 @@ public class ValuesRendererPanel extends VerticalLayout
 		removeAllComponents();
 	}
 	
-	public void setValues(WebAttributeHandler<?> handler, AttributeExt<?> a)
+	public void setValues(WebAttributeHandler<?> handler, AttributeExt a)
 	{
 		removeValues();
 		buildInfoView(a);
@@ -63,7 +63,7 @@ public class ValuesRendererPanel extends VerticalLayout
 			buildNoValueView();
 	}
 	
-	private void buildInfoView(AttributeExt<?> a)
+	private void buildInfoView(AttributeExt a)
 	{
 		String created = msg.getMessageNullArg("Attribute.creationDate", a.getCreationTs());
 		String updated = msg.getMessageNullArg("Attribute.updatedDate", a.getUpdateTs());

@@ -6,8 +6,16 @@ package pl.edu.icm.unity.webadmin.credentials;
 
 import java.util.Set;
 
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.data.fieldgroup.FieldGroup;
+import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
+import com.vaadin.data.util.BeanItem;
+import com.vaadin.ui.AbstractTextField;
+import com.vaadin.ui.ComboBox;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
@@ -19,14 +27,6 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
-
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.data.fieldgroup.FieldGroup;
-import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
-import com.vaadin.data.util.BeanItem;
-import com.vaadin.ui.AbstractTextField;
-import com.vaadin.ui.ComboBox;
 
 /**
  * Allows to edit a credential definition. Can be configured to edit an existing definition (name and is fixed,

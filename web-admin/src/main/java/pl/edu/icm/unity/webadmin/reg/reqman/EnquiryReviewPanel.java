@@ -6,19 +6,17 @@ package pl.edu.icm.unity.webadmin.reg.reqman;
 
 import org.apache.log4j.Logger;
 
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * Shows enquiry response contents and provides a possibility to edit it.

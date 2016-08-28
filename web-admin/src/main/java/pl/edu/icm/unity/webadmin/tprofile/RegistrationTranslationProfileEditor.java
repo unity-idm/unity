@@ -5,9 +5,9 @@
 
 package pl.edu.icm.unity.webadmin.tprofile;
 
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
 

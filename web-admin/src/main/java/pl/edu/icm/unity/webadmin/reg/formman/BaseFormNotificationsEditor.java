@@ -7,20 +7,20 @@ package pl.edu.icm.unity.webadmin.reg.formman;
 import java.util.List;
 import java.util.Set;
 
+import com.vaadin.ui.ComboBox;
+
+import pl.edu.icm.unity.base.msgtemplates.reg.AcceptRegistrationTemplateDef;
+import pl.edu.icm.unity.base.msgtemplates.reg.RejectRegistrationTemplateDef;
+import pl.edu.icm.unity.base.msgtemplates.reg.UpdateRegistrationTemplateDef;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
+import pl.edu.icm.unity.engine.api.NotificationsManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.MessageTemplateManagement;
-import pl.edu.icm.unity.server.api.NotificationsManagement;
-import pl.edu.icm.unity.server.api.registration.AcceptRegistrationTemplateDef;
-import pl.edu.icm.unity.server.api.registration.RejectRegistrationTemplateDef;
-import pl.edu.icm.unity.server.api.registration.UpdateRegistrationTemplateDef;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.BaseFormNotifications;
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
 import pl.edu.icm.unity.webui.common.GroupComboBox;
 import pl.edu.icm.unity.webui.common.LayoutEmbeddable;
-
-import com.vaadin.ui.ComboBox;
 
 /**
  * Code for editing BaseFormNotifications, i.e. a base for registration and enquiry forms notifications config editing.

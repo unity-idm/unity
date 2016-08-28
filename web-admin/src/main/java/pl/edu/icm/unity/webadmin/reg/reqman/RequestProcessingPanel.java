@@ -7,13 +7,22 @@ package pl.edu.icm.unity.webadmin.reg.reqman;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.VerticalLayout;
+
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.engine.api.EnquiryManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.EnquiryManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.RegistrationsManagement;
-import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
@@ -31,16 +40,6 @@ import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
-
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * Responsible for displaying a submitted request ({@link RegistrationRequestState}), its editing and processing.

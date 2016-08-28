@@ -13,17 +13,22 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.server.Resource;
+import com.vaadin.shared.ui.Orientation;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
+import pl.edu.icm.unity.engine.api.NotificationsManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.MessageTemplateManagement;
-import pl.edu.icm.unity.server.api.NotificationsManagement;
-import pl.edu.icm.unity.server.api.RegistrationsManagement;
-import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
-import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormEditDialog.Callback;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory;
@@ -43,13 +48,6 @@ import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormChangedEvent;
-
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.server.Resource;
-import com.vaadin.shared.ui.Orientation;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * Responsible for registration forms management.

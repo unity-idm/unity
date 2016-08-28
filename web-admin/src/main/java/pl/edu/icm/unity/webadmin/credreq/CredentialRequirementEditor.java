@@ -7,19 +7,19 @@ package pl.edu.icm.unity.webadmin.credreq;
 import java.util.Collection;
 import java.util.HashSet;
 
-import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
-import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
-import pl.edu.icm.unity.webui.common.RequiredTextField;
-
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.TwinColSelect;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.types.authn.CredentialDefinition;
+import pl.edu.icm.unity.types.authn.CredentialRequirements;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.DescriptionTextArea;
+import pl.edu.icm.unity.webui.common.RequiredTextField;
 
 /**
  * Allows to edit a credential requirement. Can be configured to edit an existing requirement (name is fixed,

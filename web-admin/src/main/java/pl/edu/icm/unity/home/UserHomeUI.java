@@ -12,20 +12,19 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.authn.AuthenticationOption;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import com.vaadin.annotations.Theme;
+import com.vaadin.server.VaadinRequest;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.TopHeader;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
-
-import com.vaadin.annotations.Theme;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * The main entry point of the web administration UI.

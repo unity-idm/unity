@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webadmin.utils;
 import java.util.Collection;
 import java.util.Iterator;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.NamedObject;
 
 /**

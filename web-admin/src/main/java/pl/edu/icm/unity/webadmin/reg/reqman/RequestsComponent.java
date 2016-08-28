@@ -9,11 +9,12 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.api.EnquiryManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.RegistrationsManagement;
-import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.ui.CustomComponent;
+
+import pl.edu.icm.unity.engine.api.EnquiryManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.webadmin.reg.reqman.RequestsTable.RequestSelectionListener;
@@ -24,8 +25,6 @@ import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
-
-import com.vaadin.ui.CustomComponent;
 
 /**
  * Component responsible for management of the submitted registration requests.

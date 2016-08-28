@@ -4,12 +4,6 @@
  */
 package pl.edu.icm.unity.webadmin.identitytype;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.IdentityType;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.FormValidator;
-import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
-
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.converter.StringToIntegerConverter;
@@ -19,6 +13,12 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.FormValidator;
+import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
 
 /**
  * Allows to edit an identity type. It is only possible to edit description and self modifiable flag. 

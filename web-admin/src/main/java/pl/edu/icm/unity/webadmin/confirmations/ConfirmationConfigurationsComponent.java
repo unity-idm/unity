@@ -15,32 +15,6 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.confirmations.ConfirmationConfiguration;
-import pl.edu.icm.unity.confirmations.ConfirmationTemplateDef;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.msgtemplates.MessageTemplate;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.MessageTemplateManagement;
-import pl.edu.icm.unity.server.api.NotificationsManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.IdentityType;
-import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesUpdatedEvent;
-import pl.edu.icm.unity.webui.WebSession;
-import pl.edu.icm.unity.webui.bus.EventListener;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
-import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.GenericElementsTable;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.Toolbar;
-
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
@@ -49,6 +23,31 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.base.msgtemplates.confirm.ConfirmationTemplateDef;
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.ConfirmationConfigurationManagement;
+import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
+import pl.edu.icm.unity.engine.api.NotificationsManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.types.basic.MessageTemplate;
+import pl.edu.icm.unity.types.confirmation.ConfirmationConfiguration;
+import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesUpdatedEvent;
+import pl.edu.icm.unity.webui.WebSession;
+import pl.edu.icm.unity.webui.bus.EventListener;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
+import pl.edu.icm.unity.webui.common.ConfirmDialog;
+import pl.edu.icm.unity.webui.common.ErrorComponent;
+import pl.edu.icm.unity.webui.common.GenericElementsTable;
+import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.Toolbar;
 
 /**
  * Responsible for confirmation configuration management

@@ -9,13 +9,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.vaadin.ui.AbstractTextField;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
+import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
+import pl.edu.icm.unity.engine.translation.TranslationProfileInstance;
+import pl.edu.icm.unity.engine.translation.TranslationRuleInstance;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.registries.TypesRegistryBase;
-import pl.edu.icm.unity.server.translation.TranslationActionFactory;
-import pl.edu.icm.unity.server.translation.TranslationProfileInstance;
-import pl.edu.icm.unity.server.translation.TranslationRuleInstance;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.types.translation.TranslationRule;
@@ -29,15 +38,6 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
 import pl.edu.icm.unity.webui.common.Styles;
-
-import com.vaadin.ui.AbstractTextField;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * Generic component to edit or add translation profile of any type

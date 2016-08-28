@@ -4,12 +4,12 @@
  */
 package pl.edu.icm.unity.webadmin.identitytype;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.ui.Label;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.Styles;
-
-import com.vaadin.ui.Label;
 
 /**
  * Allows to inspect a single identity type

@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.home.iddetails;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 
 /**

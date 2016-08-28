@@ -9,15 +9,15 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.attribute.AttributesComponent;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupBrowserComponent;
 import pl.edu.icm.unity.webadmin.groupdetails.GroupDetailsComponent;
 import pl.edu.icm.unity.webadmin.identities.IdentitiesComponent;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
-
-import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * The tab with groups, identities and attribtues management.

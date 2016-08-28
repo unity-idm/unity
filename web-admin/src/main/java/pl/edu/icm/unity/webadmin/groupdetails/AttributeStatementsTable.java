@@ -9,10 +9,18 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.AttributeStatement2;
+import com.vaadin.data.Container;
+import com.vaadin.event.Action;
+import com.vaadin.event.dd.DragAndDropEvent;
+import com.vaadin.event.dd.DropHandler;
+import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
+import com.vaadin.event.dd.acceptcriteria.Not;
+import com.vaadin.shared.ui.dd.VerticalDropLocation;
+
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webadmin.attrstmt.AttributeStatementEditDialog;
 import pl.edu.icm.unity.webadmin.attrstmt.AttributeStatementEditDialog.Callback;
@@ -25,14 +33,6 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.SmallTable;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-
-import com.vaadin.data.Container;
-import com.vaadin.event.Action;
-import com.vaadin.event.dd.DragAndDropEvent;
-import com.vaadin.event.dd.DropHandler;
-import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
-import com.vaadin.event.dd.acceptcriteria.Not;
-import com.vaadin.shared.ui.dd.VerticalDropLocation;
 
 /**
  * Table with attribute statements. Allows for management operations.
@@ -79,12 +79,12 @@ public class AttributeStatementsTable extends SmallTable
 	{
 		this.group = group;
 		removeAllItems();
-		AttributeStatement2[] ases = group.getAttributeStatements();
-		for (AttributeStatement2 as: ases)
+		AttributeStatement[] ases = group.getAttributeStatements();
+		for (AttributeStatement as: ases)
 			addItem(new Object[] {as.toString()}, as);
 	}	
 	
-	private void updateGroup(AttributeStatement2[] attributeStatements)
+	private void updateGroup(AttributeStatement[] attributeStatements)
 	{
 		Group updated = group.clone();
 		updated.setAttributeStatements(attributeStatements);
@@ -98,17 +98,17 @@ public class AttributeStatementsTable extends SmallTable
 		}
 	}
 	
-	private void removeStatements(Collection<AttributeStatement2> removedStatements)
+	private void removeStatements(Collection<AttributeStatement> removedStatements)
 	{
 		Collection<?> items = getItemIds();
 		Iterator<?> it = items.iterator();
-		AttributeStatement2[] attributeStatements = new AttributeStatement2
+		AttributeStatement[] attributeStatements = new AttributeStatement
 				[items.size()-removedStatements.size()];
 		for (int i=0; it.hasNext(); i++)
 		{
-			AttributeStatement2 s = (AttributeStatement2) it.next();
+			AttributeStatement s = (AttributeStatement) it.next();
 			boolean check = false;
-			for (AttributeStatement2 st : removedStatements)
+			for (AttributeStatement st : removedStatements)
 			{
 				if (st.equals(s))
 				{
@@ -127,14 +127,14 @@ public class AttributeStatementsTable extends SmallTable
 		updateGroup(attributeStatements);
 	}
 
-	private void addStatement(AttributeStatement2 newStatement)
+	private void addStatement(AttributeStatement newStatement)
 	{
 		Collection<?> items = getItemIds();
 		Iterator<?> it = items.iterator();
-		AttributeStatement2[] attributeStatements = new AttributeStatement2[items.size()+1];
+		AttributeStatement[] attributeStatements = new AttributeStatement[items.size()+1];
 		for (int i=0; it.hasNext(); i++)
 		{
-			AttributeStatement2 s = (AttributeStatement2) it.next();
+			AttributeStatement s = (AttributeStatement) it.next();
 			attributeStatements[i] = s;
 		}
 		attributeStatements[items.size()] = newStatement;
@@ -142,14 +142,14 @@ public class AttributeStatementsTable extends SmallTable
 		updateGroup(attributeStatements);
 	}
 
-	private void updateStatement(AttributeStatement2 oldStatement, AttributeStatement2 newStatement)
+	private void updateStatement(AttributeStatement oldStatement, AttributeStatement newStatement)
 	{
 		Collection<?> items = getItemIds();
 		Iterator<?> it = items.iterator();
-		AttributeStatement2[] attributeStatements = new AttributeStatement2[items.size()];
+		AttributeStatement[] attributeStatements = new AttributeStatement[items.size()];
 		for (int i=0; it.hasNext(); i++)
 		{
-			AttributeStatement2 s = (AttributeStatement2) it.next();
+			AttributeStatement s = (AttributeStatement) it.next();
 			if (!oldStatement.equals(s))
 				attributeStatements[i] = s;
 			else
@@ -159,16 +159,16 @@ public class AttributeStatementsTable extends SmallTable
 		updateGroup(attributeStatements);
 	}
 
-	private void moveItemAfter(AttributeStatement2 toMoveItemId, AttributeStatement2 moveAfterItemId)
+	private void moveItemAfter(AttributeStatement toMoveItemId, AttributeStatement moveAfterItemId)
 	{
 		Collection<?> items = getItemIds();
 		Iterator<?> it = items.iterator();
-		List<AttributeStatement2> attributeStatements = new ArrayList<AttributeStatement2>(items.size());
+		List<AttributeStatement> attributeStatements = new ArrayList<AttributeStatement>(items.size());
 		if (moveAfterItemId == null)
 			attributeStatements.add(toMoveItemId);
 		while (it.hasNext())
 		{
-			AttributeStatement2 s = (AttributeStatement2) it.next();
+			AttributeStatement s = (AttributeStatement) it.next();
 			
 			if (!s.equals(toMoveItemId))
 			{
@@ -180,8 +180,8 @@ public class AttributeStatementsTable extends SmallTable
 				attributeStatements.add(toMoveItemId);
 			}
 		}
-		AttributeStatement2[] aStmtsA = attributeStatements.toArray(
-				new AttributeStatement2[attributeStatements.size()]);
+		AttributeStatement[] aStmtsA = attributeStatements.toArray(
+				new AttributeStatement[attributeStatements.size()]);
 		updateGroup(aStmtsA);
 	}
 	
@@ -209,10 +209,10 @@ public class AttributeStatementsTable extends SmallTable
 				Object previous = container.prevItemId(targetItemId);
 				if (sourceItemId == previous)
 					return;
-				moveItemAfter((AttributeStatement2)sourceItemId, (AttributeStatement2) previous);
+				moveItemAfter((AttributeStatement)sourceItemId, (AttributeStatement) previous);
 			} else if (location == VerticalDropLocation.BOTTOM) 
 			{
-				moveItemAfter((AttributeStatement2)sourceItemId, (AttributeStatement2) targetItemId);
+				moveItemAfter((AttributeStatement)sourceItemId, (AttributeStatement) targetItemId);
 			}
 		}
 
@@ -247,10 +247,10 @@ public class AttributeStatementsTable extends SmallTable
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			final Collection<AttributeStatement2> items = new ArrayList<AttributeStatement2>();
+			final Collection<AttributeStatement> items = new ArrayList<AttributeStatement>();
 			Collection<?> ats = (Collection<?>) target;
 			for (Object o: ats)
-				items.add((AttributeStatement2) o);
+				items.add((AttributeStatement) o);
 					
 			new ConfirmDialog(msg, msg.getMessage("AttributeStatements.confirmDelete"), () -> {
 				removeStatements(items);
@@ -274,7 +274,7 @@ public class AttributeStatementsTable extends SmallTable
 					attributeHandlerRegistry, groupsMan, new Callback()
 					{
 						@Override
-						public void onConfirm(AttributeStatement2 newStatement)
+						public void onConfirm(AttributeStatement newStatement)
 						{
 							addStatement(newStatement);
 						}
@@ -294,14 +294,14 @@ public class AttributeStatementsTable extends SmallTable
 		public void handleAction(Object sender, final Object target)
 		{
 			
-			AttributeStatement2 st = (AttributeStatement2) target;
+			AttributeStatement st = (AttributeStatement) target;
 			new AttributeStatementEditDialog(msg, st, attrsMan, group.toString(), 
 					attributeHandlerRegistry, groupsMan, new Callback()
 					{
 						@Override
-						public void onConfirm(AttributeStatement2 newStatement)
+						public void onConfirm(AttributeStatement newStatement)
 						{
-							updateStatement((AttributeStatement2) target, newStatement);
+							updateStatement((AttributeStatement) target, newStatement);
 						}
 					}).show();
 		}

@@ -4,16 +4,16 @@
  */
 package pl.edu.icm.unity.webadmin.bulk;
 
-import pl.edu.icm.unity.server.bulkops.EntityAction;
-import pl.edu.icm.unity.server.bulkops.ScheduledProcessingRuleParam;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.FormLayout;
+
+import pl.edu.icm.unity.engine.api.bulkops.EntityAction;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
 import pl.edu.icm.unity.webadmin.tprofile.ActionEditor;
 import pl.edu.icm.unity.webadmin.tprofile.MVELExpressionField;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.FormValidator;
-
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.FormLayout;
 
 /**
  * Edit component of a {@link ScheduledProcessingRuleParam}

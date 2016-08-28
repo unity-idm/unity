@@ -16,20 +16,17 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.utils.GroupUtils;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributesClass;
+import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webadmin.attributeclass.RequiredAttributesDialog;
@@ -152,7 +149,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 		
 		if (required.isEmpty())
 		{
-			doCreate(toAdd, new ArrayList<Attribute<?>>(0));
+			doCreate(toAdd, new ArrayList<Attribute>(0));
 		} else
 		{
 			RequiredAttributesDialog attrDialog = new RequiredAttributesDialog(
@@ -161,7 +158,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 					new RequiredAttributesDialog.Callback()
 					{
 						@Override
-						public void onConfirm(List<Attribute<?>> attributes)
+						public void onConfirm(List<Attribute> attributes)
 						{
 							doCreate(toAdd, attributes);
 						}
@@ -176,7 +173,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 		
 	}
 	
-	private void doCreate(IdentityParam toAdd, List<Attribute<?>> attributes)
+	private void doCreate(IdentityParam toAdd, List<Attribute> attributes)
 	{
 		Identity created;
 		try

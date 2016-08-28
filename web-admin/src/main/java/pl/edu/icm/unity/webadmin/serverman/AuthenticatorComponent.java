@@ -9,21 +9,21 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.ServerManagement;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
-import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
+
+import pl.edu.icm.unity.engine.api.ServerManagement;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.webui.common.ConfirmDialog;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
  * Display authenticator fields with values
@@ -32,6 +32,7 @@ import com.vaadin.ui.Panel;
  * @author P. Piernik
  */
 @Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class AuthenticatorComponent extends DeployableComponentViewBase
 {
 

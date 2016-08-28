@@ -13,7 +13,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.server.utils.Log;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;

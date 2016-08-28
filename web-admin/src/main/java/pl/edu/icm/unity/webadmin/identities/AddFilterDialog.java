@@ -8,11 +8,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.EnumComboBox;
-import pl.edu.icm.unity.webui.common.MapComboBox;
-
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.filter.Compare;
 import com.vaadin.data.util.filter.Not;
@@ -22,6 +17,11 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.EnumComboBox;
+import pl.edu.icm.unity.webui.common.MapComboBox;
 
 /**
  * Allows to create a filter for the identities table.

@@ -6,13 +6,13 @@ package pl.edu.icm.unity.webadmin.tprofile.wizard;
 
 import org.vaadin.teemu.wizards.WizardStep;
 
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.ui.Component;
+
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditDialog.Callback;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditor;
-
-import com.vaadin.ui.Component;
 
 /**
  * Third wizard step with with profile creation - used in {@link WizardDialogComponent}.

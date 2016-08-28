@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webadmin.reg.formman.layout;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 

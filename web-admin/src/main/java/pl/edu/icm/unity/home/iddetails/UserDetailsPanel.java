@@ -7,17 +7,17 @@ package pl.edu.icm.unity.home.iddetails;
 import java.util.Collection;
 import java.util.Map;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.EntityScheduledOperation;
+import com.vaadin.ui.AbstractOrderedLayout;
+import com.vaadin.ui.Label;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.EntityScheduledOperation;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
-
-import com.vaadin.ui.AbstractOrderedLayout;
-import com.vaadin.ui.Label;
 
 /**
  * Presents a basic information about a single entity. No editing is possible. Targeted for presentation

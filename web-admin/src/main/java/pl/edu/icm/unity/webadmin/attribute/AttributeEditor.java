@@ -7,21 +7,20 @@ package pl.edu.icm.unity.webadmin.attribute;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalSplitPanel;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.webadmin.attribute.AttributeMetaEditorPanel.TypeChangeCallback;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.FixedAttributeEditor;
-
-import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalSplitPanel;
 
 /**
  * Allows for editing an attribute or for creating a new one.
@@ -71,7 +70,7 @@ public class AttributeEditor extends CustomComponent
 	 * Useful in the full edit mode (when choice of attributes is allowed). Sets the initial attribute.
 	 * @param attribute
 	 */
-	public void setInitialAttribute(Attribute<?> attribute)
+	public void setInitialAttribute(Attribute attribute)
 	{
 		if (!typeFixed)
 			attrTypePanel.setAttributeType(attribute.getName());
@@ -85,7 +84,7 @@ public class AttributeEditor extends CustomComponent
 	 * @param attribute
 	 * @param handlerRegistry
 	 */
-	public AttributeEditor(UnityMessageSource msg, AttributeType attributeType, Attribute<?> attribute, 
+	public AttributeEditor(UnityMessageSource msg, AttributeType attributeType, Attribute attribute, 
 			AttributeHandlerRegistry handlerRegistry)
 	{
 		this.groupPath = attribute.getGroupPath();
@@ -128,9 +127,9 @@ public class AttributeEditor extends CustomComponent
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Attribute<?> getAttribute() throws FormValidationException
+	public Attribute getAttribute() throws FormValidationException
 	{
-		Attribute<?> ret = valuesPanel.getAttribute();
+		Attribute ret = valuesPanel.getAttribute();
 		if (ret == null)
 		{
 			AttributeType at = attrTypePanel.getAttributeType();

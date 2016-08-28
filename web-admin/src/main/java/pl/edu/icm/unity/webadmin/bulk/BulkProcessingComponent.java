@@ -14,13 +14,22 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Sets;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.shared.ui.Orientation;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.BulkProcessingManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.bulkops.EntityActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.BulkProcessingManagement;
-import pl.edu.icm.unity.server.bulkops.ProcessingRule;
-import pl.edu.icm.unity.server.bulkops.ScheduledProcessingRule;
-import pl.edu.icm.unity.server.bulkops.ScheduledProcessingRuleParam;
-import pl.edu.icm.unity.server.registries.EntityActionsRegistry;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
+import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
 import pl.edu.icm.unity.webadmin.tprofile.ActionEditor;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
@@ -34,16 +43,6 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
-
-import com.google.common.collect.Sets;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.shared.ui.Orientation;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * Component responsible for management of bulk processing actions. 

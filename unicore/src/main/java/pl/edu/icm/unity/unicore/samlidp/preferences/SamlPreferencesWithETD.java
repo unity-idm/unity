@@ -12,10 +12,10 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import eu.unicore.security.etd.DelegationRestrictions;
+import pl.edu.icm.unity.engine.api.PreferencesManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
-import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 
 

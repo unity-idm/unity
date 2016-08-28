@@ -4,9 +4,13 @@
  */
 package pl.edu.icm.unity.webadmin.identities;
 
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.OptionGroup;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
@@ -15,11 +19,6 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.OptionGroup;
 
 /**
  * Entity merging dialog. Allows for choosing the target and merged entities as well as the safe mode.

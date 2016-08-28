@@ -11,8 +11,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.vaadin.shared.ui.datefield.Resolution;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.DateField;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -24,17 +35,6 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElements;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
-
-import com.vaadin.shared.ui.datefield.Resolution;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.DateField;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * Edit UI for {@link InvitationParam}.
@@ -57,7 +57,7 @@ public class InvitationEditor extends CustomComponent
 	private TabSheet tabs;
 	private ListOfEmbeddedElements<PrefilledEntry<IdentityParam>> presetIdentities;
 	private ListOfEmbeddedElements<PrefilledEntry<Selection>> presetGroups;
-	private ListOfEmbeddedElements<PrefilledEntry<Attribute<?>>> presetAttributes;
+	private ListOfEmbeddedElements<PrefilledEntry<Attribute>> presetAttributes;
 
 	
 	public InvitationEditor(UnityMessageSource msg, IdentityEditorRegistry identityEditorRegistry,

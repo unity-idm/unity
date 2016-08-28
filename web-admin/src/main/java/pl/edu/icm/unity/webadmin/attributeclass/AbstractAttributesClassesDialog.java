@@ -11,12 +11,11 @@ import java.util.Set;
 
 import com.vaadin.ui.TwinColSelect;
 
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributesClass;
-import pl.edu.icm.unity.webadmin.attributeclass.EffectiveAttrClassViewer;
 import pl.edu.icm.unity.webadmin.groupdetails.GroupAttributesClassesDialog;
 import pl.edu.icm.unity.webadmin.identities.EntityAttributesClassesDialog;
 import pl.edu.icm.unity.webui.common.AbstractDialog;

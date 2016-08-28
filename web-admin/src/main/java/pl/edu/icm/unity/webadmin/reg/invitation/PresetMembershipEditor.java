@@ -6,14 +6,14 @@ package pl.edu.icm.unity.webadmin.reg.invitation;
 
 import java.util.List;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Component;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.Selection;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.Component;
 
 /**
  * Editor of a preset group {@link Selection}.

@@ -4,17 +4,17 @@
  */
 package pl.edu.icm.unity.webadmin;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.TopHeader;
-
 import com.vaadin.server.Page;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalLayout;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.TopHeader;
 
 
 /**

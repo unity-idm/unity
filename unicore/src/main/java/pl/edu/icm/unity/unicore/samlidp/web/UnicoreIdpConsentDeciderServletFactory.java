@@ -7,12 +7,11 @@ package pl.edu.icm.unity.unicore.samlidp.web;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.engine.api.PreferencesManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServletFactory;
-import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.api.internal.IdPEngine;
-import pl.edu.icm.unity.server.api.internal.SessionManagement;
-import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 
 /**
  * Creates {@link UnicoreIdpConsentDeciderServlet}s.

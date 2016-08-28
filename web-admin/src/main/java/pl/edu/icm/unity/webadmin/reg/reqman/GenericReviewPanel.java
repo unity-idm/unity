@@ -4,9 +4,10 @@
  */
 package pl.edu.icm.unity.webadmin.reg.reqman;
 
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.ui.CustomComponent;
+
+import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
@@ -14,8 +15,6 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-
-import com.vaadin.ui.CustomComponent;
 
 /**
  * Component showing either {@link RegistrationReviewPanel} or {@link EnquiryReviewPanel} depending on an input to
