@@ -9,9 +9,8 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpointFactory;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesEditor;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesHandler;
 

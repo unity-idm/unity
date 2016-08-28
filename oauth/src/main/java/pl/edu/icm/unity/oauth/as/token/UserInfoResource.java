@@ -15,8 +15,8 @@ import org.apache.http.HttpHeaders;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.token.BearerTokenError;
 
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
 
 /**
  * RESTful implementation of the user information token resource

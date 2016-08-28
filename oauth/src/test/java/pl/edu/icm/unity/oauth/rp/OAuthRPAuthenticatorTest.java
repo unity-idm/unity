@@ -18,26 +18,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.engine.DBIntegrationTestBase;
-import pl.edu.icm.unity.oauth.as.OAuthProcessor;
-import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
-import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpointFactory;
-import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
-import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpointFactory;
-import pl.edu.icm.unity.server.api.TranslationProfileManagement;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.registries.InputTranslationActionsRegistry;
-import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
-import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.EntityState;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
-
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;
@@ -47,6 +27,25 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.engine.translation.in.InputTranslationActionsRegistry;
+import pl.edu.icm.unity.engine.translation.in.InputTranslationProfile;
+import pl.edu.icm.unity.oauth.as.OAuthProcessor;
+import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
+import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpointFactory;
+import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
+import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpointFactory;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.basic.EntityState;
+import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 /**
  * Somewhat complex integration test of the OAuth RP authenticator.
@@ -179,7 +178,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 					new EndpointConfiguration(new I18nString("endpointJWT-mitre"), "desc", 
 					authnCfg4, JWT_ENDP_CFG, REALM_NAME));
 			
-			List<EndpointDescription> endpoints = endpointMan.getEndpoints();
+			List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 			assertEquals(4, endpoints.size());
 
 			httpServer.start();

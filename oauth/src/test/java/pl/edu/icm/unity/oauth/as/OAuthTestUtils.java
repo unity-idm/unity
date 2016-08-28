@@ -15,28 +15,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
 
-import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
-import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext;
-import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext.ScopeInfo;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.stdext.attr.EnumAttribute;
-import pl.edu.icm.unity.stdext.attr.StringAttribute;
-import pl.edu.icm.unity.stdext.credential.PasswordToken;
-import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
-import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
-import pl.edu.icm.unity.types.EntityState;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-
 import com.google.common.collect.Lists;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
@@ -47,6 +25,24 @@ import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
 
 import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext;
+import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext.ScopeInfo;
+import pl.edu.icm.unity.stdext.attr.EnumAttribute;
+import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.stdext.credential.PasswordToken;
+import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.EntityState;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 
 public class OAuthTestUtils
 {
@@ -99,8 +95,8 @@ public class OAuthTestUtils
 			int maxExtValidity) throws Exception
 	{
 		OAuthProcessor processor = new OAuthProcessor();
-		Collection<Attribute<?>> attributes = new ArrayList<>();
-		attributes.add(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com"));
+		Collection<Attribute> attributes = new ArrayList<>();
+		attributes.add(new StringAttribute("email", "/", "example@example.com"));
 		IdentityParam identity = new IdentityParam(UsernameIdentity.ID, "userA");
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.TOKEN, 
 				OIDCResponseTypeValue.ID_TOKEN, ResponseType.Value.CODE),
@@ -118,9 +114,9 @@ public class OAuthTestUtils
 			long clientEntityId) throws Exception
 	{
 		OAuthProcessor processor = new OAuthProcessor();
-		Collection<Attribute<?>> attributes = new ArrayList<>();
-		attributes.add(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com"));
-		attributes.add(new StringAttribute("c", "/", AttributeVisibility.full, "PL"));
+		Collection<Attribute> attributes = new ArrayList<>();
+		attributes.add(new StringAttribute("email", "/", "example@example.com"));
+		attributes.add(new StringAttribute("c", "/", "PL"));
 		IdentityParam identity = new IdentityParam("userName", "userA");
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.CODE),
 				GrantFlow.authorizationCode, clientEntityId);
@@ -144,18 +140,18 @@ public class OAuthTestUtils
 		groupsMan.addMemberFromParent("/oauth-users", e1);
 		
 		attrsMan.setAttribute(e1, new EnumAttribute(OAuthSystemAttributesProvider.ALLOWED_FLOWS, 
-				"/oauth-clients", AttributeVisibility.local, 
+				"/oauth-clients", 
 				Lists.newArrayList(GrantFlow.authorizationCode.name(),
 						GrantFlow.client.name())), 
 				false);
 		attrsMan.setAttribute(e1, new StringAttribute(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI, 
-				"/oauth-clients", AttributeVisibility.local, "https://dummy-return.net"), false);
+				"/oauth-clients", "https://dummy-return.net"), false);
 		
 		attrsMan.setAttribute(e1, new StringAttribute(OAuthSystemAttributesProvider.CLIENT_NAME, 
-				"/oauth-clients", AttributeVisibility.local, "clientName"), false);
+				"/oauth-clients", "clientName"), false);
 		
 		attrsMan.setAttribute(e1, new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE, 
-				"/", AttributeVisibility.local, "Regular User"), false);
+				"/", "Regular User"), false);
 		return clientId;
 	}
 	

@@ -8,13 +8,13 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.StringTokenizer;
 
-import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
-
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
+
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 
 /**
  * Retrieves and caches information about OpenID Connect provider.

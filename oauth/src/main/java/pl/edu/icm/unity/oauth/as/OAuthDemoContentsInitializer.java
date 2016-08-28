@@ -9,24 +9,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Lists;
+
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.server.ServerInitializer;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.ServerInitializer;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.EntityState;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-
-import com.google.common.collect.Lists;
 
 /**
  * Insert demonstrative contents for the OAuth AS functionality.
@@ -66,13 +64,12 @@ public class OAuthDemoContentsInitializer implements ServerInitializer
 			groupsMan.addMemberFromParent("/oauth-clients", new EntityParam(oauthClientA.getEntityId()));
 			EnumAttribute flowsA = new EnumAttribute(OAuthSystemAttributesProvider.ALLOWED_FLOWS, 
 					"/oauth-clients", 
-					AttributeVisibility.local, 
 					Lists.newArrayList(
 					GrantFlow.authorizationCode.toString(), GrantFlow.implicit.toString(),
 					GrantFlow.openidHybrid.toString()));
 			attrMan.setAttribute(new EntityParam(oauthClientA.getEntityId()), flowsA, false);
 			StringAttribute returnUrlA = new StringAttribute(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI, 
-					"/oauth-clients", AttributeVisibility.local, 
+					"/oauth-clients", 
 					"https://localhost:2443/unitygw/oauth2ResponseConsumer");
 			attrMan.setAttribute(new EntityParam(oauthClientA.getEntityId()), returnUrlA, false);
 		} catch (Exception e)

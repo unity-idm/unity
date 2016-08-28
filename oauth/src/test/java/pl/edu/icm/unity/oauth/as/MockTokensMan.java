@@ -10,11 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import pl.edu.icm.unity.base.token.Token;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.server.api.internal.Token;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
 public class MockTokensMan implements TokensManagement
@@ -24,7 +23,7 @@ public class MockTokensMan implements TokensManagement
 	
 	@Override
 	public void addToken(String type, String value, EntityParam owner, byte[] contents,
-			Date created, Date expires) throws WrongArgumentException,
+			Date created, Date expires) throws 
 			IllegalIdentityValueException, IllegalTypeException
 	{
 		long entityId = owner.getEntityId() == null ? owner.getIdentity().hashCode() : owner.getEntityId();
@@ -36,14 +35,13 @@ public class MockTokensMan implements TokensManagement
 	}
 
 	@Override
-	public void removeToken(String type, String value) throws WrongArgumentException
+	public void removeToken(String type, String value) 
 	{
 		tokens.remove(type+value);
 	}
 
 	@Override
 	public void updateToken(String type, String value, Date expires, byte[] contents)
-			throws WrongArgumentException
 	{
 		Token t = getTokenById(type, value);
 		t.setContents(contents);
@@ -52,10 +50,10 @@ public class MockTokensMan implements TokensManagement
 	}
 
 	@Override
-	public Token getTokenById(String type, String value) throws WrongArgumentException
+	public Token getTokenById(String type, String value) 
 	{
 		if (!tokens.containsKey(type+value))
-			throw new WrongArgumentException("no such token");
+			throw new IllegalArgumentException("no such token");
 		return tokens.get(type+value);
 	}
 
@@ -80,7 +78,7 @@ public class MockTokensMan implements TokensManagement
 
 	@Override
 	public void addToken(String type, String value, byte[] contents, Date created, Date expires)
-			throws WrongArgumentException, IllegalTypeException
+			throws IllegalTypeException
 	{
 		// TODO Auto-generated method stub
 		

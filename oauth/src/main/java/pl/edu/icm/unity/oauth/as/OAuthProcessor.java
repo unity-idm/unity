@@ -12,18 +12,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
-import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.translation.out.TranslationResult;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gwt.thirdparty.guava.common.collect.Lists;
 import com.nimbusds.jose.JOSEException;
@@ -49,6 +37,18 @@ import com.nimbusds.openid.connect.sdk.claims.ClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.IdentityParam;
+
 /**
  * Groups OAuth related logic for processing the request and preparing the response.  
  * @author K. Benedyczak
@@ -64,10 +64,10 @@ public class OAuthProcessor
 	 * @param ctx
 	 * @return
 	 */
-	public Set<Attribute<?>> filterAttributes(TranslationResult userInfo, 
+	public Set<Attribute> filterAttributes(TranslationResult userInfo, 
 			Set<String> requestedAttributes)
 	{
-		Set<Attribute<?>> ret = filterNotRequestedAttributes(userInfo, requestedAttributes);
+		Set<Attribute> ret = filterNotRequestedAttributes(userInfo, requestedAttributes);
 		return filterUnsupportedAttributes(ret);
 	}
 
@@ -87,7 +87,7 @@ public class OAuthProcessor
 	 * @throws IllegalIdentityValueException 
 	 * @throws WrongArgumentException 
 	 */
-	public AuthorizationSuccessResponse prepareAuthzResponseAndRecordInternalState(Collection<Attribute<?>> attributes, 
+	public AuthorizationSuccessResponse prepareAuthzResponseAndRecordInternalState(Collection<Attribute> attributes, 
 			IdentityParam identity,	OAuthAuthzContext ctx, TokensManagement tokensMan) 
 					throws EngineException, JsonProcessingException, ParseException, JOSEException
 	{
@@ -188,25 +188,25 @@ public class OAuthProcessor
 	 * Returns a collection of attributes including only those attributes for which there is an OAuth 
 	 * representation.
 	 */
-	private Set<Attribute<?>> filterUnsupportedAttributes(Set<Attribute<?>> src)
+	private Set<Attribute> filterUnsupportedAttributes(Set<Attribute> src)
 	{
-		Set<Attribute<?>> ret = new HashSet<Attribute<?>>();
+		Set<Attribute> ret = new HashSet<Attribute>();
 		OAuthAttributeMapper mapper = new DefaultOAuthAttributeMapper();
 		
-		for (Attribute<?> a: src)
+		for (Attribute a: src)
 			if (mapper.isHandled(a))
 				ret.add(a);
 		return ret;
 	}
 	
 	
-	private Set<Attribute<?>> filterNotRequestedAttributes(TranslationResult translationResult, 
+	private Set<Attribute> filterNotRequestedAttributes(TranslationResult translationResult, 
 			Set<String> requestedAttributes)
 	{
-		Collection<Attribute<?>> allAttrs = translationResult.getAttributes();
-		Set<Attribute<?>> filteredAttrs = new HashSet<Attribute<?>>();
+		Collection<Attribute> allAttrs = translationResult.getAttributes();
+		Set<Attribute> filteredAttrs = new HashSet<Attribute>();
 		
-		for (Attribute<?> attr: allAttrs)
+		for (Attribute attr: allAttrs)
 			if (requestedAttributes.contains(attr.getName()))
 				filteredAttrs.add(attr);
 		return filteredAttrs;
@@ -238,13 +238,13 @@ public class OAuthProcessor
 		return idToken;
 	}
 	
-	public UserInfo prepareUserInfoClaimSet(String userIdentity, Collection<Attribute<?>> attributes)
+	public UserInfo prepareUserInfoClaimSet(String userIdentity, Collection<Attribute> attributes)
 	{
 		UserInfo userInfo = new UserInfo(new Subject(userIdentity));
 		
 		OAuthAttributeMapper mapper = new DefaultOAuthAttributeMapper();
 		
-		for (Attribute<?> attr: attributes)
+		for (Attribute attr: attributes)
 		{
 			if (mapper.isHandled(attr))
 			{

@@ -12,15 +12,15 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.oauth.as.OAuthASProperties;
-
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.ECKey.Curve;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
+
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 
 /**
  * Informs about keys used by the AS. Free access.

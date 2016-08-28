@@ -14,18 +14,17 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import com.nimbusds.oauth2.sdk.Scope;
+
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthParseServlet;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
-
-import com.nimbusds.oauth2.sdk.Scope;
 
 /**
  * Utility class with methods useful for request checking and its mapping to unity 
@@ -72,10 +71,10 @@ public class OAuthRequestValidator
 					+ "(not in the clients group)");
 	}
 	
-	public Map<String, AttributeExt<?>> getAttributes(EntityParam clientEntity) throws OAuthValidationException
+	public Map<String, AttributeExt> getAttributes(EntityParam clientEntity) throws OAuthValidationException
 	{
 		String oauthGroup = oauthConfig.getValue(OAuthASProperties.CLIENTS_GROUP);
-		Collection<AttributeExt<?>> attrs;
+		Collection<AttributeExt> attrs;
 		try
 		{
 			attrs = attributesMan.getAllAttributes(clientEntity, true, oauthGroup, null, false);
@@ -84,15 +83,15 @@ public class OAuthRequestValidator
 			log.error("Problem retrieving attributes of the OAuth client", e);
 			throw new OAuthValidationException("Internal error, can not retrieve OAuth client's data");
 		}
-		Map<String, AttributeExt<?>> ret = new HashMap<>();
+		Map<String, AttributeExt> ret = new HashMap<>();
 		attrs.stream().forEach(a -> ret.put(a.getName(), a));
 		return ret;
 	}
 	
-	public Set<GrantFlow> getAllowedFlows(Map<String, AttributeExt<?>> attributes)
+	public Set<GrantFlow> getAllowedFlows(Map<String, AttributeExt> attributes)
 	{
 		Set<GrantFlow> allowedFlows = new HashSet<>();
-		AttributeExt<?> allowedFlowsA = attributes.get(OAuthSystemAttributesProvider.ALLOWED_FLOWS);
+		AttributeExt allowedFlowsA = attributes.get(OAuthSystemAttributesProvider.ALLOWED_FLOWS);
 		if (allowedFlowsA == null)
 		{
 			allowedFlows.add(GrantFlow.authorizationCode);

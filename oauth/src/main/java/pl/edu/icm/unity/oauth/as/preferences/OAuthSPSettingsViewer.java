@@ -6,12 +6,12 @@ package pl.edu.icm.unity.oauth.as.preferences;
 
 import java.util.Iterator;
 
-import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
 
 /**
  * Shows a single {@link OAuthClientSettings}.

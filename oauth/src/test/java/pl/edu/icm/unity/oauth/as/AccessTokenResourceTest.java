@@ -13,18 +13,7 @@ import java.util.Locale;
 
 import javax.ws.rs.core.Response;
 
-import net.minidev.json.JSONObject;
-import net.minidev.json.JSONValue;
-
 import org.junit.Test;
-
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.oauth.as.token.AccessTokenResource;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
-import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
@@ -32,18 +21,30 @@ import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 
+import net.minidev.json.JSONObject;
+import net.minidev.json.JSONValue;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.oauth.as.token.AccessTokenResource;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner.TxRunnable;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner.TxRunnableRet;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+
 public class AccessTokenResourceTest 
 {
 	private TransactionalRunner tx = new TransactionalRunner()
 	{
 		@Override
-		public <T> T runInTransactionRet(TxRunnableRet<T> code) throws EngineException
+		public <T> T runInTransactionRet(TxRunnableRet<T> code)
 		{
 			return code.run();
 		}
 		
 		@Override
-		public void runInTransaction(TxRunnable code) throws EngineException
+		public void runInTransaction(TxRunnable code)
 		{
 			code.run();
 		}

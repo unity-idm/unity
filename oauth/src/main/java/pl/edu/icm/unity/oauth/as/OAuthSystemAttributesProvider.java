@@ -12,14 +12,13 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.engine.api.attributes.SystemAttributesProvider;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.server.attributes.SystemAttributesProvider;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 
 /**
  * Provides attribute types used internally by OAuth
@@ -63,7 +62,6 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 		allowedGrantsAt.setMinElements(1);
 		allowedGrantsAt.setMaxElements(5);
 		allowedGrantsAt.setUniqueValues(true);
-		allowedGrantsAt.setVisibility(AttributeVisibility.local);
 		return allowedGrantsAt;
 	}
 	
@@ -74,7 +72,6 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 		authorizationAt.setMinElements(1);
 		authorizationAt.setMaxElements(MAXIMUM_ALLOWED_URIS);
 		authorizationAt.setUniqueValues(false);
-		authorizationAt.setVisibility(AttributeVisibility.local);
 		return authorizationAt;
 	}
 	
@@ -95,7 +92,6 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 		logoAt.setMinElements(1);
 		logoAt.setMaxElements(1);
 		logoAt.setUniqueValues(false);
-		logoAt.setVisibility(AttributeVisibility.local);
 		return logoAt;
 	}
 
@@ -106,7 +102,6 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 		nameAt.setMinElements(1);
 		nameAt.setMaxElements(1);
 		nameAt.setUniqueValues(false);
-		nameAt.setVisibility(AttributeVisibility.local);
 		return nameAt;
 	}
 
@@ -117,7 +112,6 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 		nameAt.setMinElements(1);
 		nameAt.setMaxElements(1);
 		nameAt.setUniqueValues(false);
-		nameAt.setVisibility(AttributeVisibility.local);
 		return nameAt;
 	}
 
