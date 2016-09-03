@@ -4,13 +4,13 @@
  */
 package pl.edu.icm.unity.webadmin.confirmations;
 
-import pl.edu.icm.unity.confirmations.ConfirmationConfiguration;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.AbstractDialog;
-
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.confirmation.ConfirmationConfiguration;
+import pl.edu.icm.unity.webui.common.AbstractDialog;
 
 /**
  * Responsible for confirmation configuration edit

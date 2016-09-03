@@ -4,18 +4,18 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import pl.edu.icm.unity.server.registries.TypesRegistryBase;
-import pl.edu.icm.unity.server.translation.TranslationActionFactory;
-import pl.edu.icm.unity.server.translation.TranslationActionInstance;
-import pl.edu.icm.unity.server.translation.TranslationProfileInstance;
-import pl.edu.icm.unity.server.translation.TranslationRuleInstance;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
-
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
+import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
+import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
+import pl.edu.icm.unity.engine.translation.TranslationProfileInstance;
+import pl.edu.icm.unity.engine.translation.TranslationRuleInstance;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
 /**
  * Component allowing to view all information about translation profile.

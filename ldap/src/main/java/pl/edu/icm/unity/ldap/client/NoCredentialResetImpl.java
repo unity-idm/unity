@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.ldap.client;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.engine.api.authn.CredentialResetSettings;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -57,7 +55,7 @@ public class NoCredentialResetImpl implements CredentialReset
 	}
 
 	@Override
-	public ObjectNode getCredentialConfiguration()
+	public String getCredentialConfiguration()
 	{
 		return null;
 	}

@@ -10,6 +10,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.TimeZone;
 
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.assertion.Assertion;
+import eu.unicore.samly2.elements.Subject;
+import eu.unicore.samly2.exceptions.SAMLRequesterException;
+import eu.unicore.samly2.proto.AssertionResponse;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
@@ -24,11 +29,6 @@ import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 import xmlbeans.org.oasis.saml2.protocol.NameIDPolicyType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.assertion.Assertion;
-import eu.unicore.samly2.elements.Subject;
-import eu.unicore.samly2.exceptions.SAMLRequesterException;
-import eu.unicore.samly2.proto.AssertionResponse;
 
 /**
  * Extends {@link StatusResponseProcessor} to produce SAML Response documents, 

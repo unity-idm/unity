@@ -6,10 +6,10 @@ package pl.edu.icm.unity.webadmin.bulk;
 
 import org.quartz.CronExpression;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.RequiredTextField;
-
 import com.vaadin.data.validator.AbstractStringValidator;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.RequiredTextField;
 
 /**
  * Field allowing for editing a Quartz cron expression

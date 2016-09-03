@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.oauth.rp.retrieval;
 
+import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
-import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 import pl.edu.icm.unity.ws.authn.WebServiceAuthentication;
 
 /**

@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webui.common.attributes;
 
 import com.vaadin.ui.AbstractOrderedLayout;
 
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -21,14 +22,14 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
  * presented in a simplified form.
  * <p>
  * This base class provides a common editor code so it is easy to wire the {@link ListOfEmbeddedElementsStub}
- * class to edit valuesof an attribute.
+ * class to edit values of an attribute.
  * 
  * @author K. Benedyczak
  */
 public abstract class AbstractAttributeEditor
 {
 	protected UnityMessageSource msg;
-	private AttributeHandlerRegistry registry;
+	protected AttributeHandlerRegistry registry;
 	
 	public AbstractAttributeEditor(UnityMessageSource msg, AttributeHandlerRegistry registry)
 	{
@@ -78,8 +79,9 @@ public abstract class AbstractAttributeEditor
 			if (value == null)
 				value = new LabelledValue(null, establishLabel(position));
 
-			WebAttributeHandler handler = registry.getHandler(at.getValueType().getValueSyntaxId());
-			editor = handler.getEditorComponent(value.getValue(), value.getLabel(), at.getValueType());
+			WebAttributeHandler handler = registry.getHandler(at.getValueSyntax());
+			AttributeValueSyntax<?> syntax = registry.getaTypeSupport().getSyntax(at);
+			editor = handler.getEditorComponent(value.getValue(), value.getLabel(), syntax);
 			editedValue = value;
 			ComponentsContainer ret = editor.getEditor(required, adminMode);
 			String description = at.getDescription().getValue(msg);
@@ -142,7 +144,7 @@ public abstract class AbstractAttributeEditor
 			return value;
 		}
 
-		public void setValue(Object value)
+		public void setValue(String value)
 		{
 			this.value = value;
 		}

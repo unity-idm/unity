@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.xmlbeans.XmlCursor;
 
+import eu.emi.security.authn.x509.X509Credential;
+import eu.unicore.samly2.SAMLConstants;
 import pl.edu.icm.unity.saml.SAMLHelper;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
@@ -29,8 +31,6 @@ import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.IDPEntryType;
 import xmlbeans.org.oasis.saml2.protocol.IDPListType;
-import eu.emi.security.authn.x509.X509Credential;
-import eu.unicore.samly2.SAMLConstants;
 
 /**
  * Responsible for parsing a GET request to the PAOS ECP endpoint and issuance of a 

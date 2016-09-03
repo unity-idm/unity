@@ -18,10 +18,10 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.credential.PasswordCredential;
 import pl.edu.icm.unity.stdext.credential.PasswordVerificator;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -59,7 +59,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 	public Component getViewer(String credentialDefinitionConfiguration)
 	{
 		PasswordCredential helper = new PasswordCredential();
-		helper.setSerializedConfiguration(credentialDefinitionConfiguration);
+		helper.setSerializedConfiguration(JsonUtil.parse(credentialDefinitionConfiguration));
 
 		Label minLength = new Label();
 		minLength.setCaption(msg.getMessage("PasswordDefinitionEditor.minLength"));
@@ -145,7 +145,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		form.setMargin(true);
 		PasswordCredential helper = new PasswordCredential();
 		if (credentialDefinitionConfiguration != null)
-			helper.setSerializedConfiguration(credentialDefinitionConfiguration);
+			helper.setSerializedConfiguration(JsonUtil.parse(credentialDefinitionConfiguration));
 		else
 			helper.setRehashNumber(PasswordCredential.DEFAULT_REHASH_NUMBER);
 		initUIState(helper);
@@ -172,13 +172,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		helper.setMinLength((int)(double)minLength.getValue());
 		helper.setPasswordResetSettings(resetSettings.getValue());
 		helper.setRehashNumber(rehashNumber.getValue());
-		try
-		{
-			return helper.getSerializedConfiguration();
-		} catch (InternalException e)
-		{
-			throw new IllegalCredentialException(e.getMessage(), e);
-		}
+		return JsonUtil.serialize(helper.getSerializedConfiguration());
 	}
 
 	private void initUIState(PasswordCredential helper)

@@ -18,6 +18,9 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import eu.emi.security.authn.x509.X509Credential;
+import eu.unicore.samly2.webservice.SAMLLogoutInterface;
+import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.IdentityTypeMapper;
 import pl.edu.icm.unity.saml.idp.ws.SAMLSingleLogoutImpl;
@@ -25,12 +28,8 @@ import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.saml.slo.SLOSAMLServlet;
-import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
-import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.ws.CXFUtils;
 import pl.edu.icm.unity.ws.XmlBeansNsHackOutHandler;
-import eu.emi.security.authn.x509.X509Credential;
-import eu.unicore.samly2.webservice.SAMLLogoutInterface;
 
 /**
  * Keeps track of SLO servlet installation under the /unitygw. Installs the servlet only if it was not yet 

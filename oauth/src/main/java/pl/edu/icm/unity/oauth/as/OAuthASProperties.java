@@ -13,16 +13,16 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 
 /**
  * Configuration of the OAuth AS. Used for OpenID Connect mode too. Shared by web and rest endpoints (authz and token

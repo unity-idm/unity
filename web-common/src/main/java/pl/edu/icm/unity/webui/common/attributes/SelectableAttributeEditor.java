@@ -15,11 +15,11 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GroupComboBox;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub;
@@ -27,7 +27,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
  * Attribute editor allowing to choose an attribute. It can use a fixed group for returned attribute or can 
- * allow to select it. It can allow to edit attribute visibility too.
+ * allow to select it. 
  * <p>
  * This class is not a component on its own - it returns one.
  * 
@@ -40,35 +40,30 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 	private ListOfEmbeddedElementsStub<LabelledValue> valuesComponent;
 	private AttributeSelectionComboBox attributeSel;
 	private GroupComboBox groupSel;
-	private EnumComboBox<AttributeVisibility> visibilitySel;
-	private boolean showVisibilityWidget;
 	private VerticalLayout main = new VerticalLayout();
 	private SafePanel valuesPanel = new SafePanel();
 
 	public SelectableAttributeEditor(UnityMessageSource msg, AttributeHandlerRegistry registry, 
-			Collection<AttributeType> attributeTypes, boolean showVisibilityWidget, 
+			Collection<AttributeType> attributeTypes, 
 			Collection<String> allowedGroups)
 	{
 		super(msg, registry);
 		this.attributeTypes = attributeTypes;
 		this.allowedGroups = allowedGroups;
-		this.showVisibilityWidget = showVisibilityWidget;
 		initUI();
 	}
 	
 	public SelectableAttributeEditor(UnityMessageSource msg, AttributeHandlerRegistry registry, 
-			Collection<AttributeType> attributeTypes, boolean showVisibilityWidget, String fixedGroup)
+			Collection<AttributeType> attributeTypes, String fixedGroup)
 	{
-		this(msg, registry, attributeTypes, showVisibilityWidget, Collections.singleton(fixedGroup));
+		this(msg, registry, attributeTypes, Collections.singleton(fixedGroup));
 	}
 	
-	public void setInitialAttribute(Attribute<?> initial)
+	public void setInitialAttribute(Attribute initial)
 	{
 		attributeSel.setValue(initial.getName());
 		if (groupSel != null)
 			groupSel.setValue(initial.getGroupPath());
-		if (visibilitySel != null)
-			visibilitySel.setEnumValue(initial.getVisibility());
 		setNewValuesUI();
 		List<LabelledValue> labelledValues = new ArrayList<>(initial.getValues().size());
 		
@@ -81,22 +76,25 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 		valuesComponent.setEntries(labelledValues);
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Attribute<?> getAttribute() throws FormValidationException
+	public Attribute getAttribute() throws FormValidationException
 	{
 		List<?> labelledValues = valuesComponent == null ? new ArrayList<>(0) : valuesComponent.getElements();
-		List<Object> values = new ArrayList<>(labelledValues.size());
-		for (Object lv: labelledValues)
-			values.add(((LabelledValue)lv).getValue());
+		List<String> values = new ArrayList<>(labelledValues.size());
 		AttributeType at = attributeSel.getSelectedValue();
+		@SuppressWarnings("unchecked")
+		AttributeValueSyntax<Object> syntax = (AttributeValueSyntax<Object>) 
+				registry.getaTypeSupport().getSyntax(at);
+		for (Object lv: labelledValues)
+		{
+			String value = syntax.convertToString(((LabelledValue)lv).getValue());
+			values.add(value);
+		}
 		String group;
 		if (attributeTypes.size() > 0)
 			group = (String) groupSel.getValue();
 		else
 			group = allowedGroups.iterator().next();
-		AttributeVisibility visibility = showVisibilityWidget ? visibilitySel.getSelectedValue() : 
-			at.getVisibility();
-		return new Attribute(at.getName(), at.getValueType(), group, visibility, values);
+		return new Attribute(at.getName(), at.getValueSyntax(), group, values);
 	}
 	
 	private void initUI()
@@ -119,13 +117,6 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 			groupSel = new GroupComboBox(msg.getMessage("Attributes.group"), allowedGroups);
 			groupSel.setInput("/", true);
 			top.addComponent(groupSel);
-		}
-		if (showVisibilityWidget)
-		{
-			visibilitySel = new EnumComboBox<AttributeVisibility>(msg.getMessage("Attributes.visibility"),
-					msg, "AttributeVisibility.", 
-					AttributeVisibility.class, AttributeVisibility.full);
-			top.addComponent(visibilitySel);
 		}
 		valuesPanel.setCaption(msg.getMessage("Attributes.values"));
 		main.addComponent(top);

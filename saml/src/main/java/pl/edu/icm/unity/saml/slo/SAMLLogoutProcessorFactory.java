@@ -7,16 +7,16 @@ package pl.edu.icm.unity.saml.slo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import eu.emi.security.authn.x509.X509Credential;
+import eu.unicore.samly2.validators.ReplayAttackChecker;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.IdentityTypeMapper;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.api.internal.IdentityResolver;
-import pl.edu.icm.unity.server.api.internal.SessionManagement;
-import pl.edu.icm.unity.server.registries.SessionParticipantTypesRegistry;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-import eu.emi.security.authn.x509.X509Credential;
-import eu.unicore.samly2.validators.ReplayAttackChecker;
 
 /**
  * Simplifies creation of {@link SAMLLogoutProcessor}.

@@ -4,18 +4,18 @@
  */
 package pl.edu.icm.unity.webadmin.groupbrowser;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.server.UserError;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.TextField;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
-
-import com.vaadin.server.UserError;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.TextField;
 
 /**
  * Asks about group name and description, returns output in the callback. Useful for group creation and editing.

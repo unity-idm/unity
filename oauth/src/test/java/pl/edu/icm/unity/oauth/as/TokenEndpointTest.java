@@ -39,19 +39,19 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpointFactory;
 import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 /**
  * An integration test of the Token endpoint. The context is initialized internally (i.e. the state which should
@@ -102,7 +102,7 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 			EndpointConfiguration config = new EndpointConfiguration(new I18nString("endpointIDP"),
 					"desc",	authnCfg, OAUTH_ENDP_CFG, REALM_NAME);
 			endpointMan.deploy(OAuthTokenEndpointFactory.NAME, "endpointIDP", "/oauth", config);
-			List<EndpointDescription> endpoints = endpointMan.getEndpoints();
+			List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 			assertEquals(1, endpoints.size());
 
 			httpServer.start();

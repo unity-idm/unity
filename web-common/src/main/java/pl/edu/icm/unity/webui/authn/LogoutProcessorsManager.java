@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.LogoutProcessor;
+import pl.edu.icm.unity.engine.api.authn.LogoutProcessorFactory;
 
 /**
  * Uses available {@link LogoutProcessorFactory}ies to produce logout processors and forwards requests to them

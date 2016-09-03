@@ -14,6 +14,18 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.EndpointManagement;
+import pl.edu.icm.unity.engine.api.PreferencesManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
+import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.iddetails.EntityDetailsWithActions;
@@ -21,19 +33,6 @@ import pl.edu.icm.unity.home.iddetails.EntityRemovalButton;
 import pl.edu.icm.unity.home.iddetails.UserAttributesPanel;
 import pl.edu.icm.unity.home.iddetails.UserDetailsPanel;
 import pl.edu.icm.unity.home.iddetails.UserIdentitiesPanel;
-import pl.edu.icm.unity.sandbox.SandboxAuthnNotifier;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.EndpointManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.api.internal.AttributesInternalProcessing;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
-import pl.edu.icm.unity.server.translation.in.MappingResult;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
@@ -51,9 +50,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialsPanel;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesHandlerRegistry;
-
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
+import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
 
 /**
  * Component with user's account management UI.
@@ -71,7 +68,7 @@ public class UserAccountComponent extends VerticalLayout
 	private PreferencesHandlerRegistry registry;
 	private PreferencesManagement prefMan;
 	private EndpointManagement endpMan; 
-	private AttributesInternalProcessing attrMan;
+	private AttributeSupport attrMan;
 	private WebAuthenticationProcessor authnProcessor;
 	private AttributeHandlerRegistry attributeHandlerRegistry;
 	private AttributesManagement attributesMan;
@@ -84,7 +81,7 @@ public class UserAccountComponent extends VerticalLayout
 	public UserAccountComponent(UnityMessageSource msg, AuthenticationManagement authnMan,
 			IdentitiesManagement idsMan, CredentialEditorRegistry credEditorReg,
 			PreferencesHandlerRegistry registry, PreferencesManagement prefMan,
-			EndpointManagement endpMan, AttributesInternalProcessing attrMan,
+			EndpointManagement endpMan, AttributeSupport attrMan,
 			WebAuthenticationProcessor authnProcessor,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributesManagement attributesMan, IdentityEditorRegistry identityEditorRegistry,
@@ -220,7 +217,7 @@ public class UserAccountComponent extends VerticalLayout
 	}
 	
 	private UserDetailsPanel getUserInfoComponent(long entityId, IdentitiesManagement idsMan, 
-			AttributesInternalProcessing attrMan) throws EngineException
+			AttributeSupport attrMan) throws EngineException
 	{
 		UserDetailsPanel ret = new UserDetailsPanel(msg);
 		EntityParam param = new EntityParam(entityId);

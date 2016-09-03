@@ -13,9 +13,12 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -49,22 +52,22 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	private IdentityEditorRegistry identityEditorRegistry;
 	private CredentialEditorRegistry credentialEditorRegistry;
 	private AttributeHandlerRegistry attributeHandlerRegistry;
-	private AttributesManagement attrsMan;
-	private AuthenticationManagement authnMan;
 	private GroupsManagement groupsMan;
 	private UnityMessageSource msg;
 	private UnityServerConfiguration cfg;
 	private IdPLoginController idpLoginController;
 	private VerticalLayout main;
+	private InvitationManagement invitationMan;
+	private AttributeTypeManagement aTypeMan;
+	private CredentialManagement credMan;
 	
 	public StandaloneRegistrationView(RegistrationForm form, UnityMessageSource msg,
 			RegistrationsManagement regMan,
 			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
-			AttributesManagement attrsMan, 
-			AuthenticationManagement authnMan,
-			GroupsManagement groupsMan,
+			InvitationManagement invitationMan, AttributeTypeManagement aTypeMan,
+			GroupsManagement groupsMan, CredentialManagement credMan,
 			UnityServerConfiguration cfg, IdPLoginController idpLoginController)
 	{
 		this.form = form;
@@ -73,9 +76,10 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		this.identityEditorRegistry = identityEditorRegistry;
 		this.credentialEditorRegistry = credentialEditorRegistry;
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
-		this.attrsMan = attrsMan;
-		this.authnMan = authnMan;
+		this.invitationMan = invitationMan;
+		this.aTypeMan = aTypeMan;
 		this.groupsMan = groupsMan;
+		this.credMan = credMan;
 		this.cfg = cfg;
 		this.idpLoginController = idpLoginController;
 	}
@@ -88,7 +92,8 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		RequestEditorCreator editorCreator = new RequestEditorCreator(msg, form, 
 				RemotelyAuthenticatedContext.getLocalContext(), 
 				identityEditorRegistry, credentialEditorRegistry, attributeHandlerRegistry, 
-				regMan, attrsMan, groupsMan, authnMan);
+				invitationMan, aTypeMan,
+				groupsMan, credMan);
 		editorCreator.invoke(new RequestEditorCreatedCallback()
 		{
 			@Override
@@ -145,7 +150,8 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 			RegistrationContext context = new RegistrationContext(false, 
 					idpLoginController.isLoginInProgress(), 
 					TriggeringMode.manualStandalone);
-			new PostFormFillingHandler(idpLoginController, form, msg, regMan.getProfileInstance(form))
+			new PostFormFillingHandler(idpLoginController, form, msg, 
+					regMan.getFormAutomationSupport(form))
 				.cancelled(true, context);
 			showConfirm(Images.error32.getResource(),
 					msg.getMessage("StandalonePublicFormView.requestCancelled"));
@@ -190,7 +196,8 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		try
 		{
 			String requestId = regMan.submitRegistrationRequest(request, context);
-			new PostFormFillingHandler(idpLoginController, form, msg, regMan.getProfileInstance(form))
+			new PostFormFillingHandler(idpLoginController, form, msg, 
+					regMan.getFormAutomationSupport(form))
 				.submittedRegistrationRequest(requestId, regMan, request, context);
 			showConfirm(Images.ok32.getResource(),
 					msg.getMessage("StandalonePublicFormView.requestSubmitted"));
@@ -202,7 +209,8 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 			return;
 		} catch (Exception e)
 		{
-			new PostFormFillingHandler(idpLoginController, form, msg, regMan.getProfileInstance(form))
+			new PostFormFillingHandler(idpLoginController, form, msg, 
+					regMan.getFormAutomationSupport(form))
 				.submissionError(e, context);
 			showConfirm(Images.error32.getResource(),
 					msg.getMessage("StandalonePublicFormView.submissionFailed"));

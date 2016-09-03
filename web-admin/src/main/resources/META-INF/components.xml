@@ -5,54 +5,5 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<context:annotation-config/>
-	<bean class="pl.edu.icm.unity.webadmin.WebAdminEndpointFactory"/>
-	<bean class="pl.edu.icm.unity.home.UserHomeEndpointFactory"/>
-	
-	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
-		<property name="bundle" value="pl/edu/icm/unity/webadmin/messages/messages"/>
-	</bean>
-	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
-		<property name="bundle" value="pl/edu/icm/unity/webadmin/messages/home-messages"/>
-	</bean>
-	
-	<bean class="pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory"/>
-	
-	<bean scope="prototype" id="UserHomeUI" class="pl.edu.icm.unity.home.UserHomeUI"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.home.UserAccountComponent"/>
-		
-	<bean scope="prototype" id="WebAdminUI" class="pl.edu.icm.unity.webadmin.WebAdminUI"/>
-	
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.ContentsManagementTab"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.RegistrationsManagementTab"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.SchemaManagementTab"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.ServerManagementTab"/>
-	
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.attribute.AttributesComponent"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.attribute.AttributesPanel"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.groupbrowser.GroupBrowserComponent"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.groupbrowser.GroupsTree"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.groupdetails.GroupDetailsComponent"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.identities.IdentitiesTable"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.identities.IdentitiesComponent"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.attributetype.AttributeTypesComponent"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.identitytype.IdentityTypesComponent"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.credreq.CredentialRequirementsComponent"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.credentials.CredentialDefinitionsComponent"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.attributeclass.AttributesClassesComponent"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.serverman.ImportExportComponent"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.serverman.EndpointsComponent"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.serverman.AuthenticatorsComponent"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.tprofile.TranslationProfilesComponent"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.msgtemplate.MessageTemplatesComponent"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.confirmations.ConfirmationConfigurationsComponent"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.bulk.BulkProcessingComponent"/>
-	
-	
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.invitation.InvitationsComponent"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormsComponent"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.formman.EnquiryFormsComponent"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.reqman.RequestsComponent"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.formfill.FormsChooserComponent"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.formfill.AdminEnquiryFormLauncher"/>
-	<bean scope="prototype" class="pl.edu.icm.unity.webadmin.reg.formfill.AdminRegistrationFormLauncher"/>
+	<context:component-scan base-package="pl.edu.icm.unity.webadmin, pl.edu.icm.unity.home"/>
 </beans>

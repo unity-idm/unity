@@ -4,13 +4,13 @@
  */
 package pl.edu.icm.unity.webadmin.attribute;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.ui.Component;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-
-import com.vaadin.ui.Component;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 /**
  * Dialog allowing to edit an attribute. It takes an editor component as argument, so can be easily used to display 
@@ -40,7 +40,7 @@ public class AttributeEditDialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
-		Attribute<?> attribute;
+		Attribute attribute;
 		try
 		{
 			attribute = editor.getAttribute();
@@ -54,6 +54,6 @@ public class AttributeEditDialog extends AbstractDialog
 	
 	public interface Callback
 	{
-		public boolean newAttribute(Attribute<?> newAttribute);
+		public boolean newAttribute(Attribute newAttribute);
 	}
 }

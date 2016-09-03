@@ -8,6 +8,7 @@ import java.util.Collection;
 
 import com.vaadin.ui.AbstractOrderedLayout;
 
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -35,13 +36,14 @@ public class SingleTypeIdentityEditor
 
 	public SingleTypeIdentityEditor(IdentityType idType, Collection<Identity> initial, 
 			IdentityEditorRegistry idEdRegistry, UnityMessageSource msg, 
-			AbstractOrderedLayout parent)
+			IdentityTypeSupport idTypeSupport, AbstractOrderedLayout parent)
 	{
 		this.idType = idType;
 		this.idEdRegistry = idEdRegistry;
 		this.msg = msg;
 		this.parent = parent;
-		this.userFriendlyName = idType.getIdentityTypeProvider().getHumanFriendlyName(msg);
+		this.userFriendlyName = idTypeSupport.getTypeDefinition(idType.getIdentityTypeProvider()).
+				getHumanFriendlyName(msg);
 
 		initUI(initial);
 	}
@@ -87,7 +89,7 @@ public class SingleTypeIdentityEditor
 		@Override
 		public ComponentsContainer getEditorComponent(IdentityParam value, int position)
 		{
-			editor = idEdRegistry.getEditor(idType.getIdentityTypeProvider().getId());
+			editor = idEdRegistry.getEditor(idType.getIdentityTypeProvider());
 			ComponentsContainer ret = editor.getEditor(true, false);
 			if (value != null)
 				editor.setDefaultValue(value);

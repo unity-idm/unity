@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.vaadin.ui.AbstractOrderedLayout;
 
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -31,13 +32,14 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 	private String group;
 	private boolean showGroup;
 	private ListOfEmbeddedElementsStub<LabelledValue> valuesComponent;
-	private AttributeVisibility visibility;
 	private boolean required;
 	private boolean adminMode;
 	private AbstractOrderedLayout parent;
+	private AttributeValueSyntax<Object> syntax;
 
+	@SuppressWarnings("unchecked")
 	public FixedAttributeEditor(UnityMessageSource msg, AttributeHandlerRegistry registry, 
-			AttributeType attributeType, boolean showGroup, String group, AttributeVisibility visibility,
+			AttributeType attributeType, boolean showGroup, String group, 
 			String caption, String description, boolean required, boolean adminMode, 
 			AbstractOrderedLayout parent)
 	{
@@ -45,19 +47,19 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 		this.attributeType = attributeType;
 		this.showGroup = showGroup;
 		this.group = group;
-		this.visibility = visibility;
 		this.caption = caption;
 		this.description = description;
 		this.required = required;
 		this.adminMode = adminMode;
 		this.parent = parent;
+		syntax = (AttributeValueSyntax<Object>) registry.getaTypeSupport().getSyntax(attributeType);
 		initUI();
 	}
 	
-	public void setAttributeValues(List<?> values)
+	public void setAttributeValues(List<String> values)
 	{
 		List<LabelledValue> labelledValues = new ArrayList<>(values.size());
-		for (Object value: values)
+		for (String value: values)
 			labelledValues.add(new LabelledValue(value, caption));
 		valuesComponent.setEntries(labelledValues);
 	}
@@ -72,21 +74,20 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 		return group;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Attribute<?> getAttribute() throws FormValidationException
+	public Attribute getAttribute() throws FormValidationException
 	{
 		List<LabelledValue> values = valuesComponent.getElements();
-		List<Object> aValues = new ArrayList<>(values.size());
+		List<String> aValues = new ArrayList<>(values.size());
 		boolean allNull = true;
 		for (LabelledValue v: values)
 		{
-			aValues.add(v.getValue());
+			aValues.add(syntax.convertToString(v.getValue()));
 			if (v.getValue() != null)
 				allNull = false;
 		}
 		
 		return allNull ? null : 
-			new Attribute(attributeType.getName(), attributeType.getValueType(), group, visibility, aValues);
+			new Attribute(attributeType.getName(), attributeType.getValueSyntax(), group, aValues);
 	}
 	
 	private void initUI()

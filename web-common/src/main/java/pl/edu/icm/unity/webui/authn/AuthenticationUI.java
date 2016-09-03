@@ -31,12 +31,17 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.webui.CookieHelper;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
@@ -65,7 +70,6 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationFormsChooserComponent;
 @PreserveOnRefresh
 public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 {
-	private static final long serialVersionUID = 1L;
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationUI.class);
 	private static final String LAST_AUTHN_COOKIE = "lastAuthenticationUsed";
 	
@@ -79,7 +83,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	protected AuthNTiles selectorPanel;
 	protected List<AuthenticationOption> authenticators;
 	protected EndpointRegistrationConfiguration registrationConfiguration;
-	protected IdentitiesManagement idsMan;
+	protected EntityManagement idsMan;
 	private InputTranslationEngine inputTranslationEngine;
 	private VerticalLayout topLevelLayout;
 	
@@ -88,7 +92,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			WebAuthenticationProcessor authnProcessor,
 			RegistrationFormsChooserComponent formsChooser,
 			InsecureRegistrationFormLauncher formLauncher,
-			ExecutorsService execService, @Qualifier("insecure") IdentitiesManagement idsMan,
+			ExecutorsService execService, @Qualifier("insecure") EntityManagement idsMan,
 			InputTranslationEngine inputTranslationEngine)
 	{
 		super(msg);
@@ -103,7 +107,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 
 
 	@Override
-	public void configure(EndpointDescription description,
+	public void configure(ResolvedEndpoint description,
 			List<AuthenticationOption> authenticators,
 			EndpointRegistrationConfiguration registrationConfiguration,
 			Properties genericEndpointConfiguration)
@@ -189,7 +193,8 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		
 		topLevelLayout = new VerticalLayout();
 		headerUIComponent = new AuthenticationTopHeader(msg.getMessage("AuthenticationUI.login", 
-				endpointDescription.getDisplayedName().getValue(msg)), localeChoice, msg);
+				endpointDescription.getEndpoint().getConfiguration().getDisplayedName().getValue(msg)), 
+				localeChoice, msg);
 		topLevelLayout.addComponents(headerUIComponent, main);
 		topLevelLayout.setHeightUndefined();
 		topLevelLayout.setWidth(100, Unit.PERCENTAGE);

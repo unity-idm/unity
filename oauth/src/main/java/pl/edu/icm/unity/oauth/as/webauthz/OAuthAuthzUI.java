@@ -27,23 +27,21 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.PreferencesManagement;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
+import pl.edu.icm.unity.engine.translation.ExecutionFailException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext.ScopeInfo;
-import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.api.internal.IdPEngine;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.server.translation.ExecutionFailException;
-import pl.edu.icm.unity.server.translation.out.TranslationResult;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -53,14 +51,15 @@ import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.ext.JpegImageAttributeHandler;
-import pl.edu.icm.unity.webui.common.provider.ExposedAttributesComponent;
-import pl.edu.icm.unity.webui.common.provider.IdPButtonsBar;
-import pl.edu.icm.unity.webui.common.provider.IdPButtonsBar.Action;
-import pl.edu.icm.unity.webui.common.provider.IdentitySelectorComponent;
-import pl.edu.icm.unity.webui.common.provider.SPInfoComponent;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
+import pl.edu.icm.unity.webui.idpcommon.EopException;
+import pl.edu.icm.unity.webui.idpcommon.ExposedAttributesComponent;
+import pl.edu.icm.unity.webui.idpcommon.IdPButtonsBar;
+import pl.edu.icm.unity.webui.idpcommon.IdPButtonsBar.Action;
+import pl.edu.icm.unity.webui.idpcommon.IdentitySelectorComponent;
+import pl.edu.icm.unity.webui.idpcommon.SPInfoComponent;
 
 /**
  * UI of the authorization endpoint, responsible for getting consent after resource owner login.
@@ -366,7 +365,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		OAuthAuthzContext ctx = OAuthContextUtils.getContext();
 		try
 		{
-			Collection<Attribute<?>> attributes = attrsPresenter.getUserFilteredAttributes();
+			Collection<Attribute> attributes = attrsPresenter.getUserFilteredAttributes();
 			IdentityParam identity = idSelector.getSelectedIdentity();
 			
 			AuthorizationSuccessResponse oauthResponse = oauthProcessor.

@@ -8,11 +8,20 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.event.Action;
+import com.vaadin.shared.ui.Orientation;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.Table;
+
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.engine.api.EnquiryManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.EnquiryManagement;
-import pl.edu.icm.unity.server.api.RegistrationsManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
@@ -33,15 +42,6 @@ import pl.edu.icm.unity.webui.common.SmallTable;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
-
-import com.google.common.collect.Lists;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.event.Action;
-import com.vaadin.shared.ui.Orientation;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.Table;
 
 /**
  * Component showing a table with the registration requests. It is possible to register selection change

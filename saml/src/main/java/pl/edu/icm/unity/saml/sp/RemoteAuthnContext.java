@@ -7,7 +7,6 @@ package pl.edu.icm.unity.saml.sp;
 import java.io.Serializable;
 
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
-import pl.edu.icm.unity.server.utils.RemoteAuthnState;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 

@@ -12,8 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.server.utils.ExecutorsService;
-import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorDocument;
 
 /**

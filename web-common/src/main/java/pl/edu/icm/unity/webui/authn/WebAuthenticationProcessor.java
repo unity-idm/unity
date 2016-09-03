@@ -29,7 +29,13 @@ import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedHttpSession;
 import com.vaadin.ui.UI;
 
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
+import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
+import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor.PartialAuthnState;
@@ -69,37 +75,32 @@ public class WebAuthenticationProcessor
 	private static final String LOGOUT_REDIRECT_RET_URI = WebAuthenticationProcessor.class.getName() + 
 			".returnUri";
 	
-	private UnityMessageSource msg;
-	private UnityServerConfiguration config;
-	private AuthenticationManagement authnMan;
-	private IdentitiesManagement idsMan;
-	private CredentialEditorRegistry credEditorReg;
-	private SessionParticipantTypesRegistry participantTypesRegistry;
-	private SessionManagement sessionMan;
-	private LoginToHttpSessionBinder sessionBinder;
-	private LogoutProcessorsManager logoutProcessorsManager;
-	private AuthenticationProcessor authnProcessor;
-	
 	@Autowired
-	public WebAuthenticationProcessor(UnityMessageSource msg, AuthenticationProcessor authnProcessor,
-			AuthenticationManagement authnMan,
-			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder,
-			IdentitiesManagement idsMan, 
-			CredentialEditorRegistry credEditorReg, LogoutProcessorsManager logoutProcessorsManager,
-			UnityServerConfiguration config, SessionParticipantTypesRegistry participantTypesRegistry)
-	{
-		this.msg = msg;
-		this.authnProcessor = authnProcessor;
-		this.authnMan = authnMan;
-		this.idsMan = idsMan;
-		this.credEditorReg = credEditorReg;
-		this.sessionMan = sessionMan;
-		this.sessionBinder = sessionBinder;
-		this.logoutProcessorsManager = logoutProcessorsManager;
-		this.config = config;
-		this.participantTypesRegistry = participantTypesRegistry;
-	}
-
+	private UnityMessageSource msg;
+	@Autowired
+	private UnityServerConfiguration config;
+	@Autowired
+	private CredentialEditorRegistry credEditorReg;
+	@Autowired
+	private SessionParticipantTypesRegistry participantTypesRegistry;
+	@Autowired
+	private SessionManagement sessionMan;
+	@Autowired
+	private LoginToHttpSessionBinder sessionBinder;
+	@Autowired
+	private LogoutProcessorsManager logoutProcessorsManager;
+	@Autowired
+	private AuthenticationProcessor authnProcessor;
+	@Autowired
+	private CredentialManagement credMan;
+	@Autowired
+	private EntityCredentialManagement ecredMan;
+	@Autowired
+	private EntityManagement entityMan;
+	@Autowired
+	private CredentialRequirementManagement credReqMan;
+	
+	
 	/**
 	 * Return partial authn result if additional authentication is required or null, if authentication is 
 	 * finished. In the latter case a proper redirection is triggered. If outdated credential was used
@@ -176,7 +177,7 @@ public class WebAuthenticationProcessor
 	{
 		try
 		{
-			return idsMan.getEntityLabel(new EntityParam(entityId));
+			return entityMan.getEntityLabel(new EntityParam(entityId));
 		} catch (AuthorizationException e)
 		{
 			log.debug("Not setting entity's label as the client is not authorized to read the attribute", e);
@@ -189,7 +190,9 @@ public class WebAuthenticationProcessor
 	
 	private void showCredentialUpdate()
 	{
-		OutdatedCredentialDialog dialog = new OutdatedCredentialDialog(msg, authnMan, idsMan, credEditorReg,
+		OutdatedCredentialDialog dialog = new OutdatedCredentialDialog(msg, credMan, 
+				ecredMan, entityMan,
+				credReqMan, credEditorReg,
 				this);
 		dialog.show();
 	}

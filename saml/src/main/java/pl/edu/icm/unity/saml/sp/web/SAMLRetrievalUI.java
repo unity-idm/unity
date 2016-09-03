@@ -10,26 +10,6 @@ import java.util.Collection;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
-import pl.edu.icm.unity.saml.sp.SAMLExchange;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
-import pl.edu.icm.unity.saml.sp.SamlContextManagement;
-import pl.edu.icm.unity.server.authn.AuthenticationException;
-import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
-import pl.edu.icm.unity.webui.authn.IdPROComponent;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
-import pl.edu.icm.unity.webui.common.ImageUtils;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
-
 import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.Resource;
@@ -40,6 +20,23 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
+import pl.edu.icm.unity.saml.sp.SAMLExchange;
+import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
+import pl.edu.icm.unity.saml.sp.SamlContextManagement;
+import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
+import pl.edu.icm.unity.webui.authn.IdPROComponent;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
+import pl.edu.icm.unity.webui.common.ImageUtils;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
 /**
  * The UI part of the remote SAML authn. Shows widget with a single, chosen IdP, implements 

@@ -21,10 +21,10 @@ import com.nimbusds.oauth2.sdk.TokenErrorResponse;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.token.BearerTokenError;
 
+import pl.edu.icm.unity.base.token.Token;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
-import pl.edu.icm.unity.server.api.internal.Token;
-import pl.edu.icm.unity.server.utils.Log;
 
 /**
  * Common code inherited by OAuth resources

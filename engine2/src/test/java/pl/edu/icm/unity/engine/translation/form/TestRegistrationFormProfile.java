@@ -17,10 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.api.registration.RequestSubmitStatus;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
-import pl.edu.icm.unity.engine.translation.form.RegistrationMVELContext.RequestSubmitStatus;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.ConfirmationRedirectActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -90,7 +90,7 @@ public class TestRegistrationFormProfile extends DBIntegrationTestBase
 				.build();
 		
 		RegistrationTranslationProfile rprofile = new RegistrationTranslationProfile(tp, 
-				registry, atHelper);
+				registry, atHelper, form);
 		
 		RegistrationRequestState requestFull = new RegistrationRequestState();
 		requestFull.setStatus(RegistrationRequestStatus.pending);
@@ -101,7 +101,7 @@ public class TestRegistrationFormProfile extends DBIntegrationTestBase
 				TriggeringMode.manualStandalone));
 		
 		String postConfirmationRedirectURL = tx.runInTransactionRet(() -> {
-			return rprofile.getPostConfirmationRedirectURL(form, requestFull, confirmed, "requestId");
+			return rprofile.getPostConfirmationRedirectURL(requestFull, confirmed, "requestId");
 		});
 		
 		assertThat(postConfirmationRedirectURL, is("URL"));
@@ -140,7 +140,7 @@ public class TestRegistrationFormProfile extends DBIntegrationTestBase
 				.build();
 		
 		RegistrationTranslationProfile rprofile = new RegistrationTranslationProfile(tp, 
-				registry, atHelper);
+				registry, atHelper, form);
 		
 		RegistrationRequestState requestFull = new RegistrationRequestState();
 		requestFull.setStatus(RegistrationRequestStatus.pending);
@@ -151,7 +151,7 @@ public class TestRegistrationFormProfile extends DBIntegrationTestBase
 				TriggeringMode.manualStandalone));
 		
 		String postConfirmationRedirectURL = tx.runInTransactionRet(() -> {
-			return rprofile.getPostConfirmationRedirectURL(form, requestFull, confirmed, "requestId");
+			return rprofile.getPostConfirmationRedirectURL(requestFull, confirmed, "requestId");
 		});
 		
 		assertThat(postConfirmationRedirectURL, is("URL"));
@@ -188,7 +188,7 @@ public class TestRegistrationFormProfile extends DBIntegrationTestBase
 				.build();
 		
 		RegistrationTranslationProfile rprofile = new RegistrationTranslationProfile(tp, 
-				registry, atHelper);
+				registry, atHelper, form);
 		
 		RegistrationRequestState requestFull = new RegistrationRequestState();
 		requestFull.setStatus(RegistrationRequestStatus.pending);
@@ -199,7 +199,7 @@ public class TestRegistrationFormProfile extends DBIntegrationTestBase
 				TriggeringMode.manualStandalone));
 		
 		AutomaticRequestAction action = tx.runInTransactionRet(() -> {
-			return rprofile.getAutoProcessAction(form, requestFull, RequestSubmitStatus.submitted);
+			return rprofile.getAutoProcessAction(requestFull, RequestSubmitStatus.submitted);
 		});
 		
 		assertThat(action, is(AutomaticRequestAction.accept));

@@ -6,7 +6,6 @@ package pl.edu.icm.unity.webadmin.bulk;
 
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.server.bulkops.ProcessingRule;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
 /**

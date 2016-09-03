@@ -22,13 +22,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import eu.emi.security.authn.x509.impl.CertificateUtils;
+import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
+import eu.emi.security.authn.x509.impl.X500NameUtils;
+import eu.unicore.samly2.SAMLConstants;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
@@ -46,10 +49,6 @@ import xmlbeans.org.oasis.saml2.metadata.extui.LogoType;
 import xmlbeans.org.oasis.saml2.metadata.extui.UIInfoDocument;
 import xmlbeans.org.oasis.saml2.metadata.extui.UIInfoType;
 import xmlbeans.org.w3.x2000.x09.xmldsig.X509DataType;
-import eu.emi.security.authn.x509.impl.CertificateUtils;
-import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
-import eu.emi.security.authn.x509.impl.X500NameUtils;
-import eu.unicore.samly2.SAMLConstants;
 
 /**
  * Base for converters of SAML metadata into a series of property statements.

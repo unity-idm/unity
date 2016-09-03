@@ -22,10 +22,12 @@ import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
+import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.forms.BaseFormValidator;
+import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.generic.CredentialRequirementDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
@@ -285,5 +287,11 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		if (form.getCaptchaLength() > RegistrationForm.MAX_CAPTCHA_LENGTH)
 			throw new IllegalArgumentException("Captcha can not be longer then " + 
 					RegistrationForm.MAX_CAPTCHA_LENGTH + " characters");
+	}
+
+	@Override
+	public FormAutomationSupport getFormAutomationSupport(RegistrationForm form)
+	{
+		return confirmationsSupport.getRegistrationProfile(form);
 	}
 }

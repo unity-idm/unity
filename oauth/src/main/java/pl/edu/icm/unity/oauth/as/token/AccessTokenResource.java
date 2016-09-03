@@ -14,21 +14,6 @@ import javax.ws.rs.core.Response;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.oauth.as.OAuthASProperties;
-import pl.edu.icm.unity.oauth.as.OAuthProcessor;
-import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
-import pl.edu.icm.unity.oauth.as.OAuthToken;
-import pl.edu.icm.unity.oauth.as.OAuthValidationException;
-import pl.edu.icm.unity.server.api.internal.IdPEngine;
-import pl.edu.icm.unity.server.api.internal.Token;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
-import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.types.basic.EntityParam;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
@@ -39,6 +24,20 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.Tokens;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
+
+import pl.edu.icm.unity.base.token.Token;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.oauth.as.OAuthASProperties;
+import pl.edu.icm.unity.oauth.as.OAuthProcessor;
+import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
+import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.oauth.as.OAuthValidationException;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
  * RESTful implementation of the access token resource.
@@ -182,7 +181,7 @@ public class AccessTokenResource extends BaseOAuthResource
 				}
 				tokensManagement.removeToken(OAuthProcessor.INTERNAL_CODE_TOKEN, code);
 				return new TokensPair(codeToken, parsedAuthzCodeToken);
-			} catch (WrongArgumentException e)
+			} catch (IllegalArgumentException e)
 			{
 				throw new OAuthErrorException(makeError(OAuth2Error.INVALID_GRANT, "wrong code"));
 			}

@@ -6,11 +6,11 @@ package pl.edu.icm.unity.saml.idp;
 
 import java.util.Collection;
 
+import eu.unicore.samly2.trust.SamlTrustChecker;
 import pl.edu.icm.unity.saml.SAMLEndpointDefinition;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
-import eu.unicore.samly2.trust.SamlTrustChecker;
 
 /**
  * Used to obtain configuration information, which is changed at runtime.

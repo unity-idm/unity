@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
+import pl.edu.icm.unity.engine.api.registration.RequestSubmitStatus;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
@@ -30,7 +31,6 @@ import pl.edu.icm.unity.engine.identity.IdentityHelper;
 import pl.edu.icm.unity.engine.notifications.InternalFacilitiesManagement;
 import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
-import pl.edu.icm.unity.engine.translation.form.RegistrationMVELContext.RequestSubmitStatus;
 import pl.edu.icm.unity.engine.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
@@ -106,8 +106,8 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 		currentRequest.setStatus(RegistrationRequestStatus.accepted);
 
 		RegistrationTranslationProfile translationProfile = new RegistrationTranslationProfile(
-				form.getTranslationProfile(), registrationTranslationActionsRegistry, atHelper);
-		TranslatedRegistrationRequest translatedRequest = translationProfile.translate(form, currentRequest);
+				form.getTranslationProfile(), registrationTranslationActionsRegistry, atHelper, form);
+		TranslatedRegistrationRequest translatedRequest = translationProfile.translate(currentRequest);
 		
 		registrationRequestValidator.validateTranslatedRequest(form, currentRequest.getRequest(), 
 				translatedRequest);
@@ -176,10 +176,10 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			throws EngineException
 	{
 		RegistrationTranslationProfile translationProfile = new RegistrationTranslationProfile(
-				form.getTranslationProfile(), registrationTranslationActionsRegistry, atHelper);
+				form.getTranslationProfile(), registrationTranslationActionsRegistry, atHelper, form);
 		
 		AutomaticRequestAction autoProcessAction = translationProfile.getAutoProcessAction(
-				form, requestFull, RequestSubmitStatus.submitted);
+				requestFull, RequestSubmitStatus.submitted);
 		if (autoProcessAction == AutomaticRequestAction.none)
 			return null;
 

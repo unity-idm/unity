@@ -18,12 +18,12 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
-import pl.edu.icm.unity.server.utils.UnityPropertiesHelper;
 import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
+import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
+import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
 
 /**
  * Properties-based configuration of SAML endpoint.

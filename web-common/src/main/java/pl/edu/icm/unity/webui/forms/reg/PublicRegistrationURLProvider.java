@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
+import static pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport.REGISTRATION_FRAGMENT_PREFIX;
+
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -13,9 +15,13 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.View;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -23,7 +29,7 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
-import pl.edu.icm.unity.wellknownurl.PublicViewProvider;
+import pl.edu.icm.unity.webui.wellknownurl.PublicViewProvider;
 
 /**
  * Provides access to public registration forms via well-known links
@@ -38,12 +44,13 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 	private IdentityEditorRegistry identityEditorRegistry;
 	private CredentialEditorRegistry credentialEditorRegistry;
 	private AttributeHandlerRegistry attributeHandlerRegistry;
-	private AttributesManagement attrsMan;
-	private AuthenticationManagement authnMan;
+	private AttributeTypeManagement aTypeMan;
 	private GroupsManagement groupsMan;
 	private UnityMessageSource msg;
 	private UnityServerConfiguration cfg;
 	private IdPLoginController idpLoginController;
+	private InvitationManagement invitationMan;
+	private CredentialManagement credMan;
 	
 	@Autowired
 	public PublicRegistrationURLProvider(UnityMessageSource msg,
@@ -51,9 +58,10 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
-			@Qualifier("insecure") AttributesManagement attrsMan, 
-			@Qualifier("insecure") AuthenticationManagement authnMan,
+			@Qualifier("insecure") AttributeTypeManagement aTypeMan, 
 			@Qualifier("insecure") GroupsManagement groupsMan,
+			@Qualifier("insecure") InvitationManagement invitationMan,
+			@Qualifier("insecure") CredentialManagement credMan,
 			UnityServerConfiguration cfg, 
 			IdPLoginController idpLoginController)
 	{
@@ -62,9 +70,10 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 		this.identityEditorRegistry = identityEditorRegistry;
 		this.credentialEditorRegistry = credentialEditorRegistry;
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
-		this.attrsMan = attrsMan;
-		this.authnMan = authnMan;
+		this.aTypeMan = aTypeMan;
 		this.groupsMan = groupsMan;
+		this.invitationMan = invitationMan;
+		this.credMan = credMan;
 		this.cfg = cfg;
 		this.idpLoginController = idpLoginController;
 	}
@@ -85,8 +94,9 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 		if (form == null)
 			return null;
 		return new StandaloneRegistrationView(form, msg, regMan, identityEditorRegistry, 
-				credentialEditorRegistry, attributeHandlerRegistry, attrsMan, authnMan, 
-				groupsMan, cfg, idpLoginController);
+				credentialEditorRegistry, attributeHandlerRegistry, invitationMan, aTypeMan,
+				groupsMan, credMan, 
+				cfg, idpLoginController);
 	}
 
 	

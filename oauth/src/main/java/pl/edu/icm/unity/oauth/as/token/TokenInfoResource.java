@@ -18,8 +18,8 @@ import com.google.common.collect.Lists;
 import com.nimbusds.jwt.util.DateUtils;
 
 import net.minidev.json.JSONObject;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
 
 /**
  * Non standard functionality: allows for validation of a given access token.

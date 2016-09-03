@@ -7,14 +7,14 @@ package pl.edu.icm.unity.saml.metadata;
 import java.io.File;
 import java.io.IOException;
 
+import eu.emi.security.authn.x509.X509Credential;
+import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
-import pl.edu.icm.unity.server.utils.ExecutorsService;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
-import eu.emi.security.authn.x509.X509Credential;
-import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * Utility class simplifying creation of {@link MetadataProvider}s.

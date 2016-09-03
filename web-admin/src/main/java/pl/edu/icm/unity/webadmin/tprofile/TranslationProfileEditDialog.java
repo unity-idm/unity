@@ -5,13 +5,13 @@
 
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
-import pl.edu.icm.unity.webui.common.AbstractDialog;
-
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
+import pl.edu.icm.unity.webui.common.AbstractDialog;
 
 
 

@@ -7,13 +7,6 @@ package pl.edu.icm.unity.webadmin.attributeclass;
 import java.util.Collections;
 import java.util.Map;
 
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.AttributesClass;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.SmallTable;
-
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.ui.FormLayout;
@@ -22,6 +15,13 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.types.basic.AttributesClass;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.SmallTable;
 
 /**
  * Displays a tree with attribute classes (children are roots, parents are sub nodes).

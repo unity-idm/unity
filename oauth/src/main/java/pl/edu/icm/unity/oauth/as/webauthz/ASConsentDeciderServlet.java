@@ -24,24 +24,22 @@ import com.nimbusds.oauth2.sdk.SerializeException;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.PreferencesManagement;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
+import pl.edu.icm.unity.engine.translation.ExecutionFailException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
-import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.api.internal.IdPEngine;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.translation.ExecutionFailException;
-import pl.edu.icm.unity.server.translation.out.TranslationResult;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.RoutingServlet;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**
  * Invoked after authentication, main OAuth AS servlet. It decides whether the request should be
@@ -153,7 +151,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 			TranslationResult userInfo = getUserInfo(oauthCtx);
 			IdentityParam selectedIdentity = getIdentity(userInfo, oauthCtx.getSubjectIdentityType());
 			log.debug("Authentication of " + selectedIdentity);
-			Collection<Attribute<?>> attributes = processor.filterAttributes(userInfo, oauthCtx.getRequestedAttrs());
+			Collection<Attribute> attributes = processor.filterAttributes(userInfo, oauthCtx.getRequestedAttrs());
 			respDoc = processor.prepareAuthzResponseAndRecordInternalState(attributes, selectedIdentity, 
 					oauthCtx, tokensMan);
 		} catch (ExecutionFailException e)

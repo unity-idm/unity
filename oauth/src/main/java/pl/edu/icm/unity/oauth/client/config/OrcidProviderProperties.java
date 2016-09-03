@@ -7,9 +7,9 @@ package pl.edu.icm.unity.oauth.client.config;
 import java.util.Properties;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.oauth.client.UserProfileFetcher;
 import pl.edu.icm.unity.oauth.client.profile.OrcidProfileFetcher;
-import pl.edu.icm.unity.server.api.PKIManagement;
 
 /**
  * Preset configuration for Orcid OAuth provider.

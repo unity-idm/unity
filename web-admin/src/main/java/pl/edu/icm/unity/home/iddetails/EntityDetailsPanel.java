@@ -7,11 +7,14 @@ package pl.edu.icm.unity.home.iddetails;
 import java.util.Collection;
 import java.util.Map;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.EntityScheduledOperation;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.EntityScheduledOperation;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
@@ -20,9 +23,6 @@ import pl.edu.icm.unity.webui.common.identities.IdentityFormatter;
 import pl.edu.icm.unity.webui.common.identities.MembershipFormatter;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
-
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
 
 /**
  * Presents a complete and comprehensive information about a single entity. No editing is possible.

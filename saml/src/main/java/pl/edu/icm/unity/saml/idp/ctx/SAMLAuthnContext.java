@@ -11,7 +11,6 @@ package pl.edu.icm.unity.saml.idp.ctx;
 import java.util.Date;
 
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
-
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 

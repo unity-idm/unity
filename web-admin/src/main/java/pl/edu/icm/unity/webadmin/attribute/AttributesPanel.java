@@ -17,35 +17,6 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-import pl.edu.icm.unity.types.basic.AttributesClass;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupContents;
-import pl.edu.icm.unity.webadmin.utils.MessageUtils;
-import pl.edu.icm.unity.webui.WebSession;
-import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
-import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.SmallTable;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
-
 import com.vaadin.data.Container;
 import com.vaadin.data.Container.Filterable;
 import com.vaadin.data.Item;
@@ -63,6 +34,34 @@ import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributesClass;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.webadmin.utils.MessageUtils;
+import pl.edu.icm.unity.webui.WebSession;
+import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
+import pl.edu.icm.unity.webui.common.ConfirmDialog;
+import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.SmallTable;
+import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.Toolbar;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 
 /**
  * Displays attributes and their values. 
@@ -86,7 +85,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private InternalAttributesFilter internalAttrsFilter;
 	private EffectiveAttributesFilter effectiveAttrsFilter;
 	private HorizontalLayout filtersBar;
-	private List<AttributeExt<?>> attributes;
+	private List<AttributeExt> attributes;
 	private ValuesRendererPanel attributeValues;
 	private Table attributesTable;
 	private EntityParam owner;
@@ -197,11 +196,11 @@ public class AttributesPanel extends HorizontalSplitPanel
 		attributeTypes = attributesManagement.getAttributeTypesAsMap();
 	}
 	
-	public void setInput(EntityParam owner, String groupPath, Collection<AttributeExt<?>> attributesCol) 
+	public void setInput(EntityParam owner, String groupPath, Collection<AttributeExt> attributesCol) 
 			throws EngineException
 	{
 		this.owner = owner;
-		this.attributes = new ArrayList<AttributeExt<?>>(attributesCol.size());
+		this.attributes = new ArrayList<AttributeExt>(attributesCol.size());
 		this.attributes.addAll(attributesCol);
 		this.groupPath = groupPath;
 		updateACHelper(owner, groupPath);
@@ -223,9 +222,9 @@ public class AttributesPanel extends HorizontalSplitPanel
 	
 	private void reloadAttributes() throws EngineException
 	{
-		Collection<AttributeExt<?>> attributesCol = attributesManagement.getAllAttributes(
+		Collection<AttributeExt> attributesCol = attributesManagement.getAllAttributes(
 				owner, true, groupPath, null, true);
-		this.attributes = new ArrayList<AttributeExt<?>>(attributesCol.size());
+		this.attributes = new ArrayList<AttributeExt>(attributesCol.size());
 		this.attributes.addAll(attributesCol);
 	}
 	
@@ -236,13 +235,13 @@ public class AttributesPanel extends HorizontalSplitPanel
 		attributeValues.removeValues();
 		if (attributes.size() == 0)
 			return;
-		for (AttributeExt<?> attribute: attributes)
+		for (AttributeExt attribute: attributes)
 			attributesTable.addItem(new AttributeItem(attribute));
 
 		attributesTable.select(attributes.get(0));
 	}
 	
-	private void updateValues(AttributeExt<?> attribute)
+	private void updateValues(AttributeExt attribute)
 	{
 		if (attribute == null)
 		{
@@ -265,9 +264,9 @@ public class AttributesPanel extends HorizontalSplitPanel
 	
 	public class AttributeItem
 	{
-		private AttributeExt<?> attribute;
+		private AttributeExt attribute;
 
-		public AttributeItem(AttributeExt<?> value)
+		public AttributeItem(AttributeExt value)
 		{
 			this.attribute = value;
 		}
@@ -289,7 +288,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			return l;
 		}
 		
-		private AttributeExt<?> getAttribute()
+		private AttributeExt getAttribute()
 		{
 			return attribute;
 		}
@@ -302,7 +301,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	
 	private void removeAttribute(AttributeItem attributeItem)
 	{
-		Attribute<?> toRemove = attributeItem.getAttribute();
+		Attribute toRemove = attributeItem.getAttribute();
 		try
 		{
 			attributesManagement.removeAttribute(owner, toRemove.getGroupPath(), toRemove.getName());
@@ -315,7 +314,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		}
 	}
 	
-	private boolean addAttribute(Attribute<?> attribute)
+	private boolean addAttribute(Attribute attribute)
 	{
 		try
 		{
@@ -332,7 +331,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private boolean updateAttribute(Attribute<?> attribute)
+	private boolean updateAttribute(Attribute attribute)
 	{
 		try
 		{
@@ -358,7 +357,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	
 	private boolean checkAttributeImm(AttributeItem item)
 	{
-		AttributeExt<?> attribute = ((AttributeItem) item)
+		AttributeExt attribute = ((AttributeItem) item)
 				.getAttribute();
 		AttributeType attributeType = attributeTypes.get(attribute
 				.getName());
@@ -368,7 +367,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	
 	private boolean checkAttributeMandatory(AttributeItem item)
 	{
-		AttributeExt<?> attribute = (item)
+		AttributeExt attribute = (item)
 				.getAttribute();
 		return acHelper.isMandatory(attribute.getName());
 			
@@ -493,7 +492,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 				if (acHelper.isAllowed(at.getName()))
 				{
 					boolean used = false;
-					for (AttributeExt<?> a: attributes)
+					for (AttributeExt a: attributes)
 						if (a.isDirect() && a.getName().equals(at.getName()))
 						{
 							used = true;
@@ -518,7 +517,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 					new AttributeEditDialog.Callback()
 					{
 						@Override
-						public boolean newAttribute(Attribute<?> newAttribute)
+						public boolean newAttribute(Attribute newAttribute)
 						{
 							return addAttribute(newAttribute);							
 						}
@@ -538,7 +537,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			final Attribute<?> attribute = ((AttributeItem) target).getAttribute();
+			final Attribute attribute = ((AttributeItem) target).getAttribute();
 			AttributeType attributeType = attributeTypes.get(attribute.getName());
 			AttributeEditor attributeEditor = new AttributeEditor(msg, attributeType, attribute, 
 					registry);
@@ -547,7 +546,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 					new AttributeEditDialog.Callback()
 					{
 						@Override
-						public boolean newAttribute(Attribute<?> newAttribute)
+						public boolean newAttribute(Attribute newAttribute)
 						{
 							return updateAttribute(newAttribute);
 						}

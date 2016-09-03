@@ -25,6 +25,7 @@ import com.vaadin.server.Constants;
 import com.vaadin.server.VaadinServlet;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
@@ -34,12 +35,13 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
-import pl.edu.icm.unity.sandbox.AccountAssociationSandboxUI;
-import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
-import pl.edu.icm.unity.sandbox.SandboxAuthnRouterImpl;
-import pl.edu.icm.unity.sandbox.TranslationProfileSandboxUI;
+import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
+import pl.edu.icm.unity.webui.sandbox.AccountAssociationSandboxUI;
+import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
+import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouterImpl;
+import pl.edu.icm.unity.webui.sandbox.TranslationProfileSandboxUI;
 
 /**
  * Vaadin endpoint is used by all Vaadin based web endpoints. It is not a component:
@@ -112,7 +114,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 			return context;
 	 	
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		context.setContextPath(description.getContextAddress());
+		context.setContextPath(description.getEndpoint().getContextAddress());
 		
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);

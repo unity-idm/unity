@@ -6,17 +6,17 @@ package pl.edu.icm.unity.webadmin.reg.invitation;
 
 import java.util.List;
 
+import com.vaadin.ui.Component;
+import com.vaadin.ui.FormLayout;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
-
-import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
 
 /**
  * Editor of a prefilled invitation {@link IdentityParam}.

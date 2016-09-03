@@ -8,13 +8,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
-import pl.edu.icm.unity.server.api.PKIManagement;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties;
+import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 
 /**
  * Extension of SAML SP properties. Allows for specification of the settings required to generate 

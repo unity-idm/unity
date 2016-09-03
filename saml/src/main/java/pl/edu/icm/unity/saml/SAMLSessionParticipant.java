@@ -12,8 +12,8 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import pl.edu.icm.unity.engine.api.session.SessionParticipant;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
-import pl.edu.icm.unity.server.api.internal.SessionParticipant;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 
 /**

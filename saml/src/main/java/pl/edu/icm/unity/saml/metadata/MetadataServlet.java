@@ -14,8 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.server.utils.Log;
-
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorDocument;
 
 /**

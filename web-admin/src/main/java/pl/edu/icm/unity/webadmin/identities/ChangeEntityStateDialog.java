@@ -4,16 +4,6 @@
  */
 package pl.edu.icm.unity.webadmin.identities;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.EntityInformation;
-import pl.edu.icm.unity.types.EntityScheduledOperation;
-import pl.edu.icm.unity.types.EntityState;
-import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.EntityWithLabel;
-import pl.edu.icm.unity.webui.common.EnumComboBox;
-import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
-
 import com.google.gwt.thirdparty.guava.common.collect.Sets;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -24,6 +14,16 @@ import com.vaadin.ui.DateField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.EntityInformation;
+import pl.edu.icm.unity.types.basic.EntityScheduledOperation;
+import pl.edu.icm.unity.types.basic.EntityState;
+import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.EntityWithLabel;
+import pl.edu.icm.unity.webui.common.EnumComboBox;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
  * Allows to select a new entity state

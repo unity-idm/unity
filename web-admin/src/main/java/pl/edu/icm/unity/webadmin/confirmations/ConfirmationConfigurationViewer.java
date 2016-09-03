@@ -4,14 +4,14 @@
  */
 package pl.edu.icm.unity.webadmin.confirmations;
 
-import pl.edu.icm.unity.confirmations.ConfirmationConfiguration;
-import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
-
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.ConfirmationConfigurationManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.confirmation.ConfirmationConfiguration;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 
 /**
  * Simple component allowing to view confirmation configuration.

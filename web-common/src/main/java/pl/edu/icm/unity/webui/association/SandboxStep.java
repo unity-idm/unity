@@ -20,7 +20,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.sandbox.wizard.SandboxPopup;
+import pl.edu.icm.unity.webui.sandbox.wizard.SandboxPopup;
 
 /**
  * Second wizard step with sandbox authentication to get input 

@@ -6,7 +6,6 @@ package pl.edu.icm.unity.engine.translation.form;
 
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
-import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -18,16 +17,15 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
 public class RegistrationTranslationProfile extends BaseFormTranslationProfile
 {
 	public RegistrationTranslationProfile(TranslationProfile profile, RegistrationActionsRegistry registry,
-			AttributeTypeHelper atHelper)
+			AttributeTypeHelper atHelper, RegistrationForm form)
 	{
-		super(profile, registry, atHelper);
+		super(profile, registry, atHelper, form);
 	}
 	
 	@Override
-	protected TranslatedRegistrationRequest initializeTranslationResult(BaseForm form, 
-			BaseRegistrationInput request)
+	protected TranslatedRegistrationRequest initializeTranslationResult(BaseRegistrationInput request)
 	{
-		TranslatedRegistrationRequest initial = super.initializeTranslationResult(form, request);
+		TranslatedRegistrationRequest initial = super.initializeTranslationResult(request);
 		initial.setCredentialRequirement(((RegistrationForm)form).getDefaultCredentialRequirement());
 		return initial;
 	}

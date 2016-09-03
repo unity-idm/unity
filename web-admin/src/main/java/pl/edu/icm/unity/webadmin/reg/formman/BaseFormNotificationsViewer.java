@@ -4,13 +4,13 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formman;
 
-import pl.edu.icm.unity.server.api.MessageTemplateManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.ui.Label;
+
+import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.BaseFormNotifications;
 import pl.edu.icm.unity.webadmin.msgtemplate.SimpleMessageTemplateViewer;
 import pl.edu.icm.unity.webui.common.LayoutEmbeddable;
-
-import com.vaadin.ui.Label;
 
 /**
  * Components collection showing {@link BaseFormNotifications} in read only mode.

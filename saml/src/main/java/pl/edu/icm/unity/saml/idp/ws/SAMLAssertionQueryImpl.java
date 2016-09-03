@@ -9,6 +9,14 @@ import java.util.Collection;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.log4j.Logger;
 
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.exceptions.SAMLRequesterException;
+import eu.unicore.samly2.exceptions.SAMLResponderException;
+import eu.unicore.samly2.exceptions.SAMLServerException;
+import eu.unicore.samly2.webservice.SAMLQueryInterface;
+import pl.edu.icm.unity.engine.api.PreferencesManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAttributeQueryContext;
@@ -16,11 +24,6 @@ import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AttributeQueryResponseProcessor;
 import pl.edu.icm.unity.saml.validator.UnityAttributeQueryValidator;
-import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.api.internal.IdPEngine;
-import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
-import pl.edu.icm.unity.server.translation.out.TranslationResult;
-import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -30,11 +33,6 @@ import xmlbeans.org.oasis.saml2.protocol.AttributeQueryDocument;
 import xmlbeans.org.oasis.saml2.protocol.AuthnQueryDocument;
 import xmlbeans.org.oasis.saml2.protocol.AuthzDecisionQueryDocument;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.exceptions.SAMLRequesterException;
-import eu.unicore.samly2.exceptions.SAMLResponderException;
-import eu.unicore.samly2.exceptions.SAMLServerException;
-import eu.unicore.samly2.webservice.SAMLQueryInterface;
 
 /**
  * Implementation of the SAML Assertion Query and Request protocol, SOAP binding.

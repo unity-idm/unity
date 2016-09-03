@@ -10,6 +10,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 

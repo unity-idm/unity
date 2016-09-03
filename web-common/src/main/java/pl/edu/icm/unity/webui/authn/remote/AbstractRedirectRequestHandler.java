@@ -15,6 +15,8 @@ import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 
+import pl.edu.icm.unity.base.utils.Log;
+
 
 /**
  * Custom Vaadin {@link RequestHandler} which is used to produce a proper response to the browser, 

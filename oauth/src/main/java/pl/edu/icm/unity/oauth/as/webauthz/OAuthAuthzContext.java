@@ -12,12 +12,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
-import pl.edu.icm.unity.types.basic.Attribute;
-
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 
 import eu.emi.security.authn.x509.X509Credential;
+import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.types.basic.Attribute;
 
 /**
  * Context stored in HTTP session maintaining authorization token. 

@@ -4,12 +4,12 @@
  */
 package pl.edu.icm.unity.webadmin.msgtemplate;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.msgtemplates.MessageTemplate;
-import pl.edu.icm.unity.server.api.MessageTemplateManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-
 import com.vaadin.ui.Label;
+
+import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.basic.MessageTemplate;
 
 /**
  * Simple component allowing to view message template (name, subject, body).

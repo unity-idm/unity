@@ -10,10 +10,10 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
-
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
+
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 
 /**
  * Manages metadata of multiple providers.

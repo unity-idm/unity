@@ -6,10 +6,10 @@ package pl.edu.icm.unity.oauth.rp;
 
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
+import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.CredentialExchange;
-import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
 
 /**
  * Interface for validation of an access token obtained by a credential retrieval.

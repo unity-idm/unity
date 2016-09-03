@@ -4,17 +4,17 @@
  */
 package pl.edu.icm.unity.webadmin.reg.invitation;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.server.Sizeable.Unit;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Component;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.Editor;
-
-import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.Component;
 
 /**
  * Base class for editors of prefilled entries

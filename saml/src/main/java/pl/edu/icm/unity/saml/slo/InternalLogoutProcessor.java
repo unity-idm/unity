@@ -17,17 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.idpcommon.EopException;
-import pl.edu.icm.unity.saml.SAMLEndpointDefinition;
-import pl.edu.icm.unity.saml.SAMLProcessingException;
-import pl.edu.icm.unity.saml.SAMLSessionParticipant;
-import pl.edu.icm.unity.saml.SamlProperties.Binding;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.utils.Log;
-import xmlbeans.org.oasis.saml2.assertion.NameIDType;
-import xmlbeans.org.oasis.saml2.protocol.LogoutResponseDocument;
-import xmlbeans.org.oasis.saml2.protocol.StatusType;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.elements.NameID;
@@ -43,6 +32,16 @@ import eu.unicore.security.dsig.DSigException;
 import eu.unicore.security.wsutil.samlclient.SAMLLogoutClient;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.IClientConfiguration;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.saml.SAMLEndpointDefinition;
+import pl.edu.icm.unity.saml.SAMLProcessingException;
+import pl.edu.icm.unity.saml.SAMLSessionParticipant;
+import pl.edu.icm.unity.saml.SamlProperties.Binding;
+import pl.edu.icm.unity.webui.idpcommon.EopException;
+import xmlbeans.org.oasis.saml2.assertion.NameIDType;
+import xmlbeans.org.oasis.saml2.protocol.LogoutResponseDocument;
+import xmlbeans.org.oasis.saml2.protocol.StatusType;
 
 /**
  * Implements handling of the most complicated part of logout process - the logout of SAML session participants. 

@@ -8,10 +8,13 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.NDC;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.confirmation.ConfirmationRedirectURLBuilder;
+import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
+import pl.edu.icm.unity.engine.api.registration.RequestSubmitStatus;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
@@ -21,7 +24,6 @@ import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.translation.ExecutionBreakException;
 import pl.edu.icm.unity.engine.translation.TranslationCondition;
 import pl.edu.icm.unity.engine.translation.TranslationProfileInstance;
-import pl.edu.icm.unity.engine.translation.form.RegistrationMVELContext.RequestSubmitStatus;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.ConfirmationRedirectActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.RedirectActionFactory;
@@ -45,19 +47,22 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
  * @author K. Benedyczak
  */
 public abstract class BaseFormTranslationProfile extends TranslationProfileInstance
-						<RegistrationTranslationAction, RegistrationTranslationRule>
+						<RegistrationTranslationAction, RegistrationTranslationRule> 
+				implements FormAutomationSupport
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, BaseFormTranslationProfile.class);
 	private AttributeTypeHelper atHelper;
+	protected BaseForm form;
 	
 	public BaseFormTranslationProfile(TranslationProfile profile, RegistrationActionsRegistry registry, 
-			AttributeTypeHelper atHelper)
+			AttributeTypeHelper atHelper, BaseForm form)
 	{
 		super(profile, registry);
 		this.atHelper = atHelper;
+		this.form = form;
 	}
 	
-	public TranslatedRegistrationRequest translate(BaseForm form, 
+	public TranslatedRegistrationRequest translate(
 			UserRequestState<? extends BaseRegistrationInput> request) 
 			throws EngineException
 	{
@@ -68,10 +73,11 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 				request.getRegistrationContext().triggeringMode, 
 				request.getRegistrationContext().isOnIdpEndpoint,
 				request.getRequestId(), atHelper);
-		return executeFilteredActions(form, request.getRequest(), mvelCtx, null);
+		return executeFilteredActions(request.getRequest(), mvelCtx, null);
 	}
 	
-	public AutomaticRequestAction getAutoProcessAction(BaseForm form, 
+	@Autowired
+	public AutomaticRequestAction getAutoProcessAction(
 			UserRequestState<? extends BaseRegistrationInput> request, RequestSubmitStatus status)
 	{
 		log.debug("Consulting form profile to establish automatic processing action");
@@ -82,8 +88,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 		TranslatedRegistrationRequest result;
 		try
 		{
-			result = executeFilteredActions(form, 
-					request.getRequest(), mvelCtx, AutoProcessActionFactory.NAME);
+			result = executeFilteredActions(request.getRequest(), mvelCtx, AutoProcessActionFactory.NAME);
 		} catch (EngineException e)
 		{
 			log.error("Couldn't establish automatic request processing action from profile", e);
@@ -93,7 +98,8 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 		return result.getAutoAction();
 	}
 
-	public I18nMessage getPostSubmitMessage(BaseForm form, BaseRegistrationInput request,
+	@Autowired
+	public I18nMessage getPostSubmitMessage(BaseRegistrationInput request,
 			RegistrationContext context, String requestId)
 	{
 		log.debug("Consulting form profile to establish post-submit message");
@@ -102,7 +108,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 		TranslatedRegistrationRequest result;
 		try
 		{
-			result = executeFilteredActions(form, request, mvelCtx, SubmitMessageActionFactory.NAME);
+			result = executeFilteredActions(request, mvelCtx, SubmitMessageActionFactory.NAME);
 		} catch (EngineException e)
 		{
 			log.warn("Couldn't establish post submission message from profile", e);
@@ -111,7 +117,8 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 		return result.getPostSubmitMessage();
 	}
 	
-	public String getPostSubmitRedirectURL(BaseForm form, BaseRegistrationInput request,
+	@Autowired
+	public String getPostSubmitRedirectURL(BaseRegistrationInput request,
 			RegistrationContext context, String requestId)
 	{
 		log.debug("Consulting form profile to establish post-submit redirect URL");
@@ -120,7 +127,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 		TranslatedRegistrationRequest result;
 		try
 		{
-			result = executeFilteredActions(form, request, mvelCtx, RedirectActionFactory.NAME);
+			result = executeFilteredActions(request, mvelCtx, RedirectActionFactory.NAME);
 		} catch (EngineException e)
 		{
 			log.warn("Couldn't establish redirect URL from profile", e);
@@ -129,7 +136,8 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 		return result.getRedirectURL();
 	}
 
-	public String getPostCancelledRedirectURL(BaseForm form, RegistrationContext context)
+	@Autowired
+	public String getPostCancelledRedirectURL(RegistrationContext context)
 	{
 		log.debug("Consulting form profile to establish post-cancel redirect URL");
 		Map<String, Object> mvelCtx = new RegistrationMVELContext(form, RequestSubmitStatus.notSubmitted, 
@@ -137,7 +145,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 		TranslatedRegistrationRequest result;
 		try
 		{
-			result = executeFilteredActions(form, null, mvelCtx, RedirectActionFactory.NAME);
+			result = executeFilteredActions(null, mvelCtx, RedirectActionFactory.NAME);
 		} catch (EngineException e)
 		{
 			log.warn("Couldn't establish redirect URL from profile", e);
@@ -146,27 +154,29 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 		return result.getRedirectURL();
 	}
 
-	public String getPostConfirmationRedirectURL(BaseForm form, UserRequestState<?> request,
+	@Autowired
+	public String getPostConfirmationRedirectURL(UserRequestState<?> request,
 			IdentityParam confirmed, String requestId)
 	{
-		return getPostConfirmationRedirectURL(form, request.getRequest(), request.getRegistrationContext(),
+		return getPostConfirmationRedirectURL(request.getRequest(), request.getRegistrationContext(),
 				requestId,
 				ConfirmationRedirectURLBuilder.ConfirmedElementType.identity.toString(), 
 				confirmed.getTypeId(), confirmed.getValue());
 	}
 
-	public String getPostConfirmationRedirectURL(BaseForm form, UserRequestState<?> request,
+	@Autowired
+	public String getPostConfirmationRedirectURL(UserRequestState<?> request,
 			Attribute confirmed, String requestId)
 	{
 		AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntaxForAttributeName(confirmed.getName());
 		VerifiableElement parsed = (VerifiableElement) syntax.convertFromString(confirmed.getValues().get(0));
-		return getPostConfirmationRedirectURL(form, request.getRequest(), request.getRegistrationContext(),
+		return getPostConfirmationRedirectURL(request.getRequest(), request.getRegistrationContext(),
 				requestId,
 				ConfirmationRedirectURLBuilder.ConfirmedElementType.attribute.toString(), 
 				confirmed.getName(), parsed.getValue());
 	}
 	
-	private String getPostConfirmationRedirectURL(BaseForm form, BaseRegistrationInput request,
+	private String getPostConfirmationRedirectURL(BaseRegistrationInput request,
 			RegistrationContext regContxt, String requestId, 
 			String cType, String cName, String cValue)
 	{
@@ -178,8 +188,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 		TranslatedRegistrationRequest result;
 		try
 		{
-			result = executeFilteredActions(form, 
-					request, mvelCtx, ConfirmationRedirectActionFactory.NAME);
+			result = executeFilteredActions(request, mvelCtx, ConfirmationRedirectActionFactory.NAME);
 		} catch (EngineException e)
 		{
 			log.error("Couldn't establish redirect URL from profile", e);
@@ -189,7 +198,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 		return "".equals(result.getRedirectURL()) ? null : result.getRedirectURL();
 	}
 	
-	protected TranslatedRegistrationRequest executeFilteredActions(BaseForm form, 
+	protected TranslatedRegistrationRequest executeFilteredActions(
 			BaseRegistrationInput request, Map<String, Object> mvelCtx, 
 			String actionNameFilter) throws EngineException
 	{
@@ -198,7 +207,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 		try
 		{
 			int i=1;
-			TranslatedRegistrationRequest translationState = initializeTranslationResult(form, request);
+			TranslatedRegistrationRequest translationState = initializeTranslationResult(request);
 			for (RegistrationTranslationRule rule: ruleInstances)
 			{
 				String actionName = rule.getAction().getName();
@@ -223,7 +232,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 		}
 	}
 	
-	protected TranslatedRegistrationRequest initializeTranslationResult(BaseForm form, 
+	protected TranslatedRegistrationRequest initializeTranslationResult(
 			BaseRegistrationInput request)
 	{
 		TranslatedRegistrationRequest initial = new TranslatedRegistrationRequest();

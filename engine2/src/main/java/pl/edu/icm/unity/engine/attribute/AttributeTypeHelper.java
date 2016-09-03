@@ -43,6 +43,17 @@ public class AttributeTypeHelper
 		AttributeType attributeType = attributeTypeDAO.get(attribute);
 		return getUnconfiguredSyntax(attributeType.getValueSyntax());
 	}
+
+	public AttributeValueSyntax<?> getSyntaxForAttributeName(String attribute)
+	{
+		AttributeType attributeType = attributeTypeDAO.get(attribute);
+		return getSyntax(attributeType);
+	}
+
+	public AttributeType getTypeForAttributeName(String attribute)
+	{
+		return attributeTypeDAO.get(attribute);
+	}
 	
 	/**
 	 * @param name attribute syntax name

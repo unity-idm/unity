@@ -13,9 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -59,10 +62,10 @@ public class EnquiryResponseEditorController
 	private AttributeHandlerRegistry attributeHandlerRegistry;
 	
 	@Autowired @Qualifier("insecure") 
-	private AttributesManagement attrsMan;
+	private AttributeTypeManagement atMan;
 	
 	@Autowired @Qualifier("insecure") 
-	private AuthenticationManagement authnMan;
+	private CredentialManagement credMan;
 	
 	@Autowired @Qualifier("insecure") 
 	private GroupsManagement groupsMan;	
@@ -76,7 +79,7 @@ public class EnquiryResponseEditorController
 	{
 		return new EnquiryResponseEditor(msg, form, remoteContext, 
 				identityEditorRegistry, credentialEditorRegistry, 
-				attributeHandlerRegistry, attrsMan, authnMan, groupsMan);
+				attributeHandlerRegistry, atMan, credMan, groupsMan);
 	}
 
 	public boolean isFormApplicable(String formName)
@@ -145,12 +148,12 @@ public class EnquiryResponseEditorController
 		} catch (Exception e)
 		{
 			new PostFormFillingHandler(idpLoginController, form, msg, 
-					enquiryManagement.getProfileInstance(form)).submissionError(e, context);
+					enquiryManagement.getFormAutomationSupport(form)).submissionError(e, context);
 			return false;
 		}
 
 		new PostFormFillingHandler(idpLoginController, form, msg, 
-				enquiryManagement.getProfileInstance(form), mode != TriggeringMode.manualAdmin).
+				enquiryManagement.getFormAutomationSupport(form), mode != TriggeringMode.manualAdmin).
 			submittedEnquiryResponse(id, enquiryManagement, response, context);
 		return true;
 	}
@@ -159,7 +162,8 @@ public class EnquiryResponseEditorController
 	{
 		RegistrationContext context = new RegistrationContext(false, idpLoginController.isLoginInProgress(), 
 				mode);
-		new PostFormFillingHandler(idpLoginController, form, msg, enquiryManagement.getProfileInstance(form)).
+		new PostFormFillingHandler(idpLoginController, form, msg, 
+				enquiryManagement.getFormAutomationSupport(form)).
 			cancelled(false, context);
 	}
 }

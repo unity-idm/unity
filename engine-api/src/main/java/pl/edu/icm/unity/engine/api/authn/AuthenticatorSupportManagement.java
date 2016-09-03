@@ -22,7 +22,8 @@ public interface AuthenticatorSupportManagement
 	 * @return
 	 * @throws EngineException 
 	 */
-	List<AuthenticationOption> getAuthenticatorUIs(List<AuthenticationOptionDescription> authnList) throws EngineException;
+	List<AuthenticationOption> getAuthenticatorUIs(List<AuthenticationOptionDescription> authnList) 
+			throws EngineException;
 
 	/**
 	 * Removes all authenticators from DB

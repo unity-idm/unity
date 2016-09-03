@@ -4,12 +4,12 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
+import com.vaadin.server.VaadinSession;
+import com.vaadin.server.WrappedSession;
+
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.web.filter.SamlParseServlet;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
-
-import com.vaadin.server.VaadinSession;
-import com.vaadin.server.WrappedSession;
 
 /**
  * Methods responsible for SAML context handling

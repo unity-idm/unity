@@ -7,7 +7,10 @@ package pl.edu.icm.unity.webadmin.reg.invitation;
 import java.util.List;
 import java.util.Map;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.FormLayout;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
@@ -16,14 +19,11 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.FixedAttributeEditor;
 
-import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
-
 /**
  * Editor of a prefilled invitation {@link Attribute}.
  * @author Krzysztof Benedyczak
  */
-public class PresetAttributeEditor extends PresetEditorBase<Attribute<?>>
+public class PresetAttributeEditor extends PresetEditorBase<Attribute>
 {
 	private List<AttributeRegistrationParam> formParams;
 	private AttributeHandlerRegistry attrHandlersRegistry;
@@ -45,7 +45,7 @@ public class PresetAttributeEditor extends PresetEditorBase<Attribute<?>>
 	}
 
 	@Override
-	protected Attribute<?> getValueInternal() throws FormValidationException
+	protected Attribute getValueInternal() throws FormValidationException
 	{
 		try
 		{
@@ -70,7 +70,7 @@ public class PresetAttributeEditor extends PresetEditorBase<Attribute<?>>
 	
 	@Override
 	protected Component getEditorComponentsInternal(
-			PrefilledEntry<Attribute<?>> value, int position)
+			PrefilledEntry<Attribute> value, int position)
 	{
 		wrapper = new FormLayout();
 		setEditedComponentPosition(position);

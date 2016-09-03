@@ -14,18 +14,16 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 
-import pl.edu.icm.unity.idpcommon.EopException;
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.exceptions.SAMLServerException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.SamlHttpServlet;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.validator.WebAuthRequestValidator;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.RoutingServlet;
+import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.exceptions.SAMLServerException;
 
 /**
  * Low level servlet performing the initial SAML handling. Supports both POST and HTTP-Redirect (GET) 

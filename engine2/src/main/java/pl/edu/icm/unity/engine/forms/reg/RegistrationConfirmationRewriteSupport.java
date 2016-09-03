@@ -22,6 +22,7 @@ import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqAttribiute
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqIdentityConfirmationState;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
+import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;

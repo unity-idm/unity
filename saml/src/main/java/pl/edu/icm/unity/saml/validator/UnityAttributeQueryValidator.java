@@ -9,7 +9,6 @@ import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.validators.AttributeQueryValidator;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
-
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.assertion.SubjectType;
 import xmlbeans.org.oasis.saml2.protocol.AttributeQueryDocument;

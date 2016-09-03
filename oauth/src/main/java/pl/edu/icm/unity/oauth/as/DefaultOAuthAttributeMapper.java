@@ -8,6 +8,8 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.nimbusds.jose.util.Base64;
+
 import net.minidev.json.JSONArray;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
@@ -17,8 +19,6 @@ import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
-
-import com.nimbusds.jose.util.Base64;
 
 /**
  * Default OAuth attribute mapper, maps string, string arrays, numbers, enums and images.
@@ -47,7 +47,7 @@ public class DefaultOAuthAttributeMapper implements OAuthAttributeMapper
 
 	
 	@Override
-	public boolean isHandled(Attribute<?> unityAttribute)
+	public boolean isHandled(Attribute unityAttribute)
 	{
 		String syntax = unityAttribute.getAttributeSyntax().getValueSyntaxId();
 		return VALUE_TO_SAML.containsKey(syntax);
@@ -55,7 +55,7 @@ public class DefaultOAuthAttributeMapper implements OAuthAttributeMapper
 
 
 	@Override
-	public Object getJsonValue(Attribute<?> unityAttribute)
+	public Object getJsonValue(Attribute unityAttribute)
 	{
 		int valsNum = unityAttribute.getValues().size(); 
 		String syntax = unityAttribute.getAttributeSyntax().getValueSyntaxId();
@@ -79,7 +79,7 @@ public class DefaultOAuthAttributeMapper implements OAuthAttributeMapper
 	}
 
 	@Override
-	public String getJsonKey(Attribute<?> unityAttribute)
+	public String getJsonKey(Attribute unityAttribute)
 	{
 		return unityAttribute.getName();
 	}

@@ -20,9 +20,9 @@ import com.nimbusds.oauth2.sdk.token.BearerTokenError;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.token.TokenInfoResource;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
 
 public class TokenInfoResourceTest
 {

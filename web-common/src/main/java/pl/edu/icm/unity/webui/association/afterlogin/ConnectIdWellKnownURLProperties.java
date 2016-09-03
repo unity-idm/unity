@@ -17,6 +17,7 @@ import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
+import pl.edu.icm.unity.base.utils.Log;
 
 /**
  * Configuration of the standalone account association feature.

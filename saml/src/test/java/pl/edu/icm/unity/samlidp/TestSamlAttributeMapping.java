@@ -4,7 +4,8 @@
  */
 package pl.edu.icm.unity.samlidp;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -22,7 +23,6 @@ import pl.edu.icm.unity.stdext.attr.JpegImageAttribute;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
 
 public class TestSamlAttributeMapping

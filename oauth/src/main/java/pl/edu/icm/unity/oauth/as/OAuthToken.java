@@ -6,12 +6,12 @@ package pl.edu.icm.unity.oauth.as;
 
 import java.io.IOException;
 
-import pl.edu.icm.unity.Constants;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+
+import pl.edu.icm.unity.Constants;
 
 /**
  * OAuth token as stored on the server to keep the state of the OAuth 'session'. It is used both to store access

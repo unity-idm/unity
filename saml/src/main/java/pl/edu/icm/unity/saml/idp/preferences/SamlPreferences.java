@@ -10,22 +10,21 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.common.provider.IdPPreferences;
-import xmlbeans.org.oasis.saml2.assertion.NameIDType;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.samly2.SAMLConstants;
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.engine.api.PreferencesManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.webui.idpcommon.IdPPreferences;
+import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 
 
 /**

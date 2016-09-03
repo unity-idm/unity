@@ -33,10 +33,6 @@ import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 public class LoginToHttpSessionBinderImpl implements LoginToHttpSessionBinder
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, LoginToHttpSessionBinderImpl.class);
-	/**
-	 * Under this key the {@link LoginSession} id is stored in the HTTP session.
-	 */
-	public static final String USER_SESSION_KEY = "pl.edu.icm.unity.web.WebSession";
 
 	private Map<String, Collection<HttpSessionWrapper>> bindings = 
 			new HashMap<String, Collection<HttpSessionWrapper>>(1000);

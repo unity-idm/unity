@@ -12,7 +12,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
  */
 public interface OAuthAttributeMapper
 {
-	public boolean isHandled(Attribute<?> unityAttribute);
-	public Object getJsonValue(Attribute<?> unityAttribute);
-	public String getJsonKey(Attribute<?> unityAttribute);
+	public boolean isHandled(Attribute unityAttribute);
+	public Object getJsonValue(Attribute unityAttribute);
+	public String getJsonKey(Attribute unityAttribute);
 }

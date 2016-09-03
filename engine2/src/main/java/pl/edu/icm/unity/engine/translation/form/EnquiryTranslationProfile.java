@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.translation.form;
 
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
+import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
@@ -16,8 +17,8 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
 public class EnquiryTranslationProfile extends BaseFormTranslationProfile
 {
 	public EnquiryTranslationProfile(TranslationProfile profile, RegistrationActionsRegistry registry,
-			AttributeTypeHelper atHelper)
+			AttributeTypeHelper atHelper, EnquiryForm form)
 	{
-		super(profile, registry, atHelper);
+		super(profile, registry, atHelper, form);
 	}
 }

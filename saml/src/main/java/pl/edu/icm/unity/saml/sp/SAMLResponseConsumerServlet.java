@@ -14,7 +14,6 @@ import org.apache.log4j.Logger;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.saml.SamlHttpServlet;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
-import pl.edu.icm.unity.server.utils.Log;
 
 /**
  * Custom servlet which awaits SAML authn response from IdP, which should be 

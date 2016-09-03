@@ -6,8 +6,6 @@ package pl.edu.icm.unity.oauth.client;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.utils.RemoteAuthenticationContextManagement;
-
 /**
  * Responsible for management of OAuth authentication contexts.
  * See {@link RemoteAuthenticationContextManagement}.

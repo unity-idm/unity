@@ -12,9 +12,11 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -44,12 +46,12 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RegistrationRequestEditor.class);
 	private RegistrationForm form;
-	private RegistrationsManagement registrationsMan;
 	
 	private TextField registrationCode;
 	private CaptchaComponent captcha;
 	private String regCodeProvided;
 	private InvitationWithCode invitation;
+	private InvitationManagement invitationMan;
 
 	/**
 	 * Note - the two managers must be insecure, if the form is used in not-authenticated context, 
@@ -61,7 +63,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	 * @param identityEditorRegistry
 	 * @param credentialEditorRegistry
 	 * @param attributeHandlerRegistry
-	 * @param attrsMan
+	 * @param aTypeMan
 	 * @param authnMan
 	 * @throws EngineException
 	 */
@@ -70,15 +72,15 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
-			AttributesManagement attrsMan, AuthenticationManagement authnMan,
-			GroupsManagement groupsMan, RegistrationsManagement registrationsMan,
-			String registrationCode) throws Exception
+			AttributeTypeManagement aTypeMan, CredentialManagement credMan,
+			GroupsManagement groupsMan, 
+			String registrationCode, InvitationManagement invitationMan) throws Exception
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
-				attributeHandlerRegistry, attrsMan, authnMan, groupsMan);
+				attributeHandlerRegistry, aTypeMan, credMan, groupsMan);
 		this.form = form;
-		this.registrationsMan = registrationsMan;
 		this.regCodeProvided = registrationCode;
+		this.invitationMan = invitationMan;
 		
 		initUI();
 	}
@@ -185,8 +187,8 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	{
 		try
 		{
-			return registrationsMan.getInvitation(code);
-		} catch (WrongArgumentException e)
+			return invitationMan.getInvitation(code);
+		} catch (IllegalArgumentException e)
 		{
 			//ok
 			return null;

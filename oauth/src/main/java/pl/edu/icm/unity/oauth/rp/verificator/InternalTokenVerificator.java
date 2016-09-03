@@ -4,15 +4,14 @@
  */
 package pl.edu.icm.unity.oauth.rp.verificator;
 
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.oauth.as.OAuthProcessor;
-import pl.edu.icm.unity.oauth.as.OAuthToken;
-import pl.edu.icm.unity.server.api.internal.Token;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
-
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
+
+import pl.edu.icm.unity.base.token.Token;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.oauth.as.OAuthProcessor;
+import pl.edu.icm.unity.oauth.as.OAuthToken;
 
 /**
  * Verifies the token against internal Unity's token storage, i.e. the token is checked if was 
@@ -38,7 +37,7 @@ public class InternalTokenVerificator implements TokenVerificatorProtocol
 		{
 			internalAccessToken = tokensManagement.getTokenById(OAuthProcessor.INTERNAL_ACCESS_TOKEN, 
 					token.getValue());
-		} catch (WrongArgumentException e)
+		} catch (IllegalArgumentException e)
 		{
 			return new TokenStatus();
 		}

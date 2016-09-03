@@ -6,13 +6,13 @@ package pl.edu.icm.unity.webadmin.tprofile;
 
 import java.util.Collection;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.server.UserError;
+import com.vaadin.ui.ComboBox;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
-
-import com.vaadin.server.UserError;
-import com.vaadin.ui.ComboBox;
 
 /**
  * {@link ComboBox} based editor of attribute  parameter.

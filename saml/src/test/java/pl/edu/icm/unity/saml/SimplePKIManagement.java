@@ -9,14 +9,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.server.api.PKIManagement;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 
 /**
  * For tests - returns only a single MAIN credential

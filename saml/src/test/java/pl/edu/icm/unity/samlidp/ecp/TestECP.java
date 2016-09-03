@@ -40,6 +40,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.nimbusds.jwt.JWTClaimsSet;
+
+import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
+import eu.unicore.util.httpclient.DefaultClientConfiguration;
+import eu.unicore.util.httpclient.HttpUtils;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.translation.in.IdentityEffectMode;
+import pl.edu.icm.unity.engine.translation.TranslationCondition;
+import pl.edu.icm.unity.engine.translation.in.InputTranslationRule;
+import pl.edu.icm.unity.engine.translation.in.action.MapIdentityActionFactory;
 import pl.edu.icm.unity.rest.jwt.JWTUtils;
 import pl.edu.icm.unity.saml.ecp.ECPConstants;
 import pl.edu.icm.unity.saml.ecp.ECPEndpointFactory;
@@ -49,25 +61,11 @@ import pl.edu.icm.unity.saml.xmlbeans.soap.Envelope;
 import pl.edu.icm.unity.saml.xmlbeans.soap.EnvelopeDocument;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Header;
 import pl.edu.icm.unity.samlidp.AbstractTestIdpBase;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.api.TranslationProfileManagement;
-import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.server.translation.TranslationCondition;
-import pl.edu.icm.unity.server.translation.in.IdentityEffectMode;
-import pl.edu.icm.unity.server.translation.in.InputTranslationRule;
-import pl.edu.icm.unity.server.translation.in.action.MapIdentityActionFactory;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
-
-import com.nimbusds.jwt.JWTClaimsSet;
-
-import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
-import eu.unicore.util.httpclient.DefaultClientConfiguration;
-import eu.unicore.util.httpclient.HttpUtils;
 
 public class TestECP extends AbstractTestIdpBase
 {

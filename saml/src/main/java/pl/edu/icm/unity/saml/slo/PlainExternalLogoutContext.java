@@ -8,7 +8,7 @@
 
 package pl.edu.icm.unity.saml.slo;
 
-import pl.edu.icm.unity.server.api.internal.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
 
 /**
  * SAML Context for single logout protocol. This context is used to track state during logout, 

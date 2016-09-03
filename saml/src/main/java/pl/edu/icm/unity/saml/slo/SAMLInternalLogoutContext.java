@@ -13,11 +13,11 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.session.SessionParticipant;
+import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
+import pl.edu.icm.unity.engine.api.session.SessionParticipants;
 import pl.edu.icm.unity.saml.SAMLSessionParticipant;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.api.internal.SessionParticipant;
-import pl.edu.icm.unity.server.api.internal.SessionParticipants;
-import pl.edu.icm.unity.server.registries.SessionParticipantTypesRegistry;
 
 /**
  * SAML Context for single logout protocol. Quite complicated as the process may happen asynchronously.

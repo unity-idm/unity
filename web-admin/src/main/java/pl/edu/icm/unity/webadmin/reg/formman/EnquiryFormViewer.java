@@ -7,20 +7,20 @@ package pl.edu.icm.unity.webadmin.reg.formman;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import pl.edu.icm.unity.server.api.MessageTemplateManagement;
-import pl.edu.icm.unity.server.api.internal.SharedEndpointManagement;
-import pl.edu.icm.unity.server.api.registration.PublicRegistrationURLSupport;
-import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfile;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.registration.EnquiryForm;
-import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
-
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
+import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
+import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
+import pl.edu.icm.unity.engine.translation.form.RegistrationTranslationProfile;
+import pl.edu.icm.unity.types.registration.EnquiryForm;
+import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 
 /**
  * Read only UI displaying a {@link EnquiryForm}.

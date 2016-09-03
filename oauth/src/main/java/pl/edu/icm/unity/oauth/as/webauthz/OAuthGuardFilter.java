@@ -18,8 +18,8 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.idpcommon.EopException;
-import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**
  * Filter which is invoked prior to authentication. 

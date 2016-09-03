@@ -6,6 +6,8 @@ package pl.edu.icm.unity.webadmin.tprofile.wizard;
 
 import java.io.Serializable;
 
+import pl.edu.icm.unity.webadmin.tprofile.RuleComponent;
+
 /**
  * Drag'n'Drop bean - dragged from {@link ProfileStepComponent} to {@link RuleComponent}.
  * 
