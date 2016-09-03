@@ -6,6 +6,8 @@ package pl.edu.icm.unity.engine.api;
 
 import java.util.List;
 
+import pl.edu.icm.unity.exceptions.EngineException;
+
 /**
  * Basic DAO with typical engine operations.
  *
@@ -13,9 +15,11 @@ import java.util.List;
  */
 public interface BasicEngineDAO<T>
 {
-	long create(T obj);
+	void create(T obj) throws EngineException;
 	
-	void update(T obj);
+	void update(T obj) throws EngineException;
 	
-	List<T> getAll();
+	void delete(T obj) throws EngineException;
+	
+	List<T> getAll() throws EngineException;
 }

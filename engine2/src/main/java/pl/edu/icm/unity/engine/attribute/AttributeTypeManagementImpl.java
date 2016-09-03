@@ -50,7 +50,6 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 	private AttributeTypeHelper atHelper;
 	private AttributesHelper aHelper;
 
-
 	@Autowired
 	public AttributeTypeManagementImpl(AttributeSyntaxFactoriesRegistry attrValueTypesReg,
 			AttributeTypeDAO attributeTypeDAO, AttributeDAO attributeDAO,
@@ -68,22 +67,38 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		this.atHelper = atHelper;
 		this.aHelper = aHelper;
 	}
-
+	
 	@Override
-	public String[] getSupportedAttributeValueTypes() throws EngineException
+	@Transactional
+	public void updateByName(String name, AttributeType newValue) throws EngineException
 	{
-		authz.checkAuthorization(AuthzCapability.readInfo);
-		Collection<AttributeValueSyntaxFactory<?>> all = attrValueTypesReg.getAll();
-		String[] ret = new String[all.size()];
-		Iterator<AttributeValueSyntaxFactory<?>> it = all.iterator();
-		for (int i=0; it.hasNext(); i++)
-			ret[i] = it.next().getId();
-		return ret;
+		newValue.validateInitialization();
+		if (newValue.getFlags() != 0)
+			throw new IllegalAttributeTypeException("Custom attribute types must not have any flags set");
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		AttributeType atExisting = attributeTypeDAO.get(name);
+		doUpdate(atExisting, newValue);
 	}
 
 	@Override
 	@Transactional
-	public void addAttributeType(AttributeType toAdd) throws EngineException
+	public boolean exists(String id) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
+		return attributeTypeDAO.exists(id);
+	}
+
+	@Override
+	@Transactional
+	public AttributeType get(String id) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
+		return attributeTypeDAO.get(id);
+	}
+
+	@Override
+	@Transactional
+	public void create(AttributeType toAdd) throws EngineException
 	{
 		toAdd.validateInitialization();
 		if (toAdd.getFlags() != 0)
@@ -95,16 +110,113 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		attributeTypeDAO.create(toAdd);
 	}
 
-	
 	@Override
 	@Transactional
-	public void updateAttributeType(AttributeType at) throws EngineException
+	public void update(AttributeType at) throws EngineException
 	{
 		at.validateInitialization();
 		if (at.getFlags() != 0)
 			throw new IllegalAttributeTypeException("Custom attribute types must not have any flags set");
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		AttributeType atExisting = attributeTypeDAO.get(at.getName());
+		doUpdate(atExisting, at);
+	}
+
+	@Override
+	@Transactional
+	public List<AttributeType> getAll() throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
+		return attributeTypeDAO.getAll();
+	}
+	
+	/**
+	 * Deletes by default all instances, if you need additional verification,
+	 * use
+	 * {@link AttributeTypeManagementImpl#removeAttributeType(String, boolean)}
+	 */
+	@Override
+	@Transactional
+	public void deleteByName(String id) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+
+		AttributeType at = attributeTypeDAO.get(id);
+		if ((at.getFlags() & (AttributeType.TYPE_IMMUTABLE_FLAG | 
+				AttributeType.INSTANCES_IMMUTABLE_FLAG)) != 0)
+			throw new IllegalAttributeTypeException("The attribute type with name " + id + 
+					" can not be manually removed");
+
+		attributeTypeDAO.delete(id);
+		clearAttributeExtractionFromIdentities(id);
+	}
+
+	/**
+	 * Deletes by default all instances, if you need additional verification,
+	 * use
+	 * {@link AttributeTypeManagementImpl#removeAttributeType(String, boolean)}
+	 */
+
+	@Override
+	@Transactional
+	public void delete(AttributeType at) throws EngineException
+	{
+		deleteByName(at.getName());
+	}	
+
+	@Override
+	public void addAttributeType(AttributeType toAdd) throws EngineException
+	{
+		create(toAdd);
+	}
+
+	
+	@Override
+	public void updateAttributeType(AttributeType at) throws EngineException
+	{
+		update(at);
+	}
+	
+	@Override
+	public Collection<AttributeType> getAttributeTypes() throws EngineException
+	{
+		return getAll();
+	}
+	
+	@Override
+	public String[] getSupportedAttributeValueTypes() throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
+		Collection<AttributeValueSyntaxFactory<?>> all = attrValueTypesReg.getAll();
+		String[] ret = new String[all.size()];
+		Iterator<AttributeValueSyntaxFactory<?>> it = all.iterator();
+		for (int i=0; it.hasNext(); i++)
+			ret[i] = it.next().getId();
+		return ret;
+	}
+	
+	@Override
+	@Transactional
+	public void removeAttributeType(String id, boolean deleteInstances) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+
+		if (!deleteInstances && !attributeDAO.getAttributes(id, null, null).isEmpty())
+			throw new IllegalAttributeTypeException("The attribute type " + id + " has instances");
+
+		deleteByName(id);
+	}
+	
+	@Override
+	@Transactional
+	public Map<String, AttributeType> getAttributeTypesAsMap() throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
+		return attributeTypeDAO.getAllAsMap();
+	}
+	
+	private void doUpdate(AttributeType atExisting, AttributeType at) throws EngineException
+	{
 		if ((atExisting.getFlags() & AttributeType.TYPE_IMMUTABLE_FLAG) != 0)
 		{
 			updateImmutableAttributeType(at, atExisting);
@@ -117,7 +229,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		attributeTypeDAO.update(at);
 		if (!at.getValueSyntax().equals(atExisting.getValueSyntax()))
 			clearAttributeExtractionFromIdentities(at.getName());
-	}
+	}	
 
 	private void verifyAttributesConsistencyWithUpdatedType(AttributeType at) throws IllegalAttributeTypeException
 	{
@@ -167,7 +279,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		Map<String, String> meta = at.getMetadata();
 		if (meta.isEmpty())
 			return;
-		Map<String, String> existing = new HashMap<String, String>();
+		Map<String, String> existing = new HashMap<>();
 		for (AttributeType eat: existingAts)
 			if (!eat.getName().equals(at.getName()))
 			{
@@ -192,24 +304,6 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 			provider.verify(metaE.getValue(), at);
 		}
 	}
-	
-	@Override
-	@Transactional
-	public void removeAttributeType(String id, boolean deleteInstances) throws EngineException
-	{
-		authz.checkAuthorization(AuthzCapability.maintenance);
-
-		AttributeType at = attributeTypeDAO.get(id);
-		if ((at.getFlags() & (AttributeType.TYPE_IMMUTABLE_FLAG | 
-				AttributeType.INSTANCES_IMMUTABLE_FLAG)) != 0)
-			throw new IllegalAttributeTypeException("The attribute type with name " + id + 
-					" can not be manually removed");
-		if (!deleteInstances && !attributeDAO.getAttributes(id, null, null).isEmpty())
-			throw new IllegalAttributeTypeException("The attribute type " + id + " has instances");
-		
-		attributeTypeDAO.delete(id);
-		clearAttributeExtractionFromIdentities(id);
-	}
 
 	private void clearAttributeExtractionFromIdentities(String id)
 	{
@@ -233,21 +327,5 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 				dbIdentities.update(idType);
 			}
 		}
-	}
-	
-	@Override
-	@Transactional
-	public Collection<AttributeType> getAttributeTypes() throws EngineException
-	{
-		authz.checkAuthorization(AuthzCapability.readInfo);
-		return attributeTypeDAO.getAll();
-	}
-
-	@Override
-	@Transactional
-	public Map<String, AttributeType> getAttributeTypesAsMap() throws EngineException
-	{
-		authz.checkAuthorization(AuthzCapability.readInfo);
-		return attributeTypeDAO.getAllAsMap();
 	}
 }
