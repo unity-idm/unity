@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.identity;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -53,17 +54,72 @@ public class IdentityTypeManagementImpl implements IdentityTypesManagement
 
 	@Override
 	@Transactional
-	public Collection<IdentityType> getIdentityTypes() throws EngineException
-	{
-		authz.checkAuthorization(AuthzCapability.readInfo);
-		return dbIdentities.getAll();
-	}
-
-	@Transactional
-	@Override
-	public void updateIdentityType(IdentityType toUpdate) throws EngineException
+	public void updateByName(String name, IdentityType newValue) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
+
+		assertThatIdentityTypeIsConsistent(newValue);
+
+		dbIdentities.updateByName(name, newValue);
+	}
+
+	@Override
+	@Transactional
+	public void deleteByName(String name) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		dbIdentities.delete(name);
+	}
+
+	@Override
+	@Transactional
+	public boolean exists(String id) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
+		return dbIdentities.exists(id);
+	}
+
+	@Override
+	@Transactional
+	public IdentityType get(String id) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
+		return dbIdentities.get(id);
+	}
+
+	@Override
+	@Transactional
+	public void create(IdentityType identityType) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		
+		assertThatIdentityTypeIsConsistent(identityType);
+		
+		dbIdentities.create(identityType);
+	}
+
+
+	@Override
+	@Transactional
+	public void delete(IdentityType identityType) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		deleteByName(identityType.getName());
+	}
+	
+	@Override
+	@Transactional
+	public void update(IdentityType toUpdate) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		
+		assertThatIdentityTypeIsConsistent(toUpdate);
+		
+		dbIdentities.update(toUpdate);
+	}
+
+	private void assertThatIdentityTypeIsConsistent(IdentityType toUpdate) throws EngineException
+	{
 		IdentityTypeDefinition idTypeDef = idTypesRegistry.getByName(toUpdate.getIdentityTypeProvider());
 		if (idTypeDef == null)
 			throw new IllegalIdentityValueException("The identity type is unknown");
@@ -77,11 +133,10 @@ public class IdentityTypeManagementImpl implements IdentityTypesManagement
 			throw new IllegalAttributeTypeException("Minimum number of instances "
 					+ "can not be larger then the maximum");
 
-
 		Map<String, AttributeType> atsMap = dbAttributes.getAllAsMap();
 		Map<String, String> extractedAts = toUpdate.getExtractedAttributes();
 		Set<AttributeType> supportedForExtraction = idTypeDef.getAttributesSupportedForExtraction();
-		Map<String, AttributeType> supportedForExtractionMap = new HashMap<String, AttributeType>();
+		Map<String, AttributeType> supportedForExtractionMap = new HashMap<>();
 		for (AttributeType at: supportedForExtraction)
 			supportedForExtractionMap.put(at.getName(), at);
 
@@ -97,7 +152,28 @@ public class IdentityTypeManagementImpl implements IdentityTypesManagement
 				throw new IllegalAttributeTypeException("Can not extract attribute " + 
 						extracted.getKey() + " as " + extracted.getValue() + 
 						" because the former is not supported by the identity provider");
-		}
-		dbIdentities.update(toUpdate);
+		}		
+	}
+
+	@Override
+	@Transactional
+	public List<IdentityType> getAll() throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
+		return dbIdentities.getAll();
+	}
+	
+	@Override
+	@Transactional
+	public Collection<IdentityType> getIdentityTypes() throws EngineException
+	{
+		return getAll();
+	}
+
+	@Transactional
+	@Override
+	public void updateIdentityType(IdentityType toUpdate) throws EngineException
+	{
+		update(toUpdate);
 	}
 }
