@@ -53,6 +53,7 @@ public class SamlIdpProperties extends SamlProperties
 	private static final Logger log = Log.getLogger(SamlIdpProperties.LOG_PFX, SamlIdpProperties.class);
 	public enum RequestAcceptancePolicy {all, validSigner, validRequester, strict};
 	public enum ResponseSigningPolicy {always, never, asRequest};
+	public enum AssertionSigningPolicy {always, ifResponseUnsigned};
 	
 	public static final String LOG_PFX = Log.U_SERVER_CFG;
 	
@@ -62,6 +63,7 @@ public class SamlIdpProperties extends SamlProperties
 	public static final String AUTHENTICATION_TIMEOUT = "authenticationTimeout";
 
 	public static final String SIGN_RESPONSE = "signResponses";
+	public static final String SIGN_ASSERTION = "signAssertion";
 	public static final String CREDENTIAL = "credential";
 	public static final String TRUSTSTORE = "truststore";
 	public static final String DEF_ATTR_ASSERTION_VALIDITY = "validityPeriod";
@@ -125,7 +127,15 @@ public class SamlIdpProperties extends SamlProperties
 		defaults.put(AUTHENTICATION_TIMEOUT, new PropertyMD("600").setPositive().setCategory(samlCat).
 				setDescription("Defines maximum time (in seconds) after which the authentication in progress is invalidated. This feature is used to clean up authentications started by users but not finished."));
 		defaults.put(SIGN_RESPONSE, new PropertyMD(ResponseSigningPolicy.asRequest).setCategory(samlCat).
-				setDescription("Defines when SAML responses should be signed. Note that it is not related to signing SAML assertions which are included in response. 'asRequest' setting will result in signing only those responses for which the corresponding request was signed."));
+				setDescription("Defines when SAML responses should be signed. "
+						+ "Note that it is not related to signing SAML assertions which "
+						+ "are included in response. "
+						+ "'asRequest' setting will result in signing only those responses "
+						+ "for which the corresponding request was signed."));
+		defaults.put(SIGN_ASSERTION, new PropertyMD(AssertionSigningPolicy.always).setCategory(samlCat).
+				setDescription("Defines when SAML assertions (contained in SAML response) "
+						+ "should be signed: either always or if signing may be skipped "
+						+ "if wrapping request will be anyway signed"));
 		defaults.put(DEF_ATTR_ASSERTION_VALIDITY, new PropertyMD("14400").setPositive().setCategory(samlCat).
 				setDescription("Controls the maximum validity period of an attribute assertion returned to client (in seconds). It is inserted whenever query is compliant with 'SAML V2.0 Deployment Profiles for X.509 Subjects', what usually is the case."));
 		defaults.put(ISSUER_URI, new PropertyMD().setCategory(samlCat).setMandatory().
@@ -294,7 +304,7 @@ public class SamlIdpProperties extends SamlProperties
 			log.debug("All SPs using a valid certificate will be authorized to submit authentication requests");
 		} else if (spPolicy == RequestAcceptancePolicy.strict)
 		{
-			authnTrustChecker = createStrickTrustChecker();
+			authnTrustChecker = createStrictTrustChecker();
 			sloTrustChecker = authnTrustChecker;
 		} else
 		{
@@ -330,7 +340,7 @@ public class SamlIdpProperties extends SamlProperties
 				
 				log.debug("SP authorized to submit authentication requests: " + name);
 			}
-			this.sloTrustChecker = createStrickTrustChecker();
+			this.sloTrustChecker = createStrictTrustChecker();
 		}
 		
 		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP_PREFIX);
@@ -375,7 +385,7 @@ public class SamlIdpProperties extends SamlProperties
 			throw new ConfigurationException("The SAML credential " + credential + " is unknown");
 	}
 	
-	private StrictSamlTrustChecker createStrickTrustChecker()
+	private StrictSamlTrustChecker createStrictTrustChecker()
 	{
 		StrictSamlTrustChecker authnTrustChecker = new StrictSamlTrustChecker();
 		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP_PREFIX);

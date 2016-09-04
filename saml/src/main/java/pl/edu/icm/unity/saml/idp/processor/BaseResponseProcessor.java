@@ -200,6 +200,18 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 			assertion.sign(credential.getKey(), credential.getCertificateChain());
 		} catch (DSigException e)
 		{
+			throw new SAMLProcessingException("Signing assertion problem", e);
+		}
+	}
+	
+	protected void signResponse(AssertionResponse response) throws SAMLProcessingException
+	{
+		try
+		{
+			X509Credential credential = samlConfiguration.getSamlIssuerCredential();
+			response.sign(credential.getKey(), credential.getCertificateChain());
+		} catch (DSigException e)
+		{
 			throw new SAMLProcessingException("Signing response problem", e);
 		}
 	}

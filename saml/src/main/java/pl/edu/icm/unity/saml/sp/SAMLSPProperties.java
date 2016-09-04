@@ -23,9 +23,9 @@ import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.trust.CheckingMode;
 import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.trust.StrictSamlTrustChecker;
-import eu.unicore.samly2.trust.DsigSamlTrustCheckerBase.CheckingMode;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
@@ -61,6 +61,7 @@ public class SAMLSPProperties extends SamlProperties
 	
 	public static final String DEF_SIGN_REQUEST = "defaultSignRequest";
 	public static final String DEF_REQUESTED_NAME_FORMAT = "defaultRequestedNameFormat";
+	public static final String REQUIRE_SIGNED_ASSERTION = "requireSignedAssertion";
 
 	public static final String IDPMETA_PREFIX = "metadataSource.";
 	public static final String IDPMETA_TRANSLATION_PROFILE = "perMetadataTranslationProfile";
@@ -167,6 +168,12 @@ public class SAMLSPProperties extends SamlProperties
 		META.put(ACCEPTED_NAME_FORMATS, new PropertyMD().setList(false).setCategory(common).setDescription(
 				"If defined then specifies what SAML name formatd are accepted from IdP. " +
 				"Useful when the property " + IDP_REQUESTED_NAME_FORMAT + " is undefined for at least one IdP. "));
+		META.put(REQUIRE_SIGNED_ASSERTION, new PropertyMD("false").setCategory(common).setDescription(
+				"SAML authN responses may be signed as a whole and/or may have signed individual assertions"
+				+ " which are contained in the response. In general SAML SSO protocol requires "
+				+ "assertions to be signed, but in the wild this is not always the case. If this option"
+				+ "is set to false, then response will be accepted also when it is signed, "
+				+ "but its assertions are not."));
 		META.put(DEF_SIGN_REQUEST, new PropertyMD("false").setCategory(common).setDescription(
 				"Default setting of request signing. Used for those IdPs, for which the setting is not set explicitly."));
 		META.put(DEF_REQUESTED_NAME_FORMAT, new PropertyMD().setCategory(common).setDescription(
@@ -336,7 +343,10 @@ public class SAMLSPProperties extends SamlProperties
 	public SamlTrustChecker getTrustChecker() throws ConfigurationException
 	{
 		Set<String> idpKeys = getStructuredListKeys(IDP_PREFIX);
-		StrictSamlTrustChecker trustChecker = new StrictSamlTrustChecker(CheckingMode.REQUIRE_SIGNED_ASSERTION);
+		CheckingMode mode = getBooleanValue(REQUIRE_SIGNED_ASSERTION) ? 
+					CheckingMode.REQUIRE_SIGNED_ASSERTION : 
+					CheckingMode.REQUIRE_SIGNED_RESPONSE_OR_ASSERTION;
+		StrictSamlTrustChecker trustChecker = new StrictSamlTrustChecker(mode);
 		for (String idpKey: idpKeys)
 		{
 			String idpId = getValue(idpKey+IDP_ID);
