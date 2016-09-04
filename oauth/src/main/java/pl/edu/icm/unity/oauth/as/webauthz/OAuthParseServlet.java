@@ -85,6 +85,7 @@ public class OAuthParseServlet extends HttpServlet
 	protected IdentitiesManagement identitiesMan;
 	protected AttributesManagement attributesMan;
 	protected OAuthRequestValidator requestValidator;
+	private boolean assumeForce;
 	
 	public OAuthParseServlet(OAuthASProperties oauthConfig, String endpointAddress,
 			String oauthUiServletPath, ErrorHandler errorHandler, IdentitiesManagement identitiesMan,
@@ -97,6 +98,7 @@ public class OAuthParseServlet extends HttpServlet
 		this.errorHandler = errorHandler;
 		this.identitiesMan = identitiesMan;
 		this.attributesMan = attributesMan;
+		this.assumeForce = oauthConfig.getBooleanValue(CommonIdPProperties.ASSUME_FORCE);
 		this.requestValidator = new OAuthRequestValidator(oauthConfig, identitiesMan, attributesMan);
 	}
 
@@ -157,8 +159,10 @@ public class OAuthParseServlet extends HttpServlet
 		if (context != null)
 		{
 			//We can have the old session expired or order to forcefully close it.
-			String force = request.getParameter(REQ_FORCE);
-			if ((force == null || force.equals("false")) && !context.isExpired())
+			String forceStr = request.getParameter(REQ_FORCE);
+			boolean force = assumeForce || (forceStr != null && !forceStr.equals("false"));
+			
+			if (!force && !context.isExpired())
 			{
 				if (log.isTraceEnabled())
 					log.trace("Request to OAuth2 consumer address, with OAuth input and we have " +
