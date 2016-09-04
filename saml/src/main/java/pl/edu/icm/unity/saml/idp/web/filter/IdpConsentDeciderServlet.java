@@ -32,6 +32,7 @@ import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
+import pl.edu.icm.unity.server.api.internal.CommonIdPProperties;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
@@ -149,7 +150,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 			return false;
 		
 		boolean skipConsent = samlCtx.getSamlConfiguration().getBooleanValue(
-				SamlIdpProperties.SKIP_CONSENT);
+				CommonIdPProperties.SKIP_CONSENT);
 		if (skipConsent)
 			return false;
 		
@@ -201,12 +202,15 @@ public class IdpConsentDeciderServlet extends HttpServlet
 			String binding) 
 			throws EngineException
 	{
-		String profile = samlProperties.getValue(SamlIdpProperties.TRANSLATION_PROFILE);
+		String profile = samlProperties.getValue(CommonIdPProperties.TRANSLATION_PROFILE);
+		boolean skipImport = samlProperties.getBooleanValue(CommonIdPProperties.SKIP_USERIMPORT);
+
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		return idpEngine.obtainUserInformation(new EntityParam(ae.getEntityId()), 
 				processor.getChosenGroup(), profile, 
 				processor.getIdentityTarget(), "SAML2", binding,
-				processor.isIdentityCreationAllowed());
+				processor.isIdentityCreationAllowed(),
+				!skipImport);
 	}
 
 	

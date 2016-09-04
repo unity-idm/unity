@@ -43,6 +43,7 @@ import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 import pl.edu.icm.unity.saml.slo.SLOSAMLServlet;
 import pl.edu.icm.unity.server.api.PKIManagement;
+import pl.edu.icm.unity.server.api.internal.CommonIdPProperties;
 import pl.edu.icm.unity.server.api.internal.NetworkServer;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
@@ -253,7 +254,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	{
 		return new SamlParseServlet(myMetadataManager, 
 				endpointURL, dispatcherUrl, new ErrorHandler(freemarkerHandler),
-				samlProperties.getBooleanValue(SamlIdpProperties.ASSUME_FORCE));
+				samlProperties.getBooleanValue(CommonIdPProperties.ASSUME_FORCE));
 	}
 
 	protected Servlet getMetadataServlet(String samlEndpointURL, String sloEndpointURL, String sloSoapEndpointURL)

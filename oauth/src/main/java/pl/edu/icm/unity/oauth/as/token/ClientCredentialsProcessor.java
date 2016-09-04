@@ -20,6 +20,7 @@ import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext.ScopeInfo;
+import pl.edu.icm.unity.server.api.internal.CommonIdPProperties;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.authn.InvocationContext;
@@ -124,14 +125,15 @@ public class ClientCredentialsProcessor
 			throws EngineException
 	{
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
-		
+		boolean skipImport = config.getBooleanValue(CommonIdPProperties.SKIP_USERIMPORT);
 		TranslationResult translationResult = idpEngine.obtainUserInformation(new EntityParam(ae.getEntityId()), 
 				usersGroup, 
-				config.getValue(OAuthASProperties.TRANSLATION_PROFILE), 
+				config.getValue(CommonIdPProperties.TRANSLATION_PROFILE), 
 				client,
 				"OAuth2", 
 				GrantType.CLIENT_CREDENTIALS.getValue(),
-				true);
+				true,
+				!skipImport);
 		return translationResult;
 	}
 	

@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.as;
 
+import static org.mockito.Mockito.when;
 import static pl.edu.icm.unity.oauth.as.OAuthASProperties.CREDENTIAL;
 import static pl.edu.icm.unity.oauth.as.OAuthASProperties.ISSUER_URI;
 import static pl.edu.icm.unity.oauth.as.OAuthASProperties.P;
@@ -22,6 +23,7 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.GroupsManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.PKIManagement;
+import pl.edu.icm.unity.server.api.internal.CommonIdPProperties;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
@@ -47,6 +49,7 @@ import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
 
 import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
+import io.codearte.catchexception.shade.mockito.Mockito;
 
 public class OAuthTestUtils
 {
@@ -76,8 +79,11 @@ public class OAuthTestUtils
 				null, new State("state123"));
 		X509Credential credential = new KeystoreCredential("src/test/resources/demoKeystore.p12", 
 				"the!uvos".toCharArray(), "the!uvos".toCharArray(), null, "pkcs12");
+		OAuthASProperties mockedProps = Mockito.mock(OAuthASProperties.class);
+		when(mockedProps.getBooleanValue(CommonIdPProperties.SKIP_USERIMPORT)).thenReturn(false);
+		
 		OAuthAuthzContext ctx = new OAuthAuthzContext(
-				request, 
+				request, mockedProps,
 				accessTokenValidity, 
 				maxExtValidity,
 				200, 

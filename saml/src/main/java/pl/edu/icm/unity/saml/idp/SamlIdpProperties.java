@@ -25,6 +25,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.validator.UnityAuthnRequestValidator;
 import pl.edu.icm.unity.server.api.PKIManagement;
+import pl.edu.icm.unity.server.api.internal.CommonIdPProperties;
 import pl.edu.icm.unity.server.utils.Log;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import eu.emi.security.authn.x509.X509CertChainValidator;
@@ -88,10 +89,6 @@ public class SamlIdpProperties extends SamlProperties
 	public static final String GROUP_TARGET = "serviceProvider";
 	public static final String GROUP = "mappingGroup";
 	public static final String DEFAULT_GROUP = "defaultGroup";
-	
-	public static final String TRANSLATION_PROFILE = "translationProfile";
-	public static final String SKIP_CONSENT = "skipConsent";
-	public static final String ASSUME_FORCE = "assumeForceOnSessionClash";
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
@@ -204,22 +201,6 @@ public class SamlIdpProperties extends SamlProperties
 				"Using this property additional trusted certificates of an SP can be added (when SP uses more then one). See " 
 						+ ALLOWED_SP_CERTIFICATE + " for details. Those properties can be used together or alternatively."));
 
-		defaults.put(TRANSLATION_PROFILE, new PropertyMD().setCategory(samlCat).
-				setDescription("Name of an output translation profile which can be used to dynamically modify the "
-						+ "data being returned on this endpoint. When not defined the default profile is used: "
-						+ "attributes are not filtered, memberOf attribute is added with group membership"));
-		defaults.put(SKIP_CONSENT, new PropertyMD("false").setCategory(samlCat).
-				setDescription("Controls whether the user being authenticated should see the consent screen"
-						+ " with the information what service requested authentication and what data "
-						+ "is going to be released. Note that user may always choose to disable "
-						+ "the consent screen for each service, even if this setting is set to false."));
-		defaults.put(ASSUME_FORCE, new PropertyMD("false").setCategory(samlCat).
-				setDescription("Controls what to do in case of initialization of a new SAML interaction,"
-						+ "while another one was not finished within the same browser session."
-						+ " By default a warning page is rendered and the user has "
-						+ "a choice to cancel or forcefully continue. However, "
-						+ "if this setting is set to true, then the new interaction forcefully"
-						+ "takes over the old interaction, without asking the user."));
 		defaults.put(TRUSTSTORE, new PropertyMD().setCategory(samlCat).
 				setDescription("Truststore name to setup SAML trust settings. The truststore "
 						+ "is used to verify request signature issuer, " +
@@ -230,6 +211,11 @@ public class SamlIdpProperties extends SamlProperties
 		defaults.putAll(SamlProperties.getDefaults(SPMETA_PREFIX, 
 				"Under this prefix you can configure the remote trusted SAML Sps however not "
 				+ "providing all their details but only their metadata."));
+		
+		defaults.putAll(CommonIdPProperties.getDefaultsWithCategory(samlCat, 
+				"Name of an output translation profile which can be used to dynamically modify the "
+				+ "data being returned on this endpoint. When not defined the default profile is used: "
+				+ "attributes are not filtered, memberOf attribute is added with group membership"));
 	}
 
 	private boolean signRespNever;

@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.types.basic.Attribute;
 
@@ -20,7 +21,9 @@ import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import eu.emi.security.authn.x509.X509Credential;
 
 /**
- * Context stored in HTTP session maintaining authorization token. 
+ * Context stored in HTTP session maintaining authorization token.
+ * 
+ * TODO - simplify this class: it duplicates the {@link OAuthASProperties} contents to a large degree.
  * @author K. Benedyczak
  */
 public class OAuthAuthzContext
@@ -47,14 +50,17 @@ public class OAuthAuthzContext
 	private String issuerName;
 	private X509Credential credential;
 	private String subjectIdentityType;
+	private OAuthASProperties properties;
 	
 
-	public OAuthAuthzContext(AuthorizationRequest request, int accessTokenValidity, int maxExtendedAccessTokenValidity,
+	public OAuthAuthzContext(AuthorizationRequest request, OAuthASProperties properties,
+			int accessTokenValidity, int maxExtendedAccessTokenValidity,
 			int codeTokenValidity,
 			int idTokenValidity, String issuerName, X509Credential credential, boolean skipConsent,
 			String subjectIdentityType)
 	{
 		super();
+		this.properties = properties;
 		this.maxExtendedAccessTokenValidity = maxExtendedAccessTokenValidity;
 		this.subjectIdentityType = subjectIdentityType;
 		this.timestamp = new Date();
@@ -65,6 +71,11 @@ public class OAuthAuthzContext
 		this.issuerName = issuerName;
 		this.credential = credential;
 		this.skipConsent = skipConsent;
+	}
+
+	public OAuthASProperties getProperties()
+	{
+		return properties;
 	}
 
 	public X509Credential getCredential()

@@ -34,6 +34,7 @@ import pl.edu.icm.unity.oauth.as.OAuthValidationException;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.api.internal.CommonIdPProperties;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.RoutingServlet;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -184,14 +185,14 @@ public class OAuthParseServlet extends HttpServlet
 				log.trace("Parsed OAuth request: " + request.getQueryString());
 			int maxExtendedValidity = oauthConfig.isSet(OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY) ?
 					oauthConfig.getIntValue(OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY) : 0;
-			context = new OAuthAuthzContext(authzRequest,
+			context = new OAuthAuthzContext(authzRequest, oauthConfig,
 					oauthConfig.getIntValue(OAuthASProperties.ACCESS_TOKEN_VALIDITY),
 					maxExtendedValidity,
 					oauthConfig.getIntValue(OAuthASProperties.CODE_TOKEN_VALIDITY),
 					oauthConfig.getIntValue(OAuthASProperties.ID_TOKEN_VALIDITY),
 					oauthConfig.getValue(OAuthASProperties.ISSUER_URI),
 					oauthConfig.getCredential(),
-					oauthConfig.getBooleanValue(OAuthASProperties.SKIP_CONSENT),
+					oauthConfig.getBooleanValue(CommonIdPProperties.SKIP_CONSENT),
 					oauthConfig.getValue(OAuthASProperties.IDENTITY_TYPE_FOR_SUBJECT));
 			validate(context);
 		} catch (OAuthValidationException e)
@@ -290,7 +291,7 @@ public class OAuthParseServlet extends HttpServlet
 		else
 			context.setUsersGroup(oauthConfig.getValue(OAuthASProperties.USERS_GROUP));
 		
-		context.setTranslationProfile(oauthConfig.getValue(OAuthASProperties.TRANSLATION_PROFILE));
+		context.setTranslationProfile(oauthConfig.getValue(CommonIdPProperties.TRANSLATION_PROFILE));
 		
 		Scope requestedScopes = authzRequest.getScope();
 		List<ScopeInfo> validRequestedScopes = requestValidator.getValidRequestedScopes(requestedScopes);

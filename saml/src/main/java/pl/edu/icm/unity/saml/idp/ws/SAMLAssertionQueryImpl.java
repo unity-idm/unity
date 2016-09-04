@@ -17,6 +17,7 @@ import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AttributeQueryResponseProcessor;
 import pl.edu.icm.unity.saml.validator.UnityAttributeQueryValidator;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
+import pl.edu.icm.unity.server.api.internal.CommonIdPProperties;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
@@ -123,11 +124,13 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 	protected Collection<Attribute<?>> getAttributes(IdentityTaV subjectId,
 			AttributeQueryResponseProcessor processor, SPSettings preferences) throws EngineException
 	{
-		String profile = samlProperties.getValue(SamlIdpProperties.TRANSLATION_PROFILE);
-		
+		String profile = samlProperties.getValue(CommonIdPProperties.TRANSLATION_PROFILE);
+		boolean skipImport = samlProperties.getBooleanValue(CommonIdPProperties.SKIP_USERIMPORT);
+
 		TranslationResult userInfo = idpEngine.obtainUserInformation(new EntityParam(subjectId), 
 				processor.getChosenGroup(), profile, 
-				processor.getIdentityTarget(), "SAML2", SAMLConstants.BINDING_SOAP, false);
+				processor.getIdentityTarget(), "SAML2", SAMLConstants.BINDING_SOAP, false,
+				!skipImport);
 		return processor.getAttributes(userInfo, preferences);
 	}
 

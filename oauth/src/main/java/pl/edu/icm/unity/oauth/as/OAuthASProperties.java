@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.PKIManagement;
+import pl.edu.icm.unity.server.api.internal.CommonIdPProperties;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import eu.emi.security.authn.x509.X509Credential;
@@ -45,12 +46,10 @@ public class OAuthASProperties extends PropertiesHelper
 	public static final String CODE_TOKEN_VALIDITY = "codeTokenValidity";
 	public static final String ID_TOKEN_VALIDITY = "idTokenValidity";
 	public static final String CREDENTIAL = "signingCredential";
-	public static final String SKIP_CONSENT = "skipConsent";
 	public static final String IDENTITY_TYPE_FOR_SUBJECT = "identityTypeForSubject";
 	
 	public static final String CLIENTS_GROUP = "clientsGroup";
 	public static final String USERS_GROUP = "usersGroup";
-	public static final String TRANSLATION_PROFILE = "translationProfile";
 	
 	public static final String SCOPES = "scopes.";
 	public static final String SCOPE_ATTRIBUTES = "attributes.";
@@ -77,11 +76,6 @@ public class OAuthASProperties extends PropertiesHelper
 		defaults.put(CREDENTIAL, new PropertyMD().setMandatory().
 				setDescription("Name of a credential which is used to sign tokens. "
 						+ "Used only for the OpenId Connect mode, but currently it is always required."));
-		defaults.put(SKIP_CONSENT, new PropertyMD("false").
-				setDescription("Controls whether the user being authenticated should see the consent screen"
-						+ " with the information what service requested authorization and what data "
-						+ "is going to be released. Note that user may always choose to disable "
-						+ "the consent screen for each service, even if this setting is set to false."));
 		defaults.put(IDENTITY_TYPE_FOR_SUBJECT, new PropertyMD(TargetedPersistentIdentity.ID).
 				setDescription("Allows for selecting the identity type which is used to create a mandatory "
 						+ "'sub' claim of OAuth token. By default the targeted persistent identifier"
@@ -104,11 +98,11 @@ public class OAuthASProperties extends PropertiesHelper
 				setDescription("List of Unity attributes that should be returned when the scope is "
 						+ "requested. Note that those attribtues are merely an input to the "
 						+ "configured output translation profile."));
-		defaults.put(TRANSLATION_PROFILE, new PropertyMD().
-				setDescription("Name of an output translation profile which can be used to dynamically modify the "
-						+ "data being returned on this endpoint. "
-						+ "When not defined the default profile is used which simply return all Unity attribtues."));
-
+		
+		defaults.putAll(CommonIdPProperties.getDefaults("Name of an output translation profile "
+				+ "which can be used to dynamically modify the "
+				+ "data being returned on this endpoint. "
+				+ "When not defined the default profile is used which simply return all Unity attribtues."));
 	}
 	
 	private X509Credential credential;

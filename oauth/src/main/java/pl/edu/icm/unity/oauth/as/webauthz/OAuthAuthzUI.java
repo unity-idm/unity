@@ -35,6 +35,7 @@ import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
+import pl.edu.icm.unity.server.api.internal.CommonIdPProperties;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
@@ -265,13 +266,15 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		String flow = ctx.getRequest().getResponseType().impliesCodeFlow() ? 
 				GrantFlow.authorizationCode.toString() : GrantFlow.implicit.toString();
+		Boolean skipImport = ctx.getProperties().getBooleanValue(CommonIdPProperties.SKIP_USERIMPORT);
 		TranslationResult translationResult = idpEngine.obtainUserInformation(new EntityParam(ae.getEntityId()), 
 				ctx.getUsersGroup(), 
 				ctx.getTranslationProfile(), 
 				ctx.getRequest().getClientID().getValue(),
 				"OAuth2", 
 				flow,
-				true);
+				true,
+				!skipImport);
 		return translationResult;
 	}
 

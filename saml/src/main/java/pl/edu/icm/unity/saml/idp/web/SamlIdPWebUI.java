@@ -17,10 +17,18 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.vaadin.annotations.Theme;
+import com.vaadin.server.VaadinRequest;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
+
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
@@ -28,6 +36,7 @@ import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServlet;
 import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
+import pl.edu.icm.unity.server.api.internal.CommonIdPProperties;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
@@ -57,16 +66,6 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
-
-import com.vaadin.annotations.Theme;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
-
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.exceptions.SAMLRequesterException;
 
 /**
  * The main UI of the SAML web IdP. Fairly simple: shows who asks, what is going to be sent,
@@ -123,12 +122,15 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	protected TranslationResult getUserInfo(SAMLAuthnContext samlCtx, AuthnResponseProcessor processor) 
 			throws EngineException
 	{
-		String profile = samlCtx.getSamlConfiguration().getValue(SamlIdpProperties.TRANSLATION_PROFILE);
+		String profile = samlCtx.getSamlConfiguration().getValue(CommonIdPProperties.TRANSLATION_PROFILE);
+		boolean skipImport = samlCtx.getSamlConfiguration().getBooleanValue(
+				CommonIdPProperties.SKIP_USERIMPORT);
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		return idpEngine.obtainUserInformation(new EntityParam(ae.getEntityId()), 
 				processor.getChosenGroup(), profile, 
 				samlProcessor.getIdentityTarget(), "SAML2", SAMLConstants.BINDING_HTTP_REDIRECT,
-				processor.isIdentityCreationAllowed());
+				processor.isIdentityCreationAllowed(),
+				!skipImport);
 	}
 
 	@Override

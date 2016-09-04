@@ -78,11 +78,12 @@ public class IdPEngine
 	 * @throws EngineException
 	 */
 	public TranslationResult obtainUserInformation(EntityParam entity, String group, String profile,
-			String requester, String protocol, String protocolSubType, boolean allowIdentityCreate) 
+			String requester, String protocol, String protocolSubType, boolean allowIdentityCreate,
+			boolean triggerImport) 
 			throws EngineException
 	{
 		IdentityTaV identityTaV = entity.getIdentity();
-		if (identityTaV != null)
+		if (identityTaV != null && triggerImport)
 			userImportService.importUser(identityTaV.getValue(), identityTaV.getTypeId());
 		Collection<String> allGroups = identitiesMan.getGroups(entity).keySet();
 		Collection<AttributeExt<?>> allAttributes = attributesMan.getAttributes(
