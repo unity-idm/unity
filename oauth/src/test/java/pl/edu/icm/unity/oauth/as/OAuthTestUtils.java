@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.as;
 
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 import static pl.edu.icm.unity.oauth.as.OAuthASProperties.CREDENTIAL;
 import static pl.edu.icm.unity.oauth.as.OAuthASProperties.ISSUER_URI;
@@ -15,6 +16,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
+
+import org.mockito.Mockito;
 
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext;
@@ -49,7 +52,6 @@ import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
 
 import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
-import io.codearte.catchexception.shade.mockito.Mockito;
 
 public class OAuthTestUtils
 {
@@ -80,7 +82,7 @@ public class OAuthTestUtils
 		X509Credential credential = new KeystoreCredential("src/test/resources/demoKeystore.p12", 
 				"the!uvos".toCharArray(), "the!uvos".toCharArray(), null, "pkcs12");
 		OAuthASProperties mockedProps = Mockito.mock(OAuthASProperties.class);
-		when(mockedProps.getBooleanValue(CommonIdPProperties.SKIP_USERIMPORT)).thenReturn(false);
+		when(mockedProps.getBooleanValue(eq(CommonIdPProperties.SKIP_USERIMPORT))).thenReturn(Boolean.FALSE);
 		
 		OAuthAuthzContext ctx = new OAuthAuthzContext(
 				request, mockedProps,
