@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.attribute;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
+import pl.edu.icm.unity.engine.api.attributes.EngineAttribute;
 import pl.edu.icm.unity.engine.api.confirmation.ConfirmationManager;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
@@ -68,9 +70,71 @@ public class AttributesManagementImpl implements AttributesManagement
 	}
 
 	@Override
+	public void create(EngineAttribute engineAttr) throws EngineException
+	{
+		setAttribute(engineAttr, true);
+	}
+
+	@Override
+	public void update(EngineAttribute engineAttr) throws EngineException
+	{
+		setAttribute(engineAttr, false);
+		
+	}
+
+	@Override
+	@Transactional
+	public void delete(EngineAttribute engineAttr) throws EngineException
+	{
+		EntityParam entity = engineAttr.getEntity();
+		String groupPath = engineAttr.getGroupPath();
+		String attributeTypeId = engineAttr.getAttributeTypeId();
+		if (groupPath == null)
+			throw new IllegalGroupValueException("Group must not be null");
+		if (attributeTypeId == null)
+			throw new IllegalAttributeValueException("Attribute name must not be null");
+		entity.validateInitialization();
+
+		long entityId = idResolver.getEntityId(entity);
+		AttributeType at = attributeTypeDAO.get(attributeTypeId);
+		if (at.isInstanceImmutable())
+			throw new SchemaConsistencyException("The attribute with name " + at.getName() + 
+					" can not be manually modified");
+		authz.checkAuthorization(at.isSelfModificable() && authz.isSelf(entityId),
+				groupPath, AuthzCapability.attributeModify);
+		
+		checkIfMandatory(entityId, groupPath, attributeTypeId);
+		
+		dbAttributes.deleteAttribute(attributeTypeId, entityId, groupPath);
+		
+	}
+
+	@Override
+	public List<EngineAttribute> getAll() throws EngineException
+	{
+		throw new UnsupportedOperationException("Gel all operation is not supported for attributes.");
+	}	
+
+	@Override
 	public void setAttribute(EntityParam entity, Attribute attribute, boolean update)
 			throws EngineException
 	{
+		setAttribute(
+				EngineAttribute.builder()
+					.withAttribute(attribute)
+					.withEntity(entity)
+					.build(), 
+				update);
+	}
+	
+	/**
+	 * Creates or updates an attribute.
+	 */ 
+	@Override
+	public void setAttribute(EngineAttribute engineAttr, boolean update) throws EngineException
+	{
+		EntityParam entity = engineAttr.getEntity();
+		Attribute attribute = engineAttr.getAttribute();
 		entity.validateInitialization(); 
 		txRunner.runInTransactionThrowing(() -> {
 			boolean fullAuthz;
@@ -101,44 +165,49 @@ public class AttributesManagementImpl implements AttributesManagement
 	
 	
 	@Override
-	@Transactional
 	public void removeAttribute(EntityParam entity, String groupPath, String attributeTypeId)
 			throws EngineException
 	{
-		if (groupPath == null)
-			throw new IllegalGroupValueException("Group must not be null");
-		if (attributeTypeId == null)
-			throw new IllegalAttributeValueException("Attribute name must not be null");
-		entity.validateInitialization();
-
-		long entityId = idResolver.getEntityId(entity);
-		AttributeType at = attributeTypeDAO.get(attributeTypeId);
-		if (at.isInstanceImmutable())
-			throw new SchemaConsistencyException("The attribute with name " + at.getName() + 
-					" can not be manually modified");
-		authz.checkAuthorization(at.isSelfModificable() && authz.isSelf(entityId),
-				groupPath, AuthzCapability.attributeModify);
-		
-		checkIfMandatory(entityId, groupPath, attributeTypeId);
-		
-		dbAttributes.deleteAttribute(attributeTypeId, entityId, groupPath);
+		delete(EngineAttribute.builder()
+				.withEntity(entity)
+				.withGroupPath(groupPath)
+				.withAttributeTypeId(attributeTypeId)
+				.build());
 	}
-
+	
+	
 	@Override
 	@Transactional
-	public Collection<AttributeExt> getAttributes(EntityParam entity, String groupPath,
-			String attributeTypeId) throws EngineException
+	public Collection<AttributeExt> getAttributes(EngineAttribute engineAttr) throws EngineException
 	{
+		EntityParam entity = engineAttr.getEntity();
+		String groupPath = engineAttr.getGroupPath();
+		String attributeTypeId = engineAttr.getAttributeTypeId();
 		Collection<AttributeExt> ret = getAllAttributesInternal(entity, true, groupPath, attributeTypeId, 
 				new AuthzCapability[] {AuthzCapability.read}, false);
 		return ret;
 	}
 
 	@Override
-	@Transactional
-	public Collection<AttributeExt> getAllAttributes(EntityParam entity, boolean effective, String groupPath,
-			String attributeTypeId, boolean allowDegrade) throws EngineException
+	public Collection<AttributeExt> getAttributes(EntityParam entity, String groupPath,
+			String attributeTypeId) throws EngineException
 	{
+		Collection<AttributeExt> ret = getAttributes(EngineAttribute.builder()
+				.withEntity(entity)
+				.withGroupPath(groupPath)
+				.withAttributeTypeId(attributeTypeId)
+				.build());
+		return ret;
+	}
+
+	@Override
+	@Transactional
+	public Collection<AttributeExt> getAllAttributes(EngineAttribute engineAttr, boolean effective,
+			boolean allowDegrade) throws EngineException
+	{
+		EntityParam entity = engineAttr.getEntity();
+		String groupPath = engineAttr.getGroupPath();
+		String attributeTypeId = engineAttr.getAttributeTypeId();
 		try
 		{
 			return getAllAttributesInternal(entity, effective, groupPath, attributeTypeId, 
@@ -154,6 +223,18 @@ public class AttributesManagementImpl implements AttributesManagement
 			} else
 				throw e;
 		}
+	}
+
+	@Override
+	public Collection<AttributeExt> getAllAttributes(EntityParam entity, boolean effective, String groupPath,
+			String attributeTypeId, boolean allowDegrade) throws EngineException
+	{
+		return getAllAttributes(
+				EngineAttribute.builder()
+					.withEntity(entity)
+					.withGroupPath(groupPath)
+					.withAttributeTypeId(attributeTypeId).build(),
+				effective, allowDegrade);
 	}
 
 	private Collection<AttributeExt> getAllAttributesInternal(EntityParam entity, boolean effective, 

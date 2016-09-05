@@ -18,14 +18,20 @@ public interface IdentityTypesManagement extends NamedEngineDAO<IdentityType>
 	/**
 	 * @return list of supported identity types
 	 * @throws EngineException
+	 * 
+	 * @deprecated <b>Use {@link IdentityTypesManagement#getAll()} instead.</b>
 	 */
+	@Deprecated
 	public Collection<IdentityType> getIdentityTypes() throws EngineException;
 	
 	/**
 	 * Allows to update mutable part of identity type, as extracted fields or description.
 	 * @param toUpdate
 	 * @throws EngineException
+	 * 
+	 * @deprecated <b>Use {@link IdentityTypesManagement#update(IdentityType)} instead.</b>
 	 */
+	@Deprecated
 	public void updateIdentityType(IdentityType toUpdate) throws EngineException;
 }
 

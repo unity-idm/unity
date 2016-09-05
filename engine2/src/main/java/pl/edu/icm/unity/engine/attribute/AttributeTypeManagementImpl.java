@@ -156,7 +156,6 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 	 * use
 	 * {@link AttributeTypeManagementImpl#removeAttributeType(String, boolean)}
 	 */
-
 	@Override
 	@Transactional
 	public void delete(AttributeType at) throws EngineException

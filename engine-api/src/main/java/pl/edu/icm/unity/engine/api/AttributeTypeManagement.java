@@ -27,7 +27,10 @@ public interface AttributeTypeManagement extends NamedEngineDAO<AttributeType>
 	 * Adds a new attribute type.
 	 * @param at
 	 * @throws EngineException
+	 * 
+	 * @deprecated <b>Use {@link AttributeTypeManagement#create(AttributeType)} instead.</b>
 	 */
+	@Deprecated
 	void addAttributeType(AttributeType at) throws EngineException;
 
 	/**
@@ -35,7 +38,10 @@ public interface AttributeTypeManagement extends NamedEngineDAO<AttributeType>
 	 * already having this attribute set.
 	 * @param at
 	 * @throws EngineException
+	 * 
+	 * @deprecated <b>Use {@link AttributeTypeManagement#update(AttributeType)} instead.</b>
 	 */
+	@Deprecated
 	void updateAttributeType(AttributeType at) throws EngineException;
 
 	/**
@@ -50,7 +56,10 @@ public interface AttributeTypeManagement extends NamedEngineDAO<AttributeType>
 	/**
 	 * @return all attribute types
 	 * @throws EngineException
+	 * 
+	 * @deprecated <b>Use {@link AttributeTypeManagement#getAll()} instead.</b>
 	 */
+	@Deprecated
 	Collection<AttributeType> getAttributeTypes() throws EngineException;
 
 	/**
