@@ -270,7 +270,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			}
 			AuthNTile tile = tileMode == TileMode.simple ? 
 				new AuthNTileSimple(authNs, scaleMode, perRow, selectionChangedListener, displayedName) : 
-				new AuthNTileGrid(authNs, selectionChangedListener, displayedName);
+				new AuthNTileGrid(authNs, msg, selectionChangedListener, displayedName);
 			ret.add(tile);
 		}
 		

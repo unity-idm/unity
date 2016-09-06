@@ -396,7 +396,7 @@ public class SAMLSPProperties extends SamlProperties
 	 * @param key
 	 * @return
 	 */
-	public boolean isIdPDefinitioncomplete(String key)
+	public boolean isIdPDefinitionComplete(String key)
 	{
 		String entityId;
 		if (!isSet(key + IDP_ID))

@@ -4,19 +4,16 @@
  */
 package pl.edu.icm.unity.webui.authn;
 
+import java.text.Collator;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import pl.edu.icm.unity.server.authn.AuthenticationOption;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
-
 import com.vaadin.data.Item;
+import com.vaadin.data.util.DefaultItemSorter;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.data.util.ItemSorter;
 import com.vaadin.data.util.filter.SimpleStringFilter;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
@@ -29,6 +26,13 @@ import com.vaadin.ui.Grid.CellStyleGenerator;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.renderers.ImageRenderer;
+
+import pl.edu.icm.unity.server.authn.AuthenticationOption;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
  * Component showing a group of {@link VaadinAuthenticationUI}s. All of them are presented in Vaadin {@link Grid}.
@@ -48,11 +52,13 @@ public class AuthNTileGrid extends CustomComponent implements AuthNTile
 	private String name;
 	private Panel tilePanel;
 	private String firstOptionId;
+	private UnityMessageSource msg;
 	
-	public AuthNTileGrid(List<AuthenticationOption> authenticators,
+	public AuthNTileGrid(List<AuthenticationOption> authenticators, UnityMessageSource msg, 
 			SelectionChangedListener listener, String name)
 	{
 		this.authenticators = authenticators;
+		this.msg = msg;
 		this.listener = listener;
 		this.name = name;
 		initUI(null);
@@ -147,6 +153,11 @@ public class AuthNTileGrid extends CustomComponent implements AuthNTile
 						authNOptionsById.get(globalId), globalId);
 			}
 		});
+		Collator collator = Collator.getInstance(msg.getLocale());
+		ItemSorter sorter = new DefaultItemSorter((a, b) -> {
+			return collator.compare(a, b);
+		});
+		((IndexedContainer) providersChoice.getContainerDataSource()).setItemSorter(sorter);
 		providersChoice.sort(COLUMN_NAME);
 		providersChoice.setWidth(600, Unit.PIXELS);
 		setVisible(size() != 0);

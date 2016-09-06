@@ -59,7 +59,7 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange> imp
 		SAMLSPProperties samlProperties = credentialExchange.getSamlValidatorSettings();
 		Set<String> allIdps = samlProperties.getStructuredListKeys(SAMLSPProperties.IDP_PREFIX);
 		for (String key: allIdps)
-			if (samlProperties.isIdPDefinitioncomplete(key))
+			if (samlProperties.isIdPDefinitionComplete(key))
 			{
 				Binding binding = samlProperties.getEnumValue(key + 
 						SAMLSPProperties.IDP_BINDING, Binding.class);
