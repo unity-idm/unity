@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -252,6 +253,13 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		@Override
 		public void presetEntity(Entity authenticatedEntity)
 		{
+		}
+		
+
+		@Override
+		public Set<String> getTags()
+		{
+			return Collections.emptySet();
 		}
 	}	
 }

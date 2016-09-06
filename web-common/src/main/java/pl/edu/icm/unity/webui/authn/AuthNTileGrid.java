@@ -6,15 +6,16 @@ package pl.edu.icm.unity.webui.authn;
 
 import java.text.Collator;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Item;
-import com.vaadin.data.util.DefaultItemSorter;
+import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.data.util.ItemSorter;
-import com.vaadin.data.util.filter.SimpleStringFilter;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.server.Resource;
@@ -52,15 +53,15 @@ public class AuthNTileGrid extends CustomComponent implements AuthNTile
 	private String name;
 	private Panel tilePanel;
 	private String firstOptionId;
-	private UnityMessageSource msg;
+	private Collator collator;
 	
 	public AuthNTileGrid(List<AuthenticationOption> authenticators, UnityMessageSource msg, 
 			SelectionChangedListener listener, String name)
 	{
 		this.authenticators = authenticators;
-		this.msg = msg;
 		this.listener = listener;
 		this.name = name;
+		collator = Collator.getInstance(msg.getLocale());
 		initUI(null);
 	}
 
@@ -77,7 +78,8 @@ public class AuthNTileGrid extends CustomComponent implements AuthNTile
 		
 		dataSource = new IndexedContainer();
 		dataSource.addContainerProperty(COLUMN_IMG, Resource.class, Images.empty.getResource());
-		dataSource.addContainerProperty(COLUMN_NAME, String.class, "");
+		dataSource.addContainerProperty(COLUMN_NAME, NameWithTags.class, new NameWithTags("", 
+				Collections.emptySet(), collator));
 		
 		providersChoice = new Grid(dataSource);
 		providersChoice.setSelectionMode(SelectionMode.NONE);
@@ -136,8 +138,10 @@ public class AuthNTileGrid extends CustomComponent implements AuthNTile
 				authNOptionsById.put(globalId, set);
 				authenticatorById.put(globalId, vaadinAuthenticationUI);
 
+				NameWithTags nameWithTags = new NameWithTags(name, vaadinAuthenticationUI.getTags(),
+						collator);
 				Item item = dataSource.addItem(globalId);
-				item.getItemProperty(COLUMN_NAME).setValue(name);
+				item.getItemProperty(COLUMN_NAME).setValue(nameWithTags);
 				item.getItemProperty(COLUMN_IMG).setValue(logo == null ? 
 						Images.empty.getResource() : logo);
 			}
@@ -153,11 +157,6 @@ public class AuthNTileGrid extends CustomComponent implements AuthNTile
 						authNOptionsById.get(globalId), globalId);
 			}
 		});
-		Collator collator = Collator.getInstance(msg.getLocale());
-		ItemSorter sorter = new DefaultItemSorter((a, b) -> {
-			return collator.compare(a, b);
-		});
-		((IndexedContainer) providersChoice.getContainerDataSource()).setItemSorter(sorter);
 		providersChoice.sort(COLUMN_NAME);
 		providersChoice.setWidth(600, Unit.PIXELS);
 		setVisible(size() != 0);
@@ -197,12 +196,81 @@ public class AuthNTileGrid extends CustomComponent implements AuthNTile
 	public void filter(String filter)
 	{
 		dataSource.removeAllContainerFilters();
-		dataSource.addContainerFilter(new SimpleStringFilter(COLUMN_NAME, filter, true, false));
+		dataSource.addContainerFilter(new TagAwareStringFilter(filter));
 	}
 
 	@Override
 	public Component getComponent()
 	{
 		return this;
+	}
+	
+	public static class NameWithTags implements Comparable<Object>
+	{
+		private String name;
+		private Set<String> tags;
+		private Collator collator;
+		public NameWithTags(String name, Set<String> tags, Collator collator)
+		{
+			this.name = name;
+			this.tags = tags;
+			this.collator = collator;
+		}
+
+		@Override
+		public String toString()
+		{
+			return name;
+		}
+
+		public Set<String> getTags()
+		{
+			return tags;
+		}
+		
+		public boolean contains(String what)
+		{
+			if (name.toLowerCase().contains(what))
+				return true;
+			for (String tag: tags)
+				if (tag.toLowerCase().contains(what))
+					return true;
+			return false;
+		}
+
+		@Override
+		public int compareTo(Object o)
+		{
+			return collator.compare(toString(), o.toString());
+		}
+	}
+	
+	public static class TagAwareStringFilter implements Filter
+	{
+		private String filter;
+		
+		public TagAwareStringFilter(String filter)
+		{
+			this.filter = filter.toLowerCase();
+		}
+
+		@Override
+		public boolean passesFilter(Object itemId, Item item)
+				throws UnsupportedOperationException
+		{
+			final Property<?> p = item.getItemProperty(COLUMN_NAME);
+			if (p == null)
+				return false;
+			NameWithTags propertyValue = (NameWithTags) p.getValue();
+			if (propertyValue == null)
+				return false;
+			return propertyValue.contains(filter);
+		}
+
+		@Override
+		public boolean appliesToProperty(Object propertyId)
+		{
+		        return COLUMN_NAME.equals(propertyId);
+		}
 	}
 }

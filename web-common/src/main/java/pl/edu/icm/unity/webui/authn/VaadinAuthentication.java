@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webui.authn;
 
 import java.util.Collection;
+import java.util.Set;
 
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.CredentialRetrieval;
@@ -82,6 +83,12 @@ public interface VaadinAuthentication extends BindingAuthn
 		 * returns non null value.
 		 */
 		String getLabel();
+		
+		/**
+		 * @return set of optional tags which are attached to the authN option. 
+		 * The tags are available to IdPs search feature
+		 */
+		Set<String> getTags();
 		
 		/**
 		 * @return image {@link Resource} for the presentation in the user interface. Can be null.
