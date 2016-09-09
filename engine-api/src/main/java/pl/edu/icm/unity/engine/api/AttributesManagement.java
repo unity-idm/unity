@@ -25,19 +25,13 @@ public interface AttributesManagement extends BasicEngineDAO<EngineAttribute>
 	 * @param update
 	 * @throws EngineException
 	 * 
-	 * @deprecated <b>Use {@link AttributesManagement#setAttribute(EngineAttribute, boolean)} instead.</b>
+	 * @deprecated <b>Use {@link AttributesManagement#create(EngineAttribute)}
+	 *             and {@link AttributesManagement#update(EngineAttribute)}
+	 *             instead.</b>
 	 */
 	@Deprecated
 	void setAttribute(EntityParam entity, Attribute attribute, boolean update) throws EngineException;
 
-	/**
-	 * Creates or updates an attribute.
-	 * @param engineAttr
-	 * @param update
-	 * @throws EngineException
-	 */
-	void setAttribute(EngineAttribute engineAttr, boolean update) throws EngineException;
-	
 	/**
 	 * Removes a given attribute
 	 * @param entity

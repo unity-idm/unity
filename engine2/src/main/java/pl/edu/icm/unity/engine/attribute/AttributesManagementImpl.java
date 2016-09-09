@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.attribute;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -87,8 +88,8 @@ public class AttributesManagementImpl implements AttributesManagement
 	public void delete(EngineAttribute engineAttr) throws EngineException
 	{
 		EntityParam entity = engineAttr.getEntity();
-		String groupPath = engineAttr.getGroupPath();
-		String attributeTypeId = engineAttr.getAttributeTypeId();
+		String attributeTypeId = engineAttr.getAttribute().getName();
+		String groupPath = engineAttr.getAttribute().getGroupPath();
 		if (groupPath == null)
 			throw new IllegalGroupValueException("Group must not be null");
 		if (attributeTypeId == null)
@@ -130,8 +131,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	/**
 	 * Creates or updates an attribute.
 	 */ 
-	@Override
-	public void setAttribute(EngineAttribute engineAttr, boolean update) throws EngineException
+	private void setAttribute(EngineAttribute engineAttr, boolean update) throws EngineException
 	{
 		EntityParam entity = engineAttr.getEntity();
 		Attribute attribute = engineAttr.getAttribute();
@@ -168,10 +168,10 @@ public class AttributesManagementImpl implements AttributesManagement
 	public void removeAttribute(EntityParam entity, String groupPath, String attributeTypeId)
 			throws EngineException
 	{
+		Attribute attribute = new Attribute(attributeTypeId, null, groupPath, Collections.emptyList());
 		delete(EngineAttribute.builder()
 				.withEntity(entity)
-				.withGroupPath(groupPath)
-				.withAttributeTypeId(attributeTypeId)
+				.withAttribute(attribute)
 				.build());
 	}
 	
@@ -181,21 +181,21 @@ public class AttributesManagementImpl implements AttributesManagement
 	public Collection<AttributeExt> getAttributes(EngineAttribute engineAttr) throws EngineException
 	{
 		EntityParam entity = engineAttr.getEntity();
-		String groupPath = engineAttr.getGroupPath();
-		String attributeTypeId = engineAttr.getAttributeTypeId();
+		String attributeTypeId = engineAttr.getAttribute().getName();
+		String groupPath = engineAttr.getAttribute().getGroupPath();
 		Collection<AttributeExt> ret = getAllAttributesInternal(entity, true, groupPath, attributeTypeId, 
 				new AuthzCapability[] {AuthzCapability.read}, false);
 		return ret;
 	}
 
 	@Override
-	public Collection<AttributeExt> getAttributes(EntityParam entity, String groupPath,
-			String attributeTypeId) throws EngineException
+	public Collection<AttributeExt> getAttributes(EntityParam entity, String groupPath, String attributeTypeId) 
+			throws EngineException
 	{
+		Attribute attribute = new Attribute(attributeTypeId, null, groupPath, Collections.emptyList());
 		Collection<AttributeExt> ret = getAttributes(EngineAttribute.builder()
 				.withEntity(entity)
-				.withGroupPath(groupPath)
-				.withAttributeTypeId(attributeTypeId)
+				.withAttribute(attribute)
 				.build());
 		return ret;
 	}
@@ -206,8 +206,8 @@ public class AttributesManagementImpl implements AttributesManagement
 			boolean allowDegrade) throws EngineException
 	{
 		EntityParam entity = engineAttr.getEntity();
-		String groupPath = engineAttr.getGroupPath();
-		String attributeTypeId = engineAttr.getAttributeTypeId();
+		String attributeTypeId = engineAttr.getAttribute().getName();
+		String groupPath = engineAttr.getAttribute().getGroupPath();
 		try
 		{
 			return getAllAttributesInternal(entity, effective, groupPath, attributeTypeId, 
@@ -229,11 +229,12 @@ public class AttributesManagementImpl implements AttributesManagement
 	public Collection<AttributeExt> getAllAttributes(EntityParam entity, boolean effective, String groupPath,
 			String attributeTypeId, boolean allowDegrade) throws EngineException
 	{
+		Attribute attribute = new Attribute(attributeTypeId, null, groupPath, Collections.emptyList());
 		return getAllAttributes(
 				EngineAttribute.builder()
 					.withEntity(entity)
-					.withGroupPath(groupPath)
-					.withAttributeTypeId(attributeTypeId).build(),
+					.withAttribute(attribute)
+					.build(),
 				effective, allowDegrade);
 	}
 

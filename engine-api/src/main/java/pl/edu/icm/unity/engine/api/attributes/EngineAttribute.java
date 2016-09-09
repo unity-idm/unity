@@ -17,15 +17,12 @@ public class EngineAttribute
 {
 	private EntityParam entity;
 	private Attribute attribute;
-	private String groupPath;
-	private String attributeTypeId;
 
-	public EngineAttribute(EntityParam entity, Attribute attribute, String groupPath)
+	public EngineAttribute(EntityParam entity, Attribute attribute)
 	{
 		super();
 		this.entity = entity;
 		this.attribute = attribute;
-		this.groupPath = groupPath;
 	}
 
 	public EntityParam getEntity()
@@ -48,26 +45,6 @@ public class EngineAttribute
 		this.attribute = attribute;
 	}
 
-	public String getGroupPath()
-	{
-		return groupPath;
-	}
-
-	public void setGroupPath(String groupPath)
-	{
-		this.groupPath = groupPath;
-	}
-
-	public String getAttributeTypeId()
-	{
-		return attributeTypeId;
-	}
-
-	public void setAttributeTypeId(String attributeTypeId)
-	{
-		this.attributeTypeId = attributeTypeId;
-	}
-
 	public static Builder builder()
 	{
 		return new Builder();
@@ -77,8 +54,6 @@ public class EngineAttribute
 	{
 		private EntityParam entity;
 		private Attribute attribute;
-		private String groupPath;
-		private String attributeTypeId;
 
 		public Builder withEntity(EntityParam entity)
 		{
@@ -92,22 +67,9 @@ public class EngineAttribute
 			return this;
 		}
 
-		public Builder withGroupPath(String groupPath)
-		{
-			this.groupPath = groupPath;
-			return this;
-		}
-
-		public Builder withAttributeTypeId(String attributeTypeId)
-		{
-			this.attributeTypeId = attributeTypeId;
-			return this;
-		}
-
 		public EngineAttribute build()
 		{
-			EngineAttribute engineAttr = new EngineAttribute(entity, attribute, groupPath);
-			engineAttr.setAttributeTypeId(attributeTypeId);
+			EngineAttribute engineAttr = new EngineAttribute(entity, attribute);
 			return engineAttr;
 		}
 	}
