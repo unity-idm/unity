@@ -9,6 +9,9 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpointFactory;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesEditor;
@@ -23,14 +26,16 @@ public class OAuthPreferencesHandler implements PreferencesHandler
 {
 	private final Set<String> SUPPORTED_ENDPOINTS = new HashSet<String>();
 	private UnityMessageSource msg;
-	private IdentitiesManagement idsMan;
+	private EntityManagement idsMan;
+	private IdentityTypeSupport idTypeSupport;
 	
 	@Autowired
-	public OAuthPreferencesHandler(UnityMessageSource msg, IdentitiesManagement idsMan)
+	public OAuthPreferencesHandler(UnityMessageSource msg, EntityManagement idsMan, 
+			IdentityTypeSupport idTypeSupport)
 	{
-		super();
 		this.msg = msg;
 		this.idsMan = idsMan;
+		this.idTypeSupport = idTypeSupport;
 		SUPPORTED_ENDPOINTS.add(OAuthAuthzWebEndpointFactory.NAME);
 	}
 
@@ -50,8 +55,9 @@ public class OAuthPreferencesHandler implements PreferencesHandler
 	public PreferencesEditor getPreferencesEditor(String value)
 	{
 		OAuthPreferences preferences = new OAuthPreferences();
-		preferences.setSerializedConfiguration(value);
-		return new OAuthPreferencesEditor(msg, preferences, idsMan);
+		if (value != null)
+			preferences.setSerializedConfiguration(JsonUtil.parse(value));
+		return new OAuthPreferencesEditor(msg, preferences, idsMan, idTypeSupport);
 	}
 
 	@Override

@@ -325,7 +325,6 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 	
 	public static class SimpleImageSource implements StreamSource
 	{
-		private static final long serialVersionUID = 1L;
 		private final byte[] isData;
 		private final String extension;
 		

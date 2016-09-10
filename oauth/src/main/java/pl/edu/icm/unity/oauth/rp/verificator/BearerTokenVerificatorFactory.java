@@ -5,15 +5,13 @@
 package pl.edu.icm.unity.oauth.rp.verificator;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificatorFactory;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
-import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 
 /**
@@ -26,22 +24,19 @@ public class BearerTokenVerificatorFactory implements CredentialVerificatorFacto
 {
 	public static final String NAME = "oauth-rp";
 	
-	private TranslationProfileManagement profileManagement;
-	private InputTranslationEngine trEngine;
 	private PKIManagement pkiManagement;
 	private TokensManagement tokensMan;
 	private CacheProvider cacheProvider;
+	private RemoteAuthnResultProcessor processor;
 	
 	@Autowired
-	public BearerTokenVerificatorFactory(@Qualifier("insecure") TranslationProfileManagement profileManagement, 
-			InputTranslationEngine trEngine, PKIManagement pkiManagement, TokensManagement tokensMan,
-			CacheProvider cacheProvider)
+	public BearerTokenVerificatorFactory(PKIManagement pkiManagement, TokensManagement tokensMan,
+			CacheProvider cacheProvider, RemoteAuthnResultProcessor processor)
 	{
-		this.profileManagement = profileManagement;
-		this.trEngine = trEngine;
 		this.pkiManagement = pkiManagement;
 		this.tokensMan = tokensMan;
 		this.cacheProvider = cacheProvider;
+		this.processor = processor;
 	}
 
 	@Override
@@ -59,7 +54,7 @@ public class BearerTokenVerificatorFactory implements CredentialVerificatorFacto
 	@Override
 	public CredentialVerificator newInstance()
 	{
-		return new BearerTokenVerificator(getName(), getDescription(), profileManagement, pkiManagement,
-				trEngine, tokensMan, cacheProvider);
+		return new BearerTokenVerificator(getName(), getDescription(), pkiManagement,
+				tokensMan, cacheProvider, processor);
 	}
 }

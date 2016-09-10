@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,6 +33,8 @@ import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
@@ -79,12 +80,12 @@ public class OAuthParseServlet extends HttpServlet
 	protected String endpointAddress;
 	protected String oauthUiServletPath;
 	protected ErrorHandler errorHandler;
-	protected IdentitiesManagement identitiesMan;
+	protected EntityManagement identitiesMan;
 	protected AttributesManagement attributesMan;
 	protected OAuthRequestValidator requestValidator;
 	
 	public OAuthParseServlet(OAuthASProperties oauthConfig, String endpointAddress,
-			String oauthUiServletPath, ErrorHandler errorHandler, IdentitiesManagement identitiesMan,
+			String oauthUiServletPath, ErrorHandler errorHandler, EntityManagement identitiesMan,
 			AttributesManagement attributesMan)
 	{
 		super();
@@ -213,7 +214,6 @@ public class OAuthParseServlet extends HttpServlet
 	 * whether the authorization grant is enabled for the client.
 	 * @param context
 	 */
-	@SuppressWarnings("unchecked")
 	protected void validate(OAuthAuthzContext context) 
 			throws OAuthValidationException
 	{

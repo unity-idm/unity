@@ -8,6 +8,9 @@ import java.net.URI;
 
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
+
+
 /**
  * OAuth specific state associated with one remote login pipeline.
  * <p>

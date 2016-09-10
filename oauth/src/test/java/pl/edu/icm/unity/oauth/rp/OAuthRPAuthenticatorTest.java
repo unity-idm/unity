@@ -29,10 +29,9 @@ import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
-import pl.edu.icm.unity.engine.translation.in.InputTranslationActionsRegistry;
-import pl.edu.icm.unity.engine.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpointFactory;
@@ -46,6 +45,7 @@ import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Somewhat complex integration test of the OAuth RP authenticator.
@@ -127,7 +127,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 	@Autowired
 	private TranslationProfileManagement profilesMan;
 	@Autowired
-	private InputTranslationActionsRegistry trActionReg;
+	private AuthenticatorManagement authnMan;
 	
 	@Before
 	public void setup()
@@ -147,9 +147,9 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 			idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "userA"), 
 					"cr-pass", EntityState.valid, false);
 			
-			profilesMan.addProfile(new InputTranslationProfile(
-					JsonUtil.parse(FileUtils.readFileToString(new File("src/test/resources/tr-local.json"))),
-					trActionReg));
+			profilesMan.addProfile(new TranslationProfile(
+					JsonUtil.parse(FileUtils.readFileToString(
+							new File("src/test/resources/tr-local.json")))));
 			
 			AuthenticationRealm realm = new AuthenticationRealm(REALM_NAME, "", 
 					10, 100, -1, 600);

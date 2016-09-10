@@ -39,6 +39,7 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpointFactory;
@@ -83,6 +84,8 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 	private TokensManagement tokensMan;
 	@Autowired
 	private PKIManagement pkiMan;
+	@Autowired
+	private AuthenticatorManagement authnMan;
 
 	private Identity clientId;
 	
@@ -92,7 +95,7 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 		try
 		{
 			setupMockAuthn();
-			clientId = OAuthTestUtils.createOauthClient(idsMan, attrsMan, groupsMan);
+			clientId = OAuthTestUtils.createOauthClient(idsMan, attrsMan, groupsMan, eCredMan);
 			createUser();
 			AuthenticationRealm realm = new AuthenticationRealm(REALM_NAME, "", 
 					10, 100, -1, 600);

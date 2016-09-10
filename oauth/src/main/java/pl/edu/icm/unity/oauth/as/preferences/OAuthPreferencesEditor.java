@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.oauth.as.preferences;
 
+import java.util.List;
+
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.event.Action.Handler;
@@ -11,8 +13,11 @@ import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 
+import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
@@ -34,20 +39,24 @@ public class OAuthPreferencesEditor implements PreferencesEditor
 {
 	protected UnityMessageSource msg;
 	protected OAuthPreferences preferences;
-	protected IdentitiesManagement idsMan;
+	protected EntityManagement idsMan;
+	private IdentityTypeSupport idTypeSupport;
+	
 	protected ModificationListener listener;
 	
 	protected HorizontalLayout main;
 	protected GenericElementsTable<String> table;
 	protected OAuthSPSettingsViewer viewer;
 	
-	protected Identity[] identities;
+	protected List<Identity> identities;
 
-	public OAuthPreferencesEditor(UnityMessageSource msg, OAuthPreferences preferences, IdentitiesManagement idsMan)
+	public OAuthPreferencesEditor(UnityMessageSource msg, OAuthPreferences preferences, EntityManagement idsMan,
+			IdentityTypeSupport idTypeSupport)
 	{
 		this.msg = msg;
 		this.preferences = preferences;
 		this.idsMan = idsMan;
+		this.idTypeSupport = idTypeSupport;
 		
 		init();
 	}
@@ -123,7 +132,7 @@ public class OAuthPreferencesEditor implements PreferencesEditor
 	@Override
 	public String getValue() throws FormValidationException
 	{
-		return preferences.getSerializedConfiguration();
+		return JsonUtil.serialize(preferences.getSerializedConfiguration());
 	}
 	
 	protected class AddActionHandler extends SingleActionHandler
@@ -145,7 +154,7 @@ public class OAuthPreferencesEditor implements PreferencesEditor
 				NotificationPopup.showError(msg, msg.getMessage("OAuthPreferences.errorLoadindSystemInfo"), e);
 				return;
 			}
-			OAuthSPSettingsEditor editor = new OAuthSPSettingsEditor(msg, identities, 
+			OAuthSPSettingsEditor editor = new OAuthSPSettingsEditor(msg, idTypeSupport, identities, 
 					preferences.getKeys());
 			new OAuthSettingsDialog(msg, editor, new OAuthSettingsDialog.Callback()
 			{
@@ -180,7 +189,7 @@ public class OAuthPreferencesEditor implements PreferencesEditor
 			}
 			@SuppressWarnings("unchecked")
 			GenericItem<String> item = (GenericItem<String>)target;
-			OAuthSPSettingsEditor editor = new OAuthSPSettingsEditor(msg, identities, 
+			OAuthSPSettingsEditor editor = new OAuthSPSettingsEditor(msg, idTypeSupport, identities, 
 					item.getElement(), preferences.getSPSettings(item.getElement()));
 			new OAuthSettingsDialog(msg, editor, new OAuthSettingsDialog.Callback()
 			{

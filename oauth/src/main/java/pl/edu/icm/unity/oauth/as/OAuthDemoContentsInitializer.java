@@ -13,6 +13,8 @@ import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.server.ServerInitializer;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
@@ -20,6 +22,7 @@ import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Group;
@@ -36,16 +39,19 @@ public class OAuthDemoContentsInitializer implements ServerInitializer
 	private static Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthDemoContentsInitializer.class);
 	public static final String NAME = "oauthDemoInitializer";
 	private GroupsManagement groupsMan;
-	private IdentitiesManagement idsMan;
+	private EntityCredentialManagement eCredMan;
 	private AttributesManagement attrMan;
+	private EntityManagement entityMan;
 	
 	@Autowired
 	public OAuthDemoContentsInitializer(@Qualifier("insecure") GroupsManagement groupsMan, 
-			@Qualifier("insecure") IdentitiesManagement idsMan,
+			@Qualifier("insecure") EntityCredentialManagement eCredMan,
+			@Qualifier("insecure") EntityManagement entityMan,
 			@Qualifier("insecure") AttributesManagement attrMan)
 	{
 		this.groupsMan = groupsMan;
-		this.idsMan = idsMan;
+		this.eCredMan = eCredMan;
+		this.entityMan = entityMan;
 		this.attrMan = attrMan;
 	}
 	
@@ -56,19 +62,19 @@ public class OAuthDemoContentsInitializer implements ServerInitializer
 		{
 			groupsMan.addGroup(new Group("/oauth-clients"));
 			IdentityParam oauthClient = new IdentityParam(UsernameIdentity.ID, "oauth-client");
-			Identity oauthClientA = idsMan.addEntity(oauthClient, "Password requirement", 
+			Identity oauthClientA = entityMan.addEntity(oauthClient, "Password requirement", 
 					EntityState.valid, false);
 			PasswordToken pToken2 = new PasswordToken("oauth-pass");
-			idsMan.setEntityCredential(new EntityParam(oauthClientA.getEntityId()), "Password credential", 
+			eCredMan.setEntityCredential(new EntityParam(oauthClientA.getEntityId()), "Password credential", 
 					pToken2.toJson());
 			groupsMan.addMemberFromParent("/oauth-clients", new EntityParam(oauthClientA.getEntityId()));
-			EnumAttribute flowsA = new EnumAttribute(OAuthSystemAttributesProvider.ALLOWED_FLOWS, 
+			Attribute flowsA = EnumAttribute.of(OAuthSystemAttributesProvider.ALLOWED_FLOWS, 
 					"/oauth-clients", 
 					Lists.newArrayList(
 					GrantFlow.authorizationCode.toString(), GrantFlow.implicit.toString(),
 					GrantFlow.openidHybrid.toString()));
 			attrMan.setAttribute(new EntityParam(oauthClientA.getEntityId()), flowsA, false);
-			StringAttribute returnUrlA = new StringAttribute(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI, 
+			Attribute returnUrlA = StringAttribute.of(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI, 
 					"/oauth-clients", 
 					"https://localhost:2443/unitygw/oauth2ResponseConsumer");
 			attrMan.setAttribute(new EntityParam(oauthClientA.getEntityId()), returnUrlA, false);

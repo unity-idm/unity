@@ -19,6 +19,7 @@ import org.springframework.context.ApplicationContext;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -26,6 +27,7 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
+import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
@@ -48,7 +50,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 	
 	private OAuthASProperties oauthProperties;
 	private FreemarkerHandler freemarkerHandler;
-	private IdentitiesManagement identitiesManagement;
+	private EntityManagement identitiesManagement;
 	private AttributesManagement attributesManagement;
 	private PKIManagement pkiManagement;
 	private OAuthEndpointsCoordinator coordinator;
@@ -56,7 +58,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 	
 	public OAuthAuthzWebEndpoint(NetworkServer server,
 			ApplicationContext applicationContext, FreemarkerHandler freemarkerHandler,
-			IdentitiesManagement identitiesManagement, AttributesManagement attributesManagement,
+			EntityManagement identitiesManagement, AttributesManagement attributesManagement,
 			PKIManagement pkiManagement, OAuthEndpointsCoordinator coordinator,
 			ASConsentDeciderServletFactory dispatcherServletFactory, UnityMessageSource msg)
 	{
@@ -89,7 +91,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 	protected ServletContextHandler getServletContextHandlerOverridable()
 	{
 	 	ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		context.setContextPath(description.getContextAddress());
+		context.setContextPath(description.getEndpoint().getContextAddress());
 		
 		String endpointURL = getServletUrl(OAUTH_CONSUMER_SERVLET_PATH);
 		Servlet samlParseServlet = new OAuthParseServlet(oauthProperties, endpointURL, 
