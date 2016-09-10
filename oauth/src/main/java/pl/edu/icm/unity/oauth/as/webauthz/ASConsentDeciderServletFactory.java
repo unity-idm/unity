@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 
 /**
@@ -23,22 +24,24 @@ public class ASConsentDeciderServletFactory
 	protected IdPEngine idpEngine;
 	protected FreemarkerHandler freemarker;
 	protected TokensManagement tokensMan;
+	private SessionManagement sessionMan;
 
 	@Autowired
 	public ASConsentDeciderServletFactory(PreferencesManagement preferencesMan,
 			IdPEngine idpEngine, FreemarkerHandler freemarker,
-			TokensManagement tokensMan)
+			TokensManagement tokensMan, SessionManagement sessionMan)
 	{
 		this.preferencesMan = preferencesMan;
 		this.idpEngine = idpEngine;
 		this.freemarker = freemarker;
 		this.tokensMan = tokensMan;
+		this.sessionMan = sessionMan;
 	}
 
 
 	public ASConsentDeciderServlet getInstance(String oauthUiServletPath)
 	{
 		return new ASConsentDeciderServlet(preferencesMan, idpEngine, freemarker, 
-				tokensMan, oauthUiServletPath);
+				tokensMan, sessionMan, oauthUiServletPath);
 	}
 }

@@ -7,6 +7,9 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 import java.io.IOException;
 
 import pl.edu.icm.unity.idpcommon.EopException;
+import pl.edu.icm.unity.server.api.internal.LoginSession;
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
+import pl.edu.icm.unity.server.authn.InvocationContext;
 
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.SerializeException;
@@ -24,6 +27,13 @@ import com.vaadin.server.VaadinSession;
  */
 public class OAuthResponseHandler
 {
+	private SessionManagement sessionMan;
+	
+	public OAuthResponseHandler(SessionManagement sessionMan)
+	{
+		this.sessionMan = sessionMan;
+	}
+
 	public void returnOauthResponse(AuthorizationResponse oauthResponse, boolean destroySession) throws EopException
 	{
 		VaadinSession session = VaadinSession.getCurrent(); 
@@ -61,7 +71,10 @@ public class OAuthResponseHandler
 				}
 				OAuthContextUtils.cleanContext();
 				if (destroySession)
-					session.getSession().invalidate();
+				{
+					LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
+					sessionMan.removeSession(loginSession.getId(), true);
+				}
 				return true;
 			}
 			

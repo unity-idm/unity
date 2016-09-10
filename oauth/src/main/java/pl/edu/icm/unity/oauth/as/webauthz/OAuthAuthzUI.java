@@ -16,9 +16,7 @@ import org.springframework.stereotype.Component;
 import com.google.gwt.thirdparty.guava.common.collect.Lists;
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
-import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
-import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
@@ -29,24 +27,20 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.idpcommon.EopException;
+import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
-import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.api.internal.CommonIdPProperties;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.authn.InvocationContext;
 import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.server.translation.ExecutionFailException;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
@@ -75,7 +69,8 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	private static Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthAuthzUI.class);
 	private UnityMessageSource msg;
 	private TokensManagement tokensMan;
-	private IdPEngine idpEngine;
+	
+	private OAuthIdPEngine idpEngine;
 	private AttributeHandlerRegistry handlersRegistry;
 	private PreferencesManagement preferencesMan;
 	private WebAuthenticationProcessor authnProcessor;
@@ -85,20 +80,23 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	private ExposedAttributesComponent attrsPresenter;
 	private OAuthResponseHandler oauthResponseHandler;
 	private CheckBox rememberCB;
-	private OAuthProcessor oauthProcessor; 
+	private OAuthProcessor oauthProcessor;
+	private SessionManagement sessionMan; 
 	
 	@Autowired
 	public OAuthAuthzUI(UnityMessageSource msg, TokensManagement tokensMan,
 			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
 			WebAuthenticationProcessor authnProcessor, IdPEngine idpEngine,
-			IdentityTypesRegistry identityTypesRegistry, EnquiresDialogLauncher enquiryDialogLauncher)
+			IdentityTypesRegistry identityTypesRegistry, EnquiresDialogLauncher enquiryDialogLauncher,
+			SessionManagement sessionMan)
 	{
 		super(msg, enquiryDialogLauncher);
 		this.msg = msg;
 		this.handlersRegistry = handlersRegistry;
 		this.preferencesMan = preferencesMan;
 		this.authnProcessor = authnProcessor;
-		this.idpEngine = idpEngine;
+		this.sessionMan = sessionMan;
+		this.idpEngine = new OAuthIdPEngine(idpEngine);
 		this.tokensMan = tokensMan;
 		this.identityTypesRegistry = identityTypesRegistry;
 	}
@@ -107,7 +105,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	protected void appInit(VaadinRequest request)
 	{
 		OAuthAuthzContext ctx = OAuthContextUtils.getContext();
-		oauthResponseHandler = new OAuthResponseHandler();
+		oauthResponseHandler = new OAuthResponseHandler(sessionMan);
 		oauthProcessor = new OAuthProcessor();
 		
 		VerticalLayout vmain = new VerticalLayout();
@@ -186,25 +184,22 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 			spacer.addStyleName(Styles.vLabelSmall.toString());
 			eiLayout.addComponent(spacer);
 			
-			TranslationResult translationResult = getUserInfo(ctx);
+			TranslationResult translationResult = idpEngine.getUserInfo(ctx);
 			
 			createIdentityPart(translationResult, eiLayout, ctx.getSubjectIdentityType());
 			
 			attrsPresenter = new ExposedAttributesComponent(msg, handlersRegistry, 
 					oauthProcessor.filterAttributes(translationResult, ctx.getRequestedAttrs()));
 			eiLayout.addComponent(attrsPresenter);
-		} catch (ExecutionFailException e)
+		} catch (OAuthErrorResponseException e)
 		{
-			log.debug("Authentication failed due to profile's decision, returning error");
-			ErrorObject eo = new ErrorObject("access_denied", 
-					e.getMessage(), HTTPResponse.SC_FORBIDDEN);
-			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
-					eo, ctx.getRequest().getState(), ctx.getRequest().impliedResponseMode());
-			oauthResponseHandler.returnOauthResponse(oauthResponse, true);
+			oauthResponseHandler.returnOauthResponse(e.getOauthResponse(), e.isInvalidateSession());
+			return;
 		} catch (Exception e)
 		{
 			log.error("Engine problem when handling client request", e);
-			//we kill the session as the user may want to log as different user if has access to several entities.
+			//we kill the session as the user may want to log as different user 
+			//if has access to several entities.
 			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
 					OAuth2Error.SERVER_ERROR, ctx.getRequest().getState(),
 					ctx.getRequest().impliedResponseMode());
@@ -219,17 +214,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 			String subjectIdentityType) 
 			throws EngineException
 	{
-		IdentityParam validIdentity = null;
-		for (IdentityParam id: translationResult.getIdentities())
-			if (subjectIdentityType.equals(id.getTypeId()))
-			{
-				validIdentity = id;
-				break;
-			}
-		if (validIdentity == null)
-			throw new IllegalStateException("There is no " + subjectIdentityType + " identity "
-					+ "for the authenticated user, sub claim can not be created. "
-					+ "Probably the endpoint is misconfigured.");
+		IdentityParam validIdentity = idpEngine.getIdentity(translationResult, subjectIdentityType);
 		idSelector = new IdentitySelectorComponent(msg, identityTypesRegistry, 
 				Lists.newArrayList(validIdentity));
 		contents.addComponent(idSelector);
@@ -259,26 +244,6 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		contents.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
 	}
 
-	
-	private TranslationResult getUserInfo(OAuthAuthzContext ctx) 
-			throws EngineException
-	{
-		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
-		String flow = ctx.getRequest().getResponseType().impliesCodeFlow() ? 
-				GrantFlow.authorizationCode.toString() : GrantFlow.implicit.toString();
-		Boolean skipImport = ctx.getProperties().getBooleanValue(CommonIdPProperties.SKIP_USERIMPORT);
-		TranslationResult translationResult = idpEngine.obtainUserInformation(new EntityParam(ae.getEntityId()), 
-				ctx.getUsersGroup(), 
-				ctx.getTranslationProfile(), 
-				ctx.getRequest().getClientID().getValue(),
-				"OAuth2", 
-				flow,
-				true,
-				!skipImport);
-		return translationResult;
-	}
-
-	
 	private void loadPreferences(OAuthAuthzContext ctx) throws EopException
 	{
 		try

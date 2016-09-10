@@ -17,11 +17,16 @@ import com.nimbusds.oauth2.sdk.OAuth2Error;
  */
 public class OAuthCancelHandler implements CancelHandler
 {
+	private OAuthResponseHandler responseH;
+	
+	public OAuthCancelHandler(OAuthResponseHandler responseH)
+	{
+		this.responseH = responseH;
+	}
+
 	@Override
 	public void onCancel()
 	{
-		OAuthResponseHandler responseH = new OAuthResponseHandler();
-
 		OAuthAuthzContext ctx = OAuthContextUtils.getContext();
 		AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
 				OAuth2Error.ACCESS_DENIED, ctx.getRequest().getState(),

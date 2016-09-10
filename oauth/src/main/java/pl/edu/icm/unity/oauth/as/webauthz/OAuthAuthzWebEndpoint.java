@@ -17,6 +17,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.context.ApplicationContext;
 
+import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.server.api.AttributesManagement;
@@ -35,7 +36,6 @@ import pl.edu.icm.unity.webui.VaadinEndpoint;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
-import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * OAuth2 authorization endpoint, Vaadin based.
@@ -139,7 +139,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 				registrationConfiguration, properties, 
 				getBootstrapHandler4Authn(OAUTH_ROUTING_SERVLET_PATH));
 		
-		authenticationServlet.setCancelHandler(new OAuthCancelHandler());
+		authenticationServlet.setCancelHandler(new OAuthCancelHandler(new OAuthResponseHandler(sessionMan)));
 		
 		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet, true); 
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");

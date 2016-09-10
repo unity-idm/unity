@@ -18,30 +18,25 @@ import org.apache.log4j.Logger;
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
-import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.SerializeException;
-import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 
-import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.idpcommon.EopException;
+import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
-import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.api.internal.CommonIdPProperties;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
+import pl.edu.icm.unity.server.api.internal.SessionManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.translation.ExecutionFailException;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.RoutingServlet;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
@@ -57,16 +52,19 @@ public class ASConsentDeciderServlet extends HttpServlet
 	
 	private PreferencesManagement preferencesMan;
 	private TokensManagement tokensMan;
-	private IdPEngine idpEngine;
+	private OAuthIdPEngine idpEngine;
+	private SessionManagement sessionMan;
 	private String oauthUiServletPath;
+
 	
 	public ASConsentDeciderServlet(PreferencesManagement preferencesMan, IdPEngine idpEngine,
-			FreemarkerHandler freemarker, TokensManagement tokensMan,
+			FreemarkerHandler freemarker, TokensManagement tokensMan, SessionManagement sessionMan,
 			String oauthUiServletPath)
 	{
 		this.tokensMan = tokensMan;
 		this.preferencesMan = preferencesMan;
-		this.idpEngine = idpEngine;
+		this.sessionMan = sessionMan;
+		this.idpEngine = new OAuthIdPEngine(idpEngine);
 		this.oauthUiServletPath = oauthUiServletPath;
 	}
 
@@ -151,23 +149,17 @@ public class ASConsentDeciderServlet extends HttpServlet
 		AuthorizationSuccessResponse respDoc;
 		try
 		{
-			TranslationResult userInfo = getUserInfo(oauthCtx);
-			IdentityParam selectedIdentity = getIdentity(userInfo, oauthCtx.getSubjectIdentityType());
+			TranslationResult userInfo = idpEngine.getUserInfo(oauthCtx);
+			IdentityParam selectedIdentity = idpEngine.getIdentity(userInfo, 
+					oauthCtx.getSubjectIdentityType());
 			log.debug("Authentication of " + selectedIdentity);
-			Collection<Attribute<?>> attributes = processor.filterAttributes(userInfo, oauthCtx.getRequestedAttrs());
+			Collection<Attribute<?>> attributes = processor.filterAttributes(userInfo, 
+					oauthCtx.getRequestedAttrs());
 			respDoc = processor.prepareAuthzResponseAndRecordInternalState(attributes, selectedIdentity, 
 					oauthCtx, tokensMan);
-		} catch (ExecutionFailException e)
+		} catch (OAuthErrorResponseException e)
 		{
-			log.debug("Authentication failed due to profile's decision, returning error");
-			ErrorObject eo = new ErrorObject("access_denied", 
-					e.getMessage(), HTTPResponse.SC_FORBIDDEN);
-			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(
-					oauthCtx.getReturnURI(), 
-					eo, 
-					oauthCtx.getRequest().getState(),
-					oauthCtx.getRequest().impliedResponseMode());
-			sendReturnRedirect(oauthResponse, request, response, false);
+			sendReturnRedirect(e.getOauthResponse(), request, response, e.isInvalidateSession());
 			return;
 		} catch (Exception e)
 		{
@@ -181,34 +173,6 @@ public class ASConsentDeciderServlet extends HttpServlet
 			return;
 		}
 		sendReturnRedirect(respDoc, request, response, false);
-	}
-	
-	private TranslationResult getUserInfo(OAuthAuthzContext ctx) throws EngineException
-	{
-		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
-		String flow = ctx.getRequest().getResponseType().impliesCodeFlow() ? 
-				GrantFlow.authorizationCode.toString() : GrantFlow.implicit.toString();
-		Boolean skipImport = ctx.getProperties().getBooleanValue(CommonIdPProperties.SKIP_USERIMPORT);
-		TranslationResult translationResult = idpEngine.obtainUserInformation(new EntityParam(ae.getEntityId()), 
-				ctx.getUsersGroup(), 
-				ctx.getTranslationProfile(), 
-				ctx.getRequest().getClientID().getValue(),
-				"OAuth2", 
-				flow,
-				true,
-				!skipImport);
-		return translationResult;
-	}
-	
-	protected IdentityParam getIdentity(TranslationResult userInfo, String subjectIdentityType) 
-			throws EngineException, SAMLRequesterException
-	{
-		for (IdentityParam id: userInfo.getIdentities())
-			if (subjectIdentityType.equals(id.getTypeId()))
-				return id;
-		throw new IllegalStateException("There is no " + subjectIdentityType + " identity "
-				+ "for the authenticated user, sub claim can not be created. "
-				+ "Probably the endpoint is misconfigured.");
 	}
 	
 	private OAuthAuthzContext getOAuthContext(HttpServletRequest req)
@@ -237,6 +201,9 @@ public class ASConsentDeciderServlet extends HttpServlet
 		HttpSession httpSession = request.getSession();
 		httpSession.removeAttribute(OAuthParseServlet.SESSION_OAUTH_CONTEXT);
 		if (invalidateSession)
-			httpSession.invalidate();
+		{
+			LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
+			sessionMan.removeSession(loginSession.getId(), true);
+		}
 	}
 }
