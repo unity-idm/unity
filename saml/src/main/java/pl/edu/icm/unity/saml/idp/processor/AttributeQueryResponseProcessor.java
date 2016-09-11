@@ -18,6 +18,8 @@ import org.apache.xmlbeans.XmlObject;
 import eu.unicore.samly2.assertion.Assertion;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.proto.AssertionResponse;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAttributeQueryContext;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -36,14 +38,15 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
  */
 public class AttributeQueryResponseProcessor extends BaseResponseProcessor<AttributeQueryDocument, AttributeQueryType>
 {
-	public AttributeQueryResponseProcessor(SAMLAttributeQueryContext context)
+	public AttributeQueryResponseProcessor(AttributeTypeSupport aTypeSupport, SAMLAttributeQueryContext context)
 	{
-		this(context, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+		this(aTypeSupport, context, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 	}
 	
-	public AttributeQueryResponseProcessor(SAMLAttributeQueryContext context, Calendar authnTime)
+	public AttributeQueryResponseProcessor(AttributeTypeSupport aTypeSupport, 
+			SAMLAttributeQueryContext context, Calendar authnTime)
 	{
-		super(context, authnTime);
+		super(aTypeSupport, context, authnTime);
 	}
 
 	public IdentityTaV getSubjectsIdentity() throws SAMLRequesterException
@@ -57,7 +60,7 @@ public class AttributeQueryResponseProcessor extends BaseResponseProcessor<Attri
 				InvocationContext.safeGetRealm());
 	}
 	
-	public ResponseDocument processAtributeRequest(Collection<Attribute<?>> attributes) 
+	public ResponseDocument processAtributeRequest(Collection<Attribute> attributes) 
 			throws SAMLRequesterException, SAMLProcessingException
 	{
 		AssertionResponse resp = getOKResponseDocument();

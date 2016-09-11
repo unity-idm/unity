@@ -15,6 +15,7 @@ import eu.unicore.samly2.assertion.Assertion;
 import eu.unicore.samly2.elements.Subject;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.proto.AssertionResponse;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
@@ -40,14 +41,14 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 	private String sessionId;
 	private SubjectType authenticatedSubject;
 	
-	public AuthnResponseProcessor(SAMLAuthnContext context)
+	public AuthnResponseProcessor(AttributeTypeSupport aTypeSupport, SAMLAuthnContext context)
 	{
-		this(context, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+		this(aTypeSupport, context, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 	}
 	
-	public AuthnResponseProcessor(SAMLAuthnContext context, Calendar authnTime)
+	public AuthnResponseProcessor(AttributeTypeSupport aTypeSupport, SAMLAuthnContext context, Calendar authnTime)
 	{
-		super(context, authnTime);
+		super(aTypeSupport, context, authnTime);
 	}
 
 	public List<IdentityParam> getCompatibleIdentities(Collection<? extends IdentityParam> identities) 
@@ -82,7 +83,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		return processAuthnRequest(authenticatedIdentity, null);
 	}
 	
-	public ResponseDocument processAuthnRequest(IdentityParam authenticatedIdentity, Collection<Attribute<?>> attributes) 
+	public ResponseDocument processAuthnRequest(IdentityParam authenticatedIdentity, Collection<Attribute> attributes) 
 			throws SAMLRequesterException, SAMLProcessingException
 	{
 		boolean returnSingleAssertion = samlConfiguration.getBooleanValue(
@@ -91,7 +92,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 	}
 	
 	protected ResponseDocument processAuthnRequest(IdentityParam authenticatedIdentity, 
-			Collection<Attribute<?>> attributes, boolean returnSingleAssertion) 
+			Collection<Attribute> attributes, boolean returnSingleAssertion) 
 			throws SAMLRequesterException, SAMLProcessingException
 	{
 		SubjectType authenticatedOne = establishSubject(authenticatedIdentity);
@@ -146,7 +147,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 	}
 
 	protected Assertion createAuthenticationAssertion(SubjectType authenticatedOne, 
-			Collection<Attribute<?>> attributes) throws SAMLProcessingException
+			Collection<Attribute> attributes) throws SAMLProcessingException
 	{
 		this.authenticatedSubject = authenticatedOne;
 		AuthnContextType authContext = setupAuthnContext();

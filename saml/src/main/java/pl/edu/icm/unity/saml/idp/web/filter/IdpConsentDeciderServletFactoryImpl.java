@@ -8,7 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
-import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 
@@ -24,25 +25,25 @@ public class IdpConsentDeciderServletFactoryImpl implements IdpConsentDeciderSer
 	protected IdPEngine idpEngine;
 	protected FreemarkerHandler freemarker;
 	protected SessionManagement sessionMan;
-	protected AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
+	private AttributeTypeSupport aTypeSupport;
 
 	@Autowired
 	public IdpConsentDeciderServletFactoryImpl(PreferencesManagement preferencesMan,
 			IdPEngine idpEngine, FreemarkerHandler freemarker,
 			SessionManagement sessionMan,
-			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry)
+			AttributeTypeSupport aTypeSupport)
 	{
 		this.preferencesMan = preferencesMan;
 		this.idpEngine = idpEngine;
 		this.freemarker = freemarker;
 		this.sessionMan = sessionMan;
-		this.attributeSyntaxFactoriesRegistry = attributeSyntaxFactoriesRegistry;
+		this.aTypeSupport = aTypeSupport;
 	}
 	
 	@Override
 	public IdpConsentDeciderServlet getInstance(String uiServletPath)
 	{
-		return new IdpConsentDeciderServlet(preferencesMan, attributeSyntaxFactoriesRegistry, 
+		return new IdpConsentDeciderServlet(aTypeSupport, preferencesMan,  
 				idpEngine, freemarker, sessionMan, uiServletPath);
 	}
 	

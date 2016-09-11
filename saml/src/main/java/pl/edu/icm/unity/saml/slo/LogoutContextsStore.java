@@ -12,6 +12,8 @@ import java.util.UUID;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.utils.Log;
+
 /**
  * In memory storage of logout contexts. Ensures that the contexts are expired after some time.
  * Thread safe.

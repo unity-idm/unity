@@ -36,10 +36,10 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 public class ExposedSelectableAttributesComponent extends CustomComponent
 {
 	private UnityMessageSource msg;
-	protected AttributeHandlerRegistry handlersRegistry;
+	private AttributeHandlerRegistry handlersRegistry;
 	
-	protected Map<String, Attribute> attributes;
-	protected Map<String, SelectableAttributeWithValues<?>> attributesHiding;
+	private Map<String, Attribute> attributes;
+	private Map<String, SelectableAttributeWithValues<?>> attributesHiding;
 	private AttributeTypeManagement aTypeMan;
 	private AttributeTypeSupport aTypeSupport;
 	

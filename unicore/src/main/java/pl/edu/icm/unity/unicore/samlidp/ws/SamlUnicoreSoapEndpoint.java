@@ -10,9 +10,10 @@ import eu.unicore.samly2.webservice.SAMLAuthnInterface;
 import eu.unicore.samly2.webservice.SAMLQueryInterface;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
-import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -40,11 +41,12 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 			Map<String, RemoteMetaManager> remoteMetadataManagers, MetaDownloadManager downloadManager, 
 			UnityServerConfiguration mainConfig,
 			SAMLLogoutProcessorFactory logoutProcessorFactory, AuthenticationProcessor authnProcessor,
-			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry)
+			AttributeTypeSupport aTypeSupport)
 	{
 		super(msg, server, servletPath, metadataServletPath, idpEngine, preferencesMan,
 				pkiManagement, executorsService, sessionMan, remoteMetadataManagers, downloadManager, 
-				mainConfig, logoutProcessorFactory, authnProcessor, attributeSyntaxFactoriesRegistry);
+				mainConfig, logoutProcessorFactory, authnProcessor, 
+				aTypeSupport);
 	}
 
 
@@ -53,11 +55,11 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 	{
 		String endpointURL = getServletUrl(servletPath);
 		SamlIdpProperties virtualConf = (SamlIdpProperties) myMetadataManager.getVirtualConfiguration();
-		SAMLAssertionQueryImpl assertionQueryImpl = new SAMLAssertionQueryImpl(virtualConf, 
-				endpointURL, idpEngine, preferencesMan, attributeSyntaxFactoriesRegistry);
+		SAMLAssertionQueryImpl assertionQueryImpl = new SAMLAssertionQueryImpl(aTypeSupport, virtualConf, 
+				endpointURL, idpEngine, preferencesMan);
 		addWebservice(SAMLQueryInterface.class, assertionQueryImpl);
-		SAMLETDAuthnImpl authnImpl = new SAMLETDAuthnImpl(virtualConf, endpointURL, 
-				idpEngine, preferencesMan, attributeSyntaxFactoriesRegistry);
+		SAMLETDAuthnImpl authnImpl = new SAMLETDAuthnImpl(aTypeSupport, virtualConf, endpointURL, 
+				idpEngine, preferencesMan);
 		addWebservice(SAMLAuthnInterface.class, authnImpl);
 	}
 }

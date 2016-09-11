@@ -32,6 +32,7 @@ import eu.unicore.security.dsig.DSigException;
 import eu.unicore.security.wsutil.samlclient.SAMLLogoutClient;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.IClientConfiguration;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SAMLEndpointDefinition;

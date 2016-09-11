@@ -13,22 +13,20 @@ import java.util.Set;
 
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.samly2.validators.ReplayAttackChecker;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
-import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
-import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
@@ -52,11 +50,8 @@ public class ECPEndpointFactory implements EndpointFactory
 	private URL baseAddress;
 	private ECPContextManagement samlContextManagement;
 	private ReplayAttackChecker replayAttackChecker;
-	private IdentityResolver identityResolver;
-	private TranslationProfileManagement profileManagement;
-	private InputTranslationEngine trEngine;
 	private TokensManagement tokensMan;
-	private IdentitiesManagement identitiesMan;
+	private EntityManagement identitiesMan;
 	private SessionManagement sessionMan;
 	private String baseContext;
 	
@@ -67,29 +62,27 @@ public class ECPEndpointFactory implements EndpointFactory
 	private MetaDownloadManager downloadManager;
 	private UnityMessageSource msg;
 	private NetworkServer server;
+	private RemoteAuthnResultProcessor remoteAuthnProcessor;
 	
 	@Autowired
 	public ECPEndpointFactory(PKIManagement pkiManagement, NetworkServer jettyServer,
 			ECPContextManagement samlContextManagement,
-			ReplayAttackChecker replayAttackChecker, IdentityResolver identityResolver,
-			@Qualifier("insecure")
-			TranslationProfileManagement profileManagement,
-			InputTranslationEngine trEngine, TokensManagement tokensMan,
-			IdentitiesManagement identitiesMan, SessionManagement sessionMan,
+			ReplayAttackChecker replayAttackChecker, 
+			TokensManagement tokensMan,
+			RemoteAuthnResultProcessor remoteAuthnProcessor,
+			EntityManagement identitiesMan, SessionManagement sessionMan,
 			UnityServerConfiguration mainCfg, MetaDownloadManager downloadManager,
 			ExecutorsService executorsService, SharedEndpointManagement sharedEndpointManagement,
 			UnityMessageSource msg, NetworkServer server) 
 					throws EngineException
 	{
 		this.pkiManagement = pkiManagement;
+		this.remoteAuthnProcessor = remoteAuthnProcessor;
 		this.msg = msg;
 		this.server = server;
 		this.baseAddress = jettyServer.getAdvertisedAddress();
 		this.samlContextManagement = samlContextManagement;
 		this.replayAttackChecker = replayAttackChecker;
-		this.identityResolver = identityResolver;
-		this.profileManagement = profileManagement;
-		this.trEngine = trEngine;
 		this.tokensMan = tokensMan;
 		this.identitiesMan = identitiesMan;
 		this.sessionMan = sessionMan;
@@ -120,7 +113,7 @@ public class ECPEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new ECPEndpoint(server, SERVLET_PATH, pkiManagement, samlContextManagement, baseAddress,
-				baseContext, replayAttackChecker, identityResolver, profileManagement, trEngine, 
+				baseContext, replayAttackChecker, remoteAuthnProcessor, 
 				tokensMan, identitiesMan, sessionMan, remoteMetadataManagers, 
 				mainCfg, downloadManager, executorsService, metadataServlet, msg);
 	}

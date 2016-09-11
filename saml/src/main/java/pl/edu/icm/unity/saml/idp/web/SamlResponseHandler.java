@@ -20,6 +20,7 @@ import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinSession;
 
 import eu.unicore.samly2.exceptions.SAMLServerException;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;

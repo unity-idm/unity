@@ -55,7 +55,7 @@ public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 	protected Servlet getSamlParseServlet(String endpointURL, String uiUrl)
 	{
 		return new SamlETDParseServlet(myMetadataManager, 
-				endpointURL, uiUrl, new ErrorHandler(freemarkerHandler),
+				endpointURL, uiUrl, new ErrorHandler(aTypeSupport, freemarkerHandler),
 				samlProperties.getBooleanValue(SamlIdpProperties.ASSUME_FORCE));
 	}
 }

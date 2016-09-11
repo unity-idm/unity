@@ -70,9 +70,9 @@ public class SamlSPSettingsViewer extends FormLayout
 		
 		hiddenAttributes.setReadOnly(false);
 		hiddenAttributes.removeAllItems();
-		Map<String, Attribute<?>> attributes = spSettings.getHiddenAttribtues();
+		Map<String, Attribute> attributes = spSettings.getHiddenAttribtues();
 		hiddenAttributes.setVisible(!attributes.isEmpty());
-		for (Entry<String, Attribute<?>> entry : attributes.entrySet())
+		for (Entry<String, Attribute> entry : attributes.entrySet())
 		{
 			if (entry.getValue() == null)
 				hiddenAttributes.addItem(entry.getKey());

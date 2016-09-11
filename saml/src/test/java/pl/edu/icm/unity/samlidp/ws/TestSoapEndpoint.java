@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.assertion.AttributeAssertionParser;
@@ -29,7 +28,7 @@ import eu.unicore.security.wsutil.samlclient.AuthnResponseAssertions;
 import eu.unicore.security.wsutil.samlclient.SAMLAttributeQueryClient;
 import eu.unicore.security.wsutil.samlclient.SAMLAuthnClient;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
-import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.ws.SamlIdPSoapEndpointFactory;
@@ -42,10 +41,6 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 public class TestSoapEndpoint extends AbstractTestIdpBase
 {
-	
-	@Autowired
-	private AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
-	
 	/**
 	 * Tests authentication and attribute query of dynamic identities.
 	 */
@@ -235,15 +230,16 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		
 		EntityParam entityParam = new EntityParam(new IdentityTaV(X500Identity.ID, 
 				"CN=Test UVOS,O=UNICORE,C=EU"));
-		SamlPreferences preferences = new SamlPreferences(attributeSyntaxFactoriesRegistry);
+		SamlPreferences preferences = new SamlPreferences();
 		SPSettings settings = new SPSettings();
-		Map<String, Attribute<?>> hidden = new HashMap<>();
+		Map<String, Attribute> hidden = new HashMap<>();
 		hidden.put("memberOf", null);
-		FloatingPointAttribute fpa = new FloatingPointAttribute("floatA", "/", AttributeVisibility.full, 124.1);
+		Attribute fpa = FloatingPointAttribute.of("floatA", "/", 124.1);
 		hidden.put("floatA", fpa);
 		settings.setHiddenAttribtues(hidden);
 		preferences.setSPSettings("http://example-reqester", settings);
-		preferencesMan.setPreference(entityParam, SamlPreferences.ID, preferences.getSerializedConfiguration());
+		preferencesMan.setPreference(entityParam, SamlPreferences.ID, 
+				JsonUtil.serialize(preferences.getSerializedConfiguration()));
 		
 		SAMLAttributeQueryClient client = new SAMLAttributeQueryClient(attrWSUrl, clientCfg);
 		AttributeAssertionParser a = client.getAssertion(new NameID("CN=Test UVOS,O=UNICORE,C=EU", SAMLConstants.NFORMAT_DN),
@@ -271,7 +267,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 	{
 		EntityParam missing = new EntityParam(new IdentityTaV("foo", "bar"));
 		SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan, 
-				attributeSyntaxFactoriesRegistry, missing);
+				missing);
 		
 		assertThat(preferences, is(notNullValue()));
 	}

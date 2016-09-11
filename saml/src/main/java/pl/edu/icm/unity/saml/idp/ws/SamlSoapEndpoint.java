@@ -18,9 +18,10 @@ import eu.unicore.samly2.webservice.SAMLQueryInterface;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
-import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -57,7 +58,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	private MetaDownloadManager downloadManager;
 	private UnityServerConfiguration mainConfig;
 	private SAMLLogoutProcessorFactory logoutProcessorFactory;
-	protected AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
+	protected AttributeTypeSupport aTypeSupport;
 	
 	public SamlSoapEndpoint(UnityMessageSource msg, NetworkServer server,
 			String servletPath, String metadataPath, IdPEngine idpEngine,
@@ -66,7 +67,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 			Map<String, RemoteMetaManager> remoteMetadataManagers,
 			MetaDownloadManager downloadManager, UnityServerConfiguration mainConfig,
 			SAMLLogoutProcessorFactory logoutProcessorFactory, AuthenticationProcessor authnProcessor,
-			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry)
+			AttributeTypeSupport aTypeSupport)
 	{
 		super(msg, sessionMan, authnProcessor, server, servletPath);
 		this.idpEngine = idpEngine;
@@ -78,7 +79,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		this.downloadManager = downloadManager;
 		this.mainConfig = mainConfig;
 		this.logoutProcessorFactory = logoutProcessorFactory;
-		this.attributeSyntaxFactoriesRegistry = attributeSyntaxFactoriesRegistry;
+		this.aTypeSupport = aTypeSupport;
 	}
 
 	@Override
@@ -93,7 +94,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 			throw new ConfigurationException("Can't initialize the SAML SOAP" +
 					" IdP endpoint's configuration", e);
 		}
-		String id = getEndpointDescription().getId();
+		String id = getEndpointDescription().getName();
 		if (!remoteMetadataManagers.containsKey(id))
 		{
 			
@@ -129,11 +130,11 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	{
 		String endpointURL = getServletUrl(servletPath);
 		SamlIdpProperties virtualConf = (SamlIdpProperties) myMetadataManager.getVirtualConfiguration();
-		SAMLAssertionQueryImpl assertionQueryImpl = new SAMLAssertionQueryImpl(virtualConf, 
-				endpointURL, idpEngine, preferencesMan, attributeSyntaxFactoriesRegistry);
+		SAMLAssertionQueryImpl assertionQueryImpl = new SAMLAssertionQueryImpl(aTypeSupport, virtualConf, 
+				endpointURL, idpEngine, preferencesMan);
 		addWebservice(SAMLQueryInterface.class, assertionQueryImpl);
-		SAMLAuthnImpl authnImpl = new SAMLAuthnImpl(virtualConf, endpointURL, 
-				idpEngine, preferencesMan, attributeSyntaxFactoriesRegistry);
+		SAMLAuthnImpl authnImpl = new SAMLAuthnImpl(aTypeSupport, virtualConf, endpointURL, 
+				idpEngine, preferencesMan);
 		addWebservice(SAMLAuthnInterface.class, authnImpl);
 		
 		configureSLOService(virtualConf, endpointURL);

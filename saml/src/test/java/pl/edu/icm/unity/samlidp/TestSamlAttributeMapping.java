@@ -32,7 +32,7 @@ public class TestSamlAttributeMapping
 	{
 		SamlAttributeMapper mapper = new DefaultSamlAttributesMapper();
 		
-		Attribute<?> unityA = new StringAttribute("attr1", "/", AttributeVisibility.full, "val1");
+		Attribute unityA = StringAttribute.of("attr1", "/", "val1");
 		AttributeType samlA = mapper.convertToSaml(unityA);
 		assertEquals("attr1", samlA.getName());
 		assertEquals(1, samlA.sizeOfAttributeValueArray());
@@ -41,7 +41,7 @@ public class TestSamlAttributeMapping
 		List<Long> vals = new ArrayList<Long>();
 		vals.add(1234l);
 		vals.add(1l);
-		unityA = new IntegerAttribute("attr1", "/", AttributeVisibility.full, vals);
+		unityA = IntegerAttribute.of("attr1", "/", vals);
 		samlA = mapper.convertToSaml(unityA);
 		assertEquals("attr1", samlA.getName());
 		assertEquals(2, samlA.sizeOfAttributeValueArray());
@@ -49,7 +49,7 @@ public class TestSamlAttributeMapping
 		assertEquals("1", ((XmlAnySimpleType)samlA.getAttributeValueArray(1)).getStringValue());
 		
 		BufferedImage bi = new BufferedImage(10, 20, BufferedImage.TYPE_INT_ARGB);
-		unityA = new JpegImageAttribute("attr1", "/", AttributeVisibility.full, bi);
+		unityA = JpegImageAttribute.of("attr1", "/", bi);
 		samlA = mapper.convertToSaml(unityA);
 		assertEquals("attr1", samlA.getName());
 		assertEquals(1, samlA.sizeOfAttributeValueArray());

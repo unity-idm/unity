@@ -23,6 +23,9 @@ import eu.unicore.samly2.assertion.Assertion;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.proto.AssertionResponse;
 import eu.unicore.security.dsig.DSigException;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
@@ -53,13 +56,16 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 	extends StatusResponseProcessor<T, C>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, BaseResponseProcessor.class);
+	private AttributeTypeSupport aTypeSupport;
 	
 	private String chosenGroup;
 	private Calendar authnTime;
 	
-	public BaseResponseProcessor(SAMLAssertionResponseContext<T, C> context, Calendar authnTime)
+	public BaseResponseProcessor(AttributeTypeSupport aTypeSupport, 
+			SAMLAssertionResponseContext<T, C> context, Calendar authnTime)
 	{
 		super(context);
+		this.aTypeSupport = aTypeSupport;
 		GroupChooser chooser = samlConfiguration.getGroupChooser();
 		chosenGroup = chooser.chooseGroup(getRequestIssuer());
 		this.authnTime = authnTime;
@@ -116,7 +122,7 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 	 * @return
 	 * @throws SAMLProcessingException
 	 */
-	protected Assertion createAttributeAssertion(SubjectType authenticatedOne, Collection<Attribute<?>> attributes) 
+	protected Assertion createAttributeAssertion(SubjectType authenticatedOne, Collection<Attribute> attributes) 
 			throws SAMLProcessingException
 	{
 		if (attributes.size() == 0)
@@ -140,14 +146,14 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 	 * @return whether any attributes were added
 	 * @throws SAMLProcessingException
 	 */
-	protected boolean addAttributesToAssertion(Assertion assertion, Collection<Attribute<?>> attributes) 
+	protected boolean addAttributesToAssertion(Assertion assertion, Collection<Attribute> attributes) 
 			throws SAMLProcessingException
 	{
 		if (attributes.size() == 0)
 			return false;
 		SamlAttributeMapper mapper = samlConfiguration.getAttributesMapper();
 		List<AttributeType> converted = new ArrayList<AttributeType>(attributes.size());
-		for (Attribute<?> attribute: attributes)
+		for (Attribute attribute: attributes)
 		{
 			AttributeType samlA = mapper.convertToSaml(attribute);
 			converted.add(samlA);
@@ -232,10 +238,10 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 	 * @return
 	 * @throws EngineException
 	 */
-	public Collection<Attribute<?>> getAttributes(TranslationResult userInfo,
+	public Collection<Attribute> getAttributes(TranslationResult userInfo,
 			SPSettings preferences) throws EngineException
 	{
-		Map<String, Attribute<?>> all = filterSupportedBySamlAttributes(userInfo);
+		Map<String, Attribute> all = filterSupportedBySamlAttributes(userInfo);
 		filterAttributesWithPreferences(preferences, all);
 		return all.values();
 	}
@@ -245,11 +251,10 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 	 * @param preferences
 	 * @param all
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void filterAttributesWithPreferences(SPSettings preferences, Map<String, Attribute<?>> all)
+	private void filterAttributesWithPreferences(SPSettings preferences, Map<String, Attribute> all)
 	{
-		Map<String, Attribute<?>> hiddenAttribtues = preferences.getHiddenAttribtues();
-		for (Entry<String, Attribute<?>> entry : hiddenAttribtues.entrySet())
+		Map<String, Attribute> hiddenAttribtues = preferences.getHiddenAttribtues();
+		for (Entry<String, Attribute> entry : hiddenAttribtues.entrySet())
 		{
 			if (!all.containsKey(entry.getKey()))
 				continue;
@@ -260,8 +265,8 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 			} else
 			{
 				Attribute attribute = all.get(entry.getKey());
-				List<Object> filteredValues = new ArrayList<>();
-				for (Object value : attribute.getValues())
+				List<String> filteredValues = new ArrayList<>();
+				for (String value : attribute.getValues())
 				{
 					if (!findValue(value, entry.getValue()))
 						filteredValues.add(value);
@@ -274,12 +279,12 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 			log.debug("Processed attributes to be returned: " + all.values());
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private boolean findValue(Object value, Attribute attr)
+	private boolean findValue(String value, Attribute attr)
 	{
-		for (Object object : attr.getValues())
+		AttributeValueSyntax<?> syntax = aTypeSupport.getSyntax(attr);
+		for (String object : attr.getValues())
 		{
-			if (attr.getAttributeSyntax().areEqual(value, object))
+			if (syntax.areEqualStringValue(value, object))
 				return true;
 		}
 		return false;
@@ -289,12 +294,12 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 	 * Returns a collection of attributes including only those attributes for which there is SAML 
 	 * representation.
 	 */
-	private Map<String, Attribute<?>> filterSupportedBySamlAttributes(TranslationResult userInfo)
+	private Map<String, Attribute> filterSupportedBySamlAttributes(TranslationResult userInfo)
 	{
-		Map<String, Attribute<?>> ret = new HashMap<String, Attribute<?>>();
+		Map<String, Attribute> ret = new HashMap<String, Attribute>();
 		SamlAttributeMapper mapper = samlConfiguration.getAttributesMapper();
 		
-		for (Attribute<?> a: userInfo.getAttributes())
+		for (Attribute a: userInfo.getAttributes())
 			if (mapper.isHandled(a))
 				ret.put(a.getName(), a);
 		return ret;

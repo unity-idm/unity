@@ -57,18 +57,18 @@ public class DefaultSamlAttributesMapper implements SamlAttributeMapper
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isHandled(Attribute<?> unityAttribute)
+	public boolean isHandled(Attribute unityAttribute)
 	{
-		String syntax = unityAttribute.getAttributeSyntax().getValueSyntaxId();
+		String syntax = unityAttribute.getValueSyntax();
 		return VALUE_TO_SAML.containsKey(syntax);
 	}
 
 	@Override
-	public AttributeType convertToSaml(Attribute<?> unityAttribute)
+	public AttributeType convertToSaml(Attribute unityAttribute)
 	{
 		AttributeType ret = AttributeType.Factory.newInstance();
 		ret.setName(unityAttribute.getName());
-		String syntax = unityAttribute.getAttributeSyntax().getValueSyntaxId();
+		String syntax = unityAttribute.getValueSyntax();
 		ValueToSamlConverter converter = VALUE_TO_SAML.get(syntax);
 		if (converter == null)
 		{

@@ -15,6 +15,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController.IdPLoginHandler;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -55,6 +56,8 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 	private NetworkServer server;
 
 	private UnityMessageSource msg;
+
+	private AttributeTypeSupport aTypeSupport;
 	
 	@Autowired
 	public SamlIdPWebEndpointFactory(ApplicationContext applicationContext, FreemarkerHandler freemarkerHandler,
@@ -62,7 +65,8 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 			ExecutorsService executorsService, UnityServerConfiguration mainConfig,
 			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller,
 			IdpConsentDeciderServletFactoryImpl dispatcherServletFactory,
-			UnityMessageSource msg, NetworkServer server, IdPLoginController loginController)
+			UnityMessageSource msg, NetworkServer server, IdPLoginController loginController,
+			AttributeTypeSupport aTypeSupport)
 	{
 		this.applicationContext = applicationContext;
 		this.freemarkerHandler = freemarkerHandler;
@@ -70,6 +74,7 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 		this.executorsService = executorsService;
 		this.msg = msg;
 		this.server = server;
+		this.aTypeSupport = aTypeSupport;
 		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
 		this.downloadManager = downloadManager;
 		this.mainConfig = mainConfig;
@@ -105,7 +110,7 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 		return new SamlAuthVaadinEndpoint(server, applicationContext, freemarkerHandler,
 				SamlIdPWebUI.class, pkiManagement, executorsService, mainConfig,
 				dispatcherServletFactory, remoteMetadataManagers, downloadManager,  
-				logoutProcessorFactory, sloReplyInstaller, msg);
+				logoutProcessorFactory, sloReplyInstaller, msg, aTypeSupport);
 	}
 
 	public static class IdPLoginHandlerImpl implements IdPLoginHandler

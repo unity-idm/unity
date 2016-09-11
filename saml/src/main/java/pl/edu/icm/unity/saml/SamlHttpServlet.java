@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import org.bouncycastle.util.encoders.Base64;
 
 import eu.unicore.samly2.binding.HttpRedirectBindingSupport;
+import pl.edu.icm.unity.base.utils.Log;
 
 /**
  * Generic SAML servlet. It provides support for low level parsing of both HTTP Redirect and HTTP POST bindings
