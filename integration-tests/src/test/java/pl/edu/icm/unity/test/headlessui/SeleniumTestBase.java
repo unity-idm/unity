@@ -20,7 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import pl.edu.icm.unity.server.JettyServer;
+import pl.edu.icm.unity.engine.server.JettyServer;
 
 /**
  * This is a base class for Selenium WebDriver based headless Web UI testing.

@@ -21,7 +21,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 /**
  * Test user login performance
  * 
@@ -49,7 +49,7 @@ public class TstPerfLogin extends PerformanceTestBase
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), "desc",
 				authnCfg, "", realm.getName());
 		endpointMan.deploy(MockRESTEndpointFactory.NAME, "endpoint1", "/mock", cfg);
-		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
 		httpServer.start();
 		HttpHost host = new HttpHost("localhost", 53456, "https");

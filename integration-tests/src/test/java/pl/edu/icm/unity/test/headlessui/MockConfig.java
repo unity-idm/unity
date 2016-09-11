@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.test.headlessui;
 
-import pl.edu.icm.unity.server.utils.ConfigurationLocationProvider;
+import pl.edu.icm.unity.engine.api.config.ConfigurationLocationProvider;
 
 public class MockConfig implements ConfigurationLocationProvider
 {

@@ -6,8 +6,8 @@ package pl.edu.icm.unity.test.integration;
 
 import java.io.IOException;
 
-import pl.edu.icm.unity.server.UnityApplication;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.server.UnityApplication;
 
 
 public class TstServer
