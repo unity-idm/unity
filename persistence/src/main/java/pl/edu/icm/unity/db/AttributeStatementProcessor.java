@@ -188,6 +188,8 @@ public class AttributeStatementProcessor
 		}
 		for (String interestingGroup: interestingGroups)
 		{
+			if (!allGroups.contains(interestingGroup))
+				continue;
 			collectUpOrDownAttributes(mode, interestingGroup, queriedAttribute, identities,
 					upOrDownAttributes, allAttributesByGroup,
 					allGroups, mapper, gMapper, knownClasses);

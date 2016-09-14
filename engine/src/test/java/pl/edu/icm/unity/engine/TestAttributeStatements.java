@@ -5,7 +5,9 @@
 package pl.edu.icm.unity.engine;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.hamcrest.CoreMatchers.is;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -45,6 +47,9 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 	private Group groupABC;
 	private AttributeType at1;
 	private AttributeType at2;
+	
+	
+	
 	
 	@Test
 	public void testSimple() throws Exception
@@ -403,6 +408,34 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 	}	
 
 	
+	@Test
+	public void onlyOneEntityGetsAttributeCopiedFromSubgroupIfAssignedWithStatementInSubgroup() throws Exception
+	{
+		setupStateForConditions();
+		Identity id2 = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi2"), "crMock", 
+				EntityState.disabled, false);
+		EntityParam entity2 = new EntityParam(id2);
+		groupsMan.addMemberFromParent("/A", entity2);
+		
+		AttributeStatement2 statement1 = AttributeStatement2.getFixedEverybodyStatement(
+				new StringAttribute("a2", "/A/B", AttributeVisibility.local, "VV"));
+		groupAB.setAttributeStatements(new AttributeStatement2[] {statement1});
+		groupsMan.updateGroup("/A/B", groupAB);
+		
+		
+		AttributeStatement2 statement2 = new AttributeStatement2("eattrs contains 'a2'", "/A/B",
+				ConflictResolution.skip, 
+				new StringAttribute("a2", "/A", AttributeVisibility.local, "NEW"));
+		groupA.setAttributeStatements(new AttributeStatement2[] {statement2});
+		groupsMan.updateGroup("/A", groupA);
+		
+		
+		Collection<AttributeExt<?>> aRet2 = attrsMan.getAllAttributes(entity, true, "/A", "a2", false);
+		assertThat(aRet2.size(), is(1));
+		Collection<AttributeExt<?>> aRet = attrsMan.getAllAttributes(entity2, true, "/A", "a2", false);
+		assertThat(aRet.isEmpty(), is(true));
+	}
+
 	
 	private void setupStateForConditions() throws Exception
 	{
