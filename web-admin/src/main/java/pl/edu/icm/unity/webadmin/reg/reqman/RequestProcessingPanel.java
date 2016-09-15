@@ -19,6 +19,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -66,12 +67,12 @@ public class RequestProcessingPanel extends CustomComponent
 	private Label requestDate;
 	private IdentityTypesRegistry idTypesRegistry;
 	private EnquiryManagement enquiryMan;
-	private IdentitiesManagement identitiesManagement;
+	private EntityManagement identitiesManagement;
 	
 	public RequestProcessingPanel(UnityMessageSource msg, RegistrationsManagement regMan,
 			EnquiryManagement enquiryMan,
 			AttributeHandlerRegistry handlersRegistry, IdentityTypesRegistry idTypesRegistry,
-			IdentitiesManagement identitiesManagement)
+			EntityManagement identitiesManagement)
 	{
 		this.msg = msg;
 		this.regMan = regMan;

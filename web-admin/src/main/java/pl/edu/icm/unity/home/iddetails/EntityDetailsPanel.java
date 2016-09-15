@@ -32,6 +32,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 public class EntityDetailsPanel extends FormLayout
 {
 	private UnityMessageSource msg;
+	private IdentityFormatter idFormatter;
 	private Label id;
 	private Label status;
 	private Label scheduledAction;
@@ -41,9 +42,10 @@ public class EntityDetailsPanel extends FormLayout
 	private ListOfElements<String> groups;
 	
 	
-	public EntityDetailsPanel(UnityMessageSource msg)
+	public EntityDetailsPanel(UnityMessageSource msg, IdentityFormatter idFormatter)
 	{
 		this.msg = msg;
+		this.idFormatter = idFormatter;
 		id = new Label();
 		id.setCaption(msg.getMessage("IdentityDetails.id"));
 
@@ -105,7 +107,7 @@ public class EntityDetailsPanel extends FormLayout
 		
 		identities.clearContents();
 		for (Identity id: entity.getIdentities())
-			identities.addEntry(IdentityFormatter.toString(msg, id));
+			identities.addEntry(idFormatter.toString(id));
 		
 		CredentialInfo credInf = entity.getCredentialInfo();
 		credReq.setValue(credInf.getCredentialRequirementId());

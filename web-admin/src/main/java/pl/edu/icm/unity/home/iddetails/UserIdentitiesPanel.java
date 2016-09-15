@@ -14,6 +14,9 @@ import java.util.Map;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Label;
 
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -34,21 +37,24 @@ public class UserIdentitiesPanel
 {
 	private UnityMessageSource msg;
 	protected IdentityEditorRegistry identityEditorReg;
-	protected IdentitiesManagement idsManagement;
+	protected EntityManagement idsManagement;
 	private long entityId;
 	private List<SingleTypeIdentityEditor> identityEditors;
 	private AbstractOrderedLayout parent;
 	private Map<IdentityType, List<Identity>> editableIdsByType;
 	private Map<IdentityType, List<Identity>> roIdsByType;
 	private List<Label> roLabels;
+	private IdentityTypeSupport idTypeSupport;
 	
 	public UserIdentitiesPanel(UnityMessageSource msg, IdentityEditorRegistry identityEditorReg,
-			IdentitiesManagement idsManagement, long entityId) throws EngineException
+			EntityManagement idsManagement, long entityId, IdentityTypeSupport idTypeSupport) 
+					throws EngineException
 	{
 		this.msg = msg;
 		this.identityEditorReg = identityEditorReg;
 		this.idsManagement = idsManagement;
 		this.entityId = entityId;
+		this.idTypeSupport = idTypeSupport;
 		
 		identityEditors = new ArrayList<>();
 		roLabels = new ArrayList<>();
@@ -59,10 +65,10 @@ public class UserIdentitiesPanel
 	private void initIdentities() throws EngineException
 	{
 		Entity entity = idsManagement.getEntity(new EntityParam(entityId));
-		Identity[] identities = entity.getIdentities();
+		List<Identity> identities = entity.getIdentities();
 		editableIdsByType = new HashMap<>();
 		roIdsByType = new HashMap<>();
-		Collection<IdentityType> identityTypes = idsManagement.getIdentityTypes();
+		Collection<IdentityType> identityTypes = idTypeSupport.getIdentityTypes();
 		for (IdentityType idType: identityTypes)
 		{
 			if (idType.isSelfModificable())
@@ -70,12 +76,13 @@ public class UserIdentitiesPanel
 		}
 		for (Identity id: identities)
 		{
-			boolean editable = id.getType().isSelfModificable(); 
-			List<Identity> list = (editable ? editableIdsByType : roIdsByType).get(id.getType());
+			IdentityType type = idTypeSupport.getType(id.getTypeId());
+			boolean editable = type.isSelfModificable(); 
+			List<Identity> list = (editable ? editableIdsByType : roIdsByType).get(type);
 			if (list == null)
 			{
 				list = new ArrayList<Identity>();
-				(editable ? editableIdsByType : roIdsByType).put(id.getType(), list);
+				(editable ? editableIdsByType : roIdsByType).put(type, list);
 			}
 			list.add(id);
 		}
@@ -103,8 +110,9 @@ public class UserIdentitiesPanel
 		for (int i = 0; i < idList.size(); i++)
 		{
 			Identity id = idList.get(i);
-			Label label = new Label(id.toPrettyStringNoPrefix());
-			String caption = idType.getIdentityTypeProvider().getHumanFriendlyName(msg);
+			IdentityTypeDefinition typeDef = idTypeSupport.getTypeDefinition(id.getTypeId());
+			Label label = new Label(typeDef.toPrettyStringNoPrefix(id));
+			String caption = typeDef.getHumanFriendlyName(msg);
 			caption += (i > 0) ? " (" + (i+1) + "):" : ":";
 			label.setCaption(caption);
 			roLabels.add(label);
@@ -116,7 +124,7 @@ public class UserIdentitiesPanel
 	{		
 		List<Identity> idList = editableIdsByType.get(idType);
 		SingleTypeIdentityEditor singleTypeIdentityEditor = new SingleTypeIdentityEditor(idType, 
-				idList, identityEditorReg, msg, parent);
+				idList, identityEditorReg, msg, idTypeSupport, parent);
 		identityEditors.add(singleTypeIdentityEditor);
 	}
 	
@@ -156,7 +164,7 @@ public class UserIdentitiesPanel
 				throw new IllegalStateException("validation error on the idneities, "
 						+ "i.e. validation was not performed earlier");
 			}
-			types.add(editor.getType().getIdentityTypeProvider().getId());
+			types.add(editor.getType().getIdentityTypeProvider());
 		}
 		
 		idsManagement.setIdentities(new EntityParam(entityId), types, newIdentities);

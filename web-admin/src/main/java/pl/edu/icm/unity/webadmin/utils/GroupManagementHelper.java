@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.AttributeClassManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -35,15 +36,19 @@ public class GroupManagementHelper
 {
 	private UnityMessageSource msg;
 	private GroupsManagement groupsMan;
-	private AttributesManagement attrMan; 
+	private AttributeTypeManagement attrMan; 
 	private AttributeHandlerRegistry attrHandlerRegistry;
+	private AttributeClassManagement acMan;
 	
 	public GroupManagementHelper(UnityMessageSource msg, GroupsManagement groupsMan,
-			AttributesManagement attrMan, AttributeHandlerRegistry attrHandlerRegistry)
+			AttributeTypeManagement attrMan, 
+			AttributeClassManagement acMan,
+			AttributeHandlerRegistry attrHandlerRegistry)
 	{
 		this.msg = msg;
 		this.groupsMan = groupsMan;
 		this.attrMan = attrMan;
+		this.acMan = acMan;
 		this.attrHandlerRegistry = attrHandlerRegistry;
 	}
 
@@ -130,7 +135,7 @@ public class GroupManagementHelper
 	{
 		try
 		{
-			return attrMan.getAttributeClasses();
+			return acMan.getAttributeClasses();
 		} catch (EngineException e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("GroupsTree.addToGroupInitError"), e);
@@ -194,11 +199,6 @@ public class GroupManagementHelper
 	public AttributeHandlerRegistry getAttrHandlerRegistry()
 	{
 		return attrHandlerRegistry;
-	}
-	
-	public AttributesManagement getAttrMan()
-	{
-		return attrMan;
 	}
 	
 	public interface Callback

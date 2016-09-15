@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
@@ -56,7 +57,7 @@ public class AdminRegistrationFormLauncher implements RegistrationFormDialogProv
 	protected CredentialEditorRegistry credentialEditorRegistry;
 	protected AttributeHandlerRegistry attributeHandlerRegistry;
 	protected AttributesManagement attrsMan;
-	protected AuthenticationManagement authnMan;
+	protected CredentialManagement authnMan;
 	protected GroupsManagement groupsMan;
 	
 	protected EventsBus bus;
@@ -68,7 +69,7 @@ public class AdminRegistrationFormLauncher implements RegistrationFormDialogProv
 			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
-			AttributesManagement attrsMan, AuthenticationManagement authnMan,
+			AttributesManagement attrsMan, CredentialManagement authnMan,
 			GroupsManagement groupsMan, IdPLoginController idpLoginController)
 	{
 		super();
@@ -133,7 +134,8 @@ public class AdminRegistrationFormLauncher implements RegistrationFormDialogProv
 	{
 			RequestEditorCreator editorCreator = new RequestEditorCreator(msg, form, 
 					remoteContext, identityEditorRegistry, credentialEditorRegistry, 
-					attributeHandlerRegistry, registrationsManagement, attrsMan, groupsMan, authnMan);
+					attributeHandlerRegistry, registrationsManagement, attrsMan, groupsMan, 
+					authnMan);
 			editorCreator.invoke(new RequestEditorCreatedCallback()
 			{
 				@Override

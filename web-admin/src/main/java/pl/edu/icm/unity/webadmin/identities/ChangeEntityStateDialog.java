@@ -113,7 +113,8 @@ public class ChangeEntityStateDialog extends AbstractDialog
 	{
 		EntityState newState = entityState.getSelectedValue() == null ? entity.getEntity().getState() :
 			entityState.getSelectedValue();
-		EntityInformation newInfo = new EntityInformation(newState);
+		EntityInformation newInfo = new EntityInformation(entity.getEntity().getId());
+		newInfo.setState(newState);
 		changeTime.setComponentError(null);
 
 		if (scheduleEnable.getValue())

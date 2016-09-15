@@ -19,6 +19,8 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
@@ -50,7 +52,7 @@ public class UserHomeUI extends UnityEndpointUIBase implements UnityWebUI
 	}
 
 	@Override
-	public void configure(EndpointDescription description,
+	public void configure(ResolvedEndpoint description,
 			List<AuthenticationOption> authenticators,
 			EndpointRegistrationConfiguration regCfg, Properties endpointProperties)
 	{
@@ -62,8 +64,8 @@ public class UserHomeUI extends UnityEndpointUIBase implements UnityWebUI
 	protected void appInit(VaadinRequest request)
 	{
 		VerticalLayout contents = new VerticalLayout();
-		TopHeader header = new TopHeader(endpointDescription.getDisplayedName().getValue(msg), 
-				authnProcessor, msg);
+		I18nString displayedName = endpointDescription.getEndpoint().getConfiguration().getDisplayedName();
+		TopHeader header = new TopHeader(displayedName.getValue(msg), authnProcessor, msg);
 		contents.addComponent(header);
 
 		userAccount.initUI(config, sandboxRouter, getSandboxServletURLForAssociation());

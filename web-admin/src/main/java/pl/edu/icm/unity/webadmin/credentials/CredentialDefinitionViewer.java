@@ -72,6 +72,6 @@ public class CredentialDefinitionViewer extends CompactFormLayout
 		
 		pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer viewer = 
 				cdFactory.creteCredentialDefinitionViewer();
-		typeSpecific.setContent(viewer.getViewer(cd.getJsonConfiguration()));
+		typeSpecific.setContent(viewer.getViewer(cd.getConfiguration()));
 	}
 }

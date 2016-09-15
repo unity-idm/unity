@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webadmin.reg.reqman;
 
 import com.vaadin.ui.CustomComponent;
 
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
@@ -27,7 +28,7 @@ public class GenericReviewPanel extends CustomComponent
 	private RegistrationReviewPanel registrationPanel;
 	
 	public GenericReviewPanel(UnityMessageSource msg, AttributeHandlerRegistry handlersRegistry,
-			IdentityTypesRegistry idTypesRegistry, IdentitiesManagement identitiesManagement)
+			IdentityTypesRegistry idTypesRegistry, EntityManagement identitiesManagement)
 	{
 		this.enquiryPanel = new EnquiryReviewPanel(msg, handlersRegistry, idTypesRegistry, identitiesManagement);
 		this.registrationPanel = new RegistrationReviewPanel(msg, handlersRegistry, idTypesRegistry);

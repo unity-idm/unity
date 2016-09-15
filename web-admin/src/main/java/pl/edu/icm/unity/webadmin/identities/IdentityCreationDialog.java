@@ -13,6 +13,7 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Panel;
 
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
@@ -33,7 +34,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 public class IdentityCreationDialog extends AbstractDialog
 {
 	private long entityId;
-	protected IdentitiesManagement identitiesMan;
+	protected EntityManagement identitiesMan;
 	protected IdentityEditorRegistry identityEditorReg;
 	protected Callback callback;
 	
@@ -41,14 +42,14 @@ public class IdentityCreationDialog extends AbstractDialog
 	protected IdentityEditor identityEditor;
 	protected CheckBox extractAttributes;
 	
-	public IdentityCreationDialog(UnityMessageSource msg, long entityId, IdentitiesManagement identitiesMan,
+	public IdentityCreationDialog(UnityMessageSource msg, long entityId, EntityManagement identitiesMan,
 			IdentityEditorRegistry identityEditorReg, Callback callback)
 	{
 		this(msg.getMessage("IdentityCreation.caption"), msg, identitiesMan, identityEditorReg, callback);
 		this.entityId = entityId;
 	}
 
-	protected IdentityCreationDialog(String caption, UnityMessageSource msg, IdentitiesManagement identitiesMan,
+	protected IdentityCreationDialog(String caption, UnityMessageSource msg, EntityManagement identitiesMan,
 			IdentityEditorRegistry identityEditorReg, Callback callback)
 	{
 		super(msg, caption);

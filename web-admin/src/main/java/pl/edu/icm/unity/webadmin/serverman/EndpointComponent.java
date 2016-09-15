@@ -17,6 +17,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -25,6 +26,7 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -44,11 +46,11 @@ public class EndpointComponent extends DeployableComponentViewBase
 			EndpointComponent.class);
 
 	private EndpointManagement endpointMan;
-	private EndpointDescription endpoint;
+	private ResolvedEndpoint endpoint;
 	private NetworkServer networkServer;
 
 	public EndpointComponent(EndpointManagement endpointMan, ServerManagement serverMan, NetworkServer networkServer,
-			EndpointDescription endpoint, UnityServerConfiguration config,
+			ResolvedEndpoint endpoint, UnityServerConfiguration config,
 			UnityMessageSource msg, String status)
 	{
 		super(config, serverMan, msg, status);
@@ -66,7 +68,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		{
 			return;
 		}
-		String id = endpoint.getId();
+		String id = endpoint.getName();
 		log.info("Undeploy " + id + " endpoint");
 		try
 		{
@@ -95,12 +97,12 @@ public class EndpointComponent extends DeployableComponentViewBase
 		{
 			return;
 		}
-		String id = endpoint.getId();
+		String id = endpoint.getName();
 		log.info("Deploy " + id + " endpoint");
 		if (!deployEndpoint(id))
 		{
 			NotificationPopup.showError(msg, msg.getMessage("Endpoints.cannotDeploy",
-					endpoint.getId()), msg.getMessage(
+					endpoint.getName()), msg.getMessage(
 					"Endpoints.cannotDeployRemovedConfig", id));
 			setVisible(false);
 			return;
@@ -141,7 +143,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 			return;
 		}
 
-		String id = endpoint.getId();
+		String id = endpoint.getName();
 		log.info("Reload " + id + " endpoint");
 		if (!reloadEndpoint(id))
 		{
@@ -192,9 +194,9 @@ public class EndpointComponent extends DeployableComponentViewBase
 
 		try
 		{
-			for (EndpointDescription en : endpointMan.getEndpoints())
+			for (ResolvedEndpoint en : endpointMan.getEndpoints())
 			{
-				if (id.equals(en.getId()))
+				if (id.equals(en.getName()))
 				{
 					this.endpoint = en;
 				}
@@ -211,7 +213,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 
 	protected void updateHeader()
 	{
-		updateHeader(endpoint.getId());
+		updateHeader(endpoint.getName());
 	}
 
 	protected void updateContent()
@@ -225,7 +227,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		addFieldToContent(msg.getMessage("Endpoints.typeDescription"), endpoint.getType()
 				.getDescription());
 		I18nLabel displayedName = new I18nLabel(msg, msg.getMessage("displayedNameF"));
-		displayedName.setValue(endpoint.getDisplayedName());
+		displayedName.setValue(endpoint.getEndpoint().getConfiguration().getDisplayedName());
 		addCustomFieldToContent(displayedName);
 		addFieldToContent(msg.getMessage("Endpoints.paths"), "");
 		
@@ -242,7 +244,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		{
 			i++;
 			addField(pa, String.valueOf(i), networkServer.getAdvertisedAddress()
-					+ endpoint.getContextAddress() + entry.getKey());
+					+ endpoint.getEndpoint().getContextAddress() + entry.getKey());
 			addField(pad, msg.getMessage("Endpoints.pathDescription"), entry.getValue());
 
 		}
@@ -260,21 +262,23 @@ public class EndpointComponent extends DeployableComponentViewBase
 		}
 		addFieldToContent(msg.getMessage("Endpoints.binding"), bindings.toString());
 		
-		if (endpoint.getDescription() != null && endpoint.getDescription().length() > 0)
+		String description = endpoint.getEndpoint().getConfiguration().getDescription();
+		if (description != null && description.length() > 0)
 		{
 			addFieldToContent(msg.getMessage("Endpoints.description"),
-					endpoint.getDescription());
+					description);
 
 		}
 		addFieldToContent(msg.getMessage("Endpoints.contextAddress"),
-				endpoint.getContextAddress());
+				endpoint.getEndpoint().getContextAddress());
 
 		addFieldToContent(msg.getMessage("Endpoints.authenticatorsSet"), "");
 		FormLayout au = new CompactFormLayout();
 		au.setSpacing(false);
 		au.setMargin(false);
 		i = 0;
-		for (AuthenticationOptionDescription s : endpoint.getAuthenticatorSets())
+		for (AuthenticationOptionDescription s : endpoint.getEndpoint().
+				getConfiguration().getAuthenticationOptions())
 		{
 			i++;
 			addField(au, String.valueOf(i), s.toString());

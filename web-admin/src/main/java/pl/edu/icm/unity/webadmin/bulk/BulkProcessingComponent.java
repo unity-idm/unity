@@ -30,6 +30,7 @@ import pl.edu.icm.unity.engine.bulkops.EntityActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
+import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webadmin.tprofile.ActionEditor;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
@@ -188,7 +189,7 @@ public class BulkProcessingComponent extends CustomComponent
 		}
 	}
 
-	private void invoke(ProcessingRule rule)
+	private void invoke(TranslationRule rule)
 	{
 		try
 		{
@@ -324,7 +325,7 @@ public class BulkProcessingComponent extends CustomComponent
 		}
 	}
 	
-	private void showImmediateProcessingDialog(ProcessingRule orig)
+	private void showImmediateProcessingDialog(TranslationRule orig)
 	{
 		ActionEditor actionEditor;
 		try
@@ -339,7 +340,7 @@ public class BulkProcessingComponent extends CustomComponent
 		RuleEditorImpl editor = new RuleEditorImpl(msg, actionEditor);
 		if (orig != null)
 			editor.setInput(orig);
-		RuleEditDialog<ProcessingRule> dialog = new RuleEditDialog<>(msg, 
+		RuleEditDialog<TranslationRule> dialog = new RuleEditDialog<>(msg, 
 				msg.getMessage("BulkProcessingComponent.performAction"), editor, 
 				rule -> 
 				{

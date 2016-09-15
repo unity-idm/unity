@@ -10,6 +10,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
@@ -35,16 +36,18 @@ public class AttributeTypeViewer extends CompactFormLayout
 	private Label cardinality;
 	private Label uniqueVals;
 	private Label selfModificable;
-	private Label visibility;
 	private Label flags;
 	private Label syntax;
 	private SafePanel syntaxPanel;
 	private VerticalLayout metaPanel;
+
+	private AttributeTypeSupport atSupport;
 	
-	public AttributeTypeViewer(UnityMessageSource msg)
+	public AttributeTypeViewer(UnityMessageSource msg, AttributeTypeSupport atSupport)
 	{
 		super();
 		this.msg = msg;
+		this.atSupport = atSupport;
 		
 		initUI();
 	}
@@ -72,10 +75,6 @@ public class AttributeTypeViewer extends CompactFormLayout
 		selfModificable = new Label();
 		selfModificable.setCaption(msg.getMessage("AttributeType.selfModificable"));
 		addComponent(selfModificable);
-		
-		visibility = new Label();
-		visibility.setCaption(msg.getMessage("AttributeType.visibility"));
-		addComponent(visibility);
 		
 		flags = new Label();
 		flags.setCaption(msg.getMessage("AttributeType.flags"));
@@ -105,7 +104,6 @@ public class AttributeTypeViewer extends CompactFormLayout
 		cardinality.setVisible(how);
 		uniqueVals.setVisible(how);
 		selfModificable.setVisible(how);
-		visibility.setVisible(how);
 		flags.setVisible(how);
 		syntax.setVisible(how);
 		syntaxPanel.setVisible(how);
@@ -129,11 +127,9 @@ public class AttributeTypeViewer extends CompactFormLayout
 		cardinality.setValue(AttributeTypeUtils.getBoundsDesc(msg, aType.getMinElements(), aType.getMaxElements()));
 		uniqueVals.setValue(AttributeTypeUtils.getBooleanDesc(msg, aType.isUniqueValues()));
 		selfModificable.setValue(AttributeTypeUtils.getBooleanDesc(msg, aType.isSelfModificable()));
-		visibility.setValue(AttributeTypeUtils.getVisibilityDesc(msg, aType));
 		flags.setValue(AttributeTypeUtils.getFlagsDesc(msg, aType));
-		String syntaxId = aType.getValueType().getValueSyntaxId();
-		syntax.setValue(syntaxId);
-		syntaxPanel.setContent(handler.getSyntaxViewer(aType.getValueType()));
+		syntax.setValue(aType.getValueSyntax());
+		syntaxPanel.setContent(handler.getSyntaxViewer(atSupport.getSyntax(aType)));
 		
 		metaPanel.removeAllComponents();
 		Map<String, String> meta = aType.getMetadata();

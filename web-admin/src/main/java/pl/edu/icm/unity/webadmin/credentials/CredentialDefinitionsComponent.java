@@ -19,6 +19,7 @@ import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
@@ -48,7 +49,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 public class CredentialDefinitionsComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
-	private AuthenticationManagement authenticationMan;
+	private CredentialManagement credentialMan;
 	private CredentialEditorRegistry credentialEditorReg;
 	private EventsBus bus;
 	
@@ -58,12 +59,12 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 	
 	@Autowired
 	public CredentialDefinitionsComponent(UnityMessageSource msg, CredentialEditorRegistry credentialEditorReg,
-			AuthenticationManagement authenticationMan)
+			CredentialManagement credentialMan)
 	{
 		super();
 		this.msg = msg;
 		this.credentialEditorReg = credentialEditorReg;
-		this.authenticationMan = authenticationMan;
+		this.credentialMan = credentialMan;
 		this.bus = WebSession.getCurrent().getEventBus();
 		init();
 	}
@@ -130,7 +131,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 	{
 		try
 		{
-			Collection<CredentialDefinition> crs = authenticationMan.getCredentialDefinitions();
+			Collection<CredentialDefinition> crs = credentialMan.getCredentialDefinitions();
 			table.setInput(crs);
 			removeAllComponents();
 			addComponent(main);
@@ -148,7 +149,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 	{
 		try
 		{
-			authenticationMan.updateCredentialDefinition(cd, desiredCredState);
+			credentialMan.updateCredentialDefinition(cd, desiredCredState);
 			refresh();
 			bus.fireEvent(new CredentialDefinitionChangedEvent(true, cd.getName()));
 			if (desiredCredState == LocalCredentialState.outdated)
@@ -166,7 +167,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 	{
 		try
 		{
-			authenticationMan.addCredentialDefinition(cd);
+			credentialMan.addCredentialDefinition(cd);
 			refresh();
 			bus.fireEvent(new CredentialDefinitionChangedEvent(false, cd.getName()));
 			return true;
@@ -181,7 +182,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 	{
 		try
 		{
-			authenticationMan.removeCredentialDefinition(toRemove);
+			credentialMan.removeCredentialDefinition(toRemove);
 			refresh();
 			bus.fireEvent(new CredentialDefinitionChangedEvent(false, toRemove));
 			return true;

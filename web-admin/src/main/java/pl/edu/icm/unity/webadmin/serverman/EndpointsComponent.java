@@ -30,6 +30,7 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
 import pl.edu.icm.unity.webui.common.Images;
@@ -54,7 +55,7 @@ public class EndpointsComponent extends VerticalLayout
 
 	@Autowired
 	public EndpointsComponent(UnityMessageSource msg, EndpointManagement endpointMan,
-			AuthenticationManagement authMan, ServerManagement serverMan,
+			ServerManagement serverMan,
 			TranslationProfileManagement profilesMan,
 			ObjectMapper jsonMapper,
 			UnityServerConfiguration config, NetworkServer networkServer)
@@ -134,7 +135,7 @@ public class EndpointsComponent extends VerticalLayout
 			return;
 		}
 
-		List<EndpointDescription> endpoints = null;
+		List<ResolvedEndpoint> endpoints = null;
 		try
 		{
 			endpoints = endpointMan.getEndpoints();
@@ -145,12 +146,12 @@ public class EndpointsComponent extends VerticalLayout
 		}
 
 		List<String> existing = new ArrayList<>();
-		for (EndpointDescription endpointDesc : endpoints)
+		for (ResolvedEndpoint endpointDesc : endpoints)
 		{
-			endpointComponents.put(endpointDesc.getId(), new EndpointComponent(
+			endpointComponents.put(endpointDesc.getName(), new EndpointComponent(
 					endpointMan, serverMan, networkServer, endpointDesc, config, msg,
 					DeployableComponentViewBase.Status.deployed.toString()));
-			existing.add(endpointDesc.getId());
+			existing.add(endpointDesc.getName());
 		}
 
 		Set<String> endpointsList = config.getStructuredListKeys(UnityServerConfiguration.ENDPOINTS);

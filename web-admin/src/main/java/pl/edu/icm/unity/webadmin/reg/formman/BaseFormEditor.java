@@ -15,7 +15,10 @@ import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
+import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -75,18 +78,18 @@ public class BaseFormEditor extends VerticalLayout
 	private ListOfEmbeddedElements<GroupRegistrationParam> groupParams;
 	private ListOfEmbeddedElements<CredentialRegistrationParam> credentialParams;
 
-	public BaseFormEditor(UnityMessageSource msg, IdentitiesManagement identitiesMan,
-			AttributesManagement attributeMan,
-			AuthenticationManagement authenticationMan, RegistrationActionsRegistry actionsRegistry,
+	public BaseFormEditor(UnityMessageSource msg, IdentityTypesManagement identitiesMan,
+			AttributeTypeManagement attributeMan,
+			CredentialManagement authenticationMan, RegistrationActionsRegistry actionsRegistry,
 			Provider actionComponentProvider) 
 					throws EngineException
 	{
 		this(msg, identitiesMan, attributeMan, authenticationMan, false);
 	}
 
-	public BaseFormEditor(UnityMessageSource msg, IdentitiesManagement identitiesMan,
-			AttributesManagement attributeMan,
-			AuthenticationManagement authenticationMan,
+	public BaseFormEditor(UnityMessageSource msg, IdentityTypesManagement identitiesMan,
+			AttributeTypeManagement attributeMan,
+			CredentialManagement authenticationMan,
 			boolean copyMode)
 			throws EngineException
 	{
@@ -259,7 +262,7 @@ public class BaseFormEditor extends VerticalLayout
 			{
 				if (it.getIdentityTypeProvider().isDynamic())
 					continue;
-				identityType.addItem(it.getIdentityTypeProvider().getId());
+				identityType.addItem(it.getIdentityTypeProvider());
 			}
 			main.add(identityType);
 			if (value != null)

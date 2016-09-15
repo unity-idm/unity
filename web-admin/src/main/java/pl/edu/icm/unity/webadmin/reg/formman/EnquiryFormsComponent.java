@@ -20,9 +20,11 @@ import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
@@ -63,10 +65,10 @@ public class EnquiryFormsComponent extends VerticalLayout
 	private EnquiryManagement enquiriesManagement;
 	private GroupsManagement groupsMan;
 	private NotificationsManagement notificationsMan;
-	private AuthenticationManagement authenticationMan;
+	private CredentialManagement credMan;
 	private MessageTemplateManagement msgTempMan;
-	private IdentitiesManagement identitiesMan;
-	private AttributesManagement attributeMan;
+	private IdentityTypesManagement identitiesMan;
+	private AttributeTypeManagement attributeMan;
 	private EventsBus bus;
 	private ActionParameterComponentFactory actionComponentFactory;
 	
@@ -80,8 +82,8 @@ public class EnquiryFormsComponent extends VerticalLayout
 	public EnquiryFormsComponent(UnityMessageSource msg, EnquiryManagement enquiryManagement,
 			AttributeHandlerRegistry attrHandlersRegistry, GroupsManagement groupsMan, 
 			NotificationsManagement notificationsMan,
-			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
-			AttributesManagement attributeMan, AuthenticationManagement authenticationMan,
+			MessageTemplateManagement msgTempMan, IdentityTypesManagement identitiesMan,
+			AttributeTypeManagement attributeMan, CredentialManagement authenticationMan,
 			SharedEndpointManagement sharedEndpointMan,
 			RegistrationActionsRegistry actionsRegistry,
 			ActionParameterComponentFactory actionComponentFactory)
@@ -90,7 +92,7 @@ public class EnquiryFormsComponent extends VerticalLayout
 		this.enquiriesManagement = enquiryManagement;
 		this.groupsMan = groupsMan;
 		this.notificationsMan = notificationsMan;
-		this.authenticationMan = authenticationMan;
+		this.credMan = authenticationMan;
 		this.identitiesMan = identitiesMan;
 		this.msgTempMan = msgTempMan;
 		this.attributeMan = attributeMan;
@@ -262,7 +264,7 @@ public class EnquiryFormsComponent extends VerticalLayout
 			try
 			{
 				editor = new EnquiryFormEditor(msg, groupsMan, notificationsMan,
-						msgTempMan, identitiesMan, attributeMan, authenticationMan,
+						msgTempMan, identitiesMan, attributeMan, credMan,
 						actionsRegistry, actionComponentFactory.getComponentProvider());
 			} catch (EngineException e)
 			{
@@ -344,7 +346,7 @@ public class EnquiryFormsComponent extends VerticalLayout
 			try
 			{		
 				editor = new EnquiryFormEditor(msg, groupsMan, notificationsMan,
-						msgTempMan, identitiesMan, attributeMan, authenticationMan,
+						msgTempMan, identitiesMan, attributeMan, credMan,
 						actionsRegistry, actionComponentFactory.getComponentProvider(), 
 						copyMode);
 				editor.setForm(form);

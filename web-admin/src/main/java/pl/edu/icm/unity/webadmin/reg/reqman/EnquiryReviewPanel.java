@@ -9,6 +9,8 @@ import org.apache.log4j.Logger;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -27,10 +29,10 @@ public class EnquiryReviewPanel extends RequestReviewPanelBase
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiryReviewPanel.class);
 	private Label entity;
-	private IdentitiesManagement identitiesManagement;
+	private EntityManagement identitiesManagement;
 	
 	public EnquiryReviewPanel(UnityMessageSource msg, AttributeHandlerRegistry handlersRegistry,
-			IdentityTypesRegistry idTypesRegistry, IdentitiesManagement identitiesManagement)
+			IdentityTypesRegistry idTypesRegistry, EntityManagement identitiesManagement)
 	{
 		super(msg, handlersRegistry, idTypesRegistry);
 		this.identitiesManagement = identitiesManagement;

@@ -17,6 +17,7 @@ import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;

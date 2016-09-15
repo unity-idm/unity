@@ -155,7 +155,7 @@ public class ActionEditor extends LayoutEmbeddable
 	}
 	
 
-	public TranslationActionInstance getAction() throws FormValidationException
+	public TranslationAction getAction() throws FormValidationException
 	{
 		String ac = (String) actions.getValue();
 		TranslationActionFactory factory = getActionFactory(ac);

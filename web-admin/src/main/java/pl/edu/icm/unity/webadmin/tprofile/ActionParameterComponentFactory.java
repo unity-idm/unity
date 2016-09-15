@@ -13,8 +13,11 @@ import java.util.TreeSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -35,11 +38,11 @@ public class ActionParameterComponentFactory
 	@Autowired
 	private UnityMessageSource msg;
 	@Autowired
-	private AttributesManagement attrsMan;
+	private AttributeTypeManagement attrsMan;
 	@Autowired
-	private IdentitiesManagement idMan;
+	private IdentityTypesManagement idMan;
 	@Autowired
-	private AuthenticationManagement authnMan;
+	private CredentialRequirementManagement authnMan;
 	@Autowired
 	private GroupsManagement groupsMan;
 	
@@ -69,7 +72,7 @@ public class ActionParameterComponentFactory
 			idTypes = new TreeSet<String>();
 			for (IdentityType it: idTypesF)
 				if (!it.getIdentityTypeProvider().isDynamic())
-					idTypes.add(it.getIdentityTypeProvider().getId());
+					idTypes.add(it.getIdentityTypeProvider());
 		}
 		
 		public ActionParameterComponent getParameterComponent(ActionParameterDefinition param)

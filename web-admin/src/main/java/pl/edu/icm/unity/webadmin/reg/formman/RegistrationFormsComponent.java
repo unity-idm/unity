@@ -20,8 +20,10 @@ import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
@@ -61,10 +63,10 @@ public class RegistrationFormsComponent extends VerticalLayout
 	private RegistrationsManagement registrationsManagement;
 	private GroupsManagement groupsMan;
 	private NotificationsManagement notificationsMan;
-	private AuthenticationManagement authenticationMan;
+	private CredentialManagement credMan;
 	private MessageTemplateManagement msgTempMan;
-	private IdentitiesManagement identitiesMan;
-	private AttributesManagement attributeMan;
+	private IdentityTypesManagement identitiesMan;
+	private AttributeTypeManagement attributeMan;
 	private EventsBus bus;
 	private ActionParameterComponentFactory actionComponentFactory;
 	
@@ -78,8 +80,8 @@ public class RegistrationFormsComponent extends VerticalLayout
 	public RegistrationFormsComponent(UnityMessageSource msg, RegistrationsManagement registrationsManagement,
 			AttributeHandlerRegistry attrHandlersRegistry, GroupsManagement groupsMan, 
 			NotificationsManagement notificationsMan,
-			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
-			AttributesManagement attributeMan, AuthenticationManagement authenticationMan,
+			MessageTemplateManagement msgTempMan, IdentityTypesManagement identitiesMan,
+			AttributeTypeManagement attributeMan, CredentialManagement authenticationMan,
 			SharedEndpointManagement sharedEndpointMan,
 			RegistrationActionsRegistry actionsRegistry,
 			ActionParameterComponentFactory actionComponentFactory)
@@ -88,7 +90,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 		this.registrationsManagement = registrationsManagement;
 		this.groupsMan = groupsMan;
 		this.notificationsMan = notificationsMan;
-		this.authenticationMan = authenticationMan;
+		this.credMan = authenticationMan;
 		this.identitiesMan = identitiesMan;
 		this.msgTempMan = msgTempMan;
 		this.attributeMan = attributeMan;
@@ -248,7 +250,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 			try
 			{
 				editor = new RegistrationFormEditor(msg, groupsMan, notificationsMan,
-						msgTempMan, identitiesMan, attributeMan, authenticationMan,
+						msgTempMan, identitiesMan, attributeMan, credMan,
 						actionsRegistry, actionComponentFactory.getComponentProvider());
 			} catch (EngineException e)
 			{
@@ -309,7 +311,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 			try
 			{		
 				editor = new RegistrationFormEditor(msg, groupsMan, notificationsMan,
-						msgTempMan, identitiesMan, attributeMan, authenticationMan,
+						msgTempMan, identitiesMan, attributeMan, credMan,
 						actionsRegistry, actionComponentFactory.getComponentProvider(), 
 						copyMode);
 				editor.setForm(form);

@@ -15,8 +15,12 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -65,9 +69,9 @@ public class EnquiryFormEditor extends BaseFormEditor
 	
 	public EnquiryFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
 			NotificationsManagement notificationsMan,
-			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
-			AttributesManagement attributeMan,
-			AuthenticationManagement authenticationMan, RegistrationActionsRegistry actionsRegistry,
+			MessageTemplateManagement msgTempMan, IdentityTypesManagement identitiesMan,
+			AttributeTypeManagement attributeMan,
+			CredentialManagement authenticationMan, RegistrationActionsRegistry actionsRegistry,
 			Provider actionComponentProvider) 
 					throws EngineException
 	{
@@ -77,9 +81,9 @@ public class EnquiryFormEditor extends BaseFormEditor
 
 	public EnquiryFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
 			NotificationsManagement notificationsMan,
-			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
-			AttributesManagement attributeMan,
-			AuthenticationManagement authenticationMan, RegistrationActionsRegistry actionsRegistry,
+			MessageTemplateManagement msgTempMan, IdentityTypesManagement identitiesMan,
+			AttributeTypeManagement attributeMan,
+			CredentialManagement authenticationMan, RegistrationActionsRegistry actionsRegistry,
 			Provider actionComponentProvider,
 			boolean copyMode)
 			throws EngineException

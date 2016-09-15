@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import com.vaadin.ui.CustomComponent;
 
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -45,13 +46,13 @@ public class RequestsComponent extends CustomComponent
 	private RequestsTable requestsTable;
 	private IdentityTypesRegistry idTypesRegistry;
 	private EnquiryManagement enquiryManagement;
-	private IdentitiesManagement identitiesManagement;
+	private EntityManagement identitiesManagement;
 	
 	@Autowired
 	public RequestsComponent(RegistrationsManagement registrationsManagement, EnquiryManagement enquiryManagement,
 			AttributeHandlerRegistry handlersRegistry,
 			IdentityTypesRegistry idTypesRegistry, UnityMessageSource msg, 
-			IdentitiesManagement identitiesManagement)
+			EntityManagement identitiesManagement)
 	{
 		this.registrationsManagement = registrationsManagement;
 		this.enquiryManagement = enquiryManagement;

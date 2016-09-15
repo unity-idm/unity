@@ -20,7 +20,8 @@ import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.AttributeClassManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -47,8 +48,9 @@ import pl.edu.icm.unity.webui.common.Toolbar;
 public class AttributesClassesComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
-	private AttributesManagement attrMan;
-
+	private AttributeClassManagement acMan;
+	private AttributeTypeManagement attrMan;
+	
 	private GenericElementsTable<String> table;
 	private AttributesClassViewer viewer;
 	private com.vaadin.ui.Component main;
@@ -56,11 +58,12 @@ public class AttributesClassesComponent extends VerticalLayout
 	
 	@Autowired
 	public AttributesClassesComponent(UnityMessageSource msg,
-			AttributesManagement attributesMan)
+			AttributeTypeManagement attributesMan, AttributeClassManagement acMan)
 	{
 		super();
 		this.msg = msg;
 		this.attrMan = attributesMan;
+		this.acMan = acMan;
 		
 		init();
 	}
@@ -116,7 +119,7 @@ public class AttributesClassesComponent extends VerticalLayout
 	{
 		try
 		{
-			allACs = attrMan.getAttributeClasses();
+			allACs = acMan.getAttributeClasses();
 			table.setInput(allACs.keySet());
 			viewer.setInput(null, allACs);
 			removeAllComponents();
@@ -136,7 +139,7 @@ public class AttributesClassesComponent extends VerticalLayout
 	{
 		try
 		{
-			attrMan.addAttributeClass(ac);
+			acMan.addAttributeClass(ac);
 			refresh();
 			return true;
 		} catch (Exception e)
@@ -150,7 +153,7 @@ public class AttributesClassesComponent extends VerticalLayout
 	{
 		try
 		{
-			attrMan.updateAttributeClass(ac);
+			acMan.updateAttributeClass(ac);
 			refresh();
 			return true;
 		} catch (Exception e)
@@ -164,7 +167,7 @@ public class AttributesClassesComponent extends VerticalLayout
 	{
 		try
 		{
-			attrMan.removeAttributeClass(toRemove);
+			acMan.removeAttributeClass(toRemove);
 			refresh();
 			return true;
 		} catch (Exception e)

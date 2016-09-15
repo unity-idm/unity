@@ -13,6 +13,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -36,10 +37,12 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 public class ValuesRendererPanel extends VerticalLayout
 {
 	private UnityMessageSource msg;
+	private AttributeTypeSupport atSupport;
 	
-	public ValuesRendererPanel(UnityMessageSource msg)
+	public ValuesRendererPanel(UnityMessageSource msg, AttributeTypeSupport atSupport)
 	{
 		this.msg = msg;
+		this.atSupport = atSupport;
 		setMargin(new MarginInfo(false, false, false, true));
 		setSizeFull();
 		setSpacing(true);
@@ -55,10 +58,11 @@ public class ValuesRendererPanel extends VerticalLayout
 		removeValues();
 		buildInfoView(a);
 		List<?> values = a.getValues();
+		AttributeValueSyntax<?> syntax = atSupport.getSyntax(a);
 		if (values.size() > 1)
-			buildMultiValueView(handler, a.getAttributeSyntax(), values);
+			buildMultiValueView(handler, syntax, values);
 		else if (values.size() == 1)
-			buildSingleValueView(handler, a.getAttributeSyntax(), values.get(0));
+			buildSingleValueView(handler, syntax, values.get(0));
 		else
 			buildNoValueView();
 	}

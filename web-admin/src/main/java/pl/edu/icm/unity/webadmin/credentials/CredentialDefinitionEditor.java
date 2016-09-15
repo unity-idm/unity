@@ -105,7 +105,7 @@ public class CredentialDefinitionEditor extends CompactFormLayout
 		if (initial != null)
 		{
 			formItem.getItemProperty("name").setReadOnly(true);
-			setCredentialEditor(initial.getJsonConfiguration(), initial.getTypeId());
+			setCredentialEditor(initial.getConfiguration(), initial.getTypeId());
 		} else
 			setCredentialEditor(null, firstType);
 		
@@ -145,7 +145,7 @@ public class CredentialDefinitionEditor extends CompactFormLayout
 			throw new IllegalCredentialException("");
 		}
 		CredentialDefinition ret = formItem.getBean();
-		ret.setJsonConfiguration(credConfig);
+		ret.setConfiguration(credConfig);
 		ret.getDisplayedName().setDefaultValue(ret.getName());
 		return ret;
 	}

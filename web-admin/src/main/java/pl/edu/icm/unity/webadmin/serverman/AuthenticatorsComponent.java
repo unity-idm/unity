@@ -22,6 +22,8 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -46,14 +48,14 @@ public class AuthenticatorsComponent extends VerticalLayout
 
 	private UnityMessageSource msg;
 	private UnityServerConfiguration config;
-	private AuthenticationManagement authMan;
+	private AuthenticatorManagement authMan;
 	private ServerManagement serverMan;
 	private VerticalLayout content;
 	private Map<String,AuthenticatorComponent> authenticatorComponents;
 
 	@Autowired
 	public AuthenticatorsComponent(UnityMessageSource msg, UnityServerConfiguration config,
-			AuthenticationManagement authMan, ServerManagement serverMan)
+			AuthenticatorManagement authMan, ServerManagement serverMan)
 	{
 
 		this.msg = msg;

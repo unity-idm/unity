@@ -4,12 +4,15 @@
  */
 package pl.edu.icm.unity.engine.identity;
 
+import java.util.Collection;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.types.basic.IdentityType;
 
 
 /**
@@ -33,5 +36,17 @@ public class IdentityTypeSupportImpl implements IdentityTypeSupport
 	public IdentityTypeDefinition getTypeDefinition(String idType)
 	{
 		return helper.getTypeDefinition(idType);
+	}
+
+	@Override
+	public Collection<IdentityType> getIdentityTypes()
+	{
+		return helper.getIdentityTypes();
+	}
+
+	@Override
+	public IdentityType getType(String idType)
+	{
+		return helper.getIdentityType(idType);
 	}
 }

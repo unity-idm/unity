@@ -39,7 +39,10 @@ import com.vaadin.ui.Table.TableDragMode;
 import com.vaadin.ui.TreeTable;
 import com.vaadin.ui.UI;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
@@ -142,10 +145,10 @@ public class IdentitiesTable extends CustomComponent
 	public static final String ATTR_COL_PREFIX = "a::";
 	public static final String ATTR_ROOT_COL_PREFIX = ATTR_COL_PREFIX + "root::";
 	public static final String ATTR_CURRENT_COL_PREFIX = ATTR_COL_PREFIX + "current::";
-	private IdentitiesManagement identitiesMan;
+	private EntityManagement identitiesMan;
 	private GroupsManagement groupsMan;
 	private UnityMessageSource msg;
-	private AuthenticationManagement authnMan;
+	private CredentialManagement authnMan;
 	private AttributesManagement attrMan;
 	private PreferencesManagement preferencesMan;
 	private AttributeSupport attrProcessor;
@@ -168,8 +171,8 @@ public class IdentitiesTable extends CustomComponent
 	private volatile FutureTask<?> entitiesLoader;
 	
 	@Autowired
-	public IdentitiesTable(IdentitiesManagement identitiesMan, GroupsManagement groupsMan, 
-			AuthenticationManagement authnMan, AttributesManagement attrMan,PreferencesManagement preferencesMan,
+	public IdentitiesTable(EntityManagement identitiesMan, GroupsManagement groupsMan, 
+			CredentialManagement authnMan, AttributesManagement attrMan,PreferencesManagement preferencesMan,
 			AttributeSupport attrProcessor,
 			IdentityEditorRegistry identityEditorReg, CredentialEditorRegistry credEditorsRegistry,
 			AttributeHandlerRegistry attrHandlerReg, UnityMessageSource msg, ExecutorsService executor)

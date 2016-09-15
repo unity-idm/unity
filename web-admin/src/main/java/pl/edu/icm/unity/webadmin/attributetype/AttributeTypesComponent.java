@@ -22,7 +22,8 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webadmin.attributetype.AttributeTypeEditDialog.Callback;
@@ -52,7 +53,7 @@ import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegist
 public class AttributeTypesComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
-	private AttributesManagement attrManagement;
+	private AttributeTypeManagement attrManagement;
 	private AttributeHandlerRegistry attrHandlerRegistry;
 	private AttributeMetadataHandlerRegistry attrMetaHandlerRegistry;
 	
@@ -60,15 +61,18 @@ public class AttributeTypesComponent extends VerticalLayout
 	private AttributeTypeViewer viewer;
 	private com.vaadin.ui.Component main;
 	private EventsBus bus;
+	private AttributeTypeSupport atSupport;
 	
 	
 	@Autowired
-	public AttributeTypesComponent(UnityMessageSource msg, AttributesManagement attrManagement, 
+	public AttributeTypesComponent(UnityMessageSource msg, AttributeTypeManagement attrManagement,
+			AttributeTypeSupport atSupport, 
 			AttributeHandlerRegistry attrHandlerRegistry, 
 			AttributeMetadataHandlerRegistry attrMetaHandlerRegistry)
 	{
 		this.msg = msg;
 		this.attrManagement = attrManagement;
+		this.atSupport = atSupport;
 		this.attrHandlerRegistry = attrHandlerRegistry;
 		this.attrMetaHandlerRegistry = attrMetaHandlerRegistry;
 		this.bus = WebSession.getCurrent().getEventBus();
@@ -89,7 +93,7 @@ public class AttributeTypesComponent extends VerticalLayout
 					}
 				});
 
-		viewer = new AttributeTypeViewer(msg);
+		viewer = new AttributeTypeViewer(msg, atSupport);
 		table.setMultiSelect(true);
 		table.addValueChangeListener(new ValueChangeListener()
 		{
@@ -99,17 +103,21 @@ public class AttributeTypesComponent extends VerticalLayout
 				Collection<AttributeType> items = getItems(table.getValue());
 				if (items.size() > 1 || items.isEmpty())
 				{
-					viewer.setInput(null, null, AttributeTypesComponent.this.attrMetaHandlerRegistry);
+					viewer.setInput(null, null, 
+							AttributeTypesComponent.this.attrMetaHandlerRegistry);
 					return;		
 				}	
 				AttributeType at = items.iterator().next();	
 				if (at != null)
 				{
-					WebAttributeHandler<?> handler = AttributeTypesComponent.this.attrHandlerRegistry.getHandler(
-							at.getValueType().getValueSyntaxId());
-					viewer.setInput(at, handler, AttributeTypesComponent.this.attrMetaHandlerRegistry);
+					WebAttributeHandler<?> handler = 
+							AttributeTypesComponent.this.attrHandlerRegistry.getHandler(
+							at.getValueSyntax());
+					viewer.setInput(at, handler, 
+							AttributeTypesComponent.this.attrMetaHandlerRegistry);
 				} else
-					viewer.setInput(null, null, AttributeTypesComponent.this.attrMetaHandlerRegistry);
+					viewer.setInput(null, null, 
+							AttributeTypesComponent.this.attrMetaHandlerRegistry);
 			}
 		});
 		table.addActionHandler(new RefreshActionHandler());
@@ -219,7 +227,7 @@ public class AttributeTypesComponent extends VerticalLayout
 		public void handleAction(Object sender, final Object target)
 		{
 			RegularAttributeTypeEditor editor = new RegularAttributeTypeEditor(msg, attrHandlerRegistry, 
-					attrMetaHandlerRegistry);
+					attrMetaHandlerRegistry, atSupport);
 			AttributeTypeEditDialog dialog = new AttributeTypeEditDialog(msg, 
 					msg.getMessage("AttributeTypes.addAction"), new Callback()
 					{
@@ -299,7 +307,8 @@ public class AttributeTypesComponent extends VerticalLayout
 			AttributeType at = (AttributeType) item.getElement();
 			AttributeTypeEditor editor = at.isTypeImmutable() ? 
 					new ImmutableAttributeTypeEditor(msg, at) : 
-					new RegularAttributeTypeEditor(msg, attrHandlerRegistry, at, attrMetaHandlerRegistry);
+					new RegularAttributeTypeEditor(msg, attrHandlerRegistry, at, 
+							attrMetaHandlerRegistry, atSupport);
 			AttributeTypeEditDialog dialog = new AttributeTypeEditDialog(msg, 
 					msg.getMessage("AttributeTypes.editAction"), new Callback()
 					{

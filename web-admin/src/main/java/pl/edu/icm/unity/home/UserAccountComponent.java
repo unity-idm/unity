@@ -17,12 +17,18 @@ import org.springframework.stereotype.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
+import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
+import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
@@ -62,13 +68,13 @@ public class UserAccountComponent extends VerticalLayout
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, UserAccountComponent.class);
 	private UnityMessageSource msg;
-	private AuthenticationManagement authnMan;
-	private IdentitiesManagement idsMan;
+	private CredentialManagement credMan;
+	private EntityManagement idsMan;
 	private CredentialEditorRegistry credEditorReg;
 	private PreferencesHandlerRegistry registry;
 	private PreferencesManagement prefMan;
 	private EndpointManagement endpMan; 
-	private AttributeSupport attrMan;
+	private AttributeSupport atSupport;
 	private WebAuthenticationProcessor authnProcessor;
 	private AttributeHandlerRegistry attributeHandlerRegistry;
 	private AttributesManagement attributesMan;
@@ -76,30 +82,38 @@ public class UserAccountComponent extends VerticalLayout
 	private SandboxAuthnNotifier sandboxNotifier;
 	private String sandboxURL;
 	private InputTranslationEngine inputTranslationEngine;
+	private EntityCredentialManagement ecredMan;
+	private CredentialRequirementManagement credReqMan;
+	private IdentityTypeSupport idTypeSupport;
 	
 	@Autowired
-	public UserAccountComponent(UnityMessageSource msg, AuthenticationManagement authnMan,
-			IdentitiesManagement idsMan, CredentialEditorRegistry credEditorReg,
+	public UserAccountComponent(UnityMessageSource msg, CredentialManagement credMan,
+			EntityManagement idsMan, EntityCredentialManagement ecredMan,
+			CredentialRequirementManagement credReqMan, CredentialEditorRegistry credEditorReg,
 			PreferencesHandlerRegistry registry, PreferencesManagement prefMan,
 			EndpointManagement endpMan, AttributeSupport attrMan,
 			WebAuthenticationProcessor authnProcessor,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributesManagement attributesMan, IdentityEditorRegistry identityEditorRegistry,
-			InputTranslationEngine inputTranslationEngine)
+			InputTranslationEngine inputTranslationEngine,
+			IdentityTypeSupport idTypeSupport)
 	{
 		this.msg = msg;
-		this.authnMan = authnMan;
+		this.credMan = credMan;
 		this.idsMan = idsMan;
+		this.ecredMan = ecredMan;
+		this.credReqMan = credReqMan;
 		this.credEditorReg = credEditorReg;
 		this.registry = registry;
 		this.prefMan = prefMan;
 		this.endpMan = endpMan;
-		this.attrMan = attrMan;
+		this.atSupport = attrMan;
 		this.authnProcessor = authnProcessor;
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
 		this.attributesMan = attributesMan;
 		this.identityEditorRegistry = identityEditorRegistry;
 		this.inputTranslationEngine = inputTranslationEngine;
+		this.idTypeSupport = idTypeSupport;
 	}
 
 	public void initUI(HomeEndpointProperties config, SandboxAuthnNotifier sandboxNotifier, String sandboxURL)
@@ -136,13 +150,13 @@ public class UserAccountComponent extends VerticalLayout
 	{
 		try
 		{
-			UserDetailsPanel userInfo = getUserInfoComponent(theUser.getEntityId(), idsMan, attrMan);
+			UserDetailsPanel userInfo = getUserInfoComponent(theUser.getEntityId(), idsMan, atSupport);
 			EntityRemovalButton removalButton = new EntityRemovalButton(msg, 
 					theUser.getEntityId(), idsMan, authnProcessor);
 			final UserIdentitiesPanel idsPanel = new UserIdentitiesPanel(msg, 
-					identityEditorRegistry, idsMan, theUser.getEntityId());
+					identityEditorRegistry, idsMan, theUser.getEntityId(), idTypeSupport);
 			final UserAttributesPanel attrsPanel = new UserAttributesPanel(msg, attributeHandlerRegistry, 
-					attributesMan, idsMan, config, theUser.getEntityId());
+					attributesMan, idsMan, atSupport, config, theUser.getEntityId());
 			ConnectIdWizardProvider connectIdProvider = new ConnectIdWizardProvider(msg, 
 					sandboxURL, sandboxNotifier, inputTranslationEngine, new WizardFinishedCallback()
 					{
@@ -191,7 +205,7 @@ public class UserAccountComponent extends VerticalLayout
 		try
 		{
 			CredentialsPanel credentialsPanel = new CredentialsPanel(msg, theUser.getEntityId(), 
-					authnMan, idsMan, credEditorReg, true);
+					credMan, ecredMan, idsMan, credReqMan, credEditorReg, true);
 			if (!credentialsPanel.isCredentialRequirementEmpty())
 				tabPanel.addTab("UserHomeUI.credentialsLabel", "UserHomeUI.credentialsDesc", 
 					Images.key64.getResource(), credentialsPanel);
@@ -216,7 +230,7 @@ public class UserAccountComponent extends VerticalLayout
 				Images.settings64.getResource(), preferencesComponent);
 	}
 	
-	private UserDetailsPanel getUserInfoComponent(long entityId, IdentitiesManagement idsMan, 
+	private UserDetailsPanel getUserInfoComponent(long entityId, EntityManagement idsMan, 
 			AttributeSupport attrMan) throws EngineException
 	{
 		UserDetailsPanel ret = new UserDetailsPanel(msg);

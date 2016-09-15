@@ -13,7 +13,7 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -27,14 +27,14 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
  */
 public class AddAttributeColumnDialog extends AbstractDialog
 {
-	private AttributesManagement attrsMan;
+	private AttributeTypeManagement attrsMan;
 	protected Callback callback;
 	
 	private ComboBox attributeType;
 	private CheckBox useRootGroup;
 	
 	
-	public AddAttributeColumnDialog(UnityMessageSource msg, AttributesManagement attrsMan, 
+	public AddAttributeColumnDialog(UnityMessageSource msg, AttributeTypeManagement attrsMan, 
 			Callback callback)
 	{
 		super(msg, msg.getMessage("AddAttributeColumnDialog.caption"));

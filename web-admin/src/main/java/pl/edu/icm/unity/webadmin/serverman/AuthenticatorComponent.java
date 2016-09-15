@@ -17,6 +17,8 @@ import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -40,9 +42,9 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 			AuthenticatorComponent.class);
 
 	private AuthenticatorInstance authenticator;
-	private AuthenticationManagement authMan;
+	private AuthenticatorManagement authMan;
 
-	public AuthenticatorComponent(AuthenticationManagement authMan, ServerManagement serverMan,
+	public AuthenticatorComponent(AuthenticatorManagement authMan, ServerManagement serverMan,
 			AuthenticatorInstance authenticator, UnityServerConfiguration config,
 			UnityMessageSource msg, String status)
 	{
@@ -88,12 +90,14 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 			addFieldToContent(msg.getMessage("Authenticators.localCredential"), cr);
 		}
 		
-		addConfigPanel(msg.getMessage("Authenticators.verificatorJsonConfiguration"), authenticator.getVerificatorJsonConfiguration());
-		addConfigPanel(msg.getMessage("Authenticators.retrievalJsonConfiguration"), authenticator.getRetrievalJsonConfiguration());
+		addConfigPanel(msg.getMessage("Authenticators.verificatorJsonConfiguration"), 
+				authenticator.getVerificatorConfiguration());
+		addConfigPanel(msg.getMessage("Authenticators.retrievalJsonConfiguration"), 
+				authenticator.getRetrievalConfiguration());
 	}
 	
 	
-	private void addConfigPanel(String capion ,String val)
+	private void addConfigPanel(String capion, String val)
 	{
 		if (val != null && !val.isEmpty())
 		{

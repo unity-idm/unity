@@ -15,7 +15,9 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.ui.CustomComponent;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -43,13 +45,16 @@ public class InvitationsComponent extends CustomComponent
 	private AttributeHandlerRegistry attrHandlersRegistry;
 	private IdentityEditorRegistry identityEditorRegistry;
 
-	private AttributesManagement attributesManagement;
+	private AttributeTypeManagement attributesManagement;
+
+	private InvitationManagement invitationManagement;
 	
 	@Autowired
 	public InvitationsComponent(UnityMessageSource msg,
 			RegistrationsManagement registrationManagement,
 			NotificationsManagement notificationsManagement,
-			AttributesManagement attributesManagement,
+			AttributeTypeManagement attributesManagement,
+			InvitationManagement invitationManagement,
 			AttributeHandlerRegistry attrHandlersRegistry,
 			IdentityEditorRegistry identityEditorRegistry)
 	{
@@ -57,6 +62,7 @@ public class InvitationsComponent extends CustomComponent
 		this.registrationManagement = registrationManagement;
 		this.notificationsManagement = notificationsManagement;
 		this.attributesManagement = attributesManagement;
+		this.invitationManagement = invitationManagement;
 		this.attrHandlersRegistry = attrHandlersRegistry;
 		this.identityEditorRegistry = identityEditorRegistry;
 		initUI();
@@ -66,7 +72,8 @@ public class InvitationsComponent extends CustomComponent
 	{
 		addStyleName(Styles.visibleScroll.toString());
 		InvitationsTable invitationsTable = new InvitationsTable(msg, registrationManagement, 
-				notificationsManagement, attributesManagement, identityEditorRegistry, 
+				invitationManagement, notificationsManagement,
+				attributesManagement, identityEditorRegistry, 
 				attrHandlersRegistry);
 		InvitationViewer viewer = new InvitationViewer(msg, attrHandlersRegistry);
 		

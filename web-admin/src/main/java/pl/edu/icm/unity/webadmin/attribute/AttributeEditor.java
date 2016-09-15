@@ -49,7 +49,7 @@ public class AttributeEditor extends CustomComponent
 		AttributeType initial = attrTypePanel.getAttributeType();
 		attrValuesContainer = new CompactFormLayout();
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, initial, 
-				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null, 
+				false, AttributeEditor.this.groupPath, null, null, 
 				required, true, attrValuesContainer);
 
 		attrTypePanel.setCallback(new TypeChangeCallback()
@@ -59,7 +59,7 @@ public class AttributeEditor extends CustomComponent
 			{
 				attrValuesContainer.removeAllComponents();
 				valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, newType, 
-						false, AttributeEditor.this.groupPath, AttributeVisibility.full, 
+						false, AttributeEditor.this.groupPath, 
 						null, null, required, true, attrValuesContainer);
 			}
 		});
@@ -88,10 +88,10 @@ public class AttributeEditor extends CustomComponent
 			AttributeHandlerRegistry handlerRegistry)
 	{
 		this.groupPath = attribute.getGroupPath();
-		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg, attribute.getVisibility());
+		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg);
 		attrValuesContainer = new CompactFormLayout();
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, attributeType, 
-				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null, true, true, 
+				false, AttributeEditor.this.groupPath, null, null, true, true, 
 				attrValuesContainer);
 		valuesPanel.setAttributeValues(attribute.getValues());
 		initCommon();
@@ -108,10 +108,10 @@ public class AttributeEditor extends CustomComponent
 			AttributeHandlerRegistry handlerRegistry)
 	{
 		this.groupPath = groupPath;
-		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg, attributeType.getVisibility());
+		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg);
 		attrValuesContainer = new CompactFormLayout();
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, attributeType, 
-				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null, true, true, 
+				false, AttributeEditor.this.groupPath, null, null, true, true, 
 				attrValuesContainer);
 		typeFixed = true;
 		initCommon();
@@ -126,17 +126,15 @@ public class AttributeEditor extends CustomComponent
 		split.addStyleName(Styles.visibleScroll.toString());
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Attribute getAttribute() throws FormValidationException
 	{
 		Attribute ret = valuesPanel.getAttribute();
 		if (ret == null)
 		{
 			AttributeType at = attrTypePanel.getAttributeType();
-			return new Attribute(at.getName(), at.getValueType(), groupPath, attrTypePanel.getVisibility(), 
+			return new Attribute(at.getName(), at.getValueSyntax(), groupPath, 
 					new ArrayList<>());
 		}
-		ret.setVisibility(attrTypePanel.getVisibility());
 		return ret;
 	}
 

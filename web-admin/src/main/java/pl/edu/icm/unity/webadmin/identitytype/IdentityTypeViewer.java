@@ -6,6 +6,8 @@ package pl.edu.icm.unity.webadmin.identitytype;
 
 import com.vaadin.ui.Label;
 
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -29,11 +31,14 @@ public class IdentityTypeViewer extends CompactFormLayout
 	private Label min;
 	private Label max;
 	private Label minVerified;
+
+	private IdentityTypeSupport idTypeSupport;
 	
-	public IdentityTypeViewer(UnityMessageSource msg)
+	public IdentityTypeViewer(UnityMessageSource msg, IdentityTypeSupport idTypeSupport)
 	{
 		super();
 		this.msg = msg;
+		this.idTypeSupport = idTypeSupport;
 		
 		initUI();
 	}
@@ -109,19 +114,21 @@ public class IdentityTypeViewer extends CompactFormLayout
 			return;
 		}
 		
+		IdentityTypeDefinition typeDefinition = idTypeSupport.getTypeDefinition(iType.getName());
+		
 		setContentsVisible(true);
-		name.setValue(iType.getIdentityTypeProvider().getId());
+		name.setValue(iType.getIdentityTypeProvider());
 		description.setValue(iType.getDescription());
-		removable.setValue(msg.getYesNo(iType.getIdentityTypeProvider().isRemovable()));
-		dynamic.setValue(msg.getYesNo(iType.getIdentityTypeProvider().isDynamic()));
+		removable.setValue(msg.getYesNo(typeDefinition.isRemovable()));
+		dynamic.setValue(msg.getYesNo(typeDefinition.isDynamic()));
 		selfModificable.setValue(msg.getYesNo(iType.isSelfModificable()));
-		targeted.setValue(msg.getYesNo(iType.getIdentityTypeProvider().isTargeted()));
-		confirmable.setValue(msg.getYesNo(iType.getIdentityTypeProvider().isVerifiable()));
+		targeted.setValue(msg.getYesNo(typeDefinition.isTargeted()));
+		confirmable.setValue(msg.getYesNo(typeDefinition.isVerifiable()));
 		min.setValue(String.valueOf(iType.getMinInstances()));
 		max.setValue(String.valueOf(iType.getMaxInstances()));
 		minVerified.setValue(String.valueOf(iType.getMinVerifiedInstances()));
 		
-		if (!iType.getIdentityTypeProvider().isVerifiable())
+		if (!typeDefinition.isVerifiable())
 			minVerified.setVisible(false);
 		
 		if (iType.getMaxInstances() == Integer.MAX_VALUE)

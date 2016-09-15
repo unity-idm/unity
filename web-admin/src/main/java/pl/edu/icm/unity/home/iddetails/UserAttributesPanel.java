@@ -15,7 +15,10 @@ import org.apache.log4j.Logger;
 
 import com.vaadin.ui.AbstractOrderedLayout;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -47,11 +50,13 @@ public class UserAttributesPanel
 
 	private AbstractOrderedLayout parent;
 	private List<AttributeViewer> viewers;
-	private IdentitiesManagement idsMan;
+	private EntityManagement idsMan;
+	private AttributeSupport atMan;
 	
 	public UserAttributesPanel(UnityMessageSource msg,
 			AttributeHandlerRegistry attributeHandlerRegistry,
-			AttributesManagement attributesMan, IdentitiesManagement idsMan,
+			AttributesManagement attributesMan, EntityManagement idsMan,
+			AttributeSupport atMan,
 			HomeEndpointProperties config,
 			long entityId) throws EngineException
 	{
@@ -59,6 +64,7 @@ public class UserAttributesPanel
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
 		this.attributesMan = attributesMan;
 		this.idsMan = idsMan;
+		this.atMan = atMan;
 		this.config = config;
 		this.entityId = entityId;
 	}
@@ -74,7 +80,8 @@ public class UserAttributesPanel
 		attributeEditors = new ArrayList<FixedAttributeEditor>();
 		viewers = new ArrayList<>();
 		Set<String> keys = config.getStructuredListKeys(HomeEndpointProperties.ATTRIBUTES);
-		Map<String, AttributeType> atTypes = attributesMan.getAttributeTypesAsMap();
+		
+		Map<String, AttributeType> atTypes = atMan.getAttributeTypesAsMap();
 		Set<String> groups = idsMan.getGroupsForPresentation(new EntityParam(entityId)).
 				stream().map(g -> g.toString()).collect(Collectors.toSet());
 		for (String aKey: keys)
@@ -97,7 +104,7 @@ public class UserAttributesPanel
 		if (editable && at.isSelfModificable())
 		{
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry, 
-				at, showGroup, group, AttributeVisibility.full, 
+				at, showGroup, group, 
 				null, null, false, false, parent);
 			if (attribute != null)
 				editor.setAttributeValues(attribute.getValues());

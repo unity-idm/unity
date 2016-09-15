@@ -20,7 +20,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import pl.edu.icm.unity.engine.utils.TimeUtil;
+import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.store.api.TokenDAO;
