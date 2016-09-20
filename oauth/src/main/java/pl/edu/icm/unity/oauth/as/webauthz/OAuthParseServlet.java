@@ -34,6 +34,7 @@ import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
@@ -83,6 +84,7 @@ public class OAuthParseServlet extends HttpServlet
 	protected EntityManagement identitiesMan;
 	protected AttributesManagement attributesMan;
 	protected OAuthRequestValidator requestValidator;
+	private boolean assumeForce;
 	
 	public OAuthParseServlet(OAuthASProperties oauthConfig, String endpointAddress,
 			String oauthUiServletPath, ErrorHandler errorHandler, EntityManagement identitiesMan,
@@ -95,6 +97,7 @@ public class OAuthParseServlet extends HttpServlet
 		this.errorHandler = errorHandler;
 		this.identitiesMan = identitiesMan;
 		this.attributesMan = attributesMan;
+		this.assumeForce = oauthConfig.getBooleanValue(CommonIdPProperties.ASSUME_FORCE);
 		this.requestValidator = new OAuthRequestValidator(oauthConfig, identitiesMan, attributesMan);
 	}
 
@@ -155,8 +158,10 @@ public class OAuthParseServlet extends HttpServlet
 		if (context != null)
 		{
 			//We can have the old session expired or order to forcefully close it.
-			String force = request.getParameter(REQ_FORCE);
-			if ((force == null || force.equals("false")) && !context.isExpired())
+			String forceStr = request.getParameter(REQ_FORCE);
+			boolean force = assumeForce || (forceStr != null && !forceStr.equals("false"));
+			
+			if (!force && !context.isExpired())
 			{
 				if (log.isTraceEnabled())
 					log.trace("Request to OAuth2 consumer address, with OAuth input and we have " +
@@ -183,14 +188,14 @@ public class OAuthParseServlet extends HttpServlet
 				log.trace("Parsed OAuth request: " + request.getQueryString());
 			int maxExtendedValidity = oauthConfig.isSet(OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY) ?
 					oauthConfig.getIntValue(OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY) : 0;
-			context = new OAuthAuthzContext(authzRequest,
+			context = new OAuthAuthzContext(authzRequest, oauthConfig,
 					oauthConfig.getIntValue(OAuthASProperties.ACCESS_TOKEN_VALIDITY),
 					maxExtendedValidity,
 					oauthConfig.getIntValue(OAuthASProperties.CODE_TOKEN_VALIDITY),
 					oauthConfig.getIntValue(OAuthASProperties.ID_TOKEN_VALIDITY),
 					oauthConfig.getValue(OAuthASProperties.ISSUER_URI),
 					oauthConfig.getCredential(),
-					oauthConfig.getBooleanValue(OAuthASProperties.SKIP_CONSENT),
+					oauthConfig.getBooleanValue(CommonIdPProperties.SKIP_CONSENT),
 					oauthConfig.getValue(OAuthASProperties.IDENTITY_TYPE_FOR_SUBJECT));
 			validate(context);
 		} catch (OAuthValidationException e)
@@ -288,7 +293,7 @@ public class OAuthParseServlet extends HttpServlet
 		else
 			context.setUsersGroup(oauthConfig.getValue(OAuthASProperties.USERS_GROUP));
 		
-		context.setTranslationProfile(oauthConfig.getValue(OAuthASProperties.TRANSLATION_PROFILE));
+		context.setTranslationProfile(oauthConfig.getValue(CommonIdPProperties.TRANSLATION_PROFILE));
 		
 		Scope requestedScopes = authzRequest.getScope();
 		List<ScopeInfo> validRequestedScopes = requestValidator.getValidRequestedScopes(requestedScopes);

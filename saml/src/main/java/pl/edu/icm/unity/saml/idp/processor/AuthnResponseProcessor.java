@@ -18,6 +18,7 @@ import eu.unicore.samly2.proto.AssertionResponse;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties.AssertionSigningPolicy;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -116,6 +117,9 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 					addAssertionEncrypting(resp, assertion);
 			}
 		}
+		
+		if (doSignResponse())
+			signResponse(resp);
 		return resp.getXMLBeanDoc();
 	}
 	
@@ -162,7 +166,11 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		if (attributes != null)
 			addAttributesToAssertion(assertion, attributes);
 		
-		signAssertion(assertion);
+		AssertionSigningPolicy assertionSigningPolicy = 
+				samlConfiguration.getEnumValue(SamlIdpProperties.SIGN_ASSERTION, 
+						AssertionSigningPolicy.class);
+		if (assertionSigningPolicy == AssertionSigningPolicy.always || !doSignResponse())
+			signAssertion(assertion);
 		return assertion;
 	}
 	

@@ -139,7 +139,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 				registrationConfiguration, properties, 
 				getBootstrapHandler4Authn(OAUTH_ROUTING_SERVLET_PATH));
 		
-		authenticationServlet.setCancelHandler(new OAuthCancelHandler());
+		authenticationServlet.setCancelHandler(new OAuthCancelHandler(new OAuthResponseHandler(sessionMan)));
 		
 		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet, true); 
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");

@@ -54,6 +54,9 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 	private Group groupAZ;
 	private Group groupABC;
 	
+	
+	
+	
 	@Test
 	public void testSimple() throws Exception
 	{

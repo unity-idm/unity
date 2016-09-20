@@ -12,11 +12,11 @@ import org.springframework.context.ApplicationContext;
 
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
@@ -56,6 +56,6 @@ public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 	{
 		return new SamlETDParseServlet(myMetadataManager, 
 				endpointURL, uiUrl, new ErrorHandler(aTypeSupport, freemarkerHandler),
-				samlProperties.getBooleanValue(SamlIdpProperties.ASSUME_FORCE));
+				samlProperties.getBooleanValue(CommonIdPProperties.ASSUME_FORCE));
 	}
 }

@@ -77,7 +77,6 @@ public class SAMLResponseValidatorUtil
 				requestId, AssertionValidator.DEFAULT_VALIDITY_GRACE_PERIOD, 
 				samlTrustChecker, replayAttackChecker, binding, 
 				decryptKey);
-		
 		try
 		{
 			validator.validate(responseDocument);

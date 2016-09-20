@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.oauth.as;
 
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.when;
 import static pl.edu.icm.unity.oauth.as.OAuthASProperties.CREDENTIAL;
 import static pl.edu.icm.unity.oauth.as.OAuthASProperties.ISSUER_URI;
 import static pl.edu.icm.unity.oauth.as.OAuthASProperties.P;
@@ -14,6 +16,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
+
+import org.mockito.Mockito;
 
 import com.google.common.collect.Lists;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
@@ -30,6 +34,7 @@ import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
@@ -75,8 +80,11 @@ public class OAuthTestUtils
 				null, new State("state123"));
 		X509Credential credential = new KeystoreCredential("src/test/resources/demoKeystore.p12", 
 				"the!uvos".toCharArray(), "the!uvos".toCharArray(), null, "pkcs12");
+		OAuthASProperties mockedProps = Mockito.mock(OAuthASProperties.class);
+		when(mockedProps.getBooleanValue(eq(CommonIdPProperties.SKIP_USERIMPORT))).thenReturn(Boolean.FALSE);
+		
 		OAuthAuthzContext ctx = new OAuthAuthzContext(
-				request, 
+				request, mockedProps,
 				accessTokenValidity, 
 				maxExtValidity,
 				200, 

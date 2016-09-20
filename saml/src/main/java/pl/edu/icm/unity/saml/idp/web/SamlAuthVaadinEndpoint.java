@@ -28,6 +28,7 @@ import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
@@ -256,7 +257,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	{
 		return new SamlParseServlet(myMetadataManager, 
 				endpointURL, dispatcherUrl, new ErrorHandler(aTypeSupport, freemarkerHandler),
-				samlProperties.getBooleanValue(SamlIdpProperties.ASSUME_FORCE));
+				samlProperties.getBooleanValue(CommonIdPProperties.ASSUME_FORCE));
 	}
 
 	protected Servlet getMetadataServlet(String samlEndpointURL, String sloEndpointURL, String sloSoapEndpointURL)
