@@ -9,9 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
@@ -23,6 +21,7 @@ import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
@@ -38,29 +37,45 @@ import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
  * 
  * @author P. Piernik
  */
-@Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@PrototypeComponent
 public class EndpointComponent extends DeployableComponentViewBase
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			EndpointComponent.class);
 
 	private EndpointManagement endpointMan;
-	private ResolvedEndpoint endpoint;
 	private NetworkServer networkServer;
+	
+	private ResolvedEndpoint endpoint;
+	private String name;
 
-	public EndpointComponent(EndpointManagement endpointMan, ServerManagement serverMan, NetworkServer networkServer,
-			ResolvedEndpoint endpoint, UnityServerConfiguration config,
-			UnityMessageSource msg, String status)
+	@Autowired
+	public EndpointComponent(EndpointManagement endpointMan, ServerManagement serverMan, 
+			NetworkServer networkServer,
+			UnityServerConfiguration config, UnityMessageSource msg)
 	{
-		super(config, serverMan, msg, status);
+		super(config, serverMan, msg);
 		this.endpointMan = endpointMan;
-		this.endpoint = endpoint;
 		this.networkServer = networkServer;
 		initUI();
-		setStatus(status);
 	}
 
+	public EndpointComponent init(ResolvedEndpoint endpoint)
+	{
+		this.endpoint = endpoint;
+		setStatus(Status.deployed);
+		initUI();
+		return this;
+	}
+	
+	public EndpointComponent init(String name)
+	{
+		this.name = name;
+		setStatus(Status.undeployed);
+		initUI();
+		return this;
+	}
+	
 	@Override
 	public void undeploy()
 	{
@@ -68,7 +83,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		{
 			return;
 		}
-		String id = endpoint.getName();
+		String id = getEndpointName();
 		log.info("Undeploy " + id + " endpoint");
 		try
 		{
@@ -82,7 +97,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 
 		if (getEndpointConfig(id) != null)
 		{
-			setStatus(Status.undeployed.toString());
+			setStatus(Status.undeployed);
 		} else
 		{
 			setVisible(false);
@@ -97,23 +112,28 @@ public class EndpointComponent extends DeployableComponentViewBase
 		{
 			return;
 		}
-		String id = endpoint.getName();
+		String id = getEndpointName();
 		log.info("Deploy " + id + " endpoint");
 		if (!deployEndpoint(id))
 		{
 			NotificationPopup.showError(msg, msg.getMessage("Endpoints.cannotDeploy",
-					endpoint.getName()), msg.getMessage(
+					getEndpointName()), msg.getMessage(
 					"Endpoints.cannotDeployRemovedConfig", id));
 			setVisible(false);
 			return;
 
 		}else
 		{
-			setStatus(Status.deployed.toString());	
+			setStatus(Status.deployed);	
 		}
 
 	}
 
+	private String getEndpointName()
+	{
+		return name;
+	}
+	
 	private boolean deployEndpoint(String id)
 	{
 		EndpointConfigExt data = getEndpointConfig(id);
@@ -143,7 +163,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 			return;
 		}
 
-		String id = endpoint.getName();
+		String id = getEndpointName();
 		log.info("Reload " + id + " endpoint");
 		if (!reloadEndpoint(id))
 		{
@@ -159,7 +179,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 
 		}else
 		{
-			setStatus(Status.deployed.toString());
+			setStatus(Status.deployed);
 			if (showSuccess)
 			{
 				NotificationPopup.showSuccess(msg, "", msg.getMessage(
@@ -213,14 +233,14 @@ public class EndpointComponent extends DeployableComponentViewBase
 
 	protected void updateHeader()
 	{
-		updateHeader(endpoint.getName());
+		updateHeader(getEndpointName());
 	}
 
 	protected void updateContent()
 	{
 		content.removeAllComponents();
 
-		if (status.equals(Status.undeployed.toString()))
+		if (status.equals(Status.undeployed))
 			return;
 
 		addFieldToContent(msg.getMessage("Endpoints.type"), endpoint.getType().getName());

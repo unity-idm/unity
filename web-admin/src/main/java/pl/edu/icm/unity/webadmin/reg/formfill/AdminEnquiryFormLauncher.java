@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -93,7 +92,7 @@ public class AdminEnquiryFormLauncher
 		} catch (EngineException e)
 		{
 			new PostFormFillingHandler(idpLoginController, form, msg, 
-					enquiryManagement.getProfileInstance(form)).submissionError(e, context);
+					enquiryManagement.getFormAutomationSupport(form)).submissionError(e, context);
 			return false;
 		}
 
@@ -107,7 +106,7 @@ public class AdminEnquiryFormLauncher
 				bus.fireEvent(new RegistrationRequestChangedEvent(id));
 			}	
 			new PostFormFillingHandler(idpLoginController, form, msg, 
-					enquiryManagement.getProfileInstance(form), false).
+					enquiryManagement.getFormAutomationSupport(form), false).
 				submittedEnquiryResponse(id, enquiryManagement, response, context);
 			
 			return true;
@@ -151,7 +150,7 @@ public class AdminEnquiryFormLauncher
 						RegistrationContext context = new RegistrationContext(false, 
 								idpLoginController.isLoginInProgress(), mode);
 						new PostFormFillingHandler(idpLoginController, form, msg, 
-								enquiryManagement.getProfileInstance(form)).
+								enquiryManagement.getFormAutomationSupport(form)).
 							cancelled(false, context);
 					}
 				});

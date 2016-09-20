@@ -8,7 +8,6 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
-import pl.edu.icm.unity.engine.api.bulkops.EntityAction;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.bulkops.EntityActionsRegistry;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
@@ -52,7 +51,7 @@ public class ScheduledRuleViewerPanel extends CustomComponent
 		condition.setCaption(msg.getMessage("ScheduledRuleViewerPanel.condition"));
 		main.addComponent(condition);
 		
-		TranslationActionPresenter<EntityAction> action = new TranslationActionPresenter<>(
+		TranslationActionPresenter action = new TranslationActionPresenter(
 				msg, registry, rule.getAction());
 		action.addToLayout(main);
 	}

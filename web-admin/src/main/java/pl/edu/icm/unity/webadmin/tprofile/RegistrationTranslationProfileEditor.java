@@ -9,7 +9,6 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.translation.ProfileType;
-import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
 
 /**
  * Component to edit or add a registration form translation profile
@@ -20,7 +19,8 @@ import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provid
 public class RegistrationTranslationProfileEditor extends TranslationProfileEditor
 {
 	public RegistrationTranslationProfileEditor(UnityMessageSource msg,
-			RegistrationActionsRegistry registry, Provider actionComponentProvider) throws EngineException
+			RegistrationActionsRegistry registry, ActionParameterComponentProvider actionComponentProvider)
+					throws EngineException
 	{
 		super(msg, registry, ProfileType.REGISTRATION, actionComponentProvider);
 	}

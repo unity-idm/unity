@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webadmin.reg.formman;
 import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
 import com.vaadin.ui.Alignment;
@@ -17,14 +18,13 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.translation.form.EnquiryTranslationProfile;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.BaseForm;
@@ -32,9 +32,11 @@ import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryFormBuilder;
 import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webadmin.reg.formman.layout.FormLayoutEditor;
 import pl.edu.icm.unity.webadmin.reg.formman.layout.FormLayoutEditor.FormProvider;
-import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
+import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentProvider;
 import pl.edu.icm.unity.webadmin.tprofile.RegistrationTranslationProfileEditor;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
@@ -47,6 +49,7 @@ import pl.edu.icm.unity.webui.common.GroupsSelectionList;
  * 
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class EnquiryFormEditor extends BaseFormEditor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiryFormEditor.class);
@@ -63,39 +66,34 @@ public class EnquiryFormEditor extends BaseFormEditor
 	private EnquiryFormNotificationsEditor notificationsEditor;
 	
 	private RegistrationActionsRegistry actionsRegistry;
-	private Provider actionComponentProvider;
+	private ActionParameterComponentProvider actionComponentProvider;
 	private RegistrationTranslationProfileEditor profileEditor;
 	private FormLayoutEditor layoutEditor;
 	
+	@Autowired
 	public EnquiryFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
 			NotificationsManagement notificationsMan,
-			MessageTemplateManagement msgTempMan, IdentityTypesManagement identitiesMan,
+			MessageTemplateManagement msgTempMan, IdentityTypeSupport identitiesMan,
 			AttributeTypeManagement attributeMan,
 			CredentialManagement authenticationMan, RegistrationActionsRegistry actionsRegistry,
-			Provider actionComponentProvider) 
-					throws EngineException
-	{
-		this(msg, groupsMan, notificationsMan, msgTempMan, identitiesMan, attributeMan, authenticationMan, 
-				actionsRegistry, actionComponentProvider, false);
-	}
-
-	public EnquiryFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
-			NotificationsManagement notificationsMan,
-			MessageTemplateManagement msgTempMan, IdentityTypesManagement identitiesMan,
-			AttributeTypeManagement attributeMan,
-			CredentialManagement authenticationMan, RegistrationActionsRegistry actionsRegistry,
-			Provider actionComponentProvider,
-			boolean copyMode)
+			ActionParameterComponentProvider actionComponentFactory)
 			throws EngineException
 	{
-		super(msg, identitiesMan, attributeMan, authenticationMan, copyMode);
+		super(msg, identitiesMan, attributeMan, authenticationMan);
 		this.actionsRegistry = actionsRegistry;
-		this.actionComponentProvider = actionComponentProvider;
 		this.msg = msg;
 		this.groupsMan = groupsMan;
 		this.notificationsMan = notificationsMan;
 		this.msgTempMan = msgTempMan;
+		actionComponentProvider = actionComponentFactory;
+	}
+
+	public EnquiryFormEditor init(boolean copyMode)
+			throws EngineException
+	{
+		this.copyMode = copyMode;
 		initUI();
+		return this;
 	}
 
 	private void initUI() throws EngineException
@@ -145,9 +143,10 @@ public class EnquiryFormEditor extends BaseFormEditor
 		enquiryType.setEnumValue(toEdit.getType());
 		targetGroups.setSelectedGroups(Lists.newArrayList(toEdit.getTargetGroups()));
 		
-		EnquiryTranslationProfile profile = new EnquiryTranslationProfile(
-				toEdit.getTranslationProfile().getName(), 
-				toEdit.getTranslationProfile().getRules(), actionsRegistry);
+		TranslationProfile profile = new TranslationProfile(
+				toEdit.getTranslationProfile().getName(), "",
+				ProfileType.REGISTRATION,
+				toEdit.getTranslationProfile().getRules());
 		profileEditor.setValue(profile);
 		layoutEditor.setInitialForm(toEdit);
 		if (!copyMode)
@@ -210,8 +209,8 @@ public class EnquiryFormEditor extends BaseFormEditor
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.assignedTab"));
 		
 		profileEditor = new RegistrationTranslationProfileEditor(msg, actionsRegistry, actionComponentProvider);
-		profileEditor.setValue(new EnquiryTranslationProfile("form profile", new ArrayList<>(), 
-				actionsRegistry));
+		profileEditor.setValue(new TranslationProfile("form profile", "", ProfileType.REGISTRATION,
+				new ArrayList<>()));
 		wrapper.addComponent(profileEditor);
 	}
 

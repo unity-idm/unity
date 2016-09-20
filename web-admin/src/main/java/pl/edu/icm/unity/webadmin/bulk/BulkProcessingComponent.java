@@ -32,8 +32,7 @@ import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webadmin.tprofile.ActionEditor;
-import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory;
-import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
+import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentProvider;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
@@ -57,7 +56,7 @@ public class BulkProcessingComponent extends CustomComponent
 	private UnityMessageSource msg;
 	private BulkProcessingManagement bulkManagement;
 	private EntityActionsRegistry registry;
-	private ActionParameterComponentFactory parameterFactory;
+	private ActionParameterComponentProvider parameterFactory;
 
 	private GenericElementsTable<ScheduledProcessingRule> table;
 	private ScheduledRuleViewerPanel viewer;
@@ -66,7 +65,7 @@ public class BulkProcessingComponent extends CustomComponent
 	@Autowired
 	public BulkProcessingComponent(UnityMessageSource msg,
 			BulkProcessingManagement bulkManagement, EntityActionsRegistry registry,
-			ActionParameterComponentFactory parameterFactory)
+			ActionParameterComponentProvider parameterFactory)
 	{
 		this.msg = msg;
 		this.bulkManagement = bulkManagement;
@@ -351,7 +350,6 @@ public class BulkProcessingComponent extends CustomComponent
 	
 	private ActionEditor getActionEditor() throws EngineException
 	{
-		Provider componentProvider = parameterFactory.getComponentProvider();
-		return new ActionEditor(msg, registry, null, componentProvider);
+		return new ActionEditor(msg, registry, null, parameterFactory);
 	}
 }

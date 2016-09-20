@@ -8,10 +8,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -20,20 +18,12 @@ import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
-import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
-import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
-import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.webadmin.reg.formman.EnquiryFormEditDialog.Callback;
-import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -49,7 +39,6 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryFormChangedEvent;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormChangedEvent;
 
@@ -57,47 +46,27 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationFormChangedEvent;
  * Responsible for {@link EnquiryForm}s management.
  * @author K. Benedyczak
  */
-@Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@PrototypeComponent
 public class EnquiryFormsComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
 	private EnquiryManagement enquiriesManagement;
-	private GroupsManagement groupsMan;
-	private NotificationsManagement notificationsMan;
-	private CredentialManagement credMan;
-	private MessageTemplateManagement msgTempMan;
-	private IdentityTypesManagement identitiesMan;
-	private AttributeTypeManagement attributeMan;
 	private EventsBus bus;
-	private ActionParameterComponentFactory actionComponentFactory;
 	
 	private GenericElementsTable<EnquiryForm> table;
-	private EnquiryFormViewer viewer;
 	private com.vaadin.ui.Component main;
-	private RegistrationActionsRegistry actionsRegistry;
+	private ObjectFactory<EnquiryFormEditor> enquiryFormEditorFactory;
 	
 	
 	@Autowired
 	public EnquiryFormsComponent(UnityMessageSource msg, EnquiryManagement enquiryManagement,
-			AttributeHandlerRegistry attrHandlersRegistry, GroupsManagement groupsMan, 
-			NotificationsManagement notificationsMan,
-			MessageTemplateManagement msgTempMan, IdentityTypesManagement identitiesMan,
-			AttributeTypeManagement attributeMan, CredentialManagement authenticationMan,
 			SharedEndpointManagement sharedEndpointMan,
-			RegistrationActionsRegistry actionsRegistry,
-			ActionParameterComponentFactory actionComponentFactory)
+			ObjectFactory<EnquiryFormEditor> enquiryFormEditorFactory,
+			EnquiryFormViewer viewer)
 	{
 		this.msg = msg;
 		this.enquiriesManagement = enquiryManagement;
-		this.groupsMan = groupsMan;
-		this.notificationsMan = notificationsMan;
-		this.credMan = authenticationMan;
-		this.identitiesMan = identitiesMan;
-		this.msgTempMan = msgTempMan;
-		this.attributeMan = attributeMan;
-		this.actionsRegistry = actionsRegistry;
-		this.actionComponentFactory = actionComponentFactory;
+		this.enquiryFormEditorFactory = enquiryFormEditorFactory;
 		this.bus = WebSession.getCurrent().getEventBus();
 		
 		addStyleName(Styles.visibleScroll.toString());
@@ -113,7 +82,6 @@ public class EnquiryFormsComponent extends VerticalLayout
 				});
 		table.setSizeFull();
 		table.setMultiSelect(true);
-		viewer = new EnquiryFormViewer(msg, actionsRegistry, msgTempMan, sharedEndpointMan);
 		viewer.setInput(null);
 		table.addValueChangeListener(new ValueChangeListener()
 		{
@@ -263,12 +231,11 @@ public class EnquiryFormsComponent extends VerticalLayout
 			EnquiryFormEditor editor;
 			try
 			{
-				editor = new EnquiryFormEditor(msg, groupsMan, notificationsMan,
-						msgTempMan, identitiesMan, attributeMan, credMan,
-						actionsRegistry, actionComponentFactory.getComponentProvider());
-			} catch (EngineException e)
+				editor = enquiryFormEditorFactory.getObject().init(false);
+			} catch (Exception e)
 			{
-				NotificationPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
+				NotificationPopup.showError(msg, 
+						msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
 				return;
 			}
 			EnquiryFormEditDialog dialog = new EnquiryFormEditDialog(msg, 
@@ -345,10 +312,7 @@ public class EnquiryFormsComponent extends VerticalLayout
 			EnquiryFormEditor editor;
 			try
 			{		
-				editor = new EnquiryFormEditor(msg, groupsMan, notificationsMan,
-						msgTempMan, identitiesMan, attributeMan, credMan,
-						actionsRegistry, actionComponentFactory.getComponentProvider(), 
-						copyMode);
+				editor = enquiryFormEditorFactory.getObject().init(copyMode);
 				editor.setForm(form);
 			} catch (Exception e)
 			{

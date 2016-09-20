@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
@@ -20,24 +21,26 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
+import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
-import pl.edu.icm.unity.engine.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webadmin.reg.formman.layout.FormLayoutEditor;
 import pl.edu.icm.unity.webadmin.reg.formman.layout.FormLayoutEditor.FormProvider;
-import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
+import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentProvider;
 import pl.edu.icm.unity.webadmin.tprofile.RegistrationTranslationProfileEditor;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -49,6 +52,7 @@ import pl.edu.icm.unity.webui.common.NotNullComboBox;
  * 
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class RegistrationFormEditor extends BaseFormEditor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RegistrationFormEditor.class);
@@ -56,7 +60,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private GroupsManagement groupsMan;
 	private NotificationsManagement notificationsMan;
 	private MessageTemplateManagement msgTempMan;
-	private CredentialManagement authenticationMan;
+	private CredentialRequirementManagement credReqMan;
 	
 	private TabSheet tabs;
 	private CheckBox ignoreRequests;
@@ -70,40 +74,36 @@ public class RegistrationFormEditor extends BaseFormEditor
 
 	private ComboBox credentialRequirementAssignment;
 	private RegistrationActionsRegistry actionsRegistry;
-	private Provider actionComponentProvider;
 	private RegistrationTranslationProfileEditor profileEditor;
 	private FormLayoutEditor layoutEditor;
+	private ActionParameterComponentProvider actionComponentFactory;
 	
+	@Autowired
 	public RegistrationFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
 			NotificationsManagement notificationsMan,
-			MessageTemplateManagement msgTempMan, IdentityTypesManagement identitiesMan,
+			MessageTemplateManagement msgTempMan, IdentityTypeSupport identitiesMan,
 			AttributeTypeManagement attributeMan,
-			CredentialManagement authenticationMan, RegistrationActionsRegistry actionsRegistry,
-			Provider actionComponentProvider) 
-					throws EngineException
-	{
-		this(msg, groupsMan, notificationsMan, msgTempMan, identitiesMan, attributeMan, authenticationMan, 
-				actionsRegistry, actionComponentProvider, false);
-	}
-
-	public RegistrationFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
-			NotificationsManagement notificationsMan,
-			MessageTemplateManagement msgTempMan, IdentityTypesManagement identitiesMan,
-			AttributeTypeManagement attributeMan,
-			CredentialManagement authenticationMan, RegistrationActionsRegistry actionsRegistry,
-			Provider actionComponentProvider,
-			boolean copyMode)
+			CredentialManagement credMan, RegistrationActionsRegistry actionsRegistry,
+			CredentialRequirementManagement credReqMan,
+			ActionParameterComponentProvider actionComponentFactory)
 			throws EngineException
 	{
-		super(msg, identitiesMan, attributeMan, authenticationMan, copyMode);
+		super(msg, identitiesMan, attributeMan, credMan);
 		this.actionsRegistry = actionsRegistry;
-		this.actionComponentProvider = actionComponentProvider;
 		this.msg = msg;
 		this.groupsMan = groupsMan;
 		this.notificationsMan = notificationsMan;
 		this.msgTempMan = msgTempMan;
-		this.authenticationMan = authenticationMan;
+		this.credReqMan = credReqMan;
+		this.actionComponentFactory = actionComponentFactory;
+	}
+	
+	public RegistrationFormEditor init(boolean copyMode)
+			throws EngineException
+	{
+		this.copyMode = copyMode;
 		initUI();
+		return this;
 	}
 
 	private void initUI() throws EngineException
@@ -163,9 +163,10 @@ public class RegistrationFormEditor extends BaseFormEditor
 		if (toEdit.getRegistrationCode() != null)
 			registrationCode.setValue(toEdit.getRegistrationCode());
 		credentialRequirementAssignment.setValue(toEdit.getDefaultCredentialRequirement());
-		RegistrationTranslationProfile profile = new RegistrationTranslationProfile(
-				toEdit.getTranslationProfile().getName(), 
-				toEdit.getTranslationProfile().getRules(), actionsRegistry);
+		TranslationProfile profile = new TranslationProfile(
+				toEdit.getTranslationProfile().getName(), "",
+				ProfileType.REGISTRATION,
+				toEdit.getTranslationProfile().getRules());
 		profileEditor.setValue(profile);
 		layoutEditor.setInitialForm(toEdit);
 		if (!copyMode)
@@ -239,14 +240,14 @@ public class RegistrationFormEditor extends BaseFormEditor
 		
 		credentialRequirementAssignment = new NotNullComboBox(
 				msg.getMessage("RegistrationFormViewer.credentialRequirementAssignment"));
-		Collection<CredentialRequirements> credentialRequirements = authenticationMan.getCredentialRequirements();
+		Collection<CredentialRequirements> credentialRequirements = credReqMan.getCredentialRequirements();
 		for (CredentialRequirements cr: credentialRequirements)
 			credentialRequirementAssignment.addItem(cr.getName());
 		credentialRequirementAssignment.setNullSelectionAllowed(false);
 		
-		profileEditor = new RegistrationTranslationProfileEditor(msg, actionsRegistry, actionComponentProvider);
-		profileEditor.setValue(new RegistrationTranslationProfile("form profile", new ArrayList<>(), 
-				actionsRegistry));
+		profileEditor = new RegistrationTranslationProfileEditor(msg, actionsRegistry, actionComponentFactory);
+		profileEditor.setValue(new TranslationProfile("form profile", "", ProfileType.REGISTRATION,
+				new ArrayList<>()));
 		main.addComponents(credentialRequirementAssignment);
 		wrapper.addComponent(profileEditor);
 	}

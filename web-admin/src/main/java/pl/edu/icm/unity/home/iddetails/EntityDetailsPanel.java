@@ -7,10 +7,13 @@ package pl.edu.icm.unity.home.iddetails;
 import java.util.Collection;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -29,6 +32,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
  * Targeted for admin user.
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class EntityDetailsPanel extends FormLayout
 {
 	private UnityMessageSource msg;
@@ -41,7 +45,7 @@ public class EntityDetailsPanel extends FormLayout
 	private HtmlLabel credStatus;
 	private ListOfElements<String> groups;
 	
-	
+	@Autowired
 	public EntityDetailsPanel(UnityMessageSource msg, IdentityFormatter idFormatter)
 	{
 		this.msg = msg;

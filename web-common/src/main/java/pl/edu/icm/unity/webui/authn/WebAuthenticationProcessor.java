@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -30,9 +31,6 @@ import com.vaadin.server.WrappedHttpSession;
 import com.vaadin.ui.UI;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.CredentialManagement;
-import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
-import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
@@ -46,7 +44,6 @@ import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.LogoutMode;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
@@ -57,7 +54,6 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
 /**
  * Handles results of authentication and if it is all right, redirects to the source application.
@@ -76,11 +72,7 @@ public class WebAuthenticationProcessor
 			".returnUri";
 	
 	@Autowired
-	private UnityMessageSource msg;
-	@Autowired
 	private UnityServerConfiguration config;
-	@Autowired
-	private CredentialEditorRegistry credEditorReg;
 	@Autowired
 	private SessionParticipantTypesRegistry participantTypesRegistry;
 	@Autowired
@@ -92,13 +84,9 @@ public class WebAuthenticationProcessor
 	@Autowired
 	private AuthenticationProcessor authnProcessor;
 	@Autowired
-	private CredentialManagement credMan;
-	@Autowired
-	private EntityCredentialManagement ecredMan;
-	@Autowired
 	private EntityManagement entityMan;
 	@Autowired
-	private CredentialRequirementManagement credReqMan;
+	private ObjectFactory<OutdatedCredentialDialog> outdatedCredentialDialogFactory;
 	
 	
 	/**
@@ -190,11 +178,7 @@ public class WebAuthenticationProcessor
 	
 	private void showCredentialUpdate()
 	{
-		OutdatedCredentialDialog dialog = new OutdatedCredentialDialog(msg, credMan, 
-				ecredMan, entityMan,
-				credReqMan, credEditorReg,
-				this);
-		dialog.show();
+		outdatedCredentialDialogFactory.getObject().init(this).show();
 	}
 	
 	private void logged(AuthenticatedEntity authenticatedEntity, final AuthenticationRealm realm, 

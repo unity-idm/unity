@@ -11,10 +11,8 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -27,8 +25,10 @@ import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.webadmin.serverman.DeployableComponentViewBase.Status;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -39,8 +39,7 @@ import pl.edu.icm.unity.webui.common.Styles;
  * 
  * @author P. Piernik
  */
-@Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@PrototypeComponent
 public class AuthenticatorsComponent extends VerticalLayout
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
@@ -53,15 +52,19 @@ public class AuthenticatorsComponent extends VerticalLayout
 	private VerticalLayout content;
 	private Map<String,AuthenticatorComponent> authenticatorComponents;
 
+	private ObjectFactory<AuthenticatorComponent> authenticatorComponentFactory;
+
 	@Autowired
 	public AuthenticatorsComponent(UnityMessageSource msg, UnityServerConfiguration config,
-			AuthenticatorManagement authMan, ServerManagement serverMan)
+			AuthenticatorManagement authMan, ServerManagement serverMan,
+			ObjectFactory<AuthenticatorComponent> authenticatorComponentFactory)
 	{
 
 		this.msg = msg;
 		this.config = config;
 		this.authMan = authMan;
 		this.serverMan = serverMan;
+		this.authenticatorComponentFactory = authenticatorComponentFactory;
 		this.authenticatorComponents = new TreeMap<String, AuthenticatorComponent>();
 		initUI();
 	}
@@ -149,8 +152,8 @@ public class AuthenticatorsComponent extends VerticalLayout
 		for (AuthenticatorInstance ai : authenticators)
 		{
 			existing.add(ai.getId());
-			authenticatorComponents.put(ai.getId(), new AuthenticatorComponent(authMan, serverMan, ai, config,
-					msg, DeployableComponentViewBase.Status.deployed.toString()));
+			authenticatorComponents.put(ai.getId(), 
+					authenticatorComponentFactory.getObject().init(ai, Status.deployed));
 		}
 
 		Set<String> authenticatorsList = config.getStructuredListKeys(UnityServerConfiguration.AUTHENTICATORS);
@@ -162,8 +165,8 @@ public class AuthenticatorsComponent extends VerticalLayout
 			{
 				AuthenticatorInstance au = new AuthenticatorInstance();
 				au.setId(name);			
-				authenticatorComponents.put(name ,new AuthenticatorComponent(authMan, serverMan, au, config, msg,
-						DeployableComponentViewBase.Status.undeployed.toString()));
+				authenticatorComponents.put(name, 
+						authenticatorComponentFactory.getObject().init(au, Status.undeployed));
 			}
 		}
 		
@@ -191,10 +194,10 @@ public class AuthenticatorsComponent extends VerticalLayout
 		
 		for (AuthenticatorComponent authComp : authenticatorComponents.values())
 		{
-			if (authComp.getStatus().equals(DeployableComponentViewBase.Status.deployed.toString()))
+			if (authComp.getStatus().equals(Status.deployed))
 			{
 				authComp.reload(false);
-			} else if (authComp.getStatus().equals(DeployableComponentViewBase.Status.undeployed.toString()))
+			} else if (authComp.getStatus().equals(Status.undeployed))
 			{
 				authComp.deploy();
 			}

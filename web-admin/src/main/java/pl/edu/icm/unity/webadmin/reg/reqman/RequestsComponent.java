@@ -5,17 +5,13 @@
 package pl.edu.icm.unity.webadmin.reg.reqman;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.vaadin.ui.CustomComponent;
 
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
-import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
-import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.webadmin.reg.reqman.RequestsTable.RequestSelectionListener;
@@ -23,7 +19,6 @@ import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
 
@@ -35,31 +30,26 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
  *  
  * @author K. Benedyczak
  */
-@Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@PrototypeComponent
 public class RequestsComponent extends CustomComponent
 {
 	private RegistrationsManagement registrationsManagement;
-	private AttributeHandlerRegistry handlersRegistry;
 	private UnityMessageSource msg;
+	private EnquiryManagement enquiryManagement;
+	private RequestProcessingPanel requestPanel;
 	
 	private RequestsTable requestsTable;
-	private IdentityTypesRegistry idTypesRegistry;
-	private EnquiryManagement enquiryManagement;
-	private EntityManagement identitiesManagement;
 	
 	@Autowired
-	public RequestsComponent(RegistrationsManagement registrationsManagement, EnquiryManagement enquiryManagement,
-			AttributeHandlerRegistry handlersRegistry,
-			IdentityTypesRegistry idTypesRegistry, UnityMessageSource msg, 
-			EntityManagement identitiesManagement)
+	public RequestsComponent(RegistrationsManagement registrationsManagement, 
+			EnquiryManagement enquiryManagement,
+			UnityMessageSource msg, 
+			RequestProcessingPanel requestPanel)
 	{
 		this.registrationsManagement = registrationsManagement;
 		this.enquiryManagement = enquiryManagement;
-		this.idTypesRegistry = idTypesRegistry;
 		this.msg = msg;
-		this.handlersRegistry = handlersRegistry;
-		this.identitiesManagement = identitiesManagement;
+		this.requestPanel = requestPanel;
 		initUI();
 		EventsBus eventBus = WebSession.getCurrent().getEventBus();
 		eventBus.addListener(event -> requestsTable.refresh(), RegistrationRequestChangedEvent.class);
@@ -71,8 +61,6 @@ public class RequestsComponent extends CustomComponent
 	{
 		addStyleName(Styles.visibleScroll.toString());
 		requestsTable = new RequestsTable(registrationsManagement, enquiryManagement, msg);
-		final RequestProcessingPanel requestPanel = new RequestProcessingPanel(msg, registrationsManagement,
-				enquiryManagement, handlersRegistry, idTypesRegistry, identitiesManagement);
 		requestsTable.addValueChangeListener(new RequestSelectionListener()
 		{
 			@Override
