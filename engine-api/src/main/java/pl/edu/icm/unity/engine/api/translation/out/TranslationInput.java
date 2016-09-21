@@ -85,7 +85,7 @@ public class TranslationInput
 	public String getTextDump()
 	{
 		StringBuilder sb = new StringBuilder();
-		sb.append("Entity " + entity.toString() + ":\n");
+		sb.append("Entity " + entity.getId() + ":\n");
 		for (Identity id: entity.getIdentities())
 			sb.append(" - ").append(id.toString()).append("\n");
 		if (!attributes.isEmpty())

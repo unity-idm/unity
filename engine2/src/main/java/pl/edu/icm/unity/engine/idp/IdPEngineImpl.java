@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
@@ -26,6 +27,7 @@ import pl.edu.icm.unity.engine.translation.out.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationEngine;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfile;
 import pl.edu.icm.unity.engine.translation.out.action.CreateAttributeActionFactory;
+import pl.edu.icm.unity.engine.translation.out.action.FilterAttributeActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -60,9 +62,10 @@ public class IdPEngineImpl implements IdPEngine
 	private OutputTranslationProfile defaultProfile;
 	
 	@Autowired
-	public IdPEngineImpl(AttributesManagement attributesMan, EntityManagement identitiesMan,
+	public IdPEngineImpl(@Qualifier("insecure") AttributesManagement attributesMan, 
+			@Qualifier("insecure") EntityManagement identitiesMan,
+			@Qualifier("insecure") TranslationProfileManagement profileManagement,
 			OutputTranslationEngine translationEngine,
-			TranslationProfileManagement profileManagement,
 			UserImportSerivce userImportService,
 			OutputTranslationActionsRegistry actionsRegistry)
 	{
@@ -166,6 +169,9 @@ public class IdPEngineImpl implements IdPEngine
 		TranslationAction action1 = new TranslationAction(CreateAttributeActionFactory.NAME, 
 				new String[] {"memberOf", "groups"});
 		rules.add(new TranslationRule("true", action1));
+		TranslationAction action2 = new TranslationAction(FilterAttributeActionFactory.NAME,
+				"sys:.*");
+		rules.add(new TranslationRule("true", action2));
 		TranslationProfile profile = new TranslationProfile("DEFAULT OUTPUT PROFILE", "", ProfileType.OUTPUT,
 				rules);
 		return new OutputTranslationProfile(profile, actionsRegistry);

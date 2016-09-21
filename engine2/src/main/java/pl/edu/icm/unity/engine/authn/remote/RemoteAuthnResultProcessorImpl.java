@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigurationException;
@@ -51,7 +52,7 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 	
 	@Autowired
 	public RemoteAuthnResultProcessorImpl(IdentityResolver identityResolver,	
-			TranslationProfileManagement profileManagement,
+			@Qualifier("insecure") TranslationProfileManagement profileManagement,
 			InputTranslationEngine trEngine,
 			InputTranslationActionsRegistry actionsRegistry)
 	{

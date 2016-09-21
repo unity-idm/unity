@@ -26,6 +26,7 @@ import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.out.action.CreateAttributeActionFactory;
+import pl.edu.icm.unity.engine.translation.out.action.FilterAttributeActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.saml.idp.ws.SamlIdPSoapEndpointFactory;
@@ -132,6 +133,10 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 				"unity:identity:persistent", 
 				"idsByType['persistent']");
 		rules.add(new TranslationRule("idsByType['persistent'] != null", action4));
+		TranslationAction action5 = tactionReg.getByName(
+				FilterAttributeActionFactory.NAME).getInstance(
+				"sys:.*");
+		rules.add(new TranslationRule("true", action5));
 		return new TranslationProfile("testOutProfile", "", ProfileType.OUTPUT, rules);
 	}
 	
