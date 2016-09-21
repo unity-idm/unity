@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.stdext.utils.InitializerCommon;
 
 /**
  * Tests the import and export. Only a integration test. Import and export of all stored elements is tested 
