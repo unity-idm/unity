@@ -6,4 +6,6 @@
 
 	<context:annotation-config/>
 	<context:component-scan base-package="pl.edu.icm.unity.saml"/>
+	
+	<bean class="eu.unicore.samly2.validators.ReplayAttackChecker"/>
 </beans>
