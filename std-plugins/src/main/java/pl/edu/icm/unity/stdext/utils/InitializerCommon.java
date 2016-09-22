@@ -43,7 +43,6 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
  * @author K. Benedyczak
  */
 @Component
-@Deprecated
 public class InitializerCommon
 {
 	public static final String JPEG_ATTR = "jpegPhoto";

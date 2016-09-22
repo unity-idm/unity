@@ -970,6 +970,10 @@ public class EngineInitialization extends LifecycleBase
 		for (String enabled: enabledL)
 		{
 			log.info("Running initializer: " + enabled);
+			ServerInitializer serverInitializer = initializersMap.get(enabled);
+			if (serverInitializer == null)
+				throw new ConfigurationException("There is no content intializer " + enabled + 
+						" defined in the system");
 			initializersMap.get(enabled).run();
 		}
 	}

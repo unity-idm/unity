@@ -16,10 +16,10 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import pl.edu.icm.unity.engine.UnityIntegrationTest;
 import pl.edu.icm.unity.engine.server.JettyServer;
 
 /**
@@ -31,8 +31,8 @@ import pl.edu.icm.unity.engine.server.JettyServer;
  * @author K. Benedyczak
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"classpath*:META-INF/components.xml", "classpath:META-INF/test-selenium.xml"})
-@ActiveProfiles("test")
+@UnityIntegrationTest
+@TestPropertySource(properties = { "unityConfig: src/test/resources/unityServerSelenium.conf" })
 public class SeleniumTestBase
 {
 	protected String baseUrl = "https://localhost:2443";
