@@ -32,6 +32,7 @@ import pl.edu.icm.unity.engine.translation.in.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -73,6 +74,7 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 	 * @throws EngineException 
 	 */
 	@Override
+	@Transactional
 	public AuthenticationResult getResult(RemotelyAuthenticatedInput input, String profile, boolean dryRun) 
 			throws AuthenticationException
 	{
