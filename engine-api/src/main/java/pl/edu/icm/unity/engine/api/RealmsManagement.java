@@ -17,13 +17,16 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
  *   
  * @author K. Benedyczak
  */
-public interface RealmsManagement
+public interface RealmsManagement extends NamedEngineDAO<AuthenticationRealm, AuthenticationRealm>
 {
 	/**
 	 * Creates a new realm
 	 * @param realm
 	 * @throws EngineException
+	 * 
+	 * @deprecated <b>Use {@link RealmsManagement#create(AuthenticationRealm)} instead.</b>
 	 */
+	@Deprecated
 	void addRealm(AuthenticationRealm realm) throws EngineException;
 	
 	/**
@@ -32,27 +35,39 @@ public interface RealmsManagement
 	 * @return
 	 * @throws WrongArgumentException
 	 * @throws EngineException
+	 * 
+	 * @deprecated <b>Use {@link RealmsManagement#get(String)} instead.</b>
 	 */
+	@Deprecated
 	AuthenticationRealm getRealm(String name) throws WrongArgumentException, EngineException;
 	
 	/**
 	 * Returns all defined realms
 	 * @return
 	 * @throws EngineException
+	 * 
+	 * @deprecated <b>Use {@link RealmsManagement#getAll()} instead.</b>
 	 */
+	@Deprecated
 	Collection<AuthenticationRealm> getRealms() throws EngineException;
 	
 	/**
 	 * Update realm
 	 * @param realm
 	 * @throws EngineException
+	 * 
+	 * @deprecated <b>Use {@link RealmsManagement#update(AuthenticationRealm)} instead.</b>
 	 */
+	@Deprecated
 	void updateRealm(AuthenticationRealm realm) throws EngineException;
 	
 	/**
 	 * Remove realm
 	 * @param name
 	 * @throws EngineException
+	 * 
+	 * @deprecated <b>Use {@link RealmsManagement#deleteByName(String)} instead.</b>
 	 */
+	@Deprecated
 	void removeRealm(String name) throws EngineException;
 }

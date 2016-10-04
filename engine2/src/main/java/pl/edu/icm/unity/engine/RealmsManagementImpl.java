@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -43,18 +44,74 @@ public class RealmsManagementImpl implements RealmsManagement
 	@Override
 	public void addRealm(AuthenticationRealm realm) throws EngineException
 	{
-		authz.checkAuthorization(AuthzCapability.maintenance);
-		try
-		{
-			realmDB.create(realm);
-		} catch (Exception e)
-		{
-			throw new EngineException("Unable to create a realm: " + e.getMessage(), e);
-		}
+		create(realm);
 	}
 
 	@Override
 	public AuthenticationRealm getRealm(String name) throws EngineException
+	{
+		return get(name);
+	}
+
+	@Override
+	public Collection<AuthenticationRealm> getRealms() throws EngineException
+	{
+		return getAll();
+	}
+
+	@Override
+	public void updateRealm(AuthenticationRealm realm) throws EngineException
+	{
+		update(realm);
+	}
+
+	@Override
+	public void removeRealm(String name) throws EngineException
+	{
+		deleteByName(name);
+	}
+
+	@Override
+	public void updateByName(String name, AuthenticationRealm newValue) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		try
+		{
+			realmDB.updateByName(name, newValue);
+		} catch (Exception e)
+		{
+			throw new EngineException("Unable to remove a realm: " + e.getMessage(), e);
+		}
+	}
+
+	@Override
+	public void deleteByName(String name) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		try
+		{
+			realmDB.delete(name);
+		} catch (Exception e)
+		{
+			throw new EngineException("Unable to remove a realm: " + e.getMessage(), e);
+		}
+	}
+
+	@Override
+	public boolean exists(String name) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		try
+		{
+			return realmDB.exists(name);
+		} catch (Exception e)
+		{
+			throw new EngineException("Unable to retrieve a realm: " + e.getMessage(), e);
+		}
+	}
+
+	@Override
+	public AuthenticationRealm get(String name) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		try
@@ -67,20 +124,20 @@ public class RealmsManagementImpl implements RealmsManagement
 	}
 
 	@Override
-	public Collection<AuthenticationRealm> getRealms() throws EngineException
+	public void create(AuthenticationRealm realm) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		try
 		{
-			return realmDB.getAll();
+			realmDB.create(realm);
 		} catch (Exception e)
 		{
-			throw new EngineException("Unable to retrieve realms: " + e.getMessage(), e);
+			throw new EngineException("Unable to create a realm: " + e.getMessage(), e);
 		}
 	}
 
 	@Override
-	public void updateRealm(AuthenticationRealm realm) throws EngineException
+	public void update(AuthenticationRealm realm) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		try
@@ -93,15 +150,21 @@ public class RealmsManagementImpl implements RealmsManagement
 	}
 
 	@Override
-	public void removeRealm(String name) throws EngineException
+	public void delete(AuthenticationRealm realm) throws EngineException
+	{
+		deleteByName(realm.getName());
+	}
+
+	@Override
+	public List<AuthenticationRealm> getAll() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		try
 		{
-			realmDB.delete(name);
+			return realmDB.getAll();
 		} catch (Exception e)
 		{
-			throw new EngineException("Unable to remove a realm: " + e.getMessage(), e);
+			throw new EngineException("Unable to retrieve realms: " + e.getMessage(), e);
 		}
 	}
 }
