@@ -14,7 +14,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
  * Attribute types management API.
  * @author K. Benedyczak
  */
-public interface AttributeTypeManagement extends NamedEngineDAO<AttributeType>
+public interface AttributeTypeManagement extends NamedEngineDAO<AttributeType, AttributeType>
 {
 	/**
 	 * @return identifiers of all attribute value types which are supported by server. 

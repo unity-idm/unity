@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.engine.attribute;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
-import pl.edu.icm.unity.engine.api.attributes.EngineAttribute;
+import pl.edu.icm.unity.engine.api.attributes.AttributeParam;
 import pl.edu.icm.unity.engine.api.confirmation.ConfirmationManager;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
@@ -71,25 +70,25 @@ public class AttributesManagementImpl implements AttributesManagement
 	}
 
 	@Override
-	public void create(EngineAttribute engineAttr) throws EngineException
+	public void create(AttributeParam attrParam) throws EngineException
 	{
-		setAttribute(engineAttr, true);
+		setAttribute(attrParam, true);
 	}
 
 	@Override
-	public void update(EngineAttribute engineAttr) throws EngineException
+	public void update(AttributeParam attrParam) throws EngineException
 	{
-		setAttribute(engineAttr, false);
+		setAttribute(attrParam, false);
 		
 	}
 
 	@Override
 	@Transactional
-	public void delete(EngineAttribute engineAttr) throws EngineException
+	public void delete(AttributeParam attrParam) throws EngineException
 	{
-		EntityParam entity = engineAttr.getEntity();
-		String attributeTypeId = engineAttr.getAttribute().getName();
-		String groupPath = engineAttr.getAttribute().getGroupPath();
+		EntityParam entity = attrParam.getEntity();
+		String attributeTypeId = attrParam.getAttributeTypeId();
+		String groupPath = attrParam.getGroupPath();
 		if (groupPath == null)
 			throw new IllegalGroupValueException("Group must not be null");
 		if (attributeTypeId == null)
@@ -111,7 +110,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	}
 
 	@Override
-	public List<EngineAttribute> getAll() throws EngineException
+	public List<AttributeExt> getAll() throws EngineException
 	{
 		throw new UnsupportedOperationException("Gel all operation is not supported for attributes.");
 	}	
@@ -121,7 +120,7 @@ public class AttributesManagementImpl implements AttributesManagement
 			throws EngineException
 	{
 		setAttribute(
-				EngineAttribute.builder()
+				AttributeParam.builder()
 					.withAttribute(attribute)
 					.withEntity(entity)
 					.build(), 
@@ -131,10 +130,11 @@ public class AttributesManagementImpl implements AttributesManagement
 	/**
 	 * Creates or updates an attribute.
 	 */ 
-	private void setAttribute(EngineAttribute engineAttr, boolean update) throws EngineException
+	private void setAttribute(AttributeParam attrParam, boolean update) throws EngineException
 	{
-		EntityParam entity = engineAttr.getEntity();
-		Attribute attribute = engineAttr.getAttribute();
+		EntityParam entity = attrParam.getEntity();
+		Attribute attribute = attrParam.getAttribute();
+		
 		entity.validateInitialization(); 
 		txRunner.runInTransactionThrowing(() -> {
 			boolean fullAuthz;
@@ -153,8 +153,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	private boolean checkSetAttributeAuthz(long entityId, AttributeType at, Attribute attribute) 
 			throws AuthorizationException
 	{
-		Set<AuthzCapability> nonSelfCapabilities = authz.getCapabilities(false, 
-				attribute.getGroupPath());
+		Set<AuthzCapability> nonSelfCapabilities = authz.getCapabilities(false, attribute.getGroupPath());
 		boolean fullAuthz = nonSelfCapabilities.contains(AuthzCapability.attributeModify);
 
 		//even if we have fullAuthz we need to check authZ (e.g. to get outdated credential error)
@@ -168,21 +167,21 @@ public class AttributesManagementImpl implements AttributesManagement
 	public void removeAttribute(EntityParam entity, String groupPath, String attributeTypeId)
 			throws EngineException
 	{
-		Attribute attribute = new Attribute(attributeTypeId, null, groupPath, Collections.emptyList());
-		delete(EngineAttribute.builder()
+		delete(AttributeParam.builder()
 				.withEntity(entity)
-				.withAttribute(attribute)
+				.withAttributeTypeId(attributeTypeId)
+				.withGroupPath(groupPath)
 				.build());
 	}
 	
 	
 	@Override
 	@Transactional
-	public Collection<AttributeExt> getAttributes(EngineAttribute engineAttr) throws EngineException
+	public Collection<AttributeExt> getAttributes(AttributeParam attrParam) throws EngineException
 	{
-		EntityParam entity = engineAttr.getEntity();
-		String attributeTypeId = engineAttr.getAttribute().getName();
-		String groupPath = engineAttr.getAttribute().getGroupPath();
+		EntityParam entity = attrParam.getEntity();
+		String attributeTypeId = attrParam.getAttributeTypeId();
+		String groupPath = attrParam.getGroupPath();
 		Collection<AttributeExt> ret = getAllAttributesInternal(entity, true, groupPath, attributeTypeId, 
 				new AuthzCapability[] {AuthzCapability.read}, false);
 		return ret;
@@ -192,22 +191,22 @@ public class AttributesManagementImpl implements AttributesManagement
 	public Collection<AttributeExt> getAttributes(EntityParam entity, String groupPath, String attributeTypeId) 
 			throws EngineException
 	{
-		Attribute attribute = new Attribute(attributeTypeId, null, groupPath, Collections.emptyList());
-		Collection<AttributeExt> ret = getAttributes(EngineAttribute.builder()
+		Collection<AttributeExt> ret = getAttributes(AttributeParam.builder()
 				.withEntity(entity)
-				.withAttribute(attribute)
+				.withAttributeTypeId(attributeTypeId)
+				.withGroupPath(groupPath)
 				.build());
 		return ret;
 	}
 
 	@Override
 	@Transactional
-	public Collection<AttributeExt> getAllAttributes(EngineAttribute engineAttr, boolean effective,
+	public Collection<AttributeExt> getAllAttributes(AttributeParam attrParam, boolean effective,
 			boolean allowDegrade) throws EngineException
 	{
-		EntityParam entity = engineAttr.getEntity();
-		String attributeTypeId = engineAttr.getAttribute().getName();
-		String groupPath = engineAttr.getAttribute().getGroupPath();
+		EntityParam entity = attrParam.getEntity();
+		String attributeTypeId = attrParam.getAttributeTypeId();
+		String groupPath = attrParam.getGroupPath();
 		try
 		{
 			return getAllAttributesInternal(entity, effective, groupPath, attributeTypeId, 
@@ -229,11 +228,11 @@ public class AttributesManagementImpl implements AttributesManagement
 	public Collection<AttributeExt> getAllAttributes(EntityParam entity, boolean effective, String groupPath,
 			String attributeTypeId, boolean allowDegrade) throws EngineException
 	{
-		Attribute attribute = new Attribute(attributeTypeId, null, groupPath, Collections.emptyList());
 		return getAllAttributes(
-				EngineAttribute.builder()
+				AttributeParam.builder()
 					.withEntity(entity)
-					.withAttribute(attribute)
+					.withAttributeTypeId(attributeTypeId)
+					.withGroupPath(groupPath)
 					.build(),
 				effective, allowDegrade);
 	}

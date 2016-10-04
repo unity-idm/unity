@@ -6,7 +6,7 @@ package pl.edu.icm.unity.engine.api;
 
 import java.util.Collection;
 
-import pl.edu.icm.unity.engine.api.attributes.EngineAttribute;
+import pl.edu.icm.unity.engine.api.attributes.AttributeParam;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -16,7 +16,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
  * Attributes management API.
  * @author K. Benedyczak
  */
-public interface AttributesManagement extends BasicEngineDAO<EngineAttribute>
+public interface AttributesManagement extends BasicEngineDAO<AttributeParam, AttributeExt>
 {
 	/**
 	 * Creates or updates an attribute.
@@ -25,8 +25,8 @@ public interface AttributesManagement extends BasicEngineDAO<EngineAttribute>
 	 * @param update
 	 * @throws EngineException
 	 * 
-	 * @deprecated <b>Use {@link AttributesManagement#create(EngineAttribute)}
-	 *             and {@link AttributesManagement#update(EngineAttribute)}
+	 * @deprecated <b>Use {@link AttributesManagement#create(AttributeParam)}
+	 *             and {@link AttributesManagement#update(AttributeParam)}
 	 *             instead.</b>
 	 */
 	@Deprecated
@@ -39,7 +39,7 @@ public interface AttributesManagement extends BasicEngineDAO<EngineAttribute>
 	 * @param attributeTypeId
 	 * @throws EngineException
 	 * 
-	 * @deprecated <b>Use {@link AttributesManagement#delete(EngineAttribute)} instead.</b>
+	 * @deprecated <b>Use {@link AttributesManagement#delete(AttributeParam)} instead.</b>
 	 */
 	@Deprecated
 	void removeAttribute(EntityParam entity, String groupPath, String attributeTypeId) throws EngineException;
@@ -53,7 +53,7 @@ public interface AttributesManagement extends BasicEngineDAO<EngineAttribute>
 	 * @return
 	 * @throws EngineException
 	 * 
-	 * @deprecated <b>Use {@link AttributesManagement#getAttributes(EngineAttribute)} instead.</b>
+	 * @deprecated <b>Use {@link AttributesManagement#getAttributes(AttributeParam)} instead.</b>
 	 */
 	@Deprecated
 	Collection<AttributeExt> getAttributes(EntityParam entity, String groupPath, String attributeTypeId) throws EngineException;
@@ -65,7 +65,7 @@ public interface AttributesManagement extends BasicEngineDAO<EngineAttribute>
 	 * @return
 	 * @throws EngineException
 	 */
-	Collection<AttributeExt> getAttributes(EngineAttribute engineAttr) throws EngineException;	
+	Collection<AttributeExt> getAttributes(AttributeParam engineAttr) throws EngineException;	
 
 	/**
 	 * Returns attributes of an entity, including hidden ones. The two last arguments can be null, 
@@ -81,7 +81,7 @@ public interface AttributesManagement extends BasicEngineDAO<EngineAttribute>
 	 * @return
 	 * @throws EngineException
 	 * 
-	 * @deprecated <b>Use {@link AttributesManagement#getAllAttributes(EngineAttribute, boolean, boolean)} instead.</b>
+	 * @deprecated <b>Use {@link AttributesManagement#getAllAttributes(AttributeParam, boolean, boolean)} instead.</b>
 	 */
 	@Deprecated
 	Collection<AttributeExt> getAllAttributes(EntityParam entity, boolean effective, 
@@ -99,5 +99,5 @@ public interface AttributesManagement extends BasicEngineDAO<EngineAttribute>
 	 * @return
 	 * @throws EngineException
 	 */
-	Collection<AttributeExt> getAllAttributes(EngineAttribute engineAttr, boolean effective, boolean allowDegrade) throws EngineException;
+	Collection<AttributeExt> getAllAttributes(AttributeParam engineAttr, boolean effective, boolean allowDegrade) throws EngineException;
 }

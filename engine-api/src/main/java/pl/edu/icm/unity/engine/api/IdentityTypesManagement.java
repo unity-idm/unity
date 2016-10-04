@@ -13,7 +13,7 @@ import pl.edu.icm.unity.types.basic.IdentityType;
  * Internal engine API for entities and identities management.
  * @author K. Benedyczak
  */
-public interface IdentityTypesManagement extends NamedEngineDAO<IdentityType>
+public interface IdentityTypesManagement extends NamedEngineDAO<IdentityType, IdentityType>
 {
 	/**
 	 * @return list of supported identity types

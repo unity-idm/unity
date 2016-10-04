@@ -12,13 +12,13 @@ import pl.edu.icm.unity.exceptions.EngineException;
  *
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
-public interface NamedEngineDAO<T> extends BasicEngineDAO<T>
+public interface NamedEngineDAO<PARAM, ENTITY> extends BasicEngineDAO<PARAM, ENTITY>
 {
-	void updateByName(String name, T newValue) throws EngineException;
+	void updateByName(String name, PARAM newValue) throws EngineException;
 	
 	void deleteByName(String name) throws EngineException;
 	
 	boolean exists(String id) throws EngineException;
 
-	T get(String id) throws EngineException;
+	ENTITY get(String id) throws EngineException;
 }

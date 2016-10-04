@@ -13,14 +13,15 @@ import pl.edu.icm.unity.types.basic.EntityParam;
  *
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
-public class EngineAttribute
+public class AttributeParam
 {
 	private EntityParam entity;
 	private Attribute attribute;
+	private String groupPath;
+	private String attributeTypeId;
 
-	public EngineAttribute(EntityParam entity, Attribute attribute)
+	public AttributeParam(EntityParam entity, Attribute attribute)
 	{
-		super();
 		this.entity = entity;
 		this.attribute = attribute;
 	}
@@ -45,6 +46,26 @@ public class EngineAttribute
 		this.attribute = attribute;
 	}
 
+	public String getGroupPath()
+	{
+		return groupPath;
+	}
+
+	public void setGroupPath(String groupPath)
+	{
+		this.groupPath = groupPath;
+	}
+
+	public String getAttributeTypeId()
+	{
+		return attributeTypeId;
+	}
+
+	public void setAttributeTypeId(String attributeTypeId)
+	{
+		this.attributeTypeId = attributeTypeId;
+	}
+
 	public static Builder builder()
 	{
 		return new Builder();
@@ -54,6 +75,8 @@ public class EngineAttribute
 	{
 		private EntityParam entity;
 		private Attribute attribute;
+		private String groupPath;
+		private String attributeTypeId;
 
 		public Builder withEntity(EntityParam entity)
 		{
@@ -67,9 +90,23 @@ public class EngineAttribute
 			return this;
 		}
 
-		public EngineAttribute build()
+		public Builder withGroupPath(String groupPath)
 		{
-			EngineAttribute engineAttr = new EngineAttribute(entity, attribute);
+			this.groupPath = groupPath;
+			return this;
+		}
+
+		public Builder withAttributeTypeId(String attributeTypeId)
+		{
+			this.attributeTypeId = attributeTypeId;
+			return this;
+		}
+
+		public AttributeParam build()
+		{
+			AttributeParam engineAttr = new AttributeParam(entity, attribute);
+			engineAttr.setAttributeTypeId(attributeTypeId);
+			engineAttr.setGroupPath(groupPath);
 			return engineAttr;
 		}
 	}

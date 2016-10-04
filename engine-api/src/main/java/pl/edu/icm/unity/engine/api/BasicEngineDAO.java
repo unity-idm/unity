@@ -13,13 +13,13 @@ import pl.edu.icm.unity.exceptions.EngineException;
  *
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
-public interface BasicEngineDAO<T>
+public interface BasicEngineDAO<PARAM, ENTITY>
 {
-	void create(T obj) throws EngineException;
+	void create(PARAM obj) throws EngineException;
 	
-	void update(T obj) throws EngineException;
+	void update(PARAM obj) throws EngineException;
 	
-	void delete(T obj) throws EngineException;
+	void delete(PARAM obj) throws EngineException;
 	
-	List<T> getAll() throws EngineException;
+	List<ENTITY> getAll() throws EngineException;
 }
