@@ -15,20 +15,26 @@ import pl.edu.icm.unity.types.basic.EntityParam;
  * Attribute class management API.
  * @author K. Benedyczak
  */
-public interface AttributeClassManagement
+public interface AttributeClassManagement extends NamedEngineDAO<AttributesClass, AttributesClass>
 {
 	/**
 	 * Defines a new attribute class
 	 * @param clazz
 	 * @throws EngineException
+	 * 
+	 * @deprecated <b>Use {@link AttributeClassManagement#create(AttributesClass)} instead.</b>
 	 */
+	@Deprecated
 	void addAttributeClass(AttributesClass clazz) throws EngineException;
 	
 	/**
 	 * Removes attribute class
 	 * @param id
 	 * @throws EngineException
+	 * 
+	 * @deprecated <b>Use {@link AttributeClassManagement#deleteByName(String)} instead.</b>
 	 */
+	@Deprecated
 	void removeAttributeClass(String id) throws EngineException;
 
 	/**
@@ -36,7 +42,10 @@ public interface AttributeClassManagement
 	 * fulfill the updated class rules.
 	 * @param updated the updated class. Existing class to be updated is matched by name.
 	 * @throws EngineException
+	 * 
+	 * @deprecated <b>Use {@link AttributeClassManagement#update(AttributesClass)} instead.</b>
 	 */
+	@Deprecated
 	void updateAttributeClass(AttributesClass updated) throws EngineException;
 
 	/**

@@ -70,79 +70,19 @@ public class AttributeClassManagementImpl implements AttributeClassManagement
 	@Override
 	public void addAttributeClass(AttributesClass clazz) throws EngineException
 	{
-		authz.checkAuthorization(AuthzCapability.maintenance);
-		String addedName = clazz.getName();
-		Set<String> missingParents = new HashSet<>(clazz.getParentClasses());
-		Map<String, AttributesClass> allClasses = acDB.getAllAsMap();
-		for (String c: allClasses.keySet())
-		{
-			if (addedName.equals(c))
-				throw new WrongArgumentException("The attribute class " + addedName + " already exists");
-			missingParents.remove(c);
-		}
-		if (!missingParents.isEmpty())
-			throw new WrongArgumentException("The attribute class parent(s): " + missingParents + 
-					" do(es) not exist");
-
-		AttributeClassHelper.cleanupClass(clazz, allClasses);
-		acDB.create(clazz);
+		create(clazz);
 	}
 
 	@Override
-	public void removeAttributeClass(String id) throws EngineException
+	public void removeAttributeClass(String name) throws EngineException
 	{
-		authz.checkAuthorization(AuthzCapability.maintenance);
-		Map<String, AttributesClass> allClasses = acDB.getAllAsMap();
-		for (AttributesClass ac: allClasses.values())
-		{
-			if (ac.getParentClasses().contains(id))
-				throw new SchemaConsistencyException("Can not remove attribute class " + id + 
-						" as it is a parent of the attribute class " + ac.getName());
-		}
-		Set<Long> entities = identityHelper.getEntitiesWithStringAttribute(
-				AttributeClassTypeProvider.ATTRIBUTE_CLASSES_ATTRIBUTE, id);
-		if (entities.size() > 0)
-		{
-			String info = String.valueOf(entities.iterator().next());
-			if (entities.size() > 1)
-				info += " and " + (entities.size()-1) + " more";
-			throw new SchemaConsistencyException("The attribute class " + id + 
-					" can not be removed as there are entities with this class set. " +
-					"Ids of entities: " + info);
-		}
-
-		Set<String> groupsUsing = getGroupsUsingAc(id);
-		if (groupsUsing.size() > 0)
-			throw new SchemaConsistencyException("The attribute class " + id + 
-					" can not be removed as there are groups with have this class set: " +
-					groupsUsing.toString());
-
-		acDB.delete(id);
+		deleteByName(name);
 	}
 
 	@Override
 	public void updateAttributeClass(AttributesClass updated) throws EngineException
 	{
-		authz.checkAuthorization(AuthzCapability.maintenance);
-		Map<String, AttributesClass> allClasses = acDB.getAllAsMap();
-		AttributesClass original = allClasses.get(updated.getName());
-		if (original == null)
-			throw new WrongArgumentException("There is no attribute class '" + 
-					updated.getName() + "'");
-		String acName = original.getName();
-
-		AttributeClassHelper originalEffective = new AttributeClassHelper(allClasses, 
-				Collections.singleton(acName));
-
-		allClasses.put(acName, updated);
-		AttributeClassHelper updatedEffective = new AttributeClassHelper(allClasses, 
-				Collections.singleton(acName));
-
-		boolean restrictiveChange = updatedEffective.isRestricting(originalEffective);
-		if (restrictiveChange)
-			checkIfUnused(acName, allClasses);
-
-		acDB.update(updated);
+		update(updated);
 	}
 	
 	@Override
@@ -235,5 +175,118 @@ public class AttributeClassManagementImpl implements AttributeClassManagement
 					" as there are groups with have this class set: " +
 					groupsUsing.toString() + 
 					". Only non restrictive changes are allowed for used classes.");
+	}
+
+	@Override
+	public void updateByName(String current, AttributesClass newValue) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		acDB.updateByName(current, newValue);
+	}
+
+	@Override
+	public void deleteByName(String id) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		Map<String, AttributesClass> allClasses = acDB.getAllAsMap();
+		for (AttributesClass ac: allClasses.values())
+		{
+			if (ac.getParentClasses().contains(id))
+				throw new SchemaConsistencyException("Can not remove attribute class " + id + 
+						" as it is a parent of the attribute class " + ac.getName());
+		}
+		Set<Long> entities = identityHelper.getEntitiesWithStringAttribute(
+				AttributeClassTypeProvider.ATTRIBUTE_CLASSES_ATTRIBUTE, id);
+		if (entities.size() > 0)
+		{
+			String info = String.valueOf(entities.iterator().next());
+			if (entities.size() > 1)
+				info += " and " + (entities.size()-1) + " more";
+			throw new SchemaConsistencyException("The attribute class " + id + 
+					" can not be removed as there are entities with this class set. " +
+					"Ids of entities: " + info);
+		}
+
+		Set<String> groupsUsing = getGroupsUsingAc(id);
+		if (groupsUsing.size() > 0)
+			throw new SchemaConsistencyException("The attribute class " + id + 
+					" can not be removed as there are groups with have this class set: " +
+					groupsUsing.toString());
+
+		acDB.delete(id);
+	}
+
+	@Override
+	public boolean exists(String name) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
+		return acDB.exists(name);
+	}
+
+	@Override
+	public AttributesClass get(String name) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
+		return acDB.get(name);
+	}
+
+	@Override
+	public void create(AttributesClass clazz) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		String addedName = clazz.getName();
+		Set<String> missingParents = new HashSet<>(clazz.getParentClasses());
+		Map<String, AttributesClass> allClasses = acDB.getAllAsMap();
+		for (String c: allClasses.keySet())
+		{
+			if (addedName.equals(c))
+				throw new WrongArgumentException("The attribute class " + addedName + " already exists");
+			missingParents.remove(c);
+		}
+		if (!missingParents.isEmpty())
+			throw new WrongArgumentException("The attribute class parent(s): " + missingParents + 
+					" do(es) not exist");
+
+		AttributeClassHelper.cleanupClass(clazz, allClasses);
+		acDB.create(clazz);
+	}
+
+	@Override
+	public void update(AttributesClass updated) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		Map<String, AttributesClass> allClasses = acDB.getAllAsMap();
+		AttributesClass original = allClasses.get(updated.getName());
+		if (original == null)
+			throw new WrongArgumentException("There is no attribute class '" + 
+					updated.getName() + "'");
+		String acName = original.getName();
+
+		AttributeClassHelper originalEffective = new AttributeClassHelper(allClasses, 
+				Collections.singleton(acName));
+
+		allClasses.put(acName, updated);
+		AttributeClassHelper updatedEffective = new AttributeClassHelper(allClasses, 
+				Collections.singleton(acName));
+
+		boolean restrictiveChange = updatedEffective.isRestricting(originalEffective);
+		if (restrictiveChange)
+			checkIfUnused(acName, allClasses);
+
+		acDB.update(updated);
+	}
+
+	@Override
+	public void delete(AttributesClass clazz) throws EngineException
+	{
+		String name = clazz.getName();
+		deleteByName(name);
+	}
+
+	@Override
+	public List<AttributesClass> getAll() throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
+		return acDB.getAll();
 	}
 }
