@@ -38,13 +38,13 @@ public class IdentitySelectorComponent extends CustomComponent
 	protected IdentityParam selectedIdentity;
 	protected ComboBox identitiesCB;
 	
-	public IdentitySelectorComponent(UnityMessageSource msg, IdentityTypeSupport typesRegistry,
+	public IdentitySelectorComponent(UnityMessageSource msg, IdentityTypeSupport idTypeSupport,
 			List<IdentityParam> validIdentities)
 	{
 		super();
 		this.msg = msg;
 		this.validIdentities = validIdentities;
-		this.idTypeSupport = typesRegistry;
+		this.idTypeSupport = idTypeSupport;
 		initUI();
 	}
 	

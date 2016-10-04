@@ -20,6 +20,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -39,12 +40,20 @@ import com.vaadin.ui.Table.TableDragMode;
 import com.vaadin.ui.TreeTable;
 import com.vaadin.ui.UI;
 
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributeClassManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
+import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
@@ -73,7 +82,6 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
@@ -142,18 +150,20 @@ public class IdentitiesTable extends CustomComponent
 	public static final String ATTR_COL_PREFIX = "a::";
 	public static final String ATTR_ROOT_COL_PREFIX = ATTR_COL_PREFIX + "root::";
 	public static final String ATTR_CURRENT_COL_PREFIX = ATTR_COL_PREFIX + "current::";
-	private IdentitiesManagement identitiesMan;
+	private EntityManagement identitiesMan;
 	private GroupsManagement groupsMan;
 	private UnityMessageSource msg;
-	private AuthenticationManagement authnMan;
 	private AttributesManagement attrMan;
 	private PreferencesManagement preferencesMan;
 	private AttributeSupport attrProcessor;
 	private IdentityEditorRegistry identityEditorReg;
 	private AttributeHandlerRegistry attrHandlerRegistry;
-	private CredentialEditorRegistry credEditorsRegistry;
 	private EventsBus bus;
 	private ExecutorsService executor;
+	private CredentialRequirementManagement credReqMan;
+	private AttributeClassManagement acMan;
+	private AttributeTypeManagement atMan;
+	private EntityCredentialManagement eCredMan;
 	
 	private TreeTable table;
 	private ProgressBar loadingProgress;
@@ -166,27 +176,44 @@ public class IdentitiesTable extends CustomComponent
 	private String entityNameAttribute = null;
 	private List<SingleActionHandler> actionHandlers;
 	private volatile FutureTask<?> entitiesLoader;
+
+	private ObjectFactory<CredentialsChangeDialog> credentialChangeDialogFactory;
+	private ObjectFactory<EntityDetailsPanel> entityDetailsPanelFactory;
+
+	private IdentityTypeSupport idTypeSupport;
+
+
 	
 	@Autowired
-	public IdentitiesTable(IdentitiesManagement identitiesMan, GroupsManagement groupsMan, 
-			AuthenticationManagement authnMan, AttributesManagement attrMan,PreferencesManagement preferencesMan,
+	public IdentitiesTable(EntityManagement identitiesMan, GroupsManagement groupsMan, 
+			AttributesManagement attrMan,PreferencesManagement preferencesMan,
 			AttributeSupport attrProcessor,
-			IdentityEditorRegistry identityEditorReg, CredentialEditorRegistry credEditorsRegistry,
-			AttributeHandlerRegistry attrHandlerReg, UnityMessageSource msg, ExecutorsService executor)
+			IdentityEditorRegistry identityEditorReg, 
+			AttributeHandlerRegistry attrHandlerReg, UnityMessageSource msg, ExecutorsService executor,
+			CredentialRequirementManagement credReqMan, AttributeClassManagement acMan, 
+			AttributeTypeManagement atMan, EntityCredentialManagement eCredMan,
+			IdentityTypeSupport idTypeSupport,
+			ObjectFactory<CredentialsChangeDialog> credentialChangeDialogFactory,
+			ObjectFactory<EntityDetailsPanel> entityDetailsPanelFactory)
 	{
 		this.preferencesMan = preferencesMan;
 		this.identitiesMan = identitiesMan;
 		this.attrProcessor = attrProcessor;
 		this.groupsMan = groupsMan;
 		this.identityEditorReg = identityEditorReg;
-		this.authnMan = authnMan;
 		this.msg = msg;
 		this.attrHandlerRegistry = attrHandlerReg;
 		this.attrMan = attrMan;
 		this.executor = executor;
+		this.credReqMan = credReqMan;
+		this.acMan = acMan;
+		this.atMan = atMan;
+		this.eCredMan = eCredMan;
+		this.idTypeSupport = idTypeSupport;
+		this.credentialChangeDialogFactory = credentialChangeDialogFactory;
+		this.entityDetailsPanelFactory = entityDetailsPanelFactory;
 		this.bus = WebSession.getCurrent().getEventBus();
 		this.containerFilters = new ArrayList<Container.Filter>();
-		this.credEditorsRegistry = credEditorsRegistry;
 		this.actionHandlers = new ArrayList<>();
 		
 		//let's init to something what reports that is finished/not working.
@@ -329,7 +356,7 @@ public class IdentitiesTable extends CustomComponent
 		preferences.setShowTargetedSetting(showTargeted);
 		try
 		{
-			IdentitiesTablePreferences.savePreferences(preferencesMan, preferences);
+			preferences.savePreferences(preferencesMan);
 		} catch (EngineException e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("error"),
@@ -702,14 +729,15 @@ public class IdentitiesTable extends CustomComponent
 		
 		if (id != null)
 		{
+			IdentityTypeDefinition typeDefinition = idTypeSupport.getTypeDefinition(id.getTypeId());
 			newItem.getItemProperty(BaseColumnId.type.toString()).setValue(
 					id.getTypeId());
 			newItem.getItemProperty(BaseColumnId.identity.toString()).setValue(
-					id.toPrettyStringNoPrefix());
+					typeDefinition.toPrettyStringNoPrefix(id));
 			newItem.getItemProperty(BaseColumnId.local.toString()).setValue(
 					new Boolean(id.isLocal()).toString());
 			newItem.getItemProperty(BaseColumnId.dynamic.toString()).setValue(
-					new Boolean(id.getType().getIdentityTypeProvider().isDynamic()).toString());
+					new Boolean(typeDefinition.isDynamic()).toString());
 			String ridp = id.getRemoteIdp() == null ? "" : id.getRemoteIdp();
 			newItem.getItemProperty(BaseColumnId.remoteIdP.toString()).setValue(ridp);
 			String prof = id.getTranslationProfile() == null ? "" : id.getTranslationProfile();
@@ -1049,9 +1077,9 @@ public class IdentitiesTable extends CustomComponent
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			new EntityCreationDialog(msg, group, identitiesMan, groupsMan, 
-					authnMan, attrHandlerRegistry,
-					attrMan, identityEditorReg, 
+			new EntityCreationDialog(msg, group, identitiesMan, groupsMan, credReqMan,
+					attrHandlerRegistry,
+					atMan, acMan, identityEditorReg, 
 					new EntityCreationDialog.Callback()
 					{
 						@Override
@@ -1188,7 +1216,8 @@ public class IdentitiesTable extends CustomComponent
 					boolean requiresRefresh = false;
 					for (IdentityWithEntity o : filteredNodes)
 					{
-						if (o.getIdentity().getType().getIdentityTypeProvider().isRemovable())
+						if (idTypeSupport.getTypeDefinition(o.getIdentity().getTypeId())
+								.isRemovable())
 						{
 							removeIdentity(o);
 						} else
@@ -1246,8 +1275,8 @@ public class IdentitiesTable extends CustomComponent
 			IdentitiesAndAttributes info = data.get(entity.getEntity().getId());
 			String currentCredId = info.getEntity().getCredentialInfo()
 					.getCredentialRequirementId();
-			new CredentialRequirementDialog(msg, entity, currentCredId, identitiesMan,
-					authnMan, new Callback()
+			new CredentialRequirementDialog(msg, entity, currentCredId, eCredMan,
+					credReqMan, new Callback()
 					{
 						@Override
 						public void onChanged()
@@ -1270,16 +1299,17 @@ public class IdentitiesTable extends CustomComponent
 		public void handleAction(Object sender, Object target)
 		{
 			final EntityWithLabel entity = getSingleSelect(target);
-			new CredentialsChangeDialog(msg, entity.getEntity().getId(), authnMan, identitiesMan,
-					credEditorsRegistry, false, new CredentialsChangeDialog.Callback()
-					{
+			credentialChangeDialogFactory.getObject().
+				init(entity.getEntity().getId(), false, new CredentialsChangeDialog.Callback()
+				{
 						@Override
 						public void onClose(boolean changed)
 						{
 							if (changed)
 								refresh();
 						}
-					}).show();
+				}).
+				show();
 		}
 	}
 
@@ -1301,7 +1331,7 @@ public class IdentitiesTable extends CustomComponent
 
 	private void showEntityDetails(EntityWithLabel entity)
 	{
-		final EntityDetailsPanel identityDetailsPanel = new EntityDetailsPanel(msg);
+		final EntityDetailsPanel identityDetailsPanel = entityDetailsPanelFactory.getObject();
 		Collection<GroupMembership> groups;
 		try
 		{
@@ -1345,7 +1375,7 @@ public class IdentitiesTable extends CustomComponent
 
 			final EntityWithLabel entity = getSingleSelect(target);
 			EntityAttributesClassesDialog dialog = new EntityAttributesClassesDialog(
-					msg, group, entity, attrMan, groupsMan,
+					msg, group, entity, acMan, groupsMan,
 					new EntityAttributesClassesDialog.Callback()
 					{
 						@Override
@@ -1429,11 +1459,10 @@ public class IdentitiesTable extends CustomComponent
 		private Map<String, Attribute> rootAttributes;
 		private Map<String, Attribute> currentAttributes;
 
-		public IdentitiesAndAttributes(Entity entity, Identity[] identities, 
+		public IdentitiesAndAttributes(Entity entity, List<Identity> identities, 
 				Map<String, Attribute> rootAttributes, Map<String, Attribute> currentAttributes)
 		{
-			this.identities = new LinkedHashSet<>(); 
-			Collections.addAll(this.identities, identities);
+			this.identities = new LinkedHashSet<>(identities); 
 			this.rootAttributes = rootAttributes;
 			this.currentAttributes = currentAttributes;
 			this.entity = entity;

@@ -16,6 +16,8 @@ import org.apache.log4j.Logger;
 import org.apache.xml.security.utils.Base64;
 
 import eu.unicore.samly2.exceptions.SAMLServerException;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
@@ -33,10 +35,12 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 public class ErrorHandler extends ResponseHandlerBase
 {
 	private Logger log = Log.getLogger(Log.U_SERVER_SAML, ErrorHandler.class);
+	private AttributeTypeSupport aTypeSupport;
 
-	public ErrorHandler(FreemarkerHandler freemarker)
+	public ErrorHandler(AttributeTypeSupport aTypeSupport, FreemarkerHandler freemarker)
 	{
 		super(freemarker);
+		this.aTypeSupport = aTypeSupport;
 	}
 
 
@@ -65,7 +69,8 @@ public class ErrorHandler extends ResponseHandlerBase
 	 * @throws IOException
 	 * @throws EopException 
 	 */
-	public void commitErrorResponse(SAMLAuthnContext samlCtx, SAMLServerException error, 
+	public void commitErrorResponse(SAMLAuthnContext samlCtx, 
+			SAMLServerException error, 
 			HttpServletResponse response) throws SAMLProcessingException, IOException, EopException
 	{
 		String serviceUrl = samlCtx.getRequestDocument().getAuthnRequest().getAssertionConsumerServiceURL();
@@ -78,7 +83,7 @@ public class ErrorHandler extends ResponseHandlerBase
 
 		log.debug("SAML error is going to be returned to the SAML requester by the IdP", error);
 		
-		AuthnResponseProcessor errorResponseProcessor = new AuthnResponseProcessor(samlCtx);
+		AuthnResponseProcessor errorResponseProcessor = new AuthnResponseProcessor(aTypeSupport, samlCtx);
 		String encodedSamlError = processError(errorResponseProcessor, error);
 		
 		sendBackErrorResponse(error, serviceUrl, encodedSamlError, samlCtx.getRelayState(), response);

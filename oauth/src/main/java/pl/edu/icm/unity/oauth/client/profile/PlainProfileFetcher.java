@@ -35,8 +35,7 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthn
  */
 public class PlainProfileFetcher implements UserProfileFetcher
 {
-	private static final Logger log = Log.getLogger(pl.edu.icm.unity.server.utils.Log.U_SERVER_OAUTH,
-			PlainProfileFetcher.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, PlainProfileFetcher.class);
 	
 	@Override
 	public Map<String, String> fetchProfile(BearerAccessToken accessToken, String userInfoEndpoint,

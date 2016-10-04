@@ -16,7 +16,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Table;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -48,7 +48,7 @@ public class EntityAttributesClassesDialog extends AbstractAttributesClassesDial
 	private Callback callback;
 	
 	public EntityAttributesClassesDialog(UnityMessageSource msg, String group, EntityWithLabel entity, 
-			AttributesManagement attrMan, GroupsManagement groupsMan, Callback callback)
+			AttributeClassManagement attrMan, GroupsManagement groupsMan, Callback callback)
 	{
 		super(msg, group, attrMan, groupsMan, msg.getMessage("EntityAttributesClasses.caption"));
 		this.entity = entity;
@@ -103,7 +103,7 @@ public class EntityAttributesClassesDialog extends AbstractAttributesClassesDial
 	{
 		loadACsData();
 		
-		Collection<AttributesClass> curClasses = attrMan.getEntityAttributeClasses(
+		Collection<AttributesClass> curClasses = acMan.getEntityAttributeClasses(
 				new EntityParam(entity.getEntity().getId()), groupPath);
 		Set<String> currentSel = new HashSet<>(curClasses.size());
 		for (AttributesClass ac: curClasses)
@@ -123,7 +123,7 @@ public class EntityAttributesClassesDialog extends AbstractAttributesClassesDial
 		Set<String> selected = (Set<String>) acs.getValue();
 		try
 		{
-			attrMan.setEntityAttributeClasses(new EntityParam(entity.getEntity().getId()), 
+			acMan.setEntityAttributeClasses(new EntityParam(entity.getEntity().getId()), 
 					groupPath, selected);
 			callback.onChange();
 			close();

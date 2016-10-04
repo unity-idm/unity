@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.groupdetails;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributesClass;
@@ -25,16 +25,16 @@ public class GroupAttributesClassesTable extends SmallTable
 {
 	private UnityMessageSource msg;
 	private GroupsManagement groupsManagement;
-	private AttributesManagement attrMan;
+	private AttributeClassManagement acMan;
 	private Group group;
 	private SingleActionHandler[] handlers;
 	private EventsBus bus;
 	
 	public GroupAttributesClassesTable(UnityMessageSource msg, GroupsManagement groupsManagement, 
-			AttributesManagement attrMan)
+			AttributeClassManagement attrMan)
 	{
 		this.msg = msg;
-		this.attrMan = attrMan;
+		this.acMan = attrMan;
 		this.groupsManagement = groupsManagement;
 		this.bus = WebSession.getCurrent().getEventBus();
 		
@@ -63,7 +63,7 @@ public class GroupAttributesClassesTable extends SmallTable
 	private void showEditor()
 	{
 		GroupAttributesClassesDialog dialog = new GroupAttributesClassesDialog(msg, 
-				group.toString(), attrMan, groupsManagement, new Callback()
+				group.toString(), acMan, groupsManagement, new Callback()
 				{
 					@Override
 					public void onUpdate(Group updated)

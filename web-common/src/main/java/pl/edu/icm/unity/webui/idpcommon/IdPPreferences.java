@@ -66,7 +66,8 @@ public abstract class IdPPreferences
 		try
 		{
 			String raw = preferencesMan.getPreference(entity, id);
-			toInit.setSerializedConfiguration(JsonUtil.parse(raw));
+			if (raw != null)
+				toInit.setSerializedConfiguration(JsonUtil.parse(raw));
 		} catch (Exception e)
 		{
 			log.debug("It was impossible to establish preferences for " + entity + " will use defaults", e);

@@ -35,10 +35,13 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributeClassManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
-import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -93,15 +96,21 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private AttributeClassHelper acHelper;
 	private Map<String, AttributeType> attributeTypes;
 	private EventsBus bus;
+	private AttributeTypeManagement aTypeManagement;
+	private AttributeClassManagement acMan;
 	
 	@Autowired
 	public AttributesPanel(UnityMessageSource msg, AttributeHandlerRegistry registry, 
-			AttributesManagement attributesManagement, GroupsManagement groupsManagement)
+			AttributesManagement attributesManagement, GroupsManagement groupsManagement,
+			AttributeTypeManagement atManagement, AttributeClassManagement acMan,
+			AttributeTypeSupport atSupport)
 	{
 		this.msg = msg;
 		this.registry = registry;
 		this.attributesManagement = attributesManagement;
 		this.groupsManagement = groupsManagement;
+		this.aTypeManagement = atManagement;
+		this.acMan = acMan;
 		this.bus = WebSession.getCurrent().getEventBus();
 		attributesTable = new SmallTable();
 		attributesTable.setNullSelectionAllowed(false);
@@ -173,7 +182,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		filtersBar.setSpacing(true);
 		filtersBar.setSizeUndefined();
 		
-		attributeValues = new ValuesRendererPanel(msg);
+		attributeValues = new ValuesRendererPanel(msg, atSupport);
 		attributeValues.setSizeFull();
 
 		left = new VerticalLayout();
@@ -193,7 +202,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	
 	private void refreshAttributeTypes() throws EngineException
 	{
-		attributeTypes = attributesManagement.getAttributeTypesAsMap();
+		attributeTypes = aTypeManagement.getAttributeTypesAsMap();
 	}
 	
 	public void setInput(EntityParam owner, String groupPath, Collection<AttributeExt> attributesCol) 
@@ -210,8 +219,8 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private void updateACHelper(EntityParam owner, String groupPath) throws EngineException
 	{
 		Group group = groupsManagement.getContents(groupPath, GroupContents.METADATA).getGroup();
-		Collection<AttributesClass> acs = attributesManagement.getEntityAttributeClasses(owner, groupPath);
-		Map<String, AttributesClass> knownClasses = attributesManagement.getAttributeClasses();
+		Collection<AttributesClass> acs = acMan.getEntityAttributeClasses(owner, groupPath);
+		Map<String, AttributesClass> knownClasses = acMan.getAttributeClasses();
 		Set<String> assignedClasses = new HashSet<String>(acs.size());
 		for (AttributesClass ac: acs)
 			assignedClasses.add(ac.getName());
@@ -248,8 +257,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			attributeValues.removeValues();
 			return;
 		}
-		AttributeValueSyntax<?> syntax = attribute.getAttributeSyntax();
-		WebAttributeHandler<?> handler = registry.getHandler(syntax.getValueSyntaxId());
+		WebAttributeHandler<?> handler = registry.getHandler(attribute.getValueSyntax());
 		attributeValues.setValues(handler, attribute);
 	}
 	
@@ -330,7 +338,6 @@ public class AttributesPanel extends HorizontalSplitPanel
 		}
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private boolean updateAttribute(Attribute attribute)
 	{
 		try

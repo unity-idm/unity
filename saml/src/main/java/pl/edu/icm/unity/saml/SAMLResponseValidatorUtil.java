@@ -19,6 +19,7 @@ import eu.unicore.samly2.validators.AssertionValidator;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.samly2.validators.SSOAuthnResponseValidator;
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteGroupMembership;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
@@ -76,7 +77,6 @@ public class SAMLResponseValidatorUtil
 				requestId, AssertionValidator.DEFAULT_VALIDITY_GRACE_PERIOD, 
 				samlTrustChecker, replayAttackChecker, binding, 
 				decryptKey);
-		
 		try
 		{
 			validator.validate(responseDocument);

@@ -18,7 +18,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
  * Produces certificate retrievals for the Vaadin authn binding
  * @author K. Benedyczak
  */
-@Component
+@Component("WebTLSRetrievalFactory")
 public class TLSRetrievalFactory implements CredentialRetrievalFactory
 {
 	public static final String NAME = "web-certificate";

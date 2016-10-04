@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.saml.idp;
 
-import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,8 +26,6 @@ import xmlbeans.org.oasis.saml2.assertion.AttributeType;
 
 /**
  * Default mapper of attributes to/from SAML.
- * Only string, enum integer and float attributes are supported.
- * 
  * 
  * @author K. Benedyczak
  */
@@ -57,24 +54,24 @@ public class DefaultSamlAttributesMapper implements SamlAttributeMapper
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isHandled(Attribute<?> unityAttribute)
+	public boolean isHandled(Attribute unityAttribute)
 	{
-		String syntax = unityAttribute.getAttributeSyntax().getValueSyntaxId();
+		String syntax = unityAttribute.getValueSyntax();
 		return VALUE_TO_SAML.containsKey(syntax);
 	}
 
 	@Override
-	public AttributeType convertToSaml(Attribute<?> unityAttribute)
+	public AttributeType convertToSaml(Attribute unityAttribute)
 	{
 		AttributeType ret = AttributeType.Factory.newInstance();
 		ret.setName(unityAttribute.getName());
-		String syntax = unityAttribute.getAttributeSyntax().getValueSyntaxId();
+		String syntax = unityAttribute.getValueSyntax();
 		ValueToSamlConverter converter = VALUE_TO_SAML.get(syntax);
 		if (converter == null)
 		{
 			throw new IllegalStateException("There is no attribute type converter for " + syntax);
 		}
-		List<?> unityValues = unityAttribute.getValues();
+		List<String> unityValues = unityAttribute.getValues();
 		XmlObject[] xmlValues = new XmlObject[unityValues.size()];
 		for (int i=0; i<xmlValues.length; i++)
 			xmlValues[i] = converter.convertValueToSaml(unityValues.get(i));
@@ -85,17 +82,17 @@ public class DefaultSamlAttributesMapper implements SamlAttributeMapper
 
 	private interface ValueToSamlConverter
 	{
-		XmlObject convertValueToSaml(Object value);
+		XmlObject convertValueToSaml(String value);
 		String[] getSupportedSyntaxes();
 	}
 	
 	private static class StringValueToSamlConverter implements ValueToSamlConverter
 	{
 		@Override
-		public XmlObject convertValueToSaml(Object value)
+		public XmlObject convertValueToSaml(String value)
 		{
 			XmlString v = XmlString.Factory.newInstance();
-			v.setStringValue((String) value);
+			v.setStringValue(value);
 			return v;
 		}
 
@@ -108,11 +105,14 @@ public class DefaultSamlAttributesMapper implements SamlAttributeMapper
 
 	private static class EmailValueToSamlConverter implements ValueToSamlConverter
 	{
+		private VerifiableEmailAttributeSyntax syntax = new VerifiableEmailAttributeSyntax();
+		
 		@Override
-		public XmlObject convertValueToSaml(Object value)
+		public XmlObject convertValueToSaml(String value)
 		{
 			XmlString v = XmlString.Factory.newInstance();
-			v.setStringValue(((VerifiableEmail) value).getValue());
+			VerifiableEmail email = syntax.convertFromString(value);
+			v.setStringValue(email.getValue());
 			return v;
 		}
 
@@ -125,11 +125,13 @@ public class DefaultSamlAttributesMapper implements SamlAttributeMapper
 
 	private static class IntegerValueToSamlConverter implements ValueToSamlConverter
 	{
+		private IntegerAttributeSyntax syntax = new IntegerAttributeSyntax();
+		
 		@Override
-		public XmlObject convertValueToSaml(Object value)
+		public XmlObject convertValueToSaml(String value)
 		{
 			XmlLong v = XmlLong.Factory.newInstance();
-			v.setLongValue((Long) value);
+			v.setLongValue((Long) syntax.convertFromString(value));
 			return v;
 		}
 
@@ -142,11 +144,13 @@ public class DefaultSamlAttributesMapper implements SamlAttributeMapper
 
 	private static class FloatingValueToSamlConverter implements ValueToSamlConverter
 	{
+		private FloatingPointAttributeSyntax syntax = new FloatingPointAttributeSyntax();
+		
 		@Override
-		public XmlObject convertValueToSaml(Object value)
+		public XmlObject convertValueToSaml(String value)
 		{
 			XmlDouble v = XmlDouble.Factory.newInstance();
-			v.setDoubleValue((Double)value);
+			v.setDoubleValue(syntax.convertFromString(value));
 			return v;
 		}
 
@@ -160,11 +164,10 @@ public class DefaultSamlAttributesMapper implements SamlAttributeMapper
 	private static class JpegValueToSamlConverter implements ValueToSamlConverter
 	{
 		@Override
-		public XmlObject convertValueToSaml(Object value)
+		public XmlObject convertValueToSaml(String value)
 		{
-			byte[] octets = new JpegImageAttributeSyntax().serialize((BufferedImage) value);
 			XmlBase64Binary v = XmlBase64Binary.Factory.newInstance();
-			v.setByteArrayValue(octets);
+			v.setStringValue(value);
 			return v;
 		}
 

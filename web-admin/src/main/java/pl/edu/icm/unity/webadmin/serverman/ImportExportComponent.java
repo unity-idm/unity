@@ -188,7 +188,7 @@ public class ImportExportComponent extends VerticalLayout
 		try
 		{
 			Page.getCurrent().getJavaScript().execute("window.location.reload();");
-			serverManagement.importDb(from, true);
+			serverManagement.importDb(from);
 		} catch (Exception e)
 		{
 			uploader.unblock();

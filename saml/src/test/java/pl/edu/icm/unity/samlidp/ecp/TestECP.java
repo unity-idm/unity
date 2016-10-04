@@ -64,6 +64,7 @@ import pl.edu.icm.unity.samlidp.AbstractTestIdpBase;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
@@ -96,7 +97,7 @@ public class TestECP extends AbstractTestIdpBase
 			EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpointECP"),
 					"desc",	authnCfg, ECP_ENDP_CFG, REALM_NAME);
 			endpointMan.deploy(ECPEndpointFactory.NAME, "endpointECP", "/ecp", cfg);
-			List<EndpointDescription> endpoints = endpointMan.getEndpoints();
+			List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 			assertEquals(2, endpoints.size());
 			
 			List<InputTranslationRule> rules = new ArrayList<InputTranslationRule>();

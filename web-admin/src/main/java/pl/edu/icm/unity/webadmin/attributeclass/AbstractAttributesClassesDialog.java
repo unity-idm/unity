@@ -11,7 +11,7 @@ import java.util.Set;
 
 import com.vaadin.ui.TwinColSelect;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -30,7 +30,7 @@ import pl.edu.icm.unity.webui.common.AbstractDialog;
 public abstract class AbstractAttributesClassesDialog extends AbstractDialog 
 {
 	protected final static Set<String> EMPTY = new HashSet<String>(0);
-	protected AttributesManagement attrMan;
+	protected AttributeClassManagement acMan;
 	protected GroupsManagement groupsMan;
 	protected String groupPath;
 	protected TwinColSelect acs;
@@ -38,10 +38,10 @@ public abstract class AbstractAttributesClassesDialog extends AbstractDialog
 	protected Map<String, AttributesClass> allClasses;
 	
 	public AbstractAttributesClassesDialog(UnityMessageSource msg, String group, 
-			AttributesManagement attrMan, GroupsManagement groupsMan, String caption)
+			AttributeClassManagement acMan, GroupsManagement groupsMan, String caption)
 	{
 		super(msg, caption);
-		this.attrMan = attrMan;
+		this.acMan = acMan;
 		this.groupsMan = groupsMan;
 		this.groupPath = group;
 		setSize(50, 90);
@@ -49,7 +49,7 @@ public abstract class AbstractAttributesClassesDialog extends AbstractDialog
 
 	protected void loadACsData() throws EngineException
 	{
-		allClasses = attrMan.getAttributeClasses();
+		allClasses = acMan.getAttributeClasses();
 		
 		for (String ac: allClasses.keySet())
 			acs.addItem(ac);

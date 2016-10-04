@@ -20,8 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
-import pl.edu.icm.unity.engine.utils.TimeUtil;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;

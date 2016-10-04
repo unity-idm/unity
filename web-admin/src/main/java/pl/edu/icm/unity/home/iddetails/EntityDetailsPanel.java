@@ -7,10 +7,13 @@ package pl.edu.icm.unity.home.iddetails;
 import java.util.Collection;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -29,9 +32,11 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
  * Targeted for admin user.
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class EntityDetailsPanel extends FormLayout
 {
 	private UnityMessageSource msg;
+	private IdentityFormatter idFormatter;
 	private Label id;
 	private Label status;
 	private Label scheduledAction;
@@ -40,10 +45,11 @@ public class EntityDetailsPanel extends FormLayout
 	private HtmlLabel credStatus;
 	private ListOfElements<String> groups;
 	
-	
-	public EntityDetailsPanel(UnityMessageSource msg)
+	@Autowired
+	public EntityDetailsPanel(UnityMessageSource msg, IdentityFormatter idFormatter)
 	{
 		this.msg = msg;
+		this.idFormatter = idFormatter;
 		id = new Label();
 		id.setCaption(msg.getMessage("IdentityDetails.id"));
 
@@ -105,7 +111,7 @@ public class EntityDetailsPanel extends FormLayout
 		
 		identities.clearContents();
 		for (Identity id: entity.getIdentities())
-			identities.addEntry(IdentityFormatter.toString(msg, id));
+			identities.addEntry(idFormatter.toString(id));
 		
 		CredentialInfo credInf = entity.getCredentialInfo();
 		credReq.setValue(credInf.getCredentialRequirementId());

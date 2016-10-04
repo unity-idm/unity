@@ -14,13 +14,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.InitializerCommon;
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributeClassManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.ServerInitializer;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.utils.InitializerCommon;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.Group;
@@ -35,19 +37,22 @@ public class UnicoreContentInitializer implements ServerInitializer
 	private static Logger log = Log.getLogger(Log.U_SERVER, UnicoreContentInitializer.class);
 	public static final String NAME = "unicoreInitializer";
 	private InitializerCommon commonInitializer;
-	private AttributesManagement attrMan;
+	private AttributeTypeManagement attrMan;
 	private GroupsManagement groupsMan;
 	private UnityMessageSource msg;
+	private AttributeClassManagement acMan;
 	
 	@Autowired
 	public UnicoreContentInitializer(InitializerCommon commonInitializer,
-			@Qualifier("insecure") AttributesManagement attrMan, 
+			@Qualifier("insecure") AttributeTypeManagement attrMan, 
 			@Qualifier("insecure") GroupsManagement groupsMan,
+			@Qualifier("insecure") AttributeClassManagement acMan,
 			UnityMessageSource msg)
 	{
 		this.commonInitializer = commonInitializer;
 		this.attrMan = attrMan;
 		this.groupsMan = groupsMan;
+		this.acMan = acMan;
 		this.msg = msg;
 	}
 
@@ -67,12 +72,12 @@ public class UnicoreContentInitializer implements ServerInitializer
 					new HashSet<>(Arrays.asList(InitializerCommon.CN_ATTR,
 							InitializerCommon.EMAIL_ATTR)), false, 
 					new HashSet<>(Arrays.asList(InitializerCommon.MAIN_AC)));
-			if (attrMan.getAttributeClasses().containsKey(unicoreAC.getName()))
+			if (acMan.getAttributeClasses().containsKey(unicoreAC.getName()))
 			{
 				log.info("Seems that UNICORE contents is installed, skipping.");
 				return;
 			}
-			attrMan.addAttributeClass(unicoreAC);
+			acMan.addAttributeClass(unicoreAC);
 			
 			Set<AttributeType> existingATs = new HashSet<>(attrMan.getAttributeTypes());
 			
@@ -82,17 +87,21 @@ public class UnicoreContentInitializer implements ServerInitializer
 			allowedRoles.add("server");
 			allowedRoles.add("banned");
 			AttributeType roleAT = new AttributeType("urn:unicore:attrType:role", 
-					new EnumAttributeSyntax(allowedRoles), msg);
+					EnumAttributeSyntax.ID, msg);
+			EnumAttributeSyntax roleSyntax = new EnumAttributeSyntax(allowedRoles);
 			roleAT.setMinElements(1);
+			roleAT.setValueSyntaxConfiguration(roleSyntax.getSerializedConfiguration());
 			if (!existingATs.contains(roleAT))
 				attrMan.addAttributeType(roleAT);
 
 			AttributeType xloginAT = new AttributeType("urn:unicore:attrType:xlogin", 
-					new StringAttributeSyntax(), msg);
+					StringAttributeSyntax.ID, msg);
 			xloginAT.setMinElements(1);
 			xloginAT.setMaxElements(16);
-			((StringAttributeSyntax)xloginAT.getValueType()).setMaxLength(100);
-			((StringAttributeSyntax)xloginAT.getValueType()).setMinLength(1);
+			StringAttributeSyntax xloginSyntax = new StringAttributeSyntax();
+			xloginSyntax.setMaxLength(100);
+			xloginSyntax.setMinLength(1);
+			xloginAT.setValueSyntaxConfiguration(xloginSyntax.getSerializedConfiguration());
 			if (!existingATs.contains(xloginAT))
 				attrMan.addAttributeType(xloginAT);
 			

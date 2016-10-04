@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.webservice.SAMLLogoutInterface;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.IdentityTypeMapper;

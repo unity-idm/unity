@@ -14,8 +14,11 @@ import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.exceptions.SAMLResponderException;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.webservice.SAMLQueryInterface;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
-import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
+import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
@@ -46,18 +49,18 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 	protected String endpointAddress;
 	protected IdPEngine idpEngine;
 	protected PreferencesManagement preferencesMan;
-	private AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
+	private AttributeTypeSupport aTypeSupport;
 	
-	public SAMLAssertionQueryImpl(SamlIdpProperties samlProperties, String endpointAddress,
-			IdPEngine idpEngine, PreferencesManagement preferencesMan,
-			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry)
+	public SAMLAssertionQueryImpl(AttributeTypeSupport aTypeSupport, 
+			SamlIdpProperties samlProperties, String endpointAddress,
+			IdPEngine idpEngine, PreferencesManagement preferencesMan)
 	{
 		super();
+		this.aTypeSupport = aTypeSupport;
 		this.samlProperties = samlProperties;
 		this.endpointAddress = endpointAddress;
 		this.idpEngine = idpEngine;
 		this.preferencesMan = preferencesMan;
-		this.attributeSyntaxFactoriesRegistry = attributeSyntaxFactoriesRegistry;
 	}
 
 	@Override
@@ -74,16 +77,16 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 			log.debug("Throwing SAML fault, caused by validation exception", e1);
 			throw new Fault(e1);
 		}
-		AttributeQueryResponseProcessor processor = new AttributeQueryResponseProcessor(context);
+		AttributeQueryResponseProcessor processor = new AttributeQueryResponseProcessor(aTypeSupport, context);
 		ResponseDocument respDoc;
 		try
 		{
 			IdentityTaV subjectId = processor.getSubjectsIdentity();
 			SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan,
-					attributeSyntaxFactoriesRegistry, new EntityParam(subjectId));
+					new EntityParam(subjectId));
 			NameIDType reqIssuer = query.getAttributeQuery().getIssuer();
 			SPSettings spPreferences = preferences.getSPSettings(reqIssuer);
-			Collection<Attribute<?>> attributes = getAttributes(subjectId, processor, spPreferences);
+			Collection<Attribute> attributes = getAttributes(subjectId, processor, spPreferences);
 			respDoc = processor.processAtributeRequest(attributes);
 		} catch (SAMLRequesterException e1)
 		{
@@ -118,14 +121,16 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 		throw new Fault(new SAMLResponderException("This SAML operation is not supported by this service"));
 	}
 	
-	protected Collection<Attribute<?>> getAttributes(IdentityTaV subjectId,
+	protected Collection<Attribute> getAttributes(IdentityTaV subjectId,
 			AttributeQueryResponseProcessor processor, SPSettings preferences) throws EngineException
 	{
-		String profile = samlProperties.getValue(SamlIdpProperties.TRANSLATION_PROFILE);
-		
+		String profile = samlProperties.getValue(CommonIdPProperties.TRANSLATION_PROFILE);
+		boolean skipImport = samlProperties.getBooleanValue(CommonIdPProperties.SKIP_USERIMPORT);
+
 		TranslationResult userInfo = idpEngine.obtainUserInformation(new EntityParam(subjectId), 
 				processor.getChosenGroup(), profile, 
-				processor.getIdentityTarget(), "SAML2", SAMLConstants.BINDING_SOAP, false);
+				processor.getIdentityTarget(), "SAML2", SAMLConstants.BINDING_SOAP, false,
+				!skipImport);
 		return processor.getAttributes(userInfo, preferences);
 	}
 

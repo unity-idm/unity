@@ -17,7 +17,7 @@ import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
 import com.vaadin.event.dd.acceptcriteria.Not;
 import com.vaadin.shared.ui.dd.VerticalDropLocation;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
@@ -43,7 +43,7 @@ public class AttributeStatementsTable extends SmallTable
 	private static final String MAIN_COL = "main";
 	private UnityMessageSource msg;
 	private GroupsManagement groupsMan;
-	private AttributesManagement attrsMan;
+	private AttributeTypeManagement attrsMan;
 	private Group group;
 	private EventsBus bus;
 	private List<SingleActionHandler> actionHandlers;
@@ -51,7 +51,7 @@ public class AttributeStatementsTable extends SmallTable
 	
 	
 	public AttributeStatementsTable(UnityMessageSource msg, GroupsManagement groupsMan,
-			AttributesManagement attrsMan, 
+			AttributeTypeManagement attrsMan, 
 			AttributeHandlerRegistry attributeHandlerRegistry)
 	{
 		this.msg = msg;

@@ -15,11 +15,12 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
-import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
+import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -53,8 +54,8 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 	private UnityServerConfiguration mainConfig;
 	private SAMLLogoutProcessorFactory logoutProcessorFactory;
 	private AuthenticationProcessor authnProcessor;
-	private AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
 	private NetworkServer server;
+	private AttributeTypeSupport aTypeSupport;
 	
 	@Autowired
 	public SamlIdPSoapEndpointFactory(UnityMessageSource msg,
@@ -63,8 +64,7 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 			SessionManagement sessionMan, MetaDownloadManager downloadManager,
 			UnityServerConfiguration mainConfig, SAMLLogoutProcessorFactory logoutProcessorFactory,
 			AuthenticationProcessor authnProcessor,
-			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry,
-			NetworkServer server)
+			NetworkServer server, AttributeTypeSupport aTypeSupport)
 	{
 		super();
 		this.msg = msg;
@@ -74,8 +74,8 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 		this.sessionMan = sessionMan;
 		this.preferencesMan = preferencesMan;
 		this.authnProcessor = authnProcessor;
-		this.attributeSyntaxFactoriesRegistry = attributeSyntaxFactoriesRegistry;
 		this.server = server;
+		this.aTypeSupport = aTypeSupport;
 		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
 		this.downloadManager = downloadManager;
 		this.mainConfig = mainConfig;
@@ -102,7 +102,7 @@ public class SamlIdPSoapEndpointFactory implements EndpointFactory
 		return new SamlSoapEndpoint(msg, server, SERVLET_PATH,
 				METADATA_SERVLET_PATH, idpEngine, preferencesMan, pkiManagement,
 				executorsService, sessionMan, remoteMetadataManagers, downloadManager, mainConfig,
-				logoutProcessorFactory, authnProcessor, attributeSyntaxFactoriesRegistry);
+				logoutProcessorFactory, authnProcessor, aTypeSupport);
 	}
 
 }

@@ -7,6 +7,8 @@ package pl.edu.icm.unity.oauth.client.web;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -343,5 +345,12 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	@Override
 	public void presetEntity(Entity authenticatedEntity)
 	{
+	}
+	
+
+	@Override
+	public Set<String> getTags()
+	{
+		return Collections.emptySet();
 	}
 }

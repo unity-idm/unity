@@ -9,22 +9,23 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -36,29 +37,45 @@ import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
  * 
  * @author P. Piernik
  */
-@Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@PrototypeComponent
 public class EndpointComponent extends DeployableComponentViewBase
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			EndpointComponent.class);
 
 	private EndpointManagement endpointMan;
-	private EndpointDescription endpoint;
 	private NetworkServer networkServer;
+	
+	private ResolvedEndpoint endpoint;
+	private String name;
 
-	public EndpointComponent(EndpointManagement endpointMan, ServerManagement serverMan, NetworkServer networkServer,
-			EndpointDescription endpoint, UnityServerConfiguration config,
-			UnityMessageSource msg, String status)
+	@Autowired
+	public EndpointComponent(EndpointManagement endpointMan, ServerManagement serverMan, 
+			NetworkServer networkServer,
+			UnityServerConfiguration config, UnityMessageSource msg)
 	{
-		super(config, serverMan, msg, status);
+		super(config, serverMan, msg);
 		this.endpointMan = endpointMan;
-		this.endpoint = endpoint;
 		this.networkServer = networkServer;
 		initUI();
-		setStatus(status);
 	}
 
+	public EndpointComponent init(ResolvedEndpoint endpoint)
+	{
+		this.endpoint = endpoint;
+		setStatus(Status.deployed);
+		initUI();
+		return this;
+	}
+	
+	public EndpointComponent init(String name)
+	{
+		this.name = name;
+		setStatus(Status.undeployed);
+		initUI();
+		return this;
+	}
+	
 	@Override
 	public void undeploy()
 	{
@@ -66,7 +83,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		{
 			return;
 		}
-		String id = endpoint.getId();
+		String id = getEndpointName();
 		log.info("Undeploy " + id + " endpoint");
 		try
 		{
@@ -80,7 +97,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 
 		if (getEndpointConfig(id) != null)
 		{
-			setStatus(Status.undeployed.toString());
+			setStatus(Status.undeployed);
 		} else
 		{
 			setVisible(false);
@@ -95,23 +112,28 @@ public class EndpointComponent extends DeployableComponentViewBase
 		{
 			return;
 		}
-		String id = endpoint.getId();
+		String id = getEndpointName();
 		log.info("Deploy " + id + " endpoint");
 		if (!deployEndpoint(id))
 		{
 			NotificationPopup.showError(msg, msg.getMessage("Endpoints.cannotDeploy",
-					endpoint.getId()), msg.getMessage(
+					getEndpointName()), msg.getMessage(
 					"Endpoints.cannotDeployRemovedConfig", id));
 			setVisible(false);
 			return;
 
 		}else
 		{
-			setStatus(Status.deployed.toString());	
+			setStatus(Status.deployed);	
 		}
 
 	}
 
+	private String getEndpointName()
+	{
+		return name;
+	}
+	
 	private boolean deployEndpoint(String id)
 	{
 		EndpointConfigExt data = getEndpointConfig(id);
@@ -141,7 +163,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 			return;
 		}
 
-		String id = endpoint.getId();
+		String id = getEndpointName();
 		log.info("Reload " + id + " endpoint");
 		if (!reloadEndpoint(id))
 		{
@@ -157,7 +179,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 
 		}else
 		{
-			setStatus(Status.deployed.toString());
+			setStatus(Status.deployed);
 			if (showSuccess)
 			{
 				NotificationPopup.showSuccess(msg, "", msg.getMessage(
@@ -192,9 +214,9 @@ public class EndpointComponent extends DeployableComponentViewBase
 
 		try
 		{
-			for (EndpointDescription en : endpointMan.getEndpoints())
+			for (ResolvedEndpoint en : endpointMan.getEndpoints())
 			{
-				if (id.equals(en.getId()))
+				if (id.equals(en.getName()))
 				{
 					this.endpoint = en;
 				}
@@ -211,21 +233,21 @@ public class EndpointComponent extends DeployableComponentViewBase
 
 	protected void updateHeader()
 	{
-		updateHeader(endpoint.getId());
+		updateHeader(getEndpointName());
 	}
 
 	protected void updateContent()
 	{
 		content.removeAllComponents();
 
-		if (status.equals(Status.undeployed.toString()))
+		if (status.equals(Status.undeployed))
 			return;
 
 		addFieldToContent(msg.getMessage("Endpoints.type"), endpoint.getType().getName());
 		addFieldToContent(msg.getMessage("Endpoints.typeDescription"), endpoint.getType()
 				.getDescription());
 		I18nLabel displayedName = new I18nLabel(msg, msg.getMessage("displayedNameF"));
-		displayedName.setValue(endpoint.getDisplayedName());
+		displayedName.setValue(endpoint.getEndpoint().getConfiguration().getDisplayedName());
 		addCustomFieldToContent(displayedName);
 		addFieldToContent(msg.getMessage("Endpoints.paths"), "");
 		
@@ -242,7 +264,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		{
 			i++;
 			addField(pa, String.valueOf(i), networkServer.getAdvertisedAddress()
-					+ endpoint.getContextAddress() + entry.getKey());
+					+ endpoint.getEndpoint().getContextAddress() + entry.getKey());
 			addField(pad, msg.getMessage("Endpoints.pathDescription"), entry.getValue());
 
 		}
@@ -260,21 +282,23 @@ public class EndpointComponent extends DeployableComponentViewBase
 		}
 		addFieldToContent(msg.getMessage("Endpoints.binding"), bindings.toString());
 		
-		if (endpoint.getDescription() != null && endpoint.getDescription().length() > 0)
+		String description = endpoint.getEndpoint().getConfiguration().getDescription();
+		if (description != null && description.length() > 0)
 		{
 			addFieldToContent(msg.getMessage("Endpoints.description"),
-					endpoint.getDescription());
+					description);
 
 		}
 		addFieldToContent(msg.getMessage("Endpoints.contextAddress"),
-				endpoint.getContextAddress());
+				endpoint.getEndpoint().getContextAddress());
 
 		addFieldToContent(msg.getMessage("Endpoints.authenticatorsSet"), "");
 		FormLayout au = new CompactFormLayout();
 		au.setSpacing(false);
 		au.setMargin(false);
 		i = 0;
-		for (AuthenticationOptionDescription s : endpoint.getAuthenticatorSets())
+		for (AuthenticationOptionDescription s : endpoint.getEndpoint().
+				getConfiguration().getAuthenticationOptions())
 		{
 			i++;
 			addField(au, String.valueOf(i), s.toString());

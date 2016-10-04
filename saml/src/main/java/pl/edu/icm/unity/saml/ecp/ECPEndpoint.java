@@ -18,18 +18,17 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
-import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
-import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
@@ -58,25 +57,23 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 	private ECPContextManagement samlContextManagement;
 	private URL baseAddress;
 	private ReplayAttackChecker replayAttackChecker;
-	private IdentityResolver identityResolver;
-	private TranslationProfileManagement profileManagement;
-	private InputTranslationEngine trEngine;
 	private TokensManagement tokensMan;
-	private IdentitiesManagement identitiesMan;
+	private EntityManagement identitiesMan;
 	private SessionManagement sessionMan;
 	private UnityServerConfiguration mainCfg;
 	private ExecutorsService executorsService;
 	private String responseConsumerAddress;
 	private MultiMetadataServlet metadataServlet;
 	private UnityMessageSource msg;
+	private RemoteAuthnResultProcessor remoteAuthnProcessor;
 	
 	public ECPEndpoint(NetworkServer server, String servletPath,
 			PKIManagement pkiManagement, ECPContextManagement samlContextManagement,
 			URL baseAddress, String baseContext,
-			ReplayAttackChecker replayAttackChecker, IdentityResolver identityResolver,
-			TranslationProfileManagement profileManagement,
-			InputTranslationEngine trEngine, TokensManagement tokensMan,
-			IdentitiesManagement identitiesMan, SessionManagement sessionMan,
+			ReplayAttackChecker replayAttackChecker, 
+			RemoteAuthnResultProcessor remoteAuthnProcessor,
+			TokensManagement tokensMan,
+			EntityManagement identitiesMan, SessionManagement sessionMan,
 			Map<String, RemoteMetaManager> remoteMetadataManagers,
 			UnityServerConfiguration mainCfg, MetaDownloadManager downloadManager,
 			ExecutorsService executorsService, MultiMetadataServlet metadataServlet,
@@ -88,9 +85,7 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 		this.samlContextManagement = samlContextManagement;
 		this.baseAddress = baseAddress;
 		this.replayAttackChecker = replayAttackChecker;
-		this.identityResolver = identityResolver;
-		this.profileManagement = profileManagement;
-		this.trEngine = trEngine;
+		this.remoteAuthnProcessor = remoteAuthnProcessor;
 		this.tokensMan = tokensMan;
 		this.identitiesMan = identitiesMan;
 		this.sessionMan = sessionMan;
@@ -164,16 +159,16 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 	@Override
 	public ServletContextHandler getServletContextHandler()
 	{
-		String endpointAddress = baseAddress.toExternalForm() + description.getContextAddress() +
+		String endpointAddress = baseAddress.toExternalForm() + description.getEndpoint().getContextAddress() +
 				servletPath;
 		ECPServlet ecpServlet = new ECPServlet(samlProperties, myMetadataManager, 
 				samlContextManagement, endpointAddress, 
-				replayAttackChecker, identityResolver, profileManagement, trEngine,
+				replayAttackChecker, remoteAuthnProcessor,
 				tokensMan, pkiManagement, identitiesMan, sessionMan, 
 				description.getRealm(), baseAddress.toExternalForm());
 		
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
-		context.setContextPath(description.getContextAddress());
+		context.setContextPath(description.getEndpoint().getContextAddress());
 		ServletHolder holder = new ServletHolder(ecpServlet);
 		context.addServlet(holder, servletPath + "/*");
 		return context;

@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -387,6 +388,12 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 					theComponent.setAuthenticatedIdentity(id.getValue());
 					return;
 				}
+		}
+
+		@Override
+		public Set<String> getTags()
+		{
+			return Collections.emptySet();
 		}
 	}
 }

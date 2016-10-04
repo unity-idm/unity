@@ -27,7 +27,7 @@ public class OAuthPreferences extends IdPPreferences
 	public static final String ID = OAuthPreferences.class.getName();
 	protected final ObjectMapper mapper = Constants.MAPPER;
 
-	private Map<String, OAuthClientSettings> spSettings = new HashMap<String, OAuthPreferences.OAuthClientSettings>();
+	private Map<String, OAuthClientSettings> spSettings = new HashMap<>();
 	
 	@Override
 	protected void serializeAll(ObjectNode main)

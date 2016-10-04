@@ -2,9 +2,11 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine;
+package pl.edu.icm.unity.engine.attribute;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.util.Collection;
@@ -14,6 +16,7 @@ import java.util.HashSet;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
 import pl.edu.icm.unity.engine.group.AttributeStatementsCleaner;
@@ -50,6 +53,9 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 	private Group groupAD;
 	private Group groupAZ;
 	private Group groupABC;
+	
+	
+	
 	
 	@Test
 	public void testSimple() throws Exception
@@ -407,7 +413,34 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 
 	}	
 
-	
+	@Test
+	public void onlyOneEntityGetsAttributeCopiedFromSubgroupIfAssignedWithStatementInSubgroup() throws Exception
+	{
+		setupStateForConditions();
+		Identity id2 = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi2"), "crMock",
+				EntityState.disabled, false);
+		EntityParam entity2 = new EntityParam(id2);
+		groupsMan.addMemberFromParent("/A", entity2);
+
+		AttributeStatement statement1 = AttributeStatement.getFixedEverybodyStatement(
+				StringAttribute.of("a2", "/A/B", "VV"));
+		groupAB.setAttributeStatements(new AttributeStatement[] {statement1});
+		groupsMan.updateGroup("/A/B", groupAB);
+
+
+		AttributeStatement statement2 = new AttributeStatement("eattrs contains 'a2'", "/A/B",
+				ConflictResolution.skip,
+				StringAttribute.of("a2", "/A", "NEW"));
+		groupA.setAttributeStatements(new AttributeStatement[] {statement2});
+		groupsMan.updateGroup("/A", groupA);
+
+
+		Collection<AttributeExt> aRet = attrsMan.getAllAttributes(entity2, true, "/A", "a2", false);
+		assertThat(aRet.isEmpty(), is(true));
+		Collection<AttributeExt> aRet2 = attrsMan.getAllAttributes(entity, true, "/A", "a2", false);
+		assertThat(aRet2.size(), is(1));
+	}
+
 	
 	private void setupStateForConditions() throws Exception
 	{

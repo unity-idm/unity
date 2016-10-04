@@ -8,10 +8,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -20,18 +18,12 @@ import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
-import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
-import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
-import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormEditDialog.Callback;
-import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -46,54 +38,32 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormChangedEvent;
 
 /**
  * Responsible for registration forms management.
  * @author K. Benedyczak
  */
-@Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@PrototypeComponent
 public class RegistrationFormsComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
 	private RegistrationsManagement registrationsManagement;
-	private GroupsManagement groupsMan;
-	private NotificationsManagement notificationsMan;
-	private AuthenticationManagement authenticationMan;
-	private MessageTemplateManagement msgTempMan;
-	private IdentitiesManagement identitiesMan;
-	private AttributesManagement attributeMan;
 	private EventsBus bus;
-	private ActionParameterComponentFactory actionComponentFactory;
 	
 	private GenericElementsTable<RegistrationForm> table;
-	private RegistrationFormViewer viewer;
 	private com.vaadin.ui.Component main;
-	private RegistrationActionsRegistry actionsRegistry;
+	private ObjectFactory<RegistrationFormEditor> editorFactory;
 	
 	
 	@Autowired
 	public RegistrationFormsComponent(UnityMessageSource msg, RegistrationsManagement registrationsManagement,
-			AttributeHandlerRegistry attrHandlersRegistry, GroupsManagement groupsMan, 
-			NotificationsManagement notificationsMan,
-			MessageTemplateManagement msgTempMan, IdentitiesManagement identitiesMan,
-			AttributesManagement attributeMan, AuthenticationManagement authenticationMan,
-			SharedEndpointManagement sharedEndpointMan,
-			RegistrationActionsRegistry actionsRegistry,
-			ActionParameterComponentFactory actionComponentFactory)
+			ObjectFactory<RegistrationFormEditor> editorFactory,
+			RegistrationFormViewer viewer)
 	{
 		this.msg = msg;
 		this.registrationsManagement = registrationsManagement;
-		this.groupsMan = groupsMan;
-		this.notificationsMan = notificationsMan;
-		this.authenticationMan = authenticationMan;
-		this.identitiesMan = identitiesMan;
-		this.msgTempMan = msgTempMan;
-		this.attributeMan = attributeMan;
-		this.actionsRegistry = actionsRegistry;
-		this.actionComponentFactory = actionComponentFactory;
+		this.editorFactory = editorFactory;
 		this.bus = WebSession.getCurrent().getEventBus();
 		
 		addStyleName(Styles.visibleScroll.toString());
@@ -109,7 +79,6 @@ public class RegistrationFormsComponent extends VerticalLayout
 				});
 		table.setSizeFull();
 		table.setMultiSelect(true);
-		viewer = new RegistrationFormViewer(msg, actionsRegistry, msgTempMan, sharedEndpointMan);
 		viewer.setInput(null);
 		table.addValueChangeListener(new ValueChangeListener()
 		{
@@ -247,9 +216,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 			RegistrationFormEditor editor;
 			try
 			{
-				editor = new RegistrationFormEditor(msg, groupsMan, notificationsMan,
-						msgTempMan, identitiesMan, attributeMan, authenticationMan,
-						actionsRegistry, actionComponentFactory.getComponentProvider());
+				editor = editorFactory.getObject().init(false);
 			} catch (EngineException e)
 			{
 				NotificationPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
@@ -308,10 +275,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 			RegistrationFormEditor editor;
 			try
 			{		
-				editor = new RegistrationFormEditor(msg, groupsMan, notificationsMan,
-						msgTempMan, identitiesMan, attributeMan, authenticationMan,
-						actionsRegistry, actionComponentFactory.getComponentProvider(), 
-						copyMode);
+				editor = editorFactory.getObject().init(copyMode);
 				editor.setForm(form);
 			} catch (Exception e)
 			{

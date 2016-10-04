@@ -18,6 +18,7 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
@@ -29,6 +30,8 @@ import eu.unicore.security.wsutil.samlclient.AuthnResponseAssertions;
 import eu.unicore.security.wsutil.samlclient.SAMLAuthnClient;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
+import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.credential.CertificateVerificatorFactory;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
@@ -42,13 +45,13 @@ import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 /**
  * @author K. Benedyczak
  */
 public class TestSoapETD extends DBIntegrationTestBase
 {
-
 	private static final String SAML_ENDP_CFG = "unity.endpoint.sessionTimeout=3600\n" +
 			"unity.saml.issuerURI=http://example-saml-idp.org\n" +
 			"unity.saml.signResponses=asRequest\n" +
@@ -61,6 +64,9 @@ public class TestSoapETD extends DBIntegrationTestBase
 			"unity.saml.defaultGroup=/\n" +
 			"unity.saml.credential=MAIN\n";
 
+	@Autowired
+	private AuthenticatorManagement authnMan;
+	
 	@Before
 	public void setup()
 	{
@@ -76,7 +82,7 @@ public class TestSoapETD extends DBIntegrationTestBase
 			EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), "desc",
 					authnCfg, SAML_ENDP_CFG, realm.getName());
 			endpointMan.deploy(SamlUnicoreIdPSoapEndpointFactory.NAME, "endpoint1", "/saml", cfg);
-			List<EndpointDescription> endpoints = endpointMan.getEndpoints();
+			List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 			assertEquals(1, endpoints.size());
 
 			httpServer.start();
@@ -146,23 +152,23 @@ public class TestSoapETD extends DBIntegrationTestBase
 		Identity added2 = idsMan.addEntity(new IdentityParam(X500Identity.ID, "CN=Test UVOS,O=UNICORE,C=EU"), 
 				"cr-cert", EntityState.valid, false);
 		EntityParam e2 = new EntityParam(added2);
-		idsMan.setEntityCredential(e2, "credential2", "");
+		eCredMan.setEntityCredential(e2, "credential2", "");
 		
-		attrsMan.setAttribute(e2, new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE, 
-				"/", AttributeVisibility.local, "Regular User"), false);
+		attrsMan.setAttribute(e2, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
+				"/", "Regular User"), false);
 	}
 	
 	protected void setupMockAuthn() throws Exception
 	{
 		CredentialDefinition credDef2 = new CredentialDefinition(
 				CertificateVerificatorFactory.NAME, "credential2");
-		credDef2.setJsonConfiguration("");
-		authnMan.addCredentialDefinition(credDef2);
+		credDef2.setConfiguration("");
+		credMan.addCredentialDefinition(credDef2);
 		
 		Set<String> creds = new HashSet<String>();
 		Collections.addAll(creds, credDef2.getName());
 		CredentialRequirements cr3 = new CredentialRequirements("cr-cert", "", creds);
-		authnMan.addCredentialRequirement(cr3);
+		credReqMan.addCredentialRequirement(cr3);
 		
 		authnMan.createAuthenticator("Acert", "certificate with cxf-certificate", null, "", "credential2");
 	}

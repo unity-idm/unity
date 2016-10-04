@@ -42,7 +42,7 @@ public class OAuthProcessorTest
 	{
 		OAuthProcessor processor = new OAuthProcessor();
 		Collection<Attribute> attributes = new ArrayList<>();
-		attributes.add(new StringAttribute("email", "/", "example@example.com"));
+		attributes.add(StringAttribute.of("email", "/", "example@example.com"));
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.CODE),
@@ -66,7 +66,7 @@ public class OAuthProcessorTest
 	{
 		OAuthProcessor processor = new OAuthProcessor();
 		Collection<Attribute> attributes = new ArrayList<>();
-		attributes.add(new StringAttribute("email", "/", "example@example.com"));
+		attributes.add(StringAttribute.of("email", "/", "example@example.com"));
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.TOKEN),
@@ -91,7 +91,7 @@ public class OAuthProcessorTest
 	{
 		OAuthProcessor processor = new OAuthProcessor();
 		Collection<Attribute> attributes = new ArrayList<>();
-		attributes.add(new StringAttribute("email", "/", "example@example.com"));
+		attributes.add(StringAttribute.of("email", "/", "example@example.com"));
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.TOKEN, 

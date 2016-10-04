@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.attribute;
 
+import java.util.Collection;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,5 +44,11 @@ public class AttributeTypeSupportImpl implements AttributeTypeSupport
 	public AttributeType getType(Attribute attribute)
 	{
 		return aTypeHelper.getTypeForAttributeName(attribute.getName());
+	}
+
+	@Override
+	public Collection<AttributeType> getAttributeTypes()
+	{
+		return aTypeHelper.getAttributeTypes();
 	}
 }

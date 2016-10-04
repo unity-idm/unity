@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.saml.sp;
 
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 

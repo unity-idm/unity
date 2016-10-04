@@ -27,7 +27,6 @@
 					"sys:AuthorizationRole",
 					"/",
 					"'Regular User'",
-					"local",
 					"CREATE_OR_UPDATE"
 				]
 			}			

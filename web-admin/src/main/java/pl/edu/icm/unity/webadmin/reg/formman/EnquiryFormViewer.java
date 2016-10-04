@@ -7,6 +7,8 @@ package pl.edu.icm.unity.webadmin.reg.formman;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
@@ -16,10 +18,12 @@ import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
-import pl.edu.icm.unity.engine.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 
 /**
@@ -27,6 +31,7 @@ import pl.edu.icm.unity.webui.common.CompactFormLayout;
  * 
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class EnquiryFormViewer extends BaseFormViewer
 {
 	private UnityMessageSource msg;
@@ -43,6 +48,7 @@ public class EnquiryFormViewer extends BaseFormViewer
 	private RegistrationActionsRegistry registrationActionsRegistry;
 	private SharedEndpointManagement sharedEndpointMan;
 	
+	@Autowired
 	public EnquiryFormViewer(UnityMessageSource msg, RegistrationActionsRegistry registrationActionsRegistry,
 			MessageTemplateManagement msgTempMan, SharedEndpointManagement sharedEndpointMan)
 	{
@@ -76,10 +82,11 @@ public class EnquiryFormViewer extends BaseFormViewer
 		else
 			notViewer.clear();
 		
-		RegistrationTranslationProfile tProfile = new RegistrationTranslationProfile(
-				form.getTranslationProfile().getName(), 
-				form.getTranslationProfile().getRules(), 
-				registrationActionsRegistry);
+		TranslationProfile tProfile = new TranslationProfile(
+				form.getTranslationProfile().getName(),
+				"",
+				ProfileType.REGISTRATION,
+				form.getTranslationProfile().getRules());
 		translationProfile.setInput(tProfile, registrationActionsRegistry);
 	}
 	

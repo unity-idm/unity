@@ -20,16 +20,19 @@ import org.w3c.dom.NodeList;
 
 import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
-import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagement;
 import pl.edu.icm.unity.saml.SAMLResponseValidatorUtil;
@@ -54,7 +57,7 @@ public class ECPStep2Handler
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, ECPStep2Handler.class);
 	private RemoteMetaManager metadataManager;
 	private ECPContextManagement samlContextManagement;
-	private RemoteVerificatorUtil remoteVerificatorUtil;
+	private RemoteAuthnResultProcessor remoteAuthnProcessor;
 	private JWTManagement jwtGenerator;
 	private AuthenticationRealm realm;
 	private SessionManagement sessionMan;
@@ -63,16 +66,16 @@ public class ECPStep2Handler
 	
 	public ECPStep2Handler(SAMLECPProperties samlProperties, RemoteMetaManager metadataManager,
 			ECPContextManagement samlContextManagement, String myAddress,
-			ReplayAttackChecker replayAttackChecker, IdentityResolver identityResolver,
-			TranslationProfileManagement profileManagement, InputTranslationEngine trEngine,
-			TokensManagement tokensMan, PKIManagement pkiManagement, IdentitiesManagement identitiesMan,
+			ReplayAttackChecker replayAttackChecker, 
+			TokensManagement tokensMan, PKIManagement pkiManagement, 
+			RemoteAuthnResultProcessor remoteAuthnProcessor,
+			EntityManagement entityMan,
 			SessionManagement sessionMan, AuthenticationRealm realm, String address)
 	{
 		this.metadataManager = metadataManager;
 		this.samlContextManagement = samlContextManagement;
-		this.remoteVerificatorUtil = new RemoteVerificatorUtil(identityResolver, 
-				profileManagement, trEngine);
-		this.jwtGenerator = new JWTManagement(tokensMan, pkiManagement, identitiesMan, 
+		this.remoteAuthnProcessor = remoteAuthnProcessor;
+		this.jwtGenerator = new JWTManagement(tokensMan, pkiManagement, entityMan, 
 				realm.getName(), address, samlProperties.getJWTProperties());
 		this.realm = realm;
 		this.sessionMan = sessionMan;
@@ -234,7 +237,7 @@ public class ECPStep2Handler
 				replayAttackChecker, myAddress);
 		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDoc, 
 				ctx.getRequestId(), SAMLBindings.PAOS, groupAttr, key);
-		return remoteVerificatorUtil.getResult(input, profile, false);
+		return remoteAuthnProcessor.getResult(input, profile, false);
 	}
 	
 	private String findIdPKey(SAMLSPProperties samlProperties, ResponseDocument responseDoc) throws ServletException

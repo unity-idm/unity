@@ -15,9 +15,11 @@ import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -33,7 +35,6 @@ import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.OptionalRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
-import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
@@ -57,6 +58,7 @@ import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 public class BaseFormEditor extends VerticalLayout
 {
 	private UnityMessageSource msg;
+	private IdentityTypeSupport identityTypeSupport;
 	private Collection<IdentityType> identityTypes;
 	private Collection<AttributeType> attributeTypes;
 	private List<String> groups;
@@ -75,24 +77,15 @@ public class BaseFormEditor extends VerticalLayout
 	private ListOfEmbeddedElements<GroupRegistrationParam> groupParams;
 	private ListOfEmbeddedElements<CredentialRegistrationParam> credentialParams;
 
-	public BaseFormEditor(UnityMessageSource msg, IdentitiesManagement identitiesMan,
-			AttributesManagement attributeMan,
-			AuthenticationManagement authenticationMan, RegistrationActionsRegistry actionsRegistry,
-			Provider actionComponentProvider) 
-					throws EngineException
-	{
-		this(msg, identitiesMan, attributeMan, authenticationMan, false);
-	}
 
-	public BaseFormEditor(UnityMessageSource msg, IdentitiesManagement identitiesMan,
-			AttributesManagement attributeMan,
-			AuthenticationManagement authenticationMan,
-			boolean copyMode)
+	public BaseFormEditor(UnityMessageSource msg, IdentityTypeSupport identityTypeSupport,
+			AttributeTypeManagement attributeMan,
+			CredentialManagement authenticationMan)
 			throws EngineException
 	{
-		this.copyMode = copyMode;
+		this.identityTypeSupport = identityTypeSupport;
 		this.msg = msg;
-		identityTypes = identitiesMan.getIdentityTypes(); 
+		identityTypes = identityTypeSupport.getIdentityTypes(); 
 		attributeTypes = attributeMan.getAttributeTypes();
 		Collection<CredentialDefinition> crs = authenticationMan.getCredentialDefinitions();
 		credentialTypes = new ArrayList<>(crs.size());
@@ -257,9 +250,10 @@ public class BaseFormEditor extends VerticalLayout
 			identityType = new NotNullComboBox(msg.getMessage("RegistrationFormViewer.paramIdentity"));
 			for (IdentityType it: identityTypes)
 			{
-				if (it.getIdentityTypeProvider().isDynamic())
+				IdentityTypeDefinition typeDef = identityTypeSupport.getTypeDefinition(it.getName());
+				if (typeDef.isDynamic())
 					continue;
-				identityType.addItem(it.getIdentityTypeProvider().getId());
+				identityType.addItem(it.getIdentityTypeProvider());
 			}
 			main.add(identityType);
 			if (value != null)

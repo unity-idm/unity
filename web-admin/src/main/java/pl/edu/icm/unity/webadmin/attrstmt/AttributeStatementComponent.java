@@ -19,6 +19,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -55,7 +56,6 @@ public class AttributeStatementComponent extends CustomComponent
 	private OptionGroup assignMode;
 	
 	private AttributeSelectionComboBox dynamicAttributeName;
-	private EnumComboBox<AttributeVisibility> visibilityCombo;
 	private TextField dynamicAttributeValue;
 	
 	private AttributeFieldWithEdit fixedAttribute;
@@ -135,15 +135,11 @@ public class AttributeStatementComponent extends CustomComponent
 			boolean fixed = assignMode.getValue().equals(MODE_FIXED);
 			fixedAttribute.setVisible(fixed);
 			dynamicAttributeName.setVisible(!fixed);
-			visibilityCombo.setVisible(!fixed);
 			dynamicAttributeValue.setVisible(!fixed);
 		});
 		
 		dynamicAttributeName = new AttributeSelectionComboBox(
 				msg.getMessage("AttributeStatementComponent.dynamicAttrName"), attributeTypes);
-		visibilityCombo = new EnumComboBox<AttributeVisibility>(
-				msg.getMessage("AttributeStatementComponent.dynamicAttrVisibility"), msg, 
-				"AttributeVisibility.", AttributeVisibility.class, AttributeVisibility.full);
 		dynamicAttributeValue = new TextField(
 				msg.getMessage("AttributeStatementComponent.dynamicAttrValue"));
 		dynamicAttributeValue.setDescription(
@@ -169,7 +165,7 @@ public class AttributeStatementComponent extends CustomComponent
 		FormLayout main = new CompactFormLayout();
 		setCompositionRoot(main);
 		main.addComponents(extraAttributesGroupCB, extraAttributesGroupCombo, condition, assignMode,
-				dynamicAttributeName, dynamicAttributeValue, visibilityCombo, fixedAttribute,
+				dynamicAttributeName, dynamicAttributeValue, fixedAttribute,
 				conflictResolution);
 	}
 	
@@ -188,8 +184,7 @@ public class AttributeStatementComponent extends CustomComponent
 		if (initial.dynamicAttributeMode())
 		{
 			assignMode.setValue(MODE_DYNAMIC);
-			dynamicAttributeName.setValue(initial.getDynamicAttributeType().getName());
-			visibilityCombo.setValue(initial.getDynamicAttributeVisibility());
+			dynamicAttributeName.setValue(initial.getDynamicAttributeType());
 			dynamicAttributeValue.setValue(initial.getDynamicAttributeExpression());
 		} else
 		{
@@ -217,9 +212,8 @@ public class AttributeStatementComponent extends CustomComponent
 		{
 			if (!dynamicAttributeValue.isValid())
 				throw new FormValidationException();
-			ret.setDynamicAttributeVisibility(visibilityCombo.getSelectedValue());
 			ret.setDynamicAttributeExpression(dynamicAttributeValue.getValue());
-			ret.setDynamicAttributeType(dynamicAttributeName.getSelectedValue());
+			ret.setDynamicAttributeType(dynamicAttributeName.getSelectedValue().getName());
 		} else
 		{
 			ret.setFixedAttribute(fixedAttribute.getAttribute());

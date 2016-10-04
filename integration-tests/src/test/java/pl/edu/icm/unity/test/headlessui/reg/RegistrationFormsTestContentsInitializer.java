@@ -4,21 +4,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.internal.EngineInitialization;
+import com.google.gwt.thirdparty.guava.common.collect.Lists;
+
+import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.server.ServerInitializer;
+import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
+import pl.edu.icm.unity.engine.server.EngineInitialization;
+import pl.edu.icm.unity.engine.translation.form.action.AddAttributeActionFactory;
+import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.RegistrationsManagement;
-import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
-import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfileBuilder;
-import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
-import pl.edu.icm.unity.server.utils.ServerInitializer;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
@@ -27,30 +29,31 @@ import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
-
-import com.google.gwt.thirdparty.guava.common.collect.Lists;
+import pl.edu.icm.unity.types.translation.TranslationRule;
 
 @Component
 public class RegistrationFormsTestContentsInitializer implements ServerInitializer
 {
 	public static final String NAME = "registrationInitializer";
 	private RegistrationsManagement regMan;
-	private IdentitiesManagement idsMan;
+	private EntityManagement idsMan;
 	private GroupsManagement groupsMan;
-	private RegistrationActionsRegistry registry;
+	private EntityCredentialManagement eCredMan;
 
 
 	@Autowired
 	public RegistrationFormsTestContentsInitializer(@Qualifier("insecure") GroupsManagement groupsMan, 
 			@Qualifier("insecure")RegistrationsManagement regMan,
-			@Qualifier("insecure") IdentitiesManagement idsMan,
-			RegistrationActionsRegistry registry)
+			@Qualifier("insecure") EntityManagement idsMan,
+			@Qualifier("insecure") EntityCredentialManagement eCredMan)
 	{
 		this.groupsMan = groupsMan;
 		this.regMan = regMan;
 		this.idsMan = idsMan;
-		this.registry = registry;
+		this.eCredMan = eCredMan;
 	}
 
 	@Override
@@ -68,7 +71,7 @@ public class RegistrationFormsTestContentsInitializer implements ServerInitializ
 			Identity base = idsMan.addEntity(toAdd, "Password requirement", EntityState.valid, false);
 			groupsMan.addMemberFromParent("/A", new EntityParam(base.getEntityId()));
 			PasswordToken pToken = new PasswordToken("the!test2");
-			idsMan.setEntityCredential(new EntityParam(base.getEntityId()), "Password credential", 
+			eCredMan.setEntityCredential(new EntityParam(base.getEntityId()), "Password credential", 
 					pToken.toJson());
 		}  catch (EngineException e)
 		{
@@ -100,11 +103,13 @@ public class RegistrationFormsTestContentsInitializer implements ServerInitializ
 			agreement.setManatory(false);
 			agreement.setText(new I18nString("a"));
 
-			TranslationProfile translationProfile = new RegistrationTranslationProfileBuilder(
-					registry, "form").
-					withAddAttribute("true", "cn", "/", "'val'", AttributeVisibility.full).
-					withAutoProcess("true", AutomaticRequestAction.accept).
-					build();
+			TranslationProfile translationProfile = new TranslationProfile("regProfile", "", 
+					ProfileType.REGISTRATION, Lists.newArrayList(
+					new TranslationRule("true", new TranslationAction(
+							AddAttributeActionFactory.NAME, "cn", "/", "'val'")),
+					new TranslationRule("true", new TranslationAction(
+							AutoProcessActionFactory.NAME, 
+							AutomaticRequestAction.accept.toString()))));
 			
 			RegistrationForm form = new RegistrationFormBuilder()
 				.withName("Test")

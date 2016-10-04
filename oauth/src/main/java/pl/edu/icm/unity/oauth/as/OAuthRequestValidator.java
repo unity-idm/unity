@@ -18,6 +18,7 @@ import com.nimbusds.oauth2.sdk.Scope;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
@@ -38,12 +39,12 @@ public class OAuthRequestValidator
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthRequestValidator.class);
 	
 	protected OAuthASProperties oauthConfig;
-	protected IdentitiesManagement identitiesMan;
+	protected EntityManagement identitiesMan;
 	protected AttributesManagement attributesMan;
 	
 	
 	public OAuthRequestValidator(OAuthASProperties oauthConfig,
-			IdentitiesManagement identitiesMan, AttributesManagement attributesMan)
+			EntityManagement identitiesMan, AttributesManagement attributesMan)
 	{
 		this.oauthConfig = oauthConfig;
 		this.identitiesMan = identitiesMan;

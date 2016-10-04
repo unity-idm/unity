@@ -29,8 +29,6 @@ import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.token.AccessTokenResource;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.store.api.tx.TransactionalRunner.TxRunnable;
-import pl.edu.icm.unity.store.api.tx.TransactionalRunner.TxRunnableRet;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 
 public class AccessTokenResourceTest 
@@ -47,6 +45,31 @@ public class AccessTokenResourceTest
 		public void runInTransaction(TxRunnable code)
 		{
 			code.run();
+		}
+
+		@Override
+		public void runInTransactionNoAutoCommit(TxRunnable code)
+		{
+			code.run();
+		}
+
+		@Override
+		public <T> T runInTransactionNoAutoCommitRet(TxRunnableRet<T> code)
+		{
+			return code.run();
+		}
+
+		@Override
+		public void runInTransactionThrowing(TxRunnableThrowing code) throws EngineException
+		{
+			code.run();
+		}
+
+		@Override
+		public <T> T runInTransactionRetThrowing(TxRunnableThrowingRet<T> code)
+				throws EngineException
+		{
+			return code.run();
 		}
 	};
 	

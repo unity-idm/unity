@@ -7,8 +7,8 @@ package pl.edu.icm.unity.webadmin.bulk;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 
-import pl.edu.icm.unity.engine.api.bulkops.EntityAction;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webadmin.tprofile.ActionEditor;
 import pl.edu.icm.unity.webadmin.tprofile.MVELExpressionField;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -18,7 +18,7 @@ import pl.edu.icm.unity.webui.common.FormValidator;
  * Edit component of an immediate {@link ProcessingRule}
  * @author K. Benedyczak
  */
-public class RuleEditorImpl extends CustomComponent implements RuleEditor<ProcessingRule>
+public class RuleEditorImpl extends CustomComponent implements RuleEditor<TranslationRule>
 {
 	protected UnityMessageSource msg;
 
@@ -34,7 +34,7 @@ public class RuleEditorImpl extends CustomComponent implements RuleEditor<Proces
 		initUI();
 	}
 	
-	public void setInput(ProcessingRule rule)
+	public void setInput(TranslationRule rule)
 	{
 		condition.setValue(rule.getCondition());
 		actionEditor.setInput(rule.getAction());
@@ -55,9 +55,9 @@ public class RuleEditorImpl extends CustomComponent implements RuleEditor<Proces
 	}
 
 	@Override
-	public ProcessingRule getRule() throws FormValidationException
+	public TranslationRule getRule() throws FormValidationException
 	{
 		new FormValidator(main).validate();
-		return new ProcessingRule(condition.getValue(), (EntityAction) actionEditor.getAction());
+		return new TranslationRule(condition.getValue(), actionEditor.getAction());
 	}
 }

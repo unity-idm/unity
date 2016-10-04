@@ -9,17 +9,18 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -31,25 +32,28 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  * 
  * @author P. Piernik
  */
-@Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@PrototypeComponent
 public class AuthenticatorComponent extends DeployableComponentViewBase
 {
-
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			AuthenticatorComponent.class);
 
 	private AuthenticatorInstance authenticator;
-	private AuthenticationManagement authMan;
+	private AuthenticatorManagement authMan;
 
-	public AuthenticatorComponent(AuthenticationManagement authMan, ServerManagement serverMan,
-			AuthenticatorInstance authenticator, UnityServerConfiguration config,
-			UnityMessageSource msg, String status)
+	@Autowired
+	public AuthenticatorComponent(AuthenticatorManagement authMan, ServerManagement serverMan,
+			UnityServerConfiguration config, UnityMessageSource msg)
 	{
-		super(config, serverMan , msg, status);
-		this.authenticator = authenticator;
+		super(config, serverMan , msg);
 		this.authMan = authMan;
+	}
+
+	public AuthenticatorComponent init(AuthenticatorInstance authenticator, Status status)
+	{
+		this.authenticator = authenticator;
 		setStatus(status);
+		return this;
 	}
 
 	@Override
@@ -63,7 +67,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 	{
 		content.removeAllComponents();
 		
-		if (status.equals(Status.undeployed.toString()))
+		if (status.equals(Status.undeployed))
 		{
 			return;
 		}
@@ -88,12 +92,14 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 			addFieldToContent(msg.getMessage("Authenticators.localCredential"), cr);
 		}
 		
-		addConfigPanel(msg.getMessage("Authenticators.verificatorJsonConfiguration"), authenticator.getVerificatorJsonConfiguration());
-		addConfigPanel(msg.getMessage("Authenticators.retrievalJsonConfiguration"), authenticator.getRetrievalJsonConfiguration());
+		addConfigPanel(msg.getMessage("Authenticators.verificatorJsonConfiguration"), 
+				authenticator.getVerificatorConfiguration());
+		addConfigPanel(msg.getMessage("Authenticators.retrievalJsonConfiguration"), 
+				authenticator.getRetrievalConfiguration());
 	}
 	
 	
-	private void addConfigPanel(String capion ,String val)
+	private void addConfigPanel(String capion, String val)
 	{
 		if (val != null && !val.isEmpty())
 		{
@@ -128,7 +134,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 
 		if (getAuthenticatorConfig(id) !=null)
 		{
-			setStatus(Status.undeployed.toString());
+			setStatus(Status.undeployed);
 		} else
 		{
 			setVisible(false);
@@ -154,7 +160,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 
 		}else
 		{
-			setStatus(Status.deployed.toString());
+			setStatus(Status.deployed);
 		}
 	}
 	
@@ -202,7 +208,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 			}).show();
 		}else 
 		{
-			setStatus(Status.deployed.toString());
+			setStatus(Status.deployed);
 			if (showSuccess)
 			{
 				NotificationPopup.showSuccess(msg, "", msg.getMessage(

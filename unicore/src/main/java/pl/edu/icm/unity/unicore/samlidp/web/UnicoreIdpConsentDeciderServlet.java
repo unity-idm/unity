@@ -15,8 +15,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import eu.unicore.samly2.SAMLConstants;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
-import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -44,21 +47,20 @@ public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML,
 			UnicoreIdpConsentDeciderServlet.class);
 	
-	public UnicoreIdpConsentDeciderServlet(PreferencesManagement preferencesMan, 
-			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry,
+	public UnicoreIdpConsentDeciderServlet(AttributeTypeSupport aTypeSupport, 
+			PreferencesManagement preferencesMan, 
 			IdPEngine idpEngine,
 			FreemarkerHandler freemarker,
 			SessionManagement sessionMan, String samlUiServletPath)
 	{
-		super(preferencesMan, attributeSyntaxFactoriesRegistry, idpEngine, 
+		super(aTypeSupport, preferencesMan, idpEngine, 
 				freemarker, sessionMan, samlUiServletPath);
 	}
 	
 	@Override
 	protected SPSettings loadPreferences(SAMLAuthnContext samlCtx) throws EngineException
 	{
-		SamlPreferencesWithETD preferences = SamlPreferencesWithETD.getPreferences(preferencesMan, 
-				attributeSyntaxFactoriesRegistry);
+		SamlPreferencesWithETD preferences = SamlPreferencesWithETD.getPreferences(preferencesMan);
 		return preferences.getSPSettings(samlCtx.getRequest().getIssuer());
 	}
 	
@@ -70,8 +72,8 @@ public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 	protected void autoReplay(SPSettings spPreferences, SAMLAuthnContext samlCtx, HttpServletRequest request,
 			HttpServletResponse response) throws EopException, IOException
 	{
-		AuthnWithETDResponseProcessor samlProcessor = new AuthnWithETDResponseProcessor(samlCtx, 
-				Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+		AuthnWithETDResponseProcessor samlProcessor = new AuthnWithETDResponseProcessor(aTypeSupport,
+				samlCtx, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 		
 		String serviceUrl = getServiceUrl(samlCtx);
 		
@@ -84,15 +86,14 @@ public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 		ResponseDocument respDoc;
 		try
 		{
-			SamlPreferencesWithETD preferences = SamlPreferencesWithETD.getPreferences(preferencesMan, 
-					attributeSyntaxFactoriesRegistry);
+			SamlPreferencesWithETD preferences = SamlPreferencesWithETD.getPreferences(preferencesMan);
 			SPETDSettings etdSettings = preferences.getSPETDSettings(samlCtx.getRequest().getIssuer());
 			
 			TranslationResult userInfo = getUserInfo(samlCtx.getSamlConfiguration(), samlProcessor, 
 					SAMLConstants.BINDING_HTTP_POST);
 			IdentityParam selectedIdentity = getIdentity(userInfo, samlProcessor, spPreferences);
 			log.debug("Authentication of " + selectedIdentity);
-			Collection<Attribute<?>> attributes = samlProcessor.getAttributes(userInfo, spPreferences);
+			Collection<Attribute> attributes = samlProcessor.getAttributes(userInfo, spPreferences);
 			respDoc = samlProcessor.processAuthnRequest(selectedIdentity, attributes, 
 					etdSettings.toDelegationRestrictions());
 		} catch (Exception e)

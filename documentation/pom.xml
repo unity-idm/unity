@@ -34,12 +34,12 @@
 
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-server-core</artifactId>
+			<artifactId>unity-server-engine-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-server-persistence</artifactId>
+			<artifactId>unity-server-storage</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

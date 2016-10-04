@@ -17,13 +17,14 @@ import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationActionsRegistry;
-import pl.edu.icm.unity.engine.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webadmin.tprofile.MappingResultComponent;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileViewer;
 import pl.edu.icm.unity.webui.common.Images;
@@ -158,7 +159,7 @@ public class DryRunStepComponent extends CustomComponent
 		boolean isHRVisible = (profile != null);
 		try
 		{
-			InputTranslationProfile tp = tpMan.listInputProfiles().get(profile);
+			TranslationProfile tp = tpMan.listInputProfiles().get(profile);
 			profileViewer.setInput(tp, taRegistry);
 			profileViewer.setVisible(true);
 		} catch (EngineException e)

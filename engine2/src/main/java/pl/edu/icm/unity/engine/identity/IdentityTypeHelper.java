@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.identity;
 
+import java.util.Collection;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -72,5 +74,10 @@ public class IdentityTypeHelper
 	public IdentityTypeDefinition getTypeDefinition(String idType)
 	{
 		return getTypeDefinition(getIdentityType(idType));
+	}
+	
+	public Collection<IdentityType> getIdentityTypes()
+	{
+		return idTypeDAO.getAll();
 	}
 }

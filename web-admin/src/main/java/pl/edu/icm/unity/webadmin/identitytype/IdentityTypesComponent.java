@@ -21,6 +21,9 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webadmin.identitytype.IdentityTypeEditDialog.Callback;
@@ -51,14 +54,18 @@ public class IdentityTypesComponent extends VerticalLayout
 	private com.vaadin.ui.Component main;
 	private EventsBus bus;
 
-	private IdentitiesManagement identitiesManagement;
+	private IdentityTypesManagement identitiesManagement;
+
+	private IdentityTypeSupport idTypeSupport;
 	
 	
 	@Autowired
-	public IdentityTypesComponent(UnityMessageSource msg, IdentitiesManagement identitiesManagement)
+	public IdentityTypesComponent(UnityMessageSource msg, IdentityTypesManagement identitiesManagement,
+			IdentityTypeSupport idTypeSupport)
 	{
 		this.msg = msg;
 		this.identitiesManagement = identitiesManagement;
+		this.idTypeSupport = idTypeSupport;
 		this.bus = WebSession.getCurrent().getEventBus();
 		HorizontalLayout hl = new HorizontalLayout();
 		
@@ -70,14 +77,16 @@ public class IdentityTypesComponent extends VerticalLayout
 					@Override
 					public Label toRepresentation(IdentityType element)
 					{
-						Label ret = new Label(element.getIdentityTypeProvider().getId());
-						if (element.getIdentityTypeProvider().isDynamic())
+						Label ret = new Label(element.getIdentityTypeProvider());
+						IdentityTypeDefinition typeDefinition = 
+								idTypeSupport.getTypeDefinition(element.getName());
+						if (typeDefinition.isDynamic())
 							ret.addStyleName(Styles.immutableAttribute.toString());
 						return ret;
 					}
 				});
 
-		viewer = new IdentityTypeViewer(msg);
+		viewer = new IdentityTypeViewer(msg, idTypeSupport);
 		table.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override
@@ -183,7 +192,7 @@ public class IdentityTypesComponent extends VerticalLayout
 			
 			GenericItem<?> item = (GenericItem<?>) target;	
 			IdentityType at = (IdentityType) item.getElement();
-			IdentityTypeEditor editor = new IdentityTypeEditor(msg, at);
+			IdentityTypeEditor editor = new IdentityTypeEditor(msg, idTypeSupport, at);
 			IdentityTypeEditDialog dialog = new IdentityTypeEditDialog(msg, 
 					msg.getMessage("IdentityTypes.editAction"), new Callback()
 					{

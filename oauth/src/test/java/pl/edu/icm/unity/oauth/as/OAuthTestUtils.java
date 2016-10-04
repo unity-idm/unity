@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.oauth.as;
 
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.when;
 import static pl.edu.icm.unity.oauth.as.OAuthASProperties.CREDENTIAL;
 import static pl.edu.icm.unity.oauth.as.OAuthASProperties.ISSUER_URI;
 import static pl.edu.icm.unity.oauth.as.OAuthASProperties.P;
@@ -14,6 +16,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
+
+import org.mockito.Mockito;
 
 import com.google.common.collect.Lists;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
@@ -26,9 +30,13 @@ import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext.ScopeInfo;
@@ -72,8 +80,11 @@ public class OAuthTestUtils
 				null, new State("state123"));
 		X509Credential credential = new KeystoreCredential("src/test/resources/demoKeystore.p12", 
 				"the!uvos".toCharArray(), "the!uvos".toCharArray(), null, "pkcs12");
+		OAuthASProperties mockedProps = Mockito.mock(OAuthASProperties.class);
+		when(mockedProps.getBooleanValue(eq(CommonIdPProperties.SKIP_USERIMPORT))).thenReturn(Boolean.FALSE);
+		
 		OAuthAuthzContext ctx = new OAuthAuthzContext(
-				request, 
+				request, mockedProps,
 				accessTokenValidity, 
 				maxExtValidity,
 				200, 
@@ -96,7 +107,7 @@ public class OAuthTestUtils
 	{
 		OAuthProcessor processor = new OAuthProcessor();
 		Collection<Attribute> attributes = new ArrayList<>();
-		attributes.add(new StringAttribute("email", "/", "example@example.com"));
+		attributes.add(StringAttribute.of("email", "/", "example@example.com"));
 		IdentityParam identity = new IdentityParam(UsernameIdentity.ID, "userA");
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.TOKEN, 
 				OIDCResponseTypeValue.ID_TOKEN, ResponseType.Value.CODE),
@@ -115,8 +126,8 @@ public class OAuthTestUtils
 	{
 		OAuthProcessor processor = new OAuthProcessor();
 		Collection<Attribute> attributes = new ArrayList<>();
-		attributes.add(new StringAttribute("email", "/", "example@example.com"));
-		attributes.add(new StringAttribute("c", "/", "PL"));
+		attributes.add(StringAttribute.of("email", "/", "example@example.com"));
+		attributes.add(StringAttribute.of("c", "/", "PL"));
 		IdentityParam identity = new IdentityParam("userName", "userA");
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.CODE),
 				GrantFlow.authorizationCode, clientEntityId);
@@ -125,13 +136,13 @@ public class OAuthTestUtils
 				attributes, identity, ctx, tokensMan);
 	}
 
-	public static Identity createOauthClient(IdentitiesManagement idsMan, AttributesManagement attrsMan,
-			GroupsManagement groupsMan) throws Exception
+	public static Identity createOauthClient(EntityManagement idsMan, AttributesManagement attrsMan,
+			GroupsManagement groupsMan, EntityCredentialManagement eCredMan) throws Exception
 	{
 		Identity clientId = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "client1"), 
 				"cr-pass", EntityState.valid, false);
 		EntityParam e1 = new EntityParam(clientId);
-		idsMan.setEntityCredential(e1, "credential1", new PasswordToken("clientPass").toJson());
+		eCredMan.setEntityCredential(e1, "credential1", new PasswordToken("clientPass").toJson());
 
 		groupsMan.addGroup(new Group("/oauth-clients"));
 		groupsMan.addMemberFromParent("/oauth-clients", e1);
@@ -139,18 +150,18 @@ public class OAuthTestUtils
 		groupsMan.addGroup(new Group("/oauth-users"));
 		groupsMan.addMemberFromParent("/oauth-users", e1);
 		
-		attrsMan.setAttribute(e1, new EnumAttribute(OAuthSystemAttributesProvider.ALLOWED_FLOWS, 
+		attrsMan.setAttribute(e1, EnumAttribute.of(OAuthSystemAttributesProvider.ALLOWED_FLOWS, 
 				"/oauth-clients", 
 				Lists.newArrayList(GrantFlow.authorizationCode.name(),
 						GrantFlow.client.name())), 
 				false);
-		attrsMan.setAttribute(e1, new StringAttribute(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI, 
+		attrsMan.setAttribute(e1, StringAttribute.of(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI, 
 				"/oauth-clients", "https://dummy-return.net"), false);
 		
-		attrsMan.setAttribute(e1, new StringAttribute(OAuthSystemAttributesProvider.CLIENT_NAME, 
+		attrsMan.setAttribute(e1, StringAttribute.of(OAuthSystemAttributesProvider.CLIENT_NAME, 
 				"/oauth-clients", "clientName"), false);
 		
-		attrsMan.setAttribute(e1, new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE, 
+		attrsMan.setAttribute(e1, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
 				"/", "Regular User"), false);
 		return clientId;
 	}

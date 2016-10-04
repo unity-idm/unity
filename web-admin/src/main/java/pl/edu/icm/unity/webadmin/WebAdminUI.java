@@ -21,6 +21,8 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.home.HomeEndpointProperties;
 import pl.edu.icm.unity.home.UserAccountComponent;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webadmin.AdminTopHeader.ViewSwitchCallback;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
@@ -66,7 +68,7 @@ public class WebAdminUI extends UnityEndpointUIBase implements UnityWebUI
 	}
 	
 	@Override
-	public void configure(EndpointDescription description,
+	public void configure(ResolvedEndpoint description,
 			List<AuthenticationOption> authenticators,
 			EndpointRegistrationConfiguration regCfg, Properties endpointProperties)
 	{
@@ -83,7 +85,8 @@ public class WebAdminUI extends UnityEndpointUIBase implements UnityWebUI
 		mainWrapper.setSizeFull();
 		mainWrapper.setMargin(true);
 
-		AdminTopHeader header = new AdminTopHeader(endpointDescription.getDisplayedName().getValue(msg), 
+		I18nString displayedName = endpointDescription.getEndpoint().getConfiguration().getDisplayedName();
+		AdminTopHeader header = new AdminTopHeader(displayedName.getValue(msg), 
 				authnProcessor, msg, 
 				new ViewSwitchCallback()
 				{

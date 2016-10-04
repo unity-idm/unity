@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.attributes;
 
+import java.util.Collection;
+
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
@@ -32,4 +34,6 @@ public interface AttributeTypeSupport
 	 * @return attribute type for the attribute name
 	 */
 	AttributeType getType(Attribute attribute);
+	
+	Collection<AttributeType> getAttributeTypes();
 }

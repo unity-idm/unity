@@ -10,10 +10,9 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
-import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
-import pl.edu.icm.unity.engine.translation.TranslationProfileInstance;
-import pl.edu.icm.unity.engine.translation.TranslationRuleInstance;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
+import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
@@ -56,9 +55,8 @@ public class TranslationProfileViewer extends VerticalLayout
 		setSizeFull();
 	}
 
-	public <T extends TranslationActionInstance, R extends TranslationRuleInstance<T>> 
-			void setInput(TranslationProfileInstance<T, R> profile, 
-					TypesRegistryBase<? extends TranslationActionFactory> registry)
+	public void setInput(TranslationProfile profile, 
+			TypesRegistryBase<? extends TranslationActionFactory<?>> registry)
 	{       
 		setEmpty();
 		if (profile == null)
@@ -71,13 +69,13 @@ public class TranslationProfileViewer extends VerticalLayout
 		name.setValue(profile.getName());
 		description.setValue(profile.getDescription());
 		int i=0;
-		for (R rule : profile.getRuleInstances())
+		for (TranslationRule rule : profile.getRules())
 		{
 			i++;     
 			addField(msg.getMessage("TranslationProfileViewer.ruleCondition", i),
 					"TranslationActionPresenter.codeValue", 
 					rule.getCondition());
-			TranslationActionPresenter<T> action = new TranslationActionPresenter<T>(msg, registry, 
+			TranslationActionPresenter action = new TranslationActionPresenter(msg, registry, 
 					rule.getAction());
 			action.addToLayout(rules);
 		}

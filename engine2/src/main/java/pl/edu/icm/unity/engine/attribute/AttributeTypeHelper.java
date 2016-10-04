@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.attribute;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,6 +54,11 @@ public class AttributeTypeHelper
 	public AttributeType getTypeForAttributeName(String attribute)
 	{
 		return attributeTypeDAO.get(attribute);
+	}
+	
+	public Collection<AttributeType> getAttributeTypes()
+	{
+		return attributeTypeDAO.getAll();
 	}
 	
 	/**

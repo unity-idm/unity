@@ -13,7 +13,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -39,9 +39,9 @@ public class GroupAttributesClassesDialog extends AbstractAttributesClassesDialo
 	private Callback callback;
 	
 	public GroupAttributesClassesDialog(UnityMessageSource msg, String group, 
-			AttributesManagement attrMan, GroupsManagement groupsMan, Callback callback)
+			AttributeClassManagement acMan, GroupsManagement groupsMan, Callback callback)
 	{
-		super(msg, group, attrMan, groupsMan, msg.getMessage("GroupAttributesClasses.caption"));
+		super(msg, group, acMan, groupsMan, msg.getMessage("GroupAttributesClasses.caption"));
 		this.callback = callback;
 	}
 

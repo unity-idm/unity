@@ -19,17 +19,16 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
-import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.client.UserProfileFetcher;
@@ -58,11 +57,10 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 	
 	
 	public BearerTokenVerificator(String name, String description,
-			TranslationProfileManagement profileManagement,
-			PKIManagement pkiMan, InputTranslationEngine trEngine,
-			TokensManagement tokensMan, CacheProvider cacheProvider)
+			PKIManagement pkiMan, TokensManagement tokensMan, 
+			CacheProvider cacheProvider, RemoteAuthnResultProcessor processor)
 	{
-		super(name, description, AccessTokenExchange.ID, profileManagement, trEngine);
+		super(name, description, AccessTokenExchange.ID, processor);
 		this.pkiMan = pkiMan;
 		this.tokensMan = tokensMan;
 		this.cacheProvider = cacheProvider;

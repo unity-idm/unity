@@ -35,7 +35,9 @@ import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SamlProperties;
@@ -52,6 +54,7 @@ public class SamlIdpProperties extends SamlProperties
 	private static final Logger log = Log.getLogger(SamlIdpProperties.LOG_PFX, SamlIdpProperties.class);
 	public enum RequestAcceptancePolicy {all, validSigner, validRequester, strict};
 	public enum ResponseSigningPolicy {always, never, asRequest};
+	public enum AssertionSigningPolicy {always, ifResponseUnsigned};
 	
 	public static final String LOG_PFX = Log.U_SERVER_CFG;
 	
@@ -61,6 +64,7 @@ public class SamlIdpProperties extends SamlProperties
 	public static final String AUTHENTICATION_TIMEOUT = "authenticationTimeout";
 
 	public static final String SIGN_RESPONSE = "signResponses";
+	public static final String SIGN_ASSERTION = "signAssertion";
 	public static final String CREDENTIAL = "credential";
 	public static final String TRUSTSTORE = "truststore";
 	public static final String DEF_ATTR_ASSERTION_VALIDITY = "validityPeriod";
@@ -85,10 +89,6 @@ public class SamlIdpProperties extends SamlProperties
 	public static final String GROUP_TARGET = "serviceProvider";
 	public static final String GROUP = "mappingGroup";
 	public static final String DEFAULT_GROUP = "defaultGroup";
-	
-	public static final String TRANSLATION_PROFILE = "translationProfile";
-	public static final String SKIP_CONSENT = "skipConsent";
-	public static final String ASSUME_FORCE = "assumeForceOnSessionClash";
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
@@ -124,7 +124,15 @@ public class SamlIdpProperties extends SamlProperties
 		defaults.put(AUTHENTICATION_TIMEOUT, new PropertyMD("600").setPositive().setCategory(samlCat).
 				setDescription("Defines maximum time (in seconds) after which the authentication in progress is invalidated. This feature is used to clean up authentications started by users but not finished."));
 		defaults.put(SIGN_RESPONSE, new PropertyMD(ResponseSigningPolicy.asRequest).setCategory(samlCat).
-				setDescription("Defines when SAML responses should be signed. Note that it is not related to signing SAML assertions which are included in response. 'asRequest' setting will result in signing only those responses for which the corresponding request was signed."));
+				setDescription("Defines when SAML responses should be signed. "
+						+ "Note that it is not related to signing SAML assertions which "
+						+ "are included in response. "
+						+ "'asRequest' setting will result in signing only those responses "
+						+ "for which the corresponding request was signed."));
+		defaults.put(SIGN_ASSERTION, new PropertyMD(AssertionSigningPolicy.always).setCategory(samlCat).
+				setDescription("Defines when SAML assertions (contained in SAML response) "
+						+ "should be signed: either always or if signing may be skipped "
+						+ "if wrapping request will be anyway signed"));
 		defaults.put(DEF_ATTR_ASSERTION_VALIDITY, new PropertyMD("14400").setPositive().setCategory(samlCat).
 				setDescription("Controls the maximum validity period of an attribute assertion returned to client (in seconds). It is inserted whenever query is compliant with 'SAML V2.0 Deployment Profiles for X.509 Subjects', what usually is the case."));
 		defaults.put(ISSUER_URI, new PropertyMD().setCategory(samlCat).setMandatory().
@@ -193,22 +201,6 @@ public class SamlIdpProperties extends SamlProperties
 				"Using this property additional trusted certificates of an SP can be added (when SP uses more then one). See " 
 						+ ALLOWED_SP_CERTIFICATE + " for details. Those properties can be used together or alternatively."));
 
-		defaults.put(TRANSLATION_PROFILE, new PropertyMD().setCategory(samlCat).
-				setDescription("Name of an output translation profile which can be used to dynamically modify the "
-						+ "data being returned on this endpoint. When not defined the default profile is used: "
-						+ "attributes are not filtered, memberOf attribute is added with group membership"));
-		defaults.put(SKIP_CONSENT, new PropertyMD("false").setCategory(samlCat).
-				setDescription("Controls whether the user being authenticated should see the consent screen"
-						+ " with the information what service requested authentication and what data "
-						+ "is going to be released. Note that user may always choose to disable "
-						+ "the consent screen for each service, even if this setting is set to false."));
-		defaults.put(ASSUME_FORCE, new PropertyMD("false").setCategory(samlCat).
-				setDescription("Controls what to do in case of initialization of a new SAML interaction,"
-						+ "while another one was not finished within the same browser session."
-						+ " By default a warning page is rendered and the user has "
-						+ "a choice to cancel or forcefully continue. However, "
-						+ "if this setting is set to true, then the new interaction forcefully"
-						+ "takes over the old interaction, without asking the user."));
 		defaults.put(TRUSTSTORE, new PropertyMD().setCategory(samlCat).
 				setDescription("Truststore name to setup SAML trust settings. The truststore "
 						+ "is used to verify request signature issuer, " +
@@ -219,6 +211,11 @@ public class SamlIdpProperties extends SamlProperties
 		defaults.putAll(SamlProperties.getDefaults(SPMETA_PREFIX, 
 				"Under this prefix you can configure the remote trusted SAML Sps however not "
 				+ "providing all their details but only their metadata."));
+		
+		defaults.putAll(CommonIdPProperties.getDefaultsWithCategory(samlCat, 
+				"Name of an output translation profile which can be used to dynamically modify the "
+				+ "data being returned on this endpoint. When not defined the default profile is used: "
+				+ "attributes are not filtered, memberOf attribute is added with group membership"));
 	}
 
 	private boolean signRespNever;
@@ -293,7 +290,7 @@ public class SamlIdpProperties extends SamlProperties
 			log.debug("All SPs using a valid certificate will be authorized to submit authentication requests");
 		} else if (spPolicy == RequestAcceptancePolicy.strict)
 		{
-			authnTrustChecker = createStrickTrustChecker();
+			authnTrustChecker = createStrictTrustChecker();
 			sloTrustChecker = authnTrustChecker;
 		} else
 		{
@@ -329,7 +326,7 @@ public class SamlIdpProperties extends SamlProperties
 				
 				log.debug("SP authorized to submit authentication requests: " + name);
 			}
-			this.sloTrustChecker = createStrickTrustChecker();
+			this.sloTrustChecker = createStrictTrustChecker();
 		}
 		
 		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP_PREFIX);
@@ -374,7 +371,7 @@ public class SamlIdpProperties extends SamlProperties
 			throw new ConfigurationException("The SAML credential " + credential + " is unknown");
 	}
 	
-	private StrictSamlTrustChecker createStrickTrustChecker()
+	private StrictSamlTrustChecker createStrictTrustChecker()
 	{
 		StrictSamlTrustChecker authnTrustChecker = new StrictSamlTrustChecker();
 		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP_PREFIX);

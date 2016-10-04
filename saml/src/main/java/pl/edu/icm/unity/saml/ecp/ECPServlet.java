@@ -12,12 +12,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import eu.unicore.samly2.validators.ReplayAttackChecker;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
-import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
-import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 
@@ -36,15 +35,16 @@ public class ECPServlet extends HttpServlet
 
 	public ECPServlet(SAMLECPProperties samlProperties, RemoteMetaManager metadataManager,
 			ECPContextManagement samlContextManagement, 
-			String myAddress, ReplayAttackChecker replayAttackChecker, IdentityResolver identityResolver,
-			TranslationProfileManagement profileManagement, InputTranslationEngine trEngine,
-			TokensManagement tokensMan, PKIManagement pkiManagement, IdentitiesManagement identitiesMan,
+			String myAddress, ReplayAttackChecker replayAttackChecker, 
+			RemoteAuthnResultProcessor remoteAuthnProcessor,
+			TokensManagement tokensMan, PKIManagement pkiManagement, EntityManagement identitiesMan,
 			SessionManagement sessionMan, AuthenticationRealm realm, String address)
 	{
 		step1Handler = new ECPStep1Handler(metadataManager, samlContextManagement, myAddress);
 		step2Handler = new ECPStep2Handler(samlProperties, metadataManager, samlContextManagement, myAddress,
-				replayAttackChecker, identityResolver, profileManagement, trEngine,
-				tokensMan, pkiManagement, identitiesMan, sessionMan, realm, address);
+				replayAttackChecker, 
+				tokensMan, pkiManagement, remoteAuthnProcessor, 
+				identitiesMan, sessionMan, realm, address);
 	}
 
 	@Override

@@ -22,6 +22,7 @@ import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.validators.LogoutRequestValidator;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.security.dsig.DSigException;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.LogoutMode;

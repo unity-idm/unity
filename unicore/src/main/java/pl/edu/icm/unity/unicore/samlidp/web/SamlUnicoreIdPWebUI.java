@@ -19,10 +19,12 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
-import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
-import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
+import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
@@ -67,20 +69,22 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	public SamlUnicoreIdPWebUI(UnityMessageSource msg, FreemarkerHandler freemarkerHandler,
 			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
 			WebAuthenticationProcessor authnProcessor, IdPEngine idpEngine, 
-			IdentityTypesRegistry idTypesRegistry, SessionManagement sessionMan, 
-			AttributesManagement attrMan, AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry,
-			EnquiresDialogLauncher enquiryDialogLauncher)
+			IdentityTypeSupport idTypeSupport, SessionManagement sessionMan, 
+			AttributeTypeManagement attrMan, 
+			EnquiresDialogLauncher enquiryDialogLauncher,
+			AttributeTypeSupport aTypeSupport)
 	{
 		super(msg, freemarkerHandler, handlersRegistry, preferencesMan,	authnProcessor, idpEngine,
-				idTypesRegistry, sessionMan, attrMan, attributeSyntaxFactoriesRegistry, 
-				enquiryDialogLauncher);
+				idTypeSupport, sessionMan, attrMan,  
+				enquiryDialogLauncher, aTypeSupport);
 	}
 
 	@Override
 	protected void appInit(VaadinRequest request)
 	{
 		SAMLAuthnContext samlCtx = SAMLContextSupport.getContext();
-		samlWithEtdProcessor = new AuthnWithETDResponseProcessor(samlCtx, Calendar.getInstance());
+		samlWithEtdProcessor = new AuthnWithETDResponseProcessor(aTypeSupport, samlCtx, 
+				Calendar.getInstance());
 		super.appInit(request);
 	}
 	
@@ -133,8 +137,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	{
 		try
 		{
-			SamlPreferencesWithETD preferences = SamlPreferencesWithETD.getPreferences(preferencesMan, 
-					attributeSyntaxFactoriesRegistry);
+			SamlPreferencesWithETD preferences = SamlPreferencesWithETD.getPreferences(preferencesMan);
 			NameIDType samlRequester = samlCtx.getRequest().getIssuer();
 			SPSettings baseSettings = preferences.getSPSettings(samlRequester);
 			SPETDSettings settings = preferences.getSPETDSettings(samlRequester);
@@ -182,8 +185,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 		try
 		{
 			SAMLAuthnContext samlCtx = SAMLContextSupport.getContext();
-			SamlPreferencesWithETD preferences = SamlPreferencesWithETD.getPreferences(preferencesMan, 
-					attributeSyntaxFactoriesRegistry);
+			SamlPreferencesWithETD preferences = SamlPreferencesWithETD.getPreferences(preferencesMan);
 			updatePreferencesFromUI(preferences, samlCtx, defaultAccept);
 			SamlPreferencesWithETD.savePreferences(preferencesMan, preferences);
 		} catch (EngineException e)

@@ -11,8 +11,10 @@ import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -47,13 +49,13 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	 *  WARNING - this is an insecure instance!
 	 */
 	private AttributesManagement attributesMan;
-	private IdentitiesManagement identitiesMan;
+	private EntityManagement identitiesMan;
 	
 	
 	public OAuthTokenEndpoint(UnityMessageSource msg, SessionManagement sessionMan,
 			NetworkServer server, String servletPath, TokensManagement tokensMan,
 			PKIManagement pkiManagement, OAuthEndpointsCoordinator coordinator, 
-			AuthenticationProcessor authnProcessor, IdentitiesManagement identitiesMan,
+			AuthenticationProcessor authnProcessor, EntityManagement identitiesMan,
 			AttributesManagement attributesMan, TransactionalRunner tx, IdPEngine idPEngine)
 	{
 		super(msg, sessionMan, authnProcessor, server, servletPath);

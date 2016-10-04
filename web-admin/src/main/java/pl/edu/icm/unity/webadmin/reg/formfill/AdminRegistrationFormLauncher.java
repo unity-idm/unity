@@ -4,17 +4,17 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formfill;
 
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
@@ -28,7 +28,6 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
-import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.forms.PostFormFillingHandler;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormFillDialog;
@@ -46,41 +45,40 @@ import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreate
  * 
  * @author K. Benedyczak
  */
-@Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@PrototypeComponent
 public class AdminRegistrationFormLauncher implements RegistrationFormDialogProvider
 {
 	protected UnityMessageSource msg;
 	protected RegistrationsManagement registrationsManagement;
-	protected IdentityEditorRegistry identityEditorRegistry;
 	protected CredentialEditorRegistry credentialEditorRegistry;
 	protected AttributeHandlerRegistry attributeHandlerRegistry;
 	protected AttributesManagement attrsMan;
-	protected AuthenticationManagement authnMan;
+	protected CredentialManagement authnMan;
 	protected GroupsManagement groupsMan;
 	
 	protected EventsBus bus;
 	private IdPLoginController idpLoginController;
+	private ObjectFactory<RequestEditorCreator> requestEditorCreatorFactory;
 	
 	@Autowired
 	public AdminRegistrationFormLauncher(UnityMessageSource msg,
 			RegistrationsManagement registrationsManagement,
-			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
-			AttributesManagement attrsMan, AuthenticationManagement authnMan,
-			GroupsManagement groupsMan, IdPLoginController idpLoginController)
+			AttributesManagement attrsMan, CredentialManagement authnMan,
+			GroupsManagement groupsMan, IdPLoginController idpLoginController,
+			ObjectFactory<RequestEditorCreator> requestEditorCreatorFactory)
 	{
 		super();
 		this.msg = msg;
 		this.registrationsManagement = registrationsManagement;
-		this.identityEditorRegistry = identityEditorRegistry;
 		this.credentialEditorRegistry = credentialEditorRegistry;
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
 		this.attrsMan = attrsMan;
 		this.authnMan = authnMan;
 		this.groupsMan = groupsMan;
 		this.idpLoginController = idpLoginController;
+		this.requestEditorCreatorFactory = requestEditorCreatorFactory;
 		this.bus = WebSession.getCurrent().getEventBus();
 	}
 
@@ -100,7 +98,7 @@ public class AdminRegistrationFormLauncher implements RegistrationFormDialogProv
 		} catch (EngineException e)
 		{
 			new PostFormFillingHandler(idpLoginController, form, msg, 
-					registrationsManagement.getProfileInstance(form)).submissionError(e, context);
+					registrationsManagement.getFormAutomationSupport(form)).submissionError(e, context);
 			return false;
 		}
 
@@ -114,7 +112,7 @@ public class AdminRegistrationFormLauncher implements RegistrationFormDialogProv
 				bus.fireEvent(new RegistrationRequestChangedEvent(id));
 			}	
 			new PostFormFillingHandler(idpLoginController, form, msg, 
-					registrationsManagement.getProfileInstance(form), false).
+					registrationsManagement.getFormAutomationSupport(form), false).
 				submittedRegistrationRequest(id, registrationsManagement, request, context);
 			
 			return true;
@@ -131,9 +129,8 @@ public class AdminRegistrationFormLauncher implements RegistrationFormDialogProv
 			RemotelyAuthenticatedContext remoteContext, TriggeringMode mode,
 			AsyncErrorHandler errorHandler)
 	{
-			RequestEditorCreator editorCreator = new RequestEditorCreator(msg, form, 
-					remoteContext, identityEditorRegistry, credentialEditorRegistry, 
-					attributeHandlerRegistry, registrationsManagement, attrsMan, groupsMan, authnMan);
+			RequestEditorCreator editorCreator = requestEditorCreatorFactory.getObject().init(form, 
+					remoteContext);
 			editorCreator.invoke(new RequestEditorCreatedCallback()
 			{
 				@Override
@@ -175,7 +172,7 @@ public class AdminRegistrationFormLauncher implements RegistrationFormDialogProv
 						RegistrationContext context = new RegistrationContext(false, 
 								idpLoginController.isLoginInProgress(), mode);
 						new PostFormFillingHandler(idpLoginController, form, msg, 
-								registrationsManagement.getProfileInstance(form)).
+								registrationsManagement.getFormAutomationSupport(form)).
 							cancelled(false, context);
 					}
 				});

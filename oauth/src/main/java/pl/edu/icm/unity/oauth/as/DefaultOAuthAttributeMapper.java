@@ -49,7 +49,7 @@ public class DefaultOAuthAttributeMapper implements OAuthAttributeMapper
 	@Override
 	public boolean isHandled(Attribute unityAttribute)
 	{
-		String syntax = unityAttribute.getAttributeSyntax().getValueSyntaxId();
+		String syntax = unityAttribute.getValueSyntax();
 		return VALUE_TO_SAML.containsKey(syntax);
 	}
 
@@ -58,7 +58,7 @@ public class DefaultOAuthAttributeMapper implements OAuthAttributeMapper
 	public Object getJsonValue(Attribute unityAttribute)
 	{
 		int valsNum = unityAttribute.getValues().size(); 
-		String syntax = unityAttribute.getAttributeSyntax().getValueSyntaxId();
+		String syntax = unityAttribute.getValueSyntax();
 		ValueToJsonConverter converter = VALUE_TO_SAML.get(syntax);
 		
 		if (valsNum > 1)

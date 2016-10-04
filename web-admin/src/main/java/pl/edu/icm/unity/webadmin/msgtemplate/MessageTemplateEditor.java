@@ -28,7 +28,6 @@ import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateValidator;
 import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateValidator.IllegalVariablesException;
 import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateValidator.MandatoryVariablesException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -216,7 +215,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 		try
 		{
 			consumer = registry.getByName(c);
-		} catch (IllegalTypeException e)
+		} catch (IllegalArgumentException e)
 		{
 			NotificationPopup.showError(msg,
 					msg.getMessage("MessageTemplatesEditor.errorConsumers"), e);

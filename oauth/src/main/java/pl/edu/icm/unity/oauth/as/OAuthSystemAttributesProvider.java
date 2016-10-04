@@ -57,17 +57,20 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 		Set<String> allowed = new HashSet<>();
 		for (GrantFlow gf: GrantFlow.values())
 			allowed.add(gf.toString());
-		AttributeType allowedGrantsAt = new AttributeType(ALLOWED_FLOWS, new EnumAttributeSyntax(allowed), msg);
+		EnumAttributeSyntax syntax = new EnumAttributeSyntax(allowed);
+		AttributeType allowedGrantsAt = new AttributeType(ALLOWED_FLOWS, 
+				EnumAttributeSyntax.ID, msg);
 		allowedGrantsAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
 		allowedGrantsAt.setMinElements(1);
 		allowedGrantsAt.setMaxElements(5);
 		allowedGrantsAt.setUniqueValues(true);
+		allowedGrantsAt.setValueSyntaxConfiguration(syntax.getSerializedConfiguration());
 		return allowedGrantsAt;
 	}
 	
 	private AttributeType getAllowedURIsAT()
 	{
-		AttributeType authorizationAt = new AttributeType(ALLOWED_RETURN_URI, new StringAttributeSyntax(), msg);
+		AttributeType authorizationAt = new AttributeType(ALLOWED_RETURN_URI, StringAttributeSyntax.ID, msg);
 		authorizationAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
 		authorizationAt.setMinElements(1);
 		authorizationAt.setMaxElements(MAXIMUM_ALLOWED_URIS);
@@ -87,17 +90,18 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 		{
 			throw new IllegalArgumentException(e);
 		}
-		AttributeType logoAt = new AttributeType(CLIENT_LOGO, syntax, msg);
+		AttributeType logoAt = new AttributeType(CLIENT_LOGO, syntax.getValueSyntaxId(), msg);
 		logoAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
 		logoAt.setMinElements(1);
 		logoAt.setMaxElements(1);
 		logoAt.setUniqueValues(false);
+		logoAt.setValueSyntaxConfiguration(syntax.getSerializedConfiguration());
 		return logoAt;
 	}
 
 	private AttributeType getNameAT()
 	{
-		AttributeType nameAt = new AttributeType(CLIENT_NAME, new StringAttributeSyntax(), msg);
+		AttributeType nameAt = new AttributeType(CLIENT_NAME, StringAttributeSyntax.ID, msg);
 		nameAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
 		nameAt.setMinElements(1);
 		nameAt.setMaxElements(1);
@@ -107,7 +111,7 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 
 	private AttributeType getPerClientGroupAT()
 	{
-		AttributeType nameAt = new AttributeType(PER_CLIENT_GROUP, new StringAttributeSyntax(), msg);
+		AttributeType nameAt = new AttributeType(PER_CLIENT_GROUP, StringAttributeSyntax.ID, msg);
 		nameAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
 		nameAt.setMinElements(1);
 		nameAt.setMaxElements(1);
@@ -124,17 +128,6 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 	@Override
 	public boolean requiresUpdate(AttributeType at)
 	{
-		if (at.getName().equals(ALLOWED_FLOWS))
-		{
-			EnumAttributeSyntax valueType = (EnumAttributeSyntax) at.getValueType();
-			return !valueType.getAllowed().contains(GrantFlow.client.toString());
-		}
-		
-		if (at.getName().equals(ALLOWED_RETURN_URI))
-		{
-			return at.getMaxElements() != MAXIMUM_ALLOWED_URIS;
-		}
-		
 		return false;
 	}
 }

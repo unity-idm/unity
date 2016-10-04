@@ -9,7 +9,8 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
@@ -49,8 +50,8 @@ public class AdminEnquiryFormLauncher
 	private IdentityEditorRegistry identityEditorRegistry;
 	private CredentialEditorRegistry credentialEditorRegistry;
 	private AttributeHandlerRegistry attributeHandlerRegistry;
-	private AttributesManagement attrsMan;
-	private AuthenticationManagement authnMan;
+	private AttributeTypeManagement attrsMan;
+	private CredentialManagement authnMan;
 	private GroupsManagement groupsMan;
 	
 	private EventsBus bus;
@@ -62,7 +63,7 @@ public class AdminEnquiryFormLauncher
 			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
-			AttributesManagement attrsMan, AuthenticationManagement authnMan,
+			AttributeTypeManagement attrsMan, CredentialManagement authnMan,
 			GroupsManagement groupsMan, IdPLoginController idpLoginController)
 	{
 		super();
@@ -91,7 +92,7 @@ public class AdminEnquiryFormLauncher
 		} catch (EngineException e)
 		{
 			new PostFormFillingHandler(idpLoginController, form, msg, 
-					enquiryManagement.getProfileInstance(form)).submissionError(e, context);
+					enquiryManagement.getFormAutomationSupport(form)).submissionError(e, context);
 			return false;
 		}
 
@@ -105,7 +106,7 @@ public class AdminEnquiryFormLauncher
 				bus.fireEvent(new RegistrationRequestChangedEvent(id));
 			}	
 			new PostFormFillingHandler(idpLoginController, form, msg, 
-					enquiryManagement.getProfileInstance(form), false).
+					enquiryManagement.getFormAutomationSupport(form), false).
 				submittedEnquiryResponse(id, enquiryManagement, response, context);
 			
 			return true;
@@ -149,7 +150,7 @@ public class AdminEnquiryFormLauncher
 						RegistrationContext context = new RegistrationContext(false, 
 								idpLoginController.isLoginInProgress(), mode);
 						new PostFormFillingHandler(idpLoginController, form, msg, 
-								enquiryManagement.getProfileInstance(form)).
+								enquiryManagement.getFormAutomationSupport(form)).
 							cancelled(false, context);
 					}
 				});

@@ -15,6 +15,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController.IdPLoginHandler;
@@ -39,7 +40,7 @@ public class OAuthAuthzWebEndpointFactory implements EndpointFactory
 	
 	private ApplicationContext applicationContext;
 	private FreemarkerHandler freemarkerHandler;
-	private IdentitiesManagement identitiesManagement;
+	private EntityManagement identitiesManagement;
 	private AttributesManagement attributesManagement;
 	private PKIManagement pkiManagement;
 	private OAuthEndpointsCoordinator coordinator;
@@ -51,7 +52,7 @@ public class OAuthAuthzWebEndpointFactory implements EndpointFactory
 	@Autowired
 	public OAuthAuthzWebEndpointFactory(ApplicationContext applicationContext, FreemarkerHandler freemarkerHandler,
 			OAuthEndpointsCoordinator coordinator,
-			@Qualifier("insecure") IdentitiesManagement identitiesManagement, 
+			@Qualifier("insecure") EntityManagement identitiesManagement, 
 			@Qualifier("insecure") AttributesManagement attributesManagement,
 			PKIManagement pkiManagement, ASConsentDeciderServletFactory dispatcherServletFactory,
 			NetworkServer server, IdPLoginController loginController,

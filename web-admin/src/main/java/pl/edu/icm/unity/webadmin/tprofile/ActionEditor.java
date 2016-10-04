@@ -18,12 +18,9 @@ import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
-import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.TranslationAction;
-import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.LayoutEmbeddable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -37,15 +34,15 @@ import pl.edu.icm.unity.webui.common.Styles;
 public class ActionEditor extends LayoutEmbeddable
 {
 	private UnityMessageSource msg;
-	private TypesRegistryBase<? extends TranslationActionFactory> tc;
+	private TypesRegistryBase<? extends TranslationActionFactory<?>> tc;
 	
 	private ComboBox actions;
 	private Label actionParams;
-	private Provider actionComponentProvider;
+	private ActionParameterComponentProvider actionComponentProvider;
 	private List<ActionParameterComponent> paramComponents = new ArrayList<>();
 
-	public ActionEditor(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory> tc,
-			TranslationAction toEdit, ActionParameterComponentFactory.Provider actionComponentProvider)
+	public ActionEditor(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
+			TranslationAction toEdit, ActionParameterComponentProvider actionComponentProvider)
 	{
 		this.msg = msg;
 		this.tc = tc;
@@ -103,7 +100,7 @@ public class ActionEditor extends LayoutEmbeddable
 		removeComponents(paramComponents);
 		paramComponents.clear();
 		
-		TranslationActionFactory factory = getActionFactory(action);
+		TranslationActionFactory<?> factory = getActionFactory(action);
 		if (factory == null)
 			return;
 		
@@ -141,13 +138,13 @@ public class ActionEditor extends LayoutEmbeddable
 		return params.toArray(wrapper);
 	}
 	
-	private TranslationActionFactory getActionFactory(String action)
+	private TranslationActionFactory<?> getActionFactory(String action)
 	{
-		TranslationActionFactory factory = null;
+		TranslationActionFactory<?> factory = null;
 		try
 		{
 			factory = tc.getByName(action);
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("ActionEditor.errorGetActions"), e);
 		}
@@ -155,10 +152,10 @@ public class ActionEditor extends LayoutEmbeddable
 	}
 	
 
-	public TranslationActionInstance getAction() throws FormValidationException
+	public TranslationAction getAction() throws FormValidationException
 	{
 		String ac = (String) actions.getValue();
-		TranslationActionFactory factory = getActionFactory(ac);
+		TranslationActionFactory<?> factory = getActionFactory(ac);
 		try
 		{
 			return factory.getInstance(getActionParams());

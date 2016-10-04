@@ -9,8 +9,10 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
-import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.idp.web.SamlIdPWebEndpointFactory;
 import pl.edu.icm.unity.saml.idp.ws.SamlIdPSoapEndpointFactory;
@@ -27,22 +29,22 @@ public class SamlPreferencesHandler implements PreferencesHandler
 {
 	private final Set<String> SUPPORTED_ENDPOINTS = new HashSet<String>();
 	private UnityMessageSource msg;
-	private IdentitiesManagement idsMan;
-	private AttributesManagement atsMan;
-	private AttributeSyntaxFactoriesRegistry registry;
+	private EntityManagement idsMan;
+	private AttributeTypeManagement atsMan;
 	private AttributeHandlerRegistry handlerReg;
+	private IdentityTypeSupport idTypeSupport;
 	
 	@Autowired
-	public SamlPreferencesHandler(UnityMessageSource msg, IdentitiesManagement idsMan,
-			AttributesManagement atsMan, AttributeSyntaxFactoriesRegistry registry,
-			AttributeHandlerRegistry hadnlerReg)
+	public SamlPreferencesHandler(UnityMessageSource msg, EntityManagement idsMan,
+			AttributeTypeManagement atsMan, 
+			AttributeHandlerRegistry hadnlerReg, IdentityTypeSupport idTypeSupport)
 	{
 		super();
 		this.msg = msg;
 		this.idsMan = idsMan;
 		this.atsMan = atsMan;
-		this.registry = registry;
 		this.handlerReg = hadnlerReg;
+		this.idTypeSupport = idTypeSupport;
 		SUPPORTED_ENDPOINTS.add(SamlIdPSoapEndpointFactory.NAME);
 		SUPPORTED_ENDPOINTS.add(SamlIdPWebEndpointFactory.NAME);
 	}
@@ -62,9 +64,10 @@ public class SamlPreferencesHandler implements PreferencesHandler
 	@Override
 	public PreferencesEditor getPreferencesEditor(String value)
 	{
-		SamlPreferences preferences = new SamlPreferences(registry);
-		preferences.setSerializedConfiguration(value);
-		return new SamlPreferencesEditor(msg, preferences, idsMan, atsMan, handlerReg);
+		SamlPreferences preferences = new SamlPreferences();
+		if (value != null)
+			preferences.setSerializedConfiguration(JsonUtil.parse(value));
+		return new SamlPreferencesEditor(msg, preferences, idsMan, atsMan, handlerReg, idTypeSupport);
 	}
 
 	@Override

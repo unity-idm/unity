@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigurationException;
@@ -31,6 +32,7 @@ import pl.edu.icm.unity.engine.translation.in.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -51,7 +53,7 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 	
 	@Autowired
 	public RemoteAuthnResultProcessorImpl(IdentityResolver identityResolver,	
-			TranslationProfileManagement profileManagement,
+			@Qualifier("insecure") TranslationProfileManagement profileManagement,
 			InputTranslationEngine trEngine,
 			InputTranslationActionsRegistry actionsRegistry)
 	{
@@ -72,6 +74,7 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 	 * @throws EngineException 
 	 */
 	@Override
+	@Transactional
 	public AuthenticationResult getResult(RemotelyAuthenticatedInput input, String profile, boolean dryRun) 
 			throws AuthenticationException
 	{

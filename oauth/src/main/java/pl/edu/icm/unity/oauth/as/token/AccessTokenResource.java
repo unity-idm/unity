@@ -28,9 +28,9 @@ import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
@@ -164,7 +164,7 @@ public class AccessTokenResource extends BaseOAuthResource
 	
 	private TokensPair loadAndRemoveAuthzCodeToken(String code) throws OAuthErrorException, EngineException
 	{
-		return tx.runInTransactionRet(() -> {
+		return tx.runInTransactionRetThrowing(() -> {
 			try
 			{
 				Token codeToken = tokensManagement.getTokenById(
@@ -188,7 +188,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		});
 	}
 	
-	private static class OAuthErrorException extends EngineException
+	public static class OAuthErrorException extends EngineException
 	{
 		private Response response;
 

@@ -32,7 +32,7 @@ public class TstPerfGetAttributes extends PerformanceTestBase
 		ArrayList<Entity> entities = getAllEntities(USERS);
 		
 		addAttributeTypes(GROUP_IN_TIER);
-		Map<String, AttributeType> attributeTypesAsMap = attrsMan.getAttributeTypesAsMap();
+		Map<String, AttributeType> attributeTypesAsMap = aTypeMan.getAttributeTypesAsMap();
 		
 		addRandomAttributeToEntities(entities, enInGroup, attributeTypesAsMap, IMAGE_ATTRIBUTES,
 				STRING_ATTRIBUTES, INT_ATTRIBUTES, FLOAT_ATTRIBUTES);

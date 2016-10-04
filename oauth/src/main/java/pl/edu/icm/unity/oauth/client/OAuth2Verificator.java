@@ -49,13 +49,12 @@ import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
@@ -81,10 +80,10 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	private PKIManagement pkiManagement;
 	
 	public OAuth2Verificator(String name, String description, OAuthContextsManagement contextManagement,
-			TranslationProfileManagement profileManagement, InputTranslationEngine trEngine,
-			PKIManagement pkiManagement, URL baseAddress, String baseContext)
+			PKIManagement pkiManagement, URL baseAddress, String baseContext, 
+			RemoteAuthnResultProcessor processor)
 	{
-		super(name, description, OAuthExchange.ID, profileManagement, trEngine);
+		super(name, description, OAuthExchange.ID, processor);
 		this.responseConsumerAddress = baseAddress + baseContext + ResponseConsumerServlet.PATH;
 		this.contextManagement = contextManagement;
 		this.pkiManagement = pkiManagement;

@@ -20,15 +20,15 @@ import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
-import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator.RemoteAuthnState;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -74,8 +74,8 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	private Map<String, LocalSPMetadataManager> localMetadataManagers;
 	
 	public SAMLVerificator(String name, String description,
-			TranslationProfileManagement profileManagement,
-			InputTranslationEngine trEngine, PKIManagement pkiMan,
+			RemoteAuthnResultProcessor processor,
+			PKIManagement pkiMan,
 			ReplayAttackChecker replayAttackChecker, ExecutorsService executorsService,
 			MultiMetadataServlet metadataServlet, URL baseAddress, String baseContext,
 			Map<String, RemoteMetaManager> remoteMetadataManagers,
@@ -84,7 +84,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			SLOSPManager sloManager, SLOReplyInstaller sloReplyInstaller,
 			UnityMessageSource msg)
 	{
-		super(name, description, SAMLExchange.ID, profileManagement, trEngine);
+		super(name, description, SAMLExchange.ID, processor);
 		this.remoteMetadataManagers = remoteMetadataManagers;
 		this.localMetadataManagers = localMetadataManagers;
 		this.downloadManager = downloadManager;

@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.saml.ecp;
 
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
+
 /**
  * State of the ECP authentication, i.e. records the info about a request provided via PAOS, 
  * to be correlated with a further response.

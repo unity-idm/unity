@@ -22,13 +22,10 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
-import pl.edu.icm.unity.engine.translation.TranslationProfileInstance;
-import pl.edu.icm.unity.engine.translation.TranslationRuleInstance;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.types.translation.TranslationRule;
-import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
 import pl.edu.icm.unity.webadmin.tprofile.RuleComponent.Callback;
 import pl.edu.icm.unity.webadmin.tprofile.StartStopButton.ClickStartEvent;
 import pl.edu.icm.unity.webadmin.tprofile.StartStopButton.ClickStopEvent;
@@ -49,7 +46,7 @@ public class TranslationProfileEditor extends VerticalLayout
 {
 	protected UnityMessageSource msg;
 	protected ProfileType type;
-	protected TypesRegistryBase<? extends TranslationActionFactory> registry;
+	protected TypesRegistryBase<? extends TranslationActionFactory<?>> registry;
 	protected AbstractTextField name;
 	protected DescriptionTextArea description;
 	protected FormLayout rulesLayout;
@@ -57,11 +54,11 @@ public class TranslationProfileEditor extends VerticalLayout
 	
 	private RemotelyAuthenticatedInput remoteAuthnInput;
 	private StartStopButton testProfileButton;
-	private Provider actionComponentProvider;
+	private ActionParameterComponentProvider actionComponentProvider;
 	
 	public TranslationProfileEditor(UnityMessageSource msg,
-			TypesRegistryBase<? extends TranslationActionFactory> registry, ProfileType type, 
-			Provider actionComponentProvider) throws EngineException
+			TypesRegistryBase<? extends TranslationActionFactory<?>> registry, ProfileType type, 
+			ActionParameterComponentProvider actionComponentProvider) throws EngineException
 	{
 		super();
 		this.msg = msg;
@@ -72,13 +69,13 @@ public class TranslationProfileEditor extends VerticalLayout
 		initUI();
 	}
 
-	public void setValue(TranslationProfileInstance<?, ?> toEdit)
+	public void setValue(TranslationProfile toEdit)
 	{
 		name.setReadOnly(false);
 		name.setValue(toEdit.getName());
 		name.setReadOnly(true);
 		description.setValue(toEdit.getDescription());
-		for (TranslationRuleInstance<?> trule : toEdit.getRuleInstances())
+		for (TranslationRule trule : toEdit.getRules())
 		{
 			addRuleComponent(trule);
 		}
@@ -188,7 +185,7 @@ public class TranslationProfileEditor extends VerticalLayout
 		}		
 	}
 
-	private void addRuleComponent(TranslationRuleInstance<?> trule)
+	private void addRuleComponent(TranslationRule trule)
 	{
 		RuleComponent r = new RuleComponent(msg, registry, 
 				trule, actionComponentProvider, new CallbackImplementation());

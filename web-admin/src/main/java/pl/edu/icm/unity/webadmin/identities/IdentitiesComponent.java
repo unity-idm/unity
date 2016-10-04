@@ -37,7 +37,8 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
@@ -80,7 +81,7 @@ public class IdentitiesComponent extends SafePanel
 	
 	@Autowired
 	public IdentitiesComponent(final UnityMessageSource msg, GroupsManagement groupsManagement,
-			final AttributesManagement attrsMan, final IdentitiesTable identitiesTable)
+			final AttributeTypeManagement attrsMan, final IdentitiesTable identitiesTable)
 	{
 		this.msg = msg;
 		this.groupsManagement = groupsManagement;

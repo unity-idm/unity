@@ -7,6 +7,8 @@ package pl.edu.icm.unity.saml.sp.web;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -21,7 +23,10 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
@@ -59,6 +64,8 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private Label messageLabel;
 	private HtmlSimplifiedLabel errorDetailLabel;
 	private SamlContextManagement samlContextManagement;
+	private Set<String> tags;
+	
 	
 	private Component main;
 	
@@ -91,6 +98,9 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		String name = getName();
 		String logoUrl = samlProperties.getLocalizedValue(idpKey + SAMLSPProperties.IDP_LOGO, msg.getLocale());
 		IdPROComponent idpComponent = new IdPROComponent(logoUrl, name, scaleMode);
+
+		this.tags = new HashSet<>(samlProperties.getListOfValues(idpKey + SAMLSPProperties.IDP_NAME + "."));
+		this.tags.remove(name);
 
 		messageLabel = new Label();
 		messageLabel.addStyleName(Styles.error.toString());
@@ -331,5 +341,11 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	@Override
 	public void presetEntity(Entity authenticatedEntity)
 	{
+	}
+
+	@Override
+	public Set<String> getTags()
+	{
+		return tags;
 	}
 }

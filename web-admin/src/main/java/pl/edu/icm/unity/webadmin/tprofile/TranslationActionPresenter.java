@@ -7,7 +7,6 @@ package pl.edu.icm.unity.webadmin.tprofile;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.TranslationAction;
@@ -19,13 +18,13 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
  * 
  * @author K. Benedyczak
  */
-public class TranslationActionPresenter<T extends TranslationAction> extends LayoutEmbeddable
+public class TranslationActionPresenter extends LayoutEmbeddable
 {	
 	private UnityMessageSource msg;
-	private TypesRegistryBase<? extends TranslationActionFactory> registry;
+	private TypesRegistryBase<? extends TranslationActionFactory<?>> registry;
 	
 	public TranslationActionPresenter(UnityMessageSource msg, 
-			TypesRegistryBase<? extends TranslationActionFactory> registry,
+			TypesRegistryBase<? extends TranslationActionFactory<?>> registry,
 			TranslationAction action)
 	{
 		this.msg = msg;
@@ -39,9 +38,9 @@ public class TranslationActionPresenter<T extends TranslationAction> extends Lay
 		ActionParameterDefinition[] pd = null;
 		try 
 		{
-			TranslationActionFactory f = registry.getByName(actionName);
+			TranslationActionFactory<?> f = registry.getByName(actionName);
 			pd = f.getActionType().getParameters();
-		} catch (IllegalTypeException e)
+		} catch (IllegalArgumentException e)
 		{
 			throw new InternalException("The action " + actionName + 
 					" is unsupported", e);

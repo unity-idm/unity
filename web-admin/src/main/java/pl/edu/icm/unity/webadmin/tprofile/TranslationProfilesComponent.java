@@ -10,9 +10,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -26,13 +23,12 @@ import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
-import pl.edu.icm.unity.engine.translation.TranslationProfileInstance;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationActionsRegistry;
-import pl.edu.icm.unity.engine.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationActionsRegistry;
-import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfile;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webadmin.WebAdminEndpointFactory;
@@ -58,14 +54,12 @@ import pl.edu.icm.unity.webui.sandbox.wizard.SandboxWizardDialog;
  * Responsible for translation profiles management.
  * @author P. Piernik
  */
-@Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@PrototypeComponent
 public class TranslationProfilesComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
 	private TranslationProfileManagement profileMan;
-	@SuppressWarnings("rawtypes")
-	private GenericElementsTable<TranslationProfileInstance> table;
+	private GenericElementsTable<TranslationProfile> table;
 	private TranslationProfileViewer viewer;
 	private com.vaadin.ui.Component main;
 	private OptionGroup profileType;
@@ -75,14 +69,14 @@ public class TranslationProfilesComponent extends VerticalLayout
 
 	private SandboxAuthnNotifier sandboxNotifier;
 	private String sandboxURL;
-	private ActionParameterComponentFactory actionComponentFactory;
+	private ActionParameterComponentProvider actionComponentFactory;
 	
 	@Autowired
 	public TranslationProfilesComponent(UnityMessageSource msg, TranslationProfileManagement profileMan,
 			EndpointManagement endpointMan,
 			InputTranslationActionsRegistry inputTranslationActionsRegistry,
 			OutputTranslationActionsRegistry outputTranslationActionsRegistry,
-			ActionParameterComponentFactory actionComponentFactory)
+			ActionParameterComponentProvider actionComponentFactory)
 	{
 		this.msg = msg;
 		this.profileMan = profileMan;
@@ -111,26 +105,25 @@ public class TranslationProfilesComponent extends VerticalLayout
 	
 	private void establishSandboxURL(EndpointManagement endpointMan) throws EngineException
 	{
-			List<EndpointDescription> endpointList = endpointMan.getEndpoints();
-			for (EndpointDescription endpoint : endpointList) {
+			List<ResolvedEndpoint> endpointList = endpointMan.getEndpoints();
+			for (ResolvedEndpoint endpoint : endpointList) {
 				if (endpoint.getType().getName().equals(WebAdminEndpointFactory.NAME))
 				{
-					sandboxURL = endpoint.getContextAddress() + 
+					sandboxURL = endpoint.getEndpoint().getContextAddress() + 
 							VaadinEndpoint.SANDBOX_PATH_TRANSLATION;
 					break;
 				}
 			}
 	}
 	
-	@SuppressWarnings("rawtypes")
-	private GenericElementsTable<TranslationProfileInstance> createTable()
+	private GenericElementsTable<TranslationProfile> createTable()
 	{
-		GenericElementsTable<TranslationProfileInstance> table = new GenericElementsTable<TranslationProfileInstance>(
+		GenericElementsTable<TranslationProfile> table = new GenericElementsTable<>(
 				msg.getMessage("TranslationProfilesComponent.profilesTable"),
-				new NameProvider<TranslationProfileInstance>()
+				new NameProvider<TranslationProfile>()
 				{
 					@Override
-					public Object toRepresentation(TranslationProfileInstance element)
+					public Object toRepresentation(TranslationProfile element)
 					{
 						return element.getName();
 					}
@@ -143,13 +136,13 @@ public class TranslationProfilesComponent extends VerticalLayout
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
-				Collection<TranslationProfileInstance<?, ?>> items = getItems(table.getValue());
+				Collection<TranslationProfile> items = getItems(table.getValue());
 				if (items.size() > 1 || items.isEmpty())
 				{
 					viewer.setInput(null, getCurrentActionsRegistry());
 					return;
 				}	
-				TranslationProfileInstance<?, ?> item = items.iterator().next();
+				TranslationProfile item = items.iterator().next();
 				viewer.setInput(item, getCurrentActionsRegistry());
 			}
 		});
@@ -219,11 +212,11 @@ public class TranslationProfilesComponent extends VerticalLayout
 			switch (pt)
 			{
 			case INPUT:
-				Collection<InputTranslationProfile> inprofiles = profileMan.listInputProfiles().values();
+				Collection<TranslationProfile> inprofiles = profileMan.listInputProfiles().values();
 				table.setInput(inprofiles);
 				break;
 			case OUTPUT:
-				Collection<OutputTranslationProfile> outprofiles = profileMan.listOutputProfiles().values();
+				Collection<TranslationProfile> outprofiles = profileMan.listOutputProfiles().values();
 				table.setInput(outprofiles);
 				break;
 			default:
@@ -274,7 +267,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 	{
 		try
 		{
-			profileMan.removeProfile(name);
+			profileMan.removeProfile((ProfileType) profileType.getValue(), name);
 			refresh();
 			return true;
 		} catch (Exception e)
@@ -284,14 +277,14 @@ public class TranslationProfilesComponent extends VerticalLayout
 		}
 	}
 	
-	private Collection<TranslationProfileInstance<?, ?>> getItems(Object target)
+	private Collection<TranslationProfile> getItems(Object target)
 	{
 		Collection<?> c = (Collection<?>) target;
-		Collection<TranslationProfileInstance<?, ?>> items = new ArrayList<>();
+		Collection<TranslationProfile> items = new ArrayList<>();
 		for (Object o: c)
 		{
 			GenericItem<?> i = (GenericItem<?>) o;
-			items.add((TranslationProfileInstance<?, ?>) i.getElement());	
+			items.add((TranslationProfile) i.getElement());	
 		}	
 		return items;
 	}
@@ -311,17 +304,17 @@ public class TranslationProfilesComponent extends VerticalLayout
 		}
 	}
 	
-	private TranslationProfileEditor getProfileEditor(TranslationProfileInstance<?, ?> toEdit) throws EngineException
+	private TranslationProfileEditor getProfileEditor(TranslationProfile toEdit) throws EngineException
 	{
 		ProfileType pt = (ProfileType) profileType.getValue();
 		TranslationProfileEditor editor = new TranslationProfileEditor(msg, getCurrentActionsRegistry(), pt, 
-				actionComponentFactory.getComponentProvider());
+				actionComponentFactory);
 		if (toEdit != null)
 			editor.setValue(toEdit);
 		return editor;
 	}
 	
-	private TypesRegistryBase<? extends TranslationActionFactory> getCurrentActionsRegistry()
+	private TypesRegistryBase<? extends TranslationActionFactory<?>> getCurrentActionsRegistry()
 	{
 		ProfileType pt = (ProfileType) profileType.getValue();
 		return pt == ProfileType.INPUT ? inputActionsRegistry : outputActionsRegistry;
@@ -374,8 +367,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		public void handleAction(Object sender, final Object target)
 		{
 			@SuppressWarnings("unchecked")
-			GenericItem<TranslationProfileInstance<?, ?>> item = 
-				(GenericItem<TranslationProfileInstance<?, ?>>) target;
+			GenericItem<TranslationProfile> item = (GenericItem<TranslationProfile>) target;
 			TranslationProfileEditor editor;
 			try
 			{
@@ -411,7 +403,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		public void handleAction(Object sender, final Object target)
 		{
 			@SuppressWarnings("unchecked")
-			GenericItem<TranslationProfileInstance<?, ?>> item = (GenericItem<TranslationProfileInstance<?, ?>>) target;
+			GenericItem<TranslationProfile> item = (GenericItem<TranslationProfile>) target;
 			TranslationProfileEditor editor;
 			
 			try
@@ -449,7 +441,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final Collection<TranslationProfileInstance<?, ?>> items = getItems(target);
+			final Collection<TranslationProfile> items = getItems(target);
 			String confirmText = MessageUtils.createConfirmFromNames(msg, items);
 			new ConfirmDialog(msg, msg.getMessage(
 					"TranslationProfilesComponent.confirmDelete",
@@ -458,7 +450,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 				@Override
 				public void onConfirm()
 				{
-					for (TranslationProfileInstance<?, ?> item : items)
+					for (TranslationProfile item : items)
 					{
 						removeProfile(item.getName());
 					}

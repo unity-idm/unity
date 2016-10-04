@@ -14,7 +14,6 @@ import com.vaadin.ui.Panel;
 
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
@@ -55,13 +54,15 @@ public class RequestReviewPanelBase extends CustomComponent
 	private Panel agreementsP;
 	private Panel commentP;
 	private Panel identitiesP;
+	private IdentityFormatter idFormatter;
 	
 	public RequestReviewPanelBase(UnityMessageSource msg, AttributeHandlerRegistry handlersRegistry,
-			IdentityTypesRegistry idTypesRegistry)
+			IdentityTypesRegistry idTypesRegistry, IdentityFormatter idFormatter)
 	{
 		this.msg = msg;
 		this.handlersRegistry = handlersRegistry;
 		this.idTypesRegistry = idTypesRegistry;
+		this.idFormatter = idFormatter;
 	}
 	
 	protected void addStandardComponents(Layout main)
@@ -168,9 +169,9 @@ public class RequestReviewPanelBase extends CustomComponent
 				continue;
 			try
 			{
-				identities.addEntry(IdentityFormatter.toString(msg, idParam, 
+				identities.addEntry(idFormatter.toString(idParam, 
 						idTypesRegistry.getByName(idParam.getTypeId())));
-			} catch (IllegalTypeException e)
+			} catch (Exception e)
 			{
 				throw new IllegalStateException("Ups, have request in DB with unsupported id type.", e);
 			}

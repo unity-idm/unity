@@ -8,16 +8,14 @@ import java.net.URL;
 
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificatorFactory;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
@@ -30,21 +28,20 @@ public class OAuth2VerificatorFactory implements CredentialVerificatorFactory
 {
 	public static final String NAME = "oauth2";
 	
-	private TranslationProfileManagement profileManagement;
 	private PKIManagement pkiManagement;
-	private InputTranslationEngine trEngine;
 	private URL baseAddress;
 	private String baseContext;
 	private OAuthContextsManagement contextManagement;
+	private RemoteAuthnResultProcessor processor;
 	
 	@Autowired
-	public OAuth2VerificatorFactory(@Qualifier("insecure") TranslationProfileManagement profileManagement,
-			InputTranslationEngine trEngine, NetworkServer jettyServer,
+	public OAuth2VerificatorFactory(NetworkServer jettyServer,
 			SharedEndpointManagement sharedEndpointManagement,
-			OAuthContextsManagement contextManagement, PKIManagement pkiManagement) throws EngineException
+			OAuthContextsManagement contextManagement, 
+			PKIManagement pkiManagement,
+			RemoteAuthnResultProcessor processor) throws EngineException
 	{
-		this.profileManagement = profileManagement;
-		this.trEngine = trEngine;
+		this.processor = processor;
 		this.baseAddress = jettyServer.getAdvertisedAddress();
 		this.baseContext = sharedEndpointManagement.getBaseContextPath();
 		this.contextManagement = contextManagement;
@@ -71,7 +68,7 @@ public class OAuth2VerificatorFactory implements CredentialVerificatorFactory
 	public CredentialVerificator newInstance()
 	{
 		return new OAuth2Verificator(NAME, getDescription(), contextManagement, 
-				profileManagement, trEngine, pkiManagement, baseAddress, baseContext);
+				pkiManagement, baseAddress, baseContext, processor);
 	}
 
 }

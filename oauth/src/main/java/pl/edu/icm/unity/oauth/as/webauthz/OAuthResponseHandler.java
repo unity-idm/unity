@@ -15,6 +15,9 @@ import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinServletResponse;
 import com.vaadin.server.VaadinSession;
 
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**
@@ -24,6 +27,13 @@ import pl.edu.icm.unity.webui.idpcommon.EopException;
  */
 public class OAuthResponseHandler
 {
+	private SessionManagement sessionMan;
+	
+	public OAuthResponseHandler(SessionManagement sessionMan)
+	{
+		this.sessionMan = sessionMan;
+	}
+
 	public void returnOauthResponse(AuthorizationResponse oauthResponse, boolean destroySession) throws EopException
 	{
 		VaadinSession session = VaadinSession.getCurrent(); 
@@ -61,7 +71,10 @@ public class OAuthResponseHandler
 				}
 				OAuthContextUtils.cleanContext();
 				if (destroySession)
-					session.getSession().invalidate();
+				{
+					LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
+					sessionMan.removeSession(loginSession.getId(), true);
+				}
 				return true;
 			}
 			

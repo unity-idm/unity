@@ -144,10 +144,12 @@ public class IdentityTaV
 	 */
 	public String toString()
 	{
-		if (realm == null && target == null)
-			return "[" + typeId + "] " + value;
-		else
-			return "[" + typeId + "] " + value + " for " + target + "@" + realm;
+		StringBuilder base = new StringBuilder("[" + typeId + "] " + value);
+		if (target != null)
+			base.append(" for " + target);
+		if (realm != null)
+			base.append("@" + realm);
+		return base.toString();
 	}
 
 	@Override

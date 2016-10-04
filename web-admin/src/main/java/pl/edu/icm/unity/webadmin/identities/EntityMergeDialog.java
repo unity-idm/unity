@@ -9,6 +9,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.OptionGroup;
 
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -28,7 +29,7 @@ public class EntityMergeDialog extends AbstractDialog
 {
 	private static final String FIRST_INTO_SECOND = "fis";
 	private static final String SECOND_INTO_FISRT = "sif";
-	private IdentitiesManagement identitiesMan;
+	private EntityManagement identitiesMan;
 	private OptionGroup mergeDirection; 
 	private CheckBox safeMode;
 	private EventsBus bus;
@@ -37,7 +38,7 @@ public class EntityMergeDialog extends AbstractDialog
 	private String group;
 	
 	public EntityMergeDialog(UnityMessageSource msg, EntityWithLabel first, EntityWithLabel second, String group, 
-			IdentitiesManagement identitiesMan)
+			EntityManagement identitiesMan)
 	{
 		super(msg, msg.getMessage("EntitiesMergeDialog.caption"), msg.getMessage("EntitiesMergeDialog.doMerge"),
 				msg.getMessage("cancel"));
