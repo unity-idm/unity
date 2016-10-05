@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.confirmation;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.ConfirmationConfigurationManagement;
@@ -24,6 +25,7 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationConfiguration;
  * @author P. Piernik
  */
 @Component
+@Primary
 @Transactional
 @InvocationEventProducer
 public class ConfirmationConfigurationManagementImpl implements ConfirmationConfigurationManagement

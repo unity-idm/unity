@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.api.msg;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -70,13 +71,14 @@ public class UnityMessageSource extends ReloadableResourceBundleMessageSource im
 			allBundles.add("file:" + fsLocation + getFSPathFromClasspath(classpath));
 			allBundles.add(classpath);
 		}
-			
-		setBasenames(allBundles.toArray(new String[allBundles.size()]));
+		String[] allBasenames = allBundles.toArray(new String[allBundles.size()]);
+		setBasenames(allBasenames);
 		setFallbackToSystemLocale(false);
 		setDefaultEncoding("UTF-8");
 		setAlwaysUseMessageFormat(true);
 		Set<String> activeProfiles = Sets.newHashSet(springEnv.getActiveProfiles());
 		failOnMissingMessage = activeProfiles.contains(PROFILE_FAIL_ON_MISSING);
+		log.debug("Messages will be loaded from the following locations: " + Arrays.toString(allBasenames));
 	}
 	
 	private String getFSPathFromClasspath(String classpath)

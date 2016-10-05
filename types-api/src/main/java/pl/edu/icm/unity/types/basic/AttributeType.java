@@ -70,6 +70,8 @@ public class AttributeType extends I18nDescribedObject implements Initialization
 		this(name, valueSyntax);
 		this.description = description;
 		this.displayedName = displayedName;
+		if (displayedName.getDefaultValue() == null)
+			displayedName.setDefaultValue(name);
 	}
 
 	@JsonCreator
