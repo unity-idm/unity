@@ -63,7 +63,8 @@ public class IdentitiesTablePreferences
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		EntityParam entity = new EntityParam(ae.getEntityId());
 		String raw = preferencesMan.getPreference(entity, ID);
-		return new IdentitiesTablePreferences(JsonUtil.parse(raw));
+		return raw == null ? new IdentitiesTablePreferences() : 
+			new IdentitiesTablePreferences(JsonUtil.parse(raw));
 	}
 	
 	@JsonValue
