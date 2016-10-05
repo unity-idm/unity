@@ -27,7 +27,6 @@
 					"cn",
 					"/",
 					"attr['name']",
-					"full",
 					"CREATE_OR_UPDATE"
 				]
 			}			

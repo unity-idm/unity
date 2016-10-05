@@ -14,6 +14,10 @@ import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
+import pl.edu.icm.unity.engine.translation.in.InputTranslationActionsRegistry;
+import pl.edu.icm.unity.engine.translation.in.InputTranslationProfile;
+import pl.edu.icm.unity.engine.translation.out.OutputTranslationActionsRegistry;
+import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfile;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.generic.InputTranslationProfileDB;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
@@ -36,15 +40,21 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	private AuthorizationManager authz;
 	private InputTranslationProfileDB itpDB;
 	private OutputTranslationProfileDB otpDB;
+	private InputTranslationActionsRegistry inputActionReg;
+	private OutputTranslationActionsRegistry outputActionReg;
 
 	
 	@Autowired
 	public TranslationProfileManagementImpl(AuthorizationManager authz,
-			InputTranslationProfileDB itpDB, OutputTranslationProfileDB otpDB)
+			InputTranslationProfileDB itpDB, OutputTranslationProfileDB otpDB,
+			InputTranslationActionsRegistry inputActionReg,
+			OutputTranslationActionsRegistry outputActionReg)
 	{
 		this.authz = authz;
 		this.itpDB = itpDB;
 		this.otpDB = otpDB;
+		this.inputActionReg = inputActionReg;
+		this.outputActionReg = outputActionReg;
 	}
 
 	private NamedCRUDDAOWithTS<TranslationProfile> getDAO(TranslationProfile profile)
@@ -67,6 +77,7 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	public void addProfile(TranslationProfile toAdd) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
+		checkProfile(toAdd);
 		getDAO(toAdd).create(toAdd);
 	}
 
@@ -81,6 +92,7 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	public void updateProfile(TranslationProfile updated) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
+		checkProfile(updated);
 		getDAO(updated).update(updated);
 	}
 
@@ -110,5 +122,18 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		return otpDB.get(name);
+	}
+	
+	private void checkProfile(TranslationProfile profile)
+	{
+		TranslationProfileInstance<?, ?> instance;
+		if (profile.getProfileType() == ProfileType.INPUT)
+			instance = new InputTranslationProfile(profile, inputActionReg);
+		else if (profile.getProfileType() == ProfileType.OUTPUT)
+			instance = new OutputTranslationProfile(profile, outputActionReg);
+		else
+			throw new IllegalArgumentException("Unsupported profile type: " + profile.getProfileType());
+		if (instance.hasInvalidActions())
+			throw new IllegalArgumentException("Profile definition is invalid");
 	}
 }

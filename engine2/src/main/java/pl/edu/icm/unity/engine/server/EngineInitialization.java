@@ -950,7 +950,7 @@ public class EngineInitialization extends LifecycleBase
 					log.info(" - loaded translation profile: " + tp.getName() + 
 							" from file: " + profileFile);
 				}
-			} catch (EngineException e)
+			} catch (Exception e)
 			{
 				throw new InternalException("Can't install the configured translation profile " 
 						+ tp.getName(), e);

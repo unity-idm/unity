@@ -28,7 +28,6 @@
 					"cn",
 					"/",
 					"attr['urn:oid:2.5.4.4']",
-					"full",
 					"CREATE_OR_UPDATE"
 				]
 			}			
