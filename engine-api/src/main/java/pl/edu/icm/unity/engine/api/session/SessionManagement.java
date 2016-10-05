@@ -9,7 +9,6 @@ import java.util.Map;
 
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
@@ -36,18 +35,15 @@ public interface SessionManagement
 	/**
 	 * Updates the extra attributes of the session. Update is done via callback to enable transactional access.
 	 * @param id
-	 * @throws WrongArgumentException 
 	 */
-	void updateSessionAttributes(String id, AttributeUpdater updater) 
-			throws WrongArgumentException;
+	void updateSessionAttributes(String id, AttributeUpdater updater); 
 
 	/**
 	 * Updates the lastUsed timestamp of a session. The implementation may delay this action if the 
 	 * previous update happened recently.
 	 * @param id
-	 * @throws WrongArgumentException 
 	 */
-	void updateSessionActivity(String id) throws WrongArgumentException;
+	void updateSessionActivity(String id);
 
 	/**
 	 * Removes a given session. Missing session is silently ignored.
@@ -60,19 +56,17 @@ public interface SessionManagement
 	/**
 	 * @param id
 	 * @return session
-	 * @throws WrongArgumentException 
 	 */
-	LoginSession getSession(String id) throws WrongArgumentException;
+	LoginSession getSession(String id);
 	
 	/**
 	 * Tries to find a session owned by a given entity in a given realm.
 	 * @param owner
 	 * @param realm
 	 * @return
-	 * @throws WrongArgumentException
 	 * @throws EngineException 
 	 */
-	LoginSession getOwnedSession(EntityParam owner, String realm) throws WrongArgumentException, EngineException;
+	LoginSession getOwnedSession(EntityParam owner, String realm) throws EngineException;
 	
 	/**
 	 * Adds given participands to the current login session

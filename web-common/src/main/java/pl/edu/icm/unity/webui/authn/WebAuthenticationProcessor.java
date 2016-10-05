@@ -51,7 +51,6 @@ import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.engine.api.session.SessionParticipants;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
@@ -198,7 +197,7 @@ public class WebAuthenticationProcessor
 					new SessionParticipants.AddParticipantToSessionTask(
 							participantTypesRegistry,
 							participants.toArray(new SessionParticipant[participants.size()])));
-		} catch (WrongArgumentException e)
+		} catch (IllegalArgumentException e)
 		{
 			log.error("Can't store session participants", e);
 			throw new AuthenticationException("AuthenticationProcessor.authnInternalError");
@@ -299,7 +298,7 @@ public class WebAuthenticationProcessor
 		try
 		{
 			session = sessionMan.getSession(session.getId());
-		} catch (WrongArgumentException e)
+		} catch (IllegalArgumentException e)
 		{
 			log.warn("Can not refresh the state of the current session. Logout of session participants "
 					+ "won't be performed", e);
@@ -343,7 +342,7 @@ public class WebAuthenticationProcessor
 				try
 				{
 					loginSession = sessionMan.getSession(loginSession.getId());
-				} catch (WrongArgumentException e)
+				} catch (IllegalArgumentException e)
 				{
 					log.warn("Can not refresh the state of the current session. "
 							+ "Logout of session participants won't be performed", e);

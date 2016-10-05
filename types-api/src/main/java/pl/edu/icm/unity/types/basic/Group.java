@@ -246,8 +246,8 @@ public class Group extends I18nDescribedObject implements NamedObject
 	@Override
 	public void setDisplayedName(I18nString displayedName)
 	{
-		displayedNameSet = !toString().equals(displayedName.getDefaultValue()) ||
-				!displayedName.getMap().isEmpty();
+		displayedNameSet = !displayedName.isEmpty() && 
+				!toString().equals(displayedName.getDefaultValue());
 		super.setDisplayedName(displayedName);
 	}
 	
@@ -294,9 +294,7 @@ public class Group extends I18nDescribedObject implements NamedObject
 	{
 		setDescription(I18nStringJsonUtil.fromJson(main.get("i18nDescription"),
 				main.get("description")));
-		setDisplayedName(main.has("displayedName") ? 
-				I18nStringJsonUtil.fromJson(main.get("displayedName")) : 
-					new I18nString(toString()));
+		setDisplayedName(I18nStringJsonUtil.fromJson(main.get("displayedName")));
 		
 		ArrayNode jsonStatements = (ArrayNode) main.get("attributeStatements");
 		int asLen = jsonStatements.size();
