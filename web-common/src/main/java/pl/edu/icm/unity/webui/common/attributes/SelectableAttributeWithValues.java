@@ -53,7 +53,7 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 		this.at = at;
 		this.webHandler = webHandler;
 		this.msg = msg;
-		syntax = (AttributeValueSyntax<T>) aTypeSupport.getSyntax(attribute);
+		syntax = (AttributeValueSyntax<T>) aTypeSupport.getSyntaxFallingBackToDefault(attribute);
 		initUI();
 	}
 
