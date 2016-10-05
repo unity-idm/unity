@@ -290,6 +290,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	}
 
 	@Override
+	@Transactional
 	public FormAutomationSupport getFormAutomationSupport(RegistrationForm form)
 	{
 		return confirmationsSupport.getRegistrationProfile(form);
