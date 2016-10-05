@@ -60,7 +60,7 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 	{
 		List<LabelledValue> labelledValues = new ArrayList<>(values.size());
 		for (String value: values)
-			labelledValues.add(new LabelledValue(value, caption));
+			labelledValues.add(new LabelledValue(syntax.convertFromString(value), caption));
 		valuesComponent.setEntries(labelledValues);
 	}
 	
