@@ -86,7 +86,11 @@ public abstract class TranslationProfileInstance<T extends TranslationActionInst
 		}
 	}
 	
-	
+	public TranslationProfile getProfile()
+	{
+		return profile;
+	}
+
 	/**
 	 * 
 	 * @return if true then some of the actions were not loaded properly.

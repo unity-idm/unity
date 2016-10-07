@@ -293,6 +293,6 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	@Transactional
 	public FormAutomationSupport getFormAutomationSupport(RegistrationForm form)
 	{
-		return confirmationsSupport.getRegistrationProfile(form);
+		return confirmationsSupport.getRegistrationFormAutomationSupport(form);
 	}
 }

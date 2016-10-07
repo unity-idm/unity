@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.forms;
 
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,9 +18,11 @@ import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationConfirmationS
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqAttribiuteConfirmationState;
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqIdentityConfirmationState;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.translation.form.BaseFormTranslationProfile;
 import pl.edu.icm.unity.engine.translation.form.EnquiryTranslationProfile;
+import pl.edu.icm.unity.engine.translation.form.FormAutomationSupportExt;
 import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -52,6 +55,8 @@ public class RegistrationConfirmationSupport
 	private RegistrationActionsRegistry registrationTranslationActionsRegistry;
 	@Autowired
 	private AttributeTypeHelper atHelper;
+	@Autowired
+	private ObjectFactory<FormAutomationSupportExt> formAutomationSupportFactory;
 	
 	public void sendAttributeConfirmationRequest(RegistrationRequestState requestState,
 			Long entityId, RegistrationForm form) throws InternalException, EngineException
@@ -169,6 +174,20 @@ public class RegistrationConfirmationSupport
 				atHelper, form);
 	}	
 
+	public FormAutomationSupport getRegistrationFormAutomationSupport(RegistrationForm form)
+	{
+		FormAutomationSupportExt automationSupport = formAutomationSupportFactory.getObject();
+		automationSupport.init(getRegistrationProfile(form));
+		return automationSupport;
+	}
+	
+	public FormAutomationSupport getEnquiryFormAutomationSupport(EnquiryForm form)
+	{
+		FormAutomationSupportExt automationSupport = formAutomationSupportFactory.getObject();
+		automationSupport.init(getEnquiryProfile(form));
+		return automationSupport;
+	}
+	
 	public EnquiryTranslationProfile getEnquiryProfile(EnquiryForm form)
 	{
 		TranslationProfile translationProfile = form.getTranslationProfile();
