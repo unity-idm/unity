@@ -86,6 +86,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		this.notificationsMan = notificationsMan;
 		this.msgTempMan = msgTempMan;
 		actionComponentProvider = actionComponentFactory;
+		this.actionComponentProvider.init();
 	}
 
 	public EnquiryFormEditor init(boolean copyMode)

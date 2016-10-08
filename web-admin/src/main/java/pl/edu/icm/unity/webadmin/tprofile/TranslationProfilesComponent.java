@@ -88,6 +88,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		
 		try 
 		{
+			actionComponentFactory.init();
 			establishSandboxURL(endpointMan);
 		} catch (EngineException e) 
 		{

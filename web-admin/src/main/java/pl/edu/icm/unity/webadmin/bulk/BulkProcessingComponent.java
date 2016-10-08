@@ -164,6 +164,7 @@ public class BulkProcessingComponent extends CustomComponent
 	{
 		try
 		{
+			parameterFactory.init();
 			List<ScheduledProcessingRule> scheduledRules = bulkManagement.getScheduledRules();
 			table.setInput(scheduledRules);
 			setCompositionRoot(main);

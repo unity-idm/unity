@@ -40,16 +40,29 @@ public class ActionParameterComponentProvider
 	private Collection<String> idTypes;
 	private Collection<AttributeType> atTypes;
 
+	private AttributeTypeManagement attrsMan;
+	private IdentityTypeSupport idTypeSupport;
+	private CredentialRequirementManagement credReqMan;
+	private GroupsManagement groupsMan;
+
 	@Autowired
 	public ActionParameterComponentProvider(UnityMessageSource msg,
 			AttributeTypeManagement attrsMan, IdentityTypeSupport idTypeSupport,
-			CredentialRequirementManagement authnMan, GroupsManagement groupsMan) throws EngineException
+			CredentialRequirementManagement credReqMan, GroupsManagement groupsMan)
 	{
 		this.msg = msg;
+		this.attrsMan = attrsMan;
+		this.idTypeSupport = idTypeSupport;
+		this.credReqMan = credReqMan;
+		this.groupsMan = groupsMan;
+	}
+
+	public void init() throws EngineException
+	{
 		this.atTypes = attrsMan.getAttributeTypes();
 		this.groups = new ArrayList<>(groupsMan.getChildGroups("/"));
 		Collections.sort(groups);
-		Collection<CredentialRequirements> crs = authnMan.getCredentialRequirements();
+		Collection<CredentialRequirements> crs = credReqMan.getCredentialRequirements();
 		credReqs = new TreeSet<String>();
 		for (CredentialRequirements cr: crs)
 			credReqs.add(cr.getName());
@@ -62,7 +75,6 @@ public class ActionParameterComponentProvider
 				idTypes.add(it.getIdentityTypeProvider());
 		}
 	}
-
 
 	public ActionParameterComponent getParameterComponent(ActionParameterDefinition param)
 	{

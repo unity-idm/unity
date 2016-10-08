@@ -96,6 +96,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		this.msgTempMan = msgTempMan;
 		this.credReqMan = credReqMan;
 		this.actionComponentFactory = actionComponentFactory;
+		this.actionComponentFactory.init();
 	}
 	
 	public RegistrationFormEditor init(boolean copyMode)
