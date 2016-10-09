@@ -124,7 +124,7 @@ public class GroupDetailsComponent extends SafePanel
 		{
 			GroupContents contents = groupsManagement.getContents(group, GroupContents.METADATA);
 			Group rGroup = contents.getGroup();
-			displayedName.setValue(rGroup.getDisplayedName().getValue(msg));
+			displayedName.setValue(rGroup.getDisplayedNameShort().getValue(msg));
 			String desc = rGroup.getDescription().getValue(msg);
 			description.setValue(desc == null ? "" : desc);
 			description.setVisible(desc != null && !desc.isEmpty());

@@ -236,11 +236,11 @@ public class Group extends I18nDescribedObject implements NamedObject
 
 	/**
 	 * @return if displayed name was set to something different then the default value (i.e. the value returned 
-	 * by {@link #toString()}) it is returned. Otherwise the {@link #getName()} result is returned. 
+	 * by {@link #toString()}) it is returned. Otherwise the {@link #getNameShort()} result is returned. 
 	 */
 	public I18nString getDisplayedNameShort()
 	{
-		return displayedNameSet ? displayedName : new I18nString(getName());
+		return displayedNameSet ? displayedName : new I18nString(getNameShort());
 	}
 	
 	@Override
@@ -249,6 +249,14 @@ public class Group extends I18nDescribedObject implements NamedObject
 		displayedNameSet = !displayedName.isEmpty() && 
 				!toString().equals(displayedName.getDefaultValue());
 		super.setDisplayedName(displayedName);
+	}
+	
+	/**
+	 * @return last component of the group path
+	 */
+	public String getNameShort()
+	{
+		return path.length == 0 ? "/" : path[path.length-1];
 	}
 	
 	@Override
