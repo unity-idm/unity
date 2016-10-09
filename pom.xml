@@ -43,7 +43,7 @@
 	<modules>
 		<module>types-api</module>
 		<module>engine-api</module>
-		<module>engine2</module>
+		<module>engine</module>
 		<module>base</module>
 		<module>storage-api</module>
 		<module>storage</module>

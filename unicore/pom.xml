@@ -31,7 +31,7 @@
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-server-engine2</artifactId>
+			<artifactId>unity-server-engine</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
@@ -43,7 +43,7 @@
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-server-engine2</artifactId>
+			<artifactId>unity-server-engine</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 			<classifier>tests</classifier>

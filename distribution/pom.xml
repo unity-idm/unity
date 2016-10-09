@@ -23,7 +23,7 @@
 		<!-- compile -->
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-server-engine2</artifactId>
+			<artifactId>unity-server-engine</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -147,7 +147,7 @@
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-server-engine2</artifactId>
+			<artifactId>unity-server-engine</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
 			<classifier>i18n</classifier>
