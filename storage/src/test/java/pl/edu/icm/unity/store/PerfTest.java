@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +29,10 @@ import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionalRunner;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
+/**
+ * Note: this test is only run on HZ storage engine
+ * @author K. Benedyczak
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
 public class PerfTest 
@@ -52,9 +57,15 @@ public class PerfTest
 	@Autowired
 	private AttributeTypeRDBMSStore rdbmsDao;
 	
+	@Autowired
+	private StorageConfiguration systemCfg;
+	
 	@Before
 	public void cleanDB()
 	{
+		StorageEngine engine = systemCfg.getEnumValue(StorageConfiguration.ENGINE, StorageEngine.class);
+		Assume.assumeTrue(engine == StorageEngine.hz);
+		
 		dbCleaner.reset();
 	}
 

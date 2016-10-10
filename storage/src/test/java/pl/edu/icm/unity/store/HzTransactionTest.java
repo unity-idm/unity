@@ -15,6 +15,8 @@ import static org.junit.Assert.assertThat;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.After;
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,10 @@ import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionalRunner;
 import pl.edu.icm.unity.store.tx.TransactionTL;
 
+/**
+ * Note: this test is only run on HZ storage engine
+ * @author K. Benedyczak
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
 public class HzTransactionTest
@@ -40,6 +46,16 @@ public class HzTransactionTest
 	@Autowired
 	private StorageCleanerImpl initDB;
 	
+	@Autowired
+	private StorageConfiguration systemCfg;
+	
+	@Before
+	public void beforeMethod() 
+	{
+		StorageEngine engine = systemCfg.getEnumValue(StorageConfiguration.ENGINE, StorageEngine.class);
+		Assume.assumeTrue(engine == StorageEngine.hz);
+	}
+
 	@After
 	public void cleanDB()
 	{
