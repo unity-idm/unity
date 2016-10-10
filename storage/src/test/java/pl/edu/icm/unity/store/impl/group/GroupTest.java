@@ -143,22 +143,27 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 	@Override
 	public void importExportIsIdempotent()
 	{
-		tx.runInTransaction(() -> {
-			Group obj = getObject("name1");
+		Group obj = getObject("name1");
+		ByteArrayOutputStream os = tx.runInTransactionRet(() -> {
 			dao.create(obj);
 			
-			ByteArrayOutputStream os = new ByteArrayOutputStream();
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			try
 			{
-				ie.store(os);
+				ie.store(baos);
 			} catch (Exception e)
 			{
 				e.printStackTrace();
 				fail("Export failed " + e);
 			}
-
+			return baos;
+		});
+		
+		tx.runInTransaction(() -> {
 			dbCleaner.reset();
-			
+		});
+
+		tx.runInTransaction(() -> {
 			String dump = new String(os.toByteArray(), StandardCharsets.UTF_8);
 			ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
 			try

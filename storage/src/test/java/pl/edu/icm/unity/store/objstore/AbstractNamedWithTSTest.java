@@ -86,25 +86,33 @@ public abstract class AbstractNamedWithTSTest<T extends NamedObject> extends Abs
 	@Test
 	public void importExportIsIdempotent()
 	{
-		tx.runInTransaction(() -> {
+		T obj = getObject("name1");
+		ByteArrayOutputStream os = tx.runInTransactionRet(() -> {
 			NamedCRUDDAOWithTS<T> dao = getDAO();
-			T obj = getObject("name1");
 			dao.create(obj);
 	
-			Date updateTimestamp = dao.getUpdateTimestamp(obj.getName());
-			
-			ByteArrayOutputStream os = new ByteArrayOutputStream();
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			try
 			{
-				ie.store(os);
+				ie.store(baos);
 			} catch (Exception e)
 			{
 				e.printStackTrace();
 				fail("Export failed " + e);
 			}
+			return baos;
+		});
+		Date updateTimestamp = tx.runInTransactionRet(() -> {
+			NamedCRUDDAOWithTS<T> dao = getDAO();
+			return dao.getUpdateTimestamp(obj.getName());
+		});
 
+		tx.runInTransaction(() -> {
 			dbCleaner.reset();
-			
+		});			
+
+		tx.runInTransaction(() -> {
+			NamedCRUDDAOWithTS<T> dao = getDAO();
 			String dump = new String(os.toByteArray(), StandardCharsets.UTF_8);
 			ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
 			try
