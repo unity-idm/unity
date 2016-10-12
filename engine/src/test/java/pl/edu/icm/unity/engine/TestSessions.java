@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.session.SessionManagement.AttributeUpdater;
-import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.engine.session.LastAuthenticationAttributeTypeProvider;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -124,10 +123,10 @@ public class TestSessions extends DBIntegrationTestBase
 	{
 		assertEquals(s.getId(), ret.getId());
 		assertEquals(s.getEntityId(), ret.getEntityId());
-		assertEquals(TimeUtil.roundToS(s.getExpires()), TimeUtil.roundToS(ret.getExpires()));
+		assertEquals(s.getExpires(), ret.getExpires());
 		assertEquals(s.getMaxInactivity(), ret.getMaxInactivity());
 		assertEquals(s.getRealm(), ret.getRealm());
-		assertEquals(TimeUtil.roundToS(s.getStarted()), TimeUtil.roundToS(ret.getStarted()));
+		assertEquals(s.getStarted(), ret.getStarted());
 		assertEquals(s.getSessionData(), ret.getSessionData());
 	}
 	

@@ -4,7 +4,7 @@
 <mapper namespace="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper">
 
 	<sql id="dateTimeType">
-		DATETIME
+		DATETIME(3)
 	</sql>
 	
 	<sql id="primaryKeyColumn">

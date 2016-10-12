@@ -121,7 +121,7 @@ public class StorageConfiguration extends PropertiesHelper
 			}
 		} else
 		{
-			String path = "/dbConfigs/" + alternativeDB + ".conf";
+			String path = "/testDBConfigs/" + alternativeDB + ".conf";
 			log.info("Loading alternative DB config from classpath resource " + path);
 			is = StorageConfiguration.class.getResourceAsStream(path);
 		}

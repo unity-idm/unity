@@ -8,9 +8,6 @@
 		)
 	</update>
  
-	<update id="cleardb-00">
-		DROP TABLE IF EXISTS UVOS_FLAG;
-	</update>
 	<update id="cleardb-01">
 		DROP TABLE IF EXISTS TOKENS;
 	</update>
@@ -41,7 +38,10 @@
 	<update id="cleardb-10">
 		DROP TABLE IF EXISTS EVENTS_QUEUE;
 	</update>
-		
+	<update id="cleardb-99">
+		DROP TABLE IF EXISTS UVOS_FLAG;
+	</update>
+			
 	<select id="getDBVersion" resultType="String">
 		select VAL from UVOS_FLAG 
 	</select>

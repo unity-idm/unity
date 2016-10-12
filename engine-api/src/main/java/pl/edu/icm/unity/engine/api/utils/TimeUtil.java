@@ -7,7 +7,6 @@ package pl.edu.icm.unity.engine.api.utils;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Date;
 
 import pl.edu.icm.unity.Constants;
 
@@ -17,17 +16,6 @@ import pl.edu.icm.unity.Constants;
  */
 public class TimeUtil
 {
-	/**
-	 * TODO this method shall be removed (and all its usages) after MySQL timestamp store is updated to 
-	 * millisecond precision
-	 * @param what
-	 * @return
-	 */
-	public static Date roundToS(Date what)
-	{
-		return what == null ? null : new Date((what.getTime()/1000)*1000);
-	}
-	
 	/**
 	 * @param instant
 	 * @return instant formated as a string with medium size in the current timezone

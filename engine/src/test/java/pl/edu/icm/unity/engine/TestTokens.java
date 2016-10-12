@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
-import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -52,7 +51,7 @@ public class TestTokens extends DBIntegrationTestBase
 		assertEquals(id.getEntityId(), token.getOwner().longValue());
 		assertEquals('a', token.getContents()[0]);
 		assertNotNull(token.getCreated());
-		assertEquals(TimeUtil.roundToS(exp), TimeUtil.roundToS(token.getExpires()));
+		assertEquals(exp, token.getExpires());
 	}
 	
 	@Test
@@ -110,7 +109,7 @@ public class TestTokens extends DBIntegrationTestBase
 		assertEquals(id.getEntityId(), token.getOwner().longValue());
 		assertEquals('b', token.getContents()[0]);
 		assertNotNull(token.getCreated());
-		assertEquals(TimeUtil.roundToS(exp), TimeUtil.roundToS(token.getExpires()));
+		assertEquals(exp, token.getExpires());
 	}
 
 	@Test
