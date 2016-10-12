@@ -99,6 +99,8 @@ public class TestMerge extends DBIntegrationTestBase
 
 		//dynamic not added as target has one
 		idT = getIdentitiesByType(result.getIdentities(), PersistentIdentity.ID);
+		System.out.println("srcT: " + srcT + "\nidT: " + idT + "\nresult: " + result + 
+				"\nmerged: " + mergedFull + "\ntarget: " + targetFull);
 		assertEquals(1, idT.size());
 		srcT = getIdentitiesByType(targetFull.getIdentities(), PersistentIdentity.ID);
 		assertEquals(1, srcT.size());
