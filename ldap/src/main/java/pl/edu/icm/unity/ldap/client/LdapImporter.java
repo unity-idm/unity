@@ -22,7 +22,7 @@ import pl.edu.icm.unity.server.utils.Log;
  */
 public class LdapImporter implements UserImportSPI
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP, LdapImporter.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP_CLIENT, LdapImporter.class);
 	
 	public static final String NAME = "ldap";
 	

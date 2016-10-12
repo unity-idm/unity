@@ -15,6 +15,7 @@ import pl.edu.icm.unity.ldap.endpoint.LdapEndpointFactory;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
 import java.io.IOException;
@@ -66,9 +67,10 @@ public class LdapEndpointTests extends DBIntegrationTestBase
 	{
 		List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
 		authnCfg.add(new AuthenticationOptionDescription("pwdLdapSimple"));
-		endpointMan.deploy(LdapEndpointFactory.NAME,
-			"endpoint1", new I18nString("endpoint1"),
-			"/mock", "desc", authnCfg, ldapEndpointConfiguration, "defaultRealm");
+        EndpointConfiguration cfg = new EndpointConfiguration(
+            new I18nString("endpoint1"), "desc", authnCfg, ldapEndpointConfiguration, "defaultRealm"
+        );
+		endpointMan.deploy(LdapEndpointFactory.NAME, "endpoint1", "/mock", cfg);
 		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
 

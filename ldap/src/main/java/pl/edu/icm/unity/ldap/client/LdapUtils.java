@@ -21,7 +21,7 @@ import pl.edu.icm.unity.server.utils.Log;
  */
 public class LdapUtils
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP, LdapUtils.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP_CLIENT, LdapUtils.class);
 	
 	/**
 	 * Returns a value of the nameAttribute in dn. If not found then null is returned. This is intended 
