@@ -11,12 +11,8 @@
 		ID INTEGER PRIMARY KEY AUTO_INCREMENT
 	</sql>
 	
-	<sql id="values">
-		`VALUES`
-	</sql>
-	
-	<sql id="valuesColumn">
-		`VALUES` MEDIUMBLOB
+	<sql id="contentsColumnBlob">
+		CONTENTS MEDIUMBLOB
 	</sql>
 
 	<sql id="contentsColumn">

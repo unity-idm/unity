@@ -8,19 +8,19 @@
 		<result property="typeId" column="TYPE_ID"/>
 		<result property="entityId" column="ENTITY_ID"/>
 		<result property="groupId" column="GROUP_ID"/>
-		<result property="values" column="VALUES"/>
+		<result property="values" column="CONTENTS"/>
 		<result property="name" column="NAME"/>
 		<result property="valueSyntaxId" column="VALUE_SYNTAX_ID"/>
 		<result property="group" column="GROUP_PATH"/>
 	</resultMap>
 
 	<insert id="create" parameterType="AttributeB" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
-		INSERT INTO ATTRIBUTES (TYPE_ID, ENTITY_ID, GROUP_ID, <include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.values"/>) 
+		INSERT INTO ATTRIBUTES (TYPE_ID, ENTITY_ID, GROUP_ID, CONTENTS) 
 			VALUES (#{typeId}, #{entityId}, #{groupId}, #{values}) 
 	</insert>
 
 	<update id="updateByKey" parameterType="AttributeB">
-		UPDATE ATTRIBUTES SET <include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.values"/> = #{values} 
+		UPDATE ATTRIBUTES SET CONTENTS = #{values} 
 			WHERE ID = #{id}
 	</update>
 

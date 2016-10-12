@@ -11,11 +11,7 @@
 		ID SERIAL PRIMARY KEY
 	</sql>
 
-	<sql id="values">
-		VALUES
-	</sql>
-
-	<sql id="valuesColumn">
+	<sql id="contentsColumnBlob">
 		VALUES BYTEA
 	</sql>
 

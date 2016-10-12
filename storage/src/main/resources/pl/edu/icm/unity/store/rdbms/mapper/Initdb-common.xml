@@ -47,7 +47,7 @@ CREATE TABLE ATTRIBUTES(
 		TYPE_ID INTEGER NOT NULL,
 		ENTITY_ID INTEGER NOT NULL,
 		GROUP_ID INTEGER NOT NULL,
-		<include refid="valuesColumn"/>,
+		<include refid="contentsColumnBlob"/>,
 		FOREIGN KEY (ENTITY_ID) REFERENCES ENTITIES(ID) ON DELETE CASCADE,	
 		FOREIGN KEY (TYPE_ID) REFERENCES ATTRIBUTE_TYPES(ID) ON DELETE CASCADE,
 		FOREIGN KEY (GROUP_ID) REFERENCES GROUPS(ID) ON DELETE CASCADE	
@@ -95,8 +95,8 @@ CREATE TABLE EVENTS_QUEUE(
 		<include refid="primaryKeyColumn"/>,
 		LISTENER_ID 	VARCHAR(256),
 		NEXT_PROCESSING <include refid="dateTimeType"/>,
-		FAILURES		INT,
-		<include refid="valuesColumn"/>
+		FAILURES		INTEGER,
+		<include refid="contentsColumnBlob"/>
 		<include refid="tableOpts"/>		
 	</sql>
 	<sql id="sql-initEventsTableIdx">
