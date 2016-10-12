@@ -139,14 +139,6 @@
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-server-storage</artifactId>
-			<version>${project.version}</version>
-			<type>zip</type>
-			<classifier>i18n</classifier>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
 			<artifactId>unity-server-engine</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
