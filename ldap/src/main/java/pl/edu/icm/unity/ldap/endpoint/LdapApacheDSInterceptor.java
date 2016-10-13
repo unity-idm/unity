@@ -171,8 +171,10 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 						.lookupAttributeTypeRegistry(SchemaConstants.OBJECT_CLASS_AT);
 				entry.put("objectClass", OBJECT_CLASS_AT, "top", "person",
 						"inetOrgPerson", "organizationalPerson");
+				// FIXME - decide on this one
+				// do we want to expose this? maybe we should
 				entry.put("cn", schemaManager.lookupAttributeTypeRegistry("cn"),
-						"test");
+						"we do not want to expose this");
 				return new ClonedServerEntry(entry);
 			}
 		}
@@ -219,7 +221,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 			authnResult = auth.authenticate(bindContext);
 		} catch (Exception e)
 		{
-			throw new LdapOtherException("Error when authenticating", e);
+			throw new LdapOtherException("Error while authenticating", e);
 		}
 
 		if (authnResult.getStatus() == Status.success && 
