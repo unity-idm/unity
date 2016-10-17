@@ -259,4 +259,10 @@ public class LdapServerFacade
         ds.startup();
         impl.start();
     }
+
+    public void stop() throws Exception
+    {
+        impl.stop();
+        ds.shutdown();
+    }
 }

@@ -17,5 +17,5 @@ public interface LdapServerAuthentication extends BindingAuthn
 {
 	String NAME = "ldap-protocol";
 	
-	AuthenticationResult authenticate(BindOperationContext bindContext);
+	AuthenticationResult authenticate(LdapServerProperties configuration, BindOperationContext bindContext);
 }

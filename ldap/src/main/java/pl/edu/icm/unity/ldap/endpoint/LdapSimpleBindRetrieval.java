@@ -37,20 +37,10 @@ public class LdapSimpleBindRetrieval extends AbstractCredentialRetrieval<Passwor
 		return;
 	}
 
-
-	public static String extractUsernameFromDN(Dn dn)
-	{
-		//FIXME - this should be configurable and more flexible. 
-		//Currently ANYTHING=usernameOrEmail must be used as bind DN
-		// also - maybe this code should be moved elsewhere and be shared with the rest of the stack?
-		// I think about LdapApacheDSInterceptor#getUserName() 
-		return dn.getRdn().getAva().getValue().toString();
-	}
-	
 	@Override
-	public AuthenticationResult authenticate(BindOperationContext bindContext)
+	public AuthenticationResult authenticate(LdapServerProperties configuration, BindOperationContext bindContext)
 	{
-		String username = extractUsernameFromDN(bindContext.getDn());
+		String username = LdapNodeUtils.getUserName(configuration, bindContext.getDn());
 		String password = new String(bindContext.getCredentials(), StandardCharsets.UTF_8);
 		return credentialExchange.checkPassword(username, password, null);
 	}

@@ -48,7 +48,7 @@ public class MockPasswordVerificator extends AbstractLocalVerificator implements
 			minLen = Integer.parseInt(json);
 		} catch (Exception e)
 		{
-			throw new IllegalArgumentException("The configuration of the mock password handler is invlid", e);
+			throw new IllegalArgumentException("The configuration of the mock password handler is invalid", e);
 		}
 	}
 

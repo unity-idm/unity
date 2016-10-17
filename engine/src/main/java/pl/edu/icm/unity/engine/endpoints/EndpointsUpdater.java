@@ -85,7 +85,7 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 				String name = instance.getEndpointDescription().getId();
 				endpointsInDb.add(name);
 				long endpointLastChange = roundToS(instanceWithDate.getValue().getTime());
-				log.trace("Update timestampses: " + roundedUpdateTime + " " + 
+				log.trace("Update timestamps: " + roundedUpdateTime + " " +
 						getLastUpdate() + " " + name + ": " + endpointLastChange);
 				if (endpointLastChange >= getLastUpdate())
 				{

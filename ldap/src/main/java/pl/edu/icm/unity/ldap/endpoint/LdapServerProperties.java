@@ -39,27 +39,39 @@ public class LdapServerProperties extends PropertiesHelper
 	public static final String GROUP_QUERY = "groupQuery";
 	public static final String USER_QUERY = "userQuery"; 
 	public static final String GROUP_MEMBER = "groupMember"; 
-	public static final String GROUP_MEMBER_USER_REGEXP = "groupMemberUserRegexp"; 
-	public static final String RETURNED_USER_ATTRIBUTES = "returnedUserAttributes"; 
-	
+	public static final String GROUP_MEMBER_USER_REGEXP = "groupMemberUserRegexp";
+	public static final String RETURNED_USER_ATTRIBUTES = "returnedUserAttributes";
+	public static final String USER_NAME_ALIASES = "userNameAliases";
+
 	static
 	{
 		PropertyMD.DocumentationCategory main = new PropertyMD.DocumentationCategory("General settings", "1");
-		META.put(HOST, new PropertyMD().setCategory(main).setDescription("LDAP server host settings"));
-		META.put(LDAP_PORT, new PropertyMD().setCategory(main).setDescription("LDAP server port settings"));
-		META.put(LDAPS_PORT, new PropertyMD().setCategory(main).setDescription("LDAPs server port settings"));
+		META.put(HOST, new PropertyMD().setCategory(main)
+			.setDescription("LDAP server host settings"));
+		META.put(LDAP_PORT, new PropertyMD().setCategory(main)
+			.setDescription("LDAP server port settings"));
+		META.put(LDAPS_PORT, new PropertyMD().setCategory(main)
+			.setDescription("LDAPs server port settings"));
 
-		META.put(TLS_SUPPORT, new PropertyMD().setCategory(main).setDescription("LDAP tls support"));
-		META.put(CERT_PASSWORD, new PropertyMD().setCategory(main).setDescription("LDAP certificate password if self created"));
-		META.put(KEYSTORE_FILENAME, new PropertyMD().setCategory(main).setDescription("LDAP keystore filename relative to working directory"));
+		META.put(TLS_SUPPORT, new PropertyMD().setCategory(main)
+			.setDescription("LDAP tls support"));
+		META.put(CERT_PASSWORD, new PropertyMD().setCategory(main)
+			.setDescription("LDAP certificate password if self created"));
+		META.put(KEYSTORE_FILENAME, new PropertyMD().setCategory(main)
+			.setDescription("LDAP keystore filename relative to working directory"));
 
-		META.put(GROUP_QUERY, new PropertyMD().setCategory(main).setDescription("LDAP group query token"));
-		META.put(USER_QUERY, new PropertyMD().setCategory(main).setDescription("LDAP user query token"));
-		META.put(GROUP_MEMBER, new PropertyMD().setCategory(main).setDescription("LDAP member attribute name"));
+		META.put(GROUP_QUERY, new PropertyMD().setCategory(main)
+			.setDescription("LDAP group query token"));
+		META.put(USER_QUERY, new PropertyMD().setCategory(main)
+			.setDescription("LDAP user query token"));
+		META.put(GROUP_MEMBER, new PropertyMD().setCategory(main)
+			.setDescription("LDAP member attribute name"));
 		META.put(GROUP_MEMBER_USER_REGEXP, new PropertyMD().setCategory(main)
-				.setDescription("LDAP regexp for getting user from a member query"));
+			.setDescription("LDAP regexp for getting user from a member query"));
 		META.put(RETURNED_USER_ATTRIBUTES, new PropertyMD().setCategory(main)
-				.setDescription("Attributes that should be returned if return all user attributes flag is set"));
+			.setDescription("Attributes that should be returned if return all user attributes flag is set"));
+		META.put(USER_NAME_ALIASES, new PropertyMD().setCategory(main)
+			.setDescription("Attributes that will be used to get username from Dn"));
 	}
 	
 	public LdapServerProperties(Properties properties) throws ConfigurationException

@@ -45,6 +45,8 @@ public class LdapEndpoint extends AbstractEndpoint
 
     private UserMapper userMapper;
 
+    LdapServerFacade ldapServerFacade;
+
     public LdapEndpoint(NetworkServer server, SessionManagement sessionMan,
             AttributesManagement attributesMan, IdentitiesManagement identitiesMan,
             UnityServerConfiguration mainConfig, UserMapper userMapper)
@@ -86,6 +88,12 @@ public class LdapEndpoint extends AbstractEndpoint
     {
     }
 
+    @Override
+    public void destroy() throws EngineException
+    {
+        stopLdapEmbeddedServer();
+    }
+
     private void startLdapEmbeddedServer(LdapSimpleBindRetrieval rpr)
     {
         String host = configuration.getValue(LdapServerProperties.HOST);
@@ -107,22 +115,32 @@ public class LdapEndpoint extends AbstractEndpoint
         LdapApacheDSInterceptor ladi = new LdapApacheDSInterceptor(
             rpr, sessionMan, this.description.getRealm(), attributesMan, identitiesMan, configuration, userMapper
         );
-        LdapServerFacade lsf = new LdapServerFacade(
+        ldapServerFacade = new LdapServerFacade(
             host, port, "ldap server interface", workDirectory
         );
-        ladi.setLdapServerFacade(lsf);
+        ladi.setLdapServerFacade(ldapServerFacade);
 
         try
         {
-            lsf.init(false, ladi);
+            ldapServerFacade.init(false, ladi);
             if (tlsSupport) {
-                lsf.initTLS(keystoreFileName, certPass, false);
+                ldapServerFacade.initTLS(keystoreFileName, certPass, false);
             }
-            lsf.start();
+            ldapServerFacade.start();
 
         } catch (Exception e)
         {
             LOG.error("LDAP embedded server failed to start", e);
         }
     }
+
+    private void stopLdapEmbeddedServer()
+    {
+        try {
+            ldapServerFacade.stop();
+        } catch (Exception e) {
+            LOG.error("LDAP embedded server was not shutdown correctly");
+        }
+    }
 }
+
