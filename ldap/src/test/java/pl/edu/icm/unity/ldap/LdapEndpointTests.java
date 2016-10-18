@@ -5,11 +5,13 @@
 package pl.edu.icm.unity.ldap;
 
 import com.unboundid.ldap.sdk.*;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.ldap.client.*;
 import pl.edu.icm.unity.ldap.endpoint.LdapEndpointFactory;
 import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
@@ -27,6 +29,7 @@ import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
@@ -41,6 +44,11 @@ public class LdapEndpointTests extends DBIntegrationTestBase
 	public static final String ldapEndpointHostname = "127.0.0.1";
     public static final int ldapEndpointPort = 389;
     public static final String ldapEndpointDNTemplate= "cn={USERNAME},ou=system";
+
+    private String credentialId = "credential1";
+    private String username1 = "clarin";
+    private String apass1 = "heslo";
+    private String email1 = "clarin@email.com";
 
 
     public static final String ldapEndpointConfiguration =
@@ -100,27 +108,90 @@ public class LdapEndpointTests extends DBIntegrationTestBase
         return new LdapClientConfiguration(lp, null);
     }
 
+    @Before
+    public void setUp() throws Exception
+    {
+        // do the magic initialisation
+        //
+        setupPasswordAuthn();
+        String ldap_typeId = "password with ldap-simple";
+
+        final String AUTHENTICATOR_PASS = "ApassLDAPT";
+        authnMan.createAuthenticator(
+            AUTHENTICATOR_PASS, ldap_typeId, null, "", credentialId
+        );
+        List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
+        authnCfg.add(
+            new AuthenticationOptionDescription(AUTHENTICATOR_PASS)
+        );
+
+        // create a simple test user
+        setUpUser(username1, apass1, email1);
+
+        // deploy
+        //
+        EndpointConfiguration cfg = new EndpointConfiguration(
+            new I18nString("ldapEndpoint"), "desc", authnCfg, ldapEndpointConfiguration, "defaultRealm"
+        );
+        endpointMan.deploy(LdapEndpointFactory.NAME, "ldapEndpoint", "/mock", cfg);
+        List<EndpointDescription> endpoints = endpointMan.getEndpoints();
+        assertEquals(1, endpoints.size());
+    }
+
+    private void setUpUser(String username, String apass, String email) throws EngineException
+    {
+        // create a simple test user
+        //
+        String role = AuthorizationManagerImpl.USER_ROLE;
+
+        Identity user_id = idsMan.addEntity(
+            new IdentityParam(UsernameIdentity.ID, username),
+            CRED_REQ_PASS, EntityState.valid, false
+        );
+        idsMan.setEntityCredential(new EntityParam(user_id), credentialId,
+            new PasswordToken(apass).toJson()
+        );
+        EnumAttribute sa = new EnumAttribute(
+            SystemAttributeTypes.AUTHORIZATION_ROLE,
+            "/", AttributeVisibility.local, role
+        );
+        attrsMan.setAttribute(new EntityParam(user_id), sa, false);
+
+            if (null == email) {
+                return;
+            }
+
+        IdentityParam email_id_param = new IdentityParam(EmailIdentity.ID, email);
+        // this is required otherwise the email won't be returned
+        // in IdentityResolverImpl::getEntity
+        email_id_param.setConfirmationInfo(new ConfirmationInfo(true));
+        Identity email_id = idsMan.addEntity(
+            email_id_param, CRED_REQ_PASS, EntityState.valid, false
+        );
+        idsMan.setEntityCredential(new EntityParam(email_id), credentialId,
+            new PasswordToken(apass).toJson()
+        );
+
+        // merge identities email + username
+        idsMan.mergeEntities(
+            new EntityParam(user_id), new EntityParam(email_id), false
+        );
+    }
+
 	@Test
 	public void testBind() throws Exception
 	{
-		List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
-		authnCfg.add(new AuthenticationOptionDescription("pwdLdapSimple"));
-        EndpointConfiguration cfg = new EndpointConfiguration(
-            new I18nString("endpoint1"), "desc", authnCfg, ldapEndpointConfiguration, "defaultRealm"
-        );
-		endpointMan.deploy(LdapEndpointFactory.NAME, "endpoint1", "/mock", cfg);
-		List<EndpointDescription> endpoints = endpointMan.getEndpoints();
-		assertEquals(1, endpoints.size());
-
         LdapClient client = new LdapClient("test");
 
         // test binding that should SUCCEED
         for (String s : new String[] {
-            "ldap.connectionMode=plain\nldap.authenticateOnly=true",
-            "ldap.connectionMode=startTLS\nldap.authenticateOnly=true",
+            "ldap.connectionMode=plain\n" +
+            "ldap.authenticateOnly=true",
+            "ldap.connectionMode=startTLS\n" +
+            "ldap.authenticateOnly=true",
         })
         {
-            client.bindAndSearch("admin", "a", getLdapClientConfig(s));
+            client.bindAndSearch(username1, apass1, getLdapClientConfig(s));
         }
 
         // test binding that should FAIL
@@ -132,58 +203,11 @@ public class LdapEndpointTests extends DBIntegrationTestBase
         {
             //ok, expected
         }
-
     }
 
     @Test
     public void testLdapApi() throws Exception
     {
-        // do the magic initialisation
-        //
-        setupPasswordAuthn();
-        String credentialId = "credential1";
-        String ldap_typeId = "password with ldap-simple";
-
-        final String AUTHENTICATOR_PASS = "ApassLDAPT";
-        authnMan.createAuthenticator(
-            AUTHENTICATOR_PASS, ldap_typeId, null, "", credentialId
-        );
-        List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
-        authnCfg.add(new AuthenticationOptionDescription(AUTHENTICATOR_PASS));
-
-        // create a simple test user
-        //
-        String username = "clarin";
-        String apass = "heslo";
-        String email = "clarin@email.com";
-        String role = AuthorizationManagerImpl.USER_ROLE;
-
-        Identity user_id = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, username),
-            CRED_REQ_PASS, EntityState.valid, false
-        );
-        idsMan.setEntityCredential(new EntityParam(user_id), credentialId,
-            new PasswordToken(apass).toJson()
-        );
-        EnumAttribute sa = new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE,
-            "/", AttributeVisibility.local, role);
-        attrsMan.setAttribute(new EntityParam(user_id), sa, false);
-
-        Identity email_id = idsMan.addEntity(new IdentityParam(EmailIdentity.ID, email),
-            CRED_REQ_PASS, EntityState.valid, false
-        );
-
-        // merge identities email + username
-        idsMan.mergeEntities(new EntityParam(user_id), new EntityParam(email_id), true);
-
-        // deploy
-        //
-        EndpointConfiguration cfg = new EndpointConfiguration(
-            new I18nString("ldapEndpoint"), "desc", authnCfg, ldapEndpointConfiguration, "defaultRealm"
-        );
-        endpointMan.deploy(LdapEndpointFactory.NAME, "ldapEndpoint", "/mock", cfg);
-            List<EndpointDescription> endpoints = endpointMan.getEndpoints();
-            assertEquals(1, endpoints.size());
-
         // the goal here is to test
         // - bind + get DN + limited search
         //
@@ -194,16 +218,18 @@ public class LdapEndpointTests extends DBIntegrationTestBase
             "ldap.translationProfile=dummy\n" +
             "ldap.userDNSearchKey=s1\n" +
             "ldap.bindAs=system\n" +
-            String.format("ldap.systemDN=cn=%s,ou=system\n", username) +
-            String.format("ldap.systemPassword=%s\n", apass) +
-            String.format("ldap.additionalSearch.s1.filter=(&(mail=%s)(objectClass=person))\n", email) +
-            String.format("ldap.additionalSearch.s1.baseName=cn=%s,ou=system\n", username) +
+            String.format("ldap.systemDN=cn=%s,ou=system\n", username1) +
+            String.format("ldap.systemPassword=%s\n", apass1) +
+            String.format("ldap.additionalSearch.s1.filter=(&(mail=%s)(objectClass=person))\n", email1) +
+            String.format("ldap.additionalSearch.s1.baseName=cn=%s,ou=system\n", username1) +
             "ldap.additionalSearch.s1.selectedAttributes=dn,mail";
-        LdapClientConfiguration ldapConfig = getLdapClientConfig(extended_conf, null, 0, null, null);
+        LdapClientConfiguration ldapConfig = getLdapClientConfig(
+            extended_conf, null, 0, null, null
+        );
 
         // test LDAP connection via LdapClient
         LdapClient client = new LdapClient("test");
-        client.bindAndExecute(username, apass, ldapConfig, (connection, dn) -> {
+        client.bindAndExecute(username1, apass1, ldapConfig, (connection, dn) -> {
             try {
                 String[] queriedAttributes = ldapConfig.getQueriedAttributes();
                 SearchScope searchScope = ldapConfig.getSearchScope();
@@ -228,4 +254,49 @@ public class LdapEndpointTests extends DBIntegrationTestBase
         });
     }
 
+
+    @Test
+    public void testMultipleConnections() throws Exception
+    {
+        // the goal here is to test
+        // - bind + get DN + limited search
+        //
+        String extended_conf = "" +
+            "ldap.authenticateOnly=true\n";
+        LdapClientConfiguration ldapConfig1 = getLdapClientConfig(
+            extended_conf
+        );
+        LdapClientConfiguration ldapConfig2 = getLdapClientConfig(
+            null, null, 0, "mail={USERNAME},ou=system", extended_conf
+        );
+
+        // test LDAP connection via LdapClient
+        LdapClient client = new LdapClient("test");
+        final int iteration_count = 50;
+
+        System.out.println(String.format(
+            "testing [%d] auth. of two different users...", iteration_count
+        ));
+        String username2 = "striga";
+        String apass2 = "skareda";
+        setUpUser(username2, apass2, null);
+        for (int i = 0; i < iteration_count; ++i) {
+            client.bindAndSearch(username1, apass1, ldapConfig1);
+            client.bindAndSearch(username2, apass2, ldapConfig1);
+        }
+
+        System.out.println(String.format(
+            "testing [%d] auth. of the same user...", iteration_count
+        ));
+        for (int i = 0; i < iteration_count; ++i)
+        {
+            client.bindAndSearch(email1, apass1, ldapConfig2);
+            client.bindAndSearch(username1, apass1, ldapConfig1);
+            try {
+                client.bindAndSearch(username1, "b", ldapConfig1);
+                assertTrue("should have failed!", false);
+            }catch (LdapAuthenticationException e){
+            }
+        }
+    }
 }
