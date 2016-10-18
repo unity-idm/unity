@@ -35,15 +35,16 @@ import pl.edu.icm.unity.types.endpoint.EndpointDescription;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 import static org.junit.Assert.*;
 
-public class LdapEndpointTests extends DBIntegrationTestBase
-{
-	public static final String ldapEndpointHostname = "127.0.0.1";
+public class LdapEndpointTests extends DBIntegrationTestBase {
+    public static final String ldapEndpointHostname = "127.0.0.1";
     public static final int ldapEndpointPort = 389;
-    public static final String ldapEndpointDNTemplate= "cn={USERNAME},ou=system";
+    public static final String ldapEndpointDNTemplate = "cn={USERNAME},ou=system";
 
     private String credentialId = "credential1";
     private String username1 = "clarin";
@@ -52,19 +53,18 @@ public class LdapEndpointTests extends DBIntegrationTestBase
 
 
     public static final String ldapEndpointConfiguration =
-		"unity.ldapServer.host=" + ldapEndpointHostname + "\n" +
-		"unity.ldapServer.ldapPort=" + ldapEndpointPort + "\n" +
-		"unity.ldapServer.ldapsPort=636\n" +
-		"unity.ldapServer.groupQuery=ougroups\n" +
-		"unity.ldapServer.userQuery=cn\n" +
-		"unity.ldapServer.groupMember=member\n" +
-		"unity.ldapServer.groupMemberUserRegexp=cn\n" +
-		"unity.ldapServer.returnedUserAttributes=cn,entryDN,jpegPhoto\n" +
+        "unity.ldapServer.host=" + ldapEndpointHostname + "\n" +
+        "unity.ldapServer.ldapPort=" + ldapEndpointPort + "\n" +
+        "unity.ldapServer.ldapsPort=636\n" +
+        "unity.ldapServer.groupQuery=ougroups\n" +
+        "unity.ldapServer.userQuery=cn\n" +
+        "unity.ldapServer.groupMember=member\n" +
+        "unity.ldapServer.groupMemberUserRegexp=cn\n" +
+        "unity.ldapServer.returnedUserAttributes=cn,entryDN,jpegPhoto\n" +
         "unity.ldapServer.userNameAliases=cn,mail\n" +
         "unity.ldapServer.tls=true\n" +
         "unity.ldapServer.certPassword=test.p4ss\n" +
-        "unity.ldapServer.keystoreName=ldap.test.keystore\n"
-        ;
+        "unity.ldapServer.keystoreName=ldap.test.keystore\n";
 
     private static final String ldapClientConfiguration =
         "ldap.servers.1=%s\n" +
@@ -83,8 +83,7 @@ public class LdapEndpointTests extends DBIntegrationTestBase
 
     public static LdapClientConfiguration getLdapClientConfig(
         String baseconf, String hostname, int port, String dnTemplate, String appendix
-    ) throws IOException
-    {
+    ) throws IOException {
         if (null == baseconf) {
             baseconf = ldapClientConfiguration;
         }
@@ -138,15 +137,18 @@ public class LdapEndpointTests extends DBIntegrationTestBase
         assertEquals(1, endpoints.size());
     }
 
-    private void setUpUser(String username, String apass, String email) throws EngineException
+    private void setUpUser(String username, String apass, String email) throws EngineException {
+        setUpUser(username, apass, email, AuthorizationManagerImpl.USER_ROLE);
+    }
+
+    private void setUpUser(String username, String apass, String email, String role) throws EngineException
     {
         // create a simple test user
         //
-        String role = AuthorizationManagerImpl.USER_ROLE;
+        IdentityParam user_id_param = new IdentityParam(UsernameIdentity.ID, username);
 
         Identity user_id = idsMan.addEntity(
-            new IdentityParam(UsernameIdentity.ID, username),
-            CRED_REQ_PASS, EntityState.valid, false
+            user_id_param, CRED_REQ_PASS, EntityState.valid, false
         );
         idsMan.setEntityCredential(new EntityParam(user_id), credentialId,
             new PasswordToken(apass).toJson()
@@ -184,7 +186,8 @@ public class LdapEndpointTests extends DBIntegrationTestBase
         LdapClient client = new LdapClient("test");
 
         // test binding that should SUCCEED
-        for (String s : new String[] {
+        for (String s : new String[]
+            {
             "ldap.connectionMode=plain\n" +
             "ldap.authenticateOnly=true",
             "ldap.connectionMode=startTLS\n" +
@@ -230,7 +233,8 @@ public class LdapEndpointTests extends DBIntegrationTestBase
         // test LDAP connection via LdapClient
         LdapClient client = new LdapClient("test");
         client.bindAndExecute(username1, apass1, ldapConfig, (connection, dn) -> {
-            try {
+            try
+            {
                 String[] queriedAttributes = ldapConfig.getQueriedAttributes();
                 SearchScope searchScope = ldapConfig.getSearchScope();
 
@@ -246,7 +250,8 @@ public class LdapEndpointTests extends DBIntegrationTestBase
                 SearchResult result = connection.search(searchRequest);
                 SearchResultEntry entry = result.getSearchEntry(dn);
                 assertNotNull(entry);
-            } catch (Exception e) {
+            } catch (Exception e)
+            {
                 e.printStackTrace();
                 throw e;
             }
@@ -299,4 +304,56 @@ public class LdapEndpointTests extends DBIntegrationTestBase
             }
         }
     }
+
+    @Test
+    public void testConcurrency() throws Exception
+    {
+        LdapClientConfiguration ldapConfig1 = getLdapClientConfig(
+            "ldap.authenticateOnly=true\n"
+        );
+        LdapClientConfiguration ldapConfig2 = getLdapClientConfig(
+            "ldap.authenticateOnly=false\n"
+        );
+
+        String username2 = "conc2";
+        String apass2 = "concpass2";
+        setUpUser(username2, apass2, null, AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE);
+
+        // test LDAP connection via LdapClient
+        LdapClient client2 = new LdapClient("test2");
+        client2.bindAndExecute(username2, apass2, ldapConfig2, (connection2, dn2) -> {
+
+            try
+            {
+                // we are in an active LDAP session with username1 authenticated
+                // - start another session with username 2 and close it
+                LdapClient client1 = new LdapClient("test1");
+                client1.bindAndSearch(username1, apass1, ldapConfig1);
+
+                // we overwrote (if there is a problem) the invocation context with username2
+                // so test using client1
+                String[] queriedAttributes = new String[] { "*" };
+                SearchScope searchScope = ldapConfig2.getSearchScope();
+                int timeLimit = ldapConfig2.getSearchTimeLimit();
+                int sizeLimit = ldapConfig2.getAttributesLimit();
+                DereferencePolicy derefPolicy = ldapConfig2.getDereferencePolicy();
+                String dn = String.format("cn=%s", username2);
+                Filter validUsersFilter = Filter.create(String.format("(%s)", dn));
+                ReadOnlySearchRequest searchRequest = new SearchRequest(dn, searchScope, derefPolicy,
+                    sizeLimit, timeLimit, false, validUsersFilter, queriedAttributes);
+                SearchResult result = connection2.search(searchRequest);
+                SearchResultEntry entry = result.getSearchEntry(dn);
+                //////
+
+                return null;
+            } catch (Exception e)
+            {
+                e.printStackTrace();
+                assertTrue(false);
+            }
+
+            return null;
+        });
+    }
+
 }

@@ -132,6 +132,7 @@ public class LdapClient
 		{
 			RemotelyAuthenticatedInput ret = new RemotelyAuthenticatedInput(idpName);
 			ret.addIdentity(new RemoteIdentity(dn, X500Identity.ID));
+			connection.close();
 			return ret;
 		}
 
