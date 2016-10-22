@@ -24,7 +24,7 @@ public class DefaultGroupDAOFactory
 	@Bean
 	@Primary
 	@Autowired
-	public GroupDAO getDefaultGroupDAO(StorageConfiguration cfg, Map<String, GroupDAO> daos)
+	public GroupDAOInternal getDefaultGroupDAO(StorageConfiguration cfg, Map<String, GroupDAOInternal> daos)
 	{
 		return daos.get(GroupDAO.DAO_ID + cfg.getEngine().name());
 	}

@@ -24,8 +24,8 @@ public class DefaultAttributeTypeDAOFactory
 	@Bean
 	@Primary
 	@Autowired
-	public AttributeTypeDAO getDefaultAttributeTypeDAO(StorageConfiguration cfg, 
-			Map<String, AttributeTypeDAO> atDAOs)
+	public AttributeTypeDAOInternal getDefaultAttributeTypeDAO(StorageConfiguration cfg, 
+			Map<String, AttributeTypeDAOInternal> atDAOs)
 	{
 		return atDAOs.get(AttributeTypeDAO.DAO_ID + cfg.getEngine().name());
 	}
