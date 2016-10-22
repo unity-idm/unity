@@ -12,7 +12,7 @@
 	</sql>
 
 	<sql id="contentsColumnBlob">
-		VALUES BYTEA
+		CONTENTS BYTEA
 	</sql>
 
 	<sql id="contentsColumn">
