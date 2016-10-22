@@ -190,8 +190,10 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		boolean accepted = tryAutoProcess(form, responseFull, context);
 		
 		Long entityId = accepted ? responseFull.getEntityId() : null;
-		confirmationsSupport.sendAttributeConfirmationRequest(responseFull, form, entityId);
-		confirmationsSupport.sendIdentityConfirmationRequest(responseFull, form, entityId);
+		tx.runInTransactionThrowing(() -> {
+			confirmationsSupport.sendAttributeConfirmationRequest(responseFull, form, entityId);
+			confirmationsSupport.sendIdentityConfirmationRequest(responseFull, form, entityId);
+		});
 		
 		return responseFull.getRequestId();
 	}
