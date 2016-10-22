@@ -143,6 +143,11 @@ public class StorageConfiguration extends PropertiesHelper
 				log.error("Problem closing file", e);
 			}
 		}
+		
+		String mainWipeDB = main.getProperty(PREFIX + WIPE_DB_AT_STARTUP);
+		if (!p.containsKey(PREFIX+WIPE_DB_AT_STARTUP) && mainWipeDB != null)
+			p.setProperty(PREFIX+WIPE_DB_AT_STARTUP, mainWipeDB);
+		
 		return p;
 	}
 }
