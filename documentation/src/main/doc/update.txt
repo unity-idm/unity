@@ -163,3 +163,8 @@ form profile rules. It is however advised to review the changes.
 
 Additionally one can note that the former 'Initial credential requirement' setting is now called as a 'Default
 credential requirement'. This is minor change, to make clear that this setting can be changed by the profile.
+
+
+==== From 1.x to 2.0.0
+
+. add REFERENCES to MySQL server grant for unity db user.
