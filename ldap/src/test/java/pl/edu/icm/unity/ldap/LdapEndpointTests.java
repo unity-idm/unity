@@ -43,7 +43,7 @@ import static org.junit.Assert.*;
 
 public class LdapEndpointTests extends DBIntegrationTestBase {
     public static final String ldapEndpointHostname = "127.0.0.1";
-    public static final int ldapEndpointPort = 389;
+    public static final int ldapEndpointPort = 1389;
     public static final String ldapEndpointDNTemplate = "cn={USERNAME},ou=system";
 
     private String credentialId = "credential1";
@@ -55,7 +55,7 @@ public class LdapEndpointTests extends DBIntegrationTestBase {
     public static final String ldapEndpointConfiguration =
         "unity.ldapServer.host=" + ldapEndpointHostname + "\n" +
         "unity.ldapServer.ldapPort=" + ldapEndpointPort + "\n" +
-        "unity.ldapServer.ldapsPort=636\n" +
+        "unity.ldapServer.ldapsPort=1636\n" +
         "unity.ldapServer.groupQuery=ougroups\n" +
         "unity.ldapServer.userQuery=cn\n" +
         "unity.ldapServer.groupMember=member\n" +

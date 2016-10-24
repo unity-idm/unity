@@ -28,7 +28,6 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.api.util.StringConstants;
@@ -52,7 +51,6 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
-import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.log4j.Logger;
 
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -61,7 +59,6 @@ import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.server.authn.AuthenticationResult;
 import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.server.authn.InvocationContext;
@@ -236,33 +233,39 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
     public EntryFilteringCursor search(SearchOperationContext searchContext)
             throws LdapException
     {
-        // admin bind will not return true (we look for cn)
-        boolean userSearch = LdapNodeUtils.isUserSearch(
-            configuration, searchContext.getFilter()
-        );
-        String username = LdapNodeUtils.getUserName(
-            configuration, searchContext.getFilter()
-        );
+	CoreSessionExt session = (CoreSessionExt) searchContext.getSession();
+	setUnityInvocationContext(session.getSession());
+	try
+	{
+		// admin bind will not return true (we look for cn)
+		boolean userSearch = LdapNodeUtils.isUserSearch(
+				configuration, searchContext.getFilter()
+				);
+		String username = LdapNodeUtils.getUserName(
+				configuration, searchContext.getFilter()
+				);
 
-        // e.g., search by mail
-        if (userSearch)
-        {
-            if (null == username) {
-                return emptyResult(searchContext);
-            }else {
-                return getUnityUser(searchContext, username);
-            }
-        }
+		// e.g., search by mail
+		if (userSearch)
+		{
+			if (null == username) {
+				return emptyResult(searchContext);
+			}else {
+				return getUnityUser(searchContext, username);
+			}
+		}
 
-        EntryFilteringCursor ec = next(searchContext);
-        return ec;
+		EntryFilteringCursor ec = next(searchContext);
+		return ec;
+	} finally
+	{
+		InvocationContext.setCurrent(null);
+	}
     }
 
     @Override
     public void bind(BindOperationContext bindContext) throws LdapException
     {
-        InvocationContext ctx = resetInvocationContext();
-
         if (bindContext.isSaslBind())
         {
             log.debug("Blocking unsupported SASL bind");
@@ -296,16 +299,10 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
             // do not expose anything private
             bindContext.setCredentials(null);
             policyConfig.setUserPassword(new byte[][] { StringConstants.EMPTY_BYTES });
-            DefaultCoreSession mods = new DefaultCoreSession(
-                policyConfig, directoryService
-            );
-            bindContext.setSession(mods);
-
             LoginSession ls = sessionMan.getCreateSession(
-                authnResult.getAuthenticatedEntity().getEntityId(), realm, "", false, null
-            );
-            ctx.setLoginSession(ls);
-
+        	                authnResult.getAuthenticatedEntity().getEntityId(), realm, "", false, null);
+            CoreSessionExt mods = new CoreSessionExt(policyConfig, directoryService, ls);
+            bindContext.setSession(mods);
         } else
         {
             log.debug("LDAP authentication failed for " + bindContext.getDn());
@@ -313,9 +310,10 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
         }
     }
 
-    private InvocationContext resetInvocationContext()
+    private InvocationContext setUnityInvocationContext(LoginSession ls)
     {
         InvocationContext ctx = new InvocationContext(null, realm);
+        ctx.setLoginSession(ls);
         InvocationContext.setCurrent(ctx);
         return ctx;
     }
@@ -323,7 +321,11 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
     @Override
     public void unbind(UnbindOperationContext unbindContext) throws LdapException
     {
-        resetInvocationContext();
+	CoreSessionExt session = (CoreSessionExt) unbindContext.getSession();
+	LoginSession unitySession = session.getSession();
+
+	sessionMan.removeSession(unitySession.getId(), false);
+        InvocationContext.setCurrent(null);
     }
 
     /**
