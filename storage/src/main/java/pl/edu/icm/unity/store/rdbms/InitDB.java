@@ -170,7 +170,7 @@ public class InitDB
 		GroupBean root = new GroupBean("/", null);
 		root.setContents(JsonUtil.serialize2Bytes(
 				GroupJsonSerializer.createRootGroupContents()));
-		groups.create(root);
+		groups.createRoot(root);
 	}
 	
 	public static long dbVersion2Long(String version)

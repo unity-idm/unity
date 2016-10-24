@@ -4,8 +4,10 @@
  */
 package pl.edu.icm.unity.store.impl.groups;
 
+import java.sql.SQLException;
 import java.util.List;
 
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -28,6 +30,37 @@ public class GroupRDBMSStore extends GenericNamedRDBMSCRUD<Group, GroupBean> imp
 	public GroupRDBMSStore(GroupJsonSerializer jsonSerializer)
 	{
 		super(GroupsMapper.class, jsonSerializer, NAME);
+	}
+	
+	@Override
+	public long create(Group obj)
+	{
+		StorageLimits.checkNameLimit(obj.getName());
+		try
+		{
+			GroupsMapper mapper = SQLTransactionTL.getSql().getMapper(GroupsMapper.class);
+			GroupBean toAdd = jsonSerializer.toDB(obj);
+			StorageLimits.checkContentsLimit(toAdd.getContents());
+			if (!obj.isTopLevel())
+			{
+				mapper.create(toAdd);
+			} else
+			{
+				mapper.createRoot(toAdd);
+			}
+			return toAdd.getId();				
+		} catch (PersistenceException e)
+		{
+			Throwable causeO = e.getCause();
+			if (!(causeO instanceof SQLException))
+				throw e;
+			SQLException cause = (SQLException) causeO;
+			if (cause.getSQLState().equals(SQL_DUP_1_ERROR) || 
+					cause.getSQLState().equals(SQL_DUP_2_ERROR))
+				throw new IllegalArgumentException(elementName + " [" + obj.getName() + 
+						"] already exist", e);
+			throw e;
+		}
 	}
 	
 	@Override

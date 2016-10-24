@@ -16,4 +16,5 @@ import pl.edu.icm.unity.store.rdbms.NamedCRUDMapper;
 public interface GroupsMapper extends NamedCRUDMapper<GroupBean>
 {
 	List<GroupBean> getSubgroups(String parentPath);
+	long createRoot(GroupBean obj);
 }

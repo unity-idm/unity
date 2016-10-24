@@ -13,6 +13,7 @@ import pl.edu.icm.unity.store.rdbms.BaseBean;
  */
 public class GroupBean extends BaseBean
 {
+	private Integer parentId;
 	private String parentPath;
 	
 	public GroupBean() 
@@ -32,5 +33,13 @@ public class GroupBean extends BaseBean
 	public void setParent(String parentPath)
 	{
 		this.parentPath = parentPath;
+	}
+	public Integer getParentId()
+	{
+		return parentId;
+	}
+	public void setParentId(Integer parentId)
+	{
+		this.parentId = parentId;
 	}
 }
