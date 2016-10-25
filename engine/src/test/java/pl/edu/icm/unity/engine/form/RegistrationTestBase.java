@@ -47,7 +47,7 @@ import pl.edu.icm.unity.types.translation.TranslationRule;
  * Utility methods for registration tests
  * @author K. Benedyczak
  */
-public class RegistrationTestBase extends DBIntegrationTestBase
+public abstract class RegistrationTestBase extends DBIntegrationTestBase
 {
 	@Autowired
 	private InitializerCommon commonInitializer;

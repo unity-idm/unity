@@ -26,7 +26,7 @@ import pl.edu.icm.unity.types.translation.TranslationRule;
  * @author K. Benedyczak
  */
 @Component
-public class BulkProcessingManagementImpl implements BulkProcessingManagement
+public class BulkProcessingManagementImpl implements BulkProcessingManagement, BulkProcessingInternal
 {
 	private ProcessingRuleDB db;
 	private AuthorizationManager authz;
@@ -84,6 +84,14 @@ public class BulkProcessingManagementImpl implements BulkProcessingManagement
 		updater.update();
 	}
 
+	@Transactional
+	@Override
+	public void removeAllRules() throws EngineException
+	{
+		db.deleteAll();
+		updater.update();
+	}
+	
 	@Transactional
 	@Override
 	public void updateScheduledRule(ScheduledProcessingRule rule) throws EngineException

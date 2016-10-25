@@ -27,6 +27,7 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.bulkops.BulkProcessingInternal;
 import pl.edu.icm.unity.engine.endpoint.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -53,12 +54,15 @@ public class ServerManagementImpl implements ServerManagement
 	private UnityServerConfiguration config;
 	private InternalEndpointManagement endpointMan;
 	private TransactionalRunner tx;
+	private BulkProcessingInternal bulkProcessing;
 	
 	
 	@Autowired
 	public ServerManagementImpl(TransactionalRunner tx, ImportExport dbDump, StorageCleaner initDb,
 			EngineInitialization engineInit, InternalEndpointManagement endpointMan,
-			AuthorizationManager authz, ExecutorsService executorsService, UnityServerConfiguration config)
+			AuthorizationManager authz, ExecutorsService executorsService, 
+			UnityServerConfiguration config,
+			BulkProcessingInternal bulkProcessing)
 	{
 		this.tx = tx;
 		this.dbDump = dbDump;
@@ -67,6 +71,7 @@ public class ServerManagementImpl implements ServerManagement
 		this.endpointMan = endpointMan;
 		this.authz = authz;
 		this.config = config;
+		this.bulkProcessing = bulkProcessing;
 		executorsService.getService().scheduleWithFixedDelay(new ClenupDumpsTask(), 20, 60, TimeUnit.SECONDS);
 	}
 
@@ -75,6 +80,7 @@ public class ServerManagementImpl implements ServerManagement
 	public void resetDatabase() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
+		bulkProcessing.removeAllRules();
 		initDb.reset();
 		endpointMan.undeployAll();
 		engineInit.initializeDatabaseContents();
