@@ -59,7 +59,7 @@ public class LdapEndpointTests extends DBIntegrationTestBase {
         "unity.ldapServer.groupQuery=ougroups\n" +
         "unity.ldapServer.userQuery=cn\n" +
         "unity.ldapServer.groupMember=member\n" +
-        "unity.ldapServer.groupMemberUserRegexp=cn\n" +
+        "unity.ldapServer.groupMemberUserRegexp=cn=([^,]+)(,.+)?\n" +
         "unity.ldapServer.returnedUserAttributes=cn,entryDN,jpegPhoto\n" +
         "unity.ldapServer.userNameAliases=cn,mail\n" +
         "unity.ldapServer.tls=true\n" +
@@ -356,4 +356,45 @@ public class LdapEndpointTests extends DBIntegrationTestBase {
         });
     }
 
+
+    @Test
+    public void testGroups() throws Exception
+    {
+        // the goal here is to test
+        // - bind + get DN + limited search
+        //
+        String extended_conf = "" +
+            "ldap.servers.1=%s\n" +
+            "ldap.ports.1=%d\n" +
+            "ldap.trustAllServerCertificates=true\n" +
+            "ldap.translationProfile=dummy\n" +
+            "ldap.userDNSearchKey=s1\n" +
+            "ldap.bindAs=system\n" +
+            String.format("ldap.systemDN=cn=%s,ou=system\n", username1) +
+            String.format("ldap.systemPassword=%s\n", apass1) +
+            String.format("ldap.additionalSearch.s1.filter=(&(mail=%s)(objectClass=person))\n", email1) +
+            String.format("ldap.additionalSearch.s1.baseName=cn=%s,ou=system\n", username1) +
+            "ldap.additionalSearch.s1.selectedAttributes=dn,mail";
+        LdapClientConfiguration ldapConfig = getLdapClientConfig(
+            extended_conf, null, 0, null, null
+        );
+
+        // test LDAP connection via LdapClient
+        LdapClient client = new LdapClient("test");
+        client.bindAndExecute(username1, apass1, ldapConfig, (connection, dn) -> {
+            try
+            {
+                dn = "ou=system";
+                CompareRequest req = new CompareRequest(dn, "member", "cn=" + username1);
+                CompareResult result = connection.compare(req);
+                boolean matched = result.compareMatched();
+            } catch (Exception e)
+            {
+                e.printStackTrace();
+                throw e;
+            }
+            return null;
+        });
+
+    }
 }

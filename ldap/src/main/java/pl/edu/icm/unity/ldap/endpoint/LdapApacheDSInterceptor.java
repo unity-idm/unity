@@ -335,45 +335,61 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
     @Override
     public boolean compare(CompareOperationContext compareContext) throws LdapException
     {
-        AttributeType at = compareContext.getAttributeType();
-        if (null == at) {
-            log.warn("compare got invalid AttributeType");
-            return false;
-        }
-
-        String group_member = configuration.getValue(
-            LdapServerProperties.GROUP_MEMBER
-        );
-        // we know how to do members only
-        if (!at.getName().equals(group_member)) {
-            return next(compareContext);
-        }
-
-        String group_member_user_regexp = configuration.getValue(
-            LdapServerProperties.GROUP_MEMBER_USER_REGEXP
-        );
+        CoreSessionExt session = (CoreSessionExt) compareContext.getSession();
+        setUnityInvocationContext(session.getSession());
         try
         {
-            String user = compareContext.getValue().getString();
-            Pattern p = Pattern.compile(group_member_user_regexp);
-            Matcher m = p.matcher(user);
-            if (m.find())
-            {
-                user = m.group(1);
-                long userEntityId = userMapper.resolveUser(user, realm.getName());
-                Map<String, GroupMembership> grps = identitiesMan.getGroups(
-                    new EntityParam(userEntityId)
-                );
-                String group = LdapNodeUtils.getGroup(
-                    configuration, compareContext.getOriginalEntry().getDn()
-                );
-                return grps.containsKey(group);
+
+            AttributeType at = compareContext.getAttributeType();
+            if (null == at) {
+                log.warn("compare got invalid AttributeType");
+                return false;
             }
-        } catch (EngineException e)
+
+            String group_member = configuration.getValue(
+                LdapServerProperties.GROUP_MEMBER
+            );
+            // we know how to do members only
+            if (!at.getName().equals(group_member)) {
+                return next(compareContext);
+            }
+
+            String group_member_user_regexp = configuration.getValue(
+                LdapServerProperties.GROUP_MEMBER_USER_REGEXP
+            );
+            try
+            {
+                String user = compareContext.getValue().getString();
+                Pattern p = Pattern.compile(group_member_user_regexp);
+                Matcher m = p.matcher(user);
+                if (m.find())
+                {
+                    if (0 == m.groupCount()) {
+                        String msg = String.format(
+                            "Invalid [%s] settings - no group specified",
+                            LdapServerProperties.GROUP_MEMBER_USER_REGEXP
+                        );
+                        throw new LdapOtherException(msg);
+                    }
+                    user = m.group(1);
+                    long userEntityId = userMapper.resolveUser(user, realm.getName());
+                    Map<String, GroupMembership> grps = identitiesMan.getGroups(
+                        new EntityParam(userEntityId)
+                    );
+                    String group = LdapNodeUtils.getGroup(
+                        configuration, compareContext.getOriginalEntry().getDn()
+                    );
+                    return grps.containsKey(group);
+                }
+            } catch (EngineException e)
+            {
+                throw new LdapOtherException("Error when comparing", e);
+            }
+            return false;
+        } finally
         {
-            throw new LdapOtherException("Error when comparing", e);
+            InvocationContext.setCurrent(null);
         }
-        return false;
     }
 
     //
