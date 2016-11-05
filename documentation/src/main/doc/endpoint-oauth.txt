@@ -133,7 +133,7 @@ Limitations:
 
 . Refresh tokens revocation is not implemented (as Unity doesn't support yet refresh tokens at all). 
 . The endpoint access is not authenticated - or better said the access is authorized implicitly by providing
-  a valid access token to be revoked. The +user_id+ must be always given.
+  a valid access token to be revoked. The +client_id+ must be always given.
    
 Typical usage:
 
@@ -147,7 +147,7 @@ token=45ghiukldjahdnhzdauz&user_id=oauth-client
 
 Besides the standard token revocation, it is also possible to request token's owner logout (disposal of the SSO session)
 together with token revocation. To be able to perform this operation, the client must request and obtain a special
-OAuth scope: +single_logout+. Having this scope, token revocation can be used to logout the token owner
+OAuth scope: +single-logout+. Having this scope, token revocation can be used to logout the token owner
 by adding the following form parameter to the request: +logout=true+.
  
 ==== Dynamic token validity enhancement
