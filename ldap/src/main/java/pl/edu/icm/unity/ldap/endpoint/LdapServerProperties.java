@@ -36,8 +36,7 @@ public class LdapServerProperties extends PropertiesHelper
 	public static final String TLS_SUPPORT = "tls";
 	public static final String CERT_PASSWORD = "certPassword";
 	public static final String KEYSTORE_FILENAME = "keystoreName";
-	public static final String GROUP_QUERY = "groupQuery";
-	public static final String USER_QUERY = "userQuery"; 
+	public static final String USER_QUERY = "userQuery";
 	public static final String GROUP_MEMBER = "groupMember"; 
 	public static final String RETURNED_USER_ATTRIBUTES = "returnedUserAttributes";
 	public static final String USER_NAME_ALIASES = "userNameAliases";
@@ -59,8 +58,6 @@ public class LdapServerProperties extends PropertiesHelper
 		META.put(KEYSTORE_FILENAME, new PropertyMD().setCategory(main)
 			.setDescription("LDAP keystore filename relative to working directory"));
 
-		META.put(GROUP_QUERY, new PropertyMD().setCategory(main)
-			.setDescription("LDAP group query token"));
 		META.put(USER_QUERY, new PropertyMD().setCategory(main)
 			.setDescription("LDAP user query token"));
 		META.put(GROUP_MEMBER, new PropertyMD().setCategory(main)

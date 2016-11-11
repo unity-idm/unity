@@ -56,10 +56,8 @@ public class LdapEndpointTests extends DBIntegrationTestBase {
         "unity.ldapServer.host=" + ldapEndpointHostname + "\n" +
         "unity.ldapServer.ldapPort=" + ldapEndpointPort + "\n" +
         "unity.ldapServer.ldapsPort=1636\n" +
-        "unity.ldapServer.groupQuery=ougroups\n" +
         "unity.ldapServer.userQuery=cn\n" +
         "unity.ldapServer.groupMember=member\n" +
-        "unity.ldapServer.groupMemberUserRegexp=cn=([^,]+)(,.+)?\n" +
         "unity.ldapServer.returnedUserAttributes=cn,entryDN,jpegPhoto\n" +
         "unity.ldapServer.userNameAliases=cn,mail\n" +
         "unity.ldapServer.tls=true\n" +
