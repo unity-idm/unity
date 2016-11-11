@@ -384,10 +384,18 @@ public class LdapEndpointTests extends DBIntegrationTestBase {
         client.bindAndExecute(username1, apass1, ldapConfig, (connection, dn) -> {
             try
             {
-                dn = "ou=system";
-                CompareRequest req = new CompareRequest(dn, "member", "cn=" + username1);
-                CompareResult result = connection.compare(req);
-                boolean matched = result.compareMatched();
+                {
+                    dn = String.format("cn=%s,ou=system", username1);
+                    CompareRequest req = new CompareRequest(dn, "member", "/");
+                    CompareResult result = connection.compare(req);
+                    assertTrue(result.compareMatched());
+                }
+                {
+                    dn = String.format("cn=%s,ou=system", username1);
+                    CompareRequest req = new CompareRequest(dn, "member", "/123");
+                    CompareResult result = connection.compare(req);
+                    assertFalse(result.compareMatched());
+                }
             } catch (Exception e)
             {
                 e.printStackTrace();

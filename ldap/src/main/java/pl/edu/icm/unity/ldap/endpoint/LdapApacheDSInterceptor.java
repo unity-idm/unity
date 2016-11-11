@@ -28,6 +28,7 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.api.util.StringConstants;
@@ -172,29 +173,6 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
         // Require ldap-filter - not supported
 
         Entry entry = new DefaultEntry(schemaManager, lookupContext.getDn());
-
-        // specific lookup for
-        String group = LdapNodeUtils.getGroup(configuration, lookupContext.getDn());
-        if (null != group)
-        {
-            if (lookupContext.isAllOperationalAttributes())
-            {
-                notSupported();
-                // example what can be returned when implemented properly
-//				AttributeType OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry(
-//					SchemaConstants.OBJECT_CLASS_AT
-//				);
-//				entry.put(
-//					"objectClass", OBJECT_CLASS_AT,
-//					"top", "person",
-//					"inetOrgPerson", "organizationalPerson"
-//				);
-//				entry.put(
-//					"cn", schemaManager.lookupAttributeTypeRegistry("cn"), "test"
-//				);
-//				return new ClonedServerEntry(entry);
-            }
-        }
 
         String user = LdapNodeUtils.getUserName(configuration, lookupContext.getDn());
         if (null != user)
@@ -351,41 +329,23 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
             );
             // we know how to do members only
             if (!at.getName().equals(group_member)) {
-                return next(compareContext);
+                log.warn(String.format("comparing with unsupported attribute [%s]", at.getName()));
+                notSupported();
             }
 
-            String group_member_user_regexp = configuration.getValue(
-                LdapServerProperties.GROUP_MEMBER_USER_REGEXP
-            );
             try
             {
-                String user = compareContext.getValue().getString();
-                Pattern p = Pattern.compile(group_member_user_regexp);
-                Matcher m = p.matcher(user);
-                if (m.find())
-                {
-                    if (0 == m.groupCount()) {
-                        String msg = String.format(
-                            "Invalid [%s] settings - no group specified",
-                            LdapServerProperties.GROUP_MEMBER_USER_REGEXP
-                        );
-                        throw new LdapOtherException(msg);
-                    }
-                    user = m.group(1);
-                    long userEntityId = userMapper.resolveUser(user, realm.getName());
-                    Map<String, GroupMembership> grps = identitiesMan.getGroups(
-                        new EntityParam(userEntityId)
-                    );
-                    String group = LdapNodeUtils.getGroup(
-                        configuration, compareContext.getOriginalEntry().getDn()
-                    );
-                    return grps.containsKey(group);
-                }
+                String group = compareContext.getValue().getString();
+                String user = LdapNodeUtils.getUserName(configuration, compareContext.getDn());
+                long userEntityId = userMapper.resolveUser(user, realm.getName());
+                Map<String, GroupMembership> grps = identitiesMan.getGroups(
+                    new EntityParam(userEntityId)
+                );
+                return grps.containsKey(group);
             } catch (EngineException e)
             {
                 throw new LdapOtherException("Error when comparing", e);
             }
-            return false;
         } finally
         {
             InvocationContext.setCurrent(null);

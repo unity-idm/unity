@@ -55,15 +55,6 @@ public class LdapNodeUtils
 	}
 
 
-	/**
-	 * Get groups from LDAP DN.
-	 */
-	public static String getGroup(LdapServerProperties configuration, Dn dn)
-	{
-		String query = configuration.getValue(LdapServerProperties.GROUP_QUERY);
-		return getPart(dn, query);
-	}
-
 	public static String getUserName(LdapServerProperties configuration, Dn dn)
 	{
 		String[] aliases = configuration.getValue(
@@ -136,7 +127,7 @@ public class LdapNodeUtils
 		return null;
 	}
 
-	// Get user from LDAP DN.
+	// Get query value from LDAP DN.
 	public static String getPart(Dn dn, String query)
 	{
 		for (Rdn rdn : dn.getRdns())

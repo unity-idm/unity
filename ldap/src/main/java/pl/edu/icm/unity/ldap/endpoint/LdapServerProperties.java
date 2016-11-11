@@ -39,7 +39,6 @@ public class LdapServerProperties extends PropertiesHelper
 	public static final String GROUP_QUERY = "groupQuery";
 	public static final String USER_QUERY = "userQuery"; 
 	public static final String GROUP_MEMBER = "groupMember"; 
-	public static final String GROUP_MEMBER_USER_REGEXP = "groupMemberUserRegexp";
 	public static final String RETURNED_USER_ATTRIBUTES = "returnedUserAttributes";
 	public static final String USER_NAME_ALIASES = "userNameAliases";
 
@@ -66,8 +65,6 @@ public class LdapServerProperties extends PropertiesHelper
 			.setDescription("LDAP user query token"));
 		META.put(GROUP_MEMBER, new PropertyMD().setCategory(main)
 			.setDescription("LDAP member attribute name"));
-		META.put(GROUP_MEMBER_USER_REGEXP, new PropertyMD().setCategory(main)
-			.setDescription("LDAP regexp for getting user from a member query"));
 		META.put(RETURNED_USER_ATTRIBUTES, new PropertyMD().setCategory(main)
 			.setDescription("Attributes that should be returned if return all user attributes flag is set"));
 		META.put(USER_NAME_ALIASES, new PropertyMD().setCategory(main)
