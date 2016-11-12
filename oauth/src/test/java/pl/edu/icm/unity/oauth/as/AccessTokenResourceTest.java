@@ -21,7 +21,6 @@ import org.junit.Test;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.token.AccessTokenResource;
-import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.api.internal.TransactionalRunner;

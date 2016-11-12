@@ -45,7 +45,6 @@ import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpointFactory;
-import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;

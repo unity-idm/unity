@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.oauth.as.webauthz;
 
 import pl.edu.icm.unity.idpcommon.EopException;
+import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;

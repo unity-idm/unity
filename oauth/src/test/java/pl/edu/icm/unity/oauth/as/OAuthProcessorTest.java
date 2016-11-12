@@ -15,7 +15,6 @@ import java.util.Collection;
 import org.junit.Test;
 
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
-import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext;
 import pl.edu.icm.unity.server.api.internal.Token;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
