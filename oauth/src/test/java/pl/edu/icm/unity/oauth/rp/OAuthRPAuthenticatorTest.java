@@ -192,7 +192,8 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 
 	private void performAuthentication(String endpoint) throws Exception
 	{
-		AuthorizationSuccessResponse resp1 = OAuthTestUtils.initOAuthFlowHybrid(tokensMan);
+		AuthorizationSuccessResponse resp1 = OAuthTestUtils.initOAuthFlowHybrid(OAuthTestUtils.getConfig(), 
+				tokensMan);
 		AccessToken ac = resp1.getAccessToken();
 		
 		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(endpoint));
@@ -239,7 +240,8 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 	public void OauthRPAuthnWithCache() throws Exception
 	{
 		//normal
-		AuthorizationSuccessResponse resp1 = OAuthTestUtils.initOAuthFlowHybrid(tokensMan);
+		AuthorizationSuccessResponse resp1 = OAuthTestUtils.initOAuthFlowHybrid(OAuthTestUtils.getConfig(), 
+				tokensMan);
 		AccessToken ac = resp1.getAccessToken();
 		
 		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL("https://localhost:52443/jwt-int/token"));

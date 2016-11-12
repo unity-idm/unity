@@ -187,7 +187,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 			
 			TranslationResult translationResult = idpEngine.getUserInfo(ctx);
 			
-			createIdentityPart(translationResult, eiLayout, ctx.getSubjectIdentityType());
+			createIdentityPart(translationResult, eiLayout, ctx.getConfig().getSubjectIdentityType());
 			
 			attrsPresenter = new ExposedAttributesComponent(msg, handlersRegistry, 
 					oauthProcessor.filterAttributes(translationResult, ctx.getRequestedAttrs()));

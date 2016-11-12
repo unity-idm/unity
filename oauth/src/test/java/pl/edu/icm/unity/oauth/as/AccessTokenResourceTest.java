@@ -58,7 +58,7 @@ public class AccessTokenResourceTest
 		OAuthASProperties config = OAuthTestUtils.getConfig();
 		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, tx);
 		setupInvocationContext(111);
-		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.CODE),
+		OAuthAuthzContext ctx = OAuthTestUtils.createContext(config, new ResponseType(ResponseType.Value.CODE),
 				GrantFlow.authorizationCode, 100);
 		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement,
 				ctx);
@@ -78,7 +78,7 @@ public class AccessTokenResourceTest
 		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, tx);
 		setupInvocationContext(100);
 
-		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.CODE),
+		OAuthAuthzContext ctx = OAuthTestUtils.createContext(config, new ResponseType(ResponseType.Value.CODE),
 				GrantFlow.authorizationCode, 100);
 
 		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement,
@@ -113,8 +113,9 @@ public class AccessTokenResourceTest
 		OAuthASProperties config = OAuthTestUtils.getConfig();
 		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, tx);
 		setupInvocationContext(100);
-		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(new ResponseType(ResponseType.Value.CODE),
-				GrantFlow.authorizationCode, 100, 100, 0, "nonce");
+		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(config, 
+				new ResponseType(ResponseType.Value.CODE),
+				GrantFlow.authorizationCode, 100, "nonce");
 		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement,
 				ctx);
 		
@@ -130,7 +131,7 @@ public class AccessTokenResourceTest
 		JWTClaimsSet idToken = parsed.getOIDCTokens().getIDToken().getJWTClaimsSet();
 		assertEquals("userA", idToken.getSubject());
 		assertTrue(idToken.getAudience().contains("clientC"));
-		assertEquals("https://localhost:2443/oauth-as", idToken.getIssuer());
+		assertEquals(OAuthTestUtils.ISSUER, idToken.getIssuer());
 		
 	}
 

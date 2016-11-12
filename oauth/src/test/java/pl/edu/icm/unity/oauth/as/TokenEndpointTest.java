@@ -140,7 +140,8 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 	@Test
 	public void testCodeFlow() throws Exception
 	{
-		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.CODE),
+		OAuthAuthzContext ctx = OAuthTestUtils.createContext(OAuthTestUtils.getConfig(), 
+				new ResponseType(ResponseType.Value.CODE),
 				GrantFlow.authorizationCode, clientId.getEntityId());
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils.initOAuthFlowAccessCode(tokensMan,
 				ctx);
@@ -175,8 +176,9 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 	@Test
 	public void nonceIsReturnedInClaimSetForOIDCRequest() throws Exception
 	{
-		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(new ResponseType(ResponseType.Value.CODE),
-				GrantFlow.authorizationCode, clientId.getEntityId(), 100, 0, "nonce-VAL");
+		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getConfig(), 
+				new ResponseType(ResponseType.Value.CODE),
+				GrantFlow.authorizationCode, clientId.getEntityId(), "nonce-VAL");
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils.initOAuthFlowAccessCode(tokensMan, ctx);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"), new Secret("clientPass"));
 		TokenRequest request = new TokenRequest(new URI("https://localhost:52443/oauth/token"), ca, 

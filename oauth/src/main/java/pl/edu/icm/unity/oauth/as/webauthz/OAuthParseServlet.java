@@ -214,17 +214,7 @@ public class OAuthParseServlet extends HttpServlet
 		{
 			if (log.isTraceEnabled())
 				log.trace("Parsed OAuth request: " + request.getQueryString());
-			int maxExtendedValidity = oauthConfig.isSet(OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY) ?
-					oauthConfig.getIntValue(OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY) : 0;
-			context = new OAuthAuthzContext(authzRequest, oauthConfig,
-					oauthConfig.getIntValue(OAuthASProperties.ACCESS_TOKEN_VALIDITY),
-					maxExtendedValidity,
-					oauthConfig.getIntValue(OAuthASProperties.CODE_TOKEN_VALIDITY),
-					oauthConfig.getIntValue(OAuthASProperties.ID_TOKEN_VALIDITY),
-					oauthConfig.getValue(OAuthASProperties.ISSUER_URI),
-					oauthConfig.getCredential(),
-					oauthConfig.getBooleanValue(CommonIdPProperties.SKIP_CONSENT),
-					oauthConfig.getValue(OAuthASProperties.IDENTITY_TYPE_FOR_SUBJECT));
+			context = new OAuthAuthzContext(authzRequest, oauthConfig);
 			validate(context);
 		} catch (OAuthValidationException e)
 		{

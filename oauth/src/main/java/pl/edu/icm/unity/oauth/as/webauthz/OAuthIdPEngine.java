@@ -92,7 +92,7 @@ public class OAuthIdPEngine
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		String flow = ctx.getRequest().getResponseType().impliesCodeFlow() ? 
 				GrantFlow.authorizationCode.toString() : GrantFlow.implicit.toString();
-		Boolean skipImport = ctx.getProperties().getBooleanValue(CommonIdPProperties.SKIP_USERIMPORT);
+		Boolean skipImport = ctx.getConfig().getBooleanValue(CommonIdPProperties.SKIP_USERIMPORT);
 		TranslationResult translationResult = idpEngine.obtainUserInformation(new EntityParam(ae.getEntityId()), 
 				ctx.getUsersGroup(), 
 				ctx.getTranslationProfile(), 

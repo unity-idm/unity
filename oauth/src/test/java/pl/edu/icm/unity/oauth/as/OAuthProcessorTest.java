@@ -45,8 +45,9 @@ public class OAuthProcessorTest
 		attributes.add(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com"));
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
-		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(new ResponseType(ResponseType.Value.CODE),
-				GrantFlow.authorizationCode, 100, 100, 0, "nonce");
+		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getConfig(),
+				new ResponseType(ResponseType.Value.CODE),
+				GrantFlow.authorizationCode, 100, "nonce");
 		
 		long start = System.currentTimeMillis();
 		AuthorizationSuccessResponse resp = processor.prepareAuthzResponseAndRecordInternalState(
@@ -69,9 +70,9 @@ public class OAuthProcessorTest
 		attributes.add(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com"));
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
-		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(
+		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getConfig(),
 				new ResponseType(ResponseType.Value.TOKEN, OIDCResponseTypeValue.ID_TOKEN),
-				GrantFlow.implicit, 100, 100, 0, "nonce");
+				GrantFlow.implicit, 100, "nonce");
 		
 		long start = System.currentTimeMillis();
 		AuthorizationSuccessResponse resp = processor.prepareAuthzResponseAndRecordInternalState(
@@ -95,9 +96,9 @@ public class OAuthProcessorTest
 		attributes.add(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com"));
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
-		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(
+		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getConfig(),
 				new ResponseType(ResponseType.Value.TOKEN, OIDCResponseTypeValue.ID_TOKEN, ResponseType.Value.CODE),
-				GrantFlow.openidHybrid, 100, 100, 0, "nonce");
+				GrantFlow.openidHybrid, 100, "nonce");
 		
 		long start = System.currentTimeMillis();
 		AuthorizationSuccessResponse resp = processor.prepareAuthzResponseAndRecordInternalState(
@@ -132,7 +133,7 @@ public class OAuthProcessorTest
 		assertNotNull(internalToken.getOpenidInfo());
 		SignedJWT openidToken = SignedJWT.parse(internalToken.getOpenidInfo());
 		JWTClaimsSet openidClaims = openidToken.getJWTClaimsSet();
-		assertEquals("https://localhost:2443/oauth-as", openidClaims.getIssuer());
+		assertEquals(OAuthTestUtils.ISSUER, openidClaims.getIssuer());
 		assertEquals("userA", openidClaims.getSubject());
 		assertEquals(1, openidClaims.getAudience().size());
 		assertEquals("clientC", openidClaims.getAudience().get(0));

@@ -45,7 +45,8 @@ public class TokenInfoResourceTest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		
-		AuthorizationSuccessResponse respInit = OAuthTestUtils.initOAuthFlowHybrid(tokensManagement);
+		AuthorizationSuccessResponse respInit = OAuthTestUtils.initOAuthFlowHybrid(OAuthTestUtils.getConfig(), 
+				tokensManagement);
 		
 		TokenInfoResource tested = new TokenInfoResource(tokensManagement);
 		

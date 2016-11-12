@@ -124,7 +124,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 		if (preferences.isDoNotAsk())
 			return false;
 		
-		return !oauthCtx.isSkipConsent();
+		return !oauthCtx.getConfig().isSkipConsent();
 	}
 	
 	/**
@@ -152,7 +152,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 		{
 			TranslationResult userInfo = idpEngine.getUserInfo(oauthCtx);
 			IdentityParam selectedIdentity = idpEngine.getIdentity(userInfo, 
-					oauthCtx.getSubjectIdentityType());
+					oauthCtx.getConfig().getSubjectIdentityType());
 			log.debug("Authentication of " + selectedIdentity);
 			Collection<Attribute<?>> attributes = processor.filterAttributes(userInfo, 
 					oauthCtx.getRequestedAttrs());
