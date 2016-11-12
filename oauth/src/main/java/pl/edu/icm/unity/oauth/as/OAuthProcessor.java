@@ -12,18 +12,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
-import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.translation.out.TranslationResult;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gwt.thirdparty.guava.common.collect.Lists;
 import com.nimbusds.jose.JOSEException;
@@ -43,11 +31,24 @@ import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
+import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
 import com.nimbusds.openid.connect.sdk.claims.ClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
+
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext;
+import pl.edu.icm.unity.server.api.internal.TokensManagement;
+import pl.edu.icm.unity.server.translation.out.TranslationResult;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
  * Groups OAuth related logic for processing the request and preparing the response.  
@@ -225,16 +226,19 @@ public class OAuthProcessor
 	private IDTokenClaimsSet prepareIdInfoClaimSet(String userIdentity, OAuthAuthzContext context, 
 			ClaimsSet regularAttributes, Date now)
 	{
-		String clientId = context.getRequest().getClientID().getValue();
+		AuthenticationRequest request = (AuthenticationRequest) context.getRequest();
+		String clientId = request.getClientID().getValue();
 		IDTokenClaimsSet idToken = new IDTokenClaimsSet(
 				new Issuer(context.getIssuerName()), 
 				new Subject(userIdentity), 
 				Lists.newArrayList(new Audience(clientId)), 
 				new Date(now.getTime() + context.getIdTokenValidity()*1000), 
 				now);
-		ResponseType responseType = context.getRequest().getResponseType(); 
+		ResponseType responseType = request.getResponseType(); 
 		if (responseType.contains(OIDCResponseTypeValue.ID_TOKEN) && responseType.size() == 1)
 			idToken.putAll(regularAttributes);
+		if (request.getNonce() != null)
+			idToken.setNonce(request.getNonce());
 		return idToken;
 	}
 	

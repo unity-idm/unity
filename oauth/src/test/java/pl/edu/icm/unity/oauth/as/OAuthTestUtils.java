@@ -46,9 +46,13 @@ import com.google.common.collect.Lists;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.ResponseType;
+import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
+import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
+import com.nimbusds.openid.connect.sdk.Nonce;
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
+import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 
 import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
@@ -71,6 +75,41 @@ public class OAuthTestUtils
 			long clientEntityId) throws Exception
 	{
 		return createContext(respType, grant, clientEntityId, 100, 0);
+	}
+
+	public static OAuthAuthzContext createOIDCContext(ResponseType respType, GrantFlow grant, 
+			long clientEntityId, int accessTokenValidity, int maxExtValidity, String nonce) throws Exception
+	{
+		AuthenticationRequest request = new AuthenticationRequest.Builder(
+					respType, 
+					new Scope(OIDCScopeValue.OPENID), 
+					new ClientID("clientC"), 
+					new URI("https://return.host.com/foo")).
+				state(new State("state123")).
+				nonce(new Nonce(nonce)).
+				build(); 
+		X509Credential credential = new KeystoreCredential("src/test/resources/demoKeystore.p12", 
+				"the!uvos".toCharArray(), "the!uvos".toCharArray(), null, "pkcs12");
+		OAuthASProperties mockedProps = Mockito.mock(OAuthASProperties.class);
+		when(mockedProps.getBooleanValue(eq(CommonIdPProperties.SKIP_USERIMPORT))).thenReturn(Boolean.FALSE);
+		
+		OAuthAuthzContext ctx = new OAuthAuthzContext(
+				request, mockedProps,
+				accessTokenValidity, 
+				maxExtValidity,
+				200, 
+				300, 
+				"https://localhost:2443/oauth-as", 
+				credential,
+				false,
+				TargetedPersistentIdentity.ID);
+		ctx.setClientEntityId(clientEntityId);
+		ctx.setClientUsername("clientC");
+		ctx.setFlow(grant);
+		ctx.setOpenIdMode(true);
+		ctx.setReturnURI(new URI("https://return.host.com/foo"));
+		ctx.addScopeInfo(new ScopeInfo("sc1", "scope 1", Lists.newArrayList("email")));
+		return ctx;
 	}
 	
 	public static OAuthAuthzContext createContext(ResponseType respType, GrantFlow grant, 
@@ -97,7 +136,7 @@ public class OAuthTestUtils
 		ctx.setClientEntityId(clientEntityId);
 		ctx.setClientUsername("clientC");
 		ctx.setFlow(grant);
-		ctx.setOpenIdMode(true);
+		ctx.setOpenIdMode(false);
 		ctx.setReturnURI(new URI("https://return.host.com/foo"));
 		ctx.addScopeInfo(new ScopeInfo("sc1", "scope 1", Lists.newArrayList("email")));
 		return ctx;
@@ -123,15 +162,13 @@ public class OAuthTestUtils
 	}
 	
 	public static AuthorizationSuccessResponse initOAuthFlowAccessCode(TokensManagement tokensMan, 
-			long clientEntityId) throws Exception
+			OAuthAuthzContext ctx) throws Exception
 	{
 		OAuthProcessor processor = new OAuthProcessor();
 		Collection<Attribute<?>> attributes = new ArrayList<>();
 		attributes.add(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com"));
 		attributes.add(new StringAttribute("c", "/", AttributeVisibility.full, "PL"));
 		IdentityParam identity = new IdentityParam("userName", "userA");
-		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.CODE),
-				GrantFlow.authorizationCode, clientEntityId);
 
 		return processor.prepareAuthzResponseAndRecordInternalState(
 				attributes, identity, ctx, tokensMan);

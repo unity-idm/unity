@@ -19,7 +19,9 @@ import net.minidev.json.JSONValue;
 import org.junit.Test;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.token.AccessTokenResource;
+import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext;
 import pl.edu.icm.unity.server.api.internal.LoginSession;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
@@ -29,6 +31,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.GrantType;
+import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 
@@ -56,9 +59,10 @@ public class AccessTokenResourceTest
 		OAuthASProperties config = OAuthTestUtils.getConfig();
 		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, tx);
 		setupInvocationContext(111);
-		
+		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.CODE),
+				GrantFlow.authorizationCode, 100);
 		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement,
-				100);
+				ctx);
 		
 		Response r = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
 				step1Resp.getAuthorizationCode().getValue(), 
@@ -74,9 +78,12 @@ public class AccessTokenResourceTest
 		OAuthASProperties config = OAuthTestUtils.getConfig();
 		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, tx);
 		setupInvocationContext(100);
-		
+
+		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.CODE),
+				GrantFlow.authorizationCode, 100);
+
 		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement,
-				100);
+				ctx);
 		
 		Response r = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
 				step1Resp.getAuthorizationCode().getValue(),
@@ -107,9 +114,10 @@ public class AccessTokenResourceTest
 		OAuthASProperties config = OAuthTestUtils.getConfig();
 		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, tx);
 		setupInvocationContext(100);
-
+		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(new ResponseType(ResponseType.Value.CODE),
+				GrantFlow.authorizationCode, 100, 100, 0, "nonce");
 		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement,
-				100);
+				ctx);
 		
 		Response resp = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
 				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo");

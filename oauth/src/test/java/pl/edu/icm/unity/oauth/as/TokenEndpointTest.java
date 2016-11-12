@@ -4,8 +4,10 @@
  */
 package pl.edu.icm.unity.oauth.as;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -21,6 +23,7 @@ import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationCodeGrant;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.ClientCredentialsGrant;
+import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.TokenRequest;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
@@ -30,6 +33,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
+import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.UserInfoRequest;
 import com.nimbusds.openid.connect.sdk.UserInfoResponse;
 import com.nimbusds.openid.connect.sdk.UserInfoSuccessResponse;
@@ -39,7 +43,9 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpointFactory;
+import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
 import pl.edu.icm.unity.server.api.PKIManagement;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
@@ -133,10 +139,12 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 	}
 	
 	@Test
-	public void testcodeFlow() throws Exception
+	public void testCodeFlow() throws Exception
 	{
+		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.CODE),
+				GrantFlow.authorizationCode, clientId.getEntityId());
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils.initOAuthFlowAccessCode(tokensMan,
-				clientId.getEntityId());
+				ctx);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"), new Secret("clientPass"));
 		TokenRequest request = new TokenRequest(new URI("https://localhost:52443/oauth/token"), ca, 
 				new AuthorizationCodeGrant(resp1.getAuthorizationCode(), 
@@ -163,6 +171,27 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 		Assert.assertEquals("PL", claimSet.getClaim("c"));
 		Assert.assertEquals("example@example.com", claimSet.getClaim("email"));
 		Assert.assertEquals("userA", claimSet.getClaim("sub"));
+	}
+
+	@Test
+	public void nonceIsReturnedInClaimSetForOIDCRequest() throws Exception
+	{
+		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(new ResponseType(ResponseType.Value.CODE),
+				GrantFlow.authorizationCode, clientId.getEntityId(), 100, 0, "nonce-VAL");
+		AuthorizationSuccessResponse resp1 = OAuthTestUtils.initOAuthFlowAccessCode(tokensMan, ctx);
+		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"), new Secret("clientPass"));
+		TokenRequest request = new TokenRequest(new URI("https://localhost:52443/oauth/token"), ca, 
+				new AuthorizationCodeGrant(resp1.getAuthorizationCode(), 
+						new URI("https://return.host.com/foo")));
+		HTTPRequest bare = request.toHTTPRequest();
+		HTTPRequest wrapped = new CustomHTTPSRequest(bare, pkiMan.getValidator("MAIN"), 
+				ServerHostnameCheckingMode.NONE);
+		
+		HTTPResponse resp2 = wrapped.send();
+
+		OIDCTokenResponse parsedResp = OIDCTokenResponse.parse(resp2);
+		JWTClaimsSet claimSet = parsedResp.getOIDCTokens().getIDToken().getJWTClaimsSet();
+		assertThat(claimSet.getClaim("nonce"), is("nonce-VAL"));
 	}
 	
 	@Test
