@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.saml.idp.web.filter;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
@@ -19,6 +20,7 @@ import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
  * @author K. Benedyczak
  */
 @Component
+@Primary
 public class IdpConsentDeciderServletFactoryImpl implements IdpConsentDeciderServletFactory
 {
 	protected PreferencesManagement preferencesMan;
