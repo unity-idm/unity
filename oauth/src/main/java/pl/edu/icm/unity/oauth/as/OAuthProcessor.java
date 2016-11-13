@@ -31,6 +31,7 @@ import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
+import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
 import com.nimbusds.openid.connect.sdk.claims.ClaimsSet;
@@ -44,7 +45,6 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
-import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -98,8 +98,8 @@ public class OAuthProcessor
 		internalToken.setClientName(ctx.getClientName());
 		internalToken.setClientUsername(ctx.getClientUsername());
 		internalToken.setSubject(identity.getValue());
-		internalToken.setMaxExtendedValidity(ctx.getMaxExtendedAccessTokenValidity());
-		internalToken.setTokenValidity(ctx.getAccessTokenValidity());
+		internalToken.setMaxExtendedValidity(ctx.getConfig().getMaxExtendedAccessTokenValidity());
+		internalToken.setTokenValidity(ctx.getConfig().getAccessTokenValidity());
 		
 		Date now = new Date();
 		
@@ -127,7 +127,7 @@ public class OAuthProcessor
 			internalToken.setAuthzCode(authzCode.getValue());
 			oauthResponse = new AuthorizationSuccessResponse(ctx.getReturnURI(), authzCode, null,
 					ctx.getRequest().getState(), ctx.getRequest().impliedResponseMode());
-			Date expiration = new Date(now.getTime() + ctx.getCodeTokenValidity() * 1000);
+			Date expiration = new Date(now.getTime() + ctx.getConfig().getCodeTokenValidity() * 1000);
 			tokensMan.addToken(INTERNAL_CODE_TOKEN, authzCode.getValue(), 
 					new EntityParam(identity), internalToken.getSerialized(), now, expiration);
 		} else if (GrantFlow.implicit == ctx.getFlow())
@@ -143,7 +143,7 @@ public class OAuthProcessor
 
 			AccessToken accessToken = new BearerAccessToken();
 			internalToken.setAccessToken(accessToken.getValue());
-			Date expiration = new Date(now.getTime() + ctx.getAccessTokenValidity() * 1000);
+			Date expiration = new Date(now.getTime() + ctx.getConfig().getAccessTokenValidity() * 1000);
 			oauthResponse = new AuthenticationSuccessResponse(
 						ctx.getReturnURI(), null, idTokenSigned, 
 						accessToken, ctx.getRequest().getState(), null, 
@@ -155,7 +155,7 @@ public class OAuthProcessor
 			//in hybrid mode authz code is returned always
 			AuthorizationCode authzCode = new AuthorizationCode();
 			internalToken.setAuthzCode(authzCode.getValue());
-			Date codeExpiration = new Date(now.getTime() + ctx.getCodeTokenValidity() * 1000);
+			Date codeExpiration = new Date(now.getTime() + ctx.getConfig().getCodeTokenValidity() * 1000);
 			tokensMan.addToken(INTERNAL_CODE_TOKEN, authzCode.getValue(), 
 					new EntityParam(identity), internalToken.getSerialized(), 
 					now, codeExpiration);
@@ -166,7 +166,7 @@ public class OAuthProcessor
 			{
 				accessToken = new BearerAccessToken();
 				internalToken.setAccessToken(accessToken.getValue());
-				Date accessExpiration = new Date(now.getTime() + ctx.getAccessTokenValidity() * 1000);
+				Date accessExpiration = new Date(now.getTime() + ctx.getConfig().getAccessTokenValidity() * 1000);
 				tokensMan.addToken(INTERNAL_ACCESS_TOKEN, accessToken.getValue(), 
 						new EntityParam(identity), internalToken.getSerialized(), 
 						now, accessExpiration);
@@ -225,16 +225,19 @@ public class OAuthProcessor
 	private IDTokenClaimsSet prepareIdInfoClaimSet(String userIdentity, OAuthAuthzContext context, 
 			ClaimsSet regularAttributes, Date now)
 	{
-		String clientId = context.getRequest().getClientID().getValue();
+		AuthenticationRequest request = (AuthenticationRequest) context.getRequest();
+		String clientId = request.getClientID().getValue();
 		IDTokenClaimsSet idToken = new IDTokenClaimsSet(
-				new Issuer(context.getIssuerName()), 
+				new Issuer(context.getConfig().getIssuerName()), 
 				new Subject(userIdentity), 
 				Lists.newArrayList(new Audience(clientId)), 
-				new Date(now.getTime() + context.getIdTokenValidity()*1000), 
+				new Date(now.getTime() + context.getConfig().getIdTokenValidity()*1000), 
 				now);
-		ResponseType responseType = context.getRequest().getResponseType(); 
+		ResponseType responseType = request.getResponseType(); 
 		if (responseType.contains(OIDCResponseTypeValue.ID_TOKEN) && responseType.size() == 1)
 			idToken.putAll(regularAttributes);
+		if (request.getNonce() != null)
+			idToken.setNonce(request.getNonce());
 		return idToken;
 	}
 	
@@ -260,7 +263,7 @@ public class OAuthProcessor
 	private JWT signIdToken(IDTokenClaimsSet idTokenClaims, OAuthAuthzContext ctx) 
 			throws JOSEException, ParseException
 	{
-		PrivateKey pk = ctx.getCredential().getKey();
+		PrivateKey pk = ctx.getConfig().getCredential().getKey();
 		SignedJWT ret;
 		JWSSigner signer;
 		

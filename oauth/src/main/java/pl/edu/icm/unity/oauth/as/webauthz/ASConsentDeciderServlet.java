@@ -31,6 +31,7 @@ import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
@@ -123,7 +124,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 		if (preferences.isDoNotAsk())
 			return false;
 		
-		return !oauthCtx.isSkipConsent();
+		return !oauthCtx.getConfig().isSkipConsent();
 	}
 	
 	/**
@@ -151,7 +152,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 		{
 			TranslationResult userInfo = idpEngine.getUserInfo(oauthCtx);
 			IdentityParam selectedIdentity = idpEngine.getIdentity(userInfo, 
-					oauthCtx.getSubjectIdentityType());
+					oauthCtx.getConfig().getSubjectIdentityType());
 			log.debug("Authentication of " + selectedIdentity);
 			Collection<Attribute> attributes = processor.filterAttributes(userInfo, 
 					oauthCtx.getRequestedAttrs());

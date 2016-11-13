@@ -14,6 +14,11 @@ import java.util.Collection;
 
 import org.junit.Test;
 
+import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.IdentityParam;
+
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
@@ -25,11 +30,6 @@ import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
-import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
-import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext;
-import pl.edu.icm.unity.stdext.attr.StringAttribute;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
  * Tests of the authz endpoint logic.
@@ -45,8 +45,9 @@ public class OAuthProcessorTest
 		attributes.add(StringAttribute.of("email", "/", "example@example.com"));
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
-		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.CODE),
-				GrantFlow.authorizationCode, 100);
+		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getConfig(),
+				new ResponseType(ResponseType.Value.CODE),
+				GrantFlow.authorizationCode, 100, "nonce");
 		
 		long start = System.currentTimeMillis();
 		AuthorizationSuccessResponse resp = processor.prepareAuthzResponseAndRecordInternalState(
@@ -69,8 +70,9 @@ public class OAuthProcessorTest
 		attributes.add(StringAttribute.of("email", "/", "example@example.com"));
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
-		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.TOKEN),
-				GrantFlow.implicit, 100);
+		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getConfig(),
+				new ResponseType(ResponseType.Value.TOKEN, OIDCResponseTypeValue.ID_TOKEN),
+				GrantFlow.implicit, 100, "nonce");
 		
 		long start = System.currentTimeMillis();
 		AuthorizationSuccessResponse resp = processor.prepareAuthzResponseAndRecordInternalState(
@@ -94,9 +96,9 @@ public class OAuthProcessorTest
 		attributes.add(StringAttribute.of("email", "/", "example@example.com"));
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
-		OAuthAuthzContext ctx = OAuthTestUtils.createContext(new ResponseType(ResponseType.Value.TOKEN, 
-				OIDCResponseTypeValue.ID_TOKEN, ResponseType.Value.CODE),
-				GrantFlow.openidHybrid, 100);
+		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getConfig(),
+				new ResponseType(ResponseType.Value.TOKEN, OIDCResponseTypeValue.ID_TOKEN, ResponseType.Value.CODE),
+				GrantFlow.openidHybrid, 100, "nonce");
 		
 		long start = System.currentTimeMillis();
 		AuthorizationSuccessResponse resp = processor.prepareAuthzResponseAndRecordInternalState(
@@ -131,7 +133,7 @@ public class OAuthProcessorTest
 		assertNotNull(internalToken.getOpenidInfo());
 		SignedJWT openidToken = SignedJWT.parse(internalToken.getOpenidInfo());
 		JWTClaimsSet openidClaims = openidToken.getJWTClaimsSet();
-		assertEquals("https://localhost:2443/oauth-as", openidClaims.getIssuer());
+		assertEquals(OAuthTestUtils.ISSUER, openidClaims.getIssuer());
 		assertEquals("userA", openidClaims.getSubject());
 		assertEquals(1, openidClaims.getAudience().size());
 		assertEquals("clientC", openidClaims.getAudience().get(0));

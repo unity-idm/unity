@@ -2,7 +2,7 @@
  * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.oauth.as.webauthz;
+package pl.edu.icm.unity.oauth.as;
 
 import java.net.URI;
 import java.util.Collection;
@@ -13,7 +13,6 @@ import java.util.Set;
 
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 
-import eu.emi.security.authn.x509.X509Credential;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -21,14 +20,15 @@ import pl.edu.icm.unity.types.basic.Attribute;
 /**
  * Context stored in HTTP session maintaining authorization token.
  * 
- * TODO - simplify this class: it duplicates the {@link OAuthASProperties} contents to a large degree.
  * @author K. Benedyczak
  */
 public class OAuthAuthzContext
 {
 	public static final long AUTHN_TIMEOUT = 900000;
 	private AuthorizationRequest request;
+	private OAuthASProperties config;
 	private Date timestamp;
+
 	private URI returnURI;
 	private String clientName;
 	private String clientUsername;
@@ -40,45 +40,18 @@ public class OAuthAuthzContext
 	private Set<String> requestedAttrs = new HashSet<>();
 	private GrantFlow flow;
 	private boolean openIdMode;
-	private boolean skipConsent;
-	private int codeTokenValidity;
-	private int accessTokenValidity;
-	private int maxExtendedAccessTokenValidity;
-	private int idTokenValidity;
-	private String issuerName;
-	private X509Credential credential;
-	private String subjectIdentityType;
-	private OAuthASProperties properties;
 	
 
-	public OAuthAuthzContext(AuthorizationRequest request, OAuthASProperties properties,
-			int accessTokenValidity, int maxExtendedAccessTokenValidity,
-			int codeTokenValidity,
-			int idTokenValidity, String issuerName, X509Credential credential, boolean skipConsent,
-			String subjectIdentityType)
+	public OAuthAuthzContext(AuthorizationRequest request, OAuthASProperties properties)
 	{
-		super();
-		this.properties = properties;
-		this.maxExtendedAccessTokenValidity = maxExtendedAccessTokenValidity;
-		this.subjectIdentityType = subjectIdentityType;
+		this.config = properties;
 		this.timestamp = new Date();
 		this.request = request;
-		this.codeTokenValidity = codeTokenValidity;
-		this.accessTokenValidity = accessTokenValidity;
-		this.idTokenValidity = idTokenValidity;
-		this.issuerName = issuerName;
-		this.credential = credential;
-		this.skipConsent = skipConsent;
 	}
 
-	public OAuthASProperties getProperties()
+	public OAuthASProperties getConfig()
 	{
-		return properties;
-	}
-
-	public X509Credential getCredential()
-	{
-		return credential;
+		return config;
 	}
 
 	public AuthorizationRequest getRequest()
@@ -191,39 +164,9 @@ public class OAuthAuthzContext
 		return openIdMode;
 	}
 
-	public boolean isSkipConsent()
-	{
-		return skipConsent;
-	}
-
 	public void setOpenIdMode(boolean openIdMode)
 	{
 		this.openIdMode = openIdMode;
-	}
-
-	public int getCodeTokenValidity()
-	{
-		return codeTokenValidity;
-	}
-
-	public int getAccessTokenValidity()
-	{
-		return accessTokenValidity;
-	}
-
-	public int getMaxExtendedAccessTokenValidity()
-	{
-		return maxExtendedAccessTokenValidity;
-	}
-
-	public int getIdTokenValidity()
-	{
-		return idTokenValidity;
-	}
-
-	public String getIssuerName()
-	{
-		return issuerName;
 	}
 
 	public long getClientEntityId()
@@ -240,13 +183,6 @@ public class OAuthAuthzContext
 	{
 		return AUTHN_TIMEOUT;
 	}
-
-	public String getSubjectIdentityType()
-	{
-		return subjectIdentityType;
-	}
-
-
 
 	public static class ScopeInfo
 	{

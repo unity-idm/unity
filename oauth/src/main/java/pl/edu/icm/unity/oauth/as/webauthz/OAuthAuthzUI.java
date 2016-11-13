@@ -35,11 +35,12 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
+import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
-import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -196,7 +197,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 			
 			TranslationResult translationResult = idpEngine.getUserInfo(ctx);
 			
-			createIdentityPart(translationResult, eiLayout, ctx.getSubjectIdentityType());
+			createIdentityPart(translationResult, eiLayout, ctx.getConfig().getSubjectIdentityType());
 			
 			attrsPresenter = new ExposedAttributesComponent(msg, handlersRegistry, 
 					oauthProcessor.filterAttributes(translationResult, ctx.getRequestedAttrs()));

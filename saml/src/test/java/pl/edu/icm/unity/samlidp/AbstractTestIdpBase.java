@@ -37,6 +37,8 @@ import pl.edu.icm.unity.stdext.attr.IntegerAttribute;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.CertificateVerificatorFactory;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
@@ -82,6 +84,7 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 	private TranslationProfileManagement profilesMan;
 	@Autowired
 	private AuthenticatorManagement authnMan;
+	
 	
 	@Before
 	public void setup()
@@ -169,6 +172,7 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 		
 		aTypeMan.addAttributeType(new AttributeType("stringA", StringAttributeSyntax.ID));
 		aTypeMan.addAttributeType(new AttributeType("intA", IntegerAttributeSyntax.ID));
+		aTypeMan.addAttributeType(new AttributeType("emailA", VerifiableEmailAttributeSyntax.ID));
 		AttributeType fAT = new AttributeType("floatA", FloatingPointAttributeSyntax.ID);
 		fAT.setMaxElements(100);
 		aTypeMan.addAttributeType(fAT);
@@ -180,6 +184,7 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 		vals.add(124.1);
 		vals.add(14.2);
 		attrsMan.setAttribute(e1, FloatingPointAttribute.of("floatA", "/", vals), false);
+		attrsMan.setAttribute(e1, VerifiableEmailAttribute.of("emailA", "/", "example@example.com"), false);
 
 		attrsMan.setAttribute(e2, StringAttribute.of("stringA", "/"), false);
 		attrsMan.setAttribute(e2, IntegerAttribute.of("intA", "/", 1), false);

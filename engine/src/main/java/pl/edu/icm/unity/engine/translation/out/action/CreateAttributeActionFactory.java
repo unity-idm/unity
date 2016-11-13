@@ -79,7 +79,7 @@ public class CreateAttributeActionFactory extends AbstractOutputTranslationActio
 			{
 				if (existing.getName().equals(attrNameString))
 				{
-					log.trace("Attribute already exists, skipping");
+					log.debug("Attribute already exists, skipping");
 					return;
 				}
 			}

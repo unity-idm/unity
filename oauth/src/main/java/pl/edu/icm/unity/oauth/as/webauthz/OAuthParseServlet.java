@@ -28,6 +28,7 @@ import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 
@@ -39,11 +40,12 @@ import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
+import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
+import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
-import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -51,6 +53,7 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
+
 
 /**
  * Low level servlet performing the initial OAuth handling.
@@ -124,6 +127,18 @@ public class OAuthParseServlet extends HttpServlet
 		}
 	}
 	
+	private String getQueryString(HttpServletRequest request)
+	{
+		String requestFromHoldOn = request.getParameter("oAuthRequest");
+		if (requestFromHoldOn != null)
+			return new String(Base64.decodeBase64(requestFromHoldOn), 
+					StandardCharsets.UTF_8);
+		else
+			return request.getQueryString();
+	}
+	
+	
+	
 	protected void processRequestInterruptible(HttpServletRequest request, HttpServletResponse response) 
 			throws IOException, ServletException, EopException
 	{
@@ -132,24 +147,37 @@ public class OAuthParseServlet extends HttpServlet
 		OAuthAuthzContext context = (OAuthAuthzContext) session.getAttribute(SESSION_OAUTH_CONTEXT); 
 		AuthorizationRequest authzRequest;
 		
+		String queryString = getQueryString(request);
+
 		try
 		{
-			String requestFromHoldOn = request.getParameter("oAuthRequest");
-			String queryString;
-			if (requestFromHoldOn != null)
-			{
-				queryString = new String(Base64.decodeBase64(requestFromHoldOn), 
-						StandardCharsets.UTF_8);
-			} else
-				queryString = request.getQueryString();
-			authzRequest = AuthorizationRequest.parse(queryString);
+			authzRequest = AuthenticationRequest.parse(queryString);
 		} catch (ParseException e)
 		{
 			if (log.isTraceEnabled())
-				log.trace("Request to OAuth2 endpoint address, with invalid/missing parameters, error: " + 
-						e.toString());
-			errorHandler.showErrorPage("Error parsing OAuth request", e.getMessage(), response);
-			return;
+				log.trace("Request to OAuth2 endpoint address, which is not OIDC request, "
+					+ "will try plain OAuth. OIDC parse error: " + e.toString());
+			try
+			{
+				authzRequest = AuthorizationRequest.parse(queryString);
+				Scope requestedScopes = authzRequest.getScope();
+				if (requestedScopes != null && requestedScopes.contains(OIDCScopeValue.OPENID))
+				{
+					log.debug("Request to OAuth2 endpoint address, which is not OIDC request, "
+							+ "but OIDC profile requested. OIDC parse error: " + 
+							e.toString());
+					errorHandler.showErrorPage("Error parsing OAuth OIDC request", e.getMessage(), 
+							response);
+					return;
+				}
+			}catch (ParseException ee)
+			{
+				if (log.isTraceEnabled())
+					log.trace("Request to OAuth2 endpoint address, "
+							+ "with invalid/missing parameters, error: " + e.toString());
+				errorHandler.showErrorPage("Error parsing OAuth request", e.getMessage(), response);
+				return;
+			}
 		}
 
 		//ok, we do have a new request. 
@@ -186,17 +214,7 @@ public class OAuthParseServlet extends HttpServlet
 		{
 			if (log.isTraceEnabled())
 				log.trace("Parsed OAuth request: " + request.getQueryString());
-			int maxExtendedValidity = oauthConfig.isSet(OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY) ?
-					oauthConfig.getIntValue(OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY) : 0;
-			context = new OAuthAuthzContext(authzRequest, oauthConfig,
-					oauthConfig.getIntValue(OAuthASProperties.ACCESS_TOKEN_VALIDITY),
-					maxExtendedValidity,
-					oauthConfig.getIntValue(OAuthASProperties.CODE_TOKEN_VALIDITY),
-					oauthConfig.getIntValue(OAuthASProperties.ID_TOKEN_VALIDITY),
-					oauthConfig.getValue(OAuthASProperties.ISSUER_URI),
-					oauthConfig.getCredential(),
-					oauthConfig.getBooleanValue(CommonIdPProperties.SKIP_CONSENT),
-					oauthConfig.getValue(OAuthASProperties.IDENTITY_TYPE_FOR_SUBJECT));
+			context = new OAuthAuthzContext(authzRequest, oauthConfig);
 			validate(context);
 		} catch (OAuthValidationException e)
 		{
@@ -317,13 +335,24 @@ public class OAuthParseServlet extends HttpServlet
 
 		context.setOpenIdMode(requestedScopes != null && requestedScopes.contains(OIDCScopeValue.OPENID));
 
-		if (context.isOpenIdMode() && responseType.contains(ResponseType.Value.TOKEN)
-				&& responseType.size() == 1)
-			throw new OAuthValidationException("The OpenID Connect mode implied by the requested 'openid'"
-					+ " scope can not be used with the 'token' response type - it makes no sense");
-		if (!context.isOpenIdMode() && responseType.contains(OIDCResponseTypeValue.ID_TOKEN))
-			throw new OAuthValidationException("The 'openid' scope was not requested and the "
-					+ "'id_token' response type was what is an invalid combination");
+		if (context.isOpenIdMode())
+		{
+			if (responseType.contains(ResponseType.Value.TOKEN) && responseType.size() == 1)
+				throw new OAuthValidationException("The OpenID Connect mode implied by "
+						+ "the requested 'openid' scope can not be used with the "
+						+ "'token' response type - it makes no sense");
+			if (!(authzRequest instanceof AuthenticationRequest))
+				throw new OAuthValidationException("The OpenID Connect mode implied by "
+						+ "the requested 'openid' scope was used with non OIDC compliant, "
+						+ "plain OOAuth request");
+		} else
+		{
+			if (responseType.contains(OIDCResponseTypeValue.ID_TOKEN))
+				throw new OAuthValidationException("The 'openid' scope was not requested and the "
+						+ "'id_token' response type was what is an invalid combination");
+		}
+
+		
 		SetView<ResponseType.Value> diff = Sets.difference(responseType, KNOWN_RESPONSE_TYPES);
 		if (!diff.isEmpty())
 			throw new OAuthValidationException("The following response type(s) is(are) not supported: " 

@@ -139,4 +139,40 @@ public class OAuthASProperties extends PropertiesHelper
 	{
 		return credential;
 	}
+	
+	public boolean isSkipConsent()
+	{
+		return getBooleanValue(CommonIdPProperties.SKIP_CONSENT);
+	}
+
+	public int getCodeTokenValidity()
+	{
+		return getIntValue(OAuthASProperties.CODE_TOKEN_VALIDITY);
+	}
+
+	public int getAccessTokenValidity()
+	{
+		return getIntValue(OAuthASProperties.ACCESS_TOKEN_VALIDITY);
+	}
+
+	public int getMaxExtendedAccessTokenValidity()
+	{
+		return isSet(OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY) ?
+				getIntValue(OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY) : 0;
+	}
+
+	public int getIdTokenValidity()
+	{
+		return getIntValue(OAuthASProperties.ID_TOKEN_VALIDITY);
+	}
+
+	public String getIssuerName()
+	{
+		return getValue(OAuthASProperties.ISSUER_URI);
+	}
+
+	public String getSubjectIdentityType()
+	{
+		return getValue(OAuthASProperties.IDENTITY_TYPE_FOR_SUBJECT);
+	}
 }
