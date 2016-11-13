@@ -64,7 +64,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		AuthnResponseAssertions resp = authnClient.authenticate(SAMLConstants.NFORMAT_PERSISTENT, 
 				localIssuer, "http://somehost/consumer");
 		
-		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 6);
+		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 7);
 		String persistentTargetedId = resp.getAuthNAssertions().get(0).getSubjectName();
 		System.out.println("Targeted persistent id: " + persistentTargetedId);
 
@@ -72,7 +72,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		AttributeAssertionParser a = attrClient.getAssertion(
 				new NameID(persistentTargetedId, SAMLConstants.NFORMAT_PERSISTENT),
 				localIssuer);
-		assertEquals(6, a.getAttributes().size());
+		assertEquals(7, a.getAttributes().size());
 	}
 	
 	@Test
@@ -100,7 +100,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		AuthnResponseAssertions resp = client.authenticate(SAMLConstants.NFORMAT_PERSISTENT, 
 				localIssuer, "http://somehost/consumer");
 		
-		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 6);
+		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 7);
 		
 		clientCfg.setHttpPassword("wrong");
 		client = new SAMLAuthnClient(authnWSUrl, clientCfg);
@@ -134,7 +134,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		clientCfg.setHttpPassword("mockPassword1");
 		client = new SAMLAuthnClient(authnWSUrl, clientCfg);
 		resp = client.authenticate(localIssuer, "http://somehost/consumer");
-		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 6);
+		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 7);
 		
 		//both but password wrong so TLS should be used.
 		clientCfg.setSslAuthn(true);
