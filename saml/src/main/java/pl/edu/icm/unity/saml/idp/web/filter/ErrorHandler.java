@@ -12,7 +12,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.apache.xml.security.utils.Base64;
 
 import eu.unicore.samly2.exceptions.SAMLServerException;

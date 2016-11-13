@@ -11,7 +11,7 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import eu.unicore.samly2.SAMLConstants;
 import pl.edu.icm.unity.base.utils.Log;

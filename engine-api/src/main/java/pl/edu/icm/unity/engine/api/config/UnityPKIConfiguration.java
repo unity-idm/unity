@@ -30,7 +30,7 @@ import pl.edu.icm.unity.base.utils.Log;
  */
 public class UnityPKIConfiguration extends PropertiesHelper
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, UnityPKIConfiguration.class);
+	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, UnityPKIConfiguration.class);
 
 	@DocumentationReferencePrefix
 	public static final String P = "unity.pki.";

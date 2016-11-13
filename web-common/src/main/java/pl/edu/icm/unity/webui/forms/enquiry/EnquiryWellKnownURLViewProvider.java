@@ -8,7 +8,7 @@ import static pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupp
 
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

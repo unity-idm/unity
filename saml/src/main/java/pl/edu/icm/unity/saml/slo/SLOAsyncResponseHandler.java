@@ -8,7 +8,7 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import eu.unicore.samly2.elements.NameID;
 import eu.unicore.samly2.exceptions.SAMLServerException;

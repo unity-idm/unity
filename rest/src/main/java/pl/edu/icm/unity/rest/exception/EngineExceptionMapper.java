@@ -10,7 +10,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;

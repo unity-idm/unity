@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.engine.translation.in;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;

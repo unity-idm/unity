@@ -9,7 +9,7 @@ import java.util.Properties;
 import java.util.Queue;
 import java.util.Stack;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.vaadin.annotations.Push;
 import com.vaadin.server.DefaultErrorHandler;

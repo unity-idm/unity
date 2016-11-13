@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.apache.xml.security.utils.Base64;
 
 import com.vaadin.server.Page;

@@ -24,7 +24,7 @@ import pl.edu.icm.unity.base.utils.Log;
  */
 public class UserImportProperties extends PropertiesHelper
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, UserImportProperties.class);
+	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, UserImportProperties.class);
 	
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "unity.userImport.";

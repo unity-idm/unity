@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.NDC;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
 import org.mvel2.MVEL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -45,7 +45,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 public class AttributeStatementProcessor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, AttributeStatementProcessor.class);
-	
+
 	public enum ContextKey
 	{
 		idsByType,
@@ -247,7 +247,7 @@ public class AttributeStatementProcessor
 					extraAttributes = upwardsAttributesByGroup.get(extraAttributesGroup);
 			}
 			
-			NDC.push("[AttrStmnt " + i + " in " + group + " for entity " + 
+			ThreadContext.push("[AttrStmnt " + i + " in " + group + " for entity " + 
 				identities.get(0).getEntityId() + "]");
 			try
 			{
@@ -256,7 +256,7 @@ public class AttributeStatementProcessor
 						allGroups, acHelper);
 			} finally
 			{
-				NDC.pop();
+				ThreadContext.pop();
 			}
 		}
 		return collectedAttributes;

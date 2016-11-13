@@ -38,7 +38,7 @@ import xmlbeans.org.oasis.saml2.assertion.NameIDType;
  */
 public class SAMLSPProperties extends SamlProperties
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, SAMLSPProperties.class);
+	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, SAMLSPProperties.class);
 	
 	public enum MetadataSignatureValidation {require, ignore};
 	

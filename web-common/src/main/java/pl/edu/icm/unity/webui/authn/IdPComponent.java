@@ -6,7 +6,7 @@ package pl.edu.icm.unity.webui.authn;
 
 import java.net.MalformedURLException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.google.common.html.HtmlEscapers;
 import com.vaadin.server.Resource;

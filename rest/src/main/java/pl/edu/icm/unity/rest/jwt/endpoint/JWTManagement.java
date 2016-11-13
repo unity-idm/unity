@@ -20,7 +20,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.JWTClaimsSet;

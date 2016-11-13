@@ -47,7 +47,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String PROFILE_PRODUCTION = "production";
 	
 	public enum LogoutMode {internalOnly, internalAndSyncPeers, internalAndAsyncPeers}
-	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, UnityServerConfiguration.class);
+	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, UnityServerConfiguration.class);
 	public static final String CONFIGURATION_FILE = "conf/unityServer.conf";
 	public static final String DEFAULT_EMAIL_CHANNEL = "Default e-mail channel";
 

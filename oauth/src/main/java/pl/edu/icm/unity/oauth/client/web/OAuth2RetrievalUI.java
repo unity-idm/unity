@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;

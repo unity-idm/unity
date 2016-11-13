@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.http.entity.ContentType;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationGrant;

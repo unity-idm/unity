@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorDocument;

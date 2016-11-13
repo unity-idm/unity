@@ -7,7 +7,7 @@ package pl.edu.icm.unity.engine.server;
 import java.text.DateFormat;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;

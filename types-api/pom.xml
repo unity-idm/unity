@@ -46,8 +46,8 @@
 			<artifactId>mvel2</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
 		</dependency>
 		<!-- We use some spring annotations. However only for spring aware containers, 
 			the classes can be used without spring as well. -->

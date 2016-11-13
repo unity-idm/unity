@@ -51,7 +51,7 @@ import xmlbeans.org.oasis.saml2.assertion.NameIDType;
  */
 public class SamlIdpProperties extends SamlProperties
 {
-	private static final Logger log = Log.getLogger(SamlIdpProperties.LOG_PFX, SamlIdpProperties.class);
+	private static final Logger log = Log.getLegacyLogger(SamlIdpProperties.LOG_PFX, SamlIdpProperties.class);
 	public enum RequestAcceptancePolicy {all, validSigner, validRequester, strict};
 	public enum ResponseSigningPolicy {always, never, asRequest};
 	public enum AssertionSigningPolicy {always, ifResponseUnsigned};

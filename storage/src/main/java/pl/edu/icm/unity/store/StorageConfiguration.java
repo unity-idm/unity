@@ -36,7 +36,7 @@ import pl.edu.icm.unity.store.api.StoragePropertiesSource;
 @Component
 public class StorageConfiguration extends PropertiesHelper
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, StorageConfiguration.class);
+	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, StorageConfiguration.class);
 
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "unityServer.storage.";

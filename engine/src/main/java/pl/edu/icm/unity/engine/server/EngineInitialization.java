@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;

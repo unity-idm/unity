@@ -14,7 +14,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 
 import eu.emi.security.authn.x509.X509Credential;

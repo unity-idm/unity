@@ -6,7 +6,7 @@ package pl.edu.icm.unity.stdext.credential;
 
 import java.security.cert.X509Certificate;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import pl.edu.icm.unity.base.utils.Log;

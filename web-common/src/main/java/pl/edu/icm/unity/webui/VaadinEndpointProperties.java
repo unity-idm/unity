@@ -23,7 +23,7 @@ import pl.edu.icm.unity.base.utils.Log;
  */
 public class VaadinEndpointProperties extends PropertiesHelper
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, VaadinEndpointProperties.class);
+	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, VaadinEndpointProperties.class);
 	private enum ScaleModeOld {
 		none(ScaleMode.none), 
 		height100(ScaleMode.heightSmall), 

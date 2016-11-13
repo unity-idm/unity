@@ -10,7 +10,7 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.SynchronizedRequestHandler;
 import com.vaadin.server.VaadinRequest;

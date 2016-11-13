@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.cxf.interceptor.Fault;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;

@@ -7,7 +7,7 @@ package pl.edu.icm.unity.unicore.samlidp.saml;
 import java.util.Calendar;
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.impl.X500NameUtils;

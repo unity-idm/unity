@@ -25,7 +25,7 @@ import pl.edu.icm.unity.store.rdbms.RDBMSConfiguration;
  */
 public class HzConfiguration extends RDBMSConfiguration
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, HzConfiguration.class);
+	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, HzConfiguration.class);
 
 	@DocumentationReferencePrefix
 	public static final String PREFIX = StorageConfiguration.PREFIX + "engine.hz.";

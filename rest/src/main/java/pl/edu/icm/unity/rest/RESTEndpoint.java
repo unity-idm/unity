@@ -26,7 +26,7 @@ import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.utils.ResourceUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;

@@ -9,7 +9,7 @@ import java.util.Collection;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;

@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobBuilder;

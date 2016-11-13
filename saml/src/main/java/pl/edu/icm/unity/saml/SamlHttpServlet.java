@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.bouncycastle.util.encoders.Base64;
 
 import eu.unicore.samly2.binding.HttpRedirectBindingSupport;

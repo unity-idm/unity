@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.translation.form;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.apache.log4j.NDC;
 
 import pl.edu.icm.unity.base.utils.Log;

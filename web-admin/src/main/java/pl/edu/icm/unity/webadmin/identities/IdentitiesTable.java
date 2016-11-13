@@ -19,7 +19,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;

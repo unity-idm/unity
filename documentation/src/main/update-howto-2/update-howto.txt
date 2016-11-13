@@ -1,0 +1,31 @@
+Unity Update 1.x -> 2.x HowTo
+=============================
+Unity Team <unity-idm-discuss@lists.sourceforge.net>
+:revnumber: 1.0
+:numbered:
+:toc: left
+:linkcss:
+:iconsdir: ./icons
+:icons: font
+
+== Introduction
+
+Unity version 2.x features major changes and requires some effort to perform upgrade from a 1.x version. This
+document tracks all actions that may be necessary during upgrade.
+
+
+=== Logging subsystem re-configuration
+
+Unity 1.x used a dated log4j 1.2.17 logging library. Unity 2.x upgrades it to the most recent log4j2. Log4j2 uses 
+a different configuration syntax. It is important to note that logging configuration file name is changed from 
++log4j.properties+ to: 
+
+----
+log4j2.properties
+----
+   
+It is strongly suggested to use a new logging configuration file from Unity distribution as a template and 
+only apply the local modifications. Typically it is only required to update logger levels to desired ones.
+
+Note that basic concept behind logging (loggers, appenders) did not change.
+

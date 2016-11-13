@@ -34,7 +34,7 @@ import pl.edu.icm.unity.oauth.rp.verificator.UnityTokenVerificator;
  */
 public class OAuthRPProperties extends PropertiesHelper implements BaseRemoteASProperties
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, OAuthRPProperties.class);
+	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, OAuthRPProperties.class);
 	
 	public enum VerificationProtocol {mitre, unity, internal};
 	

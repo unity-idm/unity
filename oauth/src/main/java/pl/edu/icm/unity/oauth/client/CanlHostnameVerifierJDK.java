@@ -11,7 +11,7 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import eu.emi.security.authn.x509.helpers.ssl.HostnameToCertificateChecker;
 import eu.emi.security.authn.x509.impl.X500NameUtils;

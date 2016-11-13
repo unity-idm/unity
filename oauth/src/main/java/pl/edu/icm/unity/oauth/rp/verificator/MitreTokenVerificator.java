@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;

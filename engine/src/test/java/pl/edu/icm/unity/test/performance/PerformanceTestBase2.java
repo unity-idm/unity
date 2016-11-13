@@ -12,8 +12,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -92,10 +94,12 @@ public abstract class PerformanceTestBase2 extends SecuredDBIntegrationTestBase
 	public void clear() throws Exception
 	{
 		//insecureServerMan.resetDatabase();
+		LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+	        Configuration config = ctx.getConfiguration();
+	        config.getLoggerConfig("unity.server").setLevel(Level.OFF);
+	        config.getLoggerConfig("pl.edu.icm.unity.store").setLevel(Level.OFF);
+	        ctx.updateLoggers();
 
-		Logger.getLogger("unity.server").setLevel(Level.OFF);
-		Logger.getLogger("pl.edu.icm.unity.store").setLevel(Level.OFF);
-		
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 		Calendar c = Calendar.getInstance();
 		String outputFile = "target/test-"+ getClass().getSimpleName() + "-" + 

@@ -6,7 +6,7 @@ package pl.edu.icm.unity.saml.sp.web;
 
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.VaadinRequest;

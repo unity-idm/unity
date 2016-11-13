@@ -15,8 +15,10 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Random;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
 import org.junit.Before;
 
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -66,7 +68,11 @@ public class PerformanceTestBase extends TestRESTBase
 	@Before
 	public void setup() throws Exception
 	{
-		Logger.getLogger("unity.server").setLevel(Level.OFF);
+		LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+	        Configuration config = ctx.getConfiguration();
+	        config.getLoggerConfig("unity.server").setLevel(Level.OFF);
+	        ctx.updateLoggers();
+	        
 		setupPasswordAuthn();
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 		Calendar c = Calendar.getInstance();

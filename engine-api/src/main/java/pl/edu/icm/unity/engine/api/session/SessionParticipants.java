@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;

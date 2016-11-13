@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.authn.credreset;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.UserError;
 import com.vaadin.ui.Button;

@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;

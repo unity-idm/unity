@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webadmin.reg.formman;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.ui.Alignment;

@@ -22,7 +22,7 @@ import javax.mail.Transport;
 import javax.mail.internet.MimeMessage;
 import javax.net.ssl.SSLSocketFactory;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

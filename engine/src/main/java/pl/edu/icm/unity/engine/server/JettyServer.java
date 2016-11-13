@@ -15,7 +15,7 @@ import java.util.Set;
 
 import javax.servlet.DispatcherType;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.servlet.FilterHolder;

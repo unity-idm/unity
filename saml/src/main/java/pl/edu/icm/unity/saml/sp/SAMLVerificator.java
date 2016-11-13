@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 
 import eu.emi.security.authn.x509.X509Credential;

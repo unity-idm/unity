@@ -13,7 +13,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Random;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.event.MouseEvents;

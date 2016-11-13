@@ -10,11 +10,11 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.I18nString;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.FilePropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
+import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.types.I18nString;
 
 /**
  * Extends {@link FilePropertiesHelper} with Unity specific methods. Currently only one - returning localized strings.

@@ -7,7 +7,7 @@ package pl.edu.icm.unity.engine.translation;
 import java.io.Serializable;
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.mvel2.MVEL;
 
 import pl.edu.icm.unity.base.utils.Log;

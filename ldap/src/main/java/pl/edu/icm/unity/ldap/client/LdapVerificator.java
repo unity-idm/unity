@@ -10,7 +10,7 @@ import java.io.StringWriter;
 import java.security.cert.X509Certificate;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.utils.Log;

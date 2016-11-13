@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.mvel2.MVEL;
 import org.springframework.stereotype.Component;
 

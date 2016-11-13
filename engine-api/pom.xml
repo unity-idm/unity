@@ -36,6 +36,10 @@
 
 		<!-- compile -->
 		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
 			<artifactId>unity-server-base</artifactId>
 			<version>${project.version}</version>

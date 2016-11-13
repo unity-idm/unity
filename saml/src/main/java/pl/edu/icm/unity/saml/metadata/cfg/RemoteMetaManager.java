@@ -11,7 +11,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 
 import pl.edu.icm.unity.base.utils.Log;

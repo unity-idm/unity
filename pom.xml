@@ -292,9 +292,14 @@
 				<version>${slf4j.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-log4j12</artifactId>
-				<version>${slf4j.version}</version>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-slf4j-impl</artifactId>
+				<version>2.7</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-1.2-api</artifactId>
+				<version>2.7</version>
 			</dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
@@ -302,14 +307,9 @@
 				<version>${slf4j.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>log4j</groupId>
-				<artifactId>log4j</artifactId>
-				<version>1.2.17</version>
-			</dependency>
-			<dependency>
-				<groupId>log4j</groupId>
-				<artifactId>apache-log4j-extras</artifactId>
-				<version>1.2.17</version>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-core</artifactId>
+				<version>2.7</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
@@ -320,6 +320,20 @@
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>securityLibrary</artifactId>
 				<version>4.3.4</version>
+				<exclusions>
+					<exclusion>
+						<groupId>log4j</groupId>
+						<artifactId>log4j</artifactId>
+					</exclusion>				
+					<exclusion>
+						<groupId>log4j</groupId>
+						<artifactId>apache-log4j-extras</artifactId>
+					</exclusion>				
+					<exclusion>
+						<groupId>org.slf4j</groupId>
+						<artifactId>slf4j-log4j12</artifactId>
+					</exclusion>				
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>pl.edu.icm.saml</groupId>

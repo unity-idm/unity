@@ -6,7 +6,7 @@ package pl.edu.icm.unity.webui.authn;
 
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.VaadinRequest;

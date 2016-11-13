@@ -10,7 +10,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;

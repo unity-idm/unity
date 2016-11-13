@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.GroupsManagement;

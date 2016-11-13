@@ -8,7 +8,8 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
@@ -30,7 +31,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public class InvitationParam
 {
-	private static final Logger log = Logger.getLogger(InvitationParam.class);
+	private static final Logger log = LogManager.getLogger(InvitationParam.class);
 	
 	private String formId;
 	private Instant expiration;

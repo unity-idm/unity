@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.saml.idp.ws;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import eu.unicore.samly2.webservice.SAMLLogoutInterface;
 import pl.edu.icm.unity.base.utils.Log;

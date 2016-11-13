@@ -17,7 +17,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.util.MultiMap;
 import org.eclipse.jetty.util.UrlEncoded;
 

@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.serverman;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;

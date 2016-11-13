@@ -6,7 +6,7 @@ package pl.edu.icm.unity.oauth.client.web;
 
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;

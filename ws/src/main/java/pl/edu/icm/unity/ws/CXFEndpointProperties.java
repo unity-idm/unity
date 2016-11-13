@@ -23,7 +23,7 @@ import pl.edu.icm.unity.base.utils.Log;
  */
 public class CXFEndpointProperties extends PropertiesHelper
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, CXFEndpointProperties.class);
+	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, CXFEndpointProperties.class);
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "unity.endpoint.ws.";
 	

@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.forms;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.Page;
 

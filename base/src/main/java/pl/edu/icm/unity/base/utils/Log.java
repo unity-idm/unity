@@ -4,11 +4,14 @@
  */
 package pl.edu.icm.unity.base.utils;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * Logger categories
  * @author K. Benedyczak
  */
-public class Log extends eu.unicore.util.Log
+public class Log
 {
 	public static final String U_SERVER = "unity.server";
 	public static final String U_SERVER_CFG = "unity.server.config";
@@ -20,4 +23,15 @@ public class Log extends eu.unicore.util.Log
 	public static final String U_SERVER_WS = "unity.server.ws";
 	public static final String U_SERVER_REST = "unity.server.rest";
 	public static final String U_SERVER_TRANSLATION = "unity.server.externaltranslation";
+	public static final String SECURITY = "unicore.security"; //legacy
+
+	public static Logger getLogger(String category, Class<?> clazz)
+	{
+		return LogManager.getLogger(category + "." + clazz.getSimpleName());
+	}
+	
+	public static org.apache.log4j.Logger getLegacyLogger(String category, Class<?> clazz)
+	{
+		return org.apache.log4j.Logger.getLogger(category + "." + clazz.getSimpleName());
+	}
 }

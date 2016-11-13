@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.apache.log4j.NDC;
 
 import pl.edu.icm.unity.base.utils.Log;

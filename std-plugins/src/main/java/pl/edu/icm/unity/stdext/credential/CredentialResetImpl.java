@@ -11,7 +11,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.bouncycastle.util.Arrays;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;

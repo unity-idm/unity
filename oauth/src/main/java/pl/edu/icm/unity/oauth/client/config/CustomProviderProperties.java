@@ -37,7 +37,7 @@ import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
  */
 public class CustomProviderProperties extends UnityPropertiesHelper implements BaseRemoteASProperties
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, CustomProviderProperties.class);
+	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, CustomProviderProperties.class);
 	
 	public enum AccessTokenFormat {standard, httpParams};
 	public enum ClientAuthnMode {secretPost, secretBasic};

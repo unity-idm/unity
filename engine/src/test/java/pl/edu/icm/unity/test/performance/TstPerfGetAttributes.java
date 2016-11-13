@@ -10,7 +10,7 @@ import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
 

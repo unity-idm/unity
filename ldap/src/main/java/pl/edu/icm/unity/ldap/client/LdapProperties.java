@@ -25,7 +25,7 @@ import pl.edu.icm.unity.ldap.client.LdapClientConfiguration.ConnectionMode;
  */
 public class LdapProperties extends PropertiesHelper
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, LdapProperties.class);
+	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, LdapProperties.class);
 	
 	public enum SearchScope 
 	{
