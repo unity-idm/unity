@@ -34,6 +34,8 @@ import pl.edu.icm.unity.stdext.attr.IntegerAttribute;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.CertificateVerificatorFactory;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
@@ -159,6 +161,7 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 				e2, false);
 		idsMan.setEntityCredential(new EntityParam(added2), "credential1", new PasswordToken("mockPassword2").toJson());
 		
+		attrsMan.addAttributeType(new AttributeType("emailA", new VerifiableEmailAttributeSyntax()));
 		attrsMan.addAttributeType(new AttributeType("stringA", new StringAttributeSyntax()));
 		attrsMan.addAttributeType(new AttributeType("intA", new IntegerAttributeSyntax()));
 		AttributeType fAT = new AttributeType("floatA", new FloatingPointAttributeSyntax());
@@ -172,6 +175,8 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 		vals.add(124.1);
 		vals.add(14.2);
 		attrsMan.setAttribute(e1, new FloatingPointAttribute("floatA", "/", AttributeVisibility.full, vals), false);
+		attrsMan.setAttribute(e1, new VerifiableEmailAttribute("emailA", "/", AttributeVisibility.full, 
+				"example@example.com"), false);
 
 		attrsMan.setAttribute(e2, new StringAttribute("stringA", "/", AttributeVisibility.full), false);
 		attrsMan.setAttribute(e2, new IntegerAttribute("intA", "/", AttributeVisibility.full, 1), false);
