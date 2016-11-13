@@ -189,7 +189,7 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 				"/", AttributeVisibility.local, "Regular User"), false);
 	}
 	
-	
+
 	protected void setupMockAuthn() throws Exception
 	{
 		CredentialDefinition credDef = new CredentialDefinition(
