@@ -25,7 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.context.TestPropertySource;
 
-import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpointFactory;
+import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -58,7 +58,7 @@ public class TestJWTAuthentication extends TestRESTBase
 		authnCfg.add(new AuthenticationOptionDescription("Ajwt"));
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("jwtMan"), "desc", authnCfg, 
 				JWT_CONFIG, realm.getName());
-		endpointMan.deploy(JWTManagementEndpointFactory.NAME, "jwtMan", "/jwt", cfg);
+		endpointMan.deploy(JWTManagementEndpoint.NAME, "jwtMan", "/jwt", cfg);
 		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
 

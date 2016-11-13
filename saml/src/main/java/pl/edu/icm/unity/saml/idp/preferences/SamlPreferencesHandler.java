@@ -15,7 +15,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.idp.web.SamlIdPWebEndpointFactory;
-import pl.edu.icm.unity.saml.idp.ws.SamlIdPSoapEndpointFactory;
+import pl.edu.icm.unity.saml.idp.ws.SamlSoapEndpoint;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesEditor;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesHandler;
@@ -45,7 +45,7 @@ public class SamlPreferencesHandler implements PreferencesHandler
 		this.atsMan = atsMan;
 		this.handlerReg = hadnlerReg;
 		this.idTypeSupport = idTypeSupport;
-		SUPPORTED_ENDPOINTS.add(SamlIdPSoapEndpointFactory.NAME);
+		SUPPORTED_ENDPOINTS.add(SamlSoapEndpoint.NAME);
 		SUPPORTED_ENDPOINTS.add(SamlIdPWebEndpointFactory.NAME);
 	}
 

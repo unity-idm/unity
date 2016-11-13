@@ -6,7 +6,9 @@ package pl.edu.icm.unity.engine.api.authn;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -24,6 +26,12 @@ public class IdPLoginController
 {
 	private List<IdPLoginHandler> handlers = new ArrayList<>();
 	
+	@Autowired
+	public IdPLoginController(Optional<List<IdPLoginHandler>> handlers)
+	{
+		this.handlers = handlers.orElseGet(ArrayList::new);
+	}
+
 	public synchronized boolean isLoginInProgress()
 	{
 		for (IdPLoginHandler handler: handlers)
@@ -36,11 +44,6 @@ public class IdPLoginController
 	{
 		for (IdPLoginHandler handler: handlers)
 			handler.breakLogin();
-	}
-	
-	public synchronized void addIdPLoginHandler(IdPLoginHandler handler)
-	{
-		handlers.add(handler);
 	}
 	
 	/**

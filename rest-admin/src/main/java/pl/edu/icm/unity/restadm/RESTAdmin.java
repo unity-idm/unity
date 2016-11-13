@@ -26,6 +26,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -50,6 +51,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.confirmation.ConfirmationManager;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.rest.exception.JSONParsingException;
@@ -81,7 +83,8 @@ import pl.edu.icm.unity.types.translation.TranslationRule;
  * @author K. Benedyczak
  */
 @Produces(MediaType.APPLICATION_JSON)
-@Path(RESTAdminEndpointFactory.V1_PATH)
+@Path(RESTAdminEndpoint.V1_PATH)
+@PrototypeComponent
 public class RESTAdmin
 {
 	private static final int UUID_LENGTH = 36;
@@ -101,6 +104,7 @@ public class RESTAdmin
 	private AttributeTypeManagement attributeTypeMan;
 	private InvitationManagement invitationMan;
 	
+	@Autowired
 	public RESTAdmin(EntityManagement identitiesMan, GroupsManagement groupsMan,
 			AttributesManagement attributesMan, IdentityTypesRegistry identityTypesRegistry,
 			ConfirmationManager confirmationManager, EndpointManagement endpointManagement,
@@ -111,6 +115,14 @@ public class RESTAdmin
 			AttributeTypeManagement attributeTypeMan,
 			InvitationManagement invitationMan)
 	{
+		/**
+		 * TODO - remove this
+		 * We depend on app context in order to work around of the dependency cycle. 
+		 * We do depend on EndpointsManagement, however it requires this factory to be instantiated first 
+		 * and registered. Therefore EndpointsManagement is retrieved only on endpoint creation.
+		 */
+		//this.endpointManagement = appContext.getBean(EndpointManagement.class);
+
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
 		this.attributesMan = attributesMan;

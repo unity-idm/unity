@@ -67,7 +67,7 @@ public class TestQuery extends TestRESTBase
 	{
 		setupPasswordAuthn();
 		createUsernameUserWithRole("System Manager");
-		super.deployEndpoint(RESTAdminEndpointFactory.NAME, 
+		super.deployEndpoint(RESTAdminEndpoint.NAME, 
 				"restAdmin", "/restadm");
 	}
 	

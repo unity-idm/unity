@@ -59,7 +59,7 @@ public class TestAttributeTypes extends TestRESTBase
 	{
 		setupPasswordAuthn();
 		createUsernameUserWithRole("System Manager");
-		super.deployEndpoint(RESTAdminEndpointFactory.NAME, 
+		super.deployEndpoint(RESTAdminEndpoint.NAME, 
 				"restAdmin", "/restadm");
 		createTestContents();
 		
@@ -79,7 +79,7 @@ public class TestAttributeTypes extends TestRESTBase
 	{
 		setupPasswordAuthn();
 		createUsernameUserWithRole("System Manager");
-		super.deployEndpoint(RESTAdminEndpointFactory.NAME, 
+		super.deployEndpoint(RESTAdminEndpoint.NAME, 
 				"restAdmin", "/restadm");
 		
 		HttpClient client = getClient();

@@ -73,7 +73,7 @@ public class TestRESTCore extends TestRESTBase
 		
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"),
 				"desc", authnCfg, writer.toString(), realm.getName());
-		endpointMan.deploy(MockRESTEndpointFactory.NAME, "endpoint1", "/mock", cfg);
+		endpointMan.deploy(MockRESTEndpoint.NAME, "endpoint1", "/mock", cfg);
 		httpServer.start();
 	}
 

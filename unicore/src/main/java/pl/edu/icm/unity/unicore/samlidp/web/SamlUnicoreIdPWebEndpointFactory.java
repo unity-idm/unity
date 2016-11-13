@@ -10,25 +10,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
-import pl.edu.icm.unity.saml.idp.web.SamlIdPWebEndpointFactory.IdPLoginHandlerImpl;
-import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
-import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
-import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 
@@ -40,43 +29,16 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 {
 	public static final String NAME = "SAMLUnicoreWebIdP";
+
+	@Autowired
+	private ObjectFactory<SamlAuthETDVaadinEndpoint> factory;
 	
 	private EndpointTypeDescription description;
-	private ApplicationContext applicationContext;
-	private FreemarkerHandler freemarkerHandler;
-	private PKIManagement pkiManagement;
-	protected ExecutorsService executorsService;
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
-	private MetaDownloadManager downloadManager;
-	private UnityServerConfiguration mainConfig;
-	private SAMLLogoutProcessorFactory logoutProcessorFactory;
-	private SLOReplyInstaller sloReplyInstaller;
-	private UnicoreIdpConsentDeciderServletFactory dispatcherServletFactory;
 
-	private UnityMessageSource msg;
-
-	private NetworkServer server;
-	
-	@Autowired
-	public SamlUnicoreIdPWebEndpointFactory(ApplicationContext applicationContext, 
-			FreemarkerHandler freemarkerHandler, PKIManagement pkiManagement, 
-			ExecutorsService executorsService, MetaDownloadManager downloadManager, 
-			UnityServerConfiguration mainConfig, UnicoreIdpConsentDeciderServletFactory dispatcherServletFactory,
-			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller,
-			UnityMessageSource msg, NetworkServer server, IdPLoginController loginController)
+	public SamlUnicoreIdPWebEndpointFactory()
 	{
-		this.applicationContext = applicationContext;
-		this.freemarkerHandler = freemarkerHandler;
-		this.pkiManagement = pkiManagement;
-		this.executorsService = executorsService;
-		this.msg = msg;
-		this.server = server;
 		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
-		this.mainConfig = mainConfig;
-		this.downloadManager = downloadManager;
-		this.logoutProcessorFactory = logoutProcessorFactory;
-		this.sloReplyInstaller = sloReplyInstaller;
-		this.dispatcherServletFactory = dispatcherServletFactory;
 		
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(VaadinAuthentication.NAME);
@@ -91,7 +53,6 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 				"Single Logout web endpoint (supports SOAP binding)");
 		description = new EndpointTypeDescription(NAME, 
 				"SAML 2 UNICORE identity provider web endpoint", supportedAuthn,paths);
-		loginController.addIdPLoginHandler(new IdPLoginHandlerImpl());
 	}
 	
 	@Override
@@ -103,10 +64,8 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new SamlAuthETDVaadinEndpoint(server, applicationContext,
-				freemarkerHandler, 
-				pkiManagement, executorsService, 
-				remoteMetadataManagers, downloadManager, mainConfig,  
-				logoutProcessorFactory, sloReplyInstaller, dispatcherServletFactory, msg);
+		SamlAuthETDVaadinEndpoint ret = factory.getObject();
+		ret.init(remoteMetadataManagers);
+		return ret;
 	}
 }

@@ -31,7 +31,7 @@ import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
-import pl.edu.icm.unity.saml.idp.ws.SamlIdPSoapEndpointFactory;
+import pl.edu.icm.unity.saml.idp.ws.SamlSoapEndpoint;
 import pl.edu.icm.unity.samlidp.AbstractTestIdpBase;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
@@ -47,9 +47,9 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 	@Test
 	public void testDynamicIdentityTypes() throws Exception
 	{
-		String authnWSUrl = "https://localhost:52443/saml" + SamlIdPSoapEndpointFactory.SERVLET_PATH +
+		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
 				"/AuthenticationService";
-		String attrWSUrl = "https://localhost:52443/saml" + SamlIdPSoapEndpointFactory.SERVLET_PATH +
+		String attrWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
 				"/AssertionQueryService";
 		DefaultClientConfiguration clientCfg = getClientCfg();
 		clientCfg.setHttpUser("user1");
@@ -78,7 +78,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 	@Test
 	public void testAuthn() throws Exception
 	{
-		String authnWSUrl = "https://localhost:52443/saml" + SamlIdPSoapEndpointFactory.SERVLET_PATH +
+		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
 				"/AuthenticationService";
 		
 		DefaultClientConfiguration clientCfg = getClientCfg();
@@ -160,7 +160,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 	@Test
 	public void testAttributes() throws Exception
 	{
-		String attrWSUrl = "https://localhost:52443/saml" + SamlIdPSoapEndpointFactory.SERVLET_PATH +
+		String attrWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
 				"/AssertionQueryService";
 		
 		DefaultClientConfiguration clientCfg = getClientCfg();
@@ -218,7 +218,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 	@Test
 	public void testPreferences() throws Exception
 	{
-		String attrWSUrl = "https://localhost:52443/saml" + SamlIdPSoapEndpointFactory.SERVLET_PATH +
+		String attrWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
 				"/AssertionQueryService";
 		
 		DefaultClientConfiguration clientCfg = getClientCfg();

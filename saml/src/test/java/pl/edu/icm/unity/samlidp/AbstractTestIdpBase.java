@@ -29,7 +29,7 @@ import pl.edu.icm.unity.engine.translation.out.action.CreateAttributeActionFacto
 import pl.edu.icm.unity.engine.translation.out.action.FilterAttributeActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.saml.idp.ws.SamlIdPSoapEndpointFactory;
+import pl.edu.icm.unity.saml.idp.ws.SamlSoapEndpoint;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
@@ -102,7 +102,7 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 			authnCfg.add(new AuthenticationOptionDescription("Acert"));
 			EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpointIDP"), "desc", 
 					authnCfg, SAML_ENDP_CFG, REALM_NAME);
-			endpointMan.deploy(SamlIdPSoapEndpointFactory.NAME, "endpointIDP", "/saml", cfg);
+			endpointMan.deploy(SamlSoapEndpoint.NAME, "endpointIDP", "/saml", cfg);
 			List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 			assertEquals(1, endpoints.size());
 

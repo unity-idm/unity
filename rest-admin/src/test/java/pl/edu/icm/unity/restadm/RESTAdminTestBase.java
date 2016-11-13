@@ -37,7 +37,7 @@ public abstract class RESTAdminTestBase extends TestRESTBase
 	{
 		setupPasswordAuthn();
 		createUsernameUserWithRole("System Manager");
-		super.deployEndpoint(RESTAdminEndpointFactory.NAME, 
+		super.deployEndpoint(RESTAdminEndpoint.NAME, 
 				"restAdmin", "/restadm");		
 		client = getClient();
 		host = new HttpHost("localhost", 53456, "https");

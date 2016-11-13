@@ -60,7 +60,7 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 				is(new I18nString("restAdmin")));
 		assertThat(returned.getName(), is("restAdmin"));
 		assertThat(returned.getRealm().getName(), is("testr"));
-		assertThat(returned.getType().getName(), is(RESTAdminEndpointFactory.NAME));
+		assertThat(returned.getType().getName(), is(RESTAdminEndpoint.NAME));
 	}
 
 	@Test
@@ -81,7 +81,7 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 				is(new I18nString("endpoint")));
 		assertThat(returned.getName(), is("newEndpoint"));
 		assertThat(returned.getRealm().getName(), is("testr"));
-		assertThat(returned.getType().getName(), is(RESTAdminEndpointFactory.NAME));
+		assertThat(returned.getType().getName(), is(RESTAdminEndpoint.NAME));
 	}
 
 	@Test
@@ -133,7 +133,7 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 				is(new I18nString("endpoint2")));
 		assertThat(returned.getName(), is("newEndpoint"));
 		assertThat(returned.getRealm().getName(), is("testr"));
-		assertThat(returned.getType().getName(), is(RESTAdminEndpointFactory.NAME));
+		assertThat(returned.getType().getName(), is(RESTAdminEndpoint.NAME));
 	}
 
 
@@ -166,7 +166,7 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 				is(new I18nString("endpoint")));
 		assertThat(returned.getName(), is("newEndpoint"));
 		assertThat(returned.getRealm().getName(), is("testr"));
-		assertThat(returned.getType().getName(), is(RESTAdminEndpointFactory.NAME));
+		assertThat(returned.getType().getName(), is(RESTAdminEndpoint.NAME));
 	}
 
 	private ResolvedEndpoint getEndpointById(List<ResolvedEndpoint> returnedL, String id)
@@ -198,7 +198,7 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 
 	private HttpPost getDeployRequest(String authnDescription) throws UnsupportedEncodingException, JsonProcessingException
 	{
-		HttpPost deploy = new HttpPost("/restadm/v1/endpoint/newEndpoint?typeId=" + RESTAdminEndpointFactory.NAME
+		HttpPost deploy = new HttpPost("/restadm/v1/endpoint/newEndpoint?typeId=" + RESTAdminEndpoint.NAME
 				+ "&address=/contextA");
 		List<AuthenticationOptionDescription> authn = Lists.newArrayList(new AuthenticationOptionDescription(authnDescription));
 		EndpointConfiguration config = new EndpointConfiguration(new I18nString("endpoint"),

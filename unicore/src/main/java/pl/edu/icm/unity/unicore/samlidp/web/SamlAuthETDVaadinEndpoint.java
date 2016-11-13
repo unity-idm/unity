@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.web;
 
-import java.util.Map;
-
 import javax.servlet.Servlet;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -16,11 +15,11 @@ import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
-import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 
@@ -31,22 +30,25 @@ import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
  * 
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 {
 	public static final String SAML_CONSUMER_SERVLET_PATH = "/saml2unicoreIdp-web";
 	
+	@Autowired
 	public SamlAuthETDVaadinEndpoint(NetworkServer server, ApplicationContext applicationContext,
 			FreemarkerHandler freemarkerHandler,
 			PKIManagement pkiManagement, ExecutorsService executorsService,
-			Map<String, RemoteMetaManager> remoteMetadataManagers, MetaDownloadManager downloadManager, 
+			MetaDownloadManager downloadManager, 
 			UnityServerConfiguration mainConfig, SAMLLogoutProcessorFactory logoutProcessorFactory, 
-			SLOReplyInstaller sloReplyInstaller, UnicoreIdpConsentDeciderServletFactory dispatcherServletFactory,
+			SLOReplyInstaller sloReplyInstaller, 
+			UnicoreIdpConsentDeciderServletFactory dispatcherServletFactory,
 			UnityMessageSource msg)
 	{
 		super(SAML_CONSUMER_SERVLET_PATH, 
 				server, applicationContext, freemarkerHandler, SamlUnicoreIdPWebUI.class, pkiManagement, 
 				executorsService, mainConfig, dispatcherServletFactory, 
-				remoteMetadataManagers, downloadManager, 
+				downloadManager, 
 				logoutProcessorFactory, 
 				sloReplyInstaller, msg);
 	}

@@ -14,6 +14,7 @@ import java.util.Properties;
 
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
@@ -24,12 +25,14 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
+import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
@@ -45,6 +48,7 @@ import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
  * ECP endpoint used to enable ECP support in Unity. The endpoint doesn't use any authenticator by itself.
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
 	private Properties properties;
@@ -52,7 +56,6 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
 	private RemoteMetaManager myMetadataManager;
 	private MetaDownloadManager downloadManager;
-	private String servletPath;
 	private PKIManagement pkiManagement;
 	private ECPContextManagement samlContextManagement;
 	private URL baseAddress;
@@ -67,37 +70,41 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 	private UnityMessageSource msg;
 	private RemoteAuthnResultProcessor remoteAuthnProcessor;
 	
-	public ECPEndpoint(NetworkServer server, String servletPath,
+	@Autowired
+	public ECPEndpoint(NetworkServer server, 
 			PKIManagement pkiManagement, ECPContextManagement samlContextManagement,
-			URL baseAddress, String baseContext,
 			ReplayAttackChecker replayAttackChecker, 
 			RemoteAuthnResultProcessor remoteAuthnProcessor,
 			TokensManagement tokensMan,
 			EntityManagement identitiesMan, SessionManagement sessionMan,
-			Map<String, RemoteMetaManager> remoteMetadataManagers,
 			UnityServerConfiguration mainCfg, MetaDownloadManager downloadManager,
-			ExecutorsService executorsService, MultiMetadataServlet metadataServlet,
-			UnityMessageSource msg)
+			ExecutorsService executorsService, 
+			UnityMessageSource msg, SharedEndpointManagement sharedEndpointManagement)
 	{
 		super(server);
 		this.pkiManagement = pkiManagement;
-		this.servletPath = servletPath;
 		this.samlContextManagement = samlContextManagement;
-		this.baseAddress = baseAddress;
+		this.baseAddress = server.getAdvertisedAddress();
 		this.replayAttackChecker = replayAttackChecker;
 		this.remoteAuthnProcessor = remoteAuthnProcessor;
 		this.tokensMan = tokensMan;
 		this.identitiesMan = identitiesMan;
 		this.sessionMan = sessionMan;
-		this.remoteMetadataManagers = remoteMetadataManagers;
 		this.downloadManager = downloadManager;
 		this.mainCfg = mainCfg;
 		this.executorsService = executorsService;
 		this.msg = msg;
+		String baseContext = sharedEndpointManagement.getBaseContextPath();
 		this.responseConsumerAddress = baseAddress + baseContext + SAMLResponseConsumerServlet.PATH;
-		this.metadataServlet = metadataServlet;
 	}
 
+	public void init(Map<String, RemoteMetaManager> remoteMetadataManagers, 
+			MultiMetadataServlet metadataServlet)
+	{
+		this.remoteMetadataManagers = remoteMetadataManagers;
+		this.metadataServlet = metadataServlet;
+	}
+	
 	@Override
 	protected void setSerializedConfiguration(String serializedState)
 	{
@@ -160,7 +167,7 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 	public ServletContextHandler getServletContextHandler()
 	{
 		String endpointAddress = baseAddress.toExternalForm() + description.getEndpoint().getContextAddress() +
-				servletPath;
+				ECPEndpointFactory.SERVLET_PATH;
 		ECPServlet ecpServlet = new ECPServlet(samlProperties, myMetadataManager, 
 				samlContextManagement, endpointAddress, 
 				replayAttackChecker, remoteAuthnProcessor,
@@ -170,7 +177,7 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
 		context.setContextPath(description.getEndpoint().getContextAddress());
 		ServletHolder holder = new ServletHolder(ecpServlet);
-		context.addServlet(holder, servletPath + "/*");
+		context.addServlet(holder, ECPEndpointFactory.SERVLET_PATH + "/*");
 		return context;
 	}
 	

@@ -55,7 +55,7 @@ import pl.edu.icm.unity.engine.translation.in.action.MapIdentityActionFactory;
 import pl.edu.icm.unity.rest.jwt.JWTUtils;
 import pl.edu.icm.unity.saml.ecp.ECPConstants;
 import pl.edu.icm.unity.saml.ecp.ECPEndpointFactory;
-import pl.edu.icm.unity.saml.idp.ws.SamlIdPSoapEndpointFactory;
+import pl.edu.icm.unity.saml.idp.ws.SamlSoapEndpoint;
 import pl.edu.icm.unity.saml.xmlbeans.ecp.RelayStateDocument;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Envelope;
 import pl.edu.icm.unity.saml.xmlbeans.soap.EnvelopeDocument;
@@ -168,7 +168,7 @@ public class TestECP extends AbstractTestIdpBase
 	
 	private EnvelopeDocument sendToIdP(EnvelopeDocument envDoc) throws KeyStoreException, IOException, XmlException
 	{
-		String authnWSUrl = "https://localhost:52443/saml" + SamlIdPSoapEndpointFactory.SERVLET_PATH +
+		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
 				"/AuthenticationService";
 		
 		EnvelopeDocument envDoc2 = EnvelopeDocument.Factory.newInstance();

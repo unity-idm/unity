@@ -23,7 +23,6 @@ import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.endpoint.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.mock.MockEndpoint;
-import pl.edu.icm.unity.engine.mock.MockEndpointFactory;
 import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalPreviousCredentialException;
@@ -77,7 +76,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		AuthenticationOptionDescription authSet = new AuthenticationOptionDescription("auth1");
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), "desc", 
 				Collections.singletonList(authSet), "", realm.getName());
-		endpointMan.deploy(MockEndpointFactory.NAME, "endpoint1", "/foo", cfg);
+		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg);
 
 		//set wrong password 
 		EntityParam entityP = new EntityParam(id);

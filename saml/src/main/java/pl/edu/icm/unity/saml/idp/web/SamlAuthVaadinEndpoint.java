@@ -20,7 +20,9 @@ import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Primary;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.webservice.SAMLLogoutInterface;
@@ -35,6 +37,7 @@ import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
@@ -73,6 +76,8 @@ import xmlbeans.org.oasis.saml2.metadata.EndpointType;
  * 
  * @author K. Benedyczak
  */
+@PrototypeComponent
+@Primary
 public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 {
 	public static final String SAML_ENTRY_SERVLET_PATH = "/saml2idp-web-entry";
@@ -98,20 +103,19 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	private UnityMessageSource msg;
 	protected AttributeTypeSupport aTypeSupport;
 	
+	@Autowired
 	public SamlAuthVaadinEndpoint(NetworkServer server,
 			ApplicationContext applicationContext, FreemarkerHandler freemarkerHandler,
-			Class<?> uiClass, PKIManagement pkiManagement,
+			PKIManagement pkiManagement,
 			ExecutorsService executorsService, UnityServerConfiguration mainConfig,
 			IdpConsentDeciderServletFactory dispatcherServletFactory,
-			Map<String, RemoteMetaManager> remoteMetadataManagers,
 			MetaDownloadManager downloadManager, 
 			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller,
 			UnityMessageSource msg, AttributeTypeSupport aTypeSupport)
 	{
-		this(SAML_CONSUMER_SERVLET_PATH, server, applicationContext, freemarkerHandler, uiClass, 
+		this(SAML_CONSUMER_SERVLET_PATH, server, applicationContext, freemarkerHandler, SamlIdPWebUI.class, 
 				pkiManagement, executorsService, mainConfig, dispatcherServletFactory, 
-				remoteMetadataManagers, downloadManager, logoutProcessorFactory, sloReplyInstaller,
-				msg);
+				downloadManager, logoutProcessorFactory, sloReplyInstaller, msg);
 		this.aTypeSupport = aTypeSupport;
 	}
 	
@@ -120,7 +124,6 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 			Class<?> uiClass, PKIManagement pkiManagement,
 			ExecutorsService executorsService, UnityServerConfiguration mainConfig,
 			IdpConsentDeciderServletFactory dispatcherServletFactory,
-			Map<String, RemoteMetaManager> remoteMetadataManagers,
 			MetaDownloadManager downloadManager, 
 			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller,
 			UnityMessageSource msg)
@@ -131,12 +134,16 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		this.dispatcherServletFactory = dispatcherServletFactory;
 		this.pkiManagement = pkiManagement;
 		this.executorsService = executorsService;
-		this.remoteMetadataManagers = remoteMetadataManagers;
 		this.downloadManager = downloadManager;
 		this.mainConfig = mainConfig;
 		this.logoutProcessorFactory = logoutProcessorFactory;
 		this.sloReplyInstaller = sloReplyInstaller;
 		this.msg = msg;
+	}
+	
+	public void init(Map<String, RemoteMetaManager> remoteMetadataManagers)
+	{
+		this.remoteMetadataManagers = remoteMetadataManagers;
 	}
 	
 	@Override

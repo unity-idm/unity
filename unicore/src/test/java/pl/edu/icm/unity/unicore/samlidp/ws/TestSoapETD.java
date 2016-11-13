@@ -81,7 +81,7 @@ public class TestSoapETD extends DBIntegrationTestBase
 			authnCfg.add(new AuthenticationOptionDescription("Acert"));
 			EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), "desc",
 					authnCfg, SAML_ENDP_CFG, realm.getName());
-			endpointMan.deploy(SamlUnicoreIdPSoapEndpointFactory.NAME, "endpoint1", "/saml", cfg);
+			endpointMan.deploy(SamlUnicoreSoapEndpoint.NAME, "endpoint1", "/saml", cfg);
 			List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 			assertEquals(1, endpoints.size());
 
@@ -95,7 +95,7 @@ public class TestSoapETD extends DBIntegrationTestBase
 	@Test
 	public void testETDAuthn() throws Exception
 	{
-		String attrWSUrl = "https://localhost:52443/saml" + SamlUnicoreIdPSoapEndpointFactory.SERVLET_PATH +
+		String attrWSUrl = "https://localhost:52443/saml" + SamlUnicoreSoapEndpoint.SERVLET_PATH +
 				"/AuthenticationService";
 		
 		DefaultClientConfiguration clientCfg = getClientCfg();

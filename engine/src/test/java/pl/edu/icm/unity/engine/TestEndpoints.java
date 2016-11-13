@@ -17,7 +17,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import pl.edu.icm.unity.engine.mock.MockEndpoint;
-import pl.edu.icm.unity.engine.mock.MockEndpointFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
@@ -45,7 +44,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 
 		assertThat(endpointTypes.size(), is(1));
 		EndpointTypeDescription type = endpointTypes.get(0);
-		assertThat(type.getName(), is(MockEndpointFactory.NAME));
+		assertThat(type.getName(), is(MockEndpoint.NAME));
 	}
 	
 	@Test
@@ -54,7 +53,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
 				"desc", new ArrayList<AuthenticationOptionDescription>(), "",
 				REALM_NAME);
-		endpointMan.deploy(MockEndpointFactory.NAME, "endpoint1", "/foo", cfg);
+		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg);
 		
 		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 		
@@ -71,7 +70,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
 				"desc", new ArrayList<AuthenticationOptionDescription>(), "",
 				REALM_NAME);
-		endpointMan.deploy(MockEndpointFactory.NAME, "endpoint1", "/foo", cfg);
+		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg);
 		
 		EndpointConfiguration cfg2 = new EndpointConfiguration(
 				new I18nString("endpoint1I"), "ada", new ArrayList<>(), "", REALM_NAME);
@@ -91,7 +90,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
 				"desc", new ArrayList<AuthenticationOptionDescription>(), "",
 				REALM_NAME);
-		endpointMan.deploy(MockEndpointFactory.NAME, "endpoint1", "/foo", cfg);
+		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg);
 		
 		endpointMan.undeploy("endpoint1");
 		
@@ -106,11 +105,11 @@ public class TestEndpoints extends DBIntegrationTestBase
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
 				"desc", new ArrayList<AuthenticationOptionDescription>(), "",
 				REALM_NAME);
-		endpointMan.deploy(MockEndpointFactory.NAME, "endpoint1", "/foo", cfg);
+		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg);
 		
 		try
 		{
-			endpointMan.deploy(MockEndpointFactory.NAME, "endpoint1", "/foo", cfg);
+			endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg);
 			fail("Should get an exception");
 		} catch (EngineException e)
 		{
@@ -129,7 +128,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 				MockEndpoint.WRONG_CONFIG, REALM_NAME);
 		try
 		{
-			endpointMan.deploy(MockEndpointFactory.NAME, "endpoint1", "/foo", cfg);
+			endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg);
 			fail("Should get an exception");
 		} catch (EngineException e)
 		{
@@ -148,7 +147,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 				"", REALM_NAME);
 		try
 		{
-			endpointMan.deploy(MockEndpointFactory.NAME, "endpoint1", "MISSING_LEADING_SLASH", cfg);
+			endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "MISSING_LEADING_SLASH", cfg);
 			fail("Should get an exception");
 		} catch (EngineException e)
 		{
@@ -156,7 +155,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 		}
 		try
 		{
-			endpointMan.deploy(MockEndpointFactory.NAME, "endpoint1", "/two/slashes", cfg);
+			endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/two/slashes", cfg);
 			fail("Should get an exception");
 		} catch (EngineException e)
 		{
@@ -164,7 +163,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 		}
 		try
 		{
-			endpointMan.deploy(MockEndpointFactory.NAME, "endpoint1", "/illegal?query", cfg);
+			endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/illegal?query", cfg);
 			fail("Should get an exception");
 		} catch (EngineException e)
 		{
@@ -181,10 +180,10 @@ public class TestEndpoints extends DBIntegrationTestBase
 		//test initial loading from DB: create, remove from the server, load
 		EndpointConfiguration cfg2 = new EndpointConfiguration(new I18nString("endpoint1"), 
 				"desc", new ArrayList<AuthenticationOptionDescription>(), "", REALM_NAME);
-		endpointMan.deploy(MockEndpointFactory.NAME, "endpoint1", "/foo", cfg2);
+		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg2);
 		EndpointConfiguration cfg3 = new EndpointConfiguration(new I18nString("endpoint2"), 
 				"desc", new ArrayList<AuthenticationOptionDescription>(), "", REALM_NAME);
-		endpointMan.deploy(MockEndpointFactory.NAME, "endpoint2", "/foo2", cfg3);
+		endpointMan.deploy(MockEndpoint.NAME, "endpoint2", "/foo2", cfg3);
 		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 		assertEquals(2, endpoints.size());
 		endpointMan.updateEndpoint(endpoints.get(0).getEndpoint().getName(), 

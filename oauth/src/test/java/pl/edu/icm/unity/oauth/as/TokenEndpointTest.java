@@ -47,7 +47,7 @@ import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
-import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpointFactory;
+import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
@@ -109,7 +109,7 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 			authnCfg.add(new AuthenticationOptionDescription("Apass"));
 			EndpointConfiguration config = new EndpointConfiguration(new I18nString("endpointIDP"),
 					"desc",	authnCfg, OAUTH_ENDP_CFG, REALM_NAME);
-			endpointMan.deploy(OAuthTokenEndpointFactory.NAME, "endpointIDP", "/oauth", config);
+			endpointMan.deploy(OAuthTokenEndpoint.NAME, "endpointIDP", "/oauth", config);
 			List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 			assertEquals(1, endpoints.size());
 

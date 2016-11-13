@@ -16,7 +16,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.protocol.HttpContext;
 import org.junit.Test;
 
-import pl.edu.icm.unity.rest.MockRESTEndpointFactory;
+import pl.edu.icm.unity.rest.MockRESTEndpoint;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -48,7 +48,7 @@ public class TstPerfLogin extends PerformanceTestBase
 		authnCfg.add(new AuthenticationOptionDescription(AUTHENTICATOR_REST_PASS));
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), "desc",
 				authnCfg, "", realm.getName());
-		endpointMan.deploy(MockRESTEndpointFactory.NAME, "endpoint1", "/mock", cfg);
+		endpointMan.deploy(MockRESTEndpoint.NAME, "endpoint1", "/mock", cfg);
 		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
 		httpServer.start();

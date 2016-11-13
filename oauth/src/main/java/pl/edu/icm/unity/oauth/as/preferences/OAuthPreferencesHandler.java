@@ -13,7 +13,7 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpointFactory;
+import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesEditor;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesHandler;
 
@@ -36,7 +36,7 @@ public class OAuthPreferencesHandler implements PreferencesHandler
 		this.msg = msg;
 		this.idsMan = idsMan;
 		this.idTypeSupport = idTypeSupport;
-		SUPPORTED_ENDPOINTS.add(OAuthAuthzWebEndpointFactory.NAME);
+		SUPPORTED_ENDPOINTS.add(OAuthAuthzWebEndpoint.NAME);
 	}
 
 	@Override
