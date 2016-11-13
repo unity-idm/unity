@@ -82,6 +82,7 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 	@Autowired
 	private TranslationProfileManagement profilesMan;
 	
+	
 	@Before
 	public void setup()
 	{
