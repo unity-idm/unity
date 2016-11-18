@@ -361,7 +361,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 
                 // unity groups always start with /
                 if (!group.startsWith("/")) {
-                    group = "/" + group; //Groups in unity always start with a /
+                    group = "/" + group;
                 }
 
                 String user = LdapNodeUtils.getUserName(
