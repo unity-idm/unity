@@ -38,6 +38,7 @@ public class LdapServerProperties extends PropertiesHelper
 	public static final String KEYSTORE_FILENAME = "keystoreName";
 	public static final String GROUP_MEMBER = "groupMember";
 	public static final String GROUP_MEMBER_DN_REGEXP = "groupMemberDnRegexp";
+	public static final String GROUP_OF_NAMES_RETURN_FORMAT = "groupOfNamesReturnFormat";
 	public static final String RETURNED_USER_ATTRIBUTES = "returnedUserAttributes";
 	public static final String USER_NAME_ALIASES = "userNameAliases";
 
@@ -61,6 +62,9 @@ public class LdapServerProperties extends PropertiesHelper
 		META.put(GROUP_MEMBER_DN_REGEXP, new PropertyMD().setCategory(main)
 			.setDescription("Regular expression that should match the DN of a member compare request." +
 				"Optionally, specifying the group that defines the group name."));
+
+		META.put(GROUP_OF_NAMES_RETURN_FORMAT, new PropertyMD().setCategory(main)
+			.setDescription("Return DN format of groupOfNames search request."));
 
 		META.put(GROUP_MEMBER, new PropertyMD().setCategory(main)
 			.setDescription("String identifying the LDAP member comparison request - " +

@@ -61,6 +61,7 @@ public class LdapEndpointTests extends DBIntegrationTestBase {
         "unity.ldapServer.returnedUserAttributes=cn,entryDN,jpegPhoto\n" +
         "unity.ldapServer.userNameAliases=cn,mail\n" +
         "unity.ldapServer.tls=true\n" +
+        "unity.ldapServer.groupOfNamesReturnFormat=cn=%s,ou=happygroups\n" +
         "unity.ldapServer.certPassword=test.p4ss\n" +
         "unity.ldapServer.keystoreName=ldap.test.keystore\n";
 
@@ -354,7 +355,6 @@ public class LdapEndpointTests extends DBIntegrationTestBase {
         });
     }
 
-
     @Test
     public void testGroups() throws Exception
     {
@@ -407,4 +407,49 @@ public class LdapEndpointTests extends DBIntegrationTestBase {
         });
 
     }
+
+    @Test
+    public void testGroupofnames() throws Exception
+    {
+        // the goal here is to test
+        // - bind + get DN + limited search
+        //
+        String extended_conf = "" +
+            "ldap.servers.1=%s\n" +
+            "ldap.ports.1=%d\n" +
+            "ldap.trustAllServerCertificates=true\n" +
+            "ldap.translationProfile=dummy\n" +
+            "ldap.userDNSearchKey=s1\n" +
+            "ldap.bindAs=system\n" +
+            String.format("ldap.systemDN=cn=%s,ou=system\n", username1) +
+            String.format("ldap.systemPassword=%s\n", apass1) +
+            String.format("ldap.additionalSearch.s1.filter=(&(mail=%s)(objectClass=person))\n", email1) +
+            String.format("ldap.additionalSearch.s1.baseName=cn=%s,ou=system\n", username1) +
+            "ldap.additionalSearch.s1.selectedAttributes=dn,mail";
+        LdapClientConfiguration ldapConfig = getLdapClientConfig(
+            extended_conf, null, 0, null, null
+        );
+
+        // test LDAP connection via LdapClient
+        LdapClient client = new LdapClient("test");
+        client.bindAndExecute(username1, apass1, ldapConfig, (connection, dn) -> {
+
+            String[] queriedAttributes = new String[] { "*" };
+            SearchScope searchScope = ldapConfig.getSearchScope();
+            int timeLimit = ldapConfig.getSearchTimeLimit();
+            int sizeLimit = ldapConfig.getAttributesLimit();
+            DereferencePolicy derefPolicy = ldapConfig.getDereferencePolicy();
+            String filter = String.format("(&(member=cn=%s,ou=system)(objectClass=groupofnames))", username1);
+            String dn_str = "ou=system";
+            ReadOnlySearchRequest searchRequest = new SearchRequest(dn_str, searchScope, derefPolicy,
+                sizeLimit, timeLimit, false, filter, queriedAttributes);
+            SearchResult result = connection.search(searchRequest);
+            SearchResultEntry entry = result.getSearchEntry("cn=/,ou=happygroups");
+            assertTrue(entry != null);
+
+            return null;
+        });
+
+    }
+
 }

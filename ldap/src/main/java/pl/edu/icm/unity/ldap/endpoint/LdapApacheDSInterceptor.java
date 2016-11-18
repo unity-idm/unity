@@ -10,6 +10,10 @@ import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.directory.api.ldap.model.cursor.CursorException;
+import org.apache.directory.api.ldap.model.cursor.ListCursor;
+import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.name.Rdn;
 
 import javax.imageio.ImageIO;
@@ -31,6 +35,8 @@ import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.AttributeTypeOptions;
+import org.apache.directory.api.ldap.model.schema.LdapSyntax;
+import org.apache.directory.api.ldap.model.schema.MutableAttributeType;
 import org.apache.directory.api.util.StringConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -215,23 +221,56 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 	setUnityInvocationContext(session.getSession());
 	try
 	{
-		// admin bind will not return true (we look for cn)
-		boolean userSearch = LdapNodeUtils.isUserSearch(
-				configuration, searchContext.getFilter()
-				);
-		String username = LdapNodeUtils.getUserName(
-				configuration, searchContext.getFilter()
-				);
+            // admin bind will not return true (we look for cn)
+            boolean userSearch = LdapNodeUtils.isUserSearch(
+                            configuration, searchContext.getFilter()
+                            );
 
-		// e.g., search by mail
-		if (userSearch)
-		{
-			if (null == username) {
-				return emptyResult(searchContext);
-			}else {
-				return getUnityUser(searchContext, username);
-			}
-		}
+            // e.g., search by mail
+            if (userSearch)
+            {
+                String username = LdapNodeUtils.getUserName(
+                    configuration, searchContext.getFilter()
+                );
+                if (null == username) {
+                    return emptyResult(searchContext);
+                }
+                return getUnityUser(searchContext, username);
+            }
+
+            String username = LdapNodeUtils.parseGroupOfNamesSearch(
+                schemaManager, configuration, searchContext.getFilter()
+            );
+            if (null != username) {
+                long userEntityId;
+                try {
+                    userEntityId = userMapper.resolveUser(username, realm.getName());
+                    Map<String, GroupMembership> grps = identitiesMan.getGroups(
+                        new EntityParam(userEntityId)
+                    );
+                    String return_format = configuration.getValue(
+                        LdapServerProperties.GROUP_OF_NAMES_RETURN_FORMAT
+                    );
+                    if (null == return_format) {
+                        throw new LdapOtherException("Configuration error in GROUP_OF_NAMES_RETURN_FORMAT");
+                    }
+
+                    List<Entry> entryl = new ArrayList<>();
+                    for (Map.Entry<String, GroupMembership> agroup : grps.entrySet()) {
+                        Entry e = new DefaultEntry(lsf.getDs().getSchemaManager());
+                        e.setDn(String.format(return_format, agroup.getKey()));
+                        entryl.add(e);
+                    }
+                    ListCursor<Entry> lc = new ListCursor<>(entryl);
+                    EntryFilteringCursor ec = new EntryFilteringCursorImpl(
+                        lc, searchContext, this.schemaManager
+                    );
+                    return ec;
+                } catch (EngineException e) {
+                    throw new LdapOtherException("Error when searching", e);
+                }
+            }
+
 
 		EntryFilteringCursor ec = next(searchContext);
 		return ec;
@@ -365,7 +404,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
                 }
 
                 String user = LdapNodeUtils.getUserName(
-                    configuration, new Dn(compareContext.getValue().toString())
+                    configuration, new Dn(schemaManager, compareContext.getValue().toString())
                 );
 
                 long userEntityId = userMapper.resolveUser(user, realm.getName());
