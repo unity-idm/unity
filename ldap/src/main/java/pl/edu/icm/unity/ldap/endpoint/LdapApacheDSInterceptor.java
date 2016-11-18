@@ -364,20 +364,6 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
                     group = "/" + group; //Groups in unity always start with a /
                 }
 
-//                Dn value_dn = null;
-//                try {
-//                    String val = compareContext.getValue().toString();
-//                    LdapName name = new LdapName(val);
-//                    List<Rdn> rdns = new ArrayList<>();
-//                    for (javax.naming.ldap.Rdn rdn : name.getRdns()) {
-//                        rdns.add(new Rdn(rdn.toString()));
-//                    }
-//                    value_dn = new Dn(rdns.toArray(new Rdn[rdns.size()]));
-//                    Dn tnn = new Dn(val);
-//                } catch (InvalidNameException e) {
-//                    log.warn("comparing with unsupported attribute value - no username");
-//                    notSupported();
-//                }
                 String user = LdapNodeUtils.getUserName(
                     configuration, new Dn(compareContext.getValue().toString())
                 );
