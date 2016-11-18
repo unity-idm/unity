@@ -7,14 +7,14 @@ package pl.edu.icm.unity.ldap.endpoint;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.directory.api.ldap.model.name.Rdn;
 
 import javax.imageio.ImageIO;
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
 
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -327,16 +327,61 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
             String group_member = configuration.getValue(
                 LdapServerProperties.GROUP_MEMBER
             );
-            // we know how to do members only
+
+            // we know how to do group members only
             if (!at.getName().equals(group_member)) {
                 log.warn(String.format("comparing with unsupported attribute [%s]", at.getName()));
                 notSupported();
             }
 
+            // ensure the DN is what we expect it to be
+            String group_member_dn_regexp = configuration.getValue(
+                LdapServerProperties.GROUP_MEMBER_DN_REGEXP
+            );
+            Pattern dn_meber_regexp = Pattern.compile(group_member_dn_regexp);
+            Matcher m = dn_meber_regexp.matcher(compareContext.getDn().toString());
+            if (!m.find()) {
+                log.warn("comparing with unsupported DN");
+                notSupported();
+            }
+
+            // if regexp contained capturing group
+            // use it as the group name
+            String group = null;
+            if (0 < m.groupCount()) {
+                group = m.group(1);
+            }
+
             try
             {
-                String group = compareContext.getValue().getString();
-                String user = LdapNodeUtils.getUserName(configuration, compareContext.getDn());
+                if (null == group) {
+                    group = compareContext.getDn().getRdn().getValue();
+                }
+                assert null != group;
+
+                // unity groups always start with /
+                if (!group.startsWith("/")) {
+                    group = "/" + group; //Groups in unity always start with a /
+                }
+
+//                Dn value_dn = null;
+//                try {
+//                    String val = compareContext.getValue().toString();
+//                    LdapName name = new LdapName(val);
+//                    List<Rdn> rdns = new ArrayList<>();
+//                    for (javax.naming.ldap.Rdn rdn : name.getRdns()) {
+//                        rdns.add(new Rdn(rdn.toString()));
+//                    }
+//                    value_dn = new Dn(rdns.toArray(new Rdn[rdns.size()]));
+//                    Dn tnn = new Dn(val);
+//                } catch (InvalidNameException e) {
+//                    log.warn("comparing with unsupported attribute value - no username");
+//                    notSupported();
+//                }
+                String user = LdapNodeUtils.getUserName(
+                    configuration, new Dn(compareContext.getValue().toString())
+                );
+
                 long userEntityId = userMapper.resolveUser(user, realm.getName());
                 Map<String, GroupMembership> grps = identitiesMan.getGroups(
                     new EntityParam(userEntityId)

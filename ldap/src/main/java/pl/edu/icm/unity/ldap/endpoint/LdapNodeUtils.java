@@ -133,7 +133,7 @@ public class LdapNodeUtils
 		for (Rdn rdn : dn.getRdns())
 		{
 			Ava ava = rdn.getAva();
-			if (null != ava && ava.getAttributeType().getName().equals(query))
+			if (null != ava && ava.getType().equals(query))
 			{
 				return ava.getValue().getString();
 			}

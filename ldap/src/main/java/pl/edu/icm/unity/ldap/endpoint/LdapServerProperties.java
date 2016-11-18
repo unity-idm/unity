@@ -36,8 +36,8 @@ public class LdapServerProperties extends PropertiesHelper
 	public static final String TLS_SUPPORT = "tls";
 	public static final String CERT_PASSWORD = "certPassword";
 	public static final String KEYSTORE_FILENAME = "keystoreName";
-	public static final String USER_QUERY = "userQuery";
-	public static final String GROUP_MEMBER = "groupMember"; 
+	public static final String GROUP_MEMBER = "groupMember";
+	public static final String GROUP_MEMBER_DN_REGEXP = "groupMemberDnRegexp";
 	public static final String RETURNED_USER_ATTRIBUTES = "returnedUserAttributes";
 	public static final String USER_NAME_ALIASES = "userNameAliases";
 
@@ -58,10 +58,14 @@ public class LdapServerProperties extends PropertiesHelper
 		META.put(KEYSTORE_FILENAME, new PropertyMD().setCategory(main)
 			.setDescription("LDAP keystore filename relative to working directory"));
 
-		META.put(USER_QUERY, new PropertyMD().setCategory(main)
-			.setDescription("LDAP user query token"));
+		META.put(GROUP_MEMBER_DN_REGEXP, new PropertyMD().setCategory(main)
+			.setDescription("Regular expression that should match the DN of a member compare request." +
+				"Optionally, specifying the group that defines the group name."));
+
 		META.put(GROUP_MEMBER, new PropertyMD().setCategory(main)
-			.setDescription("LDAP member attribute name"));
+			.setDescription("String identifying the LDAP member comparison request - " +
+				"DN of a group asking for membership of a user in compare attribute " +
+				"value."));
 		META.put(RETURNED_USER_ATTRIBUTES, new PropertyMD().setCategory(main)
 			.setDescription("Attributes that should be returned if return all user attributes flag is set"));
 		META.put(USER_NAME_ALIASES, new PropertyMD().setCategory(main)

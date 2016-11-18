@@ -56,8 +56,8 @@ public class LdapEndpointTests extends DBIntegrationTestBase {
         "unity.ldapServer.host=" + ldapEndpointHostname + "\n" +
         "unity.ldapServer.ldapPort=" + ldapEndpointPort + "\n" +
         "unity.ldapServer.ldapsPort=1636\n" +
-        "unity.ldapServer.userQuery=cn\n" +
         "unity.ldapServer.groupMember=member\n" +
+        "unity.ldapServer.groupMemberDnRegexp=ou=groups\n" +
         "unity.ldapServer.returnedUserAttributes=cn,entryDN,jpegPhoto\n" +
         "unity.ldapServer.userNameAliases=cn,mail\n" +
         "unity.ldapServer.tls=true\n" +
@@ -383,14 +383,18 @@ public class LdapEndpointTests extends DBIntegrationTestBase {
             try
             {
                 {
-                    dn = String.format("cn=%s,ou=system", username1);
-                    CompareRequest req = new CompareRequest(dn, "member", "/");
+                    dn = "cn=/,ou=groups";
+                    CompareRequest req = new CompareRequest(
+                        dn, "member", String.format("cn=%s,ou=system", username1)
+                    );
                     CompareResult result = connection.compare(req);
                     assertTrue(result.compareMatched());
                 }
                 {
-                    dn = String.format("cn=%s,ou=system", username1);
-                    CompareRequest req = new CompareRequest(dn, "member", "/123");
+                    dn = "cn=/123,ou=groups";
+                    CompareRequest req = new CompareRequest(
+                        dn, "member", String.format("cn=%s,ou=system", username1)
+                    );
                     CompareResult result = connection.compare(req);
                     assertFalse(result.compareMatched());
                 }
