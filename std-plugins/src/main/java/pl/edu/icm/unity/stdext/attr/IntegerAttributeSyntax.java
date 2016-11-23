@@ -4,10 +4,13 @@
  */
 package pl.edu.icm.unity.stdext.attr;
 
+import org.springframework.stereotype.Component;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.engine.api.attributes.AbstractAttributeValueSyntaxFactory;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -110,5 +113,15 @@ public class IntegerAttributeSyntax implements AttributeValueSyntax<Long>
 	public String convertToString(Long value)
 	{
 		return value.toString();
+	}
+	
+	
+	@Component
+	public static class Factory extends AbstractAttributeValueSyntaxFactory<Long>
+	{
+		public Factory(String id)
+		{
+			super(IntegerAttributeSyntax.ID, IntegerAttributeSyntax::new);
+		}
 	}
 }

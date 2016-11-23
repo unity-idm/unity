@@ -4,10 +4,13 @@
  */
 package pl.edu.icm.unity.stdext.attr;
 
+import org.springframework.stereotype.Component;
+
 import com.fasterxml.jackson.databind.JsonNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.engine.api.attributes.AbstractAttributeValueSyntaxFactory;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -92,5 +95,15 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 		VerifiableEmail ret = EmailUtils.convertFromString(value);
 		validate(ret);
 		return ret;
+	}
+	
+	
+	@Component
+	public static class Factory extends AbstractAttributeValueSyntaxFactory<VerifiableEmail>
+	{
+		public Factory(String id)
+		{
+			super(VerifiableEmailAttributeSyntax.ID, VerifiableEmailAttributeSyntax::new);
+		}
 	}
 }

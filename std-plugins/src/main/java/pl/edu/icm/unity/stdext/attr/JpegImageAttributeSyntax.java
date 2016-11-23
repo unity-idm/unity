@@ -15,10 +15,13 @@ import java.util.Base64;
 
 import javax.imageio.ImageIO;
 
+import org.springframework.stereotype.Component;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.engine.api.attributes.AbstractAttributeValueSyntaxFactory;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -234,6 +237,16 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 		} catch (IOException e)
 		{
 			throw new InternalException("Image can not be decoded", e);
+		}
+	}
+	
+	
+	@Component
+	public static class Factory extends AbstractAttributeValueSyntaxFactory<BufferedImage>
+	{
+		public Factory(String id)
+		{
+			super(JpegImageAttributeSyntax.ID, JpegImageAttributeSyntax::new);
 		}
 	}
 }

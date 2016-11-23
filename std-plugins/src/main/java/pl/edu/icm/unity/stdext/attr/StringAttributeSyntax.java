@@ -6,10 +6,13 @@ package pl.edu.icm.unity.stdext.attr;
 
 import java.util.regex.Pattern;
 
+import org.springframework.stereotype.Component;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.engine.api.attributes.AbstractAttributeValueSyntaxFactory;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -135,5 +138,15 @@ public class StringAttributeSyntax extends AbstractStringAttributeSyntax
 		if (maxLength < minLength)
 			throw new WrongArgumentException("Maximal string length must not be less then the minimal");
 		this.maxLength = maxLength;
+	}
+	
+	
+	@Component
+	public static class Factory extends AbstractAttributeValueSyntaxFactory<String>
+	{
+		public Factory(String id)
+		{
+			super(StringAttributeSyntax.ID, StringAttributeSyntax::new);
+		}
 	}
 }
