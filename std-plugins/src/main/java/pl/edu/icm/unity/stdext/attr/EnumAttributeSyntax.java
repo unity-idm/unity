@@ -128,7 +128,7 @@ public class EnumAttributeSyntax extends AbstractStringAttributeSyntax
 	@Component
 	public static class Factory extends AbstractAttributeValueSyntaxFactory<String>
 	{
-		public Factory(String id)
+		public Factory()
 		{
 			super(EnumAttributeSyntax.ID, EnumAttributeSyntax::new);
 		}

@@ -144,7 +144,7 @@ public class StringAttributeSyntax extends AbstractStringAttributeSyntax
 	@Component
 	public static class Factory extends AbstractAttributeValueSyntaxFactory<String>
 	{
-		public Factory(String id)
+		public Factory()
 		{
 			super(StringAttributeSyntax.ID, StringAttributeSyntax::new);
 		}

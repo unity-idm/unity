@@ -119,7 +119,7 @@ public class IntegerAttributeSyntax implements AttributeValueSyntax<Long>
 	@Component
 	public static class Factory extends AbstractAttributeValueSyntaxFactory<Long>
 	{
-		public Factory(String id)
+		public Factory()
 		{
 			super(IntegerAttributeSyntax.ID, IntegerAttributeSyntax::new);
 		}

@@ -101,7 +101,7 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 	@Component
 	public static class Factory extends AbstractAttributeValueSyntaxFactory<VerifiableEmail>
 	{
-		public Factory(String id)
+		public Factory()
 		{
 			super(VerifiableEmailAttributeSyntax.ID, VerifiableEmailAttributeSyntax::new);
 		}

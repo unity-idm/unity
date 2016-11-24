@@ -119,7 +119,7 @@ public class FloatingPointAttributeSyntax implements AttributeValueSyntax<Double
 	@Component
 	public static class Factory extends AbstractAttributeValueSyntaxFactory<Double>
 	{
-		public Factory(String id)
+		public Factory()
 		{
 			super(FloatingPointAttributeSyntax.ID, FloatingPointAttributeSyntax::new);
 		}

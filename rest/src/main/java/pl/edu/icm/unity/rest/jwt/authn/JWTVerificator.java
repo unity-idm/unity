@@ -54,7 +54,7 @@ public class JWTVerificator extends AbstractVerificator implements JWTExchange
 	private JWTAuthenticationProperties config;
 	
 	@Autowired
-	public JWTVerificator(String name, String description, PKIManagement pkiManagement)
+	public JWTVerificator(PKIManagement pkiManagement)
 	{
 		super(NAME, DESC, JWTExchange.ID);
 		this.pkiManagement = pkiManagement;

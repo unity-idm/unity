@@ -244,7 +244,7 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 	@Component
 	public static class Factory extends AbstractAttributeValueSyntaxFactory<BufferedImage>
 	{
-		public Factory(String id)
+		public Factory()
 		{
 			super(JpegImageAttributeSyntax.ID, JpegImageAttributeSyntax::new);
 		}
