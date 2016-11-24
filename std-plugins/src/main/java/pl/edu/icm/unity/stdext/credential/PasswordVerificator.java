@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.util.Arrays;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -39,13 +42,15 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.CredentialReset;
+import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
+import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalVerificator;
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
 import pl.edu.icm.unity.engine.api.authn.local.LocalSandboxAuthnContext;
-import pl.edu.icm.unity.engine.api.authn.CredentialReset;
-import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -72,9 +77,12 @@ import pl.edu.icm.unity.types.authn.LocalCredentialState;
  * @see PasswordCredential
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class PasswordVerificator extends AbstractLocalVerificator implements PasswordExchange
 { 	
 	private static final Logger log = Log.getLogger(Log.U_SERVER, PasswordVerificator.class);
+	public static final String NAME = "password";
+	public static final String DESC = "Verifies passwords";
 	static final String[] IDENTITY_TYPES = {UsernameIdentity.ID, EmailIdentity.ID};
 
 	private NotificationProducer notificationProducer;
@@ -83,10 +91,10 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	
 	private PasswordCredential credential = new PasswordCredential();
 
-	public PasswordVerificator(String name, String description,
-			NotificationProducer notificationProducer, CredentialHelper credentialHelper)
+	@Autowired
+	public PasswordVerificator(NotificationProducer notificationProducer, CredentialHelper credentialHelper)
 	{
-		super(name, description, PasswordExchange.ID, true);
+		super(NAME, DESC, PasswordExchange.ID, true);
 		this.notificationProducer = notificationProducer;
 		this.credentialHelper = credentialHelper;
 	}
@@ -372,6 +380,16 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			throws IllegalCredentialException, InternalException
 	{
 		return prepareCredential(rawCredential, null, currentCredential);
+	}
+	
+	@Component
+	public static class Factory extends AbstractLocalCredentialVerificatorFactory
+	{
+		@Autowired
+		public Factory(ObjectFactory<PasswordVerificator> factory)
+		{
+			super(NAME, DESC, true, factory);
+		}
 	}
 }
 

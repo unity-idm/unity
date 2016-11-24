@@ -33,7 +33,7 @@ import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
-import pl.edu.icm.unity.stdext.credential.CertificateVerificatorFactory;
+import pl.edu.icm.unity.stdext.credential.CertificateVerificator;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
@@ -161,7 +161,7 @@ public class TestSoapETD extends DBIntegrationTestBase
 	protected void setupMockAuthn() throws Exception
 	{
 		CredentialDefinition credDef2 = new CredentialDefinition(
-				CertificateVerificatorFactory.NAME, "credential2");
+				CertificateVerificator.NAME, "credential2");
 		credDef2.setConfiguration("");
 		credMan.addCredentialDefinition(credDef2);
 		

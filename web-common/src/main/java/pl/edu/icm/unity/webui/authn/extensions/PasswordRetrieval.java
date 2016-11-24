@@ -39,7 +39,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.credential.PasswordExchange;
-import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
+import pl.edu.icm.unity.stdext.credential.PasswordVerificator;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.I18nStringJsonUtil;
@@ -126,7 +126,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 	public Collection<VaadinAuthenticationUI> createUIInstance()
 	{
 		return Collections.<VaadinAuthenticationUI>singleton(
-				new PasswordRetrievalUI(credEditorReg.getEditor(PasswordVerificatorFactory.NAME)));
+				new PasswordRetrievalUI(credEditorReg.getEditor(PasswordVerificator.NAME)));
 	}
 
 

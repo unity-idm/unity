@@ -24,9 +24,9 @@ import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
-import pl.edu.icm.unity.stdext.credential.CertificateVerificatorFactory;
+import pl.edu.icm.unity.stdext.credential.CertificateVerificator;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
-import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
+import pl.edu.icm.unity.stdext.credential.PasswordVerificator;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -154,7 +154,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	protected void setupPasswordAuthn(int minLen, boolean denySeq) throws EngineException
 	{
 		CredentialDefinition credDef = new CredentialDefinition(
-				PasswordVerificatorFactory.NAME, "credential1");
+				PasswordVerificator.NAME, "credential1");
 		credDef.setConfiguration("{\"minLength\": " + minLen + ", " +
 				"\"historySize\": 5," +
 				"\"minClassesNum\": 1," +
@@ -174,7 +174,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	protected void setupPasswordAndCertAuthn() throws EngineException
 	{
 		CredentialDefinition credDef2 = new CredentialDefinition(
-				CertificateVerificatorFactory.NAME, "credential2");
+				CertificateVerificator.NAME, "credential2");
 		credMan.addCredentialDefinition(credDef2);
 		
 		CredentialRequirements cr2 = new CredentialRequirements("cr-cert", "", 

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
+import pl.edu.icm.unity.stdext.credential.PasswordVerificator;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
@@ -31,7 +31,7 @@ public class PasswordCredentialEditorFactory implements CredentialEditorFactory
 	@Override
 	public String getSupportedCredentialType()
 	{
-		return PasswordVerificatorFactory.NAME;
+		return PasswordVerificator.NAME;
 	}
 
 	@Override

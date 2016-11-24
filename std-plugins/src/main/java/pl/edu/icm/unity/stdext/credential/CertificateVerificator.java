@@ -7,6 +7,9 @@ package pl.edu.icm.unity.stdext.credential;
 import java.security.cert.X509Certificate;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import pl.edu.icm.unity.base.utils.Log;
@@ -14,9 +17,11 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
+import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalVerificator;
 import pl.edu.icm.unity.engine.api.authn.local.LocalSandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
@@ -32,14 +37,18 @@ import pl.edu.icm.unity.types.authn.LocalCredentialState;
  * 
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class CertificateVerificator extends AbstractLocalVerificator implements CertificateExchange
 { 	
 	private static final Logger log = Log.getLogger(Log.U_SERVER, CertificateVerificator.class);
 	private static final String[] IDENTITY_TYPES = {X500Identity.ID};
+	public static final String NAME = "certificate";
+	public static final String DESC = "Verifies certificates";
 
-	public CertificateVerificator(String name, String description)
+	
+	public CertificateVerificator()
 	{
-		super(name, description, PasswordExchange.ID, false);
+		super(NAME, DESC, CertificateExchange.ID, false);
 	}
 
 	@Override
@@ -104,6 +113,16 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 			throws IllegalCredentialException, InternalException
 	{
 		return prepareCredential(rawCredential, null, currentCredential);
+	}
+	
+	@Component
+	public static class Factory extends AbstractLocalCredentialVerificatorFactory
+	{
+		@Autowired
+		public Factory(ObjectFactory<CertificateVerificator> factory)
+		{
+			super(NAME, DESC, false, factory);
+		}
 	}
 }
 

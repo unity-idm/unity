@@ -33,16 +33,16 @@ import pl.edu.icm.unity.stdext.credential.PasswordExchange;
  * 
  * @author K. Benedyczak
  */
-public class LdapVerificator extends AbstractRemoteVerificator implements PasswordExchange, CertificateExchange
+public abstract class LdapBaseVerificator extends AbstractRemoteVerificator implements PasswordExchange, CertificateExchange
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP, LdapVerificator.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP, LdapBaseVerificator.class);
 	private LdapProperties ldapProperties;
 	private LdapClient client;
 	private LdapClientConfiguration clientConfiguration;
 	private PKIManagement pkiManagement;
 	private String translationProfile;
 	
-	public LdapVerificator(String name, String description, 
+	protected LdapBaseVerificator(String name, String description, 
 			RemoteAuthnResultProcessor processor,
 			PKIManagement pkiManagement, String exchangeId)
 	{

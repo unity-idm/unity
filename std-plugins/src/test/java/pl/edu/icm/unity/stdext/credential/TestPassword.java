@@ -29,8 +29,7 @@ public class TestPassword
 	public void test() throws Exception
 	{
 		//we can pass nulls as we don't test the credential reset here.
-		PasswordVerificatorFactory f = new PasswordVerificatorFactory(null, null);
-		LocalCredentialVerificator verificator = f.newInstance();
+		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
 		verificator.setSerializedConfiguration("{" +
 				"\"minLength\": 5," +
 				"\"historySize\": 3," +
@@ -92,8 +91,7 @@ public class TestPassword
 	public void testCurrentPasswordVerification() throws Exception
 	{
 		//we can pass nulls as we don't test the credential reset here.
-		PasswordVerificatorFactory f = new PasswordVerificatorFactory(null, null);
-		LocalCredentialVerificator verificator = f.newInstance();
+		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
 		verificator.setSerializedConfiguration("{" +
 				"\"minLength\": 5," +
 				"\"historySize\": 3," +

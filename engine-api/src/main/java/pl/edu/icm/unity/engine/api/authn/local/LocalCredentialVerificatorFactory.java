@@ -12,6 +12,7 @@ import pl.edu.icm.unity.engine.api.authn.CredentialVerificatorFactory;
  */
 public interface LocalCredentialVerificatorFactory extends CredentialVerificatorFactory
 {
+	@Override
 	LocalCredentialVerificator newInstance();
 	
 	boolean isSupportingInvalidation();

@@ -27,8 +27,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +82,7 @@ import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
-import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
+import pl.edu.icm.unity.stdext.credential.PasswordVerificator;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
@@ -571,7 +571,7 @@ public class EngineInitialization extends LifecycleBase
 		}
 		
 		I18nString description = new I18nString("CredDef.standardPassword.desc", msg); 
-		CredentialDefinition credDef = new CredentialDefinition(PasswordVerificatorFactory.NAME,
+		CredentialDefinition credDef = new CredentialDefinition(PasswordVerificator.NAME,
 				adminCredName, description, msg);
 		credDef.setConfiguration("{\"minLength\": 1," +
 				"\"historySize\": 1," +

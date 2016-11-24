@@ -11,12 +11,17 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Properties;
 
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.JWTClaimsSet;
 
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AbstractVerificator;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
@@ -24,6 +29,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties;
@@ -36,15 +42,21 @@ import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
  * 
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class JWTVerificator extends AbstractVerificator implements JWTExchange
 {
+	public static final String NAME = "jwt";
+	public static final String DESC = "Verifies JWT";
+	
 	private static final String[] IDENTITY_TYPES = {PersistentIdentity.ID};
+	
 	private PKIManagement pkiManagement;
 	private JWTAuthenticationProperties config;
 	
+	@Autowired
 	public JWTVerificator(String name, String description, PKIManagement pkiManagement)
 	{
-		super(name, description, JWTExchange.ID);
+		super(NAME, DESC, JWTExchange.ID);
 		this.pkiManagement = pkiManagement;
 	}
 
@@ -115,6 +127,17 @@ public class JWTVerificator extends AbstractVerificator implements JWTExchange
 		} catch (ParseException | JOSEException e)
 		{
 			throw new AuthenticationException("Token is invalid", e);
+		}
+	}
+	
+	
+	@Component
+	public static class Factory extends AbstractCredentialVerificatorFactory
+	{
+		@Autowired
+		public Factory(ObjectFactory<JWTVerificator> factory) throws EngineException
+		{
+			super(NAME, DESC, factory);
 		}
 	}
 }

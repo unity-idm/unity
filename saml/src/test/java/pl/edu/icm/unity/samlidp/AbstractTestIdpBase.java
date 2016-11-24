@@ -39,9 +39,9 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
-import pl.edu.icm.unity.stdext.credential.CertificateVerificatorFactory;
+import pl.edu.icm.unity.stdext.credential.CertificateVerificator;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
-import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
+import pl.edu.icm.unity.stdext.credential.PasswordVerificator;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.I18nString;
@@ -199,7 +199,7 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 	protected void setupMockAuthn() throws Exception
 	{
 		CredentialDefinition credDef = new CredentialDefinition(
-				PasswordVerificatorFactory.NAME, "credential1");
+				PasswordVerificator.NAME, "credential1");
 		credDef.setConfiguration("{\"minLength\": 4, " +
 				"\"historySize\": 5," +
 				"\"minClassesNum\": 1," +
@@ -207,7 +207,7 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 				"\"maxAge\": 30758400}");
 		credMan.addCredentialDefinition(credDef);
 		CredentialDefinition credDef2 = new CredentialDefinition(
-				CertificateVerificatorFactory.NAME, "credential2");
+				CertificateVerificator.NAME, "credential2");
 		credDef2.setConfiguration("");
 		credMan.addCredentialDefinition(credDef2);
 		
