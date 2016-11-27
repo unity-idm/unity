@@ -13,6 +13,10 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -30,6 +34,7 @@ import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
+import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
@@ -50,8 +55,13 @@ import pl.edu.icm.unity.webui.common.Styles;
  * 
  * @author K. Benedyczak
  */
+@org.springframework.stereotype.Component("WebTLSRetrieval")
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchange> implements VaadinAuthentication
 {
+	public static final String NAME = "web-certificate";
+	public static final String DESC = "WebTLSRetrievalFactory.desc";
+	
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, TLSRetrieval.class);
 	private UnityMessageSource msg;
 	private I18nString name;
@@ -260,7 +270,18 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		{
 			return Collections.emptySet();
 		}
-	}	
+	}
+	
+	
+	@org.springframework.stereotype.Component("WebTLSRetrievalFactory")
+	public static class Factory extends AbstractCredentialRetrievalFactory<TLSRetrieval>
+	{
+		@Autowired
+		public Factory(ObjectFactory<TLSRetrieval> factory)
+		{
+			super(NAME, DESC, VaadinAuthentication.NAME, factory, CertificateExchange.class);
+		}
+	}
 }
 
 

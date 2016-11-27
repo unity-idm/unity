@@ -9,9 +9,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
+import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.client.OAuthContextsManagement;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
@@ -23,13 +29,17 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
  * request provided by verificator. 
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange> implements VaadinAuthentication
 {
+	public static final String NAME = "web-oauth2";
+	public static final String DESC = "OAuth2RetrievalFactory.desc";
 	public static final String REMOTE_AUTHN_CONTEXT = OAuth2Retrieval.class.getName()+".authnContext";
 	private UnityMessageSource msg;
 	private OAuthContextsManagement contextManagement;
 	private ExecutorsService executorsService;
 	
+	@Autowired
 	public OAuth2Retrieval(UnityMessageSource msg, OAuthContextsManagement contextManagement, 
 			ExecutorsService executorsService)
 	{
@@ -62,5 +72,15 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange> 
 					executorsService, key));
 		}
 		return ret;
+	}
+	
+	@Component
+	public static class Factory extends AbstractCredentialRetrievalFactory<OAuth2Retrieval>
+	{
+		@Autowired
+		public Factory(ObjectFactory<OAuth2Retrieval> factory)
+		{
+			super(NAME, DESC, VaadinAuthentication.NAME, factory, OAuthExchange.class);
+		}
 	}
 }

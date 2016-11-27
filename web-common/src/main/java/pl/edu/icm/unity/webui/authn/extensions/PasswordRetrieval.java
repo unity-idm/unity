@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -33,10 +35,12 @@ import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
+import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.credential.PasswordExchange;
 import pl.edu.icm.unity.stdext.credential.PasswordVerificator;
@@ -58,8 +62,12 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
  * 
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExchange> implements VaadinAuthentication
 {
+	public static final String NAME = "web-password";
+	public static final String DESC = "WebPasswordRetrievalFactory.desc";
+	
 	private Logger log = Log.getLogger(Log.U_SERVER_WEB, PasswordRetrieval.class);
 	private UnityMessageSource msg;
 	private I18nString name;
@@ -68,6 +76,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 	private boolean enableAssociation;
 	private CredentialEditorRegistry credEditorReg;
 
+	@Autowired
 	public PasswordRetrieval(UnityMessageSource msg, CredentialEditorRegistry credEditorReg)
 	{
 		super(VaadinAuthentication.NAME);
@@ -394,6 +403,17 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		public Set<String> getTags()
 		{
 			return Collections.emptySet();
+		}
+	}
+	
+	
+	@org.springframework.stereotype.Component
+	public static class Factory extends AbstractCredentialRetrievalFactory<PasswordRetrieval>
+	{
+		@Autowired
+		public Factory(ObjectFactory<PasswordRetrieval> factory)
+		{
+			super(NAME, DESC, VaadinAuthentication.NAME, factory, PasswordExchange.class);
 		}
 	}
 }
