@@ -42,7 +42,7 @@ public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 			MetaDownloadManager downloadManager, 
 			UnityServerConfiguration mainConfig, SAMLLogoutProcessorFactory logoutProcessorFactory, 
 			SLOReplyInstaller sloReplyInstaller, 
-			UnicoreIdpConsentDeciderServletFactory dispatcherServletFactory,
+			UnicoreIdpConsentDeciderServlet.Factory dispatcherServletFactory,
 			UnityMessageSource msg)
 	{
 		super(SAML_CONSUMER_SERVLET_PATH, 

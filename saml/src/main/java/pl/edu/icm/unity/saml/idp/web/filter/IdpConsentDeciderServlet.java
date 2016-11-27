@@ -19,6 +19,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
@@ -32,6 +36,7 @@ import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SAMLEndpointDefinition;
@@ -57,6 +62,7 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
  * 
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class IdpConsentDeciderServlet extends HttpServlet
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, IdpConsentDeciderServlet.class);
@@ -69,20 +75,25 @@ public class IdpConsentDeciderServlet extends HttpServlet
 
 	protected AttributeTypeSupport aTypeSupport;
 	
+	@Autowired
 	public IdpConsentDeciderServlet(AttributeTypeSupport aTypeSupport, 
 			PreferencesManagement preferencesMan, 
 			IdPEngine idpEngine,
 			FreemarkerHandler freemarker,
-			SessionManagement sessionMan, String samlUiServletPath)
+			SessionManagement sessionMan)
 	{
 		this.aTypeSupport = aTypeSupport;
 		this.preferencesMan = preferencesMan;
 		this.idpEngine = idpEngine;
 		this.ssoResponseHandler = new SSOResponseHandler(freemarker);
 		this.sessionMan = sessionMan;
-		this.samlUiServletPath = samlUiServletPath;
 	}
 
+	protected void init(String samlUiServletPath)
+	{
+		this.samlUiServletPath = samlUiServletPath;
+	}
+	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException
@@ -256,5 +267,22 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		if (ret == null)
 			throw new IllegalStateException("No SAML context in UI");
 		return ret;
+	}
+	
+	
+	@Component
+	@Primary
+	public static class Factory implements IdpConsentDeciderServletFactory
+	{
+		@Autowired
+		private ObjectFactory<IdpConsentDeciderServlet> factory;
+		
+		@Override
+		public IdpConsentDeciderServlet getInstance(String uiServletPath)
+		{
+			IdpConsentDeciderServlet ret = factory.getObject();
+			ret.init(uiServletPath);
+			return ret;
+		}
 	}
 }

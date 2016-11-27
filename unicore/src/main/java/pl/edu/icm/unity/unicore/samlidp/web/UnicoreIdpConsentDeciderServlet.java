@@ -13,6 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import eu.unicore.samly2.SAMLConstants;
 import pl.edu.icm.unity.base.utils.Log;
@@ -22,12 +25,14 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServlet;
+import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServletFactory;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD;
@@ -42,20 +47,24 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
  * 
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML,
 			UnicoreIdpConsentDeciderServlet.class);
 	
+	@Autowired
 	public UnicoreIdpConsentDeciderServlet(AttributeTypeSupport aTypeSupport, 
 			PreferencesManagement preferencesMan, 
 			IdPEngine idpEngine,
 			FreemarkerHandler freemarker,
-			SessionManagement sessionMan, String samlUiServletPath)
+			SessionManagement sessionMan)
 	{
 		super(aTypeSupport, preferencesMan, idpEngine, 
-				freemarker, sessionMan, samlUiServletPath);
+				freemarker, sessionMan);
 	}
+	
+	
 	
 	@Override
 	protected SPSettings loadPreferences(SAMLAuthnContext samlCtx) throws EngineException
@@ -107,5 +116,19 @@ public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 		ssoResponseHandler.sendResponse(Binding.HTTP_POST, respDoc, serviceUrl, 
 				samlCtx.getRelayState(), request, response);
 	}
-
+	
+	@Component
+	public static class Factory implements IdpConsentDeciderServletFactory
+	{
+		@Autowired
+		private ObjectFactory<UnicoreIdpConsentDeciderServlet> factory;
+		
+		@Override
+		public IdpConsentDeciderServlet getInstance(String uiServletPath)
+		{
+			UnicoreIdpConsentDeciderServlet ret = factory.getObject();
+			ret.init(uiServletPath);
+			return ret;
+		}
+	}
 }
