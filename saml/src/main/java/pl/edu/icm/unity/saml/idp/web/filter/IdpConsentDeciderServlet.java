@@ -63,6 +63,7 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
  * @author K. Benedyczak
  */
 @PrototypeComponent
+@Primary
 public class IdpConsentDeciderServlet extends HttpServlet
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, IdpConsentDeciderServlet.class);
