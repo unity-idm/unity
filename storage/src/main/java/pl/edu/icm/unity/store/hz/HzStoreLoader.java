@@ -22,6 +22,7 @@ import pl.edu.icm.unity.store.StorageConfiguration;
 import pl.edu.icm.unity.store.StorageEngine;
 import pl.edu.icm.unity.store.StoreLoaderInternal;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSEventSink;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionalRunner;
 import pl.edu.icm.unity.store.impl.attribute.AttributeHzStore;
@@ -91,8 +92,12 @@ public class HzStoreLoader implements StoreLoaderInternal
 	@Autowired
 	private HazelcastInstance hzInstance;
 	
+	@Autowired
+	private RDBMSEventSink sink;
+
 	@Autowired 
 	private StorageConfiguration cfg;
+	
 	
 	@PostConstruct
 	public void init()
@@ -115,6 +120,7 @@ public class HzStoreLoader implements StoreLoaderInternal
 		tokenDAO.populateFromRDBMS(hzInstance);
 		eventDAO.populateFromRDBMS(hzInstance);
 		genericObjDAO.populateFromRDBMS(hzInstance);
+		sink.start();
 		log.info("Population of the in-memory data store completed");
 	}
 	
@@ -133,20 +139,27 @@ public class HzStoreLoader implements StoreLoaderInternal
 	@Override
 	public void reset()
 	{
+		sink.stop();
 		initDB.reset();
-		reloadHzFromRDBMS();
+		reloadHzFromRDBMSInternal();
 	}
 
 	@Override
 	public void deleteEverything()
 	{
+		sink.stop();
 		initDB.deleteEverything();
-		reloadHzFromRDBMS();
+		reloadHzFromRDBMSInternal();
 	}
 
-	private void reloadHzFromRDBMS()
+	void reloadHzFromRDBMS()
 	{
-		
+		sink.stop();
+		reloadHzFromRDBMSInternal();
+	}
+
+	private void reloadHzFromRDBMSInternal()
+	{
 		Collection<DistributedObject> distributedObjects = hzInstance.getDistributedObjects();
 		for (DistributedObject obj: distributedObjects)
 			obj.destroy();

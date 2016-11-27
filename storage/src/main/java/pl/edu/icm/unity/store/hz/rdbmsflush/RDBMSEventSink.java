@@ -4,13 +4,16 @@
  */
 package pl.edu.icm.unity.store.hz.rdbmsflush;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import com.hazelcast.core.HazelcastException;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ILock;
 import com.hazelcast.core.TransactionalQueue;
@@ -47,25 +50,91 @@ public class RDBMSEventSink
 	private TransactionalRunner rdbmsTx;
 	@Autowired
 	private RDBMSMutationEventProcessor rdbmsProcessor;
+
+	private volatile AtomicBoolean stopped = new AtomicBoolean(false);
+	private volatile CountDownLatch latch = new CountDownLatch(0);
+	private volatile AtomicBoolean working = new AtomicBoolean(false);
+	private Thread flushThread;
+
+	public RDBMSEventSink()
+	{
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> stop()));
+		flushThread = new Thread();
+	}
 	
-	/**
-	 * TODO - this will require much more complicated logic (shutdown, demon)
-	 */
-	public void consumePresentAndExit()
+	public void start()
+	{
+		if (working.get())
+			throw new IllegalStateException("Can not start events sink while it is already started");
+		stopped.set(false);
+		latch = new CountDownLatch(1);
+		flushThread = new Thread(() -> awaitAndConsume(), "Hazelcast to RDBMS flush");
+		flushThread.start();
+	}
+	
+	public void stop()
+	{
+		log.info("Stopping flush thread");
+		stopped.set(true);
+		flushThread.interrupt();
+		while (working.get())
+		{
+			try
+			{
+				log.debug("Awaiting for termination");
+				latch.await();
+				break;
+			} catch (InterruptedException e) {}
+		}
+		log.debug("Flush thread termiantion await finished");
+	}
+	
+	private void awaitAndConsume()
 	{
 		ILock lock = hzInstance.getLock(RDBMS_EVENTS_CONSUMER_LOCK);
-
 		lock.lock();
+		working.set(true);
 		log.info("This member was chosen as the RDBMS flush process");
 		try
 		{
-			boolean hasMoreBatches;
+			boolean hasMore;
 			do
 			{
-				hasMoreBatches = processEvents();
-			} while(hasMoreBatches);
+				hasMore = processEvents();
+			} while(!stopped.get() || hasMore);
 		} finally
 		{
+			log.debug("Flush thread is being stopped");
+			working.set(false);
+			latch.countDown();
+			try
+			{
+				lock.unlock();
+			} catch (Exception e)
+			{
+				log.debug("Unlocking distributed flush lock failed, "
+						+ "typically this is fine as we are exiting", e);
+			}
+			log.info("This member is exiting and won't flush to RDBMS anymore");
+		}
+	}
+
+	public void consumePresentAndExit()
+	{
+		ILock lock = hzInstance.getLock(RDBMS_EVENTS_CONSUMER_LOCK);
+		lock.lock();
+		working.set(true);
+		try
+		{
+			boolean hasMore;
+			do
+			{
+				hasMore = processEvents();
+			} while(hasMore && !stopped.get());
+		} finally
+		{
+			latch.countDown();
+			working.set(false);
 			lock.unlock();
 		}
 	}
@@ -83,24 +152,26 @@ public class RDBMSEventSink
 			TransactionalQueue<RDBMSEventsBatch> queue = hzContext.getQueue(RDBMS_EVENTS_QUEUE);
 			
 			RDBMSEventsBatch batch = null;
-			while(batch == null)
+			while(batch == null && !stopped.get())
 			{
 				try
 				{
-					batch = queue.poll(120, TimeUnit.SECONDS);
-				} catch (InterruptedException e)
+					batch = queue.poll(2, TimeUnit.SECONDS);
+				} catch (HazelcastException | InterruptedException e)
 				{
-					//ok, ignore
+					log.debug("Got Interrupt");
+					return queue.size() > 0;
 				}
 			}
-			processSingleBatch(batch);
+			if (batch != null)
+				processSingleBatch(batch);
 			return queue.size() > 0;
 		});
 	}
 
 	private void processSingleBatch(RDBMSEventsBatch batch)
 	{
-		log.trace("Got RDBMS events batch for processing, size: " + batch.getEvents().size());
+		log.trace("Got RDBMS events batch for processing, size: {}", batch.getEvents().size());
 		rdbmsTx.runInTransaction(() -> {
 			for (RDBMSMutationEvent event : batch.getEvents())
 				rdbmsProcessor.apply(event, SQLTransactionTL.getSql());
