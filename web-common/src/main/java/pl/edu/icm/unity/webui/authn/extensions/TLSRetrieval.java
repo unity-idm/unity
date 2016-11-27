@@ -67,6 +67,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	private I18nString name;
 	private String logoURL;
 	
+	@Autowired
 	public TLSRetrieval(UnityMessageSource msg)
 	{
 		super(VaadinAuthentication.NAME);
