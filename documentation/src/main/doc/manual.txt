@@ -8,6 +8,8 @@ Unity Team <unity-idm-discuss@lists.sourceforge.net>
 :iconsdir: ./icons
 :icons: font
 
+:mveldoc: https://en.wikibooks.org/wiki/Transwiki:MVEL_Language_Guide
+
 include::introduction.txt[]
 
 include::installation.txt[]

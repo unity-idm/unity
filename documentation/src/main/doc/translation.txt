@@ -22,8 +22,7 @@ Conditions are used to dynamically turn action execution on or off. Conditions (
 of translation actions have) have to be specified as _MVEL expressions_. Such expressions allow for a powerful, 
 dynamic functionality. 
 
-The full MVEL documentation can be found here: 
-https://en.wikisource.org/wiki/MVEL_Language_Guide
+The full MVEL documentation can be found here: {mveldoc}
 
 The following example condition:
 ----
