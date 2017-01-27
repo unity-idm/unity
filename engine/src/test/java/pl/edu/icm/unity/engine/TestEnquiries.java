@@ -32,12 +32,14 @@ import pl.edu.icm.unity.server.api.EnquiryManagement;
 import pl.edu.icm.unity.server.registries.RegistrationActionsRegistry;
 import pl.edu.icm.unity.server.translation.form.RegistrationTranslationProfileBuilder;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
+import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.stdext.utils.InitializerCommon;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -56,6 +58,7 @@ import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 public class TestEnquiries extends DBIntegrationTestBase
@@ -324,6 +327,49 @@ public class TestEnquiries extends DBIntegrationTestBase
 		assertThat(caughtException(), isA(WrongArgumentException.class));
 	}
 
+	@Test 
+	public void enquiryWithoutIdentityIsAccepted() throws Exception
+	{
+		EnquiryForm form = new EnquiryFormBuilder()
+				.withName("f1")
+				.withTargetGroups(new String[] {"/"})
+				.withType(EnquiryType.REQUESTED_MANDATORY)
+				.withAddedAttributeParam()
+				.withAttributeType(InitializerCommon.CN_ATTR).withGroup("/")
+				.withRetrievalSettings(ParameterRetrievalSettings.interactive)
+				.endAttributeParam()
+				.build();
+		
+		enquiryManagement.addEnquiry(form);
+		
+		EnquiryResponse response = new EnquiryResponseBuilder()
+				.withFormId("f1")
+				.withAddedAttribute(new StringAttribute(InitializerCommon.CN_ATTR, 
+						"/", AttributeVisibility.full, "some"))
+				.build();
+		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
+				CRED_REQ_PASS, EntityState.valid, false);
+		
+		setupUserContext("tuser", false);
+		
+		String id = enquiryManagement.submitEnquiryResponse(response, 
+					new RegistrationContext(true, false, 
+							TriggeringMode.manualStandalone));
+		
+		setupAdmin();
+			
+		enquiryManagement.processEnquiryResponse(id, response, 
+				RegistrationRequestAction.accept, "", "");
+		
+		Collection<AttributeExt<?>> attributes = attrsMan.getAttributes(
+				new EntityParam(identity.getEntityId()), "/", 
+				InitializerCommon.CN_ATTR);
+		
+		assertThat(attributes.size(), is(1));
+		assertThat(attributes.iterator().next().getName(), is(InitializerCommon.CN_ATTR));
+		assertThat(attributes.iterator().next().getValues().get(0), is("some"));
+	}
+	
 	private EnquiryFormBuilder getFormBuilder(String autoAcceptCondition)
 	{
 		RegistrationTranslationProfileBuilder profileBuilder = new RegistrationTranslationProfileBuilder(

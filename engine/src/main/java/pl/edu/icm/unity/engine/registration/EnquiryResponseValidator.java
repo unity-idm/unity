@@ -4,12 +4,16 @@
  */
 package pl.edu.icm.unity.engine.registration;
 
+import java.util.Collection;
+
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.server.translation.form.TranslatedRegistrationRequest;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 
@@ -34,4 +38,18 @@ public class EnquiryResponseValidator extends BaseRequestValidator
 		validateFinalCredentials(response.getCredentials(), sql);
 		validateFinalIdentities(request.getIdentities(), sql);
 	}
+
+	@Override
+	protected void validateFinalIdentities(Collection<IdentityParam> identities, SqlSession sql) 
+			throws EngineException
+	{
+		for (IdentityParam idParam: identities)
+		{
+			if (idParam.getTypeId() == null || idParam.getValue() == null)
+				throw new WrongArgumentException("Identity " + idParam + " contains null values");
+			identityTypesRegistry.getByName(idParam.getTypeId()).validate(idParam.getValue());
+			checkIdentityIsNotPresent(idParam, sql);
+		}
+	}
+
 }

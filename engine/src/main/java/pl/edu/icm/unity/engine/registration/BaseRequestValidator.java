@@ -48,7 +48,7 @@ class BaseRequestValidator
 	@Autowired
 	private IdentitiesResolver idResolver;
 	@Autowired
-	private IdentityTypesRegistry identityTypesRegistry;
+	protected IdentityTypesRegistry identityTypesRegistry;
 	@Autowired
 	private LocalCredentialsRegistry authnRegistry;
 	
@@ -170,7 +170,7 @@ class BaseRequestValidator
 		}
 	}
 
-	private void checkIdentityIsNotPresent(IdentityParam idParam, SqlSession sql) throws IllegalFormContentsException
+	protected void checkIdentityIsNotPresent(IdentityParam idParam, SqlSession sql) throws IllegalFormContentsException
 	{
 		try
 		{
