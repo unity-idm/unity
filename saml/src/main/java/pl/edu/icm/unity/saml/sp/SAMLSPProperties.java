@@ -13,14 +13,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.saml.SamlProperties;
-import pl.edu.icm.unity.saml.ecp.SAMLECPProperties;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
-import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
-import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.trust.CheckingMode;
@@ -31,6 +23,14 @@ import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.saml.SamlProperties;
+import pl.edu.icm.unity.saml.ecp.SAMLECPProperties;
+import pl.edu.icm.unity.server.api.PKIManagement;
+import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
+import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
+import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 
 /**
  * Configuration of a SAML requester (or SAML SP).
@@ -245,6 +245,10 @@ public class SAMLSPProperties extends SamlProperties
 			PKIManagement pkiMan) throws ConfigurationException
 	{
 		super(P, properties, meta, log);
+		
+		addCachedPrefixes("unity\\.saml\\.requester\\.remoteIdp\\.[^.]+\\.certificates\\.",
+				"unity\\.saml\\.requester\\.remoteIdp\\.[^.]+\\.name\\.");
+		
 		sourceProperties = new Properties();
 		sourceProperties.putAll(properties);
 		this.pkiManagement = pkiMan;
@@ -325,7 +329,6 @@ public class SAMLSPProperties extends SamlProperties
 				+ " explicit trusted providers, took " + (System.currentTimeMillis() - start) + "ms");
 	}
 
-	
 	public X509Credential getRequesterCredential()
 	{
 		String credential = getValue(SAMLSPProperties.CREDENTIAL);
@@ -471,6 +474,4 @@ public class SAMLSPProperties extends SamlProperties
 	{
 		return new SAMLSPProperties(this);
 	}
-	
-	
 }
