@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.NDC;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
@@ -30,6 +29,7 @@ import pl.edu.icm.unity.engine.translation.form.action.RedirectActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.SubmitMessageActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -76,7 +76,8 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 		return executeFilteredActions(request.getRequest(), mvelCtx, null);
 	}
 	
-	@Autowired
+	@Transactional
+	@Override
 	public AutomaticRequestAction getAutoProcessAction(
 			UserRequestState<? extends BaseRegistrationInput> request, RequestSubmitStatus status)
 	{
@@ -98,7 +99,8 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 		return result.getAutoAction();
 	}
 
-	@Autowired
+	@Transactional
+	@Override
 	public I18nMessage getPostSubmitMessage(BaseRegistrationInput request,
 			RegistrationContext context, String requestId)
 	{
@@ -117,7 +119,8 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 		return result.getPostSubmitMessage();
 	}
 	
-	@Autowired
+	@Transactional
+	@Override
 	public String getPostSubmitRedirectURL(BaseRegistrationInput request,
 			RegistrationContext context, String requestId)
 	{
@@ -136,7 +139,8 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 		return result.getRedirectURL();
 	}
 
-	@Autowired
+	@Transactional
+	@Override
 	public String getPostCancelledRedirectURL(RegistrationContext context)
 	{
 		log.debug("Consulting form profile to establish post-cancel redirect URL");
@@ -154,7 +158,8 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 		return result.getRedirectURL();
 	}
 
-	@Autowired
+	@Transactional
+	@Override
 	public String getPostConfirmationRedirectURL(UserRequestState<?> request,
 			IdentityParam confirmed, String requestId)
 	{
@@ -164,7 +169,8 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 				confirmed.getTypeId(), confirmed.getValue());
 	}
 
-	@Autowired
+	@Transactional
+	@Override
 	public String getPostConfirmationRedirectURL(UserRequestState<?> request,
 			Attribute confirmed, String requestId)
 	{

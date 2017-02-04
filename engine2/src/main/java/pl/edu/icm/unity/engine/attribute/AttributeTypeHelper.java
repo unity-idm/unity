@@ -81,7 +81,8 @@ public class AttributeTypeHelper
 	{
 		AttributeValueSyntaxFactory<?> factory = atSyntaxRegistry.getByName(at.getValueSyntax());
 		AttributeValueSyntax<?> ret = factory.createInstance();
-		ret.setSerializedConfiguration(at.getValueSyntaxConfiguration());
+		if (at.getValueSyntaxConfiguration() != null)
+			ret.setSerializedConfiguration(at.getValueSyntaxConfiguration());
 		return ret;
 	}
 	

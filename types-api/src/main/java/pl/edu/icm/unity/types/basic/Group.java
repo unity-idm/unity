@@ -236,19 +236,27 @@ public class Group extends I18nDescribedObject implements NamedObject
 
 	/**
 	 * @return if displayed name was set to something different then the default value (i.e. the value returned 
-	 * by {@link #toString()}) it is returned. Otherwise the {@link #getName()} result is returned. 
+	 * by {@link #toString()}) it is returned. Otherwise the {@link #getNameShort()} result is returned. 
 	 */
 	public I18nString getDisplayedNameShort()
 	{
-		return displayedNameSet ? displayedName : new I18nString(getName());
+		return displayedNameSet ? displayedName : new I18nString(getNameShort());
 	}
 	
 	@Override
 	public void setDisplayedName(I18nString displayedName)
 	{
-		displayedNameSet = !toString().equals(displayedName.getDefaultValue()) ||
-				!displayedName.getMap().isEmpty();
+		displayedNameSet = !displayedName.isEmpty() && 
+				!toString().equals(displayedName.getDefaultValue());
 		super.setDisplayedName(displayedName);
+	}
+	
+	/**
+	 * @return last component of the group path
+	 */
+	public String getNameShort()
+	{
+		return path.length == 0 ? "/" : path[path.length-1];
 	}
 	
 	@Override
@@ -294,9 +302,7 @@ public class Group extends I18nDescribedObject implements NamedObject
 	{
 		setDescription(I18nStringJsonUtil.fromJson(main.get("i18nDescription"),
 				main.get("description")));
-		setDisplayedName(main.has("displayedName") ? 
-				I18nStringJsonUtil.fromJson(main.get("displayedName")) : 
-					new I18nString(toString()));
+		setDisplayedName(I18nStringJsonUtil.fromJson(main.get("displayedName")));
 		
 		ArrayNode jsonStatements = (ArrayNode) main.get("attributeStatements");
 		int asLen = jsonStatements.size();

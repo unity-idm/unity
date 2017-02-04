@@ -31,6 +31,7 @@ public abstract class TranslationProfileInstance<T extends TranslationActionInst
 	private static final Logger log = Log.getLogger(Log.U_SERVER, TranslationActionInstance.class);
 	protected List<R> ruleInstances;
 	protected TranslationProfile profile;
+	protected boolean hasInvalidActions;
 	
 	public TranslationProfileInstance(TranslationProfile profile, 
 			TypesRegistryBase<? extends TranslationActionFactory<T>> registry)
@@ -80,10 +81,25 @@ public abstract class TranslationProfileInstance<T extends TranslationActionInst
 					+ "Fix the action definition. This problem can occur after system "
 					+ "reconfiguration when action definition becomes obsolete "
 					+ "(e.g. using not existing attribute)", e);
+			hasInvalidActions = true;
 			return fact.getBlindInstance(parameters);
 		}
 	}
 	
+	public TranslationProfile getProfile()
+	{
+		return profile;
+	}
+
+	/**
+	 * 
+	 * @return if true then some of the actions were not loaded properly.
+	 */
+	public boolean hasInvalidActions()
+	{
+		return hasInvalidActions;
+	}
+
 	/**
 	 * Must return a correct instance of a rule. Should check if the action is of proper type.
 	 * @param action

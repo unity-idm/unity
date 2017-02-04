@@ -20,7 +20,6 @@ import pl.edu.icm.unity.types.registration.UserRequestState;
  */
 public interface FormAutomationSupport
 {
-
 	AutomaticRequestAction getAutoProcessAction(UserRequestState<? extends BaseRegistrationInput> request,
 			RequestSubmitStatus status);
 
@@ -37,5 +36,4 @@ public interface FormAutomationSupport
 
 	String getPostConfirmationRedirectURL(UserRequestState<?> request,
 			Attribute confirmed, String requestId);
-
 }

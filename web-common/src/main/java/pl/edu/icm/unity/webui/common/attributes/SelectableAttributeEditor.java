@@ -61,6 +61,9 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 	
 	public void setInitialAttribute(Attribute initial)
 	{
+		@SuppressWarnings("unchecked")
+		AttributeValueSyntax<Object> syntax = (AttributeValueSyntax<Object>) 
+				registry.getaTypeSupport().getSyntax(initial);
 		attributeSel.setValue(initial.getName());
 		if (groupSel != null)
 			groupSel.setValue(initial.getGroupPath());
@@ -70,8 +73,9 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 		String baseLabel = initial.getName();
 		for (int i=0; i<initial.getValues().size(); i++)
 		{
-			String label = baseLabel + ((initial.getValues().size() > 1) ? " (" + (i+1) + "):" : ""); 
-			labelledValues.add(new LabelledValue(initial.getValues().get(i), label));
+			String label = baseLabel + ((initial.getValues().size() > 1) ? " (" + (i+1) + "):" : "");
+			String rawValue = initial.getValues().get(i);
+			labelledValues.add(new LabelledValue(syntax.convertFromString(rawValue), label));
 		}
 		valuesComponent.setEntries(labelledValues);
 	}

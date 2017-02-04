@@ -7,7 +7,6 @@ package pl.edu.icm.unity.stdext.utils;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -104,7 +103,7 @@ public class InitializerCommon
 	
 	public void initializeCommonAttributeTypes() throws EngineException
 	{
-		Set<AttributeType> existingATs = new HashSet<>(aTypeMan.getAttributeTypes());
+		Map<String, AttributeType> existingATs = aTypeMan.getAttributeTypesAsMap();
 		
 		AttributeType userPicture = new AttributeType(JPEG_ATTR, JpegImageAttributeSyntax.ID, msg);
 		JpegImageAttributeSyntax jpegSyntax = new JpegImageAttributeSyntax();
@@ -113,7 +112,8 @@ public class InitializerCommon
 		jpegSyntax.setMaxHeight(120);
 		userPicture.setMinElements(1);
 		userPicture.setValueSyntaxConfiguration(jpegSyntax.getSerializedConfiguration());
-		if (!existingATs.contains(userPicture))
+		
+		if (!existingATs.containsKey(JPEG_ATTR))
 			aTypeMan.addAttributeType(userPicture);
 
 		AttributeType cn = new AttributeType(CN_ATTR, StringAttributeSyntax.ID, msg);
@@ -123,7 +123,7 @@ public class InitializerCommon
 		cnSyntax.setMinLength(2);
 		cn.setValueSyntaxConfiguration(cnSyntax.getSerializedConfiguration());
 		cn.getMetadata().put(EntityNameMetadataProvider.NAME, "");
-		if (!existingATs.contains(cn))
+		if (!existingATs.containsKey(CN_ATTR))
 			aTypeMan.addAttributeType(cn);
 
 		AttributeType org = new AttributeType(ORG_ATTR, StringAttributeSyntax.ID, msg);
@@ -133,7 +133,7 @@ public class InitializerCommon
 		orgSyntax.setMaxLength(33);
 		orgSyntax.setMinLength(2);
 		org.setValueSyntaxConfiguration(orgSyntax.getSerializedConfiguration());
-		if (!existingATs.contains(org))
+		if (!existingATs.containsKey(ORG_ATTR))
 			aTypeMan.addAttributeType(org);
 
 		AttributeType verifiableEmail = new AttributeType(EMAIL_ATTR, 
@@ -142,10 +142,8 @@ public class InitializerCommon
 		verifiableEmail.setMaxElements(5);
 		verifiableEmail.getMetadata().put(ContactEmailMetadataProvider.NAME, "");
 		
-		if (!existingATs.contains(verifiableEmail))
+		if (!existingATs.containsKey(EMAIL_ATTR))
 			aTypeMan.addAttributeType(verifiableEmail);
-		
-		
 	}
 	
 	public void assignCnToAdmin() throws EngineException

@@ -51,4 +51,17 @@ public class AttributeTypeSupportImpl implements AttributeTypeSupport
 	{
 		return aTypeHelper.getAttributeTypes();
 	}
+
+	@Override
+	public AttributeValueSyntax<?> getSyntaxFallingBackToDefault(Attribute attribute)
+	{
+		try
+		{
+			AttributeType aType = getType(attribute);
+			return aTypeHelper.getSyntax(aType);
+		} catch (Exception e)
+		{
+			return aTypeHelper.getUnconfiguredSyntax(attribute.getValueSyntax());
+		}
+	}
 }

@@ -163,7 +163,6 @@ public class SessionManagementImpl implements SessionManagement
 	@Transactional
 	@Override
 	public void updateSessionAttributes(String id, AttributeUpdater updater) 
-			throws WrongArgumentException
 	{
 		Token token = tokensManagement.getTokenById(SESSION_TOKEN_TYPE, id);
 		LoginSession session = token2session(token);
@@ -190,7 +189,7 @@ public class SessionManagementImpl implements SessionManagement
 	}
 
 	@Override
-	public LoginSession getSession(String id) throws WrongArgumentException
+	public LoginSession getSession(String id)
 	{
 		Token token = tokensManagement.getTokenById(SESSION_TOKEN_TYPE, id);
 		return token2session(token);
@@ -223,7 +222,7 @@ public class SessionManagementImpl implements SessionManagement
 	
 	@Override
 	@Transactional
-	public void updateSessionActivity(String id) throws WrongArgumentException
+	public void updateSessionActivity(String id)
 	{
 		Long lastWrite = recentUsageUpdates.get(id);
 		if (lastWrite != null)
@@ -252,7 +251,7 @@ public class SessionManagementImpl implements SessionManagement
 					new SessionParticipants.AddParticipantToSessionTask(participantTypesRegistry,
 					participant); 
 			updateSessionAttributes(ls.getId(), addTask);
-		} catch (WrongArgumentException e)
+		} catch (IllegalArgumentException e)
 		{
 			throw new InternalException("Can not add session participant to the existing session?", e);
 		}

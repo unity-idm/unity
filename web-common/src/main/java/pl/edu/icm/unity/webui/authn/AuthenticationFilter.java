@@ -31,7 +31,6 @@ import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.webui.CookieHelper;
 
@@ -104,7 +103,7 @@ public class AuthenticationFilter implements Filter
 						}
 						gotoProtectedResource(httpRequest, response, chain);
 						return;
-					} catch (WrongArgumentException e)
+					} catch (IllegalArgumentException e)
 					{
 						log.debug("Can't update session activity ts for " + loginSessionId + 
 							" - expired(?), HTTP session " + httpSession.getId(), e);
@@ -139,7 +138,7 @@ public class AuthenticationFilter implements Filter
 		try
 		{
 			ls = sessionMan.getSession(loginSessionId);
-		} catch (WrongArgumentException e)
+		} catch (IllegalArgumentException e)
 		{
 			log.trace("Got request with invalid login session id " + loginSessionId + " to " +
 					httpRequest.getRequestURI() );

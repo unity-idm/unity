@@ -386,9 +386,10 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		addToAttribute(entityId, EnquiryAttributeTypesProvider.IGNORED_ENQUIRES, enquiryId);
 	}
 
+	@Transactional
 	@Override
 	public FormAutomationSupport getFormAutomationSupport(EnquiryForm form)
 	{
-		return confirmationsSupport.getEnquiryProfile(form);
+		return confirmationsSupport.getEnquiryFormAutomationSupport(form);
 	}
 }

@@ -76,7 +76,7 @@ public class TranslationInput
 	@Override
 	public String toString()
 	{
-		return requester + " - eId: " + entity;
+		return requester + " - eId: " + entity.getId();
 	}
 
 	/**

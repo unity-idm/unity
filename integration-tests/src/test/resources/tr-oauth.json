@@ -28,7 +28,6 @@
 					"cn",
 					"/",
 					"attr['cn']",
-					"full",
 					"CREATE_OR_UPDATE"
 				]
 			}			

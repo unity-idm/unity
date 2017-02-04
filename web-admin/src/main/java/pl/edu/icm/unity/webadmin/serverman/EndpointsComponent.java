@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.webadmin.serverman;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -143,7 +143,7 @@ public class EndpointsComponent extends VerticalLayout
 			return;
 		}
 
-		List<String> existing = new ArrayList<>();
+		Set<String> existing = new HashSet<>();
 		for (ResolvedEndpoint endpointDesc : endpoints)
 		{
 			endpointComponents.put(endpointDesc.getName(), endpointComponentFactory.getObject().init(

@@ -76,5 +76,13 @@
 	<bean class="pl.edu.icm.unity.engine.forms.enquiry.EnquiryManagementImpl">
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
-	</bean>		
+	</bean>
+	<bean class="pl.edu.icm.unity.engine.forms.InvitationManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean class="pl.edu.icm.unity.engine.confirmation.ConfirmationConfigurationManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>			
 </beans>

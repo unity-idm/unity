@@ -40,7 +40,6 @@
 					"cn",
 					"/A",
 					"attr['cn']",
-					"full",
 					"CREATE_OR_UPDATE"
 				]
 			}			

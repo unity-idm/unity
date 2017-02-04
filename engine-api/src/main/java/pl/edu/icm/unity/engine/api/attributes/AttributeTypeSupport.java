@@ -27,7 +27,16 @@ public interface AttributeTypeSupport
 	 * @return a configured attribute syntax for the given attribute name
 	 */
 	AttributeValueSyntax<?> getSyntax(Attribute attribute);
-
+	
+	/**
+	 * As {@link #getSyntax(Attribute)} but this method returns a syntax with default configuration
+	 * for the given attribute if there is no attribute type recorded in the system.
+	 * 
+	 * @param attribute
+	 * @return a configured attribute syntax for the given attribute name
+	 */
+	AttributeValueSyntax<?> getSyntaxFallingBackToDefault(Attribute attribute);
+	
 	/**
 	 * 
 	 * @param attribute

@@ -44,9 +44,9 @@ public class TreeNode
 		} else
 		{
 			this.name = group.getDisplayedNameShort().getValue(msg);
-			String realName = group.getName();
-			if (!realName.equals(name))
-				this.name = name + " (" + realName + ")";
+			String realshortName = group.getNameShort();
+			if (!realshortName.equals(name))
+				this.name = name + " (" + realshortName + ")";
 		}
 	}
 	

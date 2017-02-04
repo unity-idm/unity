@@ -53,12 +53,13 @@ public class ValuesRendererPanel extends VerticalLayout
 		removeAllComponents();
 	}
 	
-	public void setValues(WebAttributeHandler<?> handler, AttributeExt a)
+	public <T> void setValues(WebAttributeHandler<T> handler, AttributeExt a)
 	{
 		removeValues();
 		buildInfoView(a);
-		List<?> values = a.getValues();
-		AttributeValueSyntax<?> syntax = atSupport.getSyntax(a);
+		List<String> values = a.getValues();
+		@SuppressWarnings("unchecked")
+		AttributeValueSyntax<T> syntax = (AttributeValueSyntax<T>) atSupport.getSyntax(a);
 		if (values.size() > 1)
 			buildMultiValueView(handler, syntax, values);
 		else if (values.size() == 1)
@@ -123,11 +124,11 @@ public class ValuesRendererPanel extends VerticalLayout
 		setExpandRatio(main, 1);
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void buildSingleValueView(WebAttributeHandler handler, AttributeValueSyntax<?> syntax, 
-			Object value)
+	private <T> void buildSingleValueView(WebAttributeHandler<T> handler, AttributeValueSyntax<T> syntax, 
+			String value)
 	{
-		Component c = handler.getRepresentation(value, syntax, RepresentationSize.ORIGINAL);
+		Component c = handler.getRepresentation(syntax.convertFromString(value), 
+				syntax, RepresentationSize.ORIGINAL);
 		c.setSizeUndefined();
 		SafePanel valuePanel = new SafePanel(msg.getMessage("Attribute.value"));
 		valuePanel.addStyleName(Styles.vPanelLight.toString());

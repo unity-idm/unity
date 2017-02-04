@@ -57,14 +57,13 @@ public class EndpointComponent extends DeployableComponentViewBase
 		super(config, serverMan, msg);
 		this.endpointMan = endpointMan;
 		this.networkServer = networkServer;
-		initUI();
 	}
 
 	public EndpointComponent init(ResolvedEndpoint endpoint)
 	{
 		this.endpoint = endpoint;
+		this.name = endpoint.getName();
 		setStatus(Status.deployed);
-		initUI();
 		return this;
 	}
 	
@@ -72,7 +71,6 @@ public class EndpointComponent extends DeployableComponentViewBase
 	{
 		this.name = name;
 		setStatus(Status.undeployed);
-		initUI();
 		return this;
 	}
 	
@@ -231,11 +229,13 @@ public class EndpointComponent extends DeployableComponentViewBase
 		return true;
 	}
 
+	@Override
 	protected void updateHeader()
 	{
 		updateHeader(getEndpointName());
 	}
 
+	@Override
 	protected void updateContent()
 	{
 		content.removeAllComponents();

@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
-import pl.edu.icm.unity.types.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.basic.Group;
 
 /**
@@ -58,8 +57,8 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 	public static ObjectNode createRootGroupContents()
 	{
 		ObjectNode main = new ObjectMapper().createObjectNode();
-		main.set("i18nDescription", I18nStringJsonUtil.toJson(null));
-		main.set("displayedName", I18nStringJsonUtil.toJson(null));
+		main.set("i18nDescription", null);
+		main.set("displayedName", null);
 		main.putArray("attributeStatements");
 		main.putArray("attributesClasses");
 		return main;
