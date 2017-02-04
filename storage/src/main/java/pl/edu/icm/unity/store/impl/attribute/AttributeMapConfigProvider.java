@@ -49,6 +49,7 @@ public class AttributeMapConfigProvider implements MapConfigProvider
 	
 	public static class GroupExtractor extends ValueExtractor<StoredAttribute, Void>
 	{
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		@Override
 		public void extract(StoredAttribute target, Void argument, ValueCollector collector)
 		{
@@ -58,6 +59,7 @@ public class AttributeMapConfigProvider implements MapConfigProvider
 
 	public static class NameExtractor extends ValueExtractor<StoredAttribute, Void>
 	{
+		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@Override
 		public void extract(StoredAttribute target, Void argument, ValueCollector collector)
 		{

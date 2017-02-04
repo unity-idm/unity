@@ -4,10 +4,12 @@
  */
 package pl.edu.icm.unity.store.hz;
 
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assume;
@@ -53,10 +55,18 @@ public class HzRDBMSFlushTest
 	@Test
 	public void shouldRestoreStoredObjects()
 	{
-		IdentityType idType = getIdentityType("idType");
-		tx.runInTransaction(() -> {
-			idTypeDAO.create(idType);
-		});
+		final int NUM = 100;
+		List<IdentityType> idTypes =  new ArrayList<>(); 
+		for (int i=0; i<NUM; i++)
+			idTypes.add(getIdentityType("idType" + i));
+		for (int i=0; i<NUM; i++)
+		{
+			IdentityType identityType = idTypes.get(i);
+			tx.runInTransaction(() -> {
+				idTypeDAO.create(identityType);
+			});
+			try { Thread.sleep(10); } catch (InterruptedException e) {}
+		}
 
 		tx.runInTransaction(() -> {
 			hzLoader.reloadHzFromRDBMS();
@@ -65,8 +75,9 @@ public class HzRDBMSFlushTest
 		tx.runInTransaction(() -> {
 			List<IdentityType> all = idTypeDAO.getAll();
 			assertThat(all, is(notNullValue()));
-			assertThat(all.size(), is(1));
-			assertThat(all.get(0), is(idType));
+			assertThat(all.size(), is(NUM));
+			for (int i=0; i<NUM; i++)
+				assertThat(all, hasItem(idTypes.get(i)));
 		});
 	}
 	

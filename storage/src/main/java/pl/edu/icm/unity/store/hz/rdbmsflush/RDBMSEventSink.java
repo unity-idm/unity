@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import com.hazelcast.core.HazelcastException;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import com.hazelcast.core.ILock;
 import com.hazelcast.core.TransactionalQueue;
 import com.hazelcast.transaction.TransactionContext;
@@ -62,21 +63,24 @@ public class RDBMSEventSink
 		flushThread = new Thread();
 	}
 	
-	public void start()
+	public synchronized void start()
 	{
+		log.info("Starting flush thread");
 		if (working.get())
 			throw new IllegalStateException("Can not start events sink while it is already started");
+		
 		stopped.set(false);
+		working.set(true);
 		latch = new CountDownLatch(1);
 		flushThread = new Thread(() -> awaitAndConsume(), "Hazelcast to RDBMS flush");
 		flushThread.start();
 	}
 	
-	public void stop()
+	public synchronized void stop()
 	{
 		log.info("Stopping flush thread");
 		stopped.set(true);
-		flushThread.interrupt();
+		
 		while (working.get())
 		{
 			try
@@ -93,7 +97,6 @@ public class RDBMSEventSink
 	{
 		ILock lock = hzInstance.getLock(RDBMS_EVENTS_CONSUMER_LOCK);
 		lock.lock();
-		working.set(true);
 		log.info("This member was chosen as the RDBMS flush process");
 		try
 		{
@@ -152,17 +155,21 @@ public class RDBMSEventSink
 			TransactionalQueue<RDBMSEventsBatch> queue = hzContext.getQueue(RDBMS_EVENTS_QUEUE);
 			
 			RDBMSEventsBatch batch = null;
-			while(batch == null && !stopped.get())
+			do
 			{
 				try
 				{
-					batch = queue.poll(2, TimeUnit.SECONDS);
+					batch = queue.poll(250, TimeUnit.MILLISECONDS);
 				} catch (HazelcastException | InterruptedException e)
 				{
 					log.debug("Got Interrupt");
 					return queue.size() > 0;
+				} catch (HazelcastInstanceNotActiveException e)
+				{
+					log.debug("Hazelcast instance was shut down, exiting");
+					return false;
 				}
-			}
+			} while (batch == null && !stopped.get());
 			if (batch != null)
 				processSingleBatch(batch);
 			return queue.size() > 0;
@@ -176,6 +183,7 @@ public class RDBMSEventSink
 			for (RDBMSMutationEvent event : batch.getEvents())
 				rdbmsProcessor.apply(event, SQLTransactionTL.getSql());
 		});
+		log.trace("RDBMS events batch was flushed");
 	}
 }
 

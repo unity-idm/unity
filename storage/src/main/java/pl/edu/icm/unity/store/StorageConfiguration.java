@@ -124,6 +124,9 @@ public class StorageConfiguration extends PropertiesHelper
 			String path = "/testDBConfigs/" + alternativeDB + ".conf";
 			log.info("Loading alternative DB config from classpath resource " + path);
 			is = StorageConfiguration.class.getResourceAsStream(path);
+			if (is == null)
+				throw new ConfigurationException("Cannot load alternative "
+						+ "DB config - no resource " + path);
 		}
 
 		try
