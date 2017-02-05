@@ -4,10 +4,12 @@
  */
 package pl.edu.icm.unity.store.hz.rdbmsflush;
 
+import java.util.LinkedList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -17,6 +19,7 @@ import com.hazelcast.core.HazelcastException;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import com.hazelcast.core.ILock;
+import com.hazelcast.core.LifecycleEvent;
 import com.hazelcast.core.TransactionalQueue;
 import com.hazelcast.transaction.TransactionContext;
 
@@ -45,26 +48,31 @@ public class RDBMSEventSink
 	public static final String INNER_WAIT_LOCK = "rdbmsEventsConsumerInnerLock";
 	public static final String INNER_WAIT_CONDITION = "rdbmsEventsConsumerInnerCondition";
 
-	@Autowired
 	private HazelcastInstance hzInstance;
-	@Autowired @Qualifier(HzTransactionalRunner.NAME)
 	private TransactionalRunner hztx;
-	@Autowired @Qualifier(SQLTransactionalRunner.NAME)
 	private TransactionalRunner rdbmsTx;
-	@Autowired
 	private RDBMSMutationEventProcessor rdbmsProcessor;
 
 	private volatile AtomicBoolean stopped = new AtomicBoolean(false);
 	private volatile CountDownLatch latch = new CountDownLatch(0);
 	private volatile AtomicBoolean working = new AtomicBoolean(false);
 	private Thread flushThread;
+	private LinkedList<Exception> asyncProblems = new LinkedList<>();
 
 	@Autowired
-	public RDBMSEventSink(StorageConfiguration systemCfg)
+	public RDBMSEventSink(StorageConfiguration systemCfg, HazelcastInstance hzInstance,
+			@Qualifier(HzTransactionalRunner.NAME) TransactionalRunner hztx, 
+			@Qualifier(SQLTransactionalRunner.NAME) TransactionalRunner rdbmsTx,
+			RDBMSMutationEventProcessor rdbmsProcessor)
 	{
+		this.hzInstance = hzInstance;
+		this.hztx = hztx;
+		this.rdbmsTx = rdbmsTx;
+		this.rdbmsProcessor = rdbmsProcessor;
 		if (systemCfg.getEnumValue(StorageConfiguration.ENGINE, StorageEngine.class) == 
 				StorageEngine.hz)
 		{
+			hzInstance.getLifecycleService().addLifecycleListener(this::onShutdown);
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> stop()));
 			flushThread = new Thread();
 		}
@@ -83,6 +91,12 @@ public class RDBMSEventSink
 		flushThread.start();
 	}
 	
+	private void onShutdown(LifecycleEvent event)
+	{
+		if (event.getState() == LifecycleEvent.LifecycleState.SHUTTING_DOWN)
+			stop();
+	}
+	
 	public synchronized void stop()
 	{
 		log.info("Stopping flush thread");
@@ -98,6 +112,13 @@ public class RDBMSEventSink
 			} catch (InterruptedException e) {}
 		}
 		log.debug("Flush thread termiantion await finished");
+		if (!asyncProblems.isEmpty())
+		{
+			log.error("There where {} problems during flush", asyncProblems.size());
+			Exception firstCause = asyncProblems.getFirst();
+			asyncProblems.clear();
+			throw new PersistenceException("RDBMS flush failed", firstCause);
+		}
 	}
 	
 	private void awaitAndConsume()
@@ -112,6 +133,10 @@ public class RDBMSEventSink
 			{
 				hasMore = processEvents();
 			} while(!stopped.get() || hasMore);
+		} catch (Exception e)
+		{
+			log.error("Exception when processing events", e);
+			asyncProblems.add(e);
 		} finally
 		{
 			log.debug("Flush thread is being stopped");
