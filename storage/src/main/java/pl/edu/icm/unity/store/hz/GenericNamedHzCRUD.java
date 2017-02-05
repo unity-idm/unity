@@ -68,7 +68,7 @@ public abstract class GenericNamedHzCRUD<T extends NamedObject> extends GenericB
 			nameMap.put(obj.getName(), id);
 		}
 		hMap.put(id, obj);
-		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, "update", obj));
+		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, "updateByKey", id, obj));
 	}
 	
 	@Override

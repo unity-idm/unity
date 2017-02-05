@@ -21,6 +21,8 @@ import com.hazelcast.core.TransactionalQueue;
 import com.hazelcast.transaction.TransactionContext;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.store.StorageConfiguration;
+import pl.edu.icm.unity.store.StorageEngine;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionalRunner;
@@ -57,10 +59,15 @@ public class RDBMSEventSink
 	private volatile AtomicBoolean working = new AtomicBoolean(false);
 	private Thread flushThread;
 
-	public RDBMSEventSink()
+	@Autowired
+	public RDBMSEventSink(StorageConfiguration systemCfg)
 	{
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> stop()));
-		flushThread = new Thread();
+		if (systemCfg.getEnumValue(StorageConfiguration.ENGINE, StorageEngine.class) == 
+				StorageEngine.hz)
+		{
+			Runtime.getRuntime().addShutdownHook(new Thread(() -> stop()));
+			flushThread = new Thread();
+		}
 	}
 	
 	public synchronized void start()
@@ -119,26 +126,6 @@ public class RDBMSEventSink
 						+ "typically this is fine as we are exiting", e);
 			}
 			log.info("This member is exiting and won't flush to RDBMS anymore");
-		}
-	}
-
-	public void consumePresentAndExit()
-	{
-		ILock lock = hzInstance.getLock(RDBMS_EVENTS_CONSUMER_LOCK);
-		lock.lock();
-		working.set(true);
-		try
-		{
-			boolean hasMore;
-			do
-			{
-				hasMore = processEvents();
-			} while(hasMore && !stopped.get());
-		} finally
-		{
-			latch.countDown();
-			working.set(false);
-			lock.unlock();
 		}
 	}
 

@@ -81,6 +81,54 @@ public class HzRDBMSFlushTest
 		});
 	}
 	
+	@Test
+	public void shouldCreateAndUpdateObject()
+	{
+		IdentityType identityType = getIdentityType("idType");
+		IdentityType identityTypeUpdated = getIdentityType("idType");
+		identityTypeUpdated.setDescription("d2");
+		tx.runInTransaction(() -> {
+			long id = idTypeDAO.create(identityType);
+			idTypeDAO.updateByKey(id, identityTypeUpdated);
+		});
+
+		tx.runInTransaction(() -> {
+			hzLoader.reloadHzFromRDBMS();
+		});
+		
+		tx.runInTransaction(() -> {
+			List<IdentityType> all = idTypeDAO.getAll();
+			assertThat(all, is(notNullValue()));
+			assertThat(all.size(), is(1));
+			assertThat(all.get(0), is(identityTypeUpdated));
+		});
+	}
+
+	//TODO add tests by name. 
+	//TODO check what happens if DB key != hz key.
+	
+	@Test
+	public void shouldCreateAndDeleteObject()
+	{
+		IdentityType identityType = getIdentityType("idType");
+		IdentityType identityTypeUpdated = getIdentityType("idType");
+		identityTypeUpdated.setDescription("d2");
+		tx.runInTransaction(() -> {
+			long id = idTypeDAO.create(identityType);
+			idTypeDAO.deleteByKey(id);
+		});
+
+		tx.runInTransaction(() -> {
+			hzLoader.reloadHzFromRDBMS();
+		});
+		
+		tx.runInTransaction(() -> {
+			List<IdentityType> all = idTypeDAO.getAll();
+			assertThat(all, is(notNullValue()));
+			assertThat(all.size(), is(0));
+		});	
+	}
+	
 	
 	protected IdentityType getIdentityType(String name)
 	{

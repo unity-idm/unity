@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.store.hz.rdbmsflush;
 
+import java.util.Arrays;
+
 /**
  * Describes RDBMS mutation.
  * @author K. Benedyczak
@@ -41,6 +43,7 @@ public class RDBMSMutationEvent
 	@Override
 	public String toString()
 	{
-		return "RDMSMutationEvent [operation=" + operation + ", dao=" + dao + "]";
+		return "RDMSMutationEvent [operation=" + operation + ", dao=" + dao + ", args=" + 
+				Arrays.toString(args) + "]";
 	}
 }

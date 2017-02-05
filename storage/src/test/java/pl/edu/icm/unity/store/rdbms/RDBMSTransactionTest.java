@@ -2,7 +2,7 @@
  * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.store.impl;
+package pl.edu.icm.unity.store.rdbms;
 
 import static com.googlecode.catchexception.CatchException.catchException;
 import static com.googlecode.catchexception.CatchException.caughtException;
@@ -16,15 +16,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.junit.After;
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.edu.icm.unity.store.StorageCleanerImpl;
+import pl.edu.icm.unity.store.StorageConfiguration;
+import pl.edu.icm.unity.store.StorageEngine;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeBean;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypesMapper;
@@ -33,7 +36,6 @@ import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionalRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
-@ActiveProfiles("test-storage-h2")
 public class RDBMSTransactionTest
 {
 	@Autowired @Qualifier(SQLTransactionalRunner.NAME)
@@ -41,6 +43,16 @@ public class RDBMSTransactionTest
 	
 	@Autowired
 	private StorageCleanerImpl initDB;
+	
+	@Autowired
+	private StorageConfiguration systemCfg;
+	
+	@Before
+	public void conditionalStart()
+	{
+		StorageEngine engine = systemCfg.getEnumValue(StorageConfiguration.ENGINE, StorageEngine.class);
+		Assume.assumeTrue(engine == StorageEngine.rdbms);
+	}
 	
 	@After
 	public void cleanDB()

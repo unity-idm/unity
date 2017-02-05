@@ -90,7 +90,7 @@ public abstract class GenericBasicHzCRUD<T> implements BasicCRUDDAO<T>, HzDAO, R
 		preUpdateCheck(old, obj);
 		firePreUpdate(id, null, obj, old);
 		hMap.put(id, obj);
-		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, "update", obj));
+		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, "updateByKey", id, obj));
 	}
 
 	/**

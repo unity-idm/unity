@@ -76,7 +76,7 @@ public class PerfTest
 		test(dao, "Hybrid", txHz);
 
 		StopWatch watch = new StopWatch();
-		rdbmsSink.consumePresentAndExit();
+		rdbmsSink.stop();
 		watch.printTotal("RDBMS flush: {0}");
 	}
 

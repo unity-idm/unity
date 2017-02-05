@@ -76,7 +76,7 @@ public class RDBMSMutationEventProcessor
 		Method method = daoM.get(event.getOperation());
 		RDBMSDAO dao = daos.get(event.getDao());
 		if (log.isTraceEnabled())
-			log.trace("Will apply event " + event + " with method " + method);
+			log.trace("Will apply event {} with method {}", event, method);
 		method.invoke(dao, event.getArgs());
 	}
 }
