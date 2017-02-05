@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.store.api.AttributeTypeDAO;
-import pl.edu.icm.unity.store.api.GroupDAO;
+import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeRDBMSStore;
+import pl.edu.icm.unity.store.impl.groups.GroupRDBMSStore;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -24,9 +24,9 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 public class AttributeRDBMSSerializer implements RDBMSObjectSerializer<StoredAttribute, AttributeBean>
 {
 	@Autowired
-	private AttributeTypeDAO atDAO;
+	private AttributeTypeRDBMSStore atDAO;
 	@Autowired
-	private GroupDAO groupDAO;
+	private GroupRDBMSStore groupDAO;
 	
 	@Override
 	public AttributeBean toDB(StoredAttribute object)

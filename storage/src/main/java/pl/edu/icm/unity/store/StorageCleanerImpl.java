@@ -46,4 +46,10 @@ public class StorageCleanerImpl implements StorageCleaner
 	{
 		storeLoaderInternal.runPostImportCleanup();
 	}
+
+	@Override
+	public void shutdown()
+	{
+		storeLoaderInternal.shutdown();
+	}
 }

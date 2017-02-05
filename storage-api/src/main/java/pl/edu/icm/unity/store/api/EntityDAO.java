@@ -14,6 +14,4 @@ public interface EntityDAO extends BasicCRUDDAO<EntityInformation>
 {
 	String DAO_ID = "EntityDAO";
 	String NAME = "entity";
-	
-	void createWithId(EntityInformation obj);
 }

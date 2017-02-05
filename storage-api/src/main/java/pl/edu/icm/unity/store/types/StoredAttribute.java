@@ -17,14 +17,22 @@ public class StoredAttribute
 
 	public StoredAttribute(AttributeExt attribute, long entityId)
 	{
-		super();
 		this.attribute = attribute;
 		this.entityId = entityId;
 	}
+	
+	public StoredAttribute(StoredAttribute toClone)
+	{
+		this.attribute = new AttributeExt(toClone.getAttribute());
+		this.entityId = toClone.getEntityId();
+	}
+	
+	
 	public AttributeExt getAttribute()
 	{
 		return attribute;
 	}
+	
 	public long getEntityId()
 	{
 		return entityId;

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.impl.StorageLimits;
+import pl.edu.icm.unity.store.rdbms.RDBMSDAO;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 
@@ -22,7 +23,7 @@ import pl.edu.icm.unity.types.basic.GroupMembership;
  * @author K. Benedyczak
  */
 @Repository(MembershipRDBMSStore.BEAN)
-public class MembershipRDBMSStore implements MembershipDAO
+public class MembershipRDBMSStore implements MembershipDAO, RDBMSDAO
 {
 	public static final String BEAN = DAO_ID + "rdbms";
 	

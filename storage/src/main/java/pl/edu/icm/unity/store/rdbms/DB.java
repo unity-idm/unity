@@ -125,4 +125,9 @@ public class DB implements StoreLoaderInternal
 	{
 		initDB.runPostImportCleanup(SQLTransactionTL.getSql());
 	}
+
+	@Override
+	public void shutdown()
+	{
+	}
 }

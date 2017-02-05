@@ -14,6 +14,8 @@ public interface BasicCRUDDAO<T>
 {	
 	long create(T obj);
 	
+	void createWithId(long id, T obj);
+	
 	void updateByKey(long id, T obj);
 
 	void deleteByKey(long id);

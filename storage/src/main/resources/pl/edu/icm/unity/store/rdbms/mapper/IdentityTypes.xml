@@ -7,6 +7,10 @@
 		INSERT INTO IDENTITY_TYPES (NAME, CONTENTS) VALUES (#{name}, #{contents})
 	</insert>
 
+	<insert id="createWithKey" parameterType="BaseB">
+		INSERT INTO IDENTITY_TYPES (ID, NAME, CONTENTS) VALUES (#{id}, #{name}, #{contents})
+	</insert>
+
 	<update id="updateByKey" parameterType="BaseB">
 		UPDATE IDENTITY_TYPES SET CONTENTS=#{contents}, NAME = #{name} WHERE ID = #{id}
 	</update>

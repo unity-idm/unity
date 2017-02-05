@@ -8,10 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import pl.edu.icm.unity.store.api.EntityDAO;
-import pl.edu.icm.unity.store.impl.StorageLimits;
 import pl.edu.icm.unity.store.rdbms.BaseBean;
 import pl.edu.icm.unity.store.rdbms.GenericRDBMSCRUD;
-import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 
 
@@ -37,14 +35,5 @@ public class EntityRDBMSStore extends GenericRDBMSCRUD<EntityInformation, BaseBe
 		long ret = super.create(obj);
 		obj.setId(ret);
 		return ret;
-	}
-
-	@Override
-	public void createWithId(EntityInformation obj)
-	{
-		EntitiesMapper mapper = SQLTransactionTL.getSql().getMapper(EntitiesMapper.class);
-		BaseBean toAdd = jsonSerializer.toDB(obj);
-		StorageLimits.checkContentsLimit(toAdd.getContents());
-		mapper.createWithKey(toAdd);
 	}
 }

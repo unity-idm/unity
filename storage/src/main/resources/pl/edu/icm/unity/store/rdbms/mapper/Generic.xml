@@ -16,6 +16,11 @@
 			VALUES (#{name}, #{contents}, #{type}, #{lastUpdate})
 	</insert>
 	
+	<insert id="createWithKey" parameterType="GenericObjectB">
+		INSERT INTO VAR_OBJECTS(ID, NAME, CONTENTS, TYPE, LAST_UPDATE) 
+			VALUES (#{id}, #{name}, #{contents}, #{type}, #{lastUpdate})
+	</insert>
+	
 	<update id="updateByKey" parameterType="GenericObjectB">
 		UPDATE VAR_OBJECTS SET CONTENTS=#{contents}, NAME = #{name}, LAST_UPDATE = #{lastUpdate}
 			WHERE ID=#{id}  

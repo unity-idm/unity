@@ -220,6 +220,17 @@ public class GenericObjectsDAOImpl<T extends NamedObject> implements NamedCRUDDA
 	}
 
 	@Override
+	public void createWithId(long id, T obj)
+	{
+		GenericObjectBean blob = handler.toBlob(obj);
+		blob.setLastUpdate(new Date());
+		if (exists(obj.getName()))
+			throw new IllegalArgumentException("The [" + obj.getName() + "] " + objectName +
+					" already exists");
+		dbGeneric.createWithId(id, blob);
+	}
+	
+	@Override
 	public void deleteByKey(long id)
 	{
 		dbGeneric.deleteByKey(id);

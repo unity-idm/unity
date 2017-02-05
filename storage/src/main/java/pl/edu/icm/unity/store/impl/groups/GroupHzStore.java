@@ -68,7 +68,7 @@ public class GroupHzStore extends GenericNamedHzCRUD<Group> implements GroupDAOI
 				nameMap.put(updatedPath, key);
 
 				gb.setPath(updatedPath);
-				super.updateByKey(key, gb);
+				super.updateByKey(key, gb, false);
 			}
 		}
 	}

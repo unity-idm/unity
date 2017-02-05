@@ -54,6 +54,11 @@ public abstract class GenericNamedHzCRUD<T extends NamedObject> extends GenericB
 	@Override
 	public void updateByKey(long id, T obj)
 	{
+		updateByKey(id, obj, true);
+	}
+
+	protected void updateByKey(long id, T obj, boolean fireEvent)
+	{
 		TransactionalMap<Long, T> hMap = getMap();
 		T old = hMap.get(id);
 		if (old == null)
@@ -68,7 +73,9 @@ public abstract class GenericNamedHzCRUD<T extends NamedObject> extends GenericB
 			nameMap.put(obj.getName(), id);
 		}
 		hMap.put(id, obj);
-		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, "updateByKey", id, obj));
+		if (fireEvent)
+			HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(
+					rdbmsCounterpartDaoName, "updateByKey", id, obj));
 	}
 	
 	@Override
@@ -142,7 +149,7 @@ public abstract class GenericNamedHzCRUD<T extends NamedObject> extends GenericB
 	{
 		Long key = getNameMap().get(id);
 		if (key == null)
-			throw new IllegalArgumentException(name + " [" + id + "] does not exists");
+			throw new IllegalArgumentException(name + " [" + id + "] does not exist");
 		return key;
 	}
 

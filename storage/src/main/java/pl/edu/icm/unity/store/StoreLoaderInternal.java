@@ -28,4 +28,9 @@ public interface StoreLoaderInternal
 	
 	
 	void runPostImportCleanup();
+	
+	/**
+	 * Stops and cleanups the store
+	 */
+	void shutdown();
 }

@@ -16,6 +16,11 @@
 			VALUES (#{nextProcessing}, #{listenerId}, #{contents}, #{failures})
 	</insert>
 	
+	<insert id="createWithKey" parameterType="EventB">
+		INSERT INTO EVENTS_QUEUE(ID, NEXT_PROCESSING, LISTENER_ID, CONTENTS, FAILURES) 
+			VALUES (#{id}, #{nextProcessing}, #{listenerId}, #{contents}, #{failures})
+	</insert>
+	
 	<update id="updateByKey" parameterType="EventB">
 		UPDATE EVENTS_QUEUE SET NEXT_PROCESSING = #{nextProcessing}, LISTENER_ID = #{listenerId}, 
 			CONTENTS = #{contents}, FAILURES = #{failures} 

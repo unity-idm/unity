@@ -80,8 +80,9 @@ public class MembershipHzStore implements MembershipDAO, HzDAO
 			
 			Map<String, GroupMembership> entityMemberships = byEntityMap.get(e.getKey());
 			GroupMembership removed = entityMemberships.remove(oldName);
-			removed.setGroup(newValue.getName());
-			entityMemberships.put(newValue.getName(), removed);
+			GroupMembership cloned = new GroupMembership(removed);
+			cloned.setGroup(newValue.getName());
+			entityMemberships.put(newValue.getName(), cloned);
 			byEntityMap.put(e.getKey(), entityMemberships);
 		}
 		byGroupMap.put(newValue.getName(), map);
@@ -103,7 +104,7 @@ public class MembershipHzStore implements MembershipDAO, HzDAO
 		if (toRemove == null)
 			return;
 		for (GroupMembership gm: toRemove.values())
-			deleteByKey(gm.getEntityId(), gm.getGroup());
+			deleteByKeyHzOnly(gm.getEntityId(), gm.getGroup());
 	}
 	
 	@Override
@@ -115,19 +116,25 @@ public class MembershipHzStore implements MembershipDAO, HzDAO
 		{
 			List<GroupMembership> all = rdbmsStore.getMembers(group.getName());
 			for (GroupMembership element: all)
-				create(element);
+				createHZOnly(element);
 		}
+		log.info("Loaded {} group memberships from persistent storage", allGroups.size());
 	}
 
 	@Override
 	public void create(GroupMembership obj)
 	{
-		createByEntity(obj);
-		createByGroup(obj);
+		createHZOnly(obj);
 		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(
-				RDBMS_DAO_NAME, "create", obj));
+				RDBMS_DAO_NAME, "create", new GroupMembership(obj)));
 	}
 
+	public void createHZOnly(GroupMembership obj)
+	{
+		createByEntity(obj);
+		createByGroup(obj);
+	}
+	
 	private void createByEntity(GroupMembership obj)
 	{
 		TransactionalMap<Long, Map<String, GroupMembership>> mapByEntity = getByEntityMap();
@@ -153,12 +160,17 @@ public class MembershipHzStore implements MembershipDAO, HzDAO
 	@Override
 	public void deleteByKey(long entityId, String group)
 	{
-		removeFromEntitesMap(entityId, group);
-		removeFromGroupsMap(entityId, group);
+		deleteByKeyHzOnly(entityId, group);
 		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(
 				RDBMS_DAO_NAME, "deleteByKey", entityId, group));
 	}
 
+	public void deleteByKeyHzOnly(long entityId, String group)
+	{
+		removeFromEntitesMap(entityId, group);
+		removeFromGroupsMap(entityId, group);
+	}
+	
 	private void removeFromEntitesMap(long entityId, String group)
 	{
 		TransactionalMap<Long, Map<String, GroupMembership>> mapByEntity = getByEntityMap();

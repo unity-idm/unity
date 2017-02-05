@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -25,6 +26,8 @@ import pl.edu.icm.unity.store.StorageConfiguration;
 import pl.edu.icm.unity.store.StorageEngine;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.store.impl.identitytype.IdentityTypeRDBMSStore;
+import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionalRunner;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -35,6 +38,10 @@ public class HzRDBMSFlushTest
 	protected StorageCleanerImpl dbCleaner;
 	@Autowired
 	private IdentityTypeDAO idTypeDAO;
+	@Autowired
+	private IdentityTypeRDBMSStore idTypeRDBMSDAO;
+	@Autowired @Qualifier(SQLTransactionalRunner.NAME)
+	private TransactionalRunner rdbmsTx;
 	@Autowired
 	protected TransactionalRunner tx;
 	@Autowired
@@ -50,6 +57,16 @@ public class HzRDBMSFlushTest
 		Assume.assumeTrue(engine == StorageEngine.hz);
 		
 		dbCleaner.reset();
+		
+		
+		//let's mess with the RDBMS primary keys for the table which will be used during tests.
+		rdbmsTx.runInTransaction(() -> {
+			IdentityType tst1 = getIdentityType("tst1");
+			IdentityType tst2 = getIdentityType("tst2");
+			idTypeRDBMSDAO.create(tst1);
+			idTypeRDBMSDAO.create(tst2);
+			idTypeRDBMSDAO.deleteAll();
+		});
 	}
 
 	@Test
@@ -104,9 +121,6 @@ public class HzRDBMSFlushTest
 		});
 	}
 
-	//TODO add tests by name. 
-	//TODO check what happens if DB key != hz key.
-	
 	@Test
 	public void shouldCreateAndDeleteObject()
 	{
@@ -129,6 +143,51 @@ public class HzRDBMSFlushTest
 		});	
 	}
 	
+
+	@Test
+	public void shouldCreateAndDeleteObjectByName()
+	{
+		IdentityType identityType = getIdentityType("idType");
+		IdentityType identityTypeUpdated = getIdentityType("idType");
+		identityTypeUpdated.setDescription("d2");
+		tx.runInTransaction(() -> {
+			idTypeDAO.create(identityType);
+			idTypeDAO.delete(identityType.getName());
+		});
+
+		tx.runInTransaction(() -> {
+			hzLoader.reloadHzFromRDBMS();
+		});
+		
+		tx.runInTransaction(() -> {
+			List<IdentityType> all = idTypeDAO.getAll();
+			assertThat(all, is(notNullValue()));
+			assertThat(all.size(), is(0));
+		});	
+	}
+
+	@Test
+	public void shouldCreateAndUpdateObjectByName()
+	{
+		IdentityType identityType = getIdentityType("idType");
+		IdentityType identityTypeUpdated = getIdentityType("idType");
+		identityTypeUpdated.setDescription("d2");
+		tx.runInTransaction(() -> {
+			idTypeDAO.create(identityType);
+			idTypeDAO.update(identityTypeUpdated);
+		});
+
+		tx.runInTransaction(() -> {
+			hzLoader.reloadHzFromRDBMS();
+		});
+		
+		tx.runInTransaction(() -> {
+			List<IdentityType> all = idTypeDAO.getAll();
+			assertThat(all, is(notNullValue()));
+			assertThat(all.size(), is(1));
+			assertThat(all.get(0), is(identityTypeUpdated));
+		});
+	}
 	
 	protected IdentityType getIdentityType(String name)
 	{

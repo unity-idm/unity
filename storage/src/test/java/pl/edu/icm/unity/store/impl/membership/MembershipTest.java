@@ -13,6 +13,7 @@ import static org.junit.Assert.assertThat;
 import java.util.Date;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,11 +57,16 @@ public class MembershipTest
 	public void cleanDB()
 	{
 		dbCleaner.reset();
+		createReferenced();
 	}
 
+	@After
+	public void shutdown()
+	{
+		dbCleaner.shutdown();
+	}
 	
-	@Before
-	public void createReferenced()
+	private void createReferenced()
 	{
 		tx.runInTransaction(() -> {
 			entity = entDao.create(new EntityInformation());

@@ -15,6 +15,11 @@
 			VALUES (#{name}, #{contents}, #{typeId}, #{entityId})
 	</insert>
 	
+	<insert id="createWithKey" parameterType="IdentityB">
+		INSERT INTO IDENTITIES (ID, NAME, CONTENTS, TYPE_ID, ENTITY_ID) 
+			VALUES (#{id}, #{name}, #{contents}, #{typeId}, #{entityId})
+	</insert>
+	
 	<update id="updateByKey" parameterType="IdentityB">
 		UPDATE IDENTITIES SET CONTENTS = #{contents}, ENTITY_ID = #{entityId} WHERE ID = #{id}
 	</update>

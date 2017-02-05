@@ -13,5 +13,4 @@ import pl.edu.icm.unity.store.rdbms.BasicCRUDMapper;
  */
 public interface EntitiesMapper extends BasicCRUDMapper<BaseBean>
 {
-	void createWithKey(BaseBean arg);
 }

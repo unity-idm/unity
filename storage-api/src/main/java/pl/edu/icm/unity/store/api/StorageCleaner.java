@@ -26,4 +26,9 @@ public interface StorageCleaner
 	 * performs additional cleanup needed for some DBs (currently only PSQL).
 	 */
 	void runPostImportCleanup();
+	
+	/**
+	 * Manual shutdown of the store
+	 */
+	void shutdown();
 }

@@ -6,6 +6,10 @@
 		INSERT INTO ENTITIES (CONTENTS) VALUES (#{contents})
 	</insert>
 	
+	<insert id="createWithKey" parameterType="BaseB">
+		INSERT INTO ENTITIES (ID, CONTENTS) VALUES (#{id}, #{contents})
+	</insert>
+	
 	<update id="updateByKey" parameterType="BaseB">
 		UPDATE ENTITIES SET CONTENTS = #{contents} WHERE ID = #{id}
 	</update>	
@@ -25,12 +29,4 @@
 	<delete id="deleteAll">
 		DELETE FROM ENTITIES
 	</delete>
-
-
-
-	<!-- non standard -->
-
-	<insert id="createWithKey" parameterType="BaseB">
-		INSERT INTO ENTITIES (ID, CONTENTS) VALUES (#{id}, #{contents})
-	</insert>
 </mapper>

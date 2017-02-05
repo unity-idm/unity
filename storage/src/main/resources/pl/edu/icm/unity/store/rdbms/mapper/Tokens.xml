@@ -18,6 +18,11 @@
 			VALUES (#{name}, #{contents}, #{type}, #{owner}, #{created}, #{expires})
 	</insert>
 
+	<insert id="createWithKey" parameterType="TokenB">
+		INSERT INTO TOKENS(ID, NAME, CONTENTS, TYPE, ENTITY_ID, CREATED, EXPIRES) 
+			VALUES (#{id}, #{name}, #{contents}, #{type}, #{owner}, #{created}, #{expires})
+	</insert>
+	
 	<update id="updateByKey" parameterType="TokenB">
 		UPDATE TOKENS SET EXPIRES=#{expires}, CONTENTS=#{contents} WHERE ID=#{id}  
 	</update>

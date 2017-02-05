@@ -56,15 +56,16 @@ public class EntityHzStore extends GenericBasicHzCRUD<EntityInformation> impleme
 		obj.setId(key);
 		hMap.put(key, obj);
 		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, 
-				"createWithId", obj));
+				"createWithId", key, obj));
 		return key;
 	}
 	
 	@Override
-	public void createWithId(EntityInformation obj)
+	public void createWithId(long key, EntityInformation obj)
 	{
+		obj.setId(key);
 		createNoPropagateToRDBMS(obj);
 		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, 
-				"createWithId", obj));
+				"createWithId", key, obj));
 	}
 }

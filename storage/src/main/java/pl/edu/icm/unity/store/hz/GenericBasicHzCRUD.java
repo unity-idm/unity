@@ -11,6 +11,10 @@ import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IAtomicLong;
+import com.hazelcast.core.TransactionalMap;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.ReferenceAwareDAO;
 import pl.edu.icm.unity.store.ReferenceRemovalHandler;
@@ -18,10 +22,6 @@ import pl.edu.icm.unity.store.ReferenceUpdateHandler;
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
 import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSMutationEvent;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
-
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IAtomicLong;
-import com.hazelcast.core.TransactionalMap;
 
 /**
  * Generic BasicCRUDDAO implementation on hazelcast map.
@@ -76,8 +76,22 @@ public abstract class GenericBasicHzCRUD<T> implements BasicCRUDDAO<T>, HzDAO, R
 	public long create(T obj) throws IllegalArgumentException
 	{
 		long key = createNoPropagateToRDBMS(obj);
-		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, "create", obj));
+		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, 
+				"createWithId", key, obj));
 		return key;
+	}
+	
+	@Override
+	public void createWithId(long key, T obj)
+	{
+		TransactionalMap<Long, T> hMap = getMap();
+		if (hMap.containsKey(key))
+			throw new IllegalArgumentException(name + " [" + key + "] already exists");
+		hMap.put(key, obj);
+		index.incrementAndGet();
+
+		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, 
+				"createWithId", key, obj));
 	}
 	
 	@Override
@@ -90,7 +104,8 @@ public abstract class GenericBasicHzCRUD<T> implements BasicCRUDDAO<T>, HzDAO, R
 		preUpdateCheck(old, obj);
 		firePreUpdate(id, null, obj, old);
 		hMap.put(id, obj);
-		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, "updateByKey", id, obj));
+		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, 
+				"updateByKey", id, obj));
 	}
 
 	/**
@@ -111,7 +126,9 @@ public abstract class GenericBasicHzCRUD<T> implements BasicCRUDDAO<T>, HzDAO, R
 		if (fireEvent)
 			firePreRemove(id, null, removed);
 		hMap.remove(id);
-		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, "deleteByKey", id));
+		if (fireEvent)
+			HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, 
+				"deleteByKey", id));
 		return removed;
 	}
 	

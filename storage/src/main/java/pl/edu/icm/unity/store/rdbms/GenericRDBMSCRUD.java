@@ -48,6 +48,16 @@ public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean>
 	}
 
 	@Override
+	public void createWithId(long key, T obj)
+	{
+		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);
+		DBT toAdd = jsonSerializer.toDB(obj);
+		toAdd.setId(key);
+		StorageLimits.checkContentsLimit(toAdd.getContents());
+		mapper.createWithKey(toAdd);
+	}
+	
+	@Override
 	public void updateByKey(long key, T obj)
 	{
 		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);

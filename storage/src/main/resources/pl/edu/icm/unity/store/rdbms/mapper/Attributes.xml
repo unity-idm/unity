@@ -19,6 +19,11 @@
 			VALUES (#{typeId}, #{entityId}, #{groupId}, #{values}) 
 	</insert>
 
+	<insert id="createWithKey" parameterType="AttributeB">
+		INSERT INTO ATTRIBUTES (ID, TYPE_ID, ENTITY_ID, GROUP_ID, CONTENTS) 
+			VALUES (#{id}, #{typeId}, #{entityId}, #{groupId}, #{values})  
+	</insert>
+	
 	<update id="updateByKey" parameterType="AttributeB">
 		UPDATE ATTRIBUTES SET CONTENTS = #{values} 
 			WHERE ID = #{id}

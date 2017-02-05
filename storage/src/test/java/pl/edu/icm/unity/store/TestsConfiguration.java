@@ -24,6 +24,11 @@ public class TestsConfiguration implements StoragePropertiesSource
 	private void fillH2Properties(Properties ret)
 	{
 		ret.setProperty("unityServer.storage.engine", "rdbms");
-		ret.setProperty("unityServer.storage.engine.rdbms.jdbcUrl", "jdbc:h2:file:./target/data/unitydb.bin");
+		ret.setProperty("unityServer.storage.engine.rdbms.jdbcUrl", 
+				"jdbc:h2:file:./target/data/unitydb.bin");
+
+//		ret.setProperty("unityServer.storage.engine", "hz");
+//		ret.setProperty("unityServer.storage.engine.hz.jdbcUrl", 
+//				"jdbc:h2:file:./target/data/unitydb-hz.bin");
 	}
 }

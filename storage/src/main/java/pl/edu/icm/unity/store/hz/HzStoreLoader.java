@@ -172,4 +172,10 @@ public class HzStoreLoader implements StoreLoaderInternal
 	{
 		initDB.runPostImportCleanup();
 	}
+
+	@Override
+	public void shutdown()
+	{
+		sink.stop();
+	}
 }

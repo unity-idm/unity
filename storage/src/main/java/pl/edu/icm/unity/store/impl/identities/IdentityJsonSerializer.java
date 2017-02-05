@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
+import pl.edu.icm.unity.store.impl.identitytype.IdentityTypeRDBMSStore;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.store.types.StoredIdentity;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -26,7 +26,7 @@ public class IdentityJsonSerializer implements RDBMSObjectSerializer<StoredIdent
 		JsonSerializerForKryo<StoredIdentity>
 {
 	@Autowired
-	private IdentityTypeDAO idTypeDAO;
+	private IdentityTypeRDBMSStore idTypeDAO;
 	
 	@Override
 	public StoredIdentity fromJson(ObjectNode src)

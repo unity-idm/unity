@@ -75,13 +75,17 @@ public class AttributeHzStore extends GenericBasicHzCRUD<StoredAttribute> implem
 		if (newName.equals(modifiedName))
 			return;
 
-		PredicateBuilder pBuilder = getAttributePredicate(newName, null, null);
+		PredicateBuilder pBuilder = getAttributePredicate(modifiedName, null, null);
 		TransactionalMap<Long, StoredAttribute> hMap = getMap();
-		Collection<StoredAttribute> values = hMap.values(pBuilder);
-		for (StoredAttribute sa: values)
+		Set<Long> keys = hMap.keySet(pBuilder);
+		for (Long key: keys)
 		{
-			sa.getAttribute().setName(newName);
-			updateAttribute(sa);
+			StoredAttribute sa = hMap.get(key);
+			StoredAttribute clone = new StoredAttribute(sa);
+			clone.getAttribute().setName(newName);
+			preUpdateCheck(sa, clone);
+			firePreUpdate(key, null, clone, sa);
+			hMap.put(key, clone);
 		}
 	}
 
@@ -91,18 +95,29 @@ public class AttributeHzStore extends GenericBasicHzCRUD<StoredAttribute> implem
 		if (newName.equals(modifiedName))
 			return;
 
-		PredicateBuilder pBuilder = getAttributePredicate(null, null, newName);
+		PredicateBuilder pBuilder = getAttributePredicate(null, null, modifiedName);
 		TransactionalMap<Long, StoredAttribute> hMap = getMap();
-		Collection<StoredAttribute> values = hMap.values(pBuilder);
-		for (StoredAttribute sa: values)
+		Set<Long> keys = hMap.keySet(pBuilder);
+		for (Long key: keys)
 		{
-			sa.getAttribute().setGroupPath(newName);
-			updateAttribute(sa);
+			StoredAttribute sa = hMap.get(key);
+			StoredAttribute clone = new StoredAttribute(sa);
+			clone.getAttribute().setGroupPath(newName);
+			preUpdateCheck(sa, clone);
+			firePreUpdate(key, null, clone, sa);
+			hMap.put(key, clone);
 		}
 	}
 	
 	@Override
 	public void updateAttribute(StoredAttribute a)
+	{
+		updateAttributeHZOnly(a);
+		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, 
+				"updateAttribute", a));
+	}
+
+	private void updateAttributeHZOnly(StoredAttribute a)
 	{
 		PredicateBuilder pBuilder = getAttributePredicate(a.getAttribute().getName(), 
 				a.getEntityId(), a.getAttribute().getGroupPath());
@@ -117,10 +132,8 @@ public class AttributeHzStore extends GenericBasicHzCRUD<StoredAttribute> implem
 		preUpdateCheck(old, a);
 		firePreUpdate(id, null, a, old);
 		hMap.put(id, a);
-		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, 
-				"updateAttribute", a));
 	}
-
+	
 	@Override
 	public void deleteAttribute(String attribute, long entityId, String group)
 	{

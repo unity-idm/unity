@@ -60,7 +60,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 			atDao.create(new AttributeType("attr3", "syntax"));
 		});
 	}
-	
+
 	@Test
 	public void allAttributesByNameAreReturned()
 	{
@@ -462,8 +462,9 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 			
 			List<AttributeExt> attributes = dao.getAllEntityAttributes(entityId);
 			
-			obj.getAttribute().setGroupPath("/ZZ");
-			assertAllAndOnlyAllIn(Lists.newArrayList(obj.getAttribute()), 
+			StoredAttribute clone = new StoredAttribute(obj);
+			clone.getAttribute().setGroupPath("/ZZ");
+			assertAllAndOnlyAllIn(Lists.newArrayList(clone.getAttribute()), 
 					attributes);
 		});
 	}
@@ -482,8 +483,9 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 			
 			List<AttributeExt> attributes = dao.getAllEntityAttributes(entityId);
 			
-			obj.getAttribute().setName("attrZZ");
-			assertAllAndOnlyAllIn(Lists.newArrayList(obj.getAttribute()), 
+			StoredAttribute clone = new StoredAttribute(obj);
+			clone.getAttribute().setName("attrZZ");
+			assertAllAndOnlyAllIn(Lists.newArrayList(clone.getAttribute()), 
 					attributes);
 		});
 	}

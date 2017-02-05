@@ -15,6 +15,8 @@ public interface BasicCRUDMapper<BEAN>
 {
 	long create(BEAN obj);
 	
+	void createWithKey(BEAN obj);
+	
 	void updateByKey(BEAN obj);
 
 	void deleteByKey(long key);

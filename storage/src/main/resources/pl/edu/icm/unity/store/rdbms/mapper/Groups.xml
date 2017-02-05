@@ -16,6 +16,12 @@
 			SELECT #{name} AS NAME, GROUPS.ID AS PARENT_ID, #{contents} AS CONTENTS  
 				from GROUPS where NAME = #{parentPath}
 	</insert>
+	
+	<insert id="createWithKey" parameterType="GroupB">
+		INSERT INTO GROUPS(ID, NAME, PARENT_ID, CONTENTS) 
+			SELECT #{id} AS ID, #{name} AS NAME, GROUPS.ID AS PARENT_ID, #{contents} AS CONTENTS  
+				from GROUPS where NAME = #{parentPath}
+	</insert>
 
 	<update id="updateByKey" parameterType="GroupB">
 		UPDATE GROUPS SET CONTENTS = #{contents}, NAME = #{name} WHERE ID = #{id}

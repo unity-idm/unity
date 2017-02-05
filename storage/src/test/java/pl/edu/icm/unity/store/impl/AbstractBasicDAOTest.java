@@ -17,6 +17,7 @@ import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,6 +54,13 @@ public abstract class AbstractBasicDAOTest<T>
 		
 	}
 
+	
+	@After
+	public void shutdown()
+	{
+		dbCleaner.shutdown();
+	}
+	
 	protected abstract BasicCRUDDAO<T> getDAO();
 	protected abstract T getObject(String id);
 	protected abstract T mutateObject(T src);

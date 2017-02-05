@@ -46,7 +46,7 @@ public class EntityIE extends AbstractIEBase<EntityInformation>
 	@Override
 	protected void createSingle(EntityInformation toCreate)
 	{
-		dbIds.createWithId(toCreate);
+		dbIds.createWithId(toCreate.getId(), toCreate);
 	}
 
 	@Override

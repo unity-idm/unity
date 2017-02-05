@@ -39,7 +39,16 @@ public class GroupMembership
 	{
 		this(group, entityId, creationTs, null, null);
 	}
-
+	
+	public GroupMembership(GroupMembership src)
+	{
+		this.group = src.group;
+		this.entityId = src.entityId;
+		this.creationTs = src.creationTs;
+		this.translationProfile = src.translationProfile;
+		this.remoteIdp = src.remoteIdp;
+	}
+	
 	@JsonCreator
 	public GroupMembership(ObjectNode src)
 	{

@@ -59,7 +59,7 @@ public class EntityTest extends AbstractBasicDAOTest<EntityInformation>
 		tx.runInTransaction(() -> {
 			EntityInformation obj = getObject("name1");
 			long key = obj.getId();
-			dao.createWithId(obj);
+			dao.createWithId(key, obj);
 
 			EntityInformation ret = dao.getByKey(key);
 
@@ -94,7 +94,7 @@ public class EntityTest extends AbstractBasicDAOTest<EntityInformation>
 		tx.runInTransaction(() -> {
 			EntityInformation obj = getObject("name1");
 			long key = obj.getId();
-			dao.createWithId(obj);
+			dao.createWithId(key, obj);
 
 			EntityInformation obj2 = getObject("");
 			dao.create(obj2);
