@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.store.impl.groups;
 
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -11,6 +13,8 @@ import com.hazelcast.core.TransactionalMap;
 
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.hz.GenericNamedHzCRUD;
+import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSMutationEvent;
+import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.types.basic.Group;
 
 
@@ -40,7 +44,22 @@ public class GroupHzStore extends GenericNamedHzCRUD<Group> implements GroupDAOI
 					+ "only rename is possible for " + old.getName() + 
 					" (trying to rename to " + updated.getName() + ")");
 	}
-
+	
+	@Override
+	public void deleteAll()
+	{
+		TransactionalMap<Long, Group> hMap = getMap();
+		Set<Long> keySet = hMap.keySet();
+		for (Long key: keySet)
+		{
+			Group removed = super.deleteByKeyRet(key, false);
+			getNameMap().remove(removed.getName());
+			if (removed.isTopLevel())
+				HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(
+					rdbmsCounterpartDaoName, "deleteByKey", key));
+		}
+	}
+	
 	private void cascadeParentRemoval(long id, String name)
 	{
 		TransactionalMap<String, Long> nameMap = getNameMap();

@@ -144,7 +144,7 @@ public abstract class GenericBasicHzCRUD<T> implements BasicCRUDDAO<T>, HzDAO, R
 		TransactionalMap<Long, T> hMap = getMap();
 		Set<Long> keySet = hMap.keySet();
 		for (Long key: keySet)
-			hMap.remove(key);
+			deleteByKeyRet(key, true);
 	}
 	
 	@Override

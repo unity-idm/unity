@@ -14,9 +14,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.edu.icm.unity.engine.UnityIntegrationTest;
+import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.store.api.EntityDAO;
@@ -48,10 +50,15 @@ public class EntityResolverImplTest
 
 	@Autowired
 	private IdentityTypeDAO itDAO;
-
+	
+	@Autowired
+	@Qualifier("insecure")
+	protected ServerManagement insecureServerMan;
+	
 	@Before
-	public void clean()
+	public void clean() throws Exception
 	{
+		insecureServerMan.resetDatabase();
 		tx.runInTransaction(() -> {
 			itDAO.deleteAll();
 		});

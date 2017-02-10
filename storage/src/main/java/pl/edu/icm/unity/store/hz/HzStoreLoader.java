@@ -104,7 +104,9 @@ public class HzStoreLoader implements StoreLoaderInternal
 	{
 		if (cfg.getEngine() != StorageEngine.hz)
 			return;
-		loadTransactional();
+		//in principle we should be able to simply run loadTransactional()
+		//  but during tests when spring cashes beans bit 'randomly' it is safer bet 
+		reloadHzFromRDBMSInternal();
 	}
 
 	private void loadFromPersistentStore()
@@ -148,7 +150,9 @@ public class HzStoreLoader implements StoreLoaderInternal
 	public void deleteEverything()
 	{
 		sink.stop();
-		initDB.deleteEverything();
+		rdbmstx.runInTransaction(() -> {
+			initDB.deleteEverything();
+		});
 		reloadHzFromRDBMSInternal();
 	}
 
@@ -170,7 +174,9 @@ public class HzStoreLoader implements StoreLoaderInternal
 	@Override
 	public void runPostImportCleanup()
 	{
-		initDB.runPostImportCleanup();
+		rdbmstx.runInTransaction(() -> {
+			initDB.runPostImportCleanup();
+		});
 	}
 
 	@Override

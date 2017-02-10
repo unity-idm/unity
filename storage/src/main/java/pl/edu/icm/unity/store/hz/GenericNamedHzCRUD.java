@@ -100,6 +100,20 @@ public abstract class GenericNamedHzCRUD<T extends NamedObject> extends GenericB
 	}
 	
 	@Override
+	public void deleteAll()
+	{
+		TransactionalMap<Long, T> hMap = getMap();
+		Set<Long> keySet = hMap.keySet();
+		for (Long key: keySet)
+		{
+			T removed = super.deleteByKeyRet(key, false);
+			getNameMap().remove(removed.getName());
+			HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(
+					rdbmsCounterpartDaoName, "deleteByKey", key));
+		}
+	}
+	
+	@Override
 	public T get(String id)
 	{
 		Long key = getNameMap().get(id);

@@ -33,7 +33,7 @@ import pl.edu.icm.unity.store.tx.TxPersistenceException;
 @Component(TransactionEngine.NAME_PFX + "hz")
 public class HzTransactionEngine implements TransactionEngine
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, HzTransactionEngine.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, HzTransactionEngine.class);
 	public static final long RETRY_BASE_DELAY = 50;
 	public static final long RETRY_MAX_DELAY = 200;
 	

@@ -15,9 +15,11 @@ import org.apache.http.client.methods.HttpGet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -29,6 +31,7 @@ import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.HttpClientProperties;
 import eu.unicore.util.httpclient.HttpUtils;
 import pl.edu.icm.unity.engine.UnityIntegrationTest;
+import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
@@ -43,6 +46,15 @@ public class TestJettyServer
 {
 	@Autowired
 	protected JettyServer httpServer;
+	@Autowired
+	@Qualifier("insecure")
+	protected ServerManagement insecureServerMan;
+	
+	@Before
+	public void clearDB() throws Exception
+	{
+		insecureServerMan.resetDatabase();
+	}
 	
 	@After
 	public void clear() throws EngineException
