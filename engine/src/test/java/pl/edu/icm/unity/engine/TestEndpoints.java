@@ -203,12 +203,18 @@ public class TestEndpoints extends DBIntegrationTestBase
 		
 		endpoints = endpointMan.getEndpoints();
 		assertEquals(2, endpoints.size());
-		assertEquals("endp1", endpoints.get(0).getEndpoint().getConfiguration().getDescription());
-		assertEquals("endp2", endpoints.get(1).getEndpoint().getConfiguration().getDescription());
-		assertEquals("endp1", endpoints.get(0).getEndpoint().getConfiguration().getDisplayedName().
-				getDefaultValue());
-		assertEquals("endp2", endpoints.get(1).getEndpoint().getConfiguration().getDisplayedName().
-				getDefaultValue());
+		ResolvedEndpoint re1 = endpoints.stream().filter(
+				re -> re.getEndpoint().getConfiguration().getDescription().
+				equals("endp1")).
+				findAny().get();
+		ResolvedEndpoint re2 = endpoints.stream().filter(
+				re -> re.getEndpoint().getConfiguration().getDescription().
+				equals("endp2")).
+				findAny().get();
+		assertThat(re1.getEndpoint().getConfiguration().getDisplayedName().getDefaultValue(),
+				is("endp1"));
+		assertThat(re2.getEndpoint().getConfiguration().getDisplayedName().getDefaultValue(),
+				is("endp2"));
 		
 		//finally test if removal from DB works
 		internalEndpointMan.removeAllPersistedEndpoints();

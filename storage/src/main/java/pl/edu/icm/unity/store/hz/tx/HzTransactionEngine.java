@@ -120,25 +120,36 @@ public class HzTransactionEngine implements TransactionEngine
 			createNewTransaction(pjp);
 		} else
 		{
-			if (log.isTraceEnabled())
-				log.trace("Starting a new not separated subtransaction for " + pjp.toShortString());
+			log.trace("Starting a new not separated subtransaction for {}", 
+						pjp.toShortString());
 			transactionsStack.push(new HzTransactionState(transactionsStack.getCurrent()));
 		}
 	}
 	
 	/**
 	 * Commits the current transaction and starts new. Ensures that new context is used, as this 
-	 * is required by Hazelcast
+	 * is required by Hazelcast.
+	 * <p>
+	 * What is more a current stack of transactions is recreated, so that the new transaction is 
+	 * root and we have original amount of nesting levels.
 	 * @throws InterruptedException
 	 */
 	private void forceCommit()
 	{
+		log.trace("Forced commit, recreating internal transaction stack");
 		enqueueRDBMSBatch();
 		TransactionsState<HzTransactionState> transactionsStack = HzTransactionTL.getState();
 		HzTransactionState ti = transactionsStack.pop();
 		ti.getHzContext().commitTransaction();
 		
+		int remaining = transactionsStack.size();
+		transactionsStack.clear();
+		
 		createNewTransaction();
+		
+		for (int i=0; i<remaining; i++)
+			transactionsStack.push(new HzTransactionState(
+					transactionsStack.getCurrent()));
 	}
 	
 	/**
@@ -148,6 +159,7 @@ public class HzTransactionEngine implements TransactionEngine
 	 */
 	private void resetTransaction()
 	{
+		log.trace("Resetting transaction");
 		TransactionsState<HzTransactionState> transactionsStack = HzTransactionTL.getState();
 		if (transactionsStack.isEmpty())
 			return;
@@ -162,8 +174,7 @@ public class HzTransactionEngine implements TransactionEngine
 	private void createNewTransaction(ProceedingJoinPoint pjp) 
 			throws Exception
 	{
-		if (log.isTraceEnabled())
-			log.trace("Starting a new transaction for " + pjp.toShortString());
+		log.trace("Starting a new transaction for {}", pjp.toShortString());
 		createNewTransaction();
 	}
 	
@@ -186,16 +197,14 @@ public class HzTransactionEngine implements TransactionEngine
 		{
 			if (autoCommit)
 			{
-				if (log.isTraceEnabled())
-					log.trace("Commiting transaction for " + pjp.toShortString());
+				log.trace("Commiting transaction for {}", pjp.toShortString());
 				
 				enqueueRDBMSBatch();
 				ti.getHzContext().commitTransaction();
 			} else
 			{
-				if (log.isTraceEnabled())
-					log.trace("Rolling back transaction for " + pjp.toShortString() + 
-							" as there is no auto commit activated");
+				log.trace("Rolling back transaction for {} as there is no "
+						+ "auto commit activated", pjp.toShortString());
 				
 				ti.getHzContext().rollbackTransaction();
 			}
@@ -214,7 +223,7 @@ public class HzTransactionEngine implements TransactionEngine
 			queue.offer(currentRDBMSBatch, 30, TimeUnit.SECONDS);
 		} catch (InterruptedException e)
 		{
-			throw new IllegalStateException("Failed to inser transaction data to persistence queue", e);
+			throw new IllegalStateException("Failed to insert transaction data to persistence queue", e);
 		}
 	}
 
@@ -225,22 +234,21 @@ public class HzTransactionEngine implements TransactionEngine
 		HzTransactionState ti = transactionsStack.getCurrent();
 		if (!transactionsStack.isSubtransaction())
 		{
-			if (log.isTraceEnabled())
-				log.trace("Rolling back transaction for " + pjp.toShortString());
+			log.trace("Rolling back transaction for {}", pjp.toShortString());
 			ti.getHzContext().rollbackTransaction();
 		}
 	}
 	
 	private void removeTransactionFromStack(ProceedingJoinPoint pjp)
 	{
+		log.trace("Removeing transaction from stack {}", pjp.toShortString());
 		TransactionsState<HzTransactionState> transactionsStack = HzTransactionTL.getState();
 		transactionsStack.pop();
 		
 		if (transactionsStack.isEmpty())
 		{
-			if (log.isTraceEnabled())
-				log.trace("Transactions stack is empty for " + pjp.toShortString() + 
-						" releasing resources");
+			log.trace("Transactions stack is empty for {} releasing resources",
+						 pjp.toShortString());
 		}
 	}
 }

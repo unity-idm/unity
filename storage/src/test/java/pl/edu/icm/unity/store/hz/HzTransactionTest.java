@@ -221,6 +221,27 @@ public class HzTransactionTest
 		String ret2 = getFromStore("n2");
 		assertThat(ret2, is(nullValue()));
 	}
+
+	@Test
+	public void manualCommitIsAppliedSubTransaction()
+	{
+		tx.runInTransaction(() -> {
+			getMap().put("n1", "v1");
+			tx.runInTransaction(() -> {
+				getMap().put("n2", "v2");
+				TransactionTL.manualCommit();
+			});
+			getMap().put("n1", "v2");
+		});
+		
+		
+		String ret = getFromStore("n1");
+		assertThat(ret, is("v2"));
+		
+		String ret2 = getFromStore("n2");
+		assertThat(ret2, is("v2"));
+	}
+	
 	
 	private String getFromStore(String name)
 	{

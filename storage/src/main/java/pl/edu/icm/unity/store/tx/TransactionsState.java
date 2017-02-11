@@ -37,6 +37,16 @@ public class TransactionsState<T extends TransactionState>
 		return transactionsStack.isEmpty();
 	}
 
+	public int size()
+	{
+		return transactionsStack.size();
+	}
+	
+	public void clear()
+	{
+		transactionsStack.clear();
+	}
+	
 	public boolean isSubtransaction()
 	{
 		return transactionsStack.size() > 1;
