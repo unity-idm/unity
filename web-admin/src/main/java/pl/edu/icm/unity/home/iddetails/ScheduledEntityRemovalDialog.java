@@ -6,17 +6,6 @@ package pl.edu.icm.unity.home.iddetails;
 
 import java.util.Date;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
-import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.converter.StringToIntegerConverter;
@@ -28,13 +17,24 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.IdentitiesManagement;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.ConfirmDialog;
+import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 /**
  * Dialog allowing to either immediately or with grace period schedule the entity removal.
  * @author K. Benedyczak
  */
-public class RemoveEntityDialog extends AbstractDialog
+public class ScheduledEntityRemovalDialog extends AbstractDialog
 {
 	private final static String NOW = "now";
 	private final static String SCHEDULE = "sched";
@@ -45,7 +45,7 @@ public class RemoveEntityDialog extends AbstractDialog
 	private OptionGroup nowOrLater;
 	private TextField days;
 	
-	public RemoveEntityDialog(UnityMessageSource msg, long entityId, 
+	public ScheduledEntityRemovalDialog(UnityMessageSource msg, long entityId, 
 			IdentitiesManagement identitiesManagement, WebAuthenticationProcessor authnProcessor)
 	{
 		super(msg, msg.getMessage("RemoveEntityDialog.caption"));

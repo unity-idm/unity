@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -52,6 +53,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialsPanel;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesHandlerRegistry;
 
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
@@ -79,10 +81,12 @@ public class UserAccountComponent extends VerticalLayout
 	private SandboxAuthnNotifier sandboxNotifier;
 	private String sandboxURL;
 	private InputTranslationEngine inputTranslationEngine;
+	private IdentitiesManagement insecureIdsMan;
 	
 	@Autowired
 	public UserAccountComponent(UnityMessageSource msg, AuthenticationManagement authnMan,
 			IdentitiesManagement idsMan, CredentialEditorRegistry credEditorReg,
+			@Qualifier("insecure") IdentitiesManagement insecureIdsMan, 
 			PreferencesHandlerRegistry registry, PreferencesManagement prefMan,
 			EndpointManagement endpMan, AttributesInternalProcessing attrMan,
 			WebAuthenticationProcessor authnProcessor,
@@ -94,6 +98,7 @@ public class UserAccountComponent extends VerticalLayout
 		this.authnMan = authnMan;
 		this.idsMan = idsMan;
 		this.credEditorReg = credEditorReg;
+		this.insecureIdsMan = insecureIdsMan;
 		this.registry = registry;
 		this.prefMan = prefMan;
 		this.endpMan = endpMan;
@@ -140,8 +145,7 @@ public class UserAccountComponent extends VerticalLayout
 		try
 		{
 			UserDetailsPanel userInfo = getUserInfoComponent(theUser.getEntityId(), idsMan, attrMan);
-			EntityRemovalButton removalButton = new EntityRemovalButton(msg, 
-					theUser.getEntityId(), idsMan, authnProcessor);
+			Button removalButton = getRemovalButton(theUser, config);
 			final UserIdentitiesPanel idsPanel = new UserIdentitiesPanel(msg, 
 					identityEditorRegistry, idsMan, theUser.getEntityId());
 			final UserAttributesPanel attrsPanel = new UserAttributesPanel(msg, attributeHandlerRegistry, 
@@ -237,5 +241,11 @@ public class UserAccountComponent extends VerticalLayout
 		EntityWithLabel entityWithLabel = new EntityWithLabel(entity, label);
 		ret.setInput(entityWithLabel, groups);
 		return ret;
+	}
+	
+	private Button getRemovalButton(LoginSession theUser, HomeEndpointProperties config)
+	{
+		return new EntityRemovalButton(msg, theUser.getEntityId(), idsMan, 
+				insecureIdsMan, authnProcessor, config);
 	}
 }

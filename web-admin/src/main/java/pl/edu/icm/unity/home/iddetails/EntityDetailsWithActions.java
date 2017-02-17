@@ -44,7 +44,7 @@ public class EntityDetailsWithActions extends CustomComponent
 	public EntityDetailsWithActions(Set<String> disabled,
 			UserDetailsPanel detailsPanel, UserIdentitiesPanel identitiesPanel,
 			UserAttributesPanel attrsPanel, 
-			EntityRemovalButton removalButton, UnityMessageSource msg,
+			Button removalButton, UnityMessageSource msg,
 			ConnectIdWizardProvider accountAssociationWizardProvider) throws EngineException
 	{
 		this.disabled = disabled;
@@ -68,7 +68,7 @@ public class EntityDetailsWithActions extends CustomComponent
 		setCompositionRoot(root);
 	}
 	
-	private Component getButtonsBar(Set<String> disabled, EntityRemovalButton removalButton,
+	private Component getButtonsBar(Set<String> disabled, Button removalButton,
 			final ConnectIdWizardProvider accountAssociationWizardProvider)
 	{
 		HorizontalLayout buttons = new HorizontalLayout();

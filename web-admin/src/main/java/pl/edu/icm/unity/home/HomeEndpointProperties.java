@@ -13,12 +13,12 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.server.utils.Log;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
+import pl.edu.icm.unity.server.utils.Log;
 
 /**
  * Configuration of the Home endpoint.
@@ -32,6 +32,8 @@ public class HomeEndpointProperties extends PropertiesHelper
 	public enum Components {credentialTab, preferencesTab, userDetailsTab, 
 		accountRemoval, attributesManagement, userInfo, identitiesManagement,
 		accountLinking};
+
+	public enum RemovalModes {remove, disable, blockAuthentication};
 	
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "unity.userhome.";
@@ -45,6 +47,8 @@ public class HomeEndpointProperties extends PropertiesHelper
 	public static final String GWA_GROUP = "group";
 	public static final String GWA_SHOW_GROUP = "showGroup";
 	public static final String GWA_EDITABLE = "editable";
+	public static final String REMOVAL_MODE = "selfRemovalMode";
+	public static final String DISABLE_REMOVAL_SCHEDULE = "disableSelfRemovalScheduling";
 	
 	static
 	{
@@ -52,6 +56,15 @@ public class HomeEndpointProperties extends PropertiesHelper
 				setDescription("List of tags of UI components "
 				+ "which should be disabled. Valid tags: '" + 
 				Arrays.toString(Components.values()) + "'"));
+		META.put(REMOVAL_MODE, new PropertyMD(RemovalModes.remove).
+				setDescription("Relevant ONLY if the " + DISABLE_REMOVAL_SCHEDULE + " is true. "
+				+ "Controls what action should be performed when user "
+				+ "orders account removal. Account can be fully removed, "
+				+ "disabled, or only login can be blocked."));
+		META.put(DISABLE_REMOVAL_SCHEDULE, new PropertyMD("false").
+				setDescription("If set to true then user won't be presented with an "
+						+ "option to schedule account removal with grace period. "
+						+ "At the same time this enables " + REMOVAL_MODE));
 		META.put(ATTRIBUTES, new PropertyMD().setStructuredList(true).
 				setDescription("Prefix under which it is possible to define attributes "
 				+ "which should be either presented or made editable on the User Home UI."));
