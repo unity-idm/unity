@@ -26,6 +26,7 @@
 		<cxf.version>3.1.6</cxf.version>
 		<apacheds.version>2.0.0-M21</apacheds.version>
 		<bc.version>1.54</bc.version>
+		<groovy-all.version>2.4.8</groovy-all.version>
 
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -108,7 +109,7 @@
 
 
 	<build>
-		<!-- Allows to deploy with dav:// with Maven 3. Note that newer versions 
+		<!-- Allows to deploy with dav:// with Maven 3. Note that newer versions
 			of this extension do not work with Maven 2.2 -->
 		<extensions>
 			<extension>
@@ -324,15 +325,15 @@
 					<exclusion>
 						<groupId>log4j</groupId>
 						<artifactId>log4j</artifactId>
-					</exclusion>				
+					</exclusion>
 					<exclusion>
 						<groupId>log4j</groupId>
 						<artifactId>apache-log4j-extras</artifactId>
-					</exclusion>				
+					</exclusion>
 					<exclusion>
 						<groupId>org.slf4j</groupId>
 						<artifactId>slf4j-log4j12</artifactId>
-					</exclusion>				
+					</exclusion>
 				</exclusions>
 			</dependency>
 			<dependency>
@@ -534,7 +535,7 @@
 		</dependencies>
 	</dependencyManagement>
 
-	<!-- the base test dependencies are used for all modules, more advanced as spring are to be defined 
+	<!-- the base test dependencies are used for all modules, more advanced as spring are to be defined
 		directly -->
 	<dependencies>
 		<dependency>
@@ -544,7 +545,7 @@
 		</dependency>
 		<dependency>
   			<groupId>org.mockito</groupId>
-  			<artifactId>mockito-core</artifactId>  
+  			<artifactId>mockito-core</artifactId>
 			<scope>test</scope>
   		</dependency>
   		<dependency>

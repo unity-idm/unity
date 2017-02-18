@@ -212,13 +212,14 @@ public class EngineInitialization extends LifecycleBase
 	@Override
 	public void start()
 	{
-		initializersExecutor.run();
 		
 		boolean skipLoading = config.getBooleanValue(
 				UnityServerConfiguration.IGNORE_CONFIGURED_CONTENTS_SETTING);
 		if (!skipLoading)
+		{
+			initializersExecutor.run();
 			initializeDatabaseContents();
-		else
+		} else
 			log.info("Unity is configured to SKIP DATABASE LOADING FROM CONFIGURATION");
 		startLogConfigurationMonitoring();
 		initializeBackgroundTasks();
@@ -317,7 +318,6 @@ public class EngineInitialization extends LifecycleBase
 		initializeIdentityTypes();
 		initializeAttributeTypes();
 		initializeAdminUser();
-		initializeCredentials();
 		initializeCredentialReqirements();
 		initializeMsgTemplates();
 		initializeNotifications();
@@ -801,48 +801,6 @@ public class EngineInitialization extends LifecycleBase
 				authnManagement.updateAuthenticator(name, vJsonConfiguration, 
 						rJsonConfiguration, credential);
 				log.info(" - " + name + " [" + type + "] (updated)");
-			}
-		}
-	}
-
-	private void initializeCredentials()
-	{
-		try
-		{
-			loadCredentialsFromConfiguration();
-		} catch(Exception e)
-		{
-			log.fatal("Can't load credentials which are configured", e);
-			throw new InternalException("Can't load credentials which are configured", e);
-		}
-	}
-	
-	private void loadCredentialsFromConfiguration() throws IOException, EngineException
-	{
-		log.info("Loading all configured credentials");
-		Collection<CredentialDefinition> definitions = credMan.getCredentialDefinitions();
-		Map<String, CredentialDefinition> existing = new HashMap<>();
-		for (CredentialDefinition cd: definitions)
-			existing.put(cd.getName(), cd);
-		
-		Set<String> credentialsList = config.getStructuredListKeys(UnityServerConfiguration.CREDENTIALS);
-		for (String credentialKey: credentialsList)
-		{
-			String name = config.getValue(credentialKey+UnityServerConfiguration.CREDENTIAL_NAME);
-			String typeId = config.getValue(credentialKey+UnityServerConfiguration.CREDENTIAL_TYPE);
-			String description = config.getValue(credentialKey+UnityServerConfiguration.CREDENTIAL_DESCRIPTION);
-			File configFile = config.getFileValue(credentialKey+UnityServerConfiguration.CREDENTIAL_CONFIGURATION, false);
-
-			String jsonConfiguration = FileUtils.readFileToString(configFile);
-			CredentialDefinition credentialDefinition = new CredentialDefinition(typeId, name, 
-					new I18nString(name), 
-					new I18nString(description));
-			credentialDefinition.setConfiguration(jsonConfiguration);
-			
-			if (!existing.containsKey(name))
-			{
-				credMan.addCredentialDefinition(credentialDefinition);
-				log.info(" - " + name + " [" + typeId + "]");
 			}
 		}
 	}
