@@ -201,6 +201,9 @@ public class EngineInitialization extends LifecycleBase
 	private ConfirmationServletProvider confirmationServletFactory;
 	@Autowired(required = false)
 	private PublicWellKnownURLServlet publicWellKnownURLServlet;
+
+	@Autowired
+	private ContentInitializersExecutor initializersExecutor;
 	
 	
 	private long endpointsLoadTime;
@@ -209,6 +212,8 @@ public class EngineInitialization extends LifecycleBase
 	@Override
 	public void start()
 	{
+		initializersExecutor.run();
+		
 		boolean skipLoading = config.getBooleanValue(
 				UnityServerConfiguration.IGNORE_CONFIGURED_CONTENTS_SETTING);
 		if (!skipLoading)
@@ -765,7 +770,7 @@ public class EngineInitialization extends LifecycleBase
 	{
 		log.info("Loading all configured authenticators");
 		Collection<AuthenticatorInstance> authenticators = authnManagement.getAuthenticators(null);
-		Map<String, AuthenticatorInstance> existing = new HashMap<String, AuthenticatorInstance>();
+		Map<String, AuthenticatorInstance> existing = new HashMap<>();
 		for (AuthenticatorInstance ai: authenticators)
 			existing.put(ai.getId(), ai);
 		
@@ -816,7 +821,7 @@ public class EngineInitialization extends LifecycleBase
 	{
 		log.info("Loading all configured credentials");
 		Collection<CredentialDefinition> definitions = credMan.getCredentialDefinitions();
-		Map<String, CredentialDefinition> existing = new HashMap<String, CredentialDefinition>();
+		Map<String, CredentialDefinition> existing = new HashMap<>();
 		for (CredentialDefinition cd: definitions)
 			existing.put(cd.getName(), cd);
 		
@@ -858,7 +863,7 @@ public class EngineInitialization extends LifecycleBase
 	{
 		log.info("Loading all configured credential requirements");
 		Collection<CredentialRequirements> definitions = credReqMan.getCredentialRequirements();
-		Map<String, CredentialRequirements> existing = new HashMap<String, CredentialRequirements>();
+		Map<String, CredentialRequirements> existing = new HashMap<>();
 		for (CredentialRequirements cd: definitions)
 			existing.put(cd.getName(), cd);
 		
@@ -868,7 +873,7 @@ public class EngineInitialization extends LifecycleBase
 			String name = config.getValue(credentialKey+UnityServerConfiguration.CREDENTIAL_REQ_NAME);
 			String description = config.getValue(credentialKey+UnityServerConfiguration.CREDENTIAL_REQ_DESCRIPTION);
 			List<String> elements = config.getListOfValues(credentialKey+UnityServerConfiguration.CREDENTIAL_REQ_CONTENTS);
-			Set<String> requiredCredentials = new HashSet<String>();
+			Set<String> requiredCredentials = new HashSet<>();
 			requiredCredentials.addAll(elements);
 			
 			CredentialRequirements cr = new CredentialRequirements(name, description, requiredCredentials);
@@ -988,6 +993,7 @@ public class EngineInitialization extends LifecycleBase
 		}
 		Runnable r = new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				try

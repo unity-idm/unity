@@ -29,6 +29,14 @@ public enum InitializerType
 				.map(InitializerType::typeName)
 				.collect(Collectors.joining(", "));
 	}
+	
+	public static InitializerType of(String name)
+	{
+		return Arrays.asList(values()).stream()
+				.filter(type -> type.name()
+				.equalsIgnoreCase(name)).findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("No enum const InitializerType." + name));
+	}
 
 	public String typeName()
 	{
