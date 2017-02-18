@@ -27,8 +27,6 @@ import org.springframework.core.env.CommandLinePropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
@@ -36,6 +34,9 @@ import eu.unicore.util.configuration.FilePropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 import eu.unicore.util.jetty.HttpServerProperties;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.initializers.InitializerType;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 
 /**
  * Principal options are defined here: ids and corresponding default values.
@@ -132,10 +133,14 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String CONFIRMATION_DEFAULT_RETURN_URL = "defaultPostConfirmationReturnURL";
 	public static final String CONFIRMATION_AUTO_REDIRECT = "automaticRedirectAfterConfirmation";
 
-	@DocumentationReferenceMeta
-	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
+	public static final String CONTENT_INITIALIZERS = "contentInit.";
+	public static final String CONTENT_INITIALIZERS_FILE = "file";
+	public static final String CONTENT_INITIALIZERS_TYPE = "type";
 	
-	public static final Map<String, Locale> SUPPORTED_LOCALES = new HashMap<String, Locale>();
+	@DocumentationReferenceMeta
+	public final static Map<String, PropertyMD> defaults = new HashMap<>();
+	
+	public static final Map<String, Locale> SUPPORTED_LOCALES = new HashMap<>();
 	
 	static
 	{
@@ -344,6 +349,14 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put(HttpServerProperties.DEFAULT_PREFIX, new PropertyMD().setCanHaveSubkeys().setCategory(otherCat).
 				setDescription("Properties starting with this prefix are used to configure Jetty HTTP server settings. See separate table for details."));
 		
+		defaults.put(CONTENT_INITIALIZERS, new PropertyMD().setStructuredList(true).setCategory(mainCat).
+				setDescription("List of content initializators that will be executed during the startup."));
+		defaults.put(CONTENT_INITIALIZERS_FILE, new PropertyMD().setStructuredListEntry(CONTENT_INITIALIZERS).setMandatory().setCategory(mainCat).
+				setDescription("A file with content that will be evaulated by initializer."));
+		defaults.put(CONTENT_INITIALIZERS_TYPE, new PropertyMD().setStructuredListEntry(CONTENT_INITIALIZERS).setMandatory().setCategory(mainCat).
+				setDescription("Type of initializator, supported values: " + InitializerType.typeNamesToString() + ". "
+						+ InitializerType.GROOVY.typeName() + ": means the provided file is groovy script"
+						+ " that will be executed during the server startup."));
 		
 		SUPPORTED_LOCALES.put("en", new Locale("en"));
 		SUPPORTED_LOCALES.put("pl", new Locale("pl"));
@@ -417,10 +430,10 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		List<String> locales = getListOfValues(ENABLED_LOCALES);
 		if (locales.isEmpty())
 		{
-			locales = new ArrayList<String>();
+			locales = new ArrayList<>();
 			locales.add("en English");
 		}
-		Map<String, Locale> ret = new LinkedHashMap<String, Locale>();
+		Map<String, Locale> ret = new LinkedHashMap<>();
 		for (String locale: locales)
 		{
 			locale = locale.trim() + " ";
@@ -484,7 +497,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	{
 		String spec = getValue(endpointKey+UnityServerConfiguration.ENDPOINT_AUTHENTICATORS);
 		String[] authenticatorSets = spec.split(";");		
-		List<AuthenticationOptionDescription> endpointAuthn = new ArrayList<AuthenticationOptionDescription>();
+		List<AuthenticationOptionDescription> endpointAuthn = new ArrayList<>();
 		for (String authenticatorSet : authenticatorSets)
 		{
 			String[] authenticators = authenticatorSet.split(",");
