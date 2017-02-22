@@ -29,27 +29,18 @@ public class EmailIdentity extends AbstractStaticIdentityTypeProvider
 {
 	public static final String ID = "email";
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getId()
 	{
 		return ID;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getDefaultDescription()
 	{
 		return "Email";
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Set<AttributeType> getAttributesSupportedForExtraction()
 	{
@@ -89,9 +80,6 @@ public class EmailIdentity extends AbstractStaticIdentityTypeProvider
 		return ret;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getComparableValue(String from, String realm, String target)
 			throws IllegalIdentityValueException
@@ -99,18 +87,12 @@ public class EmailIdentity extends AbstractStaticIdentityTypeProvider
 		return new VerifiableEmail(from).getComparableValue();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<Attribute> extractAttributes(String from, Map<String, String> toExtract)
 	{
 		return null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String toPrettyStringNoPrefix(IdentityParam from)
 	{
@@ -119,9 +101,6 @@ public class EmailIdentity extends AbstractStaticIdentityTypeProvider
 		return ret.toString();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getHumanFriendlyDescription(MessageSource msg)
 	{
