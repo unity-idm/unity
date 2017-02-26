@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.server;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,18 +30,24 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 @RunWith(SpringJUnit4ClassRunner.class)
 @UnityIntegrationTest
 @TestPropertySource(properties = { "unityConfig: src/test/resources/groovyInitializers.conf" })
-public class ContentGroovyExecutorTest extends GroovyExecutorTestBase
+public class ContentGroovyExecutorTest
 {
 	@Autowired
 	@Qualifier("insecure")
 	private CredentialManagement credMan;
 	
+	@Autowired
+	protected ContentGroovyExecutor groovyExecutor;
+	
 	@Test
 	public void shouldProvisionCredentialsFromConfiguration() throws EngineException
 	{
 		// given
-		ContentInitConf conf = getConf(LOAD_CREDENTIALS_FROM_CONFIGURATION);
-		removeCredentialDefinitions("secured password", "secured password1");
+		ContentInitConf conf = ContentInitConf.builder()
+				.withFile(new File("src/test/resources/addCredentialsTest.groovy"))
+				.withGroovy()
+				.build();
+		removeCredentialDefinitions("secured password100");
 		int initSizeOfCredentials = credMan.getCredentialDefinitions().size();
 		
 		// when
@@ -48,11 +55,9 @@ public class ContentGroovyExecutorTest extends GroovyExecutorTestBase
 		
 		// then
 		Collection<CredentialDefinition> creds = credMan.getCredentialDefinitions();
-		assertThat(creds.size(), equalTo(initSizeOfCredentials + 2));
-		CredentialDefinition cred = filterCred(creds, "secured password");
-		assertThat(cred.getDescription().getDefaultValue(), equalTo("loadCredentialsFromConfiguration"));
-		cred = filterCred(creds, "secured password1");
-		assertThat(cred.getDescription().getDefaultValue(), equalTo("loadCredentialsFromConfiguration1"));
+		assertThat(creds.size(), equalTo(initSizeOfCredentials + 1));
+		CredentialDefinition cred = filterCred(creds, "secured password100");
+		assertThat(cred.getDescription().getDefaultValue(), equalTo("addCredentialsTest"));
 	}
 
 	private void removeCredentialDefinitions(String... names) throws EngineException
