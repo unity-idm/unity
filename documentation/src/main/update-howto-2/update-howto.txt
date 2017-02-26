@@ -21,11 +21,38 @@ a different configuration syntax. It is important to note that logging configura
 +log4j.properties+ to: 
 
 ----
-log4j2.properties
+log4j2.xml
 ----
    
 It is strongly suggested to use a new logging configuration file from Unity distribution as a template and 
-only apply the local modifications. Typically it is only required to update logger levels to desired ones.
+apply the local modifications to it. Typically it is only required to update logger levels to desired ones.
 
-Note that basic concept behind logging (loggers, appenders) did not change.
+Note that basic concepts behind logging (loggers, appenders) did not change. It is also possible to use other formats
+supported by Log4j2 (as new properties format), however we suggest to stick with the default XML configuration: 
+it is quite concise and there is the largest base of examples in XML syntax.
+
+=== Database subsystem re-configuration
+
+Unity 1.x allows only for using one of supported relational databases (RDBMS) to persist service state. What is more two 
+databases where used: the regular one, and so called _local_ database, which was a helper store.
+
+Unity 2.0 drops the _local_ database - its configuration is now obsolete. What is more it is possible to configure
+different then RDBMS database backends. Formerly the only possible RDBMS backend is now one of supported options.
+
+The following configuration changes are required in +unityServer.conf+:
+
+. The property +unityServer.db.localDBUrl+ should be removed
+. A new property needs to be added: +unityServer.storage.engine=rdbms+
+. All properties in +unityServer.conf+ starting with +unityServer.db.+ should be changed to start with the prefix
++unityServer.storage.engine.rdbms.+
+
+Example for MySQL database:
+
+----
+unityServer.storage.engine=rdbms
+unityServer.storage.engine.rdbms.jdbcUrl=jdbc:mysql://localhost/unitydb2
+unityServer.storage.engine.rdbms.dialect=mysql
+unityServer.storage.engine.rdbms.password=unity-pass
+unityServer.storage.engine.rdbms.username=unity-user
+----
 

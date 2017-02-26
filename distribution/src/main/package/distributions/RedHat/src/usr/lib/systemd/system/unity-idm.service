@@ -3,11 +3,12 @@ Description=Unity IdM Service
 After=syslog.target network.target
 
 [Service]
-Type=simple
+Type=forking
 User=unity-idm
 PIDFile=/var/run/unity-idm/unity-idm-server.pid
 ExecStart=/usr/sbin/unity-idm-server-start
 ExecStop=/usr/sbin/unity-idm-server-stop
+SuccessExitStatus=143
 
 [Install]
 WantedBy=multi-user.target
