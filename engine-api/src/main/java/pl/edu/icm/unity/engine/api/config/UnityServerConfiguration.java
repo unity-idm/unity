@@ -35,6 +35,7 @@ import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 import eu.unicore.util.jetty.HttpServerProperties;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.initializers.InitializationPhase;
 import pl.edu.icm.unity.engine.api.initializers.InitializerType;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 
@@ -136,6 +137,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String CONTENT_INITIALIZERS = "contentInit.";
 	public static final String CONTENT_INITIALIZERS_FILE = "file";
 	public static final String CONTENT_INITIALIZERS_TYPE = "type";
+	public static final String CONTENT_INITIALIZERS_PHASE = "phase";
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults = new HashMap<>();
@@ -350,13 +352,20 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				setDescription("Properties starting with this prefix are used to configure Jetty HTTP server settings. See separate table for details."));
 		
 		defaults.put(CONTENT_INITIALIZERS, new PropertyMD().setStructuredList(true).setCategory(mainCat).
-				setDescription("List of content initializators that will be executed during the startup."));
+				setDescription("List of content initializators that will be executed during the startup. Note that if"
+						+ IGNORE_CONFIGURED_CONTENTS_SETTING + " is set to false, the initializers are not executed."));
 		defaults.put(CONTENT_INITIALIZERS_FILE, new PropertyMD().setStructuredListEntry(CONTENT_INITIALIZERS).setMandatory().setCategory(mainCat).
 				setDescription("A file with content that will be evaulated by initializer."));
 		defaults.put(CONTENT_INITIALIZERS_TYPE, new PropertyMD().setStructuredListEntry(CONTENT_INITIALIZERS).setMandatory().setCategory(mainCat).
 				setDescription("Type of initializator, supported values: " + InitializerType.typeNamesToString() + ". "
 						+ InitializerType.GROOVY.typeName() + ": means the provided file is groovy script"
-						+ " that will be executed during the server startup."));
+						+ " that will be executed in configured phase."));
+		defaults.put(CONTENT_INITIALIZERS_PHASE, new PropertyMD().setStructuredListEntry(CONTENT_INITIALIZERS).setMandatory().setCategory(mainCat).
+				setDescription("The phase of initializator execution, supported values: " + InitializationPhase.typeNamesToString() + ". "
+						+ InitializationPhase.PRE_INIT.phaseName() + ": means that particular initializer will be executed before "
+						+ "configuration settings are loaded to database (endpoints, authenticators, credentials, ...). "
+						+ InitializationPhase.POST_INIT.phaseName() + ": means that particular initializer will be executed after "
+						+ "configuration settings are loaded to database."));
 		
 		SUPPORTED_LOCALES.put("en", new Locale("en"));
 		SUPPORTED_LOCALES.put("pl", new Locale("pl"));

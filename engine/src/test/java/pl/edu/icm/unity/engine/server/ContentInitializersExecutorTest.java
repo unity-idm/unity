@@ -6,6 +6,8 @@ package pl.edu.icm.unity.engine.server;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import java.util.List;
@@ -22,6 +24,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.edu.icm.unity.engine.UnityIntegrationTest;
 import pl.edu.icm.unity.engine.api.initializers.ContentInitConf;
+import pl.edu.icm.unity.engine.api.initializers.InitializationPhase;
 import pl.edu.icm.unity.engine.api.initializers.InitializerType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -54,7 +57,8 @@ public class ContentInitializersExecutorTest
 		assertThat(configs.size(), equalTo(1));
 		ContentInitConf config = configs.get(0);
 		assertThat(config.getType(), equalTo(InitializerType.GROOVY));
-		assertThat(config.getFile().toString(), equalTo("src/test/resources/unityServerContentInit.groovy"));
+		assertThat(config.getPhase(), equalTo(InitializationPhase.PRE_INIT));
+		assertThat(config.getFile().getName(), equalTo("unityServerContentInit.groovy"));
 	}
 	
 	
@@ -65,10 +69,22 @@ public class ContentInitializersExecutorTest
 		List<ContentInitConf> configs = underTest.getContentInitializersConfiguration();
 		
 		// when
-		underTest.run();
+		underTest.runPreInitPhase();
 		
 		// then
 		verify(groovyMock).run(configs.get(0));
+	}
+	
+	@Test
+	public void shouldNotRunGroovyExecutor()
+	{
+		// given configuration in unityServerContentInit.conf
+		
+		// when
+		underTest.runPostInitPhase();
+		
+		// then
+		verify(groovyMock, never()).run(any());
 	}
 
 }

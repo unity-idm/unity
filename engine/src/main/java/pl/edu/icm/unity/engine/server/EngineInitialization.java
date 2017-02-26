@@ -217,8 +217,9 @@ public class EngineInitialization extends LifecycleBase
 				UnityServerConfiguration.IGNORE_CONFIGURED_CONTENTS_SETTING);
 		if (!skipLoading)
 		{
-			initializersExecutor.run();
+			initializersExecutor.runPreInitPhase();
 			initializeDatabaseContents();
+			initializersExecutor.runPostInitPhase();
 		} else
 			log.info("Unity is configured to SKIP DATABASE LOADING FROM CONFIGURATION");
 		startLogConfigurationMonitoring();

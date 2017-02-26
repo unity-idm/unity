@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.initializers.ContentInitConf;
+import pl.edu.icm.unity.engine.api.initializers.InitializationPhase;
 import pl.edu.icm.unity.engine.api.initializers.InitializerType;
 import pl.edu.icm.unity.exceptions.InternalException;
 
@@ -34,10 +35,22 @@ public class ContentInitializersExecutor
 	private UnityServerConfiguration config;
 	@Autowired
 	private ContentGroovyExecutor groovyExecutor;
-
-	public void run()
+	
+	public void runPreInitPhase()
 	{
-		Map<InitializerType, List<ContentInitConf>> inizializers = getContentInitializersConfiguration().stream()
+		run(InitializationPhase.PRE_INIT);
+	}
+
+	public void runPostInitPhase()
+	{
+		run(InitializationPhase.POST_INIT);
+	}
+	
+	public void run(InitializationPhase phase)
+	{
+		Map<InitializerType, List<ContentInitConf>> inizializers = getContentInitializersConfiguration()
+				.stream()
+				.filter(initConf -> initConf.getPhase() == phase)
 				.collect(Collectors.groupingBy(ContentInitConf::getType));
 
 		inizializers.forEach((type, configs) ->
@@ -66,6 +79,7 @@ public class ContentInitializersExecutor
 		{
 			String fileName = config.getValue(key + UnityServerConfiguration.CONTENT_INITIALIZERS_FILE);
 			String typeStr = config.getValue(key + UnityServerConfiguration.CONTENT_INITIALIZERS_TYPE);
+			String phaseStr = config.getValue(key + UnityServerConfiguration.CONTENT_INITIALIZERS_PHASE);
 			
 			File file;
 			try
@@ -93,9 +107,21 @@ public class ContentInitializersExecutor
 						"Invalid initializer type provided for file '%s', was: '%s'. Supported values: %s", file,
 						typeStr, InitializerType.typeNamesToString()), e);
 			}
+			
+			InitializationPhase phase = null;
+			try
+			{
+				phase = InitializationPhase.of(phaseStr);
+			} catch (IllegalArgumentException e)
+			{
+				throw new InternalException(String.format(
+						"Invalid initializer phase provided for file '%s', was: '%s'. Supported values: %s", file,
+						phaseStr, InitializationPhase.typeNamesToString()), e);
+			}
 			inizializers.add(ContentInitConf.builder()
 					.withFile(file)
 					.withType(type)
+					.withPhase(phase)
 					.build());
 		}
 		return inizializers;
