@@ -217,10 +217,16 @@ public class EngineInitialization extends LifecycleBase
 				UnityServerConfiguration.IGNORE_CONFIGURED_CONTENTS_SETTING);
 		if (!skipLoading)
 		{
-			initializersExecutor.runPreInitPhase();
+			coldStart = isColdStart();
+			if (coldStart)
+				initializersExecutor.runPreInitPhase();
+			
 			initializeDatabaseContents();
-			initializersExecutor.runPostInitPhase();
-		} else
+
+			if (coldStart)
+				initializersExecutor.runPostInitPhase();
+		}
+		else
 			log.info("Unity is configured to SKIP DATABASE LOADING FROM CONFIGURATION");
 		startLogConfigurationMonitoring();
 		initializeBackgroundTasks();
@@ -323,9 +329,10 @@ public class EngineInitialization extends LifecycleBase
 		initializeCredentialReqirements();
 		initializeMsgTemplates();
 		initializeNotifications();
-		runInitializers();
-		initializeTranslationProfiles();
 		
+		runInitializers();
+		
+		initializeTranslationProfiles();
 		boolean eraClean = config.getBooleanValue(
 				UnityServerConfiguration.CONFIG_ONLY_ERA_CONTROL);
 		if (eraClean)
@@ -460,10 +467,20 @@ public class EngineInitialization extends LifecycleBase
 					idType.setDescription(idType.getDescription());
 					idType.setExtractedAttributes(idType.getExtractedAttributes());
 					dbIdentities.create(idType);
-					coldStart = true;
 				}
 			}
 		});
+	}
+	
+	private boolean isColdStart()
+	{
+		Map<String, IdentityType> defined = dbIdentities.getAllAsMap();
+		for (IdentityTypeDefinition it: idTypesReg.getAll())
+		{
+			if (!defined.containsKey(it.getId()))
+				return true;
+		}
+		return false;
 	}
 
 	

@@ -44,10 +44,15 @@ import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.UserImportManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.initializers.ContentInitConf;
+import pl.edu.icm.unity.engine.api.initializers.InitializationPhase;
 import pl.edu.icm.unity.engine.api.initializers.InitializerType;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.stdext.utils.InitializerCommon;
 
 /**
  * Executes GROOVY scripts given by user in
@@ -62,6 +67,10 @@ public class ContentGroovyExecutor
 	private GroovyShell shell;
 	
 	@Autowired
+	private InitializerCommon commonInitializer;
+	@Autowired
+	private UnityMessageSource unityMessageSource;
+	@Autowired
 	private UnityServerConfiguration config;
 	@Autowired
 	private BulkProcessingManagement bulkProcessingManagement;
@@ -73,6 +82,10 @@ public class ContentGroovyExecutor
 	private PreferencesManagement preferencesManagement;
 	@Autowired
 	private UserImportManagement userImportManagement;
+	@Autowired
+	private AttributeTypeSupport attributeTypeSupport;
+	@Autowired
+	private IdentityTypeSupport identityTypeSupport;
 	@Autowired
 	@Qualifier("insecure")
 	private AttributeClassManagement attributeClassManagement;
@@ -142,12 +155,12 @@ public class ContentGroovyExecutor
 		if (conf == null || conf.getType() != InitializerType.GROOVY)
 			throw new IllegalArgumentException(
 					"conf must not be null and must be of " + InitializerType.GROOVY + " type");
-		run(conf.getFile());
+		run(conf.getFile(), conf.getPhase());
 	}
 
-	private void run(File file)
+	private void run(File file, InitializationPhase phase)
 	{
-		LOG.info("Executing {} script: {}", InitializerType.GROOVY, file.toString());
+		LOG.info("Phase {} of {} script: {}", phase, InitializerType.GROOVY, file.toString());
 		Stopwatch timer = Stopwatch.createStarted();
 		try
 		{
@@ -189,6 +202,10 @@ public class ContentGroovyExecutor
 		binding.setVariable("translationProfileManagement", translationProfileManagement);
 		binding.setVariable("userImportManagement", userImportManagement);
 		binding.setVariable("config", config);
+		binding.setVariable("commonInitializer", commonInitializer);
+		binding.setVariable("unityMessageSource", unityMessageSource);
+		binding.setVariable("attributeTypeSupport", attributeTypeSupport);
+		binding.setVariable("identityTypeSupport", identityTypeSupport);
 		binding.setVariable("log", LOG);
 		return binding;
 	}
