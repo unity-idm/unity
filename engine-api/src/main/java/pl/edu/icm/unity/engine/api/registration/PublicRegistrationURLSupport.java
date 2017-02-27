@@ -9,7 +9,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
-import pl.edu.icm.unity.engine.api.wellknown.PublicWellKnownURLServlet;
+import pl.edu.icm.unity.engine.api.wellknown.PublicWellKnownURLServletProvider;
 import pl.edu.icm.unity.engine.api.wellknown.SecuredWellKnownURLServlet;
 
 /**
@@ -33,7 +33,7 @@ public class PublicRegistrationURLSupport
 	 */
 	public static String getPublicRegistrationLink(String formName, SharedEndpointManagement sharedEndpointMan)
 	{
-		return sharedEndpointMan.getServletUrl(PublicWellKnownURLServlet.SERVLET_PATH) + 
+		return sharedEndpointMan.getServletUrl(PublicWellKnownURLServletProvider.SERVLET_PATH) + 
 				"#!" + REGISTRATION_FRAGMENT_PREFIX + urlEncodePath(formName);
 	}
 
@@ -58,7 +58,7 @@ public class PublicRegistrationURLSupport
 	public static String getPublicRegistrationLink(String formName, String code, 
 			SharedEndpointManagement sharedEndpointMan)
 	{
-		return sharedEndpointMan.getServletUrl(PublicWellKnownURLServlet.SERVLET_PATH) +
+		return sharedEndpointMan.getServletUrl(PublicWellKnownURLServletProvider.SERVLET_PATH) +
 				"?" + CODE_PARAM + "=" + code +
 				"#!" + REGISTRATION_FRAGMENT_PREFIX + urlEncodePath(formName);
 	}

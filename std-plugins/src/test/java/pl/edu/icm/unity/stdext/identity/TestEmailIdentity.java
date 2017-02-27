@@ -7,6 +7,8 @@ package pl.edu.icm.unity.stdext.identity;
 import static com.googlecode.catchexception.CatchException.catchException;
 import static com.googlecode.catchexception.CatchException.caughtException;
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
@@ -46,5 +48,25 @@ public class TestEmailIdentity
 	{
 		EmailIdentity emailId = new EmailIdentity();
 		emailId.validate(toCheck);
+	}
+	
+	@Test
+	public void comparisonDoesNotDependOnLocalPartCase() throws Exception
+	{
+		EmailIdentity idType = new EmailIdentity();
+		String id1 = idType.getComparableValue("UppeR@example.com", null, null);
+		String id2 = idType.getComparableValue("uPPer@example.com", null, null);
+		
+		assertThat(id1, is(id2));
+	}
+
+	@Test
+	public void comparisonDependsOnDomainPartCase() throws Exception
+	{
+		EmailIdentity idType = new EmailIdentity();
+		String id1 = idType.getComparableValue("u@examplE.com", null, null);
+		String id2 = idType.getComparableValue("u@example.com", null, null);
+		
+		assertThat(id1, is(not(id2)));
 	}
 }

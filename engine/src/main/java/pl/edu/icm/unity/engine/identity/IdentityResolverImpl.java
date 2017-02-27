@@ -125,7 +125,7 @@ public class IdentityResolverImpl implements IdentityResolver
 					log.debug("Identity " + identity + " was found but is not confirmed, "
 							+ "not returning it for loggin in");
 				}
-			} catch (EngineException e)
+			} catch (Exception e)
 			{
 				log.trace("Got exception searching identity, likely it simply does not exist", e);
 			}

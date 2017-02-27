@@ -4,14 +4,21 @@
 
 
 if [ -e "$PID" ]
- then
+then
   if [ -d /proc/$(cat "$PID") ]
-   then
-     echo "A UNITY instance may be already running with process id "$(cat $PID)
-     echo "If this is not the case, delete the file $PID and re-run this script"
-     exit 1
-   fi
+  then
+    echo "A UNITY instance may be already running with process id "$(cat $PID)
+    echo "If this is not the case, delete the file $PID and re-run this script"
+    exit 1
+  fi
 fi
+
+PIDDIR=`dirname "$PID"`
+if [ ! -e "$PIDDIR" ]
+then
+   mkdir "$PIDDIR"
+fi
+
 
 cd /
 
@@ -19,7 +26,7 @@ CP=.$(find -L "$LIB" -type d -exec printf ":{}/*" \;)
 
 export CLASSPATH=$CP
 
-RUN_COMMAND="$JAVA ${MEM} ${OPTS} ${DEFS} pl.edu.icm.unity.server.UnityApplication ${PARAM}"
+RUN_COMMAND="$JAVA ${MEM} ${OPTS} ${DEFS} pl.edu.icm.unity.engine.server.UnityApplication ${PARAM}"
 if [ "${AUTHBIND}" ]
 then
         nohup "${AUTHBIND}" --deep ${RUN_COMMAND} >& "$STARTLOG" &

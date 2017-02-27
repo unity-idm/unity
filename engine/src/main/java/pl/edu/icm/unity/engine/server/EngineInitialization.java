@@ -62,7 +62,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.ServerInitializer;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import pl.edu.icm.unity.engine.api.wellknown.PublicWellKnownURLServlet;
+import pl.edu.icm.unity.engine.api.wellknown.PublicWellKnownURLServletProvider;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
@@ -199,11 +199,10 @@ public class EngineInitialization extends LifecycleBase
 	private SharedEndpointManagementImpl sharedEndpointManagement;
 	@Autowired(required = false)
 	private ConfirmationServletProvider confirmationServletFactory;
-	@Autowired(required = false)
-	private PublicWellKnownURLServlet publicWellKnownURLServlet;
-
 	@Autowired
 	private ContentInitializersExecutor initializersExecutor;
+	@Autowired(required = false)
+	private PublicWellKnownURLServletProvider publicWellKnownURLServlet;
 	
 	
 	private long endpointsLoadTime;
@@ -351,13 +350,13 @@ public class EngineInitialization extends LifecycleBase
 		}	
 		
 		log.info("Deploing public well-known URL servlet");
-		ServletHolder holder = new ServletHolder(publicWellKnownURLServlet.getServiceServlet());
+		ServletHolder holder = publicWellKnownURLServlet.getServiceServlet();
 		FilterHolder filterHolder = new FilterHolder(publicWellKnownURLServlet.getServiceFilter());
 		try
 		{
-			sharedEndpointManagement.deployInternalEndpointServlet(PublicWellKnownURLServlet.SERVLET_PATH, 
+			sharedEndpointManagement.deployInternalEndpointServlet(PublicWellKnownURLServletProvider.SERVLET_PATH, 
 					holder, true);
-			sharedEndpointManagement.deployInternalEndpointFilter(PublicWellKnownURLServlet.SERVLET_PATH, 
+			sharedEndpointManagement.deployInternalEndpointFilter(PublicWellKnownURLServletProvider.SERVLET_PATH, 
 					filterHolder);
 		} catch (EngineException e)
 		{
@@ -374,7 +373,7 @@ public class EngineInitialization extends LifecycleBase
 		}	
 		
 		log.info("Deploing confirmation servlet");
-		ServletHolder holder = new ServletHolder(confirmationServletFactory.getServiceServlet());
+		ServletHolder holder = confirmationServletFactory.getServiceServlet();
 		FilterHolder filterHolder = new FilterHolder(confirmationServletFactory.getServiceFilter());
 		try
 		{

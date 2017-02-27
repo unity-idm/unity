@@ -7,7 +7,7 @@ License: BSD
 Distribution: RedHat
 Group: System Environment/Daemons
 URL: http://unity-idm.eu
-Requires: java >= 1.7.0 findutils bash
+Requires: java >= 1.8.0 findutils bash
 BuildArch: @component-architecture@
 Packager: Krzysztof Benedyczak <unity-idm-discuss@lists.sourceforge.net> 
 @preamble@
@@ -17,6 +17,9 @@ Unity is a complete identity and federation management solution. This package
 provides a self-contained Unity server. 
 
 %changelog
+* Sat Feb 26 2017 Krzysztof Benedyczak:
+- Updated java version and moved to systemd
+
 * Mon Feb 17 2014 Krzysztof Benedyczak:
 - Updated etc structure.
 
@@ -40,12 +43,13 @@ provides a self-contained Unity server.
 %attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm/pki"
 %attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/*.conf"
 %attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/*.properties"
+%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/*.xml"
 %attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/authenticators/*"
 %attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/endpoints/*"
 %attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/pki/*"
 %attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/i18n/*"
 
-%attr(755, root, root) "/etc/rc.d/init.d/unity-idm-server"
+%attr(644, root, root) "/usr/lib/systemd/system/unity-idm.service"
 
 #
 #Others
@@ -80,12 +84,12 @@ provides a self-contained Unity server.
     -s /sbin/nologin -r -d /usr/share/unity-idm unity-idm 2>/dev/null || : 
 
 %post
-/sbin/chkconfig --add unity-idm-server
+/usr/bin/systemctl enable unity-idm.service
 
 %preun
 if [ "$1" = "0" ]; then
- 	/etc/init.d/unity-idm-server stop >/dev/null 2>&1
- 	/sbin/chkconfig --del unity-idm-server
+	/usr/bin/systemctl stop unity-idm.service >/dev/null 2>&1
+	/usr/bin/systemctl disable unity-idm.service
 fi
 
 
