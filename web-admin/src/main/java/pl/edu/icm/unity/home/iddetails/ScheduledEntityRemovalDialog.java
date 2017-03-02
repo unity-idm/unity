@@ -34,7 +34,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
  * Dialog allowing to either immediately or with grace period schedule the entity removal.
  * @author K. Benedyczak
  */
-public class RemoveEntityDialog extends AbstractDialog
+public class ScheduledEntityRemovalDialog extends AbstractDialog
 {
 	private final static String NOW = "now";
 	private final static String SCHEDULE = "sched";
@@ -45,7 +45,7 @@ public class RemoveEntityDialog extends AbstractDialog
 	private OptionGroup nowOrLater;
 	private TextField days;
 	
-	public RemoveEntityDialog(UnityMessageSource msg, long entityId, 
+	public ScheduledEntityRemovalDialog(UnityMessageSource msg, long entityId, 
 			EntityManagement identitiesManagement, WebAuthenticationProcessor authnProcessor)
 	{
 		super(msg, msg.getMessage("RemoveEntityDialog.caption"));

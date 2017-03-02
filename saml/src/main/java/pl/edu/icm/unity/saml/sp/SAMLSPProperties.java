@@ -245,6 +245,10 @@ public class SAMLSPProperties extends SamlProperties
 			PKIManagement pkiMan) throws ConfigurationException
 	{
 		super(P, properties, meta, log);
+		
+		addCachedPrefixes("unity\\.saml\\.requester\\.remoteIdp\\.[^.]+\\.certificates\\.",
+				"unity\\.saml\\.requester\\.remoteIdp\\.[^.]+\\.name\\.");
+		
 		sourceProperties = new Properties();
 		sourceProperties.putAll(properties);
 		this.pkiManagement = pkiMan;
@@ -325,7 +329,6 @@ public class SAMLSPProperties extends SamlProperties
 				+ " explicit trusted providers, took " + (System.currentTimeMillis() - start) + "ms");
 	}
 
-	
 	public X509Credential getRequesterCredential()
 	{
 		String credential = getValue(SAMLSPProperties.CREDENTIAL);
@@ -471,6 +474,4 @@ public class SAMLSPProperties extends SamlProperties
 	{
 		return new SAMLSPProperties(this);
 	}
-	
-	
 }

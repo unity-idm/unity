@@ -35,7 +35,17 @@ public class ConfirmDialog extends AbstractDialog
 		this.lightweightWrapperPanel = true;
 		setSizeMode(SizeMode.SMALL);
 	}
-
+	
+	protected ConfirmDialog(UnityMessageSource msg, String question) 
+	{
+		this(msg, msg.getMessage("ConfirmDialog.confirm"), question, null);
+	}
+	
+	protected void setCallback(Callback callback)
+	{
+		this.callback = callback;
+	}
+	
 	public void setHTMLContent(boolean how)
 	{
 		this.htmlContent = how;

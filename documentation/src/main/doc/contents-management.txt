@@ -82,8 +82,7 @@ the same attribute. Note that if a statement creates a dynamic attribute which i
 the dynamic one is always skipped. 
 
 Condition and (in case of dynamic attribute) attribute value expressions are given with MVEL language. 
-See https://en.wikisource.org/wiki/MVEL_Language_Guide for a generic introduction. Below we present
-a number of examples of the common cases.
+See {mveldoc} for a generic introduction. Below we present a number of examples of the common cases.
 
 Finally a statement can have an 'extra' attribute group defined. If such group is set, then the attributes
 from this extra group are available in the MVEL context of conditions and dynamic value expressions. 
@@ -166,7 +165,7 @@ in attribute type description (see Schema Management->Attribute Types). The two 
 [NOTE]
 ===========
 It is possible to create an entity without assigning any authorization role. Such entity will be present in the system,
-but won't be able to perform besides authentication. It won't be even allowed to read its own attributes.
+but won't be able to perform any operation besides authenticating itself. It won't be even allowed to read its own attributes.
 ===========
 
 [NOTE]
@@ -322,7 +321,7 @@ Scheduled actions are executed with a cron-like schedule (see tooltip for help).
 in a simple way. the only complicated and key part is rule condition, which must evaluate to true 
 to select entity for which action should be invoked. 
 
-Condition is given in MVEL language (see https://en.wikisource.org/wiki/MVEL_Language_Guide for details).
+Condition is given in MVEL language (see {mveldoc} for details).
 The context exposes the following variables:
 
 . +attr+ Map indexed with names of attribute in the '/' group. 
