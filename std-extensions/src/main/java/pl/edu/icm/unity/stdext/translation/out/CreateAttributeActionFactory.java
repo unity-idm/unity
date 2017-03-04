@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.mvel2.MVEL;
@@ -88,10 +89,12 @@ public class CreateAttributeActionFactory extends AbstractOutputTranslationActio
 				values = (List<?>) value;
 			else
 				values = Collections.singletonList(value);
-			
-			@SuppressWarnings({ "unchecked", "rawtypes"})
-			Attribute<?> newAttr = new Attribute(attrNameString, new StringAttributeSyntax(), "/", 
-					AttributeVisibility.full, values);
+			List<String> stringValues = values.stream().
+					map(Object::toString).
+					collect(Collectors.toList());
+			Attribute<String> newAttr = new Attribute<>(attrNameString, 
+					new StringAttributeSyntax(), "/", 
+					AttributeVisibility.full, stringValues);
 			result.getAttributes().add(newAttr);
 			log.debug("Created a new attribute: " + newAttr);
 		}

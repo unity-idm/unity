@@ -48,6 +48,7 @@ public class SamlResponseHandler
 
 	public void handleException(Exception e, boolean destroySession) throws EopException
 	{
+		log.debug("Exception raised and will trigger SAML error response from IdP", e);
 		SAMLServerException convertedException = samlProcessor.convert2SAMLError(e, null, true);
 		ResponseDocument respDoc = samlProcessor.getErrorResponse(convertedException);
 		returnSamlErrorResponse(respDoc, convertedException, destroySession);

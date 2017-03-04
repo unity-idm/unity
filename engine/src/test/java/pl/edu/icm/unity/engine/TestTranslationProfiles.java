@@ -24,6 +24,9 @@ import java.util.stream.Stream;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
@@ -62,8 +65,11 @@ import pl.edu.icm.unity.server.translation.out.OutputTranslationProfile;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationRule;
 import pl.edu.icm.unity.server.translation.out.TranslationInput;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
+import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
+import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
@@ -91,8 +97,6 @@ import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
-
-import com.google.common.collect.Sets;
 
 /**
  * Integration and engine related part tests of the subsystem mapping the remote data to the unity's representation. 
@@ -593,7 +597,67 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		assertEquals("p1", at.getTranslationProfile());
 	}
 
-	
+	@Test
+	public void outputTranslationProducesStringAttributes() throws Exception
+	{
+		AttributeType oType = new AttributeType("o", new StringAttributeSyntax());
+		oType.setMaxElements(10);
+		attrsMan.addAttributeType(oType);
+		AttributeType eType = new AttributeType("e", new VerifiableEmailAttributeSyntax());
+		attrsMan.addAttributeType(eType);
+		AttributeType fType = new AttributeType("f", new FloatingPointAttributeSyntax());
+		attrsMan.addAttributeType(fType);
+		
+		setupPasswordAuthn();
+		Identity user = createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		Entity userE = idsMan.getEntity(new EntityParam(user));
+		
+		List<OutputTranslationRule> rules = new ArrayList<>();
+		OutputTranslationAction action1 = outtactionReg.getByName(
+				CreateAttributeActionFactory.NAME).getInstance(
+						"a1", "attr['o']");
+		rules.add(new OutputTranslationRule(action1, new TranslationCondition()));
+		OutputTranslationAction action2 = outtactionReg.getByName(
+				CreateAttributeActionFactory.NAME).getInstance(
+						"a2", "attr['e']"); 
+		rules.add(new OutputTranslationRule(action2, new TranslationCondition()));
+		OutputTranslationAction action3 = outtactionReg.getByName(
+				CreateAttributeActionFactory.NAME).getInstance(
+						"a3", "attr['f']"); 
+		rules.add(new OutputTranslationRule(action3, new TranslationCondition()));
+
+		OutputTranslationProfile tp1 = new OutputTranslationProfile("p1", rules, outtactionReg);
+		
+		setupUserContext("user1", false);
+		InvocationContext.getCurrent().getLoginSession().addAuthenticatedIdentities(Sets.newHashSet("user1"));
+		
+		@SuppressWarnings("unchecked")
+		TranslationInput input = new TranslationInput(
+				Lists.newArrayList(
+					new StringAttribute("o", "/", AttributeVisibility.full, "v1"),
+					new VerifiableEmailAttribute("e", "/", 
+						AttributeVisibility.full, "email@example.com"),
+					new FloatingPointAttribute("f", "/", 
+						AttributeVisibility.full, 123)), 
+				userE, 
+				"/", Collections.singleton("/"),
+				"req", "proto", "subProto");
+		
+		TranslationResult result = tp1.translate(input);
+
+		Collection<Attribute<?>> attributes = result.getAttributes();
+		assertThat(attributes.size(), is(6));
+		for (Attribute<?> a: attributes)
+		{
+			if (a.getName().startsWith("a"))
+			{
+				assertThat(a.getAttributeSyntax().getValueSyntaxId(), 
+						is(StringAttributeSyntax.ID));
+				for (Object val: a.getValues())
+					assertThat(val, is(instanceOf(String.class)));
+			}
+		}
+	}
 	
 	@Test
 	public void testManualMergeWithExisting() throws Exception
