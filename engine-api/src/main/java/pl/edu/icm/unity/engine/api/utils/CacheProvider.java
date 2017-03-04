@@ -24,7 +24,6 @@ public class CacheProvider
 	{
 		Configuration config = new Configuration();
 		config.setName("UNITY cache manager");
-		config.setUpdateCheck(false);
 		config.setMaxBytesLocalHeap(10240000L);
 		
 		CacheConfiguration defC = new CacheConfiguration();
