@@ -4,8 +4,9 @@
  */
 package pl.edu.icm.unity.engine.server;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -15,6 +16,8 @@ import org.apache.logging.log4j.Logger;
 import org.codehaus.groovy.control.CompilationFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import com.google.common.base.Stopwatch;
@@ -152,6 +155,8 @@ public class ContentGroovyExecutor
 	@Autowired
 	@Qualifier("insecure")
 	private TranslationProfileManagement translationProfileManagement;
+	@Autowired
+	private ApplicationContext applCtx;
 	
 	private boolean coldStart = false;
 
@@ -167,22 +172,28 @@ public class ContentGroovyExecutor
 		if (conf == null || conf.getType() != InitializerType.GROOVY)
 			throw new IllegalArgumentException(
 					"conf must not be null and must be of " + InitializerType.GROOVY + " type");
-		run(conf.getFile(), conf.getPhase());
+		run(conf.getFileLocation(), conf.getPhase());
 	}
 
-	private void run(File file, InitializationPhase phase)
+	private void run(String location, InitializationPhase phase)
 	{
-		LOG.info("Phase {} of {} script: {}", phase, InitializerType.GROOVY, file.toString());
+		LOG.info("Phase {} of {} script: {}", phase, InitializerType.GROOVY, location);
 		Stopwatch timer = Stopwatch.createStarted();
 		try
 		{
-			shell.evaluate(file);
+			shell.evaluate(getFileReader(location));
 		} catch (CompilationFailedException | IOException e)
 		{
 			throw new InternalException("Failed to initialize content from " + InitializerType.GROOVY 
-					+ " script: " + file.toString() + ": reason: " + e.getMessage(), e);
+					+ " script: " + location + ": reason: " + e.getMessage(), e);
 		}
-		LOG.info("{} script: {} finished in {}", InitializerType.GROOVY, file.toString(), timer);
+		LOG.info("{} script: {} finished in {}", InitializerType.GROOVY, location, timer);
+	}
+
+	private Reader getFileReader(String location) throws IOException
+	{
+		Resource resource = applCtx.getResource(location);
+		return new InputStreamReader(resource.getInputStream());
 	}
 
 	private Binding getBinding()

@@ -11,9 +11,11 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationConfiguration
 
 if (!isColdStart)
 {
-	log.debug("Database already initialized with content, skipping...");
+	log.info("Database already initialized with content, skipping...");
 	return;
 }
+
+log.info("Confirmation initializer processing...");
 
 try
 {

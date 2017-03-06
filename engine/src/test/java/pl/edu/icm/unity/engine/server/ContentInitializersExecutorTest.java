@@ -58,7 +58,7 @@ public class ContentInitializersExecutorTest
 		ContentInitConf config = configs.get(0);
 		assertThat(config.getType(), equalTo(InitializerType.GROOVY));
 		assertThat(config.getPhase(), equalTo(InitializationPhase.PRE_INIT));
-		assertThat(config.getFile().getName(), equalTo("unityServerContentInit.groovy"));
+		assertThat(config.getFileLocation(), equalTo("unityServerContentInit.groovy"));
 	}
 	
 	

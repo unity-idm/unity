@@ -7,7 +7,6 @@ package pl.edu.icm.unity.engine.server;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,7 +44,7 @@ public class ContentGroovyExecutorTest
 	{
 		// given
 		ContentInitConf conf = ContentInitConf.builder()
-				.withFile(new File("src/test/resources/addCredentialsTest.groovy"))
+				.withFileLocation("addCredentialsTest.groovy")
 				.withGroovy()
 				.withPhase(InitializationPhase.POST_INIT)
 				.build();

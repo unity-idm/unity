@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.engine.api.initializers;
 
-import java.io.File;
-
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
 /**
@@ -18,7 +16,7 @@ public class ContentInitConf
 {
 	private InitializerType type;
 	private InitializationPhase phase;
-	private File file;
+	private String location;
 	
 	private ContentInitConf() {}
 	
@@ -42,14 +40,14 @@ public class ContentInitConf
 		this.type = type;
 	}
 
-	public File getFile()
+	public String getFileLocation()
 	{
-		return file;
+		return location;
 	}
 
-	public void setFile(File file)
+	public void setFileLocation(String fileName)
 	{
-		this.file = file;
+		this.location = fileName;
 	}
 
 	public static Builder builder()
@@ -60,7 +58,7 @@ public class ContentInitConf
 	@Override
 	public String toString()
 	{
-		return "ContentInitConf [type=" + type + ", phase=" + phase + ", file=" + file + "]";
+		return "ContentInitConf [type=" + type + ", phase=" + phase + ", location=" + location + "]";
 	}
 
 	@Override
@@ -68,7 +66,7 @@ public class ContentInitConf
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((file == null) ? 0 : file.hashCode());
+		result = prime * result + ((location == null) ? 0 : location.hashCode());
 		result = prime * result + ((phase == null) ? 0 : phase.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
@@ -84,11 +82,11 @@ public class ContentInitConf
 		if (getClass() != obj.getClass())
 			return false;
 		ContentInitConf other = (ContentInitConf) obj;
-		if (file == null)
+		if (location == null)
 		{
-			if (other.file != null)
+			if (other.location != null)
 				return false;
-		} else if (!file.equals(other.file))
+		} else if (!location.equals(other.location))
 			return false;
 		if (phase != other.phase)
 			return false;
@@ -101,7 +99,7 @@ public class ContentInitConf
 	{
 		private InitializerType type;
 		private InitializationPhase phase;
-		private File file;
+		private String location;
 
 		public Builder withType(InitializerType type)
 		{
@@ -109,9 +107,9 @@ public class ContentInitConf
 			return this;
 		}
 
-		public Builder withFile(File file)
+		public Builder withFileLocation(String location)
 		{
-			this.file = file;
+			this.location = location;
 			return this;
 		}
 		
@@ -129,14 +127,14 @@ public class ContentInitConf
 
 		public ContentInitConf build()
 		{
-			if (file == null)
-				throw new IllegalArgumentException("file must not be null");
+			if (location == null)
+				throw new IllegalArgumentException("location must not be null");
 			if (type == null)
 				throw new IllegalArgumentException("type must not be null");
 			if (phase == null)
 				throw new IllegalArgumentException("phase must not be null");
 			ContentInitConf conf = new ContentInitConf();
-			conf.setFile(file);
+			conf.setFileLocation(location);
 			conf.setType(type);
 			conf.setPhase(phase);
 			return conf;

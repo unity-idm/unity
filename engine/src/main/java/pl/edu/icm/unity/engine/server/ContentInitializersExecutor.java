@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.engine.server;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +11,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -77,26 +74,10 @@ public class ContentInitializersExecutor
 		List<ContentInitConf> inizializers = new ArrayList<>(initializersList.size());
 		for (String key : initializersList)
 		{
-			String fileName = config.getValue(key + UnityServerConfiguration.CONTENT_INITIALIZERS_FILE);
+			String location = config.getValue(key + UnityServerConfiguration.CONTENT_INITIALIZERS_FILE);
 			String typeStr = config.getValue(key + UnityServerConfiguration.CONTENT_INITIALIZERS_TYPE);
 			String phaseStr = config.getValue(key + UnityServerConfiguration.CONTENT_INITIALIZERS_PHASE);
 			
-			File file;
-			try
-			{
-				file = new ClassPathResource(fileName).getFile();
-			} catch (IOException e)
-			{
-				throw new InternalException(String.format("Invalid relative path provided for "
-						+ "initializer: '%s'", fileName), e);
-			}
-
-			if (!file.exists() || !file.canRead())
-			{
-				throw new InternalException(String.format("Provided file '%s' does not exist or "
-						+ "does not have read permissions.", fileName));
-			}
-
 			InitializerType type = null;
 			try
 			{
@@ -104,7 +85,7 @@ public class ContentInitializersExecutor
 			} catch (IllegalArgumentException e)
 			{
 				throw new InternalException(String.format(
-						"Invalid initializer type provided for file '%s', was: '%s'. Supported values: %s", file,
+						"Invalid initializer type provided for file '%s', was: '%s'. Supported values: %s", location,
 						typeStr, InitializerType.typeNamesToString()), e);
 			}
 			
@@ -115,11 +96,11 @@ public class ContentInitializersExecutor
 			} catch (IllegalArgumentException e)
 			{
 				throw new InternalException(String.format(
-						"Invalid initializer phase provided for file '%s', was: '%s'. Supported values: %s", file,
+						"Invalid initializer phase provided for file '%s', was: '%s'. Supported values: %s", location,
 						phaseStr, InitializationPhase.typeNamesToString()), e);
 			}
 			inizializers.add(ContentInitConf.builder()
-					.withFile(file)
+					.withFileLocation(location)
 					.withType(type)
 					.withPhase(phase)
 					.build());

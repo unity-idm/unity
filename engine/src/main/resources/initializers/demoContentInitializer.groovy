@@ -21,9 +21,11 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo
 
 if (!isColdStart)
 {
-	log.debug("Database already initialized with content, skipping...");
+	log.info("Database already initialized with content, skipping...");
 	return;
 }
+
+log.info("Creating demo content...");
 
 try
 {
