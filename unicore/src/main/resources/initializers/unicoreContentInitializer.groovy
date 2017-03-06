@@ -10,6 +10,12 @@ import pl.edu.icm.unity.types.basic.AttributeType
 import pl.edu.icm.unity.types.basic.AttributesClass
 import pl.edu.icm.unity.types.basic.Group
 
+if (!isColdStart)
+{
+	log.debug("Database already initialized with content, skipping...");
+	return;
+}
+
 try
 {
 	commonInitializer.initializeCommonAttributeTypes();

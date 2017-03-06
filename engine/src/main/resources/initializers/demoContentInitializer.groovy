@@ -19,6 +19,12 @@ import pl.edu.icm.unity.types.basic.IdentityParam
 import pl.edu.icm.unity.types.basic.VerifiableEmail
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo
 
+if (!isColdStart)
+{
+	log.debug("Database already initialized with content, skipping...");
+	return;
+}
+
 try
 {
 	commonInitializer.initializeCommonAttributeTypes();

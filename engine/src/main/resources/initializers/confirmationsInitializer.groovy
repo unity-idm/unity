@@ -9,6 +9,12 @@ import pl.edu.icm.unity.types.basic.MessageTemplate
 import pl.edu.icm.unity.types.basic.NotificationChannel
 import pl.edu.icm.unity.types.confirmation.ConfirmationConfiguration
 
+if (!isColdStart)
+{
+	log.debug("Database already initialized with content, skipping...");
+	return;
+}
+
 try
 {
 	if (!confirmationConfigurationManagement.getAllConfigurations().isEmpty())

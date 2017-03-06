@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
@@ -34,6 +35,7 @@ import pl.edu.icm.unity.types.basic.IdentityType;
  */
 @Component
 @InvocationEventProducer
+@Primary
 public class IdentityTypeManagementImpl implements IdentityTypesManagement
 {
 	private IdentityTypeDAO dbIdentities;
@@ -81,7 +83,7 @@ public class IdentityTypeManagementImpl implements IdentityTypesManagement
 		Map<String, AttributeType> atsMap = dbAttributes.getAllAsMap();
 		Map<String, String> extractedAts = toUpdate.getExtractedAttributes();
 		Set<AttributeType> supportedForExtraction = idTypeDef.getAttributesSupportedForExtraction();
-		Map<String, AttributeType> supportedForExtractionMap = new HashMap<String, AttributeType>();
+		Map<String, AttributeType> supportedForExtractionMap = new HashMap<>();
 		for (AttributeType at: supportedForExtraction)
 			supportedForExtractionMap.put(at.getName(), at);
 

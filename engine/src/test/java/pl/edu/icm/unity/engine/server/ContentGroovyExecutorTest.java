@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import pl.edu.icm.unity.engine.UnityIntegrationTest;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.initializers.ContentInitConf;
+import pl.edu.icm.unity.engine.api.initializers.InitializationPhase;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
@@ -46,6 +47,7 @@ public class ContentGroovyExecutorTest
 		ContentInitConf conf = ContentInitConf.builder()
 				.withFile(new File("src/test/resources/addCredentialsTest.groovy"))
 				.withGroovy()
+				.withPhase(InitializationPhase.POST_INIT)
 				.build();
 		removeCredentialDefinitions("secured password100");
 		int initSizeOfCredentials = credMan.getCredentialDefinitions().size();

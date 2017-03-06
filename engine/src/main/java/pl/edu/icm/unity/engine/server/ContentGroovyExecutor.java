@@ -6,6 +6,8 @@ package pl.edu.icm.unity.engine.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -46,13 +48,17 @@ import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.UserImportManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.initializers.ContentInitConf;
 import pl.edu.icm.unity.engine.api.initializers.InitializationPhase;
 import pl.edu.icm.unity.engine.api.initializers.InitializerType;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.utils.InitializerCommon;
+import pl.edu.icm.unity.types.basic.IdentityType;
 
 /**
  * Executes GROOVY scripts given by user in
@@ -67,6 +73,8 @@ public class ContentGroovyExecutor
 	private GroovyShell shell;
 	
 	@Autowired
+	private IdentityTypesRegistry idTypesReg;
+	@Autowired
 	private InitializerCommon commonInitializer;
 	@Autowired
 	private UnityMessageSource unityMessageSource;
@@ -74,8 +82,6 @@ public class ContentGroovyExecutor
 	private UnityServerConfiguration config;
 	@Autowired
 	private BulkProcessingManagement bulkProcessingManagement;
-	@Autowired
-	private IdentityTypesManagement identityTypesManagement;
 	@Autowired
 	private PKIManagement pkiManagement;
 	@Autowired
@@ -86,6 +92,9 @@ public class ContentGroovyExecutor
 	private AttributeTypeSupport attributeTypeSupport;
 	@Autowired
 	private IdentityTypeSupport identityTypeSupport;
+	@Autowired
+	@Qualifier("insecure")
+	private IdentityTypesManagement identityTypesManagement;
 	@Autowired
 	@Qualifier("insecure")
 	private AttributeClassManagement attributeClassManagement;
@@ -143,10 +152,13 @@ public class ContentGroovyExecutor
 	@Autowired
 	@Qualifier("insecure")
 	private TranslationProfileManagement translationProfileManagement;
+	
+	private boolean coldStart = false;
 
 	@PostConstruct
 	public void initialize()
 	{
+		coldStart = determineIfColdStart();
 		shell = new GroovyShell(getBinding());
 	}
 
@@ -206,7 +218,31 @@ public class ContentGroovyExecutor
 		binding.setVariable("unityMessageSource", unityMessageSource);
 		binding.setVariable("attributeTypeSupport", attributeTypeSupport);
 		binding.setVariable("identityTypeSupport", identityTypeSupport);
+		binding.setVariable("isColdStart", coldStart);
 		binding.setVariable("log", LOG);
 		return binding;
+	}
+	
+	private boolean determineIfColdStart()
+	{
+		try
+		{
+			Map<String, IdentityType> defined = identityTypesManagement.getIdentityTypes()
+					.stream().collect(Collectors.toMap(IdentityType::getName, type -> type));
+			for (IdentityTypeDefinition it: idTypesReg.getAll())
+			{
+				if (!defined.containsKey(it.getId()))
+					return true;
+			}
+		} catch (EngineException e)
+		{
+			throw new InternalException("Initialization problem when checking identity types.", e);
+		}
+		return false;
+	}
+
+	public boolean isColdStart()
+	{
+		return coldStart;
 	}
 }

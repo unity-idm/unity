@@ -23,6 +23,12 @@ import pl.edu.icm.unity.types.translation.TranslationAction
 import pl.edu.icm.unity.types.translation.TranslationProfile
 import pl.edu.icm.unity.types.translation.TranslationRule
 
+if (!isColdStart)
+{
+	log.debug("Database already initialized with content, skipping...");
+	return;
+}
+	
 initExtraUser();
 initRegistrationForm();
 

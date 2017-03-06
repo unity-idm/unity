@@ -13,6 +13,12 @@ import pl.edu.icm.unity.types.basic.Group
 import pl.edu.icm.unity.types.basic.Identity
 import pl.edu.icm.unity.types.basic.IdentityParam
 
+if (!isColdStart)
+{
+	log.debug("Database already initialized with content, skipping...");
+	return;
+}
+
 try
 {
 	groupsManagement.addGroup(new Group("/oauth-clients"));

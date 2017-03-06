@@ -126,4 +126,9 @@ public class ContentInitializersExecutor
 		}
 		return inizializers;
 	}
+	
+	public boolean isColdStart()
+	{
+		return groovyExecutor.isColdStart();
+	}
 }

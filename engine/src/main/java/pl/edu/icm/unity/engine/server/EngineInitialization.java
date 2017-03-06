@@ -204,9 +204,7 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired(required = false)
 	private PublicWellKnownURLServletProvider publicWellKnownURLServlet;
 	
-	
 	private long endpointsLoadTime;
-	private boolean coldStart = false;
 	
 	@Override
 	public void start()
@@ -215,16 +213,7 @@ public class EngineInitialization extends LifecycleBase
 		boolean skipLoading = config.getBooleanValue(
 				UnityServerConfiguration.IGNORE_CONFIGURED_CONTENTS_SETTING);
 		if (!skipLoading)
-		{
-			coldStart = isColdStart();
-			if (coldStart)
-				initializersExecutor.runPreInitPhase();
-			
 			initializeDatabaseContents();
-
-			if (coldStart)
-				initializersExecutor.runPostInitPhase();
-		}
 		else
 			log.info("Unity is configured to SKIP DATABASE LOADING FROM CONFIGURATION");
 		startLogConfigurationMonitoring();
@@ -331,6 +320,8 @@ public class EngineInitialization extends LifecycleBase
 		
 		runInitializers();
 		
+		initializersExecutor.runPreInitPhase();
+		
 		initializeTranslationProfiles();
 		boolean eraClean = config.getBooleanValue(
 				UnityServerConfiguration.CONFIG_ONLY_ERA_CONTROL);
@@ -339,6 +330,8 @@ public class EngineInitialization extends LifecycleBase
 		initializeAuthenticators();
 		initializeRealms();
 		initializeEndpoints();
+
+		initializersExecutor.runPostInitPhase();
 	}
 	
 	private void deployPublicWellKnownURLServlet()
@@ -470,18 +463,6 @@ public class EngineInitialization extends LifecycleBase
 			}
 		});
 	}
-	
-	private boolean isColdStart()
-	{
-		Map<String, IdentityType> defined = dbIdentities.getAllAsMap();
-		for (IdentityTypeDefinition it: idTypesReg.getAll())
-		{
-			if (!defined.containsKey(it.getId()))
-				return true;
-		}
-		return false;
-	}
-
 	
 	private void initializeAttributeTypes() 
 	{
@@ -983,7 +964,7 @@ public class EngineInitialization extends LifecycleBase
 	
 	private void runInitializers()
 	{
-		if (!coldStart)
+		if (!initializersExecutor.isColdStart())
 			return;
 		List<String> enabledL = config.getListOfValues(UnityServerConfiguration.INITIALIZERS);
 		Map<String, ServerInitializer> initializersMap = new HashMap<>();
