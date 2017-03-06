@@ -6,9 +6,8 @@ package pl.edu.icm.unity.engine.translation.in;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -55,7 +54,7 @@ public class TestInputMapActions
 		when(attrsMan.get("stringA")).thenReturn(sA);
 		
 		AttributeValueConverter converter = mock(AttributeValueConverter.class); 
-		when(converter.externalValuesToInternal(eq("stringA"), anyListOf(String.class))).
+		when(converter.externalValuesToInternal(eq("stringA"), anyList())).
 			then(AdditionalAnswers.returnsSecondArg());
 		when(converter.externalValuesToInternal(eq("stringA"), anyList())).
 			then(AdditionalAnswers.returnsSecondArg());

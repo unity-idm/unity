@@ -6,7 +6,7 @@ package pl.edu.icm.unity.engine;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -54,7 +54,7 @@ public class TestUserImportService extends SecuredDBIntegrationTestBase
 		UserImportSPIFactory factory = mock(UserImportSPIFactory.class);
 		UserImportSPI importer = mock(UserImportSPI.class);
 		when(importer.importUser("id", "type")).thenReturn(null);		
-		when(factory.getInstance(anyObject(), anyObject())).thenReturn(importer);
+		when(factory.getInstance(any(), any())).thenReturn(importer);
 		when(factory.getName()).thenReturn("mockI");
 
 		List<UserImportSPIFactory> importersF = new ArrayList<>();

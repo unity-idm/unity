@@ -144,7 +144,7 @@ public class OAuthProcessorTest
 		
 		assertNotNull(internalToken.getUserInfo());
 		UserInfo userInfo = UserInfo.parse(internalToken.getUserInfo());
-		assertEquals("example@example.com", userInfo.getEmail().getAddress());
+		assertEquals("example@example.com", userInfo.getEmailAddress());
 		assertNotNull(userInfo.getSubject());
 		assertEquals("userA", userInfo.getSubject().getValue());		
 	}

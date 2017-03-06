@@ -8,25 +8,36 @@ import com.vaadin.ui.Button;
 
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.home.HomeEndpointProperties;
+import pl.edu.icm.unity.home.HomeEndpointProperties.RemovalModes;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Images;
 
 /**
- * Button allowing to launch {@link RemoveEntityDialog}
+ * Button allowing to launch {@link ScheduledEntityRemovalDialog}
  * @author K. Benedyczak
  */
 public class EntityRemovalButton extends Button
 {
 	public EntityRemovalButton(final UnityMessageSource msg, final long entity, 
-			final EntityManagement identitiesManagement, final WebAuthenticationProcessor authnProcessor)
+			final EntityManagement identitiesManagement, 
+			final EntityManagement insecureIdentitiesManagement, 
+			final WebAuthenticationProcessor authnProcessor,
+			HomeEndpointProperties config)
 	{
 		super(msg.getMessage("EntityRemovalButton.removeAccount"), Images.delete.getResource());
-		addClickListener(new ClickListener()
+		addClickListener((event) ->
 		{
-			@Override
-			public void buttonClick(ClickEvent event)
+			if (config.getBooleanValue(HomeEndpointProperties.DISABLE_REMOVAL_SCHEDULE))
 			{
-				new RemoveEntityDialog(msg, entity, identitiesManagement, authnProcessor).show();
+				RemovalModes removalMode = config.getEnumValue(
+						HomeEndpointProperties.REMOVAL_MODE, RemovalModes.class);
+				new ImmediateEntityRemovalDialog(msg, entity, insecureIdentitiesManagement, 
+						authnProcessor, removalMode).show();
+			} else
+			{
+				new ScheduledEntityRemovalDialog(msg, entity, identitiesManagement, 
+						authnProcessor).show();
 			}
 		});
 	}

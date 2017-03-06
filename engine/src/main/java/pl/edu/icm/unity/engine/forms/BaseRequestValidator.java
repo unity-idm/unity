@@ -49,7 +49,7 @@ public class BaseRequestValidator
 	@Autowired
 	private EntityResolver idResolver;
 	@Autowired
-	private IdentityTypesRegistry identityTypesRegistry;
+	protected IdentityTypesRegistry identityTypesRegistry;
 	@Autowired
 	private LocalCredentialsRegistry authnRegistry;
 	
@@ -172,7 +172,7 @@ public class BaseRequestValidator
 		}
 	}
 
-	private void checkIdentityIsNotPresent(IdentityParam idParam) throws IllegalFormContentsException
+	protected void checkIdentityIsNotPresent(IdentityParam idParam) throws IllegalFormContentsException
 	{
 		try
 		{

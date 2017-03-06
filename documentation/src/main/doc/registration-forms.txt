@@ -197,8 +197,7 @@ The last two are used after confirming elements as email of the form.
 
 ==== Example conditions
 
-The full MVEL documentation can be found here 
-https://en.wikisource.org/wiki/MVEL_Language_Guide
+The full MVEL documentation can be found here {mveldoc}
 
 
 Example conditions:

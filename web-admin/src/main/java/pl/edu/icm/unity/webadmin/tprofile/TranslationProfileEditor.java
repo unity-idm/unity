@@ -245,7 +245,6 @@ public class TranslationProfileEditor extends VerticalLayout
 		name.setReadOnly(false);
 		String old = name.getValue();
 		name.setValue(msg.getMessage("TranslationProfileEditor.nameCopy", old));
-		name.setReadOnly(true);
 	}
 	
 	private final class CallbackImplementation implements Callback

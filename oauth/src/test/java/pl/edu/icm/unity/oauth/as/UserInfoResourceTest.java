@@ -58,7 +58,7 @@ public class UserInfoResourceTest
 		assertEquals("application/json", resp.getHeaderString("Content-Type"));
 		UserInfo parsed = UserInfo.parse(resp.getEntity().toString());
 		assertEquals("userA", parsed.getSubject().getValue());
-		assertEquals("example@example.com", parsed.getEmail().getAddress());
+		assertEquals("example@example.com", parsed.getEmailAddress());
 	}
 	
 	@Test
