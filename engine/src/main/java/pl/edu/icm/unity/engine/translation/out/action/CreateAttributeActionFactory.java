@@ -94,6 +94,7 @@ public class CreateAttributeActionFactory extends AbstractOutputTranslationActio
 				sValues.add(v.toString());
 			
 			Attribute newAttr = new Attribute(attrNameString, StringAttributeSyntax.ID, "/", sValues);
+
 			result.getAttributes().add(newAttr);
 			log.debug("Created a new attribute: " + newAttr);
 		}
