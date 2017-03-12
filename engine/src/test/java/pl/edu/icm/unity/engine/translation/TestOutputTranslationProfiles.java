@@ -4,8 +4,11 @@
  */
 package pl.edu.icm.unity.engine.translation;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,6 +19,7 @@ import java.util.Map;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
@@ -32,7 +36,12 @@ import pl.edu.icm.unity.engine.translation.out.action.CreateAttributeActionFacto
 import pl.edu.icm.unity.engine.translation.out.action.CreatePersistentAttributeActionFactory;
 import pl.edu.icm.unity.engine.translation.out.action.CreatePersistentIdentityActionFactory;
 import pl.edu.icm.unity.engine.translation.out.action.FilterAttributeActionFactory;
+import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
+import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
@@ -164,6 +173,70 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 		assertNotNull(at.getCreationTs());
 		assertNotNull(at.getUpdateTs());
 		assertEquals("p1", at.getTranslationProfile());
+	}
+	
+	/**
+	 * We need to ensure that attribute created with CreateAttribute action are always string
+	 * and have also string values. 
+	 * @throws Exception
+	 */
+	@Test
+	public void outputTranslationProducesStringAttributes() throws Exception
+	{
+		AttributeType oType = new AttributeType("o", StringAttributeSyntax.ID);
+		aTypeMan.addAttributeType(oType);
+		AttributeType eType = new AttributeType("e", VerifiableEmailAttributeSyntax.ID);
+		aTypeMan.addAttributeType(eType);
+		AttributeType fType = new AttributeType("f", FloatingPointAttributeSyntax.ID);
+		aTypeMan.addAttributeType(fType);
+		
+		List<TranslationRule> rules = new ArrayList<>();
+		TranslationAction action1 = new TranslationAction(
+				CreateAttributeActionFactory.NAME, new String[] {
+						"a1", "attr['o']"});
+		rules.add(new TranslationRule("true", action1));
+		TranslationAction action2 = new TranslationAction(
+				CreateAttributeActionFactory.NAME, new String[] {
+						"a2", "attr['e']"}); 
+		rules.add(new TranslationRule("true", action2));
+		TranslationAction action3 = new TranslationAction(
+				CreateAttributeActionFactory.NAME, new String[] {
+						"a3", "attr['f']"}); 
+		rules.add(new TranslationRule("true", action3));
+
+		TranslationProfile tp1Cfg = new TranslationProfile("p1", "", ProfileType.OUTPUT, rules);
+		
+		setupPasswordAuthn();
+		Identity user = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		Entity userE = idsMan.getEntity(new EntityParam(user));
+		setupUserContext(DEF_USER, false);
+		InvocationContext.getCurrent().getLoginSession().addAuthenticatedIdentities(Sets.newHashSet("user1"));
+		
+		TranslationInput input = new TranslationInput(
+				Lists.newArrayList(
+					StringAttribute.of("o", "/", "v1"),
+					VerifiableEmailAttribute.of("e", "/", "email@example.com"),
+					FloatingPointAttribute.of("f", "/", 123d)), 
+				userE, 
+				"/", Collections.singleton("/"),
+				"req", "proto", "subProto");
+		
+		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
+			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg, outtactionReg);
+			return tp1.translate(input);
+		});
+		
+		Collection<Attribute> attributes = result.getAttributes();
+		assertThat(attributes.size(), is(6));
+		for (Attribute a: attributes)
+		{
+			if (a.getName().startsWith("a"))
+			{
+				assertThat(a.getValueSyntax(), is(StringAttributeSyntax.ID));
+				for (Object val: a.getValues())
+					assertThat(val, is(instanceOf(String.class)));
+			}
+		}
 	}
 }
 
