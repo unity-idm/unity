@@ -115,6 +115,14 @@
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-unicore</artifactId>
+			<version>${project.version}</version>
+			<type>zip</type>
+			<classifier>initializers</classifier>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
 			<artifactId>unity-server-rest</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
@@ -147,6 +155,14 @@
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-engine</artifactId>
+			<version>${project.version}</version>
+			<type>zip</type>
+			<classifier>initializers</classifier>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
 			<artifactId>unity-server-engine-api</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
@@ -175,6 +191,14 @@
 			<version>${project.version}</version>
 			<type>zip</type>
 			<classifier>i18n</classifier>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-oauth</artifactId>
+			<version>${project.version}</version>
+			<type>zip</type>
+			<classifier>initializers</classifier>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

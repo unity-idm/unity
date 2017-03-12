@@ -115,6 +115,18 @@
 				<version>2.4</version>
 				<executions>
 					<execution>
+						<id>initializers</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>src/main/assembly/assembly-initializers.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>				
+					<execution>
 						<id>i18n-messages</id>
 						<phase>package</phase>
 						<goals>

@@ -6,6 +6,7 @@
 	<property name="libs" value="${main.dir}/target/libs" />
 	<property name="webContents" value="${main.dir}/target/webContents" />
 	<property name="i18n" value="${main.dir}/target/i18n" />
+	<property name="initializers" value="${main.dir}/target/initializers" />
 	<property name="packman.libs" value="${main.dir}/src/main/packman/tools" />
 	<!-- These properties can be only overwritten from command line -->
 	<property name="maven.version" value="3.1.1" />
@@ -79,12 +80,12 @@
 	<!-- DO NOT CHANGE DEPENDS ORDER IN THIS TARGET-->
 	<target name="all-rpm" depends="rpm,rpm.tar.gz,src.tar.gz,src.rpm" />
 	<target name="all-deb" depends="deb,deb.tar.gz,src.deb,src.tar.gz" />
-	<target name="rpm" depends="set-distribution-rpm,clean,init,set-distribution-dir,prepare-distribution-structure,copy-jars,copy-webContents,copy-i18n,copyset,rpm-bin-build" />
-	<target name="prep.src.rpm" depends="set-distribution-rpm,clean,init,set-distribution-dir,prepare-distribution-structure,copy-jars,copy-webContents,copy-i18n,copyset" />
+	<target name="rpm" depends="set-distribution-rpm,clean,init,set-distribution-dir,prepare-distribution-structure,copy-jars,copy-webContents,copy-i18n,copy-initializers,copyset,rpm-bin-build" />
+	<target name="prep.src.rpm" depends="set-distribution-rpm,clean,init,set-distribution-dir,prepare-distribution-structure,copy-jars,copy-webContents,copy-i18n,copy-initializers,copyset" />
 	<target name="src.rpm" depends="set-distribution-rpm,clean,init,set-distribution-dir,set-spec-additions,rpm-src-build" />
-	<target name="deb" depends="set-distribution-deb,clean,init,set-distribution-bin-builddir-deb,set-distribution-dir,set-rules-additions,prepare-bin-deb-structure,copy-jars,copy-webContents,copy-i18n,copyset,deb-bin-build" />
+	<target name="deb" depends="set-distribution-deb,clean,init,set-distribution-bin-builddir-deb,set-distribution-dir,set-rules-additions,prepare-bin-deb-structure,copy-jars,copy-webContents,copy-i18n,copy-initializers,copyset,deb-bin-build" />
 	<target name="src.deb" depends="set-distribution-deb,clean,init,set-distribution-src-builddir-deb,set-distribution-dir,set-src-rules-additions,prepare-src-deb-structure,deb-src-build" />
-	<target name="prep.src.deb" depends="set-distribution-deb,clean,init,set-distribution-src-builddir-deb,set-distribution-dir,prepare-distribution-structure,copy-jars,copy-webContents,copy-i18n,copyset" />
+	<target name="prep.src.deb" depends="set-distribution-deb,clean,init,set-distribution-src-builddir-deb,set-distribution-dir,prepare-distribution-structure,copy-jars,copy-webContents,copy-i18n,copy-initializers,copyset" />
 
 	<!-- common target -->
 
@@ -240,6 +241,7 @@
 		<property name="distribution.libs" value="${distribution.base}${libs.target}" />
 		<property name="distribution.webContents" value="${distribution.base}${webContents.target}" />
 		<property name="distribution.i18n" value="${distribution.base}/etc/${component.package.name}" />
+		<property name="distribution.initializers" value="${distribution.base}/etc/${component.package.name}" />
 	</target>
 
 	<target name="prepare-distribution-structure">
@@ -327,6 +329,15 @@
 			</fileset>
 		</copy>
 	</target>
+	
+	<target name="copy-initializers" depends="update-initializers" unless="skip.copy.jars">
+		<echo message="-- copy initializers to rpm lib dir" />
+		<copy todir="${distribution.initializers}">
+			<fileset dir="${initializers}">
+				<include name="**" />
+			</fileset>
+		</copy>
+	</target>
 
 	<target name="copy-main-artifact" depends="set-default-artifact-name" unless="pomPackaging">
 		<echo message="-- copy main artifact" />
@@ -386,6 +397,21 @@
 			<arg value="-DoutputDirectory=${i18n}" />
 		</mvn:mvn>
 	</target>
+	
+	<target name="update-initializers" unless="skip.copy.jars">
+		<!-- not as dependencies, as we want to skip them if skip.copy.jars is set -->
+		<mkdir dir="${initializers}" />
+		<echo message="Updating initializers, download from maven repo" />
+		<mvn:remoteRepository id="vsgc-public" url="${maven.repo.url}" />
+		<mvn:localRepository id="local.repo" path="${maven.repo.local}" />
+		<mvn:mvn pom="${main.dir}/pom.xml" fork="true" mavenVersion="${maven.version}">
+			<localRepository refid="local.repo" />
+			<arg value="dependency:unpack-dependencies" />
+			<arg value="-Dclassifier=initializers" />
+			<arg value="-DincludeGroupIds=pl.edu.icm.unity" />
+			<arg value="-DoutputDirectory=${initializers}" />
+		</mvn:mvn>
+	</target>
 
 	<target name="index-jars" if="indexJars" unless="skip.copy.jars">
 		<echo message="Index jar files" />
@@ -401,12 +427,12 @@
 	</target>
 
 	<!-- tar target -->
-	<target name="rpm.tar.gz" depends="init,set-distribution-rpm,set-distribution-dir,prepare-distribution-structure,copyset,copy-jars,copy-webContents,copy-i18n">
+	<target name="rpm.tar.gz" depends="init,set-distribution-rpm,set-distribution-dir,prepare-distribution-structure,copyset,copy-jars,copy-webContents,copy-i18n,copy-initializers">
 		<echo message="Create binary tar.gz" />
 		<tar destfile="${main.dir}/target/${package.prefix}${component.package.name}${package.suffix}-${package.version}-${package.release}${os.disttag}.${os.architecture}.tar.gz" compression="gzip" basedir="${distribution.base}" />
 	</target>
 
-	<target name="deb.tar.gz" depends="init,set-distribution-deb,set-distribution-bin-builddir-deb,set-distribution-dir,prepare-bin-deb-structure,copyset,copy-jars,copy-webContents,copy-i18n">
+	<target name="deb.tar.gz" depends="init,set-distribution-deb,set-distribution-bin-builddir-deb,set-distribution-dir,prepare-bin-deb-structure,copyset,copy-jars,copy-webContents,copy-i18n,copy-initializers">
 		<echo message="Create binary tar.gz" />
 		<tar destfile="${main.dir}/target/${package.prefix}${component.package.name}${package.suffix}_${package.version}-${package.release}${os.disttag}_${os.architecture}.tar.gz" compression="gzip" basedir="${distribution.base}" />
 	</target>
