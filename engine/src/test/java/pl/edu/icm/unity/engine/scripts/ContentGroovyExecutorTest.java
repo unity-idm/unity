@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.server;
+package pl.edu.icm.unity.engine.scripts;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -24,6 +24,7 @@ import pl.edu.icm.unity.engine.UnityIntegrationTest;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.initializers.ContentInitConf;
 import pl.edu.icm.unity.engine.api.initializers.InitializationPhase;
+import pl.edu.icm.unity.engine.scripts.ContentGroovyExecutor;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 

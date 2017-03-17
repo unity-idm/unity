@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.stdext.utils;
+package pl.edu.icm.unity.engine;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -14,31 +14,19 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.AttributesManagement;
-import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
-import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
-import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeStatement;
+import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
+import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributesClass;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupContents;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
- * Code to initialize popular objects. Useful for various initializers.
+ * Code to initialize popular objects used in many tests
  * 
- * TODO Deprecated: should be replaced with the new style initializers. 
  * @author K. Benedyczak
  */
 @Component
@@ -54,18 +42,10 @@ public class InitializerCommon
 	
 	@Autowired
 	@Qualifier("insecure") 
-	private AttributesManagement attrMan;
-	@Autowired
-	@Qualifier("insecure") 
 	private AttributeTypeManagement aTypeMan;
 	@Autowired
 	@Qualifier("insecure") 
 	private AttributeClassManagement acMan;
-	@Autowired
-	@Qualifier("insecure") 
-	private GroupsManagement groupsMan;
-	@Autowired
-	private UnityServerConfiguration config;
 	@Autowired
 	private UnityMessageSource msg;
 
@@ -90,17 +70,6 @@ public class InitializerCommon
 	}
 	
 
-	public void initializeCommonAttributeStatements() throws EngineException
-	{
-		AttributeStatement everybodyStmt = AttributeStatement.getFixedEverybodyStatement(
-				EnumAttribute.of("sys:AuthorizationRole", 
-				"/", 
-				"Regular User")); 
-		Group rootGroup = groupsMan.getContents("/", GroupContents.METADATA).getGroup();
-		rootGroup.setAttributeStatements(new AttributeStatement[]{everybodyStmt});
-		groupsMan.updateGroup("/", rootGroup);
-	}
-	
 	public void initializeCommonAttributeTypes() throws EngineException
 	{
 		Map<String, AttributeType> existingATs = aTypeMan.getAttributeTypesAsMap();
@@ -144,20 +113,5 @@ public class InitializerCommon
 		
 		if (!existingATs.containsKey(EMAIL_ATTR))
 			aTypeMan.addAttributeType(verifiableEmail);
-	}
-	
-	public void assignCnToAdmin() throws EngineException
-	{
-		String adminU = config.getValue(UnityServerConfiguration.INITIAL_ADMIN_USER);
-		Attribute cnA = StringAttribute.of(CN_ATTR, "/", "Default Administrator");
-		EntityParam entity = new EntityParam(new IdentityTaV(UsernameIdentity.ID, adminU));
-		try
-		{
-			if (attrMan.getAttributes(entity, "/", CN_ATTR).isEmpty())
-				attrMan.setAttribute(entity, cnA, false);
-		} catch (IllegalIdentityValueException e)
-		{
-			//ok - no default admin, no default CN.
-		}
 	}
 }

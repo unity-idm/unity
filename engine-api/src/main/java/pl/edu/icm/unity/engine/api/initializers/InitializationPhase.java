@@ -24,7 +24,8 @@ public enum InitializationPhase
 		this.phaseName = phaseName;
 	}
 	
-	public String phaseName()
+	@Override
+	public String toString()
 	{
 		return phaseName;
 	}
@@ -32,14 +33,14 @@ public enum InitializationPhase
 	public static String typeNamesToString()
 	{
 		return Arrays.asList(values()).stream()
-				.map(InitializationPhase::phaseName)
+				.map(InitializationPhase::toString)
 				.collect(Collectors.joining(", "));
 	}
 	
 	public static InitializationPhase of(String name)
 	{
 		return Arrays.asList(values()).stream()
-				.filter(phase -> phase.phaseName()
+				.filter(phase -> phase.toString()
 				.equalsIgnoreCase(name)).findFirst()
 				.orElseThrow(() -> new IllegalArgumentException("No enum const InitializationPhase: " + name));
 	}

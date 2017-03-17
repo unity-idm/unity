@@ -15,7 +15,7 @@ if (!isColdStart)
 	return;
 }
 
-log.info("Confirmation initializer processing...");
+log.info("E-mail confirmation initialization...");
 
 try
 {
@@ -41,7 +41,6 @@ try
 		return;
 	}
 	String firstChannel = channels.keySet().iterator().next();
-	
 	
 	Collection<AttributeType> attributeTypes = attributeTypeSupport.getAttributeTypes();
 	for (AttributeType at: attributeTypes)
@@ -76,7 +75,5 @@ try
 	}
 } catch (Exception e)
 {
-	log.warn("Error loading demo contents. This can happen and by far is not critical. " +
-			"It means that demonstration contents was not loaded to your database, " +
-			"usaully due to conflict with its existing data", e);
+	log.warn("Error initializing default confirmations", e);
 }

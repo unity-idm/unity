@@ -20,7 +20,6 @@ import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
-import pl.edu.icm.unity.stdext.utils.InitializerCommon;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;

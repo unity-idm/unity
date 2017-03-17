@@ -74,6 +74,7 @@ import pl.edu.icm.unity.engine.group.AttributeStatementsCleaner;
 import pl.edu.icm.unity.engine.identity.EntitiesScheduledUpdater;
 import pl.edu.icm.unity.engine.identity.IdentityCleaner;
 import pl.edu.icm.unity.engine.notifications.EmailFacility;
+import pl.edu.icm.unity.engine.scripts.ContentInitializersExecutor;
 import pl.edu.icm.unity.engine.utils.FileWatcher;
 import pl.edu.icm.unity.engine.utils.LifecycleBase;
 import pl.edu.icm.unity.exceptions.EngineException;

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.InitializerCommon;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.engine.translation.form.action.AddAttributeActionFactory;
@@ -26,7 +27,6 @@ import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.stdext.utils.EmailUtils;
-import pl.edu.icm.unity.stdext.utils.InitializerCommon;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Group;

@@ -1,4 +1,12 @@
-import com.google.common.collect.Lists
+/*
+ * Script with default schema when Unity server is used as OAuth AS.
+ * As this is common case, typically should be enabled.
+ * 
+ * Creates group for oauth clients and creates example client. 
+ * Password should be changed though.
+ */
+
+ import com.google.common.collect.Lists
 
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow
@@ -28,6 +36,7 @@ try
 	PasswordToken pToken2 = new PasswordToken("oauth-pass");
 	entityCredentialManagement.setEntityCredential(new EntityParam(oauthClientA.getEntityId()), "Password credential",
 			pToken2.toJson());
+	log.warn("Default OAuth client user was created with default password. Please change it!", e);
 	groupsManagement.addMemberFromParent("/oauth-clients", new EntityParam(oauthClientA.getEntityId()));
 	Attribute flowsA = EnumAttribute.of(OAuthSystemAttributesProvider.ALLOWED_FLOWS,
 			"/oauth-clients",

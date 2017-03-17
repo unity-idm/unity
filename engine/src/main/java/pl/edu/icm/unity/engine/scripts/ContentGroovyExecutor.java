@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.server;
+package pl.edu.icm.unity.engine.scripts;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -13,17 +13,14 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
 import org.apache.logging.log4j.Logger;
-import org.codehaus.groovy.control.CompilationFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
-import com.google.common.base.Stopwatch;
-
+import eu.unicore.util.configuration.ConfigurationException;
 import groovy.lang.Binding;
-import groovy.lang.GroovyShell;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -55,12 +52,10 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.initializers.ContentInitConf;
-import pl.edu.icm.unity.engine.api.initializers.InitializationPhase;
 import pl.edu.icm.unity.engine.api.initializers.InitializerType;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.stdext.utils.InitializerCommon;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
 /**
@@ -73,12 +68,9 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 public class ContentGroovyExecutor
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER, ContentGroovyExecutor.class);
-	private GroovyShell shell;
-	
+	//FIXME - check missing Insecure qualifiers
 	@Autowired
 	private IdentityTypesRegistry idTypesReg;
-	@Autowired
-	private InitializerCommon commonInitializer;
 	@Autowired
 	private UnityMessageSource unityMessageSource;
 	@Autowired
@@ -160,11 +152,13 @@ public class ContentGroovyExecutor
 	
 	private boolean coldStart = false;
 
+	private Binding binding;
+	
 	@PostConstruct
 	public void initialize()
 	{
 		coldStart = determineIfColdStart();
-		shell = new GroovyShell(getBinding());
+		binding = getBinding();
 	}
 
 	public void run(ContentInitConf conf)
@@ -172,31 +166,23 @@ public class ContentGroovyExecutor
 		if (conf == null || conf.getType() != InitializerType.GROOVY)
 			throw new IllegalArgumentException(
 					"conf must not be null and must be of " + InitializerType.GROOVY + " type");
-		run(conf.getFileLocation(), conf.getPhase());
+		Reader scriptReader = getFileReader(conf.getFileLocation());
+		GroovyExecutor.run(conf.getPhase().toString(), conf.getFileLocation(), scriptReader, binding);
 	}
 
-	private void run(String location, InitializationPhase phase)
-	{
-		LOG.info("Phase {} of {} script: {}", phase, InitializerType.GROOVY, location);
-		Stopwatch timer = Stopwatch.createStarted();
-		try
-		{
-			shell.evaluate(getFileReader(location));
-		} catch (CompilationFailedException | IOException e)
-		{
-			throw new InternalException("Failed to initialize content from " + InitializerType.GROOVY 
-					+ " script: " + location + ": reason: " + e.getMessage(), e);
-		}
-		LOG.info("{} script: {} finished in {}", InitializerType.GROOVY, location, timer);
-	}
-
-	private Reader getFileReader(String location) throws IOException
+	private Reader getFileReader(String location)
 	{
 		Resource resource = applCtx.getResource(location);
-		return new InputStreamReader(resource.getInputStream());
+		try
+		{
+			return new InputStreamReader(resource.getInputStream());
+		} catch (IOException e)
+		{
+			throw new ConfigurationException("Error loading script " + location, e);
+		}
 	}
 
-	private Binding getBinding()
+	Binding getBinding()
 	{
 		Binding binding = new Binding();
 		binding.setVariable("config", config);
@@ -224,8 +210,6 @@ public class ContentGroovyExecutor
 		binding.setVariable("serverManagement", serverManagement);
 		binding.setVariable("translationProfileManagement", translationProfileManagement);
 		binding.setVariable("userImportManagement", userImportManagement);
-		binding.setVariable("config", config);
-		binding.setVariable("commonInitializer", commonInitializer);
 		binding.setVariable("unityMessageSource", unityMessageSource);
 		binding.setVariable("attributeTypeSupport", attributeTypeSupport);
 		binding.setVariable("identityTypeSupport", identityTypeSupport);

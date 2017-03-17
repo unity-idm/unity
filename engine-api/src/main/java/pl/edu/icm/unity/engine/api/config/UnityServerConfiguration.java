@@ -362,9 +362,9 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 						+ " that will be executed in configured phase."));
 		defaults.put(CONTENT_INITIALIZERS_PHASE, new PropertyMD().setStructuredListEntry(CONTENT_INITIALIZERS).setMandatory().setCategory(mainCat).
 				setDescription("The phase of initializator execution, supported values: " + InitializationPhase.typeNamesToString() + ". "
-						+ InitializationPhase.PRE_INIT.phaseName() + ": means that particular initializer will be executed before "
+						+ InitializationPhase.PRE_INIT + ": means that particular initializer will be executed before "
 						+ "configuration settings are loaded to database (endpoints, authenticators, credentials, ...). "
-						+ InitializationPhase.POST_INIT.phaseName() + ": means that particular initializer will be executed after "
+						+ InitializationPhase.POST_INIT + ": means that particular initializer will be executed after "
 						+ "configuration settings are loaded to database."));
 		
 		SUPPORTED_LOCALES.put("en", new Locale("en"));

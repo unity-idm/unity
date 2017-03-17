@@ -2,8 +2,6 @@
 
 . /etc/unity-idm/startup.properties
 
-cd /
-
 CP=.$(find -L "$LIB" -type d -exec printf ":{}/*" \;)
 
 export CLASSPATH=$CP
