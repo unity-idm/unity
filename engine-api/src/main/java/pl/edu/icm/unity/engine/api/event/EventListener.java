@@ -14,10 +14,6 @@ import pl.edu.icm.unity.base.event.Event;
 public interface EventListener
 {
 	public static final int DEFAULT_MAX_FAILURES = 10+7*24;
-	/**
-	 * @return only events of the returned category will be fed to the listener
-	 */
-	String getCategory();
 	
 	/**
 	 * @return if true is returned then the listener's handle method will be invoked 
@@ -34,6 +30,15 @@ public interface EventListener
 	 * @return true if the event should be handled by this listener
 	 */
 	boolean isWanted(Event event); 
+
+	/**
+	 * This method should return whether async processing is allowed. Otherwise processing is
+	 * done immediately.
+	 * 
+	 * @param event
+	 * @return true if the event should be handled in async mode.
+	 */
+	boolean isAsync(Event event); 
 	
 	/**
 	 * Called only on events of a proper category, for which isWanted returned true. 

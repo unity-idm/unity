@@ -1,5 +1,5 @@
 <assembly>
-	<id>initializers</id>
+	<id>scripts</id>
 	<formats>
 		<format>zip</format>
 	</formats>
@@ -8,11 +8,11 @@
 	
 	<fileSets>
 		<fileSet>
-			<directory>src/main/resources/initializers</directory>
+			<directory>src/main/resources/scripts</directory>
 			<includes>
 				<include>**</include>
 			</includes>
-			<outputDirectory>/initializers/</outputDirectory>
+			<outputDirectory>/scripts/</outputDirectory>
 		</fileSet>
 	</fileSets>
 </assembly>

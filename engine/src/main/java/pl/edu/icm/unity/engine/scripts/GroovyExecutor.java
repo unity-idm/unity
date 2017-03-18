@@ -35,9 +35,9 @@ public class GroovyExecutor
 			shell.evaluate(scriptReader);
 		} catch (Exception e)
 		{
-			throw new InternalException("Failed to initialize content from Groovy " 
+			throw new InternalException("Failed to execute Groovy " 
 					+ " script: " + name + ": reason: " + e.getMessage(), e);
 		}
-		LOG.info("Groovy script: {} finished in {}", name, timer);
+		LOG.debug("Groovy script: {} finished in {}", name, timer);
 	}
 }

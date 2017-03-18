@@ -9,6 +9,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -20,21 +21,24 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.google.common.collect.Lists;
 
 import groovy.lang.Binding;
+import pl.edu.icm.unity.base.event.Event;
 import pl.edu.icm.unity.engine.UnityIntegrationTest;
+import pl.edu.icm.unity.engine.api.event.EventCategory;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @UnityIntegrationTest
 public class TestMockGroovyProvider
 {
 	@Autowired
-	protected ContentGroovyExecutor groovyExecutor;
+	protected MainGroovyExecutor groovyExecutor;
 	
 	@SuppressWarnings({ "rawtypes" })
 	@Test
 	public void mockAndProdBindingsShouldBeTheSame()
 	{
-		Binding mockBinding = MockGroovyBindingProvider.getBinding();
-		Binding binding = groovyExecutor.getBinding();
+		Event event = new Event(EventCategory.POST_INIT.name(), -1l, new Date(), ""); 
+		Binding mockBinding = MockGroovyBindingProvider.getBinding(event);
+		Binding binding = groovyExecutor.getBinding(event);
 		Map variables = binding.getVariables();
 		assertThat(mockBinding.getVariables().size(), is(variables.size()));
 		for (Object entryO: variables.entrySet())
@@ -43,7 +47,7 @@ public class TestMockGroovyProvider
 			String key = (String) entry.getKey();
 			Object value = entry.getValue();
 			Object mockValue = mockBinding.getVariable(key);
-			assertThat(mockValue, is(notNullValue()));
+			assertThat(key, mockValue, is(notNullValue()));
 			for (Class<?> implementedIface: value.getClass().getInterfaces())
 			{
 				if (!implementedIface.getPackage().getName().startsWith("pl.edu.icm"))

@@ -118,7 +118,7 @@
 			<artifactId>unity-server-unicore</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
-			<classifier>initializers</classifier>
+			<classifier>scripts</classifier>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -158,7 +158,7 @@
 			<artifactId>unity-server-engine</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
-			<classifier>initializers</classifier>
+			<classifier>scripts</classifier>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -198,7 +198,7 @@
 			<artifactId>unity-server-oauth</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
-			<classifier>initializers</classifier>
+			<classifier>scripts</classifier>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

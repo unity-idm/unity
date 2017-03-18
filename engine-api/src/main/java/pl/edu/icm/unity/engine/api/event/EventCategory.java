@@ -2,24 +2,26 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.api.initializers;
+package pl.edu.icm.unity.engine.api.event;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 /**
- * Defines the phases when particular initializer can be executed.
+ * Defines the well known phases of events.
  *
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
-public enum InitializationPhase
+public enum EventCategory
 {
+	API_METHOD("api-method"),
 	PRE_INIT("pre-init"),
-	POST_INIT("post-init");
+	POST_INIT("post-init"),
+	TEST("test");
 	
 	private String phaseName;
 
-	private InitializationPhase(String phaseName)
+	private EventCategory(String phaseName)
 	{
 		this.phaseName = phaseName;
 	}
@@ -33,11 +35,11 @@ public enum InitializationPhase
 	public static String typeNamesToString()
 	{
 		return Arrays.asList(values()).stream()
-				.map(InitializationPhase::toString)
+				.map(EventCategory::toString)
 				.collect(Collectors.joining(", "));
 	}
 	
-	public static InitializationPhase of(String name)
+	public static EventCategory of(String name)
 	{
 		return Arrays.asList(values()).stream()
 				.filter(phase -> phase.toString()

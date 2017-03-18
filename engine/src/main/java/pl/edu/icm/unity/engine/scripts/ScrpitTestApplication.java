@@ -9,6 +9,8 @@ import java.io.FileReader;
 import java.io.Reader;
 
 import groovy.lang.Binding;
+import pl.edu.icm.unity.base.event.Event;
+import pl.edu.icm.unity.engine.api.event.EventCategory;
 
 /**
  * Creates a "mock" spring application context and invokes an argument script with it.
@@ -40,7 +42,8 @@ public class ScrpitTestApplication
 			System.exit(3);
 			return;
 		}
-		Binding binding = MockGroovyBindingProvider.getBinding();
+		Event event = new Event(EventCategory.TEST); 
+		Binding binding = MockGroovyBindingProvider.getBinding(event);
 		System.out.println("Executing " + path + " script in sandbox environment.");
 		GroovyExecutor.run("sandbox-test", path, scriptReader, binding);
 	}

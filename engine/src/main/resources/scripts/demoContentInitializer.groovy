@@ -141,6 +141,6 @@ void createExampleUser()
 	PasswordToken pToken = new PasswordToken("the!test1");
 	entityCredentialManagement.setEntityCredential(entityP, "Password credential",
 			pToken.toJson());
-	log.warn("Demo user 'demo-user' was created with default password. Please change it!", e);
+	log.warn("Demo user 'demo-user' was created with default password. Please change it!");
 }
 

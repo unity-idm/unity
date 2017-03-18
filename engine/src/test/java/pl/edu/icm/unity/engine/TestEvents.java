@@ -16,7 +16,6 @@ import pl.edu.icm.unity.base.event.Event;
 import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
 import pl.edu.icm.unity.engine.api.event.EventListener;
 import pl.edu.icm.unity.engine.events.EventProcessor;
-import pl.edu.icm.unity.engine.events.EventProducingAspect;
 import pl.edu.icm.unity.engine.events.InvocationEventContents;
 
 /**
@@ -121,12 +120,6 @@ public class TestEvents extends DBIntegrationTestBase
 		private boolean lightweight = true;
 		
 		@Override
-		public String getCategory()
-		{
-			return EventProducingAspect.CATEGORY_INVOCATION;
-		}
-
-		@Override
 		public boolean isLightweight()
 		{
 			return lightweight;
@@ -162,6 +155,11 @@ public class TestEvents extends DBIntegrationTestBase
 		{
 			return 2;
 		}
-		
+
+		@Override
+		public boolean isAsync(Event event)
+		{
+			return false;
+		}
 	}
 }

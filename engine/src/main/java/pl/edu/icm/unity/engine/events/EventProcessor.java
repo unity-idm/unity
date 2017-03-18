@@ -24,6 +24,7 @@ import pl.edu.icm.unity.base.event.Event;
 import pl.edu.icm.unity.base.event.EventExecution;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.event.EventListener;
+import pl.edu.icm.unity.engine.api.event.EventPublisher;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.store.api.EventDAO;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
@@ -34,10 +35,10 @@ import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
  * @author K. Benedyczak
  */
 @Component
-public class EventProcessor
+public class EventProcessor implements EventPublisher
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, EventProcessor.class);
-	private Map<String, Set<EventListener>> listenersByCategory = new HashMap<String, Set<EventListener>>();
+	private Set<EventListener> listeners = new HashSet<EventListener>();
 	private Map<String, EventListener> listenersById = new HashMap<String, EventListener>();
 	private ReadWriteLock lock = new ReentrantReadWriteLock();
 	
@@ -54,7 +55,7 @@ public class EventProcessor
 		this.asyncProcessor.start();
 	}
 
-
+	@Override
 	public void fireEvent(Event event)
 	{
 		List<EventListener> interestedListeners = getInterestedListeners(event);
@@ -62,27 +63,37 @@ public class EventProcessor
 			return;
 		
 		if (log.isDebugEnabled())
-			log.debug("Fire event: " + event);
+			log.debug("Fire event: {}", event);
 		for (EventListener listener: interestedListeners)
 		{
 			Callable<Void> task = listener.isLightweight() ? 
 					new LightweightListenerInvoker(listener, event) :
 					new HeavyweightListenerInvoker(listener, event);
-			executorService.submit(task);
+			if (listener.isAsync(event))
+				executorService.submit(task);
+			else
+				executeNow(listener, event, task);
 		}
 	}
 	
+	private void executeNow(EventListener listener, Event event, Callable<Void> task)
+	{
+		log.trace("Handling event in sync mode {}", event);
+		try
+		{
+			task.call();
+		} catch (Exception e)
+		{
+			log.error("Error invoking sync event processor for " + 
+					listener.getId() + " event was " + event, e);
+		}
+	}
+
 	public void addEventListener(EventListener eventListener)
 	{
 		lock.writeLock().lock();
 		try
 		{
-			Set<EventListener> listeners = listenersByCategory.get(eventListener.getCategory());
-			if (listeners == null)
-			{
-				listeners = new HashSet<EventListener>();
-				listenersByCategory.put(eventListener.getCategory(), listeners);
-			}
 			listeners.add(eventListener);
 			listenersById.put(eventListener.getId(), eventListener);
 		} finally
@@ -96,9 +107,7 @@ public class EventProcessor
 		lock.writeLock().lock();
 		try
 		{
-			Set<EventListener> listeners = listenersByCategory.get(eventListener.getCategory());
-			if (listeners != null)
-				listeners.remove(eventListener);
+			listeners.remove(eventListener);
 			listenersById.remove(eventListener.getId());
 		} finally
 		{
@@ -130,9 +139,6 @@ public class EventProcessor
 		lock.readLock().lock();
 		try
 		{
-			Set<EventListener> listeners = listenersByCategory.get(event.getCategory());
-			if (listeners == null)
-				return null;
 			interestedListeners = new ArrayList<EventListener>(listeners.size());
 			for (EventListener listener: listeners)
 			{
@@ -172,7 +178,7 @@ public class EventProcessor
 			} catch (Exception t)
 			{
 				log.warn("Ligthweight event listener " + listener.getId() + 
-						" creshed when processing an event " + event, t);
+						" crashed when processing an event " + event, t);
 			}
 			return null;
 		}

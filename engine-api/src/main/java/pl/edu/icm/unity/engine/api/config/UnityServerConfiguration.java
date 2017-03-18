@@ -35,8 +35,9 @@ import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 import eu.unicore.util.jetty.HttpServerProperties;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.initializers.InitializationPhase;
-import pl.edu.icm.unity.engine.api.initializers.InitializerType;
+import pl.edu.icm.unity.engine.api.event.EventCategory;
+import pl.edu.icm.unity.engine.api.initializers.ScriptConfiguration;
+import pl.edu.icm.unity.engine.api.initializers.ScriptType;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 
 /**
@@ -134,10 +135,12 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String CONFIRMATION_DEFAULT_RETURN_URL = "defaultPostConfirmationReturnURL";
 	public static final String CONFIRMATION_AUTO_REDIRECT = "automaticRedirectAfterConfirmation";
 
-	public static final String CONTENT_INITIALIZERS = "contentInit.";
-	public static final String CONTENT_INITIALIZERS_FILE = "file";
-	public static final String CONTENT_INITIALIZERS_TYPE = "type";
-	public static final String CONTENT_INITIALIZERS_PHASE = "phase";
+	public static final String SCRIPTS = "script.";
+	public static final String SCRIPT_FILE = "file";
+	public static final String SCRIPT_TYPE = "type";
+	public static final String SCRIPT_TRIGGER = "trigger";
+
+	public static final String ENABLE_LOW_LEVEL_EVENTS = "enableLowLevelEvents";
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults = new HashMap<>();
@@ -351,21 +354,22 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put(HttpServerProperties.DEFAULT_PREFIX, new PropertyMD().setCanHaveSubkeys().setCategory(otherCat).
 				setDescription("Properties starting with this prefix are used to configure Jetty HTTP server settings. See separate table for details."));
 		
-		defaults.put(CONTENT_INITIALIZERS, new PropertyMD().setStructuredList(true).setCategory(mainCat).
-				setDescription("List of content initializators that will be executed during the startup. Note that if"
-						+ IGNORE_CONFIGURED_CONTENTS_SETTING + " is set to false, the initializers are not executed."));
-		defaults.put(CONTENT_INITIALIZERS_FILE, new PropertyMD().setStructuredListEntry(CONTENT_INITIALIZERS).setMandatory().setCategory(mainCat).
-				setDescription("A file with content that will be evaulated by initializer."));
-		defaults.put(CONTENT_INITIALIZERS_TYPE, new PropertyMD().setStructuredListEntry(CONTENT_INITIALIZERS).setMandatory().setCategory(mainCat).
-				setDescription("Type of initializator, supported values: " + InitializerType.typeNamesToString() + ". "
-						+ InitializerType.GROOVY.typeName() + ": means the provided file is groovy script"
-						+ " that will be executed in configured phase."));
-		defaults.put(CONTENT_INITIALIZERS_PHASE, new PropertyMD().setStructuredListEntry(CONTENT_INITIALIZERS).setMandatory().setCategory(mainCat).
-				setDescription("The phase of initializator execution, supported values: " + InitializationPhase.typeNamesToString() + ". "
-						+ InitializationPhase.PRE_INIT + ": means that particular initializer will be executed before "
-						+ "configuration settings are loaded to database (endpoints, authenticators, credentials, ...). "
-						+ InitializationPhase.POST_INIT + ": means that particular initializer will be executed after "
-						+ "configuration settings are loaded to database."));
+		defaults.put(SCRIPTS, new PropertyMD().setStructuredList(true).setCategory(mainCat).
+				setDescription("List of scripts that that can be used to enhance default server functionality"));
+		defaults.put(SCRIPT_FILE, new PropertyMD().setStructuredListEntry(SCRIPTS).setMandatory().setCategory(mainCat).
+				setDescription("A file with enhancement script contents"));
+		defaults.put(SCRIPT_TYPE, new PropertyMD(ScriptType.groovy).setStructuredListEntry(SCRIPTS).setCategory(mainCat).
+				setDescription("Type of script."));
+		defaults.put(SCRIPT_TRIGGER, new PropertyMD().setStructuredListEntry(SCRIPTS).setMandatory().setCategory(mainCat).
+				setDescription("Defines the name of event which triggers script invocation. "
+						+ "See scripts documentation about more complete information. For execution at server startup it is possible to use: "
+						+ EventCategory.PRE_INIT + ": run before configuration settings are loaded to database (endpoints, authenticators, credentials, ...). "
+						+ EventCategory.POST_INIT + ": run after configuration settings are loaded to database."));
+		defaults.put(ENABLE_LOW_LEVEL_EVENTS, new PropertyMD("false").setCategory(mainCat).
+				setDescription("If set to true then all platform low level operations will trigger events, "
+						+ "which can be in turn consumed by scripts. This feature however causes a "
+						+ "small performance penalty (even without taking into account a potential script "
+						+ "execution time) and therefore by defualt is disabled."));
 		
 		SUPPORTED_LOCALES.put("en", new Locale("en"));
 		SUPPORTED_LOCALES.put("pl", new Locale("pl"));
@@ -533,6 +537,23 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		else if (isSet(THEME))
 			return getValue(THEME);
 		return defaultTheme;
+	}
+	
+
+	public List<ScriptConfiguration> getContentInitializersConfiguration()
+	{
+		Set<String> initializersList = getStructuredListKeys(UnityServerConfiguration.SCRIPTS);
+		List<ScriptConfiguration> inizializers = new ArrayList<>(initializersList.size());
+		for (String key : initializersList)
+		{
+			String location = getValue(key + UnityServerConfiguration.SCRIPT_FILE);
+			ScriptType type = getEnumValue(
+					key + UnityServerConfiguration.SCRIPT_TYPE, ScriptType.class);
+			String trigger = getValue(key + UnityServerConfiguration.SCRIPT_TRIGGER);
+			
+			inizializers.add(new ScriptConfiguration(type, trigger, location));
+		}
+		return inizializers;
 	}
 	
 	public Properties getProperties()

@@ -36,7 +36,7 @@ try
 	PasswordToken pToken2 = new PasswordToken("oauth-pass");
 	entityCredentialManagement.setEntityCredential(new EntityParam(oauthClientA.getEntityId()), "Password credential",
 			pToken2.toJson());
-	log.warn("Default OAuth client user was created with default password. Please change it!", e);
+	log.warn("Default OAuth client user was created with default password. Please change it!");
 	groupsManagement.addMemberFromParent("/oauth-clients", new EntityParam(oauthClientA.getEntityId()));
 	Attribute flowsA = EnumAttribute.of(OAuthSystemAttributesProvider.ALLOWED_FLOWS,
 			"/oauth-clients",

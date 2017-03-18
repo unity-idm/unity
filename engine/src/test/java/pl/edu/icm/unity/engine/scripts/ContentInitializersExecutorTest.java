@@ -6,7 +6,7 @@ package pl.edu.icm.unity.engine.scripts;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -15,19 +15,18 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import pl.edu.icm.unity.base.event.Event;
 import pl.edu.icm.unity.engine.UnityIntegrationTest;
-import pl.edu.icm.unity.engine.api.initializers.ContentInitConf;
-import pl.edu.icm.unity.engine.api.initializers.InitializationPhase;
-import pl.edu.icm.unity.engine.api.initializers.InitializerType;
-import pl.edu.icm.unity.engine.scripts.ContentGroovyExecutor;
-import pl.edu.icm.unity.engine.scripts.ContentInitializersExecutor;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.event.EventCategory;
+import pl.edu.icm.unity.engine.api.initializers.ScriptConfiguration;
+import pl.edu.icm.unity.engine.api.initializers.ScriptType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @UnityIntegrationTest
@@ -35,11 +34,10 @@ import pl.edu.icm.unity.engine.scripts.ContentInitializersExecutor;
 public class ContentInitializersExecutorTest
 {
 	@Autowired
-	@InjectMocks
-	private ContentInitializersExecutor underTest;
+	private UnityServerConfiguration config;
 	
 	@Mock
-	private ContentGroovyExecutor groovyMock;
+	private MainGroovyExecutor groovyMock;
 	
 	@Before
 	public void initializeMock()
@@ -53,13 +51,13 @@ public class ContentInitializersExecutorTest
 		// given unityServerContentInit.conf
 		
 		// when
-		List<ContentInitConf> configs = underTest.getContentInitializersConfiguration();
+		List<ScriptConfiguration> configs = config.getContentInitializersConfiguration();
 		
 		// then
 		assertThat(configs.size(), equalTo(1));
-		ContentInitConf config = configs.get(0);
-		assertThat(config.getType(), equalTo(InitializerType.GROOVY));
-		assertThat(config.getPhase(), equalTo(InitializationPhase.PRE_INIT));
+		ScriptConfiguration config = configs.get(0);
+		assertThat(config.getType(), equalTo(ScriptType.groovy));
+		assertThat(config.getTrigger(), equalTo(EventCategory.PRE_INIT.toString()));
 		assertThat(config.getFileLocation(), equalTo("unityServerContentInit.groovy"));
 	}
 	
@@ -67,26 +65,25 @@ public class ContentInitializersExecutorTest
 	@Test
 	public void shouldRunGroovyExecutor()
 	{
-		// given
-		List<ContentInitConf> configs = underTest.getContentInitializersConfiguration();
+		List<ScriptConfiguration> configs = config.getContentInitializersConfiguration();
+		ScriptTriggeringEventListener eventListener = new ScriptTriggeringEventListener(
+				config, groovyMock);
 		
-		// when
-		underTest.runPreInitPhase();
+		Event event = new Event(EventCategory.PRE_INIT);
+		eventListener.handleEvent(event);
 		
-		// then
-		verify(groovyMock).run(configs.get(0));
+		verify(groovyMock).run(configs.get(0), event);
 	}
 	
 	@Test
 	public void shouldNotRunGroovyExecutor()
 	{
-		// given configuration in unityServerContentInit.conf
+		ScriptTriggeringEventListener eventListener = new ScriptTriggeringEventListener(
+				config, groovyMock);
 		
-		// when
-		underTest.runPostInitPhase();
+		eventListener.handleEvent(new Event(EventCategory.POST_INIT));
 		
-		// then
-		verify(groovyMock, never()).run(any());
+		verify(groovyMock, never()).run(any(), any());
 	}
 
 }

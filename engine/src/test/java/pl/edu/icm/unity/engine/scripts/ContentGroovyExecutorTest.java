@@ -8,6 +8,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,11 +21,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.base.event.Event;
 import pl.edu.icm.unity.engine.UnityIntegrationTest;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
-import pl.edu.icm.unity.engine.api.initializers.ContentInitConf;
-import pl.edu.icm.unity.engine.api.initializers.InitializationPhase;
-import pl.edu.icm.unity.engine.scripts.ContentGroovyExecutor;
+import pl.edu.icm.unity.engine.api.event.EventCategory;
+import pl.edu.icm.unity.engine.api.initializers.ScriptConfiguration;
+import pl.edu.icm.unity.engine.api.initializers.ScriptType;
+import pl.edu.icm.unity.engine.scripts.MainGroovyExecutor;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
@@ -38,22 +41,20 @@ public class ContentGroovyExecutorTest
 	private CredentialManagement credMan;
 	
 	@Autowired
-	protected ContentGroovyExecutor groovyExecutor;
+	protected MainGroovyExecutor groovyExecutor;
 	
 	@Test
 	public void shouldProvisionCredentialsFromConfiguration() throws EngineException
 	{
 		// given
-		ContentInitConf conf = ContentInitConf.builder()
-				.withFileLocation("addCredentialsTest.groovy")
-				.withGroovy()
-				.withPhase(InitializationPhase.POST_INIT)
-				.build();
+		ScriptConfiguration conf = new ScriptConfiguration(ScriptType.groovy, 
+				EventCategory.POST_INIT.toString(), "addCredentialsTest.groovy");
 		removeCredentialDefinitions("secured password100");
 		int initSizeOfCredentials = credMan.getCredentialDefinitions().size();
 		
 		// when
-		groovyExecutor.run(conf);
+		groovyExecutor.run(conf, 
+				new Event(EventCategory.POST_INIT.toString(), -1l, new Date()));
 		
 		// then
 		Collection<CredentialDefinition> creds = credMan.getCredentialDefinitions();

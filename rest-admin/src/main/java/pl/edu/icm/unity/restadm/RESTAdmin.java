@@ -36,6 +36,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.base.event.Event;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
@@ -49,6 +50,7 @@ import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.UserImportManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.confirmation.ConfirmationManager;
+import pl.edu.icm.unity.engine.api.event.EventPublisher;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -103,6 +105,7 @@ public class RESTAdmin
 	private EntityCredentialManagement entityCredMan;
 	private AttributeTypeManagement attributeTypeMan;
 	private InvitationManagement invitationMan;
+	private EventPublisher eventPublisher;
 	
 	@Autowired
 	public RESTAdmin(EntityManagement identitiesMan, GroupsManagement groupsMan,
@@ -113,7 +116,8 @@ public class RESTAdmin
 			UserImportManagement userImportManagement,
 			EntityCredentialManagement entityCredMan,
 			AttributeTypeManagement attributeTypeMan,
-			InvitationManagement invitationMan)
+			InvitationManagement invitationMan,
+			EventPublisher eventPublisher)
 	{
 		/**
 		 * TODO - remove this
@@ -135,6 +139,7 @@ public class RESTAdmin
 		this.entityCredMan = entityCredMan;
 		this.attributeTypeMan = attributeTypeMan;
 		this.invitationMan = invitationMan;
+		this.eventPublisher = eventPublisher;
 	}
 
 	
@@ -707,7 +712,15 @@ public class RESTAdmin
 		return mapper.writeValueAsString(importUser);
 	}
 	
-	
+	@Path("/triggerEvent/{eventName}")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void triggerEvent(@PathParam("eventName") String eventName, String eventBody) 
+			throws EngineException, IOException
+	{
+		Event event = new Event(eventName, -1l, new Date(), eventBody);
+		eventPublisher.fireEvent(event);
+	}	
 
 	/**
 	 * Creates {@link EntityParam} from given entity address and optional type, which can be null.

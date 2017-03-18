@@ -41,6 +41,7 @@ import com.google.common.collect.Lists;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.FilePropertiesHelper;
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.base.event.Event;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
@@ -57,6 +58,7 @@ import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.attributes.SystemAttributesProvider;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.ConfirmationServletProvider;
+import pl.edu.icm.unity.engine.api.event.EventCategory;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -70,11 +72,12 @@ import pl.edu.icm.unity.engine.bulkops.BulkOperationsUpdater;
 import pl.edu.icm.unity.engine.endpoint.EndpointsUpdater;
 import pl.edu.icm.unity.engine.endpoint.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.endpoint.SharedEndpointManagementImpl;
+import pl.edu.icm.unity.engine.events.EventProcessor;
 import pl.edu.icm.unity.engine.group.AttributeStatementsCleaner;
 import pl.edu.icm.unity.engine.identity.EntitiesScheduledUpdater;
 import pl.edu.icm.unity.engine.identity.IdentityCleaner;
 import pl.edu.icm.unity.engine.notifications.EmailFacility;
-import pl.edu.icm.unity.engine.scripts.ContentInitializersExecutor;
+import pl.edu.icm.unity.engine.scripts.ScriptTriggeringEventListener;
 import pl.edu.icm.unity.engine.utils.FileWatcher;
 import pl.edu.icm.unity.engine.utils.LifecycleBase;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -114,8 +117,7 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
 /**
  * Responsible for loading the initial state from database and starting background processes.
  * 
- * FIXME - this class badly needs refactoring: must be split into several, and the whole user-controlled
- * contents loading should be driven by a generic mechanism. 
+ * FIXME - this class needs refactoring: should be split into several classes
  * @author K. Benedyczak
  */
 @Component
@@ -201,7 +203,9 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired(required = false)
 	private ConfirmationServletProvider confirmationServletFactory;
 	@Autowired
-	private ContentInitializersExecutor initializersExecutor;
+	private EventProcessor eventsProcessor;
+	@Autowired
+	private ScriptTriggeringEventListener scriptEventsConsumer;
 	@Autowired(required = false)
 	private PublicWellKnownURLServletProvider publicWellKnownURLServlet;
 	
@@ -210,7 +214,7 @@ public class EngineInitialization extends LifecycleBase
 	@Override
 	public void start()
 	{
-		
+		installEventListeners();
 		boolean skipLoading = config.getBooleanValue(
 				UnityServerConfiguration.IGNORE_CONFIGURED_CONTENTS_SETTING);
 		if (!skipLoading)
@@ -321,7 +325,7 @@ public class EngineInitialization extends LifecycleBase
 		
 		runInitializers();
 		
-		initializersExecutor.runPreInitPhase();
+		eventsProcessor.fireEvent(new Event(EventCategory.PRE_INIT));
 		
 		initializeTranslationProfiles();
 		boolean eraClean = config.getBooleanValue(
@@ -332,7 +336,12 @@ public class EngineInitialization extends LifecycleBase
 		initializeRealms();
 		initializeEndpoints();
 
-		initializersExecutor.runPostInitPhase();
+		eventsProcessor.fireEvent(new Event(EventCategory.POST_INIT));
+	}
+	
+	private void installEventListeners()
+	{
+		eventsProcessor.addEventListener(scriptEventsConsumer);
 	}
 	
 	private void deployPublicWellKnownURLServlet()
@@ -965,8 +974,6 @@ public class EngineInitialization extends LifecycleBase
 	
 	private void runInitializers()
 	{
-		if (!initializersExecutor.isColdStart())
-			return;
 		List<String> enabledL = config.getListOfValues(UnityServerConfiguration.INITIALIZERS);
 		Map<String, ServerInitializer> initializersMap = new HashMap<>();
 		for (ServerInitializer initializer: initializers.orElseGet(ArrayList::new))

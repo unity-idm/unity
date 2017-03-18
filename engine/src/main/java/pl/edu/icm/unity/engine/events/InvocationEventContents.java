@@ -21,18 +21,20 @@ public class InvocationEventContents
 	private String method;
 	private String interfaceName;
 	private String exception;
+	private Object[] args;
 	private static ObjectMapper mapper = Constants.MAPPER;
 	
-	public InvocationEventContents(String method, String interfaceName)
+	public InvocationEventContents(String method, String interfaceName, Object[] args)
 	{
 		this.method = method;
 		this.interfaceName = interfaceName;
+		this.args = args;
 	}
 	
-	public InvocationEventContents(String method, String interfaceName, String exception)
+	public InvocationEventContents(String method, String interfaceName, Object[] args, 
+			String exception)
 	{
-		this.method = method;
-		this.interfaceName = interfaceName;
+		this(method, interfaceName, args);
 		this.exception = exception;
 	}
 
@@ -46,6 +48,8 @@ public class InvocationEventContents
 		root.put("method", method);
 		root.put("interfaceName", interfaceName);
 		root.put("exception", exception);
+		root.putPOJO("args", args);
+		
 		try
 		{
 			return mapper.writeValueAsString(root);

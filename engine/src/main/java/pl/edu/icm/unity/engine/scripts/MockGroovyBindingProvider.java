@@ -10,6 +10,7 @@ import static org.mockito.Mockito.withSettings;
 import org.apache.logging.log4j.Logger;
 
 import groovy.lang.Binding;
+import pl.edu.icm.unity.base.event.Event;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -32,7 +33,6 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
-import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.UserImportManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
@@ -51,7 +51,7 @@ public class MockGroovyBindingProvider
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER, MockGroovyBindingProvider.class);
 	
-	public static Binding getBinding()
+	public static Binding getBinding(Event event)
 	{
 		UnityMessageSource unityMessageSource = mock(UnityMessageSource.class, 
 				withSettings().verboseLogging());
@@ -107,8 +107,6 @@ public class MockGroovyBindingProvider
 				withSettings().verboseLogging());
 		RegistrationsManagement registrationsManagement = mock(RegistrationsManagement.class, 
 				withSettings().verboseLogging());
-		ServerManagement serverManagement = mock(ServerManagement.class, 
-				withSettings().verboseLogging());
 		TranslationProfileManagement translationProfileManagement = mock(TranslationProfileManagement.class, 
 				withSettings().verboseLogging());
 				
@@ -135,13 +133,14 @@ public class MockGroovyBindingProvider
 		binding.setVariable("preferencesManagement", preferencesManagement);
 		binding.setVariable("realmsManagement", realmsManagement);
 		binding.setVariable("registrationsManagement", registrationsManagement);
-		binding.setVariable("serverManagement", serverManagement);
 		binding.setVariable("translationProfileManagement", translationProfileManagement);
 		binding.setVariable("userImportManagement", userImportManagement);
-		binding.setVariable("unityMessageSource", unityMessageSource);
+		binding.setVariable("msgSrc", unityMessageSource);
 		binding.setVariable("attributeTypeSupport", attributeTypeSupport);
 		binding.setVariable("identityTypeSupport", identityTypeSupport);
 		binding.setVariable("isColdStart", true);
+		binding.setVariable("event", event.getTrigger());
+		binding.setVariable("context", event.getContents());
 		binding.setVariable("log", LOG);
 		return binding;
 	}

@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import groovy.lang.Binding;
+import pl.edu.icm.unity.base.event.Event;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -43,7 +44,6 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
-import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.UserImportManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
@@ -51,8 +51,8 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
-import pl.edu.icm.unity.engine.api.initializers.ContentInitConf;
-import pl.edu.icm.unity.engine.api.initializers.InitializerType;
+import pl.edu.icm.unity.engine.api.initializers.ScriptConfiguration;
+import pl.edu.icm.unity.engine.api.initializers.ScriptType;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -60,14 +60,14 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 
 /**
  * Executes GROOVY scripts given by user in
- * {@link UnityServerConfiguration#CONTENT_INITIALIZERS} configuration.
+ * {@link UnityServerConfiguration#SCRIPTS} configuration.
  *
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
 @Component
-public class ContentGroovyExecutor
+public class MainGroovyExecutor
 {
-	private static final Logger LOG = Log.getLogger(Log.U_SERVER, ContentGroovyExecutor.class);
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER, MainGroovyExecutor.class);
 	//FIXME - check missing Insecure qualifiers
 	@Autowired
 	private IdentityTypesRegistry idTypesReg;
@@ -143,31 +143,27 @@ public class ContentGroovyExecutor
 	private RegistrationsManagement registrationsManagement;
 	@Autowired
 	@Qualifier("insecure")
-	private ServerManagement serverManagement;
-	@Autowired
-	@Qualifier("insecure")
 	private TranslationProfileManagement translationProfileManagement;
 	@Autowired
 	private ApplicationContext applCtx;
 	
 	private boolean coldStart = false;
 
-	private Binding binding;
-	
 	@PostConstruct
 	public void initialize()
 	{
 		coldStart = determineIfColdStart();
-		binding = getBinding();
 	}
 
-	public void run(ContentInitConf conf)
+	public void run(ScriptConfiguration conf, Event event)
 	{
-		if (conf == null || conf.getType() != InitializerType.GROOVY)
+		if (conf == null || conf.getType() != ScriptType.groovy)
 			throw new IllegalArgumentException(
-					"conf must not be null and must be of " + InitializerType.GROOVY + " type");
+					"conf must not be null and must be of " + 
+							ScriptType.groovy + " type");
 		Reader scriptReader = getFileReader(conf.getFileLocation());
-		GroovyExecutor.run(conf.getPhase().toString(), conf.getFileLocation(), scriptReader, binding);
+		GroovyExecutor.run(conf.getTrigger(), conf.getFileLocation(), scriptReader, 
+				getBinding(event));
 	}
 
 	private Reader getFileReader(String location)
@@ -182,9 +178,11 @@ public class ContentGroovyExecutor
 		}
 	}
 
-	Binding getBinding()
+	Binding getBinding(Event event)
 	{
 		Binding binding = new Binding();
+		binding.setVariable("event", event.getTrigger());
+		binding.setVariable("context", event.getContents());
 		binding.setVariable("config", config);
 		binding.setVariable("attributeClassManagement", attributeClassManagement);
 		binding.setVariable("attributesManagement", attributesManagement);
@@ -207,10 +205,9 @@ public class ContentGroovyExecutor
 		binding.setVariable("preferencesManagement", preferencesManagement);
 		binding.setVariable("realmsManagement", realmsManagement);
 		binding.setVariable("registrationsManagement", registrationsManagement);
-		binding.setVariable("serverManagement", serverManagement);
 		binding.setVariable("translationProfileManagement", translationProfileManagement);
 		binding.setVariable("userImportManagement", userImportManagement);
-		binding.setVariable("unityMessageSource", unityMessageSource);
+		binding.setVariable("msgSrc", unityMessageSource);
 		binding.setVariable("attributeTypeSupport", attributeTypeSupport);
 		binding.setVariable("identityTypeSupport", identityTypeSupport);
 		binding.setVariable("isColdStart", coldStart);

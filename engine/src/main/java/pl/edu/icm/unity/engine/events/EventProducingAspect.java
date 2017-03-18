@@ -7,6 +7,8 @@ package pl.edu.icm.unity.engine.events;
 import java.lang.reflect.Method;
 import java.util.Date;
 
+import javax.annotation.PostConstruct;
+
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.event.Event;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
 /**
  * Aspect producing events whenever engine method is invoked (implementation from interface with 
@@ -32,20 +35,31 @@ public class EventProducingAspect
 	
 	@Autowired
 	private EventProcessor eventProcessor;
+	@Autowired
+	private UnityServerConfiguration config;
 	
+	private boolean enable;
+	
+	@PostConstruct
+	private void init()
+	{
+		enable = config.getBooleanValue(UnityServerConfiguration.ENABLE_LOW_LEVEL_EVENTS);
+	}
 	
 	@After("execution(public * pl.edu.icm.unity.engine.api..*.*(..)) && "
 			+ "@within(eventProducer)")
 	private void afterFinishedByClass(JoinPoint jp, InvocationEventProducer eventProducer)
 	{
-		publishOKEvent(jp, eventProducer);
+		if (enable)
+			publishOKEvent(jp, eventProducer);
 	};
 	
 	@After("execution(public * pl.edu.icm.unity.engine.api..*.*(..)) && "
 			+ "@annotation(eventProducer)")
 	public void afterFinishedByMethod(JoinPoint jp, InvocationEventProducer eventProducer)
 	{
-		publishOKEvent(jp, eventProducer);
+		if (enable)
+			publishOKEvent(jp, eventProducer);
 	}
 
 	@AfterThrowing(pointcut="execution(public * pl.edu.icm.unity.engine.api..*.*(..)) && "
@@ -53,7 +67,8 @@ public class EventProducingAspect
 			throwing="ex")
 	public void afterErrorByClass(JoinPoint jp, InvocationEventProducer eventProducer, Exception ex) 
 	{
-		publishExceptionEvent(jp, ex, eventProducer);
+		if (enable)
+			publishExceptionEvent(jp, ex, eventProducer);
 	}
 
 	@AfterThrowing(pointcut="execution(public * pl.edu.icm.unity.engine.api..*.*(..)) && "
@@ -61,7 +76,8 @@ public class EventProducingAspect
 			throwing="ex")
 	public void afterErrorByMethod(JoinPoint jp, InvocationEventProducer eventProducer, Exception ex) 
 	{
-		publishExceptionEvent(jp, ex, eventProducer);
+		if (enable)
+			publishExceptionEvent(jp, ex, eventProducer);
 	}
 	
 	private void publishOKEvent(JoinPoint jp, InvocationEventProducer eventProducer)
@@ -71,7 +87,8 @@ public class EventProducingAspect
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		Long invoker = ae == null ? null : ae.getEntityId();
 		MethodSignature signature = (MethodSignature) jp.getSignature();
-		Event event = new Event(CATEGORY_INVOCATION, invoker, new Date());
+		Event event = new Event(CATEGORY_INVOCATION + "." + signature.getMethod().getName(), 
+				invoker, new Date());
 		event.setContents(getMethodDescription(signature.getMethod(), null, 
 				signature.getDeclaringType().getSimpleName(), jp.getArgs()));
 		eventProcessor.fireEvent(event);
@@ -84,15 +101,18 @@ public class EventProducingAspect
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		Long invoker = ae == null ? null : ae.getEntityId();
 		MethodSignature signature = (MethodSignature) jp.getSignature();
-		Event event = new Event(CATEGORY_INVOCATION, invoker, new Date());
+		Event event = new Event(CATEGORY_INVOCATION + "." + signature.getMethod().getName(), 
+				invoker, new Date());
 		event.setContents(getMethodDescription(signature.getMethod(), e.toString(), 
 				signature.getDeclaringType().getSimpleName(), jp.getArgs()));
 		eventProcessor.fireEvent(event);
 	}
 	
-	private String getMethodDescription(Method method, String exception, String interfaceName, Object[] args)
+	private String getMethodDescription(Method method, String exception, String interfaceName, 
+			Object[] args)
 	{
-		InvocationEventContents desc = new InvocationEventContents(method.getName(), interfaceName, exception);
+		InvocationEventContents desc = new InvocationEventContents(method.getName(), 
+				interfaceName, args, exception);
 		return desc.toJson();
 	}
 }

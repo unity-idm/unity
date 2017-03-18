@@ -19,19 +19,30 @@ import pl.edu.icm.unity.Constants;
  */
 public class Event
 {
-	private String category;
+	private String trigger;
 	private Long invokerEntity;
 	private Date timestamp;
 	private String contents;
+
 	
-	public Event(String category, Long invokerEntity, Date timestamp)
+	public Event(Enum<?> trigger)
 	{
-		this(category, invokerEntity, timestamp, null);
+		this(trigger.toString());
 	}
 
-	public Event(String category, Long invokerEntity, Date timestamp, String contents)
+	public Event(String trigger)
 	{
-		this.category = category;
+		this(trigger, -1l, new Date(), null);
+	}
+	
+	public Event(String trigger, Long invokerEntity, Date timestamp)
+	{
+		this(trigger, invokerEntity, timestamp, null);
+	}
+
+	public Event(String trigger, Long invokerEntity, Date timestamp, String contents)
+	{
+		this.trigger = trigger;
 		this.invokerEntity = invokerEntity;
 		this.timestamp = timestamp;
 		this.contents = contents;
@@ -43,14 +54,14 @@ public class Event
 		fromJson(json);
 	}
 
-	public String getCategory()
+	public String getTrigger()
 	{
-		return category;
+		return trigger;
 	}
 
-	public void setCategory(String category)
+	public void setTrigger(String trigger)
 	{
-		this.category = category;
+		this.trigger = trigger;
 	}
 
 	public Long getInvokerEntity()
@@ -87,7 +98,7 @@ public class Event
 	public ObjectNode toJson()
 	{
 		ObjectNode main = Constants.MAPPER.createObjectNode();
-		main.put("category", getCategory());
+		main.put("trigger", getTrigger());
 		main.put("contents", getContents());
 		main.put("invokerEntity", getInvokerEntity());
 		main.put("timestamp", getTimestamp().getTime());
@@ -96,7 +107,7 @@ public class Event
 	
 	private void fromJson(ObjectNode main)
 	{
-		category = main.get("category").asText();
+		trigger = main.get("trigger").asText();
 		contents = main.get("contents").asText();
 		invokerEntity = main.get("invokerEntity").asLong();
 		long ts = main.get("timestamp").asLong();
@@ -107,7 +118,7 @@ public class Event
 	@Override
 	public String toString()
 	{
-		return "[category=" + category + ", invokerEntity=" + invokerEntity
+		return "[trigger=" + trigger + ", invokerEntity=" + invokerEntity
 				+ ", timestamp=" + timestamp + ", contents=" + contents + "]";
 	}
 
@@ -116,7 +127,7 @@ public class Event
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((category == null) ? 0 : category.hashCode());
+		result = prime * result + ((trigger == null) ? 0 : trigger.hashCode());
 		result = prime * result + ((contents == null) ? 0 : contents.hashCode());
 		result = prime * result + ((invokerEntity == null) ? 0 : invokerEntity.hashCode());
 		result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
@@ -133,11 +144,11 @@ public class Event
 		if (getClass() != obj.getClass())
 			return false;
 		Event other = (Event) obj;
-		if (category == null)
+		if (trigger == null)
 		{
-			if (other.category != null)
+			if (other.trigger != null)
 				return false;
-		} else if (!category.equals(other.category))
+		} else if (!trigger.equals(other.trigger))
 			return false;
 		if (contents == null)
 		{

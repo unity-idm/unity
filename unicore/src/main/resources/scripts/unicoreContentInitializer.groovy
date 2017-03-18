@@ -14,7 +14,6 @@ import java.util.Set
 import pl.edu.icm.unity.exceptions.EngineException
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax
-import pl.edu.icm.unity.stdext.utils.InitializerCommon
 import pl.edu.icm.unity.types.basic.AttributeType
 import pl.edu.icm.unity.types.basic.AttributesClass
 import pl.edu.icm.unity.types.basic.Group
@@ -127,7 +126,7 @@ void initializeAttributeTypes()
 void initializeGroups()
 {
 	Group portal = new Group("/portal");
-	portal.setAttributesClasses(Collections.singleton(unicoreAC.getName()));
+	portal.setAttributesClasses(Collections.singleton(PORTAL_AC));
 	groupsManagement.addGroup(portal);
 }
 
