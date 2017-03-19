@@ -4,9 +4,12 @@
  */
 package pl.edu.icm.unity.restadm;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -49,6 +52,7 @@ import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -328,5 +332,18 @@ public class TestWrite extends RESTAdminTestBase
 		Entity entity = idsMan.getEntity(new EntityParam(entityId));
 		assertEquals(new Date(time), entity.getEntityInformation().getRemovalByUserTime());
 		assertEquals(EntityState.onlyLoginPermitted, entity.getEntityInformation().getState());
+	}
+	
+	@Test
+	public void canTriggerScriptInvocation() throws Exception
+	{
+		HttpPost trigger = new HttpPost("/restadm/v1/triggerEvent/test_event");
+		trigger.setEntity(new StringEntity("user-triggered", ContentType.APPLICATION_JSON));
+		
+		HttpResponse response = client.execute(host, trigger, localcontext);
+		assertThat(response.getStatusLine().getStatusCode(), is(Status.NO_CONTENT.getStatusCode()));
+		
+		Entity entity = idsMan.getEntity(new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user-triggered")));
+		assertThat(entity, is(notNullValue()));
 	}
 }

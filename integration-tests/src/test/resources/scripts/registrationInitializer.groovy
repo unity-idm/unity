@@ -1,4 +1,4 @@
-import com.google.gwt.thirdparty.guava.common.collect.Lists
+import com.google.common.collect.Lists
 
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction
 import pl.edu.icm.unity.engine.server.EngineInitialization

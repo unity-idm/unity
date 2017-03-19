@@ -677,3 +677,16 @@ The result is a very detailed dump of import information, starting from status, 
 and processed data after applying the translation profile.
 
 
+'''
+
++@Path("/triggerEvent/{eventName}")+ +
++@POST+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Triggers event with a given name. Body of the request is passed as argument (context) of the event. 
+This feature is typically used to trigger extension script invocation by Unity server: if a script is 
+configured as a handler for the used event it will be launched. That way server REST API functionality can be 
+manually enhanced.
+
+
+
