@@ -24,6 +24,10 @@ public class Event
 	private Date timestamp;
 	private String contents;
 
+	public Event(Enum<?> trigger, String contents)
+	{
+		this(trigger.toString(), -1l, new Date(), contents);
+	}
 	
 	public Event(Enum<?> trigger)
 	{

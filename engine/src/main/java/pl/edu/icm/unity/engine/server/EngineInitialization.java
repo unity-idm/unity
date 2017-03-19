@@ -315,6 +315,7 @@ public class EngineInitialization extends LifecycleBase
 	
 	public void initializeDatabaseContents()
 	{
+		Boolean isColdStart = determineIfColdStart();
 		initializeIdentityTypes();
 		initializeAttributeTypes();
 		initializeAdminUser();
@@ -325,7 +326,7 @@ public class EngineInitialization extends LifecycleBase
 		
 		runInitializers();
 		
-		eventsProcessor.fireEvent(new Event(EventCategory.PRE_INIT));
+		eventsProcessor.fireEvent(new Event(EventCategory.PRE_INIT, isColdStart.toString()));
 		
 		initializeTranslationProfiles();
 		boolean eraClean = config.getBooleanValue(
@@ -336,7 +337,21 @@ public class EngineInitialization extends LifecycleBase
 		initializeRealms();
 		initializeEndpoints();
 
-		eventsProcessor.fireEvent(new Event(EventCategory.POST_INIT));
+		eventsProcessor.fireEvent(new Event(EventCategory.POST_INIT, isColdStart.toString()));
+	}
+	
+	private boolean determineIfColdStart()
+	{
+		try
+		{
+			List<IdentityType> idTypes = tx.runInTransactionRet(() -> {
+				return dbIdentities.getAll();
+			});
+			return idTypes.isEmpty();
+		} catch (Exception e)
+		{
+			throw new InternalException("Initialization problem when checking identity types.", e);
+		}
 	}
 	
 	private void installEventListeners()

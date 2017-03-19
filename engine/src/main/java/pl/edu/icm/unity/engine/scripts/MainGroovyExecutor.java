@@ -7,10 +7,6 @@ package pl.edu.icm.unity.engine.scripts;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,15 +43,11 @@ import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.UserImportManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
+import pl.edu.icm.unity.engine.api.event.EventCategory;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.initializers.ScriptConfiguration;
 import pl.edu.icm.unity.engine.api.initializers.ScriptType;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.basic.IdentityType;
 
 /**
  * Executes GROOVY scripts given by user in
@@ -68,8 +60,6 @@ public class MainGroovyExecutor
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER, MainGroovyExecutor.class);
 	
-	@Autowired
-	private IdentityTypesRegistry idTypesReg;
 	@Autowired
 	private UnityMessageSource unityMessageSource;
 	@Autowired
@@ -150,14 +140,6 @@ public class MainGroovyExecutor
 	@Autowired
 	private ApplicationContext applCtx;
 	
-	private boolean coldStart = false;
-
-	@PostConstruct
-	public void initialize()
-	{
-		coldStart = determineIfColdStart();
-	}
-
 	public void run(ScriptConfiguration conf, Event event)
 	{
 		if (conf == null || conf.getType() != ScriptType.groovy)
@@ -212,31 +194,12 @@ public class MainGroovyExecutor
 		binding.setVariable("msgSrc", unityMessageSource);
 		binding.setVariable("attributeTypeSupport", attributeTypeSupport);
 		binding.setVariable("identityTypeSupport", identityTypeSupport);
+		boolean coldStart = false;
+		if (event.getTrigger().equals(EventCategory.POST_INIT.toString()) || 
+				event.getTrigger().equals(EventCategory.PRE_INIT.toString()))
+			coldStart = Boolean.valueOf(event.getContents());
 		binding.setVariable("isColdStart", coldStart);
 		binding.setVariable("log", LOG);
 		return binding;
-	}
-	
-	private boolean determineIfColdStart()
-	{
-		try
-		{
-			Map<String, IdentityType> defined = identityTypesManagement.getIdentityTypes()
-					.stream().collect(Collectors.toMap(IdentityType::getName, type -> type));
-			for (IdentityTypeDefinition it: idTypesReg.getAll())
-			{
-				if (!defined.containsKey(it.getId()))
-					return true;
-			}
-		} catch (EngineException e)
-		{
-			throw new InternalException("Initialization problem when checking identity types.", e);
-		}
-		return false;
-	}
-
-	public boolean isColdStart()
-	{
-		return coldStart;
 	}
 }
