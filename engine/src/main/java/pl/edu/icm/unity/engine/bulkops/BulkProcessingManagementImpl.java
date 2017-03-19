@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.BulkProcessingManagement;
@@ -26,6 +27,7 @@ import pl.edu.icm.unity.types.translation.TranslationRule;
  * @author K. Benedyczak
  */
 @Component
+@Primary
 public class BulkProcessingManagementImpl implements BulkProcessingManagement, BulkProcessingInternal
 {
 	private ProcessingRuleDB db;

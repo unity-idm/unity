@@ -29,7 +29,6 @@ import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
-import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
@@ -58,8 +57,6 @@ public class MockGroovyBindingProvider
 		UnityServerConfiguration config = mock(UnityServerConfiguration.class, 
 				withSettings().verboseLogging());
 		BulkProcessingManagement bulkProcessingManagement = mock(BulkProcessingManagement.class, 
-				withSettings().verboseLogging());
-		PKIManagement pkiManagement = mock(PKIManagement.class, 
 				withSettings().verboseLogging());
 		PreferencesManagement preferencesManagement = mock(PreferencesManagement.class, 
 				withSettings().verboseLogging());
@@ -129,7 +126,6 @@ public class MockGroovyBindingProvider
 		binding.setVariable("invitationManagement", invitationManagement);
 		binding.setVariable("messageTemplateManagement", messageTemplateManagement);
 		binding.setVariable("notificationsManagement", notificationsManagement);
-		binding.setVariable("pkiManagement", pkiManagement);
 		binding.setVariable("preferencesManagement", preferencesManagement);
 		binding.setVariable("realmsManagement", realmsManagement);
 		binding.setVariable("registrationsManagement", registrationsManagement);

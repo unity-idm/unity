@@ -20,9 +20,9 @@ import pl.edu.icm.unity.exceptions.InternalException;
  *
  * @author golbi
  */
-public class GroovyExecutor
+public class GroovyRunner
 {
-	private static final Logger LOG = Log.getLogger(Log.U_SERVER, GroovyExecutor.class);
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER, GroovyRunner.class);
 	
 	public static void run(String phase, String name, 
 			Reader scriptReader, Binding binding)

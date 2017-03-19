@@ -54,6 +54,8 @@ import pl.edu.icm.unity.engine.api.event.EventPublisher;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.rest.exception.JSONParsingException;
@@ -106,6 +108,7 @@ public class RESTAdmin
 	private AttributeTypeManagement attributeTypeMan;
 	private InvitationManagement invitationMan;
 	private EventPublisher eventPublisher;
+	private AuthorizationManager authz;
 	
 	@Autowired
 	public RESTAdmin(EntityManagement identitiesMan, GroupsManagement groupsMan,
@@ -117,16 +120,9 @@ public class RESTAdmin
 			EntityCredentialManagement entityCredMan,
 			AttributeTypeManagement attributeTypeMan,
 			InvitationManagement invitationMan,
-			EventPublisher eventPublisher)
+			EventPublisher eventPublisher,
+			AuthorizationManager authz)
 	{
-		/**
-		 * TODO - remove this
-		 * We depend on app context in order to work around of the dependency cycle. 
-		 * We do depend on EndpointsManagement, however it requires this factory to be instantiated first 
-		 * and registered. Therefore EndpointsManagement is retrieved only on endpoint creation.
-		 */
-		//this.endpointManagement = appContext.getBean(EndpointManagement.class);
-
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
 		this.attributesMan = attributesMan;
@@ -140,6 +136,7 @@ public class RESTAdmin
 		this.attributeTypeMan = attributeTypeMan;
 		this.invitationMan = invitationMan;
 		this.eventPublisher = eventPublisher;
+		this.authz = authz;
 	}
 
 	
@@ -718,6 +715,7 @@ public class RESTAdmin
 	public void triggerEvent(@PathParam("eventName") String eventName, String eventBody) 
 			throws EngineException, IOException
 	{
+		authz.checkAuthorization(AuthzCapability.maintenance); //!! we must authorize here
 		Event event = new Event(eventName, -1l, new Date(), eventBody);
 		eventPublisher.fireEvent(event);
 	}	

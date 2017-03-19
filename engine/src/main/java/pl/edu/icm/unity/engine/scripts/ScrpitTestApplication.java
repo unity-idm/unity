@@ -45,6 +45,6 @@ public class ScrpitTestApplication
 		Event event = new Event(EventCategory.TEST); 
 		Binding binding = MockGroovyBindingProvider.getBinding(event);
 		System.out.println("Executing " + path + " script in sandbox environment.");
-		GroovyExecutor.run("sandbox-test", path, scriptReader, binding);
+		GroovyRunner.run("sandbox-test", path, scriptReader, binding);
 	}
 }

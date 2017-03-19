@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.userimport;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.UserImportManagement;
@@ -19,6 +20,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
  * @author K. Benedyczak
  */
 @Component
+@Primary
 public class UserImportManagementImpl implements UserImportManagement
 {
 	private AuthorizationManager authz;

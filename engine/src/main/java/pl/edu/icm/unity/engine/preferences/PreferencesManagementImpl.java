@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -42,6 +43,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
  */
 @Component
 @InvocationEventProducer
+@Primary
 @Transactional
 public class PreferencesManagementImpl implements PreferencesManagement
 {

@@ -40,7 +40,6 @@ import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
-import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
@@ -68,7 +67,7 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 public class MainGroovyExecutor
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER, MainGroovyExecutor.class);
-	//FIXME - check missing Insecure qualifiers
+	
 	@Autowired
 	private IdentityTypesRegistry idTypesReg;
 	@Autowired
@@ -76,17 +75,19 @@ public class MainGroovyExecutor
 	@Autowired
 	private UnityServerConfiguration config;
 	@Autowired
-	private BulkProcessingManagement bulkProcessingManagement;
-	@Autowired
-	private PKIManagement pkiManagement;
-	@Autowired
-	private PreferencesManagement preferencesManagement;
-	@Autowired
-	private UserImportManagement userImportManagement;
-	@Autowired
 	private AttributeTypeSupport attributeTypeSupport;
 	@Autowired
 	private IdentityTypeSupport identityTypeSupport;
+	
+	@Autowired
+	@Qualifier("insecure")
+	private BulkProcessingManagement bulkProcessingManagement;
+	@Autowired
+	@Qualifier("insecure")
+	private PreferencesManagement preferencesManagement;
+	@Autowired
+	@Qualifier("insecure")
+	private UserImportManagement userImportManagement;
 	@Autowired
 	@Qualifier("insecure")
 	private IdentityTypesManagement identityTypesManagement;
@@ -144,6 +145,8 @@ public class MainGroovyExecutor
 	@Autowired
 	@Qualifier("insecure")
 	private TranslationProfileManagement translationProfileManagement;
+	
+	
 	@Autowired
 	private ApplicationContext applCtx;
 	
@@ -162,7 +165,7 @@ public class MainGroovyExecutor
 					"conf must not be null and must be of " + 
 							ScriptType.groovy + " type");
 		Reader scriptReader = getFileReader(conf.getFileLocation());
-		GroovyExecutor.run(conf.getTrigger(), conf.getFileLocation(), scriptReader, 
+		GroovyRunner.run(conf.getTrigger(), conf.getFileLocation(), scriptReader, 
 				getBinding(event));
 	}
 
@@ -201,7 +204,6 @@ public class MainGroovyExecutor
 		binding.setVariable("invitationManagement", invitationManagement);
 		binding.setVariable("messageTemplateManagement", messageTemplateManagement);
 		binding.setVariable("notificationsManagement", notificationsManagement);
-		binding.setVariable("pkiManagement", pkiManagement);
 		binding.setVariable("preferencesManagement", preferencesManagement);
 		binding.setVariable("realmsManagement", realmsManagement);
 		binding.setVariable("registrationsManagement", registrationsManagement);
