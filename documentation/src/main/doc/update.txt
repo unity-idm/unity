@@ -62,109 +62,11 @@ When using RPM distribution it is enough to update the package with your package
 The last component in the version string is irrelevant for the following instructions. For instance instructions
 for the 1.2.0->1.3.0 applies also to 1.2.0->1.3.1 and all other 1.3.x versions.
 
-==== From pre-1.3.0 version
-
-You should follow instructions and upgrade version by version. The update instructions are always available
-in the documentation of the version to which you are upgrading.
-
-==== From 1.3.x to 1.4.0
-
-There were no incompatible database or configuration changes. However to enable some of the 
-new features (as Single Logout on SAML authenticator) additional configuration settings must be added according to 
-documentation. 
-
-It can be noted that the maximum memory limit previously set to 256MB in +startup.properties+ should be increased to 
-+512MB+.
- 
-==== From 1.4.0 to 1.5.0
- 
-There were small database schema changes in this release. The database should be updated automatically at 
-when a new instance is started, however make sure to make a full back up after stopping the old version
-and before starting the new one.
-
-==== From 1.5.0 to 1.6.0
-
-Starting from the version 1.6.0 not only the libraries directory (as configured in +startup.properties+)
-is scanned for loading jar files, also all its subdirectories are. This feature can be used to load additional 
-plugins, placed in a separate folders. 
- 
-There were small database schema changes in this release. The database should be updated automatically at 
-when a new instance is started, however make sure to make a full back up after stopping the old version
-and before starting the new one.
-
-The 1.6.0 version introduces significant changes in user interface. Especially the authentication screen layout 
-is changed and facilitates the new tiles feature, allowing for flexible arrangement of authentication options.
-The following changes in configuration are necessary:
-
- - *All files served by the server (as images of 3rd party identity providers), set with the file:// URL 
- are resolved against the theme directory used by endpoint.* I.e. by default the files should be placed in 
- the web contents directory (e.g. +conf/webContents+) and paths should be given 
- relative to its +VAADIN/themes/unityThemeValo+ directory. For instance if a file is stored in 
- +conf/webContents/VAADIN/themes/common/img/mypic.jpg+ it must be configured as 
- +file://../common/img/mypic.jpg+.
- - Icon sizes configuration parameters found in SAML and OAuth authenticators (as +width50+) are now ignored. Instead
- scaling mode can be configured per endpoint in its authentication configuration. Scaling is no more fixed, it is using 
- CSS class names (small, tiny, ...) which are controlled by theme and can be customized.
-
-==== From 1.6.x to 1.7.x
-
-First of all make sure you use Java 8. 
-
-Version 1.7.0 introduces one incompatible change wrt previous versions. There is a *single redirect
-URL* which can be defined for a registration form. Previously used redirect URL for requests which were auto accepted
-is not available any more. Instead the same URL is used, but has rich set of query parameters allowing 
-consuming service to present appropriate content.
-
-Starting from the *version 1.7.1* an updated H2 DB engine is used (to fix problems with the older version). 
-This change requires that all H2 relative paths are started from +./+. E.g. 
-+jdbc:h2:file:./data/unitydb.bin;LOCK_TIMEOUT=10000;MVCC=TRUE+ is a correct path. Please update your configuration
-file (always for the local DB, and also for the main DB if it is using the H2 database).
-
-In the version *1.7.2* a stricter email validation is implemented. This means that some addresses that 
-were accepted by the previous Unity versions are not valid anymore. For instance +some@@email.com+ or 
-addresses with invalid DNS domain are not accepted. Due this change an import of database dump with invalid
-email addresses inside will not be loaded. You have to fix invalid addresses before importing, 
-directly in the database dump.
-   
-==== From 1.7.x to 1.8.0
-
-IMPORTANT: version 1.8.0 brings a lot of important changes, please carefully read the following
-information. And don't forget to perform a backup before upgrading. 
-
-IMPORTANT: if you upgrade Unity to 1.8.0 by loading a JSON dump created with older version (instead of
-using the automatic database update) then make sure to restart the server after loading the dump. This
-is required to have the OAuth allowed flows attribute type updated.  
-
-Version 1.8.0 introduces a completely new group attribute statements feature. During the (automatic) database update
-all legacy attribute statements are updated to the new schema. The same happens when a JSON database dump created 
-with an earlier Unity version is loaded. It is highly advisable to review the converted attribute statements. 
-The documentation of the subsystem is available in <<attributes>>.
-
-The attribute statements conversion has one limitation: the former +hasParentAttribute+, +hasSubgroupAttribute+,
-+copyParentAttribute+ and +copySubgroupAttribute+ are converted ignoring the setting of the condition's 
-attribute values (of course in the has* statements the assigned attribute values are preserved). 
-This former feature usefulness was very low, so most probably your attribute statements didn't 
-specify any attribute values in conditions. The semantics was that only if the member has an attribute in child/parent
-group with the specified value the attribute is copied or the new one is assigned in the statement's group.
-If your statements did use that feature, you have to manually modify the conditions of the converted statements 
-to add proper attribute value based rules. In case of troubles please ask at the mailing list!  
-
-Another big change introduced in the version 1.8.0 is registration form profile (similar to input translation profile,
-see <<registration>> for details). The following former elements of the registration form are
-all handled by a translation profile now:
-
-. auto accept condition 
-. redirect URL
-. initial entity state
-. automatic assignments of attributes, groups and attribute classes
-
-The database update should convert automatically all of the above settings which were used to the correct 
-form profile rules. It is however advised to review the changes.
-
-Additionally one can note that the former 'Initial credential requirement' setting is now called as a 'Default
-credential requirement'. This is minor change, to make clear that this setting can be changed by the profile.
-
-
 ==== From 1.x to 2.0.0
 
-. add REFERENCES to MySQL server grant for unity db user.
+Information about major update from 1.x version to the 2.0.0 version is provided in a separate document under 
+<<update-howto-v2.txt#,this address>>.
+
+
+
+

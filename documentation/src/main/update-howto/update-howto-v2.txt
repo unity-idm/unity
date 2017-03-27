@@ -14,6 +14,26 @@ Unity version 2.x features major changes and requires some effort to perform upg
 document tracks all actions that may be necessary during upgrade.
 
 
+IMPORTANT: The only supported update is from the 1.9.x version. Updating directly from 1.8.x can work but
+we neither test nor support such update path. Update from any older version to 2.0.x version won't work for sure.
+If you have older version, update it to the latest 1.9.x version first.   
+
+This document doesn't provide information on the reasons for the introduced changes - see 2.0.0 release notes.
+
+== General update procedure
+
+
+
+
+TODO
+. Only via export-import
+. Prepare updated config files first and launch a test instance
+. test import
+. switch
+
+
+== Configuration files changes
+
 === Logging subsystem re-configuration
 
 Unity 1.x used a dated log4j 1.2.17 logging library. Unity 2.x upgrades it to the most recent log4j2. Log4j2 uses 
@@ -25,7 +45,7 @@ log4j2.xml
 ----
    
 It is strongly suggested to use a new logging configuration file from Unity distribution as a template and 
-apply the local modifications to it. Typically it is only required to update logger levels to desired ones.
+apply all local modifications manually to it. Typically it is only required to update logger levels to desired ones.
 
 Note that basic concepts behind logging (loggers, appenders) did not change. It is also possible to use other formats
 supported by Log4j2 (as new properties format), however we suggest to stick with the default XML configuration: 
@@ -36,8 +56,11 @@ it is quite concise and there is the largest base of examples in XML syntax.
 Unity 1.x allows only for using one of supported relational databases (RDBMS) to persist service state. What is more two 
 databases where used: the regular one, and so called _local_ database, which was a helper store.
 
-Unity 2.0 drops the _local_ database - its configuration is now obsolete. What is more it is possible to configure
-different then RDBMS database backends. Formerly the only possible RDBMS backend is now one of supported options.
+Unity 2.0 drops the _local_ database - its configuration is now removed. 
+
+Unity 2.0 allows for different database backends. Therefore the RDBMS backend which formerly was the only 
+(implicite) possibility, now is one of supported options. Below we assume that RDBMS backend should be still
+used in 2.0. In case other backend is more appropriate please refer to the regular manual.
 
 The following configuration changes are required in +unityServer.conf+:
 
@@ -55,4 +78,22 @@ unityServer.storage.engine.rdbms.dialect=mysql
 unityServer.storage.engine.rdbms.password=unity-pass
 unityServer.storage.engine.rdbms.username=unity-user
 ----
+
+
+[IMPORTANT]
+====
+
+MySQL & MariaDB require the REFERENCES grant to the unity database user. If this grant is missing
+please add it. The full grant statement for example DB user can be:
+
+
+ GRANT ALTER, CREATE, DELETE, DROP, EXECUTE, INDEX, INSERT, LOCK TABLES, 
+  SELECT, TRIGGER, UPDATE, REFERENCES ON unitydb.* to 'unity'@'localhost' IDENTIFIED BY 'unitypass';+
+
+====
+
+
+=== Initialization scripts re-configuration
+
+TODO
 

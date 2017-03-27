@@ -135,6 +135,10 @@
 									<directory>src/main/saml-howto</directory>
 									<filtering>true</filtering>
 								</resource>
+								<resource>
+									<directory>src/main/update-howto</directory>
+									<filtering>true</filtering>
+								</resource>
 							</resources>
 						</configuration>
 					</execution>
@@ -171,9 +175,9 @@
 								<argument>target/workspace</argument>
 								<argument>eu.unicore.security.canl.TruststoreProperties|sec-ref-trustProperties.txt|.</argument>
 								<argument>eu.unicore.security.canl.CredentialProperties|sec-ref-credProperties.txt|.</argument>
-								<argument>pl.edu.icm.unity.server.utils.UnityPKIConfiguration|ref-pkiProperties.txt|</argument>
-								<argument>pl.edu.icm.unity.server.utils.UnityHttpServerConfiguration|ref-httpServerProperties.txt|</argument>
-								<argument>pl.edu.icm.unity.server.utils.UnityServerConfiguration|ref-mainServerProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.engine.api.config.UnityPKIConfiguration|ref-pkiProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration|ref-httpServerProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.engine.api.config.UnityServerConfiguration|ref-mainServerProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.ws.CXFEndpointProperties|ref-cxfEndpointProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.rest.RESTEndpointProperties|ref-restEndpointProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.ldap.client.LdapProperties|ref-ldapProperties.txt|</argument>
@@ -182,7 +186,9 @@
 								<argument>pl.edu.icm.unity.saml.sp.SAMLSPProperties|ref-samlSPProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.oauth.client.config.OAuthClientProperties|ref-oauthClientProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.oauth.client.config.CustomProviderProperties|ref-oauthProviderProperties.txt|</argument>
-								<argument>pl.edu.icm.unity.db.DBConfiguration|ref-dbProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.store.StorageConfiguration|ref-dbProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.store.hz.HzConfiguration|ref-storeHzProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.store.rdbms.RDBMSConfiguration|ref-storeRDBMSProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties|ref-JWTManProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.oauth.as.OAuthASProperties|ref-oauthASProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.oauth.rp.OAuthRPProperties|ref-oauthRPProperties.txt|</argument>
@@ -193,6 +199,21 @@
 						</configuration>
 						<goals>
 							<goal>java</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>asciidoctor-updatehowto</id>
+						<phase>pre-site</phase>
+						<configuration>
+							<executable>asciidoctor</executable>
+							<arguments>
+								<argument>-D</argument>
+								<argument>${project.reporting.outputDirectory}</argument>
+								<argument>target/workspace/update-howto-v2.txt</argument>
+							</arguments>
+						</configuration>
+						<goals>
+							<goal>exec</goal>
 						</goals>
 					</execution>
 					<execution>
