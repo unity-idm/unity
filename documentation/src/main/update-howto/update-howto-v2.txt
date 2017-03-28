@@ -22,15 +22,24 @@ This document doesn't provide information on the reasons for the introduced chan
 
 == General update procedure
 
+To perform major import update is is necessary to export data from the 1.9.x version to JSON format from Admin UI
+and then to import it into the newer version. Automatic upgrade of database is not possible.
 
+Unity 2 includes couple of incompatible changes in configuration. Those changes are not difficult to perform and
+shouldn't take a lot of time, however are mandatory. Details of all changes are provided in the next section.
 
+Therefore the suggested update procedure is as follows:
 
-TODO
-. Only via export-import
-. Prepare updated config files first and launch a test instance
-. test import
-. switch
+. Install a new instance separately (can be even on a separate test machine)
+. Configure a new instance by reusing the old configuration, applying the mandatory updates as described 
+in the next section. If installing on a test machine make sure to also update hostname. Always *make sure to use 
+a separate database*.
+. Start the new server and verify if the configuration is correct and server is properly starting. 
+. Create JSON dump of the old server (AdminUI -> Server management -> Database backup).
+. Import the JSON dump in the new server. Any additional tests can be performed now.
+. Assuming everything worked properly the old server can be shutdown, and the new server can replace it.
 
+If there are any problems during import please let us know.
 
 == Configuration files changes
 
@@ -53,7 +62,7 @@ it is quite concise and there is the largest base of examples in XML syntax.
 
 === Database subsystem re-configuration
 
-Unity 1.x allows only for using one of supported relational databases (RDBMS) to persist service state. What is more two 
+Unity 1.x allows for using only one of supported relational databases (RDBMS) to persist service state. What is more two 
 databases where used: the regular one, and so called _local_ database, which was a helper store.
 
 Unity 2.0 drops the _local_ database - its configuration is now removed. 
@@ -95,5 +104,44 @@ please add it. The full grant statement for example DB user can be:
 
 === Initialization scripts re-configuration
 
-TODO
+Unity 1.x used the following configuration to activate so called _contents initializers_:
+
+----
+unityServer.core.initializers.0=demoInitializer
+unityServer.core.initializers.1=oauthDemoInitializer
+...
+----
+
+Couple of such contents initializers were shipped with Unity and allowed for quick-starting with (typically example) 
+data. 
+
+Unity 2 deprecates this feature, however it is still supported so that custom extensions can be loaded this way.
+We plan to fully drop this feature later on.
+
+Instead a much more powerful mechanism is provided: Unity can launch Groovy scripts in effect of various system 
+generated events. There are events triggered during server startup and so content initialization can be easily done
+using this new feature (along with many other things). All previously hardcoded content initializers from Unity 1 are
+now available as Groovy scripts and so can be also modified.
+
+The following configuration snippet turns on all initializers that were available in Unity 1 in the new, script 
+style. Only the desired ones can be used. Note however that the new +defaultContentInitializer.groovy+ is required
+to be added for nearly all cases, and it is strongly suggested to always have it activated. For details please check
+general documentation of the scripts triggering feature as well as the script itself.  
+
+----
+unityServer.core.script.0.file=scripts/defaultContentInitializer.groovy
+unityServer.core.script.0.trigger=pre-init
+unityServer.core.script.1.file=scripts/demoContentInitializer.groovy
+unityServer.core.script.1.trigger=pre-init
+unityServer.core.script.2.file=scripts/unicoreContentInitializer.groovy
+unityServer.core.script.2.trigger=pre-init
+unityServer.core.script.3.file=scripts/oauthDemoInitializer.groovy
+unityServer.core.script.3.trigger=pre-init
+unityServer.core.script.4.file=scripts/confirmationsInitializer.groovy
+unityServer.core.script.4.trigger=pre-init
+----
+
+NOTE: If a custom initialization code was developed and used in Unity 1.x it must be rewritten to use the new
+API. We suggest to convert it to Groovy, for easier maintenance.     
+
 
