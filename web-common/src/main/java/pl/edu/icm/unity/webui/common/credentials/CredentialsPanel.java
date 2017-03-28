@@ -33,6 +33,7 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.MapComboBox;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
@@ -70,7 +71,7 @@ public class CredentialsPanel extends VerticalLayout
 	private SafePanel statuses;
 	private MapComboBox<CredentialDefinition> credential;
 	private Label status;
-	private Label description;
+	private HtmlConfigurableLabel description;
 	private SafePanel credentialStateInfo;
 	private SafePanel editor;
 	private Button update;
@@ -136,7 +137,7 @@ public class CredentialsPanel extends VerticalLayout
 				updateSelectedCredential();
 			}
 		});
-		description = new Label();
+		description = new HtmlConfigurableLabel();
 		description.setCaption(msg.getMessage("CredentialChangeDialog.description"));
 		status = new Label();
 		status.setCaption(msg.getMessage("CredentialChangeDialog.status"));
