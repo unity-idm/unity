@@ -22,9 +22,8 @@ It is a solution built from the ground up. All pieces perfectly fit together. St
 parts is performed in the same style. And the whole solution is fully web and cloud ready.
 
 [NOTE]
-Unity is under heavy development. Not all extensions and functions of the engine which are on the presented
-figures are already available. Even some of the enumerated use-cases are not already fully achievable. 
-We plan to deliver the remaining fundamental (and many other) features soon. For the actual and detailed information on
+Unity is under development. Not all extensions and functions of the engine which are on the presented
+figures are already available. For the actual and detailed information on
 what is currently supported please check the <<features-info>> section.  
 
 The most important design principles of Unity are:

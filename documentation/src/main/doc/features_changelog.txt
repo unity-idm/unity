@@ -16,7 +16,7 @@
 |Upstream IdPs framework| icon:check[role="green"]		|
 |Registration forms		| icon:check[role="green"]		|
 |Preferences			| icon:check[role="green"]		|
-|Notifications			| icon:exclamation[role="red"]	| Partially implemented, but not fully integrated.
+|Notifications			| icon:check[role="green"]   	| Can be achieved with the scripts feature, may be enhanced in future 
 |Auditing				| icon:exclamation[role="red"]	| Not yet available.
 |===
 
@@ -58,8 +58,8 @@
 |SAML 2, Web SSO profile		| icon:check[role="green"]		|
 |OAuth 2						| icon:check[role="green"]		| Tested with Facebook, Microsoft Live, MITRE 
 |OpenID Connect					| icon:check[role="green"]		| Tested with Google
-|OpenID 2						| icon:exclamation[role="red"]	| Not yet available
-|OAuth 1						| icon:exclamation[role="red"]	| Not yet available
+|OpenID 2						| icon:exclamation[role="red"]	| Not available and not planned currently
+|OAuth 1						| icon:exclamation[role="red"]	| Not available and not planned currently
 |===
 
 === Attribute syntaxes

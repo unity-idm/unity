@@ -476,62 +476,76 @@ endpoint C.
 [id="logging"]
 === Logging configuration
 
-Unity uses the Log4j logging framework in version 1.2.x (note that the latest version 2.x is much different).
-What is more the log4j-extras package is included so additional logging features are enabled. 
-Logging is configured in the +conf/log4j.properties+ file.
-
+Unity uses the Log4j logging framework in version 2.x (note that the older version 1.x is much different).
+Logging is configured in the +conf/log4j2.xml+ file. Other log file formats supported by Log4j may be alternatively 
+used but we suggest to use the default XML format.
 
 By default, log files are written to the the +logs/+ directory. 
 
 The following example config file configures logging so that log files are 
-rotated daily, and the old log files are compressed.
+rotated daily. The example contains inline explanations in comments.
 
 -------------------
-# The default log level and the output (appender)
-log4j.rootLogger=INFO, LOGFILE
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration monitorInterval="30" status="warn">
+	<!-- 
+		What to log?
+		Levels in order of verbosity: FATAL, ERROR, WARN, INFO, DEBUG, TRACE
+	-->
+	<Loggers>
+		<!-- Default log level -->
+		<Root level="INFO">
+			<!-- Default appender specifies where to log by default (can be changed per logger) -->
+			<AppenderRef ref="LOGFILE"/>
+		</Root>
+	
+		<!-- Everything produced by Unity (unless overwritten below) -->
+		<Logger name="unity.server" level="DEBUG"/>
 
-# What to log
-log4j.logger.net.sf.ehcache=WARN
-log4j.logger.org.springframework=WARN
-log4j.logger.org.eclipse.jetty=INFO
-log4j.logger.unity.server=DEBUG
-log4j.logger.unity.server.config=INFO
-log4j.logger.org.apache=INFO
-log4j.logger.pl.edu.icm=DEBUG
-log4j.logger.pl.edu.icm.unity.db.mapper=INFO
+		<!-- Loading of any configuration -->
+		<Logger name="unity.server.config" level="INFO"/>
 
+		<!-- Persistence subsystem -->
+		<Logger name="unity.server.db" level="INFO"/>
 
-#Configuration of appenders which performs actual logging
-
-# LOGFILE is set to be a file appender using a PatternLayout with daily rolling.
-log4j.appender.LOGFILE=org.apache.log4j.rolling.RollingFileAppender
-log4j.appender.LOGFILE.RollingPolicy=org.apache.log4j.rolling.TimeBasedRollingPolicy
-log4j.appender.LOGFILE.RollingPolicy.FileNamePattern=logs/unity-server.log.%d{yyyy-MM-dd}.gz
-log4j.appender.LOGFILE.File=logs/unity-server.log
-log4j.appender.LOGFILE.layout=org.apache.log4j.PatternLayout
-log4j.appender.LOGFILE.layout.ConversionPattern=%d{ISO8601} [%t] %-5p %c %x - %m%n
+		<!-- Web subsystem -->
+		<!-- <Logger name="unity.server.web" level="INFO"/> -->
+	</Loggers>
+	
+	
+	<!-- Where to log? -->
+	<Appenders>
+		<Console name="CONSOLE">
+			<PatternLayout pattern="%d{ISO8601} [%t] %-5p %c: %equals{%1x}{[]}{}%m%n"/>
+		</Console>
+		
+		<RollingRandomAccessFile name="LOGFILE" 
+				fileName="/var/log/unity-idm/unity-server.log" 
+				filePattern="/var/log/unity-idm/unity-server.log.%d{yyyy-MM-dd}">
+				
+			<PatternLayout pattern="%d{ISO8601} [%t] %-5p %c: %equals{%1x}{[]}{}%m%n"/>
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+			</Policies>
+			<DefaultRolloverStrategy/>
+		</RollingRandomAccessFile>
+	</Appenders>
+	
+</Configuration>
 -------------------
 
 [NOTE]
 ===========
 In Log4j, the log rotation frequency is controlled by the DatePattern. Check 
-http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/DailyRollingFileAppender.html
-for the details.
+https://logging.apache.org/log4j/2.x/manual/appenders.html
+for the details, search for +filePattern+.
 ===========
 
 For more info on controlling the logging we refer to the log4j documentation:
   
-  - http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/PatternLayout.html[PatternLayout]
-  
-  - http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/RollingFileAppender.html[RollingFileAppender]
-  
-  - http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/DailyRollingFileAppender.html[DailyRollingFileAppender]
-  
- 
-Log4j supports a very wide range of logging options, such as date based or size based file rollover,
-logging different things to different files and much more. For full information on Log4j we refer to
-the publicly available documentation, for example the 
-http://logging.apache.org/log4j/1.2/manual.html[Log4j manual].
+  - https://logging.apache.org/log4j/2.x/manual/index.html[Introduction]
+  - https://logging.apache.org/log4j/2.x/manual/appenders.html[Where to log - appenders]
+  - https://logging.apache.org/log4j/2.x/manual/layouts.html[Log entry format - layouts]
  
 
 ==== Logger categories, names and levels
@@ -549,6 +563,8 @@ to which the Java class name is appended. The most common logging prefixes are:
 - +unity.server.externaltranslation+ - messages connected with the translation of any upstream IdP 
 data to the Unity format.
  
+NOTE: the default log4j configuration file always contains a comprehensive and up to date list of all prefixes 
+used in Unity.
 
 Therefore the logging output produced can be controlled in a fine-grained manner. 
 Log levels in Log4j are (in increasing level of severity): 
@@ -560,11 +576,6 @@ Log levels in Log4j are (in increasing level of severity):
 - +ERROR+ something went wrong and operation probably failed, 
 - +FATAL+ something went really wrong - this is used very rarely for critical situations like overall server failure.
 
-For example, to debug a configuration problem, you can set:
-  
-------
-log4j.logger.unity.server.config=DEBUG
-------
 
 [NOTE]
 ===========
