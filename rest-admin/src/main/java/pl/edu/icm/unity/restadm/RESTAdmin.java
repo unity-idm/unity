@@ -54,8 +54,6 @@ import pl.edu.icm.unity.engine.api.event.EventPublisher;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
-import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.rest.exception.JSONParsingException;
@@ -108,7 +106,6 @@ public class RESTAdmin
 	private AttributeTypeManagement attributeTypeMan;
 	private InvitationManagement invitationMan;
 	private EventPublisher eventPublisher;
-	private AuthorizationManager authz;
 	
 	@Autowired
 	public RESTAdmin(EntityManagement identitiesMan, GroupsManagement groupsMan,
@@ -120,8 +117,7 @@ public class RESTAdmin
 			EntityCredentialManagement entityCredMan,
 			AttributeTypeManagement attributeTypeMan,
 			InvitationManagement invitationMan,
-			EventPublisher eventPublisher,
-			AuthorizationManager authz)
+			EventPublisher eventPublisher)
 	{
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
@@ -136,7 +132,6 @@ public class RESTAdmin
 		this.attributeTypeMan = attributeTypeMan;
 		this.invitationMan = invitationMan;
 		this.eventPublisher = eventPublisher;
-		this.authz = authz;
 	}
 
 	
@@ -715,9 +710,8 @@ public class RESTAdmin
 	public void triggerEvent(@PathParam("eventName") String eventName, String eventBody) 
 			throws EngineException, IOException
 	{
-		authz.checkAuthorization(AuthzCapability.maintenance); //!! we must authorize here
 		Event event = new Event(eventName, -1l, new Date(), eventBody);
-		eventPublisher.fireEvent(event);
+		eventPublisher.fireEventWithAuthz(event);
 	}	
 
 	/**

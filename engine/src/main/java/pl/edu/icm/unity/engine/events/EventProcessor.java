@@ -26,6 +26,9 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.event.EventListener;
 import pl.edu.icm.unity.engine.api.event.EventPublisher;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.store.api.EventDAO;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
@@ -45,10 +48,14 @@ public class EventProcessor implements EventPublisher
 	private ScheduledExecutorService executorService;
 	private EventDAO dbEvents;
 	private EventsProcessingThread asyncProcessor;
+	private AuthorizationManager authz;
 	
 	@Autowired
-	public EventProcessor(ExecutorsService executorsService, EventDAO dbEvents, TransactionalRunner tx)
+	public EventProcessor(ExecutorsService executorsService, EventDAO dbEvents,
+			AuthorizationManager authz,
+			TransactionalRunner tx)
 	{
+		this.authz = authz;
 		executorService = executorsService.getService();
 		this.dbEvents = dbEvents;
 		this.asyncProcessor = new EventsProcessingThread(this, dbEvents, tx);
@@ -74,6 +81,13 @@ public class EventProcessor implements EventPublisher
 			else
 				executeNow(listener, event, task);
 		}
+	}
+
+	@Override
+	public void fireEventWithAuthz(Event event) throws AuthorizationException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		fireEvent(event);
 	}
 	
 	private void executeNow(EventListener listener, Event event, Callable<Void> task)
