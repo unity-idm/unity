@@ -53,30 +53,45 @@ and the translation profiles are covered in <<external-idps>>.
 
 The general options reference table follows:
 
-include::ref-mainServerProperties.txt[]
+include::../ref-mainServerProperties.txt[]
 
 [[db-conf]]
-=== Database configuration
+=== Storage configuration
 
-Unity uses two databases. The primary one is used to store the complete state of the system.
-The second one, called as _local database_, is used to record a stream of events which happen in the system. 
-The purpose of the separate databases is that the primary database can be replicated and/or shared
-between multiple instances of Unity server, while the local database should not be replicated/shared.
-Of course backups of both databases can and should be performed.
+Unity can use a configurable storage backend. Currently there are two options available, more may be added in future:
 
-Note that the Admin UI provides a possibility to create a dump of the primary database and to restore 
-the system from such dump.
+. Relational database backend (RDBMS) - a typical classic choice
+. Hazelcast distributed in-memory data grid (HZ) - _currently experimental_, intended for instances with large traffic 
+and a need for clustering 
 
-The following table enumerates all options which are used to configure both databases. Only one option
-pertains to the local database, the rest is for the primary one. This is because the local database is
-always handled by the H2 database engine, so only the database storage location can be changed. 
+Selection of the database backend and its subsequent configuration is provided in the main +unityServer.conf+ file.
+The following option allows to select the database backend:
 
-include::ref-dbProperties.txt[]
+----
+unityServer.storage.engine=rdbms  # 'hz' is another possible option 
+----
 
-The primary database can use one of engines: H2 (embedded, no setup required), MySQL or PostgreSQL.
+Note that the Admin UI provides a possibility to create a dump JSON dump of the complete server state and to restore 
+the system from such dump regardless of the selected storage engine.
+
+ 
+==== RDBMS storage backend
+
+Unity typically is deployed with a RDBMS backend. Several actual databases are supported: 
+H2 (embedded, no setup required), MySQL or PostgreSQL. RDBMS service is stable, quite fast and offers an excellent
+ecosystem of maintenance supporting tools (backups, redundancy, etc) which is available for the mature RDBMS technology.
+It is however more difficult to create a HA or clustered Unity instance with RDBMS technology.
+
+The following table enumerates all configuration options for the RDBMS backend. 
+
+include::../ref-storeRDBMSProperties.txt[]
+
+The remaining part provides more insight into specific setup of databases used by Unity. Note that if the simple 
+embedded H2 database is used no special setup is required - it works out of the box. However is not recommended
+for production use as handling backups and redundancy is very problematic with it.
 
 
-==== MySQL setup
+===== MySQL setup
 
 The setup of MySQL requires creation of a database with a separate user which is able to connect to the database.
 In mysql console (when logged with admin privileges) execute:
@@ -99,13 +114,14 @@ Unity server will setup all tables automatically on startup.
 To configure Unity to use the database change the database JDBC URI as well as add the username, password and dialect:
  
 ----
-unityServer.db.jdbcUrl=jdbc:mysql://localhost/unitydb
-unityServer.db.dialect=mysql
-unityServer.db.password=unitypass
-unityServer.db.username=unity
+unityServer.storage.engine=rdbms
+unityServer.storage.engine.rdbms.jdbcUrl=jdbc:mysql://localhost/unitydb
+unityServer.storage.engine.rdbms.dialect=mysql
+unityServer.storage.engine.rdbms.username=unity
+unityServer.storage.engine.rdbms.password=unitypass
 ----
 
-==== PostgreSQL setup
+===== PostgreSQL setup
 
 The setup of PostgreSQL requires creation of a database with a separate role (user) 
 which is able to connect to the database. Typically on Linux system you have to invoke:
@@ -134,11 +150,42 @@ To configure Unity to use the Postgres database change the default database JDBC
 add the username, password and dialect:
  
 ----
-unityServer.db.jdbcUrl=jdbc:postgresql://localhost/unitydb
-unityServer.db.dialect=psql
-unityServer.db.username=unity
-unityServer.db.password=unitypass
+unityServer.storage.engine=rdbms
+unityServer.storage.engine.rdbms.jdbcUrl=jdbc:postgresql://localhost/unitydb
+unityServer.storage.engine.rdbms.dialect=psql
+unityServer.storage.engine.rdbms.username=unity
+unityServer.storage.engine.rdbms.password=unitypass
 ----
+
+
+==== Hazelcast storage backend
+
+Hazelcast storage engine (HZ) is in fact an overlay over RDBMS storage mechanism. HZ stores the whole Unity contents 
+in memory. All read operations are exclusively served from memory (and so are fast), 
+writes are also to memory (so are also fast) but additionally the same write operation is recorded to a classic RDBMS 
+backend. As RDBMS writes are not blocking server operation (only the memory writes do) the overall performance 
+is very high. RDBMS-stored data is read only once: during server startup.  
+
+What is more the HZ engine allows for easy clustering of Unity instances. Hazelcast technology has built-in support
+for clustering and can be used to achieve highly performing and HA instances.  
+
+
+Minimal configuration of Hazelcast subsystem is as simple as:
+----
+unityServer.storage.engine=hz
+unityServer.storage.engine.hz.jdbcUrl=jdbc:h2:file:./data/myUnityDatabase.bin
+----
+
+using H2 database as the persistent store. All other RDBMS can be used with HZ engine too, their configuration
+is the same as for the RDBMS backend, with the exception of the configuration property prefix.
+
+Note that RDBMS format is the same for HZ and RDBMS backend. This means that you can freely switch between 
+those backends, without any need for data migration.
+
+Complete reference to HZ engine config options follows:
+
+include::../ref-storeHzProperties.txt[]
+
 
 
 [[pki]]
@@ -158,7 +205,7 @@ All of the artifacts are named and the names are used in other parts of the Unit
 a configure instance. The main configuration reference is presented below. The subsequent sections cover in more
 details the configuration of truststores and credentials which can be configured in many different ways. 
 
-include::ref-pkiProperties.txt[]
+include::../ref-pkiProperties.txt[]
 
 
 [[server_trust]]
@@ -198,7 +245,7 @@ In all cases trust stores can be (and by default are) configured to be automatic
 The following table provides a reference to settings of all of the trust stores. Note that the prefix of the
 +pki.properties+ is not shown in the table.
 
-include::sec-ref-trustProperties.txt[]
+include::../sec-ref-trustProperties.txt[]
 
 *Examples*
 
@@ -262,7 +309,7 @@ the _keyPath_ is mandatory as you need two DER files: one with a certificate and
 the latter path can not be guessed). Note that the prefix of the +pki.properties+ configuration is not 
 shown in the table.
 
-include::sec-ref-credProperties.txt[]
+include::../sec-ref-credProperties.txt[]
 
 *Examples*
 
@@ -407,7 +454,7 @@ The embedded HTTP server is using sensible default values of HTTP settings. Ther
 always needs to be properly set: hostname and port. However in some cases it may be necessary 
 to fine tune also the advanced settings. The complete reference is included below:
 
-include::ref-httpServerProperties.txt[]
+include::../ref-httpServerProperties.txt[]
 
 
 [[notifications]]
@@ -488,49 +535,49 @@ rotated daily. The example contains inline explanations in comments.
 -------------------
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration monitorInterval="30" status="warn">
-	<!-- 
-		What to log?
-		Levels in order of verbosity: FATAL, ERROR, WARN, INFO, DEBUG, TRACE
-	-->
-	<Loggers>
-		<!-- Default log level -->
-		<Root level="INFO">
-			<!-- Default appender specifies where to log by default (can be changed per logger) -->
-			<AppenderRef ref="LOGFILE"/>
-		</Root>
-	
-		<!-- Everything produced by Unity (unless overwritten below) -->
-		<Logger name="unity.server" level="DEBUG"/>
+  <!-- 
+    What to log?
+    Levels in order of verbosity: FATAL, ERROR, WARN, INFO, DEBUG, TRACE
+  -->
+  <Loggers>
+    <!-- Default log level -->
+    <Root level="INFO">
+      <!-- Default appender specifies where to log by default 
+           (can be changed per logger) -->
+      <AppenderRef ref="LOGFILE"/>
+    </Root>
+  
+    <!-- Everything produced by Unity (unless overwritten below) -->
+    <Logger name="unity.server" level="DEBUG"/>
 
-		<!-- Loading of any configuration -->
-		<Logger name="unity.server.config" level="INFO"/>
+    <!-- Loading of any configuration -->
+    <Logger name="unity.server.config" level="INFO"/>
 
-		<!-- Persistence subsystem -->
-		<Logger name="unity.server.db" level="INFO"/>
+    <!-- Persistence subsystem -->
+    <Logger name="unity.server.db" level="INFO"/>
 
-		<!-- Web subsystem -->
-		<!-- <Logger name="unity.server.web" level="INFO"/> -->
-	</Loggers>
-	
-	
-	<!-- Where to log? -->
-	<Appenders>
-		<Console name="CONSOLE">
-			<PatternLayout pattern="%d{ISO8601} [%t] %-5p %c: %equals{%1x}{[]}{}%m%n"/>
-		</Console>
-		
-		<RollingRandomAccessFile name="LOGFILE" 
-				fileName="/var/log/unity-idm/unity-server.log" 
-				filePattern="/var/log/unity-idm/unity-server.log.%d{yyyy-MM-dd}">
-				
-			<PatternLayout pattern="%d{ISO8601} [%t] %-5p %c: %equals{%1x}{[]}{}%m%n"/>
-			<Policies>
-				<TimeBasedTriggeringPolicy interval="1" modulate="true"/>
-			</Policies>
-			<DefaultRolloverStrategy/>
-		</RollingRandomAccessFile>
-	</Appenders>
-	
+    <!-- Web subsystem -->
+    <!-- <Logger name="unity.server.web" level="INFO"/> -->
+  </Loggers>
+  
+  
+  <!-- Where to log? -->
+  <Appenders>
+    <Console name="CONSOLE">
+      <PatternLayout pattern="%d{ISO8601} [%t] %-5p %c: %equals{%1x}{[]}{}%m%n"/>
+    </Console>
+    
+    <RollingRandomAccessFile name="LOGFILE" 
+        fileName="/var/log/unity-idm/unity-server.log" 
+        filePattern="/var/log/unity-idm/unity-server.log.%d{yyyy-MM-dd}">
+        
+      <PatternLayout pattern="%d{ISO8601} [%t] %-5p %c: %equals{%1x}{[]}{}%m%n"/>
+      <Policies>
+        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+      </Policies>
+      <DefaultRolloverStrategy/>
+    </RollingRandomAccessFile>
+  </Appenders>
 </Configuration>
 -------------------
 

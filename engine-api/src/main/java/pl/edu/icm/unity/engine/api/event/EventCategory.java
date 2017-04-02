@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
  */
 public enum EventCategory
 {
-	API_METHOD("api-method"),
 	PRE_INIT("pre-init"),
 	POST_INIT("post-init"),
 	TEST("test");

@@ -20,13 +20,15 @@ include::update.txt[]
 
 include::authentication.txt[]
 
-include::configuration.txt[]
+include::config/configuration.txt[]
 
 include::contents-management.txt[]
 
 include::registration-forms.txt[]
 
 include::enquiry-forms.txt[]
+
+include::scripts.txt[]
 
 include::branding.txt[]
 

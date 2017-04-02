@@ -1,0 +1,8 @@
+=== HTTP server settings
+
+The embedded HTTP server is using sensible default values of HTTP settings. There are only two properties which 
+always needs to be properly set: hostname and port. However in some cases it may be necessary 
+to fine tune also the advanced settings. The complete reference is included below:
+
+include::../ref-httpServerProperties.txt[]
+

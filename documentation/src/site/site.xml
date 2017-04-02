@@ -3,6 +3,7 @@
 	<body>
 		<menu name="Unity">
 			<item name="Manual" href="index.html" />
+			<item name="Engine API docs" href="apidocs/index.html" />
 		</menu>
 	</body>
 </project>

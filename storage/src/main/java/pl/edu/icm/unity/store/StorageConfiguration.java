@@ -60,7 +60,7 @@ public class StorageConfiguration extends PropertiesHelper
 	
 	static 
 	{
-		META.put(ENGINE, new PropertyMD(StorageEngine.hz).setCanHaveSubkeys().
+		META.put(ENGINE, new PropertyMD(StorageEngine.rdbms).setCanHaveSubkeys().
 				setDescription("Storage engine to be used."));
 		META.put(WIPE_DB_AT_STARTUP, new PropertyMD("false").setHidden().
 				setDescription("For testing: if set to true then DB will be fully "
