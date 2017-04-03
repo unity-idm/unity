@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -84,8 +83,6 @@ public class WebAuthenticationProcessor
 	private AuthenticationProcessor authnProcessor;
 	@Autowired
 	private EntityManagement entityMan;
-	@Autowired
-	private ObjectFactory<OutdatedCredentialDialog> outdatedCredentialDialogFactory;
 	
 	
 	/**
@@ -153,7 +150,11 @@ public class WebAuthenticationProcessor
 	{
 		if (logInfo.isUsedOutdatedCredential())
 		{
-			showCredentialUpdate();
+			//simply reload - we ensure that session reinit after login won't outdate session
+			//authN handler anyway won't let us in to the target endpoint with outdated credential
+			//and we will get outdated credential dialog from the AuthnUI
+			UI ui = UI.getCurrent();
+			ui.getPage().reload();
 			return;
 		}
 		
@@ -173,11 +174,6 @@ public class WebAuthenticationProcessor
 			log.error("Can not get the attribute designated with EntityName", e);
 		}
 		return null;
-	}
-	
-	private void showCredentialUpdate()
-	{
-		outdatedCredentialDialogFactory.getObject().init(this).show();
 	}
 	
 	private void logged(AuthenticatedEntity authenticatedEntity, final AuthenticationRealm realm, 

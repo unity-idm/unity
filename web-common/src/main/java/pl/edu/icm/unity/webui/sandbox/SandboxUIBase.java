@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.ObjectFactory;
+
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
 import com.vaadin.ui.Button;
@@ -36,6 +38,7 @@ import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.AuthNTile;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
+import pl.edu.icm.unity.webui.authn.OutdatedCredentialDialog;
 import pl.edu.icm.unity.webui.authn.SelectedAuthNPanel;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
@@ -66,10 +69,11 @@ public abstract class SandboxUIBase extends AuthenticationUI
 			InsecureRegistrationFormLauncher formLauncher,
 			ExecutorsService execService,
 			AuthenticatorSupportManagement authenticatorsManagement,
-			EntityManagement idsMan)
+			EntityManagement idsMan,
+			ObjectFactory<OutdatedCredentialDialog> outdatedCredentialDialogFactory)
 	{
 		super(msg, localeChoice, authnProcessor, formsChooser, formLauncher, execService, idsMan,
-				null);
+				null, outdatedCredentialDialogFactory);
 		this.authenticatorsManagement = authenticatorsManagement;
 	}
 

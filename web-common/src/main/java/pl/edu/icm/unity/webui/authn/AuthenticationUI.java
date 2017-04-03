@@ -13,6 +13,7 @@ import java.util.Set;
 import javax.servlet.http.Cookie;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -23,6 +24,8 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinService;
+import com.vaadin.server.VaadinSession;
+import com.vaadin.server.WrappedSession;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -34,8 +37,10 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -86,6 +91,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	protected EntityManagement idsMan;
 	private InputTranslationEngine inputTranslationEngine;
 	private VerticalLayout topLevelLayout;
+	private ObjectFactory<OutdatedCredentialDialog> outdatedCredentialDialogFactory;
 	
 	@Autowired
 	public AuthenticationUI(UnityMessageSource msg, LocaleChoiceComponent localeChoice,
@@ -93,7 +99,8 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			RegistrationFormsChooserComponent formsChooser,
 			InsecureRegistrationFormLauncher formLauncher,
 			ExecutorsService execService, @Qualifier("insecure") EntityManagement idsMan,
-			InputTranslationEngine inputTranslationEngine)
+			InputTranslationEngine inputTranslationEngine,
+			ObjectFactory<OutdatedCredentialDialog> outdatedCredentialDialogFactory)
 	{
 		super(msg);
 		this.localeChoice = localeChoice;
@@ -103,6 +110,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		this.execService = execService;
 		this.idsMan = idsMan;
 		this.inputTranslationEngine = inputTranslationEngine;
+		this.outdatedCredentialDialogFactory = outdatedCredentialDialogFactory;
 	}
 
 
@@ -202,11 +210,32 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		
 		setContent(topLevelLayout);
 		setSizeFull();
-
+		
+		if (showOutdatedCredentialDialog())
+			return;
+		
 		//Extra safety - it can happen that we entered the UI in pipeline of authentication,
 		// if this UI expired in the meantime. Shouldn't happen often as heart of authentication UI
 		// is beating very slowly but in case of very slow user we may still need to refresh.
 		refresh(VaadinService.getCurrentRequest());
+	}
+	
+	/**
+	 * We may end up in authentication UI also after being properly logged in,
+	 * when the credential is outdated. The credential change dialog must be displayed then.
+	 * @return
+	 */
+	private boolean showOutdatedCredentialDialog()
+	{
+		WrappedSession vss = VaadinSession.getCurrent().getSession();
+		LoginSession ls = (LoginSession) vss.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY);
+		if (ls != null && ls.isUsedOutdatedCredential())
+		{
+			setContent(new VerticalLayout());
+			outdatedCredentialDialogFactory.getObject().init(authnProcessor).show();
+			return true;
+		}
+		return false;
 	}
 	
 	/**

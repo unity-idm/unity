@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -29,6 +30,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.webui.authn.AuthNTile;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
+import pl.edu.icm.unity.webui.authn.OutdatedCredentialDialog;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncher;
@@ -58,10 +60,11 @@ public class TranslationProfileSandboxUI extends SandboxUIBase
 			ExecutorsService execService,
 			AuthenticatorSupportManagement authenticatorsManagement,
 			AuthenticatorManagement authenticationManagement,
-			AuthenticatorsRegistry authnRegistry, EntityManagement idsMan)
+			AuthenticatorsRegistry authnRegistry, EntityManagement idsMan,
+			ObjectFactory<OutdatedCredentialDialog> outdatedCredentialDialogFactory)
 	{
 		super(msg, localeChoice, authnProcessor, formsChooser, formLauncher, execService,
-				authenticatorsManagement, idsMan);
+				authenticatorsManagement, idsMan, outdatedCredentialDialogFactory);
 		this.authenticationManagement = authenticationManagement;
 		this.authnRegistry = authnRegistry;
 	}
