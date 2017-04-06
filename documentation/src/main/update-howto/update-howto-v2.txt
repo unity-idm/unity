@@ -145,3 +145,16 @@ NOTE: If a custom initialization code was developed and used in Unity 1.x it mus
 API. We suggest to convert it to Groovy, for easier maintenance.     
 
 
+== REST API changes
+
+If Unity clients were using the REST API please note that the JSON objects used as parameters in few cases have changed.
+The paths, methods, parameter names were not changed.
+
+The list of changes:
+
+. Identity object format.
+. Entity object format.
+. Attribute object format: no more visibility element, changes in some of value syntaxes (email).
+. Member's object format is more rich when getting groups contents.
+. Attribute type object format.
+. Endpoint object format
