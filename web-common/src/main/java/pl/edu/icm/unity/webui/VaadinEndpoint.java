@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +15,12 @@ import java.util.Properties;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Servlet;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.servlet.FilterHolder;
@@ -148,6 +155,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 				description, authenticators, registrationConfiguration, properties,
 				handler4Main);
 		context.addServlet(createVaadinServletHolder(theServlet, false), uiServletPath + "/*");
+		context.addServlet(new ServletHolder(new ForwadSerlvet()), "/");
 		
 		return context;
 	}
@@ -294,6 +302,17 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		{
 			authenticationServlet.updateAuthenticators(authenticators);
 			theServlet.updateAuthenticators(authenticators);
+		}
+	}
+	
+	private class ForwadSerlvet extends HttpServlet
+	{
+		@Override
+		protected void service(HttpServletRequest req, HttpServletResponse res)
+				throws ServletException, IOException
+		{
+			log.debug("Forward from " + req.getRequestURI() + " to " + uiServletPath + req.getRequestURI());
+			req.getServletContext().getRequestDispatcher(req.getRequestURI()).forward(req, res);
 		}
 	}
 }
