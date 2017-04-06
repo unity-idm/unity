@@ -6,10 +6,14 @@ package pl.edu.icm.unity.types.basic;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 /**
  * Holds information about group contents.
  * @author K. Benedyczak
  */
+@JsonInclude(Include.NON_NULL)
 public class GroupContents
 {
 	public static final int GROUPS = 0x01;

@@ -69,7 +69,7 @@ public class AttributeTypeHelper
 	{
 		AttributeValueSyntax<?> ret = unconfiguredSyntaxes.get(name);
 		if (ret == null)
-			throw new IllegalArgumentException("There is no attribute defined with name " + name);
+			throw new IllegalArgumentException("There is no attribute syntax defined with name " + name);
 		return ret;
 	}
 	

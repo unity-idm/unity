@@ -183,7 +183,6 @@ Returns all members and subgroups of a given group.
 Example output: 
 ----
 {
-    "group": null,
     "subGroups": [
         "/A/B"
     ],
@@ -319,8 +318,7 @@ and +direct+ shall not be used. No content is returned. Example attribute encode
     "{\"value\":\"some@email.com\",\"confirmationData\":{\"confirmed\":true,\"confirmationDate\":1491257136061,\"sentRequestAmount\":0},\"tags\":[]}"
   ],
   "name": "email",
-  "groupPath": "/A",
-  "valueSyntax": "verifiableEmail"
+  "groupPath": "/A"
 }
 ----
 

@@ -183,7 +183,9 @@ public class Attribute implements NamedObject
 	{
 		this.name = main.get("name").asText();
 		this.groupPath = main.get("groupPath").asText();
-		this.valueSyntax = main.get("valueSyntax").asText();
+		JsonNode vSyntax = main.get("valueSyntax");
+		if (vSyntax != null && !vSyntax.isNull())
+			this.valueSyntax = vSyntax.asText();
 		fromJsonBase(main);
 	}
 

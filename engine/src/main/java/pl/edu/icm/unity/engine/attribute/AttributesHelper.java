@@ -343,8 +343,9 @@ public class AttributesHelper
 	private void addAttributeInternal(long entityId, Attribute attribute, AttributeType at, boolean update,
 			boolean honorInitialConfirmation) throws EngineException
 	{
+		if (attribute.getValueSyntax() == null)
+			attribute.setValueSyntax(at.getValueSyntax());
 		enforceCorrectConfirmationState(entityId, update, attribute, honorInitialConfirmation);
-		
 		validate(attribute, at);
 		
 		AttributeExt aExt = new AttributeExt(attribute, true);
@@ -554,6 +555,11 @@ public class AttributesHelper
 					"Attribute being checked has type " + 
 					attribute.getName() + " while provided type is " + 
 					at.getName());
+		if (!attribute.getValueSyntax().equals(at.getValueSyntax()))
+			throw new IllegalAttributeTypeException(
+					"Attribute being checked has syntax " + 
+					attribute.getValueSyntax() + " while provided type uses " + 
+					at.getValueSyntax());
 		
 		AttributeValueSyntax<?> initializedValueSyntax = atHelper.getSyntax(at); 
 		for (String val: values)
