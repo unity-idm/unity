@@ -10,6 +10,7 @@ By default, log files are written to the the +logs/+ directory.
 The following example config file configures logging so that log files are 
 rotated daily. The example contains inline explanations in comments.
 
+[source,xml]
 -------------------
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration monitorInterval="30" status="warn">
@@ -88,7 +89,7 @@ to which the Java class name is appended. The most common logging prefixes are:
 - +unity.server.externaltranslation+ - messages connected with the translation of any upstream IdP 
 data to the Unity format.
  
-NOTE: the default log4j configuration file always contains a comprehensive and up to date list of all prefixes 
+NOTE: The default log4j configuration file always contains a comprehensive and up to date list of all prefixes 
 used in Unity.
 
 Therefore the logging output produced can be controlled in a fine-grained manner. 

@@ -141,7 +141,6 @@ Action parameters:
   unityAttribute = cn
   group = /
   expression = attr['urn:oid:2.5.4.4']
-  visibility = full
   effect = CREATE_OR_UPDATE
 
 3: Condition: groups contains 'student'

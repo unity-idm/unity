@@ -39,34 +39,48 @@ operation.
 Example output: 
 ----
 {
-  "id" : 3,
-  "state" : "valid",
-  "identities" : [ {
-    "typeId" : "userName",
-    "value" : "tested",
-    "target" : null,
-    "realm" : null,
-    "local" : true,
-    "entityId" : 3,
-    "comparableValue" : "tested"
-  }, {
-    "typeId" : "persistent",
-    "value" : "129ffe63-63b9-4467-ae24-6bc889327b0d",
-    "target" : null,
-    "realm" : null,
-    "local" : true,
-    "entityId" : 3,
-    "comparableValue" : "129ffe63-63b9-4467-ae24-6bc889327b0d"
-  } ],
-  "credentialInfo" : {
-    "credentialRequirementId" : "cr-pass",
-    "credentialsState" : {
-      "credential1" : {
-        "state" : "notSet",
-        "extraInformation" : ""
-      }
+    "entityInformation": {
+        "state": "valid",
+        "entityId": 1
+    },
+    "identities": [
+        {
+            "value": "a",
+            "confirmationInfo": {
+                "confirmed": false,
+                "confirmationDate": 0,
+                "sentRequestAmount": 0
+            },
+            "comparableValue": "a",
+            "creationTs": 1491257134658,
+            "updateTs": 1491257134658,
+            "typeId": "userName",
+            "entityId": 1
+        },
+        {
+            "value": "90bba4c5-adbe-4829-8215-e23960c52c33",
+            "realm": "main",
+            "confirmationInfo": {
+                "confirmed": false,
+                "confirmationDate": 0,
+                "sentRequestAmount": 0
+            },
+            "comparableValue": "90bba4c5-adbe-4829-8215-e23960c52c33",
+            "creationTs": 1491257533387,
+            "updateTs": 1491257533387,
+            "typeId": "persistent",
+            "entityId": 1
+        }
+    ],
+    "credentialInfo": {
+        "credentialRequirementId": "Password requirement",
+        "credentialsState": {
+            "Password credential": {
+                "state": "correct",
+                "extraInformation": "{\"lastChange\":1491257134733}"
+            }
+        }
     }
-  }
 }
 ----
 
@@ -79,39 +93,7 @@ Example output:
 
 Returns information about a given entity, including its status and all identities.
 
-Example output: 
-----
-{
-  "id" : 3,
-  "state" : "valid",
-  "identities" : [ {
-    "typeId" : "userName",
-    "value" : "tested",
-    "target" : null,
-    "realm" : null,
-    "local" : true,
-    "entityId" : 3,
-    "comparableValue" : "tested"
-  }, {
-    "typeId" : "persistent",
-    "value" : "129ffe63-63b9-4467-ae24-6bc889327b0d",
-    "target" : null,
-    "realm" : null,
-    "local" : true,
-    "entityId" : 3,
-    "comparableValue" : "129ffe63-63b9-4467-ae24-6bc889327b0d"
-  } ],
-  "credentialInfo" : {
-    "credentialRequirementId" : "cr-pass",
-    "credentialsState" : {
-      "credential1" : {
-        "state" : "notSet",
-        "extraInformation" : ""
-      }
-    }
-  }
-}
-----
+Output is the same a in the +resolve+ identity case.
 
 === Get entity groups
 	
@@ -141,21 +123,54 @@ can be used to control whether only directly defined or effective attributes are
 
 Example output: 
 ----
-[ {
-  "values" : [ "/9j/4AAQSk .... KKKKACiiigD//2Q==" ],
-  "direct" : true,
-  "name" : "jpegA",
-  "groupPath" : "/example",
-  "visibility" : "full",
-  "syntax" : "jpegImage"
-}, {
-  "values" : [ "value" ],
-  "direct" : true,
-  "name" : "stringA",
-  "groupPath" : "/example",
-  "visibility" : "full",
-  "syntax" : "string"
-} ]
+[
+    {
+        "values": [
+            "2017-04-03T22:18:34"
+        ],
+        "creationTs": 1491257914036,
+        "updateTs": 1491257914036,
+        "direct": true,
+        "name": "sys:LastAuthentication",
+        "groupPath": "/",
+        "valueSyntax": "string"
+    },
+    {
+        "values": [
+            "Regular User"
+        ],
+        "creationTs": 1491257136049,
+        "updateTs": 1491257136049,
+        "direct": true,
+        "name": "sys:AuthorizationRole",
+        "groupPath": "/",
+        "valueSyntax": "enumeration"
+    },
+    {
+        "values": [
+            "{\"value\":\"some@email.com\",\"confirmationData\":{\"confirmed\":true,\"confirmationDate\":1491257136061,\"sentRequestAmount\":0},\"tags\":[]}"
+        ],
+        "creationTs": 1491257136075,
+        "updateTs": 1491257136075,
+        "direct": true,
+        "name": "email",
+        "groupPath": "/",
+        "valueSyntax": "verifiableEmail"
+    },
+    {
+        "values": [
+            "Example organization",
+            "org2",
+            "org3"
+        ],
+        "creationTs": 1491257136052,
+        "updateTs": 1491257136052,
+        "direct": true,
+        "name": "o",
+        "groupPath": "/",
+        "valueSyntax": "string"
+    }
+]
 ----
 
 
@@ -169,8 +184,22 @@ Returns all members and subgroups of a given group.
 Example output: 
 ----
 {
-  "subGroups" : [ ],
-  "members" : [ 3 ]
+    "group": null,
+    "subGroups": [
+        "/A/B"
+    ],
+    "members": [
+        {
+            "creationTs": 1491257136044,
+            "group": "/A",
+            "entityId": 2
+        },
+        {
+            "creationTs": 1491257136613,
+            "group": "/A",
+            "entityId": 4
+        }
+    ]
 }
 ----
 
@@ -287,16 +316,12 @@ and +direct+ shall not be used. No content is returned. Example attribute encode
 
 ----
 {
-  "values" : [ {
-    "value" : "some@example.com",
-    "confirmationData" : "{\"confirmed\":false,\"confirmationDate\":0,\"sentRequestAmount\":0}"
-  }, {
-    "value" : "some2@example.com",
-    "confirmationData" : "{\"confirmed\":true,\"confirmationDate\":1429006209143,\"sentRequestAmount\":0}"
-  } ],
-  "name" : "emailA",
-  "groupPath" : "/",
-  "visibility" : "full"
+  "values": [
+    "{\"value\":\"some@email.com\",\"confirmationData\":{\"confirmed\":true,\"confirmationDate\":1491257136061,\"sentRequestAmount\":0},\"tags\":[]}"
+  ],
+  "name": "email",
+  "groupPath": "/A",
+  "valueSyntax": "verifiableEmail"
 }
 ----
 
@@ -366,26 +391,39 @@ For the password credential the complete value could be (with a selected securit
 Returns an array with all attribute types. Example:
 
 ----
-[{
-  "flags" : 0,
-  "maxElements" : 1,
-  "minElements" : 0,
-  "selfModificable" : false,
-  "uniqueValues" : false,
-  "visibility" : "full",
-  "syntaxState" : "{\"allowed\":[\"V2\",\"V1\"]}",
-  "displayedName" : {
-    "DefaultValue" : "enumA",
-    "Map" : { }
-  },
-  "i18nDescription" : {
-    "DefaultValue" : null,
-    "Map" : { }
-  },
-  "metadata" : { },
-  "name" : "enumA",
-  "syntaxId" : "enumeration"
-},
+[
+    {
+        "flags": 1,
+        "maxElements": 5,
+        "minElements": 1,
+        "selfModificable": false,
+        "uniqueValues": true,
+        "syntaxState": {
+            "allowed": [
+                "implicit",
+                "client",
+                "openidHybrid",
+                "authorizationCode"
+            ]
+        },
+        "displayedName": {
+            "DefaultValue": "sys:oauth:allowedGrantFlows",
+            "Map": {
+                "pl": "Dozwolone granty OAuth",
+                "en": "OAuth client allowed grants"
+            }
+        },
+        "i18nDescription": {
+            "DefaultValue": null,
+            "Map": {
+                "pl": "Atrybut klienta OAauth...",
+                "en": "OAuth Client specific attribute..."
+            }
+        },
+        "metadata": {},
+        "name": "sys:oauth:allowedGrantFlows",
+        "syntaxId": "enumeration"
+    },
 ...
 ]
 ----
@@ -449,31 +487,69 @@ Returns all deployed endpoints. Example response with a single endpoint:
 
 ----
 [{
-  "id":"restAdmin",
-  "displayedName": {
-    "DefaultValue":"restAdmin",
-    "Map":{}
-  },
-  "contextAddress":"/restadm",
-  "description":"description",
-  "realm": {
-    "name":"authnRealm",
-    "description":"",
-    "blockAfterUnsuccessfulLogins":10,
-    "blockFor":100,
-    "allowForRememberMeDays":-1,
-    "maxInactivity":600
-  },
-  "type": {
-    "name":"RESTAdmin",
-    "description":"A RESTful endpoint exposing Unity management API.",
-    "supportedBindings":["jaxrs2"],
-    "paths":{
-      "/v1":"The REST management base path"}
-    },
-  "authenticatorSets": [{
-    "primaryAuthenticator":"ApassREST"
-  }]
+        "endpoint": {
+            "name": "/admin",
+            "typeId": "WebAdminUI",
+            "contextAddress": "/admin",
+            "configuration": {
+                "displayedName": {
+                    "DefaultValue": "UNITY administration interface",
+                    "Map": {
+                        "pl": "Interfejs administracyjny Unity"
+                    }
+                },
+                "description": "",
+                "configuration": "unity.endpoint.web.enableRegistration=true\n...",
+                "realm": "admin",
+                "authenticationOptions": [
+                    {
+                        "primaryAuthenticator": "pwdWeb1"
+                    },
+                    {
+                        "primaryAuthenticator": "pwdWeb2",
+                        "mandatory2ndAuthenticator": "certWeb"
+                    },
+                    {
+                        "primaryAuthenticator": "certWeb",
+                        "mandatory2ndAuthenticator": "pwdWeb2"
+                    },
+                    {
+                        "primaryAuthenticator": "certWeb"
+                    },
+                    {
+                        "primaryAuthenticator": "ldapWeb"
+                    },
+                    {
+                        "primaryAuthenticator": "ldapDNWeb"
+                    },
+                    {
+                        "primaryAuthenticator": "samlWeb"
+                    },
+                    {
+                        "primaryAuthenticator": "oauthWeb"
+                    }
+                ]
+            }
+        },
+        "realm": {
+            "description": null,
+            "name": "admin",
+            "allowForRememberMeDays": 0,
+            "blockAfterUnsuccessfulLogins": 5,
+            "blockFor": 8,
+            "maxInactivity": 600
+        },
+        "type": {
+            "name": "WebAdminUI",
+            "description": "Web administrative user interface",
+            "supportedBindings": [
+                "web-vaadin7"
+            ],
+            "paths": {
+                "/admin": "Web admin endpoint"
+            }
+        }
+    }]
 }]
 ----
 	

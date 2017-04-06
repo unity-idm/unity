@@ -123,7 +123,7 @@ public class PasswordToken
 			return ret;
 		} catch (Exception e)
 		{
-			throw new IllegalCredentialException("The supplied credential definition has invlid syntax", e);
+			throw new IllegalCredentialException("The supplied credential definition has invalid syntax", e);
 		}
 	}
 }

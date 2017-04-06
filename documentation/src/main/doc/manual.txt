@@ -7,6 +7,7 @@ Unity Team <unity-idm-discuss@lists.sourceforge.net>
 :linkcss:
 :iconsdir: ./icons
 :icons: font
+:source-highlighter: coderay
 
 :mveldoc: https://en.wikibooks.org/wiki/Transwiki:MVEL_Language_Guide
 
