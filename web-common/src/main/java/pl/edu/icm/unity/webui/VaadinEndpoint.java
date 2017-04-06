@@ -15,9 +15,8 @@ import java.util.Properties;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Servlet;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,6 +27,10 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.context.ApplicationContext;
 
+import com.vaadin.server.Constants;
+import com.vaadin.server.VaadinServlet;
+
+import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.sandbox.AccountAssociationSandboxUI;
 import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.sandbox.SandboxAuthnRouterImpl;
@@ -45,11 +48,6 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
-
-import com.vaadin.server.Constants;
-import com.vaadin.server.VaadinServlet;
-
-import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * Vaadin endpoint is used by all Vaadin based web endpoints. It is not a component:
@@ -311,8 +309,14 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		protected void service(HttpServletRequest req, HttpServletResponse res)
 				throws ServletException, IOException
 		{
-			log.debug("Forward from " + req.getRequestURI() + " to " + uiServletPath + req.getRequestURI());
-			req.getServletContext().getRequestDispatcher(req.getRequestURI()).forward(req, res);
+			ServletContext servletContext = req.getServletContext();
+			String uriWithoutContext = req.getPathInfo();
+			if (uriWithoutContext == null)
+				uriWithoutContext = "";
+			String targetPath = uiServletPath + uriWithoutContext; 
+			log.debug("Forward from " + req.getRequestURI() + " -> " + 
+					req.getContextPath() + targetPath);
+			servletContext.getRequestDispatcher(targetPath).forward(req, res);
 		}
 	}
 }
