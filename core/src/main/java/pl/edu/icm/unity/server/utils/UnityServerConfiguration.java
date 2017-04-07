@@ -46,7 +46,6 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String PROFILE_PRODUCTION = "production";
 	
 	public enum LogoutMode {internalOnly, internalAndSyncPeers, internalAndAsyncPeers}
-	public enum RedirectMode {REDIRECT, FORWARD}
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, UnityServerConfiguration.class);
 	public static final String CONFIGURATION_FILE = "conf/unityServer.conf";
 	public static final String DEFAULT_EMAIL_CHANNEL = "Default e-mail channel";
@@ -213,9 +212,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				+ "XSS attacks. Then, however functionality of registration forms etc is slightly limited"
 				+ " as it is impossible to insert links and other advanced formating."));
 		defaults.put(DEFAULT_WEB_PATH, new PropertyMD().setCategory(mainCat).setDescription(
-				"If set Unity depending on mode will redirect or forward request without the path to this one"));
-		defaults.put(REDIRECT_MODE, new PropertyMD().setEnum(RedirectMode.REDIRECT).setCategory(mainCat).setDescription(
-				"Defines mode for redirecting request without path"));
+				"If set Unity will redirect request without the path to this one"));
 		defaults.put(UNITYGW_WEB_CONTENT_PATH, new PropertyMD().setPath().setCategory(mainCat).setDescription(
 				"Defines a folder from which all the web applications operating on the shared unitygw path "
 				+ "(e.g. the email confirmation screen) "

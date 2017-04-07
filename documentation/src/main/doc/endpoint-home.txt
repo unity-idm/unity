@@ -3,12 +3,14 @@
 Endpoint type:: +UserHomeUI+
 Binding:: Web (Vaadin)
 Exposed paths:: +/home+
+Default path:: +/home+
 
 Web User Home UI provides a simple profile management interface for the ordinary Unity members.
 It is possible to change preferences, update credentials and check information stored in the Unity database
 about the user.
   
-By default it is accessible under the link: +pass:[https://localhost:2443/home/home]+
+By default it is accessible under the link: +pass:[https://localhost:2443/ENDPOINT-CONFIGURED-CONTEXT/home]+  
+or simply +pass:[https://localhost:2443/ENDPOINT-CONFIGURED-CONTEXT]+ as the +/home+ path is the default.
 
 Note that the Web Admin endpoint incorporates all the features of the of the Home endpoint (accessible
 after switching the view with the _profile_ button).

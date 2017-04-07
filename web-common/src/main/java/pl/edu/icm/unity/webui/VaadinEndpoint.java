@@ -314,7 +314,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 			if (uriWithoutContext == null)
 				uriWithoutContext = "";
 			String targetPath = uiServletPath + uriWithoutContext; 
-			log.debug("Forward from " + req.getRequestURI() + " -> " + 
+			log.trace("Forward from " + req.getRequestURI() + " -> " + 
 					req.getContextPath() + targetPath);
 			servletContext.getRequestDispatcher(targetPath).forward(req, res);
 		}
