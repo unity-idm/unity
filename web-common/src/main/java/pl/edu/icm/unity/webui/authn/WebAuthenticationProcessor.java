@@ -217,6 +217,8 @@ public class WebAuthenticationProcessor
 
 		ls.addAuthenticatedIdentities(authenticatedEntity.getAuthenticatedWith());
 		ls.setRemoteIdP(authenticatedEntity.getRemoteIdP());
+		if (ls.isUsedOutdatedCredential())
+			log.debug("User {} logged with outdated credential", ls.getEntityId());
 	}
 	
 	public static String getSessionCookieName(String realmName)

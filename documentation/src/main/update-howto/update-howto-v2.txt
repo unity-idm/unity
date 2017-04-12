@@ -158,3 +158,18 @@ The list of changes:
 . Member's object format is more rich when getting groups contents.
 . Attribute type object format.
 . Endpoint object format
+
+
+== Suggested post update actions
+
+Unity 2 uses a much more secure password storage format. Server is configured in the way that passwords stored with 
+the legacy method are not forced to be updated. However this is strongly suggested. To do so visit the 
+Schema Management tab in AdminUI, select Credentials management. Open in edit mode each of your password credentials
+and deselect checkbox "Accept legacy storage format". Then all users with legacy password will be forced to change it
+after next login.
+
+
+  
+ 
+
+

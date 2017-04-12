@@ -21,14 +21,14 @@ public class PasswordCredential
 {
 	//200 years should be enough, Long MAX is too much as we would fail on maths
 	public static final long MAX_AGE_UNDEF = 200L*12L*30L*24L*3600000L; 
-	public static final int DEFAULT_REHASH_NUMBER = 1000;
 	
 	private int minLength = 8;
 	private int historySize = 0;
 	private int minClassesNum = 3;
 	private boolean denySequences = true;
+	private boolean allowLegacy = true;
 	private long maxAge = MAX_AGE_UNDEF; 
-	private int rehashNumber = 1;
+	private ScryptParams scryptParams;
 	private CredentialResetSettings passwordResetSettings = new CredentialResetSettings();
 	
 	public ObjectNode getSerializedConfiguration() throws InternalException
@@ -39,7 +39,8 @@ public class PasswordCredential
 		root.put("minClassesNum", minClassesNum);
 		root.put("maxAge", maxAge);
 		root.put("denySequences", denySequences);
-		root.put("rehashNumber", rehashNumber);
+		root.put("allowLegacy", allowLegacy);
+		root.putPOJO("scryptParams", scryptParams);
 		
 		ObjectNode resetNode = root.putObject("resetSettings");
 		passwordResetSettings.serializeTo(resetNode);
@@ -62,12 +63,18 @@ public class PasswordCredential
 		if (maxAge <= 0)
 			throw new InternalException("Maximum age must be positive");
 		denySequences = root.get("denySequences").asBoolean();
-		if (root.has("rehashNumber"))
-		{
-			rehashNumber = root.get("rehashNumber").asInt();
-			if (rehashNumber <= 0)
-				throw new InternalException("Rehash number must be positive");
-		}
+		
+		JsonNode allowLegacyNode = root.get("allowLegacy");
+		if (allowLegacyNode != null)
+			allowLegacy = allowLegacyNode.asBoolean();
+		
+		JsonNode scryptParamsNode = root.get("scryptParams");
+		if (scryptParamsNode != null)
+			scryptParams = Constants.MAPPER.convertValue(scryptParamsNode, 
+				ScryptParams.class);
+		else
+			scryptParams = new ScryptParams();
+		scryptParams.sanitize();
 		
 		JsonNode resetNode = root.get("resetSettings");
 		if (resetNode != null)
@@ -109,6 +116,16 @@ public class PasswordCredential
 		return denySequences;
 	}
 
+	public boolean isAllowLegacy()
+	{
+		return allowLegacy;
+	}
+
+	public void setAllowLegacy(boolean allowLegacy)
+	{
+		this.allowLegacy = allowLegacy;
+	}
+
 	public void setDenySequences(boolean denySequences)
 	{
 		this.denySequences = denySequences;
@@ -124,14 +141,14 @@ public class PasswordCredential
 		this.maxAge = maxAge;
 	}
 
-	public int getRehashNumber()
+	public ScryptParams getScryptParams()
 	{
-		return rehashNumber;
+		return scryptParams;
 	}
 
-	public void setRehashNumber(int rehashNumber)
+	public void setScryptParams(ScryptParams params)
 	{
-		this.rehashNumber = rehashNumber;
+		this.scryptParams = params;
 	}
 
 	public CredentialResetSettings getPasswordResetSettings()

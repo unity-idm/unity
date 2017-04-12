@@ -4,16 +4,13 @@
  */
 package pl.edu.icm.unity.stdext.credential;
 
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Deque;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
-import org.bouncycastle.util.Arrays;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -61,7 +58,6 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.stdext.utils.CryptoUtils;
 import pl.edu.icm.unity.types.I18nStringSource;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
@@ -87,7 +83,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 
 	private NotificationProducer notificationProducer;
 	private CredentialHelper credentialHelper;
-	private Random random = new SecureRandom();
+	private PasswordEngine passwordEngine;
 	
 	private PasswordCredential credential = new PasswordCredential();
 
@@ -97,6 +93,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		super(NAME, DESC, PasswordExchange.ID, true);
 		this.notificationProducer = notificationProducer;
 		this.credentialHelper = credentialHelper;
+		this.passwordEngine = new PasswordEngine();
 	}
 
 	@Override
@@ -129,7 +126,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		{
 			PasswordToken checkedToken = PasswordToken.loadFromJson(previousCredential);
 			PasswordInfo current = currentPasswords.getFirst();
-			if (!checkPasswordInternal(checkedToken.getPassword(), current))
+			if (!passwordEngine.verify(current, checkedToken.getPassword()))
 				throw new IllegalPreviousCredentialException("The current credential is incorrect");
 		}
 		
@@ -146,16 +143,18 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 				throw new IllegalCredentialException("The chosen answer for security question is invalid");
 		}
 		
-		
-		String salt = random.nextLong() + "";
-		byte[] hashed = CryptoUtils.hash(pToken.getPassword(), salt, credential.getRehashNumber());
-
-		PasswordInfo currentPassword = new PasswordInfo(hashed, salt, credential.getRehashNumber());
+		PasswordInfo currentPassword = passwordEngine.prepareForStore(credential, 
+				pToken.getPassword());
 		if (credential.getHistorySize() <= currentPasswords.size() && !currentPasswords.isEmpty())
 			currentPasswords.removeLast();
 		currentPasswords.addFirst(currentPassword);
+		
+		PasswordInfo questionAnswer = pToken.getAnswer() != null ? 
+				passwordEngine.prepareForStore(credential, pToken.getAnswer()) :
+				null;
 
-		return PasswordCredentialDBState.toJson(credential, currentPasswords, pToken);
+		return PasswordCredentialDBState.toJson(credential, currentPasswords, 
+				pToken.getQuestion(), questionAnswer);
 	}
 
 
@@ -231,7 +230,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 				return new AuthenticationResult(Status.deny, null);
 			}
 			PasswordInfo current = credentials.getFirst();
-			if (!checkPasswordInternal(password, current))
+			if (!passwordEngine.verify(current, password))
 			{
 				log.debug("Password provided by " + username + " is invalid");
 				return new AuthenticationResult(Status.deny, null);
@@ -246,13 +245,6 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		}
 	}
 
-	private boolean checkPasswordInternal(String password, PasswordInfo current) 
-	{
-		byte[] testedHash = CryptoUtils.hash(password, current.getSalt(), current.getRehashNumber());
-		return Arrays.areEqual(testedHash, current.getHash());
-	}
-	
-	
 	@Override
 	public CredentialReset getCredentialResetBackend()
 	{
@@ -320,11 +312,11 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		Date validityEnd = new Date(current.getTime().getTime() + credential.getMaxAge());
 		if (new Date().after(validityEnd))
 			return true;
-		if (credential.getRehashNumber() != current.getRehashNumber())
+		if (!passwordEngine.checkParamsUpToDate(credential, current))
 			return true;
 		if (credential.getPasswordResetSettings().isEnabled() && 
 				credential.getPasswordResetSettings().isRequireSecurityQuestion() &&
-				credential.getRehashNumber() != credState.getAnswerRehashNumber())
+				!passwordEngine.checkParamsUpToDate(credential, credState.getAnswer()))
 			return true;
 		return false;
 	}
@@ -340,8 +332,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		
 		for (PasswordInfo pi: currentCredentials)
 		{
-			byte[] newHashed = CryptoUtils.hash(password, pi.getSalt(), pi.getRehashNumber());
-			if (Arrays.areEqual(newHashed, pi.getHash()))
+			if (passwordEngine.verify(pi, password))
 				throw new IllegalCredentialException("The same password was recently used");
 		}
 	}

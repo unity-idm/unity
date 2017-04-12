@@ -25,7 +25,7 @@
 		<Logger name="pl.edu.icm.unity.store" level="INFO"/>
 
 		<!-- Web subsystem -->
-		<!-- <Logger name="unity.server.web" level="INFO"/> -->
+		<Logger name="unity.server.web" level="DEBUG"/>
 
 		<!-- SAML related -->
 		<!-- <Logger name="unity.server.saml" level="INFO"/> -->
@@ -72,18 +72,6 @@
 		<Console name="CONSOLE">
 			<PatternLayout pattern="%d{ISO8601} [%t] %-5p %c: %equals{%1x}{[]}{}%m%n"/>
 		</Console>
-		
-		<RollingRandomAccessFile name="LOGFILE" 
-				fileName="/var/log/unity-idm/unity-server.log" 
-				filePattern="/var/log/unity-idm/unity-server.log.%d{yyyy-MM-dd}">
-				
-			<PatternLayout pattern="%d{ISO8601} [%t] %-5p %c: %equals{%1x}{[]}{}%m%n"/>
-
-			<Policies>
-				<TimeBasedTriggeringPolicy interval="1" modulate="true"/>
-			</Policies>
-			<DefaultRolloverStrategy/>
-		</RollingRandomAccessFile>
 	</Appenders>
 	
 </Configuration>

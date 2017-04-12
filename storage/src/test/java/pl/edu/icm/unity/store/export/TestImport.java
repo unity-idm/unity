@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.store.export;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -11,6 +12,8 @@ import static org.junit.Assert.fail;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -47,6 +50,7 @@ import pl.edu.icm.unity.store.objstore.reg.invite.InvitationHandler;
 import pl.edu.icm.unity.store.objstore.reg.req.RegistrationRequestHandler;
 import pl.edu.icm.unity.store.objstore.tprofile.InputTranslationProfileHandler;
 import pl.edu.icm.unity.store.objstore.tprofile.OutputTranslationProfileHandler;
+import pl.edu.icm.unity.store.types.StoredAttribute;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
@@ -161,8 +165,35 @@ public class TestImport
 			assertThat(genericDao.getObjectsOfType(
 					InvitationHandler.INVITATION_OBJECT_TYPE).size(), 
 					is(1));
+		});
+	}
+	
+	
+	@Test
+	public void testPasswordImportFrom1_9_x()
+	{
+		tx.runInTransaction(() -> {
+			try
+			{
+				ie.load(new BufferedInputStream(new FileInputStream(
+						"src/test/resources/updateData/from1.9.x/"
+						+ "testbed-from1.9.5-password.json")));
+				ie.store(new FileOutputStream("target/afterImport.json"));
+			} catch (Exception e)
+			{
+				e.printStackTrace();
+				fail("Import failed " + e);
+			}
 			
 			
+			List<StoredAttribute> attributes = attrDAO.getAll().stream().
+					filter(sa -> sa.getAttribute().getName().equals("sys:Credential:Secured password")).
+					collect(Collectors.toList());
+			for (StoredAttribute sa: attributes)
+			{
+				String value = sa.getAttribute().getValues().get(0);
+				assertThat(value, containsString("SHA256"));
+			}
 		});
 	}
 }

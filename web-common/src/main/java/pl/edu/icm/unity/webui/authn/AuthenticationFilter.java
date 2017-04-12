@@ -110,6 +110,7 @@ public class AuthenticationFilter implements Filter
 					}
 				} else
 				{
+					log.trace("Outdated credential used - redirect to authN");
 					forwardtoAuthn(httpRequest, httpResponse);
 					return;
 				}

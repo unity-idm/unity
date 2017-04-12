@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.stdext.credential;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -17,14 +16,6 @@ import pl.edu.icm.unity.types.authn.LocalCredentialState;
 
 public class TestPassword
 {
-	@Test
-	public void testArayCopy() throws Exception
-	{
-		byte[] A = {1,2,3,4};
-		PasswordInfo pi = new PasswordInfo(A, "11", 3);
-		assertArrayEquals(A, pi.getHash());
-	}
-		
 	@Test
 	public void test() throws Exception
 	{

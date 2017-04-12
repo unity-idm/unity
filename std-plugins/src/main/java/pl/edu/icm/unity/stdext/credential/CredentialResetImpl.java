@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Random;
 
 import org.apache.logging.log4j.Logger;
-import org.bouncycastle.util.Arrays;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -31,7 +30,6 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.TooManyAttempts;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.stdext.utils.CryptoUtils;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
@@ -56,6 +54,7 @@ public class CredentialResetImpl implements CredentialReset
 	private IdentityResolver identityResolver;
 	private CredentialHelper credentialHelper;
 	private LocalCredentialVerificator localCredentialHandler;
+	private PasswordEngine passwordEngine = new PasswordEngine();
 	
 	private IdentityTaV requestedSubject;
 	private EntityWithCredential resolved;
@@ -142,14 +141,13 @@ public class CredentialResetImpl implements CredentialReset
 		if (answerAttempts >= MAX_ANSWER_ATTEMPTS)
 			throw new TooManyAttempts();
 		answerAttempts++;
-		byte[] answerHash = credState.getAnswerHash();
-		int rehashNumber = credState.getAnswerRehashNumber();
+		
+		PasswordInfo storedAnswer = credState.getAnswer();
 		String question = credState.getSecurityQuestion();
-		if (answerHash == null || question == null)
+		if (storedAnswer == null || question == null)
 			throw new IllegalIdentityValueException("Identity has no question set.");
 
-		byte[] testedHash = CryptoUtils.hash(answer.toLowerCase(), question, rehashNumber);
-		if (!Arrays.areEqual(testedHash, answerHash))
+		if (!passwordEngine.verify(storedAnswer, answer))
 			throw new WrongArgumentException("The answer is incorrect");
 	}
 

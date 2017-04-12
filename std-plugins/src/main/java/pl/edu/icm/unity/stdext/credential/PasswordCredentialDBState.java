@@ -4,18 +4,13 @@
  */
 package pl.edu.icm.unity.stdext.credential;
 
-import java.util.Arrays;
 import java.util.Deque;
 import java.util.LinkedList;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.stdext.utils.CryptoUtils;
 
 /**
  * In DB representation of the credential state.
@@ -25,20 +20,26 @@ class PasswordCredentialDBState
 {
 	private Deque<PasswordInfo> passwords;
 	private boolean outdated;
+	private String outdatedReason;
 	private String securityQuestion;
-	private byte[] answerHash;
-	private int answerRehashNumber;
+	private PasswordInfo answer;
 
 	
 	public PasswordCredentialDBState(Deque<PasswordInfo> passwords, boolean outdated,
-			String securityQuestion, byte[] answerHash, int answerRehashNumber)
+			String outdatedReason,
+			String securityQuestion, PasswordInfo answer)
 	{
 		this.passwords = passwords;
 		this.outdated = outdated;
+		this.outdatedReason = outdatedReason;
 		this.securityQuestion = securityQuestion;
-		this.answerRehashNumber = answerRehashNumber;
-		this.answerHash = answerHash != null ? Arrays.copyOf(answerHash, answerHash.length) : null;
+		this.answer = answer;
 	}
+	
+	protected PasswordCredentialDBState()
+	{
+	}
+	
 	public Deque<PasswordInfo> getPasswords()
 	{
 		return passwords;
@@ -51,45 +52,23 @@ class PasswordCredentialDBState
 	{
 		return securityQuestion;
 	}
-	public byte[] getAnswerHash()
+	public String getOutdatedReason()
 	{
-		return answerHash;
+		return outdatedReason;
 	}
-	public int getAnswerRehashNumber()
+	public PasswordInfo getAnswer()
 	{
-		return answerRehashNumber;
+		return answer;
 	}
 
 	public static PasswordCredentialDBState fromJson(String raw) throws InternalException
 	{
 		if (raw == null || raw.length() == 0)
-			return new PasswordCredentialDBState(new LinkedList<PasswordInfo>(), false, null, null, -1);
-		JsonNode root;
+			return new PasswordCredentialDBState(new LinkedList<>(), false, 
+					null, null, null);
 		try
 		{
-			root = Constants.MAPPER.readTree(raw);
-
-			JsonNode passwords = root.get("passwords");
-			Deque<PasswordInfo> ret = new LinkedList<PasswordInfo>();
-			for (int i=0; i<passwords.size(); i++)
-			{
-				JsonNode rawPasswd = passwords.get(i);
-				int rehashNum = rawPasswd.has("rehashNumber") ? 
-						rawPasswd.get("rehashNumber").intValue() : 1;
-				ret.add(new PasswordInfo(rawPasswd.get("hash").binaryValue(),
-						rawPasswd.get("salt").asText(),
-						rehashNum,
-						rawPasswd.get("time").asLong()));
-			}
-			boolean outdated = root.get("outdated").asBoolean();
-			JsonNode qn = root.get("question");
-			String question = qn == null ? null : qn.asText();
-			JsonNode an = root.get("answerHash");
-			byte[] answerHash = an == null ? null : an.binaryValue();
-			int answerRehashNumber = 1;
-			if (root.has("answerRehashNumber"))
-				answerRehashNumber = root.get("answerRehashNumber").asInt();
-			return new PasswordCredentialDBState(ret, outdated, question, answerHash, answerRehashNumber);
+			return Constants.MAPPER.readValue(raw, PasswordCredentialDBState.class);
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't deserialize password credential from JSON", e);
@@ -97,36 +76,24 @@ class PasswordCredentialDBState
 	}
 	
 	public static String toJson(PasswordCredential credential, Deque<PasswordInfo> currentPasswords,
-			PasswordToken pToken)
+			int questionIndex, PasswordInfo questionAnswer)
 	{
-		ObjectNode root = Constants.MAPPER.createObjectNode();
-		ArrayNode passwords = root.putArray("passwords");
-		for (PasswordInfo pi: currentPasswords)
-		{
-			ObjectNode entry = passwords.addObject();
-			entry.put("hash", pi.getHash());
-			entry.put("salt", pi.getSalt());
-			entry.put("time", pi.getTime().getTime());
-			entry.put("rehashNumber", pi.getRehashNumber());
-		}
-		root.put("outdated", false);
+		String securityQuestion = null;
 		if (credential.getPasswordResetSettings().isEnabled() && 
 				credential.getPasswordResetSettings().isRequireSecurityQuestion())
 		{
-			String question = credential.getPasswordResetSettings().getQuestions().get(
-					pToken.getQuestion());
-			root.put("question", question);
-			root.put("answerHash", CryptoUtils.hash(pToken.getAnswer().toLowerCase(), question, 
-					credential.getRehashNumber()));
-			root.put("answerRehashNumber", credential.getRehashNumber());
+			securityQuestion = credential.getPasswordResetSettings().getQuestions().get(
+					questionIndex);
 		}
+		
+		PasswordCredentialDBState dbState = new PasswordCredentialDBState(
+				currentPasswords, false, null, securityQuestion, questionAnswer);
 		try
 		{
-			return Constants.MAPPER.writeValueAsString(root);
+			return Constants.MAPPER.writeValueAsString(dbState);
 		} catch (JsonProcessingException e)
 		{
 			throw new InternalException("Can't serialize password credential to JSON", e);
 		}
-
 	}
 }

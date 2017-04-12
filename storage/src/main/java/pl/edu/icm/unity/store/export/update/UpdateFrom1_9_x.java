@@ -390,6 +390,14 @@ public class UpdateFrom1_9_x implements Update
 		if (!content.has("jsonConfiguration"))
 			return;
 		String config = content.remove("jsonConfiguration").asText();
+		
+		if (!config.isEmpty())
+		{
+			ObjectNode configJson = (ObjectNode) objectMapper.readTree(config);
+			configJson.remove("rehashNumber");
+			config = objectMapper.writeValueAsString(configJson);
+		}
+		
 		content.put("configuration", config);
 	}
 
@@ -566,7 +574,7 @@ public class UpdateFrom1_9_x implements Update
 	}
 	
 	
-	private void updateAttributes(ObjectNode contents, UpdateContext ctx)
+	private void updateAttributes(ObjectNode contents, UpdateContext ctx) throws IOException
 	{
 		ArrayNode attributes = (ArrayNode) contents.get("attributes");
 		if (attributes == null)
@@ -575,7 +583,7 @@ public class UpdateFrom1_9_x implements Update
 			updateStoredAttribute((ObjectNode) node, ctx);
 	}
 	
-	private void updateStoredAttribute(ObjectNode src, UpdateContext ctx)
+	private void updateStoredAttribute(ObjectNode src, UpdateContext ctx) throws IOException
 	{
 		String attr = src.get("attributeName").asText();
 		String group = src.get("groupPath").asText();
@@ -585,6 +593,9 @@ public class UpdateFrom1_9_x implements Update
 
 		toNewAttribute(values, src, attr, group, attributeSyntax);
 		src.put("entityId", src.get("entity").asLong());
+		
+		if (attr.startsWith("sys:Credential:"))
+			updateStoredPassword(src);
 	}
 	
 	private void toNewAttribute(String oldValues, ObjectNode target, String attributeName, String group,
@@ -645,6 +656,72 @@ public class UpdateFrom1_9_x implements Update
 					+ valueSyntax);
 		}
 	}
+	
+	/* legacy format of individual password:
+	 * {
+	 * 	"hash":"/pstb6lKuQYu0v/OTh+u3eR7u/2FAFYVjrX1UGbkDcE=",
+	 * 	"salt":"7468058266641201959",
+	 * 	"time":1491996617612,
+	 * 	"rehashNumber":2233
+	 * }
+	 */
+	private void updateStoredPassword(ObjectNode src) throws IOException
+	{
+		ArrayNode values = (ArrayNode) src.remove("values");
+		String pNodeStr = values.get(0).asText();
+		ObjectNode passwordNode = (ObjectNode) objectMapper.readTree(pNodeStr);
+		
+		ArrayNode passwords = (ArrayNode) passwordNode.remove("passwords");
+		ArrayNode newPasswords = passwordNode.withArray("passwords");
+		for (JsonNode password: passwords)
+		{
+			byte[] hash = password.get("hash").binaryValue();
+			long salt = password.get("salt").asLong();
+			long time = password.get("time").asLong();
+			int rehashNum = 1;
+			if (password.has("rehashNumber"))
+				rehashNum = password.get("rehashNumber").asInt();
+			byte[] saltBytes = ("" + salt).getBytes(StandardCharsets.UTF_8);
+			ObjectNode newPass = toNewPasswordInfo(hash, saltBytes, rehashNum, time);
+			newPasswords.add(newPass);
+		}
+		
+		if (passwordNode.has("answerHash"))
+		{
+			byte[] answerHash = passwordNode.remove("answerHash").binaryValue();
+			int rehashNum = 1;
+			if (passwordNode.has("answerRehashNumber"))
+				rehashNum = passwordNode.remove("answerRehashNumber").asInt();
+			ObjectNode answer = toNewPasswordInfo(answerHash, null, rehashNum, null);
+			passwordNode.set("answer", answer);
+		}
+
+		if (passwordNode.has("question"))
+		{
+			String question = passwordNode.remove("question").asText();
+			passwordNode.put("securityQuestion", question);
+		}
+		
+		ArrayNode newValues = src.withArray("values");
+		String serialized = objectMapper.writeValueAsString(passwordNode);
+		newValues.add(serialized);
+	}
+
+	private ObjectNode toNewPasswordInfo(byte[] hash, byte[] salt, int rehashNum, Long time)
+	{
+		ObjectNode pi = objectMapper.createObjectNode();
+		pi.put("method", "SHA256");
+		pi.put("hash", hash);
+		
+		ObjectNode params = pi.with("methodParams");
+		params.put("rehashNumber", rehashNum);
+		if (salt != null)
+			pi.put("salt", salt);
+		if (time != null)
+			pi.put("time", time);
+		return pi;
+	}
+
 	
 	private static class UpdateContext
 	{

@@ -6,35 +6,52 @@ package pl.edu.icm.unity.stdext.credential;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * In DB representation of the credential state is a list of objects as the one described in this class.
+ * In DB representation of the credential state is a list of objects as the 
+ * one described in this class.
+ * <p>
+ * Object stores hash, salt and time as 1st level citizens. Additionally hashing method and its
+ * parameters are encoded in a map. The map should use method specific keys and simple objects only
+ * directly JSON serializable. 
+ * 
  * @author K. Benedyczak
  */
 public class PasswordInfo
 {
+	private PasswordHashMethod method;
+	private Map<String, Object> methodParams;
 	private byte[] hash;
-	private String salt;
+	private byte[] salt;
 	private Date time;
-	private int rehashNumber;
 
-	public PasswordInfo(byte[] hash, String salt, int rehashNumber)
+	public PasswordInfo(PasswordHashMethod method, byte[] hash, byte[] salt, 
+			Map<String, Object> methodParams)
 	{
-		this(hash, salt, rehashNumber, System.currentTimeMillis());
+		this(method, hash, salt, methodParams, System.currentTimeMillis());
 	}
 	
-	public PasswordInfo(byte[] hash, String salt, int rehashNumber, long time)
+	public PasswordInfo(PasswordHashMethod method, byte[] hash, byte[] salt, 
+			Map<String, Object> methodParams, long time)
 	{
-		this.rehashNumber = rehashNumber;
+		this.method = method;
+		this.methodParams = new HashMap<>(methodParams);
 		this.hash = Arrays.copyOf(hash, hash.length);
 		this.salt = salt;
 		this.time = new Date(time);
 	}
+	
+	protected PasswordInfo()
+	{
+	}
+	
 	public byte[] getHash()
 	{
-		return hash;
+		return Arrays.copyOf(hash, hash.length);
 	}
-	public String getSalt()
+	public byte[] getSalt()
 	{
 		return salt;
 	}
@@ -42,8 +59,14 @@ public class PasswordInfo
 	{
 		return time;
 	}
-	public int getRehashNumber()
+
+	public PasswordHashMethod getMethod()
 	{
-		return rehashNumber;
+		return method;
+	}
+
+	public Map<String, Object> getMethodParams()
+	{
+		return  new HashMap<>(methodParams);
 	}
 }
