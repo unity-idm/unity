@@ -27,6 +27,7 @@ import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
 import xmlbeans.org.oasis.saml2.assertion.EncryptedAssertionDocument;
 import xmlbeans.org.oasis.saml2.assertion.EncryptedElementType;
@@ -307,9 +308,12 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		Map<String, Attribute<?>> ret = new HashMap<String, Attribute<?>>();
 		SamlAttributeMapper mapper = samlConfiguration.getAttributesMapper();
 		
-		for (Attribute<?> a: userInfo.getAttributes())
+		for (DynamicAttribute da: userInfo.getAttributes())
+		{
+			Attribute<?> a = da.getAttribute();
 			if (mapper.isHandled(a))
 				ret.put(a.getName(), a);
+		}
 		return ret;
 	}
 

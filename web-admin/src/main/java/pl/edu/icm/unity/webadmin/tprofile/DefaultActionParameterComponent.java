@@ -24,6 +24,12 @@ public class DefaultActionParameterComponent extends RequiredTextField implement
 		setColumns(Styles.WIDE_TEXT_FIELD);
 	}
 	
+	public DefaultActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg, boolean required)
+	{
+		this(desc, msg);
+		setRequired(required);
+	}
+	
 	@Override
 	public String getActionValue()
 	{

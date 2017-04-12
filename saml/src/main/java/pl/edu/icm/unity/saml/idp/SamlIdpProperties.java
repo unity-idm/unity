@@ -89,6 +89,7 @@ public class SamlIdpProperties extends SamlProperties
 	public static final String GROUP_TARGET = "serviceProvider";
 	public static final String GROUP = "mappingGroup";
 	public static final String DEFAULT_GROUP = "defaultGroup";
+	public static final String USER_EDIT_CONSENT = "userCanEditConsent";
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
@@ -216,6 +217,9 @@ public class SamlIdpProperties extends SamlProperties
 				"Name of an output translation profile which can be used to dynamically modify the "
 				+ "data being returned on this endpoint. When not defined the default profile is used: "
 				+ "attributes are not filtered, memberOf attribute is added with group membership"));
+		
+		defaults.put(USER_EDIT_CONSENT, new PropertyMD("true").setCategory(samlCat).
+				setDescription("Controls whether the user can hide attribute on consent screen"));
 	}
 
 	private boolean signRespNever;

@@ -49,6 +49,7 @@ import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -124,8 +125,8 @@ public class OAuthTestUtils
 			TokensManagement tokensMan) throws Exception
 	{
 		OAuthProcessor processor = new OAuthProcessor();
-		Collection<Attribute<?>> attributes = new ArrayList<>();
-		attributes.add(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com"));
+		Collection<DynamicAttribute> attributes = new ArrayList<>();
+		attributes.add(new DynamicAttribute(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com")));
 		IdentityParam identity = new IdentityParam(UsernameIdentity.ID, "userA");
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(config, new ResponseType(ResponseType.Value.TOKEN, 
 				OIDCResponseTypeValue.ID_TOKEN, ResponseType.Value.CODE),
@@ -138,9 +139,9 @@ public class OAuthTestUtils
 			OAuthAuthzContext ctx) throws Exception
 	{
 		OAuthProcessor processor = new OAuthProcessor();
-		Collection<Attribute<?>> attributes = new ArrayList<>();
-		attributes.add(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com"));
-		attributes.add(new StringAttribute("c", "/", AttributeVisibility.full, "PL"));
+		Collection<DynamicAttribute> attributes = new ArrayList<>();
+		attributes.add(new DynamicAttribute(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com")));
+		attributes.add(new DynamicAttribute(new StringAttribute("c", "/", AttributeVisibility.full, "PL")));
 		IdentityParam identity = new IdentityParam("userName", "userA");
 
 		return processor.prepareAuthzResponseAndRecordInternalState(

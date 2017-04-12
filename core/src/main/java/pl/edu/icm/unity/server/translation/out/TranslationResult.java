@@ -10,6 +10,7 @@ import java.util.HashSet;
 
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.DynamicAttribute;
 
 /**
  * Result of output translation. Set of identities and attributes. This class is mutable: actions modify the contents
@@ -18,13 +19,13 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
  */
 public class TranslationResult
 {
-	private Collection<Attribute<?>> attributes = new HashSet<>();
+	private Collection<DynamicAttribute> attributes = new HashSet<>();
 	private Collection<IdentityParam> identities = new ArrayList<>();
 
 	private Collection<Attribute<?>> attributesToPersist = new HashSet<>();
 	private Collection<IdentityParam> identitiesToPersist = new ArrayList<>();
 	
-	public Collection<Attribute<?>> getAttributes()
+	public Collection<DynamicAttribute> getAttributes()
 	{
 		return attributes;
 	}

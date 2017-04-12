@@ -98,6 +98,18 @@ public class ListOfSelectableElements extends CustomComponent
 		return new ArrayList<>(selects);
 	}
 	
+	public void setCheckBoxsEnabled(boolean enabled)
+	{
+		for (CheckBox cb : selects)
+			cb.setEnabled(enabled);
+	}
+	
+	public void setCheckBoxsVisible(boolean visible)
+	{
+		for (CheckBox cb : selects)
+			cb.setVisible(visible);
+	}
+	
 	private class ValueDisableHandler implements ValueChangeListener
 	{
 		private Component representation;

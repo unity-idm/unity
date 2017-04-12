@@ -85,6 +85,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
@@ -160,8 +161,7 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		assertEquals(0, tprofMan.listInputProfiles().size());
 		List<OutputTranslationRule> rules = new ArrayList<>();
 		OutputTranslationAction action1 = outtactionReg.getByName(CreateAttributeActionFactory.NAME).getInstance(
-				"dynAttr", 
-				"'joe'");
+				"dynAttr", "'joe'", "false");
 		rules.add(new OutputTranslationRule(action1, new TranslationCondition()));
 		OutputTranslationAction action2 = outtactionReg.getByName(FilterAttributeActionFactory.NAME).getInstance(
 				"attr"); 
@@ -559,7 +559,7 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		rules.add(new OutputTranslationRule(action1, new TranslationCondition()));
 		OutputTranslationAction action2 = outtactionReg.getByName(
 				CreatePersistentAttributeActionFactory.NAME).getInstance(
-						"o", "'ICM'", "/"); 
+						"o", "'ICM'", "false", "/"); 
 		rules.add(new OutputTranslationRule(action2, new TranslationCondition()));
 
 		OutputTranslationProfile tp1 = new OutputTranslationProfile("p1", rules, outtactionReg);
@@ -615,15 +615,15 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		List<OutputTranslationRule> rules = new ArrayList<>();
 		OutputTranslationAction action1 = outtactionReg.getByName(
 				CreateAttributeActionFactory.NAME).getInstance(
-						"a1", "attr['o']");
+						"a1", "attr['o']", "false");
 		rules.add(new OutputTranslationRule(action1, new TranslationCondition()));
 		OutputTranslationAction action2 = outtactionReg.getByName(
 				CreateAttributeActionFactory.NAME).getInstance(
-						"a2", "attr['e']"); 
+						"a2", "attr['e']","false"); 
 		rules.add(new OutputTranslationRule(action2, new TranslationCondition()));
 		OutputTranslationAction action3 = outtactionReg.getByName(
 				CreateAttributeActionFactory.NAME).getInstance(
-						"a3", "attr['f']"); 
+						"a3", "attr['f']","false"); 
 		rules.add(new OutputTranslationRule(action3, new TranslationCondition()));
 
 		OutputTranslationProfile tp1 = new OutputTranslationProfile("p1", rules, outtactionReg);
@@ -645,10 +645,11 @@ public class TestTranslationProfiles extends DBIntegrationTestBase
 		
 		TranslationResult result = tp1.translate(input);
 
-		Collection<Attribute<?>> attributes = result.getAttributes();
+		Collection<DynamicAttribute> attributes = result.getAttributes();
 		assertThat(attributes.size(), is(6));
-		for (Attribute<?> a: attributes)
+		for (DynamicAttribute da: attributes)
 		{
+			Attribute<?> a = da.getAttribute();
 			if (a.getName().startsWith("a"))
 			{
 				assertThat(a.getAttributeSyntax().getValueSyntaxId(), 

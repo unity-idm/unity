@@ -33,6 +33,7 @@ import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
+import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.server.api.PreferencesManagement;
 import pl.edu.icm.unity.server.api.internal.IdPEngine;
 import pl.edu.icm.unity.server.api.internal.SessionManagement;
@@ -42,6 +43,7 @@ import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
@@ -73,6 +75,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	
 	private OAuthIdPEngine idpEngine;
 	private AttributeHandlerRegistry handlersRegistry;
+	private AttributesManagement attrMan;
 	private PreferencesManagement preferencesMan;
 	private WebAuthenticationProcessor authnProcessor;
 	private IdentityTypesRegistry identityTypesRegistry;
@@ -86,14 +89,16 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	
 	@Autowired
 	public OAuthAuthzUI(UnityMessageSource msg, TokensManagement tokensMan,
-			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
+			AttributeHandlerRegistry handlersRegistry, AttributesManagement attrMan,
+			PreferencesManagement preferencesMan,
 			WebAuthenticationProcessor authnProcessor, IdPEngine idpEngine,
-			IdentityTypesRegistry identityTypesRegistry, EnquiresDialogLauncher enquiryDialogLauncher,
-			SessionManagement sessionMan)
+			IdentityTypesRegistry identityTypesRegistry,
+			EnquiresDialogLauncher enquiryDialogLauncher, SessionManagement sessionMan)
 	{
 		super(msg, enquiryDialogLauncher);
 		this.msg = msg;
 		this.handlersRegistry = handlersRegistry;
+		this.attrMan = attrMan;
 		this.preferencesMan = preferencesMan;
 		this.authnProcessor = authnProcessor;
 		this.sessionMan = sessionMan;
@@ -189,7 +194,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 			
 			createIdentityPart(translationResult, eiLayout, ctx.getConfig().getSubjectIdentityType());
 			
-			attrsPresenter = new ExposedAttributesComponent(msg, handlersRegistry, 
+			attrsPresenter = new ExposedAttributesComponent(msg, handlersRegistry, attrMan,
 					oauthProcessor.filterAttributes(translationResult, ctx.getRequestedAttrs()));
 			eiLayout.addComponent(attrsPresenter);
 		} catch (OAuthErrorResponseException e)
@@ -335,7 +340,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		OAuthAuthzContext ctx = OAuthContextUtils.getContext();
 		try
 		{
-			Collection<Attribute<?>> attributes = attrsPresenter.getUserFilteredAttributes();
+			Collection<DynamicAttribute> attributes = attrsPresenter.getUserFilteredAttributes();
 			IdentityParam identity = idSelector.getSelectedIdentity();
 			
 			AuthorizationSuccessResponse oauthResponse = oauthProcessor.

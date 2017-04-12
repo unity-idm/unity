@@ -144,7 +144,7 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	{
 		List<TranslationRule> rules = new ArrayList<>();
 		TranslationAction action1 = new TranslationAction(CreateAttributeActionFactory.NAME, 
-				new String[] {"memberOf", "groups"});
+				new String[] {"memberOf", "groups","false", "Member of", "Member of group"});
 		rules.add(new TranslationRule("true", action1));
 		return new OutputTranslationProfile("DEFAULT OUTPUT PROFILE", "", rules, outputActionReg);
 	}

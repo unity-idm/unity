@@ -15,6 +15,7 @@ import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.webui.common.ExpandCollapseButton;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -37,12 +38,13 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 	private UnityMessageSource msg;
 	protected AttributeHandlerRegistry handlersRegistry;
 	
-	protected Map<String, Attribute<?>> attributes;
+	protected Map<String, DynamicAttribute> attributes;
 	protected Map<String, SelectableAttributeWithValues<?>> attributesHiding;
 	private AttributesManagement attrMan;
+	private boolean enableEdit;
 
 	public ExposedSelectableAttributesComponent(UnityMessageSource msg, AttributeHandlerRegistry handlersRegistry,
-			AttributesManagement attrMan, Collection<Attribute<?>> attributesCol) throws EngineException
+			AttributesManagement attrMan, Collection<DynamicAttribute> attributesCol, boolean enableEdit) throws EngineException
 	{
 		super();
 		this.handlersRegistry = handlersRegistry;
@@ -50,8 +52,9 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 		this.attrMan = attrMan;
 
 		attributes = new HashMap<>();
-		for (Attribute<?> a: attributesCol)
-			attributes.put(a.getName(), a);
+		for (DynamicAttribute a: attributesCol)
+			attributes.put(a.getAttribute().getName(), a);
+		this.enableEdit = enableEdit;
 		initUI();
 	}
 	
@@ -108,27 +111,47 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 		contents.addComponent(details);
 		
 		details.addComponent(credInfo);
-
-		HtmlLabel attributesInfo = new HtmlLabel(msg, "ExposedAttributesComponent.attributesInfo");
-		attributesInfo.addStyleName(Styles.vLabelSmall.toString());
-		details.addComponent(attributesInfo);
-
+		if (enableEdit)
+		{
+			HtmlLabel attributesInfo = new HtmlLabel(msg,
+					"ExposedAttributesComponent.attributesInfo");
+			attributesInfo.addStyleName(Styles.vLabelSmall.toString());
+			details.addComponent(attributesInfo);
+		}
 		Label hideL = new Label(msg.getMessage("ExposedAttributesComponent.hide"));
 		
 		attributesHiding = new HashMap<>();
 		Map<String, AttributeType> attributeTypes = attrMan.getAttributeTypesAsMap();
 		boolean first = true;
-		for (Attribute<?> at: attributes.values())
+		for (DynamicAttribute dat: attributes.values())
 		{
+			Attribute<?> at = dat.getAttribute();
 			WebAttributeHandler<?> handler = handlersRegistry.getHandler(
 					at.getAttributeSyntax().getValueSyntaxId());
 			AttributeType attributeType = attributeTypes.get(at.getName());
 			if (attributeType == null) //can happen for dynamic attributes from output translation profile
 				attributeType = new AttributeType(at.getName(), new StringAttributeSyntax());
 			
+			String attrDisplayedName = dat.getDisplayedName();
+			String attrDescription = dat.getDescription();
+		
+			if (attrDisplayedName == null || attrDisplayedName.isEmpty())
+			{
+				attrDisplayedName = attributeType.getDisplayedName() != null
+						? attributeType.getDisplayedName().getValue(msg) : at.getName();
+			}
+
+			if (attrDescription == null || attrDescription.isEmpty())
+			{
+				attrDescription = attributeType.getDescription() != null
+						? attributeType.getDescription().getValue(msg) : at.getName();
+			}
+			
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			SelectableAttributeWithValues<?> attributeComponent = new SelectableAttributeWithValues(
-					null, hideL, at, attributeType, handler, msg);
+					null, enableEdit ? hideL : null, at, attrDisplayedName,
+					attrDescription, !dat.isMandatory() && enableEdit,
+					attributeType, handler, msg);
 			attributeComponent.setWidth(100, Unit.PERCENTAGE);
 			if (first)
 			{

@@ -115,23 +115,22 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 		List<OutputTranslationRule> rules = new ArrayList<>();
 		OutputTranslationAction action1 = (OutputTranslationAction) tactionReg.getByName(
 				CreateAttributeActionFactory.NAME).getInstance(
-				"memberOf", 
-				"groups");
+				"memberOf", "groups", "false");
 		rules.add(new OutputTranslationRule(action1, new TranslationCondition()));
 		OutputTranslationAction action2 = (OutputTranslationAction) tactionReg.getByName(
 				CreateAttributeActionFactory.NAME).getInstance(
-				"unity:identity:userName", 
-				"idsByType['userName']");
+				"unity:identity:userName",
+				"idsByType['userName']", "false");
 		rules.add(new OutputTranslationRule(action2, new TranslationCondition("idsByType['userName'] != null")));
 		OutputTranslationAction action3 = (OutputTranslationAction) tactionReg.getByName(
 				CreateAttributeActionFactory.NAME).getInstance(
 				"unity:identity:x500Name", 
-				"idsByType['x500Name']");
+				"idsByType['x500Name']", "false");
 		rules.add(new OutputTranslationRule(action3, new TranslationCondition("idsByType['x500Name'] != null")));
 		OutputTranslationAction action4 = (OutputTranslationAction) tactionReg.getByName(
 				CreateAttributeActionFactory.NAME).getInstance(
 				"unity:identity:persistent", 
-				"idsByType['persistent']");
+				"idsByType['persistent']", "false");
 		rules.add(new OutputTranslationRule(action4, new TranslationCondition("idsByType['persistent'] != null")));
 		return new OutputTranslationProfile("testOutProfile", rules, tactionReg);
 	}

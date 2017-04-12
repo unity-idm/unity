@@ -18,6 +18,7 @@ import pl.edu.icm.unity.server.translation.out.TranslationInput;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
 import pl.edu.icm.unity.types.translation.TranslationActionType;
@@ -66,11 +67,14 @@ public class FilterAttributeValuesActionFactory extends AbstractOutputTranslatio
 		protected void invokeWrapped(TranslationInput input, Object mvelCtx, String currentProfile,
 				TranslationResult result) throws EngineException
 		{
-			Set<Attribute<?>> copy = new HashSet<Attribute<?>>(result.getAttributes());
-			for (Attribute<?> a: copy)
-				if (attr.equals(a.getName()))
+			Set<DynamicAttribute> copy = new HashSet<DynamicAttribute>(result.getAttributes());
+			for (DynamicAttribute a: copy)
+			{	
+				String attrName = a.getAttribute().getName();
+				
+				if (attr.equals(attrName))
 				{
-					List<?> values = a.getValues();
+					List<?> values = a.getAttribute().getValues();
 					int orig = values.size();
 					for (int i=values.size()-1; i>=0; i--)
 					{
@@ -79,9 +83,10 @@ public class FilterAttributeValuesActionFactory extends AbstractOutputTranslatio
 					}
 					if (orig != values.size())
 					{
-						log.debug("Filtering the values of attribute " + a.getName());
+						log.debug("Filtering the values of attribute " + attrName);
 					}
 				}
+			}
 		}
 
 		private void setParameters(String[] parameters)
