@@ -51,7 +51,7 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 		this.webHandler = webHandler;	
 		this.customAttrName = at.getName();
 		this.customAttrDesc = at.getDescription() == null? at.getName():at.getDescription().getValue(msg);
-	        this.enableSelect = false;
+	        this.enableSelect = true;
 		initUI();
 	}
 	

@@ -218,8 +218,10 @@ public class SamlIdpProperties extends SamlProperties
 				+ "data being returned on this endpoint. When not defined the default profile is used: "
 				+ "attributes are not filtered, memberOf attribute is added with group membership"));
 		
-		defaults.put(USER_EDIT_CONSENT, new PropertyMD("true").setCategory(samlCat).
-				setDescription("Controls whether the user can hide attribute on consent screen"));
+		defaults.put(USER_EDIT_CONSENT, new PropertyMD("true").setCategory(samlCat)
+				.setDescription("Controls whether user is allowed to remove released attributes on the "
+						+ "consent screen. Note that attributes marked as mandatory in output profile "
+						+ "can not be removed regardless of this option."));
 	}
 
 	private boolean signRespNever;

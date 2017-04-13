@@ -39,7 +39,7 @@ public class ExposedAttributesComponent extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private AttributesManagement attrMan;
-
+	
 	protected AttributeHandlerRegistry handlersRegistry;
 	protected Map<String, DynamicAttribute> attributes;
 	protected ListOfSelectableElements attributesHiding;
@@ -91,7 +91,13 @@ public class ExposedAttributesComponent extends CustomComponent
 		Label spacer = HtmlTag.br();
 		spacer.setStyleName(Styles.vLabelSmall.toString());
 		details.addComponent(spacer);
+		details.addComponent(getAttributesListComponent());
 
+		setCompositionRoot(contents);
+	}
+
+	private Component getAttributesListComponent() throws EngineException
+	{
 		Map<String, AttributeType> attributeTypes = attrMan.getAttributeTypesAsMap();
 
 		ListOfElements<Label> attributesList = new ListOfElements<Label>(msg,
@@ -107,37 +113,52 @@ public class ExposedAttributesComponent extends CustomComponent
 
 		for (DynamicAttribute dat : attributes.values())
 		{
-			Attribute<?> at = dat.getAttribute();
-			AttributeType attributeType = attributeTypes.get(at.getName());
-			if (attributeType == null) // can happen for dynamic attributes from output translation profile
-				attributeType = new AttributeType(at.getName(),
-						new StringAttributeSyntax());
-
-			String attrDisplayedName = dat.getDisplayedName();
-			String attrDescription = dat.getDescription();
-			if (attrDisplayedName == null || attrDisplayedName.isEmpty())
-			{
-				attrDisplayedName = attributeType.getDisplayedName() != null
-						? attributeType.getDisplayedName().getValue(msg) : at.getName();
-			}
-
-			if (attrDescription == null || attrDescription.isEmpty())
-			{
-				attrDescription = attributeType.getDescription() != null
-						? attributeType.getDescription().getValue(msg) : at.getName();
-			}
-
-			String representation = handlersRegistry
-					.getSimplifiedAttributeRepresentation(at, 80,
-							attrDisplayedName);
-			Label labelRep = new Label(representation);
-			labelRep.setDescription(attrDescription);
-			attributesList.addEntry(labelRep);
-
+			attributesList.addEntry(getAttributeComponent(dat, attributeTypes));
 		}
-		details.addComponent(attributesList);
-
-		setCompositionRoot(contents);
+		
+		return attributesList;
 	}
 
+	private Label getAttributeComponent(DynamicAttribute dat,
+			Map<String, AttributeType> attributeTypes)
+	{
+		Attribute<?> at = dat.getAttribute();
+		AttributeType attributeType = attributeTypes.get(at.getName());
+		if (attributeType == null) // can happen for dynamic attributes from output translation profile
+			attributeType = new AttributeType(at.getName(),
+					new StringAttributeSyntax());
+
+		String representation = handlersRegistry.getSimplifiedAttributeRepresentation(at,
+				80, getAttributeDisplayedName(dat, attributeType));
+		Label labelRep = new Label(representation);
+		labelRep.setDescription(getAttributeDescription(dat, attributeType));
+		
+		return labelRep;
+	}
+
+	private String getAttributeDescription(DynamicAttribute dat, AttributeType attributeType)
+	{
+		String attrDescription = dat.getDescription();
+		if (attrDescription == null || attrDescription.isEmpty())
+		{
+			attrDescription = attributeType.getDescription() != null
+					? attributeType.getDescription().getValue(msg)
+					: dat.getAttribute().getName();
+		}
+		
+		return attrDescription;
+	}
+
+	private String getAttributeDisplayedName(DynamicAttribute dat, AttributeType attributeType)
+	{
+		String attrDisplayedName = dat.getDisplayedName();
+		if (attrDisplayedName == null || attrDisplayedName.isEmpty())
+		{
+			attrDisplayedName = attributeType.getDisplayedName() != null
+					? attributeType.getDisplayedName().getValue(msg)
+					: dat.getAttribute().getName();
+		}
+		
+		return attrDisplayedName;
+	}
 }

@@ -6,7 +6,9 @@
 package pl.edu.icm.unity.types.basic;
 
 /**
- * Wrapper for {@link Attribute}. Contains attribute and additional metadata
+ * Wrapper for {@link Attribute}. Contains attribute and additional metadata: displayedName, description and indicator whether attribute is mandatory.
+ * This additional meta informations are filled after output translation profile processing and used when attributes are showing on consent screen: displayName
+ * as attribute name and description as tooltip . If attribute is mandatory user cannot hide it on consent screen.   
  * 
  * @author P.Piernik
  *
@@ -56,6 +58,11 @@ public class DynamicAttribute
 	}
 
 	public String getDescription()
+	{
+		return description;
+	}
+	 
+	public String getDescription(AttributeType t)
 	{
 		return description;
 	}
