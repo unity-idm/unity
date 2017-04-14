@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webadmin.attribute;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,35 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-import pl.edu.icm.unity.types.basic.AttributesClass;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupContents;
-import pl.edu.icm.unity.webadmin.utils.MessageUtils;
-import pl.edu.icm.unity.webui.WebSession;
-import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
-import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.SmallTable;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.Container.Filterable;
@@ -64,6 +36,38 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.confirmations.ConfirmationManager;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.server.api.AttributesManagement;
+import pl.edu.icm.unity.server.api.GroupsManagement;
+import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
+import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
+import pl.edu.icm.unity.types.basic.AttributesClass;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.types.confirmation.VerifiableElement;
+import pl.edu.icm.unity.webadmin.utils.MessageUtils;
+import pl.edu.icm.unity.webui.WebSession;
+import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
+import pl.edu.icm.unity.webui.common.ConfirmDialog;
+import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.SmallTable;
+import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.Toolbar;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
+
 /**
  * Displays attributes and their values. 
  * Allows for adding/removing attributes.
@@ -79,6 +83,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private AttributeHandlerRegistry registry;
 	private AttributesManagement attributesManagement;
 	private GroupsManagement groupsManagement;
+	private ConfirmationManager confirmationMan;
 	
 	private VerticalLayout left;
 	private CheckBox showEffective;
@@ -97,12 +102,13 @@ public class AttributesPanel extends HorizontalSplitPanel
 	
 	@Autowired
 	public AttributesPanel(UnityMessageSource msg, AttributeHandlerRegistry registry, 
-			AttributesManagement attributesManagement, GroupsManagement groupsManagement)
+			AttributesManagement attributesManagement, GroupsManagement groupsManagement, ConfirmationManager confirmationMan)
 	{
 		this.msg = msg;
 		this.registry = registry;
 		this.attributesManagement = attributesManagement;
 		this.groupsManagement = groupsManagement;
+		this.confirmationMan = confirmationMan;
 		this.bus = WebSession.getCurrent().getEventBus();
 		attributesTable = new SmallTable();
 		attributesTable.setNullSelectionAllowed(false);
@@ -136,7 +142,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(attributesTable, toolbar);
 		tableWithToolbar.setSizeFull();
 		SingleActionHandler[] handlers = new SingleActionHandler[] {new AddAttributeActionHandler(), 
-				new EditAttributeActionHandler(), new RemoveAttributeActionHandler()};
+				new EditAttributeActionHandler(), new RemoveAttributeActionHandler(), new ResendConfirmationAttributeActionHandler()};
 		for (SingleActionHandler handler: handlers)
 			attributesTable.addActionHandler(handler);
 		toolbar.addActionHandlers(handlers);
@@ -374,6 +380,23 @@ public class AttributesPanel extends HorizontalSplitPanel
 			
 	}
 	
+	private boolean checkAttributeIsVerifiable(AttributeItem item)
+	{
+		return item.getAttribute().getAttributeSyntax().isVerifiable();
+	}
+	
+	private boolean checkAttributeIsConfirmed(AttributeItem item)
+	{	
+		for (Object valA : item.getAttribute().getValues())
+		{
+			VerifiableElement val = (VerifiableElement) valA;
+			ConfirmationInfo ci = val.getConfirmationInfo();
+			if (!ci.isConfirmed())
+				return false;
+		}
+		return true;	
+	}
+		
 	private Collection<AttributeItem> getItems(Object target)
 	{
 		Collection<?> c = (Collection<?>) target;
@@ -555,6 +578,65 @@ public class AttributesPanel extends HorizontalSplitPanel
 			dialog.show();
 		}
 	}
+	
+	private class ResendConfirmationAttributeActionHandler extends AbstractAttributeActionHandler
+	{
+		public ResendConfirmationAttributeActionHandler()
+		{
+			super(msg.getMessage("Attribute.resendConfirmation"), 
+					Images.confirm.getResource());
+			setMultiTarget(true);
+		}
+		
+		@Override
+		public Action[] getActions(Object target, Object sender)
+		{
+			Action[] ret = super.getActions(target, sender);
+			if (ret.length > 0)
+			{
+				if (target instanceof Collection<?>)
+				{
+					for (AttributeItem item : getItems(target))
+					{
+						if (!checkAttributeIsVerifiable(item))
+							return EMPTY;			
+						if (checkAttributeIsConfirmed(item))
+							return EMPTY;
+					}
+				} else
+				{
+					AttributeItem item = (AttributeItem) target;
+					if (!checkAttributeIsVerifiable(item))
+						return EMPTY;			
+					if (checkAttributeIsConfirmed(item))
+						return EMPTY;
+				}
+			}
+			return ret;
+		}	
+
+		@Override
+		public void handleAction(Object sender, final Object target)
+		{
+			final Collection<AttributeItem> items = getItems(target);
+			String confirmText = MessageUtils.createConfirmFromStrings(msg, items);
+			
+			ConfirmDialog confirm = new ConfirmDialog(msg, msg.getMessage(
+					"Attribute.confirmResendConfirmation", confirmText), new Callback()
+			{
+				@Override
+				public void onConfirm()
+				{
+					for (AttributeItem item : items)
+					{
+						confirmationMan.sendVerificationsQuiet(owner, Collections.singletonList(item.getAttribute()), true);
+					}
+				}
+			});
+			confirm.show();
+		}
+	}
+	
 	
 	private static class EffectiveAttributesFilter implements Container.Filter
 	{

@@ -79,6 +79,7 @@ public enum Images
 	pause		(I.P + "16/pause.png"),
 	cross		(I.P + "16/cross.png"),
 	help       	(I.P + "16/help.png"),
+	confirm		(I.P + "16/confirm.png"),
 	plFlag		(I.P + "16-flags/pl.png"),
 	enFlag		(I.P + "16-flags/en.png"),
 	deFlag		(I.P + "16-flags/de.png"),

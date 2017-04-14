@@ -25,6 +25,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.confirmations.ConfirmationManager;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.iddetails.EntityDetailsDialog;
@@ -150,6 +151,7 @@ public class IdentitiesTable extends CustomComponent
 	private UnityMessageSource msg;
 	private AuthenticationManagement authnMan;
 	private AttributesManagement attrMan;
+	private ConfirmationManager confirmationMan;
 	private PreferencesManagement preferencesMan;
 	private AttributesInternalProcessing attrProcessor;
 	private IdentityEditorRegistry identityEditorReg;
@@ -172,7 +174,8 @@ public class IdentitiesTable extends CustomComponent
 	
 	@Autowired
 	public IdentitiesTable(IdentitiesManagement identitiesMan, GroupsManagement groupsMan, 
-			AuthenticationManagement authnMan, AttributesManagement attrMan,PreferencesManagement preferencesMan,
+			AuthenticationManagement authnMan, AttributesManagement attrMan,ConfirmationManager confirmationMan,
+			PreferencesManagement preferencesMan,
 			AttributesInternalProcessing attrProcessor,
 			IdentityEditorRegistry identityEditorReg, CredentialEditorRegistry credEditorsRegistry,
 			AttributeHandlerRegistry attrHandlerReg, UnityMessageSource msg, ExecutorsService executor)
@@ -186,6 +189,7 @@ public class IdentitiesTable extends CustomComponent
 		this.msg = msg;
 		this.attrHandlerRegistry = attrHandlerReg;
 		this.attrMan = attrMan;
+		this.confirmationMan = confirmationMan;
 		this.executor = executor;
 		this.bus = WebSession.getCurrent().getEventBus();
 		this.containerFilters = new ArrayList<Container.Filter>();
@@ -212,6 +216,7 @@ public class IdentitiesTable extends CustomComponent
 		addActionHandler(new ChangeCredentialRequirementHandler());
 		addActionHandler(new EntityAttributesClassesHandler());
 		addActionHandler(new MergeEntitiesHandler());
+		addActionHandler(new IdentityConfirmationResendHandler());
 		
 		loadingProgress = new ProgressBar();
 		loadingProgress.setWidth(100, Unit.PERCENTAGE);
@@ -1134,6 +1139,18 @@ public class IdentitiesTable extends CustomComponent
 		}
 	}
 
+	private Object getConfirmTextForIdentitiesNodes(Collection<?> nodes)
+	{
+		Collection<Identity> ids = new ArrayList<Identity>();
+		for (Object o: nodes)
+		{
+			IdentityWithEntity iwe = (IdentityWithEntity) o;
+			ids.add(iwe.getIdentity());		
+		}
+		
+		return MessageUtils.createConfirmFromStrings(msg, ids);
+	}
+	
 	private class DeleteIdentityHandler extends SingleActionHandler
 	{
 		public DeleteIdentityHandler()
@@ -1166,37 +1183,23 @@ public class IdentitiesTable extends CustomComponent
 		public void handleAction(Object sender, Object target)
 		{		
 			Collection<?> nodes = (Collection<?>) target;
-			final List<IdentityWithEntity> filteredNodes = new ArrayList<>();
 			
-			StringBuilder confirmText = new StringBuilder();
-			int count = 0;
-			for (Object o : nodes)
-			{
-				IdentityWithEntity node = (IdentityWithEntity) o;
-				if (count < 4)
-					confirmText.append(", " + node.identity);
-				count++;
-				filteredNodes.add(node);
-			}
-			if (count > 3)
-				confirmText.append(msg.getMessage("MessageUtils.andMore", count-3));
-				
-			String confirmTextF = confirmText.substring(2);
 			new ConfirmDialog(msg, msg.getMessage("Identities.confirmIdentityDelete",
-					confirmTextF), new ConfirmDialog.Callback()
+					getConfirmTextForIdentitiesNodes(nodes)), new ConfirmDialog.Callback()
 			{
 				@Override
 				public void onConfirm()
 				{
 					boolean requiresRefresh = false;
-					for (IdentityWithEntity o : filteredNodes)
+					for (Object o : nodes)
 					{
-						if (o.getIdentity().getType().getIdentityTypeProvider().isRemovable())
+						IdentityWithEntity id = (IdentityWithEntity) o;
+						if (id.getIdentity().getType().getIdentityTypeProvider().isRemovable())
 						{
-							removeIdentity(o);
+							removeIdentity(id);
 						} else
 						{
-							resetIdentity(o.identity);
+							resetIdentity(id.identity);
 							requiresRefresh = true;
 						}
 					}
@@ -1369,6 +1372,16 @@ public class IdentitiesTable extends CustomComponent
 			return (EntityWithLabel) selection;
 	}
 	
+	private boolean checkIdentityIsConfirmed(IdentityWithEntity id)
+	{
+		return id.getIdentity().getConfirmationInfo().isConfirmed();		
+	}
+	
+	private boolean checkIdentityIsVerifiable(IdentityWithEntity id)
+	{
+		return id.getIdentity().getType().getIdentityTypeProvider().isVerifiable();
+	}
+	
 	private class MergeEntitiesHandler extends SingleActionHandler
 	{
 		public MergeEntitiesHandler()
@@ -1409,7 +1422,69 @@ public class IdentitiesTable extends CustomComponent
 			dialog.show();
 		}
 	}
+	
+	private class IdentityConfirmationResendHandler extends SingleActionHandler
+	{
 
+		public IdentityConfirmationResendHandler()
+		{
+			super(msg.getMessage("Identities.resendConfirmationAction"),
+					Images.confirm.getResource());
+			setMultiTarget(true);
+		}
+
+		@Override
+		public Action[] getActions(Object target, Object sender)
+		{
+			if (target == null)
+				return EMPTY;
+
+			if (!(target instanceof Collection<?>))
+				target = Collections.singleton(target);
+
+			Collection<?> targets = (Collection<?>) target;
+			for (Object ta : targets)
+			{
+				if (ta != null && !(ta instanceof IdentityWithEntity))
+					return EMPTY;
+				IdentityWithEntity id = (IdentityWithEntity) ta;
+				if (!checkIdentityIsVerifiable(id))
+					return EMPTY;
+				if (checkIdentityIsConfirmed(id))
+					return EMPTY;
+			}
+
+			return super.getActions(target, sender);
+		}
+
+		@Override
+		protected void handleAction(Object sender, Object target)
+		{
+			Collection<?> nodes = (Collection<?>) target;
+				
+			new ConfirmDialog(msg,
+					msg.getMessage("Identities.confirmResendConfirmation",
+							getConfirmTextForIdentitiesNodes(nodes)),
+					new ConfirmDialog.Callback()
+					{
+						@Override
+						public void onConfirm()
+						{
+							for (Object o : nodes)
+							{	
+								IdentityWithEntity id = (IdentityWithEntity) o;
+								confirmationMan.sendVerificationQuiet(
+										new EntityParam(id.getEntityWithLabel()
+												.getEntity()
+												.getId()),
+										id.getIdentity(),
+										true);
+
+							}
+						}
+					}).show();
+		}
+	}
 	
 	public boolean isGroupByEntity()
 	{
