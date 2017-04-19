@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.server;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -15,13 +14,9 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.DispatcherType;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -246,40 +241,6 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 						UnityHttpServerConfiguration.DOS_FILTER_PFX.length()), 
 					conf.getProperty(key));
 		return holder;
-	}
-	
-	
-	/**
-	 * Simply handler for redirect request without path to configured
-	 * path
-	 * 
-	 * @author P.Piernik
-	 *
-	 */
-	private class RedirectHandler extends ServletContextHandler
-	{
-		private String redirectPath;
-
-		public RedirectHandler(String toPath)
-		{
-			setContextPath("/*");
-			redirectPath = toPath;
-		}
-
-		@Override
-		public void doHandle(String target, Request baseRequest, HttpServletRequest request,
-				HttpServletResponse response) throws IOException, ServletException
-		{
-
-			if (target != null && (target.equals("/") || target.isEmpty()))
-			{
-				log.trace("Redirect from " + request.getRequestURI() + " -> "
-						+ redirectPath);
-				response.sendRedirect(redirectPath);
-			}
-
-		}
-
 	}
 }
 
