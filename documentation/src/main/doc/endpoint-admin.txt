@@ -3,10 +3,12 @@
 Endpoint type:: +WebAdminUI+
 Binding:: Web (Vaadin)
 Exposed paths:: +/admin+
+Default path:: +/admin+
 
 Web Admin UI is the first place to visit after server installation and startup as it offers
 a administrator oriented management interface. 
-By default it is accessible under the link: +pass:[https://localhost:2443/admin/admin]+
+By default it is accessible under the link: +pass:[https://localhost:2443/ENDPOINT-CONFIGURED-CONTEXT/admin]+  
+or simply +pass:[https://localhost:2443/ENDPOINT-CONFIGURED-CONTEXT]+ as the +/admin+ path is the default.
 
 The features of the Web Admin interface are covered in the <<contents-management>> section.
 
