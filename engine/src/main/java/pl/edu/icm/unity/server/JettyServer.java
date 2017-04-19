@@ -64,6 +64,7 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 				cfg.getJettyProperties(), null);
 		initServer();
 		dosFilter = getDOSFilter();
+		addRedirectHandler(cfg);
 	}
 
 	private static URL[] createURLs(UnityHttpServerConfiguration conf)
@@ -116,8 +117,23 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 		mainContextHandler = new ContextHandlerCollection();
 		deployedEndpoints = new ArrayList<WebAppEndpointInstance>(16);
 		mainContextHandler.addHandler(new JettyDefaultHandler());
-		
 		return mainContextHandler;
+	}
+
+	private void addRedirectHandler(UnityServerConfiguration cfg) throws ConfigurationException
+	{
+		if (cfg.isSet(UnityServerConfiguration.DEFAULT_WEB_PATH))
+		{
+			try
+			{
+				deployHandler(new RedirectHandler(cfg.getValue(
+						UnityServerConfiguration.DEFAULT_WEB_PATH)));
+			} catch (EngineException e)
+			{
+				log.error("Cannot deploy redirect handler " + e.getMessage(), e);
+			}
+		}
+
 	}
 
 	/**

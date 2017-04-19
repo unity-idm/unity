@@ -76,6 +76,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String WELL_KNOWN_URL_TEMPLATE = "wellKnownUrlUITemplate";
 	public static final String UNITYGW_WEB_CONTENT_PATH = "unityGWWebContentDirectory";
 	public static final String ALLOW_FULL_HTML = "allowFullHtml"; 
+	public static final String DEFAULT_WEB_PATH = "defaultWebPath";
+	public static final String REDIRECT_MODE = "redirectMode";
 	
 	public static final String IMPORT_PFX = "userImport."; 
 	
@@ -209,6 +211,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				+ "trusted administrators, who (even with partially limited rights) may perform"
 				+ "XSS attacks. Then, however functionality of registration forms etc is slightly limited"
 				+ " as it is impossible to insert links and other advanced formating."));
+		defaults.put(DEFAULT_WEB_PATH, new PropertyMD().setCategory(mainCat).setDescription(
+				"If set Unity will redirect request without the path to this one"));
 		defaults.put(UNITYGW_WEB_CONTENT_PATH, new PropertyMD().setPath().setCategory(mainCat).setDescription(
 				"Defines a folder from which all the web applications operating on the shared unitygw path "
 				+ "(e.g. the email confirmation screen) "
