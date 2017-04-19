@@ -56,7 +56,8 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 	}
 	
 	public SelectableAttributeWithValues(Component firstheader, Component secondHeader,
-			Attribute<T> attribute,String customAttrName, String customAttrDesc, boolean enableSelect, AttributeType at, 
+			Attribute<T> attribute, String customAttrName, String customAttrDesc, 
+			boolean enableSelect, AttributeType at, 
 			WebAttributeHandler<T> webHandler, UnityMessageSource msg)
 	{
 		this(firstheader, secondHeader, attribute, at, webHandler, msg);
@@ -85,7 +86,7 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 				listOfValues.setEnabled(!mainDisable.getValue());
 			}
 		});
-		selectableAttr.setCheckBoxsVisible(enableSelect);
+		selectableAttr.setCheckBoxesVisible(enableSelect);
 		
 		
 		main.addComponents(selectableAttr);
@@ -101,7 +102,7 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 			representation.addStyleName(Styles.indent.toString());
 			listOfValues.addEntry(representation, false);
 		}
-		listOfValues.setCheckBoxsVisible(enableSelect);
+		listOfValues.setCheckBoxesVisible(enableSelect);
 		
 		if (!attribute.getValues().isEmpty())
 			main.addComponent(listOfValues);

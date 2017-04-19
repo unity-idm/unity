@@ -133,8 +133,8 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 		boolean first = true;
 		for (DynamicAttribute dat: attributes.values())
 		{
-			
-			SelectableAttributeWithValues<?> attributeComponent = getAttributeComponent(dat, attributeTypes, hideL);
+			SelectableAttributeWithValues<?> attributeComponent = 
+					getAttributeComponent(dat, attributeTypes, hideL);
 
 			if (first)
 			{
@@ -150,7 +150,8 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 		
 	}
 	
-	public SelectableAttributeWithValues<?> getAttributeComponent(DynamicAttribute dat, Map<String, AttributeType> attributeTypes, Label hideL)
+	public SelectableAttributeWithValues<?> getAttributeComponent(DynamicAttribute dat, 
+			Map<String, AttributeType> attributeTypes, Label hideL)
 	{
 		Attribute<?> at = dat.getAttribute();
 		WebAttributeHandler<?> handler = handlersRegistry.getHandler(
