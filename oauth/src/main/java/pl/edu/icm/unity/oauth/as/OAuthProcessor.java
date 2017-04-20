@@ -46,6 +46,7 @@ import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
@@ -64,10 +65,10 @@ public class OAuthProcessor
 	 * @param ctx
 	 * @return
 	 */
-	public Set<Attribute<?>> filterAttributes(TranslationResult userInfo, 
+	public Set<DynamicAttribute> filterAttributes(TranslationResult userInfo, 
 			Set<String> requestedAttributes)
 	{
-		Set<Attribute<?>> ret = filterNotRequestedAttributes(userInfo, requestedAttributes);
+		Set<DynamicAttribute> ret = filterNotRequestedAttributes(userInfo, requestedAttributes);
 		return filterUnsupportedAttributes(ret);
 	}
 
@@ -87,7 +88,7 @@ public class OAuthProcessor
 	 * @throws IllegalIdentityValueException 
 	 * @throws WrongArgumentException 
 	 */
-	public AuthorizationSuccessResponse prepareAuthzResponseAndRecordInternalState(Collection<Attribute<?>> attributes, 
+	public AuthorizationSuccessResponse prepareAuthzResponseAndRecordInternalState(Collection<DynamicAttribute> attributes, 
 			IdentityParam identity,	OAuthAuthzContext ctx, TokensManagement tokensMan) 
 					throws EngineException, JsonProcessingException, ParseException, JOSEException
 	{
@@ -188,26 +189,26 @@ public class OAuthProcessor
 	 * Returns a collection of attributes including only those attributes for which there is an OAuth 
 	 * representation.
 	 */
-	private Set<Attribute<?>> filterUnsupportedAttributes(Set<Attribute<?>> src)
+	private Set<DynamicAttribute> filterUnsupportedAttributes(Set<DynamicAttribute> src)
 	{
-		Set<Attribute<?>> ret = new HashSet<Attribute<?>>();
+		Set<DynamicAttribute> ret = new HashSet<DynamicAttribute>();
 		OAuthAttributeMapper mapper = new DefaultOAuthAttributeMapper();
 		
-		for (Attribute<?> a: src)
-			if (mapper.isHandled(a))
+		for (DynamicAttribute a: src)
+			if (mapper.isHandled(a.getAttribute()))
 				ret.add(a);
 		return ret;
 	}
 	
 	
-	private Set<Attribute<?>> filterNotRequestedAttributes(TranslationResult translationResult, 
+	private Set<DynamicAttribute> filterNotRequestedAttributes(TranslationResult translationResult, 
 			Set<String> requestedAttributes)
 	{
-		Collection<Attribute<?>> allAttrs = translationResult.getAttributes();
-		Set<Attribute<?>> filteredAttrs = new HashSet<Attribute<?>>();
+		Collection<DynamicAttribute> allAttrs = translationResult.getAttributes();
+		Set<DynamicAttribute> filteredAttrs = new HashSet<DynamicAttribute>();
 		
-		for (Attribute<?> attr: allAttrs)
-			if (requestedAttributes.contains(attr.getName()))
+		for (DynamicAttribute attr: allAttrs)
+			if (requestedAttributes.contains(attr.getAttribute().getName()))
 				filteredAttrs.add(attr);
 		return filteredAttrs;
 	}
@@ -241,14 +242,15 @@ public class OAuthProcessor
 		return idToken;
 	}
 	
-	public UserInfo prepareUserInfoClaimSet(String userIdentity, Collection<Attribute<?>> attributes)
+	public UserInfo prepareUserInfoClaimSet(String userIdentity, Collection<DynamicAttribute> attributes)
 	{
 		UserInfo userInfo = new UserInfo(new Subject(userIdentity));
 		
 		OAuthAttributeMapper mapper = new DefaultOAuthAttributeMapper();
 		
-		for (Attribute<?> attr: attributes)
+		for (DynamicAttribute dat: attributes)
 		{
+			Attribute<?> attr = dat.getAttribute();
 			if (mapper.isHandled(attr))
 			{
 				String name = mapper.getJsonKey(attr);

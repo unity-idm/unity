@@ -7,6 +7,14 @@ package pl.edu.icm.unity.webui.common.attributes;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
+
 import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -15,14 +23,6 @@ import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements.DisableMode;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize;
-
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * Displays an attribute name in the first row and all its values in subsequent rows. 
@@ -35,10 +35,11 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 	protected ListOfSelectableElements listOfValues;
 	private Attribute<T> attribute;
 	private WebAttributeHandler<T> webHandler;
-	private AttributeType at;
-	private UnityMessageSource msg;
 	private Component firstheader;
 	private Component secondHeader;
+	private String customAttrName;
+	private String customAttrDesc;
+	private boolean enableSelect;
 	
 	public SelectableAttributeWithValues(Component firstheader, Component secondHeader,
 			Attribute<T> attribute, AttributeType at, 
@@ -46,10 +47,23 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 	{
 		this.firstheader = firstheader;
 		this.secondHeader = secondHeader;
-		this.attribute = attribute;
-		this.at = at;
-		this.webHandler = webHandler;
-		this.msg = msg;
+		this.attribute = attribute;	
+		this.webHandler = webHandler;	
+		this.customAttrName = at.getName();
+		this.customAttrDesc = at.getDescription() == null? at.getName():at.getDescription().getValue(msg);
+	        this.enableSelect = true;
+		initUI();
+	}
+	
+	public SelectableAttributeWithValues(Component firstheader, Component secondHeader,
+			Attribute<T> attribute, String customAttrName, String customAttrDesc, 
+			boolean enableSelect, AttributeType at, 
+			WebAttributeHandler<T> webHandler, UnityMessageSource msg)
+	{
+		this(firstheader, secondHeader, attribute, at, webHandler, msg);
+		this.customAttrName = customAttrName;
+		this.customAttrDesc = customAttrDesc;
+	        this.enableSelect = enableSelect;
 		initUI();
 	}
 
@@ -58,7 +72,10 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 		VerticalLayout main = new VerticalLayout();
 		
 		selectableAttr = new ListOfSelectableElements(firstheader, secondHeader, DisableMode.WHEN_SELECTED);
-		selectableAttr.addEntry(new Label(at.getDisplayedName().getValue(msg)), false);
+		
+		Label attrNameLabel = new Label(customAttrName);
+		attrNameLabel.setDescription(customAttrDesc);
+		selectableAttr.addEntry(attrNameLabel, false);
 		selectableAttr.setWidth(100, Unit.PERCENTAGE);
 		final CheckBox mainDisable = selectableAttr.getSelection().iterator().next();
 		mainDisable.addValueChangeListener(new ValueChangeListener()
@@ -69,12 +86,15 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 				listOfValues.setEnabled(!mainDisable.getValue());
 			}
 		});
+		selectableAttr.setCheckBoxesVisible(enableSelect);
+		
 		
 		main.addComponents(selectableAttr);
 		
 		listOfValues = new ListOfSelectableElements(null, null, DisableMode.WHEN_SELECTED);
-		listOfValues.setWidth(100, Unit.PERCENTAGE);
 		
+	
+		listOfValues.setWidth(100, Unit.PERCENTAGE);
 		for (T value: attribute.getValues())
 		{
 			Component representation = webHandler.getRepresentation(value, 
@@ -82,6 +102,7 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 			representation.addStyleName(Styles.indent.toString());
 			listOfValues.addEntry(representation, false);
 		}
+		listOfValues.setCheckBoxesVisible(enableSelect);
 		
 		if (!attribute.getValues().isEmpty())
 			main.addComponent(listOfValues);
@@ -94,6 +115,10 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 	 */
 	public void setHiddenValues(Attribute<?> hiddenValues)
 	{
+		//cannot hide if selecting is not enable
+		if (!enableSelect)
+			return;
+		
 		if (hiddenValues == null)
 		{
 			selectableAttr.getSelection().get(0).setValue(true);

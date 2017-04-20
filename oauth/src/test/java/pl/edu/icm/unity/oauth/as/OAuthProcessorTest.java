@@ -20,6 +20,7 @@ import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -41,8 +42,8 @@ public class OAuthProcessorTest
 	public void checkCodeFlowResponse() throws Exception
 	{
 		OAuthProcessor processor = new OAuthProcessor();
-		Collection<Attribute<?>> attributes = new ArrayList<>();
-		attributes.add(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com"));
+		Collection<DynamicAttribute> attributes = new ArrayList<>();
+		attributes.add(new DynamicAttribute(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com")));
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
 		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getConfig(),
@@ -66,8 +67,8 @@ public class OAuthProcessorTest
 	public void checkImplicitFlowResponse() throws Exception
 	{
 		OAuthProcessor processor = new OAuthProcessor();
-		Collection<Attribute<?>> attributes = new ArrayList<>();
-		attributes.add(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com"));
+		Collection<DynamicAttribute> attributes = new ArrayList<>();
+		attributes.add(new DynamicAttribute(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com")));
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
 		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getConfig(),
@@ -92,8 +93,8 @@ public class OAuthProcessorTest
 	public void checkHybridFlowResponse() throws Exception
 	{
 		OAuthProcessor processor = new OAuthProcessor();
-		Collection<Attribute<?>> attributes = new ArrayList<>();
-		attributes.add(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com"));
+		Collection<DynamicAttribute> attributes = new ArrayList<>();
+		attributes.add(new DynamicAttribute(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com")));
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
 		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getConfig(),

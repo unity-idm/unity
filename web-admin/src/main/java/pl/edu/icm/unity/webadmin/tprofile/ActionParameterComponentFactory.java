@@ -96,6 +96,10 @@ public class ActionParameterComponentFactory
 				return new TextAreaActionParameterComponent(param, msg);
 			case I18N_TEXT:
 				return new I18nTextActionParameterComponent(param, msg);
+			case TEXT:
+				return new DefaultActionParameterComponent(param, msg, false);
+			case BOOLEAN:
+				return new BooleanActionParameterComponent(param, msg);
 			default: 
 				return new DefaultActionParameterComponent(param, msg);
 			}

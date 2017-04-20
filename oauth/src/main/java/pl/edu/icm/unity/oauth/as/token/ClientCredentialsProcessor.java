@@ -28,6 +28,7 @@ import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
 import com.nimbusds.oauth2.sdk.GrantType;
@@ -98,7 +99,7 @@ public class ClientCredentialsProcessor
 			log.warn("Can not obtain user info for OAuth in client credentials flow", e);
 			throw new OAuthValidationException("Internal error");
 		}
-		Set<Attribute<?>> filteredAttributes = oauthProcessor.filterAttributes(translationResult, requestedAttributes);
+		Set<DynamicAttribute> filteredAttributes = oauthProcessor.filterAttributes(translationResult, requestedAttributes);
 		UserInfo userInfo = oauthProcessor.prepareUserInfoClaimSet(client, filteredAttributes);
 		internalToken.setUserInfo(userInfo.toJSONObject().toJSONString());
 		return internalToken;

@@ -35,6 +35,7 @@ import pl.edu.icm.unity.stdext.translation.out.CreatePersistentIdentityActionFac
 import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -47,7 +48,7 @@ public class TestOutputCreateActions
 	{
 		CreateAttributeActionFactory factory = new CreateAttributeActionFactory();
 		
-		CreateAttributeAction createAction = factory.getInstance("a1", "'v1'");
+		CreateAttributeAction createAction = factory.getInstance("a1", "'v1'","false");
 		
 		TranslationInput input = new TranslationInput(new ArrayList<Attribute<?>>(), 
 				TestOutputIdentityActions.createEntity(), 
@@ -57,12 +58,12 @@ public class TestOutputCreateActions
 		TranslationResult result = OutputTranslationProfile.initiateTranslationResult(input);
 		createAction.invoke(input, mvelCtx, "prof1", result);
 
-		Collection<Attribute<?>> attributes = result.getAttributes();
+		Collection<DynamicAttribute> attributes = result.getAttributes();
 		assertEquals(1, attributes.size());
 		assertEquals(0, result.getAttributesToPersist().size());
 		
-		Iterator<Attribute<?>> it = attributes.iterator();
-		Attribute<?> a = it.next();
+		Iterator<DynamicAttribute> it = attributes.iterator();
+		Attribute<?> a = it.next().getAttribute();
 		assertEquals("a1", a.getName());
 		assertEquals(1, a.getValues().size());
 		assertEquals("v1", a.getValues().get(0));
@@ -81,7 +82,7 @@ public class TestOutputCreateActions
 		
 		CreatePersistentAttributeActionFactory factory = new CreatePersistentAttributeActionFactory(attrsMan);
 		
-		CreatePersistentAttributeAction createAction = factory.getInstance("a1", "'v1'", "/A");
+		CreatePersistentAttributeAction createAction = factory.getInstance("a1", "'v1'","false","/A");
 		
 		TranslationInput input = new TranslationInput(new ArrayList<Attribute<?>>(), 
 				TestOutputIdentityActions.createEntity(), 
@@ -91,12 +92,12 @@ public class TestOutputCreateActions
 		TranslationResult result = OutputTranslationProfile.initiateTranslationResult(input);
 		createAction.invoke(input, mvelCtx, "prof1", result);
 
-		Collection<Attribute<?>> attributes = result.getAttributes();
+		Collection<DynamicAttribute> attributes = result.getAttributes();
 		assertEquals(1, attributes.size());
 		assertEquals(1, result.getAttributesToPersist().size());
-		assertEquals(result.getAttributesToPersist().iterator().next(), attributes.iterator().next());
+		assertEquals(result.getAttributesToPersist().iterator().next(), attributes.iterator().next().getAttribute());
 		
-		Attribute<?> a = attributes.iterator().next();
+		Attribute<?> a = attributes.iterator().next().getAttribute();
 		assertEquals("a1", a.getName());
 		assertEquals(1, a.getValues().size());
 		assertEquals("v1", a.getValues().get(0));

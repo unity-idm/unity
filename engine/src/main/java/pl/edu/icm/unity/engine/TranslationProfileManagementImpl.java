@@ -26,6 +26,7 @@ import pl.edu.icm.unity.server.registries.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.server.registries.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.server.translation.out.OutputTranslationProfile;
+import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.translation.out.CreateAttributeActionFactory;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationAction;
@@ -46,17 +47,21 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	private InputTranslationActionsRegistry inputActionReg;
 	private OutputTranslationActionsRegistry outputActionReg;
 	private OutputTranslationProfile defaultProfile;
+	private UnityMessageSource msg;
+	
 	
 	@Autowired
 	public TranslationProfileManagementImpl(AuthorizationManager authz,
 			TranslationProfileDB tpDB, InputTranslationActionsRegistry inputActionReg,
-			OutputTranslationActionsRegistry outputActionReg) 
+			OutputTranslationActionsRegistry outputActionReg,
+			UnityMessageSource msg) 
 					throws IllegalTypeException, EngineException
 	{
 		this.authz = authz;
 		this.tpDB = tpDB;
 		this.inputActionReg = inputActionReg;
 		this.outputActionReg = outputActionReg;
+		this.msg = msg;
 
 		this.defaultProfile = createDefaultOutputProfile();
 	}
@@ -144,7 +149,9 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	{
 		List<TranslationRule> rules = new ArrayList<>();
 		TranslationAction action1 = new TranslationAction(CreateAttributeActionFactory.NAME, 
-				new String[] {"memberOf", "groups"});
+				new String[] {"memberOf", "groups", "false", 
+						msg.getMessage("DefaultOutputTranslationProfile.attr.memberOf"), 
+						msg.getMessage("DefaultOutputTranslationProfile.attr.memberOfDesc")});
 		rules.add(new TranslationRule("true", action1));
 		return new OutputTranslationProfile("DEFAULT OUTPUT PROFILE", "", rules, outputActionReg);
 	}

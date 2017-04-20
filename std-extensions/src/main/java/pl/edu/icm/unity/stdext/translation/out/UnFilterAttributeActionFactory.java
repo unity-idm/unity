@@ -17,6 +17,7 @@ import pl.edu.icm.unity.server.translation.out.TranslationInput;
 import pl.edu.icm.unity.server.translation.out.TranslationResult;
 import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
 import pl.edu.icm.unity.types.translation.TranslationActionType;
@@ -61,14 +62,14 @@ public class UnFilterAttributeActionFactory extends AbstractOutputTranslationAct
 				TranslationResult result) throws EngineException
 		{
 			Set<String> existing = new HashSet<>();
-			for (Attribute<?> a: result.getAttributes())
-				existing.add(a.getName());
+			for (DynamicAttribute a: result.getAttributes())
+				existing.add(a.getAttribute().getName());
 			
 			for (Attribute<?> a: input.getAttributes())
 				if (attrPattern.matcher(a.getName()).matches())
 				{
 					log.debug("Unfiltering the attribute " + a.getName());
-					result.getAttributes().add(a);
+					result.getAttributes().add(new DynamicAttribute(a));
 				}
 		}
 

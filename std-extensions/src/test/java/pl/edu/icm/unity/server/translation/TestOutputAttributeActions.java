@@ -29,6 +29,7 @@ import pl.edu.icm.unity.stdext.translation.out.FilterAttributeValuesActionFactor
 import pl.edu.icm.unity.stdext.translation.out.UnFilterAttributeActionFactory.UnFilterAttributeAction;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.DynamicAttribute;
 
 public class TestOutputAttributeActions
 {
@@ -52,9 +53,9 @@ public class TestOutputAttributeActions
 		filterAllAction.invoke(input, mvelCtx, "prof1", result);
 		unfilterAction.invoke(input, mvelCtx, "prof1", result);
 
-		Collection<Attribute<?>> attributes = result.getAttributes();
+		Collection<DynamicAttribute> attributes = result.getAttributes();
 		assertEquals(1, attributes.size());
-		assertEquals("a2", attributes.iterator().next().getName());
+		assertEquals("a2", attributes.iterator().next().getAttribute().getName());
 	}
 
 	@Test
@@ -74,13 +75,13 @@ public class TestOutputAttributeActions
 		TranslationResult result = OutputTranslationProfile.initiateTranslationResult(input);
 		filterAllAction.invoke(input, mvelCtx, "prof1", result);
 
-		Collection<Attribute<?>> attributes = result.getAttributes();
+		Collection<DynamicAttribute> attributes = result.getAttributes();
 		assertEquals(2, attributes.size());
 		Map<String, Attribute<?>> attributesMap = new HashMap<>();
-		Iterator<Attribute<?>> it = attributes.iterator();
-		Attribute<?> a = it.next();
+		Iterator<DynamicAttribute> it = attributes.iterator();
+		Attribute<?> a = it.next().getAttribute();
 		attributesMap.put(a.getName(), a);
-		a = it.next();
+		a = it.next().getAttribute();
 		attributesMap.put(a.getName(), a);
 		
 		assertNotNull(attributesMap.get("a1"));
