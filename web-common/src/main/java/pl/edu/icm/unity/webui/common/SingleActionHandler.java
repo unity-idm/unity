@@ -25,6 +25,7 @@ public abstract class SingleActionHandler implements Handler
 	private Action[] action;
 	private boolean needsTarget = true;
 	private boolean multiTarget = false;
+	private boolean hideIfNotNeeded = false;
 	protected ActionButtonCallback callback;
 	
 	public SingleActionHandler(String caption, Resource icon)
@@ -32,7 +33,7 @@ public abstract class SingleActionHandler implements Handler
 		Action a = new Action(caption, icon);
 		action = new Action[] {a};
 	}
-
+		
 	public boolean isNeedsTarget()
 	{
 		return needsTarget;
@@ -53,6 +54,16 @@ public abstract class SingleActionHandler implements Handler
 		this.multiTarget = multiTarget;
 	}
 
+	public boolean isHideIfNotNeeded()
+	{
+		return hideIfNotNeeded;
+	}
+
+	public void setHideIfNotNeeded(boolean hideIfNotNeed)
+	{
+		this.hideIfNotNeeded = hideIfNotNeed;
+	}
+	
 	public Action getActionUnconditionally()
 	{
 		return action[0];
