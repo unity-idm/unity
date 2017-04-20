@@ -154,8 +154,8 @@ public class EntityManagementImpl implements EntityManagement
 		//careful - must be after the main transaction is committed
 		tx.runInTransaction(() -> {
 			EntityParam added = new EntityParam(ret.getEntityId());
-			confirmationManager.sendVerificationsQuiet(added, attributes, false);
-			confirmationManager.sendVerificationQuiet(added, ret, false);
+			confirmationManager.sendVerificationsQuietNoTx(added, attributes, false);
+			confirmationManager.sendVerificationQuietNoTx(added, ret, false);
 		});
 		return ret;
 	}
@@ -183,7 +183,7 @@ public class EntityManagementImpl implements EntityManagement
 		});
 		
 		tx.runInTransactionThrowing(() -> {
-			confirmationManager.sendVerification(new EntityParam(ret.getEntityId()), ret, false);
+			confirmationManager.sendVerificationNoTx(new EntityParam(ret.getEntityId()), ret, false);
 		});
 		return ret;
 	}

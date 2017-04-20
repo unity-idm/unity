@@ -147,7 +147,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		}); 
 		
 		//careful - must be after the transaction is committed
-		confirmationManager.sendVerificationsQuiet(entity, attributes, false);	
+		confirmationManager.sendVerificationsQuietNoTx(entity, attributes, false);	
 	}
 
 	@Override

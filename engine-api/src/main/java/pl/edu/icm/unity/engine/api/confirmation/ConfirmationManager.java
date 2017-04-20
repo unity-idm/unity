@@ -44,38 +44,73 @@ public interface ConfirmationManager
 	 * Sends confirmation messages for the values of an attribute which are verifiable, 
 	 * only for unconfirmed attributes for which a confirmation was not yet sent. 
 	 * In case of error only log entry is printed, no exception is thrown.
+	 * <p>
+	 * WARNING: this method requires to set up existing transaction
+	 * 
 	 * @param entity
 	 * @param attribute
 	 * @param force if true then request is sent even if one was already sent previously
 	 */
-	<T> void sendVerificationQuiet(EntityParam entity, Attribute attribute, boolean force);
+	<T> void sendVerificationQuietNoTx(EntityParam entity, Attribute attribute, boolean force);
+
+	/**
+	 * Sends confirmation messages for the values of an attribute which are verifiable, 
+	 * only for unconfirmed attributes ones. 
+	 * 
+	 * @param entity
+	 * @param attribute
+	 * @throws EngineException 
+	 */
+	<T> void sendVerification(EntityParam entity, Attribute attribute) throws EngineException;
 
 	/**
 	 * Sends confirmation messages for the identity if it requires so. Only for unconfirmed identities.
 	 * In case of error only log entry is printed, no exception is thrown.
+	 * <p>
+	 * WARNING: this method requires to set up existing transaction
+	 * 
 	 * @param entity
 	 * @param identity
 	 * @param force if true then request is sent even if one was already sent previously
 	 */
-	void sendVerificationQuiet(EntityParam entity, Identity identity, boolean force);
+	void sendVerificationQuietNoTx(EntityParam entity, Identity identity, boolean force);
 
 	/**
 	 * see {@link #sendVerificationQuiet(EntityParam, Identity)}, the only difference is that this
 	 * method throws exception.
+	 * <p>
+	 * WARNING: this method requires to set up existing transaction
+	 * 
 	 * @param entity
 	 * @param identity
 	 * @param force if true then request is sent even if one was already sent previously
 	 * @throws EngineException
 	 */
-	void sendVerification(EntityParam entity, Identity identity, boolean force) 
+	void sendVerificationNoTx(EntityParam entity, Identity identity, boolean force) 
 			throws EngineException;
+
+	/**
+	 * see {@link #sendVerificationNoTx(EntityParam, Identity)}, the only difference is that this
+	 * method starts its own transaction
+	 * 
+	 * @param entity
+	 * @param identity
+	 * @param force if true then request is sent even if one was already sent previously
+	 * @throws EngineException
+	 */
+	void sendVerification(EntityParam entity, Identity identity) throws EngineException;
+
 	
 	/**
 	 * Sends confirmation messages for the values which requires so. Only for unconfirmed attributes.
+	 * <p>
+	 * WARNING: this method requires to set up existing transaction
+	 * 
 	 * @param entity
 	 * @param attribute
 	 * @param force if true then request is sent even if one was already sent previously
 	 */
-	void sendVerificationsQuiet(EntityParam entity, Collection<? extends Attribute> attributes, boolean force);
+	void sendVerificationsQuietNoTx(EntityParam entity, 
+			Collection<? extends Attribute> attributes, boolean force);
 
 }

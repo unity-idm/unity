@@ -503,7 +503,7 @@ public class RESTAdmin
 		if (attributes.isEmpty())
 			throw new WrongArgumentException("Attribute is undefined");
 		
-		confirmationManager.sendVerificationsQuiet(entityParam, attributes, true);
+		confirmationManager.sendVerificationsQuietNoTx(entityParam, attributes, true);
 	}
 
 	@Path("/confirmation-trigger/identity/{type}/{value}")
@@ -517,7 +517,7 @@ public class RESTAdmin
 		for (Identity id: entity.getIdentities())
 			if (id.getTypeId().equals(idType) && id.getValue().equals(value))
 			{
-				confirmationManager.sendVerification(entityParam, id, true);
+				confirmationManager.sendVerificationNoTx(entityParam, id, true);
 				return;
 			}
 

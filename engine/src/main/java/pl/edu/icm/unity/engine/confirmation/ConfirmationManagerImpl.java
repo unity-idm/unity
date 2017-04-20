@@ -370,7 +370,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	}
 	
 	@Override
-	public void sendVerificationQuiet(EntityParam entity, Attribute attribute, boolean force)
+	public void sendVerificationQuietNoTx(EntityParam entity, Attribute attribute, boolean force)
 	{
 		try
 		{
@@ -383,14 +383,14 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	}
 	
 	@Override
-	public void sendVerificationsQuiet(EntityParam entity, Collection<? extends Attribute> attributes, boolean force)
+	public void sendVerificationsQuietNoTx(EntityParam entity, Collection<? extends Attribute> attributes, boolean force)
 	{
 		for (Attribute attribute: attributes)
-			sendVerificationQuiet(entity, attribute, force);
+			sendVerificationQuietNoTx(entity, attribute, force);
 	}
 
 	@Override
-	public void sendVerification(EntityParam entity, Identity identity, boolean force) 
+	public void sendVerificationNoTx(EntityParam entity, Identity identity, boolean force) 
 			throws EngineException
 	{
 		IdentityTypeDefinition typeDefinition = idTypeHelper.getTypeDefinition(identity.getTypeId());
@@ -408,11 +408,11 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 
 
 	@Override
-	public void sendVerificationQuiet(EntityParam entity, Identity identity, boolean force)
+	public void sendVerificationQuietNoTx(EntityParam entity, Identity identity, boolean force)
 	{
 		try
 		{
-			sendVerification(entity, identity, force);
+			sendVerificationNoTx(entity, identity, force);
 		} catch (Exception e)
 		{
 			log.warn("Can not send a confirmation for the verificable identity being added "
@@ -458,6 +458,22 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		return tx.runInTransactionRet(() -> {
 			Map<String, MessageTemplate> templates = mtDB.getAllAsMap();
 			return templates.values();
+		});
+	}
+
+	@Override
+	public <T> void sendVerification(EntityParam entity, Attribute attribute) throws EngineException
+	{
+		tx.runInTransactionThrowing(() -> {
+			sendVerification(entity, attribute, true);
+		});
+	}
+
+	@Override
+	public void sendVerification(EntityParam entity, Identity identity) throws EngineException
+	{
+		tx.runInTransactionThrowing(() -> {
+			sendVerificationNoTx(entity, identity, true);
 		});
 	}
 }

@@ -42,6 +42,8 @@ import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.confirmation.ConfirmationManager;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -51,6 +53,8 @@ import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -81,6 +85,8 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private AttributeHandlerRegistry registry;
 	private AttributesManagement attributesManagement;
 	private GroupsManagement groupsManagement;
+	private ConfirmationManager confirmationMan;
+	private AttributeTypeSupport atSupport;
 	
 	private VerticalLayout left;
 	private CheckBox showEffective;
@@ -98,12 +104,14 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private EventsBus bus;
 	private AttributeTypeManagement aTypeManagement;
 	private AttributeClassManagement acMan;
+
 	
 	@Autowired
 	public AttributesPanel(UnityMessageSource msg, AttributeHandlerRegistry registry, 
 			AttributesManagement attributesManagement, GroupsManagement groupsManagement,
 			AttributeTypeManagement atManagement, AttributeClassManagement acMan,
-			AttributeTypeSupport atSupport)
+			AttributeTypeSupport atSupport,
+			ConfirmationManager confirmationMan)
 	{
 		this.msg = msg;
 		this.registry = registry;
@@ -111,6 +119,8 @@ public class AttributesPanel extends HorizontalSplitPanel
 		this.groupsManagement = groupsManagement;
 		this.aTypeManagement = atManagement;
 		this.acMan = acMan;
+		this.atSupport = atSupport;
+		this.confirmationMan = confirmationMan;
 		this.bus = WebSession.getCurrent().getEventBus();
 		attributesTable = new SmallTable();
 		attributesTable.setNullSelectionAllowed(false);
@@ -144,7 +154,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(attributesTable, toolbar);
 		tableWithToolbar.setSizeFull();
 		SingleActionHandler[] handlers = new SingleActionHandler[] {new AddAttributeActionHandler(), 
-				new EditAttributeActionHandler(), new RemoveAttributeActionHandler()};
+				new EditAttributeActionHandler(), new RemoveAttributeActionHandler(), new ResendConfirmationAttributeActionHandler()};
 		for (SingleActionHandler handler: handlers)
 			attributesTable.addActionHandler(handler);
 		toolbar.addActionHandlers(handlers);
@@ -361,6 +371,22 @@ public class AttributesPanel extends HorizontalSplitPanel
 			return false;
 		}
 	}
+
+	private void sendConfirmation(Collection<AttributeItem> items)
+	{
+		for (AttributeItem item : items)
+		{
+			try
+			{
+				confirmationMan.sendVerification(owner, item.getAttribute());
+			} catch (EngineException e)
+			{
+				NotificationPopup.showError(msg, 
+						msg.getMessage("Attribute.confirmationSendError", 
+						item.attribute.getName()), e);
+			}
+		}
+	}
 	
 	private boolean checkAttributeImm(AttributeItem item)
 	{
@@ -380,6 +406,25 @@ public class AttributesPanel extends HorizontalSplitPanel
 			
 	}
 	
+	private boolean checkAttributeIsVerifiable(AttributeItem item)
+	{
+		return atSupport.getSyntaxFallingBackToDefault(item.getAttribute()).isVerifiable();
+	}
+	
+	private boolean checkAttributeIsConfirmed(AttributeItem item)
+	{	
+		AttributeValueSyntax<?> syntax = atSupport.getSyntaxFallingBackToDefault(
+				item.attribute);
+		for (String valA : item.getAttribute().getValues())
+		{
+			VerifiableElement val = (VerifiableElement) syntax.convertFromString(valA);
+			ConfirmationInfo ci = val.getConfirmationInfo();
+			if (!ci.isConfirmed())
+				return false;
+		}
+		return true;	
+	}
+		
 	private Collection<AttributeItem> getItems(Object target)
 	{
 		Collection<?> c = (Collection<?>) target;
@@ -561,6 +606,62 @@ public class AttributesPanel extends HorizontalSplitPanel
 			dialog.show();
 		}
 	}
+	
+	private class ResendConfirmationAttributeActionHandler extends AbstractAttributeActionHandler
+	{
+		public ResendConfirmationAttributeActionHandler()
+		{
+			super(msg.getMessage("Attribute.resendConfirmation"), 
+					Images.confirm.getResource());
+			setMultiTarget(true);
+		}
+		
+		@Override
+		public Action[] getActions(Object target, Object sender)
+		{
+			Action[] ret = super.getActions(target, sender);
+			if (ret.length > 0)
+			{
+				if (target instanceof Collection<?>)
+				{
+					for (AttributeItem item : getItems(target))
+					{
+						if (!checkAttributeIsVerifiable(item))
+							return EMPTY;			
+						if (checkAttributeIsConfirmed(item))
+							return EMPTY;
+					}
+				} else
+				{
+					AttributeItem item = (AttributeItem) target;
+					if (!checkAttributeIsVerifiable(item))
+						return EMPTY;			
+					if (checkAttributeIsConfirmed(item))
+						return EMPTY;
+				}
+			}
+			return ret;
+		}	
+
+		@Override
+		public void handleAction(Object sender, final Object target)
+		{
+			final Collection<AttributeItem> items = getItems(target);
+			String confirmText = MessageUtils.createConfirmFromStrings(msg, items);
+			
+			ConfirmDialog confirm = new ConfirmDialog(msg, msg.getMessage(
+					"Attribute.confirmResendConfirmation", confirmText), new Callback()
+			{
+				@Override
+				public void onConfirm()
+				{
+					sendConfirmation(items);
+				}
+			});
+			confirm.show();
+		}
+	}
+	
 	
 	private static class EffectiveAttributesFilter implements Container.Filter
 	{

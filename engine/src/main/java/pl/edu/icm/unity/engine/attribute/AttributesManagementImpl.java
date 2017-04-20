@@ -83,7 +83,7 @@ public class AttributesManagementImpl implements AttributesManagement
 
 			attributesHelper.addAttribute(entityId, attribute, at, update, fullAuthz);
 		});
-		confirmationManager.sendVerificationQuiet(entity, attribute, false);
+		confirmationManager.sendVerificationQuietNoTx(entity, attribute, false);
 	}
 	
 	private boolean checkSetAttributeAuthz(long entityId, AttributeType at, Attribute attribute) 
