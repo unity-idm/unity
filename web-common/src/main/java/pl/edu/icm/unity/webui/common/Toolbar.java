@@ -93,9 +93,15 @@ public class Toolbar extends CustomComponent
 			if (handler.isNeedsTarget() && target == null)
 			{
 				button.setEnabled(false);
+				if (handler.isHideIfNotNeeded())
+					button.setVisible(false);
 			} else
 			{
-				button.setEnabled(handler.getActions(target, source).length == 1);
+				boolean en = handler.getActions(target, source).length == 1;
+				button.setEnabled(en);
+				if (handler.isHideIfNotNeeded())
+					button.setVisible(en);
+				
 			}
 		} else
 		{
