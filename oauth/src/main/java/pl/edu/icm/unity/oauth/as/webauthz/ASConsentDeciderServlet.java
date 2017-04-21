@@ -36,7 +36,7 @@ import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
-import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
@@ -154,7 +154,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 			IdentityParam selectedIdentity = idpEngine.getIdentity(userInfo, 
 					oauthCtx.getConfig().getSubjectIdentityType());
 			log.debug("Authentication of " + selectedIdentity);
-			Collection<Attribute> attributes = processor.filterAttributes(userInfo, 
+			Collection<DynamicAttribute> attributes = processor.filterAttributes(userInfo, 
 					oauthCtx.getRequestedAttrs());
 			respDoc = processor.prepareAuthzResponseAndRecordInternalState(attributes, selectedIdentity, 
 					oauthCtx, tokensMan);

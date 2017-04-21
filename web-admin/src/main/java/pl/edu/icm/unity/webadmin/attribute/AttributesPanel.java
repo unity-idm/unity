@@ -614,6 +614,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			super(msg.getMessage("Attribute.resendConfirmation"), 
 					Images.confirm.getResource());
 			setMultiTarget(true);
+			setHideIfNotNeeded(true);
 		}
 		
 		@Override

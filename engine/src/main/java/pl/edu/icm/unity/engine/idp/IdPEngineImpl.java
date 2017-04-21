@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce;
@@ -58,8 +59,10 @@ public class IdPEngineImpl implements IdPEngine
 	private TranslationProfileManagement profileManagement;
 	private UserImportSerivce userImportService;
 	private OutputTranslationActionsRegistry actionsRegistry;
+	private UnityMessageSource msg;
 	
 	private OutputTranslationProfile defaultProfile;
+
 	
 	@Autowired
 	public IdPEngineImpl(@Qualifier("insecure") AttributesManagement attributesMan, 
@@ -67,7 +70,8 @@ public class IdPEngineImpl implements IdPEngine
 			@Qualifier("insecure") TranslationProfileManagement profileManagement,
 			OutputTranslationEngine translationEngine,
 			UserImportSerivce userImportService,
-			OutputTranslationActionsRegistry actionsRegistry)
+			OutputTranslationActionsRegistry actionsRegistry,
+			UnityMessageSource msg)
 	{
 		this.attributesMan = attributesMan;
 		this.identitiesMan = identitiesMan;
@@ -75,6 +79,7 @@ public class IdPEngineImpl implements IdPEngine
 		this.profileManagement = profileManagement;
 		this.userImportService = userImportService;
 		this.actionsRegistry = actionsRegistry;
+		this.msg = msg;
 
 		this.defaultProfile = createDefaultOutputProfile();
 	}
@@ -167,7 +172,9 @@ public class IdPEngineImpl implements IdPEngine
 	{
 		List<TranslationRule> rules = new ArrayList<>();
 		TranslationAction action1 = new TranslationAction(CreateAttributeActionFactory.NAME, 
-				new String[] {"memberOf", "groups"});
+				new String[] {"memberOf", "groups", "false", 
+						msg.getMessage("DefaultOutputTranslationProfile.attr.memberOf"), 
+						msg.getMessage("DefaultOutputTranslationProfile.attr.memberOfDesc")});
 		rules.add(new TranslationRule("true", action1));
 		TranslationAction action2 = new TranslationAction(FilterAttributeActionFactory.NAME,
 				"sys:.*");

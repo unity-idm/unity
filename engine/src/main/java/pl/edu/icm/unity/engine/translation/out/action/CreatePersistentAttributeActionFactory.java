@@ -24,6 +24,7 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
@@ -56,6 +57,10 @@ public class CreatePersistentAttributeActionFactory extends AbstractOutputTransl
 						"TranslationAction.createPersistentAttribute.paramDesc.expression",
 						Type.EXPRESSION),
 				new ActionParameterDefinition(
+						"mandatory",
+						"TranslationAction.createPersistentAttribute.paramDesc.mandatory",
+						Type.BOOLEAN),
+				new ActionParameterDefinition(
 						"group",
 						"TranslationAction.createPersistentAttribute.paramDesc.group",
 						Type.UNITY_GROUP)
@@ -79,7 +84,7 @@ public class CreatePersistentAttributeActionFactory extends AbstractOutputTransl
 		private Serializable valuesExpression;
 		private String group;
 		private AttributeValueConverter attrValueConverter;
-		
+		private boolean attrMandatory;
 
 		public CreatePersistentAttributeAction(String[] params, TranslationActionType desc, 
 				AttributeTypeDAO attrsMan, AttributeValueConverter attrValueConverter)
@@ -99,10 +104,11 @@ public class CreatePersistentAttributeActionFactory extends AbstractOutputTransl
 				log.debug("Attribute value evaluated to null, skipping");
 				return;
 			}
-			for (Attribute existing: result.getAttributes())
+			for (DynamicAttribute existing: result.getAttributes())
 			{
-				if (existing.getName().equals(attrNameString))
+				if (existing.getAttribute().getName().equals(attrNameString))
 				{
+					existing.setMandatory(attrMandatory);
 					log.trace("Attribute already exists, skipping");
 					return;
 				}
@@ -131,18 +137,21 @@ public class CreatePersistentAttributeActionFactory extends AbstractOutputTransl
 
 			Attribute newAttr = new Attribute(attrNameString, attributeType.getValueSyntax(), group, 
 					typedValues, null, currentProfile);
-			result.getAttributes().add(newAttr);
+			DynamicAttribute dat = new DynamicAttribute(newAttr);
+			dat.setMandatory(attrMandatory);
+			result.getAttributes().add(dat);
 			result.getAttributesToPersist().add(newAttr);
-			log.debug("Created a new persisted attribute: " + newAttr);
+			log.debug("Created a new persisted attribute: " + dat);
 		}
 
 		private void setParameters(String[] parameters, AttributeTypeDAO attrsMan)
 		{
-			if (parameters.length != 3)
-				throw new IllegalArgumentException("Action requires exactly 3 parameters");
+			if (parameters.length != 4)
+				throw new IllegalArgumentException("Action requires exactly 4 parameters");
 			attrNameString = parameters[0];
 			valuesExpression = MVEL.compileExpression(parameters[1]);
-			group = parameters[2];
+			attrMandatory = Boolean.valueOf(parameters[2]);
+			group = parameters[3];
 
 			attributeType = attrsMan.get(attrNameString);
 			if (attributeType == null)

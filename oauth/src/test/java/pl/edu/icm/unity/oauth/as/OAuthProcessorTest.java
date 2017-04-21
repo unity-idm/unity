@@ -14,11 +14,6 @@ import java.util.Collection;
 
 import org.junit.Test;
 
-import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
-import pl.edu.icm.unity.stdext.attr.StringAttribute;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
@@ -30,6 +25,10 @@ import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.types.basic.DynamicAttribute;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
  * Tests of the authz endpoint logic.
@@ -41,8 +40,8 @@ public class OAuthProcessorTest
 	public void checkCodeFlowResponse() throws Exception
 	{
 		OAuthProcessor processor = new OAuthProcessor();
-		Collection<Attribute> attributes = new ArrayList<>();
-		attributes.add(StringAttribute.of("email", "/", "example@example.com"));
+		Collection<DynamicAttribute> attributes = new ArrayList<>();
+		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com")));
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
 		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getConfig(),
@@ -66,8 +65,8 @@ public class OAuthProcessorTest
 	public void checkImplicitFlowResponse() throws Exception
 	{
 		OAuthProcessor processor = new OAuthProcessor();
-		Collection<Attribute> attributes = new ArrayList<>();
-		attributes.add(StringAttribute.of("email", "/", "example@example.com"));
+		Collection<DynamicAttribute> attributes = new ArrayList<>();
+		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com")));
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
 		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getConfig(),
@@ -92,8 +91,8 @@ public class OAuthProcessorTest
 	public void checkHybridFlowResponse() throws Exception
 	{
 		OAuthProcessor processor = new OAuthProcessor();
-		Collection<Attribute> attributes = new ArrayList<>();
-		attributes.add(StringAttribute.of("email", "/", "example@example.com"));
+		Collection<DynamicAttribute> attributes = new ArrayList<>();
+		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com")));
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
 		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getConfig(),

@@ -16,7 +16,7 @@ import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
 import pl.edu.icm.unity.types.translation.TranslationActionType;
@@ -60,13 +60,16 @@ public class FilterAttributeActionFactory extends AbstractOutputTranslationActio
 		protected void invokeWrapped(TranslationInput input, Object mvelCtx, String currentProfile,
 				TranslationResult result) throws EngineException
 		{
-			Set<Attribute> copy = new HashSet<Attribute>(result.getAttributes());
-			for (Attribute a: copy)
-				if (attrPattern.matcher(a.getName()).matches())
+			Set<DynamicAttribute> copy = new HashSet<>(result.getAttributes());
+			for (DynamicAttribute a: copy)
+			{
+				String attrName = a.getAttribute().getName();
+				if (attrPattern.matcher(attrName).matches())
 				{
-					log.debug("Filtering the attribute " + a.getName());
+					log.debug("Filtering the attribute " + attrName);
 					result.getAttributes().remove(a);
 				}
+			}
 		}
 
 		private void setParameters(String[] parameters)

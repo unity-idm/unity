@@ -36,11 +36,12 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 	protected ListOfSelectableElements listOfValues;
 	private Attribute attribute;
 	private WebAttributeHandler<T> webHandler;
-	private AttributeType at;
-	private UnityMessageSource msg;
 	private Component firstheader;
 	private Component secondHeader;
 	private AttributeValueSyntax<T> syntax;
+	private String customAttrName;
+	private String customAttrDesc;
+	private boolean enableSelect;
 	
 	@SuppressWarnings("unchecked")
 	public SelectableAttributeWithValues(Component firstheader, Component secondHeader,
@@ -50,19 +51,36 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 		this.firstheader = firstheader;
 		this.secondHeader = secondHeader;
 		this.attribute = attribute;
-		this.at = at;
 		this.webHandler = webHandler;
-		this.msg = msg;
 		syntax = (AttributeValueSyntax<T>) aTypeSupport.getSyntaxFallingBackToDefault(attribute);
+		this.customAttrName = at.getName();
+		this.customAttrDesc = at.getDescription() == null? at.getName():at.getDescription().getValue(msg);
+	        this.enableSelect = true;
 		initUI();
 	}
 
+	public SelectableAttributeWithValues(Component firstheader, Component secondHeader,
+			Attribute attribute, String customAttrName, String customAttrDesc,
+			boolean enableSelect, AttributeType at,
+			WebAttributeHandler<T> webHandler, UnityMessageSource msg, 
+			AttributeTypeSupport aTypeSupport)
+	{
+		this(firstheader, secondHeader, attribute, at, webHandler, msg, aTypeSupport);
+		this.customAttrName = customAttrName;
+		this.customAttrDesc = customAttrDesc;
+		this.enableSelect = enableSelect;
+		initUI();
+	}
+	
 	private void initUI()
 	{
 		VerticalLayout main = new VerticalLayout();
 		
 		selectableAttr = new ListOfSelectableElements(firstheader, secondHeader, DisableMode.WHEN_SELECTED);
-		selectableAttr.addEntry(new Label(at.getDisplayedName().getValue(msg)), false);
+		
+		Label attrNameLabel = new Label(customAttrName);
+		attrNameLabel.setDescription(customAttrDesc);
+		selectableAttr.addEntry(attrNameLabel, false);
 		selectableAttr.setWidth(100, Unit.PERCENTAGE);
 		final CheckBox mainDisable = selectableAttr.getSelection().iterator().next();
 		mainDisable.addValueChangeListener(new ValueChangeListener()
@@ -73,12 +91,14 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 				listOfValues.setEnabled(!mainDisable.getValue());
 			}
 		});
+		selectableAttr.setCheckBoxesVisible(enableSelect);
+		
 		
 		main.addComponents(selectableAttr);
 		
 		listOfValues = new ListOfSelectableElements(null, null, DisableMode.WHEN_SELECTED);
-		listOfValues.setWidth(100, Unit.PERCENTAGE);
 		
+		listOfValues.setWidth(100, Unit.PERCENTAGE);
 		for (String value: attribute.getValues())
 		{
 			T valueObj = syntax.convertFromString(value);
@@ -87,6 +107,7 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 			representation.addStyleName(Styles.indent.toString());
 			listOfValues.addEntry(representation, false);
 		}
+		listOfValues.setCheckBoxesVisible(enableSelect);
 		
 		if (!attribute.getValues().isEmpty())
 			main.addComponent(listOfValues);
@@ -99,6 +120,10 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 	 */
 	public void setHiddenValues(Attribute hiddenValues)
 	{
+		//cannot hide if selecting is not enable
+		if (!enableSelect)
+			return;
+		
 		if (hiddenValues == null)
 		{
 			selectableAttr.getSelection().get(0).setValue(true);

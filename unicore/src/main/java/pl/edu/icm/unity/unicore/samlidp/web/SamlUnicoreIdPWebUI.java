@@ -30,6 +30,7 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.web.SAMLContextSupport;
@@ -102,7 +103,8 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 			TranslationResult translationResult = getUserInfo(samlCtx, samlWithEtdProcessor);
 			createIdentityPart(translationResult, eiLayout);
 			eiLayout.addComponent(HtmlTag.br());
-			createAttributesPart(translationResult, eiLayout);
+			createAttributesPart(translationResult, eiLayout, samlCtx.getSamlConfiguration().getBooleanValue(
+					SamlIdpProperties.USER_EDIT_CONSENT));
 			eiLayout.addComponent(HtmlTag.br());
 			createETDPart(eiLayout);
 		} catch (SAMLRequesterException e)

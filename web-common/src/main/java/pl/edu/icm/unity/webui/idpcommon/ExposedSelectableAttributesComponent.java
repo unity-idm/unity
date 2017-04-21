@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -20,6 +21,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.webui.common.ExpandCollapseButton;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -38,15 +40,16 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 	private UnityMessageSource msg;
 	private AttributeHandlerRegistry handlersRegistry;
 	
-	private Map<String, Attribute> attributes;
+	private Map<String, DynamicAttribute> attributes;
 	private Map<String, SelectableAttributeWithValues<?>> attributesHiding;
 	private AttributeTypeManagement aTypeMan;
 	private AttributeTypeSupport aTypeSupport;
+	private boolean enableEdit;
 	
 
 	public ExposedSelectableAttributesComponent(UnityMessageSource msg, AttributeHandlerRegistry handlersRegistry,
 			AttributeTypeManagement aTypeMan, AttributeTypeSupport aTypeSupport,
-			Collection<Attribute> attributesCol) throws EngineException
+			Collection<DynamicAttribute> attributesCol, boolean enableEdit) throws EngineException
 	{
 		super();
 		this.handlersRegistry = handlersRegistry;
@@ -55,8 +58,9 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 		this.aTypeSupport = aTypeSupport;
 
 		attributes = new HashMap<>();
-		for (Attribute a: attributesCol)
-			attributes.put(a.getName(), a);
+		for (DynamicAttribute a: attributesCol)
+			attributes.put(a.getAttribute().getName(), a);
+		this.enableEdit = enableEdit;
 		initUI();
 	}
 	
@@ -113,38 +117,87 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 		contents.addComponent(details);
 		
 		details.addComponent(credInfo);
-
-		HtmlLabel attributesInfo = new HtmlLabel(msg, "ExposedAttributesComponent.attributesInfo");
-		attributesInfo.addStyleName(Styles.vLabelSmall.toString());
-		details.addComponent(attributesInfo);
-
+		if (enableEdit)
+		{
+			HtmlLabel attributesInfo = new HtmlLabel(msg,
+					"ExposedAttributesComponent.attributesInfo");
+			attributesInfo.addStyleName(Styles.vLabelSmall.toString());
+			details.addComponent(attributesInfo);
+		}
+		details.addComponent(getAttributesListComponent());
+		setCompositionRoot(contents);
+	}
+	
+	public Component getAttributesListComponent() throws EngineException
+	{
+		VerticalLayout attributesList = new VerticalLayout();
 		Label hideL = new Label(msg.getMessage("ExposedAttributesComponent.hide"));
 		
 		attributesHiding = new HashMap<>();
 		Map<String, AttributeType> attributeTypes = aTypeMan.getAttributeTypesAsMap();
 		boolean first = true;
-		for (Attribute at: attributes.values())
+		for (DynamicAttribute dat: attributes.values())
 		{
-			WebAttributeHandler<?> handler = handlersRegistry.getHandler(at.getValueSyntax());
-			AttributeType attributeType = attributeTypes.get(at.getName());
-			if (attributeType == null) //can happen for dynamic attributes from output translation profile
-				attributeType = new AttributeType(at.getName(), StringAttributeSyntax.ID);
-			
-			@SuppressWarnings({ "rawtypes", "unchecked" })
-			SelectableAttributeWithValues<?> attributeComponent = new SelectableAttributeWithValues(
-					null, hideL, at, attributeType, handler, msg, aTypeSupport);
-			attributeComponent.setWidth(100, Unit.PERCENTAGE);
+			SelectableAttributeWithValues<?> attributeComponent = 
+					getAttributeComponent(dat, attributeTypes, hideL);
 			if (first)
 			{
 				first = false;
 				hideL = null;
 			}
 			
-			attributesHiding.put(at.getName(), attributeComponent);
-			details.addComponent(attributeComponent);
+			attributesHiding.put(dat.getAttribute().getName(), attributeComponent);
+			attributesList.addComponent(attributeComponent);
 		}
 		
-		setCompositionRoot(contents);
+		return attributesList;	
+		
+	}
+	
+	public SelectableAttributeWithValues<?> getAttributeComponent(DynamicAttribute dat, 
+			Map<String, AttributeType> attributeTypes, Label hideL)
+	{
+		Attribute at = dat.getAttribute();
+		WebAttributeHandler<?> handler = handlersRegistry.getHandler(at.getValueSyntax());
+		AttributeType attributeType = attributeTypes.get(at.getName());
+		if (attributeType == null) //can happen for dynamic attributes from output translation profile
+			attributeType = new AttributeType(at.getName(), StringAttributeSyntax.ID);
+		
+		
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		SelectableAttributeWithValues<?> attributeComponent = new SelectableAttributeWithValues(
+				null, enableEdit ? hideL : null, at, getAttributeDisplayedName(dat, attributeType),
+				getAttributeDescription(dat, attributeType), !dat.isMandatory() && enableEdit,
+				attributeType, handler, msg, aTypeSupport);
+		attributeComponent.setWidth(100, Unit.PERCENTAGE);
+		
+		return attributeComponent;
+	
+	}
+	private String getAttributeDescription(DynamicAttribute dat, AttributeType attributeType)
+	{
+		String attrDescription = dat.getDescription();
+		if (attrDescription == null || attrDescription.isEmpty())
+		{
+			attrDescription = attributeType.getDescription() != null
+					? attributeType.getDescription().getValue(msg)
+					: dat.getAttribute().getName();
+		}
+		
+		return attrDescription;
+	}
+
+	private String getAttributeDisplayedName(DynamicAttribute dat, AttributeType attributeType)
+	{
+		String attrDisplayedName = dat.getDisplayedName();
+		if (attrDisplayedName == null || attrDisplayedName.isEmpty())
+		{
+			attrDisplayedName = attributeType.getDisplayedName() != null
+					? attributeType.getDisplayedName().getValue(msg)
+					: dat.getAttribute().getName();
+		}
+		
+		return attrDisplayedName;
 	}
 
 }

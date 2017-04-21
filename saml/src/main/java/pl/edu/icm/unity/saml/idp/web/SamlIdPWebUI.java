@@ -41,6 +41,7 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
@@ -203,7 +204,8 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 			TranslationResult translationResult = getUserInfo(samlCtx, samlProcessor);
 			createIdentityPart(translationResult, eiLayout);
 			eiLayout.addComponent(HtmlTag.br());
-			createAttributesPart(translationResult, eiLayout);
+			createAttributesPart(translationResult, eiLayout, samlCtx.getSamlConfiguration().getBooleanValue(
+					SamlIdpProperties.USER_EDIT_CONSENT));
 		} catch (SAMLRequesterException e)
 		{
 			//we kill the session as the user may want to log as different user if has access to several entities.
@@ -231,11 +233,11 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		contents.addComponent(idSelector);
 	}
 	
-	protected void createAttributesPart(TranslationResult translationResult, VerticalLayout contents) 
-			throws EngineException
+	protected void createAttributesPart(TranslationResult translationResult, 
+			VerticalLayout contents, boolean userCanEdit) throws EngineException
 	{
 		attrsPresenter = new ExposedSelectableAttributesComponent(msg, handlersRegistry, attrsMan, 
-				aTypeSupport, translationResult.getAttributes());
+				aTypeSupport, translationResult.getAttributes(), userCanEdit);
 		contents.addComponent(attrsPresenter);
 	}
 	

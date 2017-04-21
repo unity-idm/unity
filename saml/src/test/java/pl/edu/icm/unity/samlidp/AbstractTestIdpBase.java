@@ -119,22 +119,22 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 		TranslationAction action1 = tactionReg.getByName(
 				CreateAttributeActionFactory.NAME).getInstance(
 				"memberOf", 
-				"groups");
+				"groups", "false");
 		rules.add(new TranslationRule("true", action1));
 		TranslationAction action2 = tactionReg.getByName(
 				CreateAttributeActionFactory.NAME).getInstance(
 				"unity:identity:userName", 
-				"idsByType['userName']");
+				"idsByType['userName']", "false");
 		rules.add(new TranslationRule("idsByType['userName'] != null", action2));
 		TranslationAction action3 = tactionReg.getByName(
 				CreateAttributeActionFactory.NAME).getInstance(
 				"unity:identity:x500Name", 
-				"idsByType['x500Name']");
+				"idsByType['x500Name']", "false");
 		rules.add(new TranslationRule("idsByType['x500Name'] != null", action3));
 		TranslationAction action4 = tactionReg.getByName(
 				CreateAttributeActionFactory.NAME).getInstance(
 				"unity:identity:persistent", 
-				"idsByType['persistent']");
+				"idsByType['persistent']", "false");
 		rules.add(new TranslationRule("idsByType['persistent'] != null", action4));
 		TranslationAction action5 = tactionReg.getByName(
 				FilterAttributeActionFactory.NAME).getInstance(

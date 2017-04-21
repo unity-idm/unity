@@ -48,6 +48,7 @@ import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
@@ -82,7 +83,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 		List<TranslationRule> rules = new ArrayList<>();
 		TranslationAction action1 = new TranslationAction(CreateAttributeActionFactory.NAME, new String[] {
 				"dynAttr", 
-				"'joe'"});
+				"'joe'", "false"});
 		rules.add(new TranslationRule("true", action1));
 		TranslationAction action2 = new TranslationAction(FilterAttributeActionFactory.NAME, new String[] {
 				"attr"}); 
@@ -135,7 +136,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 		rules.add(new TranslationRule("true", action1));
 		TranslationAction action2 = new TranslationAction(
 				CreatePersistentAttributeActionFactory.NAME, new String[] {
-						"o", "'ICM'", "/"}); 
+						"o", "'ICM'", "false", "/"}); 
 		rules.add(new TranslationRule("true", action2));
 		TranslationProfile tp1Cfg = new TranslationProfile("p1", "", ProfileType.OUTPUT, rules);
 		
@@ -193,15 +194,15 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 		List<TranslationRule> rules = new ArrayList<>();
 		TranslationAction action1 = new TranslationAction(
 				CreateAttributeActionFactory.NAME, new String[] {
-						"a1", "attr['o']"});
+						"a1", "attr['o']", "false"});
 		rules.add(new TranslationRule("true", action1));
 		TranslationAction action2 = new TranslationAction(
 				CreateAttributeActionFactory.NAME, new String[] {
-						"a2", "attr['e']"}); 
+						"a2", "attr['e']", "false"}); 
 		rules.add(new TranslationRule("true", action2));
 		TranslationAction action3 = new TranslationAction(
 				CreateAttributeActionFactory.NAME, new String[] {
-						"a3", "attr['f']"}); 
+						"a3", "attr['f']", "false"}); 
 		rules.add(new TranslationRule("true", action3));
 
 		TranslationProfile tp1Cfg = new TranslationProfile("p1", "", ProfileType.OUTPUT, rules);
@@ -226,10 +227,11 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 			return tp1.translate(input);
 		});
 		
-		Collection<Attribute> attributes = result.getAttributes();
+		Collection<DynamicAttribute> attributes = result.getAttributes();
 		assertThat(attributes.size(), is(6));
-		for (Attribute a: attributes)
+		for (DynamicAttribute da: attributes)
 		{
+			Attribute a = da.getAttribute();
 			if (a.getName().startsWith("a"))
 			{
 				assertThat(a.getValueSyntax(), is(StringAttributeSyntax.ID));

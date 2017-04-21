@@ -40,14 +40,14 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
-import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
+import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Group;
@@ -124,8 +124,8 @@ public class OAuthTestUtils
 			TokensManagement tokensMan) throws Exception
 	{
 		OAuthProcessor processor = new OAuthProcessor();
-		Collection<Attribute> attributes = new ArrayList<>();
-		attributes.add(StringAttribute.of("email", "/", "example@example.com"));
+		Collection<DynamicAttribute> attributes = new ArrayList<>();
+		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com")));
 		IdentityParam identity = new IdentityParam(UsernameIdentity.ID, "userA");
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(config, new ResponseType(ResponseType.Value.TOKEN, 
 				OIDCResponseTypeValue.ID_TOKEN, ResponseType.Value.CODE),
@@ -138,9 +138,9 @@ public class OAuthTestUtils
 			OAuthAuthzContext ctx) throws Exception
 	{
 		OAuthProcessor processor = new OAuthProcessor();
-		Collection<Attribute> attributes = new ArrayList<>();
-		attributes.add(StringAttribute.of("email", "/", "example@example.com"));
-		attributes.add(StringAttribute.of("c", "/", "PL"));
+		Collection<DynamicAttribute> attributes = new ArrayList<>();
+		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com")));
+		attributes.add(new DynamicAttribute(StringAttribute.of("c", "/", "PL")));
 		IdentityParam identity = new IdentityParam("userName", "userA");
 
 		return processor.prepareAuthzResponseAndRecordInternalState(

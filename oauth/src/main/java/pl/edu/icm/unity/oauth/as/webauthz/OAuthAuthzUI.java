@@ -44,6 +44,7 @@ import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSetting
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
@@ -90,7 +91,8 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	
 	@Autowired
 	public OAuthAuthzUI(UnityMessageSource msg, TokensManagement tokensMan,
-			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
+			AttributeHandlerRegistry handlersRegistry,
+			PreferencesManagement preferencesMan,
 			WebAuthenticationProcessor authnProcessor, IdPEngine idpEngine,
 			EnquiresDialogLauncher enquiryDialogLauncher,
 			IdentityTypeSupport idTypeSupport, AttributeTypeSupport aTypeSupport,
@@ -199,7 +201,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 			
 			createIdentityPart(translationResult, eiLayout, ctx.getConfig().getSubjectIdentityType());
 			
-			attrsPresenter = new ExposedAttributesComponent(msg, handlersRegistry, 
+			attrsPresenter = new ExposedAttributesComponent(msg, aTypeSupport, handlersRegistry, 
 					oauthProcessor.filterAttributes(translationResult, ctx.getRequestedAttrs()));
 			eiLayout.addComponent(attrsPresenter);
 		} catch (OAuthErrorResponseException e)
@@ -344,7 +346,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		OAuthAuthzContext ctx = OAuthContextUtils.getContext();
 		try
 		{
-			Collection<Attribute> attributes = attrsPresenter.getUserFilteredAttributes();
+			Collection<DynamicAttribute> attributes = attrsPresenter.getUserFilteredAttributes();
 			IdentityParam identity = idSelector.getSelectedIdentity();
 			
 			AuthorizationSuccessResponse oauthResponse = oauthProcessor.
