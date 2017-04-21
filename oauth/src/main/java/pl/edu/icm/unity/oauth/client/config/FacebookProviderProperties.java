@@ -24,14 +24,14 @@ public class FacebookProviderProperties extends CustomProviderProperties
 	
 	private static Properties addDefaults(Properties properties, String prefix)
 	{
-		properties.setProperty(prefix + PROVIDER_NAME, "Facebook");
-		properties.setProperty(prefix + PROVIDER_LOCATION, "https://www.facebook.com/dialog/oauth");
-		properties.setProperty(prefix + CLIENT_AUTHN_MODE, ClientAuthnMode.secretPost.toString());
-		properties.setProperty(prefix + ACCESS_TOKEN_ENDPOINT, "https://graph.facebook.com/oauth/access_token");
-		properties.setProperty(prefix + PROFILE_ENDPOINT, "https://graph.facebook.com/me/");
-		properties.setProperty(prefix + SCOPES, "email");
-		properties.setProperty(prefix + ACCESS_TOKEN_FORMAT, AccessTokenFormat.httpParams.toString());
-		properties.setProperty(prefix + ICON_URL, "file:../common/img/external/FB-small.png");
+		setIfUnset(properties, prefix + PROVIDER_NAME, "Facebook");
+		setIfUnset(properties, prefix + PROVIDER_LOCATION, "https://www.facebook.com/dialog/oauth");
+		setIfUnset(properties, prefix + CLIENT_AUTHN_MODE, ClientAuthnMode.secretPost.toString());
+		setIfUnset(properties, prefix + ACCESS_TOKEN_ENDPOINT, "https://graph.facebook.com/oauth/access_token");
+		setIfUnset(properties, prefix + PROFILE_ENDPOINT, "https://graph.facebook.com/me/");
+		setIfUnset(properties, prefix + SCOPES, "email");
+		setIfUnset(properties, prefix + ACCESS_TOKEN_FORMAT, AccessTokenFormat.standard.toString());
+		setIfUnset(properties, prefix + ICON_URL, "file:../common/img/external/FB-small.png");
 		return properties;
 	}
 

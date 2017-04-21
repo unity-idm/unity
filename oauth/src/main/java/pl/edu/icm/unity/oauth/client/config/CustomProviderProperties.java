@@ -221,4 +221,10 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 		}
 		return ret;
 	}
+	
+	public static void setIfUnset(Properties properties, String property, String value)
+	{
+		if (!properties.containsKey(property))
+			properties.setProperty(property, value);
+	}
 }

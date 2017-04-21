@@ -24,13 +24,13 @@ public class MicrosoftProviderProperties extends CustomProviderProperties
 	
 	private static Properties addDefaults(Properties properties, String prefix)
 	{
-		properties.setProperty(prefix + PROVIDER_NAME, "Microsoft Live");
-		properties.setProperty(prefix + PROVIDER_LOCATION, "https://login.live.com/oauth20_authorize.srf");
-		properties.setProperty(prefix + CLIENT_AUTHN_MODE, ClientAuthnMode.secretPost.toString());
-		properties.setProperty(prefix + ACCESS_TOKEN_ENDPOINT, "https://login.live.com/oauth20_token.srf");
-		properties.setProperty(prefix + PROFILE_ENDPOINT, "https://apis.live.net/v5.0/me");
-		properties.setProperty(prefix + SCOPES, "wl.basic");
-		properties.setProperty(prefix + ICON_URL, "file:../common/img/external/ms-small.png");
+		setIfUnset(properties, prefix + PROVIDER_NAME, "Microsoft Live");
+		setIfUnset(properties, prefix + PROVIDER_LOCATION, "https://login.live.com/oauth20_authorize.srf");
+		setIfUnset(properties, prefix + CLIENT_AUTHN_MODE, ClientAuthnMode.secretPost.toString());
+		setIfUnset(properties, prefix + ACCESS_TOKEN_ENDPOINT, "https://login.live.com/oauth20_token.srf");
+		setIfUnset(properties, prefix + PROFILE_ENDPOINT, "https://apis.live.net/v5.0/me");
+		setIfUnset(properties, prefix + SCOPES, "wl.basic");
+		setIfUnset(properties, prefix + ICON_URL, "file:../common/img/external/ms-small.png");
 		return properties;
 	}
 

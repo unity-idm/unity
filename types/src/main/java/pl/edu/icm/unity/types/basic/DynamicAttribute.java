@@ -6,23 +6,25 @@
 package pl.edu.icm.unity.types.basic;
 
 /**
- * Wrapper for {@link Attribute}. Contains attribute and additional metadata: displayedName, description and indicator whether attribute is mandatory.
- * This additional meta informations are filled after output translation profile processing and used when attributes are showing on consent screen: displayName
- * as attribute name and description as tooltip . If attribute is mandatory user cannot hide it on consent screen.   
+ * Wrapper for {@link Attribute}. Contains attribute and additional metadata: displayedName, 
+ * description and indicator whether attribute is mandatory.
+ * This additional meta informations are filled after output translation profile processing 
+ * and used when attributes are showing on consent screen: displayName
+ * as attribute name and description as tooltip. If attribute is mandatory user cannot hide it 
+ * on consent screen.   
  * 
  * @author P.Piernik
- *
  */
 public class DynamicAttribute
 {
-
 	private Attribute<?> attribute;
 	private String displayedName;
 	private String description;
 	private boolean mandatory;
 
 	
-	public DynamicAttribute(Attribute<?> attribute, String displayedName, String description, boolean mandatory)
+	public DynamicAttribute(Attribute<?> attribute, String displayedName, String description, 
+			boolean mandatory)
 	{
 		this.attribute = attribute;
 		this.displayedName = displayedName;
@@ -96,5 +98,4 @@ public class DynamicAttribute
 		sb.append("]");
 		return sb.toString();
 	}
-
 }
