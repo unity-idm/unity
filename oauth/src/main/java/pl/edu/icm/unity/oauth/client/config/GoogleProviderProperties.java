@@ -24,11 +24,11 @@ public class GoogleProviderProperties extends CustomProviderProperties
 	
 	private static Properties addDefaults(Properties properties, String prefix)
 	{
-		properties.setProperty(prefix + PROVIDER_NAME, "Google Account");
-		properties.setProperty(prefix + OPENID_CONNECT, "true");
-		properties.setProperty(prefix + OPENID_DISCOVERY, 
+		setIfUnset(properties, prefix + PROVIDER_NAME, "Google Account");
+		setIfUnset(properties, prefix + OPENID_CONNECT, "true");
+		setIfUnset(properties, prefix + OPENID_DISCOVERY, 
 				"https://accounts.google.com/.well-known/openid-configuration");
-		properties.setProperty(prefix + ICON_URL, "file:../common/img/external/google-small.png");
+		setIfUnset(properties, prefix + ICON_URL, "file:../common/img/external/google-small.png");
 		return properties;
 	}
 

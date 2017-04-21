@@ -28,13 +28,13 @@ public class OrcidProviderProperties extends CustomProviderProperties
 	
 	private static Properties addDefaults(Properties properties, String prefix)
 	{
-		properties.setProperty(prefix + PROVIDER_NAME, "ORCID");
-		properties.setProperty(prefix + PROVIDER_LOCATION, "https://orcid.org/oauth/authorize");
-		properties.setProperty(prefix + ACCESS_TOKEN_ENDPOINT, "https://pub.orcid.org/oauth/token");
-		properties.setProperty(prefix + ICON_URL, "file:../common/img/external/orcid-small.png");
-		properties.setProperty(prefix + PROFILE_ENDPOINT, "https://pub.orcid.org/v1.2/");
-		properties.setProperty(prefix + SCOPES, "/authenticate");
-		properties.setProperty(prefix + ADDITIONAL_AUTHZ_PARAMS + "1", "show_login=true");
+		setIfUnset(properties, prefix + PROVIDER_NAME, "ORCID");
+		setIfUnset(properties, prefix + PROVIDER_LOCATION, "https://orcid.org/oauth/authorize");
+		setIfUnset(properties, prefix + ACCESS_TOKEN_ENDPOINT, "https://pub.orcid.org/oauth/token");
+		setIfUnset(properties, prefix + ICON_URL, "file:../common/img/external/orcid-small.png");
+		setIfUnset(properties, prefix + PROFILE_ENDPOINT, "https://pub.orcid.org/v1.2/");
+		setIfUnset(properties, prefix + SCOPES, "/authenticate");
+		setIfUnset(properties, prefix + ADDITIONAL_AUTHZ_PARAMS + "1", "show_login=true");
 		return properties;
 	}
 
