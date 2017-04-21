@@ -35,9 +35,9 @@ public class TestUnityMessageSource
 	@Test
 	public void messageFromCurrentModuleIsResolved()
 	{
-		String message = msg.getMessage("EntityAction.removeEntity.desc");
+		String message = msg.getMessage("MessageUsedForIntegrationTesting.only0");
 		
-		assertThat(message, is("Allows for removing an entity"));
+		assertThat(message, is("From default bundle"));
 	}
 
 	@Test
