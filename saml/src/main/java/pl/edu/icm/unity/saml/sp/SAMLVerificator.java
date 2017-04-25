@@ -230,6 +230,8 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		RemoteAuthnContext context = new RemoteAuthnContext(getSamlValidatorSettings(), idpKey);
 		
 		SAMLSPProperties samlPropertiesCopy = context.getContextConfig();
+		if (!samlPropertiesCopy.isIdPDefinitionComplete(idpKey))
+			throw new IllegalStateException("The selected IdP is not valid anymore, seems it was disabled");
 		boolean sign = samlPropertiesCopy.isSignRequest(idpKey);
 		String requesterId = samlPropertiesCopy.getValue(SAMLSPProperties.REQUESTER_ID);
 		String identityProviderURL = samlPropertiesCopy.getValue(idpKey + SAMLSPProperties.IDP_ADDRESS);

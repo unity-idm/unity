@@ -8,11 +8,12 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Random;
 import java.util.Set;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
 
+import eu.unicore.samly2.SAMLConstants;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
@@ -28,7 +29,6 @@ import xmlbeans.org.oasis.saml2.metadata.KeyDescriptorType;
 import xmlbeans.org.oasis.saml2.metadata.extattribute.EntityAttributesType;
 import xmlbeans.org.oasis.saml2.metadata.extui.LogoType;
 import xmlbeans.org.oasis.saml2.metadata.extui.UIInfoType;
-import eu.unicore.samly2.SAMLConstants;
 
 /**
  * Utility class: converts SAML metadata into a series of property statements, 
@@ -70,7 +70,6 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 			return;
 
 		String entityId = meta.getEntityID();
-		Random r = new Random(); 
 		for (IDPSSODescriptorType idpDef: idpDefs)
 		{
 			if (!supportsSaml2(idpDef))
@@ -125,7 +124,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 				addEntryToProperties(entityId, webEndpoint, soapSLOEndpoint,
 						postSLOEndpoint, redirectSLOEndpoint,
 						requireSignedReq, realConfig, 
-						configKey, properties, r, certs, names, logos);
+						configKey, properties, 1, certs, names, logos);
 			}
 			
 			if (soapEndpoint != null)
@@ -133,7 +132,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 				addEntryToProperties(entityId, soapEndpoint, soapSLOEndpoint, 
 						postSLOEndpoint, redirectSLOEndpoint,
 						requireSignedReq, realConfig, 
-						configKey, properties, r, certs, names, logos);
+						configKey, properties, 2, certs, names, logos);
 			}
 		}
 	}
@@ -141,7 +140,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 	private void addEntryToProperties(String entityId, EndpointType endpoint, 
 			EndpointType sloSoapEndpoint, EndpointType sloPostEndpoint, EndpointType sloRedirectEndpoint,
 			boolean requireSignedReq,
-			SAMLSPProperties realConfig, String metaConfigKey, Properties properties, Random r, 
+			SAMLSPProperties realConfig, String metaConfigKey, Properties properties, int index,
 			List<X509Certificate> certs,
 			Map<String, String> names, Map<String, LogoType> logos)
 	{
@@ -152,9 +151,10 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 				SAMLSPProperties.IDPMETA_REGISTRATION_FORM);
 	
 		boolean noPerIdpConfig = configKey == null;
+		String entityHex = DigestUtils.md5Hex(entityId);
 		if (configKey == null)
 			configKey = SAMLSPProperties.P + SAMLSPProperties.IDP_PREFIX + 
-					"_entryFromMetadata_" + r.nextInt() + "."; 
+					"_entryFromMetadata_" + entityHex + "+" + index + "."; 
 
 		if (noPerIdpConfig || !properties.containsKey(configKey + SAMLSPProperties.IDP_ID))
 			properties.setProperty(configKey + SAMLSPProperties.IDP_ID, 
