@@ -77,7 +77,7 @@ public class UserAttributesPanel
 	
 	private void initUI() throws EngineException
 	{
-		attributeEditors = new ArrayList<FixedAttributeEditor>();
+		attributeEditors = new ArrayList<>();
 		viewers = new ArrayList<>();
 		Set<String> keys = config.getStructuredListKeys(HomeEndpointProperties.ATTRIBUTES);
 		
@@ -96,6 +96,11 @@ public class UserAttributesPanel
 		boolean editable = config.getBooleanValue(key+HomeEndpointProperties.GWA_EDITABLE);
 		
 		AttributeType at = atTypes.get(attributeName);
+		if (at == null)
+		{
+			log.warn("No attribute type " + attributeName + " defined in the system.");
+			return;
+		}
 		AttributeExt attribute = getAttribute(attributeName, group);
 
 		if (!groups.contains(group))

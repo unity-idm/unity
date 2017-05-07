@@ -63,7 +63,7 @@ public class AttributeViewer
 
 		int i = 1;
 		values = new ArrayList<>();
-		for (Object o: attribute.getValues())
+		for (String o: attribute.getValues())
 		{
 			Component valueRepresentation = getRepresentation(o);
 			String captionWithNum = (attribute.getValues().size() == 1) ? caption + ":" :
@@ -90,15 +90,12 @@ public class AttributeViewer
 		}
 	}
 	
-	private Component getRepresentation(Object value)
+	private <T> Component getRepresentation(String value)
 	{
 		@SuppressWarnings("unchecked")
-		AttributeValueSyntax<Object> syntax = (AttributeValueSyntax<Object>) 
-			aTypeSupport.getSyntax(attribute); 
+		WebAttributeHandler<T> handler = (WebAttributeHandler<T>) registry.getHandler(attribute.getValueSyntax());
 		@SuppressWarnings("unchecked")
-		WebAttributeHandler<Object> handler = (WebAttributeHandler<Object>) 
-				registry.getHandler(syntax.getValueSyntaxId());
-		Component ret = handler.getRepresentation(value, syntax, RepresentationSize.MEDIUM);
-		return ret;
+		AttributeValueSyntax<T> syntax = (AttributeValueSyntax<T>) aTypeSupport.getSyntax(attribute);
+		return handler.getRepresentation(syntax.convertFromString(value), syntax, RepresentationSize.MEDIUM);
 	}
 }
