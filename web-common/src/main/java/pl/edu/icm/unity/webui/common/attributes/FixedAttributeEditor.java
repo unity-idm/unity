@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.vaadin.ui.AbstractOrderedLayout;
 
-import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -35,9 +34,7 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 	private boolean required;
 	private boolean adminMode;
 	private AbstractOrderedLayout parent;
-	private AttributeValueSyntax<Object> syntax;
 
-	@SuppressWarnings("unchecked")
 	public FixedAttributeEditor(UnityMessageSource msg, AttributeHandlerRegistry registry, 
 			AttributeType attributeType, boolean showGroup, String group, 
 			String caption, String description, boolean required, boolean adminMode, 
@@ -52,7 +49,6 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 		this.required = required;
 		this.adminMode = adminMode;
 		this.parent = parent;
-		syntax = (AttributeValueSyntax<Object>) registry.getaTypeSupport().getSyntax(attributeType);
 		initUI();
 	}
 	
@@ -60,7 +56,7 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 	{
 		List<LabelledValue> labelledValues = new ArrayList<>(values.size());
 		for (String value: values)
-			labelledValues.add(new LabelledValue(syntax.convertFromString(value), caption));
+			labelledValues.add(new LabelledValue(value, caption));
 		valuesComponent.setEntries(labelledValues);
 	}
 	
@@ -81,7 +77,7 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 		boolean allNull = true;
 		for (LabelledValue v: values)
 		{
-			aValues.add(syntax.convertToString(v.getValue()));
+			aValues.add(v.getValue());
 			if (v.getValue() != null)
 				allNull = false;
 		}

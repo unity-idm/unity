@@ -90,12 +90,10 @@ public class AttributeViewer
 		}
 	}
 	
-	private <T> Component getRepresentation(String value)
+	private Component getRepresentation(String value)
 	{
-		@SuppressWarnings("unchecked")
-		WebAttributeHandler<T> handler = (WebAttributeHandler<T>) registry.getHandler(attribute.getValueSyntax());
-		@SuppressWarnings("unchecked")
-		AttributeValueSyntax<T> syntax = (AttributeValueSyntax<T>) aTypeSupport.getSyntax(attribute);
-		return handler.getRepresentation(syntax.convertFromString(value), syntax, RepresentationSize.MEDIUM);
+		AttributeValueSyntax<?> syntax = aTypeSupport.getSyntax(attribute);
+		WebAttributeHandler handler = registry.getHandler(syntax);
+		return handler.getRepresentation(value, RepresentationSize.MEDIUM);
 	}
 }

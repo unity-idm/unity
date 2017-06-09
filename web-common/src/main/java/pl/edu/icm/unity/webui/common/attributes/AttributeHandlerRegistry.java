@@ -52,15 +52,30 @@ public class AttributeHandlerRegistry
 			factoriesByType.put(factory.getSupportedSyntaxId(), factory);
 	}
 	
-	public WebAttributeHandler<?> getHandler(String syntaxId)
+	public WebAttributeHandler getHandler(AttributeValueSyntax<?> syntax)
+	{
+		WebAttributeHandlerFactory factory = factoriesByType.get(syntax.getValueSyntaxId());
+		if (factory == null)
+			throw new IllegalArgumentException("Syntax " + syntax.getValueSyntaxId() + 
+					" has no handler factory registered");
+		return factory.createInstance(syntax);
+	}
+	
+	/**
+	 * 
+	 * @param syntaxId
+	 * @param syntax syntax to be edited or null if an empty editor should be returned.
+	 * @return
+	 */
+	public AttributeSyntaxEditor<?> getSyntaxEditor(String syntaxId, AttributeValueSyntax<?> syntax)
 	{
 		WebAttributeHandlerFactory factory = factoriesByType.get(syntaxId);
 		if (factory == null)
-			throw new IllegalArgumentException("SyntaxId " + syntaxId + " has no handler factory registered");
-		return factory.createInstance();
+			throw new IllegalArgumentException("Syntax " + syntaxId + 
+					" has no handler factory registered");
+		return factory.getSyntaxEditorComponent(syntax);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public com.vaadin.ui.Component getRepresentation(Attribute attribute, RepresentationSize size)
 	{
 		VerticalLayout vl = new VerticalLayout();
@@ -75,10 +90,9 @@ public class AttributeHandlerRegistry
 		vl.addComponent(new Label(main.toString()));
 		VerticalLayout indentedValues = new VerticalLayout();
 		indentedValues.setMargin(new MarginInfo(false, false, false, true));
-		@SuppressWarnings("rawtypes")
-		WebAttributeHandler handler = getHandler(syntax.getValueSyntaxId());
-		for (Object value: attribute.getValues())
-			indentedValues.addComponent(handler.getRepresentation(value, syntax, size));
+		WebAttributeHandler handler = getHandler(syntax);
+		for (String value: attribute.getValues())
+			indentedValues.addComponent(handler.getRepresentation(value, size));
 		vl.addComponent(indentedValues);
 		return vl;
 	}
@@ -131,10 +145,9 @@ public class AttributeHandlerRegistry
 		if (maxValuesLen < 16)
 			throw new IllegalArgumentException("The max length must be lager then 16");
 		StringBuilder sb = new StringBuilder();
-		List<?> values = attribute.getValues();
+		List<String> values = attribute.getValues();
 		AttributeValueSyntax<?> syntax = aTypeSupport.getSyntax(attribute);
-		@SuppressWarnings("rawtypes")
-		WebAttributeHandler handler = getHandler(syntax.getValueSyntaxId());
+		WebAttributeHandler handler = getHandler(syntax);
 		int remainingLen = maxValuesLen;
 		final String MORE_VALS = ", ...";
 		final int moreValsLen = MORE_VALS.length();
@@ -147,8 +160,7 @@ public class AttributeHandlerRegistry
 				sb.append(", ...");
 				break;
 			}
-			@SuppressWarnings("unchecked")
-			String val = handler.getValueAsString(values.get(i), syntax, allowedLen);
+			String val = handler.getValueAsString(values.get(i), allowedLen);
 			remainingLen -= val.length(); 
 			if (i > 0)
 			{

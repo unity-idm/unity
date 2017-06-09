@@ -28,40 +28,21 @@ import pl.edu.icm.unity.webui.common.boundededitors.DoubleBoundEditor;
  * Floating point attribute handler for the web
  * @author K. Benedyczak
  */
-@org.springframework.stereotype.Component
-public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler<Double> implements WebAttributeHandlerFactory
+public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 {
 	private UnityMessageSource msg;
 	
-	@Autowired
-	public FloatingPointAttributeHandler(UnityMessageSource msg)
+	public FloatingPointAttributeHandler(UnityMessageSource msg, AttributeValueSyntax<?> syntax)
 	{
+		super(syntax);
 		this.msg = msg;
 	}
-	
-	@Override
-	public String getSupportedSyntaxId()
-	{
-		return FloatingPointAttributeSyntax.ID;
-	}
 
 	@Override
-	protected Double convertFromString(String value)
-	{
-		return Double.parseDouble(value);
-	}
-
-	@Override
-	public WebAttributeHandler<?> createInstance()
-	{
-		return new FloatingPointAttributeHandler(msg);
-	}
-
-	@Override
-	protected List<String> getHints(AttributeValueSyntax<Double> syntaxArg)
+	protected List<String> getHints()
 	{
 		List<String> sb = new ArrayList<String>(3);
-		FloatingPointAttributeSyntax syntax = (FloatingPointAttributeSyntax) syntaxArg;
+		FloatingPointAttributeSyntax syntax = (FloatingPointAttributeSyntax) this.syntax;
 		
 		if (syntax.getMin() != Double.MIN_VALUE)
 			sb.add(msg.getMessage("NumericAttributeHandler.min", syntax.getMin()));
@@ -75,22 +56,17 @@ public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler<Doub
 		return sb;
 	}
 	
-	@Override
-	public AttributeSyntaxEditor<Double> getSyntaxEditorComponent(
-			AttributeValueSyntax<Double> initialValue)
-	{
-		return new FloatingPointSyntaxEditor((FloatingPointAttributeSyntax) initialValue);
-	}
-	
-	private class FloatingPointSyntaxEditor implements AttributeSyntaxEditor<Double>
+	private static class FloatingPointSyntaxEditor implements AttributeSyntaxEditor<Double>
 	{
 		private FloatingPointAttributeSyntax initial;
 		private DoubleBoundEditor max, min;
+		private UnityMessageSource msg;
 		
 		
-		public FloatingPointSyntaxEditor(FloatingPointAttributeSyntax initial)
+		public FloatingPointSyntaxEditor(FloatingPointAttributeSyntax initial, UnityMessageSource msg)
 		{
 			this.initial = initial;
+			this.msg = msg;
 		}
 
 		@Override
@@ -128,6 +104,39 @@ public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler<Doub
 			{
 				throw new IllegalAttributeTypeException(e.getMessage(), e);
 			}
+		}
+	}
+	
+	
+	@org.springframework.stereotype.Component
+	public static class FloatingPointAttributeHandlerFactory implements WebAttributeHandlerFactory
+	{
+		private UnityMessageSource msg;
+
+		@Autowired
+		public FloatingPointAttributeHandlerFactory(UnityMessageSource msg)
+		{
+			this.msg = msg;
+		}
+
+		@Override
+		public String getSupportedSyntaxId()
+		{
+			return FloatingPointAttributeSyntax.ID;
+		}
+
+		@Override
+		public WebAttributeHandler createInstance(AttributeValueSyntax<?> syntax)
+		{
+			return new FloatingPointAttributeHandler(msg, syntax);
+		}
+		
+		@Override
+		public AttributeSyntaxEditor<Double> getSyntaxEditorComponent(
+				AttributeValueSyntax<?> initialValue)
+		{
+			return new FloatingPointSyntaxEditor(
+					(FloatingPointAttributeSyntax) initialValue, msg);
 		}
 	}
 }

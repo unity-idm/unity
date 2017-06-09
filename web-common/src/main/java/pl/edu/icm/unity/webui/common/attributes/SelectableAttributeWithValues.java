@@ -30,31 +30,32 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.Representati
  * For attribute and each its value it is possible to click a check box next to it to hide it.
  * @author K. Benedyczak
  */
-public class SelectableAttributeWithValues<T> extends CustomComponent
+public class SelectableAttributeWithValues extends CustomComponent
 {
 	protected ListOfSelectableElements selectableAttr;
 	protected ListOfSelectableElements listOfValues;
 	private Attribute attribute;
-	private WebAttributeHandler<T> webHandler;
+	private WebAttributeHandler webHandler;
 	private Component firstheader;
 	private Component secondHeader;
-	private AttributeValueSyntax<T> syntax;
+	private AttributeValueSyntax<?> syntax;
 	private String customAttrName;
 	private String customAttrDesc;
 	private boolean enableSelect;
 	
-	@SuppressWarnings("unchecked")
 	public SelectableAttributeWithValues(Component firstheader, Component secondHeader,
 			Attribute attribute, AttributeType at, 
-			WebAttributeHandler<T> webHandler, UnityMessageSource msg, AttributeTypeSupport aTypeSupport)
+			WebAttributeHandler webHandler, UnityMessageSource msg, 
+			AttributeTypeSupport aTypeSupport)
 	{
 		this.firstheader = firstheader;
 		this.secondHeader = secondHeader;
 		this.attribute = attribute;
 		this.webHandler = webHandler;
-		syntax = (AttributeValueSyntax<T>) aTypeSupport.getSyntaxFallingBackToDefault(attribute);
+		syntax = aTypeSupport.getSyntaxFallingBackToDefault(attribute);
 		this.customAttrName = at.getName();
-		this.customAttrDesc = at.getDescription() == null? at.getName():at.getDescription().getValue(msg);
+		this.customAttrDesc = at.getDescription() == null ? 
+				at.getName():at.getDescription().getValue(msg);
 	        this.enableSelect = true;
 		initUI();
 	}
@@ -62,7 +63,7 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 	public SelectableAttributeWithValues(Component firstheader, Component secondHeader,
 			Attribute attribute, String customAttrName, String customAttrDesc,
 			boolean enableSelect, AttributeType at,
-			WebAttributeHandler<T> webHandler, UnityMessageSource msg, 
+			WebAttributeHandler webHandler, UnityMessageSource msg, 
 			AttributeTypeSupport aTypeSupport)
 	{
 		this(firstheader, secondHeader, attribute, at, webHandler, msg, aTypeSupport);
@@ -101,9 +102,8 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 		listOfValues.setWidth(100, Unit.PERCENTAGE);
 		for (String value: attribute.getValues())
 		{
-			T valueObj = syntax.convertFromString(value);
-			Component representation = webHandler.getRepresentation(valueObj, 
-					syntax, RepresentationSize.LINE);
+			Component representation = webHandler.getRepresentation(value, 
+					RepresentationSize.LINE);
 			representation.addStyleName(Styles.indent.toString());
 			listOfValues.addEntry(representation, false);
 		}
@@ -130,13 +130,12 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 			return;
 		}
 		List<CheckBox> selection = listOfValues.getSelection();
-		for (Object svalue: hiddenValues.getValues())
+		for (String svalue: hiddenValues.getValues())
 		{
 			int i=0;
 			for (String value: attribute.getValues())
 			{
-				T valueObj = syntax.convertFromString(value);
-				if (syntax.areEqual(valueObj, svalue))
+				if (syntax.areEqualStringValue(value, svalue))
 				{
 					selection.get(i).setValue(true);
 					break;

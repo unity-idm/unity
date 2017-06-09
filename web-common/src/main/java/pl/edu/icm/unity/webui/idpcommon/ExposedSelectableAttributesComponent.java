@@ -16,6 +16,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
@@ -41,7 +42,7 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 	private AttributeHandlerRegistry handlersRegistry;
 	
 	private Map<String, DynamicAttribute> attributes;
-	private Map<String, SelectableAttributeWithValues<?>> attributesHiding;
+	private Map<String, SelectableAttributeWithValues> attributesHiding;
 	private AttributeTypeManagement aTypeMan;
 	private AttributeTypeSupport aTypeSupport;
 	private boolean enableEdit;
@@ -70,7 +71,7 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 	public Map<String, Attribute> getUserFilteredAttributes()
 	{
 		Map<String, Attribute> ret = new HashMap<>();
-		for (Entry<String, SelectableAttributeWithValues<?>> entry : attributesHiding.entrySet())
+		for (Entry<String, SelectableAttributeWithValues> entry : attributesHiding.entrySet())
 			ret.put(entry.getKey(), entry.getValue().getAttributeWithoutHidden());
 		return ret;
 	}
@@ -81,7 +82,7 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 	public Map<String, Attribute> getHiddenAttributes()
 	{
 		Map<String, Attribute> ret = new HashMap<>();
-		for (Entry<String, SelectableAttributeWithValues<?>> entry : attributesHiding.entrySet())
+		for (Entry<String, SelectableAttributeWithValues> entry : attributesHiding.entrySet())
 			ret.put(entry.getKey(), entry.getValue().getHiddenAttributeValues());
 		return ret;
 	}
@@ -90,7 +91,7 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 	{
 		for (Entry<String, Attribute> entry : savedState.entrySet())
 		{
-			SelectableAttributeWithValues<?> selectableAttributeWithValues = 
+			SelectableAttributeWithValues selectableAttributeWithValues = 
 					attributesHiding.get(entry.getKey());
 			if (selectableAttributeWithValues != null)
 				selectableAttributeWithValues.setHiddenValues(entry.getValue());
@@ -138,7 +139,7 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 		boolean first = true;
 		for (DynamicAttribute dat: attributes.values())
 		{
-			SelectableAttributeWithValues<?> attributeComponent = 
+			SelectableAttributeWithValues attributeComponent = 
 					getAttributeComponent(dat, attributeTypes, hideL);
 			if (first)
 			{
@@ -154,18 +155,17 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 		
 	}
 	
-	public SelectableAttributeWithValues<?> getAttributeComponent(DynamicAttribute dat, 
+	public SelectableAttributeWithValues getAttributeComponent(DynamicAttribute dat, 
 			Map<String, AttributeType> attributeTypes, Label hideL)
 	{
 		Attribute at = dat.getAttribute();
-		WebAttributeHandler<?> handler = handlersRegistry.getHandler(at.getValueSyntax());
+		AttributeValueSyntax<?> syntax = aTypeSupport.getSyntax(at);
+		WebAttributeHandler handler = handlersRegistry.getHandler(syntax);
 		AttributeType attributeType = attributeTypes.get(at.getName());
 		if (attributeType == null) //can happen for dynamic attributes from output translation profile
 			attributeType = new AttributeType(at.getName(), StringAttributeSyntax.ID);
 		
-		
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		SelectableAttributeWithValues<?> attributeComponent = new SelectableAttributeWithValues(
+		SelectableAttributeWithValues attributeComponent = new SelectableAttributeWithValues(
 				null, enableEdit ? hideL : null, at, getAttributeDisplayedName(dat, attributeType),
 				getAttributeDescription(dat, attributeType), !dat.isMandatory() && enableEdit,
 				attributeType, handler, msg, aTypeSupport);

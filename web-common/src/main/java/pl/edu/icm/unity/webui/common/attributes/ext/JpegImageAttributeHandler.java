@@ -54,8 +54,7 @@ import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
  * Jpeg image attribute handler for the web
  * @author K. Benedyczak
  */
-@org.springframework.stereotype.Component
-public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedImage>, WebAttributeHandlerFactory
+public class JpegImageAttributeHandler implements WebAttributeHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, JpegImageAttributeHandler.class);
 	private static final Random r = new Random();
@@ -64,22 +63,16 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 	private static final int MINIATURE_WIDTH = 64;
 	private static final int MINIATURE_HEIGHT = 48;
 	private UnityMessageSource msg;
+	private JpegImageAttributeSyntax syntax;
 	
-	@Autowired
-	public JpegImageAttributeHandler(UnityMessageSource msg)
+	public JpegImageAttributeHandler(UnityMessageSource msg, AttributeValueSyntax<?> syntax)
 	{
 		this.msg = msg;
-	}
-	
-	@Override
-	public String getSupportedSyntaxId()
-	{
-		return JpegImageAttributeSyntax.ID;
+		this.syntax = (JpegImageAttributeSyntax) syntax;
 	}
 
 	@Override
-	public String getValueAsString(BufferedImage value,
-			AttributeValueSyntax<BufferedImage> syntax, int limited)
+	public String getValueAsString(String value, int limited)
 	{
 		return "Jpeg image";
 	}
@@ -100,9 +93,9 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 	}
 
 	@Override
-	public Component getRepresentation(BufferedImage value,
-			AttributeValueSyntax<BufferedImage> syntax, RepresentationSize size)
+	public Component getRepresentation(String valueRaw, RepresentationSize size)
 	{
+		BufferedImage value = syntax.convertFromString(valueRaw);
 		Image image = new Image();
 		int width;
 		int height;
@@ -150,17 +143,15 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 	}
 	
 	@Override
-	public AttributeValueEditor<BufferedImage> getEditorComponent(BufferedImage initialValue, String label,
-			AttributeValueSyntax<BufferedImage> syntax)
+	public AttributeValueEditor getEditorComponent(String initialValue, String label)
 	{
-		return new JpegImageValueEditor(initialValue, label, (JpegImageAttributeSyntax) syntax);
+		return new JpegImageValueEditor(initialValue, label);
 	}
 	
-	private class JpegImageValueEditor implements AttributeValueEditor<BufferedImage>
+	private class JpegImageValueEditor implements AttributeValueEditor
 	{
 		private BufferedImage value;
 		private String label;
-		private JpegImageAttributeSyntax syntax;
 		private Image field;
 		private Upload upload;
 		private ProgressBar progressIndicator;
@@ -168,10 +159,9 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 		private Label error;
 		private boolean required;
 		
-		public JpegImageValueEditor(BufferedImage value, String label, JpegImageAttributeSyntax syntax)
+		public JpegImageValueEditor(String valueRaw, String label)
 		{
-			this.value = value;
-			this.syntax = syntax;
+			this.value = valueRaw == null ? null : syntax.convertFromString(valueRaw);
 			this.label = label;
 		}
 
@@ -223,7 +213,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 		}
 
 		@Override
-		public BufferedImage getCurrentValue() throws IllegalAttributeValueException
+		public String getCurrentValue() throws IllegalAttributeValueException
 		{
 			if (value == null && !required)
 				return null;
@@ -247,7 +237,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 			
 			error.setVisible(false);
 			field.setVisible(true);
-			return value;
+			return syntax.convertToString(value);
 		}
 		
 		private class ImageUploader extends AbstractUploadReceiver
@@ -347,35 +337,25 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 					+"." + extension);
 		}
 	}
-	
-	@Override
-	public WebAttributeHandler<?> createInstance()
-	{
-		return new JpegImageAttributeHandler(msg);
-	}
 
 	@Override
-	public Component getSyntaxViewer(AttributeValueSyntax<BufferedImage> syntax)
+	public Component getSyntaxViewer()
 	{
 		return new CompactFormLayout(getHints((JpegImageAttributeSyntax)syntax));
 	}
 
-	@Override
-	public AttributeSyntaxEditor<BufferedImage> getSyntaxEditorComponent(
-			AttributeValueSyntax<BufferedImage> initialValue)
-	{
-		return new JpegSyntaxEditor((JpegImageAttributeSyntax) initialValue);
-	}
 	
-	private class JpegSyntaxEditor implements AttributeSyntaxEditor<BufferedImage>
+	private static class JpegSyntaxEditor implements AttributeSyntaxEditor<BufferedImage>
 	{
 		private JpegImageAttributeSyntax initial;
 		private IntegerBoundEditor maxHeight, maxWidth, maxSize;
+		private UnityMessageSource msg;
 		
 		
-		public JpegSyntaxEditor(JpegImageAttributeSyntax initial)
+		public JpegSyntaxEditor(JpegImageAttributeSyntax initial, UnityMessageSource msg)
 		{
 			this.initial = initial;
+			this.msg = msg;
 		}
 
 		@Override
@@ -452,6 +432,40 @@ public class JpegImageAttributeHandler implements WebAttributeHandler<BufferedIm
 		protected void onConfirm()
 		{
 			close();
+		}
+	}
+	
+	
+	
+	@org.springframework.stereotype.Component
+	public static class JpegImageAttributeHandlerFactory implements WebAttributeHandlerFactory
+	{
+		private UnityMessageSource msg;
+
+		@Autowired
+		public JpegImageAttributeHandlerFactory(UnityMessageSource msg)
+		{
+			this.msg = msg;
+		}
+		
+		
+		@Override
+		public String getSupportedSyntaxId()
+		{
+			return JpegImageAttributeSyntax.ID;
+		}
+		
+		@Override
+		public AttributeSyntaxEditor<BufferedImage> getSyntaxEditorComponent(
+				AttributeValueSyntax<?> initialValue)
+		{
+			return new JpegSyntaxEditor((JpegImageAttributeSyntax) initialValue, msg);
+		}
+		
+		@Override
+		public WebAttributeHandler createInstance(AttributeValueSyntax<?> syntax)
+		{
+			return new JpegImageAttributeHandler(msg, syntax);
 		}
 	}
 }

@@ -31,7 +31,6 @@ import pl.edu.icm.unity.webui.common.FormValidator;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
-import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
 import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
@@ -139,12 +138,10 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 		syntax.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override
-			@SuppressWarnings({ "rawtypes", "unchecked" })
 			public void valueChange(ValueChangeEvent event)
 			{
 				String syntaxId = (String)syntax.getValue();
-				WebAttributeHandler handler = registry.getHandler(syntaxId);
-				editor = handler.getSyntaxEditorComponent(null);
+				editor = registry.getSyntaxEditor(syntaxId, null);
 				syntaxPanel.removeAllComponents();
 				syntaxPanel.addComponent(editor.getEditor());
 			}
@@ -167,7 +164,6 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 		validator = new FormValidator(this);
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void setInitialValues(AttributeType aType)
 	{
 		typeDescription.setValue(aType.getDescription());
@@ -177,8 +173,8 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 		selfModificable.setValue(aType.isSelfModificable());
 		String syntaxId = aType.getValueSyntax();
 		syntax.setValue(syntaxId);
-		WebAttributeHandler handler = registry.getHandler(syntaxId);
-		editor = handler.getSyntaxEditorComponent(atSupport.getSyntax(aType));
+		AttributeValueSyntax<?> syntaxObj = atSupport.getSyntax(aType);
+		editor = registry.getSyntaxEditor(syntaxId, syntaxObj);
 		syntaxPanel.removeAllComponents();
 		syntaxPanel.addComponent(editor.getEditor());
 		metaEditor.setInput(aType.getMetadata());

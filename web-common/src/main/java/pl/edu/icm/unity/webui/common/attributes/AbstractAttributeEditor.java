@@ -51,7 +51,7 @@ public abstract class AbstractAttributeEditor
 	protected class AttributeValueEditorAndProvider implements EditorProvider<LabelledValue>, Editor<LabelledValue>
 	{
 		private AttributeType at;
-		private AttributeValueEditor<?> editor;
+		private AttributeValueEditor editor;
 		private LabelledValue editedValue;
 		private String baseLabel;
 		private boolean required;
@@ -72,16 +72,15 @@ public abstract class AbstractAttributeEditor
 			return new AttributeValueEditorAndProvider(at, baseLabel, required, adminMode);
 		}
 
-		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@Override
 		public ComponentsContainer getEditorComponent(LabelledValue value, int position)
 		{
 			if (value == null)
 				value = new LabelledValue(null, establishLabel(position));
 
-			WebAttributeHandler handler = registry.getHandler(at.getValueSyntax());
 			AttributeValueSyntax<?> syntax = registry.getaTypeSupport().getSyntax(at);
-			editor = handler.getEditorComponent(value.getValue(), value.getLabel(), syntax);
+			WebAttributeHandler handler = registry.getHandler(syntax);
+			editor = handler.getEditorComponent(value.getValue(), value.getLabel());
 			editedValue = value;
 			ComponentsContainer ret = editor.getEditor(required, adminMode);
 			String description = at.getDescription().getValue(msg);
@@ -130,16 +129,16 @@ public abstract class AbstractAttributeEditor
 	
 	protected class LabelledValue
 	{
-		private Object value;
+		private String value;
 		private String label;
 		
-		public LabelledValue(Object value, String label)
+		public LabelledValue(String value, String label)
 		{
 			this.value = value;
 			this.label = label;
 		}
 
-		public Object getValue()
+		public String getValue()
 		{
 			return value;
 		}

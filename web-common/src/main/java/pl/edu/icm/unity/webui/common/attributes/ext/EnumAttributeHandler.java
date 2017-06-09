@@ -45,48 +45,39 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
  * Enum attribute handler for the web
  * @author K. Benedyczak
  */
-@org.springframework.stereotype.Component
-public class EnumAttributeHandler implements WebAttributeHandler<String>, WebAttributeHandlerFactory
+public class EnumAttributeHandler implements WebAttributeHandler
 {
 	private UnityMessageSource msg;
+	private EnumAttributeSyntax syntax;
 	
-	@Autowired
-	public EnumAttributeHandler(UnityMessageSource msg)
+	public EnumAttributeHandler(UnityMessageSource msg, EnumAttributeSyntax syntax)
 	{
 		this.msg = msg;
+		this.syntax = syntax;
 	}
 
 	@Override
-	public String getSupportedSyntaxId()
-	{
-		return EnumAttributeSyntax.ID;
-	}
-	
-	@Override
-	public Component getRepresentation(String value, AttributeValueSyntax<String> syntax, RepresentationSize size)
+	public Component getRepresentation(String value, RepresentationSize size)
 	{
 		return new Label(value.toString(), ContentMode.PREFORMATTED);
 	}
 	
 	@Override
-	public AttributeValueEditor<String> getEditorComponent(String initialValue, String label,
-			AttributeValueSyntax<String> syntax)
+	public AttributeValueEditor getEditorComponent(String initialValue, String label)
 	{
-		return new EnumValueEditor(initialValue, label, (EnumAttributeSyntax) syntax);
+		return new EnumValueEditor(initialValue, label);
 	}
 	
-	private class EnumValueEditor implements AttributeValueEditor<String>
+	private class EnumValueEditor implements AttributeValueEditor
 	{
 		private String value;
 		private String label;
-		private EnumAttributeSyntax syntax;
 		private ComboBox field;
 		private boolean required;
 		
-		public EnumValueEditor(String value, String label, EnumAttributeSyntax syntax)
+		public EnumValueEditor(String value, String label)
 		{
 			this.value = value;
-			this.syntax = syntax;
 			this.label = label;
 		}
 
@@ -135,26 +126,19 @@ public class EnumAttributeHandler implements WebAttributeHandler<String>, WebAtt
 	}
 
 	@Override
-	public WebAttributeHandler<?> createInstance()
-	{
-		return new EnumAttributeHandler(msg);
-	}
-
-	@Override
-	public String getValueAsString(String value, AttributeValueSyntax<String> syntax, int limited)
+	public String getValueAsString(String value, int limited)
 	{
 		return TextOnlyAttributeHandler.trimString(value.toString(), limited);
 	}
 
 	@Override
-	public Component getSyntaxViewer(AttributeValueSyntax<String> syntaxR)
+	public Component getSyntaxViewer()
 	{
 		Table allowedTable = new SmallTable();
 		allowedTable.setHeight(12, Unit.EM);
 		allowedTable.setWidth(26, Unit.EM);
 		allowedTable.addContainerProperty(msg.getMessage("EnumAttributeHandler.allowed"), 
 				String.class, null);
-		EnumAttributeSyntax syntax = (EnumAttributeSyntax) syntaxR;
 		List<String> sortedAllowed = new ArrayList<>(syntax.getAllowed());
 		Collections.sort(sortedAllowed);
 		for (String allowed: sortedAllowed)
@@ -165,23 +149,19 @@ public class EnumAttributeHandler implements WebAttributeHandler<String>, WebAtt
 		ret.addComponent(allowedTable);
 		return ret;
 	}
-	@Override
-	public AttributeSyntaxEditor<String> getSyntaxEditorComponent(
-			AttributeValueSyntax<String> initialValue)
-	{
-		return new EnumSyntaxEditor((EnumAttributeSyntax) initialValue);
-	}
 	
-	private class EnumSyntaxEditor implements AttributeSyntaxEditor<String>
+	private static class EnumSyntaxEditor implements AttributeSyntaxEditor<String>
 	{
 		private EnumAttributeSyntax initial;
 		private TextField value;
 		private Button add;
 		private Table current;
+		private UnityMessageSource msg;
 		
-		public EnumSyntaxEditor(EnumAttributeSyntax initial)
+		public EnumSyntaxEditor(EnumAttributeSyntax initial, UnityMessageSource msg)
 		{
 			this.initial = initial;
+			this.msg = msg;
 		}
 
 		@Override
@@ -263,4 +243,37 @@ public class EnumAttributeHandler implements WebAttributeHandler<String>, WebAtt
 
 	}
 	
+	
+	
+	
+	@org.springframework.stereotype.Component
+	public static class EnumAttributeHandlerFactory implements WebAttributeHandlerFactory
+	{
+		private UnityMessageSource msg;
+
+		@Autowired
+		public EnumAttributeHandlerFactory(UnityMessageSource msg)
+		{
+			this.msg = msg;
+		}
+
+		@Override
+		public String getSupportedSyntaxId()
+		{
+			return EnumAttributeSyntax.ID;
+		}
+
+		@Override
+		public WebAttributeHandler createInstance(AttributeValueSyntax<?> syntax)
+		{
+			return new EnumAttributeHandler(msg, (EnumAttributeSyntax) syntax);
+		}
+
+		@Override
+		public AttributeSyntaxEditor<String> getSyntaxEditorComponent(
+				AttributeValueSyntax<?> initialValue)
+		{
+			return new EnumSyntaxEditor((EnumAttributeSyntax) initialValue, msg);
+		}
+	}
 }

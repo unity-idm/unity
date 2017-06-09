@@ -15,7 +15,6 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -61,9 +60,6 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 	
 	public void setInitialAttribute(Attribute initial)
 	{
-		@SuppressWarnings("unchecked")
-		AttributeValueSyntax<Object> syntax = (AttributeValueSyntax<Object>) 
-				registry.getaTypeSupport().getSyntax(initial);
 		attributeSel.setValue(initial.getName());
 		if (groupSel != null)
 			groupSel.setValue(initial.getGroupPath());
@@ -75,7 +71,7 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 		{
 			String label = baseLabel + ((initial.getValues().size() > 1) ? " (" + (i+1) + "):" : "");
 			String rawValue = initial.getValues().get(i);
-			labelledValues.add(new LabelledValue(syntax.convertFromString(rawValue), label));
+			labelledValues.add(new LabelledValue(rawValue, label));
 		}
 		valuesComponent.setEntries(labelledValues);
 	}
@@ -85,12 +81,9 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 		List<?> labelledValues = valuesComponent == null ? new ArrayList<>(0) : valuesComponent.getElements();
 		List<String> values = new ArrayList<>(labelledValues.size());
 		AttributeType at = attributeSel.getSelectedValue();
-		@SuppressWarnings("unchecked")
-		AttributeValueSyntax<Object> syntax = (AttributeValueSyntax<Object>) 
-				registry.getaTypeSupport().getSyntax(at);
 		for (Object lv: labelledValues)
 		{
-			String value = syntax.convertToString(((LabelledValue)lv).getValue());
+			String value = ((LabelledValue)lv).getValue();
 			values.add(value);
 		}
 		String group;

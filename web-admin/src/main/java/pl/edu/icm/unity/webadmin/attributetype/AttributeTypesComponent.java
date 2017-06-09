@@ -24,6 +24,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webadmin.attributetype.AttributeTypeEditDialog.Callback;
@@ -93,7 +94,7 @@ public class AttributeTypesComponent extends VerticalLayout
 					}
 				});
 
-		viewer = new AttributeTypeViewer(msg, atSupport);
+		viewer = new AttributeTypeViewer(msg);
 		table.setMultiSelect(true);
 		table.addValueChangeListener(new ValueChangeListener()
 		{
@@ -110,9 +111,9 @@ public class AttributeTypesComponent extends VerticalLayout
 				AttributeType at = items.iterator().next();	
 				if (at != null)
 				{
-					WebAttributeHandler<?> handler = 
-							AttributeTypesComponent.this.attrHandlerRegistry.getHandler(
-							at.getValueSyntax());
+					AttributeValueSyntax<?> syntax = atSupport.getSyntax(at);
+					WebAttributeHandler handler = 
+							AttributeTypesComponent.this.attrHandlerRegistry.getHandler(syntax);
 					viewer.setInput(at, handler, 
 							AttributeTypesComponent.this.attrMetaHandlerRegistry);
 				} else

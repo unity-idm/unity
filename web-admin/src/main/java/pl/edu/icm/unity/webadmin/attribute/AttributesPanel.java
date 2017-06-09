@@ -267,7 +267,8 @@ public class AttributesPanel extends HorizontalSplitPanel
 			attributeValues.removeValues();
 			return;
 		}
-		WebAttributeHandler<?> handler = registry.getHandler(attribute.getValueSyntax());
+		AttributeValueSyntax<?> syntax = atSupport.getSyntax(attribute);
+		WebAttributeHandler handler = registry.getHandler(syntax);
 		attributeValues.setValues(handler, attribute);
 	}
 	

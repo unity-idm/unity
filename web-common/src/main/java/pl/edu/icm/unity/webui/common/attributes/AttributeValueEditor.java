@@ -11,7 +11,7 @@ import pl.edu.icm.unity.webui.common.ComponentsContainer;
  * Attribute value editor, with possibility to retrieve the edited value.
  * @author K. Benedyczak
  */
-public interface AttributeValueEditor<T>
+public interface AttributeValueEditor
 {
 	/**
 	 * @param required if true the editor should be set in required mode
@@ -25,7 +25,7 @@ public interface AttributeValueEditor<T>
 	 * @return the edited value 
 	 * @throws IllegalAttributeValueException if the current state of the editor is invalid
 	 */
-	public T getCurrentValue() throws IllegalAttributeValueException;
+	public String getCurrentValue() throws IllegalAttributeValueException;
 	
 	/**
 	 * Updates the editor's label of the value, which was initially set upon object construction

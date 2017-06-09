@@ -53,13 +53,12 @@ public class ValuesRendererPanel extends VerticalLayout
 		removeAllComponents();
 	}
 	
-	public <T> void setValues(WebAttributeHandler<T> handler, AttributeExt a)
+	public void setValues(WebAttributeHandler handler, AttributeExt a)
 	{
 		removeValues();
 		buildInfoView(a);
 		List<String> values = a.getValues();
-		@SuppressWarnings("unchecked")
-		AttributeValueSyntax<T> syntax = (AttributeValueSyntax<T>) atSupport.getSyntax(a);
+		AttributeValueSyntax<?> syntax = atSupport.getSyntax(a);
 		if (values.size() > 1)
 			buildMultiValueView(handler, syntax, values);
 		else if (values.size() == 1)
@@ -89,26 +88,24 @@ public class ValuesRendererPanel extends VerticalLayout
 		addComponent(infoPanel);
 	}
 	
-	@SuppressWarnings("rawtypes")
 	private void buildMultiValueView(final WebAttributeHandler handler, final AttributeValueSyntax<?> syntax, 
-			List<?> values)
+			List<String> values)
 	{
 		final CompositeSplitPanel main = new CompositeSplitPanel(true, false, 33);
 		
 		final ValuesTable valuesTable = new ValuesTable(msg);
-		valuesTable.setValues(values, syntax, handler);
+		valuesTable.setValues(values, handler);
 		main.setFirstComponent(valuesTable);
 		
 		valuesTable.setImmediate(true);
 		valuesTable.addValueChangeListener(new ValueChangeListener()
 		{
-			@SuppressWarnings("unchecked")
 			@Override
 			public void valueChange(ValueChangeEvent event)
 			{
 				Object selectedId = valuesTable.getValue();
-				Object value = valuesTable.getItemById(selectedId);
-				Component c = handler.getRepresentation(value, syntax, RepresentationSize.ORIGINAL);
+				String value = valuesTable.getItemById(selectedId);
+				Component c = handler.getRepresentation(value, RepresentationSize.ORIGINAL);
 				c.setSizeUndefined();
 				
 				SafePanel valuePanel = new SafePanel(msg.getMessage("Attribute.selectedValue"));
@@ -124,11 +121,10 @@ public class ValuesRendererPanel extends VerticalLayout
 		setExpandRatio(main, 1);
 	}
 	
-	private <T> void buildSingleValueView(WebAttributeHandler<T> handler, AttributeValueSyntax<T> syntax, 
+	private <T> void buildSingleValueView(WebAttributeHandler handler, AttributeValueSyntax<T> syntax, 
 			String value)
 	{
-		Component c = handler.getRepresentation(syntax.convertFromString(value), 
-				syntax, RepresentationSize.ORIGINAL);
+		Component c = handler.getRepresentation(value, RepresentationSize.ORIGINAL);
 		c.setSizeUndefined();
 		SafePanel valuePanel = new SafePanel(msg.getMessage("Attribute.value"));
 		valuePanel.addStyleName(Styles.vPanelLight.toString());

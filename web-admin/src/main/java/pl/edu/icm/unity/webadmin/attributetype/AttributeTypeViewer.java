@@ -10,7 +10,6 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
@@ -41,14 +40,9 @@ public class AttributeTypeViewer extends CompactFormLayout
 	private SafePanel syntaxPanel;
 	private VerticalLayout metaPanel;
 
-	private AttributeTypeSupport atSupport;
-	
-	public AttributeTypeViewer(UnityMessageSource msg, AttributeTypeSupport atSupport)
+	public AttributeTypeViewer(UnityMessageSource msg)
 	{
-		super();
 		this.msg = msg;
-		this.atSupport = atSupport;
-		
 		initUI();
 	}
 	
@@ -110,7 +104,6 @@ public class AttributeTypeViewer extends CompactFormLayout
 		metaPanel.setVisible(how);
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void setInput(AttributeType aType, WebAttributeHandler handler, 
 			AttributeMetadataHandlerRegistry metaHandlersReg)
 	{
@@ -129,7 +122,7 @@ public class AttributeTypeViewer extends CompactFormLayout
 		selfModificable.setValue(AttributeTypeUtils.getBooleanDesc(msg, aType.isSelfModificable()));
 		flags.setValue(AttributeTypeUtils.getFlagsDesc(msg, aType));
 		syntax.setValue(aType.getValueSyntax());
-		syntaxPanel.setContent(handler.getSyntaxViewer(atSupport.getSyntax(aType)));
+		syntaxPanel.setContent(handler.getSyntaxViewer());
 		
 		metaPanel.removeAllComponents();
 		Map<String, String> meta = aType.getMetadata();
