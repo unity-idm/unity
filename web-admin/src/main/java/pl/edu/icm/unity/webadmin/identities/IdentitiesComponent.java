@@ -46,6 +46,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.webadmin.attribute.AttributeChangedEvent;
+import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesUpdatedEvent;
 import pl.edu.icm.unity.webadmin.credentials.CredentialDefinitionChangedEvent;
 import pl.edu.icm.unity.webadmin.credreq.CredentialRequirementChangedEvent;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
@@ -311,6 +312,16 @@ public class IdentitiesComponent extends SafePanel
 					setGroup(IdentitiesComponent.this.identitiesTable.getGroup());
 			}
 		}, CredentialDefinitionChangedEvent.class);
+
+		bus.addListener(new EventListener<AttributeTypesUpdatedEvent>()
+		{
+			@Override
+			public void handleEvent(AttributeTypesUpdatedEvent event)
+			{
+				setGroup(IdentitiesComponent.this.identitiesTable.getGroup());
+			}
+		}, AttributeTypesUpdatedEvent.class);
+		
 		bus.addListener(new EventListener<AttributeChangedEvent>()
 		{
 			@Override

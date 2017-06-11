@@ -262,14 +262,22 @@ public class AttributesPanel extends HorizontalSplitPanel
 	
 	private void updateValues(AttributeExt attribute)
 	{
-		if (attribute == null)
+		try
 		{
-			attributeValues.removeValues();
-			return;
+			if (attribute == null)
+			{
+				attributeValues.removeValues();
+				return;
+			}
+			AttributeValueSyntax<?> syntax = atSupport.getSyntax(attribute);
+			WebAttributeHandler handler = registry.getHandler(syntax);
+			attributeValues.setValues(handler, attribute);
+		} catch (Exception e)
+		{
+			NotificationPopup.showError(msg, 
+					msg.getMessage("Attribute.addAttributeError", 
+							attribute.getName()), e);
 		}
-		AttributeValueSyntax<?> syntax = atSupport.getSyntax(attribute);
-		WebAttributeHandler handler = registry.getHandler(syntax);
-		attributeValues.setValues(handler, attribute);
 	}
 	
 	private void updateAttributesFilter(boolean add, Container.Filter filter)
