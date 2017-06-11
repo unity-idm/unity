@@ -121,7 +121,8 @@ public class IdentityTypeEditor extends FormLayout
 	{
 		validator.validate();
 		
-		IdentityType ret = new IdentityType(original.getIdentityTypeProvider());
+		IdentityType ret = new IdentityType(original.getName(),
+				original.getIdentityTypeProvider());
 		ret.setDescription(description.getValue());
 		ret.setSelfModificable(selfModifiable.getValue());
 		ret.setExtractedAttributes(original.getExtractedAttributes());
