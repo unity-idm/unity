@@ -45,8 +45,8 @@ public class EndpointDBImpl extends GenericObjectsDAOImpl<Endpoint> implements E
 			List<AuthenticationOptionDescription> authnOpts = endpoint.getConfiguration()
 					.getAuthenticationOptions();
 			for (AuthenticationOptionDescription ao: authnOpts)
-				if (ao.getPrimaryAuthenticator().equals(removedName) || 
-						ao.getMandatory2ndAuthenticator().equals(removedName))
+				if (removedName.equals(ao.getPrimaryAuthenticator()) || 
+						removedName.equals(ao.getMandatory2ndAuthenticator()))
 					throw new IllegalArgumentException("The authenticator is used by an endpoint " 
 						+ endpoint.getName());
 		}
