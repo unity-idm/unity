@@ -45,7 +45,6 @@ public class Group extends I18nDescribedObject implements NamedObject
 	
 	private AttributeStatement[] attributeStatements = new AttributeStatement[0];
 	private Set<String> attributesClasses = new HashSet<String>();
-	private boolean displayedNameSet = false;
 
 	public Group(Group parent, String name)
 	{
@@ -235,23 +234,6 @@ public class Group extends I18nDescribedObject implements NamedObject
 	}
 
 	/**
-	 * @return if displayed name was set to something different then the default value (i.e. the value returned 
-	 * by {@link #toString()}) it is returned. Otherwise the {@link #getNameShort()} result is returned. 
-	 */
-	public I18nString getDisplayedNameShort()
-	{
-		return displayedNameSet ? displayedName : new I18nString(getNameShort());
-	}
-	
-	@Override
-	public void setDisplayedName(I18nString displayedName)
-	{
-		displayedNameSet = !displayedName.isEmpty() && 
-				!toString().equals(displayedName.getDefaultValue());
-		super.setDisplayedName(displayedName);
-	}
-	
-	/**
 	 * @return last component of the group path
 	 */
 	public String getNameShort()
@@ -302,7 +284,10 @@ public class Group extends I18nDescribedObject implements NamedObject
 	{
 		setDescription(I18nStringJsonUtil.fromJson(main.get("i18nDescription"),
 				main.get("description")));
-		setDisplayedName(I18nStringJsonUtil.fromJson(main.get("displayedName")));
+		I18nString displayedName = I18nStringJsonUtil.fromJson(main.get("displayedName"));
+		if (displayedName.getDefaultValue() == null)
+			displayedName.setDefaultValue(toString());
+		setDisplayedName(displayedName);
 		
 		ArrayNode jsonStatements = (ArrayNode) main.get("attributeStatements");
 		int asLen = jsonStatements.size();
@@ -327,7 +312,6 @@ public class Group extends I18nDescribedObject implements NamedObject
 		result = prime * result + Arrays.hashCode(attributeStatements);
 		result = prime * result
 				+ ((attributesClasses == null) ? 0 : attributesClasses.hashCode());
-		result = prime * result + (displayedNameSet ? 1231 : 1237);
 		result = prime * result + Arrays.hashCode(path);
 		return result;
 	}
@@ -349,8 +333,6 @@ public class Group extends I18nDescribedObject implements NamedObject
 			if (other.attributesClasses != null)
 				return false;
 		} else if (!attributesClasses.equals(other.attributesClasses))
-			return false;
-		if (displayedNameSet != other.displayedNameSet)
 			return false;
 		if (!Arrays.equals(path, other.path))
 			return false;

@@ -36,17 +36,17 @@ public class TreeNode
 	{
 		if (group.isTopLevel())
 		{
-			this.name = group.getDisplayedNameShort().getValue(msg);
+			this.name = group.getDisplayedName().getValue(msg);
 			if (this.name.equals("/"))
 				this.name = msg.getMessage("GroupBrowser.root");
 			else
 				this.name = name + " (/)";
 		} else
 		{
-			this.name = group.getDisplayedNameShort().getValue(msg);
-			String realshortName = group.getNameShort();
-			if (!realshortName.equals(name))
-				this.name = name + " (" + realshortName + ")";
+			this.name = group.getDisplayedName().getValue(msg);
+			String realName = group.toString();
+			if (!realName.equals(name))
+				this.name = name + " (" + realName + ")";
 		}
 	}
 	
