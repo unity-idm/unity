@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.translation.in.AttributeEffectMode;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationAction;
@@ -22,7 +23,6 @@ import pl.edu.icm.unity.engine.api.translation.in.MappedAttribute;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
 import pl.edu.icm.unity.engine.attribute.AttributeValueConverter;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
@@ -38,12 +38,12 @@ import pl.edu.icm.unity.types.translation.TranslationActionType;
 public class MapAttributeActionFactory extends AbstractInputTranslationActionFactory
 {
 	public static final String NAME = "mapAttribute";
-	private AttributeTypeDAO attrsMan;
+	private AttributeTypeSupport attrsMan;
 	private AttributeValueConverter attrValueConverter;
 	
 	
 	@Autowired
-	public MapAttributeActionFactory(AttributeTypeDAO attrsMan, AttributeValueConverter attrValueConverter)
+	public MapAttributeActionFactory(AttributeTypeSupport attrsMan, AttributeValueConverter attrValueConverter)
 	{
 		super(NAME, 
 			new ActionParameterDefinition(
@@ -84,13 +84,13 @@ public class MapAttributeActionFactory extends AbstractInputTranslationActionFac
 		private AttributeType at;
 		private AttributeValueConverter attrValueConverter;
 
-		public MapAttributeAction(String[] params, TranslationActionType desc, AttributeTypeDAO attrsMan,
+		public MapAttributeAction(String[] params, TranslationActionType desc, AttributeTypeSupport attrsMan,
 				AttributeValueConverter attrValueConverter) 
 		{
 			super(desc, params);
 			this.attrValueConverter = attrValueConverter;
 			setParameters(params);
-			at = attrsMan.get(unityAttribute);
+			at = attrsMan.getType(unityAttribute);
 		}
 		
 		@Override

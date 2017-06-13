@@ -16,13 +16,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.engine.attribute.AttributeValueConverter;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
@@ -38,11 +38,11 @@ import pl.edu.icm.unity.types.translation.TranslationActionType;
 public class AddAttributeActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	public static final String NAME = "addAttribute";
-	private AttributeTypeDAO attrsMan;
+	private AttributeTypeSupport attrsSupport;
 	private AttributeValueConverter attrValueConverter;
 	
 	@Autowired
-	public AddAttributeActionFactory(AttributeTypeDAO attrsMan, AttributeValueConverter attrValueConverter)
+	public AddAttributeActionFactory(AttributeTypeSupport attrsSupport, AttributeValueConverter attrValueConverter)
 	{
 		super(NAME, new ActionParameterDefinition[] {
 				new ActionParameterDefinition(
@@ -58,14 +58,14 @@ public class AddAttributeActionFactory extends AbstractRegistrationTranslationAc
 						"RegTranslationAction.addAttribute.paramDesc.expression",
 						Type.EXPRESSION)
 		});
-		this.attrsMan = attrsMan;
+		this.attrsSupport = attrsSupport;
 		this.attrValueConverter = attrValueConverter;
 	}
 
 	@Override
 	public RegistrationTranslationAction getInstance(String... parameters)
 	{
-		return new AddAttributeAction(getActionType(), parameters, attrsMan, attrValueConverter);
+		return new AddAttributeAction(getActionType(), parameters, attrsSupport, attrValueConverter);
 	}
 	
 	public static class AddAttributeAction extends RegistrationTranslationAction
@@ -79,12 +79,12 @@ public class AddAttributeActionFactory extends AbstractRegistrationTranslationAc
 		private AttributeValueConverter attrValueConverter;
 		
 		public AddAttributeAction(TranslationActionType description, String[] parameters, 
-				AttributeTypeDAO attrsMan, AttributeValueConverter attrValueConverter)
+				AttributeTypeSupport attrsSupport, AttributeValueConverter attrValueConverter)
 		{
 			super(description, parameters);
 			this.attrValueConverter = attrValueConverter;
 			setParameters(parameters);
-			at = attrsMan.get(unityAttribute);
+			at = attrsSupport.getType(unityAttribute);
 			if (at == null)
 				throw new IllegalArgumentException(
 						"Attribute type " + unityAttribute + " is not known");

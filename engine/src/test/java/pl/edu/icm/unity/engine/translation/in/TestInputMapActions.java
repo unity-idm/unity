@@ -12,12 +12,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
 import org.mockito.AdditionalAnswers;
 
+import com.google.common.collect.Lists;
+
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
@@ -39,7 +41,6 @@ import pl.edu.icm.unity.engine.translation.in.action.MultiMapAttributeActionFact
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityScheduledOperation;
@@ -50,8 +51,8 @@ public class TestInputMapActions
 	public void testMapAttribute() throws EngineException
 	{
 		AttributeType sA = new AttributeType("stringA", StringAttributeSyntax.ID);
-		AttributeTypeDAO attrsMan = mock(AttributeTypeDAO.class);
-		when(attrsMan.get("stringA")).thenReturn(sA);
+		AttributeTypeSupport attrsMan = mock(AttributeTypeSupport.class);
+		when(attrsMan.getType("stringA")).thenReturn(sA);
 		
 		AttributeValueConverter converter = mock(AttributeValueConverter.class); 
 		when(converter.externalValuesToInternal(eq("stringA"), anyList())).
@@ -82,10 +83,8 @@ public class TestInputMapActions
 	public void testMultiMapAttribute() throws EngineException
 	{
 		AttributeType sA = new AttributeType("stringA", StringAttributeSyntax.ID);
-		AttributeTypeDAO attrsMan = mock(AttributeTypeDAO.class);
-		Map<String, AttributeType> mockTypes = new HashMap<>();
-		mockTypes.put(sA.getName(), sA);
-		when(attrsMan.getAllAsMap()).thenReturn(mockTypes);
+		AttributeTypeSupport attrsMan = mock(AttributeTypeSupport.class);
+		when(attrsMan.getAttributeTypes()).thenReturn(Lists.newArrayList(sA));
 		
 		AttributeValueConverter converter = mock(AttributeValueConverter.class); 
 		when(converter.externalValuesToInternal(eq("stringA"), anyList())).

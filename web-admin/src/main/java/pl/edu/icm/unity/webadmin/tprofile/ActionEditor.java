@@ -8,6 +8,8 @@ package pl.edu.icm.unity.webadmin.tprofile;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.UserError;
@@ -16,6 +18,7 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
@@ -33,6 +36,7 @@ import pl.edu.icm.unity.webui.common.Styles;
  */
 public class ActionEditor extends LayoutEmbeddable
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ActionEditor.class);
 	private UnityMessageSource msg;
 	private TypesRegistryBase<? extends TranslationActionFactory<?>> tc;
 	
@@ -164,6 +168,7 @@ public class ActionEditor extends LayoutEmbeddable
 			throw e;
 		} catch (Exception e)
 		{
+			log.debug("Got profile's action validation exception", e);
 			String error = msg.getMessage("ActionEditor.parametersError", e.getMessage());
 			UserError ue = new UserError(error);
 			for (ActionParameterComponent tc: paramComponents)

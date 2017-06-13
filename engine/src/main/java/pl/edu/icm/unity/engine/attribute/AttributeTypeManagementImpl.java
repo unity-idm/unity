@@ -250,4 +250,11 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		authz.checkAuthorization(AuthzCapability.readInfo);
 		return attributeTypeDAO.getAllAsMap();
 	}
+
+	@Override
+	public AttributeType getAttributeType(String name) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
+		return attributeTypeDAO.get(name);
+	}
 }

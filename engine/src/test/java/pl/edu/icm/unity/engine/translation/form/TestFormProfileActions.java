@@ -7,8 +7,8 @@ package pl.edu.icm.unity.engine.translation.form;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -23,6 +23,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.registration.RequestSubmitStatus;
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
@@ -48,7 +49,6 @@ import pl.edu.icm.unity.engine.translation.form.action.SetEntityStateActionFacto
 import pl.edu.icm.unity.engine.translation.form.action.SetEntityStateActionFactory.EntityStateLimited;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
-import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityScheduledOperation;
@@ -70,8 +70,8 @@ public class TestFormProfileActions
 	{
 		AttributeType sA = new AttributeType("stringA", StringAttributeSyntax.ID);
 
-		AttributeTypeDAO attrsMan = mock(AttributeTypeDAO.class);
-		when(attrsMan.get("stringA")).thenReturn(sA);
+		AttributeTypeSupport attrsMan = mock(AttributeTypeSupport.class);
+		when(attrsMan.getType("stringA")).thenReturn(sA);
 		
 		AttributeValueConverter converter = mock(AttributeValueConverter.class); 
 		when(converter.externalValuesToInternal(anyString(), anyList())).thenReturn(Lists.newArrayList("a1"));

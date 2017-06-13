@@ -58,4 +58,11 @@ public interface AttributeTypeManagement
 	 * @throws EngineException
 	 */
 	Map<String, AttributeType> getAttributeTypesAsMap() throws EngineException;
+	
+	/**
+	 * @param name attribute name 
+	 * @return attribute type with a given name
+	 * @throws EngineException
+	 */
+	AttributeType getAttributeType(String name) throws EngineException;
 }

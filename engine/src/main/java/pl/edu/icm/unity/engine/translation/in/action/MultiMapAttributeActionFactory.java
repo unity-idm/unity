@@ -7,12 +7,14 @@ package pl.edu.icm.unity.engine.translation.in.action;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.translation.in.AttributeEffectMode;
@@ -21,7 +23,6 @@ import pl.edu.icm.unity.engine.api.translation.in.MappedAttribute;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
 import pl.edu.icm.unity.engine.attribute.AttributeValueConverter;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
@@ -37,11 +38,11 @@ import pl.edu.icm.unity.types.translation.TranslationActionType;
 public class MultiMapAttributeActionFactory extends AbstractInputTranslationActionFactory
 {
 	public static final String NAME = "multiMapAttribute";
-	private AttributeTypeDAO attrsMan;
+	private AttributeTypeSupport attrsMan;
 	private AttributeValueConverter attrValueConverter;
 	
 	@Autowired
-	public MultiMapAttributeActionFactory(AttributeTypeDAO attrsMan, AttributeValueConverter attrValueConverter)
+	public MultiMapAttributeActionFactory(AttributeTypeSupport attrsMan, AttributeValueConverter attrValueConverter)
 	{
 		super(NAME, new ActionParameterDefinition[] {
 				new ActionParameterDefinition(
@@ -66,14 +67,14 @@ public class MultiMapAttributeActionFactory extends AbstractInputTranslationActi
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, 
 				MultiMapAttributeAction.class);
-		private final AttributeTypeDAO attrMan;
+		private final AttributeTypeSupport attrMan;
 		private String mapping;
 		private AttributeEffectMode mode;
 		private List<Mapping> mappings;
 		private AttributeValueConverter attrValueConverter;
 
 		public MultiMapAttributeAction(String[] params, TranslationActionType desc, 
-				AttributeTypeDAO attrsMan, AttributeValueConverter attrValueConverter) 
+				AttributeTypeSupport attrsMan, AttributeValueConverter attrValueConverter) 
 		{
 			super(desc, params);
 			this.attrValueConverter = attrValueConverter;
@@ -122,7 +123,9 @@ public class MultiMapAttributeActionFactory extends AbstractInputTranslationActi
 		private void parseMapping()
 		{
 			mappings = new ArrayList<MultiMapAttributeAction.Mapping>();
-			Map<String, AttributeType> attributeTypes = attrMan.getAllAsMap();
+			Map<String, AttributeType> attributeTypes = attrMan.getAttributeTypes()
+					.stream()
+					.collect(Collectors.toMap(at -> at.getName(), at -> at));
 			String lines[] = mapping.split("\n");
 			int num = 0;
 			for (String line: lines)

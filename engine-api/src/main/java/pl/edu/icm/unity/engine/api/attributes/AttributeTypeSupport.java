@@ -38,11 +38,16 @@ public interface AttributeTypeSupport
 	AttributeValueSyntax<?> getSyntaxFallingBackToDefault(Attribute attribute);
 	
 	/**
-	 * 
 	 * @param attribute
 	 * @return attribute type for the attribute name
 	 */
 	AttributeType getType(Attribute attribute);
+
+	/**
+	 * @param attribute
+	 * @return attribute type for the attribute name
+	 */
+	AttributeType getType(String attribute);
 	
 	Collection<AttributeType> getAttributeTypes();
 }
