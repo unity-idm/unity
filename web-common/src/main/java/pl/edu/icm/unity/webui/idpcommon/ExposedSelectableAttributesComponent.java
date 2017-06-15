@@ -159,8 +159,7 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 			Map<String, AttributeType> attributeTypes, Label hideL)
 	{
 		Attribute at = dat.getAttribute();
-		AttributeValueSyntax<?> syntax = aTypeSupport.getSyntax(at);
-		WebAttributeHandler handler = handlersRegistry.getHandler(syntax);
+		WebAttributeHandler handler = getAttributeHandlerWithStringFallback(at);
 		AttributeType attributeType = attributeTypes.get(at.getName());
 		if (attributeType == null) //can happen for dynamic attributes from output translation profile
 			attributeType = new AttributeType(at.getName(), StringAttributeSyntax.ID);
@@ -174,6 +173,19 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 		return attributeComponent;
 	
 	}
+	
+	private WebAttributeHandler getAttributeHandlerWithStringFallback(Attribute at)
+	{
+		try
+		{
+			AttributeValueSyntax<?> syntax = aTypeSupport.getSyntax(at);
+			return handlersRegistry.getHandler(syntax);
+		} catch (IllegalArgumentException e)
+		{
+			return handlersRegistry.getHandler(new StringAttributeSyntax());
+		}
+	}
+	
 	private String getAttributeDescription(DynamicAttribute dat, AttributeType attributeType)
 	{
 		String attrDescription = dat.getDescription();
