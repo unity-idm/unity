@@ -15,13 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.attribute.AttributeValueConverter;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
@@ -40,11 +40,11 @@ import pl.edu.icm.unity.types.translation.TranslationActionType;
 public class CreatePersistentAttributeActionFactory extends AbstractOutputTranslationActionFactory
 {
 	public static final String NAME = "createPersistentAttribute";
-	private AttributeTypeDAO attrsMan;
+	private AttributeTypeSupport attrsMan;
 	private AttributeValueConverter attrValueConverter;
 	
 	@Autowired
-	public CreatePersistentAttributeActionFactory(AttributeTypeDAO attrsMan, 
+	public CreatePersistentAttributeActionFactory(AttributeTypeSupport attrsMan, 
 			AttributeValueConverter attrValueConverter)
 	{
 		super(NAME, new ActionParameterDefinition[] {
@@ -87,7 +87,7 @@ public class CreatePersistentAttributeActionFactory extends AbstractOutputTransl
 		private boolean attrMandatory;
 
 		public CreatePersistentAttributeAction(String[] params, TranslationActionType desc, 
-				AttributeTypeDAO attrsMan, AttributeValueConverter attrValueConverter)
+				AttributeTypeSupport attrsMan, AttributeValueConverter attrValueConverter)
 		{
 			super(desc, params);
 			this.attrValueConverter = attrValueConverter;
@@ -144,7 +144,7 @@ public class CreatePersistentAttributeActionFactory extends AbstractOutputTransl
 			log.debug("Created a new persisted attribute: " + dat);
 		}
 
-		private void setParameters(String[] parameters, AttributeTypeDAO attrsMan)
+		private void setParameters(String[] parameters, AttributeTypeSupport attrsMan)
 		{
 			if (parameters.length != 4)
 				throw new IllegalArgumentException("Action requires exactly 4 parameters");
@@ -153,7 +153,7 @@ public class CreatePersistentAttributeActionFactory extends AbstractOutputTransl
 			attrMandatory = Boolean.valueOf(parameters[2]);
 			group = parameters[3];
 
-			attributeType = attrsMan.get(attrNameString);
+			attributeType = attrsMan.getType(attrNameString);
 			if (attributeType == null)
 				throw new IllegalArgumentException("The attribute type " + parameters[0] + 
 						" is not a valid Unity attribute type and therefore can not "
