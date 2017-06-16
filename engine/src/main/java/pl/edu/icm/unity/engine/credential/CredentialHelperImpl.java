@@ -66,6 +66,6 @@ public class CredentialHelperImpl implements CredentialHelper
 		String credentialAttributeName = CredentialAttributeTypeProvider.CREDENTIAL_PREFIX+credentialName;
 		Attribute newCredentialA = StringAttribute.of(credentialAttributeName, 
 				"/", Collections.singletonList(value));
-		attributeHelper.addAttribute(entityId, newCredentialA, true, true);
+		attributeHelper.addSystemAttribute(entityId, newCredentialA, true);
 	}
 }
