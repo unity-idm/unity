@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Sets;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -41,6 +43,8 @@ import pl.edu.icm.unity.types.basic.Identity;
 public class BulkProcessingExecutor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, BulkProcessingExecutor.class);
+	
+	private static final Set<String> SENSITIVE = Sets.newHashSet("hash", "cred", "pass");
 	
 	public enum ContextKey
 	{
@@ -98,8 +102,13 @@ public class BulkProcessingExecutor
 			Map<String, GroupMembership> groups = idManagement.getGroups(entityP);
 			Collection<AttributeExt> allAttributes = 
 					attrManagement.getAllAttributes(entityP, false, "/", null, false);
-			Object context = getContext(entity, groups.keySet(), allAttributes);
+			Map<String, Object> context = getContext(entity, groups.keySet(), allAttributes);
 
+			if (log.isDebugEnabled())
+				log.debug("Entity processing context for {}:\n{}", 
+						entity.getEntityInformation().getId(),
+						ctx2ReadableString(context, ""));
+			
 			if (rule.getConditionInstance().evaluate(context, log))
 			{
 				if (log.isDebugEnabled())
@@ -109,13 +118,40 @@ public class BulkProcessingExecutor
 			} else
 			{
 				if (log.isDebugEnabled())
-					log.debug("Skipping entity with id " + entity.getEntityInformation().getId() + 
-							" not matching the condition");
+					log.debug("Skipping entity with id {} not matching the condition",
+							 entity.getEntityInformation().getId());
 			}
 		} catch (Exception e)
 		{
 			log.error("Processing entity action failed", e);
 		}
+	}
+	
+	private String ctx2ReadableString(Object context, String pfx)
+	{
+		if (!(context instanceof Map))
+			return context.toString();
+		Map<?, ?> map = (Map<?, ?>) context;
+		StringBuilder ret = new StringBuilder(10240);
+		map.forEach((k, v) -> {
+			String key = k.toString();
+			ret.append(pfx).append(k).append(": ");
+			if (seemsSensitive(key))
+				ret.append("--MASKED--").append("\n"); 
+			else
+				ret.append(ctx2ReadableString(v, pfx+"  ")).append("\n");
+		});
+		
+		
+		return ret.toString();
+	}
+	
+	private boolean seemsSensitive(String key)
+	{
+		for (String checked: SENSITIVE)
+			if (key.contains(checked))
+				return true;
+		return false;
 	}
 	
 	private Map<String, Object> getContext(Entity entity, Set<String> groups, 

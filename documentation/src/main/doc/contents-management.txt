@@ -339,7 +339,7 @@ for instance confirmation status of an email.
 Example condition selecting all disabled entities:
 
 ----
-status == 'DISABLED'
+status == 'disabled'
 ----
 
 Another much more complex example: let's select all users who logged in no later then 6 months ago 

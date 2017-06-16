@@ -69,7 +69,7 @@ public class ChangeStatusActionFactory extends AbstractEntityActionFactory
 			if (state == entity.getState())
 				return;
 			
-			log.info("Changing entity " + entity + " status to " + state);
+			log.info("Changing entity {} status to {}", entity.getId(), state);
 			try
 			{
 				idsMan.setEntityStatus(new EntityParam(entity.getId()), state);
