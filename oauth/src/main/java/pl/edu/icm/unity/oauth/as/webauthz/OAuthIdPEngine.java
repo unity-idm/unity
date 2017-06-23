@@ -75,6 +75,15 @@ public class OAuthIdPEngine
 		}
 	}
 	
+	public TranslationResult getUserInfo(long entityId, String clientId,
+			String userGroup, String translationProfile, String flow,
+			boolean skipImport) throws EngineException
+	{
+		return getUserInfoUnsafe(entityId,
+				clientId, userGroup,
+				translationProfile, flow, skipImport);
+	}
+	
 	public IdentityParam getIdentity(TranslationResult userInfo, String subjectIdentityType) 
 			throws EngineException
 	{
@@ -86,21 +95,28 @@ public class OAuthIdPEngine
 				+ "Probably the endpoint is misconfigured.");
 	}
 	
-	private TranslationResult getUserInfoUnsafe(OAuthAuthzContext ctx) 
-			throws EngineException
+	private TranslationResult getUserInfoUnsafe(OAuthAuthzContext ctx) throws EngineException
 	{
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
-		String flow = ctx.getRequest().getResponseType().impliesCodeFlow() ? 
-				GrantFlow.authorizationCode.toString() : GrantFlow.implicit.toString();
-		Boolean skipImport = ctx.getConfig().getBooleanValue(CommonIdPProperties.SKIP_USERIMPORT);
-		TranslationResult translationResult = idpEngine.obtainUserInformation(new EntityParam(ae.getEntityId()), 
-				ctx.getUsersGroup(), 
-				ctx.getTranslationProfile(), 
-				ctx.getRequest().getClientID().getValue(),
-				"OAuth2", 
-				flow,
-				true,
-				!skipImport);
+		String flow = ctx.getRequest().getResponseType().impliesCodeFlow()
+				? GrantFlow.authorizationCode.toString()
+				: GrantFlow.implicit.toString();
+		Boolean skipImport = ctx.getConfig()
+				.getBooleanValue(CommonIdPProperties.SKIP_USERIMPORT);
+
+		return getUserInfoUnsafe(ae.getEntityId(),
+				ctx.getRequest().getClientID().getValue(), ctx.getUsersGroup(),
+				ctx.getTranslationProfile(), flow, skipImport);
+	}
+
+	private TranslationResult getUserInfoUnsafe(long entityId, String clientId,
+			String userGroup, String translationProfile, String flow,
+			boolean skipImport) throws EngineException
+	{
+		TranslationResult translationResult = idpEngine.obtainUserInformation(
+				new EntityParam(entityId), userGroup, translationProfile, clientId,
+				"OAuth2", flow, true, !skipImport);
 		return translationResult;
 	}
+	
 }

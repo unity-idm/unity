@@ -45,6 +45,7 @@ public class OAuthASProperties extends PropertiesHelper
 	public static final String MAX_EXTEND_ACCESS_TOKEN_VALIDITY = "extendAccessTokenValidityUpTo";
 	public static final String CODE_TOKEN_VALIDITY = "codeTokenValidity";
 	public static final String ID_TOKEN_VALIDITY = "idTokenValidity";
+	public static final String REFRESH_TOKEN_VALIDITY = "refreshTokenValidity";
 	public static final String CREDENTIAL = "signingCredential";
 	public static final String IDENTITY_TYPE_FOR_SUBJECT = "identityTypeForSubject";
 	
@@ -65,6 +66,9 @@ public class OAuthASProperties extends PropertiesHelper
 				setDescription("Controls the maximum validity period of a code token returned to a client (in seconds)."));
 		defaults.put(ID_TOKEN_VALIDITY, new PropertyMD("3600").setPositive().
 				setDescription("Controls the maximum validity period of an OpenID Connect Id token (in seconds)."));
+		defaults.put(REFRESH_TOKEN_VALIDITY, new PropertyMD("0")
+				.setDescription("Controls the maximum validity period of an refresh token (in seconds)."
+						+ " If is set to 0 or negative number refresh tokens won’t be issued at all"));
 		defaults.put(ACCESS_TOKEN_VALIDITY, new PropertyMD("3600").setPositive().
 				setDescription("Controls the maximum validity period of an Access token (in seconds)."));
 		defaults.put(MAX_EXTEND_ACCESS_TOKEN_VALIDITY, new PropertyMD().setInt().setPositive().

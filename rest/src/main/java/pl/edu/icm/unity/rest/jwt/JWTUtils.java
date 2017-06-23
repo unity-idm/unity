@@ -60,6 +60,20 @@ public class JWTUtils
 		return signedJWT.serialize();
 	}
 	
+	public static String generate(X509Credential signingCred,JWTClaimsSet claimsSet) throws JOSEException
+	{
+		PrivateKey pk = signingCred.getKey();
+		JWSSigner signer;
+		if (pk instanceof RSAPrivateKey)
+			signer = new RSASSASigner((RSAPrivateKey) signingCred.getKey());
+		else
+			throw new IllegalArgumentException("The credential for signing JWT must be of RSA type.");
+
+		SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
+		signedJWT.sign(signer);
+		return signedJWT.serialize();
+	}
+	
 	/**
 	 * Parses the JWT token, verifies the signature, validity and claims completeness.
 	 * @param token

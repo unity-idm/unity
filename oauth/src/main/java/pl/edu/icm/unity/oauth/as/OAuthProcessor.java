@@ -58,6 +58,7 @@ public class OAuthProcessor
 {
 	public static final String INTERNAL_CODE_TOKEN = "oauth2Code";
 	public static final String INTERNAL_ACCESS_TOKEN = "oauth2Access";
+	public static final String INTERNAL_REFRESH_TOKEN = "oauth2Refresh";
 	
 	/**
 	 * Returns only requested attributes for which we have mapping.
@@ -99,13 +100,18 @@ public class OAuthProcessor
 		internalToken.setClientName(ctx.getClientName());
 		internalToken.setClientUsername(ctx.getClientUsername());
 		internalToken.setSubject(identity.getValue());
+		internalToken.setSubjectType(identity.getTypeId());
+		internalToken.setSubjectRealm(identity.getRealm());
+		internalToken.setSubjectTarget(identity.getTarget());
 		internalToken.setMaxExtendedValidity(ctx.getConfig().getMaxExtendedAccessTokenValidity());
 		internalToken.setTokenValidity(ctx.getConfig().getAccessTokenValidity());
+		internalToken.setOpenIdMode(ctx.isOpenIdMode());
 		
 		Date now = new Date();
 		
 		JWT idTokenSigned = null;
 		ResponseType responseType = ctx.getRequest().getResponseType();
+		internalToken.setResponseType(responseType.toString());
 		
 		UserInfo userInfo = prepareUserInfoClaimSet(identity.getValue(), attributes);
 		internalToken.setUserInfo(userInfo.toJSONObject().toJSONString());

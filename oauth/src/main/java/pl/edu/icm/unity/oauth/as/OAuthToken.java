@@ -25,14 +25,21 @@ public class OAuthToken
 	private String openidInfo;
 	private String authzCode;
 	private String accessToken;
+	private String refreshToken;
 	private String[] scope;
 	private long clientEntityId;
 	private String redirectUri;
 	private String subject;
+	private String subjectType;
+	private String subjectRealm;
+	private String subjectTarget;
 	private String clientName;
 	private String clientUsername;
 	private int maxExtendedValidity;
 	private int tokenValidity;
+	private String responseType;
+	private boolean openIdMode;
+
 	
 	public OAuthToken()
 	{
@@ -45,6 +52,7 @@ public class OAuthToken
 	public OAuthToken(OAuthToken source)
 	{
 		setAccessToken(source.getAccessToken());
+		setRefreshToken(source.getRefreshToken());
 		setAuthzCode(source.getAuthzCode());
 		setClientId(source.getClientId());
 		setOpenidToken(source.getOpenidInfo());
@@ -54,8 +62,13 @@ public class OAuthToken
 		setClientName(source.getClientName());
 		setClientUsername(source.getClientUsername());
 		setSubject(source.getSubject());
+		setSubjectType(source.getSubjectType());
+		setSubjectRealm(source.getSubjectRealm());
+		setSubjectTarget(source.getSubjectTarget());
 		setMaxExtendedValidity(source.getMaxExtendedValidity());
 		setTokenValidity(source.getTokenValidity());
+		setResponseType(source.getResponseType());
+		setOpenIdMode(source.isOpenIdMode());
 	}
 	
 	public static OAuthToken getInstanceFromJson(byte[] json) 
@@ -96,10 +109,20 @@ public class OAuthToken
 	{
 		return accessToken;
 	}
+	
+	public String getRefreshToken()
+	{
+		return refreshToken;
+	}
 
 	public void setAccessToken(String accessToken)
 	{
 		this.accessToken = accessToken;
+	}
+	
+	public void setRefreshToken(String refreshToken)
+	{
+		this.refreshToken = refreshToken;
 	}
 
 	public String[] getScope()
@@ -154,11 +177,63 @@ public class OAuthToken
 		return subject;
 	}
 
+	
 	public void setSubject(String subject)
 	{
 		this.subject = subject;
 	}
 
+	public String getSubjectType()
+	{
+		return subjectType;
+	}
+
+	public void setSubjectType(String subjectType)
+	{
+		this.subjectType = subjectType;
+	}
+
+	public String getSubjectRealm()
+	{
+		return subjectRealm;
+	}
+
+	public void setSubjectRealm(String subjectRealm)
+	{
+		this.subjectRealm = subjectRealm;
+	}
+
+	public String getSubjectTarget()
+	{
+		return subjectTarget;
+	}
+
+	public void setSubjectTarget(String subjectTarget)
+	{
+		this.subjectTarget = subjectTarget;
+	}
+	
+	public String getResponseType()
+	{
+		return responseType;
+	}
+
+	public void setResponseType(String responseType)
+	{
+		this.responseType = responseType;
+	}
+	
+	public boolean isOpenIdMode()
+	{
+		return openIdMode;
+	}
+
+	public void setOpenIdMode(boolean openIdMode)
+	{
+		this.openIdMode = openIdMode;
+	}
+
+	
 	/**
 	 * @return displayed name of the client or null if not defined
 	 */
