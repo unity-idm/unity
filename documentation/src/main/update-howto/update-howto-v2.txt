@@ -20,6 +20,17 @@ If you have older version, update it to the latest 1.9.x version first.
 
 This document doesn't provide information on the reasons for the introduced changes - see 2.0.0 release notes.
 
+== Update highlights
+
+In general update from 1.9 to 2.0 should be pretty smooth, unless you used any of those advanced features:
+
+. Developed a custom Java initializer of Unity contents
+. Integrated with the Unity REST admin API
+. Developed a custom extension/plugin/... for Unity
+
+In the above cases the upgrade will require you to refactor your code. Some hints are presented below, 
+do not hesitate to contact us for support. 
+
 == General update procedure
 
 To perform major import update is is necessary to export data from the 1.9.x version to JSON format from Admin UI
@@ -144,6 +155,14 @@ unityServer.core.script.4.trigger=pre-init
 NOTE: If a custom initialization code was developed and used in Unity 1.x it must be rewritten to use the new
 API. We suggest to convert it to Groovy, for easier maintenance.     
 
+
+To update custom initializers it is the best to first refactor them to compile and run in the legacy mode in Unity 2.
+Then moving them to Groovy is typically very easy, as syntax is mostly the same, only some small modifications are
+required. Typically it is enough to:
+
+. removing main class 
+. removing the run() method with @Override annotation
+ 
 
 == REST API changes
 
