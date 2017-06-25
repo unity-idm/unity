@@ -14,11 +14,11 @@ import xmlbeans.org.oasis.saml2.assertion.AttributeType;
  */
 public interface SamlAttributeMapper
 {
-	public boolean isHandled(Attribute<?> unityAttribute);
-	public AttributeType convertToSaml(Attribute<?> unityAttribute);
+	public boolean isHandled(Attribute unityAttribute);
+	public AttributeType convertToSaml(Attribute unityAttribute);
 	
 	/*
 	public boolean isHandled(AttributeType samlAttribute);
-	public Attribute<?> convertToUnity(AttributeType samlAttribute);
+	public Attribute convertToUnity(AttributeType samlAttribute);
 	*/
 }

@@ -1,12 +1,13 @@
 Unity Manual
 ============
 Unity Team <unity-idm-discuss@lists.sourceforge.net>
-:revnumber: 1.9.6
+:revnumber: 2.0.0
 :numbered:
 :toc: left
 :linkcss:
 :iconsdir: ./icons
 :icons: font
+:source-highlighter: coderay
 
 :mveldoc: https://en.wikibooks.org/wiki/Transwiki:MVEL_Language_Guide
 
@@ -20,13 +21,15 @@ include::update.txt[]
 
 include::authentication.txt[]
 
-include::configuration.txt[]
+include::config/configuration.txt[]
 
 include::contents-management.txt[]
 
 include::registration-forms.txt[]
 
 include::enquiry-forms.txt[]
+
+include::scripts.txt[]
 
 include::branding.txt[]
 

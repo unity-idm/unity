@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pl.edu.icm.unity.store.impl.identities.IdentitiesMapper">
+	<resultMap id="identityResult" type="IdentityB">
+		<result property="id" column="ID"/>
+		<result property="name" column="NAME"/>
+		<result property="entityId" column="ENTITY_ID"/>
+		<result property="typeName" column="TYPE_NAME"/>
+		<result property="contents" column="CONTENTS"/>
+	</resultMap>
+
+	<insert id="create" parameterType="IdentityB" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO IDENTITIES (NAME, CONTENTS, TYPE_ID, ENTITY_ID) 
+			VALUES (#{name}, #{contents}, #{typeId}, #{entityId})
+	</insert>
+	
+	<insert id="createWithKey" parameterType="IdentityB">
+		INSERT INTO IDENTITIES (ID, NAME, CONTENTS, TYPE_ID, ENTITY_ID) 
+			VALUES (#{id}, #{name}, #{contents}, #{typeId}, #{entityId})
+	</insert>
+	
+	<update id="updateByKey" parameterType="IdentityB">
+		UPDATE IDENTITIES SET CONTENTS = #{contents}, ENTITY_ID = #{entityId} WHERE ID = #{id}
+	</update>
+
+	<delete id="deleteByKey" parameterType="long">
+		DELETE FROM IDENTITIES WHERE ID = #{value}
+	</delete>
+
+	<delete id="delete" parameterType="string">
+		DELETE FROM IDENTITIES WHERE NAME = #{value}
+	</delete>
+		
+	<delete id="deleteAll">
+		DELETE FROM IDENTITIES
+	</delete>
+	
+	<select id="getAll" resultMap="identityResult">
+		select IDENTITIES.*, IDENTITY_TYPES.NAME AS TYPE_NAME from IDENTITIES, IDENTITY_TYPES 
+		WHERE IDENTITIES.TYPE_ID = IDENTITY_TYPES.ID 
+	</select>
+
+	<select id="getAllNames" resultType="string">
+		select NAME from IDENTITIES 
+	</select>
+
+	<select id="getByKey" resultMap="identityResult" parameterType="long">
+		select IDENTITIES.*, IDENTITY_TYPES.NAME AS TYPE_NAME from IDENTITIES, IDENTITY_TYPES 
+		WHERE IDENTITIES.ID = #{value} AND IDENTITIES.TYPE_ID = IDENTITY_TYPES.ID 
+	</select>
+
+	<select id="getByName" resultMap="identityResult" parameterType="string">
+		select IDENTITIES.*, IDENTITY_TYPES.NAME AS TYPE_NAME from IDENTITIES, IDENTITY_TYPES 
+		WHERE IDENTITIES.NAME = #{value} AND IDENTITIES.TYPE_ID = IDENTITY_TYPES.ID 
+	</select>
+
+
+	<!-- non standard -->
+
+	<select id="getByEntity" parameterType="long" resultMap="identityResult">
+		select IDENTITIES.*, IDENTITY_TYPES.NAME AS TYPE_NAME from IDENTITIES, IDENTITY_TYPES 
+		WHERE IDENTITIES.ENTITY_ID = #{value} AND IDENTITIES.TYPE_ID = IDENTITY_TYPES.ID 
+	</select>
+</mapper>

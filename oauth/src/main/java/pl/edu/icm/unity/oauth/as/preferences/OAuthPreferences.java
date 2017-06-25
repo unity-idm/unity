@@ -9,13 +9,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.webui.common.provider.IdPPreferences;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.engine.api.PreferencesManagement;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.webui.idpcommon.IdPPreferences;
 
 
 /**
@@ -27,7 +27,7 @@ public class OAuthPreferences extends IdPPreferences
 	public static final String ID = OAuthPreferences.class.getName();
 	protected final ObjectMapper mapper = Constants.MAPPER;
 
-	private Map<String, OAuthClientSettings> spSettings = new HashMap<String, OAuthPreferences.OAuthClientSettings>();
+	private Map<String, OAuthClientSettings> spSettings = new HashMap<>();
 	
 	@Override
 	protected void serializeAll(ObjectNode main)

@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.google.common.html.HtmlEscapers;
 import com.vaadin.server.UserError;
@@ -23,18 +23,18 @@ import com.vaadin.ui.Layout;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException.Category;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.authn.AuthenticationException;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -86,12 +86,12 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	private IdentityEditorRegistry identityEditorRegistry;
 	private CredentialEditorRegistry credentialEditorRegistry;
 	private AttributeHandlerRegistry attributeHandlerRegistry;
-	private AttributesManagement attrsMan;
+	private AttributeTypeManagement aTypeMan;
 	private GroupsManagement groupsMan;
-	private AuthenticationManagement authnMan;
+	private CredentialManagement credMan;
 	
 	private Map<String, IdentityTaV> remoteIdentitiesByType;
-	private Map<String, Attribute<?>> remoteAttributes;
+	private Map<String, Attribute> remoteAttributes;
 	private Map<Integer, IdentityEditor> identityParamEditors;
 	private List<CredentialEditor> credentialParamEditors;
 	private Map<Integer, FixedAttributeEditor> attributeEditor;
@@ -111,8 +111,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	 * @param identityEditorRegistry
 	 * @param credentialEditorRegistry
 	 * @param attributeHandlerRegistry
-	 * @param attrsMan
-	 * @param authnMan
+	 * @param atMan
+	 * @param credMan
 	 * @throws EngineException
 	 */
 	public BaseRequestEditor(UnityMessageSource msg, BaseForm form,
@@ -120,7 +120,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
-			AttributesManagement attrsMan, AuthenticationManagement authnMan,
+			AttributeTypeManagement atMan, CredentialManagement credMan,
 			GroupsManagement groupsMan) throws Exception
 	{
 		this.msg = msg;
@@ -129,8 +129,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		this.identityEditorRegistry = identityEditorRegistry;
 		this.credentialEditorRegistry = credentialEditorRegistry;
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
-		this.attrsMan = attrsMan;
-		this.authnMan = authnMan;
+		this.aTypeMan = atMan;
+		this.credMan = credMan;
 		this.groupsMan = groupsMan;
 		
 		checkRemotelyObtainedData();
@@ -203,9 +203,9 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			{
 				if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.interactive)
 					continue;
-				Collection<Attribute<?>> attrs = remotelyAuthenticated.getAttributes();
+				Collection<Attribute> attrs = remotelyAuthenticated.getAttributes();
 				boolean found = false;
-				for (Attribute<?> a: attrs)
+				for (Attribute a: attrs)
 					if (a.getName().equals(aParam.getAttributeType()) && 
 							a.getGroupPath().equals(aParam.getGroup()))
 					{
@@ -311,13 +311,13 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	{
 		if (form.getAttributeParams() != null)
 		{
-			List<Attribute<?>> a = new ArrayList<>();
+			List<Attribute> a = new ArrayList<>();
 			for (int i=0; i<form.getAttributeParams().size(); i++)
 			{
 				AttributeRegistrationParam aparam = form.getAttributeParams().get(i);
 				
-				Attribute<?> attr;
-				Attribute<?> rattr = remoteAttributes.get(aparam.getGroup()+ "//" + aparam.getAttributeType());
+				Attribute attr;
+				Attribute rattr = remoteAttributes.get(aparam.getGroup()+ "//" + aparam.getAttributeType());
 				if (aparam.getRetrievalSettings().isInteractivelyEntered(rattr != null))
 				{
 					FixedAttributeEditor ae = attributeEditor.get(i);
@@ -429,11 +429,11 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	{
 		identityParamEditors = new HashMap<>();
 		attributeEditor = new HashMap<>();
-		atTypes = attrsMan.getAttributeTypesAsMap();
+		atTypes = aTypeMan.getAttributeTypesAsMap();
 		agreementSelectors = new ArrayList<>();
 		groupSelectors = new HashMap<>();
 		credentialParamEditors = new ArrayList<>();
-		Collection<CredentialDefinition> allCreds = authnMan.getCredentialDefinitions();
+		Collection<CredentialDefinition> allCreds = credMan.getCredentialDefinitions();
 		credentials = new HashMap<String, CredentialDefinition>();
 		for (CredentialDefinition credential: allCreds)
 			credentials.put(credential.getName(), credential);
@@ -582,13 +582,13 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	}
 	
 	protected boolean createAttributeControl(AbstractOrderedLayout layout, FormParameterElement element, 
-			Map<Integer, PrefilledEntry<Attribute<?>>> fromInvitation)
+			Map<Integer, PrefilledEntry<Attribute>> fromInvitation)
 	{
 		int index = element.getIndex();
 		AttributeRegistrationParam aParam = form.getAttributeParams().get(index);
-		Attribute<?> rattr = remoteAttributes.get(aParam.getGroup() + "//" + aParam.getAttributeType());
-		PrefilledEntry<Attribute<?>> prefilledEntry = fromInvitation.get(index);
-		Attribute<?> readOnlyAttribute = getReadOnlyAttribute(index, form.getAttributeParams(), fromInvitation);
+		Attribute rattr = remoteAttributes.get(aParam.getGroup() + "//" + aParam.getAttributeType());
+		PrefilledEntry<Attribute> prefilledEntry = fromInvitation.get(index);
+		Attribute readOnlyAttribute = getReadOnlyAttribute(index, form.getAttributeParams(), fromInvitation);
 		AttributeType aType = atTypes.get(aParam.getAttributeType());
 		
 		if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.HIDDEN)
@@ -613,7 +613,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					aParam.getDescription() : null;
 			String aName = isEmpty(aParam.getLabel()) ? null : aParam.getLabel();
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry, 
-					aType, aParam.isShowGroups(), aParam.getGroup(), aType.getVisibility(), 
+					aType, aParam.isShowGroups(), aParam.getGroup(), 
 					aName, description, !aParam.isOptional(), false, layout);
 			
 			if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive 
@@ -682,7 +682,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		CredentialRegistrationParam param = form.getCredentialParams().get(index);
 		CredentialDefinition credDefinition = credentials.get(param.getCredentialName());
 		CredentialEditor editor = credentialEditorRegistry.getEditor(credDefinition.getTypeId());
-		ComponentsContainer editorUI = editor.getEditor(false, credDefinition.getJsonConfiguration(), true);
+		ComponentsContainer editorUI = editor.getEditor(false, credDefinition.getConfiguration(), true);
 		if (param.getLabel() != null)
 			editorUI.setCaption(param.getLabel());
 		else
@@ -698,11 +698,11 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	}
 	
 	
-	protected Attribute<?> getReadOnlyAttribute(int i, List<AttributeRegistrationParam> attributeParams,
-			Map<Integer, PrefilledEntry<Attribute<?>>> fromInvitation)
+	protected Attribute getReadOnlyAttribute(int i, List<AttributeRegistrationParam> attributeParams,
+			Map<Integer, PrefilledEntry<Attribute>> fromInvitation)
 	{
 		AttributeRegistrationParam aParam = attributeParams.get(i);
-		PrefilledEntry<Attribute<?>> prefilledEntry = fromInvitation.get(i);
+		PrefilledEntry<Attribute> prefilledEntry = fromInvitation.get(i);
 		if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.READ_ONLY)
 			return prefilledEntry.getEntry();
 		if (!aParam.getRetrievalSettings().isPotentiallyAutomaticAndVisible())

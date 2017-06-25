@@ -9,12 +9,38 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import eu.emi.security.authn.x509.X509Credential;
+import eu.unicore.samly2.SAMLBindings;
+import eu.unicore.samly2.trust.SamlTrustChecker;
+import eu.unicore.samly2.validators.ReplayAttackChecker;
+import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
+import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SAMLEndpointDefinition;
@@ -28,35 +54,24 @@ import pl.edu.icm.unity.saml.metadata.cfg.MetaToSPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.api.TranslationProfileManagement;
-import pl.edu.icm.unity.server.authn.AuthenticationException;
-import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.remote.AbstractRemoteVerificator;
-import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.utils.ExecutorsService;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
-import eu.emi.security.authn.x509.X509Credential;
-import eu.unicore.samly2.SAMLBindings;
-import eu.unicore.samly2.trust.SamlTrustChecker;
-import eu.unicore.samly2.validators.ReplayAttackChecker;
-import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * Binding irrelevant SAML logic: creation of a SAML authentication request and verification of the answer.
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLExchange
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLVerificator.class);
-	
+
+	public static final String NAME = "saml2";
+	public static final String METADATA_SERVLET_PATH = "/saml-sp-metadata";
+	public static final String DESC = "Handles SAML assertions obtained from remote IdPs"; 
+			
 	private UnityServerConfiguration mainConfig;
 	private SAMLSPProperties samlProperties;
 	private PKIManagement pkiMan;
@@ -74,32 +89,42 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 
 	private Map<String, LocalSPMetadataManager> localMetadataManagers;
 	
-	public SAMLVerificator(String name, String description,
-			TranslationProfileManagement profileManagement,
-			InputTranslationEngine trEngine, PKIManagement pkiMan,
+	@Autowired
+	public SAMLVerificator(RemoteAuthnResultProcessor processor,
+			PKIManagement pkiMan,
 			ReplayAttackChecker replayAttackChecker, ExecutorsService executorsService,
-			MultiMetadataServlet metadataServlet, URL baseAddress, String baseContext,
-			Map<String, RemoteMetaManager> remoteMetadataManagers,
-			Map<String, LocalSPMetadataManager> localMetadataManagers,
+			
 			MetaDownloadManager downloadManager, UnityServerConfiguration mainConfig, 
 			SLOSPManager sloManager, SLOReplyInstaller sloReplyInstaller,
-			UnityMessageSource msg)
+			UnityMessageSource msg,
+			SharedEndpointManagement sharedEndpointManagement, 
+			NetworkServer jettyServer)
 	{
-		super(name, description, SAMLExchange.ID, profileManagement, trEngine);
-		this.remoteMetadataManagers = remoteMetadataManagers;
-		this.localMetadataManagers = localMetadataManagers;
+		super(NAME, DESC, SAMLExchange.ID, processor);
+		
 		this.downloadManager = downloadManager;
 		this.pkiMan = pkiMan;
 		this.mainConfig = mainConfig;
-		this.metadataServlet = metadataServlet;
 		this.executorsService = executorsService;
 		this.msg = msg;
-		this.responseConsumerAddress = baseAddress + baseContext + SAMLResponseConsumerServlet.PATH;
 		this.replayAttackChecker = replayAttackChecker;
 		this.sloManager = sloManager;
 		this.sloReplyInstaller = sloReplyInstaller;
+
+		URL baseAddress = jettyServer.getAdvertisedAddress();
+		String baseContext = sharedEndpointManagement.getBaseContextPath();
+		this.responseConsumerAddress = baseAddress + baseContext + SAMLResponseConsumerServlet.PATH;
 	}
 
+	private void init(Map<String, RemoteMetaManager> remoteMetadataManagers,
+			Map<String, LocalSPMetadataManager> localMetadataManagers,
+			MultiMetadataServlet metadataServlet)
+	{
+		this.remoteMetadataManagers = remoteMetadataManagers;
+		this.localMetadataManagers = localMetadataManagers;
+		this.metadataServlet = metadataServlet;
+	}
+	
 	@Override
 	public String getSerializedConfiguration() throws InternalException
 	{
@@ -293,6 +318,41 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	public SAMLSPProperties getSamlValidatorSettings()
 	{
 		return (SAMLSPProperties) myMetadataManager.getVirtualConfiguration();
+	}
+	
+	@Component
+	public static class Factory extends AbstractCredentialVerificatorFactory
+	{
+		private MultiMetadataServlet metadataServlet;
+		private Map<String, RemoteMetaManager> remoteMetadataManagers;
+		private Map<String, LocalSPMetadataManager> localSPMetadataManagers;
+		
+		@Autowired
+		public Factory(ObjectFactory<SAMLVerificator> factory, SamlContextManagement contextManagement,
+				SharedEndpointManagement sharedEndpointManagement) throws EngineException
+		{
+			super(NAME, DESC, factory);
+			
+			ServletHolder servlet = new ServletHolder(new SAMLResponseConsumerServlet(
+					contextManagement));
+			sharedEndpointManagement.deployInternalEndpointServlet(
+					SAMLResponseConsumerServlet.PATH, servlet, false);
+			
+			metadataServlet = new MultiMetadataServlet(METADATA_SERVLET_PATH);
+			sharedEndpointManagement.deployInternalEndpointServlet(METADATA_SERVLET_PATH, 
+					new ServletHolder(metadataServlet), false);
+			
+			this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<>());
+			this.localSPMetadataManagers = Collections.synchronizedMap(new HashMap<>());
+		}
+		
+		@Override
+		public CredentialVerificator newInstance()
+		{
+			SAMLVerificator ret = (SAMLVerificator) factory.getObject();
+			ret.init(remoteMetadataManagers, localSPMetadataManagers, metadataServlet);
+			return ret;
+		}
 	}
 }
 

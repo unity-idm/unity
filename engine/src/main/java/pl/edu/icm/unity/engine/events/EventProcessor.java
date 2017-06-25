@@ -16,15 +16,21 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.DBEvents;
-import pl.edu.icm.unity.server.events.Event;
-import pl.edu.icm.unity.server.events.EventListener;
-import pl.edu.icm.unity.server.utils.ExecutorsService;
-import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.base.event.Event;
+import pl.edu.icm.unity.base.event.EventExecution;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.event.EventListener;
+import pl.edu.icm.unity.engine.api.event.EventPublisher;
+import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.store.api.EventDAO;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
 /**
  * Takes events from producers and dispatches them to all registered {@link EventListener}s.
@@ -32,27 +38,31 @@ import pl.edu.icm.unity.server.utils.Log;
  * @author K. Benedyczak
  */
 @Component
-public class EventProcessor
+public class EventProcessor implements EventPublisher
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, EventProcessor.class);
-	private Map<String, Set<EventListener>> listenersByCategory = new HashMap<String, Set<EventListener>>();
+	private Set<EventListener> listeners = new HashSet<EventListener>();
 	private Map<String, EventListener> listenersById = new HashMap<String, EventListener>();
 	private ReadWriteLock lock = new ReentrantReadWriteLock();
 	
 	private ScheduledExecutorService executorService;
-	private DBEvents dbEvents;
+	private EventDAO dbEvents;
 	private EventsProcessingThread asyncProcessor;
+	private AuthorizationManager authz;
 	
 	@Autowired
-	public EventProcessor(ExecutorsService executorsService, DBEvents dbEvents)
+	public EventProcessor(ExecutorsService executorsService, EventDAO dbEvents,
+			AuthorizationManager authz,
+			TransactionalRunner tx)
 	{
+		this.authz = authz;
 		executorService = executorsService.getService();
 		this.dbEvents = dbEvents;
-		this.asyncProcessor = new EventsProcessingThread(this, dbEvents);
+		this.asyncProcessor = new EventsProcessingThread(this, dbEvents, tx);
 		this.asyncProcessor.start();
 	}
 
-
+	@Override
 	public void fireEvent(Event event)
 	{
 		List<EventListener> interestedListeners = getInterestedListeners(event);
@@ -60,27 +70,44 @@ public class EventProcessor
 			return;
 		
 		if (log.isDebugEnabled())
-			log.debug("Fire event: " + event);
+			log.debug("Fire event: {}", event);
 		for (EventListener listener: interestedListeners)
 		{
 			Callable<Void> task = listener.isLightweight() ? 
 					new LightweightListenerInvoker(listener, event) :
 					new HeavyweightListenerInvoker(listener, event);
-			executorService.submit(task);
+			if (listener.isAsync(event))
+				executorService.submit(task);
+			else
+				executeNow(listener, event, task);
 		}
 	}
+
+	@Override
+	public void fireEventWithAuthz(Event event) throws AuthorizationException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		fireEvent(event);
+	}
 	
+	private void executeNow(EventListener listener, Event event, Callable<Void> task)
+	{
+		log.trace("Handling event in sync mode {}", event);
+		try
+		{
+			task.call();
+		} catch (Exception e)
+		{
+			log.error("Error invoking sync event processor for " + 
+					listener.getId() + " event was " + event, e);
+		}
+	}
+
 	public void addEventListener(EventListener eventListener)
 	{
 		lock.writeLock().lock();
 		try
 		{
-			Set<EventListener> listeners = listenersByCategory.get(eventListener.getCategory());
-			if (listeners == null)
-			{
-				listeners = new HashSet<EventListener>();
-				listenersByCategory.put(eventListener.getCategory(), listeners);
-			}
 			listeners.add(eventListener);
 			listenersById.put(eventListener.getId(), eventListener);
 		} finally
@@ -94,9 +121,7 @@ public class EventProcessor
 		lock.writeLock().lock();
 		try
 		{
-			Set<EventListener> listeners = listenersByCategory.get(eventListener.getCategory());
-			if (listeners != null)
-				listeners.remove(eventListener);
+			listeners.remove(eventListener);
 			listenersById.remove(eventListener.getId());
 		} finally
 		{
@@ -106,7 +131,7 @@ public class EventProcessor
 	
 	public int getPendingEventsNumber()
 	{
-		return dbEvents.getEventsForProcessing(new Date(System.currentTimeMillis() + 
+		return dbEvents.getEligibleForProcessing(new Date(System.currentTimeMillis() + 
 				EventsProcessingThread.MAX_DELAY*100000)).size();
 	}
 	
@@ -128,9 +153,6 @@ public class EventProcessor
 		lock.readLock().lock();
 		try
 		{
-			Set<EventListener> listeners = listenersByCategory.get(event.getCategory());
-			if (listeners == null)
-				return null;
 			interestedListeners = new ArrayList<EventListener>(listeners.size());
 			for (EventListener listener: listeners)
 			{
@@ -170,7 +192,7 @@ public class EventProcessor
 			} catch (Exception t)
 			{
 				log.warn("Ligthweight event listener " + listener.getId() + 
-						" creshed when processing an event " + event, t);
+						" crashed when processing an event " + event, t);
 			}
 			return null;
 		}
@@ -194,7 +216,8 @@ public class EventProcessor
 		@Override
 		public Void call() throws Exception
 		{
-			dbEvents.addEvent(event, listenerId);
+			EventExecution newEvent = new EventExecution(event, new Date(0), listenerId, 0);
+			dbEvents.create(newEvent);
 			asyncProcessor.wakeUp();
 			return null;
 		}

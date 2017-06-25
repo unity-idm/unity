@@ -6,17 +6,17 @@ package pl.edu.icm.unity.webadmin.attrstmt;
 
 import java.util.Collection;
 
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.AttributeStatement2;
+import com.vaadin.ui.Component;
+
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-
-import com.vaadin.ui.Component;
 
 /**
  * Allows to create/edit/view an attribute statement of a group.
@@ -24,8 +24,8 @@ import com.vaadin.ui.Component;
  */
 public class AttributeStatementEditDialog extends AbstractDialog
 {
-	private AttributeStatement2 statement;
-	private AttributesManagement attrsMan;
+	private AttributeStatement statement;
+	private AttributeTypeManagement attrsMan;
 	private final Callback callback;
 	private final String group;
 	
@@ -39,8 +39,8 @@ public class AttributeStatementEditDialog extends AbstractDialog
 	 * @param attributeStatement attribute statement to be displayed initially or 
 	 * null when a new statement should be created
 	 */
-	public AttributeStatementEditDialog(UnityMessageSource msg, AttributeStatement2 attributeStatement,
-			AttributesManagement attrsMan, String group, AttributeHandlerRegistry attrHandlerRegistry, 
+	public AttributeStatementEditDialog(UnityMessageSource msg, AttributeStatement attributeStatement,
+			AttributeTypeManagement attrsMan, String group, AttributeHandlerRegistry attrHandlerRegistry, 
 			GroupsManagement groupsMan, Callback callback)
 	{
 		super(msg, msg.getMessage("AttributeStatementEditDialog.caption"));
@@ -74,7 +74,7 @@ public class AttributeStatementEditDialog extends AbstractDialog
 		return component;
 	}
 
-	private void setInitialData(AttributeStatement2 attributeStatement)
+	private void setInitialData(AttributeStatement attributeStatement)
 	{
 		component.setInitialData(attributeStatement);
 	}
@@ -82,7 +82,7 @@ public class AttributeStatementEditDialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
-		AttributeStatement2 ret;
+		AttributeStatement ret;
 		try
 		{
 			ret = component.getStatementFromComponent();
@@ -100,7 +100,7 @@ public class AttributeStatementEditDialog extends AbstractDialog
 	
 	public interface Callback
 	{
-		public void onConfirm(AttributeStatement2 newStatement);
+		public void onConfirm(AttributeStatement newStatement);
 	}
 
 }

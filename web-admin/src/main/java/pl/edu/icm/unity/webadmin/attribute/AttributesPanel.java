@@ -6,13 +6,12 @@ package pl.edu.icm.unity.webadmin.attribute;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -36,17 +35,20 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.confirmations.ConfirmationManager;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributeClassManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.confirmation.ConfirmationManager;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
@@ -84,6 +86,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private AttributesManagement attributesManagement;
 	private GroupsManagement groupsManagement;
 	private ConfirmationManager confirmationMan;
+	private AttributeTypeSupport atSupport;
 	
 	private VerticalLayout left;
 	private CheckBox showEffective;
@@ -91,7 +94,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private InternalAttributesFilter internalAttrsFilter;
 	private EffectiveAttributesFilter effectiveAttrsFilter;
 	private HorizontalLayout filtersBar;
-	private List<AttributeExt<?>> attributes;
+	private List<AttributeExt> attributes;
 	private ValuesRendererPanel attributeValues;
 	private Table attributesTable;
 	private EntityParam owner;
@@ -99,15 +102,24 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private AttributeClassHelper acHelper;
 	private Map<String, AttributeType> attributeTypes;
 	private EventsBus bus;
+	private AttributeTypeManagement aTypeManagement;
+	private AttributeClassManagement acMan;
+
 	
 	@Autowired
 	public AttributesPanel(UnityMessageSource msg, AttributeHandlerRegistry registry, 
-			AttributesManagement attributesManagement, GroupsManagement groupsManagement, ConfirmationManager confirmationMan)
+			AttributesManagement attributesManagement, GroupsManagement groupsManagement,
+			AttributeTypeManagement atManagement, AttributeClassManagement acMan,
+			AttributeTypeSupport atSupport,
+			ConfirmationManager confirmationMan)
 	{
 		this.msg = msg;
 		this.registry = registry;
 		this.attributesManagement = attributesManagement;
 		this.groupsManagement = groupsManagement;
+		this.aTypeManagement = atManagement;
+		this.acMan = acMan;
+		this.atSupport = atSupport;
 		this.confirmationMan = confirmationMan;
 		this.bus = WebSession.getCurrent().getEventBus();
 		attributesTable = new SmallTable();
@@ -180,7 +192,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		filtersBar.setSpacing(true);
 		filtersBar.setSizeUndefined();
 		
-		attributeValues = new ValuesRendererPanel(msg);
+		attributeValues = new ValuesRendererPanel(msg, atSupport);
 		attributeValues.setSizeFull();
 
 		left = new VerticalLayout();
@@ -200,14 +212,14 @@ public class AttributesPanel extends HorizontalSplitPanel
 	
 	private void refreshAttributeTypes() throws EngineException
 	{
-		attributeTypes = attributesManagement.getAttributeTypesAsMap();
+		attributeTypes = aTypeManagement.getAttributeTypesAsMap();
 	}
 	
-	public void setInput(EntityParam owner, String groupPath, Collection<AttributeExt<?>> attributesCol) 
+	public void setInput(EntityParam owner, String groupPath, Collection<AttributeExt> attributesCol) 
 			throws EngineException
 	{
 		this.owner = owner;
-		this.attributes = new ArrayList<AttributeExt<?>>(attributesCol.size());
+		this.attributes = new ArrayList<AttributeExt>(attributesCol.size());
 		this.attributes.addAll(attributesCol);
 		this.groupPath = groupPath;
 		updateACHelper(owner, groupPath);
@@ -217,8 +229,8 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private void updateACHelper(EntityParam owner, String groupPath) throws EngineException
 	{
 		Group group = groupsManagement.getContents(groupPath, GroupContents.METADATA).getGroup();
-		Collection<AttributesClass> acs = attributesManagement.getEntityAttributeClasses(owner, groupPath);
-		Map<String, AttributesClass> knownClasses = attributesManagement.getAttributeClasses();
+		Collection<AttributesClass> acs = acMan.getEntityAttributeClasses(owner, groupPath);
+		Map<String, AttributesClass> knownClasses = acMan.getAttributeClasses();
 		Set<String> assignedClasses = new HashSet<String>(acs.size());
 		for (AttributesClass ac: acs)
 			assignedClasses.add(ac.getName());
@@ -229,9 +241,9 @@ public class AttributesPanel extends HorizontalSplitPanel
 	
 	private void reloadAttributes() throws EngineException
 	{
-		Collection<AttributeExt<?>> attributesCol = attributesManagement.getAllAttributes(
+		Collection<AttributeExt> attributesCol = attributesManagement.getAllAttributes(
 				owner, true, groupPath, null, true);
-		this.attributes = new ArrayList<AttributeExt<?>>(attributesCol.size());
+		this.attributes = new ArrayList<AttributeExt>(attributesCol.size());
 		this.attributes.addAll(attributesCol);
 	}
 	
@@ -242,22 +254,30 @@ public class AttributesPanel extends HorizontalSplitPanel
 		attributeValues.removeValues();
 		if (attributes.size() == 0)
 			return;
-		for (AttributeExt<?> attribute: attributes)
+		for (AttributeExt attribute: attributes)
 			attributesTable.addItem(new AttributeItem(attribute));
 
 		attributesTable.select(attributes.get(0));
 	}
 	
-	private void updateValues(AttributeExt<?> attribute)
+	private void updateValues(AttributeExt attribute)
 	{
-		if (attribute == null)
+		try
 		{
-			attributeValues.removeValues();
-			return;
+			if (attribute == null)
+			{
+				attributeValues.removeValues();
+				return;
+			}
+			AttributeValueSyntax<?> syntax = atSupport.getSyntax(attribute);
+			WebAttributeHandler handler = registry.getHandler(syntax);
+			attributeValues.setValues(handler, attribute);
+		} catch (Exception e)
+		{
+			NotificationPopup.showError(msg, 
+					msg.getMessage("Attribute.addAttributeError", 
+							attribute.getName()), e);
 		}
-		AttributeValueSyntax<?> syntax = attribute.getAttributeSyntax();
-		WebAttributeHandler<?> handler = registry.getHandler(syntax.getValueSyntaxId());
-		attributeValues.setValues(handler, attribute);
 	}
 	
 	private void updateAttributesFilter(boolean add, Container.Filter filter)
@@ -271,9 +291,9 @@ public class AttributesPanel extends HorizontalSplitPanel
 	
 	public class AttributeItem
 	{
-		private AttributeExt<?> attribute;
+		private AttributeExt attribute;
 
-		public AttributeItem(AttributeExt<?> value)
+		public AttributeItem(AttributeExt value)
 		{
 			this.attribute = value;
 		}
@@ -295,7 +315,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			return l;
 		}
 		
-		private AttributeExt<?> getAttribute()
+		private AttributeExt getAttribute()
 		{
 			return attribute;
 		}
@@ -308,7 +328,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	
 	private void removeAttribute(AttributeItem attributeItem)
 	{
-		Attribute<?> toRemove = attributeItem.getAttribute();
+		Attribute toRemove = attributeItem.getAttribute();
 		try
 		{
 			attributesManagement.removeAttribute(owner, toRemove.getGroupPath(), toRemove.getName());
@@ -321,7 +341,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		}
 	}
 	
-	private boolean addAttribute(Attribute<?> attribute)
+	private boolean addAttribute(Attribute attribute)
 	{
 		try
 		{
@@ -337,8 +357,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		}
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private boolean updateAttribute(Attribute<?> attribute)
+	private boolean updateAttribute(Attribute attribute)
 	{
 		try
 		{
@@ -361,10 +380,26 @@ public class AttributesPanel extends HorizontalSplitPanel
 			return false;
 		}
 	}
+
+	private void sendConfirmation(Collection<AttributeItem> items)
+	{
+		for (AttributeItem item : items)
+		{
+			try
+			{
+				confirmationMan.sendVerification(owner, item.getAttribute());
+			} catch (EngineException e)
+			{
+				NotificationPopup.showError(msg, 
+						msg.getMessage("Attribute.confirmationSendError", 
+						item.attribute.getName()), e);
+			}
+		}
+	}
 	
 	private boolean checkAttributeImm(AttributeItem item)
 	{
-		AttributeExt<?> attribute = ((AttributeItem) item)
+		AttributeExt attribute = ((AttributeItem) item)
 				.getAttribute();
 		AttributeType attributeType = attributeTypes.get(attribute
 				.getName());
@@ -374,7 +409,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	
 	private boolean checkAttributeMandatory(AttributeItem item)
 	{
-		AttributeExt<?> attribute = (item)
+		AttributeExt attribute = (item)
 				.getAttribute();
 		return acHelper.isMandatory(attribute.getName());
 			
@@ -382,14 +417,16 @@ public class AttributesPanel extends HorizontalSplitPanel
 	
 	private boolean checkAttributeIsVerifiable(AttributeItem item)
 	{
-		return item.getAttribute().getAttributeSyntax().isVerifiable();
+		return atSupport.getSyntaxFallingBackToDefault(item.getAttribute()).isVerifiable();
 	}
 	
 	private boolean checkAttributeIsConfirmed(AttributeItem item)
 	{	
-		for (Object valA : item.getAttribute().getValues())
+		AttributeValueSyntax<?> syntax = atSupport.getSyntaxFallingBackToDefault(
+				item.attribute);
+		for (String valA : item.getAttribute().getValues())
 		{
-			VerifiableElement val = (VerifiableElement) valA;
+			VerifiableElement val = (VerifiableElement) syntax.convertFromString(valA);
 			ConfirmationInfo ci = val.getConfirmationInfo();
 			if (!ci.isConfirmed())
 				return false;
@@ -516,7 +553,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 				if (acHelper.isAllowed(at.getName()))
 				{
 					boolean used = false;
-					for (AttributeExt<?> a: attributes)
+					for (AttributeExt a: attributes)
 						if (a.isDirect() && a.getName().equals(at.getName()))
 						{
 							used = true;
@@ -541,7 +578,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 					new AttributeEditDialog.Callback()
 					{
 						@Override
-						public boolean newAttribute(Attribute<?> newAttribute)
+						public boolean newAttribute(Attribute newAttribute)
 						{
 							return addAttribute(newAttribute);							
 						}
@@ -561,7 +598,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			final Attribute<?> attribute = ((AttributeItem) target).getAttribute();
+			final Attribute attribute = ((AttributeItem) target).getAttribute();
 			AttributeType attributeType = attributeTypes.get(attribute.getName());
 			AttributeEditor attributeEditor = new AttributeEditor(msg, attributeType, attribute, 
 					registry);
@@ -570,7 +607,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 					new AttributeEditDialog.Callback()
 					{
 						@Override
-						public boolean newAttribute(Attribute<?> newAttribute)
+						public boolean newAttribute(Attribute newAttribute)
 						{
 							return updateAttribute(newAttribute);
 						}
@@ -628,10 +665,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 				@Override
 				public void onConfirm()
 				{
-					for (AttributeItem item : items)
-					{
-						confirmationMan.sendVerificationsQuiet(owner, Collections.singletonList(item.getAttribute()), true);
-					}
+					sendConfirmation(items);
 				}
 			});
 			confirm.show();

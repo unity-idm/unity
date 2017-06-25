@@ -1,0 +1,127 @@
+[[server_trust]]
+==== PKI/X.509 trust settings
+
+Public Key Infrastructure (PKI) trust settings are used to validate certificates, i.e. to check if the certificate
+are not faked. This is performed, in the first place when a connection with a remote peer is initiated over 
+the network, using the SSL (or TLS) protocol. Additionally certificate validation can happen in few other 
+situations, e.g. when checking digital signatures of various sensitive pieces of data.
+
+Certificates validation is primarily configured using a set of initially trusted certificates of so called 
+Certificate Authorities (CAs). Those trusted certificates are also known as _trust anchors_ and their collection
+is called a _trust store_.
+
+Except of _trust anchors_ validation mechanism can use additional input for checking if a certificate being checked 
+was not revoked and if its subject is in a permitted namespace.
+
+Unity allows for different types of trust stores. All of them are configured using a set of properties.
+
+ - _Keystore trust store_ - trusted certificates are
+ stored in a single binary file in the JKS or PKCS12 format. The file can be manipulated using a special tool
+ like JDK +keytool+ or +openssl+ (in case of PKCS12 format). This format is a good choice if the trust store 
+ should be stored in a single file or when compatibility with other Java solutions is desired.   
+ - _OpenSSL trust store_ - allows to use a directory with CA certificates stored in PEM format, under precisely
+ defined names: the CA certificates, CRLs, signing policy files and namespaces files are named 
+ +<hash>.0+, +<hash>.r0+, +<hash>.signing_policy+ and +<hash>.namespaces+. 
+ The hash must be generated using the +openssl+ tool from a trusted certificate. 
+ This format is used by many well known servers, Linux distributions often provide tools
+ to help in trust store management. Therefore this format is suggested if reuse of the truststore is needed.
+ - _Directory trust store_ - the most flexible and convenient option, suggested for all remaining cases. It allows
+ administrators to use a list of wildcard expressions, concrete paths of files or even URLs to remote files 
+ as a set of trusted CAs and corresponding CRLs. With this trust store it is trivial to configure a
+ designated directory(-ies) as a trust store.
+ 
+In all cases trust stores can be (and by default are) configured to be automatically refreshed. 
+ 
+The following table provides a reference to settings of all of the trust stores. Note that the prefix of the
++pki.properties+ is not shown in the table.
+
+include::../sec-ref-trustProperties.txt[]
+
+*Examples*
+
+Directory trust store, with a minimal set of options:
+
+ unity.pki.truststores.MAIN.type=directory
+ unity.pki.truststores.MAIN.directoryLocations.1=/trust/dir/*.pem
+ unity.pki.truststores.MAIN.crlLocations=/trust/dir/*.crl
+ 
+Directory trust store, with a complete set of options:
+
+ unity.pki.truststores.MAIN.type=directory
+ unity.pki.truststores.MAIN.allowProxy=DENY
+ unity.pki.truststores.MAIN.updateInterval=1234
+ unity.pki.truststores.MAIN.directoryLocations.1=/trust/dir/*.pem
+ unity.pki.truststores.MAIN.directoryLocations.2=http://caserver/ca.pem
+ unity.pki.truststores.MAIN.directoryEncoding=PEM
+ unity.pki.truststores.MAIN.directoryConnectionTimeout=100
+ unity.pki.truststores.MAIN.directoryDiskCachePath=/tmp
+ unity.pki.truststores.MAIN.crlLocations.1=/trust/dir/*.crl
+ unity.pki.truststores.MAIN.crlLocations.2=http://caserver/crl.pem
+ unity.pki.truststores.MAIN.crlUpdateInterval=400
+ unity.pki.truststores.MAIN.crlMode=REQUIRE
+ unity.pki.truststores.MAIN.crlConnectionTimeout=200
+ unity.pki.truststores.MAIN.crlDiskCachePath=/tmp
+
+Java keystore used as a trust store:
+
+ unity.pki.truststores.MAIN.type=keystore
+ unity.pki.truststores.MAIN.keystorePath=/trust/truststore.jks
+ unity.pki.truststores.MAIN.keystoreFormat=JKS
+ unity.pki.truststores.MAIN.keystorePassword=xxxxxx
+
+
+[[server_cred]]
+==== Configuring the PKI credential
+
+Unity uses private key and a corresponding certificate (called together as a _credential_) 
+to identify itself to its clients during TLS connection and sometimes to digitally sign returned documents. 
+This allows clients to be sure that they are talking with the genuine, not faked peer. 
+Note that also clients or users may use certificates to identify themselves to Unity - this is another topic.  
+
+[NOTE]
+Do not confuse the _PKI credential_ used by the server to identify itself with the credentials of the
+entities handled in the Unity's database.
+
+[NOTE]
+For production usage, Unity should use a certificate issued by a globally trusted certificate authority.
+
+Credentials might be provided in several formats:
+
+ - Credential can be obtained from a _keystore file_, encoded in JKS or PKCS12 format.  
+ - Credential can be loaded as a pair of PEM files (one with private key and another with certificate),
+ - or from a pair of DER files,
+ - or even from a single file, with PEM-encoded certificates and private key (in any order).  
+
+The following table list all parameters which allows for configuring the credential.
+Note that nearly all settings are optional. If not defined, the format is guessed.
+However, some credential formats require additional settings. For instance, if using the _der_ format,
+the _keyPath_ is mandatory as you need two DER files: one with a certificate and one with a key (and
+the latter path can not be guessed). Note that the prefix of the +pki.properties+ configuration is not 
+shown in the table.
+
+include::../sec-ref-credProperties.txt[]
+
+*Examples*
+
+Credential as a pair of DER files:
+
+ unity.pki.credentials.MAIN.format=der
+ unity.pki.credentials.MAIN.password=SOME PASS
+ unity.pki.credentials.MAIN.path=/etc/credentials/cert-1.der
+ unity.pki.credentials.MAIN.keyPath=/etc/credentials/pk-1.der
+
+Credential as a JKS file (credential type can be autodetected in almost every case):
+
+ unity.pki.credentials.MAIN.path=/etc/credentials/server1.jks
+ unity.pki.credentials.MAIN.password=xxxxxx
+
+==== Configuring 3rd party certificates
+
+Some Unity subsystems require an access to a 3rd party service certificate, e.g. to check a digital signature
+issued by such service. The configuration of such 'standalone' certificates is done as follows:
+
+ unity.pki.certificates.SOME-SERVICE-CERT.certificateFile=/etc/credentials/someServiceCert.pem
+ 
+The certificate must be stored in a PEM file. The above configuration defines a certificate, which can be used in 
+all Unity subsystems with the simple name +SOME-SERVICE-CERT+. 
+  

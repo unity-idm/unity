@@ -13,8 +13,16 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.shared.ui.Orientation;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.CredentialManagement;
+import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.webadmin.credreq.CredentialRequirementEditDialog.Callback;
@@ -22,20 +30,13 @@ import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
-import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
-
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.shared.ui.Orientation;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * Provides {@link CredentialRequirements} management UI
@@ -46,7 +47,8 @@ import com.vaadin.ui.VerticalLayout;
 public class CredentialRequirementsComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
-	private AuthenticationManagement authenticationMan;
+	private CredentialRequirementManagement credReqMan;
+	private CredentialManagement credMan;
 	private EventsBus bus;
 	
 	private GenericElementsTable<CredentialRequirements> table;
@@ -55,11 +57,13 @@ public class CredentialRequirementsComponent extends VerticalLayout
 	
 	@Autowired
 	public CredentialRequirementsComponent(UnityMessageSource msg,
-			AuthenticationManagement authenticationMan)
+			CredentialRequirementManagement authenticationMan,
+			CredentialManagement credMan)
 	{
 		super();
 		this.msg = msg;
-		this.authenticationMan = authenticationMan;
+		this.credReqMan = authenticationMan;
+		this.credMan = credMan;
 		this.bus = WebSession.getCurrent().getEventBus();
 		
 		init();
@@ -119,7 +123,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 	{
 		try
 		{
-			Collection<CredentialRequirements> crs = authenticationMan.getCredentialRequirements();
+			Collection<CredentialRequirements> crs = credReqMan.getCredentialRequirements();
 			table.setInput(crs);
 			removeAllComponents();
 			addComponent(main);
@@ -137,7 +141,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 	{
 		try
 		{
-			return authenticationMan.getCredentialRequirements();
+			return credReqMan.getCredentialRequirements();
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("CredentialRequirements.errorGetCredentialRequirements"), e);
@@ -149,7 +153,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 	{
 		try
 		{
-			return authenticationMan.getCredentialDefinitions();
+			return credMan.getCredentialDefinitions();
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("CredentialRequirements.errorGetCredentials"), e);
@@ -162,7 +166,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 	{
 		try
 		{
-			authenticationMan.updateCredentialRequirement(cr);
+			credReqMan.updateCredentialRequirement(cr);
 			refresh();
 			bus.fireEvent(new CredentialRequirementChangedEvent());
 			return true;
@@ -177,7 +181,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 	{
 		try
 		{
-			authenticationMan.addCredentialRequirement(cr);
+			credReqMan.addCredentialRequirement(cr);
 			refresh();
 			bus.fireEvent(new CredentialRequirementChangedEvent());
 			return true;
@@ -192,7 +196,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 	{
 		try
 		{
-			authenticationMan.removeCredentialRequirement(toRemove, replacementId);
+			credReqMan.removeCredentialRequirement(toRemove, replacementId);
 			refresh();
 			bus.fireEvent(new CredentialRequirementChangedEvent());
 			return true;

@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.oauth.as;
 
-import java.awt.image.BufferedImage;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Date;
@@ -14,6 +13,7 @@ import java.util.Set;
 
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 
+import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.types.basic.Attribute;
 
@@ -33,7 +33,7 @@ public class OAuthAuthzContext
 	private String clientName;
 	private String clientUsername;
 	private long clientEntityId;
-	private Attribute<BufferedImage> clientLogo;
+	private Attribute clientLogo;
 	private String translationProfile;
 	private String usersGroup;
 	private Set<ScopeInfo> effectiveRequestedScopes = new HashSet<OAuthAuthzContext.ScopeInfo>();
@@ -94,12 +94,12 @@ public class OAuthAuthzContext
 		this.clientUsername = clientUsername;
 	}
 
-	public Attribute<BufferedImage> getClientLogo()
+	public Attribute getClientLogo()
 	{
 		return clientLogo;
 	}
 
-	public void setClientLogo(Attribute<BufferedImage> clientLogo)
+	public void setClientLogo(Attribute clientLogo)
 	{
 		this.clientLogo = clientLogo;
 	}

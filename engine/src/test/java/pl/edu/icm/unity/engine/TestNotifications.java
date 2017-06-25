@@ -16,17 +16,16 @@ import java.util.concurrent.Future;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.engine.builders.NotificationChannelBuilder;
+import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
+import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
 import pl.edu.icm.unity.engine.notifications.EmailFacility;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.notifications.NotificationProducer;
-import pl.edu.icm.unity.notifications.NotificationStatus;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.PasswordResetTemplateDef;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.stdext.utils.InitializerCommon;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
@@ -39,8 +38,6 @@ public class TestNotifications extends DBIntegrationTestBase
 {
 	@Autowired
 	private NotificationProducer notProducer;
-	@Autowired
-	private InitializerCommon initCommon;
 	
 	
 	//@Test
@@ -58,13 +55,10 @@ public class TestNotifications extends DBIntegrationTestBase
 				"mailx.smtp.trustAll=true";
 		String destinationAddress = "...";
 		
-		notMan.addNotificationChannel(NotificationChannelBuilder.notificationChannel()
-				.withName("ch1")
-				.withDescription("")
-				.withConfiguration(emailCfg)
-				.withFacilityId(EmailFacility.NAME).build());
+		notMan.addNotificationChannel(new NotificationChannel("ch1", "", emailCfg, EmailFacility.NAME));
 		EntityParam admin = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "admin"));
-		initCommon.initializeCommonAttributeTypes();
+		
+		aTypeMan.addAttributeType(new AttributeType("email", VerifiableEmailAttributeSyntax.ID));
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(PasswordResetTemplateDef.VAR_CODE, "AAAA");
@@ -76,8 +70,8 @@ public class TestNotifications extends DBIntegrationTestBase
 			fail("Managed to send email for an entity without email attribute");
 		} catch(IllegalIdentityValueException e){}
 
-		StringAttribute emailA = new StringAttribute(InitializerCommon.EMAIL_ATTR, 
-				"/", AttributeVisibility.full, destinationAddress);
+		Attribute emailA = StringAttribute.of("email", 
+				"/", destinationAddress);
 		attrsMan.setAttribute(admin, emailA, false);
 		Future<NotificationStatus> statusFuture = notProducer.sendNotification(admin, "ch1", 
 				PasswordResetTemplateDef.NAME, params, null, null);
@@ -96,11 +90,7 @@ public class TestNotifications extends DBIntegrationTestBase
 		assertEquals(2, notMan.getNotificationFacilities().size());
 		assertTrue(notMan.getNotificationFacilities().contains(EmailFacility.NAME));
 		assertEquals(0, notMan.getNotificationChannels().size());
-		notMan.addNotificationChannel(NotificationChannelBuilder.notificationChannel()
-				.withName("ch1")
-				.withDescription("")
-				.withConfiguration(emailCfg)
-				.withFacilityId(EmailFacility.NAME).build());
+		notMan.addNotificationChannel(new NotificationChannel("ch1", "", emailCfg, EmailFacility.NAME));
 		Map<String, NotificationChannel> channels = notMan.getNotificationChannels();
 		assertEquals(1, channels.size());
 		assertTrue(channels.containsKey("ch1"));
@@ -110,7 +100,7 @@ public class TestNotifications extends DBIntegrationTestBase
 		{
 			notMan.updateNotificationChannel("wrong", emailCfg2);
 			fail("Managed to update not existing channel");
-		} catch (WrongArgumentException e)
+		} catch (IllegalArgumentException e)
 		{
 		}
 		notMan.updateNotificationChannel("ch1", emailCfg2);
@@ -123,17 +113,13 @@ public class TestNotifications extends DBIntegrationTestBase
 		{
 			notMan.removeNotificationChannel("wrong");
 			fail("Managed to remove not existing channel");
-		} catch (WrongArgumentException e)
+		} catch (IllegalArgumentException e)
 		{
 		}
 		notMan.removeNotificationChannel("ch1");
 		assertEquals(0, notMan.getNotificationChannels().size());
 
-		notMan.addNotificationChannel(NotificationChannelBuilder.notificationChannel()
-				.withName("ch1")
-				.withDescription("")
-				.withConfiguration(emailCfg)
-				.withFacilityId(EmailFacility.NAME).build());
+		notMan.addNotificationChannel(new NotificationChannel("ch1", "", emailCfg, EmailFacility.NAME));
 		channels = notMan.getNotificationChannels();
 		assertEquals(1, channels.size());
 		assertTrue(channels.containsKey("ch1"));

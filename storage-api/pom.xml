@@ -1,0 +1,31 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<parent>
+		<groupId>pl.edu.icm.unity</groupId>
+		<artifactId>unity-server-parent</artifactId>
+		<version>2.0.0-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>unity-server-storage-api</artifactId>
+	<packaging>jar</packaging>
+	<name>UNITY Server ${m.name} module</name>
+	<description>Data storage API</description>
+	
+	<properties>
+		<m.name>storage-api</m.name>
+	</properties>
+
+	<scm>
+		<connection>${scm.base}/${m.name}</connection>
+		<developerConnection>${scm.base}/${m.name}</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>unity-server-base</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+</project>

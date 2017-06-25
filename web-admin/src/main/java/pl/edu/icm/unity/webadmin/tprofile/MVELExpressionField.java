@@ -6,11 +6,11 @@ package pl.edu.icm.unity.webadmin.tprofile;
 
 import org.mvel2.MVEL;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.data.validator.AbstractStringValidator;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
 import pl.edu.icm.unity.webui.common.Styles;
-
-import com.vaadin.data.validator.AbstractStringValidator;
 
 /**
  * Field allowing for editing an MVEL expression

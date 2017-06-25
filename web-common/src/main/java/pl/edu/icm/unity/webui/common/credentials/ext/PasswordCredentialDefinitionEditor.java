@@ -10,17 +10,6 @@ import java.math.RoundingMode;
 
 import org.vaadin.risto.stepper.IntStepper;
 
-import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.api.MessageTemplateManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.stdext.credential.PasswordCredential;
-import pl.edu.icm.unity.stdext.credential.PasswordVerificator;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
-import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer;
-
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.Sizeable.Unit;
@@ -28,6 +17,18 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
+
+import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.stdext.credential.PasswordCredential;
+import pl.edu.icm.unity.stdext.credential.PasswordVerificator;
+import pl.edu.icm.unity.stdext.credential.ScryptParams;
+import pl.edu.icm.unity.types.authn.CredentialDefinition;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
+import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer;
 
 /**
  * {@link CredentialDefinition} editor and viewer for the {@link PasswordVerificator}.
@@ -42,10 +43,11 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 	private IntStepper minLength;
 	private IntStepper minClasses;
 	private CheckBox denySequences;
+	private CheckBox allowLegacy;
 	private CheckBox limitMaxAge;
 	private IntStepper maxAge;
 	private IntStepper historySize;
-	private IntStepper rehashNumber;
+	private IntStepper workFactor;
 	private CredentialResetSettingsEditor resetSettings;
 	
 	public PasswordCredentialDefinitionEditor(UnityMessageSource msg, MessageTemplateManagement msgTplMan)
@@ -59,7 +61,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 	public Component getViewer(String credentialDefinitionConfiguration)
 	{
 		PasswordCredential helper = new PasswordCredential();
-		helper.setSerializedConfiguration(credentialDefinitionConfiguration);
+		helper.setSerializedConfiguration(JsonUtil.parse(credentialDefinitionConfiguration));
 
 		Label minLength = new Label();
 		minLength.setCaption(msg.getMessage("PasswordDefinitionEditor.minLength"));
@@ -71,23 +73,26 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		historySize.setCaption(msg.getMessage("PasswordDefinitionEditor.historySize"));
 		Label maxAge = new Label();
 		maxAge.setCaption(msg.getMessage("PasswordDefinitionEditor.maxAgeRo"));
-		Label rehashNumber = new Label();
-		rehashNumber.setCaption(msg.getMessage("PasswordDefinitionEditor.rehashNumber"));
+		Label workFactor = new Label();
+		workFactor.setCaption(msg.getMessage("PasswordDefinitionEditor.workFactor"));
+		Label allowLegacy = new Label();
+		allowLegacy.setCaption(msg.getMessage("PasswordDefinitionEditor.allowLegacy"));		
 		
 		CredentialResetSettingsEditor viewer = new CredentialResetSettingsEditor(msg, msgTplMan,
 				helper.getPasswordResetSettings());
 		
 		FormLayout form = new CompactFormLayout(minLength, minClasses, denySequences, historySize, maxAge,
-				rehashNumber);
+				workFactor, allowLegacy);
 		viewer.addViewerToLayout(form);
 		form.setMargin(true);
 		
 		minLength.setValue(String.valueOf(helper.getMinLength()));
 		minClasses.setValue(String.valueOf(helper.getMinClassesNum()));
-		denySequences.setValue(helper.isDenySequences() ? msg.getMessage("yes") : msg.getMessage("no"));
+		denySequences.setValue(msg.getYesNo(helper.isDenySequences()));
 		denySequences.setReadOnly(true);
 		historySize.setValue(String.valueOf(helper.getHistorySize()));
-		rehashNumber.setValue(String.valueOf(helper.getRehashNumber()));
+		workFactor.setValue(String.valueOf(helper.getScryptParams().getWorkFactor()));
+		allowLegacy.setValue(msg.getYesNo(helper.isAllowLegacy()));
 		
 		long maxAgeMs = helper.getMaxAge();
 		double maxAgeMonths = ((double)maxAgeMs)/MS_IN_MONTH;
@@ -119,7 +124,6 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		historySize.setMaxValue(50);
 		historySize.setWidth(3, Unit.EM);
 		limitMaxAge = new CheckBox(msg.getMessage("PasswordDefinitionEditor.limitMaxAge"));
-		limitMaxAge.setImmediate(true);
 		limitMaxAge.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override
@@ -133,21 +137,27 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		maxAge.setMaxValue(MAX_MONTHS);
 		maxAge.setWidth(3, Unit.EM);
 		maxAge.setValue(24);
-		rehashNumber = new IntStepper(msg.getMessage("PasswordDefinitionEditor.rehashNumber"));
-		rehashNumber.setStepAmount(100);
-		rehashNumber.setMinValue(0);
-		rehashNumber.setMaxValue(100000);
-		rehashNumber.setWidth(5, Unit.EM);
+
+		workFactor = new IntStepper(msg.getMessage("PasswordDefinitionEditor.workFactor"));
+		workFactor.setStepAmount(1);
+		workFactor.setMinValue(ScryptParams.MIN_WORK_FACTOR);
+		workFactor.setMaxValue(ScryptParams.MAX_WORK_FACTOR);
+		workFactor.setWidth(3, Unit.EM);
+		workFactor.setDescription(msg.getMessage("PasswordDefinitionEditor.workFactorDesc"));
+
+		allowLegacy = new CheckBox(msg.getMessage("PasswordDefinitionEditor.allowLegacy"));
+		allowLegacy.setDescription(msg.getMessage("PasswordDefinitionEditor.allowLegacyDesc"));
+		
 
 		FormLayout form = new CompactFormLayout(minLength, minClasses, denySequences, historySize, limitMaxAge,
-				maxAge, rehashNumber);
+				maxAge, workFactor, allowLegacy);
 		form.setSpacing(true);
 		form.setMargin(true);
 		PasswordCredential helper = new PasswordCredential();
 		if (credentialDefinitionConfiguration != null)
-			helper.setSerializedConfiguration(credentialDefinitionConfiguration);
+			helper.setSerializedConfiguration(JsonUtil.parse(credentialDefinitionConfiguration));
 		else
-			helper.setRehashNumber(PasswordCredential.DEFAULT_REHASH_NUMBER);
+			helper.setScryptParams(new ScryptParams());
 		initUIState(helper);
 		resetSettings = new CredentialResetSettingsEditor(msg, msgTplMan, helper.getPasswordResetSettings());
 		resetSettings.addEditorToLayout(form);
@@ -171,14 +181,10 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		helper.setMinClassesNum((int)(double)minClasses.getValue());
 		helper.setMinLength((int)(double)minLength.getValue());
 		helper.setPasswordResetSettings(resetSettings.getValue());
-		helper.setRehashNumber(rehashNumber.getValue());
-		try
-		{
-			return helper.getSerializedConfiguration();
-		} catch (InternalException e)
-		{
-			throw new IllegalCredentialException(e.getMessage(), e);
-		}
+		ScryptParams scryptParams = new ScryptParams(workFactor.getValue());
+		helper.setScryptParams(scryptParams);
+		helper.setAllowLegacy(allowLegacy.getValue());
+		return JsonUtil.serialize(helper.getSerializedConfiguration());
 	}
 
 	private void initUIState(PasswordCredential helper)
@@ -202,6 +208,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 			limitMaxAge.setValue(false);
 			maxAge.setEnabled(false);
 		}
-		rehashNumber.setValue(helper.getRehashNumber());
+		workFactor.setValue(helper.getScryptParams().getWorkFactor());
+		allowLegacy.setValue(helper.isAllowLegacy());
 	}
 }

@@ -4,13 +4,9 @@
  */
 package pl.edu.icm.unity.oauth.as.preferences;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
-
-import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.shared.ui.combobox.FilteringMode;
@@ -18,6 +14,12 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.OptionGroup;
+
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
+import pl.edu.icm.unity.types.basic.Identity;
 
 /**
  * Allows to edit settings for a single OAuth Client.
@@ -30,25 +32,30 @@ import com.vaadin.ui.OptionGroup;
 public class OAuthSPSettingsEditor extends FormLayout
 {
 	protected UnityMessageSource msg;
-	protected Identity[] identities;
+	private IdentityTypeSupport idTypeSupport;
+	protected List<Identity> identities;
 	
 	protected ComboBox client;
 	protected Label clientLabel;
 	protected OptionGroup decision;
 	protected OptionGroup identity;
 	
-	public OAuthSPSettingsEditor(UnityMessageSource msg, Identity[] identities, 
+	public OAuthSPSettingsEditor(UnityMessageSource msg, IdentityTypeSupport idTypeSupport,
+			List<Identity> identities, 
 			String client, OAuthClientSettings initial)
 	{
 		this.msg = msg;
-		this.identities = Arrays.copyOf(identities, identities.length);
+		this.idTypeSupport = idTypeSupport;
+		this.identities = new ArrayList<>(identities);
 		initUI(initial, client, null);
 	}
 
-	public OAuthSPSettingsEditor(UnityMessageSource msg, Identity[] identities, Set<String> allClients)
+	public OAuthSPSettingsEditor(UnityMessageSource msg, IdentityTypeSupport idTypeSupport, 
+			List<Identity> identities, Set<String> allClients)
 	{
 		this.msg = msg;
-		this.identities = Arrays.copyOf(identities, identities.length);
+		this.idTypeSupport = idTypeSupport;
+		this.identities = new ArrayList<>(identities);
 		initUI(null, null, allClients);
 	}
 	
@@ -75,8 +82,8 @@ public class OAuthSPSettingsEditor extends FormLayout
 		if (identityV != null)
 		{
 			IndexedContainer idContainer = ((IndexedContainer)identity.getContainerDataSource());
-			Identity id = identities[idContainer.indexOfId(identityV)];
-			IdentityTypeDefinition idType = id.getType().getIdentityTypeProvider();
+			Identity id = identities.get(idContainer.indexOfId(identityV));
+			IdentityTypeDefinition idType = idTypeSupport.getTypeDefinition(id.getTypeId());
 			if (!idType.isDynamic() && !idType.isTargeted())
 				ret.setSelectedIdentity(id.getComparableValue());
 		}
@@ -121,7 +128,7 @@ public class OAuthSPSettingsEditor extends FormLayout
 		identity = new OptionGroup(msg.getMessage("OAuthPreferences.identity"));
 		identity.setNullSelectionAllowed(true);
 		for (Identity id: identities)
-			identity.addItem(id.toPrettyString());
+			identity.addItem(idTypeSupport.getTypeDefinition(id.getTypeId()).toPrettyString(id));
 		
 		addComponents(decision, identity);
 		
@@ -156,7 +163,9 @@ public class OAuthSPSettingsEditor extends FormLayout
 			{
 				if (i.getComparableValue().equals(selId))
 				{
-					identity.select(i.toPrettyString());
+					IdentityTypeDefinition typeDefinition = idTypeSupport.getTypeDefinition(
+							i.getTypeId());
+					identity.select(typeDefinition.toPrettyString(i));
 					break;
 				}
 			}

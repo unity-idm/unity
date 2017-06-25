@@ -7,7 +7,7 @@
 
 package pl.edu.icm.unity.engine.builders;
 
-import pl.edu.icm.unity.confirmations.ConfirmationConfiguration;
+import pl.edu.icm.unity.types.confirmation.ConfirmationConfiguration;
 
 public class ConfirmationConfigurationBuilder extends
 		ConfirmationConfigurationBuilderBase<ConfirmationConfigurationBuilder>

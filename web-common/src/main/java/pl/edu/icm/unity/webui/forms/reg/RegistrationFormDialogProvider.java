@@ -4,14 +4,14 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
-import pl.edu.icm.unity.server.api.registration.PublicRegistrationURLSupport;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
+import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinService;
+
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.AsyncErrorHandler;
-
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinService;
 
 /**
  * Provides registration form dialog.

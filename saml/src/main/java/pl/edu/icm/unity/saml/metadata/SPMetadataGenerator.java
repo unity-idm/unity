@@ -13,6 +13,8 @@ import org.apache.xmlbeans.XmlBase64Binary;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 
+import eu.emi.security.authn.x509.X509Credential;
+import eu.unicore.samly2.SAMLConstants;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import xmlbeans.org.oasis.saml2.metadata.AnyURIListType;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
@@ -22,8 +24,6 @@ import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
 import xmlbeans.org.oasis.saml2.metadata.KeyDescriptorType;
 import xmlbeans.org.oasis.saml2.metadata.SPSSODescriptorType;
 import xmlbeans.org.w3.x2000.x09.xmldsig.KeyInfoType;
-import eu.emi.security.authn.x509.X509Credential;
-import eu.unicore.samly2.SAMLConstants;
 
 /**
  * Automatically generates SAML metadata from SP configuration.

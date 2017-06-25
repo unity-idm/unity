@@ -4,18 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
-import org.apache.ibatis.session.SqlSession;
+import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
 import pl.edu.icm.unity.engine.notifications.NotificationChannelInstance;
 import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.notifications.NotificationStatus;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.registration.UserRequestState;
 
-
+@Component
 public class MockNotificationFacility implements NotificationFacility
 {
 	public static final String NAME = "test";
@@ -62,14 +62,14 @@ public class MockNotificationFacility implements NotificationFacility
 	}
 
 	@Override
-	public String getAddressForEntity(EntityParam recipient, SqlSession sql, String address)
+	public String getAddressForEntity(EntityParam recipient, String address)
 			throws EngineException
 	{
 		throw new IllegalIdentityValueException("no address");
 	}
 
 	@Override
-	public String getAddressForUserRequest(UserRequestState<?> currentRequest, SqlSession sql) throws EngineException
+	public String getAddressForUserRequest(UserRequestState<?> currentRequest) throws EngineException
 	{
 		return null;
 	}

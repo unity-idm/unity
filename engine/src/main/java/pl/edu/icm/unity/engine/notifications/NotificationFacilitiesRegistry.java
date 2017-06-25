@@ -9,7 +9,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.registries.TypesRegistryBase;
+import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 
 /**
  * Maintains a simple registry of available {@link NotificationFacility}ies.

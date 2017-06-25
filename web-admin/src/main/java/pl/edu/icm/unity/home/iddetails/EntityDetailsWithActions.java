@@ -6,15 +6,6 @@ package pl.edu.icm.unity.home.iddetails;
 
 import java.util.Set;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.home.HomeEndpointProperties;
-import pl.edu.icm.unity.sandbox.wizard.SandboxWizardDialog;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -26,6 +17,15 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.home.HomeEndpointProperties;
+import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider;
+import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.sandbox.wizard.SandboxWizardDialog;
 
 /**
  * Shows {@link UserDetailsPanel}, {@link UserIdentitiesPanel}, {@link UserAttributesPanel}

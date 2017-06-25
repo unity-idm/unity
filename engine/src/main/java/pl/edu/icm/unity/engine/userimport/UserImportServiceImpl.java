@@ -11,26 +11,22 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.server.api.TranslationProfileManagement;
-import pl.edu.icm.unity.server.api.internal.IdentityResolver;
-import pl.edu.icm.unity.server.api.userimport.UserImportSPI;
-import pl.edu.icm.unity.server.api.userimport.UserImportSPIFactory;
-import pl.edu.icm.unity.server.api.userimport.UserImportSerivce;
-import pl.edu.icm.unity.server.authn.AuthenticationException;
-import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
-import pl.edu.icm.unity.server.authn.remote.RemoteVerificatorUtil;
-import pl.edu.icm.unity.server.utils.CacheProvider;
-import pl.edu.icm.unity.server.utils.ConfigurationLoader;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.config.ConfigurationLoader;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.userimport.UserImportSPI;
+import pl.edu.icm.unity.engine.api.userimport.UserImportSPIFactory;
+import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce;
+import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 
 
 /**
@@ -47,17 +43,14 @@ public class UserImportServiceImpl implements UserImportSerivce
 	
 	@Autowired
 	public UserImportServiceImpl(UnityServerConfiguration mainCfg, Optional<List<UserImportSPIFactory>> importersF,
-			CacheProvider cacheProvider, IdentityResolver identityResolver,
-			@Qualifier("insecure") TranslationProfileManagement profileManagement,
-			InputTranslationEngine trEngine)
+			CacheProvider cacheProvider, RemoteAuthnResultProcessor remoteAuthnResultProcessor)
 	{
 		this(mainCfg, importersF.orElse(new ArrayList<>()), cacheProvider, 
-				new RemoteVerificatorUtil(identityResolver, profileManagement, trEngine), 
-				new ConfigurationLoader());
+				remoteAuthnResultProcessor, new ConfigurationLoader());
 	}
 	
 	public UserImportServiceImpl(UnityServerConfiguration mainCfg, List<UserImportSPIFactory> importersF,
-			CacheProvider cacheProvider, RemoteVerificatorUtil verificatorUtil, 
+			CacheProvider cacheProvider, RemoteAuthnResultProcessor verificatorUtil, 
 			ConfigurationLoader configLoader)
 	{
 		Map<String, UserImportSPIFactory> importersFM = new HashMap<>();
@@ -71,7 +64,7 @@ public class UserImportServiceImpl implements UserImportSerivce
 	}
 	
 	private SingleUserImportHandler loadHandler(String importerCfg, Map<String, UserImportSPIFactory> importersFM,
-			CacheProvider cacheProvider, int index, RemoteVerificatorUtil verificatorUtil, 
+			CacheProvider cacheProvider, int index, RemoteAuthnResultProcessor verificatorUtil, 
 			ConfigurationLoader cfgLoader)
 	{
 		Properties properties = cfgLoader.getProperties(importerCfg);
@@ -119,5 +112,4 @@ public class UserImportServiceImpl implements UserImportSerivce
 		}
 		return new AuthenticationResult(Status.notApplicable, null);
 	}
-
 }

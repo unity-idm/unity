@@ -6,16 +6,16 @@ package pl.edu.icm.unity.oauth.client.web;
 
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
-
-import pl.edu.icm.unity.oauth.client.OAuthContext;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.webui.authn.remote.AbstractRedirectRequestHandler;
+import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinServletResponse;
 import com.vaadin.server.VaadinSession;
+
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.oauth.client.OAuthContext;
+import pl.edu.icm.unity.webui.authn.remote.AbstractRedirectRequestHandler;
 
 
 /**

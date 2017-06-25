@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
@@ -34,11 +34,14 @@ import org.quartz.utils.Key;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.bulkops.EntityAction;
+import pl.edu.icm.unity.engine.api.bulkops.EntityActionFactory;
+import pl.edu.icm.unity.engine.translation.TranslationCondition;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.bulkops.ProcessingRule;
-import pl.edu.icm.unity.server.bulkops.ScheduledProcessingRule;
-import pl.edu.icm.unity.server.bulkops.ScheduledProcessingRuleParam;
-import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
+import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
+import pl.edu.icm.unity.types.translation.TranslationRule;
 
 /**
  * Utility code for bulk processing actions management
@@ -57,16 +60,8 @@ public class BulkProcessingSupport
 	private Scheduler scheduler;
 	@Autowired
 	private BulkProcessingExecutor executor;
-	
-	public synchronized Collection<ScheduledProcessingRule> getScheduledRules()
-	{
-		Set<JobKey> jobs = getCurrentJobs();
-		return jobs.stream().
-			map(this::getJobDetail).
-			filter(this::filterProcessingJobs).
-			map(job -> (ScheduledProcessingRule) job.getJobDataMap().get(RULE_KEY)).
-			collect(Collectors.toList());
-	}
+	@Autowired
+	private EntityActionsRegistry actionsRegistry;
 	
 	public synchronized Collection<RuleWithTS> getScheduledRulesWithTS()
 	{
@@ -75,10 +70,8 @@ public class BulkProcessingSupport
 			map(this::getJobDetail).
 			filter(this::filterProcessingJobs).
 			map(job -> {
-				ScheduledProcessingRule rule = (ScheduledProcessingRule) 
-						job.getJobDataMap().get(RULE_KEY);
 				Date ts = (Date) job.getJobDataMap().get(TS_KEY);
-				return new RuleWithTS(rule, ts);
+				return new RuleWithTS(job.getKey().getName(), ts);
 			}).
 			collect(Collectors.toList());
 	}
@@ -99,17 +92,17 @@ public class BulkProcessingSupport
 		return Key.createUniqueName(null);
 	}
 
-	public void scheduleImmediateJob(ProcessingRule rule)
+	public void scheduleImmediateJob(TranslationRule rule)
 	{
 		Trigger trigger = createImmediateTrigger();
-		scheduleJob(rule, trigger, generateJobKey(), new Date());
+		scheduleJob(createRuleInstance(rule), trigger, generateJobKey(), new Date());
 	}
 
-	public void scheduleImmediateJobSync(ProcessingRule rule, long maxWaitTimeS) throws TimeoutException
+	public void scheduleImmediateJobSync(TranslationRule rule, long maxWaitTimeS) throws TimeoutException
 	{
 		Trigger trigger = createImmediateTrigger();
 		String id = generateJobKey();
-		JobDetail job = createJob(id, rule, new Date());
+		JobDetail job = createJob(id, createRuleInstance(rule), new Date());
 		log.debug("Scheduling job with id " + id + " and trigger " + trigger);
 		
 		ListenerManager listenerManager;
@@ -146,7 +139,7 @@ public class BulkProcessingSupport
 	public void scheduleJob(ScheduledProcessingRule rule, Date ts)
 	{
 		Trigger trigger = createCronTrigger(rule);
-		scheduleJob(rule, trigger, rule.getId(), ts);
+		scheduleJob(createRuleInstance(rule), trigger, rule.getId(), ts);
 	}
 	
 	public synchronized void undeployJob(String id)
@@ -165,11 +158,11 @@ public class BulkProcessingSupport
 	{
 		Trigger trigger = createCronTrigger(rule);
 		undeployJob(rule.getId());
-		scheduleJob(rule, trigger, rule.getId(), ts);
+		scheduleJob(createRuleInstance(rule), trigger, rule.getId(), ts);
 	}
 	
 	
-	private JobDetail createJob(String id, ProcessingRule rule, Date ts)
+	private JobDetail createJob(String id, EntityTranslationRule rule, Date ts)
 	{
 		JobDataMap dataMap = new JobDataMap();
 		dataMap.put(RULE_KEY, rule);
@@ -197,7 +190,7 @@ public class BulkProcessingSupport
 				.build();
 	}
 	
-	private synchronized void scheduleJob(ProcessingRule rule, Trigger trigger, String id, Date ts)
+	private synchronized void scheduleJob(EntityTranslationRule rule, Trigger trigger, String id, Date ts)
 	{
 		JobDetail job = createJob(id, rule, ts);
 		log.debug("Scheduling job with id " + id + " and trigger " + trigger);
@@ -212,7 +205,7 @@ public class BulkProcessingSupport
 	
 	private boolean filterProcessingJobs(JobDetail job)
 	{
-		return job.getJobDataMap().get(RULE_KEY) instanceof ScheduledProcessingRule;
+		return job.getJobDataMap().get(RULE_KEY) instanceof TranslationRule;
 	}
 	
 	private JobDetail getJobDetail(JobKey key)
@@ -226,13 +219,22 @@ public class BulkProcessingSupport
 		}
 	}	
 	
+	protected EntityTranslationRule createRuleInstance(TranslationRule rule)
+	{
+		EntityActionFactory actionFactory = actionsRegistry.getByName(rule.getAction().getName());
+		EntityAction action = actionFactory.getInstance(rule.getAction().getParameters());
+		
+		TranslationCondition condition = new TranslationCondition(rule.getCondition());
+		return new EntityTranslationRule(action, condition);
+	}
+	
 	public static class EntityRuleJob implements Job 
 	{
 		@Override
 		public void execute(JobExecutionContext context) throws JobExecutionException
 		{
 			JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
-			ProcessingRule rule = (ProcessingRule) jobDataMap.get(RULE_KEY);
+			EntityTranslationRule rule = (EntityTranslationRule) jobDataMap.get(RULE_KEY);
 			BulkProcessingExecutor executor = (BulkProcessingExecutor) jobDataMap.get(EXECUTOR_KEY);
 			executor.execute(rule);
 		}
@@ -240,12 +242,12 @@ public class BulkProcessingSupport
 	
 	public static class RuleWithTS
 	{
-		public final ScheduledProcessingRule rule;
+		public final String ruleId;
 		public final Date ts;
 
-		public RuleWithTS(ScheduledProcessingRule rule, Date ts)
+		public RuleWithTS(String ruleId, Date ts)
 		{
-			this.rule = rule;
+			this.ruleId = ruleId;
 			this.ts = ts;
 		}
 	}

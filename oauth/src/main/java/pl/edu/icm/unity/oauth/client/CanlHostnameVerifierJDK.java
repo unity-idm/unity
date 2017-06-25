@@ -11,12 +11,12 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
-import pl.edu.icm.unity.server.utils.Log;
 import eu.emi.security.authn.x509.helpers.ssl.HostnameToCertificateChecker;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import pl.edu.icm.unity.base.utils.Log;
 
 /**
  * CANL based hostname verifier for JDK.

@@ -8,8 +8,8 @@ import java.util.Collection;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.MapComboBox;
 
@@ -19,9 +19,9 @@ import pl.edu.icm.unity.webui.common.MapComboBox;
  */
 public class AttributeSelectionComboBox extends MapComboBox<AttributeType>
 {
-	public AttributeSelectionComboBox(String caption, AttributesManagement attrsMan) throws EngineException
+	public AttributeSelectionComboBox(String caption, AttributeTypeManagement aTypeMan) throws EngineException
 	{
-		Collection<AttributeType> attributeTypes = attrsMan.getAttributeTypes();
+		Collection<AttributeType> attributeTypes = aTypeMan.getAttributeTypes();
 		initContents(caption, attributeTypes);		
 	}
 	

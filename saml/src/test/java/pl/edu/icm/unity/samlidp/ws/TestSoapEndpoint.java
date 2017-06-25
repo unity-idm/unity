@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.assertion.AttributeAssertionParser;
@@ -29,33 +28,28 @@ import eu.unicore.security.wsutil.samlclient.AuthnResponseAssertions;
 import eu.unicore.security.wsutil.samlclient.SAMLAttributeQueryClient;
 import eu.unicore.security.wsutil.samlclient.SAMLAuthnClient;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
-import pl.edu.icm.unity.saml.idp.ws.SamlIdPSoapEndpointFactory;
+import pl.edu.icm.unity.saml.idp.ws.SamlSoapEndpoint;
 import pl.edu.icm.unity.samlidp.AbstractTestIdpBase;
-import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 public class TestSoapEndpoint extends AbstractTestIdpBase
 {
-	
-	@Autowired
-	private AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
-	
 	/**
 	 * Tests authentication and attribute query of dynamic identities.
 	 */
 	@Test
 	public void testDynamicIdentityTypes() throws Exception
 	{
-		String authnWSUrl = "https://localhost:52443/saml" + SamlIdPSoapEndpointFactory.SERVLET_PATH +
+		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
 				"/AuthenticationService";
-		String attrWSUrl = "https://localhost:52443/saml" + SamlIdPSoapEndpointFactory.SERVLET_PATH +
+		String attrWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
 				"/AssertionQueryService";
 		DefaultClientConfiguration clientCfg = getClientCfg();
 		clientCfg.setHttpUser("user1");
@@ -70,7 +64,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		AuthnResponseAssertions resp = authnClient.authenticate(SAMLConstants.NFORMAT_PERSISTENT, 
 				localIssuer, "http://somehost/consumer");
 		
-		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 6);
+		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 7);
 		String persistentTargetedId = resp.getAuthNAssertions().get(0).getSubjectName();
 		System.out.println("Targeted persistent id: " + persistentTargetedId);
 
@@ -78,13 +72,13 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		AttributeAssertionParser a = attrClient.getAssertion(
 				new NameID(persistentTargetedId, SAMLConstants.NFORMAT_PERSISTENT),
 				localIssuer);
-		assertEquals(6, a.getAttributes().size());
+		assertEquals(7, a.getAttributes().size());
 	}
 	
 	@Test
 	public void testAuthn() throws Exception
 	{
-		String authnWSUrl = "https://localhost:52443/saml" + SamlIdPSoapEndpointFactory.SERVLET_PATH +
+		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
 				"/AuthenticationService";
 		
 		DefaultClientConfiguration clientCfg = getClientCfg();
@@ -106,7 +100,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		AuthnResponseAssertions resp = client.authenticate(SAMLConstants.NFORMAT_PERSISTENT, 
 				localIssuer, "http://somehost/consumer");
 		
-		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 6);
+		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 7);
 		
 		clientCfg.setHttpPassword("wrong");
 		client = new SAMLAuthnClient(authnWSUrl, clientCfg);
@@ -140,7 +134,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		clientCfg.setHttpPassword("mockPassword1");
 		client = new SAMLAuthnClient(authnWSUrl, clientCfg);
 		resp = client.authenticate(localIssuer, "http://somehost/consumer");
-		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 6);
+		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 7);
 		
 		//both but password wrong so TLS should be used.
 		clientCfg.setSslAuthn(true);
@@ -166,7 +160,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 	@Test
 	public void testAttributes() throws Exception
 	{
-		String attrWSUrl = "https://localhost:52443/saml" + SamlIdPSoapEndpointFactory.SERVLET_PATH +
+		String attrWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
 				"/AssertionQueryService";
 		
 		DefaultClientConfiguration clientCfg = getClientCfg();
@@ -224,7 +218,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 	@Test
 	public void testPreferences() throws Exception
 	{
-		String attrWSUrl = "https://localhost:52443/saml" + SamlIdPSoapEndpointFactory.SERVLET_PATH +
+		String attrWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
 				"/AssertionQueryService";
 		
 		DefaultClientConfiguration clientCfg = getClientCfg();
@@ -236,15 +230,16 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		
 		EntityParam entityParam = new EntityParam(new IdentityTaV(X500Identity.ID, 
 				"CN=Test UVOS,O=UNICORE,C=EU"));
-		SamlPreferences preferences = new SamlPreferences(attributeSyntaxFactoriesRegistry);
+		SamlPreferences preferences = new SamlPreferences();
 		SPSettings settings = new SPSettings();
-		Map<String, Attribute<?>> hidden = new HashMap<>();
+		Map<String, Attribute> hidden = new HashMap<>();
 		hidden.put("memberOf", null);
-		FloatingPointAttribute fpa = new FloatingPointAttribute("floatA", "/", AttributeVisibility.full, 124.1);
+		Attribute fpa = FloatingPointAttribute.of("floatA", "/", 124.1);
 		hidden.put("floatA", fpa);
 		settings.setHiddenAttribtues(hidden);
 		preferences.setSPSettings("http://example-reqester", settings);
-		preferencesMan.setPreference(entityParam, SamlPreferences.ID, preferences.getSerializedConfiguration());
+		preferencesMan.setPreference(entityParam, SamlPreferences.ID, 
+				JsonUtil.serialize(preferences.getSerializedConfiguration()));
 		
 		SAMLAttributeQueryClient client = new SAMLAttributeQueryClient(attrWSUrl, clientCfg);
 		AttributeAssertionParser a = client.getAssertion(new NameID("CN=Test UVOS,O=UNICORE,C=EU", SAMLConstants.NFORMAT_DN),
@@ -272,7 +267,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 	{
 		EntityParam missing = new EntityParam(new IdentityTaV("foo", "bar"));
 		SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan, 
-				attributeSyntaxFactoriesRegistry, missing);
+				missing);
 		
 		assertThat(preferences, is(notNullValue()));
 	}

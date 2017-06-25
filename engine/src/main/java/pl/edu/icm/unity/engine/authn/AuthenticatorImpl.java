@@ -4,14 +4,14 @@
  */
 package pl.edu.icm.unity.engine.authn;
 
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorsRegistry;
+import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
+import pl.edu.icm.unity.engine.api.authn.CredentialRetrievalFactory;
+import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
+import pl.edu.icm.unity.engine.api.authn.CredentialVerificatorFactory;
+import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
+import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.server.api.internal.IdentityResolver;
-import pl.edu.icm.unity.server.authn.CredentialRetrieval;
-import pl.edu.icm.unity.server.authn.CredentialRetrievalFactory;
-import pl.edu.icm.unity.server.authn.CredentialVerificator;
-import pl.edu.icm.unity.server.authn.CredentialVerificatorFactory;
-import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
-import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 
@@ -91,8 +91,8 @@ public class AuthenticatorImpl
 			AuthenticatorInstance deserialized)
 	{
 		this(identitiesResolver, reg, name);
-		createCoworkers(deserialized.getTypeDescription(), deserialized.getRetrievalJsonConfiguration(),
-				deserialized.getVerificatorJsonConfiguration(), null);
+		createCoworkers(deserialized.getTypeDescription(), deserialized.getRetrievalConfiguration(),
+				deserialized.getVerificatorConfiguration(), null);
 	}
 	
 	/**
@@ -107,7 +107,7 @@ public class AuthenticatorImpl
 			AuthenticatorInstance deserialized, String localCredentialConfiguration)
 	{
 		this(identitiesResolver, reg, name);
-		createCoworkers(deserialized.getTypeDescription(), deserialized.getRetrievalJsonConfiguration(),
+		createCoworkers(deserialized.getTypeDescription(), deserialized.getRetrievalConfiguration(),
 				localCredentialConfiguration, deserialized.getLocalCredentialName());
 	}
 	
@@ -147,14 +147,14 @@ public class AuthenticatorImpl
 		if (rConfiguration == null)
 			rConfiguration = "";
 		retrieval.setSerializedConfiguration(rConfiguration);
-		instanceDescription.setRetrievalJsonConfiguration(rConfiguration);
+		instanceDescription.setRetrievalConfiguration(rConfiguration);
 		verificator.setSerializedConfiguration(vConfiguration);
 		if (!(verificator instanceof LocalCredentialVerificator))
 		{
-			instanceDescription.setVerificatorJsonConfiguration(vConfiguration);
+			instanceDescription.setVerificatorConfiguration(vConfiguration);
 		} else 
 		{
-			instanceDescription.setVerificatorJsonConfiguration(null);
+			instanceDescription.setVerificatorConfiguration(null);
 			((LocalCredentialVerificator)verificator).setCredentialName(localCredential);
 			instanceDescription.setLocalCredentialName(localCredential);
 		}

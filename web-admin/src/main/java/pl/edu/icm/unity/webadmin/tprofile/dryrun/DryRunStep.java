@@ -6,12 +6,12 @@ package pl.edu.icm.unity.webadmin.tprofile.dryrun;
 
 import org.vaadin.teemu.wizards.WizardStep;
 
-import pl.edu.icm.unity.sandbox.SandboxAuthnEvent;
-import pl.edu.icm.unity.server.api.TranslationProfileManagement;
-import pl.edu.icm.unity.server.registries.InputTranslationActionsRegistry;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-
 import com.vaadin.ui.Component;
+
+import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.translation.in.InputTranslationActionsRegistry;
+import pl.edu.icm.unity.webui.sandbox.SandboxAuthnEvent;
 
 /**
  * Fourth dryrun step with profile validation - used in {@link DryRunDialogComponent}.

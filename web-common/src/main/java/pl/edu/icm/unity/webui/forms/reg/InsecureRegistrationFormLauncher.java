@@ -6,21 +6,17 @@ package pl.edu.icm.unity.webui.forms.reg;
 
 import java.util.List;
 
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.RegistrationsManagement;
-import pl.edu.icm.unity.server.api.internal.IdPLoginController;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -28,9 +24,6 @@ import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.webui.AsyncErrorHandler;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
-import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.forms.PostFormFillingHandler;
 import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreatedCallback;
 
@@ -41,42 +34,26 @@ import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreate
  * 
  * @author K. Benedyczak
  */
-@Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@PrototypeComponent
 public class InsecureRegistrationFormLauncher implements RegistrationFormDialogProvider
 {
+	@Autowired
 	protected UnityMessageSource msg;
-	protected RegistrationsManagement registrationsManagement;
-	protected IdentityEditorRegistry identityEditorRegistry;
-	protected CredentialEditorRegistry credentialEditorRegistry;
-	protected AttributeHandlerRegistry attributeHandlerRegistry;
-	protected AttributesManagement attrsMan;
-	protected AuthenticationManagement authnMan;
-	protected GroupsManagement groupsMan;
 	
-	protected EventsBus bus;
+	@Autowired 
+	@Qualifier("insecure")
+	protected RegistrationsManagement registrationsManagement;
+	
+	@Autowired
 	private IdPLoginController idpLoginController;
 	
 	@Autowired
-	public InsecureRegistrationFormLauncher(UnityMessageSource msg,
-			@Qualifier("insecure") RegistrationsManagement registrationsManagement,
-			IdentityEditorRegistry identityEditorRegistry,
-			CredentialEditorRegistry credentialEditorRegistry,
-			AttributeHandlerRegistry attributeHandlerRegistry,
-			@Qualifier("insecure") AttributesManagement attrsMan, 
-			@Qualifier("insecure") AuthenticationManagement authnMan,
-			@Qualifier("insecure") GroupsManagement groupsMan,
-			IdPLoginController idpLoginController)
+	private ObjectFactory<RequestEditorCreator> requestEditorCreatorFatory;
+	
+	protected EventsBus bus;
+	
+	public InsecureRegistrationFormLauncher()
 	{
-		this.msg = msg;
-		this.registrationsManagement = registrationsManagement;
-		this.identityEditorRegistry = identityEditorRegistry;
-		this.credentialEditorRegistry = credentialEditorRegistry;
-		this.attributeHandlerRegistry = attributeHandlerRegistry;
-		this.attrsMan = attrsMan;
-		this.authnMan = authnMan;
-		this.groupsMan = groupsMan;
-		this.idpLoginController = idpLoginController;
 		this.bus = WebSession.getCurrent().getEventBus();
 	}
 
@@ -94,12 +71,14 @@ public class InsecureRegistrationFormLauncher implements RegistrationFormDialogP
 		} catch (Exception e)
 		{
 			new PostFormFillingHandler(idpLoginController, form, msg, 
-					registrationsManagement.getProfileInstance(form)).submissionError(e, context);
+					registrationsManagement.getFormAutomationSupport(form)).
+						submissionError(e, context);
 			return true;
 		}
 
 		new PostFormFillingHandler(idpLoginController, form, msg, 
-				registrationsManagement.getProfileInstance(form)).submittedRegistrationRequest(id, registrationsManagement,
+				registrationsManagement.getFormAutomationSupport(form)).
+					submittedRegistrationRequest(id, registrationsManagement,
 				request, context);
 		return true;
 	}
@@ -126,9 +105,7 @@ public class InsecureRegistrationFormLauncher implements RegistrationFormDialogP
 	{
 		RegistrationContext context = new RegistrationContext(true, 
 				idpLoginController.isLoginInProgress(), mode);
-		RequestEditorCreator editorCreator = new RequestEditorCreator(msg, form, remoteContext, 
-				identityEditorRegistry, credentialEditorRegistry, attributeHandlerRegistry, 
-				registrationsManagement, attrsMan, groupsMan, authnMan);
+		RequestEditorCreator editorCreator = requestEditorCreatorFatory.getObject().init(form, remoteContext);
 		editorCreator.invoke(new RequestEditorCreatedCallback()
 		{
 			@Override
@@ -166,7 +143,7 @@ public class InsecureRegistrationFormLauncher implements RegistrationFormDialogP
 					public void cancelled()
 					{
 						new PostFormFillingHandler(idpLoginController, form, msg, 
-								registrationsManagement.getProfileInstance(form)).
+								registrationsManagement.getFormAutomationSupport(form)).
 							cancelled(false, context);
 					}
 				});

@@ -16,20 +16,21 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 
+import pl.edu.icm.unity.engine.api.AttributeClassManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.utils.GroupUtils;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributesClass;
+import pl.edu.icm.unity.types.basic.EntityState;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webadmin.attributeclass.RequiredAttributesDialog;
@@ -50,8 +51,8 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 public class EntityCreationDialog extends IdentityCreationDialog
 {
 	private String initialGroup;
-	private IdentitiesManagement identitiesMan;
-	private AuthenticationManagement authnMan;
+	private EntityManagement identitiesMan;
+	private CredentialRequirementManagement credReqMan;
 	private GroupManagementHelper groupHelper;
 	
 	private CheckBox addToGroup;
@@ -59,18 +60,21 @@ public class EntityCreationDialog extends IdentityCreationDialog
 	private EnumComboBox<EntityState> entityState;
 	private Collection<AttributeType> allTypes;
 	private EventsBus bus;
+	private AttributeTypeManagement attrMan;
 	
-	public EntityCreationDialog(UnityMessageSource msg, String initialGroup, IdentitiesManagement identitiesMan,
-			GroupsManagement groupsMan, AuthenticationManagement authnMan, 
-			AttributeHandlerRegistry attrHandlerRegistry, AttributesManagement attrMan,
+	public EntityCreationDialog(UnityMessageSource msg, String initialGroup, EntityManagement identitiesMan,
+			GroupsManagement groupsMan, CredentialRequirementManagement authnMan, 
+			AttributeHandlerRegistry attrHandlerRegistry, AttributeTypeManagement attrMan,
+			AttributeClassManagement acMan,
 			IdentityEditorRegistry identityEditorReg, Callback callback)
 	{
 		super(msg.getMessage("EntityCreation.caption"), msg, identitiesMan, identityEditorReg, callback);
+		this.attrMan = attrMan;
 		groupHelper = new GroupManagementHelper(msg, groupsMan, 
-				attrMan, attrHandlerRegistry);
+				attrMan, acMan, attrHandlerRegistry);
 		this.initialGroup = initialGroup;
 		this.identitiesMan = identitiesMan;
-		this.authnMan = authnMan;
+		this.credReqMan = authnMan;
 		this.bus = WebSession.getCurrent().getEventBus();
 	}
 
@@ -81,7 +85,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 	
 		try
 		{
-			allTypes = groupHelper.getAttrMan().getAttributeTypes();
+			allTypes = attrMan.getAttributeTypes();
 		} catch (EngineException e1)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("error"),
@@ -98,7 +102,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 		Collection<CredentialRequirements> credReqs;
 		try
 		{
-			credReqs = authnMan.getCredentialRequirements();
+			credReqs = credReqMan.getCredentialRequirements();
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("error"),
@@ -152,7 +156,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 		
 		if (required.isEmpty())
 		{
-			doCreate(toAdd, new ArrayList<Attribute<?>>(0));
+			doCreate(toAdd, new ArrayList<Attribute>(0));
 		} else
 		{
 			RequiredAttributesDialog attrDialog = new RequiredAttributesDialog(
@@ -161,7 +165,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 					new RequiredAttributesDialog.Callback()
 					{
 						@Override
-						public void onConfirm(List<Attribute<?>> attributes)
+						public void onConfirm(List<Attribute> attributes)
 						{
 							doCreate(toAdd, attributes);
 						}
@@ -176,7 +180,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 		
 	}
 	
-	private void doCreate(IdentityParam toAdd, List<Attribute<?>> attributes)
+	private void doCreate(IdentityParam toAdd, List<Attribute> attributes)
 	{
 		Identity created;
 		try
@@ -192,7 +196,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 		
 		if (addToGroup.getValue())
 		{
-			Deque<String> missing = GroupUtils.getMissingGroups(initialGroup, 
+			Deque<String> missing = Group.getMissingGroups(initialGroup, 
 					Collections.singleton("/"));
 			groupHelper.addToGroup(missing, created.getEntityId(), new GroupManagementHelper.Callback()
 			{

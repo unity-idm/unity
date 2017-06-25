@@ -10,35 +10,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import pl.edu.icm.unity.exceptions.AuthorizationException;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.GroupContents;
-import pl.edu.icm.unity.types.basic.GroupMembership;
-import pl.edu.icm.unity.webadmin.attribute.AttributeChangedEvent;
-import pl.edu.icm.unity.webadmin.credentials.CredentialDefinitionChangedEvent;
-import pl.edu.icm.unity.webadmin.credreq.CredentialRequirementChangedEvent;
-import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
-import pl.edu.icm.unity.webadmin.identities.AddAttributeColumnDialog.Callback;
-import pl.edu.icm.unity.webui.WebSession;
-import pl.edu.icm.unity.webui.bus.EventListener;
-import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
-import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.Container.Filter;
@@ -61,6 +37,31 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.GroupMembership;
+import pl.edu.icm.unity.webadmin.attribute.AttributeChangedEvent;
+import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesUpdatedEvent;
+import pl.edu.icm.unity.webadmin.credentials.CredentialDefinitionChangedEvent;
+import pl.edu.icm.unity.webadmin.credreq.CredentialRequirementChangedEvent;
+import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
+import pl.edu.icm.unity.webadmin.identities.AddAttributeColumnDialog.Callback;
+import pl.edu.icm.unity.webui.WebSession;
+import pl.edu.icm.unity.webui.bus.EventListener;
+import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.common.ErrorComponent;
+import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.Toolbar;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
+
 /**
  * Component wrapping {@link IdentitiesTable}. Allows to configure its mode, 
  * feeds it with data to be visualised etc.
@@ -81,7 +82,7 @@ public class IdentitiesComponent extends SafePanel
 	
 	@Autowired
 	public IdentitiesComponent(final UnityMessageSource msg, GroupsManagement groupsManagement,
-			final AttributesManagement attrsMan, final IdentitiesTable identitiesTable)
+			final AttributeTypeManagement attrsMan, final IdentitiesTable identitiesTable)
 	{
 		this.msg = msg;
 		this.groupsManagement = groupsManagement;
@@ -311,6 +312,16 @@ public class IdentitiesComponent extends SafePanel
 					setGroup(IdentitiesComponent.this.identitiesTable.getGroup());
 			}
 		}, CredentialDefinitionChangedEvent.class);
+
+		bus.addListener(new EventListener<AttributeTypesUpdatedEvent>()
+		{
+			@Override
+			public void handleEvent(AttributeTypesUpdatedEvent event)
+			{
+				setGroup(IdentitiesComponent.this.identitiesTable.getGroup());
+			}
+		}, AttributeTypesUpdatedEvent.class);
+		
 		bus.addListener(new EventListener<AttributeChangedEvent>()
 		{
 			@Override

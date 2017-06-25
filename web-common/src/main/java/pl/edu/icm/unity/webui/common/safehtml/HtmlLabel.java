@@ -4,11 +4,11 @@
  */
 package pl.edu.icm.unity.webui.common.safehtml;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-
 import com.google.gwt.thirdparty.guava.common.html.HtmlEscapers;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Label;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 
 /**
  * HTML label displaying a contents which is based on a safe template with HTML and unsafe arguments which are supposed

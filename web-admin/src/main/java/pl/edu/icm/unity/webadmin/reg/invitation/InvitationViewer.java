@@ -7,8 +7,12 @@ package pl.edu.icm.unity.webadmin.reg.invitation;
 import java.util.AbstractMap;
 import java.util.Map;
 
-import pl.edu.icm.unity.server.utils.TimeUtil;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
@@ -22,10 +26,6 @@ import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
-
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
 
 /**
  * Presents an {@link InvitationWithCode}
@@ -44,7 +44,7 @@ public class InvitationViewer extends CustomComponent
 	private Label lastSentTime;
 	private Label notificationsSent;
 	private ListOfElements<PrefilledEntry<IdentityParam>> identities;
-	private ListOfElements<PrefilledEntry<Attribute<?>>> attributes;
+	private ListOfElements<PrefilledEntry<Attribute>> attributes;
 	private ListOfElements<Map.Entry<String, PrefilledEntry<Selection>>> groups;
 
 	private SafePanel identitiesPanel;

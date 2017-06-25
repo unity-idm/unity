@@ -4,17 +4,23 @@
  */
 package pl.edu.icm.unity.webadmin.groupdetails;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.vaadin.shared.ui.Orientation;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributeClassManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
@@ -29,11 +35,6 @@ import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
-
-import com.vaadin.shared.ui.Orientation;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * Component providing Group details. The most complicated part is attribute statements handling which
@@ -58,7 +59,8 @@ public class GroupDetailsComponent extends SafePanel
 	
 	@Autowired
 	public GroupDetailsComponent(UnityMessageSource msg, GroupsManagement groupsManagement, 
-			AttributeHandlerRegistry attributeHandlersReg, AttributesManagement attrsMan)
+			AttributeHandlerRegistry attributeHandlersReg, AttributeTypeManagement atMan,
+			AttributeClassManagement acMan)
 	{
 		this.msg = msg;
 		this.groupsManagement = groupsManagement;
@@ -74,14 +76,14 @@ public class GroupDetailsComponent extends SafePanel
 		description.setCaption(msg.getMessage("GroupDetails.description"));
 		topLayout.addComponents(displayedName, description);
 		
-		acPanel = new GroupAttributesClassesTable(msg, groupsManagement, attrsMan);
+		acPanel = new GroupAttributesClassesTable(msg, groupsManagement, acMan);
 		Toolbar acToolbar = new Toolbar(acPanel, Orientation.VERTICAL);
 		acToolbar.addActionHandlers(acPanel.getHandlers());
 		ComponentWithToolbar acWithToolbar = new ComponentWithToolbar(acPanel, acToolbar);
 		acWithToolbar.setSizeFull();
 		
 		attrStatements = new AttributeStatementsTable(msg, groupsManagement, 
-				attrsMan, attributeHandlersReg);
+				atMan, attributeHandlersReg);
 		
 		Toolbar asToolbar = new Toolbar(attrStatements, Orientation.VERTICAL);
 		asToolbar.addActionHandlers(attrStatements.getActionHandlers());

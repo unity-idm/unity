@@ -7,17 +7,16 @@ package pl.edu.icm.unity.webadmin.attribute;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-import pl.edu.icm.unity.webui.common.SmallTable;
-import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
-import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize;
-
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.Component;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.SmallTable;
+import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
+import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize;
 
 /**
  * Table with attribute values.
@@ -25,8 +24,6 @@ import com.vaadin.ui.Component;
  */
 public class ValuesTable extends SmallTable
 {
-	private AttributeValueSyntax<?> syntax;
-	@SuppressWarnings("rawtypes")
 	private WebAttributeHandler handler;
 	
 	public ValuesTable(UnityMessageSource msg)
@@ -43,39 +40,36 @@ public class ValuesTable extends SmallTable
 	}
 	
 
-	public List<?> getValues()
+	public List<String> getValues()
 	{
 		@SuppressWarnings("unchecked")
 		BeanItemContainer<ValueItem> tableContainer = (BeanItemContainer<ValueItem>) 
 				getContainerDataSource();
-		List<Object> ret = new ArrayList<Object>(tableContainer.size());
+		List<String> ret = new ArrayList<>(tableContainer.size());
 		for (ValueItem item: tableContainer.getItemIds())
-		{
 			ret.add(item.getAttributeValue());
-		}
 		return ret;
 	}
 	
-	public void setValues(List<?> values, AttributeValueSyntax<?> syntax, WebAttributeHandler<?> handler)
+	public void setValues(List<String> values, WebAttributeHandler handler)
 	{
-		this.syntax = syntax;
 		this.handler = handler;
 		Container tableContainer = getContainerDataSource();
 		tableContainer.removeAllItems();
-		for (Object val: values)
+		for (String val: values)
 		{
 			ValueItem item = new ValueItem(val);
 			tableContainer.addItem(item);
 		}
 	}
 	
-	public Object getItemById(Object itemId)
+	public String getItemById(Object itemId)
 	{
 		final Item sourceItem = getItem(itemId);
 		return ((ValueItem)((BeanItem<?>)sourceItem).getBean()).getAttributeValue();
 	}
 	
-	public void updateItem(Object itemId, Object newValue)
+	public void updateItem(Object itemId, String newValue)
 	{
 		Container.Ordered container = (Container.Ordered)getContainerDataSource();
 		Object previous = container.prevItemId(itemId);
@@ -83,7 +77,7 @@ public class ValuesTable extends SmallTable
 		container.addItemAfter(previous, new ValueItem(newValue));
 	}
 	
-	public void addItem(Object after, Object newValue)
+	public void addItem(Object after, String newValue)
 	{
 		Container.Ordered container = (Container.Ordered)getContainerDataSource();
 		if (after == null)
@@ -93,7 +87,7 @@ public class ValuesTable extends SmallTable
 	
 	public void moveItemAfter(Object toMoveItemId, Object moveAfterItemId)
 	{
-		final Object value = getItemById(toMoveItemId);
+		final String value = getItemById(toMoveItemId);
 		Container.Ordered container = (Container.Ordered)getContainerDataSource();
 		container.removeItem(toMoveItemId);
 		container.addItemAfter(moveAfterItemId, new ValuesTable.ValueItem(value));
@@ -101,7 +95,7 @@ public class ValuesTable extends SmallTable
 	
 	public void moveBefore(Object toMoveItemId, Object moveBeforeItemId)
 	{
-		final Object value = getItemById(toMoveItemId);
+		final String value = getItemById(toMoveItemId);
 		Container.Ordered container = (Container.Ordered)getContainerDataSource();
 		Object previous = container.prevItemId(moveBeforeItemId);
 		if (toMoveItemId == previous)
@@ -113,14 +107,13 @@ public class ValuesTable extends SmallTable
 	
 	public class ValueItem
 	{
-		private Object value;
+		private String value;
 		private Component contents;
 
-		@SuppressWarnings("unchecked")
-		public ValueItem(Object value)
+		public ValueItem(String value)
 		{
 			this.value = value;
-			contents = handler.getRepresentation(value, syntax, RepresentationSize.LINE);
+			contents = handler.getRepresentation(value, RepresentationSize.LINE);
 		}
 		
 		public Component getContents()
@@ -128,7 +121,7 @@ public class ValuesTable extends SmallTable
 			return contents; 
 		}
 		
-		private Object getAttributeValue()
+		private String getAttributeValue()
 		{
 			return value;
 		}

@@ -6,10 +6,14 @@ package pl.edu.icm.unity.webui.common.identities;
 
 import java.sql.Date;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 /**
@@ -17,13 +21,20 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
  * 
  * @author K. Benedyczak
  */
+@Component
 public class IdentityFormatter
 {
-	public static String toString(UnityMessageSource msg, Identity id)
+	@Autowired
+	private UnityMessageSource msg;
+	@Autowired
+	private IdentityTypeSupport idTypeSupport;
+	
+	public String toString(Identity id)
 	{
 		StringBuilder sb = new StringBuilder();
-		boolean verifiable = id.getType().getIdentityTypeProvider().isVerifiable();
-		sb.append(toStringSimple(msg, id.getValue(), id, verifiable));
+		IdentityTypeDefinition typeDefinition = idTypeSupport.getTypeDefinition(id.getTypeId());
+		boolean verifiable = typeDefinition.isVerifiable();
+		sb.append(toStringSimple(id.getValue(), id, verifiable));
 		if (id.getCreationTs() != null && id.getUpdateTs() != null)
 		{
 			sb.append(" ");
@@ -33,24 +44,23 @@ public class IdentityFormatter
 		return sb.toString();
 	}
 	
-	public static String toString(UnityMessageSource msg, IdentityParam id, IdentityTypeDefinition idType)
+	public String toString(IdentityParam id, IdentityTypeDefinition idType)
 	{
-		return toStringSimple(msg, id.getValue(), id, idType.isVerifiable());
+		return toStringSimple(id.getValue(), id, idType.isVerifiable());
 	}
 
 
-	private static String toStringSimple(UnityMessageSource msg, String coreValue, IdentityParam id, 
-			boolean verifiable)
+	private String toStringSimple(String coreValue, IdentityParam id, boolean verifiable)
 	{
 		StringBuilder sb = new StringBuilder();
 		sb.append(msg.getMessage("IdentityFormatter.identityCore", id.getTypeId(), coreValue));
 		if (verifiable)
-			sb.append(getConfirmationStatusString(msg, id.getConfirmationInfo()));
-		sb.append(getRemoteInfoString(msg, id));
+			sb.append(getConfirmationStatusString(id.getConfirmationInfo()));
+		sb.append(getRemoteInfoString(id));
 		return sb.toString();
 	}
 	
-	public static String getConfirmationStatusString(UnityMessageSource msg, ConfirmationInfo cdata)
+	public String getConfirmationStatusString(ConfirmationInfo cdata)
 	{
 		StringBuilder rep = new StringBuilder();
 		if (cdata != null)
@@ -72,7 +82,7 @@ public class IdentityFormatter
 		return rep.toString();
 	}
 	
-	private static String getRemoteInfoString(UnityMessageSource msg, IdentityParam id)
+	private String getRemoteInfoString(IdentityParam id)
 	{
 		StringBuilder rep = new StringBuilder();
 		if (!id.isLocal())

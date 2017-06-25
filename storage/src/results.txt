@@ -1,0 +1,11 @@
+Upgrade notes:
+-) remove 'unityServer.db.localDBUrl' configuration option.
+
+
+
+RDBMS creation: 6 305
+RDBMS read: 750
+RDBMS total: 7 055
+Hybrid creation: 570
+Hybrid read: 250
+Hybrid total: 820

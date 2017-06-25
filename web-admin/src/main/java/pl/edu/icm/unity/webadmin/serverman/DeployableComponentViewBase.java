@@ -4,18 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.serverman;
 
-import org.apache.log4j.Logger;
-
-import pl.edu.icm.unity.server.api.ServerManagement;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.ExpandCollapseButton;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.Styles;
+import org.apache.logging.log4j.Logger;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -29,6 +18,17 @@ import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.ServerManagement;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.ConfirmDialog;
+import pl.edu.icm.unity.webui.common.ExpandCollapseButton;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Represent base view of server deployable component.
@@ -53,11 +53,11 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 	protected Button undeplyButton;
 	protected Button reloadButton;
 	protected Button deployButton;
-	protected String status;
+	protected Status status;
 	protected Label separator;
 
-	public DeployableComponentViewBase(UnityServerConfiguration config,
-			ServerManagement serverMan, UnityMessageSource msg, String status)
+	public DeployableComponentViewBase(UnityServerConfiguration config, ServerManagement serverMan, 
+			UnityMessageSource msg)
 	{
 
 		this.config = config;
@@ -168,19 +168,19 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 	
 	public abstract void reload(boolean showSuccess);
 
-	public String getStatus()
+	public Status getStatus()
 	{
 		return status;
 	}
 	
-	protected void setStatus(String status)
+	protected void setStatus(Status status)
 	{
 		this.status = status;
-		if (status.equals(Status.deployed.toString()))
+		if (status.equals(Status.deployed))
 		{	
 			showHideContentButton.setEnabled(true);
 			
-		} else if (status.equals(Status.undeployed.toString()))
+		} else if (status.equals(Status.undeployed))
 		{
 			showHideContentButton.setEnabled(false);
 			content.setVisible(false);
@@ -214,11 +214,11 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		statusLabel.addStyleName(Styles.bold.toString());
 
 		Image statusIcon = new Image();
-		if (status.equals(Status.deployed.toString()))
+		if (status.equals(Status.deployed))
 		{
 			statusIcon.setSource(Images.ok.getResource());
 			statusIcon.setDescription(msg.getMessage("DeployableComponentBase.deployed"));
-		} else if (status.equals(Status.undeployed.toString()))
+		} else if (status.equals(Status.undeployed))
 		{
 			statusIcon.setSource(Images.error.getResource());
 			statusIcon.setDescription(msg.getMessage("DeployableComponentBase.undeployed"));

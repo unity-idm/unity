@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper">
+
+	<sql id="dateTimeType">
+		DATETIME(3)
+	</sql>
+	
+	<sql id="primaryKeyColumn">
+		ID INTEGER PRIMARY KEY AUTO_INCREMENT
+	</sql>
+	
+	<sql id="contentsColumnBlob">
+		CONTENTS MEDIUMBLOB
+	</sql>
+
+	<sql id="contentsColumn">
+		CONTENTS VARBINARY(60000)
+	</sql>
+	
+	<sql id="defaultColsBlob">
+		ID INTEGER PRIMARY KEY AUTO_INCREMENT, 
+		NAME VARCHAR(200), 
+		CONTENTS MEDIUMBLOB
+	</sql>
+	<sql id="defaultColsMem">
+		ID INTEGER PRIMARY KEY AUTO_INCREMENT,
+		NAME VARCHAR(200),
+		CONTENTS VARBINARY(60000)
+	</sql>
+	<sql id="defaultColsMemU">
+		<include refid="defaultColsMem"/>,
+		UNIQUE(NAME)
+	</sql>
+	<sql id="tableOpts">
+		)  engine=InnoDB, character set utf8
+	</sql>
+
+	<update id="resetIndex-00">
+		ALTER TABLE TOKENS AUTO_INCREMENT=1;
+	</update>
+	<update id="resetIndex-01">
+		ALTER TABLE VAR_OBJECTS AUTO_INCREMENT=1;
+	</update>
+	<update id="resetIndex-02">
+		ALTER TABLE ATTRIBUTES AUTO_INCREMENT=1;
+	</update>
+	<update id="resetIndex-03">
+		ALTER TABLE GROUPS AUTO_INCREMENT=1;
+	</update>
+	<update id="resetIndex-04">
+		ALTER TABLE IDENTITIES AUTO_INCREMENT=1;
+	</update>
+	<update id="resetIndex-05">
+		ALTER TABLE ENTITIES AUTO_INCREMENT=1;
+	</update>
+	<update id="resetIndex-06">
+		ALTER TABLE IDENTITY_TYPES AUTO_INCREMENT=1;
+	</update>
+	<update id="resetIndex-07">
+		ALTER TABLE ATTRIBUTE_TYPES AUTO_INCREMENT=1;
+	</update>
+
+</mapper>

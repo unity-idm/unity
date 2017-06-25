@@ -15,10 +15,11 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements.DisableMode;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -29,44 +30,49 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.Representati
  * For attribute and each its value it is possible to click a check box next to it to hide it.
  * @author K. Benedyczak
  */
-public class SelectableAttributeWithValues<T> extends CustomComponent
+public class SelectableAttributeWithValues extends CustomComponent
 {
 	protected ListOfSelectableElements selectableAttr;
 	protected ListOfSelectableElements listOfValues;
-	private Attribute<T> attribute;
-	private WebAttributeHandler<T> webHandler;
+	private Attribute attribute;
+	private WebAttributeHandler webHandler;
 	private Component firstheader;
 	private Component secondHeader;
+	private AttributeValueSyntax<?> syntax;
 	private String customAttrName;
 	private String customAttrDesc;
 	private boolean enableSelect;
 	
 	public SelectableAttributeWithValues(Component firstheader, Component secondHeader,
-			Attribute<T> attribute, AttributeType at, 
-			WebAttributeHandler<T> webHandler, UnityMessageSource msg)
+			Attribute attribute, AttributeType at, 
+			WebAttributeHandler webHandler, UnityMessageSource msg, 
+			AttributeTypeSupport aTypeSupport)
 	{
 		this.firstheader = firstheader;
 		this.secondHeader = secondHeader;
-		this.attribute = attribute;	
-		this.webHandler = webHandler;	
+		this.attribute = attribute;
+		this.webHandler = webHandler;
+		syntax = aTypeSupport.getSyntaxFallingBackToDefault(attribute);
 		this.customAttrName = at.getName();
-		this.customAttrDesc = at.getDescription() == null? at.getName():at.getDescription().getValue(msg);
+		this.customAttrDesc = at.getDescription() == null ? 
+				at.getName():at.getDescription().getValue(msg);
 	        this.enableSelect = true;
 		initUI();
 	}
-	
+
 	public SelectableAttributeWithValues(Component firstheader, Component secondHeader,
-			Attribute<T> attribute, String customAttrName, String customAttrDesc, 
-			boolean enableSelect, AttributeType at, 
-			WebAttributeHandler<T> webHandler, UnityMessageSource msg)
+			Attribute attribute, String customAttrName, String customAttrDesc,
+			boolean enableSelect, AttributeType at,
+			WebAttributeHandler webHandler, UnityMessageSource msg, 
+			AttributeTypeSupport aTypeSupport)
 	{
-		this(firstheader, secondHeader, attribute, at, webHandler, msg);
+		this(firstheader, secondHeader, attribute, at, webHandler, msg, aTypeSupport);
 		this.customAttrName = customAttrName;
 		this.customAttrDesc = customAttrDesc;
-	        this.enableSelect = enableSelect;
+		this.enableSelect = enableSelect;
 		initUI();
 	}
-
+	
 	private void initUI()
 	{
 		VerticalLayout main = new VerticalLayout();
@@ -93,12 +99,11 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 		
 		listOfValues = new ListOfSelectableElements(null, null, DisableMode.WHEN_SELECTED);
 		
-	
 		listOfValues.setWidth(100, Unit.PERCENTAGE);
-		for (T value: attribute.getValues())
+		for (String value: attribute.getValues())
 		{
 			Component representation = webHandler.getRepresentation(value, 
-					attribute.getAttributeSyntax(), RepresentationSize.LINE);
+					RepresentationSize.LINE);
 			representation.addStyleName(Styles.indent.toString());
 			listOfValues.addEntry(representation, false);
 		}
@@ -113,7 +118,7 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 	/**
 	 * Hides some selected values or, if the argument is null, then the whole attribute is marked as hidden.
 	 */
-	public void setHiddenValues(Attribute<?> hiddenValues)
+	public void setHiddenValues(Attribute hiddenValues)
 	{
 		//cannot hide if selecting is not enable
 		if (!enableSelect)
@@ -124,14 +129,13 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 			selectableAttr.getSelection().get(0).setValue(true);
 			return;
 		}
-		AttributeValueSyntax<T> attributeSyntax = attribute.getAttributeSyntax();
 		List<CheckBox> selection = listOfValues.getSelection();
-		for (Object svalue: hiddenValues.getValues())
+		for (String svalue: hiddenValues.getValues())
 		{
 			int i=0;
-			for (T value: attribute.getValues())
+			for (String value: attribute.getValues())
 			{
-				if (attributeSyntax.areEqual(value, svalue))
+				if (syntax.areEqualStringValue(value, svalue))
 				{
 					selection.get(i).setValue(true);
 					break;
@@ -144,15 +148,15 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 	/**
 	 * @return the attribute without any hidden value. Null if the whole attribute is hidden.
 	 */
-	public Attribute<?> getHiddenAttributeValues()
+	public Attribute getHiddenAttributeValues()
 	{
 		if (selectableAttr.getSelection().get(0).getValue())
 			return null;
 		List<CheckBox> selection = listOfValues.getSelection();
-		List<T> filteredValues = new ArrayList<>(attribute.getValues().size());
+		List<String> filteredValues = new ArrayList<>(attribute.getValues().size());
 		for (int i = 0; i < attribute.getValues().size(); i++)
 		{
-			T t = attribute.getValues().get(i);
+			String t = attribute.getValues().get(i);
 			if (selection.get(i).getValue())
 				filteredValues.add(t);
 		}
@@ -164,15 +168,15 @@ public class SelectableAttributeWithValues<T> extends CustomComponent
 	/**
 	 * @return the attribute without any hidden value. Null if the whole attribute is hidden.
 	 */
-	public Attribute<?> getAttributeWithoutHidden()
+	public Attribute getAttributeWithoutHidden()
 	{
 		if (selectableAttr.getSelection().get(0).getValue())
 			return null;
 		List<CheckBox> selection = listOfValues.getSelection();
-		List<T> filteredValues = new ArrayList<>(attribute.getValues().size());
+		List<String> filteredValues = new ArrayList<>(attribute.getValues().size());
 		for (int i = 0; i < attribute.getValues().size(); i++)
 		{
-			T t = attribute.getValues().get(i);
+			String t = attribute.getValues().get(i);
 			if (!selection.get(i).getValue())
 				filteredValues.add(t);
 		}

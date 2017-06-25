@@ -4,13 +4,39 @@
  */
 package pl.edu.icm.unity.saml.idp.ws;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.Servlet;
 
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.webservice.SAMLAuthnInterface;
+import eu.unicore.samly2.webservice.SAMLLogoutInterface;
+import eu.unicore.samly2.webservice.SAMLQueryInterface;
+import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.PreferencesManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
+import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
+import pl.edu.icm.unity.engine.api.idp.IdPEngine;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.saml.idp.IdpSamlTrustProvider;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
@@ -21,67 +47,62 @@ import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
+import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.api.internal.IdPEngine;
-import pl.edu.icm.unity.server.api.internal.NetworkServer;
-import pl.edu.icm.unity.server.api.internal.SessionManagement;
-import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
-import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
-import pl.edu.icm.unity.server.utils.ExecutorsService;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import pl.edu.icm.unity.ws.CXFEndpoint;
+import pl.edu.icm.unity.ws.authn.WebServiceAuthentication;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.webservice.SAMLAuthnInterface;
-import eu.unicore.samly2.webservice.SAMLLogoutInterface;
-import eu.unicore.samly2.webservice.SAMLQueryInterface;
-import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * Endpoint exposing SAML SOAP binding.
  * 
  * @author K. Benedyczak
  */
+@PrototypeComponent
+@Primary
 public class SamlSoapEndpoint extends CXFEndpoint
 {
+	public static final String NAME = "SAMLSoapIdP";
+	public static final String SERVLET_PATH = "/saml2idp-soap";
+	public static final String METADATA_SERVLET_PATH = "/metadata";
+	
 	protected SamlIdpProperties samlProperties;
 	protected PreferencesManagement preferencesMan;
 	protected IdPEngine idpEngine;
 	protected PKIManagement pkiManagement;
 	protected ExecutorsService executorsService;
-	protected String samlMetadataPath;
 	protected RemoteMetaManager myMetadataManager;
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
 	private MetaDownloadManager downloadManager;
 	private UnityServerConfiguration mainConfig;
 	private SAMLLogoutProcessorFactory logoutProcessorFactory;
-	protected AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
+	protected AttributeTypeSupport aTypeSupport;
 	
+	@Autowired
 	public SamlSoapEndpoint(UnityMessageSource msg, NetworkServer server,
-			String servletPath, String metadataPath, IdPEngine idpEngine,
+			IdPEngine idpEngine,
 			PreferencesManagement preferencesMan, PKIManagement pkiManagement,
 			ExecutorsService executorsService, SessionManagement sessionMan,
-			Map<String, RemoteMetaManager> remoteMetadataManagers,
 			MetaDownloadManager downloadManager, UnityServerConfiguration mainConfig,
 			SAMLLogoutProcessorFactory logoutProcessorFactory, AuthenticationProcessor authnProcessor,
-			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry)
+			AttributeTypeSupport aTypeSupport)
 	{
-		super(msg, sessionMan, authnProcessor, server, servletPath);
+		super(msg, sessionMan, authnProcessor, server, SERVLET_PATH);
 		this.idpEngine = idpEngine;
 		this.preferencesMan = preferencesMan;
 		this.pkiManagement = pkiManagement;
-		this.samlMetadataPath = metadataPath;
 		this.executorsService = executorsService;
-		this.remoteMetadataManagers = remoteMetadataManagers;
 		this.downloadManager = downloadManager;
 		this.mainConfig = mainConfig;
 		this.logoutProcessorFactory = logoutProcessorFactory;
-		this.attributeSyntaxFactoriesRegistry = attributeSyntaxFactoriesRegistry;
+		this.aTypeSupport = aTypeSupport;
 	}
 
+	public void init(Map<String, RemoteMetaManager> remoteMetadataManagers)
+	{
+		this.remoteMetadataManagers = remoteMetadataManagers;
+	}
+	
 	@Override
 	public void setSerializedConfiguration(String config)
 	{
@@ -94,7 +115,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 			throw new ConfigurationException("Can't initialize the SAML SOAP" +
 					" IdP endpoint's configuration", e);
 		}
-		String id = getEndpointDescription().getId();
+		String id = getEndpointDescription().getName();
 		if (!remoteMetadataManagers.containsKey(id))
 		{
 			
@@ -120,7 +141,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		String endpointURL = getServletUrl(servletPath);
 		Servlet metadataServlet = getMetadataServlet(endpointURL);
 		ServletHolder holder = new ServletHolder(metadataServlet);
-		context.addServlet(holder, samlMetadataPath + "/*");
+		context.addServlet(holder, METADATA_SERVLET_PATH + "/*");
 		
 		return context;
 	}
@@ -130,11 +151,11 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	{
 		String endpointURL = getServletUrl(servletPath);
 		SamlIdpProperties virtualConf = (SamlIdpProperties) myMetadataManager.getVirtualConfiguration();
-		SAMLAssertionQueryImpl assertionQueryImpl = new SAMLAssertionQueryImpl(virtualConf, 
-				endpointURL, idpEngine, preferencesMan, attributeSyntaxFactoriesRegistry);
+		SAMLAssertionQueryImpl assertionQueryImpl = new SAMLAssertionQueryImpl(aTypeSupport, virtualConf, 
+				endpointURL, idpEngine, preferencesMan);
 		addWebservice(SAMLQueryInterface.class, assertionQueryImpl);
-		SAMLAuthnImpl authnImpl = new SAMLAuthnImpl(virtualConf, endpointURL, 
-				idpEngine, preferencesMan, attributeSyntaxFactoriesRegistry);
+		SAMLAuthnImpl authnImpl = new SAMLAuthnImpl(aTypeSupport, virtualConf, endpointURL, 
+				idpEngine, preferencesMan);
 		addWebservice(SAMLAuthnInterface.class, authnImpl);
 		
 		configureSLOService(virtualConf, endpointURL);
@@ -174,6 +195,43 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		MetadataProvider provider = MetadataProviderFactory.newIdpInstance(samlProperties, 
 				executorsService, ssoEndpoints, attributeQueryEndpoints, sloEndpoints);
 		return new MetadataServlet(provider);
+	}
+	
+	
+	@Component
+	public static class Factory implements EndpointFactory
+	{
+		@Autowired
+		private ObjectFactory<SamlSoapEndpoint> factory;
+		
+		private final EndpointTypeDescription description = initDescription();
+		private Map<String, RemoteMetaManager> remoteMetadataManagers = 
+				Collections.synchronizedMap(new HashMap<>());
+		
+		private static EndpointTypeDescription initDescription()
+		{
+			Set<String> supportedAuthn = new HashSet<String>();
+			supportedAuthn.add(WebServiceAuthentication.NAME);
+			Map<String,String> paths = new HashMap<String, String>();
+			paths.put(SERVLET_PATH, "SAML 2 identity provider web endpoint");
+			paths.put(METADATA_SERVLET_PATH, "Metadata of the SAML 2 identity provider web endpoint");
+			return new EndpointTypeDescription(NAME, 
+					"SAML 2 identity provider web endpoint", supportedAuthn, paths);
+		}
+
+		@Override
+		public EndpointTypeDescription getDescription()
+		{
+			return description;
+		}
+
+		@Override
+		public EndpointInstance newInstance()
+		{
+			SamlSoapEndpoint ret = factory.getObject();
+			ret.init(this.remoteMetadataManagers);
+			return ret;
+		}
 	}
 }
 

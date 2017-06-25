@@ -7,26 +7,27 @@ package pl.edu.icm.unity.webadmin.reg.invitation;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.vaadin.ui.CustomComponent;
+
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.InvitationManagement;
+import pl.edu.icm.unity.engine.api.NotificationsManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.NotificationsManagement;
-import pl.edu.icm.unity.server.api.RegistrationsManagement;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
-
-import com.vaadin.ui.CustomComponent;
 
 /**
  * Management of registration invitations.
@@ -44,13 +45,16 @@ public class InvitationsComponent extends CustomComponent
 	private AttributeHandlerRegistry attrHandlersRegistry;
 	private IdentityEditorRegistry identityEditorRegistry;
 
-	private AttributesManagement attributesManagement;
+	private AttributeTypeManagement attributesManagement;
+
+	private InvitationManagement invitationManagement;
 	
 	@Autowired
 	public InvitationsComponent(UnityMessageSource msg,
 			RegistrationsManagement registrationManagement,
 			NotificationsManagement notificationsManagement,
-			AttributesManagement attributesManagement,
+			AttributeTypeManagement attributesManagement,
+			InvitationManagement invitationManagement,
 			AttributeHandlerRegistry attrHandlersRegistry,
 			IdentityEditorRegistry identityEditorRegistry)
 	{
@@ -58,6 +62,7 @@ public class InvitationsComponent extends CustomComponent
 		this.registrationManagement = registrationManagement;
 		this.notificationsManagement = notificationsManagement;
 		this.attributesManagement = attributesManagement;
+		this.invitationManagement = invitationManagement;
 		this.attrHandlersRegistry = attrHandlersRegistry;
 		this.identityEditorRegistry = identityEditorRegistry;
 		initUI();
@@ -67,7 +72,8 @@ public class InvitationsComponent extends CustomComponent
 	{
 		addStyleName(Styles.visibleScroll.toString());
 		InvitationsTable invitationsTable = new InvitationsTable(msg, registrationManagement, 
-				notificationsManagement, attributesManagement, identityEditorRegistry, 
+				invitationManagement, notificationsManagement,
+				attributesManagement, identityEditorRegistry, 
 				attrHandlersRegistry);
 		InvitationViewer viewer = new InvitationViewer(msg, attrHandlersRegistry);
 		

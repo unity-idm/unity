@@ -18,7 +18,7 @@ import java.util.Set;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.DereferencePolicy;
@@ -38,12 +38,12 @@ import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.unicore.security.canl.SSLContextCreator;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteGroupMembership;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.ldap.client.LdapClientConfiguration.ConnectionMode;
-import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
-import pl.edu.icm.unity.server.authn.remote.RemoteGroupMembership;
-import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 
 /**
@@ -71,6 +71,8 @@ import pl.edu.icm.unity.stdext.identity.X500Identity;
 public class LdapClient
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP, LdapClient.class);
+	private static final org.apache.log4j.Logger legacyLog = 
+			Log.getLegacyLogger(Log.U_SERVER_LDAP, LdapClient.class);
 
 	private String idpName;
 	private LdapGroupHelper groupHelper;
@@ -235,7 +237,7 @@ public class LdapClient
 		{
 			X509CertChainValidator validator = configuration.getTlsValidator();
 			SSLContext ctx = SSLContextCreator.createSSLContext(null, validator, 
-					"TLS", "LDAP client", log);
+					"TLS", "LDAP client", legacyLog);
 			failoverSet = new FailoverServerSet(configuration.getServers(), 
 					configuration.getPorts(), ctx.getSocketFactory(), connectionOptions);
 		} else
@@ -251,7 +253,7 @@ public class LdapClient
 		{
 			X509CertChainValidator validator = configuration.getTlsValidator();
 			SSLContext ctx = SSLContextCreator.createSSLContext(null, validator, 
-					"TLSv1.2", "LDAP client", log);
+					"TLSv1.2", "LDAP client", legacyLog);
 			ExtendedResult extendedResult = connection.processExtendedOperation(
 					new StartTLSExtendedRequest(ctx));
 

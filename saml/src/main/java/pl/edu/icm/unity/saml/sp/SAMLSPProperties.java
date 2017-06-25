@@ -23,11 +23,11 @@ import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.ecp.SAMLECPProperties;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
@@ -38,7 +38,7 @@ import xmlbeans.org.oasis.saml2.assertion.NameIDType;
  */
 public class SAMLSPProperties extends SamlProperties
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, SAMLSPProperties.class);
+	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, SAMLSPProperties.class);
 	
 	public enum MetadataSignatureValidation {require, ignore};
 	

@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.saml.sp;
 
-import pl.edu.icm.unity.server.authn.AuthenticationException;
-import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.CredentialExchange;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 
 /**
  * Credential exchange between verificator and retrieval for SAML credential.

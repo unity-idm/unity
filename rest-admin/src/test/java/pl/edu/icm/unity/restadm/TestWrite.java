@@ -4,16 +4,18 @@
  */
 package pl.edu.icm.unity.restadm;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.charset.UnsupportedCharsetException;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -30,8 +32,12 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.Lists;
+
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
@@ -46,25 +52,19 @@ import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
-import pl.edu.icm.unity.types.EntityScheduledOperation;
-import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeParamRepresentation;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.EntityScheduledOperation;
+import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.Lists;
 
 
 public class TestWrite extends RESTAdminTestBase
@@ -75,34 +75,33 @@ public class TestWrite extends RESTAdminTestBase
 		Identity identity = idsMan.addEntity(new IdentityParam("userName", "userC"), 
 				"cr-pass", EntityState.valid, false);
 		long entityId = identity.getEntityId();
-		attrsMan.addAttributeType(new AttributeType("stringA", new StringAttributeSyntax()));
-		attrsMan.addAttributeType(new AttributeType("intA", new IntegerAttributeSyntax()));
-		attrsMan.addAttributeType(new AttributeType("floatA", new FloatingPointAttributeSyntax()));
-		attrsMan.addAttributeType(new AttributeType("enumA", new EnumAttributeSyntax("V1", "V2")));
-		AttributeType email =  new AttributeType("emailA", new VerifiableEmailAttributeSyntax());
+		aTypeMan.addAttributeType(new AttributeType("stringA", StringAttributeSyntax.ID));
+		aTypeMan.addAttributeType(new AttributeType("intA", IntegerAttributeSyntax.ID));
+		aTypeMan.addAttributeType(new AttributeType("floatA", FloatingPointAttributeSyntax.ID));
+		EnumAttributeSyntax enumSyntax = new EnumAttributeSyntax("V1", "V2");
+		AttributeType enumAT = new AttributeType("enumA", EnumAttributeSyntax.ID);
+		enumAT.setValueSyntaxConfiguration(enumSyntax.getSerializedConfiguration());
+		aTypeMan.addAttributeType(enumAT);
+		AttributeType email =  new AttributeType("emailA", VerifiableEmailAttributeSyntax.ID);
 		email.setMaxElements(2);
-		attrsMan.addAttributeType(email);
-		attrsMan.addAttributeType(new AttributeType("jpegA", new JpegImageAttributeSyntax()));
+		aTypeMan.addAttributeType(email);
+		aTypeMan.addAttributeType(new AttributeType("jpegA", JpegImageAttributeSyntax.ID));
 		
-		setSingleAttribute(entityId, new StringAttribute(
-				"stringA", "/", AttributeVisibility.full, Collections.singletonList("value1")));
+		setSingleAttribute(entityId, StringAttribute.of("stringA", "/", "value1"));
 
-		setSingleAttribute(entityId, new IntegerAttribute(
-				"intA", "/", AttributeVisibility.full, Collections.singletonList(123L)));
+		setSingleAttribute(entityId, IntegerAttribute.of("intA", "/", 123));
 
-		setSingleAttribute(entityId, new FloatingPointAttribute(
-				"floatA", "/", AttributeVisibility.full, Collections.singletonList(123.1)));
+		setSingleAttribute(entityId, FloatingPointAttribute.of("floatA", "/", 123.1));
 
-		setSingleAttribute(entityId, new EnumAttribute(
-				"enumA", "/", AttributeVisibility.full, Collections.singletonList("V1")));
+		setSingleAttribute(entityId, EnumAttribute.of("enumA", "/", "V1"));
 
-		setSingleAttribute(entityId, new VerifiableEmailAttribute(
-				"emailA", "/", AttributeVisibility.full, new VerifiableEmail("some@example.com"),
+		setSingleAttribute(entityId, VerifiableEmailAttribute.of(
+				"emailA", "/", new VerifiableEmail("some@example.com"),
 				new VerifiableEmail("some2@example.com", new ConfirmationInfo(true))));
 		
 		BufferedImage image = new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
-		setSingleAttribute(entityId, new JpegImageAttribute(
-				"jpegA", "/", AttributeVisibility.full, image));
+		setSingleAttribute(entityId, JpegImageAttribute.of(
+				"jpegA", "/", image));
 
 		HttpDelete removeAttribute = new HttpDelete("/restadm/v1/entity/" + entityId + "/attribute/stringA");
 		HttpResponse response = client.execute(host, removeAttribute, localcontext);
@@ -116,27 +115,26 @@ public class TestWrite extends RESTAdminTestBase
 		Identity identity = idsMan.addEntity(new IdentityParam("userName", "userC"), 
 				"cr-pass", EntityState.valid, false);
 		long entityId = identity.getEntityId();
-		attrsMan.addAttributeType(new AttributeType("stringA", new StringAttributeSyntax()));
-		attrsMan.addAttributeType(new AttributeType("intA", new IntegerAttributeSyntax()));
-		attrsMan.addAttributeType(new AttributeType("floatA", new FloatingPointAttributeSyntax()));
-		attrsMan.addAttributeType(new AttributeType("enumA", new EnumAttributeSyntax("V1", "V2")));
-		AttributeType email =  new AttributeType("emailA", new VerifiableEmailAttributeSyntax());
+		aTypeMan.addAttributeType(new AttributeType("stringA", StringAttributeSyntax.ID));
+		aTypeMan.addAttributeType(new AttributeType("intA", IntegerAttributeSyntax.ID));
+		aTypeMan.addAttributeType(new AttributeType("floatA", FloatingPointAttributeSyntax.ID));
+		EnumAttributeSyntax enumSyntax = new EnumAttributeSyntax("V1", "V2");
+		AttributeType enumAT = new AttributeType("enumA", EnumAttributeSyntax.ID);
+		enumAT.setValueSyntaxConfiguration(enumSyntax.getSerializedConfiguration());
+		aTypeMan.addAttributeType(enumAT);
+		AttributeType email =  new AttributeType("emailA", VerifiableEmailAttributeSyntax.ID);
 		email.setMaxElements(2);
-		attrsMan.addAttributeType(email);
-		attrsMan.addAttributeType(new AttributeType("jpegA", new JpegImageAttributeSyntax()));
+		aTypeMan.addAttributeType(email);
+		aTypeMan.addAttributeType(new AttributeType("jpegA", JpegImageAttributeSyntax.ID));
 		
 
 		
 		HttpPut setAttribute = new HttpPut("/restadm/v1/entity/" + entityId + "/attributes");
 		
-		StringAttribute a1 = new StringAttribute("stringA", "/", AttributeVisibility.full, 
-				Collections.singletonList("value1"));
-		AttributeParamRepresentation ap1 = new AttributeParamRepresentation(a1);
-		EnumAttribute a2 = new EnumAttribute(
-				"enumA", "/", AttributeVisibility.full, Collections.singletonList("V1"));
-		AttributeParamRepresentation ap2 = new AttributeParamRepresentation(a2);
+		Attribute a1 = StringAttribute.of("stringA", "/", "value1");
+		Attribute a2 = EnumAttribute.of("enumA", "/", "V1");
 		
-		List<AttributeParamRepresentation> params = Lists.newArrayList(ap1, ap2);
+		List<Attribute> params = Lists.newArrayList(a1, a2);
 		setAttribute.setEntity(new StringEntity(m.writeValueAsString(params), ContentType.APPLICATION_JSON));
 		
 		HttpResponse response = client.execute(host, setAttribute, localcontext);
@@ -148,19 +146,18 @@ public class TestWrite extends RESTAdminTestBase
 		System.out.println("Bulk set attributes:\n" + m.writeValueAsString(params));
 	}
 	
-	private void setSingleAttribute(long entityId, Attribute<?> a) throws EngineException, 
+	private void setSingleAttribute(long entityId, Attribute a) throws EngineException, 
 		UnsupportedCharsetException, ClientProtocolException, IOException
 	{
 		HttpPut setAttribute = new HttpPut("/restadm/v1/entity/" + entityId + "/attribute");
-		AttributeParamRepresentation ap = new AttributeParamRepresentation(a);
-		setAttribute.setEntity(new StringEntity(m.writeValueAsString(ap), ContentType.APPLICATION_JSON));
+		setAttribute.setEntity(new StringEntity(m.writeValueAsString(a), ContentType.APPLICATION_JSON));
 		HttpResponse response = client.execute(host, setAttribute, localcontext);
 		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
 		assertEquals(1, attrsMan.getAttributes(new EntityParam(entityId), a.getGroupPath(), 
 				a.getName()).size());
 		assertEquals(a.getValues().size(), attrsMan.getAttributes(new EntityParam(entityId), a.getGroupPath(), 
 				a.getName()).iterator().next().getValues().size());
-		System.out.println("Set attribute:\n" + m.writeValueAsString(ap));
+		System.out.println("Set attribute:\n" + m.writeValueAsString(a));
 	}
 
 	@Test
@@ -268,7 +265,7 @@ public class TestWrite extends RESTAdminTestBase
 		{
 			idsMan.getEntity(new EntityParam(entityId));
 			fail("Entity not removed");
-		} catch (IllegalIdentityValueException e)
+		} catch (IllegalArgumentException e)
 		{
 			//OK
 		}
@@ -280,7 +277,7 @@ public class TestWrite extends RESTAdminTestBase
 		{
 			idsMan.getEntity(new EntityParam(new IdentityTaV("userName", name)));
 			return true;
-		} catch (IllegalIdentityValueException e)
+		} catch (IllegalArgumentException e)
 		{
 			return false;
 		}
@@ -335,5 +332,18 @@ public class TestWrite extends RESTAdminTestBase
 		Entity entity = idsMan.getEntity(new EntityParam(entityId));
 		assertEquals(new Date(time), entity.getEntityInformation().getRemovalByUserTime());
 		assertEquals(EntityState.onlyLoginPermitted, entity.getEntityInformation().getState());
+	}
+	
+	@Test
+	public void canTriggerScriptInvocation() throws Exception
+	{
+		HttpPost trigger = new HttpPost("/restadm/v1/triggerEvent/test_event");
+		trigger.setEntity(new StringEntity("user-triggered", ContentType.APPLICATION_JSON));
+		
+		HttpResponse response = client.execute(host, trigger, localcontext);
+		assertThat(response.getStatusLine().getStatusCode(), is(Status.NO_CONTENT.getStatusCode()));
+		
+		Entity entity = idsMan.getEntity(new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user-triggered")));
+		assertThat(entity, is(notNullValue()));
 	}
 }

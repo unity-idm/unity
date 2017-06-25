@@ -4,8 +4,11 @@
  */
 package pl.edu.icm.unity.webui.common.attributes;
 
+import com.vaadin.ui.AbstractOrderedLayout;
+
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -14,21 +17,19 @@ import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.Editor;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.EditorProvider;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 
-import com.vaadin.ui.AbstractOrderedLayout;
-
 /**
  * Base of the components allowing to edit an attribute. The values are displayed too, however may be 
  * presented in a simplified form.
  * <p>
  * This base class provides a common editor code so it is easy to wire the {@link ListOfEmbeddedElementsStub}
- * class to edit valuesof an attribute.
+ * class to edit values of an attribute.
  * 
  * @author K. Benedyczak
  */
 public abstract class AbstractAttributeEditor
 {
 	protected UnityMessageSource msg;
-	private AttributeHandlerRegistry registry;
+	protected AttributeHandlerRegistry registry;
 	
 	public AbstractAttributeEditor(UnityMessageSource msg, AttributeHandlerRegistry registry)
 	{
@@ -50,7 +51,7 @@ public abstract class AbstractAttributeEditor
 	protected class AttributeValueEditorAndProvider implements EditorProvider<LabelledValue>, Editor<LabelledValue>
 	{
 		private AttributeType at;
-		private AttributeValueEditor<?> editor;
+		private AttributeValueEditor editor;
 		private LabelledValue editedValue;
 		private String baseLabel;
 		private boolean required;
@@ -71,15 +72,15 @@ public abstract class AbstractAttributeEditor
 			return new AttributeValueEditorAndProvider(at, baseLabel, required, adminMode);
 		}
 
-		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@Override
 		public ComponentsContainer getEditorComponent(LabelledValue value, int position)
 		{
 			if (value == null)
 				value = new LabelledValue(null, establishLabel(position));
 
-			WebAttributeHandler handler = registry.getHandler(at.getValueType().getValueSyntaxId());
-			editor = handler.getEditorComponent(value.getValue(), value.getLabel(), at.getValueType());
+			AttributeValueSyntax<?> syntax = registry.getaTypeSupport().getSyntax(at);
+			WebAttributeHandler handler = registry.getHandler(syntax);
+			editor = handler.getEditorComponent(value.getValue(), value.getLabel());
 			editedValue = value;
 			ComponentsContainer ret = editor.getEditor(required, adminMode);
 			String description = at.getDescription().getValue(msg);
@@ -128,21 +129,21 @@ public abstract class AbstractAttributeEditor
 	
 	protected class LabelledValue
 	{
-		private Object value;
+		private String value;
 		private String label;
 		
-		public LabelledValue(Object value, String label)
+		public LabelledValue(String value, String label)
 		{
 			this.value = value;
 			this.label = label;
 		}
 
-		public Object getValue()
+		public String getValue()
 		{
 			return value;
 		}
 
-		public void setValue(Object value)
+		public void setValue(String value)
 		{
 			this.value = value;
 		}

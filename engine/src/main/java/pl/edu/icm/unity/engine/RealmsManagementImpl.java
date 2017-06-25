@@ -6,18 +6,17 @@ package pl.edu.icm.unity.engine;
 
 import java.util.Collection;
 
-import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.generic.realm.RealmDB;
+import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
-import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
-import pl.edu.icm.unity.engine.transactions.Transactional;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.RealmsManagement;
+import pl.edu.icm.unity.store.api.generic.RealmDB;
+import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 
 /**
@@ -25,6 +24,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
  * @author K. Benedyczak
  */
 @Component
+@Primary
 @InvocationEventProducer
 @Transactional
 public class RealmsManagementImpl implements RealmsManagement
@@ -44,10 +44,9 @@ public class RealmsManagementImpl implements RealmsManagement
 	public void addRealm(AuthenticationRealm realm) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		SqlSession sql = SqlSessionTL.get();
 		try
 		{
-			realmDB.insert(realm.getName(), realm, sql);
+			realmDB.create(realm);
 		} catch (Exception e)
 		{
 			throw new EngineException("Unable to create a realm: " + e.getMessage(), e);
@@ -58,10 +57,9 @@ public class RealmsManagementImpl implements RealmsManagement
 	public AuthenticationRealm getRealm(String name) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		SqlSession sql = SqlSessionTL.get();
 		try
 		{
-			return realmDB.get(name, sql);
+			return realmDB.get(name);
 		} catch (Exception e)
 		{
 			throw new EngineException("Unable to retrieve a realm: " + e.getMessage(), e);
@@ -72,10 +70,9 @@ public class RealmsManagementImpl implements RealmsManagement
 	public Collection<AuthenticationRealm> getRealms() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		SqlSession sql = SqlSessionTL.get();
 		try
 		{
-			return realmDB.getAll(sql);
+			return realmDB.getAll();
 		} catch (Exception e)
 		{
 			throw new EngineException("Unable to retrieve realms: " + e.getMessage(), e);
@@ -86,10 +83,9 @@ public class RealmsManagementImpl implements RealmsManagement
 	public void updateRealm(AuthenticationRealm realm) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		SqlSession sql = SqlSessionTL.get();
 		try
 		{
-			realmDB.update(realm.getName(), realm, sql);
+			realmDB.update(realm);
 		} catch (Exception e)
 		{
 			throw new EngineException("Unable to update a realm: " + e.getMessage(), e);
@@ -100,10 +96,9 @@ public class RealmsManagementImpl implements RealmsManagement
 	public void removeRealm(String name) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		SqlSession sql = SqlSessionTL.get();
 		try
 		{
-			realmDB.remove(name, sql);
+			realmDB.delete(name);
 		} catch (Exception e)
 		{
 			throw new EngineException("Unable to remove a realm: " + e.getMessage(), e);

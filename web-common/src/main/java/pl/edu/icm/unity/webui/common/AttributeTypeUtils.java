@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
 /**
@@ -39,11 +39,6 @@ public class AttributeTypeUtils
 		return val ? msg.getMessage("yes") : msg.getMessage("no");
 	}
 	
-	public static String getVisibilityDesc(UnityMessageSource msg, AttributeType type)
-	{
-		return msg.getMessage("AttributeType.visibility." + type.getVisibility().toString());
-	} 
-
 	public static String getFlagsDesc(UnityMessageSource msg, AttributeType type)
 	{
 		StringBuilder sb = new StringBuilder();

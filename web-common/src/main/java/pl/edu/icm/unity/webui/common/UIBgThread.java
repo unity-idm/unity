@@ -4,14 +4,14 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import org.apache.log4j.Logger;
-
-import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.utils.Log;
+import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.UI;
 import com.vaadin.util.CurrentInstance;
+
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 
 /**
  * Wrapper of Runnables that are run in background thread and are going to access 

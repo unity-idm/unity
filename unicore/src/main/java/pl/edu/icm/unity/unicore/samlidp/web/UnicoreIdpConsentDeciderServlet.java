@@ -12,29 +12,34 @@ import java.util.TimeZone;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import eu.unicore.samly2.SAMLConstants;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.PreferencesManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.idp.IdPEngine;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServlet;
-import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.api.internal.IdPEngine;
-import pl.edu.icm.unity.server.api.internal.SessionManagement;
-import pl.edu.icm.unity.server.authn.AuthenticationException;
-import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
-import pl.edu.icm.unity.server.translation.out.TranslationResult;
-import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServletFactory;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETDSettings;
 import pl.edu.icm.unity.unicore.samlidp.saml.AuthnWithETDResponseProcessor;
+import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
-import eu.unicore.samly2.SAMLConstants;
 
 /**
  * Trivial extension of {@link IdpConsentDeciderServlet}, which uses UNICORE preferences instead of SAML preferences
@@ -42,26 +47,29 @@ import eu.unicore.samly2.SAMLConstants;
  * 
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML,
 			UnicoreIdpConsentDeciderServlet.class);
 	
-	public UnicoreIdpConsentDeciderServlet(PreferencesManagement preferencesMan, 
-			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry,
+	@Autowired
+	public UnicoreIdpConsentDeciderServlet(AttributeTypeSupport aTypeSupport, 
+			PreferencesManagement preferencesMan, 
 			IdPEngine idpEngine,
 			FreemarkerHandler freemarker,
-			SessionManagement sessionMan, String samlUiServletPath)
+			SessionManagement sessionMan)
 	{
-		super(preferencesMan, attributeSyntaxFactoriesRegistry, idpEngine, 
-				freemarker, sessionMan, samlUiServletPath);
+		super(aTypeSupport, preferencesMan, idpEngine, 
+				freemarker, sessionMan);
 	}
+	
+	
 	
 	@Override
 	protected SPSettings loadPreferences(SAMLAuthnContext samlCtx) throws EngineException
 	{
-		SamlPreferencesWithETD preferences = SamlPreferencesWithETD.getPreferences(preferencesMan, 
-				attributeSyntaxFactoriesRegistry);
+		SamlPreferencesWithETD preferences = SamlPreferencesWithETD.getPreferences(preferencesMan);
 		return preferences.getSPSettings(samlCtx.getRequest().getIssuer());
 	}
 	
@@ -73,8 +81,8 @@ public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 	protected void autoReplay(SPSettings spPreferences, SAMLAuthnContext samlCtx, HttpServletRequest request,
 			HttpServletResponse response) throws EopException, IOException
 	{
-		AuthnWithETDResponseProcessor samlProcessor = new AuthnWithETDResponseProcessor(samlCtx, 
-				Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+		AuthnWithETDResponseProcessor samlProcessor = new AuthnWithETDResponseProcessor(aTypeSupport,
+				samlCtx, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 		
 		String serviceUrl = getServiceUrl(samlCtx);
 		
@@ -87,15 +95,14 @@ public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 		ResponseDocument respDoc;
 		try
 		{
-			SamlPreferencesWithETD preferences = SamlPreferencesWithETD.getPreferences(preferencesMan, 
-					attributeSyntaxFactoriesRegistry);
+			SamlPreferencesWithETD preferences = SamlPreferencesWithETD.getPreferences(preferencesMan);
 			SPETDSettings etdSettings = preferences.getSPETDSettings(samlCtx.getRequest().getIssuer());
 			
 			TranslationResult userInfo = getUserInfo(samlCtx.getSamlConfiguration(), samlProcessor, 
 					SAMLConstants.BINDING_HTTP_POST);
 			IdentityParam selectedIdentity = getIdentity(userInfo, samlProcessor, spPreferences);
 			log.debug("Authentication of " + selectedIdentity);
-			Collection<Attribute<?>> attributes = samlProcessor.getAttributes(userInfo, spPreferences);
+			Collection<Attribute> attributes = samlProcessor.getAttributes(userInfo, spPreferences);
 			respDoc = samlProcessor.processAuthnRequest(selectedIdentity, attributes, 
 					etdSettings.toDelegationRestrictions());
 		} catch (Exception e)
@@ -109,5 +116,19 @@ public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 		ssoResponseHandler.sendResponse(Binding.HTTP_POST, respDoc, serviceUrl, 
 				samlCtx.getRelayState(), request, response);
 	}
-
+	
+	@Component
+	public static class Factory implements IdpConsentDeciderServletFactory
+	{
+		@Autowired
+		private ObjectFactory<UnicoreIdpConsentDeciderServlet> factory;
+		
+		@Override
+		public IdpConsentDeciderServlet getInstance(String uiServletPath)
+		{
+			UnicoreIdpConsentDeciderServlet ret = factory.getObject();
+			ret.init(uiServletPath);
+			return ret;
+		}
+	}
 }

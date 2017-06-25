@@ -1,0 +1,26 @@
+[[notifications]]
+=== Notifications and e-mail settings
+
+Notifications and other messages are sent by Unity in several cases, for instance as an optional verification
+step during password reset or to notify an administrator about a new registration request.
+
+Currently the only notification channel available is the e-mail channel. It can be disabled 
+by removing or commenting the e-mail configuration property in the main configuration file.
+If enabled it is configured in a separate properties file. The default file provides a detailed information
+on the available options so should be easy to edit.
+
+The actual contents of the messages being sent is governed by the _message templates_. Message templates are
+configured using Admin UI (Server management->Message templates). It is also possible to configure them with
+configuration file (by default +msgTemplates.properties+), but this is much more difficult and not suggested.  
+Currently a template is a named pair of two pieces of text: subject (title) and message body. What's more the template
+can contain several variables which must be formated as:
+
+----
+${VARIABLE_NAME}   
+----
+
+Variables are replaced dynamically with concrete values when a message is prepared to be sent. Naturally
+each subsystem sending messages provides different variables. Therefore each template must be associated with 
+a concrete subsystem. This is performed in the template edit screen. The list of available variables for each 
+subsystem is also provided there.  
+

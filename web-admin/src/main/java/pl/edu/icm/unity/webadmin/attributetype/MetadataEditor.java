@@ -9,18 +9,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataEditor;
-import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
-import pl.edu.icm.unity.webui.common.attrmetadata.WebAttributeMetadataHandler;
-import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
-
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.Button;
@@ -31,6 +19,18 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataEditor;
+import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attrmetadata.WebAttributeMetadataHandler;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
  * Editing of multiple metadata entries.

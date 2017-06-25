@@ -6,18 +6,17 @@ package pl.edu.icm.unity.oauth.as.token;
 
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerTokenError;
 
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.base.token.Token;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
-import pl.edu.icm.unity.server.api.internal.Token;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.utils.Log;
 
 /**
  * Common code inherited by OAuth resources
@@ -60,7 +59,7 @@ public class BaseTokenResource extends BaseOAuthResource
 			
 			OAuthToken parsedAccessToken = parseInternalToken(rawToken);
 			return new TokensPair(rawToken, parsedAccessToken);
-		} catch (WrongArgumentException e)
+		} catch (IllegalArgumentException e)
 		{
 			throw new OAuthTokenException(makeBearerError(BearerTokenError.INVALID_TOKEN));
 		}
@@ -78,7 +77,7 @@ public class BaseTokenResource extends BaseOAuthResource
 			{
 				tokensManagement.updateToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN, rawToken.getValue(), new Date(newExpiry), 
 						rawToken.getContents());
-			} catch (WrongArgumentException e)
+			} catch (IllegalArgumentException e)
 			{
 				log.warn("Can't update access token validity, this shouldn't happen", e);
 				throw new OAuthTokenException(makeBearerError(BearerTokenError.INVALID_TOKEN));

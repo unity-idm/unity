@@ -6,8 +6,8 @@ package pl.edu.icm.unity.engine.mock;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.authn.LocalCredentialVerificator;
-import pl.edu.icm.unity.server.authn.LocalCredentialVerificatorFactory;
+import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
+import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificatorFactory;
 
 @Component
 public class MockPasswordVerificatorFactory implements LocalCredentialVerificatorFactory

@@ -4,20 +4,19 @@
  */
 package pl.edu.icm.unity.webadmin;
 
-import org.springframework.context.annotation.Scope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.attributeclass.AttributesClassesComponent;
 import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesComponent;
 import pl.edu.icm.unity.webadmin.credentials.CredentialDefinitionsComponent;
 import pl.edu.icm.unity.webadmin.credreq.CredentialRequirementsComponent;
 import pl.edu.icm.unity.webadmin.identitytype.IdentityTypesComponent;
-
-import com.vaadin.ui.VerticalLayout;
-
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**

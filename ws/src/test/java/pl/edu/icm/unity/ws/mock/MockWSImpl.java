@@ -6,10 +6,10 @@ package pl.edu.icm.unity.ws.mock;
 
 import javax.jws.WebService;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
-import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import xmlbeans.org.oasis.saml2.assertion.NameIDDocument;
 
 @WebService(endpointInterface = "pl.edu.icm.unity.ws.mock.MockWSSEI",

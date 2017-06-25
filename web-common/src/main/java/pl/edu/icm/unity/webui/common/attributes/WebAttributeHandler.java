@@ -4,18 +4,17 @@
  */
 package pl.edu.icm.unity.webui.common.attributes;
 
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-
 import com.vaadin.ui.Component;
+
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 
 /**
  * Vaadin component implementing support for {@link AttributeValueSyntax} implementation.
  * Allows to render attribute value and to provide an edit panel.
  * @author K. Benedyczak
  */
-public interface WebAttributeHandler<T>
+public interface WebAttributeHandler
 {
-	public String getSupportedSyntaxId();
 	public final static int MIN_VALUE_TEXT_LEN = 16;
 	
 	/**
@@ -48,7 +47,7 @@ public interface WebAttributeHandler<T>
 	 * @return string representation, never null. For values which have no string representation some
 	 * type based description should be returned as 'Jpeg image'
 	 */
-	public String getValueAsString(T value, AttributeValueSyntax<T> syntax, int limited);
+	public String getValueAsString(String value, int limited);
 	
 	/**
 	 * @param value
@@ -56,24 +55,17 @@ public interface WebAttributeHandler<T>
 	 * @param size
 	 * @return component allowing to present the value
 	 */
-	public Component getRepresentation(T value, AttributeValueSyntax<T> syntax, RepresentationSize size);
+	public Component getRepresentation(String value, RepresentationSize size);
 	
 	/**
 	 * @param initialValue value to be edited or null if value is to be created from scratch
 	 * @return
 	 */
-	public AttributeValueEditor<T> getEditorComponent(T initialValue, String label, 
-			AttributeValueSyntax<T> syntaxDesc);
+	public AttributeValueEditor getEditorComponent(String initialValue, String label);
 	
 	/**
 	 * @param syntax
 	 * @return read-only component showing the syntax settings
 	 */
-	public Component getSyntaxViewer(AttributeValueSyntax<T> syntax);
-	
-	/**
-	 * @param initialValue value to be edited or null if value is to be created from scratch
-	 * @return
-	 */
-	public AttributeSyntaxEditor<T> getSyntaxEditorComponent(AttributeValueSyntax<T> initialValue);
+	public Component getSyntaxViewer();
 }

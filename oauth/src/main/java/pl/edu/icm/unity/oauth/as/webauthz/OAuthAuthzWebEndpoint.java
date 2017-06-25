@@ -7,6 +7,10 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
@@ -15,34 +19,46 @@ import javax.servlet.Servlet;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
+import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.api.internal.NetworkServer;
-import pl.edu.icm.unity.server.api.internal.SessionManagement;
-import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
-import pl.edu.icm.unity.server.utils.HiddenResourcesFilter;
-import pl.edu.icm.unity.server.utils.RoutingServlet;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
+import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityVaadinServlet;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 
 /**
  * OAuth2 authorization endpoint, Vaadin based.
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 {
+	public static final String NAME = "OAuth2Authz";
+
 	public static final String OAUTH_UI_SERVLET_PATH = "/oauth2-authz-web-ui";
 	public static final String OAUTH_CONSUMER_SERVLET_PATH = "/oauth2-authz";
 	public static final String OAUTH_ROUTING_SERVLET_PATH = "/oauth2-authz-web-entry";
@@ -50,15 +66,17 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 	
 	private OAuthASProperties oauthProperties;
 	private FreemarkerHandler freemarkerHandler;
-	private IdentitiesManagement identitiesManagement;
+	private EntityManagement identitiesManagement;
 	private AttributesManagement attributesManagement;
 	private PKIManagement pkiManagement;
 	private OAuthEndpointsCoordinator coordinator;
 	private ASConsentDeciderServletFactory dispatcherServletFactory;
 	
+	@Autowired
 	public OAuthAuthzWebEndpoint(NetworkServer server,
 			ApplicationContext applicationContext, FreemarkerHandler freemarkerHandler,
-			IdentitiesManagement identitiesManagement, AttributesManagement attributesManagement,
+			@Qualifier("insecure") EntityManagement identitiesManagement, 
+			@Qualifier("insecure") AttributesManagement attributesManagement,
 			PKIManagement pkiManagement, OAuthEndpointsCoordinator coordinator,
 			ASConsentDeciderServletFactory dispatcherServletFactory, UnityMessageSource msg)
 	{
@@ -91,7 +109,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 	protected ServletContextHandler getServletContextHandlerOverridable()
 	{
 	 	ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		context.setContextPath(description.getContextAddress());
+		context.setContextPath(description.getEndpoint().getContextAddress());
 		
 		String endpointURL = getServletUrl(OAUTH_CONSUMER_SERVLET_PATH);
 		Servlet samlParseServlet = new OAuthParseServlet(oauthProperties, endpointURL, 
@@ -153,4 +171,36 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		
 		return context;
 	}
+	
+	@Component
+	public static class Factory implements EndpointFactory
+	{
+		@Autowired
+		private ObjectFactory<OAuthAuthzWebEndpoint> factory;
+		
+		private EndpointTypeDescription description = initDescription();
+		
+		private static EndpointTypeDescription initDescription()
+		{
+			Set<String> supportedAuthn = new HashSet<String>();
+			supportedAuthn.add(VaadinAuthentication.NAME);
+			Map<String, String> paths = new HashMap<String, String>();
+			paths.put(OAUTH_CONSUMER_SERVLET_PATH, "OAuth 2 Authorization Grant web endpoint");
+			return new EndpointTypeDescription(NAME, 
+					"OAuth 2 Server - Authorization Grant endpoint", supportedAuthn, paths);
+		}
+		
+		@Override
+		public EndpointTypeDescription getDescription()
+		{
+			return description;
+		}
+
+		@Override
+		public EndpointInstance newInstance()
+		{
+			return factory.getObject();
+		}
+	}
+
 }

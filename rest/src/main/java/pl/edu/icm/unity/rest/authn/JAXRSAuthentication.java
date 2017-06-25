@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.rest.authn;
 
+import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.rest.RESTEndpoint;
-import pl.edu.icm.unity.server.authn.CredentialRetrieval;
 
 /**
  * Defines a contract which must be implemented by {@link CredentialRetrieval}s in order to be used 

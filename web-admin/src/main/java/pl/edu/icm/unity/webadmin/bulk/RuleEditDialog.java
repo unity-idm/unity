@@ -8,8 +8,8 @@ import java.util.function.Consumer;
 
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.server.bulkops.ProcessingRule;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -18,7 +18,7 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
  * Editor dialog for rule editing.
  * @author K. Benedyczak
  */
-public class RuleEditDialog<T extends ProcessingRule> extends AbstractDialog
+public class RuleEditDialog<T extends TranslationRule> extends AbstractDialog
 {
 	private Consumer<T> callback;
 	private RuleEditor<T> editor;

@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.saml.idp.preferences;
 
 import java.util.Collection;
+import java.util.List;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -13,22 +14,24 @@ import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 
+import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesEditor;
 
@@ -40,26 +43,29 @@ public class SamlPreferencesEditor implements PreferencesEditor
 {
 	protected UnityMessageSource msg;
 	protected SamlPreferences preferences;
-	protected IdentitiesManagement idsMan;
-	protected AttributesManagement atsMan;
+	protected EntityManagement idsMan;
+	protected AttributeTypeManagement atsMan;
 	protected ModificationListener listener;
 	
 	protected HorizontalLayout main;
 	protected GenericElementsTable<String> table;
 	protected SamlSPSettingsViewer viewer;
 	
-	protected Identity[] identities;
+	protected List<Identity> identities;
 	protected Collection<AttributeType> atTypes;
 	protected AttributeHandlerRegistry attributeHandlerRegistry;
+	protected IdentityTypeSupport idTpeSupport;
 
-	public SamlPreferencesEditor(UnityMessageSource msg, SamlPreferences preferences, IdentitiesManagement idsMan,
-			AttributesManagement atsMan, AttributeHandlerRegistry attributeHandlerRegistry)
+	public SamlPreferencesEditor(UnityMessageSource msg, SamlPreferences preferences, EntityManagement idsMan,
+			AttributeTypeManagement atsMan, AttributeHandlerRegistry attributeHandlerRegistry,
+			IdentityTypeSupport idTpeSupport)
 	{
 		this.msg = msg;
 		this.preferences = preferences;
 		this.idsMan = idsMan;
 		this.atsMan = atsMan;
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
+		this.idTpeSupport = idTpeSupport;
 		
 		init();
 	}
@@ -136,7 +142,7 @@ public class SamlPreferencesEditor implements PreferencesEditor
 	@Override
 	public String getValue() throws FormValidationException
 	{
-		return preferences.getSerializedConfiguration();
+		return JsonUtil.serialize(preferences.getSerializedConfiguration());
 	}
 	
 	protected class AddActionHandler extends SingleActionHandler
@@ -158,7 +164,8 @@ public class SamlPreferencesEditor implements PreferencesEditor
 				NotificationPopup.showError(msg, msg.getMessage("SAMLPreferences.errorLoadindSystemInfo"), e);
 				return;
 			}
-			SPSettingsEditor editor = new SPSettingsEditor(msg, attributeHandlerRegistry, identities, 
+			SPSettingsEditor editor = new SPSettingsEditor(msg, attributeHandlerRegistry, 
+					idTpeSupport, identities, 
 					atTypes, preferences.getKeys());
 			new SPSettingsDialog(msg, editor, new SPSettingsDialog.Callback()
 			{
@@ -193,7 +200,8 @@ public class SamlPreferencesEditor implements PreferencesEditor
 			}
 			@SuppressWarnings("unchecked")
 			GenericItem<String> item = (GenericItem<String>)target;
-			SPSettingsEditor editor = new SPSettingsEditor(msg, attributeHandlerRegistry, identities, 
+			SPSettingsEditor editor = new SPSettingsEditor(msg, attributeHandlerRegistry, 
+					idTpeSupport, identities, 
 					atTypes, item.getElement(), preferences.getSPSettings(item.getElement()));
 			new SPSettingsDialog(msg, editor, new SPSettingsDialog.Callback()
 			{

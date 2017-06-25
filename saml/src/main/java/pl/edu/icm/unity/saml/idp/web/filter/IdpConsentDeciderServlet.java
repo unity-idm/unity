@@ -18,10 +18,27 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.exceptions.SAMLRequesterException;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.PreferencesManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
+import pl.edu.icm.unity.engine.api.idp.IdPEngine;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.SAMLEndpointDefinition;
 import pl.edu.icm.unity.saml.SAMLSessionParticipant;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
@@ -31,24 +48,12 @@ import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
-import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.api.internal.CommonIdPProperties;
-import pl.edu.icm.unity.server.api.internal.IdPEngine;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.api.internal.SessionManagement;
-import pl.edu.icm.unity.server.authn.AuthenticationException;
-import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
-import pl.edu.icm.unity.server.translation.out.TranslationResult;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.RoutingServlet;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.exceptions.SAMLRequesterException;
 
 /**
  * Invoked after authentication, main SAML web IdP servlet. It decides whether the request should be
@@ -57,6 +62,8 @@ import eu.unicore.samly2.exceptions.SAMLRequesterException;
  * 
  * @author K. Benedyczak
  */
+@PrototypeComponent
+@Primary
 public class IdpConsentDeciderServlet extends HttpServlet
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, IdpConsentDeciderServlet.class);
@@ -66,22 +73,28 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	protected SSOResponseHandler ssoResponseHandler;
 	protected SessionManagement sessionMan;
 	protected String samlUiServletPath;
-	protected AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
+
+	protected AttributeTypeSupport aTypeSupport;
 	
-	public IdpConsentDeciderServlet(PreferencesManagement preferencesMan, 
-			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry,
+	@Autowired
+	public IdpConsentDeciderServlet(AttributeTypeSupport aTypeSupport, 
+			PreferencesManagement preferencesMan, 
 			IdPEngine idpEngine,
 			FreemarkerHandler freemarker,
-			SessionManagement sessionMan, String samlUiServletPath)
+			SessionManagement sessionMan)
 	{
+		this.aTypeSupport = aTypeSupport;
 		this.preferencesMan = preferencesMan;
-		this.attributeSyntaxFactoriesRegistry = attributeSyntaxFactoriesRegistry;
 		this.idpEngine = idpEngine;
 		this.ssoResponseHandler = new SSOResponseHandler(freemarker);
 		this.sessionMan = sessionMan;
-		this.samlUiServletPath = samlUiServletPath;
 	}
 
+	protected void init(String samlUiServletPath)
+	{
+		this.samlUiServletPath = samlUiServletPath;
+	}
+	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException
@@ -118,7 +131,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 			preferences = loadPreferences(samlCtx);
 		} catch (EngineException e1)
 		{
-			AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(samlCtx, 
+			AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(aTypeSupport, samlCtx, 
 					Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 			String serviceUrl = getServiceUrl(samlCtx);
 			ssoResponseHandler.handleException(samlProcessor, e1, Binding.HTTP_POST, 
@@ -139,8 +152,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	
 	protected SPSettings loadPreferences(SAMLAuthnContext samlCtx) throws EngineException
 	{
-		SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan, 
-				attributeSyntaxFactoriesRegistry);
+		SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan);
 		return preferences.getSPSettings(samlCtx.getRequest().getIssuer());
 	}
 	
@@ -165,7 +177,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	protected void autoReplay(SPSettings spPreferences, SAMLAuthnContext samlCtx, HttpServletRequest request,
 			HttpServletResponse response) throws EopException, IOException
 	{
-		AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(samlCtx, 
+		AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(aTypeSupport, samlCtx, 
 				Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 		
 		String serviceUrl = getServiceUrl(samlCtx);
@@ -184,7 +196,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 					SAMLConstants.BINDING_HTTP_POST);
 			IdentityParam selectedIdentity = getIdentity(userInfo, samlProcessor, spPreferences);
 			log.debug("Authentication of " + selectedIdentity);
-			Collection<Attribute<?>> attributes = samlProcessor.getAttributes(userInfo, spPreferences);
+			Collection<Attribute> attributes = samlProcessor.getAttributes(userInfo, spPreferences);
 			respDoc = samlProcessor.processAuthnRequest(selectedIdentity, attributes);
 		} catch (Exception e)
 		{
@@ -219,7 +231,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 			throws EngineException, SAMLRequesterException
 	{
 		List<IdentityParam> validIdentities = samlProcessor.getCompatibleIdentities(userInfo.getIdentities());
-		return IdPEngine.getIdentity(validIdentities, preferences.getSelectedIdentity());
+		return idpEngine.getIdentity(validIdentities, preferences.getSelectedIdentity());
 	}
 	
 	public static void addSessionParticipant(SAMLAuthnContext samlCtx, NameIDType returnedSubject,
@@ -256,5 +268,22 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		if (ret == null)
 			throw new IllegalStateException("No SAML context in UI");
 		return ret;
+	}
+	
+	
+	@Component
+	@Primary
+	public static class Factory implements IdpConsentDeciderServletFactory
+	{
+		@Autowired
+		private ObjectFactory<IdpConsentDeciderServlet> factory;
+		
+		@Override
+		public IdpConsentDeciderServlet getInstance(String uiServletPath)
+		{
+			IdpConsentDeciderServlet ret = factory.getObject();
+			ret.init(uiServletPath);
+			return ret;
+		}
 	}
 }

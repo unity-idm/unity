@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pl.edu.icm.unity.store.impl.objstore.GenericMapper">
+
+	<resultMap id="objectResult" type="GenericObjectB">
+		<result property="id" column="ID"/>
+		<result property="name" column="NAME"/>
+		<result property="type" column="TYPE"/>
+		<result property="contents" column="CONTENTS"/>
+		<result property="lastUpdate" column="LAST_UPDATE"/>
+	</resultMap>
+
+	<insert id="create" parameterType="GenericObjectB" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO VAR_OBJECTS(NAME, CONTENTS, TYPE, LAST_UPDATE) 
+			VALUES (#{name}, #{contents}, #{type}, #{lastUpdate})
+	</insert>
+	
+	<insert id="createWithKey" parameterType="GenericObjectB">
+		INSERT INTO VAR_OBJECTS(ID, NAME, CONTENTS, TYPE, LAST_UPDATE) 
+			VALUES (#{id}, #{name}, #{contents}, #{type}, #{lastUpdate})
+	</insert>
+	
+	<update id="updateByKey" parameterType="GenericObjectB">
+		UPDATE VAR_OBJECTS SET CONTENTS=#{contents}, NAME = #{name}, LAST_UPDATE = #{lastUpdate}
+			WHERE ID=#{id}  
+	</update>
+	
+	<delete id="deleteByKey" parameterType="long">
+		DELETE FROM VAR_OBJECTS WHERE ID = #{id}  
+	</delete>
+	
+	<delete id="deleteAll">
+		DELETE FROM VAR_OBJECTS
+	</delete>
+	
+	<select id="getAll" resultMap="objectResult">
+		SELECT * FROM VAR_OBJECTS
+	</select>
+	
+	<select id="getByKey" parameterType="long" resultMap="objectResult">
+		SELECT * FROM VAR_OBJECTS WHERE ID = #{id}  
+	</select>
+	
+	
+	<!-- custom operations -->
+	
+	<delete id="deleteByType" parameterType="string">
+		DELETE FROM VAR_OBJECTS WHERE TYPE = #{value}
+	</delete>
+
+	<select id="selectObjectByNameType" parameterType="GenericObjectB" resultMap="objectResult">
+		SELECT * FROM VAR_OBJECTS WHERE NAME = #{name} AND TYPE = #{type}
+	</select>
+	
+	<select id="selectObjectsByType" parameterType="string" resultMap="objectResult">
+		SELECT * FROM VAR_OBJECTS WHERE type = #{value}
+	</select>
+
+	<select id="selectObjectTypes" resultType="string">
+		SELECT DISTINCT type FROM VAR_OBJECTS
+	</select>
+
+	<select id="selectObjectNamesByType" parameterType="GenericObjectB" resultType="string">
+		SELECT NAME FROM VAR_OBJECTS WHERE TYPE = #{type}
+	</select>
+</mapper>

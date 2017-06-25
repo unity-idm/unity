@@ -14,10 +14,11 @@ import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.engine.api.authn.CredentialResetSettings;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.server.authn.CredentialResetSettings;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.PasswordCredential;
 import pl.edu.icm.unity.stdext.credential.PasswordExtraInfo;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
@@ -53,7 +54,7 @@ public class PasswordCredentialEditor implements CredentialEditor
 		this.required = required;
 		this.askAboutCurrent = askAboutCurrent;
 		helper = new PasswordCredential();
-		helper.setSerializedConfiguration(credentialConfiguration);
+		helper.setSerializedConfiguration(JsonUtil.parse(credentialConfiguration));
 		
 		ComponentsContainer ret = new ComponentsContainer();
 

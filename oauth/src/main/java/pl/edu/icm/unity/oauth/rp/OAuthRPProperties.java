@@ -17,6 +17,9 @@ import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.BaseRemoteASProperties;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
@@ -24,9 +27,6 @@ import pl.edu.icm.unity.oauth.rp.verificator.InternalTokenVerificator;
 import pl.edu.icm.unity.oauth.rp.verificator.MitreTokenVerificator;
 import pl.edu.icm.unity.oauth.rp.verificator.TokenVerificatorProtocol;
 import pl.edu.icm.unity.oauth.rp.verificator.UnityTokenVerificator;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.utils.Log;
 
 /**
  * Configuration of OAuth RP-alike authenticator.
@@ -34,7 +34,7 @@ import pl.edu.icm.unity.server.utils.Log;
  */
 public class OAuthRPProperties extends PropertiesHelper implements BaseRemoteASProperties
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, OAuthRPProperties.class);
+	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, OAuthRPProperties.class);
 	
 	public enum VerificationProtocol {mitre, unity, internal};
 	

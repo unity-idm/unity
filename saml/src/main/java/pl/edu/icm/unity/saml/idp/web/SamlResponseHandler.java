@@ -10,15 +10,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.apache.xml.security.utils.Base64;
-
-import pl.edu.icm.unity.idpcommon.EopException;
-import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
-import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
-import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
-import pl.edu.icm.unity.server.utils.Log;
-import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 import com.vaadin.server.Page;
 import com.vaadin.server.SynchronizedRequestHandler;
@@ -27,6 +20,12 @@ import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinSession;
 
 import eu.unicore.samly2.exceptions.SAMLServerException;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
+import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
+import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
+import pl.edu.icm.unity.webui.idpcommon.EopException;
+import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 /**
  * Code used by various components to produce and initialize sending of SAML response.

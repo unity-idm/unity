@@ -6,164 +6,100 @@
 		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd"
   xmlns:aop="http://www.springframework.org/schema/aop">
 
-	<context:annotation-config/>
+	<context:component-scan base-package="pl.edu.icm.unity.engine"/>
 	<aop:aspectj-autoproxy/>
 	
-	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
-		<property name="bundle" value="pl/edu/icm/unity/engine/messages/messages"/>
-	</bean>
-	
-	<bean class="pl.edu.icm.unity.engine.transactions.TransactionalAspect"/>
-	<bean class="pl.edu.icm.unity.engine.transactions.TransactionalRunnerImpl"/>
-	
-	<bean class="pl.edu.icm.unity.server.JettyServer"/>
-	<bean class="pl.edu.icm.unity.server.UnityApplication$InnerServerLifecycle"/>
-	<bean class="pl.edu.icm.unity.server.UnityApplication$ShutdownFinished"/>
-
-	<bean class="pl.edu.icm.unity.engine.events.EventProducingAspect"/>
-	<bean class="pl.edu.icm.unity.engine.events.EventProcessor"/>
-		
-	<!-- The regular implementation, with a real authorization module injected -->	
-	<bean primary="true" class="pl.edu.icm.unity.engine.GroupsManagementImpl"/>
-	<bean primary="true" class="pl.edu.icm.unity.engine.IdentitiesManagementImpl"/>
-	<bean primary="true" class="pl.edu.icm.unity.engine.AttributesManagementImpl"/>
-	<bean primary="true" class="pl.edu.icm.unity.engine.AuthenticationManagementImpl"/>
-	<bean primary="true" class="pl.edu.icm.unity.engine.ServerManagementImpl"/>
-	<bean primary="true" class="pl.edu.icm.unity.engine.EndpointManagementImpl"/>
-	<bean primary="true" class="pl.edu.icm.unity.engine.PreferencesManagementImpl"/>
-	<bean primary="true" class="pl.edu.icm.unity.engine.NotificationsManagementImpl"/>
-	<bean primary="true" class="pl.edu.icm.unity.engine.RegistrationsManagementImpl"/>
-	<bean primary="true" class="pl.edu.icm.unity.engine.TranslationProfileManagementImpl"/>
-	<bean primary="true" class="pl.edu.icm.unity.engine.RealmsManagementImpl"/>
-	<bean primary="true" class="pl.edu.icm.unity.engine.MessageTemplateManagementImpl"/>
-	<bean primary="true" class="pl.edu.icm.unity.engine.ConfirmationConfigurationManagementImpl"/>
-	<bean primary="true" class="pl.edu.icm.unity.engine.BulkProcessingManagementImpl"/>
-	<bean primary="true" class="pl.edu.icm.unity.engine.EnquiryManagementImpl"/>
-	<bean primary="true" class="pl.edu.icm.unity.engine.UserImportManagementImpl"/>
-
-	<!-- Those beans are the same as the 'primary' beans above, but do not perform authorization. 
-	Must be used with qualifier. -->
-	<bean primary="false" class="pl.edu.icm.unity.engine.GroupsManagementImpl">
+	<bean class="pl.edu.icm.unity.engine.group.GroupsManagementImpl">
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.IdentitiesManagementImpl">
+	<bean class="pl.edu.icm.unity.engine.identity.EntityManagementImpl">
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.AttributesManagementImpl">
+	<bean class="pl.edu.icm.unity.engine.identity.EntityCredentialsManagementImpl">
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.AuthenticationManagementImpl">
+	<bean class="pl.edu.icm.unity.engine.attribute.AttributeTypeManagementImpl">
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.ServerManagementImpl">
+	<bean class="pl.edu.icm.unity.engine.identity.IdentityTypeManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean class="pl.edu.icm.unity.engine.attribute.AttributeClassManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean class="pl.edu.icm.unity.engine.attribute.AttributesManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean class="pl.edu.icm.unity.engine.credential.CredentialReqManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean class="pl.edu.icm.unity.engine.credential.CredentialManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean class="pl.edu.icm.unity.engine.authn.AuthenticationManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean class="pl.edu.icm.unity.engine.notifications.NotificationsManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean class="pl.edu.icm.unity.engine.RealmsManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean class="pl.edu.icm.unity.engine.translation.TranslationProfileManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean class="pl.edu.icm.unity.engine.msgtemplate.MessageTemplateManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean class="pl.edu.icm.unity.engine.endpoint.EndpointManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean class="pl.edu.icm.unity.engine.server.ServerManagementImpl">
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>	
-	<bean primary="false" class="pl.edu.icm.unity.engine.EndpointManagementImpl">
+	<bean class="pl.edu.icm.unity.engine.forms.reg.RegistrationsManagementImpl">
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.PreferencesManagementImpl">
+	<bean class="pl.edu.icm.unity.engine.forms.enquiry.EnquiryManagementImpl">
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.NotificationsManagementImpl">
+	<bean class="pl.edu.icm.unity.engine.forms.InvitationManagementImpl">
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.RegistrationsManagementImpl">
+	<bean class="pl.edu.icm.unity.engine.confirmation.ConfirmationConfigurationManagementImpl">
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.TranslationProfileManagementImpl">
-		<qualifier value="insecure"/>
-		<constructor-arg name="authz" ref="noauthz"/>
-	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.RealmsManagementImpl">
-		<qualifier value="insecure"/>
-		<constructor-arg name="authz" ref="noauthz"/>
-	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.MessageTemplateManagementImpl">
-		<qualifier value="insecure"/>
-		<constructor-arg name="authz" ref="noauthz"/>
-	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.ConfirmationConfigurationManagementImpl">
-		<qualifier value="insecure"/>
-		<constructor-arg name="authz" ref="noauthz"/>
-	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.BulkProcessingManagementImpl">
-		<qualifier value="insecure"/>
-		<constructor-arg name="authz" ref="noauthz"/>
-	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.EnquiryManagementImpl">
-		<qualifier value="insecure"/>
-		<constructor-arg name="authz" ref="noauthz"/>
-	</bean>
-	<bean primary="false" class="pl.edu.icm.unity.engine.UserImportManagementImpl">
-		<qualifier value="insecure"/>
-		<constructor-arg name="authz" ref="noauthz"/>
-	</bean>
-		
-	<!-- Currently simplistic -->
-	<bean class="pl.edu.icm.unity.engine.PKIManagementImpl"/>
-	<bean class="pl.edu.icm.unity.engine.SharedEndpointManagementImpl"/>
 	
-	<bean class="pl.edu.icm.unity.engine.AttributesInternalProcessingImpl"/>
-	
-	<bean class="pl.edu.icm.unity.engine.internal.EngineInitialization"/>
-	<bean class="pl.edu.icm.unity.engine.internal.EngineHelper"/>
-	<bean class="pl.edu.icm.unity.engine.internal.AttributesHelper"/>
-	<bean class="pl.edu.icm.unity.engine.internal.IdentityResolverImpl"/>
-	<bean class="pl.edu.icm.unity.engine.internal.CredentialHelperImpl"/>
-	<bean class="pl.edu.icm.unity.engine.internal.AttributeStatementsCleaner"/>
-	<bean class="pl.edu.icm.unity.engine.internal.NotificationsManagementCore"/>
-	<bean class="pl.edu.icm.unity.engine.internal.TokensManagementImpl"/>
-	<bean class="pl.edu.icm.unity.engine.internal.SessionManagementImpl"/>
-	<bean class="pl.edu.icm.unity.engine.internal.AuthenticatorsManagementImpl"/>
-	<bean class="pl.edu.icm.unity.engine.internal.EntitiesScheduledUpdater"/>
-	<bean class="pl.edu.icm.unity.engine.userimport.UserImportServiceImpl"/>
-
-	<bean class="pl.edu.icm.unity.engine.registration.SharedRegistrationManagment"/>
-	<bean class="pl.edu.icm.unity.engine.registration.SharedEnquiryManagment"/>
-	<bean class="pl.edu.icm.unity.engine.registration.RegistrationRequestValidator"/>
-	<bean class="pl.edu.icm.unity.engine.registration.RegistrationConfirmationSupport"/>
-	<bean class="pl.edu.icm.unity.engine.registration.RegistrationConfirmationRewriteSupport"/>
-	<bean class="pl.edu.icm.unity.engine.registration.EnquiryResponseValidator"/>
-	<bean class="pl.edu.icm.unity.engine.registration.BaseFormValidator"/>
-
-
-	<bean primary="true" class="pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl"/>
-	<bean primary="false" name="noauthz" class="pl.edu.icm.unity.engine.authz.InternalNoAuthzImpl"/>
-
-	<bean class="pl.edu.icm.unity.sysattrs.SystemAttributeTypes"/>
-	<bean class="pl.edu.icm.unity.utils.DemoContentInitializer"/>
-	<bean class="pl.edu.icm.unity.utils.ConfirmationsInitializer"/>
-	<bean class="pl.edu.icm.unity.utils.MassUsersInitializer"/>
-	
-	<bean class="pl.edu.icm.unity.engine.notifications.NotificationProducerImpl"/> 
-	<bean class="pl.edu.icm.unity.engine.notifications.EmailFacility"/>
-	<bean class="pl.edu.icm.unity.engine.notifications.NotificationFacilitiesRegistry"/>
-
-	<bean class="pl.edu.icm.unity.engine.authn.AuthenticatorLoader"/>
-	
-	<bean class="pl.edu.icm.unity.engine.endpoints.EndpointsUpdater"/>
-	<bean class="pl.edu.icm.unity.engine.endpoints.EndpointHandler"/>
-	<bean class="pl.edu.icm.unity.engine.endpoints.EndpointDB"/>
-	<bean class="pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement"/>
-
-	<bean class="pl.edu.icm.unity.engine.bulkops.BulkOperationsUpdater"/>
-	<bean class="pl.edu.icm.unity.engine.bulkops.BulkProcessingExecutor"/>
-	<bean class="pl.edu.icm.unity.engine.bulkops.BulkProcessingSupport"/>
-
-	
-	<bean class="pl.edu.icm.unity.engine.confirmations.facilities.AttributeFacility" />
-	<bean class="pl.edu.icm.unity.engine.confirmations.facilities.IdentityFacility" />
-	<bean class="pl.edu.icm.unity.engine.confirmations.facilities.RegistrationReqAttributeFacility" />
-	<bean class="pl.edu.icm.unity.engine.confirmations.facilities.RegistrationReqIdentityFacility" />
-	<bean class="pl.edu.icm.unity.engine.confirmations.ConfirmationManagerImpl" />
-	<bean class="pl.edu.icm.unity.engine.confirmations.ConfirmationFacilitiesRegistry"/>	
+	<bean class="pl.edu.icm.unity.engine.bulkops.BulkProcessingManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean class="pl.edu.icm.unity.engine.preferences.PreferencesManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean class="pl.edu.icm.unity.engine.userimport.UserImportManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>	
 </beans>

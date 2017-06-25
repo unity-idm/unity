@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pl.edu.icm.unity.store.impl.tokens.TokensMapper">
+
+	<resultMap id="tokenResult" type="TokenB">
+		<result property="id" column="ID"/>
+		<result property="name" column="NAME"/>
+		<result property="type" column="TYPE"/>
+		<result property="owner" column="ENTITY_ID"/>
+		<result property="expires" column="EXPIRES"/>
+		<result property="created" column="CREATED"/>
+		<result property="contents" column="CONTENTS"/>
+	</resultMap>
+
+	<insert id="create" parameterType="TokenB" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO TOKENS(NAME, CONTENTS, TYPE, ENTITY_ID, CREATED, EXPIRES) 
+			VALUES (#{name}, #{contents}, #{type}, #{owner}, #{created}, #{expires})
+	</insert>
+
+	<insert id="createWithKey" parameterType="TokenB">
+		INSERT INTO TOKENS(ID, NAME, CONTENTS, TYPE, ENTITY_ID, CREATED, EXPIRES) 
+			VALUES (#{id}, #{name}, #{contents}, #{type}, #{owner}, #{created}, #{expires})
+	</insert>
+	
+	<update id="updateByKey" parameterType="TokenB">
+		UPDATE TOKENS SET EXPIRES=#{expires}, CONTENTS=#{contents} WHERE ID=#{id}  
+	</update>
+
+	<delete id="deleteByKey" parameterType="long">
+		DELETE FROM TOKENS WHERE ID = #{id}
+	</delete>
+
+	<delete id="deleteAll">
+		DELETE FROM TOKENS
+	</delete>
+
+	<select id="getByKey" parameterType="long" resultMap="tokenResult">
+		SELECT * FROM TOKENS WHERE ID=#{id}
+	</select>
+
+	<select id="getAll" resultMap="tokenResult">
+		SELECT * FROM TOKENS
+	</select>
+
+
+	<!-- non standard -->
+
+	<select id="getByOwner" parameterType="TokenB" resultMap="tokenResult">
+		SELECT  * FROM TOKENS WHERE ENTITY_ID=#{owner} AND TYPE = #{type}
+	</select>
+
+	<select id="getById" parameterType="TokenB" resultMap="tokenResult">
+		SELECT * FROM TOKENS WHERE NAME=#{name} AND TYPE = #{type}
+	</select>
+
+	<select id="getByType" parameterType="string" resultMap="tokenResult">
+		SELECT  * FROM TOKENS WHERE TYPE = #{value}
+	</select>
+
+	<select id="getExpired" resultMap="tokenResult">
+		SELECT * FROM TOKENS WHERE EXPIRES &lt; NOW()
+	</select>
+</mapper>

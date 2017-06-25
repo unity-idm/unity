@@ -4,12 +4,16 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.RegistrationsManagement;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.InvitationManagement;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
@@ -19,6 +23,7 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
  * Creates instances of {@link RegistrationRequestEditor}. May ask for a registration code if needed first.
  * @author Krzysztof Benedyczak
  */
+@PrototypeComponent
 public class RequestEditorCreator
 {
 	private UnityMessageSource msg;
@@ -27,30 +32,37 @@ public class RequestEditorCreator
 	private IdentityEditorRegistry identityEditorRegistry;
 	private CredentialEditorRegistry credentialEditorRegistry;
 	private AttributeHandlerRegistry attributeHandlerRegistry;
-	private RegistrationsManagement registrationsMan;
-	private AttributesManagement attrsMan;
+	private InvitationManagement invitationMan;
+	private AttributeTypeManagement aTypeMan;
 	private GroupsManagement groupsMan;
-	private AuthenticationManagement authnMan;
+	private CredentialManagement credMan;
 
-	public RequestEditorCreator(UnityMessageSource msg, RegistrationForm form,
-			RemotelyAuthenticatedContext remotelyAuthenticated,
+	@Autowired
+	public RequestEditorCreator(UnityMessageSource msg, 
 			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
-			RegistrationsManagement registrationsMan, AttributesManagement attrsMan,
-			GroupsManagement groupsMan, AuthenticationManagement authnMan)
+			@Qualifier("insecure") InvitationManagement invitationMan, 
+			@Qualifier("insecure") AttributeTypeManagement aTypeMan,
+			@Qualifier("insecure") GroupsManagement groupsMan, 
+			@Qualifier("insecure") CredentialManagement credMan)
 	{
-		super();
 		this.msg = msg;
-		this.form = form;
-		this.remotelyAuthenticated = remotelyAuthenticated;
 		this.identityEditorRegistry = identityEditorRegistry;
 		this.credentialEditorRegistry = credentialEditorRegistry;
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
-		this.registrationsMan = registrationsMan;
-		this.attrsMan = attrsMan;
+		this.invitationMan = invitationMan;
+		this.aTypeMan = aTypeMan;
 		this.groupsMan = groupsMan;
-		this.authnMan = authnMan;
+		this.credMan = credMan;
+	}
+	
+	public RequestEditorCreator init(RegistrationForm form,
+			RemotelyAuthenticatedContext remotelyAuthenticated)
+	{
+		this.form = form;
+		this.remotelyAuthenticated = remotelyAuthenticated;
+		return this;
 	}
 	
 	public void invoke(RequestEditorCreatedCallback callback)
@@ -92,8 +104,8 @@ public class RequestEditorCreator
 			RegistrationRequestEditor editor = new RegistrationRequestEditor(msg, form, 
 					remotelyAuthenticated, identityEditorRegistry, 
 					credentialEditorRegistry, attributeHandlerRegistry, 
-					attrsMan, authnMan, groupsMan, 
-					registrationsMan, registrationCode);
+					aTypeMan, credMan, groupsMan, 
+					registrationCode, invitationMan);
 			callback.onCreated(editor);
 		} catch (Exception e)
 		{

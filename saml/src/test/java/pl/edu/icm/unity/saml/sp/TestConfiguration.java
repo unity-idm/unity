@@ -4,7 +4,14 @@
  */
 package pl.edu.icm.unity.saml.sp;
 
-import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.*;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.CREDENTIAL;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.DEF_SIGN_REQUEST;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.IDP_BINDING;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.IDP_ID;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.IDP_PREFIX;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.METADATA_PATH;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.P;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.REQUESTER_ID;
 
 import java.util.Properties;
 

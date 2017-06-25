@@ -6,7 +6,7 @@ package pl.edu.icm.unity.saml.ecp;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.utils.RemoteAuthenticationContextManagement;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthenticationContextManagement;
 
 /**
  * Singleton component managing SAML ECP contexts used in all remote authentications currently handled by the server.

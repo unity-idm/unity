@@ -22,23 +22,28 @@ import javax.mail.Transport;
 import javax.mail.internet.MimeMessage;
 import javax.net.ssl.SSLSocketFactory;
 
-import org.apache.ibatis.session.SqlSession;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.DBIdentities;
-import pl.edu.icm.unity.db.resolvers.IdentitiesResolver;
-import pl.edu.icm.unity.engine.internal.AttributesHelper;
+import com.sun.mail.util.MailSSLSocketFactory;
+
+import eu.emi.security.authn.x509.X509CertChainValidator;
+import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.identity.EntityResolver;
+import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
+import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
+import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.notifications.NotificationStatus;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.utils.ExecutorsService;
-import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
+import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -47,11 +52,6 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
 import pl.edu.icm.unity.types.registration.UserRequestState;
-
-import com.sun.mail.util.MailSSLSocketFactory;
-
-import eu.emi.security.authn.x509.X509CertChainValidator;
-import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
 
 /**
  * Email notification facility.
@@ -70,18 +70,22 @@ public class EmailFacility implements NotificationFacility
 	private ExecutorsService executorsService;
 	private PKIManagement pkiManagement;
 	private AttributesHelper attributesHelper;
-	private DBIdentities dbIdentities;
-	private IdentitiesResolver idResolver;
+	private IdentityDAO dbIdentities;
+	private EntityResolver idResolver;
+	private AttributeTypeHelper atHelper;
+	
 	
 	@Autowired
 	public EmailFacility(ExecutorsService executorsService, PKIManagement pkiManagement, 
-			AttributesHelper attributeHelper, IdentitiesResolver idResolver, DBIdentities dbIdentities)
+			AttributesHelper attributeHelper, EntityResolver idResolver, IdentityDAO dbIdentities,
+			AttributeTypeHelper atSyntaxRegistry)
 	{
 		this.executorsService = executorsService;
 		this.pkiManagement = pkiManagement;
 		this.attributesHelper = attributeHelper;
 		this.idResolver = idResolver;
 		this.dbIdentities = dbIdentities;
+		this.atHelper = atSyntaxRegistry;
 	}
 
 	@Override
@@ -128,12 +132,12 @@ public class EmailFacility implements NotificationFacility
 	 * In each case if there are more then one addresses the first in the list is returned.
 	 */
 	@Override
-	public String getAddressForEntity(EntityParam recipient, SqlSession sql, String preferredAddress)
+	public String getAddressForEntity(EntityParam recipient, String preferredAddress)
 			throws EngineException
 	{
-		List<VerifiableEmail> emailIds = getEmailIdentities(recipient, sql);
-		AttributeExt<?> emailAttr = attributesHelper.getAttributeByMetadata(recipient, "/", 
-				ContactEmailMetadataProvider.NAME, sql);		
+		List<VerifiableEmail> emailIds = getEmailIdentities(recipient);
+		AttributeExt emailAttr = attributesHelper.getAttributeByMetadata(recipient, "/", 
+				ContactEmailMetadataProvider.NAME);		
 		
 		if (preferredAddress != null && isPresent(preferredAddress, emailIds, emailAttr))
 			return preferredAddress;
@@ -149,7 +153,7 @@ public class EmailFacility implements NotificationFacility
 		throw new IllegalIdentityValueException("The entity does not have the email address specified");
 	}
 	
-	private boolean isPresent(String address, List<VerifiableEmail> emailIds, AttributeExt<?> emailAttr)
+	private boolean isPresent(String address, List<VerifiableEmail> emailIds, AttributeExt emailAttr)
 	{
 		for (VerifiableEmail ve: emailIds)
 			if (ve.getValue().equals(address))
@@ -166,47 +170,53 @@ public class EmailFacility implements NotificationFacility
 	}
 
 	/**
-	 * Address is established as in {@link #getAddressForEntity(EntityParam, SqlSession)} however only the input
+	 * Address is established as in {@link #getAddressForEntity(EntityParamSession)} however only the input
 	 * from the registration request is used and the cases with "confirmed" status are skipped.
 	 */ 
 	@Override
-	public String getAddressForUserRequest(UserRequestState<?> currentRequest,
-			SqlSession sql) throws EngineException
+	public String getAddressForUserRequest(UserRequestState<?> currentRequest) throws EngineException
 	{
 		List<VerifiableEmail> emailIds = getEmailIdentities(currentRequest);
-		Attribute<?> emailAttr = getEmailAttributeFromRequest(currentRequest, sql); 
+		Attribute emailAttr = getEmailAttributeFromRequest(currentRequest); 
 
 		return getAddressFrom(emailIds, emailAttr, false);
 	}
 	
 	
-	private String getAddressFrom(List<VerifiableEmail> emailIds, Attribute<?> emailAttr, boolean useConfirmed)
+	private String getAddressFrom(List<VerifiableEmail> emailIds, Attribute emailAttr, boolean useConfirmed)
 	{
 		for (VerifiableEmail id: emailIds)
 			if (!useConfirmed || id.isConfirmed())
 				return id.getValue();
 
-		if (emailAttr != null && (!useConfirmed || emailAttr.getAttributeSyntax().isVerifiable()))
-			for (Object emailO: emailAttr.getValues())
+		if (emailAttr != null)
+		{
+			AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(emailAttr.getValueSyntax());
+			if (!useConfirmed || syntax.isVerifiable())
 			{
-				if (!useConfirmed)
+				for (String emailO: emailAttr.getValues())
 				{
-					return emailO.toString();
-				} else if (emailAttr.getAttributeSyntax().isVerifiable())
-				{
-					VerifiableEmail email = (VerifiableEmail) emailO;
-					if (!useConfirmed || email.isConfirmed())
-						return email.getValue();
+					if (syntax.isVerifiable())
+					{
+						VerifiableEmail email = (VerifiableEmail) 
+								syntax.convertFromString(emailO);
+						if (!useConfirmed || email.isConfirmed())
+							return email.getValue();
+					} else if (!useConfirmed)
+					{
+						return emailO.toString();
+					}
 				}
 			}
+		}
 		return null;
 	}
 	
-	private List<VerifiableEmail> getEmailIdentities(EntityParam recipient, SqlSession sql) throws EngineException
+	private List<VerifiableEmail> getEmailIdentities(EntityParam recipient) throws EngineException
 	{
 		List<VerifiableEmail> emailIds = new ArrayList<>();
-		long entityId = idResolver.getEntityId(recipient, sql);
-		Identity[] identities = dbIdentities.getIdentitiesForEntityNoContext(entityId, sql);
+		long entityId = idResolver.getEntityId(recipient);
+		List<Identity> identities = dbIdentities.getByEntity(entityId);
 		for (Identity id: identities)
 			if (id.getTypeId().equals(EmailIdentity.ID))
 				emailIds.add(EmailIdentity.fromIdentityParam(id));
@@ -225,17 +235,17 @@ public class EmailFacility implements NotificationFacility
 		return emailIds;
 	}
 	
-	private Attribute<?> getEmailAttributeFromRequest(UserRequestState<?> currentRequest, SqlSession sql)
+	private Attribute getEmailAttributeFromRequest(UserRequestState<?> currentRequest)
 			throws EngineException
 	{
-		List<Attribute<?>> attrs = currentRequest.getRequest().getAttributes();
+		List<Attribute> attrs = currentRequest.getRequest().getAttributes();
 		if (attrs == null)
 			return null;
 		AttributeType at = attributesHelper.getAttributeTypeWithSingeltonMetadata(
-				ContactEmailMetadataProvider.NAME, sql);
+				ContactEmailMetadataProvider.NAME);
 		if (at == null)
 			return null;
-		for (Attribute<?> ap : attrs)
+		for (Attribute ap : attrs)
 		{
 			if (ap == null)
 				continue;

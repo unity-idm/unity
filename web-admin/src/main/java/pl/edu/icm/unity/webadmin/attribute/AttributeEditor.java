@@ -7,21 +7,20 @@ package pl.edu.icm.unity.webadmin.attribute;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalSplitPanel;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.webadmin.attribute.AttributeMetaEditorPanel.TypeChangeCallback;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.FixedAttributeEditor;
-
-import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalSplitPanel;
 
 /**
  * Allows for editing an attribute or for creating a new one.
@@ -50,7 +49,7 @@ public class AttributeEditor extends CustomComponent
 		AttributeType initial = attrTypePanel.getAttributeType();
 		attrValuesContainer = new CompactFormLayout();
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, initial, 
-				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null, 
+				false, AttributeEditor.this.groupPath, null, null, 
 				required, true, attrValuesContainer);
 
 		attrTypePanel.setCallback(new TypeChangeCallback()
@@ -60,7 +59,7 @@ public class AttributeEditor extends CustomComponent
 			{
 				attrValuesContainer.removeAllComponents();
 				valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, newType, 
-						false, AttributeEditor.this.groupPath, AttributeVisibility.full, 
+						false, AttributeEditor.this.groupPath, 
 						null, null, required, true, attrValuesContainer);
 			}
 		});
@@ -71,7 +70,7 @@ public class AttributeEditor extends CustomComponent
 	 * Useful in the full edit mode (when choice of attributes is allowed). Sets the initial attribute.
 	 * @param attribute
 	 */
-	public void setInitialAttribute(Attribute<?> attribute)
+	public void setInitialAttribute(Attribute attribute)
 	{
 		if (!typeFixed)
 			attrTypePanel.setAttributeType(attribute.getName());
@@ -85,14 +84,14 @@ public class AttributeEditor extends CustomComponent
 	 * @param attribute
 	 * @param handlerRegistry
 	 */
-	public AttributeEditor(UnityMessageSource msg, AttributeType attributeType, Attribute<?> attribute, 
+	public AttributeEditor(UnityMessageSource msg, AttributeType attributeType, Attribute attribute, 
 			AttributeHandlerRegistry handlerRegistry)
 	{
 		this.groupPath = attribute.getGroupPath();
-		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg, attribute.getVisibility());
+		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg);
 		attrValuesContainer = new CompactFormLayout();
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, attributeType, 
-				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null, true, true, 
+				false, AttributeEditor.this.groupPath, null, null, true, true, 
 				attrValuesContainer);
 		valuesPanel.setAttributeValues(attribute.getValues());
 		initCommon();
@@ -109,10 +108,10 @@ public class AttributeEditor extends CustomComponent
 			AttributeHandlerRegistry handlerRegistry)
 	{
 		this.groupPath = groupPath;
-		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg, attributeType.getVisibility());
+		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg);
 		attrValuesContainer = new CompactFormLayout();
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, attributeType, 
-				false, AttributeEditor.this.groupPath, AttributeVisibility.full, null, null, true, true, 
+				false, AttributeEditor.this.groupPath, null, null, true, true, 
 				attrValuesContainer);
 		typeFixed = true;
 		initCommon();
@@ -127,17 +126,15 @@ public class AttributeEditor extends CustomComponent
 		split.addStyleName(Styles.visibleScroll.toString());
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Attribute<?> getAttribute() throws FormValidationException
+	public Attribute getAttribute() throws FormValidationException
 	{
-		Attribute<?> ret = valuesPanel.getAttribute();
+		Attribute ret = valuesPanel.getAttribute();
 		if (ret == null)
 		{
 			AttributeType at = attrTypePanel.getAttributeType();
-			return new Attribute(at.getName(), at.getValueType(), groupPath, attrTypePanel.getVisibility(), 
+			return new Attribute(at.getName(), at.getValueSyntax(), groupPath, 
 					new ArrayList<>());
 		}
-		ret.setVisibility(attrTypePanel.getVisibility());
 		return ret;
 	}
 

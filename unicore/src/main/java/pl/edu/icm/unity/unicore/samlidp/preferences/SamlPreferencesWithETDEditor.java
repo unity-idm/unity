@@ -8,16 +8,18 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.event.Action.Handler;
 
+import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.saml.idp.preferences.SamlPreferencesEditor;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.saml.idp.preferences.SamlPreferencesEditor;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETDSettings;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 /**
@@ -28,10 +30,12 @@ public class SamlPreferencesWithETDEditor extends SamlPreferencesEditor
 {
 	private SamlPreferencesWithETD preferences;
 	
-	public SamlPreferencesWithETDEditor(UnityMessageSource msg, SamlPreferencesWithETD preferences, IdentitiesManagement idsMan,
-			AttributesManagement atsMan, AttributeHandlerRegistry attributeHandlerRegistries)
+	public SamlPreferencesWithETDEditor(UnityMessageSource msg, SamlPreferencesWithETD preferences, 
+			EntityManagement idsMan,
+			AttributeTypeManagement atsMan, AttributeHandlerRegistry attributeHandlerRegistries,
+			IdentityTypeSupport idTpeSupport)
 	{
-		super(msg, preferences, idsMan, atsMan, attributeHandlerRegistries);
+		super(msg, preferences, idsMan, atsMan, attributeHandlerRegistries, idTpeSupport);
 		this.preferences = preferences;
 	}
 
@@ -70,7 +74,7 @@ public class SamlPreferencesWithETDEditor extends SamlPreferencesEditor
 	@Override
 	public String getValue() throws FormValidationException
 	{
-		return preferences.getSerializedConfiguration();
+		return JsonUtil.serialize(preferences.getSerializedConfiguration());
 	}
 	
 	private class AddActionHandler extends SamlPreferencesEditor.AddActionHandler
@@ -87,7 +91,7 @@ public class SamlPreferencesWithETDEditor extends SamlPreferencesEditor
 				return;
 			}
 			SPSettingsWithETDEditor editor = new SPSettingsWithETDEditor(msg, attributeHandlerRegistry,
-					identities, atTypes, preferences.getKeys());
+					idTpeSupport, identities, atTypes, preferences.getKeys());
 			new SPSettingsWithETDDialog(msg, editor, new SPSettingsWithETDDialog.Callback()
 			{
 				@Override
@@ -120,7 +124,7 @@ public class SamlPreferencesWithETDEditor extends SamlPreferencesEditor
 			GenericItem<String> item = (GenericItem<String>)target;
 			String sp = item.getElement();
 			SPSettingsWithETDEditor editor = new SPSettingsWithETDEditor(msg, attributeHandlerRegistry, 
-					identities, atTypes, sp, preferences.getSPSettings(sp),
+					idTpeSupport, identities, atTypes, sp, preferences.getSPSettings(sp),
 					preferences.getSPETDSettings(sp));
 			new SPSettingsWithETDDialog(msg, editor, new SPSettingsWithETDDialog.Callback()
 			{

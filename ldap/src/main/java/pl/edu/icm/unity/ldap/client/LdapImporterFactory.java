@@ -9,9 +9,9 @@ import java.util.Properties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.api.userimport.UserImportSPI;
-import pl.edu.icm.unity.server.api.userimport.UserImportSPIFactory;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.userimport.UserImportSPI;
+import pl.edu.icm.unity.engine.api.userimport.UserImportSPIFactory;
 
 
 /**

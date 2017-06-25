@@ -4,13 +4,12 @@
  */
 package pl.edu.icm.unity.webadmin.msgtemplate;
 
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.msgtemplates.MessageTemplate;
-import pl.edu.icm.unity.msgtemplates.MessageTemplateDefinition;
-import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-
 import com.vaadin.ui.Label;
+
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateConsumersRegistry;
+import pl.edu.icm.unity.types.basic.MessageTemplate;
 
 /**
  * Component presenting a complete information about message template.
@@ -63,7 +62,7 @@ public class MessageTemplateViewer extends MessageTemplateViewerBase
 			{
 				MessageTemplateDefinition cn = registry.getByName(cons);
 				consumer.setValue(msg.getMessage(cn.getDescriptionKey()));
-			} catch (IllegalTypeException e)
+			} catch (IllegalArgumentException e)
 			{
 				consumer.setValue(template.getConsumer());
 			}		

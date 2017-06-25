@@ -10,12 +10,12 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.config.Searchable;
-import pl.edu.icm.unity.server.api.userimport.UserImportSPI;
-import pl.edu.icm.unity.server.authn.AuthenticationException;
-import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.remote.RemoteVerificatorUtil;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.utils.CacheProvider;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.engine.api.userimport.UserImportSPI;
+import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 
 /**
  * Manages imports using a single configured import facility.
@@ -27,12 +27,12 @@ public class SingleUserImportHandler
 	private UserImportSPI facility;
 	private Ehcache negativeCache;
 	private Ehcache positiveCache;
-	private RemoteVerificatorUtil remoteUtil;
+	private RemoteAuthnResultProcessor remoteUtil;
 	private String translationProfile;
 	private int index;
 	
 	
-	public SingleUserImportHandler(RemoteVerificatorUtil remoteUtil, UserImportSPI facility, 
+	public SingleUserImportHandler(RemoteAuthnResultProcessor remoteUtil, UserImportSPI facility, 
 			UserImportProperties cfg,
 			CacheProvider cacheProvider, int index)
 	{

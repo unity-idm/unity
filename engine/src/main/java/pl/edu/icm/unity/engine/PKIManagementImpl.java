@@ -25,11 +25,11 @@ import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
 import eu.unicore.security.canl.LoggingStoreUpdateListener;
 import eu.unicore.security.canl.TruststoreProperties;
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.config.UnityPKIConfiguration;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.utils.UnityPKIConfiguration;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 
 /**
  * Implementation of {@link PKIManagement}. Currently pretty simplistic: all artifacts are resolved 

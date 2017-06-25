@@ -6,10 +6,17 @@ package pl.edu.icm.unity.webadmin.identities;
 
 import java.util.Set;
 
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Panel;
+
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -20,13 +27,6 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Panel;
-
 /**
  * Identity creation dialog. Adds the identity to an existing entity.
  * @author K. Benedyczak
@@ -34,7 +34,7 @@ import com.vaadin.ui.Panel;
 public class IdentityCreationDialog extends AbstractDialog
 {
 	private long entityId;
-	protected IdentitiesManagement identitiesMan;
+	protected EntityManagement identitiesMan;
 	protected IdentityEditorRegistry identityEditorReg;
 	protected Callback callback;
 	
@@ -42,14 +42,14 @@ public class IdentityCreationDialog extends AbstractDialog
 	protected IdentityEditor identityEditor;
 	protected CheckBox extractAttributes;
 	
-	public IdentityCreationDialog(UnityMessageSource msg, long entityId, IdentitiesManagement identitiesMan,
+	public IdentityCreationDialog(UnityMessageSource msg, long entityId, EntityManagement identitiesMan,
 			IdentityEditorRegistry identityEditorReg, Callback callback)
 	{
 		this(msg.getMessage("IdentityCreation.caption"), msg, identitiesMan, identityEditorReg, callback);
 		this.entityId = entityId;
 	}
 
-	protected IdentityCreationDialog(String caption, UnityMessageSource msg, IdentitiesManagement identitiesMan,
+	protected IdentityCreationDialog(String caption, UnityMessageSource msg, EntityManagement identitiesMan,
 			IdentityEditorRegistry identityEditorReg, Callback callback)
 	{
 		super(msg, caption);

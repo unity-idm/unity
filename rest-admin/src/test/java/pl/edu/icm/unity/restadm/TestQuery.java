@@ -10,8 +10,6 @@ import static org.junit.Assert.assertThat;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Stream;
 
 import javax.ws.rs.core.Response.Status;
 
@@ -26,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -47,12 +44,10 @@ import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.EntityState;
-import pl.edu.icm.unity.types.basic.AttributeRepresentation;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -71,8 +66,8 @@ public class TestQuery extends TestRESTBase
 	public void init() throws Exception
 	{
 		setupPasswordAuthn();
-		createUsernameUser("System Manager");
-		super.deployEndpoint(RESTAdminEndpointFactory.NAME, 
+		createUsernameUserWithRole("System Manager");
+		super.deployEndpoint(RESTAdminEndpoint.NAME, 
 				"restAdmin", "/restadm");
 	}
 	
@@ -114,7 +109,7 @@ public class TestQuery extends TestRESTBase
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
 		System.out.println("User's groups:\n" + contents);
 		
-		HttpGet getGroupContents = new HttpGet("/restadm/v1/group/example%2Fsub");
+		HttpGet getGroupContents = new HttpGet("/restadm/v1/group/%2Fexample%2Fsub");
 		response = client.execute(host, getGroupContents, localcontext);
 		contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
@@ -143,23 +138,6 @@ public class TestQuery extends TestRESTBase
 	}
 	
 	@Test
-	public void localAttributesAreReturned() throws Exception
-	{
-		long e = createTestContents();
-		
-		HttpGet getAttributes = new HttpGet("/restadm/v1/entity/" + e + "/attributes");
-		HttpResponse response = executeQuery(getAttributes);
-		
-		String contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
-		List<AttributeRepresentation> parsed = m.readValue(contents, 
-				new TypeReference<List<AttributeRepresentation>>(){});
-		assertThat(parsed.size(), is(1));
-		assertThat(parsed.get(0).getVisibility(), is(AttributeVisibility.local));
-		System.out.println("Attributes in /:\n" + formatJson(contents));
-	}
-	
-	@Test
 	public void queryByPersistentIdWorks() throws Exception
 	{
 		long entityId = createTestContents();
@@ -169,7 +147,7 @@ public class TestQuery extends TestRESTBase
 		HttpContext localcontext = getClientContext(client, host);
 
 		Entity entity = idsMan.getEntity(new EntityParam(entityId));
-		Identity persistent = Stream.of(entity.getIdentities()).
+		Identity persistent = entity.getIdentities().stream().
 			filter(i -> i.getTypeId().equals(PersistentIdentity.ID)).
 			findFirst().
 			get();
@@ -219,25 +197,28 @@ public class TestQuery extends TestRESTBase
 		groupsMan.addMemberFromParent("/example", e);
 		groupsMan.addMemberFromParent("/example/sub", e);
 		
-		attrsMan.addAttributeType(new AttributeType("stringA", new StringAttributeSyntax()));
-		attrsMan.addAttributeType(new AttributeType("intA", new IntegerAttributeSyntax()));
-		attrsMan.addAttributeType(new AttributeType("floatA", new FloatingPointAttributeSyntax()));
-		attrsMan.addAttributeType(new AttributeType("enumA", new EnumAttributeSyntax("V1", "V2")));
-		attrsMan.addAttributeType(new AttributeType("jpegA", new JpegImageAttributeSyntax()));
-		attrsMan.addAttributeType(new AttributeType("emailA", new VerifiableEmailAttributeSyntax()));
+		aTypeMan.addAttributeType(new AttributeType("stringA", StringAttributeSyntax.ID));
+		aTypeMan.addAttributeType(new AttributeType("intA", IntegerAttributeSyntax.ID));
+		aTypeMan.addAttributeType(new AttributeType("floatA", FloatingPointAttributeSyntax.ID));
+		EnumAttributeSyntax enumSyntax = new EnumAttributeSyntax("V1", "V2");
+		AttributeType enumAT = new AttributeType("enumA", EnumAttributeSyntax.ID);
+		enumAT.setValueSyntaxConfiguration(enumSyntax.getSerializedConfiguration());
+		aTypeMan.addAttributeType(enumAT);
+		aTypeMan.addAttributeType(new AttributeType("jpegA", JpegImageAttributeSyntax.ID));
+		aTypeMan.addAttributeType(new AttributeType("emailA", VerifiableEmailAttributeSyntax.ID));
 		
-		attrsMan.setAttribute(e, new StringAttribute("stringA", "/example", 
-				AttributeVisibility.full, "value"), false);
-		attrsMan.setAttribute(e, new IntegerAttribute("intA", "/example", 
-				AttributeVisibility.full, 12), false);
-		attrsMan.setAttribute(e, new FloatingPointAttribute("floatA", "/example", 
-				AttributeVisibility.full, 12.9), false);
-		attrsMan.setAttribute(e, new JpegImageAttribute("jpegA", "/example", AttributeVisibility.full, 
+		attrsMan.setAttribute(e, StringAttribute.of("stringA", "/example", 
+				"value"), false);
+		attrsMan.setAttribute(e, IntegerAttribute.of("intA", "/example", 
+				12), false);
+		attrsMan.setAttribute(e, FloatingPointAttribute.of("floatA", "/example", 
+				12.9), false);
+		attrsMan.setAttribute(e, JpegImageAttribute.of("jpegA", "/example", 
 				new BufferedImage(100, 50, BufferedImage.TYPE_INT_ARGB)), false);
-		attrsMan.setAttribute(e, new EnumAttribute("enumA", "/example", 
-				AttributeVisibility.full, "V1"), false);
-		attrsMan.setAttribute(e, new VerifiableEmailAttribute("emailA", "/example", 
-				AttributeVisibility.full, new VerifiableEmail("some@example.com")), false);
+		attrsMan.setAttribute(e, EnumAttribute.of("enumA", "/example", 
+				"V1"), false);
+		attrsMan.setAttribute(e, VerifiableEmailAttribute.of("emailA", "/example", 
+				new VerifiableEmail("some@example.com")), false);
 		return id.getEntityId();
 	}
 	

@@ -10,22 +10,19 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.common.provider.IdPPreferences;
-import xmlbeans.org.oasis.saml2.assertion.NameIDType;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.samly2.SAMLConstants;
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.engine.api.PreferencesManagement;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.webui.idpcommon.IdPPreferences;
+import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 
 
 /**
@@ -37,14 +34,8 @@ public class SamlPreferences extends IdPPreferences
 	public static final String ID = SamlPreferences.class.getName();
 	protected final ObjectMapper mapper = Constants.MAPPER;
 
-	protected AttributeSyntaxFactoriesRegistry syntaxReg;
 	private Map<String, SPSettings> spSettings = new HashMap<String, SamlPreferences.SPSettings>();
 	
-	public SamlPreferences(AttributeSyntaxFactoriesRegistry syntaxReg)
-	{
-		this.syntaxReg = syntaxReg;
-	}
-
 	@Override
 	protected void serializeAll(ObjectNode main)
 	{
@@ -59,15 +50,13 @@ public class SamlPreferences extends IdPPreferences
 		main.put("doNotAsk", what.doNotAsk);
 		main.put("defaultAccept", what.defaultAccept);
 		ArrayNode hN = main.withArray("attrHidden");
-		SimpleAttributeSerializer serializer = new SimpleAttributeSerializer(syntaxReg);
-		for (Entry<String, Attribute<?>> entry : what.hiddenAttribtues.entrySet())
+		for (Entry<String, Attribute> entry : what.hiddenAttribtues.entrySet())
 		{
 			ObjectNode aEntry = hN.addObject();
 			aEntry.put("name", entry.getKey());
 			if (entry.getValue() != null)
 			{
-				ObjectNode jsonAttr = serializer.toJson(entry.getValue());
-				aEntry.set("attribute", jsonAttr);
+				aEntry.putPOJO("attribute", entry.getValue());
 			}
 		}
 		
@@ -95,36 +84,23 @@ public class SamlPreferences extends IdPPreferences
 		ret.setDoNotAsk(from.get("doNotAsk").asBoolean());
 		
 		
-		if (from.has("hidden"))
+		Map<String, Attribute> attributes = new HashMap<>();
+		ArrayNode attrsNode = (ArrayNode) from.get("attrHidden");
+		for (int i=0; i<attrsNode.size(); i++)
 		{
-			handleLegacyHidden((ArrayNode) from.get("hidden"), ret);
-		} else
-		{
-			Map<String, Attribute<?>> attributes = new HashMap<>();
-			SimpleAttributeSerializer serializer = new SimpleAttributeSerializer(syntaxReg);
-			ArrayNode attrsNode = (ArrayNode) from.get("attrHidden");
-			for (int i=0; i<attrsNode.size(); i++)
+			ObjectNode attrNode = (ObjectNode) attrsNode.get(i);
+			String name = attrNode.get("name").asText();
+			if (attrNode.has("attribute"))
 			{
-				ObjectNode attrNode = (ObjectNode) attrsNode.get(i);
-				String name = attrNode.get("name").asText();
-				if (attrNode.has("attribute"))
-				{
-					try
-					{
-						Attribute<Object> readA = serializer.fromJson(
-								(ObjectNode) attrNode.get("attribute"));
-						attributes.put(name, readA);
-					} catch (IllegalTypeException e)
-					{
-						//ok, type is somehow missing, ignore this preference
-					}
-				} else
-				{
-					attributes.put(name, null);
-				}
+				Attribute readA = Constants.MAPPER.convertValue(attrNode.get("attribute"), 
+						Attribute.class);
+				attributes.put(name, readA);
+			} else
+			{
+				attributes.put(name, null);
 			}
-			ret.setHiddenAttribtues(attributes);
 		}
+		ret.setHiddenAttribtues(attributes);
 		
 		
 		if (from.has("selectedIdentity"))
@@ -132,26 +108,16 @@ public class SamlPreferences extends IdPPreferences
 		return ret;
 	}
 
-	protected void handleLegacyHidden(ArrayNode hiddenA, SPSettings ret)
+	public static SamlPreferences getPreferences(PreferencesManagement preferencesMan)
 	{
-		Map<String, Attribute<?>> hidden = new HashMap<>();
-		for (int i=0; i<hiddenA.size(); i++)
-			hidden.put(hiddenA.get(i).asText(), null);
-		ret.setHiddenAttribtues(hidden);
-	}
-	
-	public static SamlPreferences getPreferences(PreferencesManagement preferencesMan,
-			AttributeSyntaxFactoriesRegistry syntaxReg)
-	{
-		SamlPreferences ret = new SamlPreferences(syntaxReg);
+		SamlPreferences ret = new SamlPreferences();
 		initPreferencesGeneric(preferencesMan, ret, SamlPreferences.ID);
 		return ret;
 	}
 
-	public static SamlPreferences getPreferences(PreferencesManagement preferencesMan,
-			AttributeSyntaxFactoriesRegistry syntaxReg, EntityParam entity)
+	public static SamlPreferences getPreferences(PreferencesManagement preferencesMan, EntityParam entity)
 	{
-		SamlPreferences ret = new SamlPreferences(syntaxReg);
+		SamlPreferences ret = new SamlPreferences();
 		initPreferencesGeneric(preferencesMan, ret, SamlPreferences.ID, entity);
 		return ret;
 	}
@@ -228,7 +194,7 @@ public class SamlPreferences extends IdPPreferences
 	{
 		private boolean doNotAsk=false;
 		private boolean defaultAccept=true;
-		private Map<String, Attribute<?>> hiddenAttribtues = new HashMap<>();
+		private Map<String, Attribute> hiddenAttribtues = new HashMap<>();
 		private String selectedIdentity;
 
 		public boolean isDoNotAsk()
@@ -247,13 +213,13 @@ public class SamlPreferences extends IdPPreferences
 		{
 			this.defaultAccept = defaultAccept;
 		}
-		public Map<String, Attribute<?>> getHiddenAttribtues()
+		public Map<String, Attribute> getHiddenAttribtues()
 		{
-			Map<String, Attribute<?>> ret = new HashMap<>();
+			Map<String, Attribute> ret = new HashMap<>();
 			ret.putAll(hiddenAttribtues);
 			return ret;
 		}
-		public void setHiddenAttribtues(Map<String, Attribute<?>> attribtues)
+		public void setHiddenAttribtues(Map<String, Attribute> attribtues)
 		{
 			this.hiddenAttribtues.clear();
 			this.hiddenAttribtues.putAll(attribtues);

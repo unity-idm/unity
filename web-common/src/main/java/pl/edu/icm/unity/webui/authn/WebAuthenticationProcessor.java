@@ -13,37 +13,11 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import pl.edu.icm.unity.exceptions.AuthorizationException;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.api.internal.SessionManagement;
-import pl.edu.icm.unity.server.api.internal.SessionParticipant;
-import pl.edu.icm.unity.server.api.internal.SessionParticipants;
-import pl.edu.icm.unity.server.authn.AuthenticatedEntity;
-import pl.edu.icm.unity.server.authn.AuthenticationException;
-import pl.edu.icm.unity.server.authn.AuthenticationOption;
-import pl.edu.icm.unity.server.authn.AuthenticationProcessor;
-import pl.edu.icm.unity.server.authn.AuthenticationProcessor.PartialAuthnState;
-import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
-import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
-import pl.edu.icm.unity.server.authn.remote.UnknownRemoteUserException;
-import pl.edu.icm.unity.server.registries.SessionParticipantTypesRegistry;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration.LogoutMode;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
 import com.vaadin.server.Page;
 import com.vaadin.server.SynchronizedRequestHandler;
@@ -55,12 +29,37 @@ import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedHttpSession;
 import com.vaadin.ui.UI;
 
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor.PartialAuthnState;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
+import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.LogoutMode;
+import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.session.SessionParticipant;
+import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
+import pl.edu.icm.unity.engine.api.session.SessionParticipants;
+import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.basic.EntityParam;
+
 /**
  * Handles results of authentication and if it is all right, redirects to the source application.
  * 
  * @author K. Benedyczak
  */
 @Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class WebAuthenticationProcessor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, WebAuthenticationProcessor.class);
@@ -70,37 +69,22 @@ public class WebAuthenticationProcessor
 	private static final String LOGOUT_REDIRECT_RET_URI = WebAuthenticationProcessor.class.getName() + 
 			".returnUri";
 	
-	private UnityMessageSource msg;
-	private UnityServerConfiguration config;
-	private AuthenticationManagement authnMan;
-	private IdentitiesManagement idsMan;
-	private CredentialEditorRegistry credEditorReg;
-	private SessionParticipantTypesRegistry participantTypesRegistry;
-	private SessionManagement sessionMan;
-	private LoginToHttpSessionBinder sessionBinder;
-	private LogoutProcessorsManager logoutProcessorsManager;
-	private AuthenticationProcessor authnProcessor;
-	
 	@Autowired
-	public WebAuthenticationProcessor(UnityMessageSource msg, AuthenticationProcessor authnProcessor,
-			AuthenticationManagement authnMan,
-			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder,
-			IdentitiesManagement idsMan, 
-			CredentialEditorRegistry credEditorReg, LogoutProcessorsManager logoutProcessorsManager,
-			UnityServerConfiguration config, SessionParticipantTypesRegistry participantTypesRegistry)
-	{
-		this.msg = msg;
-		this.authnProcessor = authnProcessor;
-		this.authnMan = authnMan;
-		this.idsMan = idsMan;
-		this.credEditorReg = credEditorReg;
-		this.sessionMan = sessionMan;
-		this.sessionBinder = sessionBinder;
-		this.logoutProcessorsManager = logoutProcessorsManager;
-		this.config = config;
-		this.participantTypesRegistry = participantTypesRegistry;
-	}
-
+	private UnityServerConfiguration config;
+	@Autowired
+	private SessionParticipantTypesRegistry participantTypesRegistry;
+	@Autowired
+	private SessionManagement sessionMan;
+	@Autowired
+	private LoginToHttpSessionBinder sessionBinder;
+	@Autowired
+	private LogoutProcessorsManager logoutProcessorsManager;
+	@Autowired
+	private AuthenticationProcessor authnProcessor;
+	@Autowired
+	private EntityManagement entityMan;
+	
+	
 	/**
 	 * Return partial authn result if additional authentication is required or null, if authentication is 
 	 * finished. In the latter case a proper redirection is triggered. If outdated credential was used
@@ -166,7 +150,11 @@ public class WebAuthenticationProcessor
 	{
 		if (logInfo.isUsedOutdatedCredential())
 		{
-			showCredentialUpdate();
+			//simply reload - we ensure that session reinit after login won't outdate session
+			//authN handler anyway won't let us in to the target endpoint with outdated credential
+			//and we will get outdated credential dialog from the AuthnUI
+			UI ui = UI.getCurrent();
+			ui.getPage().reload();
 			return;
 		}
 		
@@ -177,7 +165,7 @@ public class WebAuthenticationProcessor
 	{
 		try
 		{
-			return idsMan.getEntityLabel(new EntityParam(entityId));
+			return entityMan.getEntityLabel(new EntityParam(entityId));
 		} catch (AuthorizationException e)
 		{
 			log.debug("Not setting entity's label as the client is not authorized to read the attribute", e);
@@ -186,13 +174,6 @@ public class WebAuthenticationProcessor
 			log.error("Can not get the attribute designated with EntityName", e);
 		}
 		return null;
-	}
-	
-	private void showCredentialUpdate()
-	{
-		OutdatedCredentialDialog dialog = new OutdatedCredentialDialog(msg, authnMan, idsMan, credEditorReg,
-				this);
-		dialog.show();
 	}
 	
 	private void logged(AuthenticatedEntity authenticatedEntity, final AuthenticationRealm realm, 
@@ -212,7 +193,7 @@ public class WebAuthenticationProcessor
 					new SessionParticipants.AddParticipantToSessionTask(
 							participantTypesRegistry,
 							participants.toArray(new SessionParticipant[participants.size()])));
-		} catch (WrongArgumentException e)
+		} catch (IllegalArgumentException e)
 		{
 			log.error("Can't store session participants", e);
 			throw new AuthenticationException("AuthenticationProcessor.authnInternalError");
@@ -236,6 +217,8 @@ public class WebAuthenticationProcessor
 
 		ls.addAuthenticatedIdentities(authenticatedEntity.getAuthenticatedWith());
 		ls.setRemoteIdP(authenticatedEntity.getRemoteIdP());
+		if (ls.isUsedOutdatedCredential())
+			log.debug("User {} logged with outdated credential", ls.getEntityId());
 	}
 	
 	public static String getSessionCookieName(String realmName)
@@ -313,7 +296,7 @@ public class WebAuthenticationProcessor
 		try
 		{
 			session = sessionMan.getSession(session.getId());
-		} catch (WrongArgumentException e)
+		} catch (IllegalArgumentException e)
 		{
 			log.warn("Can not refresh the state of the current session. Logout of session participants "
 					+ "won't be performed", e);
@@ -357,7 +340,7 @@ public class WebAuthenticationProcessor
 				try
 				{
 					loginSession = sessionMan.getSession(loginSession.getId());
-				} catch (WrongArgumentException e)
+				} catch (IllegalArgumentException e)
 				{
 					log.warn("Can not refresh the state of the current session. "
 							+ "Logout of session participants won't be performed", e);

@@ -14,8 +14,10 @@ play around but before going into any real usage some reconfiguration is mandato
 Let's start from crucial facts about Unity in general:
 
 - Unity always uses a single HTTPS port. It must be opened on firewall. The port is configurable.
-- Unity uses RDBMS to store its state. Not only the users and attributes are stored in database: also 
-a nearly complete configuration of the system is.
+- Unity uses a configurable persistence mechanism to store its state. Not
+only the users and attributes are stored in database: also a nearly complete configuration of the system is.
+- Typically a RDBMS storage backend is used (several databases are supported) but more sophisticated deployments 
+may use Hazelcast in-memory data grid backend or maybe even others in future. 
 - Therefore the most of the Unity configuration which is provided in config files is only loaded on startup and
 persisted. Many of those settings can be edited in web admin interface. We plan to provide most of the configuration
 via the web interface.
@@ -37,7 +39,8 @@ the system initialization scripts installed with RPM, which can be run by root
 - If one wants to use an a low port (e.g. 443) for Unity, then authbind is the suggested solution. It can be easily 
 enabled in +startup.properties+
 - The distribution is set up to load some demo contents. If you don't need it - remove it from the configuration 
-by deleting the +unityServer.core.initializers.+ prefixed lines from the +unityServer.conf+
+by deleting the +unityServer.core.script.+ prefixed lines from the +unityServer.conf+ which 
+correspond to 'demo' contents.
 
 
 ==== The first and subsequent startups

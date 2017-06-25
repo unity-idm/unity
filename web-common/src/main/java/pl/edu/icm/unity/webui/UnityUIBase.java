@@ -9,21 +9,21 @@ import java.util.Properties;
 import java.util.Queue;
 import java.util.Stack;
 
-import org.apache.log4j.Logger;
-
-import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
-import pl.edu.icm.unity.server.authn.AuthenticationOption;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
-import pl.edu.icm.unity.webui.authn.CancelHandler;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
+import org.apache.logging.log4j.Logger;
 
 import com.vaadin.annotations.Push;
 import com.vaadin.server.DefaultErrorHandler;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.shared.communication.PushMode;
 import com.vaadin.ui.UI;
+
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.webui.authn.CancelHandler;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
 
 /**
  * All Unity {@link UI}s should extend this class. It provides a common logic. 
@@ -45,7 +45,7 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	protected CancelHandler cancelHandler;
 	protected SandboxAuthnRouter sandboxRouter;
 	protected VaadinEndpointProperties config;
-	protected EndpointDescription endpointDescription;
+	protected ResolvedEndpoint endpointDescription;
 	
 	private Stack<Integer> pollings = new Stack<>();
 	
@@ -60,7 +60,7 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	 * in {@link #config}. Typically it is a good choice to call this super method when overriding.
 	 */
 	@Override
-	public void configure(EndpointDescription description,
+	public void configure(ResolvedEndpoint description,
 			List<AuthenticationOption> authenticators,
 			EndpointRegistrationConfiguration registrationConfiguration,
 			Properties genericEndpointConfiguration)
@@ -97,7 +97,7 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	 */
 	public String getSandboxServletURLForAssociation()
 	{
-		return endpointDescription.getContextAddress() + VaadinEndpoint.SANDBOX_PATH_ASSOCIATION;
+		return endpointDescription.getEndpoint().getContextAddress() + VaadinEndpoint.SANDBOX_PATH_ASSOCIATION;
 	}
 
 	/**
@@ -107,7 +107,7 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	 */
 	public String getSandboxServletURLForTranslation()
 	{
-		return endpointDescription.getContextAddress() + VaadinEndpoint.SANDBOX_PATH_TRANSLATION;
+		return endpointDescription.getEndpoint().getContextAddress() + VaadinEndpoint.SANDBOX_PATH_TRANSLATION;
 	}
 	
 	/**

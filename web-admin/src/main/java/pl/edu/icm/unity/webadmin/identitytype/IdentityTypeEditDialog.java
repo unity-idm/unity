@@ -4,12 +4,12 @@
  */
 package pl.edu.icm.unity.webadmin.identitytype;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.ui.Component;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-
-import com.vaadin.ui.Component;
 
 /**
  * Dialog allowing to edit an identity type.

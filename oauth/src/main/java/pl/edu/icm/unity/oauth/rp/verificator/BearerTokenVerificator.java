@@ -12,11 +12,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.engine.api.utils.CacheProvider;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.client.UserProfileFetcher;
 import pl.edu.icm.unity.oauth.client.profile.OpenIdProfileFetcher;
@@ -24,20 +43,6 @@ import pl.edu.icm.unity.oauth.client.profile.PlainProfileFetcher;
 import pl.edu.icm.unity.oauth.rp.AccessTokenExchange;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties;
 import pl.edu.icm.unity.oauth.rp.verificator.ResultsCache.CacheEntry;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.api.TranslationProfileManagement;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.authn.AuthenticationException;
-import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.server.authn.remote.AbstractRemoteVerificator;
-import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
-import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
-import pl.edu.icm.unity.server.authn.remote.RemoteIdentity;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
-import pl.edu.icm.unity.server.utils.CacheProvider;
-import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 
 /**
@@ -45,9 +50,14 @@ import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
  * 
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class BearerTokenVerificator extends AbstractRemoteVerificator implements AccessTokenExchange
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, BearerTokenVerificator.class);
+	
+	public static final String NAME = "oauth-rp";
+	public static final String DESC = "Verifies OAuth access tokens against an OAuth Authorization Server";
+	
 	private OAuthRPProperties verificatorProperties;
 	private TokenVerificatorProtocol tokenChecker;
 	private PKIManagement pkiMan;
@@ -56,13 +66,11 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 	private CacheProvider cacheProvider;
 	private ResultsCache cache;
 	
-	
-	public BearerTokenVerificator(String name, String description,
-			TranslationProfileManagement profileManagement,
-			PKIManagement pkiMan, InputTranslationEngine trEngine,
-			TokensManagement tokensMan, CacheProvider cacheProvider)
+	@Autowired
+	public BearerTokenVerificator(PKIManagement pkiMan, TokensManagement tokensMan, 
+			CacheProvider cacheProvider, RemoteAuthnResultProcessor processor)
 	{
-		super(name, description, AccessTokenExchange.ID, profileManagement, trEngine);
+		super(NAME, DESC, AccessTokenExchange.ID, processor);
 		this.pkiMan = pkiMan;
 		this.tokensMan = tokensMan;
 		this.cacheProvider = cacheProvider;
@@ -238,5 +246,14 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 			
 		return ret;
 	}
-
+	
+	@Component
+	public static class Factory extends AbstractCredentialVerificatorFactory
+	{
+		@Autowired
+		public Factory(ObjectFactory<BearerTokenVerificator> factory) throws EngineException
+		{
+			super(NAME, DESC, factory);
+		}
+	}
 }

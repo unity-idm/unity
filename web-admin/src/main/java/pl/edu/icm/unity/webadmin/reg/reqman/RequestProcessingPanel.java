@@ -7,13 +7,24 @@ package pl.edu.icm.unity.webadmin.reg.reqman;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.VerticalLayout;
+
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.engine.api.EnquiryManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.EnquiryManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.RegistrationsManagement;
-import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
@@ -28,29 +39,18 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
-
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * Responsible for displaying a submitted request ({@link RegistrationRequestState}), its editing and processing.
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class RequestProcessingPanel extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private RegistrationsManagement regMan;
-	private AttributeHandlerRegistry handlersRegistry;
 	
 	private EventsBus bus;
 	private RequestCommentPanel commentPanel;
@@ -65,21 +65,16 @@ public class RequestProcessingPanel extends CustomComponent
 	private Label requestId;
 	private Label requestStatus;
 	private Label requestDate;
-	private IdentityTypesRegistry idTypesRegistry;
 	private EnquiryManagement enquiryMan;
-	private IdentitiesManagement identitiesManagement;
 	
+	@Autowired
 	public RequestProcessingPanel(UnityMessageSource msg, RegistrationsManagement regMan,
-			EnquiryManagement enquiryMan,
-			AttributeHandlerRegistry handlersRegistry, IdentityTypesRegistry idTypesRegistry,
-			IdentitiesManagement identitiesManagement)
+			EnquiryManagement enquiryMan, GenericReviewPanel requestReviewPanel)
 	{
 		this.msg = msg;
 		this.regMan = regMan;
 		this.enquiryMan = enquiryMan;
-		this.handlersRegistry = handlersRegistry;
-		this.idTypesRegistry = idTypesRegistry;
-		this.identitiesManagement = identitiesManagement;
+		this.requestReviewPanel = requestReviewPanel;
 		this.bus = WebSession.getCurrent().getEventBus();
 		initUI();
 	}
@@ -106,7 +101,6 @@ public class RequestProcessingPanel extends CustomComponent
 		commentPanel = new RequestCommentPanel(msg, regMan, enquiryMan);
 		commentPanel.setCaption(msg.getMessage("RequestProcessingPanel.comments"));
 		
-		requestReviewPanel = new GenericReviewPanel(msg, handlersRegistry, idTypesRegistry, identitiesManagement);
 		requestReviewPanel.setCaption(msg.getMessage("RequestProcessingPanel.requested"));
 		
 		tabs.addComponent(requestReviewPanel);

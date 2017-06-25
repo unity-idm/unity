@@ -7,18 +7,18 @@ package pl.edu.icm.unity.webadmin.confirmations;
 import java.util.List;
 import java.util.Set;
 
-import pl.edu.icm.unity.confirmations.ConfirmationConfiguration;
-import pl.edu.icm.unity.confirmations.ConfirmationTemplateDef;
+import com.vaadin.ui.ComboBox;
+
+import pl.edu.icm.unity.base.msgtemplates.confirm.ConfirmationTemplateDef;
+import pl.edu.icm.unity.engine.api.ConfirmationConfigurationManagement;
+import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
+import pl.edu.icm.unity.engine.api.NotificationsManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
-import pl.edu.icm.unity.server.api.MessageTemplateManagement;
-import pl.edu.icm.unity.server.api.NotificationsManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.confirmation.ConfirmationConfiguration;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
 import pl.edu.icm.unity.webui.common.RequiredComboBox;
-
-import com.vaadin.ui.ComboBox;
 
 /**
  * Component to edit or add confirmation configuration

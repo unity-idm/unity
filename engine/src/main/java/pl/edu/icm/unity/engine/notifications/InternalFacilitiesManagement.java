@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.engine.notifications;
 
-import org.apache.ibatis.session.SqlSession;
-
 import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
@@ -16,6 +14,6 @@ import pl.edu.icm.unity.exceptions.EngineException;
  */
 public interface InternalFacilitiesManagement
 {
-	NotificationFacility getNotificationFacilityForChannel(String channelName, SqlSession sql) 
+	NotificationFacility getNotificationFacilityForChannel(String channelName) 
 			throws EngineException;
 }

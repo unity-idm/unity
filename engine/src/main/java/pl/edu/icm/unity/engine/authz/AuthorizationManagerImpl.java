@@ -15,18 +15,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.DBAttributes;
-import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
-import pl.edu.icm.unity.engine.transactions.Transactional;
-import pl.edu.icm.unity.engine.transactions.TransactionalAspect;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
+import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Group;
@@ -40,9 +37,6 @@ import pl.edu.icm.unity.types.basic.Group;
 @Primary
 public class AuthorizationManagerImpl implements AuthorizationManager
 {
-	private Map<String, AuthzRole> roles = new LinkedHashMap<String, AuthzRole>(); 
-
-	private DBAttributes dbAttributes;
 	/**
 	 * System manager role with all privileges. Must not be removed or modified.
 	 */
@@ -53,9 +47,14 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 	public static final String INSPECTOR_ROLE = "Inspector";
 	public static final String USER_ROLE = "Regular User";
 	public static final String ANONYMOUS_ROLE = "Anonymous User";
+
+	private Map<String, AuthzRole> roles = new LinkedHashMap<String, AuthzRole>(); 
+
+	private AttributesHelper dbAttributes;
+	
 			
 	@Autowired
-	public AuthorizationManagerImpl(DBAttributes dbAttributes)
+	public AuthorizationManagerImpl(AttributesHelper dbAttributes)
 	{
 		this.dbAttributes = dbAttributes;
 		setupRoleCapabilities();
@@ -272,12 +271,12 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 	
 	private Set<AuthzRole> establishRoles(long entityId, Group group) throws EngineException
 	{
-		Map<String, Map<String, AttributeExt<?>>> allAttributes = getAllAttributes(entityId);
+		Map<String, Map<String, AttributeExt>> allAttributes = getAllAttributes(entityId);
 		Group current = group;
 		Set<AuthzRole> ret = new HashSet<AuthzRole>();
 		do
 		{
-			Map<String, AttributeExt<?>> inCurrent = allAttributes.get(current.toString());
+			Map<String, AttributeExt> inCurrent = allAttributes.get(current.toString());
 			if (inCurrent != null)
 				addRolesFromAttribute(inCurrent, ret);
 			String parent = current.getParentPath();
@@ -286,9 +285,9 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 		return ret;
 	}
 
-	private void addRolesFromAttribute(Map<String, AttributeExt<?>> inCurrent, Set<AuthzRole> ret)
+	private void addRolesFromAttribute(Map<String, AttributeExt> inCurrent, Set<AuthzRole> ret)
 	{
-		Attribute<?> role = inCurrent.get(SystemAttributeTypes.AUTHORIZATION_ROLE);
+		Attribute role = inCurrent.get(RoleAttributeTypeProvider.AUTHORIZATION_ROLE);
 		if (role != null)
 		{
 			List<?> roles = role.getValues();
@@ -303,13 +302,12 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 		}
 	}
 	
-	private Map<String, Map<String, AttributeExt<?>>> getAllAttributes(long entityId) throws EngineException 
+	private Map<String, Map<String, AttributeExt>> getAllAttributes(long entityId) throws EngineException 
 	{
 		try
 		{
-			Map<String, Map<String, AttributeExt<?>>> allAttributes = 
-					dbAttributes.getAllAttributesAsMap(entityId, null, true, null, 
-							SqlSessionTL.sqlSession.get());
+			Map<String, Map<String, AttributeExt>> allAttributes = 
+					dbAttributes.getAllAttributesAsMap(entityId, null, true, null);
 			return allAttributes;
 		} catch (IllegalTypeException e)
 		{
@@ -325,7 +323,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 		StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 		int i = toSkipBackwards+1;
 		while (i < stackTrace.length && 
-				(stackTrace[i].getClassName().equals(TransactionalAspect.class.getName()) || 
+				(stackTrace[i].getClassName().contains("Transaction") || 
 				!stackTrace[i].getClassName().contains("pl.edu.icm.unity.")))
 			i++;
 		if (i >= stackTrace.length)

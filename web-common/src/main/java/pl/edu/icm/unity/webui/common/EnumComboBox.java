@@ -8,10 +8,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeMap;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-
 import com.vaadin.data.Property;
 import com.vaadin.ui.ComboBox;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 
 /**
  * {@link ComboBox} allowing to simply select from enum constatnts.

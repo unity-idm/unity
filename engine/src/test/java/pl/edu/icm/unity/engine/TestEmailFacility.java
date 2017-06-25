@@ -10,11 +10,9 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.ibatis.session.SqlSession;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.db.DBSessionManager;
 import pl.edu.icm.unity.engine.notifications.EmailFacility;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
@@ -22,12 +20,11 @@ import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
-import pl.edu.icm.unity.stdext.utils.InitializerCommon;
-import pl.edu.icm.unity.types.EntityState;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
@@ -44,11 +41,11 @@ public class TestEmailFacility extends DBIntegrationTestBase
 	@Autowired
 	private EmailFacility emailFacility;
 	
-	@Autowired 
-	private DBSessionManager db;
+	@Autowired
+	private InitializerCommon initCommon;
 	
 	@Autowired
-	private InitializerCommon initCommon;	
+	private TransactionalRunner tx;
 	
 	private VerifiableEmail plainA = new VerifiableEmail("email1@ex.com");
 	private VerifiableEmail onlyConfirmedA = new VerifiableEmail("email2@ex.com");
@@ -62,33 +59,27 @@ public class TestEmailFacility extends DBIntegrationTestBase
 
 	private void setEmailAttr(EntityParam entity, VerifiableEmail... emails) throws Exception
 	{
-		VerifiableEmailAttribute attribute = new VerifiableEmailAttribute(InitializerCommon.EMAIL_ATTR, 
-				"/", AttributeVisibility.full,  emails);
+		Attribute attribute = VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, 
+				"/", emails);
 		attrsMan.setAttribute(entity, attribute, true);
 	}
 
 	private void check(EntityParam entity, String expected) throws Exception
 	{
-		SqlSession sqlSession = db.getSqlSession(true);
-		try
-		{
-			assertEquals(expected, emailFacility.getAddressForEntity(entity, sqlSession, null));
-			sqlSession.commit();
-		} finally
-		{
-			db.releaseSqlSession(sqlSession);
-		}
+		tx.runInTransactionThrowing(() -> {
+			assertEquals(expected, emailFacility.getAddressForEntity(entity, null));
+		}); 
 	}
 	
 	@Test
 	public void preferredEmailIsUsedIfPresent() throws Exception
 	{
 		AttributeType verifiableEmail = new AttributeType(InitializerCommon.EMAIL_ATTR, 
-				new StringAttributeSyntax());
+				StringAttributeSyntax.ID);
 		verifiableEmail.setMinElements(1);
 		verifiableEmail.setMaxElements(5);
 		verifiableEmail.getMetadata().put(ContactEmailMetadataProvider.NAME, "");
-		attrsMan.addAttributeType(verifiableEmail);
+		aTypeMan.addAttributeType(verifiableEmail);
 
 		setupPasswordAuthn();
 
@@ -96,36 +87,29 @@ public class TestEmailFacility extends DBIntegrationTestBase
 				DBIntegrationTestBase.CRED_REQ_PASS, EntityState.valid, false);
 		EntityParam entityP = new EntityParam(entity);
 
-		StringAttribute attribute = new StringAttribute(InitializerCommon.EMAIL_ATTR, 
-				"/", AttributeVisibility.full,  "email1@ex.com");
+		Attribute attribute = StringAttribute.of(InitializerCommon.EMAIL_ATTR, 
+				"/", "email1@ex.com");
 		attrsMan.setAttribute(entityP, attribute, true);
 		
-		SqlSession sqlSession = db.getSqlSession(true);
-		try
-		{
+		tx.runInTransactionThrowing(() -> {
 			assertEquals("email2@ex.com", emailFacility.getAddressForEntity(
-					entityP, sqlSession, "email2@ex.com"));
+					entityP, "email2@ex.com"));
 			assertEquals("email1@ex.com", emailFacility.getAddressForEntity(
-					entityP, sqlSession, "email1@ex.com"));
+					entityP, "email1@ex.com"));
 			assertEquals("email2@ex.com", emailFacility.getAddressForEntity(
-					entityP, sqlSession, "emailNNN@ex.com"));
-			sqlSession.commit();
-		} finally
-		{
-			db.releaseSqlSession(sqlSession);
-		}
-		
+					entityP, "emailNNN@ex.com"));
+		});
 	}
 	
 	@Test
 	public void emailExtractedFromAttributeInOrderWithStringContactEmail() throws Exception
 	{
 		AttributeType verifiableEmail = new AttributeType(InitializerCommon.EMAIL_ATTR, 
-				new StringAttributeSyntax());
+				StringAttributeSyntax.ID);
 		verifiableEmail.setMinElements(1);
 		verifiableEmail.setMaxElements(5);
 		verifiableEmail.getMetadata().put(ContactEmailMetadataProvider.NAME, "");
-		attrsMan.addAttributeType(verifiableEmail);
+		aTypeMan.addAttributeType(verifiableEmail);
 
 		setupPasswordAuthn();
 
@@ -133,8 +117,8 @@ public class TestEmailFacility extends DBIntegrationTestBase
 				DBIntegrationTestBase.CRED_REQ_PASS, EntityState.valid, false);
 		EntityParam entityP = new EntityParam(entity);
 
-		StringAttribute attribute = new StringAttribute(InitializerCommon.EMAIL_ATTR, 
-				"/", AttributeVisibility.full,  "email1@ex.com");
+		Attribute attribute = StringAttribute.of(InitializerCommon.EMAIL_ATTR, 
+				"/", "email1@ex.com");
 		attrsMan.setAttribute(entityP, attribute, true);
 		
 		check(entityP, "email1@ex.com");
@@ -195,9 +179,9 @@ public class TestEmailFacility extends DBIntegrationTestBase
 	
 	private void setEmailAttr(RegistrationRequestState request, VerifiableEmail... emails) throws Exception
 	{
-		VerifiableEmailAttribute attribute = new VerifiableEmailAttribute(InitializerCommon.EMAIL_ATTR, 
-				"/", AttributeVisibility.full,  emails);
-		List<Attribute<?>> attributes = request.getRequest().getAttributes();
+		Attribute attribute = VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, 
+				"/", emails);
+		List<Attribute> attributes = request.getRequest().getAttributes();
 		attributes.clear();
 		attributes.add(attribute);
 	}
@@ -211,15 +195,10 @@ public class TestEmailFacility extends DBIntegrationTestBase
 
 	private void check(RegistrationRequestState request, String expected) throws Exception
 	{
-		SqlSession sqlSession = db.getSqlSession(true);
-		try
+		tx.runInTransactionThrowing(() ->
 		{
-			assertEquals(expected, emailFacility.getAddressForUserRequest(request, sqlSession));
-			sqlSession.commit();
-		} finally
-		{
-			db.releaseSqlSession(sqlSession);
-		}
+			assertEquals(expected, emailFacility.getAddressForUserRequest(request));
+		});
 	}
 
 	

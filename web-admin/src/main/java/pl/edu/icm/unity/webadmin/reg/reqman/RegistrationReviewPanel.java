@@ -4,31 +4,37 @@
  */
 package pl.edu.icm.unity.webadmin.reg.reqman;
 
-import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
+import pl.edu.icm.unity.webui.common.identities.IdentityFormatter;
 
 /**
  * Shows request contents and provides a possibility to edit it.
  * 
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class RegistrationReviewPanel extends RequestReviewPanelBase
 {
 	private RegistrationRequestState requestState;
 	private Label code;
 	
+	@Autowired
 	public RegistrationReviewPanel(UnityMessageSource msg, AttributeHandlerRegistry handlersRegistry,
-			IdentityTypesRegistry idTypesRegistry)
+			IdentityTypesRegistry idTypesRegistry, IdentityFormatter idFormatter)
 	{
-		super(msg, handlersRegistry, idTypesRegistry);
+		super(msg, handlersRegistry, idTypesRegistry, idFormatter);
 		initUI();
 	}
 	

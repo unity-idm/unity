@@ -14,16 +14,25 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Sets;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.shared.ui.Orientation;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.BulkProcessingManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.bulkops.EntityActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.BulkProcessingManagement;
-import pl.edu.icm.unity.server.bulkops.ProcessingRule;
-import pl.edu.icm.unity.server.bulkops.ScheduledProcessingRule;
-import pl.edu.icm.unity.server.bulkops.ScheduledProcessingRuleParam;
-import pl.edu.icm.unity.server.registries.EntityActionsRegistry;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
+import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
+import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webadmin.tprofile.ActionEditor;
-import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory;
-import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
+import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentProvider;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
@@ -34,16 +43,6 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
-
-import com.google.common.collect.Sets;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.shared.ui.Orientation;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * Component responsible for management of bulk processing actions. 
@@ -57,7 +56,7 @@ public class BulkProcessingComponent extends CustomComponent
 	private UnityMessageSource msg;
 	private BulkProcessingManagement bulkManagement;
 	private EntityActionsRegistry registry;
-	private ActionParameterComponentFactory parameterFactory;
+	private ActionParameterComponentProvider parameterFactory;
 
 	private GenericElementsTable<ScheduledProcessingRule> table;
 	private ScheduledRuleViewerPanel viewer;
@@ -66,7 +65,7 @@ public class BulkProcessingComponent extends CustomComponent
 	@Autowired
 	public BulkProcessingComponent(UnityMessageSource msg,
 			BulkProcessingManagement bulkManagement, EntityActionsRegistry registry,
-			ActionParameterComponentFactory parameterFactory)
+			ActionParameterComponentProvider parameterFactory)
 	{
 		this.msg = msg;
 		this.bulkManagement = bulkManagement;
@@ -165,6 +164,7 @@ public class BulkProcessingComponent extends CustomComponent
 	{
 		try
 		{
+			parameterFactory.init();
 			List<ScheduledProcessingRule> scheduledRules = bulkManagement.getScheduledRules();
 			table.setInput(scheduledRules);
 			setCompositionRoot(main);
@@ -189,7 +189,7 @@ public class BulkProcessingComponent extends CustomComponent
 		}
 	}
 
-	private void invoke(ProcessingRule rule)
+	private void invoke(TranslationRule rule)
 	{
 		try
 		{
@@ -325,7 +325,7 @@ public class BulkProcessingComponent extends CustomComponent
 		}
 	}
 	
-	private void showImmediateProcessingDialog(ProcessingRule orig)
+	private void showImmediateProcessingDialog(TranslationRule orig)
 	{
 		ActionEditor actionEditor;
 		try
@@ -340,7 +340,7 @@ public class BulkProcessingComponent extends CustomComponent
 		RuleEditorImpl editor = new RuleEditorImpl(msg, actionEditor);
 		if (orig != null)
 			editor.setInput(orig);
-		RuleEditDialog<ProcessingRule> dialog = new RuleEditDialog<>(msg, 
+		RuleEditDialog<TranslationRule> dialog = new RuleEditDialog<>(msg, 
 				msg.getMessage("BulkProcessingComponent.performAction"), editor, 
 				rule -> 
 				{
@@ -351,7 +351,6 @@ public class BulkProcessingComponent extends CustomComponent
 	
 	private ActionEditor getActionEditor() throws EngineException
 	{
-		Provider componentProvider = parameterFactory.getComponentProvider();
-		return new ActionEditor(msg, registry, null, componentProvider);
+		return new ActionEditor(msg, registry, null, parameterFactory);
 	}
 }

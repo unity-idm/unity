@@ -8,7 +8,7 @@ import java.util.Map;
 
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.server.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 
 /**

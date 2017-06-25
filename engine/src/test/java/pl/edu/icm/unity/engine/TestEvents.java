@@ -12,12 +12,11 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.base.event.Event;
+import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
+import pl.edu.icm.unity.engine.api.event.EventListener;
 import pl.edu.icm.unity.engine.events.EventProcessor;
-import pl.edu.icm.unity.engine.events.EventProducingAspect;
 import pl.edu.icm.unity.engine.events.InvocationEventContents;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.events.Event;
-import pl.edu.icm.unity.server.events.EventListener;
 
 /**
  * Tests the core events mechanism
@@ -45,12 +44,12 @@ public class TestEvents extends DBIntegrationTestBase
 		eventProcessor.addEventListener(lConsumer1);
 		eventProcessor.addEventListener(lConsumer2);
 		
-		attrsMan.getAttributeTypes();
+		aTypeMan.getAttributeTypes();
 		Thread.sleep(800);
 		testInvocationTries(0, true);
 		assertEquals(0, eventProcessor.getPendingEventsNumber());
 		
-		idsMan.getIdentityTypes();
+		idTypeMan.getIdentityTypes();
 		int i=0;
 		do 
 		{
@@ -62,7 +61,7 @@ public class TestEvents extends DBIntegrationTestBase
 		testInvocations(1, true);
 		assertEquals(2, eventProcessor.getPendingEventsNumber());
 
-		idsMan.getIdentityTypes();
+		idTypeMan.getIdentityTypes();
 		i=0;
 		do 
 		{
@@ -121,12 +120,6 @@ public class TestEvents extends DBIntegrationTestBase
 		private boolean lightweight = true;
 		
 		@Override
-		public String getCategory()
-		{
-			return EventProducingAspect.CATEGORY_INVOCATION;
-		}
-
-		@Override
 		public boolean isLightweight()
 		{
 			return lightweight;
@@ -137,7 +130,7 @@ public class TestEvents extends DBIntegrationTestBase
 		{
 			InvocationEventContents parsed = new InvocationEventContents();
 			parsed.fromJson(event.getContents());
-			return parsed.getInterfaceName().equals(IdentitiesManagement.class.getSimpleName());
+			return parsed.getInterfaceName().equals(IdentityTypesManagement.class.getSimpleName());
 		}
 
 		@Override
@@ -162,6 +155,11 @@ public class TestEvents extends DBIntegrationTestBase
 		{
 			return 2;
 		}
-		
+
+		@Override
+		public boolean isAsync(Event event)
+		{
+			return false;
+		}
 	}
 }

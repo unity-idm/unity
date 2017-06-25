@@ -14,7 +14,25 @@ import java.util.Properties;
 
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.validators.ReplayAttackChecker;
+import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
+import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
+import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
@@ -24,29 +42,13 @@ import pl.edu.icm.unity.saml.metadata.cfg.MetaToSPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.sp.SAMLResponseConsumerServlet;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.api.TranslationProfileManagement;
-import pl.edu.icm.unity.server.api.internal.IdentityResolver;
-import pl.edu.icm.unity.server.api.internal.NetworkServer;
-import pl.edu.icm.unity.server.api.internal.SessionManagement;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.authn.AuthenticationOption;
-import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
-import pl.edu.icm.unity.server.endpoint.AbstractWebEndpoint;
-import pl.edu.icm.unity.server.endpoint.WebAppEndpointInstance;
-import pl.edu.icm.unity.server.utils.ExecutorsService;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.validators.ReplayAttackChecker;
-import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * ECP endpoint used to enable ECP support in Unity. The endpoint doesn't use any authenticator by itself.
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
 	private Properties properties;
@@ -54,56 +56,55 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
 	private RemoteMetaManager myMetadataManager;
 	private MetaDownloadManager downloadManager;
-	private String servletPath;
 	private PKIManagement pkiManagement;
 	private ECPContextManagement samlContextManagement;
 	private URL baseAddress;
 	private ReplayAttackChecker replayAttackChecker;
-	private IdentityResolver identityResolver;
-	private TranslationProfileManagement profileManagement;
-	private InputTranslationEngine trEngine;
 	private TokensManagement tokensMan;
-	private IdentitiesManagement identitiesMan;
+	private EntityManagement identitiesMan;
 	private SessionManagement sessionMan;
 	private UnityServerConfiguration mainCfg;
 	private ExecutorsService executorsService;
 	private String responseConsumerAddress;
 	private MultiMetadataServlet metadataServlet;
 	private UnityMessageSource msg;
+	private RemoteAuthnResultProcessor remoteAuthnProcessor;
 	
-	public ECPEndpoint(NetworkServer server, String servletPath,
+	@Autowired
+	public ECPEndpoint(NetworkServer server, 
 			PKIManagement pkiManagement, ECPContextManagement samlContextManagement,
-			URL baseAddress, String baseContext,
-			ReplayAttackChecker replayAttackChecker, IdentityResolver identityResolver,
-			TranslationProfileManagement profileManagement,
-			InputTranslationEngine trEngine, TokensManagement tokensMan,
-			IdentitiesManagement identitiesMan, SessionManagement sessionMan,
-			Map<String, RemoteMetaManager> remoteMetadataManagers,
+			ReplayAttackChecker replayAttackChecker, 
+			RemoteAuthnResultProcessor remoteAuthnProcessor,
+			TokensManagement tokensMan,
+			EntityManagement identitiesMan, SessionManagement sessionMan,
 			UnityServerConfiguration mainCfg, MetaDownloadManager downloadManager,
-			ExecutorsService executorsService, MultiMetadataServlet metadataServlet,
-			UnityMessageSource msg)
+			ExecutorsService executorsService, 
+			UnityMessageSource msg, SharedEndpointManagement sharedEndpointManagement)
 	{
 		super(server);
 		this.pkiManagement = pkiManagement;
-		this.servletPath = servletPath;
 		this.samlContextManagement = samlContextManagement;
-		this.baseAddress = baseAddress;
+		this.baseAddress = server.getAdvertisedAddress();
 		this.replayAttackChecker = replayAttackChecker;
-		this.identityResolver = identityResolver;
-		this.profileManagement = profileManagement;
-		this.trEngine = trEngine;
+		this.remoteAuthnProcessor = remoteAuthnProcessor;
 		this.tokensMan = tokensMan;
 		this.identitiesMan = identitiesMan;
 		this.sessionMan = sessionMan;
-		this.remoteMetadataManagers = remoteMetadataManagers;
 		this.downloadManager = downloadManager;
 		this.mainCfg = mainCfg;
 		this.executorsService = executorsService;
 		this.msg = msg;
+		String baseContext = sharedEndpointManagement.getBaseContextPath();
 		this.responseConsumerAddress = baseAddress + baseContext + SAMLResponseConsumerServlet.PATH;
-		this.metadataServlet = metadataServlet;
 	}
 
+	public void init(Map<String, RemoteMetaManager> remoteMetadataManagers, 
+			MultiMetadataServlet metadataServlet)
+	{
+		this.remoteMetadataManagers = remoteMetadataManagers;
+		this.metadataServlet = metadataServlet;
+	}
+	
 	@Override
 	protected void setSerializedConfiguration(String serializedState)
 	{
@@ -165,18 +166,18 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 	@Override
 	public ServletContextHandler getServletContextHandler()
 	{
-		String endpointAddress = baseAddress.toExternalForm() + description.getContextAddress() +
-				servletPath;
+		String endpointAddress = baseAddress.toExternalForm() + description.getEndpoint().getContextAddress() +
+				ECPEndpointFactory.SERVLET_PATH;
 		ECPServlet ecpServlet = new ECPServlet(samlProperties, myMetadataManager, 
 				samlContextManagement, endpointAddress, 
-				replayAttackChecker, identityResolver, profileManagement, trEngine,
+				replayAttackChecker, remoteAuthnProcessor,
 				tokensMan, pkiManagement, identitiesMan, sessionMan, 
 				description.getRealm(), baseAddress.toExternalForm());
 		
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
-		context.setContextPath(description.getContextAddress());
+		context.setContextPath(description.getEndpoint().getContextAddress());
 		ServletHolder holder = new ServletHolder(ecpServlet);
-		context.addServlet(holder, servletPath + "/*");
+		context.addServlet(holder, ECPEndpointFactory.SERVLET_PATH + "/*");
 		return context;
 	}
 	

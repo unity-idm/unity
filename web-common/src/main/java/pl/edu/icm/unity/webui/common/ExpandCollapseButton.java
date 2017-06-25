@@ -6,7 +6,6 @@ package pl.edu.icm.unity.webui.common;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Button which allows to show or hide component(s). 

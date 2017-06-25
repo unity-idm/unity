@@ -8,13 +8,12 @@ import com.google.common.html.HtmlEscapers;
 import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.Button.ClickEvent;
-import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Field Component composed of a TextField with a Button.

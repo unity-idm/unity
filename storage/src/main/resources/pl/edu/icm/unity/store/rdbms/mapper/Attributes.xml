@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pl.edu.icm.unity.store.impl.attribute.AttributesMapper">
+
+	<resultMap id="attributeResult" type="AttributeB">
+		<result property="id" column="ID"/>
+		<result property="typeId" column="TYPE_ID"/>
+		<result property="entityId" column="ENTITY_ID"/>
+		<result property="groupId" column="GROUP_ID"/>
+		<result property="values" column="CONTENTS"/>
+		<result property="name" column="NAME"/>
+		<result property="valueSyntaxId" column="VALUE_SYNTAX_ID"/>
+		<result property="group" column="GROUP_PATH"/>
+	</resultMap>
+
+	<insert id="create" parameterType="AttributeB" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+		INSERT INTO ATTRIBUTES (TYPE_ID, ENTITY_ID, GROUP_ID, CONTENTS) 
+			VALUES (#{typeId}, #{entityId}, #{groupId}, #{values}) 
+	</insert>
+
+	<insert id="createWithKey" parameterType="AttributeB">
+		INSERT INTO ATTRIBUTES (ID, TYPE_ID, ENTITY_ID, GROUP_ID, CONTENTS) 
+			VALUES (#{id}, #{typeId}, #{entityId}, #{groupId}, #{values})  
+	</insert>
+	
+	<update id="updateByKey" parameterType="AttributeB">
+		UPDATE ATTRIBUTES SET CONTENTS = #{values} 
+			WHERE ID = #{id}
+	</update>
+
+	<delete id="deleteByKey" parameterType="long">
+		DELETE FROM ATTRIBUTES WHERE ID = #{id}
+	</delete>
+
+	<delete id="deleteAll">
+		DELETE FROM ATTRIBUTES
+	</delete>
+
+	<select id="getAll" resultMap="attributeResult">
+		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID, G.NAME AS GROUP_PATH 
+			from ATTRIBUTES A, ATTRIBUTE_TYPES AT, GROUPS G
+			WHERE A.TYPE_ID = AT.ID AND G.ID = A.GROUP_ID  
+	</select>
+
+	<select id="getByKey" parameterType="long" resultMap="attributeResult">
+		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID, G.NAME AS GROUP_PATH 
+			from ATTRIBUTES A, ATTRIBUTE_TYPES AT, GROUPS G
+			WHERE A.ID = #{id} AND A.TYPE_ID = AT.ID AND G.ID = A.GROUP_ID
+	</select>
+
+
+	<!-- non standard -->
+	<delete id="deleteAttributesInGroup" parameterType="AttributeB">
+		DELETE FROM ATTRIBUTES WHERE ENTITY_ID = #{entityId} AND GROUP_ID = #{groupId}
+	</delete>
+
+	<select id="getAttributes" parameterType="AttributeB" resultMap="attributeResult">
+		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID, G.NAME AS GROUP_PATH 
+		from ATTRIBUTES A, ATTRIBUTE_TYPES AT, GROUPS G
+		<where>
+			<if test="entityId != null">
+				A.ENTITY_ID = #{entityId}
+			</if>
+			<if test="group != null">
+				AND G.NAME = #{group}
+			</if>
+			AND A.TYPE_ID = AT.ID AND G.ID = A.GROUP_ID
+			<if test="name != null">
+				AND AT.NAME = #{name}
+			</if>
+		</where>
+	</select>
+</mapper>

@@ -32,24 +32,24 @@ import com.nimbusds.openid.connect.sdk.Nonce;
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.api.internal.CommonIdPProperties;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
-import pl.edu.icm.unity.types.EntityState;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -125,7 +125,7 @@ public class OAuthTestUtils
 	{
 		OAuthProcessor processor = new OAuthProcessor();
 		Collection<DynamicAttribute> attributes = new ArrayList<>();
-		attributes.add(new DynamicAttribute(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com")));
+		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com")));
 		IdentityParam identity = new IdentityParam(UsernameIdentity.ID, "userA");
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(config, new ResponseType(ResponseType.Value.TOKEN, 
 				OIDCResponseTypeValue.ID_TOKEN, ResponseType.Value.CODE),
@@ -139,21 +139,21 @@ public class OAuthTestUtils
 	{
 		OAuthProcessor processor = new OAuthProcessor();
 		Collection<DynamicAttribute> attributes = new ArrayList<>();
-		attributes.add(new DynamicAttribute(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com")));
-		attributes.add(new DynamicAttribute(new StringAttribute("c", "/", AttributeVisibility.full, "PL")));
+		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com")));
+		attributes.add(new DynamicAttribute(StringAttribute.of("c", "/", "PL")));
 		IdentityParam identity = new IdentityParam("userName", "userA");
 
 		return processor.prepareAuthzResponseAndRecordInternalState(
 				attributes, identity, ctx, tokensMan);
 	}
 
-	public static Identity createOauthClient(IdentitiesManagement idsMan, AttributesManagement attrsMan,
-			GroupsManagement groupsMan) throws Exception
+	public static Identity createOauthClient(EntityManagement idsMan, AttributesManagement attrsMan,
+			GroupsManagement groupsMan, EntityCredentialManagement eCredMan) throws Exception
 	{
 		Identity clientId = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "client1"), 
 				"cr-pass", EntityState.valid, false);
 		EntityParam e1 = new EntityParam(clientId);
-		idsMan.setEntityCredential(e1, "credential1", new PasswordToken("clientPass").toJson());
+		eCredMan.setEntityCredential(e1, "credential1", new PasswordToken("clientPass").toJson());
 
 		groupsMan.addGroup(new Group("/oauth-clients"));
 		groupsMan.addMemberFromParent("/oauth-clients", e1);
@@ -161,19 +161,19 @@ public class OAuthTestUtils
 		groupsMan.addGroup(new Group("/oauth-users"));
 		groupsMan.addMemberFromParent("/oauth-users", e1);
 		
-		attrsMan.setAttribute(e1, new EnumAttribute(OAuthSystemAttributesProvider.ALLOWED_FLOWS, 
-				"/oauth-clients", AttributeVisibility.local, 
+		attrsMan.setAttribute(e1, EnumAttribute.of(OAuthSystemAttributesProvider.ALLOWED_FLOWS, 
+				"/oauth-clients", 
 				Lists.newArrayList(GrantFlow.authorizationCode.name(),
 						GrantFlow.client.name())), 
 				false);
-		attrsMan.setAttribute(e1, new StringAttribute(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI, 
-				"/oauth-clients", AttributeVisibility.local, "https://dummy-return.net"), false);
+		attrsMan.setAttribute(e1, StringAttribute.of(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI, 
+				"/oauth-clients", "https://dummy-return.net"), false);
 		
-		attrsMan.setAttribute(e1, new StringAttribute(OAuthSystemAttributesProvider.CLIENT_NAME, 
-				"/oauth-clients", AttributeVisibility.local, "clientName"), false);
+		attrsMan.setAttribute(e1, StringAttribute.of(OAuthSystemAttributesProvider.CLIENT_NAME, 
+				"/oauth-clients", "clientName"), false);
 		
-		attrsMan.setAttribute(e1, new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE, 
-				"/", AttributeVisibility.local, "Regular User"), false);
+		attrsMan.setAttribute(e1, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
+				"/", "Regular User"), false);
 		return clientId;
 	}
 	

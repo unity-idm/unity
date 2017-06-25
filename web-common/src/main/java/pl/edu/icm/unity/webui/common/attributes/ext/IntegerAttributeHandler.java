@@ -8,16 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
@@ -30,35 +28,22 @@ import pl.edu.icm.unity.webui.common.boundededitors.LongBoundEditor;
  * Integer attribute handler for the web
  * @author K. Benedyczak
  */
-@org.springframework.stereotype.Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class IntegerAttributeHandler extends TextOnlyAttributeHandler<Long> implements WebAttributeHandlerFactory
+public class IntegerAttributeHandler extends TextOnlyAttributeHandler
 {
 	private UnityMessageSource msg;
 
-	@Autowired
-	public IntegerAttributeHandler(UnityMessageSource msg)
+	public IntegerAttributeHandler(UnityMessageSource msg, AttributeValueSyntax<?> syntax)
 	{
+		super(syntax);
 		this.msg = msg;
 	}
 
-	@Override
-	public String getSupportedSyntaxId()
-	{
-		return IntegerAttributeSyntax.ID;
-	}
 
 	@Override
-	protected Long convertFromString(String value)
-	{
-		return Long.parseLong(value);
-	}
-	
-	@Override
-	protected List<String> getHints(AttributeValueSyntax<Long> syntaxArg)
+	protected List<String> getHints()
 	{
 		List<String> sb = new ArrayList<String>(2);
-		IntegerAttributeSyntax syntax = (IntegerAttributeSyntax) syntaxArg;
+		IntegerAttributeSyntax syntax = (IntegerAttributeSyntax) this.syntax;
 		
 		if (syntax.getMin() != Long.MIN_VALUE)
 			sb.add(msg.getMessage("NumericAttributeHandler.min", syntax.getMin()));
@@ -71,29 +56,18 @@ public class IntegerAttributeHandler extends TextOnlyAttributeHandler<Long> impl
 		
 		return sb;
 	}
-
-	@Override
-	public WebAttributeHandler<?> createInstance()
-	{
-		return new IntegerAttributeHandler(msg);
-	}
 	
-	@Override
-	public AttributeSyntaxEditor<Long> getSyntaxEditorComponent(
-			AttributeValueSyntax<Long> initialValue)
-	{
-		return new IntegerSyntaxEditor((IntegerAttributeSyntax) initialValue);
-	}
-	
-	private class IntegerSyntaxEditor implements AttributeSyntaxEditor<Long>
+	private static class IntegerSyntaxEditor implements AttributeSyntaxEditor<Long>
 	{
 		private IntegerAttributeSyntax initial;
 		private LongBoundEditor max, min;
+		private UnityMessageSource msg;
 		
 		
-		public IntegerSyntaxEditor(IntegerAttributeSyntax initial)
+		public IntegerSyntaxEditor(IntegerAttributeSyntax initial, UnityMessageSource msg)
 		{
 			this.initial = initial;
+			this.msg = msg;
 		}
 
 		@Override
@@ -134,4 +108,36 @@ public class IntegerAttributeHandler extends TextOnlyAttributeHandler<Long> impl
 		}
 	}
 
+	
+	@org.springframework.stereotype.Component
+	public static class IntegerAttributeHandlerFactory implements WebAttributeHandlerFactory
+	{
+		private UnityMessageSource msg;
+
+		@Autowired
+		public IntegerAttributeHandlerFactory(UnityMessageSource msg)
+		{
+			this.msg = msg;
+		}
+		
+
+		@Override
+		public String getSupportedSyntaxId()
+		{
+			return IntegerAttributeSyntax.ID;
+		}
+		
+		@Override
+		public WebAttributeHandler createInstance(AttributeValueSyntax<?> syntax)
+		{
+			return new IntegerAttributeHandler(msg, syntax);
+		}
+		
+		@Override
+		public AttributeSyntaxEditor<Long> getSyntaxEditorComponent(
+				AttributeValueSyntax<?> initialValue)
+		{
+			return new IntegerSyntaxEditor((IntegerAttributeSyntax) initialValue, msg);
+		}
+	}
 }

@@ -58,6 +58,7 @@
 			<unpack>true</unpack>
 			<includes>
 				<include>pl.edu.icm.unity:*:zip:i18n</include>
+				<include>pl.edu.icm.unity:*:zip:scripts</include>
 			</includes>
 			<scope>test</scope>
 		</dependencySet>

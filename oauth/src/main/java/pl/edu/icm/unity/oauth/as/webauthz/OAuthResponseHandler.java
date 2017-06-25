@@ -6,11 +6,6 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 
 import java.io.IOException;
 
-import pl.edu.icm.unity.idpcommon.EopException;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.api.internal.SessionManagement;
-import pl.edu.icm.unity.server.authn.InvocationContext;
-
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.SerializeException;
 import com.vaadin.server.Page;
@@ -19,6 +14,11 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinServletResponse;
 import com.vaadin.server.VaadinSession;
+
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**
  * Redirects the client's browser creating URL with Vaadin response (or error).

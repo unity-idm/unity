@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pl.edu.icm.unity.store.impl.events.EventsMapper">
+
+	<resultMap id="eventResult" type="EventB">
+		<result property="id" column="ID"/>
+		<result property="nextProcessing" column="NEXT_PROCESSING"/>
+		<result property="listenerId" column="LISTENER_ID"/>
+		<result property="contents" column="CONTENTS"/>
+		<result property="failures" column="FAILURES"/>
+	</resultMap>
+
+	<insert id="create" parameterType="EventB" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO EVENTS_QUEUE(NEXT_PROCESSING, LISTENER_ID, CONTENTS, FAILURES) 
+			VALUES (#{nextProcessing}, #{listenerId}, #{contents}, #{failures})
+	</insert>
+	
+	<insert id="createWithKey" parameterType="EventB">
+		INSERT INTO EVENTS_QUEUE(ID, NEXT_PROCESSING, LISTENER_ID, CONTENTS, FAILURES) 
+			VALUES (#{id}, #{nextProcessing}, #{listenerId}, #{contents}, #{failures})
+	</insert>
+	
+	<update id="updateByKey" parameterType="EventB">
+		UPDATE EVENTS_QUEUE SET NEXT_PROCESSING = #{nextProcessing}, LISTENER_ID = #{listenerId}, 
+			CONTENTS = #{contents}, FAILURES = #{failures} 
+		WHERE ID = #{id}
+	</update>
+	
+	<select id="getAll" resultMap="eventResult">
+		select * from EVENTS_QUEUE
+	</select>
+
+	<select id="getByKey" parameterType="long" resultMap="eventResult">
+		select * from EVENTS_QUEUE where ID = #{value}
+	</select>
+
+	<delete id="deleteByKey" parameterType="long">
+		DELETE FROM EVENTS_QUEUE WHERE ID = #{value}
+	</delete>
+
+	<delete id="deleteAll">
+		DELETE FROM EVENTS_QUEUE
+	</delete>
+
+	
+	<!-- custom -->
+	
+	<update id="updateExecution" parameterType="EventB">
+		UPDATE EVENTS_QUEUE SET NEXT_PROCESSING=#{nextProcessing}, FAILURES=#{failures} WHERE ID=#{id}  
+	</update>
+
+	<select id="selectEventsForProcessing" parameterType="java.util.Date" resultMap="eventResult">
+		SELECT * FROM EVENTS_QUEUE WHERE NEXT_PROCESSING &lt; #{value}
+	</select>
+</mapper>

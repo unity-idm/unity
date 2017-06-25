@@ -7,12 +7,12 @@ package pl.edu.icm.unity.webadmin.tprofile;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.Styles;
-
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.util.ReflectTools;
+
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * 

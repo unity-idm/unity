@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -26,8 +26,20 @@ import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.PreferencesManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
+import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
+import pl.edu.icm.unity.engine.api.idp.IdPEngine;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
@@ -35,19 +47,7 @@ import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServlet;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.api.internal.CommonIdPProperties;
-import pl.edu.icm.unity.server.api.internal.IdPEngine;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.api.internal.SessionManagement;
-import pl.edu.icm.unity.server.authn.AuthenticationException;
-import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
-import pl.edu.icm.unity.server.registries.IdentityTypesRegistry;
-import pl.edu.icm.unity.server.translation.out.TranslationResult;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -57,14 +57,15 @@ import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.provider.ExposedSelectableAttributesComponent;
-import pl.edu.icm.unity.webui.common.provider.IdPButtonsBar;
-import pl.edu.icm.unity.webui.common.provider.IdPButtonsBar.Action;
-import pl.edu.icm.unity.webui.common.provider.IdentitySelectorComponent;
-import pl.edu.icm.unity.webui.common.provider.SPInfoComponent;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
+import pl.edu.icm.unity.webui.idpcommon.EopException;
+import pl.edu.icm.unity.webui.idpcommon.ExposedSelectableAttributesComponent;
+import pl.edu.icm.unity.webui.idpcommon.IdPButtonsBar;
+import pl.edu.icm.unity.webui.idpcommon.IdPButtonsBar.Action;
+import pl.edu.icm.unity.webui.idpcommon.IdentitySelectorComponent;
+import pl.edu.icm.unity.webui.idpcommon.SPInfoComponent;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
@@ -85,7 +86,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	protected IdPEngine idpEngine;
 	protected FreemarkerHandler freemarkerHandler;
 	protected AttributeHandlerRegistry handlersRegistry;
-	protected IdentityTypesRegistry identityTypesRegistry;
+	protected IdentityTypeSupport identityTypeSupport;
 	protected PreferencesManagement preferencesMan;
 	protected WebAuthenticationProcessor authnProcessor;
 	protected SessionManagement sessionMan;
@@ -95,17 +96,17 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	protected AuthnResponseProcessor samlProcessor;
 	protected SamlResponseHandler samlResponseHandler;
 	protected CheckBox rememberCB;
-	private AttributesManagement attrsMan;
-	protected AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry;
+	private AttributeTypeManagement attrsMan;
+	protected AttributeTypeSupport aTypeSupport;
 
 	@Autowired
 	public SamlIdPWebUI(UnityMessageSource msg, FreemarkerHandler freemarkerHandler,
 			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
 			WebAuthenticationProcessor authnProcessor, IdPEngine idpEngine,
-			IdentityTypesRegistry identityTypesRegistry, SessionManagement sessionMan, 
-			AttributesManagement attrsMan, 
-			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry, 
-			EnquiresDialogLauncher enquiryDialogLauncher)
+			IdentityTypeSupport identityTypeSupport, SessionManagement sessionMan, 
+			AttributeTypeManagement attrsMan, 
+			EnquiresDialogLauncher enquiryDialogLauncher,
+			AttributeTypeSupport aTypeSupport)
 	{
 		super(msg, enquiryDialogLauncher);
 		this.msg = msg;
@@ -114,10 +115,10 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		this.preferencesMan = preferencesMan;
 		this.authnProcessor = authnProcessor;
 		this.idpEngine = idpEngine;
-		this.identityTypesRegistry = identityTypesRegistry;
+		this.identityTypeSupport = identityTypeSupport;
 		this.sessionMan = sessionMan;
 		this.attrsMan = attrsMan;
-		this.attributeSyntaxFactoriesRegistry = attributeSyntaxFactoriesRegistry;
+		this.aTypeSupport = aTypeSupport;
 	}
 
 	protected TranslationResult getUserInfo(SAMLAuthnContext samlCtx, AuthnResponseProcessor processor) 
@@ -138,11 +139,13 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	protected void appInit(VaadinRequest request)
 	{
 		SAMLAuthnContext samlCtx = SAMLContextSupport.getContext();
-		samlProcessor = new AuthnResponseProcessor(samlCtx, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+		samlProcessor = new AuthnResponseProcessor(aTypeSupport, samlCtx, 
+				Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 		samlResponseHandler = new SamlResponseHandler(freemarkerHandler, samlProcessor);
 		
 		VerticalLayout vmain = new VerticalLayout();
-		TopHeaderLight header = new TopHeaderLight(endpointDescription.getDisplayedName().getValue(msg), msg);
+		I18nString displayedName = endpointDescription.getEndpoint().getConfiguration().getDisplayedName();
+		TopHeaderLight header = new TopHeaderLight(displayedName.getValue(msg), msg);
 		vmain.addComponent(header);
 
 		
@@ -226,16 +229,15 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	{
 		List<IdentityParam> validIdentities = samlProcessor.getCompatibleIdentities(
 				translationResult.getIdentities());
-		idSelector = new IdentitySelectorComponent(msg, identityTypesRegistry, validIdentities);
+		idSelector = new IdentitySelectorComponent(msg, identityTypeSupport, validIdentities);
 		contents.addComponent(idSelector);
 	}
 	
-	protected void createAttributesPart(TranslationResult translationResult, VerticalLayout contents, boolean userCanEdit) throws EngineException
+	protected void createAttributesPart(TranslationResult translationResult, 
+			VerticalLayout contents, boolean userCanEdit) throws EngineException
 	{
-		
-		
 		attrsPresenter = new ExposedSelectableAttributesComponent(msg, handlersRegistry, attrsMan, 
-				translationResult.getAttributes(), userCanEdit);
+				aTypeSupport, translationResult.getAttributes(), userCanEdit);
 		contents.addComponent(attrsPresenter);
 	}
 	
@@ -268,8 +270,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	{
 		try
 		{
-			SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan, 
-					attributeSyntaxFactoriesRegistry);
+			SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan);
 			SPSettings settings = preferences.getSPSettings(samlCtx.getRequest().getIssuer());
 			updateUIFromPreferences(settings, samlCtx);
 		} catch (EopException e)
@@ -288,7 +289,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	{
 		if (settings == null)
 			return;
-		Map<String, Attribute<?>> attribtues = settings.getHiddenAttribtues();
+		Map<String, Attribute> attribtues = settings.getHiddenAttribtues();
 		attrsPresenter.setInitialState(attribtues);
 		String selId = settings.getSelectedIdentity();
 		idSelector.setSelected(selId);
@@ -331,8 +332,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		try
 		{
 			SAMLAuthnContext samlCtx = SAMLContextSupport.getContext();
-			SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan, 
-					attributeSyntaxFactoriesRegistry);
+			SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan);
 			updatePreferencesFromUI(preferences, samlCtx, defaultAccept);
 			SamlPreferences.savePreferences(preferencesMan, preferences);
 		} catch (EngineException e)
@@ -366,11 +366,11 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		samlResponseHandler.returnSamlResponse(respDoc);
 	}
 	
-	protected Collection<Attribute<?>> getExposedAttributes()
+	protected Collection<Attribute> getExposedAttributes()
 	{
-		Map<String, Attribute<?>> userFilteredAttributes = attrsPresenter.getUserFilteredAttributes();
-		Collection<Attribute<?>> nonNull = new ArrayList<>(userFilteredAttributes.size());
-		for (Attribute<?> a: userFilteredAttributes.values())
+		Map<String, Attribute> userFilteredAttributes = attrsPresenter.getUserFilteredAttributes();
+		Collection<Attribute> nonNull = new ArrayList<>(userFilteredAttributes.size());
+		for (Attribute a: userFilteredAttributes.values())
 			if (a != null)
 				nonNull.add(a);
 		return nonNull;

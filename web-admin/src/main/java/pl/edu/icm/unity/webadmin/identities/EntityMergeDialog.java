@@ -4,9 +4,14 @@
  */
 package pl.edu.icm.unity.webadmin.identities;
 
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.OptionGroup;
+
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
@@ -16,11 +21,6 @@ import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.OptionGroup;
-
 /**
  * Entity merging dialog. Allows for choosing the target and merged entities as well as the safe mode.
  * @author K. Benedyczak
@@ -29,7 +29,7 @@ public class EntityMergeDialog extends AbstractDialog
 {
 	private static final String FIRST_INTO_SECOND = "fis";
 	private static final String SECOND_INTO_FISRT = "sif";
-	private IdentitiesManagement identitiesMan;
+	private EntityManagement identitiesMan;
 	private OptionGroup mergeDirection; 
 	private CheckBox safeMode;
 	private EventsBus bus;
@@ -38,7 +38,7 @@ public class EntityMergeDialog extends AbstractDialog
 	private String group;
 	
 	public EntityMergeDialog(UnityMessageSource msg, EntityWithLabel first, EntityWithLabel second, String group, 
-			IdentitiesManagement identitiesMan)
+			EntityManagement identitiesMan)
 	{
 		super(msg, msg.getMessage("EntitiesMergeDialog.caption"), msg.getMessage("EntitiesMergeDialog.doMerge"),
 				msg.getMessage("cancel"));

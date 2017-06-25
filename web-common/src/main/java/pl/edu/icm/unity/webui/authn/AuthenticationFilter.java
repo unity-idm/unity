@@ -21,19 +21,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.log4j.Logger;
-
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.api.internal.SessionManagement;
-import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
-import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
-import pl.edu.icm.unity.server.utils.CookieHelper;
-import pl.edu.icm.unity.server.utils.HiddenResourcesFilter;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import org.apache.logging.log4j.Logger;
 
 import com.vaadin.shared.ApplicationConstants;
+
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
+import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.webui.CookieHelper;
 
 /**
  * Servlet filter forwarding unauthenticated requests to the protected authentication servlet.
@@ -104,13 +103,14 @@ public class AuthenticationFilter implements Filter
 						}
 						gotoProtectedResource(httpRequest, response, chain);
 						return;
-					} catch (WrongArgumentException e)
+					} catch (IllegalArgumentException e)
 					{
 						log.debug("Can't update session activity ts for " + loginSessionId + 
 							" - expired(?), HTTP session " + httpSession.getId(), e);
 					}
 				} else
 				{
+					log.trace("Outdated credential used - redirect to authN");
 					forwardtoAuthn(httpRequest, httpResponse);
 					return;
 				}
@@ -139,7 +139,7 @@ public class AuthenticationFilter implements Filter
 		try
 		{
 			ls = sessionMan.getSession(loginSessionId);
-		} catch (WrongArgumentException e)
+		} catch (IllegalArgumentException e)
 		{
 			log.trace("Got request with invalid login session id " + loginSessionId + " to " +
 					httpRequest.getRequestURI() );

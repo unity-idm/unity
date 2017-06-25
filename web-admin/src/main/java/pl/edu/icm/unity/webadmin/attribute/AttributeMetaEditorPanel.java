@@ -7,24 +7,21 @@ package pl.edu.icm.unity.webadmin.attribute;
 import java.util.Collection;
 import java.util.Collections;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
-import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.EnumComboBox;
-import pl.edu.icm.unity.webui.common.MapComboBox;
-import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
-
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.ui.Label;
 
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.MapComboBox;
+import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
+
 /**
  * Panel providing editing features of the attribute metadata. The panel
- * shows all aspects of an attribute except values. It is possible to edit 
- * attribute visibility if it makes sense for the type. 
+ * shows all aspects of an attribute except values.
  * If multiple attribute types are provided then it is possible to select the actual one.
  * Otherwise the selection is disabled and attribute type is fixed to the single one provided.
  * @author K. Benedyczak
@@ -37,31 +34,29 @@ public class AttributeMetaEditorPanel extends CompactFormLayout
 	private Label typeDescription;
 	
 	private String attributeName;
-	private EnumComboBox<AttributeVisibility> visibility;
 	private Label cardinality;
 	private Label unique;
 	private MapComboBox<AttributeType> attributeTypes;
 	private TypeChangeCallback callback;
 
-	public AttributeMetaEditorPanel(AttributeType attributeType, String groupPath, UnityMessageSource msg,
-			AttributeVisibility visibility)
+	public AttributeMetaEditorPanel(AttributeType attributeType, String groupPath, UnityMessageSource msg)
 	{
 		this(Collections.singletonList(attributeType), groupPath, msg);
-		this.visibility.setEnumValue(visibility);
 		setWidth(100, Unit.PERCENTAGE);
 	}
 	
-	public AttributeMetaEditorPanel(Collection<AttributeType> attributeTypes, String groupPath, UnityMessageSource msg)
+	public AttributeMetaEditorPanel(Collection<AttributeType> attributeTypes, String groupPath, 
+			UnityMessageSource msg)
 	{
 		this.msg = msg;
 		createAttributeSelectionWidget(attributeTypes);
 		AttributeType selected = getAttributeType();
-		initCommon(selected, groupPath, selected.getVisibility());
+		initCommon(selected, groupPath);
 	}
 	
-	private void initCommon(AttributeType attributeType, String groupPath, AttributeVisibility attrVisibility)
+	private void initCommon(AttributeType attributeType, String groupPath)
 	{
-		valueType = new Label(attributeType.getValueType().getValueSyntaxId());
+		valueType = new Label(attributeType.getValueSyntax());
 		valueType.setCaption(msg.getMessage("AttributeType.type"));
 		addComponent(valueType);
 
@@ -84,12 +79,6 @@ public class AttributeMetaEditorPanel extends CompactFormLayout
 		addComponent(unique);
 		unique.setValue(AttributeTypeUtils.getBooleanDesc(msg, attributeType.isUniqueValues()));
 
-		visibility = new EnumComboBox<AttributeVisibility>(msg.getMessage("AttributeType.visibility"), 
-				msg, "AttributeType.visibility.", 
-				AttributeVisibility.class, attrVisibility);
-		visibility.setSizeUndefined();
-		visibility.setWidth(10, Unit.EM);
-		addComponent(visibility);
 		setWidth(100, Unit.PERCENTAGE);
 	}
 
@@ -148,11 +137,10 @@ public class AttributeMetaEditorPanel extends CompactFormLayout
 	
 	private void setAttributeType(AttributeType type)
 	{
-		valueType.setValue(type.getValueType().getValueSyntaxId());
+		valueType.setValue(type.getValueSyntax());
 		
 		typeDescription.setValue(type.getDescription().getValue(msg));
 		
-		visibility.setEnumValue(type.getVisibility());
 		cardinality.setValue(AttributeTypeUtils.getBoundsDesc(msg, type.getMinElements(), 
 				type.getMaxElements()));
 		unique.setValue(AttributeTypeUtils.getBooleanDesc(msg, type.isUniqueValues()));
@@ -166,11 +154,6 @@ public class AttributeMetaEditorPanel extends CompactFormLayout
 	public AttributeType getAttributeType()
 	{
 		return attributeTypes.getSelectedValue();
-	}
-	
-	public AttributeVisibility getVisibility()
-	{
-		return visibility.getSelectedValue();
 	}
 	
 	public interface TypeChangeCallback

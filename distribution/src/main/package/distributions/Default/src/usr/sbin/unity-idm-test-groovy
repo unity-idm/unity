@@ -1,0 +1,9 @@
+#!/bin/bash
+
+. /etc/unity-idm/startup.properties
+
+CP=.$(find -L "$LIB" -type d -exec printf ":{}/*" \;)
+
+export CLASSPATH=$CP
+
+$JAVA ${MEM} ${OPTS} ${DEFS} pl.edu.icm.unity.engine.scripts.ScrpitTestApplication "$1"

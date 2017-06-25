@@ -7,25 +7,6 @@ package pl.edu.icm.unity.webadmin.attributetype;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
-import pl.edu.icm.unity.webui.common.EnumComboBox;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.FormValidator;
-import pl.edu.icm.unity.webui.common.RequiredTextField;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
-import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
-import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
-import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
-import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
-
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.converter.StringToIntegerConverter;
@@ -38,6 +19,23 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.FormValidator;
+import pl.edu.icm.unity.webui.common.RequiredTextField;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
+import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
+import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
  * Allows to edit an attribute type. Can be configured to edit an existing attribute (name is fixed)
@@ -58,26 +56,27 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 	private IntegerBoundEditor max;
 	private CheckBox uniqueVals;
 	private CheckBox selfModificable;
-	private EnumComboBox<AttributeVisibility> visibility;
 	private ComboBox syntax;
 	private VerticalLayout syntaxPanel;
 	private AttributeSyntaxEditor<?> editor;
 	private MetadataEditor metaEditor;
 	private FormValidator validator;
+	private AttributeTypeSupport atSupport;
 	
 	public RegularAttributeTypeEditor(UnityMessageSource msg, AttributeHandlerRegistry registry, 
-			AttributeMetadataHandlerRegistry attrMetaHandlerReg)
+			AttributeMetadataHandlerRegistry attrMetaHandlerReg, AttributeTypeSupport atSupport)
 	{
-		this(msg, registry, null, attrMetaHandlerReg);
+		this(msg, registry, null, attrMetaHandlerReg, atSupport);
 	}
 
 	public RegularAttributeTypeEditor(UnityMessageSource msg, AttributeHandlerRegistry registry, AttributeType toEdit, 
-			AttributeMetadataHandlerRegistry attrMetaHandlerReg)
+			AttributeMetadataHandlerRegistry attrMetaHandlerReg, AttributeTypeSupport atSupport)
 	{
 		super();
 		this.msg = msg;
 		this.registry = registry;
 		this.attrMetaHandlerReg = attrMetaHandlerReg;
+		this.atSupport = atSupport;
 		
 		initUI(toEdit);
 	}
@@ -121,12 +120,6 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 		selfModificable = new CheckBox(msg.getMessage("AttributeType.selfModificableCheck"));
 		addComponent(selfModificable);
 		
-		visibility = new EnumComboBox<AttributeVisibility>(msg, "AttributeType.visibility.", 
-				AttributeVisibility.class, AttributeVisibility.full);
-		visibility.setCaption(msg.getMessage("AttributeType.visibility"));
-		visibility.setSizeUndefined();
-		addComponent(visibility);
-		
 		syntax = new ComboBox(msg.getMessage("AttributeType.type"));
 		syntax.setNullSelectionAllowed(false);
 		syntax.setImmediate(true);
@@ -145,12 +138,10 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 		syntax.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override
-			@SuppressWarnings({ "rawtypes", "unchecked" })
 			public void valueChange(ValueChangeEvent event)
 			{
 				String syntaxId = (String)syntax.getValue();
-				WebAttributeHandler handler = registry.getHandler(syntaxId);
-				editor = handler.getSyntaxEditorComponent(null);
+				editor = registry.getSyntaxEditor(syntaxId, null);
 				syntaxPanel.removeAllComponents();
 				syntaxPanel.addComponent(editor.getEditor());
 			}
@@ -173,7 +164,6 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 		validator = new FormValidator(this);
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void setInitialValues(AttributeType aType)
 	{
 		typeDescription.setValue(aType.getDescription());
@@ -181,11 +171,10 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 		max.setValue(aType.getMaxElements());
 		uniqueVals.setValue(aType.isUniqueValues());
 		selfModificable.setValue(aType.isSelfModificable());
-		visibility.setEnumValue(aType.getVisibility());
-		String syntaxId = aType.getValueType().getValueSyntaxId();
+		String syntaxId = aType.getValueSyntax();
 		syntax.setValue(syntaxId);
-		WebAttributeHandler handler = registry.getHandler(aType.getValueType().getValueSyntaxId());
-		editor = handler.getSyntaxEditorComponent(aType.getValueType());
+		AttributeValueSyntax<?> syntaxObj = atSupport.getSyntax(aType);
+		editor = registry.getSyntaxEditor(syntaxId, syntaxObj);
 		syntaxPanel.removeAllComponents();
 		syntaxPanel.addComponent(editor.getEditor());
 		metaEditor.setInput(aType.getMetadata());
@@ -211,8 +200,8 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 		ret.setMinElements((Integer)min.getConvertedValue());
 		ret.setSelfModificable(selfModificable.getValue());
 		ret.setUniqueValues(uniqueVals.getValue());
-		ret.setValueType(syntax);
-		ret.setVisibility(visibility.getSelectedValue());
+		ret.setValueSyntax(syntax.getValueSyntaxId());
+		ret.setValueSyntaxConfiguration(syntax.getSerializedConfiguration());
 		ret.setMetadata(metaEditor.getValue());
 		I18nString displayedNameS = displayedName.getValue();
 		displayedNameS.setDefaultValue(ret.getName());

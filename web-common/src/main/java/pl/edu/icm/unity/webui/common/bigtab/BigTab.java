@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.webui.common.bigtab;
 
-import pl.edu.icm.unity.webui.common.Styles;
-
 import com.vaadin.event.LayoutEvents.LayoutClickEvent;
 import com.vaadin.event.LayoutEvents.LayoutClickListener;
 import com.vaadin.server.Resource;
@@ -14,6 +12,8 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * A single clickable big tab. {@link BigTabs} groups this object instances. 

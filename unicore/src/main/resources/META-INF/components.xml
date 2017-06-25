@@ -5,20 +5,5 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<context:annotation-config/>
-
-	<bean class="pl.edu.icm.unity.unicore.utils.UnicoreContentInitializer"/>
-
-	<bean class="pl.edu.icm.unity.unicore.samlidp.ws.SamlUnicoreIdPSoapEndpointFactory"/>
-
-	<bean class="pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETDHandler"/>
-	
-	<bean class="pl.edu.icm.unity.unicore.samlidp.web.SamlUnicoreIdPWebEndpointFactory"/>
-
-	<bean class="pl.edu.icm.unity.unicore.samlidp.web.UnicoreIdpConsentDeciderServletFactory"/>
-
-	<bean class="pl.edu.icm.unity.server.utils.UnityMessageBundles">
-		<property name="bundle" value="pl/edu/icm/unity/unicore/messages/messages"/>
-	</bean>
-		
-	<bean scope="prototype" id="SamlUnicoreIdPWebUI" class="pl.edu.icm.unity.unicore.samlidp.web.SamlUnicoreIdPWebUI"/>
+	<context:component-scan base-package="pl.edu.icm.unity.unicore"/>
 </beans>

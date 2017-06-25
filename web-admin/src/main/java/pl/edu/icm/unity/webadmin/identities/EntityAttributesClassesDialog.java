@@ -8,10 +8,18 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.Table;
+
+import pl.edu.icm.unity.engine.api.AttributeClassManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
@@ -24,14 +32,6 @@ import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
-
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.Table;
 
 
 /**
@@ -48,7 +48,7 @@ public class EntityAttributesClassesDialog extends AbstractAttributesClassesDial
 	private Callback callback;
 	
 	public EntityAttributesClassesDialog(UnityMessageSource msg, String group, EntityWithLabel entity, 
-			AttributesManagement attrMan, GroupsManagement groupsMan, Callback callback)
+			AttributeClassManagement attrMan, GroupsManagement groupsMan, Callback callback)
 	{
 		super(msg, group, attrMan, groupsMan, msg.getMessage("EntityAttributesClasses.caption"));
 		this.entity = entity;
@@ -103,7 +103,7 @@ public class EntityAttributesClassesDialog extends AbstractAttributesClassesDial
 	{
 		loadACsData();
 		
-		Collection<AttributesClass> curClasses = attrMan.getEntityAttributeClasses(
+		Collection<AttributesClass> curClasses = acMan.getEntityAttributeClasses(
 				new EntityParam(entity.getEntity().getId()), groupPath);
 		Set<String> currentSel = new HashSet<>(curClasses.size());
 		for (AttributesClass ac: curClasses)
@@ -123,7 +123,7 @@ public class EntityAttributesClassesDialog extends AbstractAttributesClassesDial
 		Set<String> selected = (Set<String>) acs.getValue();
 		try
 		{
-			attrMan.setEntityAttributeClasses(new EntityParam(entity.getEntity().getId()), 
+			acMan.setEntityAttributeClasses(new EntityParam(entity.getEntity().getId()), 
 					groupPath, selected);
 			callback.onChange();
 			close();

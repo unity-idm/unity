@@ -7,32 +7,12 @@ package pl.edu.icm.unity.webui.authn.extensions;
 import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.authn.AbstractCredentialRetrieval;
-import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.stdext.credential.PasswordExchange;
-import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
-import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.I18nStringJsonUtil;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
-import pl.edu.icm.unity.webui.authn.credreset.CredentialReset1Dialog;
-import pl.edu.icm.unity.webui.common.ImageUtils;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -52,14 +32,42 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
+import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.stdext.credential.PasswordExchange;
+import pl.edu.icm.unity.stdext.credential.PasswordVerificator;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.I18nStringJsonUtil;
+import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+import pl.edu.icm.unity.webui.authn.credreset.CredentialReset1Dialog;
+import pl.edu.icm.unity.webui.common.ImageUtils;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
 /**
  * Retrieves passwords using a Vaadin widget.
  * 
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExchange> implements VaadinAuthentication
 {
+	public static final String NAME = "web-password";
+	public static final String DESC = "WebPasswordRetrievalFactory.desc";
+	
 	private Logger log = Log.getLogger(Log.U_SERVER_WEB, PasswordRetrieval.class);
 	private UnityMessageSource msg;
 	private I18nString name;
@@ -68,6 +76,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 	private boolean enableAssociation;
 	private CredentialEditorRegistry credEditorReg;
 
+	@Autowired
 	public PasswordRetrieval(UnityMessageSource msg, CredentialEditorRegistry credEditorReg)
 	{
 		super(VaadinAuthentication.NAME);
@@ -126,7 +135,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 	public Collection<VaadinAuthenticationUI> createUIInstance()
 	{
 		return Collections.<VaadinAuthenticationUI>singleton(
-				new PasswordRetrievalUI(credEditorReg.getEditor(PasswordVerificatorFactory.NAME)));
+				new PasswordRetrievalUI(credEditorReg.getEditor(PasswordVerificator.NAME)));
 	}
 
 
@@ -381,7 +390,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		@Override
 		public void presetEntity(Entity authenticatedEntity)
 		{
-			Identity[] ids = authenticatedEntity.getIdentities();
+			List<Identity> ids = authenticatedEntity.getIdentities();
 			for (Identity id: ids)
 				if (id.getTypeId().equals(UsernameIdentity.ID))
 				{
@@ -394,6 +403,17 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		public Set<String> getTags()
 		{
 			return Collections.emptySet();
+		}
+	}
+	
+	
+	@org.springframework.stereotype.Component
+	public static class Factory extends AbstractCredentialRetrievalFactory<PasswordRetrieval>
+	{
+		@Autowired
+		public Factory(ObjectFactory<PasswordRetrieval> factory)
+		{
+			super(NAME, DESC, VaadinAuthentication.NAME, factory, PasswordExchange.class);
 		}
 	}
 }

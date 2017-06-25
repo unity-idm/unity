@@ -13,8 +13,8 @@ Java Runtime Environment 8 must be installed, both OpenJDK and Oracle distributi
 It is strongly advised to use the latest, updated version of the JRE.
 
 [NOTE]
-THe current OpenJDK may cause troubles (depending on distribution) as it has sometimes certain 
-ciphers disabled and clients (as web browsers) may be unable to find common, safe ciphers suites
+The recent OpenJDK often cause troubles (depending on distribution) as it has sometimes certain 
+ciphers disabled and clients (as web browsers) may be unable to find commonly supported, safe ciphers suites
 for bootstrapping TLS connection. If your browser is unable to connect to Unity then most probably 
 this is the case.
 
@@ -76,8 +76,10 @@ $> unity-idm-server-stop
 
 === Notes on redundant installations
 
-It is possible to install Unity in a High Availability (HA) setup. The Unity HA is realized _on the database level_,
-and currently it is only supported when using MySQL. 
+It is possible to install Unity in a High Availability (HA) setup. The Unity HA can be realized in two variants:
+
+. _on the database level_ when using MySQL or PostgreSQL database.
+. (experimental) by using Hazelcast storage mechanism  
 
 When configuring the system some precautions must be made:
 
@@ -91,10 +93,11 @@ Please note that several runtime features of the system are propagated to other 
 For instance a removal of an endpoint on one instance will be reflected in the shared database immediately, however
 other Unity instances will catch up and undeploy the endpoint with some delay.
 
-If the server is being managed with two instances simultaneously the 'Refresh' buttons are more then handy: 
+If the server is being managed (via AdminUI) with two instances simultaneously, the 'Refresh' buttons are more then handy: 
 the UI state is not updated automatically.
 
 Finally note about login sessions: login sessions are shared between Unity instances, while HTTP sessions are not.
 Therefore if the web browser is logged to one instance's endpoint and then the browser is directed to another the
 session should be preserved (assuming that the browser has the same DNS address associated with both instances
-as it is suggested above). The same applies to the logout operation.  
+as it is suggested above). The same applies to the logout operation.
+

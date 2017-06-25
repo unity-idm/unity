@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.engine.mock;
 
-import pl.edu.icm.unity.server.utils.ConfigurationLocationProvider;
+import pl.edu.icm.unity.engine.api.config.ConfigurationLocationProvider;
 
 public class MockAllInterfacesConfig implements ConfigurationLocationProvider
 {

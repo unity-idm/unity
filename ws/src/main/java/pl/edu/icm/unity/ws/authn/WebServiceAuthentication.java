@@ -4,8 +4,9 @@
  */
 package pl.edu.icm.unity.ws.authn;
 
+import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
-import pl.edu.icm.unity.server.authn.CredentialRetrieval;
+import pl.edu.icm.unity.ws.CXFEndpoint;
 
 /**
  * Defines a contract which must be implemented by {@link CredentialRetrieval}s in order to be used 

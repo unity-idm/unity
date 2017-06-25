@@ -8,13 +8,23 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.shared.ui.Orientation;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Table;
+
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.InvitationManagement;
+import pl.edu.icm.unity.engine.api.NotificationsManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.NotificationsManagement;
-import pl.edu.icm.unity.server.api.RegistrationsManagement;
-import pl.edu.icm.unity.server.utils.TimeUtil;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
@@ -30,15 +40,6 @@ import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
-import com.google.common.collect.Lists;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.shared.ui.Orientation;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Table;
-
 /**
  * Table showing invitations, with actions.
  * @author Krzysztof Benedyczak
@@ -48,20 +49,23 @@ public class InvitationsTable extends CustomComponent
 	private UnityMessageSource msg;
 	private Table invitationsTable;
 	private RegistrationsManagement registrationManagement;
+	private InvitationManagement invitationManagement;
 	private NotificationsManagement notificationsManagement;
 	private IdentityEditorRegistry identityEditorRegistry;
 	private AttributeHandlerRegistry attrHandlersRegistry;
-	private AttributesManagement attributesManagement;
+	private AttributeTypeManagement attributesManagement;
 	
 	public InvitationsTable(UnityMessageSource msg,
 			RegistrationsManagement registrationManagement,
+			InvitationManagement invitationManagement,
 			NotificationsManagement notificationsManagement,
-			AttributesManagement attributesManagement,
+			AttributeTypeManagement attributesManagement,
 			IdentityEditorRegistry identityEditorRegistry,
 			AttributeHandlerRegistry attrHandlersRegistry)
 	{
 		this.msg = msg;
 		this.registrationManagement = registrationManagement;
+		this.invitationManagement = invitationManagement;
 		this.notificationsManagement = notificationsManagement;
 		this.attributesManagement = attributesManagement;
 		this.identityEditorRegistry = identityEditorRegistry;
@@ -136,7 +140,7 @@ public class InvitationsTable extends CustomComponent
 		String code;
 		try
 		{
-			code = registrationManagement.addInvitation(invitation);
+			code = invitationManagement.addInvitation(invitation);
 			refresh();
 		} catch (Exception e)
 		{
@@ -148,7 +152,7 @@ public class InvitationsTable extends CustomComponent
 		{
 			try
 			{
-				registrationManagement.sendInvitation(code);
+				invitationManagement.sendInvitation(code);
 			} catch (EngineException e)
 			{
 				String info = msg.getMessage("InvitationsTable.errorSend");
@@ -165,7 +169,7 @@ public class InvitationsTable extends CustomComponent
 			for (Object item: items)
 			{
 				TableInvitationBean bean = (TableInvitationBean) item;
-				registrationManagement.removeInvitation(bean.getCode());
+				invitationManagement.removeInvitation(bean.getCode());
 			}
 			refresh();
 		} catch (Exception e)
@@ -182,7 +186,7 @@ public class InvitationsTable extends CustomComponent
 			for (Object item: items)
 			{
 				TableInvitationBean bean = (TableInvitationBean) item;
-				registrationManagement.sendInvitation(bean.getCode());
+				invitationManagement.sendInvitation(bean.getCode());
 			}
 			refresh();
 		} catch (Exception e)
@@ -207,7 +211,7 @@ public class InvitationsTable extends CustomComponent
 		try
 		{
 			TableInvitationBean selected = getOnlyOneSelected();
-			List<InvitationWithCode> invitations = registrationManagement.getInvitations();
+			List<InvitationWithCode> invitations = invitationManagement.getInvitations();
 			invitationsTable.removeAllItems();
 			for (InvitationWithCode invitation: invitations)
 			{

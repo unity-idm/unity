@@ -27,29 +27,28 @@ import org.apache.http.util.EntityUtils;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import pl.edu.icm.unity.engine.builders.NotificationChannelBuilder;
-import pl.edu.icm.unity.engine.internal.EngineInitialization;
 import pl.edu.icm.unity.engine.notifications.EmailFacility;
+import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.basic.AttributeParamRepresentation;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.types.registration.Selection;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam;
+import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
-import pl.edu.icm.unity.types.registration.invite.RESTInvitationParam;
-import pl.edu.icm.unity.types.registration.invite.RESTInvitationWithCode;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 
 /**
  * Invitations management test
@@ -60,14 +59,14 @@ public class TestInvitations extends RESTAdminTestBase
 	@Before
 	public void addForm() throws EngineException
 	{
-		attrsMan.addAttributeType(new AttributeType("cn", new StringAttributeSyntax()));
+		aTypeMan.addAttributeType(new AttributeType("cn", StringAttributeSyntax.ID));
 		registrationsMan.addForm(getRegistrationForm());
 	}
 	
 	@Test
 	public void addedInvitationIsReturned() throws Exception
 	{
-		RESTInvitationParam invitation = createInvitation();
+		InvitationParam invitation = createInvitation();
 		String code = addInvitation(invitation);
 
 		HttpGet get = new HttpGet("/restadm/v1/invitation/"+code);
@@ -76,16 +75,16 @@ public class TestInvitations extends RESTAdminTestBase
 		String contentsGet = EntityUtils.toString(responseGet.getEntity());
 		System.out.println("Response:\n" + contentsGet);
 		assertEquals(contentsGet, Status.OK.getStatusCode(), responseGet.getStatusLine().getStatusCode());
-		RESTInvitationWithCode returned = m.readValue(contentsGet, RESTInvitationWithCode.class);
+		InvitationWithCode returned = m.readValue(contentsGet, InvitationWithCode.class);
 		assertThat(returned.getRegistrationCode(), is(code));
-		RESTInvitationWithCode source = new RESTInvitationWithCode(invitation, code, null, 0);
+		InvitationWithCode source = new InvitationWithCode(invitation, code, null, 0);
 		assertThat(returned, is(source));
 	}
 	
 	@Test
 	public void addedInvitationIsReturnedInList() throws Exception
 	{
-		RESTInvitationParam invitation = createInvitation();
+		InvitationParam invitation = createInvitation();
 		String code = addInvitation(invitation);
 
 		HttpGet get = new HttpGet("/restadm/v1/invitations");
@@ -96,18 +95,18 @@ public class TestInvitations extends RESTAdminTestBase
 		assertEquals(contentsGet, Status.OK.getStatusCode(), responseGet.getStatusLine().getStatusCode());
 		
 		
-		List<RESTInvitationWithCode> returned = m.readValue(contentsGet, 
-				new TypeReference<List<RESTInvitationWithCode>>() {});
+		List<InvitationWithCode> returned = m.readValue(contentsGet, 
+				new TypeReference<List<InvitationWithCode>>() {});
 		assertThat(returned.size(), is(1));
 		assertThat(returned.get(0).getRegistrationCode(), is(code));
-		RESTInvitationWithCode source = new RESTInvitationWithCode(invitation, code, null, 0);
+		InvitationWithCode source = new InvitationWithCode(invitation, code, null, 0);
 		assertThat(returned.get(0), is(source));
 	}
 	
 	@Test
 	public void removedInvitationIsNotReturned() throws Exception
 	{
-		RESTInvitationParam invitation = createInvitation();
+		InvitationParam invitation = createInvitation();
 		String code = addInvitation(invitation);
 		
 		HttpDelete delete = new HttpDelete("/restadm/v1/invitation/" + code);
@@ -118,8 +117,8 @@ public class TestInvitations extends RESTAdminTestBase
 		HttpResponse responseGet = client.execute(host, get, localcontext);
 		String contentsGet = EntityUtils.toString(responseGet.getEntity());
 		assertEquals(contentsGet, Status.OK.getStatusCode(), responseGet.getStatusLine().getStatusCode());
-		List<RESTInvitationWithCode> returned = m.readValue(contentsGet, 
-				new TypeReference<List<RESTInvitationWithCode>>() {});
+		List<InvitationWithCode> returned = m.readValue(contentsGet, 
+				new TypeReference<List<InvitationWithCode>>() {});
 		assertThat(returned.isEmpty(), is(true));
 	}
 	
@@ -132,7 +131,7 @@ public class TestInvitations extends RESTAdminTestBase
 				.withConfiguration("")
 				.withFacilityId(EmailFacility.NAME).build());
 		
-		RESTInvitationParam invitation = createInvitation();
+		InvitationParam invitation = createInvitation();
 		String code = addInvitation(invitation);
 		
 		HttpPost send = new HttpPost("/restadm/v1/invitation/" + code + "/send");
@@ -145,13 +144,13 @@ public class TestInvitations extends RESTAdminTestBase
 		String contentsGet = EntityUtils.toString(responseGet.getEntity());
 		System.out.println("Response:\n" + contentsGet);
 		assertEquals(contentsGet, Status.OK.getStatusCode(), responseGet.getStatusLine().getStatusCode());
-		RESTInvitationWithCode returned = m.readValue(contentsGet, RESTInvitationWithCode.class);
+		InvitationWithCode returned = m.readValue(contentsGet, InvitationWithCode.class);
 
 		assertThat(returned.getNumberOfSends(), is(1));
 		assertThat(returned.getLastSentTime(), is(notNullValue()));
 	}
 	
-	private String addInvitation(RESTInvitationParam invitation) throws Exception
+	private String addInvitation(InvitationParam invitation) throws Exception
 	{
 		HttpPost addRequest = getAddRequest(invitation);
 		HttpResponse responseAdd = client.execute(host, addRequest, localcontext);
@@ -159,7 +158,7 @@ public class TestInvitations extends RESTAdminTestBase
 		return EntityUtils.toString(responseAdd.getEntity());
 	}
 	
-	private void configureRequest(HttpEntityEnclosingRequestBase request, RESTInvitationParam invitation)
+	private void configureRequest(HttpEntityEnclosingRequestBase request, InvitationParam invitation)
 			throws UnsupportedEncodingException, JsonProcessingException
 	{
 		String jsonform = m.writeValueAsString(invitation);
@@ -167,20 +166,19 @@ public class TestInvitations extends RESTAdminTestBase
 		request.setEntity(new StringEntity(jsonform, ContentType.APPLICATION_JSON));
 	}
 	
-	private HttpPost getAddRequest(RESTInvitationParam invitation) throws Exception
+	private HttpPost getAddRequest(InvitationParam invitation) throws Exception
 	{
 		HttpPost addForm = new HttpPost("/restadm/v1/invitation");
 		configureRequest(addForm, invitation);
 		return addForm;
 	}
 	
-	private RESTInvitationParam createInvitation()
+	private InvitationParam createInvitation()
 	{
-		RESTInvitationParam ret = new RESTInvitationParam("exForm", 
+		InvitationParam ret = new InvitationParam("exForm", 
 				Instant.now().plusSeconds(200).truncatedTo(ChronoUnit.SECONDS), 
 				"someAddr@example.com", "channelId");
-		AttributeParamRepresentation attrP = new AttributeParamRepresentation(
-				new StringAttribute("cn", "/", AttributeVisibility.full, "value"));
+		Attribute attrP = StringAttribute.of("cn", "/", "value");
 		ret.getAttributes().put(0, new PrefilledEntry<>(attrP, PrefilledEntryMode.READ_ONLY));
 		ret.getIdentities().put(0, new PrefilledEntry<>(new IdentityParam(UsernameIdentity.ID, 
 				"user-id"), PrefilledEntryMode.READ_ONLY));

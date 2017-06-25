@@ -7,24 +7,6 @@ package pl.edu.icm.unity.webadmin.tprofile;
 
 import java.util.Map;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.registries.TypesRegistryBase;
-import pl.edu.icm.unity.server.translation.TranslationActionFactory;
-import pl.edu.icm.unity.server.translation.TranslationActionInstance;
-import pl.edu.icm.unity.server.translation.TranslationCondition;
-import pl.edu.icm.unity.server.translation.TranslationRuleInstance;
-import pl.edu.icm.unity.server.translation.in.InputTranslationAction;
-import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
-import pl.edu.icm.unity.server.translation.in.MappingResult;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.translation.TranslationRule;
-import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentFactory.Provider;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.Styles;
-
 import com.vaadin.server.UserError;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Button;
@@ -34,6 +16,22 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
+import pl.edu.icm.unity.engine.api.translation.in.InputTranslationAction;
+import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
+import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
+import pl.edu.icm.unity.engine.translation.TranslationCondition;
+import pl.edu.icm.unity.engine.translation.in.InputTranslationProfile;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.translation.TranslationAction;
+import pl.edu.icm.unity.types.translation.TranslationRule;
+import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Responsible for editing of a single TranslationRule
@@ -45,7 +43,7 @@ import com.vaadin.ui.VerticalLayout;
 public class RuleComponent extends CustomComponent
 {
 	private UnityMessageSource msg;
-	private TypesRegistryBase<? extends TranslationActionFactory> tc;
+	private TypesRegistryBase<? extends TranslationActionFactory<?>> tc;
 	private ActionEditor actionEditor;
 	private AbstractTextField condition;
 	private MappingResultComponent mappingResultComponent;
@@ -55,10 +53,11 @@ public class RuleComponent extends CustomComponent
 	private Button down;
 	private Button bottom;
 	private boolean editMode;
-	private Provider actionComponentProvider;
+	private ActionParameterComponentProvider actionComponentProvider;
 
-	public RuleComponent(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory> tc,
-			TranslationRuleInstance<?> toEdit, Provider actionComponentProvider, Callback callback)
+	public RuleComponent(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
+			TranslationRule toEdit, ActionParameterComponentProvider actionComponentProvider, 
+			Callback callback)
 	{
 		this.callback = callback;
 		this.msg = msg;
@@ -68,7 +67,7 @@ public class RuleComponent extends CustomComponent
 		initUI(toEdit);
 	}
 
-	private void initUI(TranslationRuleInstance<?> toEdit)
+	private void initUI(TranslationRule toEdit)
 	{
 		up = new Button();
 		up.setDescription(msg.getMessage("TranslationProfileEditor.moveUp"));
@@ -198,7 +197,7 @@ public class RuleComponent extends CustomComponent
 
 	public TranslationRule getRule() throws FormValidationException
 	{
-		TranslationActionInstance action = actionEditor.getAction();
+		TranslationAction action = actionEditor.getAction();
 		TranslationCondition cnd = new TranslationCondition();
 		cnd.setCondition(condition.getValue());			
 		

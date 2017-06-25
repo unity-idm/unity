@@ -23,11 +23,10 @@ import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
+import pl.edu.icm.unity.base.token.Token;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
-import pl.edu.icm.unity.server.api.internal.Token;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
@@ -42,7 +41,7 @@ public class OAuthProcessorTest
 	{
 		OAuthProcessor processor = new OAuthProcessor();
 		Collection<DynamicAttribute> attributes = new ArrayList<>();
-		attributes.add(new DynamicAttribute(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com")));
+		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com")));
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
 		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getConfig(),
@@ -67,7 +66,7 @@ public class OAuthProcessorTest
 	{
 		OAuthProcessor processor = new OAuthProcessor();
 		Collection<DynamicAttribute> attributes = new ArrayList<>();
-		attributes.add(new DynamicAttribute(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com")));
+		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com")));
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
 		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getConfig(),
@@ -93,7 +92,7 @@ public class OAuthProcessorTest
 	{
 		OAuthProcessor processor = new OAuthProcessor();
 		Collection<DynamicAttribute> attributes = new ArrayList<>();
-		attributes.add(new DynamicAttribute(new StringAttribute("email", "/", AttributeVisibility.full, "example@example.com")));
+		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com")));
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
 		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getConfig(),
@@ -144,7 +143,7 @@ public class OAuthProcessorTest
 		
 		assertNotNull(internalToken.getUserInfo());
 		UserInfo userInfo = UserInfo.parse(internalToken.getUserInfo());
-		assertEquals("example@example.com", userInfo.getEmail().getAddress());
+		assertEquals("example@example.com", userInfo.getEmailAddress());
 		assertNotNull(userInfo.getSubject());
 		assertEquals("userA", userInfo.getSubject().getValue());		
 	}

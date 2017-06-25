@@ -4,8 +4,13 @@
  */
 package pl.edu.icm.unity.engine;
 
+import static com.googlecode.catchexception.CatchException.catchException;
+import static com.googlecode.catchexception.CatchException.caughtException;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.isA;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertThat;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -16,19 +21,17 @@ import java.util.Map;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.engine.internal.EngineInitialization;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.session.SessionManagement.AttributeUpdater;
+import pl.edu.icm.unity.engine.server.EngineInitialization;
+import pl.edu.icm.unity.engine.session.LastAuthenticationAttributeTypeProvider;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.api.internal.SessionManagement;
-import pl.edu.icm.unity.server.api.internal.SessionManagement.AttributeUpdater;
-import pl.edu.icm.unity.server.utils.TimeUtil;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
-import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
@@ -37,26 +40,15 @@ public class TestSessions extends DBIntegrationTestBase
 {
 	@Autowired
 	protected SessionManagement sessionMan;
-	
+
 	@Test
-	public void test() throws Exception
+	public void updatedSessionAttributesAreReturned() throws Exception
 	{
 		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");
 		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
 				EntityState.valid, false);
-
 		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33, -1, 100);
-		AuthenticationRealm realm2 = new AuthenticationRealm("test2", "", 3, 33, -1, 100);
 		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", false, null);
-		
-		checkLastAuthnAttribute(s.getEntityId());
-		
-		LoginSession ret = sessionMan.getSession(s.getId());
-		testEquals(s, ret);
-		LoginSession s2 = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", false, null);
-		testEquals(s, s2);
-		LoginSession s3 = sessionMan.getCreateSession(id.getEntityId(), realm2, "u1", false, null);
-		assertNotEquals(s.getId(), s3.getId());
 		
 		sessionMan.updateSessionAttributes(s.getId(), new AttributeUpdater()
 		{
@@ -70,29 +62,56 @@ public class TestSessions extends DBIntegrationTestBase
 				
 		s.getSessionData().put("a1", "a1Val");
 		s.getSessionData().put("a2", "a2Val");
-		ret = sessionMan.getSession(s.getId());
+		
+		LoginSession ret = sessionMan.getSession(s.getId());
 		testEquals(s, ret);
+	}
+
+	
+	@Test
+	public void removedSessionIsNotReturned() throws Exception
+	{
+		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");
+		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				EntityState.valid, false);
+		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33, -1, 100);
+		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", false, null);
 		
 		sessionMan.removeSession(s.getId(), false);
 		
-		try
-		{
-			sessionMan.getSession(s.getId());
-			fail("Session was not removed");
-		} catch (WrongArgumentException e)
-		{
-			//OK
-		}
+		catchException(sessionMan).getSession(s.getId());
 		
-		sessionMan.removeSession(s3.getId(), false);
+		assertThat(caughtException(), isA(IllegalArgumentException.class));
+	}
+
+	@Test
+	public void sessionsAreReamScoped() throws Exception
+	{
+		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");
+		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				EntityState.valid, false);
+
+		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33, -1, 100);
+		AuthenticationRealm realm2 = new AuthenticationRealm("test2", "", 3, 33, -1, 100);
+		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", false, null);
+		
+		checkLastAuthnAttribute(s.getEntityId());
+		
+		LoginSession ret = sessionMan.getSession(s.getId());
+		LoginSession s2 = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", false, null);
+		LoginSession s3 = sessionMan.getCreateSession(id.getEntityId(), realm2, "u1", false, null);
+
+		testEquals(s, ret);
+		testEquals(s, s2);
+		assertNotEquals(s.getId(), s3.getId());
 	}
 	
 	private void checkLastAuthnAttribute(long entityId) throws EngineException
 	{
-		Collection<AttributeExt<?>> attrs = attrsMan.getAllAttributes(new EntityParam(entityId), false, "/", 
-				SystemAttributeTypes.LAST_AUTHENTICATION, false);
+		Collection<AttributeExt> attrs = attrsMan.getAllAttributes(new EntityParam(entityId), false, "/", 
+				LastAuthenticationAttributeTypeProvider.LAST_AUTHENTICATION, false);
 		assertThat(attrs.size(), is(1));
-		AttributeExt<?> lastAuthn = attrs.iterator().next();
+		AttributeExt lastAuthn = attrs.iterator().next();
 		assertThat(lastAuthn.getValues().size(), is(1));
 		String date = (String) lastAuthn.getValues().get(0); 
 		LocalDateTime parsed = LocalDateTime.parse(date, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
@@ -104,10 +123,10 @@ public class TestSessions extends DBIntegrationTestBase
 	{
 		assertEquals(s.getId(), ret.getId());
 		assertEquals(s.getEntityId(), ret.getEntityId());
-		assertEquals(TimeUtil.roundToS(s.getExpires()), TimeUtil.roundToS(ret.getExpires()));
+		assertEquals(s.getExpires(), ret.getExpires());
 		assertEquals(s.getMaxInactivity(), ret.getMaxInactivity());
 		assertEquals(s.getRealm(), ret.getRealm());
-		assertEquals(TimeUtil.roundToS(s.getStarted()), TimeUtil.roundToS(ret.getStarted()));
+		assertEquals(s.getStarted(), ret.getStarted());
 		assertEquals(s.getSessionData(), ret.getSessionData());
 	}
 	

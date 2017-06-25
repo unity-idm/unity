@@ -17,9 +17,13 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.MultiMap;
 import org.eclipse.jetty.util.UrlEncoded;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
@@ -47,20 +51,24 @@ import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
+import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.api.TranslationProfileManagement;
-import pl.edu.icm.unity.server.authn.AuthenticationException;
-import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.remote.AbstractRemoteVerificator;
-import pl.edu.icm.unity.server.authn.remote.InputTranslationEngine;
-import pl.edu.icm.unity.server.authn.remote.RemoteAttribute;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 
@@ -70,21 +78,30 @@ import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
  *   
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class OAuth2Verificator extends AbstractRemoteVerificator implements OAuthExchange
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuth2Verificator.class);
+	public static final String NAME = "oauth2";
+	public static final String DESC = "Handles OAuth2 tokens obtained from remote OAuth providers. "
+			+ "Queries about additional user information.";
 	public static final String DEFAULT_TOKEN_EXPIRATION = "3600";
+	
 	private OAuthClientProperties config;
 	private String responseConsumerAddress;
 	private OAuthContextsManagement contextManagement;
 	private OpenIdProviderMetadataManager metadataManager;
 	private PKIManagement pkiManagement;
 	
-	public OAuth2Verificator(String name, String description, OAuthContextsManagement contextManagement,
-			TranslationProfileManagement profileManagement, InputTranslationEngine trEngine,
-			PKIManagement pkiManagement, URL baseAddress, String baseContext)
+	@Autowired
+	public OAuth2Verificator(NetworkServer jettyServer,
+			SharedEndpointManagement sharedEndpointManagement,
+			OAuthContextsManagement contextManagement,
+			PKIManagement pkiManagement, RemoteAuthnResultProcessor processor)
 	{
-		super(name, description, OAuthExchange.ID, profileManagement, trEngine);
+		super(NAME, DESC, OAuthExchange.ID, processor);
+		URL baseAddress = jettyServer.getAdvertisedAddress();
+		String baseContext = sharedEndpointManagement.getBaseContextPath();
 		this.responseConsumerAddress = baseAddress + baseContext + ResponseConsumerServlet.PATH;
 		this.contextManagement = contextManagement;
 		this.pkiManagement = pkiManagement;
@@ -499,6 +516,23 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			input.addAttribute(new RemoteAttribute(attr.getKey(), attr.getValue()));
 		}
 		return input;
+	}
+	
+	
+	@Component
+	public static class Factory extends AbstractCredentialVerificatorFactory
+	{
+		@Autowired
+		public Factory(ObjectFactory<OAuth2Verificator> factory, 
+				SharedEndpointManagement sharedEndpointManagement,
+				OAuthContextsManagement contextManagement) throws EngineException
+		{
+			super(NAME, DESC, factory);
+			
+			ServletHolder servlet = new ServletHolder(new ResponseConsumerServlet(contextManagement));
+			sharedEndpointManagement.deployInternalEndpointServlet(
+					ResponseConsumerServlet.PATH, servlet, false);
+		}
 	}
 }
 

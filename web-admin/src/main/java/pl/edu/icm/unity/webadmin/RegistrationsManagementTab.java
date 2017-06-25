@@ -9,15 +9,15 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.reg.formfill.FormsChooserComponent;
 import pl.edu.icm.unity.webadmin.reg.formman.EnquiryFormsComponent;
 import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormsComponent;
 import pl.edu.icm.unity.webadmin.reg.invitation.InvitationsComponent;
 import pl.edu.icm.unity.webadmin.reg.reqman.RequestsComponent;
 import pl.edu.icm.unity.webui.common.Styles;
-
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * Tab containing management views for the management of registrations: forms, requests and form filling.

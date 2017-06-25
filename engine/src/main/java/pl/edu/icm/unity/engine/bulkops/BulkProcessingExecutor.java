@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.engine.bulkops;
 
-import java.io.Serializable;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -14,18 +13,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.apache.log4j.NDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.bulkops.ProcessingRule;
-import pl.edu.icm.unity.server.translation.TranslationCondition;
-import pl.edu.icm.unity.server.utils.Log;
+import com.google.common.collect.Sets;
+
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.bulkops.EntityAction;
+import pl.edu.icm.unity.engine.translation.TranslationRuleInstance;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -42,6 +43,8 @@ import pl.edu.icm.unity.types.basic.Identity;
 public class BulkProcessingExecutor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, BulkProcessingExecutor.class);
+	
+	private static final Set<String> SENSITIVE = Sets.newHashSet("hash", "cred", "pass");
 	
 	public enum ContextKey
 	{
@@ -60,13 +63,13 @@ public class BulkProcessingExecutor
 
 	@Autowired
 	@Qualifier("insecure")
-	private IdentitiesManagement idManagement;
+	private EntityManagement idManagement;
 
 	@Autowired
 	@Qualifier("insecure")
 	private AttributesManagement attrManagement;
 	
-	public void execute(ProcessingRule rule)
+	public void execute(TranslationRuleInstance<EntityAction> rule)
 	{
 		NDC.push("[EntityAction " + rule.getAction().getName() + "]");
 		try
@@ -90,28 +93,33 @@ public class BulkProcessingExecutor
 		}
 	}
 	
-	private void handleMember(ProcessingRule rule, GroupMembership membership)
+	private void handleMember(TranslationRuleInstance<EntityAction> rule, GroupMembership membership)
 	{
 		try
 		{
 			EntityParam entityP = new EntityParam(membership.getEntityId());
 			Entity entity = idManagement.getEntity(entityP);
 			Map<String, GroupMembership> groups = idManagement.getGroups(entityP);
-			Collection<AttributeExt<?>> allAttributes = 
+			Collection<AttributeExt> allAttributes = 
 					attrManagement.getAllAttributes(entityP, false, "/", null, false);
-			Serializable compiledCondition = rule.getCompiledCondition();
-			Object context = getContext(entity, groups.keySet(), allAttributes);
+			Map<String, Object> context = getContext(entity, groups.keySet(), allAttributes);
 
-			if (TranslationCondition.evaluateCondition(compiledCondition, context, log))
+			if (log.isDebugEnabled())
+				log.debug("Entity processing context for {}:\n{}", 
+						entity.getEntityInformation().getId(),
+						ctx2ReadableString(context, ""));
+			
+			if (rule.getConditionInstance().evaluate(context, log))
 			{
 				if (log.isDebugEnabled())
-					log.debug("Executing action on entity with id " + entity.getId());
-				rule.getAction().invoke(entity);
+					log.debug("Executing action on entity with id " + 
+							entity.getEntityInformation().getId());
+				rule.getActionInstance().invoke(entity);
 			} else
 			{
 				if (log.isDebugEnabled())
-					log.debug("Skipping entity with id " + entity.getId() + 
-							" not matching the condition");
+					log.debug("Skipping entity with id {} not matching the condition",
+							 entity.getEntityInformation().getId());
 			}
 		} catch (Exception e)
 		{
@@ -119,9 +127,35 @@ public class BulkProcessingExecutor
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
+	private String ctx2ReadableString(Object context, String pfx)
+	{
+		if (!(context instanceof Map))
+			return context.toString();
+		Map<?, ?> map = (Map<?, ?>) context;
+		StringBuilder ret = new StringBuilder(10240);
+		map.forEach((k, v) -> {
+			String key = k.toString();
+			ret.append(pfx).append(k).append(": ");
+			if (seemsSensitive(key))
+				ret.append("--MASKED--").append("\n"); 
+			else
+				ret.append(ctx2ReadableString(v, pfx+"  ")).append("\n");
+		});
+		
+		
+		return ret.toString();
+	}
+	
+	private boolean seemsSensitive(String key)
+	{
+		for (String checked: SENSITIVE)
+			if (key.contains(checked))
+				return true;
+		return false;
+	}
+	
 	private Map<String, Object> getContext(Entity entity, Set<String> groups, 
-			Collection<AttributeExt<?>> attributes)
+			Collection<AttributeExt> attributes)
 	{
 		Map<String, Object> ctx = new HashMap<>();
 		
@@ -147,13 +181,13 @@ public class BulkProcessingExecutor
 		}
 
 		Map<String, Object> attr = new HashMap<>();
-		Map<String, List<Object>> attrs = new HashMap<>();
+		Map<String, List<String>> attrs = new HashMap<>();
 		
-		for (AttributeExt<?> attribute: attributes)
+		for (AttributeExt attribute: attributes)
 		{
 			Object v = attribute.getValues().isEmpty() ? "" : attribute.getValues().get(0);
 			attr.put(attribute.getName(), v);
-			attrs.put(attribute.getName(), (List<Object>) attribute.getValues());
+			attrs.put(attribute.getName(), attribute.getValues());
 		}
 		ctx.put(ContextKey.attr.name(), attr);
 		ctx.put(ContextKey.attrs.name(), attrs);

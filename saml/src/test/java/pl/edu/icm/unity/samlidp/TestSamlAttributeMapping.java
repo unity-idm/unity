@@ -4,7 +4,8 @@
  */
 package pl.edu.icm.unity.samlidp;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -23,7 +24,6 @@ import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
 
@@ -34,7 +34,7 @@ public class TestSamlAttributeMapping
 	{
 		SamlAttributeMapper mapper = new DefaultSamlAttributesMapper();
 		
-		Attribute<?> unityA = new StringAttribute("attr1", "/", AttributeVisibility.full, "val1");
+		Attribute unityA = StringAttribute.of("attr1", "/", "val1");
 		AttributeType samlA = mapper.convertToSaml(unityA);
 		assertEquals("attr1", samlA.getName());
 		assertEquals(1, samlA.sizeOfAttributeValueArray());
@@ -48,7 +48,7 @@ public class TestSamlAttributeMapping
 		List<Long> vals = new ArrayList<Long>();
 		vals.add(1234l);
 		vals.add(1l);
-		Attribute<?> unityA = new IntegerAttribute("attr1", "/", AttributeVisibility.full, vals);
+		Attribute unityA = IntegerAttribute.of("attr1", "/", vals);
 		AttributeType samlA = mapper.convertToSaml(unityA);
 		assertEquals("attr1", samlA.getName());
 		assertEquals(2, samlA.sizeOfAttributeValueArray());
@@ -61,7 +61,7 @@ public class TestSamlAttributeMapping
 	{
 		SamlAttributeMapper mapper = new DefaultSamlAttributesMapper();
 		BufferedImage bi = new BufferedImage(10, 20, BufferedImage.TYPE_INT_ARGB);
-		Attribute<?> unityA = new JpegImageAttribute("attr1", "/", AttributeVisibility.full, bi);
+		Attribute unityA = JpegImageAttribute.of("attr1", "/", bi);
 		AttributeType samlA = mapper.convertToSaml(unityA);
 		assertEquals("attr1", samlA.getName());
 		assertEquals(1, samlA.sizeOfAttributeValueArray());
@@ -75,7 +75,7 @@ public class TestSamlAttributeMapping
 	{
 		SamlAttributeMapper mapper = new DefaultSamlAttributesMapper();
 		VerifiableEmail email = new VerifiableEmail("add@example.com");
-		Attribute<?> unityA = new VerifiableEmailAttribute("attr1", "/", AttributeVisibility.full, email);
+		Attribute unityA = VerifiableEmailAttribute.of("attr1", "/", email);
 		AttributeType samlA = mapper.convertToSaml(unityA);
 		assertEquals("attr1", samlA.getName());
 		assertEquals(1, samlA.sizeOfAttributeValueArray());

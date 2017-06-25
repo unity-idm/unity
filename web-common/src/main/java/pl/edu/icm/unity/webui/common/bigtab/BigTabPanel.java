@@ -4,15 +4,15 @@
  */
 package pl.edu.icm.unity.webui.common.bigtab;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.bigtab.BigTab.TabCallback;
-import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
-
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.bigtab.BigTab.TabCallback;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 
 /**

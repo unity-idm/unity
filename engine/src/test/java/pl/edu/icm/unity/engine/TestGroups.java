@@ -18,14 +18,12 @@ import org.junit.Test;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.AttributeStatement2;
+import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
@@ -38,7 +36,7 @@ public class TestGroups extends DBIntegrationTestBase
 	@Test
 	public void testIdTypes() throws Exception
 	{
-		for (IdentityType idType: idsMan.getIdentityTypes())
+		for (IdentityType idType: idTypeMan.getIdentityTypes())
 			System.out.println(idType);
 	}
 	
@@ -46,7 +44,7 @@ public class TestGroups extends DBIntegrationTestBase
 	public void testGetContentsWithLimitedAuthz() throws Exception
 	{
 		setupPasswordAuthn();
-		createUsernameUser(AuthorizationManagerImpl.USER_ROLE);
+		createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
 		Group a = new Group("/A");
 		groupsMan.addGroup(a);
 		Group ab = new Group("/A/B");
@@ -55,11 +53,11 @@ public class TestGroups extends DBIntegrationTestBase
 		Group ac = new Group("/A/C");
 		groupsMan.addGroup(ac);
 		
-		EntityParam ep = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user1"));
+		EntityParam ep = new EntityParam(new IdentityTaV(UsernameIdentity.ID, DEF_USER));
 		groupsMan.addMemberFromParent("/A", ep);
 		groupsMan.addMemberFromParent("/A/B", ep);
 		
-		setupUserContext("user1", false);
+		setupUserContext(DEF_USER, false);
 		
 		GroupContents rootC = groupsMan.getContents("/", GroupContents.EVERYTHING);
 		assertEquals(1, rootC.getSubGroups().size());
@@ -98,13 +96,13 @@ public class TestGroups extends DBIntegrationTestBase
 		{
 			groupsMan.addGroup(tooBig);
 			fail("Managed to add a too big group");
-		} catch (WrongArgumentException e)
+		} catch (IllegalArgumentException e)
 		{
 			//OK
 		}
 		
-		AttributeType atFoo = new AttributeType("foo", new StringAttributeSyntax());
-		attrsMan.addAttributeType(atFoo);
+		AttributeType atFoo = new AttributeType("foo", StringAttributeSyntax.ID);
+		aTypeMan.addAttributeType(atFoo);
 		
 		Group a = new Group("/A");
 		a.setDescription(new I18nString("foo"));
@@ -117,11 +115,11 @@ public class TestGroups extends DBIntegrationTestBase
 		Group abd = new Group("/A/B/D");
 		groupsMan.addGroup(abd);
 
-		AttributeStatement2[] statements = new AttributeStatement2[2];
-		statements[0] = AttributeStatement2.getFixedEverybodyStatement(
-				new StringAttribute("foo", "/A", AttributeVisibility.full, "val1"));
-		statements[1] = AttributeStatement2.getFixedStatement(
-				new StringAttribute("foo", "/A", AttributeVisibility.full, "val1"),
+		AttributeStatement[] statements = new AttributeStatement[2];
+		statements[0] = AttributeStatement.getFixedEverybodyStatement(
+				StringAttribute.of("foo", "/A", "val1"));
+		statements[1] = AttributeStatement.getFixedStatement(
+				StringAttribute.of("foo", "/A", "val1"),
 				"/A/B", "eattr['foo'] != null");
 		a.setAttributeStatements(statements);
 		groupsMan.updateGroup("/A", a);
@@ -141,8 +139,8 @@ public class TestGroups extends DBIntegrationTestBase
 		assertTrue(contentA.getSubGroups().contains("/A/B"));
 		assertTrue(contentA.getSubGroups().contains("/A/C"));
 		assertEquals(2, contentA.getGroup().getAttributeStatements().length);
-		AttributeStatement2 attributeStatement = contentA.getGroup().getAttributeStatements()[0];
-		assertEquals(AttributeStatement2.ConflictResolution.skip,
+		AttributeStatement attributeStatement = contentA.getGroup().getAttributeStatements()[0];
+		assertEquals(AttributeStatement.ConflictResolution.skip,
 				attributeStatement.getConflictResolution());
 		assertEquals("foo", attributeStatement.getAssignedAttributeName());
 		assertNotNull(attributeStatement.getFixedAttribute());

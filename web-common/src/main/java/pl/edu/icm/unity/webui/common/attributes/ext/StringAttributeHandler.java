@@ -14,10 +14,10 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextField;
 
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.RequiredTextField;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
@@ -31,41 +31,21 @@ import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
  * String attribute handler for the web
  * @author K. Benedyczak
  */
-@org.springframework.stereotype.Component
-public class StringAttributeHandler extends TextOnlyAttributeHandler<String> implements WebAttributeHandlerFactory
+public class StringAttributeHandler extends TextOnlyAttributeHandler
 {
 	private UnityMessageSource msg;
 
-	@Autowired
-	public StringAttributeHandler(UnityMessageSource msg)
+	public StringAttributeHandler(UnityMessageSource msg, AttributeValueSyntax<?> syntax)
 	{
+		super(syntax);
 		this.msg = msg;
 	}
 
 	@Override
-	public String getSupportedSyntaxId()
-	{
-		return StringAttributeSyntax.ID;
-	}
-
-	@Override
-	protected String convertFromString(String value)
-	{
-		return value;
-	}
-	
-
-	@Override
-	public WebAttributeHandler<?> createInstance()
-	{
-		return new StringAttributeHandler(msg);
-	}
-	
-	@Override
-	protected List<String> getHints(AttributeValueSyntax<String> syntaxArg)
+	protected List<String> getHints()
 	{
 		List<String> sb = new ArrayList<String>(3);
-		StringAttributeSyntax syntax = (StringAttributeSyntax) syntaxArg;
+		StringAttributeSyntax syntax = (StringAttributeSyntax) this.syntax;
 		
 		sb.add(msg.getMessage("StringAttributeHandler.minLen", syntax.getMinLength()));
 		if (syntax.getMaxLength() != Integer.MAX_VALUE)
@@ -78,24 +58,19 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler<String> imp
 		return sb;
 	}
 	
-	@Override
-	public AttributeSyntaxEditor<String> getSyntaxEditorComponent(
-			AttributeValueSyntax<String> initialValue)
-	{
-		return new StringSyntaxEditor((StringAttributeSyntax) initialValue);
-	}
-	
-	private class StringSyntaxEditor implements AttributeSyntaxEditor<String>
+	private static class StringSyntaxEditor implements AttributeSyntaxEditor<String>
 	{
 		private StringAttributeSyntax initial;
 		private IntegerBoundEditor max;
 		private TextField min;
 		private TextField regexp;
+		private UnityMessageSource msg;
 		
 		
-		public StringSyntaxEditor(StringAttributeSyntax initial)
+		public StringSyntaxEditor(StringAttributeSyntax initial, UnityMessageSource msg)
 		{
 			this.initial = initial;
+			this.msg = msg;
 		}
 
 		@Override
@@ -143,6 +118,39 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler<String> imp
 			{
 				throw new IllegalAttributeTypeException(e.getMessage(), e);
 			}
+		}
+	}
+	
+	
+	@org.springframework.stereotype.Component
+	public static class StringAttributeHandlerFactory implements WebAttributeHandlerFactory
+	{
+		private UnityMessageSource msg;
+
+		@Autowired
+		public StringAttributeHandlerFactory(UnityMessageSource msg)
+		{
+			this.msg = msg;
+		}
+		
+		@Override
+		public String getSupportedSyntaxId()
+		{
+			return StringAttributeSyntax.ID;
+		}
+
+		@Override
+		public WebAttributeHandler createInstance(AttributeValueSyntax<?> syntax)
+		{
+			return new StringAttributeHandler(msg, syntax);
+		}
+		
+		
+		@Override
+		public AttributeSyntaxEditor<String> getSyntaxEditorComponent(
+				AttributeValueSyntax<?> initialValue)
+		{
+			return new StringSyntaxEditor((StringAttributeSyntax) initialValue, msg);
 		}
 	}
 }

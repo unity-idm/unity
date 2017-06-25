@@ -6,17 +6,17 @@ package pl.edu.icm.unity.webadmin.attribute;
 
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webadmin.identities.EntityChangedEvent;
@@ -26,9 +26,8 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
-import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
-
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 
 /**
@@ -83,7 +82,7 @@ public class AttributesComponent extends SafePanel
 		EntityParam entParam = new EntityParam(owner.getEntity().getId());
 		try
 		{
-			Collection<AttributeExt<?>> attributesCol = attributesManagement.getAllAttributes(
+			Collection<AttributeExt> attributesCol = attributesManagement.getAllAttributes(
 					entParam, true, groupPath, null, true);
 			main.setInput(entParam, groupPath, attributesCol);
 			setContent(main);

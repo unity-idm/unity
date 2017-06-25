@@ -4,14 +4,14 @@
  */
 package pl.edu.icm.unity.home.iddetails;
 
+import com.vaadin.ui.Button;
+
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.home.HomeEndpointProperties;
 import pl.edu.icm.unity.home.HomeEndpointProperties.RemovalModes;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Images;
-
-import com.vaadin.ui.Button;
 
 /**
  * Button allowing to launch {@link ScheduledEntityRemovalDialog}
@@ -19,10 +19,10 @@ import com.vaadin.ui.Button;
  */
 public class EntityRemovalButton extends Button
 {
-	public EntityRemovalButton(UnityMessageSource msg, long entity, 
-			IdentitiesManagement identitiesManagement, 
-			IdentitiesManagement insecureIdentitiesManagement, 
-			WebAuthenticationProcessor authnProcessor,
+	public EntityRemovalButton(final UnityMessageSource msg, final long entity, 
+			final EntityManagement identitiesManagement, 
+			final EntityManagement insecureIdentitiesManagement, 
+			final WebAuthenticationProcessor authnProcessor,
 			HomeEndpointProperties config)
 	{
 		super(msg.getMessage("EntityRemovalButton.removeAccount"), Images.delete.getResource());

@@ -15,14 +15,6 @@ import javax.servlet.ServletException;
 
 import org.springframework.context.ApplicationContext;
 
-import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
-import pl.edu.icm.unity.server.authn.AuthenticationOption;
-import pl.edu.icm.unity.server.authn.UnsuccessfulAuthenticationCounter;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
-import pl.edu.icm.unity.webui.authn.CancelHandler;
-import pl.edu.icm.unity.webui.bus.EventsBus;
-
 import com.vaadin.server.CustomizedSystemMessages;
 import com.vaadin.server.DeploymentConfiguration;
 import com.vaadin.server.ServiceException;
@@ -40,6 +32,14 @@ import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.UI;
 import com.vaadin.util.CurrentInstance;
 
+import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.webui.authn.CancelHandler;
+import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
+
 
 /**
  * Customization of the ordinary {@link VaadinServlet} using {@link VaadinUIProvider}
@@ -49,7 +49,7 @@ public class UnityVaadinServlet extends VaadinServlet
 {
 	private transient ApplicationContext applicationContext;
 	private transient String uiBeanName;
-	private transient EndpointDescription description;
+	private transient ResolvedEndpoint description;
 	private transient List<AuthenticationOption> authenticators;
 	private transient CancelHandler cancelHandler;
 	private transient SandboxAuthnRouter sandboxRouter;
@@ -59,7 +59,7 @@ public class UnityVaadinServlet extends VaadinServlet
 	private String themeConfigKey;
 	
 	public UnityVaadinServlet(ApplicationContext applicationContext, String uiBeanName,
-			EndpointDescription description,
+			ResolvedEndpoint description,
 			List<AuthenticationOption> authenticators,
 			EndpointRegistrationConfiguration registrationConfiguration,
 			Properties endpointProperties,
@@ -70,7 +70,7 @@ public class UnityVaadinServlet extends VaadinServlet
 	}
 	
 	protected UnityVaadinServlet(ApplicationContext applicationContext, String uiBeanName,
-			EndpointDescription description,
+			ResolvedEndpoint description,
 			List<AuthenticationOption> authenticators,
 			EndpointRegistrationConfiguration registrationConfiguration,
 			Properties endpointProperties,

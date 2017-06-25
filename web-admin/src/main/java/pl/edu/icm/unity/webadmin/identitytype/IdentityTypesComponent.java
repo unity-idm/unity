@@ -12,8 +12,19 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.google.common.collect.Lists;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.shared.ui.Orientation;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webadmin.identitytype.IdentityTypeEditDialog.Callback;
 import pl.edu.icm.unity.webui.WebSession;
@@ -27,15 +38,6 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
-
-import com.google.common.collect.Lists;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.shared.ui.Orientation;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * Responsible for identity types management.
@@ -52,14 +54,18 @@ public class IdentityTypesComponent extends VerticalLayout
 	private com.vaadin.ui.Component main;
 	private EventsBus bus;
 
-	private IdentitiesManagement identitiesManagement;
+	private IdentityTypesManagement identitiesManagement;
+
+	private IdentityTypeSupport idTypeSupport;
 	
 	
 	@Autowired
-	public IdentityTypesComponent(UnityMessageSource msg, IdentitiesManagement identitiesManagement)
+	public IdentityTypesComponent(UnityMessageSource msg, IdentityTypesManagement identitiesManagement,
+			IdentityTypeSupport idTypeSupport)
 	{
 		this.msg = msg;
 		this.identitiesManagement = identitiesManagement;
+		this.idTypeSupport = idTypeSupport;
 		this.bus = WebSession.getCurrent().getEventBus();
 		HorizontalLayout hl = new HorizontalLayout();
 		
@@ -71,14 +77,16 @@ public class IdentityTypesComponent extends VerticalLayout
 					@Override
 					public Label toRepresentation(IdentityType element)
 					{
-						Label ret = new Label(element.getIdentityTypeProvider().getId());
-						if (element.getIdentityTypeProvider().isDynamic())
+						Label ret = new Label(element.getIdentityTypeProvider());
+						IdentityTypeDefinition typeDefinition = 
+								idTypeSupport.getTypeDefinition(element.getName());
+						if (typeDefinition.isDynamic())
 							ret.addStyleName(Styles.immutableAttribute.toString());
 						return ret;
 					}
 				});
 
-		viewer = new IdentityTypeViewer(msg);
+		viewer = new IdentityTypeViewer(msg, idTypeSupport);
 		table.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override
@@ -184,7 +192,7 @@ public class IdentityTypesComponent extends VerticalLayout
 			
 			GenericItem<?> item = (GenericItem<?>) target;	
 			IdentityType at = (IdentityType) item.getElement();
-			IdentityTypeEditor editor = new IdentityTypeEditor(msg, at);
+			IdentityTypeEditor editor = new IdentityTypeEditor(msg, idTypeSupport, at);
 			IdentityTypeEditDialog dialog = new IdentityTypeEditDialog(msg, 
 					msg.getMessage("IdentityTypes.editAction"), new Callback()
 					{

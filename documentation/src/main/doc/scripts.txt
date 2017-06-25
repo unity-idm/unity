@@ -1,0 +1,100 @@
+== Enhancement scripts
+
+Unity allows for invoking scripts written by administrator which enhance Unity functionality. 
+Scripts can be used to initialize Unity database to deployment specific state, implement custom side effects,
+notifications, specialized logging etc.
+
+Scripts are triggered by various system events and have access to the event context information as well as to 
+a nearly complete Unity platform internal API. 
+
+Currently only Groovy scripts are supported. Groovy is easy to use for 
+anyone familiar with Java and perfectly integrates with the Unity API. We may add support for other scripting languages 
+in future.
+
+Configuration of a script is performed in a following way in the +unityServer.conf+ file:
+
+----
+unityServer.core.script.N.file=scripts/myCustomScript.groovy
+unityServer.core.script.N.trigger=<TRIGGERING_EVENT>
+----
+
+Unity generates the following events:
+
+pre-init:: Triggered before configured contents (endpoints, authenticators, credentials, ...) is loaded to database.
+post-init:: Triggered after configured contents (endpoints, authenticators, credentials, ...) is loaded to database.
+methodInvocation.METHOD-NAME:: Triggered after internal Unity platform API method is invoked. The actual event name has
+the method name added to the given prefix after dot, for instance +methodInvocation.addEntity+ is event name 
+triggered after +addEntity+ operation is invoked.
+
+
+By enabling the following logger level it is possible to observe in the log file all produced events together with their 
+context:
+
+----
+<Logger name="unity.server.EventProcessor" level="DEBUG"/>
+----
+
+=== Developing Groovy script
+
+Groovy language is not described here, its documentation is provided at Groovy's site 
+http://groovy-lang.org/documentation.html
+
+Example scripts available in the distribution are a very good starting point to learn how to create own solutions.
+We suggest to start from browsing and or modifying one of them.
+
+Unity ships a simple test program which allows to perform a dry run of the script. The test tool is invoked with 
+a tested script being its sole argument:
+
+----
+$> unity-idm-test-groovy my-script.groovy
+---- 
+
+During invocation all invocations of API methods are logged to the console. 
+Note however that the tool provides a mock environment to the script: all objects are the same as during regular run, 
+but all methods invoked on mocked objects return +null+ value. 
+Therefore more complicated scripts relying on data returned by the API objects can require some
+minor modifications for testing.  
+
+Unity injects a wide range of objects which are available to the script. One of the most important is +context+
+which holds details of the event. For instance for all methodInvocation events the method name, arguments and 
+error message in case of failure are stored in this object.
+
+The following table enumerates all available object:
+
+[cols="m,m,",options="header"]
+|===
+|Object name				| Type  					| Description
+|event						| String 					| Name of the event
+|context					| Object, typically JSON 	| Event specific context
+|config						| UnityServerConfiguration 	| Access to the parsed main configuration file 
+|attributeClassManagement	| AttributeClassManagement 	| Attribute classes management 
+|attributesManagement		| AttributesManagement 		| Attributes management 
+|attributeTypeManagement	| AttributeTypeManagement 	| Attribute types management 
+|authenticatorManagement	| AuthenticatorManagement 	| Authenticators management 
+|bulkProcessingManagement	| BulkProcessingManagement 	| Bulk processing management 
+|confirmationConfigurationManagement| ConfirmationConfigurationManagement | Confirmations management
+|credentialManagement		| CredentialManagement 		| Credential management
+|credentialRequirementManagement| CredentialRequirementManagement | Credential requirement management 
+|endpointManagement			| EndpointManagement 		| Endpoint management
+|enquiryManagement			| EnquiryManagement 		| Enquiry management
+|entityCredentialManagement	| EntityCredentialManagement| Entity credentials management 
+|entityManagement			| EntityManagement 			| Entities management
+|groupsManagement			| GroupsManagement 			| Groups management
+|identityTypesManagement	| IdentityTypesManagement 	| Identity types management 
+|invitationManagement		| InvitationManagement 		| Invitations management 
+|messageTemplateManagement	| MessageTemplateManagement | Message templates management 
+|notificationsManagement	| NotificationsManagement 	| Notifications management 
+|preferencesManagement		| PreferencesManagement 	| Preferences management 
+|realmsManagement			| RealmsManagement 			| Authentication realms management 
+|registrationsManagement	| RegistrationsManagement	| Registration management 
+|translationProfileManagement| TranslationProfileManagement | Translation profile management 
+|userImportManagement		| UserImportManagement 		| User import manaegment 
+|msgSrc						| UnityMessageSource		| Allows for accessing Unity i18n message bundles 
+|attributeTypeSupport		| AttributeTypeSupport 		| Simplifies attribute type operations 
+|identityTypeSupport		| IdentityTypeSupport 		| Simplifies identity type operations 
+|isColdStart				| boolean 					| Only for -init events is set to true when server was started on empty database 
+|log						| Logger 					| Allows for logging to Unity log file 
+|=== 
+
+Detailed documentation on the above API objects is available in Unity platform link:apidocs/index.html[API docs]
+

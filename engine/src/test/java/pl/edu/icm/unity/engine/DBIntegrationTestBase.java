@@ -13,26 +13,28 @@ import org.junit.After;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.engine.internal.EngineInitialization;
+import com.google.common.collect.Lists;
+
+import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
+import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.internal.IdentityResolver;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.api.internal.SessionManagement;
-import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.authn.EntityWithCredential;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
-import pl.edu.icm.unity.stdext.credential.CertificateVerificatorFactory;
+import pl.edu.icm.unity.stdext.credential.CertificateVerificator;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
-import pl.edu.icm.unity.stdext.credential.PasswordVerificatorFactory;
+import pl.edu.icm.unity.stdext.credential.PasswordVerificator;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
-import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
-import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
@@ -44,6 +46,8 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 {
 	public static final String CRED_REQ_PASS = "cr-pass";
+	public static final String DEF_USER = "mockuser1";
+	public static final String DEF_PASSWORD = "mockpassword1";
 	
 	@Autowired
 	private SessionManagement sessionMan;
@@ -69,7 +73,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 			String user, boolean outdated) throws Exception
 	{
 		EntityWithCredential entity = identityResolver.resolveIdentity(user, new String[] {UsernameIdentity.ID}, 
-				EngineInitialization.DEFAULT_CREDENTIAL);
+				MockPasswordVerificatorFactory.ID);
 		InvocationContext virtualAdmin = new InvocationContext(null, getDefaultRealm());
 		LoginSession ls = sessionMan.getCreateSession(entity.getEntityId(), getDefaultRealm(),
 				user, outdated, null);
@@ -86,10 +90,15 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 		return new AuthenticationRealm("DEFAULT_AUTHN_REALM", 
 				"For tests", 5, 10, -1, 30*60);
 	}
-	
-	protected Identity createUsernameUser(String role) throws Exception
+
+	protected Identity createUsernameUser(String username) throws Exception
 	{
-		return createUsernameUser("user1", role, "mockPassword1");
+		return createUsernameUser(username, null, DEF_PASSWORD, CR_MOCK);
+	}
+	
+	protected Identity createUsernameUserWithRole(String role) throws Exception
+	{
+		return createUsernameUser(DEF_USER, role, DEF_PASSWORD, CRED_REQ_PASS);
 	}
 
 	/**
@@ -100,16 +109,16 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	 * @return
 	 * @throws Exception
 	 */
-	protected Identity createUsernameUser(String username, String role, String password) throws Exception
+	protected Identity createUsernameUser(String username, String role, String password, String cr) throws Exception
 	{
 		Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, username), 
-				CRED_REQ_PASS, EntityState.valid, false);
-		idsMan.setEntityCredential(new EntityParam(added1), "credential1", 
+				cr, EntityState.valid, false);
+		eCredMan.setEntityCredential(new EntityParam(added1), "credential1", 
 				new PasswordToken(password).toJson());
 		if (role != null)
 		{
-			EnumAttribute sa = new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE, 
-				"/", AttributeVisibility.local, role);
+			Attribute sa = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
+				"/", Lists.newArrayList(role));
 			attrsMan.setAttribute(new EntityParam(added1), sa, false);
 		}
 		return added1;
@@ -118,7 +127,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	protected void createCertUser() throws EngineException
 	{
 		Identity added2 = createCertUserNoPassword(null);
-		idsMan.setEntityCredential(new EntityParam(added2), "credential1", 
+		eCredMan.setEntityCredential(new EntityParam(added2), "credential1", 
 				new PasswordToken("mockPassword2").toJson());
 	}
 
@@ -130,8 +139,8 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 				new EntityParam(added2), false);
 		if (role != null)
 		{
-			EnumAttribute sa = new EnumAttribute(SystemAttributeTypes.AUTHORIZATION_ROLE, 
-				"/", AttributeVisibility.local, role);
+			Attribute sa = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
+				"/", Lists.newArrayList(role));
 			attrsMan.setAttribute(new EntityParam(added2), sa, false);
 		}
 		return added2;
@@ -145,17 +154,17 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	protected void setupPasswordAuthn(int minLen, boolean denySeq) throws EngineException
 	{
 		CredentialDefinition credDef = new CredentialDefinition(
-				PasswordVerificatorFactory.NAME, "credential1");
-		credDef.setJsonConfiguration("{\"minLength\": " + minLen + ", " +
+				PasswordVerificator.NAME, "credential1");
+		credDef.setConfiguration("{\"minLength\": " + minLen + ", " +
 				"\"historySize\": 5," +
 				"\"minClassesNum\": 1," +
 				"\"denySequences\": " + denySeq + "," +
 				"\"maxAge\": 30758400}");
-		authnMan.addCredentialDefinition(credDef);
+		credMan.addCredentialDefinition(credDef);
 		
 		CredentialRequirements cr = new CredentialRequirements(CRED_REQ_PASS, "", 
 				Collections.singleton(credDef.getName()));
-		authnMan.addCredentialRequirement(cr);
+		credReqMan.addCredentialRequirement(cr);
 
 		Set<String> creds = new HashSet<String>();
 		Collections.addAll(creds, credDef.getName());
@@ -165,18 +174,17 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	protected void setupPasswordAndCertAuthn() throws EngineException
 	{
 		CredentialDefinition credDef2 = new CredentialDefinition(
-				CertificateVerificatorFactory.NAME, "credential2");
-		credDef2.setJsonConfiguration("");
-		authnMan.addCredentialDefinition(credDef2);
+				CertificateVerificator.NAME, "credential2");
+		credMan.addCredentialDefinition(credDef2);
 		
 		CredentialRequirements cr2 = new CredentialRequirements("cr-cert", "", 
 				Collections.singleton(credDef2.getName()));
-		authnMan.addCredentialRequirement(cr2);
+		credReqMan.addCredentialRequirement(cr2);
 
 		Set<String> creds = new HashSet<String>();
 		Collections.addAll(creds, "credential1", credDef2.getName());
 		CredentialRequirements cr3 = new CredentialRequirements("cr-certpass", "", creds);
-		authnMan.addCredentialRequirement(cr3);
+		credReqMan.addCredentialRequirement(cr3);
 	}
 
 }

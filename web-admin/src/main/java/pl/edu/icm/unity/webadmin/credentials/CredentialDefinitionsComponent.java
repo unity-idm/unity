@@ -12,8 +12,15 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.shared.ui.Orientation;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.CredentialManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.webadmin.credentials.CredentialDefinitionEditDialog.Callback;
@@ -23,22 +30,15 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
-import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
-
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.shared.ui.Orientation;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * Provides {@link CredentialDefinition} management UI
@@ -49,7 +49,7 @@ import com.vaadin.ui.VerticalLayout;
 public class CredentialDefinitionsComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
-	private AuthenticationManagement authenticationMan;
+	private CredentialManagement credentialMan;
 	private CredentialEditorRegistry credentialEditorReg;
 	private EventsBus bus;
 	
@@ -59,12 +59,12 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 	
 	@Autowired
 	public CredentialDefinitionsComponent(UnityMessageSource msg, CredentialEditorRegistry credentialEditorReg,
-			AuthenticationManagement authenticationMan)
+			CredentialManagement credentialMan)
 	{
 		super();
 		this.msg = msg;
 		this.credentialEditorReg = credentialEditorReg;
-		this.authenticationMan = authenticationMan;
+		this.credentialMan = credentialMan;
 		this.bus = WebSession.getCurrent().getEventBus();
 		init();
 	}
@@ -131,7 +131,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 	{
 		try
 		{
-			Collection<CredentialDefinition> crs = authenticationMan.getCredentialDefinitions();
+			Collection<CredentialDefinition> crs = credentialMan.getCredentialDefinitions();
 			table.setInput(crs);
 			removeAllComponents();
 			addComponent(main);
@@ -149,7 +149,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 	{
 		try
 		{
-			authenticationMan.updateCredentialDefinition(cd, desiredCredState);
+			credentialMan.updateCredentialDefinition(cd, desiredCredState);
 			refresh();
 			bus.fireEvent(new CredentialDefinitionChangedEvent(true, cd.getName()));
 			if (desiredCredState == LocalCredentialState.outdated)
@@ -167,7 +167,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 	{
 		try
 		{
-			authenticationMan.addCredentialDefinition(cd);
+			credentialMan.addCredentialDefinition(cd);
 			refresh();
 			bus.fireEvent(new CredentialDefinitionChangedEvent(false, cd.getName()));
 			return true;
@@ -182,7 +182,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 	{
 		try
 		{
-			authenticationMan.removeCredentialDefinition(toRemove);
+			credentialMan.removeCredentialDefinition(toRemove);
 			refresh();
 			bus.fireEvent(new CredentialDefinitionChangedEvent(false, toRemove));
 			return true;

@@ -12,12 +12,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Random;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
 import org.junit.Before;
 
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -32,15 +33,14 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.EntityState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeStatement2;
-import pl.edu.icm.unity.types.basic.AttributeStatement2.ConflictResolution;
+import pl.edu.icm.unity.types.basic.AttributeStatement;
+import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -68,7 +68,11 @@ public class PerformanceTestBase extends TestRESTBase
 	@Before
 	public void setup() throws Exception
 	{
-		Logger.getLogger("unity.server").setLevel(Level.OFF);
+		LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+	        Configuration config = ctx.getConfiguration();
+	        config.getLoggerConfig("unity.server").setLevel(Level.OFF);
+	        ctx.updateLoggers();
+	        
 		setupPasswordAuthn();
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 		Calendar c = Calendar.getInstance();
@@ -91,7 +95,7 @@ public class PerformanceTestBase extends TestRESTBase
 			Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID,
 					"user" + i), "cr-pass", EntityState.valid, false);
 
-			idsMan.setEntityCredential(new EntityParam(added1), "credential1",
+			eCredMan.setEntityCredential(new EntityParam(added1), "credential1",
 					new PasswordToken("PassWord8743#%$^&*").toJson());
 		}
 
@@ -251,14 +255,14 @@ public class PerformanceTestBase extends TestRESTBase
 		
 		for (int i = 0; i < n; i++)
 		{
-			Collection<AttributeExt<?>> attributes = attrsMan.getAttributes(
+			Collection<AttributeExt> attributes = attrsMan.getAttributes(
 					new EntityParam(new IdentityParam(UsernameIdentity.ID,
 							"user" + i)), enInGroup.get(i), null);
 			
 			if (showToConsole)
 			{
 				System.out.println("USER " + i);
-				for (AttributeExt<?> a : attributes)
+				for (AttributeExt a : attributes)
 				{
 					System.out.println("ATTR:" + a.getName() + " VAL:"
 							+ a.getValues().get(0) + " GROUP:"
@@ -297,29 +301,29 @@ public class PerformanceTestBase extends TestRESTBase
 		for (int i = 0; i < n; i++)
 		{
 			AttributeType type = new AttributeType("int_" + i,
-					new IntegerAttributeSyntax());
-			attrsMan.addAttributeType(type);
+					IntegerAttributeSyntax.ID);
+			aTypeMan.addAttributeType(type);
 		}
 
 		for (int i = 0; i < n; i++)
 		{
 			AttributeType type = new AttributeType("string_" + i,
-					new StringAttributeSyntax());
-			attrsMan.addAttributeType(type);
+					StringAttributeSyntax.ID);
+			aTypeMan.addAttributeType(type);
 		}
 
 		for (int i = 0; i < n; i++)
 		{
 			AttributeType type = new AttributeType("float_" + i,
-					new FloatingPointAttributeSyntax());
-			attrsMan.addAttributeType(type);
+					FloatingPointAttributeSyntax.ID);
+			aTypeMan.addAttributeType(type);
 		}
 
 		for (int i = 0; i < n; i++)
 		{
 			AttributeType type = new AttributeType("jpeg_" + i,
-					new JpegImageAttributeSyntax());
-			attrsMan.addAttributeType(type);
+					JpegImageAttributeSyntax.ID);
+			aTypeMan.addAttributeType(type);
 		}
 		
 	}
@@ -360,8 +364,7 @@ public class PerformanceTestBase extends TestRESTBase
 		{
 			BufferedImage im = new BufferedImage(1000, 1000, 1);
 			String typeName = "jpeg_" + r.nextInt((nDefAttr / 4) - 2);
-			Attribute<?> a = new JpegImageAttribute(typeName, enInGroup.get(i%NU),
-					AttributeVisibility.full, Collections.singletonList(im));
+			Attribute a = JpegImageAttribute.of(typeName, enInGroup.get(i%NU), im);
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
 			attrsMan.setAttribute(par, a, true);
 			op++;
@@ -370,9 +373,7 @@ public class PerformanceTestBase extends TestRESTBase
 		for (int i = 0; i < stringAttr; i++)
 		{
 			String typeName = "string_" + r.nextInt((nDefAttr  / 4) - 2);
-			Attribute<?> a = new StringAttribute(typeName, enInGroup.get(i%NU),
-					AttributeVisibility.full,
-					Collections.singletonList(new String(typeName)));
+			Attribute a = StringAttribute.of(typeName, enInGroup.get(i%NU), typeName);
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
 			attrsMan.setAttribute(par, a, true);
 			op++;
@@ -381,9 +382,8 @@ public class PerformanceTestBase extends TestRESTBase
 		for (int i = 0; i < intAttr; i++)
 		{
 			String typeName = "int_" + r.nextInt((nDefAttr / 4) - 2);
-			Attribute<?> a = new IntegerAttribute(typeName, enInGroup.get(i%NU),
-					AttributeVisibility.full,
-					Collections.singletonList(new Long(i + 100)));
+			Attribute a = IntegerAttribute.of(typeName, enInGroup.get(i%NU),
+					new Long(i + 100));
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
 			attrsMan.setAttribute(par, a, true);
 			op++;
@@ -392,9 +392,8 @@ public class PerformanceTestBase extends TestRESTBase
 		for (int i = 0; i < floatAttr; i++)
 		{
 			String typeName = "float_" + r.nextInt((nDefAttr / 4) - 2);
-			Attribute<?> a = new FloatingPointAttribute(typeName, enInGroup.get(i%NU),
-					AttributeVisibility.full,
-					Collections.singletonList(new Double(i + 100)));
+			Attribute a = FloatingPointAttribute.of(typeName, enInGroup.get(i%NU),
+					new Double(i + 100));
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
 			attrsMan.setAttribute(par, a, true);
 			op++;
@@ -409,14 +408,14 @@ public class PerformanceTestBase extends TestRESTBase
 	protected void addAttributeTypeForStatments() throws EngineException
 	{
 		
-		AttributeType type = new AttributeType("ex_everybody", new StringAttributeSyntax());
-		attrsMan.addAttributeType(type);
-		type = new AttributeType("ex_memberof", new StringAttributeSyntax());
-		attrsMan.addAttributeType(type);
-		type = new AttributeType("ex_ho1", new StringAttributeSyntax());
-		attrsMan.addAttributeType(type);	
-		type = new AttributeType("ex_ho2", new StringAttributeSyntax());
-		attrsMan.addAttributeType(type);		
+		AttributeType type = new AttributeType("ex_everybody", StringAttributeSyntax.ID);
+		aTypeMan.addAttributeType(type);
+		type = new AttributeType("ex_memberof", StringAttributeSyntax.ID);
+		aTypeMan.addAttributeType(type);
+		type = new AttributeType("ex_ho1", StringAttributeSyntax.ID);
+		aTypeMan.addAttributeType(type);	
+		type = new AttributeType("ex_ho2", StringAttributeSyntax.ID);
+		aTypeMan.addAttributeType(type);		
 	}
 	
 	
@@ -437,21 +436,19 @@ public class PerformanceTestBase extends TestRESTBase
 			if (path.equals("/"))
 					continue;
 
-			ArrayList<AttributeStatement2> asts = new ArrayList<AttributeStatement2>();
+			ArrayList<AttributeStatement> asts = new ArrayList<AttributeStatement>();
 
-			Attribute<?> a = new StringAttribute("ex_everybody", path,
-					AttributeVisibility.full,
-					Collections.singletonList(new String(g.getName()
-							+ "_everybody")));
-			AttributeStatement2 stFixed = new AttributeStatement2("true", null, ConflictResolution.merge, a);
+			Attribute a = StringAttribute.of("ex_everybody", path,
+					new String(g.getName() + "_everybody"));
+			AttributeStatement stFixed = new AttributeStatement("true", null, ConflictResolution.merge, a);
 			asts.add(stFixed);
 
 			if (path.split("/").length > 1 && path.split("/").length < d)
 			{
 				String group = c.getSubGroups().get(0);
-				AttributeStatement2 stDynamic = new AttributeStatement2("true", group, 
-					ConflictResolution.merge, AttributeVisibility.full, 
-					attributeTypesAsMap.get("ex_ho2"), "eattrs['ex_ho2']");
+				AttributeStatement stDynamic = new AttributeStatement("true", group, 
+					ConflictResolution.merge, 
+					"ex_ho2", "eattrs['ex_ho2']");
 				asts.add(stDynamic);
 			}
 			addStatments(g, asts);			
@@ -459,9 +456,9 @@ public class PerformanceTestBase extends TestRESTBase
 		}
 	}
 
-	private void addStatments(Group g, ArrayList<AttributeStatement2> asts)
+	private void addStatments(Group g, ArrayList<AttributeStatement> asts)
 	{
-		AttributeStatement2[] sts = Arrays.copyOf(g.getAttributeStatements(),
+		AttributeStatement[] sts = Arrays.copyOf(g.getAttributeStatements(),
 				g.getAttributeStatements().length + asts.size());
 
 		for (int i = 0; i < asts.size(); i++)

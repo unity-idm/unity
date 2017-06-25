@@ -6,20 +6,20 @@ package pl.edu.icm.unity.saml.idp.processor;
 
 import org.apache.xmlbeans.XmlObject;
 
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.exceptions.SAMLRequesterException;
+import eu.unicore.samly2.exceptions.SAMLResponderException;
+import eu.unicore.samly2.exceptions.SAMLServerException;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.translation.ExecutionFailException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLContext;
-import pl.edu.icm.unity.server.authn.AuthenticationException;
-import pl.edu.icm.unity.server.translation.ExecutionFailException;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.RequestAbstractType;
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.exceptions.SAMLRequesterException;
-import eu.unicore.samly2.exceptions.SAMLResponderException;
-import eu.unicore.samly2.exceptions.SAMLServerException;
 
 /**
  * Base class for producing all SAML responses. This class handles everything what is included in 

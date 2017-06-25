@@ -6,7 +6,11 @@ package pl.edu.icm.unity.webadmin.attributetype;
 
 import java.util.Map;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -16,10 +20,6 @@ import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegist
 import pl.edu.icm.unity.webui.common.attrmetadata.WebAttributeMetadataHandler;
 import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
-
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * Allows to inspect a single attribute type
@@ -35,17 +35,14 @@ public class AttributeTypeViewer extends CompactFormLayout
 	private Label cardinality;
 	private Label uniqueVals;
 	private Label selfModificable;
-	private Label visibility;
 	private Label flags;
 	private Label syntax;
 	private SafePanel syntaxPanel;
 	private VerticalLayout metaPanel;
-	
+
 	public AttributeTypeViewer(UnityMessageSource msg)
 	{
-		super();
 		this.msg = msg;
-		
 		initUI();
 	}
 	
@@ -72,10 +69,6 @@ public class AttributeTypeViewer extends CompactFormLayout
 		selfModificable = new Label();
 		selfModificable.setCaption(msg.getMessage("AttributeType.selfModificable"));
 		addComponent(selfModificable);
-		
-		visibility = new Label();
-		visibility.setCaption(msg.getMessage("AttributeType.visibility"));
-		addComponent(visibility);
 		
 		flags = new Label();
 		flags.setCaption(msg.getMessage("AttributeType.flags"));
@@ -105,14 +98,12 @@ public class AttributeTypeViewer extends CompactFormLayout
 		cardinality.setVisible(how);
 		uniqueVals.setVisible(how);
 		selfModificable.setVisible(how);
-		visibility.setVisible(how);
 		flags.setVisible(how);
 		syntax.setVisible(how);
 		syntaxPanel.setVisible(how);
 		metaPanel.setVisible(how);
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void setInput(AttributeType aType, WebAttributeHandler handler, 
 			AttributeMetadataHandlerRegistry metaHandlersReg)
 	{
@@ -129,11 +120,9 @@ public class AttributeTypeViewer extends CompactFormLayout
 		cardinality.setValue(AttributeTypeUtils.getBoundsDesc(msg, aType.getMinElements(), aType.getMaxElements()));
 		uniqueVals.setValue(AttributeTypeUtils.getBooleanDesc(msg, aType.isUniqueValues()));
 		selfModificable.setValue(AttributeTypeUtils.getBooleanDesc(msg, aType.isSelfModificable()));
-		visibility.setValue(AttributeTypeUtils.getVisibilityDesc(msg, aType));
 		flags.setValue(AttributeTypeUtils.getFlagsDesc(msg, aType));
-		String syntaxId = aType.getValueType().getValueSyntaxId();
-		syntax.setValue(syntaxId);
-		syntaxPanel.setContent(handler.getSyntaxViewer(aType.getValueType()));
+		syntax.setValue(aType.getValueSyntax());
+		syntaxPanel.setContent(handler.getSyntaxViewer());
 		
 		metaPanel.removeAllComponents();
 		Map<String, String> meta = aType.getMetadata();

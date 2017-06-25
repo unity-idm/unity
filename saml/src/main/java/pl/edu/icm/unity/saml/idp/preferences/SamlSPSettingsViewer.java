@@ -8,15 +8,15 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 /**
  * Shows a single {@link SPSettings}.
@@ -70,9 +70,9 @@ public class SamlSPSettingsViewer extends FormLayout
 		
 		hiddenAttributes.setReadOnly(false);
 		hiddenAttributes.removeAllItems();
-		Map<String, Attribute<?>> attributes = spSettings.getHiddenAttribtues();
+		Map<String, Attribute> attributes = spSettings.getHiddenAttribtues();
 		hiddenAttributes.setVisible(!attributes.isEmpty());
-		for (Entry<String, Attribute<?>> entry : attributes.entrySet())
+		for (Entry<String, Attribute> entry : attributes.entrySet())
 		{
 			if (entry.getValue() == null)
 				hiddenAttributes.addItem(entry.getKey());

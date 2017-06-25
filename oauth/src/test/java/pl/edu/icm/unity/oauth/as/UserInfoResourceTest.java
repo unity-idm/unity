@@ -22,10 +22,10 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerTokenError;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
+import pl.edu.icm.unity.base.token.Token;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.token.UserInfoResource;
-import pl.edu.icm.unity.server.api.internal.Token;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
 
 public class UserInfoResourceTest
 {
@@ -58,7 +58,7 @@ public class UserInfoResourceTest
 		assertEquals("application/json", resp.getHeaderString("Content-Type"));
 		UserInfo parsed = UserInfo.parse(resp.getEntity().toString());
 		assertEquals("userA", parsed.getSubject().getValue());
-		assertEquals("example@example.com", parsed.getEmail().getAddress());
+		assertEquals("example@example.com", parsed.getEmailAddress());
 	}
 	
 	@Test

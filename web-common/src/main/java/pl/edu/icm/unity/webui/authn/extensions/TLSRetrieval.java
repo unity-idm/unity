@@ -12,24 +12,11 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
-
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.authn.AbstractCredentialRetrieval;
-import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.server.authn.remote.SandboxAuthnResultCallback;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.stdext.credential.CertificateExchange;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.I18nStringJsonUtil;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
-import pl.edu.icm.unity.webui.common.ImageUtils;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.Styles;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -44,6 +31,23 @@ import com.vaadin.ui.VerticalLayout;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
+import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.stdext.credential.CertificateExchange;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.I18nStringJsonUtil;
+import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+import pl.edu.icm.unity.webui.common.ImageUtils;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Retrieves the authenticated user from the TLS. The login happens on the HTTP connection level 
@@ -51,13 +55,19 @@ import eu.unicore.util.configuration.ConfigurationException;
  * 
  * @author K. Benedyczak
  */
+@org.springframework.stereotype.Component("WebTLSRetrieval")
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchange> implements VaadinAuthentication
 {
+	public static final String NAME = "web-certificate";
+	public static final String DESC = "WebTLSRetrievalFactory.desc";
+	
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, TLSRetrieval.class);
 	private UnityMessageSource msg;
 	private I18nString name;
 	private String logoURL;
 	
+	@Autowired
 	public TLSRetrieval(UnityMessageSource msg)
 	{
 		super(VaadinAuthentication.NAME);
@@ -261,7 +271,18 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		{
 			return Collections.emptySet();
 		}
-	}	
+	}
+	
+	
+	@org.springframework.stereotype.Component("WebTLSRetrievalFactory")
+	public static class Factory extends AbstractCredentialRetrievalFactory<TLSRetrieval>
+	{
+		@Autowired
+		public Factory(ObjectFactory<TLSRetrieval> factory)
+		{
+			super(NAME, DESC, VaadinAuthentication.NAME, factory, CertificateExchange.class);
+		}
+	}
 }
 
 

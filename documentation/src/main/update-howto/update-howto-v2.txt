@@ -1,0 +1,194 @@
+Unity Update 1.x -> 2.x HowTo
+=============================
+Unity Team <unity-idm-discuss@lists.sourceforge.net>
+:revnumber: 1.0
+:numbered:
+:toc: left
+:linkcss:
+:iconsdir: ./icons
+:icons: font
+
+== Introduction
+
+Unity version 2.x features major changes and requires some effort to perform upgrade from a 1.x version. This
+document tracks all actions that may be necessary during upgrade.
+
+
+IMPORTANT: The only supported update is from the 1.9.x version. Updating directly from 1.8.x can work but
+we neither test nor support such update path. Update from any older version to 2.0.x version won't work for sure.
+If you have older version, update it to the latest 1.9.x version first.   
+
+This document doesn't provide information on the reasons for the introduced changes - see 2.0.0 release notes.
+
+== Update highlights
+
+In general update from 1.9 to 2.0 should be pretty smooth, unless you used any of those advanced features:
+
+. Developed a custom Java initializer of Unity contents
+. Integrated with the Unity REST admin API
+. Developed a custom extension/plugin/... for Unity
+
+In the above cases the upgrade will require you to refactor your code. Some hints are presented below, 
+do not hesitate to contact us for support. 
+
+== General update procedure
+
+To perform major import update is is necessary to export data from the 1.9.x version to JSON format from Admin UI
+and then to import it into the newer version. Automatic upgrade of database is not possible.
+
+Unity 2 includes couple of incompatible changes in configuration. Those changes are not difficult to perform and
+shouldn't take a lot of time, however are mandatory. Details of all changes are provided in the next section.
+
+Therefore the suggested update procedure is as follows:
+
+. Install a new instance separately (can be even on a separate test machine)
+. Configure a new instance by reusing the old configuration, applying the mandatory updates as described 
+in the next section. If installing on a test machine make sure to also update hostname. Always *make sure to use 
+a separate database*.
+. Start the new server and verify if the configuration is correct and server is properly starting. 
+. Create JSON dump of the old server (AdminUI -> Server management -> Database backup).
+. Import the JSON dump in the new server. Any additional tests can be performed now.
+. Assuming everything worked properly the old server can be shutdown, and the new server can replace it.
+
+If there are any problems during import please let us know.
+
+== Configuration files changes
+
+=== Logging subsystem re-configuration
+
+Unity 1.x used a dated log4j 1.2.17 logging library. Unity 2.x upgrades it to the most recent log4j2. Log4j2 uses 
+a different configuration syntax. It is important to note that logging configuration file name is changed from 
++log4j.properties+ to: 
+
+----
+log4j2.xml
+----
+   
+It is strongly suggested to use a new logging configuration file from Unity distribution as a template and 
+apply all local modifications manually to it. Typically it is only required to update logger levels to desired ones.
+
+Note that basic concepts behind logging (loggers, appenders) did not change. It is also possible to use other formats
+supported by Log4j2 (as new properties format), however we suggest to stick with the default XML configuration: 
+it is quite concise and there is the largest base of examples in XML syntax.
+
+=== Database subsystem re-configuration
+
+Unity 1.x allows for using only one of supported relational databases (RDBMS) to persist service state. What is more two 
+databases where used: the regular one, and so called _local_ database, which was a helper store.
+
+Unity 2.0 drops the _local_ database - its configuration is now removed. 
+
+Unity 2.0 allows for different database backends. Therefore the RDBMS backend which formerly was the only 
+(implicite) possibility, now is one of supported options. Below we assume that RDBMS backend should be still
+used in 2.0. In case other backend is more appropriate please refer to the regular manual.
+
+The following configuration changes are required in +unityServer.conf+:
+
+. The property +unityServer.db.localDBUrl+ should be removed
+. A new property needs to be added: +unityServer.storage.engine=rdbms+
+. All properties in +unityServer.conf+ starting with +unityServer.db.+ should be changed to start with the prefix
++unityServer.storage.engine.rdbms.+
+
+Example for MySQL database:
+
+----
+unityServer.storage.engine=rdbms
+unityServer.storage.engine.rdbms.jdbcUrl=jdbc:mysql://localhost/unitydb2
+unityServer.storage.engine.rdbms.dialect=mysql
+unityServer.storage.engine.rdbms.password=unity-pass
+unityServer.storage.engine.rdbms.username=unity-user
+----
+
+
+[IMPORTANT]
+====
+
+MySQL & MariaDB require the REFERENCES grant to the unity database user. If this grant is missing
+please add it. The full grant statement for example DB user can be:
+
+
+ GRANT ALTER, CREATE, DELETE, DROP, EXECUTE, INDEX, INSERT, LOCK TABLES, 
+  SELECT, TRIGGER, UPDATE, REFERENCES ON unitydb.* to 'unity'@'localhost' IDENTIFIED BY 'unitypass';+
+
+====
+
+
+=== Initialization scripts re-configuration
+
+Unity 1.x used the following configuration to activate so called _contents initializers_:
+
+----
+unityServer.core.initializers.0=demoInitializer
+unityServer.core.initializers.1=oauthDemoInitializer
+...
+----
+
+Couple of such contents initializers were shipped with Unity and allowed for quick-starting with (typically example) 
+data. 
+
+Unity 2 deprecates this feature, however it is still supported so that custom extensions can be loaded this way.
+We plan to fully drop this feature later on.
+
+Instead a much more powerful mechanism is provided: Unity can launch Groovy scripts in effect of various system 
+generated events. There are events triggered during server startup and so content initialization can be easily done
+using this new feature (along with many other things). All previously hardcoded content initializers from Unity 1 are
+now available as Groovy scripts and so can be also modified.
+
+The following configuration snippet turns on all initializers that were available in Unity 1 in the new, script 
+style. Only the desired ones can be used. Note however that the new +defaultContentInitializer.groovy+ is required
+to be added for nearly all cases, and it is strongly suggested to always have it activated. For details please check
+general documentation of the scripts triggering feature as well as the script itself.  
+
+----
+unityServer.core.script.0.file=scripts/defaultContentInitializer.groovy
+unityServer.core.script.0.trigger=pre-init
+unityServer.core.script.1.file=scripts/demoContentInitializer.groovy
+unityServer.core.script.1.trigger=pre-init
+unityServer.core.script.2.file=scripts/unicoreContentInitializer.groovy
+unityServer.core.script.2.trigger=pre-init
+unityServer.core.script.3.file=scripts/oauthDemoInitializer.groovy
+unityServer.core.script.3.trigger=pre-init
+unityServer.core.script.4.file=scripts/confirmationsInitializer.groovy
+unityServer.core.script.4.trigger=pre-init
+----
+
+NOTE: If a custom initialization code was developed and used in Unity 1.x it must be rewritten to use the new
+API. We suggest to convert it to Groovy, for easier maintenance.     
+
+
+To update custom initializers it is the best to first refactor them to compile and run in the legacy mode in Unity 2.
+Then moving them to Groovy is typically very easy, as syntax is mostly the same, only some small modifications are
+required. Typically it is enough to:
+
+. removing main class 
+. removing the run() method with @Override annotation
+ 
+
+== REST API changes
+
+If Unity clients were using the REST API please note that the JSON objects used as parameters in few cases have changed.
+The paths, methods, parameter names were not changed.
+
+The list of changes:
+
+. Identity object format.
+. Entity object format.
+. Attribute object format: no more visibility element, changes in some of value syntaxes (email).
+. Member's object format is more rich when getting groups contents.
+. Attribute type object format.
+. Endpoint object format
+
+
+== Suggested post update actions
+
+Unity 2 uses a much more secure password storage format. Server is configured in the way that passwords stored with 
+the legacy method are not forced to be updated. However this is strongly suggested. To do so visit the 
+Schema Management tab in AdminUI, select Credentials management. Open in edit mode each of your password credentials
+and deselect checkbox "Accept legacy storage format". Then all users with legacy password will be forced to change it
+after next login.
+
+
+  
+ 
+
+

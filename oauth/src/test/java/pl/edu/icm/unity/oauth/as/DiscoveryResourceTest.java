@@ -13,15 +13,15 @@ import javax.ws.rs.core.Response;
 
 import org.junit.Test;
 
-import pl.edu.icm.unity.oauth.as.token.DiscoveryResource;
-import pl.edu.icm.unity.oauth.as.token.KeysResource;
-
 import com.google.common.collect.Sets;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyType;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
+
+import pl.edu.icm.unity.oauth.as.token.DiscoveryResource;
+import pl.edu.icm.unity.oauth.as.token.KeysResource;
 
 public class DiscoveryResourceTest
 {

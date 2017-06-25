@@ -20,14 +20,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.saml.SamlProperties;
-import pl.edu.icm.unity.saml.validator.UnityAuthnRequestValidator;
-import pl.edu.icm.unity.server.api.PKIManagement;
-import pl.edu.icm.unity.server.api.internal.CommonIdPProperties;
-import pl.edu.icm.unity.server.utils.Log;
-import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
@@ -43,6 +35,14 @@ import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.saml.SamlProperties;
+import pl.edu.icm.unity.saml.validator.UnityAuthnRequestValidator;
+import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 
 /**
  * Properties-based configuration of SAML IdP endpoint.
@@ -51,7 +51,7 @@ import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
  */
 public class SamlIdpProperties extends SamlProperties
 {
-	private static final Logger log = Log.getLogger(SamlIdpProperties.LOG_PFX, SamlIdpProperties.class);
+	private static final Logger log = Log.getLegacyLogger(SamlIdpProperties.LOG_PFX, SamlIdpProperties.class);
 	public enum RequestAcceptancePolicy {all, validSigner, validRequester, strict};
 	public enum ResponseSigningPolicy {always, never, asRequest};
 	public enum AssertionSigningPolicy {always, ifResponseUnsigned};

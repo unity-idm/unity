@@ -15,7 +15,6 @@ import org.junit.Test;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
-import pl.edu.icm.unity.oauth.client.OpenIdConnectDiscovery;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 
 public class OIDCDiscoveryTest

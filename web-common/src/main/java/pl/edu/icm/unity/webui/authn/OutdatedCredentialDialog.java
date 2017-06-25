@@ -4,20 +4,21 @@
  */
 package pl.edu.icm.unity.webui.authn;
 
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.authn.LoginToHttpSessionBinder;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
-import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog;
-import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog.Callback;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
+
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog;
+import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog.Callback;
 
 /**
  * Simple dialog wrapping {@link CredentialsChangeDialog}. It is invoked for users logged with outdated
@@ -25,27 +26,29 @@ import com.vaadin.ui.Label;
  * After changing the credential user can only logout.  
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class OutdatedCredentialDialog extends AbstractDialog
 {
-	private AuthenticationManagement authnMan;
-	private IdentitiesManagement idsMan;
-	private CredentialEditorRegistry credEditorReg;
 	private WebAuthenticationProcessor authnProcessor;
+	private ObjectFactory<CredentialsChangeDialog> credChangeDialogFactory;
 	
-	public OutdatedCredentialDialog(UnityMessageSource msg, AuthenticationManagement authnMan,
-			IdentitiesManagement idsMan, CredentialEditorRegistry credEditorReg,
-			WebAuthenticationProcessor authnProcessor)
+	@Autowired
+	public OutdatedCredentialDialog(UnityMessageSource msg, 
+			ObjectFactory<CredentialsChangeDialog> credChangeDialogFactory)
 	{
 		super(msg, msg.getMessage("OutdatedCredentialDialog.caption"), 
 				msg.getMessage("OutdatedCredentialDialog.accept"), 
 				msg.getMessage("OutdatedCredentialDialog.cancel"));
-		this.authnMan = authnMan;
-		this.idsMan = idsMan;
-		this.credEditorReg = credEditorReg;
-		this.authnProcessor = authnProcessor;
+		this.credChangeDialogFactory = credChangeDialogFactory;
 		setSizeMode(SizeMode.SMALL);
 	}
 
+	public OutdatedCredentialDialog init(WebAuthenticationProcessor authnProcessor)
+	{
+		this.authnProcessor = authnProcessor;
+		return this;
+	}
+	
 	@Override
 	protected Component getContents() throws Exception
 	{
@@ -57,11 +60,8 @@ public class OutdatedCredentialDialog extends AbstractDialog
 	{
 		WrappedSession vss = VaadinSession.getCurrent().getSession();
 		LoginSession ls = (LoginSession) vss.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY);
-		CredentialsChangeDialog dialog = new CredentialsChangeDialog(msg, 
-				ls.getEntityId(), 
-				authnMan, 
-				idsMan, 
-				credEditorReg, true,
+		CredentialsChangeDialog dialog = credChangeDialogFactory.getObject().init(ls.getEntityId(), 
+				true,
 				new Callback()
 				{
 					@Override

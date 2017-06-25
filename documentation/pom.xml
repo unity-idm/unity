@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>pl.edu.icm.unity</groupId>
 		<artifactId>unity-server-parent</artifactId>
-		<version>1.9.7-SNAPSHOT</version>
+		<version>2.0.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -14,7 +14,6 @@
 
 	<properties>
 		<m.name>documentation</m.name>
-	    <maven.javadoc.skip>true</maven.javadoc.skip>
 	</properties>
 
 	<scm>
@@ -34,12 +33,12 @@
 
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-server-core</artifactId>
+			<artifactId>unity-server-engine-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-server-persistence</artifactId>
+			<artifactId>unity-server-storage</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -135,6 +134,14 @@
 									<directory>src/main/saml-howto</directory>
 									<filtering>true</filtering>
 								</resource>
+								<resource>
+									<directory>src/main/update-howto</directory>
+									<filtering>true</filtering>
+								</resource>
+								<resource>
+									<directory>src/main/rest-api</directory>
+									<filtering>true</filtering>
+								</resource>
 							</resources>
 						</configuration>
 					</execution>
@@ -171,9 +178,9 @@
 								<argument>target/workspace</argument>
 								<argument>eu.unicore.security.canl.TruststoreProperties|sec-ref-trustProperties.txt|.</argument>
 								<argument>eu.unicore.security.canl.CredentialProperties|sec-ref-credProperties.txt|.</argument>
-								<argument>pl.edu.icm.unity.server.utils.UnityPKIConfiguration|ref-pkiProperties.txt|</argument>
-								<argument>pl.edu.icm.unity.server.utils.UnityHttpServerConfiguration|ref-httpServerProperties.txt|</argument>
-								<argument>pl.edu.icm.unity.server.utils.UnityServerConfiguration|ref-mainServerProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.engine.api.config.UnityPKIConfiguration|ref-pkiProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration|ref-httpServerProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.engine.api.config.UnityServerConfiguration|ref-mainServerProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.ws.CXFEndpointProperties|ref-cxfEndpointProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.rest.RESTEndpointProperties|ref-restEndpointProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.ldap.client.LdapProperties|ref-ldapProperties.txt|</argument>
@@ -182,7 +189,9 @@
 								<argument>pl.edu.icm.unity.saml.sp.SAMLSPProperties|ref-samlSPProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.oauth.client.config.OAuthClientProperties|ref-oauthClientProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.oauth.client.config.CustomProviderProperties|ref-oauthProviderProperties.txt|</argument>
-								<argument>pl.edu.icm.unity.db.DBConfiguration|ref-dbProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.store.StorageConfiguration|ref-dbProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.store.hz.HzConfiguration|ref-storeHzProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.store.rdbms.RDBMSConfiguration|ref-storeRDBMSProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties|ref-JWTManProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.oauth.as.OAuthASProperties|ref-oauthASProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.oauth.rp.OAuthRPProperties|ref-oauthRPProperties.txt|</argument>
@@ -193,6 +202,21 @@
 						</configuration>
 						<goals>
 							<goal>java</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>asciidoctor-updatehowto</id>
+						<phase>pre-site</phase>
+						<configuration>
+							<executable>asciidoctor</executable>
+							<arguments>
+								<argument>-D</argument>
+								<argument>${project.reporting.outputDirectory}</argument>
+								<argument>target/workspace/update-howto-v2.txt</argument>
+							</arguments>
+						</configuration>
+						<goals>
+							<goal>exec</goal>
 						</goals>
 					</execution>
 					<execution>
@@ -225,6 +249,21 @@
 							<goal>exec</goal>
 						</goals>
 					</execution>
+					<execution>
+						<id>asciidoctor-restapi</id>
+						<phase>pre-site</phase>
+						<configuration>
+							<executable>asciidoctor</executable>
+							<arguments>
+								<argument>-D</argument>
+								<argument>${project.reporting.outputDirectory}</argument>
+								<argument>target/workspace/rest-api-v1.txt</argument>
+							</arguments>
+						</configuration>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+					</execution>
 				</executions>
 			</plugin>
 		</plugins>
@@ -235,15 +274,20 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.8</version>
+				<version>2.10.4</version>
 				<configuration>
-					<skip>true</skip>
+					<includeDependencySources>true</includeDependencySources>
+					<dependencySourceIncludes>
+						<dependencySourceInclude>pl.edu.icm.unity:unity-server-engine-api</dependencySourceInclude>
+					</dependencySourceIncludes>
+					<additionalparam>-Xdoclint:none</additionalparam>
+					<subpackages>pl.edu.icm.unity.engine.api</subpackages>
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
-				<version>2.4</version>
+				<version>2.6</version>
 				<reportSets>
 					<reportSet>
 						<reports>

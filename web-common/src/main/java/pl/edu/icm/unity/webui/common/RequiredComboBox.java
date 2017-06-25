@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-
 import com.vaadin.ui.ComboBox;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 
 /**
  * Extension of {@link ComboBox} with a one change: the field is required 

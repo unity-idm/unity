@@ -13,17 +13,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.generic.bulk.ProcessingRuleDB;
 import pl.edu.icm.unity.engine.bulkops.BulkProcessingSupport.RuleWithTS;
-import pl.edu.icm.unity.engine.transactions.SqlSessionTL;
+import pl.edu.icm.unity.engine.utils.ScheduledUpdaterBase;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.internal.TransactionalRunner;
-import pl.edu.icm.unity.server.bulkops.ScheduledProcessingRule;
-import pl.edu.icm.unity.utils.ScheduledUpdaterBase;
+import pl.edu.icm.unity.store.api.generic.ProcessingRuleDB;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
 
 /**
  * Checks if persisted bulk operations are changed wrt to what is loaded in QuartzScheduler
@@ -49,22 +47,20 @@ public class BulkOperationsUpdater extends ScheduledUpdaterBase
 	@Override
 	protected void updateInternal() throws EngineException
 	{
-		Collection<RuleWithTS> scheduledRulesWithTS;
-		scheduledRulesWithTS = bulkSupport.getScheduledRulesWithTS();
+		Collection<RuleWithTS> scheduledRulesWithTS = bulkSupport.getScheduledRulesWithTS();
 		
-		tx.runInTransaction(() -> {
-			SqlSession sql = SqlSessionTL.get();
+		tx.runInTransactionThrowing(() -> {
 			Map<String, AbstractMap.SimpleEntry<Date, ScheduledProcessingRule>> rulesInDb = 
-					getRuleChangeTime(sql);
+					getRuleChangeTime();
 			Set<String> toRemove = new HashSet<>();
 			Set<AbstractMap.SimpleEntry<Date, ScheduledProcessingRule>> toUpdate = new HashSet<>();
 			for (RuleWithTS rule: scheduledRulesWithTS)
 			{
-				Map.Entry<Date, ScheduledProcessingRule> fromDb = rulesInDb.remove(rule.rule.getId());
+				Map.Entry<Date, ScheduledProcessingRule> fromDb = rulesInDb.remove(rule.ruleId);
 				if (fromDb == null)
-					toRemove.add(rule.rule.getId());
+					toRemove.add(rule.ruleId);
 				else if (!fromDb.getKey().equals(rule.ts))
-					toUpdate.add(new AbstractMap.SimpleEntry<>(rule.ts, rule.rule));
+					toUpdate.add(new AbstractMap.SimpleEntry<>(fromDb.getKey(), fromDb.getValue()));
 			}
 
 			for (AbstractMap.SimpleEntry<Date, ScheduledProcessingRule> toAdd: rulesInDb.values())
@@ -76,11 +72,11 @@ public class BulkOperationsUpdater extends ScheduledUpdaterBase
 		});
 	}
 	
-	private Map<String, AbstractMap.SimpleEntry<Date, ScheduledProcessingRule>> getRuleChangeTime(SqlSession sql) 
+	private Map<String, AbstractMap.SimpleEntry<Date, ScheduledProcessingRule>> getRuleChangeTime() 
 			throws EngineException
 	{
 		Map<String, AbstractMap.SimpleEntry<Date, ScheduledProcessingRule>> changedRules = new HashMap<>();
-		List<Map.Entry<ScheduledProcessingRule, Date>> ruleNames = ruleDB.getAllWithUpdateTimestamps(sql);
+		List<Map.Entry<ScheduledProcessingRule, Date>> ruleNames = ruleDB.getAllWithUpdateTimestamps();
 		for (Map.Entry<ScheduledProcessingRule, Date> rule: ruleNames)
 			changedRules.put(rule.getKey().getId(), new AbstractMap.SimpleEntry<>(
 					rule.getValue(), rule.getKey()));

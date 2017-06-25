@@ -7,18 +7,19 @@ package pl.edu.icm.unity.webui.common.attributes;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
-
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Image;
+
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 
 /**
  * Shows an attribute values in read only mode. The look and feel is similar to the {@link FixedAttributeEditor}
@@ -30,15 +31,17 @@ public class AttributeViewer
 	private UnityMessageSource msg;
 	private AttributeHandlerRegistry registry;
 	private AttributeType attributeType;
-	private Attribute<?> attribute;
+	private Attribute attribute;
 	private boolean showGroup;
 	private List<Component> values;
+	private AttributeTypeSupport aTypeSupport;
 	
-	public AttributeViewer(UnityMessageSource msg, AttributeHandlerRegistry registry,
-			AttributeType attributeType, Attribute<?> attribute, boolean showGroup)
+	public AttributeViewer(UnityMessageSource msg, AttributeHandlerRegistry registry, 
+			AttributeType attributeType, Attribute attribute, boolean showGroup)
 	{
 		this.msg = msg;
 		this.registry = registry;
+		this.aTypeSupport = registry.getaTypeSupport();
 		this.attributeType = attributeType;
 		this.attribute = attribute;
 		this.showGroup = showGroup;
@@ -60,7 +63,7 @@ public class AttributeViewer
 
 		int i = 1;
 		values = new ArrayList<>();
-		for (Object o: attribute.getValues())
+		for (String o: attribute.getValues())
 		{
 			Component valueRepresentation = getRepresentation(o);
 			String captionWithNum = (attribute.getValues().size() == 1) ? caption + ":" :
@@ -87,15 +90,10 @@ public class AttributeViewer
 		}
 	}
 	
-	private Component getRepresentation(Object value)
+	private Component getRepresentation(String value)
 	{
-		@SuppressWarnings("unchecked")
-		AttributeValueSyntax<Object> syntax = (AttributeValueSyntax<Object>) 
-				attribute.getAttributeSyntax();
-		@SuppressWarnings("unchecked")
-		WebAttributeHandler<Object> handler = (WebAttributeHandler<Object>) 
-				registry.getHandler(syntax.getValueSyntaxId());
-		Component ret = handler.getRepresentation(value, syntax, RepresentationSize.MEDIUM);
-		return ret;
+		AttributeValueSyntax<?> syntax = aTypeSupport.getSyntax(attribute);
+		WebAttributeHandler handler = registry.getHandler(syntax);
+		return handler.getRepresentation(value, RepresentationSize.MEDIUM);
 	}
 }

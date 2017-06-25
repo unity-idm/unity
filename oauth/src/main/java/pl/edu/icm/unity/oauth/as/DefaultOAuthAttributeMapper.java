@@ -8,6 +8,8 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.nimbusds.jose.util.Base64;
+
 import net.minidev.json.JSONArray;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
@@ -18,8 +20,6 @@ import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
 
-import com.nimbusds.jose.util.Base64;
-
 /**
  * Default OAuth attribute mapper, maps string, string arrays, numbers, enums and images.
  * 
@@ -27,7 +27,7 @@ import com.nimbusds.jose.util.Base64;
  */
 public class DefaultOAuthAttributeMapper implements OAuthAttributeMapper
 {
-	private static final Map<String, ValueToJsonConverter> VALUE_TO_SAML = 
+	private static final Map<String, ValueToJsonConverter> VALUE_TO_OAUTH = 
 			new HashMap<String, ValueToJsonConverter>();
 	
 	static 
@@ -41,25 +41,25 @@ public class DefaultOAuthAttributeMapper implements OAuthAttributeMapper
 		for (ValueToJsonConverter conv: converters)
 		{
 			for (String syntax: conv.getSupportedSyntaxes())
-				VALUE_TO_SAML.put(syntax, conv);
+				VALUE_TO_OAUTH.put(syntax, conv);
 		}
 	}
 
 	
 	@Override
-	public boolean isHandled(Attribute<?> unityAttribute)
+	public boolean isHandled(Attribute unityAttribute)
 	{
-		String syntax = unityAttribute.getAttributeSyntax().getValueSyntaxId();
-		return VALUE_TO_SAML.containsKey(syntax);
+		String syntax = unityAttribute.getValueSyntax();
+		return VALUE_TO_OAUTH.containsKey(syntax);
 	}
 
 
 	@Override
-	public Object getJsonValue(Attribute<?> unityAttribute)
+	public Object getJsonValue(Attribute unityAttribute)
 	{
 		int valsNum = unityAttribute.getValues().size(); 
-		String syntax = unityAttribute.getAttributeSyntax().getValueSyntaxId();
-		ValueToJsonConverter converter = VALUE_TO_SAML.get(syntax);
+		String syntax = unityAttribute.getValueSyntax();
+		ValueToJsonConverter converter = VALUE_TO_OAUTH.get(syntax);
 		
 		if (valsNum > 1)
 		{
@@ -79,7 +79,7 @@ public class DefaultOAuthAttributeMapper implements OAuthAttributeMapper
 	}
 
 	@Override
-	public String getJsonKey(Attribute<?> unityAttribute)
+	public String getJsonKey(Attribute unityAttribute)
 	{
 		return unityAttribute.getName();
 	}
@@ -87,7 +87,7 @@ public class DefaultOAuthAttributeMapper implements OAuthAttributeMapper
 	private static class SimpleValueConverter implements ValueToJsonConverter
 	{
 		@Override
-		public Object convertValueToJson(Object value)
+		public Object convertValueToJson(String value)
 		{
 			return value;
 		}
@@ -104,10 +104,14 @@ public class DefaultOAuthAttributeMapper implements OAuthAttributeMapper
 
 	private static class JpegValueConverter implements ValueToJsonConverter
 	{
+		private static final JpegImageAttributeSyntax syntax = 
+				new JpegImageAttributeSyntax();
+
 		@Override
-		public String convertValueToJson(Object value)
+		public String convertValueToJson(String value)
 		{
-			byte[] octets = new JpegImageAttributeSyntax().serialize((BufferedImage) value);
+			BufferedImage decoded = syntax.convertFromString(value);
+			byte[] octets = new JpegImageAttributeSyntax().serialize(decoded);
 			return Base64.encode(octets).toJSONString();
 		}
 
@@ -120,10 +124,14 @@ public class DefaultOAuthAttributeMapper implements OAuthAttributeMapper
 
 	private static class EmailValueConverter implements ValueToJsonConverter
 	{
+		private static final VerifiableEmailAttributeSyntax syntax = 
+				new VerifiableEmailAttributeSyntax();
+		
 		@Override
-		public String convertValueToJson(Object value)
+		public String convertValueToJson(String value)
 		{
-			return ((VerifiableEmail) value).getValue();
+			VerifiableEmail parsed = syntax.convertFromString(value);
+			return parsed.getValue();
 		}
 
 		@Override
@@ -135,7 +143,7 @@ public class DefaultOAuthAttributeMapper implements OAuthAttributeMapper
 	
 	private interface ValueToJsonConverter
 	{
-		Object convertValueToJson(Object value);
+		Object convertValueToJson(String value);
 		String[] getSupportedSyntaxes();
 	}
 }

@@ -8,12 +8,12 @@ import java.io.IOException;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.server.api.internal.SessionParticipant;
-import pl.edu.icm.unity.server.api.internal.SessionParticipantType;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.engine.api.session.SessionParticipant;
+import pl.edu.icm.unity.engine.api.session.SessionParticipantType;
 
 /**
  * {@link SAMLSessionParticipant} type 

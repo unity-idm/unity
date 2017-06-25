@@ -7,15 +7,15 @@ package pl.edu.icm.unity.webui.authn.remote;
 import java.io.IOException;
 import java.util.UUID;
 
-import org.apache.log4j.Logger;
-
-import pl.edu.icm.unity.server.utils.Log;
+import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
+
+import pl.edu.icm.unity.base.utils.Log;
 
 
 /**

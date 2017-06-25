@@ -4,10 +4,10 @@
  */
 package pl.edu.icm.unity.webui.common.i18n;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.I18nString;
-
 import com.vaadin.ui.TextField;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.I18nString;
 
 /**
  * Custom field allowing for editing an {@link I18nString}, i.e. a string in several languages.

@@ -9,12 +9,13 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.unicore.samlidp.web.SamlUnicoreIdPWebEndpointFactory;
-import pl.edu.icm.unity.unicore.samlidp.ws.SamlUnicoreIdPSoapEndpointFactory;
+import pl.edu.icm.unity.unicore.samlidp.ws.SamlUnicoreSoapEndpoint;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesEditor;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesHandler;
@@ -28,23 +29,24 @@ public class SamlPreferencesWithETDHandler implements PreferencesHandler
 {
 	private final Set<String> SUPPORTED_ENDPOINTS = new HashSet<String>();
 	private UnityMessageSource msg;
-	private IdentitiesManagement idsMan;
-	private AttributesManagement atsMan;
-	private AttributeSyntaxFactoriesRegistry registry;
+	private EntityManagement idsMan;
+	private AttributeTypeManagement atsMan;
 	private AttributeHandlerRegistry attributeHandlerRegistry;
+	private IdentityTypeSupport idTpeSupport;
 	
 	@Autowired
-	public SamlPreferencesWithETDHandler(UnityMessageSource msg, IdentitiesManagement idsMan,
-			AttributesManagement atsMan, AttributeSyntaxFactoriesRegistry registry, 
-			AttributeHandlerRegistry attributeHandlerRegistry)
+	public SamlPreferencesWithETDHandler(UnityMessageSource msg, EntityManagement idsMan,
+			AttributeTypeManagement atsMan, 
+			AttributeHandlerRegistry attributeHandlerRegistry,
+			IdentityTypeSupport idTpeSupport)
 	{
 		super();
 		this.msg = msg;
 		this.idsMan = idsMan;
 		this.atsMan = atsMan;
-		this.registry = registry;
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
-		SUPPORTED_ENDPOINTS.add(SamlUnicoreIdPSoapEndpointFactory.NAME);
+		this.idTpeSupport = idTpeSupport;
+		SUPPORTED_ENDPOINTS.add(SamlUnicoreSoapEndpoint.NAME);
 		SUPPORTED_ENDPOINTS.add(SamlUnicoreIdPWebEndpointFactory.NAME);
 	}
 
@@ -63,9 +65,11 @@ public class SamlPreferencesWithETDHandler implements PreferencesHandler
 	@Override
 	public PreferencesEditor getPreferencesEditor(String value)
 	{
-		SamlPreferencesWithETD preferences = new SamlPreferencesWithETD(registry);
-		preferences.setSerializedConfiguration(value);
-		return new SamlPreferencesWithETDEditor(msg, preferences, idsMan, atsMan, attributeHandlerRegistry);
+		SamlPreferencesWithETD preferences = new SamlPreferencesWithETD();
+		if (value != null)
+			preferences.setSerializedConfiguration(JsonUtil.parse(value));
+		return new SamlPreferencesWithETDEditor(msg, preferences, idsMan, atsMan, attributeHandlerRegistry,
+				idTpeSupport);
 	}
 
 	@Override

@@ -13,10 +13,10 @@ import java.util.List;
 
 import org.junit.Test;
 
-import pl.edu.icm.unity.server.api.internal.SessionParticipant;
-import pl.edu.icm.unity.server.api.internal.SessionParticipantType;
-import pl.edu.icm.unity.server.api.internal.SessionParticipants;
-import pl.edu.icm.unity.server.registries.SessionParticipantTypesRegistry;
+import pl.edu.icm.unity.engine.api.session.SessionParticipant;
+import pl.edu.icm.unity.engine.api.session.SessionParticipantType;
+import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
+import pl.edu.icm.unity.engine.api.session.SessionParticipants;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 
 

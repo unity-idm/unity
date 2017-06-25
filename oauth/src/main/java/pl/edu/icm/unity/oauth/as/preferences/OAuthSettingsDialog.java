@@ -4,11 +4,11 @@
  */
 package pl.edu.icm.unity.oauth.as.preferences;
 
-import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.AbstractDialog;
-
 import com.vaadin.ui.Component;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
+import pl.edu.icm.unity.webui.common.AbstractDialog;
 
 /**
  * Shows {@link OAuthSPSettingsEditor} in a dialog.

@@ -9,16 +9,30 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
+import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
+import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalPreviousCredentialException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
@@ -37,18 +51,6 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.VerticalLayout;
-
 /**
  * Allows to change a credential.
  * @author K. Benedyczak
@@ -56,8 +58,10 @@ import com.vaadin.ui.VerticalLayout;
 public class CredentialsPanel extends VerticalLayout
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, CredentialsPanel.class);
-	private AuthenticationManagement authnMan;
-	private IdentitiesManagement idsMan;
+	private CredentialManagement credMan;
+	private CredentialRequirementManagement credReqMan;
+	private EntityCredentialManagement ecredMan;
+	private EntityManagement entityMan;
 	private CredentialEditorRegistry credEditorReg;
 	private UnityMessageSource msg;
 	private boolean changed = false;
@@ -84,19 +88,23 @@ public class CredentialsPanel extends VerticalLayout
 	 * @param msg
 	 * @param entityId
 	 * @param authnMan
-	 * @param idsMan
+	 * @param ecredMan
 	 * @param credEditorReg
 	 * @param simpleMode if true then admin-only action buttons (credential reset/outdate) are not shown.
 	 * @throws Exception
 	 */
-	public CredentialsPanel(UnityMessageSource msg, long entityId, AuthenticationManagement authnMan, 
-			IdentitiesManagement idsMan, CredentialEditorRegistry credEditorReg, boolean simpleMode) 
+	public CredentialsPanel(UnityMessageSource msg, long entityId, CredentialManagement credMan, 
+			EntityCredentialManagement ecredMan, EntityManagement entityMan,
+			CredentialRequirementManagement credReqMan,
+			CredentialEditorRegistry credEditorReg, boolean simpleMode) 
 					throws Exception
 	{
 		this.msg = msg;
-		this.authnMan = authnMan;
-		this.idsMan = idsMan;
+		this.credMan = credMan;
+		this.ecredMan = ecredMan;
 		this.entityId = entityId;
+		this.entityMan = entityMan;
+		this.credReqMan = credReqMan;
 		this.credEditorReg = credEditorReg;
 		this.simpleMode = simpleMode;
 		init();
@@ -219,7 +227,7 @@ public class CredentialsPanel extends VerticalLayout
 		askAboutCurrent = isCurrentCredentialVerificationRequired(chosen);
 		
 		ComponentsContainer credEditorComp = credEditor.getEditor(askAboutCurrent, 
-				chosen.getJsonConfiguration(), true); 
+				chosen.getConfiguration(), true); 
 		credLayout.addComponents(credEditorComp.getComponents());
 		editor.setContent(credLayout);
 		Component viewer = credEditor.getViewer(credPublicInfo.getExtraInformation());
@@ -251,7 +259,7 @@ public class CredentialsPanel extends VerticalLayout
 		EntityParam entityP = new EntityParam(entity.getId());
 		try
 		{
-			return idsMan.isCurrentCredentialRequiredForChange(entityP, chosen.getName());
+			return ecredMan.isCurrentCredentialRequiredForChange(entityP, chosen.getName());
 		} catch (EngineException e)
 		{
 			log.debug("Got exception when asking about possibility to "
@@ -278,9 +286,9 @@ public class CredentialsPanel extends VerticalLayout
 		try
 		{
 			if (askAboutCurrent)
-				idsMan.setEntityCredential(entityP, credDef.getName(), secrets, currentSecrets);
+				ecredMan.setEntityCredential(entityP, credDef.getName(), secrets, currentSecrets);
 			else
-				idsMan.setEntityCredential(entityP, credDef.getName(), secrets);
+				ecredMan.setEntityCredential(entityP, credDef.getName(), secrets);
 		} catch (IllegalPreviousCredentialException e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
@@ -309,7 +317,7 @@ public class CredentialsPanel extends VerticalLayout
 		EntityParam entityP = new EntityParam(entity.getId());
 		try
 		{
-			idsMan.setEntityCredentialStatus(entityP, credDef.getName(), desiredState);
+			ecredMan.setEntityCredentialStatus(entityP, credDef.getName(), desiredState);
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
@@ -325,7 +333,7 @@ public class CredentialsPanel extends VerticalLayout
 	{
 		try
 		{
-			entity = idsMan.getEntity(entityP);
+			entity = entityMan.getEntity(entityP);
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("CredentialChangeDialog.entityRefreshError"), e);
@@ -364,7 +372,7 @@ public class CredentialsPanel extends VerticalLayout
 	{
 		try
 		{
-			entity = idsMan.getEntity(new EntityParam(entityId));
+			entity = entityMan.getEntity(new EntityParam(entityId));
 		} catch (Exception e)
 		{
 			throw new InternalException(msg.getMessage("CredentialChangeDialog.getEntityError"), e);
@@ -376,7 +384,7 @@ public class CredentialsPanel extends VerticalLayout
 		Collection<CredentialDefinition> allCreds = null;
 		try
 		{
-			Collection<CredentialRequirements> allReqs = authnMan.getCredentialRequirements();
+			Collection<CredentialRequirements> allReqs = credReqMan.getCredentialRequirements();
 			for (CredentialRequirements cr: allReqs)
 				if (credReqId.equals(cr.getName()))
 					credReq = cr;
@@ -395,7 +403,7 @@ public class CredentialsPanel extends VerticalLayout
 		
 		try
 		{
-			allCreds = authnMan.getCredentialDefinitions();
+			allCreds = credMan.getCredentialDefinitions();
 		} catch (EngineException e)
 		{
 			throw new InternalException(msg.getMessage("CredentialChangeDialog.cantGetCredDefs"), e);

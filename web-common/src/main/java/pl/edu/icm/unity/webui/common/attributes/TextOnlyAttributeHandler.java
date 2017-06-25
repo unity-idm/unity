@@ -6,11 +6,6 @@ package pl.edu.icm.unity.webui.common.attributes;
 
 import java.util.List;
 
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
-import pl.edu.icm.unity.webui.common.ComponentsContainer;
-
 import com.vaadin.server.UserError;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Component;
@@ -19,16 +14,27 @@ import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.webui.common.ComponentsContainer;
+
 /**
  * Base attribute handler for the web. Renders as label, edit in text field. Extensions has to implement
  * only id and conversion from String to domain type.
  * @author K. Benedyczak
  */
-public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler<T>
+public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 {
-	public static final int LARGE_STRING = 200;
+	protected AttributeValueSyntax<?> syntax;
+	public static final int LARGE_STRING = 1000;
 	public static final int SMALL_STRING = 50;
 	
+	public TextOnlyAttributeHandler(AttributeValueSyntax<?> syntax)
+	{
+		this.syntax = syntax;
+	}
+
 	public static String trimString(String full, int limited)
 	{
 		if (limited<=0 || limited>full.length())
@@ -55,33 +61,32 @@ public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler
 	}
 	
 	@Override
-	public String getValueAsString(T value, AttributeValueSyntax<T> syntax, int limited)
+	public String getValueAsString(String value, int limited)
 	{
 		return trimString(value.toString(), limited);
 	}
 	
 	@Override
-	public Component getRepresentation(T value, AttributeValueSyntax<T> syntax, RepresentationSize size)
+	public Component getRepresentation(String value, RepresentationSize size)
 	{
-		return new Label(trimString(value.toString(), toLengthLimit(size)));
+		return new Label(trimString(value, toLengthLimit(size)));
 	}
 	
 	@Override
-	public AttributeValueEditor<T> getEditorComponent(T initialValue, String label,
-			AttributeValueSyntax<T> syntax)
+	public AttributeValueEditor getEditorComponent(String initialValue, String label)
 	{
 		return new StringValueEditor(initialValue, label, syntax);
 	}
 	
-	private class StringValueEditor implements AttributeValueEditor<T>
+	private class StringValueEditor implements AttributeValueEditor
 	{
-		private T value;
+		private String value;
 		private String label;
-		private AttributeValueSyntax<T> syntax;
+		private AttributeValueSyntax<?> syntax;
 		private AbstractTextField field;
 		private boolean required;
 		
-		public StringValueEditor(T value, String label, AttributeValueSyntax<T> syntax)
+		public StringValueEditor(String value, String label, AttributeValueSyntax<?> syntax)
 		{
 			this.value = value;
 			this.syntax = syntax;
@@ -109,7 +114,7 @@ public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler
 			field.setRequired(required);
 			
 			StringBuilder sb = new StringBuilder();
-			for (String hint: getHints(syntax))
+			for (String hint: getHints())
 				sb.append(hint).append("<br>");
 			field.setDescription(sb.toString());
 			if (label != null)
@@ -119,14 +124,14 @@ public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler
 		}
 
 		@Override
-		public T getCurrentValue() throws IllegalAttributeValueException
+		public String getCurrentValue() throws IllegalAttributeValueException
 		{
 			if (!required && field.getValue().isEmpty())
 				return null;
 			try
 			{
-				T cur = convertFromString(field.getValue());
-				syntax.validate(cur);
+				String cur= field.getValue();
+				syntax.validateStringValue(cur);
 				field.setComponentError(null);
 				return cur;
 			} catch (IllegalAttributeValueException e)
@@ -147,15 +152,13 @@ public abstract class TextOnlyAttributeHandler<T> implements WebAttributeHandler
 		}
 	}
 
-	protected abstract T convertFromString(String value);
-	
-	protected abstract List<String> getHints(AttributeValueSyntax<T> syntax);
+	protected abstract List<String> getHints();
 	
 	@Override
-	public Component getSyntaxViewer(AttributeValueSyntax<T> syntaxR)
+	public Component getSyntaxViewer()
 	{
 		VerticalLayout ret = new VerticalLayout();
-		for (String hint: getHints(syntaxR))
+		for (String hint: getHints())
 		{
 			Label info = new Label(hint);
 			ret.addComponent(info);

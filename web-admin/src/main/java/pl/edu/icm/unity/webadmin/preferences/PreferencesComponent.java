@@ -8,15 +8,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.EndpointManagement;
-import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
-import pl.edu.icm.unity.webui.common.preferences.PreferencesHandlerRegistry;
-
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.EndpointManagement;
+import pl.edu.icm.unity.engine.api.PreferencesManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.webui.common.preferences.PreferencesHandlerRegistry;
 
 /**
  * Allows for viewing and editing of preferences of the logged user.
@@ -47,9 +47,9 @@ public class PreferencesComponent extends VerticalLayout
 		Set<String> deployedTypes = null;
 		try
 		{
-			List<EndpointDescription> deployed = endpMan.getEndpoints();
+			List<ResolvedEndpoint> deployed = endpMan.getEndpoints();
 			deployedTypes = new HashSet<String>();
-			for (EndpointDescription desc: deployed)
+			for (ResolvedEndpoint desc: deployed)
 				deployedTypes.add(desc.getType().getName());
 		} catch (EngineException e)
 		{

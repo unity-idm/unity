@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.engine.notifications;
 
-import org.apache.ibatis.session.SqlSession;
-
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.DescribedObject;
@@ -31,7 +29,7 @@ public interface NotificationFacility extends DescribedObject
 	 * @return never null, in case no address is found then exception is thrown
 	 * @throws EngineException
 	 */
-	String getAddressForEntity(EntityParam recipient, SqlSession sql, String preferred) throws EngineException;
+	String getAddressForEntity(EntityParam recipient, String preferred) throws EngineException;
 	
 	/**
 	 * Returns an address of the person who filled registration form.
@@ -40,7 +38,6 @@ public interface NotificationFacility extends DescribedObject
 	 * @return null if not found, address otherwise
 	 * @throws EngineException
 	 */
-	String getAddressForUserRequest(UserRequestState<?> currentRequest,
-			SqlSession sql)	throws EngineException;
+	String getAddressForUserRequest(UserRequestState<?> currentRequest) throws EngineException;
 	
 }

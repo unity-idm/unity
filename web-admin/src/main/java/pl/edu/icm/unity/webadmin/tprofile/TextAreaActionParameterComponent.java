@@ -4,11 +4,11 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.ui.TextArea;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.webui.common.Styles;
-
-import com.vaadin.ui.TextArea;
 
 /**
  * Trivial, {@link TextArea} based implementation of {@link ActionParameterComponent}. 

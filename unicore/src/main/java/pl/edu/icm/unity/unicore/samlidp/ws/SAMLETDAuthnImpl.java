@@ -8,17 +8,20 @@ import java.util.Collection;
 import java.util.Date;
 
 import org.apache.cxf.interceptor.Fault;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
+import eu.unicore.samly2.exceptions.SAMLServerException;
+import eu.unicore.samly2.webservice.SAMLAuthnInterface;
+import eu.unicore.security.etd.DelegationRestrictions;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.PreferencesManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.idp.IdPEngine;
+import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.ws.SAMLAuthnImpl;
-import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.api.internal.IdPEngine;
-import pl.edu.icm.unity.server.registries.AttributeSyntaxFactoriesRegistry;
-import pl.edu.icm.unity.server.translation.out.TranslationResult;
-import pl.edu.icm.unity.server.utils.Log;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD;
@@ -28,9 +31,6 @@ import pl.edu.icm.unity.unicore.samlidp.saml.SoapAuthWithETDRequestValidator;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
-import eu.unicore.samly2.exceptions.SAMLServerException;
-import eu.unicore.samly2.webservice.SAMLAuthnInterface;
-import eu.unicore.security.etd.DelegationRestrictions;
 
 /**
  * Implementation of the SAML authentication protocol over SOAP.
@@ -44,12 +44,12 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLETDAuthnImpl.class);
 
-	public SAMLETDAuthnImpl(SamlIdpProperties samlProperties, String endpointAddress,
+	public SAMLETDAuthnImpl(AttributeTypeSupport aTypeSupport,
+			SamlIdpProperties samlProperties, String endpointAddress,
 			IdPEngine idpEngine,
-			PreferencesManagement preferencesMan,
-			AttributeSyntaxFactoriesRegistry attributeSyntaxFactoriesRegistry)
+			PreferencesManagement preferencesMan)
 	{
-		super(samlProperties, endpointAddress, idpEngine, preferencesMan, attributeSyntaxFactoriesRegistry);
+		super(aTypeSupport, samlProperties, endpointAddress, idpEngine, preferencesMan);
 	}
 
 	@Override
@@ -65,21 +65,20 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 			throw new Fault(e1);
 		}
 		
-		AuthnWithETDResponseProcessor samlProcessor = new AuthnWithETDResponseProcessor(context);
+		AuthnWithETDResponseProcessor samlProcessor = new AuthnWithETDResponseProcessor(aTypeSupport, context);
 		NameIDType samlRequester = context.getRequest().getIssuer();
 		
 		ResponseDocument respDoc;
 		try
 		{
-			SamlPreferencesWithETD preferences = SamlPreferencesWithETD.getPreferences(preferencesMan,
-					attributeSyntaxFactoriesRegistry);
+			SamlPreferencesWithETD preferences = SamlPreferencesWithETD.getPreferences(preferencesMan);
 			SPETDSettings spEtdPreferences = preferences.getSPETDSettings(samlRequester);
 			SPSettings spPreferences = preferences.getSPSettings(samlRequester);
 			
 			TranslationResult userInfo = getUserInfo(samlProcessor);
 			IdentityParam selectedIdentity = getIdentity(userInfo, samlProcessor, spPreferences);
 			log.debug("Authentication of " + selectedIdentity);
-			Collection<Attribute<?>> attributes = samlProcessor.getAttributes(userInfo, spPreferences);
+			Collection<Attribute> attributes = samlProcessor.getAttributes(userInfo, spPreferences);
 			respDoc = samlProcessor.processAuthnRequest(selectedIdentity, attributes, 
 					getRestrictions(spEtdPreferences));
 		} catch (Exception e)

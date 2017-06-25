@@ -5,30 +5,14 @@
 
 package pl.edu.icm.unity.webadmin.serverman;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.EndpointManagement;
-import pl.edu.icm.unity.server.api.ServerManagement;
-import pl.edu.icm.unity.server.api.TranslationProfileManagement;
-import pl.edu.icm.unity.server.api.internal.NetworkServer;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
-import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.Styles;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.ui.Button;
@@ -37,13 +21,25 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.EndpointManagement;
+import pl.edu.icm.unity.engine.api.ServerManagement;
+import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.webui.common.ErrorComponent;
+import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
+
 /**
  * Displays list of endpoint component 
  * 
  * @author P. Piernik
  */
-@Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@PrototypeComponent
 public class EndpointsComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
@@ -51,21 +47,22 @@ public class EndpointsComponent extends VerticalLayout
 	private ServerManagement serverMan;
 	private VerticalLayout content;
 	private UnityServerConfiguration config;
-	private NetworkServer networkServer;
 	private Map<String, EndpointComponent> endpointComponents;
+	private ObjectFactory<EndpointComponent> endpointComponentFactory;
 
 	@Autowired
 	public EndpointsComponent(UnityMessageSource msg, EndpointManagement endpointMan,
-			AuthenticationManagement authMan, ServerManagement serverMan,
+			ServerManagement serverMan,
 			TranslationProfileManagement profilesMan,
 			ObjectMapper jsonMapper,
-			UnityServerConfiguration config, NetworkServer networkServer)
+			UnityServerConfiguration config, 
+			ObjectFactory<EndpointComponent> endpointComponentFactory)
 	{
 		this.config = config;
 		this.msg = msg;
 		this.endpointMan = endpointMan;
 		this.serverMan = serverMan;
-		this.networkServer = networkServer;
+		this.endpointComponentFactory = endpointComponentFactory;
 		this.endpointComponents = new TreeMap<String, EndpointComponent>();
 		initUI();
 	}
@@ -136,7 +133,7 @@ public class EndpointsComponent extends VerticalLayout
 			return;
 		}
 
-		List<EndpointDescription> endpoints = null;
+		List<ResolvedEndpoint> endpoints = null;
 		try
 		{
 			endpoints = endpointMan.getEndpoints();
@@ -146,13 +143,12 @@ public class EndpointsComponent extends VerticalLayout
 			return;
 		}
 
-		List<String> existing = new ArrayList<>();
-		for (EndpointDescription endpointDesc : endpoints)
+		Set<String> existing = new HashSet<>();
+		for (ResolvedEndpoint endpointDesc : endpoints)
 		{
-			endpointComponents.put(endpointDesc.getId(), new EndpointComponent(
-					endpointMan, serverMan, networkServer, endpointDesc, config, msg,
-					DeployableComponentViewBase.Status.deployed.toString()));
-			existing.add(endpointDesc.getId());
+			endpointComponents.put(endpointDesc.getName(), endpointComponentFactory.getObject().init(
+					endpointDesc));
+			existing.add(endpointDesc.getName());
 		}
 
 		Set<String> endpointsList = config.getStructuredListKeys(UnityServerConfiguration.ENDPOINTS);
@@ -161,15 +157,8 @@ public class EndpointsComponent extends VerticalLayout
 			if (existing.contains(name))
 				continue;
 			
-			String description = config.getValue(endpointKey
-					+ UnityServerConfiguration.ENDPOINT_DESCRIPTION);
-			EndpointDescription en = new EndpointDescription();
-			en.setId(name);
-			en.setDescription(description);
-			endpointComponents.put(en.getId(), new EndpointComponent(endpointMan, serverMan,
-					networkServer, en, config, msg,
-					DeployableComponentViewBase.Status.undeployed.toString()));
-			
+			EndpointComponent endpointComponent = endpointComponentFactory.getObject().init(name);
+			endpointComponents.put(name, endpointComponent);
 		}
 		
 		for (EndpointComponent endpoint : endpointComponents.values())

@@ -14,28 +14,19 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.server.api.ServerManagement;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-import pl.edu.icm.unity.utils.DemoContentInitializer;
+import pl.edu.icm.unity.engine.api.ServerManagement;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
 /**
- * Tests the import and export.
- * TODO:
- * we should have the following test here:
- * 1) all possible kinds of objects are created.
- * 2) export is performed
- * 3) import is performed.
+ * Tests the import and export. Only a integration test. Import and export of all stored elements is tested 
+ * individually in the storage module.
  * 
- * Additionally the exported file should be stored in test resources. After each change of in-DB format
- * there must be another test and another file in the test resources, so import is tested for 
- * all previous formats and the current one. 
- *  
  * @author K. Benedyczak
  */
 public class TestImportExport extends DBIntegrationTestBase
 {
 	@Autowired
-	private DemoContentInitializer initializer;
+	private InitializerCommon initializer;
 	
 	@Autowired
 	private UnityServerConfiguration configuration;
@@ -44,23 +35,19 @@ public class TestImportExport extends DBIntegrationTestBase
 	@Test
 	public void test() throws Exception
 	{
-		initializer.run();
+		initializer.initializeCommonAttributeTypes();
 		FileUtils.deleteDirectory(new File(
 				configuration.getFileValue(UnityServerConfiguration.WORKSPACE_DIRECTORY, true), 
 				ServerManagement.DB_DUMP_DIRECTORY));
 		
-		int atsSize = attrsMan.getAttributeTypes().size();
-		int idTypesSize = idsMan.getIdentityTypes().size();
+		int atsSize = aTypeMan.getAttributeTypes().size();
+		int idTypesSize = idTypeMan.getIdentityTypes().size();
 		
 		File exported = serverMan.exportDb();
 		assertTrue(exported.exists());
-		serverMan.importDb(exported, false);
+		serverMan.importDb(exported);
 		
-		assertEquals(atsSize, attrsMan.getAttributeTypes().size());
-		assertEquals(idTypesSize, idsMan.getIdentityTypes().size());
-		
-		serverMan.importDb(exported, true);
-		assertEquals(atsSize, attrsMan.getAttributeTypes().size());
-		assertEquals(idTypesSize, idsMan.getIdentityTypes().size());
+		assertEquals(atsSize, aTypeMan.getAttributeTypes().size());
+		assertEquals(idTypesSize, idTypeMan.getIdentityTypes().size());
 	}
 }

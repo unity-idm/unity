@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.groupbrowser;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Group;
 
 /**
@@ -36,15 +36,15 @@ public class TreeNode
 	{
 		if (group.isTopLevel())
 		{
-			this.name = group.getDisplayedNameShort().getValue(msg);
+			this.name = group.getDisplayedName().getValue(msg);
 			if (this.name.equals("/"))
 				this.name = msg.getMessage("GroupBrowser.root");
 			else
 				this.name = name + " (/)";
 		} else
 		{
-			this.name = group.getDisplayedNameShort().getValue(msg);
-			String realName = group.getName();
+			this.name = group.getDisplayedName().getValue(msg);
+			String realName = group.toString();
 			if (!realName.equals(name))
 				this.name = name + " (" + realName + ")";
 		}

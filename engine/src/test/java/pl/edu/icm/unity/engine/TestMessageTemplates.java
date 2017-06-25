@@ -9,16 +9,16 @@ import java.util.Map;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.msgtemplates.MessageTemplate;
-import pl.edu.icm.unity.server.api.MessageTemplateManagement;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.MessageTemplate;
 
 public class TestMessageTemplates extends DBIntegrationTestBase
 {
 	@Autowired
-	MessageTemplateManagement msgTempMan;
+	private MessageTemplateManagement msgTempMan;
 	
 	
 	@Test
@@ -56,35 +56,31 @@ public class TestMessageTemplates extends DBIntegrationTestBase
 	}
 	
 	@Test
-	public void testValidationConsumer() 
+	public void testValidationConsumer() throws EngineException 
 	{
 		I18nMessage imsg = new I18nMessage(new I18nString("stest"), new I18nString("btest"));
 		MessageTemplate template = new MessageTemplate("tName", "tDesc", imsg, "FailConsumer");
 		try
 		{
 			msgTempMan.addTemplate(template);
-		} catch (EngineException e)
+			fail("Exception not throw.");
+		} catch (IllegalArgumentException e)
 		{
-			return;
 		}
 		
-		fail("WrongArgumentException not throw.");
 	}
 	
 	@Test
-	public void testValidationMessage() 
+	public void testValidationMessage() throws EngineException 
 	{
 		I18nMessage imsg = new I18nMessage(new I18nString("stest${code}"), new I18nString("btest"));
 		MessageTemplate template = new MessageTemplate("tName", "tDesc", imsg, "RejectForm");
 		try
 		{
 			msgTempMan.addTemplate(template);
-		} catch (EngineException e)
+			fail("Exception not throw.");
+		} catch (IllegalArgumentException e)
 		{
-			return;
 		}
-		
-		fail("WrongArgumentException not throw.");
-	
 	}
 }

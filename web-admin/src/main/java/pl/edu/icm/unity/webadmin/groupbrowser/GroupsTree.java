@@ -13,23 +13,31 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.vaadin.event.Action;
+import com.vaadin.event.Transferable;
+import com.vaadin.event.dd.DragAndDropEvent;
+import com.vaadin.event.dd.DropHandler;
+import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
+import com.vaadin.ui.Table.TableTransferable;
+import com.vaadin.ui.Tree;
+
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributeClassManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.server.utils.GroupUtils;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
@@ -50,14 +58,6 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
-import com.vaadin.event.Action;
-import com.vaadin.event.Transferable;
-import com.vaadin.event.dd.DragAndDropEvent;
-import com.vaadin.event.dd.DropHandler;
-import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
-import com.vaadin.ui.Table.TableTransferable;
-import com.vaadin.ui.Tree;
-
 /**
  * Tree with groups obtained dynamically from the engine.
  * @author K. Benedyczak
@@ -68,28 +68,32 @@ public class GroupsTree extends Tree
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, GroupsTree.class);
 	private GroupsManagement groupsMan;
-	private IdentitiesManagement identitiesMan;
+	private EntityManagement identitiesMan;
 	private UnityMessageSource msg;
-	private AuthenticationManagement authnMan;
+	private CredentialRequirementManagement authnMan;
 	private IdentityEditorRegistry identityEditorReg;
 	private GroupManagementHelper groupManagementHelper;
 	private EventsBus bus;
 	private List<SingleActionHandler> actionHandlers;
+	private AttributeClassManagement acMan;
+	private AttributeTypeManagement atMan;
 
 	@Autowired
-	public GroupsTree(GroupsManagement groupsMan, IdentitiesManagement identitiesMan,
-			AuthenticationManagement authnMan,
+	public GroupsTree(GroupsManagement groupsMan, EntityManagement identitiesMan,
+			CredentialRequirementManagement authnMan,
 			IdentityEditorRegistry identityEditorReg,
-			AttributeHandlerRegistry attrHandlerRegistry, AttributesManagement attrMan,
-			UnityMessageSource msg)
+			AttributeHandlerRegistry attrHandlerRegistry, AttributeTypeManagement atMan,
+			UnityMessageSource msg, AttributeClassManagement acMan)
 	{
 		this.groupsMan = groupsMan;
 		this.identitiesMan = identitiesMan;
+		this.atMan = atMan;
 		this.msg = msg;
 		this.authnMan = authnMan;
 		this.identityEditorReg = identityEditorReg;
+		this.acMan = acMan;
 		this.groupManagementHelper = new GroupManagementHelper(msg, groupsMan, 
-				attrMan, attrHandlerRegistry);
+				atMan, acMan, attrHandlerRegistry);
 		this.actionHandlers = new ArrayList<>();
 		addExpandListener(new GroupExpandListener());
 		addValueChangeListener(new ValueChangeListenerImpl());
@@ -140,7 +144,7 @@ public class GroupsTree extends Tree
 		try
 		{
 			GroupContents contents = groupsMan.getContents("/", 
-					GroupContents.GROUPS|GroupContents.LINKED_GROUPS|GroupContents.METADATA);
+					GroupContents.GROUPS|GroupContents.METADATA);
 			TreeNode parent = new TreeNode(msg, contents.getGroup());
 			addItem(parent);
 			setItemIcon(parent, Images.folder.getResource());
@@ -160,8 +164,7 @@ public class GroupsTree extends Tree
 		{
 			try
 			{
-				groupsMan.getContents(groupM, 
-						GroupContents.GROUPS|GroupContents.LINKED_GROUPS);
+				groupsMan.getContents(groupM, GroupContents.GROUPS);
 			} catch (AuthorizationException e2)
 			{
 				continue;
@@ -265,7 +268,7 @@ public class GroupsTree extends Tree
 			NotificationPopup.showError(msg, msg.getMessage("GroupsTree.getMembershipError", entity), e1);
 			return;
 		}
-		final Deque<String> notMember = GroupUtils.getMissingGroups(finalGroup, existingGroups);
+		final Deque<String> notMember = Group.getMissingGroups(finalGroup, existingGroups);
 		
 		if (notMember.size() == 0)
 		{
@@ -379,7 +382,7 @@ public class GroupsTree extends Tree
 		{
 			final TreeNode node = (TreeNode) target;
 			GroupAttributesClassesDialog dialog = new GroupAttributesClassesDialog(msg, 
-					node.getPath(), groupManagementHelper.getAttrMan(), groupsMan, 
+					node.getPath(), acMan, groupsMan, 
 					new GroupAttributesClassesDialog.Callback()
 					{
 						@Override
@@ -442,7 +445,8 @@ public class GroupsTree extends Tree
 			
 			new EntityCreationDialog(msg, node.getPath(), identitiesMan, groupsMan, 
 					authnMan, groupManagementHelper.getAttrHandlerRegistry(),
-					groupManagementHelper.getAttrMan(),
+					atMan,
+					acMan,
 					identityEditorReg, new EntityCreationDialog.Callback()
 					{
 						@Override
@@ -545,7 +549,7 @@ public class GroupsTree extends Tree
 			try
 			{
 				contents = groupsMan.getContents(expandedNode.getPath(), GroupContents.GROUPS|
-						GroupContents.LINKED_GROUPS | GroupContents.METADATA);
+						GroupContents.METADATA);
 			} catch (Exception e)
 			{
 				setItemIcon(expandedNode, Images.noAuthzGrp.getResource());
@@ -555,7 +559,7 @@ public class GroupsTree extends Tree
 
 			expandedNode.setGroupMetadata(contents.getGroup());
 			
-			if (contents.getLinkedGroups().isEmpty() && contents.getSubGroups().isEmpty())
+			if (contents.getSubGroups().isEmpty())
 				setChildrenAllowed(expandedNode, false);
 
 			List<String> subgroups = contents.getSubGroups(); 

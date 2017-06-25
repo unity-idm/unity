@@ -1,0 +1,15 @@
+#!/bin/bash
+
+pushd `dirname $0` > /dev/null
+BASE_DIR=`pwd`
+popd > /dev/null
+BASE_DIR=`dirname "$BASE_DIR"` 
+
+
+. "${BASE_DIR}"/conf/startup.properties
+
+CP=.$(find -L "$LIB" -type d -exec printf ":{}/*" \;) 
+
+export CLASSPATH=$CP
+
+$JAVA ${MEM} ${OPTS} ${DEFS} pl.edu.icm.unity.engine.scripts.ScrpitTestApplication "$1"

@@ -218,14 +218,15 @@ The configuration of confirmations (for identities and for each email attribute 
 Server management -> Confirmations configuration tab of the Admin UI. It is rather simplistic as the only 
 really variable property is the template to be used.
 
-Note that Unity contains a convenient content initializer which can be enabled in the +unityServer.conf+ to load 
+Note that Unity contains a convenient initializer script which can be enabled in the +unityServer.conf+ to load 
 default confirmation configurations on startup:
 
 ----
-unityServer.core.initializers.3=confirmationsInitializer
+unityServer.core.script.1.file=scripts/confirmationsInitializer.groovy
+unityServer.core.script.1.trigger=pre-init
 ----
 
-Later in this section we assume that the confirmations were set up as was described above.
+Later in this section we assume that the confirmations were set up as described above.
 
 ==== When confirmations are sent?
 
@@ -338,7 +339,7 @@ for instance confirmation status of an email.
 Example condition selecting all disabled entities:
 
 ----
-status == 'DISABLED'
+status == 'disabled'
 ----
 
 Another much more complex example: let's select all users who logged in no later then 6 months ago 

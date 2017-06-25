@@ -8,9 +8,9 @@
 	
 	<fileSets>
 		<fileSet>
-			<directory>src/main/resources/pl/edu/icm/unity</directory>
+			<directory>src/main/resources/messages</directory>
 			<includes>
-				<include>**/messages/*</include>
+				<include>**</include>
 			</includes>
 			<outputDirectory>/i18n/</outputDirectory>
 		</fileSet>

@@ -4,31 +4,8 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
-import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.RegistrationsManagement;
-import pl.edu.icm.unity.server.api.internal.IdPLoginController;
-import pl.edu.icm.unity.server.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
-import pl.edu.icm.unity.types.registration.RegistrationContext;
-import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
-import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
-import pl.edu.icm.unity.webui.common.ConfirmationComponent;
-import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
-import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
-import pl.edu.icm.unity.webui.forms.PostFormFillingHandler;
-import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreatedCallback;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -39,47 +16,61 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.types.registration.RegistrationContext;
+import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.registration.RegistrationRequest;
+import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
+import pl.edu.icm.unity.webui.common.ConfirmationComponent;
+import pl.edu.icm.unity.webui.common.ErrorComponent;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.forms.PostFormFillingHandler;
+import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreatedCallback;
+
 /**
  * Used to display a standalone (not within a dialog) registration form.
  * 
  * @author K. Benedyczak
  */
+@PrototypeComponent
 public class StandaloneRegistrationView extends CustomComponent implements View
 {
 	private RegistrationForm form;
 	private RegistrationsManagement regMan;
-	private IdentityEditorRegistry identityEditorRegistry;
-	private CredentialEditorRegistry credentialEditorRegistry;
-	private AttributeHandlerRegistry attributeHandlerRegistry;
-	private AttributesManagement attrsMan;
-	private AuthenticationManagement authnMan;
-	private GroupsManagement groupsMan;
 	private UnityMessageSource msg;
 	private UnityServerConfiguration cfg;
 	private IdPLoginController idpLoginController;
 	private VerticalLayout main;
+	private RequestEditorCreator editorCreator;
 	
-	public StandaloneRegistrationView(RegistrationForm form, UnityMessageSource msg,
-			RegistrationsManagement regMan,
-			IdentityEditorRegistry identityEditorRegistry,
-			CredentialEditorRegistry credentialEditorRegistry,
-			AttributeHandlerRegistry attributeHandlerRegistry,
-			AttributesManagement attrsMan, 
-			AuthenticationManagement authnMan,
-			GroupsManagement groupsMan,
-			UnityServerConfiguration cfg, IdPLoginController idpLoginController)
+	@Autowired
+	public StandaloneRegistrationView(UnityMessageSource msg,
+			@Qualifier("insecure") RegistrationsManagement regMan,
+			UnityServerConfiguration cfg, 
+			IdPLoginController idpLoginController,
+			RequestEditorCreator editorCreator)
 	{
-		this.form = form;
 		this.msg = msg;
 		this.regMan = regMan;
-		this.identityEditorRegistry = identityEditorRegistry;
-		this.credentialEditorRegistry = credentialEditorRegistry;
-		this.attributeHandlerRegistry = attributeHandlerRegistry;
-		this.attrsMan = attrsMan;
-		this.authnMan = authnMan;
-		this.groupsMan = groupsMan;
 		this.cfg = cfg;
 		this.idpLoginController = idpLoginController;
+		this.editorCreator = editorCreator;
+	}
+	
+	public StandaloneRegistrationView init(RegistrationForm form)
+	{
+		this.form = form;
+		return this;
 	}
 	
 	@Override
@@ -87,10 +78,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	{		
 		initUIBase();
 		
-		RequestEditorCreator editorCreator = new RequestEditorCreator(msg, form, 
-				RemotelyAuthenticatedContext.getLocalContext(), 
-				identityEditorRegistry, credentialEditorRegistry, attributeHandlerRegistry, 
-				regMan, attrsMan, groupsMan, authnMan);
+		editorCreator.init(form, RemotelyAuthenticatedContext.getLocalContext());
 		editorCreator.invoke(new RequestEditorCreatedCallback()
 		{
 			@Override
@@ -147,7 +135,8 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 			RegistrationContext context = new RegistrationContext(false, 
 					idpLoginController.isLoginInProgress(), 
 					TriggeringMode.manualStandalone);
-			new PostFormFillingHandler(idpLoginController, form, msg, regMan.getProfileInstance(form))
+			new PostFormFillingHandler(idpLoginController, form, msg, 
+					regMan.getFormAutomationSupport(form))
 				.cancelled(true, context);
 			showConfirm(Images.error32.getResource(),
 					msg.getMessage("StandalonePublicFormView.requestCancelled"));
@@ -192,7 +181,8 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		try
 		{
 			String requestId = regMan.submitRegistrationRequest(request, context);
-			new PostFormFillingHandler(idpLoginController, form, msg, regMan.getProfileInstance(form))
+			new PostFormFillingHandler(idpLoginController, form, msg, 
+					regMan.getFormAutomationSupport(form))
 				.submittedRegistrationRequest(requestId, regMan, request, context);
 			showConfirm(Images.ok32.getResource(),
 					msg.getMessage("StandalonePublicFormView.requestSubmitted"));
@@ -204,7 +194,8 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 			return;
 		} catch (Exception e)
 		{
-			new PostFormFillingHandler(idpLoginController, form, msg, regMan.getProfileInstance(form))
+			new PostFormFillingHandler(idpLoginController, form, msg, 
+					regMan.getFormAutomationSupport(form))
 				.submissionError(e, context);
 			showConfirm(Images.error32.getResource(),
 					msg.getMessage("StandalonePublicFormView.submissionFailed"));

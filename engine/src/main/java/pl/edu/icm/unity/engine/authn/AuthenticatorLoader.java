@@ -7,18 +7,17 @@ package pl.edu.icm.unity.engine.authn;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.db.generic.authn.AuthenticatorInstanceDB;
-import pl.edu.icm.unity.db.generic.cred.CredentialDB;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.internal.IdentityResolver;
-import pl.edu.icm.unity.server.authn.AuthenticationOption;
-import pl.edu.icm.unity.server.authn.CredentialRetrieval;
-import pl.edu.icm.unity.server.registries.AuthenticatorsRegistry;
-import pl.edu.icm.unity.server.registries.LocalCredentialsRegistry;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorsRegistry;
+import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
+import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
+import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
+import pl.edu.icm.unity.engine.credential.CredentialHolder;
+import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
+import pl.edu.icm.unity.store.api.generic.CredentialDB;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -49,25 +48,23 @@ public class AuthenticatorLoader
 		this.credDB = credDB;
 	}
 
-	public AuthenticatorImpl getAuthenticator(String id, SqlSession sql) 
-			throws EngineException
+	public AuthenticatorImpl getAuthenticator(String id) 
 	{
-		AuthenticatorInstance authnInstance = authenticatorDB.get(id, sql);
-		AuthenticatorImpl ret = getAuthenticatorNoCheck(authnInstance, sql);
+		AuthenticatorInstance authnInstance = authenticatorDB.get(id);
+		AuthenticatorImpl ret = getAuthenticatorNoCheck(authnInstance);
 		return ret;
 	}
 
-	public AuthenticatorImpl getAuthenticatorNoCheck(AuthenticatorInstance authnInstance, SqlSession sql) 
-			throws EngineException
+	public AuthenticatorImpl getAuthenticatorNoCheck(AuthenticatorInstance authnInstance) 
 	{
 		String localCredential = authnInstance.getLocalCredentialName();
 		
 		if (localCredential != null)
 		{
-			CredentialDefinition credDef = credDB.get(localCredential, sql);
+			CredentialDefinition credDef = credDB.get(localCredential);
 			CredentialHolder credential = new CredentialHolder(credDef, localCredReg);
 			String localCredentialConfig = credential.getCredentialDefinition().
-					getJsonConfiguration();
+					getConfiguration();
 			return new AuthenticatorImpl(identityResolver, authReg,	authnInstance.getId(), 
 					authnInstance, localCredentialConfig);
 		} else
@@ -75,16 +72,15 @@ public class AuthenticatorLoader
 				authnInstance.getId(), authnInstance);
 	}
 	
-	public List<AuthenticationOption> getAuthenticators(List<AuthenticationOptionDescription> authn, SqlSession sql) 
-			throws EngineException
+	public List<AuthenticationOption> getAuthenticators(List<AuthenticationOptionDescription> authn) 
 	{
 		List<AuthenticationOption> ret = new ArrayList<>(authn.size());
 		for (AuthenticationOptionDescription aSet: authn)
 		{
-			CredentialRetrieval primaryAuthImpl = getAuthenticator(aSet.getPrimaryAuthenticator(), sql).
+			CredentialRetrieval primaryAuthImpl = getAuthenticator(aSet.getPrimaryAuthenticator()).
 					getRetrieval();
 			CredentialRetrieval secondaryAuthImpl = aSet.getMandatory2ndAuthenticator() == null ?
-					null : getAuthenticator(aSet.getMandatory2ndAuthenticator(), sql).getRetrieval();
+					null : getAuthenticator(aSet.getMandatory2ndAuthenticator()).getRetrieval();
 			ret.add(new AuthenticationOption(primaryAuthImpl, secondaryAuthImpl));
 		}
 		return ret;

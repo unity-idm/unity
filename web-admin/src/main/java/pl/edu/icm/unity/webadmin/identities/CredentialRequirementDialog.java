@@ -6,9 +6,13 @@ package pl.edu.icm.unity.webadmin.identities;
 
 import java.util.Collection;
 
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
+
+import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
+import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -16,18 +20,14 @@ import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-
 /**
  * Allows to change credential requirement for an entity
  * @author K. Benedyczak
  */
 public class CredentialRequirementDialog extends AbstractDialog
 {
-	private IdentitiesManagement identitiesMan;
-	private AuthenticationManagement authnMan;
+	private EntityCredentialManagement eCredMan;
+	private CredentialRequirementManagement credReqMan;
 	private final EntityWithLabel entity;
 	private final String initialCR;
 	protected Callback callback;
@@ -35,12 +35,13 @@ public class CredentialRequirementDialog extends AbstractDialog
 	private ComboBox credentialRequirement;
 	
 	public CredentialRequirementDialog(UnityMessageSource msg, EntityWithLabel entity, String initialCR,
-			IdentitiesManagement identitiesMan, AuthenticationManagement authnMan, Callback callback)
+			EntityCredentialManagement eCredMan, CredentialRequirementManagement credReqMan, 
+			Callback callback)
 	{
 		super(msg, msg.getMessage("CredentialRequirementDialog.caption"));
-		this.identitiesMan = identitiesMan;
+		this.eCredMan = eCredMan;
 		this.entity = entity;
-		this.authnMan = authnMan;
+		this.credReqMan = credReqMan;
 		this.callback = callback;
 		this.initialCR = initialCR;
 		setSizeMode(SizeMode.SMALL);
@@ -54,7 +55,7 @@ public class CredentialRequirementDialog extends AbstractDialog
 		Collection<CredentialRequirements> credReqs;
 		try
 		{
-			credReqs = authnMan.getCredentialRequirements();
+			credReqs = credReqMan.getCredentialRequirements();
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("error"),
@@ -85,7 +86,7 @@ public class CredentialRequirementDialog extends AbstractDialog
 		EntityParam entityParam = new EntityParam(entity.getEntity().getId());
 		try
 		{
-			identitiesMan.setEntityCredentialRequirements(entityParam, 
+			eCredMan.setEntityCredentialRequirements(entityParam, 
 					(String)credentialRequirement.getValue());
 		} catch (Exception e)
 		{

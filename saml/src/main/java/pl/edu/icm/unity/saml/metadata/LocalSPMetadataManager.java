@@ -5,11 +5,11 @@
 package pl.edu.icm.unity.saml.metadata;
 
 import eu.unicore.samly2.SAMLConstants;
+import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SLOSPManager;
-import pl.edu.icm.unity.server.utils.ExecutorsService;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
 

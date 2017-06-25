@@ -6,11 +6,11 @@ package pl.edu.icm.unity.webadmin.tprofile;
 
 import java.util.Collection;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
-
 import com.vaadin.server.UserError;
 import com.vaadin.ui.ComboBox;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 
 /**
  * {@link ComboBox} based editor of all enumerated parameters.

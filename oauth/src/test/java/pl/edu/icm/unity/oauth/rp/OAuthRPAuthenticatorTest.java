@@ -18,26 +18,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.engine.DBIntegrationTestBase;
-import pl.edu.icm.unity.oauth.as.OAuthProcessor;
-import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
-import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpointFactory;
-import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
-import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpointFactory;
-import pl.edu.icm.unity.server.api.TranslationProfileManagement;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.server.registries.InputTranslationActionsRegistry;
-import pl.edu.icm.unity.server.translation.in.InputTranslationProfile;
-import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.EntityState;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
-
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;
@@ -47,6 +27,25 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
+import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.oauth.as.OAuthProcessor;
+import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
+import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
+import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
+import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.basic.EntityState;
+import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Somewhat complex integration test of the OAuth RP authenticator.
@@ -128,7 +127,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 	@Autowired
 	private TranslationProfileManagement profilesMan;
 	@Autowired
-	private InputTranslationActionsRegistry trActionReg;
+	private AuthenticatorManagement authnMan;
 	
 	@Before
 	public void setup()
@@ -147,39 +146,38 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 			
 			idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "userA"), 
 					"cr-pass", EntityState.valid, false);
-			
-			profilesMan.addProfile(new InputTranslationProfile(
-					JsonUtil.parse(FileUtils.readFileToString(new File("src/test/resources/tr-local.json"))),
-					trActionReg));
+			profilesMan.addProfile(new TranslationProfile(
+					JsonUtil.parse(FileUtils.readFileToString(
+							new File("src/test/resources/tr-local.json")))));
 			
 			AuthenticationRealm realm = new AuthenticationRealm(REALM_NAME, "", 
 					10, 100, -1, 600);
 			realmsMan.addRealm(realm);
-			List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
+			List<AuthenticationOptionDescription> authnCfg = new ArrayList<>();
 			authnCfg.add(new AuthenticationOptionDescription("Apass"));
-			endpointMan.deploy(OAuthTokenEndpointFactory.NAME, "endpointIDP", "/oauth", 
+			endpointMan.deploy(OAuthTokenEndpoint.NAME, "endpointIDP", "/oauth", 
 					new EndpointConfiguration(new I18nString("endpointIDP"), "desc", 
 					authnCfg, OAUTH_ENDP_CFG, REALM_NAME));
 			
-			List<AuthenticationOptionDescription> authnCfg2 = new ArrayList<AuthenticationOptionDescription>();
+			List<AuthenticationOptionDescription> authnCfg2 = new ArrayList<>();
 			authnCfg2.add(new AuthenticationOptionDescription("a-rp"));
-			endpointMan.deploy(JWTManagementEndpointFactory.NAME, "endpointJWT", "/jwt", 
+			endpointMan.deploy(JWTManagementEndpoint.NAME, "endpointJWT", "/jwt", 
 					new EndpointConfiguration(new I18nString("endpointJWT"), "desc", 
 					authnCfg2, JWT_ENDP_CFG, REALM_NAME));
 
-			List<AuthenticationOptionDescription> authnCfg3 = new ArrayList<AuthenticationOptionDescription>();
+			List<AuthenticationOptionDescription> authnCfg3 = new ArrayList<>();
 			authnCfg3.add(new AuthenticationOptionDescription("a-rp-int"));
-			endpointMan.deploy(JWTManagementEndpointFactory.NAME, "endpointJWT-int", "/jwt-int", 
+			endpointMan.deploy(JWTManagementEndpoint.NAME, "endpointJWT-int", "/jwt-int", 
 					new EndpointConfiguration(new I18nString("endpointJWT-int"), "desc", 
 					authnCfg3, JWT_ENDP_CFG, REALM_NAME));
 
-			List<AuthenticationOptionDescription> authnCfg4 = new ArrayList<AuthenticationOptionDescription>();
+			List<AuthenticationOptionDescription> authnCfg4 = new ArrayList<>();
 			authnCfg4.add(new AuthenticationOptionDescription("a-rp-mitre"));
-			endpointMan.deploy(JWTManagementEndpointFactory.NAME, "endpointJWT-mitre", "/jwt-mitre", 
+			endpointMan.deploy(JWTManagementEndpoint.NAME, "endpointJWT-mitre", "/jwt-mitre", 
 					new EndpointConfiguration(new I18nString("endpointJWT-mitre"), "desc", 
 					authnCfg4, JWT_ENDP_CFG, REALM_NAME));
 			
-			List<EndpointDescription> endpoints = endpointMan.getEndpoints();
+			List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 			assertEquals(4, endpoints.size());
 
 			httpServer.start();

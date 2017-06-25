@@ -4,15 +4,15 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import org.apache.log4j.Logger;
-
-import pl.edu.icm.unity.exceptions.AuthorizationException;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
+import org.apache.logging.log4j.Logger;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
+
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
 /**
  * The component should be used instead of a ordinary component, when there is problem

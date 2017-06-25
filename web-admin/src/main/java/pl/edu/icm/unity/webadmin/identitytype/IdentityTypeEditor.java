@@ -4,12 +4,6 @@
  */
 package pl.edu.icm.unity.webadmin.identitytype;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.IdentityType;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.FormValidator;
-import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
-
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.converter.StringToIntegerConverter;
@@ -19,6 +13,14 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
+
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.FormValidator;
+import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
 
 /**
  * Allows to edit an identity type. It is only possible to edit description and self modifiable flag. 
@@ -37,11 +39,14 @@ public class IdentityTypeEditor extends FormLayout
 	private TextField minVerified;
 	private IntegerBoundEditor max;
 	private FormValidator validator;
+
+	private IdentityTypeSupport idTypeSupport;
 	
-	public IdentityTypeEditor(UnityMessageSource msg, IdentityType toEdit)
+	public IdentityTypeEditor(UnityMessageSource msg, IdentityTypeSupport idTypeSupport, IdentityType toEdit)
 	{
 		super();
 		this.msg = msg;
+		this.idTypeSupport = idTypeSupport;
 		original = toEdit;
 		
 		initUI(toEdit);
@@ -51,7 +56,7 @@ public class IdentityTypeEditor extends FormLayout
 	{
 		setWidth(100, Unit.PERCENTAGE);
 
-		name = new Label(toEdit.getIdentityTypeProvider().getId());
+		name = new Label(toEdit.getIdentityTypeProvider());
 		name.setCaption(msg.getMessage("IdentityType.name"));
 		addComponent(name);
 		
@@ -91,7 +96,8 @@ public class IdentityTypeEditor extends FormLayout
 				0, Integer.MAX_VALUE));
 		minVerified.setConvertedValue(toEdit.getMinVerifiedInstances());
 		addComponent(minVerified);
-		if (!toEdit.getIdentityTypeProvider().isVerifiable())
+		IdentityTypeDefinition typeDefinition = idTypeSupport.getTypeDefinition(toEdit.getName());
+		if (!typeDefinition.isVerifiable())
 			minVerified.setVisible(false);
 		
 		max = new IntegerBoundEditor(msg, msg.getMessage("IdentityType.maxUnlimited"), 
@@ -115,7 +121,8 @@ public class IdentityTypeEditor extends FormLayout
 	{
 		validator.validate();
 		
-		IdentityType ret = new IdentityType(original.getIdentityTypeProvider());
+		IdentityType ret = new IdentityType(original.getName(),
+				original.getIdentityTypeProvider());
 		ret.setDescription(description.getValue());
 		ret.setSelfModificable(selfModifiable.getValue());
 		ret.setExtractedAttributes(original.getExtractedAttributes());

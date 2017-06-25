@@ -6,11 +6,19 @@ package pl.edu.icm.unity.webui.common.attributes.ext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.vaadin.server.UserError;
+import com.vaadin.ui.AbstractTextField;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
-import pl.edu.icm.unity.types.basic.AttributeValueSyntax;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
@@ -21,66 +29,46 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 import pl.edu.icm.unity.webui.common.identities.IdentityFormatter;
 
-import com.vaadin.server.UserError;
-import com.vaadin.ui.AbstractTextField;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
-
 /**
  * VerifiableEmail attribute handler for the web
  * 
  * @author P. Piernik
  */
-@org.springframework.stereotype.Component
-public class VerifiableEmailAttributeHandler implements WebAttributeHandler<VerifiableEmail>,
-		WebAttributeHandlerFactory
+public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 {
 	private UnityMessageSource msg;
+	private IdentityFormatter formatter;
+	private VerifiableEmailAttributeSyntax syntax;
 
-	@Autowired
-	public VerifiableEmailAttributeHandler(UnityMessageSource msg)
+	public VerifiableEmailAttributeHandler(UnityMessageSource msg, IdentityFormatter formatter, 
+			AttributeValueSyntax<?> syntax)
 	{
 		this.msg = msg;
+		this.formatter = formatter;
+		this.syntax = (VerifiableEmailAttributeSyntax) syntax;
 	}
 
 	@Override
-	public String getSupportedSyntaxId()
+	public String getValueAsString(String value, int limited)
 	{
-		return VerifiableEmailAttributeSyntax.ID;
-	}
-
-	@Override
-	public WebAttributeHandler<?> createInstance()
-	{
-		return new VerifiableEmailAttributeHandler(msg);
-	}
-
-	@Override
-	public String getValueAsString(VerifiableEmail value,
-			AttributeValueSyntax<VerifiableEmail> syntax, int limited)
-	{
-		StringBuilder rep = new StringBuilder(value.getValue());
-		rep.append(IdentityFormatter.getConfirmationStatusString(msg, value.getConfirmationInfo()));
+		VerifiableEmail domainValue = syntax.convertFromString(value);
+		StringBuilder rep = new StringBuilder(domainValue.getValue());
+		rep.append(formatter.getConfirmationStatusString(domainValue.getConfirmationInfo()));
 		//if we exceeded limit, don't add extra info
 		if (rep.length() > limited)
-			rep = new StringBuilder(value.getValue());
+			rep = new StringBuilder(domainValue.getValue());
 		return TextOnlyAttributeHandler.trimString(rep.toString(), limited);
 	}
 
 	
 	@Override
-	public AttributeValueEditor<VerifiableEmail> getEditorComponent(
-			VerifiableEmail initialValue, String label,
-			AttributeValueSyntax<VerifiableEmail> syntaxDesc)
+	public AttributeValueEditor getEditorComponent(String initialValue, String label)
 	{
-		return new VerifiableEmailValueEditor(initialValue, label, syntaxDesc);
+		return new VerifiableEmailValueEditor(initialValue, label);
 	}
 
 	@Override
-	public Component getSyntaxViewer(AttributeValueSyntax<VerifiableEmail> syntax)
+	public Component getSyntaxViewer()
 	{
 		VerticalLayout ret = new VerticalLayout();
 		Label info = new Label(msg.getMessage("VerifiableEmailAttributeHandler.info"));
@@ -88,14 +76,8 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 		return ret;
 	}
 
-	@Override
-	public AttributeSyntaxEditor<VerifiableEmail> getSyntaxEditorComponent(
-			AttributeValueSyntax<VerifiableEmail> initialValue)
-	{
-		return new VerifiableEmailSyntaxEditor();
-	}
 
-	private class VerifiableEmailSyntaxEditor implements AttributeSyntaxEditor<VerifiableEmail>
+	private static class VerifiableEmailSyntaxEditor implements AttributeSyntaxEditor<VerifiableEmail>
 	{
 
 		@Override
@@ -113,22 +95,19 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 
 	}
 
-	private class VerifiableEmailValueEditor implements AttributeValueEditor<VerifiableEmail>
+	private class VerifiableEmailValueEditor implements AttributeValueEditor
 	{
 		private VerifiableEmail value;
 		private String label;
 		private AbstractTextField field;
 		private CheckBox confirmed;
-		private AttributeValueSyntax<VerifiableEmail> syntax;
 		private boolean required;
 		private boolean adminMode;
 
-		public VerifiableEmailValueEditor(VerifiableEmail value, String label,
-				AttributeValueSyntax<VerifiableEmail> syntax)
+		public VerifiableEmailValueEditor(String valueRaw, String label)
 		{
-			this.value = value;
+			this.value = valueRaw == null ? null : syntax.convertFromString(valueRaw);
 			this.label = label;
-			this.syntax = syntax;
 		}
 
 		@Override
@@ -155,14 +134,14 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 			{
 				if (value != null && value.getConfirmationInfo() != null && 
 						value.getConfirmationInfo().isConfirmed())
-					ret.add(new Label(IdentityFormatter.getConfirmationStatusString(
-							msg, value.getConfirmationInfo())));
+					ret.add(new Label(formatter.getConfirmationStatusString(
+							value.getConfirmationInfo())));
 			}
 			return ret;
 		}
 
 		@Override
-		public VerifiableEmail getCurrentValue() throws IllegalAttributeValueException
+		public String getCurrentValue() throws IllegalAttributeValueException
 		{
 			if (!required && field.getValue().isEmpty())
 				return null;
@@ -173,7 +152,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 					email.setConfirmationInfo(new ConfirmationInfo(confirmed.getValue()));
 				syntax.validate(email);
 				field.setComponentError(null);
-				return email;
+				return syntax.convertToString(email);
 			} catch (IllegalAttributeValueException e)
 			{
 				field.setComponentError(new UserError(e.getMessage()));
@@ -195,10 +174,45 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler<Veri
 
 	@Override
 	public Component getRepresentation(
-			VerifiableEmail value,
-			AttributeValueSyntax<VerifiableEmail> syntax,
+			String value,
 			pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize size)
 	{
-		return new Label(getValueAsString(value, syntax, TextOnlyAttributeHandler.toLengthLimit(size)));
+		return new Label(getValueAsString(value, TextOnlyAttributeHandler.toLengthLimit(size)));
+	}
+	
+	
+	@org.springframework.stereotype.Component
+	public static class VerifiableEmailAttributeHandlerFactory implements WebAttributeHandlerFactory
+	{
+		private UnityMessageSource msg;
+		private IdentityFormatter formatter;
+
+		@Autowired
+		public VerifiableEmailAttributeHandlerFactory(UnityMessageSource msg, IdentityFormatter formatter)
+		{
+			this.msg = msg;
+			this.formatter = formatter;
+		}
+		
+
+		@Override
+		public String getSupportedSyntaxId()
+		{
+			return VerifiableEmailAttributeSyntax.ID;
+		}
+
+		@Override
+		public WebAttributeHandler createInstance(AttributeValueSyntax<?> syntax)
+		{
+			return new VerifiableEmailAttributeHandler(msg, formatter, syntax);
+		}
+		
+
+		@Override
+		public AttributeSyntaxEditor<VerifiableEmail> getSyntaxEditorComponent(
+				AttributeValueSyntax<?> initialValue)
+		{
+			return new VerifiableEmailSyntaxEditor();
+		}
 	}
 }

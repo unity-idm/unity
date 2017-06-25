@@ -10,12 +10,12 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import pl.edu.icm.unity.server.utils.Log;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
+import pl.edu.icm.unity.base.utils.Log;
 
 /**
  * Generic settings for all Vaadin web-endpoints.
@@ -23,7 +23,7 @@ import eu.unicore.util.configuration.PropertyMD;
  */
 public class VaadinEndpointProperties extends PropertiesHelper
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, VaadinEndpointProperties.class);
+	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, VaadinEndpointProperties.class);
 	private enum ScaleModeOld {
 		none(ScaleMode.none), 
 		height100(ScaleMode.heightSmall), 

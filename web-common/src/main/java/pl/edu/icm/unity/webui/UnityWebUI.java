@@ -7,10 +7,10 @@ package pl.edu.icm.unity.webui;
 import java.util.List;
 import java.util.Properties;
 
-import pl.edu.icm.unity.sandbox.SandboxAuthnRouter;
-import pl.edu.icm.unity.server.authn.AuthenticationOption;
-import pl.edu.icm.unity.types.endpoint.EndpointDescription;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
+import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
 
 /**
  * In principle all UI should implement this interface, to be injected with 
@@ -19,7 +19,7 @@ import pl.edu.icm.unity.webui.authn.CancelHandler;
  */
 public interface UnityWebUI
 {
-	void configure(EndpointDescription description, 
+	void configure(ResolvedEndpoint description, 
 			List<AuthenticationOption> authenticators,
 			EndpointRegistrationConfiguration registrationConfiguration,
 			Properties genericEndpointConfiguration);

@@ -9,15 +9,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 
-import net.minidev.json.JSONObject;
-
-import org.apache.log4j.Logger;
-
-import pl.edu.icm.unity.oauth.as.token.TokenInfoResource;
-import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
-import pl.edu.icm.unity.oauth.rp.OAuthRPProperties;
-import pl.edu.icm.unity.server.authn.AuthenticationException;
-import pl.edu.icm.unity.server.utils.Log;
+import org.apache.logging.log4j.Logger;
 
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
@@ -26,6 +18,12 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import net.minidev.json.JSONObject;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.oauth.as.token.TokenInfoResource;
+import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
+import pl.edu.icm.unity.oauth.rp.OAuthRPProperties;
 
 /**
  * Verifies the token against Unity's own /tokeninfo path of the OAuth token endpoint.

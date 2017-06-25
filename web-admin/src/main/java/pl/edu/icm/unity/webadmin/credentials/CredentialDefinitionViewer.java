@@ -4,14 +4,14 @@
  */
 package pl.edu.icm.unity.webadmin.credentials;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.ui.Label;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
 import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
-
-import com.vaadin.ui.Label;
 
 /**
  * Shows a single {@link CredentialDefinition}
@@ -72,6 +72,6 @@ public class CredentialDefinitionViewer extends CompactFormLayout
 		
 		pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer viewer = 
 				cdFactory.creteCredentialDefinitionViewer();
-		typeSpecific.setContent(viewer.getViewer(cd.getJsonConfiguration()));
+		typeSpecific.setContent(viewer.getViewer(cd.getConfiguration()));
 	}
 }

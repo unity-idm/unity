@@ -7,15 +7,15 @@ package pl.edu.icm.unity.oauth.rp.verificator;
 import java.util.Date;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
-import pl.edu.icm.unity.oauth.rp.OAuthRPProperties;
-import pl.edu.icm.unity.server.utils.Log;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PersistenceConfiguration;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.oauth.rp.OAuthRPProperties;
 
 /**
  * Cache of token validation results. Keys are access tokens. Values are validation results and

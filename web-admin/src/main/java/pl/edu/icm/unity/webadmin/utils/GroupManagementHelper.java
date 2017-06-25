@@ -12,11 +12,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import pl.edu.icm.unity.engine.api.AttributeClassManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.attributes.AttributeClassHelper;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributesClass;
@@ -35,15 +36,19 @@ public class GroupManagementHelper
 {
 	private UnityMessageSource msg;
 	private GroupsManagement groupsMan;
-	private AttributesManagement attrMan; 
+	private AttributeTypeManagement attrMan; 
 	private AttributeHandlerRegistry attrHandlerRegistry;
+	private AttributeClassManagement acMan;
 	
 	public GroupManagementHelper(UnityMessageSource msg, GroupsManagement groupsMan,
-			AttributesManagement attrMan, AttributeHandlerRegistry attrHandlerRegistry)
+			AttributeTypeManagement attrMan, 
+			AttributeClassManagement acMan,
+			AttributeHandlerRegistry attrHandlerRegistry)
 	{
 		this.msg = msg;
 		this.groupsMan = groupsMan;
 		this.attrMan = attrMan;
+		this.acMan = acMan;
 		this.attrHandlerRegistry = attrHandlerRegistry;
 	}
 
@@ -106,7 +111,7 @@ public class GroupManagementHelper
 					new RequiredAttributesDialog.Callback()
 					{
 						@Override
-						public void onConfirm(List<Attribute<?>> attributes)
+						public void onConfirm(List<Attribute> attributes)
 						{
 							addToGroupSafe(notMember, added, currentGroup, allTypes, 
 									allACsMap, entityParam, attributes, callback);
@@ -122,7 +127,7 @@ public class GroupManagementHelper
 		} else
 		{
 			addToGroupSafe(notMember, added, currentGroup, allTypes, allACsMap, entityParam, 
-					new ArrayList<Attribute<?>>(0), callback);
+					new ArrayList<Attribute>(0), callback);
 		}
 	}
 	
@@ -130,7 +135,7 @@ public class GroupManagementHelper
 	{
 		try
 		{
-			return attrMan.getAttributeClasses();
+			return acMan.getAttributeClasses();
 		} catch (EngineException e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("GroupsTree.addToGroupInitError"), e);
@@ -160,7 +165,7 @@ public class GroupManagementHelper
 	private void addToGroupSafe(Deque<String> notMember, Deque<String> added, 
 			String currentGroup, Collection<AttributeType> allTypes,
 			Map<String, AttributesClass> allACsMap, final EntityParam entityParam,
-			List<Attribute<?>> attributes, Callback callback)
+			List<Attribute> attributes, Callback callback)
 	{
 		try
 		{
@@ -194,11 +199,6 @@ public class GroupManagementHelper
 	public AttributeHandlerRegistry getAttrHandlerRegistry()
 	{
 		return attrHandlerRegistry;
-	}
-	
-	public AttributesManagement getAttrMan()
-	{
-		return attrMan;
 	}
 	
 	public interface Callback

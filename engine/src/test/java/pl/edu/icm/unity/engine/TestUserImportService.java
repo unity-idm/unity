@@ -6,7 +6,7 @@ package pl.edu.icm.unity.engine;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -23,16 +23,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.config.ConfigurationLoader;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.userimport.UserImportSPI;
+import pl.edu.icm.unity.engine.api.userimport.UserImportSPIFactory;
+import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 import pl.edu.icm.unity.engine.userimport.UserImportProperties;
 import pl.edu.icm.unity.engine.userimport.UserImportServiceImpl;
-import pl.edu.icm.unity.server.api.userimport.UserImportSPI;
-import pl.edu.icm.unity.server.api.userimport.UserImportSPIFactory;
-import pl.edu.icm.unity.server.authn.AuthenticationResult;
-import pl.edu.icm.unity.server.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.server.authn.remote.RemoteVerificatorUtil;
-import pl.edu.icm.unity.server.utils.CacheProvider;
-import pl.edu.icm.unity.server.utils.ConfigurationLoader;
-import pl.edu.icm.unity.server.utils.UnityServerConfiguration;
 
 public class TestUserImportService extends SecuredDBIntegrationTestBase
 {
@@ -43,7 +43,7 @@ public class TestUserImportService extends SecuredDBIntegrationTestBase
 	public void importSerivceLoadsConfiguredHandlerAndInvokesIt() throws InterruptedException
 	{
 		//given
-		RemoteVerificatorUtil verificatorUtil = mock(RemoteVerificatorUtil.class);
+		RemoteAuthnResultProcessor verificatorUtil = mock(RemoteAuthnResultProcessor.class);
 
 		UnityServerConfiguration mainCfg = mock(UnityServerConfiguration.class);
 		when(mainCfg.getListOfValues(UnityServerConfiguration.IMPORT_PFX)).thenReturn(Lists.newArrayList("f"));
@@ -54,7 +54,7 @@ public class TestUserImportService extends SecuredDBIntegrationTestBase
 		UserImportSPIFactory factory = mock(UserImportSPIFactory.class);
 		UserImportSPI importer = mock(UserImportSPI.class);
 		when(importer.importUser("id", "type")).thenReturn(null);		
-		when(factory.getInstance(anyObject(), anyObject())).thenReturn(importer);
+		when(factory.getInstance(any(), any())).thenReturn(importer);
 		when(factory.getName()).thenReturn("mockI");
 
 		List<UserImportSPIFactory> importersF = new ArrayList<>();

@@ -8,18 +8,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
+
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
-
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
 
 /**
  * Allows to choose an attribute type to be added as identities table column.
@@ -27,14 +27,14 @@ import com.vaadin.ui.Label;
  */
 public class AddAttributeColumnDialog extends AbstractDialog
 {
-	private AttributesManagement attrsMan;
+	private AttributeTypeManagement attrsMan;
 	protected Callback callback;
 	
 	private ComboBox attributeType;
 	private CheckBox useRootGroup;
 	
 	
-	public AddAttributeColumnDialog(UnityMessageSource msg, AttributesManagement attrsMan, 
+	public AddAttributeColumnDialog(UnityMessageSource msg, AttributeTypeManagement attrsMan, 
 			Callback callback)
 	{
 		super(msg, msg.getMessage("AddAttributeColumnDialog.caption"));

@@ -15,13 +15,13 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webadmin.attribute.AttributeFieldWithEdit;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
@@ -92,10 +92,10 @@ public class RequiredAttributesDialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
-		List<Attribute<?>> ret = new ArrayList<>(attrEdits.size());
+		List<Attribute> ret = new ArrayList<>(attrEdits.size());
 		for (AttributeFieldWithEdit aEdit: attrEdits)
 		{
-			Attribute<?> a;
+			Attribute a;
 			try
 			{
 				a = aEdit.getAttribute();
@@ -113,7 +113,7 @@ public class RequiredAttributesDialog extends AbstractDialog
 	
 	public interface Callback
 	{
-		public void onConfirm(List<Attribute<?>> attributes);
+		public void onConfirm(List<Attribute> attributes);
 		public void onCancel();
 	}
 }

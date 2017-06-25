@@ -15,32 +15,6 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.confirmations.ConfirmationConfiguration;
-import pl.edu.icm.unity.confirmations.ConfirmationTemplateDef;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.msgtemplates.MessageTemplate;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.ConfirmationConfigurationManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.MessageTemplateManagement;
-import pl.edu.icm.unity.server.api.NotificationsManagement;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.IdentityType;
-import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesUpdatedEvent;
-import pl.edu.icm.unity.webui.WebSession;
-import pl.edu.icm.unity.webui.bus.EventListener;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
-import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.GenericElementsTable;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.Toolbar;
-
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
@@ -49,6 +23,32 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.base.msgtemplates.confirm.ConfirmationTemplateDef;
+import pl.edu.icm.unity.engine.api.ConfirmationConfigurationManagement;
+import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
+import pl.edu.icm.unity.engine.api.NotificationsManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.types.basic.MessageTemplate;
+import pl.edu.icm.unity.types.confirmation.ConfirmationConfiguration;
+import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesUpdatedEvent;
+import pl.edu.icm.unity.webui.WebSession;
+import pl.edu.icm.unity.webui.bus.EventListener;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
+import pl.edu.icm.unity.webui.common.ConfirmDialog;
+import pl.edu.icm.unity.webui.common.ErrorComponent;
+import pl.edu.icm.unity.webui.common.GenericElementsTable;
+import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.Toolbar;
 
 /**
  * Responsible for confirmation configuration management
@@ -63,9 +63,9 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 	private UnityMessageSource msg;
 	private ConfirmationConfigurationManagement configMan;
 	private MessageTemplateManagement msgMan;
-	private IdentitiesManagement idMan;
+	private IdentityTypeSupport idMan;
 	private NotificationsManagement notificationsMan;
-	private AttributesManagement attrsMan;
+	private AttributeTypeSupport atSupport;
 	private GenericElementsTable<ConfirmationConfiguration> table;
 	private com.vaadin.ui.Component main;
 	private OptionGroup toConfirmType;
@@ -74,15 +74,15 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 	@Autowired
 	public ConfirmationConfigurationsComponent(UnityMessageSource msg,
 			ConfirmationConfigurationManagement configMan,
-			MessageTemplateManagement msgMan, IdentitiesManagement idMan,
-			NotificationsManagement notificationsMan, AttributesManagement attrsMan)
+			MessageTemplateManagement msgMan, IdentityTypeSupport idMan,
+			NotificationsManagement notificationsMan, AttributeTypeSupport attrsMan)
 	{
 		this.msg = msg;
 		this.configMan = configMan;
 		this.msgMan = msgMan;
 		this.idMan = idMan;
 		this.notificationsMan = notificationsMan;
-		this.attrsMan = attrsMan;
+		this.atSupport = attrsMan;
 
 		addStyleName(Styles.visibleScroll.toString());
 		HorizontalLayout hl = new HorizontalLayout();
@@ -192,10 +192,10 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 		List<String> vtypes = new ArrayList<String>();
 		try
 		{
-			Collection<AttributeType> allTypes = attrsMan.getAttributeTypes();
+			Collection<AttributeType> allTypes = atSupport.getAttributeTypes();
 			for (AttributeType t : allTypes)
 			{
-				if (t.getValueType().isVerifiable())
+				if (atSupport.getSyntax(t).isVerifiable())
 					vtypes.add(t.getName());
 			}
 			if (vtypes.size() == 0)
@@ -203,12 +203,10 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 						msg,
 						"",
 						msg.getMessage("ConfirmationConfigurationsComponent.firstAddAttribute"));
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			ErrorComponent error = new ErrorComponent();
-			error.setError(msg
-					.getMessage("ConfirmationConfigurationsComponent.errorGetAttributeTypes"),
-					e);
+			error.setError(msg.getMessage("ConfirmationConfigurationsComponent.errorGetAttributeTypes"), e);
 		}
 		return vtypes;
 	}
@@ -218,23 +216,22 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 		List<String> vtypes = new ArrayList<String>();
 		try
 		{
+			
 			Collection<IdentityType> ids = idMan.getIdentityTypes();
 			for (IdentityType t : ids)
 			{
-				if (t.getIdentityTypeProvider().isVerifiable())
-					vtypes.add(t.getIdentityTypeProvider().getId());
+				if (idMan.getTypeDefinition(t.getIdentityTypeProvider()).isVerifiable())
+					vtypes.add(t.getIdentityTypeProvider());
 			}
 			if (vtypes.isEmpty())
 				NotificationPopup.showNotice(
 						msg,
 						"",
 						msg.getMessage("ConfirmationConfigurationsComponent.firstAddIdentity"));
-
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			ErrorComponent error = new ErrorComponent();
-			error.setError(msg
-					.getMessage("ConfirmationConfigurationsComponent.errorGetIdentitiesTypes"),
+			error.setError(msg.getMessage("ConfirmationConfigurationsComponent.errorGetIdentitiesTypes"),
 					e);
 		}
 		return vtypes;

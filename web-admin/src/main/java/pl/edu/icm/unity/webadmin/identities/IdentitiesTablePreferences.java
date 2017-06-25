@@ -8,94 +8,39 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.authn.InvocationContext;
-import pl.edu.icm.unity.types.JsonSerializable;
-import pl.edu.icm.unity.types.basic.EntityParam;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.engine.api.PreferencesManagement;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
  * User's preferences for the IdentitiesTable .
  * 
  * @author P. Piernik
  */
-public class IdentitiesTablePreferences implements JsonSerializable
+public class IdentitiesTablePreferences
 {
 	public static final String ID = IdentitiesTablePreferences.class.getName();
 	protected final ObjectMapper mapper = Constants.MAPPER;
-	private Map<String, ColumnSettings> colSettings;
-	private boolean groupbyEntitiesSetting;
-	private boolean showTargetedSetting;
+	private Map<String, ColumnSettings> colSettings = new HashMap<>();
+	private boolean groupbyEntitiesSetting = false;
+	private boolean showTargetedSetting = false;
 
 	public IdentitiesTablePreferences()
 	{
-		super();
-		colSettings = new HashMap<String, IdentitiesTablePreferences.ColumnSettings>();
-		groupbyEntitiesSetting = false;
-		showTargetedSetting = false;
-		
 	}
 
-	@Override
-	public String getSerializedConfiguration() throws InternalException
-	{
-		ObjectNode main = mapper.createObjectNode();
-		serializeAll(main);
-		try
-		{
-			return mapper.writeValueAsString(main);
-		} catch (JsonProcessingException e)
-		{
-			throw new InternalException("Can't perform JSON serialization", e);
-		}
-	}
-
-	protected void serializeAll(ObjectNode main)
-	{
-		ObjectNode settingsN = main.with("colSettings");
-		for (Map.Entry<String, ColumnSettings> entry : colSettings.entrySet())
-			settingsN.set(entry.getKey(), serializeSingle(entry.getValue()));
-		ObjectNode settingC = main.with("checkBoxSettings");
-		settingC.put("groupByEntities", groupbyEntitiesSetting);
-		settingC.put("showTargeted", showTargetedSetting);		 
-	}
-
-	protected ObjectNode serializeSingle(ColumnSettings what)
-	{
-		ObjectNode main = mapper.createObjectNode();
-		main.put("width", what.width);
-		main.put("order", what.order);
-		main.put("collapsed", what.collapsed);
-		return main;
-	}
-
-	@Override
-	public void setSerializedConfiguration(String json) throws InternalException
-	{
-		if (json == null || json.equals(""))
-		{
-			colSettings = new HashMap<String, IdentitiesTablePreferences.ColumnSettings>();
-			return;
-		}
-		try
-		{
-			ObjectNode main = mapper.readValue(json, ObjectNode.class);
-			deserializeAll(main);
-		} catch (Exception e)
-		{
-			throw new InternalException("Can't perform JSON deserialization", e);
-		}
-
-	}
-
-	protected void deserializeAll(ObjectNode main)
+	@JsonCreator
+	public IdentitiesTablePreferences(ObjectNode main) throws InternalException
 	{
 		ObjectNode spSettingsNodeC = main.with("colSettings");
 		Iterator<String> keys = spSettingsNodeC.fieldNames();
@@ -111,6 +56,38 @@ public class IdentitiesTablePreferences implements JsonSerializable
 		else
 			showTargetedSetting = false;
 	}
+	
+	public static IdentitiesTablePreferences getPreferences(PreferencesManagement preferencesMan)
+			throws EngineException
+	{
+		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
+		EntityParam entity = new EntityParam(ae.getEntityId());
+		String raw = preferencesMan.getPreference(entity, ID);
+		return raw == null ? new IdentitiesTablePreferences() : 
+			new IdentitiesTablePreferences(JsonUtil.parse(raw));
+	}
+	
+	@JsonValue
+	public ObjectNode serializeToJson()
+	{
+		ObjectNode main = mapper.createObjectNode();
+		ObjectNode settingsN = main.with("colSettings");
+		for (Map.Entry<String, ColumnSettings> entry : colSettings.entrySet())
+			settingsN.set(entry.getKey(), serializeSingle(entry.getValue()));
+		ObjectNode settingC = main.with("checkBoxSettings");
+		settingC.put("groupByEntities", groupbyEntitiesSetting);
+		settingC.put("showTargeted", showTargetedSetting);
+		return main;
+	}
+
+	protected ObjectNode serializeSingle(ColumnSettings what)
+	{
+		ObjectNode main = mapper.createObjectNode();
+		main.put("width", what.width);
+		main.put("order", what.order);
+		main.put("collapsed", what.collapsed);
+		return main;
+	}
 
 	protected ColumnSettings deserializeSingle(ObjectNode from)
 	{
@@ -122,35 +99,11 @@ public class IdentitiesTablePreferences implements JsonSerializable
 		return ret;
 	}
 
-	public static void initPreferencesGeneric(PreferencesManagement preferencesMan,
-			JsonSerializable toInit, String id) throws EngineException
+	public void savePreferences(PreferencesManagement preferencesMan) throws EngineException
 	{
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		EntityParam entity = new EntityParam(ae.getEntityId());
-		String raw = preferencesMan.getPreference(entity, id);
-		toInit.setSerializedConfiguration(raw);
-	}
-
-	public static void savePreferencesGeneric(PreferencesManagement preferencesMan,
-			JsonSerializable preferences, String id) throws EngineException
-	{
-		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
-		EntityParam entity = new EntityParam(ae.getEntityId());
-		preferencesMan.setPreference(entity, id, preferences.getSerializedConfiguration());
-	}
-
-	public static IdentitiesTablePreferences getPreferences(PreferencesManagement preferencesMan)
-			throws EngineException
-	{
-		IdentitiesTablePreferences ret = new IdentitiesTablePreferences();
-		initPreferencesGeneric(preferencesMan, ret, IdentitiesTablePreferences.ID);
-		return ret;
-	}
-
-	public static void savePreferences(PreferencesManagement preferencesMan,
-			IdentitiesTablePreferences preferences) throws EngineException
-	{
-		savePreferencesGeneric(preferencesMan, preferences, IdentitiesTablePreferences.ID);
+		preferencesMan.setPreference(entity, ID, JsonUtil.toJsonString(serializeToJson()));
 	}
 
 	public ColumnSettings getSingleColumnSettings(String columnName)

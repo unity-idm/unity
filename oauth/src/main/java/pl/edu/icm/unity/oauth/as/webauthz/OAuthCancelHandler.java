@@ -4,12 +4,13 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
-import pl.edu.icm.unity.idpcommon.EopException;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
+
+import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**
  * Implements handling of cancellation of authentication in the context of OAuth processing.

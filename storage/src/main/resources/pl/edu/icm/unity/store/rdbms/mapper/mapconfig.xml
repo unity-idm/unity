@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="lazyLoadingEnabled" value="false"/>
+		<setting name="aggressiveLazyLoading" value="false"/>
+	</settings>
+
+	<typeAliases>
+		<typeAlias alias="BaseB" type="pl.edu.icm.unity.store.rdbms.BaseBean" />
+		<typeAlias alias="GroupB" type="pl.edu.icm.unity.store.impl.groups.GroupBean" />
+		<typeAlias alias="IdentityB" type="pl.edu.icm.unity.store.impl.identities.IdentityBean" />
+		<typeAlias alias="AttributeB" type="pl.edu.icm.unity.store.impl.attribute.AttributeBean" />
+		<typeAlias alias="AttributeTypeB" type="pl.edu.icm.unity.store.impl.attributetype.AttributeTypeBean" />
+		<typeAlias alias="GroupElementB" type="pl.edu.icm.unity.store.impl.membership.GroupElementBean" />
+		<typeAlias alias="TokenB" type="pl.edu.icm.unity.store.impl.tokens.TokenBean" />
+		<typeAlias alias="GenericObjectB" type="pl.edu.icm.unity.store.impl.objstore.GenericObjectBean" />
+		<typeAlias alias="EventB" type="pl.edu.icm.unity.store.impl.events.EventBean" />
+	</typeAliases>
+	
+	<environments default="def">
+		<environment id="def">
+			<transactionManager type="JDBC"/>
+			<dataSource type="POOLED">
+				<property name="driver" value="${driver}" />
+				<property name="url" value="${jdbcUrl}" />
+				<property name="username" value="${username}" />
+				<property name="password" value="${password}" />
+				<property name="defaultAutoCommit" value="true" />
+			
+				<property name="defaultTransactionIsolationLevel" value="1" /> 
+				
+				<property name="poolMaximumActiveConnections" value="20" />
+				<property name="poolMaximumIdleConnections" value="10" />
+				<property name="poolMaximumCheckoutTime" value="200000" />
+				<property name="poolTimeToWait" value="500" />
+				<property name="poolPingQuery" value="select 1 from IDENTITY_TYPES" />
+				<property name="poolPingEnabled" value="true" />
+				<property name="poolPingConnectionsNotUsedFor" value="600000" />
+			</dataSource>
+		</environment>
+	</environments>
+
+
+	<mappers>
+		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Initdb-${dialect}.xml" />
+		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Initdb-common.xml" />
+		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Maintenance.xml" />
+		
+		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/IdentityTypes.xml" />
+		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/AttributeTypes.xml" />
+		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Entities.xml" />
+		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Identities.xml" />
+		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Groups.xml" />
+		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/GroupMembership.xml" />
+		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Attributes.xml" />
+		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Generic.xml" />
+		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Tokens.xml" />
+		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Events.xml" />
+	</mappers>
+</configuration>

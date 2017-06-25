@@ -7,12 +7,13 @@ package pl.edu.icm.unity.engine.events;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
-import pl.edu.icm.unity.db.DBEvents;
-import pl.edu.icm.unity.db.model.ResolvedEventBean;
-import pl.edu.icm.unity.server.events.EventListener;
-import pl.edu.icm.unity.server.utils.Log;
+import pl.edu.icm.unity.base.event.EventExecution;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.event.EventListener;
+import pl.edu.icm.unity.store.api.EventDAO;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
 /**
  * Processes heavy-weight events: takes pending ones from DB and tries to invoke them one by one.
@@ -25,11 +26,13 @@ public class EventsProcessingThread extends Thread
 	public static final long INTERVAL = 30000;
 	public static final long DELAY = 30000;
 	public static final long MAX_DELAY = 3600000;
-	private DBEvents dbEvents;
+	private EventDAO dbEvents;
 	private EventProcessor eventProcessor;
+	private TransactionalRunner tx;
 	
-	public EventsProcessingThread(EventProcessor processor, DBEvents dbEvents)
+	public EventsProcessingThread(EventProcessor processor, EventDAO dbEvents, TransactionalRunner tx)
 	{
+		this.tx = tx;
 		setDaemon(true);
 		this.dbEvents = dbEvents;
 		this.eventProcessor = processor;
@@ -45,9 +48,12 @@ public class EventsProcessingThread extends Thread
 				{
 					wait(INTERVAL);
 				} catch (InterruptedException e) {}
-				List<ResolvedEventBean> events = dbEvents.getEventsForProcessing(new Date());
-				for (ResolvedEventBean event:events)
-					handleHeavyweightEvent(event);
+
+				tx.runInTransaction(() -> {
+					List<EventExecution> events = dbEvents.getEligibleForProcessing(new Date());
+					for (EventExecution event: events)
+						handleHeavyweightEvent(event);
+				});
 			}
 		}
 	}
@@ -57,7 +63,7 @@ public class EventsProcessingThread extends Thread
 		notify();
 	}
 	
-	private void handleHeavyweightEvent(ResolvedEventBean event)
+	private void handleHeavyweightEvent(EventExecution event)
 	{
 		EventListener listener = eventProcessor.getListenerById(event.getListenerId());
 		if (listener == null)
@@ -82,7 +88,7 @@ public class EventsProcessingThread extends Thread
 
 		if (result)
 		{
-			dbEvents.removeEvent(event.getId());
+			dbEvents.deleteByKey(event.getId());
 			log.debug("Event " + event.getId() + " successfully handled");
 		} else
 		{
@@ -90,7 +96,7 @@ public class EventsProcessingThread extends Thread
 			if (listener.getMaxFailures() <= failures)
 			{
 				log.warn("Dropping event for " + event.getListenerId() + " after too many failures");
-				dbEvents.removeEvent(event.getId());
+				dbEvents.deleteByKey(event.getId());
 				return;
 			}
 			Date newExecution = new Date(System.currentTimeMillis() + getDelay(failures));

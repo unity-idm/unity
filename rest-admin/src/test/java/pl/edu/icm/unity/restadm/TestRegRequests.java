@@ -20,27 +20,26 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Lists;
 
-import pl.edu.icm.unity.engine.builders.RegistrationRequestBuilder;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.api.RegistrationsManagement;
-import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.basic.AttributeParamRepresentation;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
-import pl.edu.icm.unity.types.registration.RESTRegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
+import pl.edu.icm.unity.types.registration.RegistrationRequestBuilder;
+import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 
 public class TestRegRequests extends RESTAdminTestBase
 {
@@ -50,7 +49,7 @@ public class TestRegRequests extends RESTAdminTestBase
 	@Before
 	public void init() throws EngineException
 	{
-		attrsMan.addAttributeType(new AttributeType("attr", new StringAttributeSyntax()));
+		aTypeMan.addAttributeType(new AttributeType("attr", StringAttributeSyntax.ID));
 		groupsMan.addGroup(new Group("/A"));
 		regMan.addForm(getRegistrationForm());
 	}
@@ -71,8 +70,8 @@ public class TestRegRequests extends RESTAdminTestBase
 		System.out.println("Response:\n" + contents);
 		assertEquals(contents, Status.OK.getStatusCode(), responseGet.getStatusLine().getStatusCode());
 
-		List<RESTRegistrationRequestState> returnedL = m.readValue(contents, 
-				new TypeReference<List<RESTRegistrationRequestState>>() {});
+		List<RegistrationRequestState> returnedL = m.readValue(contents, 
+				new TypeReference<List<RegistrationRequestState>>() {});
 		assertThat(returnedL.size(), is(2));
 		assertEqual(request, returnedL.get(0));
 		assertEqual(request, returnedL.get(1));
@@ -92,15 +91,15 @@ public class TestRegRequests extends RESTAdminTestBase
 		System.out.println("Response:\n" + contents);
 		assertEquals(contents, Status.OK.getStatusCode(), responseGet.getStatusLine().getStatusCode());
 
-		RESTRegistrationRequestState returned = m.readValue(contents, RESTRegistrationRequestState.class);
+		RegistrationRequestState returned = m.readValue(contents, RegistrationRequestState.class);
 		assertEqual(request, returned);
 	}
 
-	private void assertEqual(RegistrationRequest expected, RESTRegistrationRequestState returned)
+	private void assertEqual(RegistrationRequest expected, RegistrationRequestState returned)
 	{
 		assertThat(returned.getRequest().getAttributes().size(), is(expected.getAttributes().size()));
 		assertThat(returned.getRequest().getAttributes().get(0), 
-				is(new AttributeParamRepresentation(expected.getAttributes().get(0))));
+				is(expected.getAttributes().get(0)));
 		assertThat(returned.getRequest().getIdentities(), is(expected.getIdentities()));
 	}
 	
@@ -109,7 +108,8 @@ public class TestRegRequests extends RESTAdminTestBase
 		return new RegistrationRequestBuilder().
 				withFormId("exForm").
 				withAddedIdentity(new IdentityParam(UsernameIdentity.ID, "user")).
-				withAddedAttribute(new StringAttribute("attr", "/A", AttributeVisibility.local, "val")).
+				withAddedAttribute(new Attribute("attr", StringAttributeSyntax.ID, "/A", 
+						Lists.newArrayList("val"))).
 				build();
 	}
 	

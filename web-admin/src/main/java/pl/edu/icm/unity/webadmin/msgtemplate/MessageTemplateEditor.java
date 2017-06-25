@@ -7,25 +7,6 @@ package pl.edu.icm.unity.webadmin.msgtemplate;
 import java.util.Collection;
 import java.util.Map;
 
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.msgtemplates.MessageTemplate;
-import pl.edu.icm.unity.msgtemplates.MessageTemplateDefinition;
-import pl.edu.icm.unity.msgtemplates.MessageTemplateValidator;
-import pl.edu.icm.unity.msgtemplates.MessageTemplateValidator.IllegalVariablesException;
-import pl.edu.icm.unity.msgtemplates.MessageTemplateValidator.MandatoryVariablesException;
-import pl.edu.icm.unity.msgtemplates.MessageTemplateVariable;
-import pl.edu.icm.unity.server.registries.MessageTemplateConsumersRegistry;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.I18nMessage;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.RequiredComboBox;
-import pl.edu.icm.unity.webui.common.RequiredTextField;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
-
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.Validator;
@@ -39,6 +20,24 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextArea;
+
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateConsumersRegistry;
+import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateValidator;
+import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateValidator.IllegalVariablesException;
+import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateValidator.MandatoryVariablesException;
+import pl.edu.icm.unity.types.I18nMessage;
+import pl.edu.icm.unity.types.basic.MessageTemplate;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.DescriptionTextArea;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.RequiredComboBox;
+import pl.edu.icm.unity.webui.common.RequiredTextField;
+import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
 /**
  * Component to edit or add message template
@@ -216,7 +215,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 		try
 		{
 			consumer = registry.getByName(c);
-		} catch (IllegalTypeException e)
+		} catch (IllegalArgumentException e)
 		{
 			NotificationPopup.showError(msg,
 					msg.getMessage("MessageTemplatesEditor.errorConsumers"), e);

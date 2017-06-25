@@ -7,9 +7,9 @@ package pl.edu.icm.unity.webui.common.credentials.ext;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 

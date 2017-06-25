@@ -7,13 +7,13 @@ package pl.edu.icm.unity.webui.common;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
-
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.Resource;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Component;
+
+import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
 
 public class ImageUtils
 {

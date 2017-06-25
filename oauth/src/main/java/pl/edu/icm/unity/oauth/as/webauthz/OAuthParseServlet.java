@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,29 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.log4j.Logger;
-
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.idpcommon.EopException;
-import pl.edu.icm.unity.oauth.as.OAuthASProperties;
-import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
-import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
-import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
-import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
-import pl.edu.icm.unity.oauth.as.OAuthValidationException;
-import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.internal.CommonIdPProperties;
-import pl.edu.icm.unity.server.utils.Log;
-import pl.edu.icm.unity.server.utils.RoutingServlet;
-import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
+import org.apache.logging.log4j.Logger;
 
 import com.google.gwt.thirdparty.guava.common.collect.Sets;
 import com.google.gwt.thirdparty.guava.common.collect.Sets.SetView;
@@ -54,6 +31,29 @@ import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
+
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
+import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.oauth.as.OAuthASProperties;
+import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
+import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
+import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
+import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
+import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.oauth.as.OAuthValidationException;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.IdentityTaV;
+import pl.edu.icm.unity.webui.idpcommon.EopException;
+
 
 /**
  * Low level servlet performing the initial OAuth handling.
@@ -84,13 +84,13 @@ public class OAuthParseServlet extends HttpServlet
 	protected String endpointAddress;
 	protected String oauthUiServletPath;
 	protected ErrorHandler errorHandler;
-	protected IdentitiesManagement identitiesMan;
+	protected EntityManagement identitiesMan;
 	protected AttributesManagement attributesMan;
 	protected OAuthRequestValidator requestValidator;
 	private boolean assumeForce;
 	
 	public OAuthParseServlet(OAuthASProperties oauthConfig, String endpointAddress,
-			String oauthUiServletPath, ErrorHandler errorHandler, IdentitiesManagement identitiesMan,
+			String oauthUiServletPath, ErrorHandler errorHandler, EntityManagement identitiesMan,
 			AttributesManagement attributesMan)
 	{
 		super();
@@ -237,7 +237,6 @@ public class OAuthParseServlet extends HttpServlet
 	 * whether the authorization grant is enabled for the client.
 	 * @param context
 	 */
-	@SuppressWarnings("unchecked")
 	protected void validate(OAuthAuthzContext context) 
 			throws OAuthValidationException
 	{
@@ -260,12 +259,12 @@ public class OAuthParseServlet extends HttpServlet
 		context.setClientUsername(client);
 		
 		requestValidator.validateGroupMembership(clientEntity, client);
-		Map<String, AttributeExt<?>> attributes = requestValidator.getAttributes(clientEntity);
+		Map<String, AttributeExt> attributes = requestValidator.getAttributes(clientEntity);
 		
-		AttributeExt<?> allowedUrisA = attributes.get(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI);
-		AttributeExt<?> nameA = attributes.get(OAuthSystemAttributesProvider.CLIENT_NAME);
-		AttributeExt<?> logoA = attributes.get(OAuthSystemAttributesProvider.CLIENT_LOGO);
-		AttributeExt<?> groupA = attributes.get(OAuthSystemAttributesProvider.PER_CLIENT_GROUP);
+		AttributeExt allowedUrisA = attributes.get(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI);
+		AttributeExt nameA = attributes.get(OAuthSystemAttributesProvider.CLIENT_NAME);
+		AttributeExt logoA = attributes.get(OAuthSystemAttributesProvider.CLIENT_LOGO);
+		AttributeExt groupA = attributes.get(OAuthSystemAttributesProvider.PER_CLIENT_GROUP);
 
 		if (allowedUrisA == null || allowedUrisA.getValues().isEmpty())
 			throw new OAuthValidationException("The '" + client + 
@@ -302,7 +301,7 @@ public class OAuthParseServlet extends HttpServlet
 		}
 
 		if (logoA != null)
-			context.setClientLogo((Attribute<BufferedImage>) logoA);
+			context.setClientLogo((Attribute) logoA);
 		
 		if (nameA != null)
 			context.setClientName((String) nameA.getValues().get(0));

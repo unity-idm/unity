@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;
@@ -18,13 +18,13 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import net.minidev.json.JSONObject;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.oauth.BaseRemoteASProperties;
 import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
 import pl.edu.icm.unity.oauth.client.UserProfileFetcher;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
-import pl.edu.icm.unity.server.authn.AuthenticationException;
-import pl.edu.icm.unity.server.utils.Log;
 
 
 /**
@@ -35,8 +35,7 @@ import pl.edu.icm.unity.server.utils.Log;
  */
 public class PlainProfileFetcher implements UserProfileFetcher
 {
-	private static final Logger log = Log.getLogger(pl.edu.icm.unity.server.utils.Log.U_SERVER_OAUTH,
-			PlainProfileFetcher.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, PlainProfileFetcher.class);
 	
 	@Override
 	public Map<String, String> fetchProfile(BearerAccessToken accessToken, String userInfoEndpoint,

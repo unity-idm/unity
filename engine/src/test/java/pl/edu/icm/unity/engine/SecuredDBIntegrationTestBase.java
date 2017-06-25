@@ -9,33 +9,34 @@ import static org.junit.Assert.fail;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import pl.edu.icm.unity.engine.endpoints.InternalEndpointManagement;
-import pl.edu.icm.unity.engine.internal.AttributeStatementsCleaner;
+import pl.edu.icm.unity.engine.api.AttributeClassManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
+import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
+import pl.edu.icm.unity.engine.api.EndpointManagement;
+import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
+import pl.edu.icm.unity.engine.api.NotificationsManagement;
+import pl.edu.icm.unity.engine.api.PreferencesManagement;
+import pl.edu.icm.unity.engine.api.RealmsManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.ServerManagement;
+import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
+import pl.edu.icm.unity.engine.endpoint.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.server.JettyServer;
-import pl.edu.icm.unity.server.api.AttributesManagement;
-import pl.edu.icm.unity.server.api.AuthenticationManagement;
-import pl.edu.icm.unity.server.api.EndpointManagement;
-import pl.edu.icm.unity.server.api.GroupsManagement;
-import pl.edu.icm.unity.server.api.IdentitiesManagement;
-import pl.edu.icm.unity.server.api.NotificationsManagement;
-import pl.edu.icm.unity.server.api.PreferencesManagement;
-import pl.edu.icm.unity.server.api.RealmsManagement;
-import pl.edu.icm.unity.server.api.RegistrationsManagement;
-import pl.edu.icm.unity.server.api.ServerManagement;
-import pl.edu.icm.unity.server.api.internal.IdentityResolver;
-import pl.edu.icm.unity.sysattrs.SystemAttributeTypes;
+import pl.edu.icm.unity.engine.server.JettyServer;
 import pl.edu.icm.unity.types.NamedObject;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -45,16 +46,27 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"classpath*:META-INF/components.xml", "classpath:META-INF/test-components.xml"})
-@ActiveProfiles("test")
+@UnityIntegrationTest
 public abstract class SecuredDBIntegrationTestBase
 {
+	protected static final int DEF_ATTRS = 1; //Credential requirement attribute (in / group)
+	public static final String CR_MOCK = "crMock";
+	public static final String CRED_MOCK = "credential1";
+	
 	@Autowired
 	protected GroupsManagement groupsMan;
 	@Autowired
-	protected IdentitiesManagement idsMan;
+	protected IdentityTypesManagement idTypeMan;
+	@Autowired
+	protected EntityManagement idsMan;
+	@Autowired
+	protected EntityCredentialManagement eCredMan;
+	@Autowired
+	protected AttributeClassManagement acMan;
 	@Autowired
 	protected AttributesManagement attrsMan;
+	@Autowired
+	protected AttributeTypeManagement aTypeMan;
 	@Autowired
 	@Qualifier("insecure")
 	protected AttributesManagement insecureAttrsMan;
@@ -74,20 +86,24 @@ public abstract class SecuredDBIntegrationTestBase
 	@Autowired
 	protected IdentityResolver identityResolver;
 	@Autowired
-	protected AuthenticationManagement authnMan;
+	@Qualifier("insecure")
+	protected CredentialManagement insecureCredMan;
+	@Autowired
+	protected CredentialManagement credMan;
+	@Autowired
+	protected CredentialRequirementManagement credReqMan;
+	@Autowired
+	@Qualifier("insecure")
+	protected CredentialRequirementManagement insecureCredReqMan;
 	@Autowired
 	protected NotificationsManagement notMan;
 	@Autowired
 	protected JettyServer httpServer;
-	@Autowired 
-	protected SystemAttributeTypes systemAttributeTypes;
-	@Autowired
-	protected AttributeStatementsCleaner statementsCleaner;
 	@Autowired
 	protected RealmsManagement realmsMan;
 	
 	@Before
-	public void clear() throws EngineException
+	public void clear() throws Exception
 	{
 		insecureServerMan.resetDatabase();
 	}
@@ -109,9 +125,9 @@ public abstract class SecuredDBIntegrationTestBase
 		}
 	}
 	
-	protected Attribute<?> getAttributeByName(Collection<? extends Attribute<?>> attrs, String name)
+	protected <T extends Attribute> T getAttributeByName(Collection<T> attrs, String name)
 	{
-		for (Attribute<?> a: attrs)
+		for (T a: attrs)
 			if (a.getName().equals(name))
 				return a;
 		return null;
@@ -136,24 +152,24 @@ public abstract class SecuredDBIntegrationTestBase
 	protected IdentityType getIdentityTypeByName(Collection<IdentityType> objs, String name)
 	{
 		for (IdentityType a: objs)
-			if (a.getIdentityTypeProvider().getId().equals(name))
+			if (a.getIdentityTypeProvider().equals(name))
 				return a;
 		return null;
 	}
 
-	protected Identity getIdentityByType(Identity[] objs, String type)
+	protected Identity getIdentityByType(List<Identity> objs, String type)
 	{
 		for (Identity a: objs)
-			if (a.getType().getIdentityTypeProvider().getId().equals(type))
+			if (a.getTypeId().equals(type))
 				return a;
 		return null;
 	}
 
-	protected Collection<Identity> getIdentitiesByType(Identity[] objs, String type)
+	protected Collection<Identity> getIdentitiesByType(List<Identity> objs, String type)
 	{
 		Set<Identity> ret = new HashSet<>();
 		for (Identity a: objs)
-			if (a.getType().getIdentityTypeProvider().getId().equals(type))
+			if (a.getTypeId().equals(type))
 				ret.add(a);
 		return ret;
 	}
@@ -161,12 +177,12 @@ public abstract class SecuredDBIntegrationTestBase
 	protected void setupMockAuthn() throws Exception
 	{
 		CredentialDefinition credDef = new CredentialDefinition(
-				MockPasswordVerificatorFactory.ID, "credential1");
-		credDef.setJsonConfiguration("8");
-		authnMan.addCredentialDefinition(credDef);
+				MockPasswordVerificatorFactory.ID, CRED_MOCK);
+		credDef.setConfiguration("8");
+		insecureCredMan.addCredentialDefinition(credDef);
 		
-		CredentialRequirements cr = new CredentialRequirements("crMock", "mock cred req", 
+		CredentialRequirements cr = new CredentialRequirements(CR_MOCK, "mock cred req", 
 				Collections.singleton(credDef.getName()));
-		authnMan.addCredentialRequirement(cr);
+		insecureCredReqMan.addCredentialRequirement(cr);
 	}
 }

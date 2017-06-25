@@ -5,28 +5,12 @@
 package pl.edu.icm.unity.saml.idp.preferences;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
-import pl.edu.icm.unity.server.utils.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributeVisibility;
-import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.IdentityTypeDefinition;
-import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.GenericElementsTable;
-import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.IndexedContainer;
@@ -37,6 +21,22 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.OptionGroup;
 
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.GenericElementsTable;
+import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+
 /**
  * Allows to edit settings for a single SAML Service Provider.
  * 
@@ -45,7 +45,7 @@ import com.vaadin.ui.OptionGroup;
 public class SPSettingsEditor extends FormLayout
 {
 	protected UnityMessageSource msg;
-	protected Identity[] identities;
+	protected List<Identity> identities;
 	protected Collection<AttributeType> attributeTypes;
 	
 	protected ComboBox sp;
@@ -54,26 +54,33 @@ public class SPSettingsEditor extends FormLayout
 	protected OptionGroup identity;
 	protected GenericElementsTable<TableEntry> hidden;
 	private AttributeHandlerRegistry handlerReg;
+	private IdentityTypeSupport idTypeSupport;
 	
-	public SPSettingsEditor(UnityMessageSource msg, AttributeHandlerRegistry handlerReg, Identity[] identities, 
+	public SPSettingsEditor(UnityMessageSource msg, AttributeHandlerRegistry handlerReg, 
+			IdentityTypeSupport idTypeSupport, List<Identity> identities, 
 			Collection<AttributeType> atTypes, String sp, SPSettings initial)
 	{
-		this.msg = msg;
-		this.handlerReg = handlerReg;
-		this.identities = Arrays.copyOf(identities, identities.length);
-		this.attributeTypes = atTypes;
-		initUI(initial, sp, null);
+		this(msg, handlerReg, idTypeSupport, identities, atTypes, sp, initial, null);
 	}
 
 	public SPSettingsEditor(UnityMessageSource msg, AttributeHandlerRegistry handlerReg, 
-			Identity[] identities, Collection<AttributeType> atTypes,
+			IdentityTypeSupport idTypeSupport, List<Identity> identities, 
+			Collection<AttributeType> atTypes,
 			Set<String> allSps)
+	{
+		this(msg, handlerReg, idTypeSupport, identities, atTypes, null, null, allSps);
+	}
+
+	private SPSettingsEditor(UnityMessageSource msg, AttributeHandlerRegistry handlerReg, 
+			IdentityTypeSupport idTypeSupport, List<Identity> identities, 
+			Collection<AttributeType> atTypes, String sp, SPSettings initial, Set<String> allSps)
 	{
 		this.msg = msg;
 		this.handlerReg = handlerReg;
-		this.identities = Arrays.copyOf(identities, identities.length);
+		this.idTypeSupport = idTypeSupport;
+		this.identities = new ArrayList<>(identities);
 		this.attributeTypes = atTypes;
-		initUI(null, null, allSps);
+		initUI(initial, sp, allSps);
 	}
 	
 	public SPSettings getSPSettings()
@@ -99,13 +106,13 @@ public class SPSettingsEditor extends FormLayout
 		if (identityV != null)
 		{
 			IndexedContainer idContainer = ((IndexedContainer)identity.getContainerDataSource());
-			Identity id = identities[idContainer.indexOfId(identityV)];
-			IdentityTypeDefinition idType = id.getType().getIdentityTypeProvider();
-			if (!idType.isDynamic() && !idType.isTargeted())
+			Identity id = identities.get(idContainer.indexOfId(identityV));
+			IdentityTypeDefinition typeDefinition = idTypeSupport.getTypeDefinition(id.getTypeId());
+			if (!typeDefinition.isDynamic() && !typeDefinition.isTargeted())
 				ret.setSelectedIdentity(id.getComparableValue());
 		}
 		
-		Map<String, Attribute<?>> hidden = getHidden();
+		Map<String, Attribute> hidden = getHidden();
 		ret.setHiddenAttribtues(hidden);
 		return ret;
 	}
@@ -115,10 +122,10 @@ public class SPSettingsEditor extends FormLayout
 		return sp == null ? spLabel.getValue() : (String) sp.getValue();
 	}
 	
-	private Map<String, Attribute<?>> getHidden()
+	private Map<String, Attribute> getHidden()
 	{
 		Collection<?> itemIds = hidden.getItemIds();
-		Map<String, Attribute<?>> hiddenAttrs = new HashMap<>();
+		Map<String, Attribute> hiddenAttrs = new HashMap<>();
 		for (Object itemId: itemIds)
 		{
 			@SuppressWarnings("unchecked")
@@ -160,7 +167,10 @@ public class SPSettingsEditor extends FormLayout
 		identity = new OptionGroup(msg.getMessage("SAMLPreferences.identity"));
 		identity.setNullSelectionAllowed(true);
 		for (Identity id: identities)
-			identity.addItem(id.toPrettyString());
+		{
+			IdentityTypeDefinition typeDefinition = idTypeSupport.getTypeDefinition(id.getTypeId());
+			identity.addItem(typeDefinition.toPrettyString(id));
+		}
 		
 		hidden = new GenericElementsTable<TableEntry>(msg.getMessage("SAMLPreferences.hidden"));
 		hidden.setHeight(200, Unit.PIXELS);
@@ -200,15 +210,17 @@ public class SPSettingsEditor extends FormLayout
 			{
 				if (i.getComparableValue().equals(selId))
 				{
-					identity.select(i.toPrettyString());
+					IdentityTypeDefinition typeDefinition = idTypeSupport.getTypeDefinition(
+							i.getTypeId());
+					identity.select(typeDefinition.toPrettyString(i));
 					break;
 				}
 			}
 		}
 			
-		Map<String, Attribute<?>> hiddenAttribtues = initial.getHiddenAttribtues();
+		Map<String, Attribute> hiddenAttribtues = initial.getHiddenAttribtues();
 		Collection<TableEntry> converted = new ArrayList<>();
-		for (Entry<String, Attribute<?>> entry : hiddenAttribtues.entrySet())
+		for (Entry<String, Attribute> entry : hiddenAttribtues.entrySet())
 			converted.add(new TableEntry(entry.getKey(), entry.getValue()));
 		hidden.setInput(converted);
 	}
@@ -260,8 +272,7 @@ public class SPSettingsEditor extends FormLayout
 			selection.setNullSelectionAllowed(false);
 			Set<String> alreadySelected = getHidden().keySet();
 			for (AttributeType at: attributeTypes)
-				if (at.getVisibility() != AttributeVisibility.local && 
-						!alreadySelected.contains(at.getName()))
+				if (!alreadySelected.contains(at.getName()))
 					selection.addItem(at.getName());
 			if (selection.size() > 0)
 			{
@@ -287,9 +298,9 @@ public class SPSettingsEditor extends FormLayout
 	private class TableEntry
 	{
 		private String name;
-		private Attribute<?> hiddenValues;
+		private Attribute hiddenValues;
 		
-		public TableEntry(String name, Attribute<?> hiddenValues)
+		public TableEntry(String name, Attribute hiddenValues)
 		{
 			this.name = name;
 			this.hiddenValues = hiddenValues;

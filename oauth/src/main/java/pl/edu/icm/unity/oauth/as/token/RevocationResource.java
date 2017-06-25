@@ -13,21 +13,21 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.oauth.as.OAuthProcessor;
-import pl.edu.icm.unity.oauth.as.OAuthToken;
-import pl.edu.icm.unity.server.api.internal.LoginSession;
-import pl.edu.icm.unity.server.api.internal.SessionManagement;
-import pl.edu.icm.unity.server.api.internal.Token;
-import pl.edu.icm.unity.server.api.internal.TokensManagement;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.basic.EntityParam;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+
+import pl.edu.icm.unity.base.token.Token;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.oauth.as.OAuthProcessor;
+import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
  * Implementation of RFC 7009  https://tools.ietf.org/html/rfc7009
@@ -99,7 +99,7 @@ public class RevocationResource extends BaseOAuthResource
 		{
 			internalAccessToken = tokensManagement.getTokenById(OAuthProcessor.INTERNAL_ACCESS_TOKEN, 
 					token);
-		} catch (WrongArgumentException e)
+		} catch (IllegalArgumentException e)
 		{
 			return toResponse(Response.ok());
 		}
@@ -119,7 +119,7 @@ public class RevocationResource extends BaseOAuthResource
 		try
 		{
 			tokensManagement.removeToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN, token);
-		} catch (WrongArgumentException e)
+		} catch (IllegalArgumentException e)
 		{
 			//ok
 		}

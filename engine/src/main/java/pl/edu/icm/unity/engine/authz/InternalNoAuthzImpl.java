@@ -19,7 +19,7 @@ import pl.edu.icm.unity.exceptions.AuthorizationException;
  * which are used internally, mostly to set up the initial server state.
  * @author K. Benedyczak
  */
-@Component
+@Component("noauthz")
 @Qualifier("insecure")
 public class InternalNoAuthzImpl implements AuthorizationManager
 {
