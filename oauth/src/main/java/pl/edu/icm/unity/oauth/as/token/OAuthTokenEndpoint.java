@@ -63,21 +63,17 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	private OAuthEndpointsCoordinator coordinator;
 	private TransactionalRunner tx;
 	private IdPEngine idPEngine;
-	private EntityManagement identitiesMan;
 
 	//insecure
 	private AttributesManagement attributesMan;
-	private EntityManagement insecureIdentitiesMan;
-	
+	private EntityManagement identitiesMan;
 	
 	@Autowired
 	public OAuthTokenEndpoint(UnityMessageSource msg, SessionManagement sessionMan,
 			NetworkServer server, TokensManagement tokensMan,
-			PKIManagement pkiManagement, OAuthEndpointsCoordinator coordinator,
-			AuthenticationProcessor authnProcessor,
-			@Qualifier("insecure") EntityManagement insecureIdentitiesMan,
-			EntityManagement identitiesMan,
-			@Qualifier("insecure") AttributesManagement attributesMan,
+			PKIManagement pkiManagement, OAuthEndpointsCoordinator coordinator, 
+			AuthenticationProcessor authnProcessor, EntityManagement identitiesMan,
+			@Qualifier("insecure") AttributesManagement attributesMan, 
 			TransactionalRunner tx, IdPEngine idPEngine)
 	{
 		super(msg, sessionMan, authnProcessor, server, PATH);
@@ -85,13 +81,12 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		this.pkiManagement = pkiManagement;
 		this.coordinator = coordinator;
 		this.identitiesMan = identitiesMan;
-		this.insecureIdentitiesMan = insecureIdentitiesMan;
 		this.attributesMan = attributesMan;
 		this.tx = tx;
 		this.idPEngine = idPEngine;
-
+		
 	}
-
+	
 	@Override
 	protected void setSerializedConfiguration(String serializedState)
 	{
@@ -117,8 +112,8 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		public Set<Object> getSingletons() 
 		{
 			HashSet<Object> ret = new HashSet<>();
-			ret.add(new AccessTokenResource(tokensManagement, insecureIdentitiesMan, config, 
-					new OAuthRequestValidator(config, identitiesMan, attributesMan), idPEngine, tx));
+			ret.add(new AccessTokenResource(tokensManagement, config, 
+					new OAuthRequestValidator(config, identitiesMan, attributesMan), idPEngine, identitiesMan, tx));
 			ret.add(new DiscoveryResource(config, coordinator));
 			ret.add(new KeysResource(config));
 			ret.add(new TokenInfoResource(tokensManagement));

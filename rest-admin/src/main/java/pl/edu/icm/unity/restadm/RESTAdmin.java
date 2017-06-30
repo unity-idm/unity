@@ -37,6 +37,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.event.Event;
+import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
@@ -53,6 +54,7 @@ import pl.edu.icm.unity.engine.api.confirmation.ConfirmationManager;
 import pl.edu.icm.unity.engine.api.event.EventPublisher;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -106,6 +108,7 @@ public class RESTAdmin
 	private AttributeTypeManagement attributeTypeMan;
 	private InvitationManagement invitationMan;
 	private EventPublisher eventPublisher;
+	private SecuredTokensManagement tokenMan;
 	
 	@Autowired
 	public RESTAdmin(EntityManagement identitiesMan, GroupsManagement groupsMan,
@@ -117,7 +120,8 @@ public class RESTAdmin
 			EntityCredentialManagement entityCredMan,
 			AttributeTypeManagement attributeTypeMan,
 			InvitationManagement invitationMan,
-			EventPublisher eventPublisher)
+			EventPublisher eventPublisher,
+			SecuredTokensManagement tokenMan)
 	{
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
@@ -132,6 +136,7 @@ public class RESTAdmin
 		this.attributeTypeMan = attributeTypeMan;
 		this.invitationMan = invitationMan;
 		this.eventPublisher = eventPublisher;
+		this.tokenMan = tokenMan;
 	}
 
 	
@@ -713,7 +718,29 @@ public class RESTAdmin
 		Event event = new Event(eventName, -1l, new Date(), eventBody);
 		eventPublisher.fireEventWithAuthz(event);
 	}	
-
+	
+	@Path("/token/{type}/{value}")
+	@DELETE
+	public void removeToken(@PathParam("type") String type, 
+			@PathParam("value") String value) throws EngineException, JsonProcessingException
+	{
+		log.debug("remove token " + type + ":" + value);
+		tokenMan.removeToken(type, value);
+	}
+	
+	@Path("/tokens/{type}")
+	@GET
+	public String getTokens(@PathParam("type") String type, @QueryParam("owner") String entity) throws EngineException, JsonProcessingException
+	{	
+		Collection<Token> tokens;
+		if (entity != null)
+			tokens = tokenMan.getOwnedTokens(type, getEP(entity, null));
+		else	
+			tokens = tokenMan.getAllTokens(type);
+		
+		return mapper.writeValueAsString(tokens);
+	}
+	
 	/**
 	 * Creates {@link EntityParam} from given entity address and optional type, which can be null.
 	 * If type is null then entityId is checked to have the size of persistentId type and if matching

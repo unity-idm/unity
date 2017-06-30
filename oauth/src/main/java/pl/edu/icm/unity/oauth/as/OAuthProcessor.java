@@ -94,19 +94,18 @@ public class OAuthProcessor
 					throws EngineException, JsonProcessingException, ParseException, JOSEException
 	{
 		OAuthToken internalToken = new OAuthToken();
-		internalToken.setScope(ctx.getEffectiveRequestedScopesList());
+		internalToken.setEffectiveScope(ctx.getEffectiveRequestedScopesList());
+		internalToken.setRequestedScope(ctx.getRequestedScopes().stream().toArray(String[]::new));
 		internalToken.setClientId(ctx.getClientEntityId());
 		internalToken.setRedirectUri(ctx.getReturnURI().toASCIIString());
 		internalToken.setClientName(ctx.getClientName());
 		internalToken.setClientUsername(ctx.getClientUsername());
 		internalToken.setSubject(identity.getValue());
-		internalToken.setSubjectType(identity.getTypeId());
-		internalToken.setSubjectRealm(identity.getRealm());
-		internalToken.setSubjectTarget(identity.getTarget());
 		internalToken.setMaxExtendedValidity(ctx.getConfig().getMaxExtendedAccessTokenValidity());
 		internalToken.setTokenValidity(ctx.getConfig().getAccessTokenValidity());
-		internalToken.setOpenIdMode(ctx.isOpenIdMode());
-		
+		String clientId = ctx.getRequest().getClientID().getValue();
+		internalToken.setAudience(clientId);
+	
 		Date now = new Date();
 		
 		JWT idTokenSigned = null;
@@ -118,7 +117,7 @@ public class OAuthProcessor
 
 		if (ctx.isOpenIdMode())
 		{
-			IDTokenClaimsSet idToken = prepareIdInfoClaimSet(identity.getValue(), ctx, userInfo, now);
+			IDTokenClaimsSet idToken = prepareIdInfoClaimSet(identity.getValue(), internalToken.getAudience(), ctx, userInfo, now);
 			idTokenSigned = signIdToken(idToken, ctx);
 			internalToken.setOpenidToken(idTokenSigned.serialize());
 			//we record OpenID token in internal state always in open id mode. However it may happen
@@ -229,15 +228,14 @@ public class OAuthProcessor
 	 * @param context
 	 * @param regularAttributes
 	 */
-	private IDTokenClaimsSet prepareIdInfoClaimSet(String userIdentity, OAuthAuthzContext context, 
+	private IDTokenClaimsSet prepareIdInfoClaimSet(String userIdentity, String audience, OAuthAuthzContext context, 
 			ClaimsSet regularAttributes, Date now)
 	{
 		AuthenticationRequest request = (AuthenticationRequest) context.getRequest();
-		String clientId = request.getClientID().getValue();
 		IDTokenClaimsSet idToken = new IDTokenClaimsSet(
 				new Issuer(context.getConfig().getIssuerName()), 
 				new Subject(userIdentity), 
-				Lists.newArrayList(new Audience(clientId)), 
+				Lists.newArrayList(new Audience(audience)), 
 				new Date(now.getTime() + context.getConfig().getIdTokenValidity()*1000), 
 				now);
 		ResponseType responseType = request.getResponseType(); 

@@ -5,10 +5,13 @@
 package pl.edu.icm.unity.oauth.as.token;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.FormParam;
@@ -28,6 +31,9 @@ import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.id.Audience;
+import com.nimbusds.oauth2.sdk.id.Issuer;
+import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
@@ -46,18 +52,24 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.engine.api.translation.ExecutionFailException;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
+import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthIdPEngine;
 import pl.edu.icm.unity.rest.jwt.JWTUtils;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -69,6 +81,7 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
  * Access to this resource should be limited only to authenticated OAuth clients
  * 
  * @author K. Benedyczak
+ * @author P. Piernik
  */
 @Produces("application/json")
 @Path(OAuthTokenEndpoint.TOKEN_PATH)
@@ -77,18 +90,23 @@ public class AccessTokenResource extends BaseOAuthResource
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH,
 			AccessTokenResource.class);
 
+	public static final String EXCHANGE_GRANT = "urn:ietf:params:oauth:grant-type:token-exchange";
+	public static final String ACCESS_TOKEN_TYPE_ID = "urn:ietf:params:oauth:token-type:access_token";
+	public static final String ID_TOKEN_TYPE_ID = "urn:ietf:params:oauth:token-type:id_token";
+	public static final String EXCHANGE_SCOPE = "token-echange";
+	
+
 	private TokensManagement tokensManagement;
 	private OAuthASProperties config;
 	private TransactionalRunner tx;
 	private ClientCredentialsProcessor clientGrantProcessor;
 	private OAuthIdPEngine oauthIdpEngine;
-	private EntityManagement identitiesMan;
 	private OAuthRequestValidator requestValidator;
+	private EntityManagement idMan;
 
-	public AccessTokenResource(TokensManagement tokensManagement,
-			EntityManagement identitiesMan, OAuthASProperties config,
+	public AccessTokenResource(TokensManagement tokensManagement, OAuthASProperties config,
 			OAuthRequestValidator requestValidator, IdPEngine idpEngine,
-			TransactionalRunner tx)
+			EntityManagement idMan, TransactionalRunner tx)
 	{
 		this.tokensManagement = tokensManagement;
 		this.config = config;
@@ -96,8 +114,8 @@ public class AccessTokenResource extends BaseOAuthResource
 		this.clientGrantProcessor = new ClientCredentialsProcessor(requestValidator,
 				idpEngine, config);
 		this.oauthIdpEngine = new OAuthIdPEngine(idpEngine);
-		this.identitiesMan = identitiesMan;
 		this.requestValidator = requestValidator;
+		this.idMan = idMan;
 	}
 
 	@Path("/")
@@ -105,7 +123,11 @@ public class AccessTokenResource extends BaseOAuthResource
 	public Response getToken(@FormParam("grant_type") String grantType,
 			@FormParam("code") String code, @FormParam("scope") String scope,
 			@FormParam("redirect_uri") String redirectUri,
-			@FormParam("refresh_token") String refreshToken)
+			@FormParam("refresh_token") String refreshToken,
+			@FormParam("audience") String audience,
+			@FormParam("requested_token_type") String requestedTokenType,
+			@FormParam("subject_token") String subjectToken,
+			@FormParam("subject_token_type") String subjectTokenType)
 			throws EngineException, JsonProcessingException
 	{
 		if (grantType == null)
@@ -117,6 +139,21 @@ public class AccessTokenResource extends BaseOAuthResource
 				return makeError(OAuth2Error.INVALID_REQUEST,
 						"refresh_token is required");
 			return handleRefreshToken(refreshToken, scope);
+		}
+
+		if (grantType.equals(EXCHANGE_GRANT))
+		{
+			if (audience == null)
+				return makeError(OAuth2Error.INVALID_REQUEST,
+						"audience is required");
+			if (subjectToken == null)
+				return makeError(OAuth2Error.INVALID_REQUEST,
+						"subject_token is required");
+			if (subjectTokenType == null)
+				return makeError(OAuth2Error.INVALID_REQUEST,
+						"subject_token_type is required");
+			return handleExchangeToken(subjectToken, subjectTokenType,
+					requestedTokenType, audience, scope);
 		}
 
 		if (grantType.equals(GrantType.AUTHORIZATION_CODE.getValue()))
@@ -134,13 +171,143 @@ public class AccessTokenResource extends BaseOAuthResource
 		}
 	}
 
+	private Response handleExchangeToken(String subjectToken, String subjectTokenType,
+			String requestedTokenType, String audience, String scope)
+			throws EngineException, JsonProcessingException
+	{
+
+		if (!subjectTokenType.equals(ACCESS_TOKEN_TYPE_ID))
+		{
+			return makeError(OAuth2Error.INVALID_REQUEST,
+					"unsupported subject_token_type");
+		}
+
+		// if (requestedTokenType != null &&
+		// !requestedTokenType.equals(subjectTokenType))
+		// {
+		// return makeError(OAuth2Error.INVALID_REQUEST,
+		// "subject_token_type and requested_token_type must be equal");
+		// }
+
+		EntityParam audienceEntity = new EntityParam(
+				new IdentityTaV(UsernameIdentity.ID, audience));
+		Entity audienceResolvedEntity = null;
+		try
+		{
+			audienceResolvedEntity = idMan.getEntity(audienceEntity);
+
+		} catch (IllegalIdentityValueException e)
+		{
+			return makeError(OAuth2Error.INVALID_REQUEST, "wrong audience");
+		} catch (EngineException e)
+		{
+			return makeError(OAuth2Error.SERVER_ERROR,
+					"Internal error, can not retrieve OAuth client's data");
+		}
+
+		long callerEntityId = InvocationContext.getCurrent().getLoginSession()
+				.getEntityId();
+		if (!audienceResolvedEntity.getId().equals(callerEntityId))
+			return makeError(OAuth2Error.INVALID_REQUEST, "wrong audience");
+
+		Token subToken = null;
+		OAuthToken parsedSubjectToken = null;
+
+		try
+		{
+			subToken = tokensManagement.getTokenById(
+					OAuthProcessor.INTERNAL_ACCESS_TOKEN, subjectToken);
+			parsedSubjectToken = parseInternalToken(subToken);
+		} catch (Exception e)
+		{
+			return makeError(OAuth2Error.INVALID_REQUEST, "wrong subject token");
+		}
+
+		List<String> oldRequestedScopesList = Arrays
+				.asList(parsedSubjectToken.getRequestedScope());
+
+		if (!oldRequestedScopesList.contains(EXCHANGE_SCOPE))
+		{
+			return makeError(OAuth2Error.INVALID_SCOPE,
+					"orginal token must have  " + EXCHANGE_SCOPE + " scope");
+		}
+		OAuthToken newToken = null;
+		try
+		{
+			newToken = prepareNewToken(parsedSubjectToken, scope,
+					oldRequestedScopesList, subToken.getOwner(), callerEntityId,
+					audience, requestedTokenType != null && requestedTokenType
+							.equals(ID_TOKEN_TYPE_ID),
+					EXCHANGE_GRANT);
+		} catch (OAuthErrorException e)
+		{
+			return e.response;
+		}
+
+		newToken.setClientId(callerEntityId);
+		newToken.setAudience(audience);
+		newToken.setClientUsername(audience);
+
+		try
+		{
+			requestValidator.validateGroupMembership(audienceEntity, audience);
+			Map<String, AttributeExt> attributes = requestValidator
+					.getAttributes(audienceEntity);
+			AttributeExt nameA = attributes
+					.get(OAuthSystemAttributesProvider.CLIENT_NAME);
+			if (nameA != null)
+				newToken.setClientName((String) nameA.getValues().get(0));
+			else
+				newToken.setClientName(null);
+		} catch (Exception e)
+		{
+			makeError(OAuth2Error.SERVER_ERROR, e.getMessage());
+		}
+
+		Date now = new Date();
+		RefreshToken refreshToken = getRefreshToken(now);
+		if (refreshToken != null)
+		{
+			newToken.setRefreshToken(refreshToken.getValue());
+			Date refreshExpiration = getRefreshTokenExpiration(now);
+			tokensManagement.addToken(OAuthProcessor.INTERNAL_REFRESH_TOKEN,
+					refreshToken.getValue(),
+					new EntityParam(subToken.getOwner()),
+					newToken.getSerialized(), now, refreshExpiration);
+		}
+
+		AccessToken accessToken = new BearerAccessToken();
+		newToken.setAccessToken(accessToken.getValue());
+		Date accessExpiration = getAccessTokenExpiration(now);
+
+		Map<String, Object> additionalParams = new HashMap<>();
+		additionalParams.put("issued_token_type", ACCESS_TOKEN_TYPE_ID);
+
+		AccessTokenResponse oauthResponse = getAccessTokenResponse(newToken, accessToken,
+				refreshToken, additionalParams);
+
+		tokensManagement.addToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN,
+				accessToken.getValue(), new EntityParam(subToken.getOwner()),
+				newToken.getSerialized(), now, accessExpiration);
+
+		return toResponse(Response.ok(getResponseContent(oauthResponse)));
+	}
+
 	private Response handleRefreshToken(String refToken, String scope)
 			throws EngineException, JsonProcessingException
 	{
 
-		Token refreshToken = tokensManagement
-				.getTokenById(OAuthProcessor.INTERNAL_REFRESH_TOKEN, refToken);
-		OAuthToken parsedRefreshToken = parseInternalToken(refreshToken);
+		Token refreshToken = null;
+		OAuthToken parsedRefreshToken = null;
+		try
+		{
+			refreshToken = tokensManagement.getTokenById(
+					OAuthProcessor.INTERNAL_REFRESH_TOKEN, refToken);
+			parsedRefreshToken = parseInternalToken(refreshToken);
+		} catch (Exception e)
+		{
+			return makeError(OAuth2Error.INVALID_GRANT, "wrong refresh code");
+		}
 
 		long callerEntityId = InvocationContext.getCurrent().getLoginSession()
 				.getEntityId();
@@ -151,129 +318,147 @@ public class AccessTokenResource extends BaseOAuthResource
 					+ parsedRefreshToken.getClientId());
 			return makeError(OAuth2Error.INVALID_GRANT, "wrong refresh code");
 		}
-		
-		String newScopes = new String();
-		if (scope != null && !scope.isEmpty())
-		{
-			newScopes = scope;
-		}
-		boolean openIdMode = newScopes.contains(OIDCScopeValue.OPENID.getValue()) && parsedRefreshToken.isOpenIdMode();
-		List<ScopeInfo> newValidRequestedScopes = requestValidator
-				.getValidRequestedScopes(Scope.parse(newScopes));
-		
-		String oldScopes = new String();
-		if (parsedRefreshToken.getScope() != null)
-		{
-			oldScopes = String.join(" ", parsedRefreshToken.getScope());
-		}
-		// simply check scope
-		List<ScopeInfo> filteredRefreshScopes = filterRefreshScope(newValidRequestedScopes, oldScopes);
-		if (!newValidRequestedScopes.isEmpty() && filteredRefreshScopes.size() == 0 && !oldScopes.isEmpty())
-		{
-			return makeError(OAuth2Error.INVALID_SCOPE, "wrong scope");
-		}
 
-		Entity userId = null;
-		// get identity associated with refresh key
+		List<String> oldRequestedScopesList = Arrays
+				.asList(parsedRefreshToken.getRequestedScope());
+		OAuthToken newToken = null;
 		try
 		{
-			userId = identitiesMan.getEntity(new EntityParam(
-					new IdentityTaV(parsedRefreshToken.getSubjectType(),
-							parsedRefreshToken.getSubject(),
-							parsedRefreshToken.getSubjectTarget(),
-							parsedRefreshToken.getSubjectRealm())));
-
-		} catch (EngineException e)
+			newToken = prepareNewToken(parsedRefreshToken, scope,
+					oldRequestedScopesList, refreshToken.getOwner(),
+					callerEntityId, parsedRefreshToken.getClientUsername(),
+					true, GrantType.REFRESH_TOKEN.getValue());
+		} catch (OAuthErrorException e)
 		{
-			return makeError(OAuth2Error.INVALID_CLIENT,
-					"Can not get indentity associated with refresh key");
+			return e.response;
 		}
 
-		// get attributes for identity
-		TranslationResult userInfoRes = null;
-		try
-		{
-			userInfoRes = oauthIdpEngine.getUserInfo(userId.getId(),
-					String.valueOf(callerEntityId),
-					config.getValue(OAuthASProperties.USERS_GROUP),
-					config.getValue(CommonIdPProperties.TRANSLATION_PROFILE),
-					GrantType.REFRESH_TOKEN.getValue(), false);
-		} catch (EngineException e)
-		{
-			return makeError(OAuth2Error.INVALID_CLIENT,
-					"Can not get user info associated with refresh key");
-		}
-
-		UserInfo userInfoClaimSet = createUserInfo(filteredRefreshScopes, parsedRefreshToken,
-				userInfoRes);
-		parsedRefreshToken.setUserInfo(userInfoClaimSet.toJSONObject().toJSONString());
-		
 		Date now = new Date();
-		// if openid mode build new id_token using new userinfo
-		if (openIdMode)
-		{
-			try
-			{
-				parsedRefreshToken.setOpenidToken(createIdToken(now,
-						parsedRefreshToken, userInfoClaimSet));
-			} catch (Exception e)
-			{
-				throw new InternalException("can not genereate new id token", e);
-			}
-		}else
-		{
-			//clear openidToken
-			parsedRefreshToken.setOpenidToken(null);
-		}
-		
-		AccessToken accessToken = new BearerAccessToken();
-		parsedRefreshToken.setAccessToken(accessToken.getValue());
 		Date accessExpiration = getAccessTokenExpiration(now);
-	
-		AccessTokenResponse oauthResponse = getAccessTokenResponse(parsedRefreshToken,
-				accessToken, null);
+
+		AccessToken accessToken = new BearerAccessToken();
+		newToken.setAccessToken(accessToken.getValue());
+
+		AccessTokenResponse oauthResponse = getAccessTokenResponse(newToken, accessToken,
+				null, null);
+
 		tokensManagement.addToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN,
 				accessToken.getValue(), new EntityParam(refreshToken.getOwner()),
-				parsedRefreshToken.getSerialized(), now, accessExpiration);
+				newToken.getSerialized(), now, accessExpiration);
 
 		return toResponse(Response.ok(getResponseContent(oauthResponse)));
 
 	}
-	
-	private UserInfo createUserInfo(List<ScopeInfo> filteredRefreshScopes, OAuthToken refreshToken,
+
+	private OAuthToken prepareNewToken(OAuthToken token, String scope,
+			List<String> oldRequestedScopesList, long ownerId, long clientId,
+			String clientUserName, boolean idToken, String grant)
+			throws OAuthErrorException
+	{
+		OAuthToken newToken = new OAuthToken(token);
+
+		List<String> newRequestedScopeList = new ArrayList<>();
+		if (scope != null && !scope.isEmpty())
+		{
+			newRequestedScopeList.addAll(Arrays.asList(scope.split(" ")));
+		}
+
+		if (!oldRequestedScopesList.containsAll(newRequestedScopeList))
+		{
+			throw new OAuthErrorException(
+					makeError(OAuth2Error.INVALID_SCOPE, "wrong scope"));
+		}
+		newToken.setRequestedScope(newRequestedScopeList.stream().toArray(String[]::new));
+
+		// get new attributes for identity
+		TranslationResult userInfoRes = getAttributes(clientId, ownerId, grant);
+
+		List<ScopeInfo> newValidRequestedScopes = requestValidator.getValidRequestedScopes(
+				Scope.parse(String.join(" ", newRequestedScopeList)));
+		newToken.setEffectiveScope(newValidRequestedScopes.stream().map(s -> s.getName())
+				.toArray(String[]::new));
+
+		UserInfo userInfoClaimSet = createUserInfo(newValidRequestedScopes,
+				newToken.getSubject(), userInfoRes);
+		newToken.setUserInfo(userInfoClaimSet.toJSONObject().toJSONString());
+
+		Date now = new Date();
+		// if openid mode build new id_token using new userinfo
+		if (newRequestedScopeList.contains(OIDCScopeValue.OPENID.getValue()) && idToken)
+		{
+			try
+			{
+				newToken.setOpenidToken(createIdToken(now, newToken,
+						Arrays.asList(new Audience(clientUserName)),
+						userInfoClaimSet));
+			} catch (Exception e)
+			{
+				throw new OAuthErrorException(makeError(OAuth2Error.SERVER_ERROR,
+						e.getMessage()));
+			}
+		} else
+		{
+			// clear openidToken
+			newToken.setOpenidToken(null);
+		}
+
+		newToken.setMaxExtendedValidity(config.getMaxExtendedAccessTokenValidity());
+		newToken.setTokenValidity(config.getAccessTokenValidity());
+		newToken.setAccessToken(null);
+		newToken.setRefreshToken(null);
+
+		return newToken;
+	}
+
+	private TranslationResult getAttributes(long clientId, long ownerId, String grant)
+			throws OAuthErrorException
+	{
+		TranslationResult userInfoRes = null;
+		try
+		{
+			userInfoRes = oauthIdpEngine.getUserInfoUnsafe(ownerId,
+					String.valueOf(clientId),
+					config.getValue(OAuthASProperties.USERS_GROUP),
+					config.getValue(CommonIdPProperties.TRANSLATION_PROFILE),
+					grant, false);
+		} catch (ExecutionFailException e)
+		{
+			log.debug("Authentication failed due to profile's decision, returning error");
+			throw new OAuthErrorException(
+					makeError(OAuth2Error.ACCESS_DENIED, e.getMessage()));
+		} catch (IllegalGroupValueException e)
+		{
+			log.debug("Entity trying to access OAuth resource is not a member of required group");
+			throw new OAuthErrorException(
+					makeError(OAuth2Error.ACCESS_DENIED, e.getMessage()));
+		} catch (Exception e)
+		{
+			log.error("Engine problem when handling client request", e);
+			throw new OAuthErrorException(
+					makeError(OAuth2Error.SERVER_ERROR, e.getMessage()));
+		}
+		return userInfoRes;
+	}
+
+	private UserInfo createUserInfo(List<ScopeInfo> validScopes, String userIdentity,
 			TranslationResult userInfoRes)
 	{
 		Set<String> requestedAttributes = new HashSet<>();
-		for (ScopeInfo si : filteredRefreshScopes)
+		for (ScopeInfo si : validScopes)
 			requestedAttributes.addAll(si.getAttributes());
 
 		OAuthProcessor processor = new OAuthProcessor();
 		Collection<DynamicAttribute> attributes = processor.filterAttributes(userInfoRes,
 				requestedAttributes);
 
-		return processor.prepareUserInfoClaimSet(refreshToken.getSubject(), attributes);
-	}
-	
-	private List<ScopeInfo> filterRefreshScope(List<ScopeInfo> newScopes, String oldScopes)
-	{
-		List<ScopeInfo> filteredRequestedScopes = new ArrayList<>();
-		for (ScopeInfo validScope : newScopes)
-		{
-			
-			if (oldScopes.contains(validScope.getName()))
-			{
-				filteredRequestedScopes.add(validScope);
-			}
-			
-		}
-		return filteredRequestedScopes;
-
+		return processor.prepareUserInfoClaimSet(userIdentity, attributes);
 	}
 
-	private String createIdToken(Date now, OAuthToken refreshToken, UserInfo userInfoClaimSet)
-			throws ParseException, JOSEException
+	private String createIdToken(Date now, OAuthToken token, List<Audience> audience,
+			UserInfo userInfoClaimSet)
+			throws ParseException, JOSEException, EngineException
 	{
-		JWT signedJWT = decodeIDToken(refreshToken);
+		JWT signedJWT = decodeIDToken(token);
 		IDTokenClaimsSet oldClaims;
 		try
 		{
@@ -282,26 +467,32 @@ public class AccessTokenResource extends BaseOAuthResource
 		{
 			throw new InternalException("Can not parse the internal id token", e);
 		}
-		IDTokenClaimsSet newClaims = new IDTokenClaimsSet(oldClaims.getIssuer(),
-				oldClaims.getSubject(), oldClaims.getAudience(),
-				getAccessTokenExpiration(now), now);
+		IDTokenClaimsSet newClaims = new IDTokenClaimsSet(
+				new Issuer(config.getIssuerName()), new Subject(token.getSubject()),
+				audience, getAccessTokenExpiration(now), now);
 		newClaims.setNonce(oldClaims.getNonce());
 
 		ResponseType responseType = null;
-		if (refreshToken.getResponseType() != null
-				&& !refreshToken.getResponseType().isEmpty())
+		if (token.getResponseType() != null && !token.getResponseType().isEmpty())
 		{
-			responseType = ResponseType.parse(refreshToken.getResponseType());
-
+			responseType = ResponseType.parse(token.getResponseType());
 			if (responseType.contains(OIDCResponseTypeValue.ID_TOKEN)
 					&& responseType.size() == 1)
 				newClaims.putAll(userInfoClaimSet);
 		}
-		
+
 		return JWTUtils.generate(config.getCredential(), newClaims.toJWTClaimsSet());
 	}
 
-	
+	private RefreshToken getRefreshToken(Date now)
+	{
+		RefreshToken refreshToken = null;
+		if (config.getIntValue(OAuthASProperties.REFRESH_TOKEN_VALIDITY) > 0)
+		{
+			refreshToken = new RefreshToken();
+		}
+		return refreshToken;
+	}
 
 	private Response handleClientCredentialFlow(String scope)
 			throws EngineException, JsonProcessingException
@@ -359,24 +550,11 @@ public class AccessTokenResource extends BaseOAuthResource
 		AccessToken accessToken = new BearerAccessToken();
 		internalToken.setAccessToken(accessToken.getValue());
 
-		RefreshToken refreshToken = null;
-		if (config.getIntValue(OAuthASProperties.REFRESH_TOKEN_VALIDITY) > 0)
-		{
-			refreshToken = new RefreshToken();
-			internalToken.setRefreshToken(refreshToken.getValue());
-		}
-
 		Date now = new Date();
-		Date accessExpiration = getAccessTokenExpiration(now);
-
-		AccessTokenResponse oauthResponse = getAccessTokenResponse(internalToken,
-				accessToken, refreshToken);
-		tokensManagement.addToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN,
-				accessToken.getValue(), new EntityParam(codeToken.getOwner()),
-				internalToken.getSerialized(), now, accessExpiration);
-
+		RefreshToken refreshToken = getRefreshToken(now);
 		if (refreshToken != null)
 		{
+			internalToken.setRefreshToken(refreshToken.getValue());
 			Date refreshExpiration = getRefreshTokenExpiration(now);
 			tokensManagement.addToken(OAuthProcessor.INTERNAL_REFRESH_TOKEN,
 					refreshToken.getValue(),
@@ -384,18 +562,27 @@ public class AccessTokenResource extends BaseOAuthResource
 					internalToken.getSerialized(), now, refreshExpiration);
 		}
 
+		Date accessExpiration = getAccessTokenExpiration(now);
+
+		AccessTokenResponse oauthResponse = getAccessTokenResponse(internalToken,
+				accessToken, refreshToken, null);
+		tokensManagement.addToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN,
+				accessToken.getValue(), new EntityParam(codeToken.getOwner()),
+				internalToken.getSerialized(), now, accessExpiration);
+
 		return toResponse(Response.ok(getResponseContent(oauthResponse)));
 	}
 
 	private AccessTokenResponse getAccessTokenResponse(OAuthToken internalToken,
-			AccessToken accessToken, RefreshToken refreshToken)
+			AccessToken accessToken, RefreshToken refreshToken,
+			Map<String, Object> additionalParams)
 	{
 		JWT signedJWT = decodeIDToken(internalToken);
 		AccessTokenResponse oauthResponse = signedJWT == null
-				? new AccessTokenResponse(new Tokens(accessToken, refreshToken))
+				? new AccessTokenResponse(new Tokens(accessToken, refreshToken),
+						additionalParams)
 				: new OIDCTokenResponse(new OIDCTokens(signedJWT, accessToken,
-						refreshToken));
-
+						refreshToken), additionalParams);
 		return oauthResponse;
 	}
 

@@ -202,7 +202,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 			createIdentityPart(translationResult, eiLayout, ctx.getConfig().getSubjectIdentityType());
 			
 			attrsPresenter = new ExposedAttributesComponent(msg, aTypeSupport, handlersRegistry, 
-					oauthProcessor.filterAttributes(translationResult, ctx.getRequestedAttrs()));
+					oauthProcessor.filterAttributes(translationResult, ctx.getEffectiveRequestedAttrs()));
 			eiLayout.addComponent(attrsPresenter);
 		} catch (OAuthErrorResponseException e)
 		{

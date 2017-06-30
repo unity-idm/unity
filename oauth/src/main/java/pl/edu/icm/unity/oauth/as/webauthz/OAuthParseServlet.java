@@ -315,7 +315,8 @@ public class OAuthParseServlet extends HttpServlet
 		
 		Scope requestedScopes = authzRequest.getScope();
 		List<ScopeInfo> validRequestedScopes = requestValidator.getValidRequestedScopes(requestedScopes);
-		validRequestedScopes.forEach(si -> context.addScopeInfo(si));
+		validRequestedScopes.forEach(si -> context.addEffectiveScopeInfo(si));
+		requestedScopes.forEach(si -> context.addRequestedScope(si.getValue()));
 	}
 
 	/**

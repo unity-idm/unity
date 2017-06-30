@@ -15,6 +15,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
@@ -31,6 +32,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
@@ -44,6 +46,7 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webadmin.preferences.PreferencesComponent;
+import pl.edu.icm.unity.webadmin.tokens.UserHomeTokensComponent;
 import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider;
 import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider.WizardFinishedCallback;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
@@ -58,7 +61,6 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialsPanel;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesHandlerRegistry;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
-import com.vaadin.ui.Button;
 
 /**
  * Component with user's account management UI.
@@ -88,6 +90,7 @@ public class UserAccountComponent extends VerticalLayout
 	private CredentialRequirementManagement credReqMan;
 	private IdentityTypeSupport idTypeSupport;
 	private EntityManagement insecureIdsMan;
+	private SecuredTokensManagement tokenMan;
 	
 	@Autowired
 	public UserAccountComponent(UnityMessageSource msg, CredentialManagement credMan,
@@ -100,7 +103,8 @@ public class UserAccountComponent extends VerticalLayout
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributesManagement attributesMan, IdentityEditorRegistry identityEditorRegistry,
 			InputTranslationEngine inputTranslationEngine,
-			IdentityTypeSupport idTypeSupport)
+			IdentityTypeSupport idTypeSupport,
+			SecuredTokensManagement tokenMan)
 	{
 		this.msg = msg;
 		this.credMan = credMan;
@@ -119,6 +123,7 @@ public class UserAccountComponent extends VerticalLayout
 		this.identityEditorRegistry = identityEditorRegistry;
 		this.inputTranslationEngine = inputTranslationEngine;
 		this.idTypeSupport = idTypeSupport;
+		this.tokenMan = tokenMan;
 	}
 
 	public void initUI(HomeEndpointProperties config, SandboxAuthnNotifier sandboxNotifier, String sandboxURL)
@@ -146,8 +151,13 @@ public class UserAccountComponent extends VerticalLayout
 		if (!disabled.contains(HomeEndpointProperties.Components.preferencesTab.toString()))
 			addPreferences(tabPanel);
 		
+		if (!disabled.contains(HomeEndpointProperties.Components.tokensTab.toString()))
+			addTokens(tabPanel);
+		
 		if (tabPanel.getTabsCount() > 0)
 			tabPanel.select(0);
+		
+		
 	}
 	
 	private void addUserInfo(BigTabPanel tabPanel, LoginSession theUser, HomeEndpointProperties config, 
@@ -233,6 +243,15 @@ public class UserAccountComponent extends VerticalLayout
 		tabPanel.addTab("UserHomeUI.preferencesLabel", "UserHomeUI.preferencesDesc", 
 				Images.settings64.getResource(), preferencesComponent);
 	}
+	
+	private void addTokens(BigTabPanel tabPanel)
+	{
+		UserHomeTokensComponent tokensComponent = new UserHomeTokensComponent(tokenMan, msg, atSupport, attributesMan);
+		tabPanel.addTab("UserHomeUI.tokensLabel", "UserHomeUI.tokensDesc", 
+				Images.usertoken64.getResource(), tokensComponent);
+	}
+	
+	
 	
 	private UserDetailsPanel getUserInfoComponent(long entityId, EntityManagement idsMan, 
 			AttributeSupport attrMan) throws EngineException

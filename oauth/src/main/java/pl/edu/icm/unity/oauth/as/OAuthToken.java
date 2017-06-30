@@ -26,20 +26,17 @@ public class OAuthToken
 	private String authzCode;
 	private String accessToken;
 	private String refreshToken;
-	private String[] scope;
+	private String[] effectiveScope;
+	private String[] requestedScope;
 	private long clientEntityId;
 	private String redirectUri;
 	private String subject;
-	private String subjectType;
-	private String subjectRealm;
-	private String subjectTarget;
 	private String clientName;
 	private String clientUsername;
 	private int maxExtendedValidity;
 	private int tokenValidity;
 	private String responseType;
-	private boolean openIdMode;
-
+	private String audience;
 	
 	public OAuthToken()
 	{
@@ -57,18 +54,16 @@ public class OAuthToken
 		setClientId(source.getClientId());
 		setOpenidToken(source.getOpenidInfo());
 		setRedirectUri(source.getRedirectUri());
-		setScope(source.getScope());
+		setEffectiveScope(source.getEffectiveScope());
 		setUserInfo(source.getUserInfo());
 		setClientName(source.getClientName());
 		setClientUsername(source.getClientUsername());
 		setSubject(source.getSubject());
-		setSubjectType(source.getSubjectType());
-		setSubjectRealm(source.getSubjectRealm());
-		setSubjectTarget(source.getSubjectTarget());
 		setMaxExtendedValidity(source.getMaxExtendedValidity());
 		setTokenValidity(source.getTokenValidity());
 		setResponseType(source.getResponseType());
-		setOpenIdMode(source.isOpenIdMode());
+		setRequestedScope(source.getRequestedScope());
+		setAudience(source.getAudience());
 	}
 	
 	public static OAuthToken getInstanceFromJson(byte[] json) 
@@ -125,35 +120,30 @@ public class OAuthToken
 		this.refreshToken = refreshToken;
 	}
 
-	public String[] getScope()
+	public String[] getEffectiveScope()
 	{
-		return scope;
+		return effectiveScope;
 	}
 
-
-	public void setScope(String[] scope)
+	public void setEffectiveScope(String[] scope)
 	{
-		this.scope = scope;
+		this.effectiveScope = scope;
 	}
-
 
 	public String getOpenidInfo()
 	{
 		return openidInfo;
 	}
 
-
 	public void setOpenidToken(String openidInfo)
 	{
 		this.openidInfo = openidInfo;
 	}
 
-
 	public long getClientId()
 	{
 		return clientEntityId;
 	}
-
 
 	public void setClientId(long clientId)
 	{
@@ -166,7 +156,6 @@ public class OAuthToken
 		return redirectUri;
 	}
 
-
 	public void setRedirectUri(String redirectUri)
 	{
 		this.redirectUri = redirectUri;
@@ -176,41 +165,10 @@ public class OAuthToken
 	{
 		return subject;
 	}
-
 	
 	public void setSubject(String subject)
 	{
 		this.subject = subject;
-	}
-
-	public String getSubjectType()
-	{
-		return subjectType;
-	}
-
-	public void setSubjectType(String subjectType)
-	{
-		this.subjectType = subjectType;
-	}
-
-	public String getSubjectRealm()
-	{
-		return subjectRealm;
-	}
-
-	public void setSubjectRealm(String subjectRealm)
-	{
-		this.subjectRealm = subjectRealm;
-	}
-
-	public String getSubjectTarget()
-	{
-		return subjectTarget;
-	}
-
-	public void setSubjectTarget(String subjectTarget)
-	{
-		this.subjectTarget = subjectTarget;
 	}
 	
 	public String getResponseType()
@@ -222,17 +180,6 @@ public class OAuthToken
 	{
 		this.responseType = responseType;
 	}
-	
-	public boolean isOpenIdMode()
-	{
-		return openIdMode;
-	}
-
-	public void setOpenIdMode(boolean openIdMode)
-	{
-		this.openIdMode = openIdMode;
-	}
-
 	
 	/**
 	 * @return displayed name of the client or null if not defined
@@ -290,5 +237,25 @@ public class OAuthToken
 	public void setTokenValidity(int tokenValidity)
 	{
 		this.tokenValidity = tokenValidity;
+	}
+
+	public String[] getRequestedScope()
+	{
+		return requestedScope;
+	}
+
+	public void setRequestedScope(String[] requestedScope)
+	{
+		this.requestedScope = requestedScope;
+	}
+
+	public String getAudience()
+	{
+		return audience;
+	}
+
+	public void setAudience(String audience)
+	{
+		this.audience = audience;
 	}
 }

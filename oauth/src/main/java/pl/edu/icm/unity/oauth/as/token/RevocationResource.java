@@ -57,7 +57,8 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 public class RevocationResource extends BaseOAuthResource
 {
 	public static final String TOKEN_TYPE = "token_type_hint";
-	public static final String TOKEN_TYPE_AC = "access_token";
+	public static final String TOKEN_TYPE_ACCESS = "access_token";
+	public static final String TOKEN_TYPE_REFRESH = "refresh_token";
 	public static final String UNSUPPORTED_TOKEN_TYPE_ERROR = "unsupported_token_type";
 	public static final String TOKEN = "token";
 	public static final String CLIENT = "client_id";
@@ -88,37 +89,43 @@ public class RevocationResource extends BaseOAuthResource
 		if (clientId == null)
 			return makeError(OAuth2Error.INVALID_REQUEST, "To access the token revocation endpoint "
 					+ "a " + CLIENT + " must be provided");
+		if (tokenHint == null)
+			return makeError(OAuth2Error.INVALID_REQUEST, "To access the token revocation endpoint "
+					+ "a token type must be provided");
 		
-		if (tokenHint != null && !TOKEN_TYPE_AC.equals(tokenHint))
+		
+		if (!(TOKEN_TYPE_ACCESS.equals(tokenHint) || TOKEN_TYPE_REFRESH.equals(tokenHint)))
 			return makeError(new ErrorObject(UNSUPPORTED_TOKEN_TYPE_ERROR, "Invalid request", 
 					HTTPResponse.SC_BAD_REQUEST), 
-					"Only " + TOKEN_TYPE_AC + " type of token is supported");
+					"Token type '" + tokenHint + "' is not supported");
 		
-		Token internalAccessToken;
+		Token internalToken;
+		String internalTokenType = TOKEN_TYPE_ACCESS.equals(tokenHint)
+				? OAuthProcessor.INTERNAL_ACCESS_TOKEN
+				: OAuthProcessor.INTERNAL_REFRESH_TOKEN;
 		try
 		{
-			internalAccessToken = tokensManagement.getTokenById(OAuthProcessor.INTERNAL_ACCESS_TOKEN, 
-					token);
+			internalToken = tokensManagement.getTokenById(internalTokenType, token);
 		} catch (IllegalArgumentException e)
 		{
 			return toResponse(Response.ok());
 		}
 		
-		OAuthToken parsedAccessToken = parseInternalToken(internalAccessToken);
+		OAuthToken parsedToken = parseInternalToken(internalToken);
 		
-		if (!clientId.equals(parsedAccessToken.getClientUsername()))
+		if (!clientId.equals(parsedToken.getClientUsername()))
 			return makeError(OAuth2Error.INVALID_CLIENT, "Wrong client/token");
 		
 		if ("true".equals(logout))
 		{
-			Response r = killSession(parsedAccessToken, internalAccessToken.getOwner());
+			Response r = killSession(parsedToken, internalToken.getOwner());
 			if (r != null)
 				return r;
 		}
 		
 		try
 		{
-			tokensManagement.removeToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN, token);
+			tokensManagement.removeToken(internalTokenType, token);
 		} catch (IllegalArgumentException e)
 		{
 			//ok
@@ -128,9 +135,9 @@ public class RevocationResource extends BaseOAuthResource
 	
 	private Response killSession(OAuthToken parsedAccessToken, long entity) throws EngineException
 	{
-		if (parsedAccessToken.getScope() == null)
+		if (parsedAccessToken.getEffectiveScope() == null)
 			return makeError(OAuth2Error.INVALID_SCOPE, "Insufficent scope to perform full logout.");
-		Optional<String> logoutScope = Arrays.stream(parsedAccessToken.getScope()).
+		Optional<String> logoutScope = Arrays.stream(parsedAccessToken.getEffectiveScope()).
 				filter(scope -> LOGOUT_SCOPE.equals(scope)).
 				findAny();
 		if (!logoutScope.isPresent())

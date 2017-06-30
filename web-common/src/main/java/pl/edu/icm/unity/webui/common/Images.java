@@ -22,6 +22,7 @@ public enum Images
 	info64		(I.PH + "64/bullet_info.png"),
 	key64		(I.PH + "64/key.png"),
 	settings64	(I.PH + "64/settings.png"),
+	usertoken64	(I.PH + "64/user_token.png"),
 
 	stderror64	(I.P + "64/error.png"),
 	stdwarn64	(I.P + "64/warning.png"),

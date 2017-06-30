@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
+import com.nimbusds.oauth2.sdk.Response;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -52,8 +53,9 @@ public class OAuthIdPEngine
 			log.debug("Authentication failed due to profile's decision, returning error");
 			ErrorObject eo = new ErrorObject("access_denied", 
 					e.getMessage(), HTTPResponse.SC_FORBIDDEN);
+			
 			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
-					eo, ctx.getRequest().getState(), ctx.getRequest().impliedResponseMode());
+					eo, ctx.getRequest().getState(), ctx.getRequest().impliedResponseMode()); 
 			throw new OAuthErrorResponseException(oauthResponse, true);
 		} catch (IllegalGroupValueException igve)
 		{
@@ -73,15 +75,6 @@ public class OAuthIdPEngine
 					ctx.getRequest().impliedResponseMode());
 			throw new OAuthErrorResponseException(oauthResponse, true);
 		}
-	}
-	
-	public TranslationResult getUserInfo(long entityId, String clientId,
-			String userGroup, String translationProfile, String flow,
-			boolean skipImport) throws EngineException
-	{
-		return getUserInfoUnsafe(entityId,
-				clientId, userGroup,
-				translationProfile, flow, skipImport);
 	}
 	
 	public IdentityParam getIdentity(TranslationResult userInfo, String subjectIdentityType) 
@@ -109,7 +102,7 @@ public class OAuthIdPEngine
 				ctx.getTranslationProfile(), flow, skipImport);
 	}
 
-	private TranslationResult getUserInfoUnsafe(long entityId, String clientId,
+	public TranslationResult getUserInfoUnsafe(long entityId, String clientId,
 			String userGroup, String translationProfile, String flow,
 			boolean skipImport) throws EngineException
 	{

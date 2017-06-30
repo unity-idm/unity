@@ -155,7 +155,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 					oauthCtx.getConfig().getSubjectIdentityType());
 			log.debug("Authentication of " + selectedIdentity);
 			Collection<DynamicAttribute> attributes = processor.filterAttributes(userInfo, 
-					oauthCtx.getRequestedAttrs());
+					oauthCtx.getEffectiveRequestedAttrs());
 			respDoc = processor.prepareAuthzResponseAndRecordInternalState(attributes, selectedIdentity, 
 					oauthCtx, tokensMan);
 		} catch (OAuthErrorResponseException e)
