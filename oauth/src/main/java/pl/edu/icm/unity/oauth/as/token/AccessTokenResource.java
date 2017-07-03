@@ -93,7 +93,7 @@ public class AccessTokenResource extends BaseOAuthResource
 	public static final String EXCHANGE_GRANT = "urn:ietf:params:oauth:grant-type:token-exchange";
 	public static final String ACCESS_TOKEN_TYPE_ID = "urn:ietf:params:oauth:token-type:access_token";
 	public static final String ID_TOKEN_TYPE_ID = "urn:ietf:params:oauth:token-type:id_token";
-	public static final String EXCHANGE_SCOPE = "token-echange";
+	public static final String EXCHANGE_SCOPE = "token-exchange";
 	
 
 	private TokensManagement tokensManagement;
@@ -259,23 +259,26 @@ public class AccessTokenResource extends BaseOAuthResource
 				newToken.setClientName((String) nameA.getValues().get(0));
 			else
 				newToken.setClientName(null);
-		} catch (Exception e)
+		} catch (OAuthValidationException e)
 		{
-			makeError(OAuth2Error.SERVER_ERROR, e.getMessage());
+			return makeError(OAuth2Error.INVALID_CLIENT, e.getMessage());
+		} catch (Exception e) {
+			return makeError(OAuth2Error.SERVER_ERROR, e.getMessage());
 		}
 
 		Date now = new Date();
 		RefreshToken refreshToken = getRefreshToken(now);
 		if (refreshToken != null)
 		{
-			newToken.setRefreshToken(refreshToken.getValue());
+			//save refresh token but internalToken.refreshToken is not set
 			Date refreshExpiration = getRefreshTokenExpiration(now);
 			tokensManagement.addToken(OAuthProcessor.INTERNAL_REFRESH_TOKEN,
 					refreshToken.getValue(),
 					new EntityParam(subToken.getOwner()),
 					newToken.getSerialized(), now, refreshExpiration);
 		}
-
+	  	//set refesh token in access token
+		newToken.setRefreshToken(refreshToken.getValue()); 
 		AccessToken accessToken = new BearerAccessToken();
 		newToken.setAccessToken(accessToken.getValue());
 		Date accessExpiration = getAccessTokenExpiration(now);
@@ -405,6 +408,8 @@ public class AccessTokenResource extends BaseOAuthResource
 		newToken.setMaxExtendedValidity(config.getMaxExtendedAccessTokenValidity());
 		newToken.setTokenValidity(config.getAccessTokenValidity());
 		newToken.setAccessToken(null);
+		newToken.setRefreshToken(null);
+		newToken.setIssuerUri(config.getIssuerName());
 		newToken.setRefreshToken(null);
 
 		return newToken;
@@ -554,14 +559,15 @@ public class AccessTokenResource extends BaseOAuthResource
 		RefreshToken refreshToken = getRefreshToken(now);
 		if (refreshToken != null)
 		{
-			internalToken.setRefreshToken(refreshToken.getValue());
+			//save refresh token but internalToken.refreshToken is not set
 			Date refreshExpiration = getRefreshTokenExpiration(now);
 			tokensManagement.addToken(OAuthProcessor.INTERNAL_REFRESH_TOKEN,
 					refreshToken.getValue(),
 					new EntityParam(codeToken.getOwner()),
 					internalToken.getSerialized(), now, refreshExpiration);
 		}
-
+		//set refresh token in access token
+		internalToken.setRefreshToken(refreshToken.getValue());
 		Date accessExpiration = getAccessTokenExpiration(now);
 
 		AccessTokenResponse oauthResponse = getAccessTokenResponse(internalToken,

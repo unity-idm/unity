@@ -37,6 +37,7 @@ public class OAuthToken
 	private int tokenValidity;
 	private String responseType;
 	private String audience;
+	private String issuerUri;
 	
 	public OAuthToken()
 	{
@@ -64,6 +65,7 @@ public class OAuthToken
 		setResponseType(source.getResponseType());
 		setRequestedScope(source.getRequestedScope());
 		setAudience(source.getAudience());
+		setIssuerUri(source.getIssuerUri());
 	}
 	
 	public static OAuthToken getInstanceFromJson(byte[] json) 
@@ -257,5 +259,15 @@ public class OAuthToken
 	public void setAudience(String audience)
 	{
 		this.audience = audience;
+	}
+
+	public String getIssuerUri()
+	{
+		return issuerUri;
+	}
+
+	public void setIssuerUri(String issuerUri)
+	{
+		this.issuerUri = issuerUri;
 	}
 }

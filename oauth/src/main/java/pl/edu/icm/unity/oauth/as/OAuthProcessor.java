@@ -105,6 +105,7 @@ public class OAuthProcessor
 		internalToken.setTokenValidity(ctx.getConfig().getAccessTokenValidity());
 		String clientId = ctx.getRequest().getClientID().getValue();
 		internalToken.setAudience(clientId);
+		internalToken.setIssuerUri(ctx.getConfig().getIssuerName());
 	
 		Date now = new Date();
 		

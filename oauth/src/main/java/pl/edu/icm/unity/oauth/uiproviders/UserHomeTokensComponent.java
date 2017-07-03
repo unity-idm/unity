@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webadmin.tokens;
+package pl.edu.icm.unity.oauth.uiproviders;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,15 +24,16 @@ import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.Images;
 
 /**
- * Allows for viewing and removing tokens by the regular user
+ * Allows for viewing and removing tokens by the regular user. Changes tables toolbar buttons to standard button (delete,remove) 
  * @author P.Piernik
  *
  */
-public class UserHomeTokensComponent extends TokensComponent
+public class UserHomeTokensComponent extends AdminTokensComponent
 {
 	private Button removeButton;
 	private Button refreshButton;
@@ -41,42 +42,42 @@ public class UserHomeTokensComponent extends TokensComponent
 			AttributeSupport attrProcessor, AttributesManagement attrMan)
 	{
 		super(tokenMan, msg, attrProcessor, attrMan);
+		setCaption(msg.getMessage("OAuthTokenUserHomeUI.tokensLabel"));
+		setDescription(msg.getMessage("OAuthTokenUserHomeUI.tokensDesc"));
+	
 		HorizontalLayout buttons = new HorizontalLayout();
-		removeButton = new Button(msg.getMessage("UserTokens.remove"));
+		removeButton = new Button(msg.getMessage("OAuthTokenUserHomeUI.remove"));
 		removeButton.setIcon(Images.delete.getResource());
 		removeButton.setEnabled(false);
 		
-		refreshButton = new Button(msg.getMessage("UserTokens.refresh"));
+		refreshButton = new Button(msg.getMessage("OAuthTokenUserHomeUI.refresh"));
 		refreshButton.setIcon(Images.refresh.getResource());
 		
 		buttons.addComponents(refreshButton, removeButton);
 		buttons.setSpacing(true);
 		buttons.setMargin(new MarginInfo(false, false, true, false));
 		
-		tablePanel.addComponent(buttons, 0);
+		tokensTablePanel.addComponent(buttons, 0);
 		tableWithToolbar.setToolbarVisible(false);
-		table.setValue(null);
-		
-		table.addValueChangeListener(new ValueChangeListener()
-		{
+	
+		tokensTable.addValueChangeListener(new ValueChangeListener()
+	        {
 
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				Collection<Token> items = getItems(table
-						.getValue());
-				if (items.size() > 0 )
-				{
-					removeButton.setEnabled(true);
-				}else
-				{
-					removeButton.setEnabled(false);
-				}
-				
-			}
-		});
-		
-		
+	            @Override
+	            public void valueChange(ValueChangeEvent event)
+	            {
+	                Collection<?> items = (Collection<?>) tokensTable.getValue();
+	                if (items.size() > 0 )
+	                {
+	                    removeButton.setEnabled(true);
+	                }else
+	                {
+	                    removeButton.setEnabled(false);
+	                }
+
+	            }
+	        });
+
 		refreshButton.addClickListener(new ClickListener()
 		{
 			@Override
@@ -94,36 +95,37 @@ public class UserHomeTokensComponent extends TokensComponent
 			public void buttonClick(ClickEvent event)
 			{
 				
-				final Collection<Token> items = getItems(table.getValue());
+				final Collection<?> items = (Collection<?>) tokensTable.getValue();
 				
 
 				new ConfirmDialog(msg, msg.getMessage(
-						"UserTokens.confirmDelete"),new ConfirmDialog.Callback()
+						"OAuthTokenUserHomeUI.confirmDelete"),new ConfirmDialog.Callback()
 				{
 					@Override
 					public void onConfirm()
 					{
-						for (Token item : items)
+						for (Object item : items)
 						{
-							removeToken(item.getType(), item.getValue());
+							TableTokensBean tokenBean = (TableTokensBean) item;
+							removeToken(tokenBean.getRealType(), tokenBean.getValue());
 						}
 					}
 				}).show();
-				
+
 			}
 		});
-		viewer.setShowId(false);
-			
+		tokensTable.setVisibleColumns(new Object[] {"type", "value", "createTime", "expires","refreshToken", "hasIdToken"});	
 	}
-
+	
+	
 	@Override
 	protected List<Token> getTokens() throws IllegalIdentityValueException,
 			IllegalTypeException, AuthorizationException
 	{
-			
+		//Get only owned tokens	
 		List<Token> tokens = new ArrayList<>();	
-		tokens.addAll(tokenMan.getOwnedTokens(INTERNAL_ACCESS_TOKEN));
-		tokens.addAll(tokenMan.getOwnedTokens(INTERNAL_REFRESH_TOKEN));
+		tokens.addAll(tokenMan.getOwnedTokens(OAuthProcessor.INTERNAL_ACCESS_TOKEN));
+		tokens.addAll(tokenMan.getOwnedTokens(OAuthProcessor.INTERNAL_REFRESH_TOKEN));
 		return tokens;
 	}
 

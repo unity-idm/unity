@@ -32,7 +32,6 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
@@ -46,7 +45,6 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webadmin.preferences.PreferencesComponent;
-import pl.edu.icm.unity.webadmin.tokens.UserHomeTokensComponent;
 import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider;
 import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider.WizardFinishedCallback;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
@@ -60,6 +58,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialsPanel;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesHandlerRegistry;
+import pl.edu.icm.unity.webui.providers.HomeUITabProvider;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
 
 /**
@@ -90,7 +89,7 @@ public class UserAccountComponent extends VerticalLayout
 	private CredentialRequirementManagement credReqMan;
 	private IdentityTypeSupport idTypeSupport;
 	private EntityManagement insecureIdsMan;
-	private SecuredTokensManagement tokenMan;
+	private HomeUITabProvider tabProvider;
 	
 	@Autowired
 	public UserAccountComponent(UnityMessageSource msg, CredentialManagement credMan,
@@ -104,7 +103,7 @@ public class UserAccountComponent extends VerticalLayout
 			AttributesManagement attributesMan, IdentityEditorRegistry identityEditorRegistry,
 			InputTranslationEngine inputTranslationEngine,
 			IdentityTypeSupport idTypeSupport,
-			SecuredTokensManagement tokenMan)
+			HomeUITabProvider tabProvider)
 	{
 		this.msg = msg;
 		this.credMan = credMan;
@@ -123,7 +122,7 @@ public class UserAccountComponent extends VerticalLayout
 		this.identityEditorRegistry = identityEditorRegistry;
 		this.inputTranslationEngine = inputTranslationEngine;
 		this.idTypeSupport = idTypeSupport;
-		this.tokenMan = tokenMan;
+		this.tabProvider = tabProvider;
 	}
 
 	public void initUI(HomeEndpointProperties config, SandboxAuthnNotifier sandboxNotifier, String sandboxURL)
@@ -151,7 +150,7 @@ public class UserAccountComponent extends VerticalLayout
 		if (!disabled.contains(HomeEndpointProperties.Components.preferencesTab.toString()))
 			addPreferences(tabPanel);
 		
-		if (!disabled.contains(HomeEndpointProperties.Components.tokensTab.toString()))
+		if (!disabled.contains(tabProvider.getId().toString()))
 			addTokens(tabPanel);
 		
 		if (tabPanel.getTabsCount() > 0)
@@ -246,9 +245,8 @@ public class UserAccountComponent extends VerticalLayout
 	
 	private void addTokens(BigTabPanel tabPanel)
 	{
-		UserHomeTokensComponent tokensComponent = new UserHomeTokensComponent(tokenMan, msg, atSupport, attributesMan);
-		tabPanel.addTab("UserHomeUI.tokensLabel", "UserHomeUI.tokensDesc", 
-				Images.usertoken64.getResource(), tokensComponent);
+		tabPanel.addTab(tabProvider.getLabelKey(), tabProvider.getDescriptionKey(), 
+				Images.usertoken64.getResource(), tabProvider.getUI());
 	}
 	
 	
