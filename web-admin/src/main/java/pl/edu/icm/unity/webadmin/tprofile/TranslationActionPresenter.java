@@ -49,7 +49,7 @@ public class TranslationActionPresenter extends LayoutEmbeddable
 				"TranslationActionPresenter.codeValue", 
 				actionName);
 		String[] par = action.getParameters();
-		for (int j = 0; j < par.length; j++)
+		for (int j = 0; j < pd.length && j < par.length; j++)
 		{
 			if (j == 0)
 			{

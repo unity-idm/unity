@@ -421,7 +421,7 @@ public class AttributeStatementProcessor
 		List<String> ret = new ArrayList<>(aValues.size());
 		for (Object o: aValues)
 		{
-			T converted = syntax.convertFromString(o.toString());
+			T converted = syntax.deserializeSimple(o.toString());
 			String converted2 = syntax.convertToString(converted);
 			ret.add(converted2);
 		}

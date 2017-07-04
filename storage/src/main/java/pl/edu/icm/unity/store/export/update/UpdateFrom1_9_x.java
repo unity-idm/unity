@@ -26,7 +26,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Escaper;
 import pl.edu.icm.unity.base.utils.Log;
@@ -647,14 +646,26 @@ public class UpdateFrom1_9_x implements Update
 			bb = ByteBuffer.wrap(binaryValue);
 			return Long.toString(bb.getLong());
 		case "verifiableEmail":
-			JsonNode jsonN = Constants.MAPPER.readTree(new String(binaryValue, StandardCharsets.UTF_8));
-			return JsonUtil.serialize(jsonN);
+			return convertLegacyEmailAttributeValue(binaryValue);
 		case "jpegImage":
 			return Base64.getEncoder().encodeToString(binaryValue);
 		default:
 			throw new IllegalStateException("Unknown attribute value type, can't be converted: " 
 					+ valueSyntax);
 		}
+	}
+	
+	private String convertLegacyEmailAttributeValue(byte[] binaryValue) throws IOException
+	{
+		ObjectNode jsonN = (ObjectNode) objectMapper.readTree(new String(binaryValue, 
+				StandardCharsets.UTF_8));
+		JsonNode confirmationNode = jsonN.get("confirmationData");
+		if (confirmationNode != null && !confirmationNode.isNull())
+		{
+			JsonNode parsedConfirmation = objectMapper.readTree(confirmationNode.asText());
+			jsonN.set("confirmationData", parsedConfirmation);
+		}
+		return JsonUtil.serialize(jsonN);
 	}
 	
 	/* legacy format of individual password:
