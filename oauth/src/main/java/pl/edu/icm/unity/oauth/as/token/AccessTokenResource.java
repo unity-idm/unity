@@ -276,9 +276,9 @@ public class AccessTokenResource extends BaseOAuthResource
 					refreshToken.getValue(),
 					new EntityParam(subToken.getOwner()),
 					newToken.getSerialized(), now, refreshExpiration);
+			// set refesh token in access token
+			newToken.setRefreshToken(refreshToken.getValue());
 		}
-		// set refesh token in access token
-		newToken.setRefreshToken(refreshToken.getValue());
 		AccessToken accessToken = new BearerAccessToken();
 		newToken.setAccessToken(accessToken.getValue());
 		Date accessExpiration = getAccessTokenExpiration(now);
@@ -421,9 +421,10 @@ public class AccessTokenResource extends BaseOAuthResource
 					refreshToken.getValue(),
 					new EntityParam(codeToken.getOwner()),
 					internalToken.getSerialized(), now, refreshExpiration);
+			// set refresh token in access token
+			internalToken.setRefreshToken(refreshToken.getValue());
 		}
-		// set refresh token in access token
-		internalToken.setRefreshToken(refreshToken.getValue());
+		
 		Date accessExpiration = getAccessTokenExpiration(now);
 
 		AccessTokenResponse oauthResponse = getAccessTokenResponse(internalToken,
