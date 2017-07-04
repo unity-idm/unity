@@ -136,6 +136,15 @@ public class TokensManagementImpl implements TokensManagement
 		List<Token> tokens = dbTokens.getByType(type);
 		return filterExpired(tokens);
 	}
+	
+	@Transactional
+	@Override
+	public List<Token> getAllTokens()
+	{
+		List<Token> tokens = dbTokens.getAll();
+		return filterExpired(tokens);
+	}
+
 
 	private List<Token> filterExpired(List<Token> tokens)
 	{

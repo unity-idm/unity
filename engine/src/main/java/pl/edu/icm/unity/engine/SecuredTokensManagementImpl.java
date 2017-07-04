@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.engine;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,17 @@ public class SecuredTokensManagementImpl implements SecuredTokensManagement
 		this.idResolver = idResolver;
 	}
 
+	private List<Token> getOwned(long ownerId) throws AuthorizationException
+	{
+		List<Token> allTokens = tokenMan.getAllTokens();
+		List<Token> ownedTokens = new ArrayList<Token>();
+		long userId = getUserEntityId();
+		for (Token t : allTokens)
+			if (t.getOwner().equals(userId))
+				ownedTokens.add(t);
+		return ownedTokens;
+	}
+	
 	@Transactional
 	@Override
 	public List<Token> getAllTokens(String type)
@@ -54,24 +66,34 @@ public class SecuredTokensManagementImpl implements SecuredTokensManagement
 	{
 		if (checkMaintanceCapability())
 		{
-			return tokenMan.getAllTokens(type);
+			if (type != null)
+				return tokenMan.getAllTokens(type);
+			else
+				return tokenMan.getAllTokens();
 		} else
 		{
-			return tokenMan.getOwnedTokens(type, new EntityParam(getUserEntityId()));
+			if (type != null)
+			{
+				return tokenMan.getOwnedTokens(type, new EntityParam(getUserEntityId()));
+			}else
+			{
+				return getOwned(getUserEntityId());
+			}
+			
 		}
-
 	}
 
+	
 	@Transactional
 	@Override
 	public List<Token> getOwnedTokens(String type, EntityParam entity)
 			throws IllegalIdentityValueException, IllegalTypeException,
 			AuthorizationException
 	{
+		Long entityId = null;
 		if (!checkMaintanceCapability())
 		{
-
-			long entityId = idResolver.getEntityId(entity);
+			entityId = idResolver.getEntityId(entity);
 
 			if (entityId != getUserEntityId())
 			{
@@ -79,9 +101,14 @@ public class SecuredTokensManagementImpl implements SecuredTokensManagement
 						"Can not get tokens owned by another user");
 			}
 		}
-	
-		return tokenMan.getOwnedTokens(type, entity);
-		
+		if (type != null)
+		{
+			return tokenMan.getOwnedTokens(type, entity);
+		}
+		else
+		{
+			return getOwned(entityId);
+		}
 
 	}
 	
@@ -91,8 +118,11 @@ public class SecuredTokensManagementImpl implements SecuredTokensManagement
 			throws IllegalIdentityValueException, IllegalTypeException,
 			AuthorizationException
 	{
-		return tokenMan.getOwnedTokens(type, new EntityParam(getUserEntityId()));
-	}
+		if (type != null)
+			return tokenMan.getOwnedTokens(type, new EntityParam(getUserEntityId()));
+		else
+			return getOwned(getUserEntityId());
+	}	
 
 	@Transactional
 	@Override

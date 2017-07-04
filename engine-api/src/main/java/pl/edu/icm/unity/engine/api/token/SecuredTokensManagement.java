@@ -21,47 +21,52 @@ import pl.edu.icm.unity.types.basic.EntityParam;
  */
 public interface SecuredTokensManagement
 {
-	
+		
 	/**
-	 * @param type
+	 * @param type. If null all types will be return
 	 * @return all tokens of a given type
-	 * @throws IllegalTypeException 
-	 * @throws IllegalIdentityValueException 
-	 * @throws AuthorizationException 
+	 * @throws IllegalTypeException
+	 * @throws IllegalIdentityValueException
+	 * @throws AuthorizationException
 	 */
-	List<Token> getAllTokens(String type) throws IllegalIdentityValueException, IllegalTypeException, AuthorizationException; 
-	
+	List<Token> getAllTokens(String type) throws IllegalIdentityValueException,
+			IllegalTypeException, AuthorizationException;
+
 	/**
 	 * Returns all tokens of the entity
-	 * @param type
+	 * 
+	 * @param type. If null all types will be return
 	 * @param entity
 	 * @return
-	 * @throws IllegalTypeException 
-	 * @throws IllegalIdentityValueException 
-	 * @throws AuthorizationException 
+	 * @throws IllegalTypeException
+	 * @throws IllegalIdentityValueException
+	 * @throws AuthorizationException
 	 */
-	List<Token> getOwnedTokens(String type, EntityParam entity) 
-			throws IllegalIdentityValueException, IllegalTypeException, AuthorizationException;
-	
-	
-	
+	List<Token> getOwnedTokens(String type, EntityParam entity)
+			throws IllegalIdentityValueException, IllegalTypeException,
+			AuthorizationException;
+
 	/**
 	 * Returns all tokens of the logged entity
-	 * @param type
+	 * 
+	 * @param type. If null all types will be return
 	 * @param entity
 	 * @return
-	 * @throws IllegalTypeException 
-	 * @throws IllegalIdentityValueException 
-	 * @throws AuthorizationException 
+	 * @throws IllegalTypeException
+	 * @throws IllegalIdentityValueException
+	 * @throws AuthorizationException
 	 */
-	List<Token> getOwnedTokens(String type) 
-			throws IllegalIdentityValueException, IllegalTypeException, AuthorizationException;
-	
+	List<Token> getOwnedTokens(String type) throws IllegalIdentityValueException,
+			IllegalTypeException, AuthorizationException;
+
 	/**
 	 * Removes the token
+	 * 
 	 * @param type
 	 * @param value
-	 * @throws AuthorizationException 
+	 * @throws AuthorizationException
 	 */
 	void removeToken(String type, String value) throws AuthorizationException;
+	
+	
 }

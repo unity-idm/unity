@@ -108,7 +108,7 @@ public class RESTAdmin
 	private AttributeTypeManagement attributeTypeMan;
 	private InvitationManagement invitationMan;
 	private EventPublisher eventPublisher;
-	private SecuredTokensManagement tokenMan;
+	private SecuredTokensManagement securedTokenMan;
 	
 	@Autowired
 	public RESTAdmin(EntityManagement identitiesMan, GroupsManagement groupsMan,
@@ -121,7 +121,7 @@ public class RESTAdmin
 			AttributeTypeManagement attributeTypeMan,
 			InvitationManagement invitationMan,
 			EventPublisher eventPublisher,
-			SecuredTokensManagement tokenMan)
+			SecuredTokensManagement securedTokenMan)
 	{
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
@@ -136,7 +136,7 @@ public class RESTAdmin
 		this.attributeTypeMan = attributeTypeMan;
 		this.invitationMan = invitationMan;
 		this.eventPublisher = eventPublisher;
-		this.tokenMan = tokenMan;
+		this.securedTokenMan = securedTokenMan;
 	}
 
 	
@@ -725,21 +725,22 @@ public class RESTAdmin
 			@PathParam("value") String value) throws EngineException, JsonProcessingException
 	{
 		log.debug("remove token " + type + ":" + value);
-		tokenMan.removeToken(type, value);
+		securedTokenMan.removeToken(type, value);
 	}
 	
-	@Path("/tokens/{type}")
+	@Path("/tokens")
 	@GET
-	public String getTokens(@PathParam("type") String type, @QueryParam("owner") String entity) throws EngineException, JsonProcessingException
+	public String getTokens(@QueryParam("type") String type, @QueryParam("owner") String entity) throws EngineException, JsonProcessingException
 	{	
 		Collection<Token> tokens;
 		if (entity != null)
-			tokens = tokenMan.getOwnedTokens(type, getEP(entity, null));
+			tokens = securedTokenMan.getOwnedTokens(type, getEP(entity, null));
 		else	
-			tokens = tokenMan.getAllTokens(type);
+			tokens = securedTokenMan.getAllTokens(type);
 		
 		return mapper.writeValueAsString(tokens);
 	}
+	
 	
 	/**
 	 * Creates {@link EntityParam} from given entity address and optional type, which can be null.

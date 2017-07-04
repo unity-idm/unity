@@ -11,6 +11,7 @@ import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 import java.util.Date;
@@ -189,6 +190,46 @@ public class TestTokens extends DBIntegrationTestBase
 		setupUserContext("u1", false);
 		u1Tokens = securedTokensMan.getOwnedTokens("t", ep1);
 		assertEquals(2, u1Tokens.size());
+		
+	}
+	
+	@Test
+	public void secureListTokenWithoutType() throws Exception
+	{
+		addRegularUsers();	
+		EntityParam ep1 = new EntityParam( new IdentityParam(UsernameIdentity.ID, "u1"));
+		EntityParam ep2 = new EntityParam( new IdentityParam(UsernameIdentity.ID, "u2"));
+		byte[] c = new byte[] {'a'};
+		Date exp = new Date(System.currentTimeMillis()+500000);
+		tokensMan.addToken("t", "1234", ep1, c, new Date(), exp);
+		tokensMan.addToken("t", "12345", ep1, c, new Date(), exp);
+		tokensMan.addToken("t", "123456", ep2, c, new Date(), exp);
+		tokensMan.addToken("t2", "123456", ep2, c, new Date(), exp);
+		
+		setupUserContext("u1", false);
+		Collection<Token> u1Tokens = securedTokensMan.getAllTokens(null);
+		assertTrue(u1Tokens.size() >= 2);
+		
+		setupUserContext("u2", false);
+		Collection<Token> u2Tokens = securedTokensMan.getAllTokens("t");
+		assertEquals(1, u2Tokens.size());
+		
+		setupUserContext("u2", false);
+		u2Tokens = securedTokensMan.getAllTokens(null);
+		assertTrue(u2Tokens.size() >= 1);
+		
+		setupUserContext("u2", false);
+		u2Tokens = securedTokensMan.getOwnedTokens(null, ep2);
+		assertTrue(u2Tokens.size() >= 2);
+		
+		setupUserContext("u2", false);
+		catchException(securedTokensMan).getOwnedTokens("t", ep1);
+		assertThat(caughtException(), isA(AuthorizationException.class));
+		
+		setupUserContext("u1", false);
+		u1Tokens = securedTokensMan.getOwnedTokens("t", ep1);
+		assertEquals(2, u1Tokens.size());
+		
 		
 	}
 	

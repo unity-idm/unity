@@ -8,9 +8,12 @@ package pl.edu.icm.unity.restadm;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.core.Response.Status;
 
@@ -30,7 +33,6 @@ import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 
 /**
  * 
@@ -64,8 +66,30 @@ public class TestTokens extends RESTAdminTestBase
 	@Test
 	public void getTokensByAdmin() throws Exception
 	{
-		checkListToken(localcontext, "type1", 3);
+		List<Token> checkListToken = checkListToken(localcontext, "type1", 3);
+		assertEquals("type1", checkListToken.get(0).getType());
 		
+		
+	}
+	
+	@Test
+	public void getTokensByAdminWithoutType() throws Exception
+	{
+		HttpGet get = new HttpGet("/restadm/v1/tokens");
+		HttpResponse responseGet = client.execute(host, get, localcontext);
+
+		String contentsGet = EntityUtils.toString(responseGet.getEntity());
+		System.out.println("Response:\n" + contentsGet);
+		assertEquals(contentsGet, Status.OK.getStatusCode(),
+				responseGet.getStatusLine().getStatusCode());
+		List<Token> returned = m.readValue(contentsGet,
+				new TypeReference<List<Token>>()
+				{
+				});
+		
+		Set<String> types = returned.stream().map(s -> s.getType()).collect(Collectors.toSet());
+		assertTrue(types.contains("type1"));
+		assertTrue(types.contains("type2"));
 	}
 	
 	@Test
@@ -101,21 +125,21 @@ public class TestTokens extends RESTAdminTestBase
 				responseDel.getStatusLine().getStatusCode());
 	}
 
-	private void checkListToken(HttpContext context, String type, int exp) throws Exception
+	private List<Token> checkListToken(HttpContext context, String type, int exp) throws Exception
 	{
-		HttpGet get = new HttpGet("/restadm/v1/tokens/" + type);
+		HttpGet get = new HttpGet("/restadm/v1/tokens?type=" + type);
 		HttpResponse responseGet = client.execute(host, get, context);
 
 		String contentsGet = EntityUtils.toString(responseGet.getEntity());
 		System.out.println("Response:\n" + contentsGet);
 		assertEquals(contentsGet, Status.OK.getStatusCode(),
 				responseGet.getStatusLine().getStatusCode());
-
-		List<InvitationWithCode> returned = m.readValue(contentsGet,
+		List<Token> returned = m.readValue(contentsGet,
 				new TypeReference<List<Token>>()
 				{
 				});
 		assertThat(returned.size(), is(exp));
+		return returned;
 	}
 
 }

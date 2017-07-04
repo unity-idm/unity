@@ -277,8 +277,9 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 		return identity;
 	}
 
-	@Test
-	public void testExchangeTokens() throws Exception
+	
+	private AccessToken initExchangeToken(List<String> scopes, ClientAuthentication ca,
+			ClientAuthentication ca2) throws Exception
 	{
 		IdentityParam identity = initUser("userA");
 
@@ -287,17 +288,10 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 				GrantFlow.authorizationCode, clientId1.getEntityId());
 
 		ctx.setOpenIdMode(true);
-		ctx.setRequestedScopes(new HashSet<>(Arrays.asList("openid", "foo", "bar",
-				AccessTokenResource.EXCHANGE_SCOPE)));
+		ctx.setRequestedScopes(new HashSet<>(scopes));
 
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils
 				.initOAuthFlowAccessCode(tokensMan, ctx, identity);
-
-		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
-				new Secret("clientPass"));
-		ClientAuthentication ca2 = new ClientSecretBasic(new ClientID("client2"),
-				new Secret("clientPass"));
-
 		TokenRequest request = new TokenRequest(
 				new URI("https://localhost:52443/oauth/token"), ca,
 				new AuthorizationCodeGrant(resp1.getAuthorizationCode(),
@@ -307,20 +301,83 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 				ServerHostnameCheckingMode.NONE);
 		HTTPResponse resp2 = wrapped.send();
 		AccessTokenResponse parsedResp = AccessTokenResponse.parse(resp2);
-		System.out.println(parsedResp.toHTTPResponse().getContent());
 		assertNotNull(parsedResp.getTokens().getAccessToken());
-		assertNotNull(parsedResp.getCustomParameters().get("id_token"));
+		;
+		return parsedResp.getTokens().getAccessToken();
+	}
+
+	@Test
+	public void testExchangeTokenWithWrongAudience() throws Exception
+	{
+
+		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
+				new Secret("clientPass"));
+		ClientAuthentication ca2 = new ClientSecretBasic(new ClientID("client2"),
+				new Secret("clientPass"));
+		AccessToken aToken = initExchangeToken(
+				Arrays.asList("bar", AccessTokenResource.EXCHANGE_SCOPE), ca, ca2);
 
 		TokenRequest exchangeRequest = new TokenRequest(
 				new URI("https://localhost:52443/oauth/token"), ca2,
-				new ExchangeGrant(GrantType.AUTHORIZATION_CODE,
-						parsedResp.getTokens().getAccessToken().getValue(),
+				new ExchangeGrant(GrantType.AUTHORIZATION_CODE, aToken.getValue(),
+						AccessTokenResource.ACCESS_TOKEN_TYPE_ID,
+						AccessTokenResource.ACCESS_TOKEN_TYPE_ID,
+						"client3"),
+				new Scope("bar"));
+
+		HTTPRequest bare = exchangeRequest.toHTTPRequest();
+		CustomHTTPSRequest wrapped = new CustomHTTPSRequest(bare,
+				pkiMan.getValidator("MAIN"), ServerHostnameCheckingMode.NONE);
+		HTTPResponse errorResp = wrapped.send();
+		Assert.assertEquals(errorResp.getStatusCode(), HTTPResponse.SC_BAD_REQUEST);
+	}
+	
+	@Test
+	public void testExchangeTokenWithWrongRequestedTokenType() throws Exception
+	{
+
+		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
+				new Secret("clientPass"));
+		ClientAuthentication ca2 = new ClientSecretBasic(new ClientID("client2"),
+				new Secret("clientPass"));
+		AccessToken aToken = initExchangeToken(
+				Arrays.asList("bar", AccessTokenResource.EXCHANGE_SCOPE), ca, ca2);
+
+		TokenRequest exchangeRequest = new TokenRequest(
+				new URI("https://localhost:52443/oauth/token"), ca2,
+				new ExchangeGrant(GrantType.AUTHORIZATION_CODE, aToken.getValue(),
+						AccessTokenResource.ACCESS_TOKEN_TYPE_ID,
+						"wrong",
+						"client2"),
+				new Scope("bar"));
+
+		HTTPRequest bare = exchangeRequest.toHTTPRequest();
+		CustomHTTPSRequest wrapped = new CustomHTTPSRequest(bare,
+				pkiMan.getValidator("MAIN"), ServerHostnameCheckingMode.NONE);
+		HTTPResponse errorResp = wrapped.send();
+		Assert.assertEquals(errorResp.getStatusCode(), HTTPResponse.SC_BAD_REQUEST);
+	}
+
+
+	@Test
+	public void testExchangeTokenWithIdToken() throws Exception
+	{
+		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
+				new Secret("clientPass"));
+		ClientAuthentication ca2 = new ClientSecretBasic(new ClientID("client2"),
+				new Secret("clientPass"));
+		AccessToken aToken = initExchangeToken(Arrays.asList("openid", "foo", "bar",
+				AccessTokenResource.EXCHANGE_SCOPE), ca, ca2);
+
+		TokenRequest exchangeRequest = new TokenRequest(
+				new URI("https://localhost:52443/oauth/token"), ca2,
+				new ExchangeGrant(GrantType.AUTHORIZATION_CODE, aToken.getValue(),
 						AccessTokenResource.ACCESS_TOKEN_TYPE_ID,
 						AccessTokenResource.ID_TOKEN_TYPE_ID, "client2"),
 				new Scope("openid foo bar"));
 
-		bare = exchangeRequest.toHTTPRequest();
-		wrapped = new CustomHTTPSRequest(bare, pkiMan.getValidator("MAIN"),
+		HTTPRequest bare = exchangeRequest.toHTTPRequest();
+		HTTPRequest wrapped = new CustomHTTPSRequest(bare, pkiMan.getValidator("MAIN"),
 				ServerHostnameCheckingMode.NONE);
 		HTTPResponse exchangeResp = wrapped.send();
 		AccessTokenResponse exchangeParsedResp = AccessTokenResponse.parse(exchangeResp);
@@ -340,21 +397,19 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 
 	}
 
-	@Test
-	public void testRefreshTokens() throws Exception
+	private RefreshToken initRefresh(List<String> scope, ClientAuthentication ca)
+			throws Exception
 	{
 		IdentityParam identity = initUser("userA");
-
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(OAuthTestUtils.getConfig(),
 				new ResponseType(ResponseType.Value.CODE),
 				GrantFlow.authorizationCode, clientId1.getEntityId());
 
-		ctx.setRequestedScopes(new HashSet<>(Arrays.asList("foo", "bar")));
+		ctx.setRequestedScopes(new HashSet<>(scope));
+		ctx.setOpenIdMode(true);
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils
 				.initOAuthFlowAccessCode(tokensMan, ctx, identity);
 
-		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
-				new Secret("clientPass"));
 		TokenRequest request = new TokenRequest(
 				new URI("https://localhost:52443/oauth/token"), ca,
 				new AuthorizationCodeGrant(resp1.getAuthorizationCode(),
@@ -366,31 +421,87 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 		HTTPResponse resp2 = wrapped.send();
 		AccessTokenResponse parsedResp = AccessTokenResponse.parse(resp2);
 		assertNotNull(parsedResp.getTokens().getRefreshToken());
+		return parsedResp.getTokens().getRefreshToken();
+	}
 
-		JWTClaimsSet claimSet = refreshAndGetUserInfo(
-				parsedResp.getTokens().getRefreshToken(), "foo bar", ca);
+	@Test
+	public void testRefreshToken() throws Exception
+	{
+		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
+				new Secret("clientPass"));
+
+		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
+
+		JWTClaimsSet claimSet = refreshAndGetUserInfo(refreshToken, "foo bar", ca);
 
 		Assert.assertEquals("PL", claimSet.getClaim("c"));
 		Assert.assertEquals("example@example.com", claimSet.getClaim("email"));
 		Assert.assertEquals("userA", claimSet.getClaim("sub"));
 
-		// check limit scope
-		claimSet = refreshAndGetUserInfo(parsedResp.getTokens().getRefreshToken(), "foo",
-				ca);
+	}
 
-		Assert.assertNull(claimSet.getClaim("c"));
-		Assert.assertEquals("example@example.com", claimSet.getClaim("email"));
-		Assert.assertEquals("userA", claimSet.getClaim("sub"));
+	@Test
+	public void testRefreshTokenWithIdToken() throws Exception
+	{
+		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
+				new Secret("clientPass"));
+
+		RefreshToken refreshToken = initRefresh(Arrays.asList("openid"), ca);
+
+		TokenRequest refreshRequest = new TokenRequest(
+				new URI("https://localhost:52443/oauth/token"), ca,
+				new RefreshTokenGrant(refreshToken), new Scope("openid"));
+
+		HTTPRequest bare = refreshRequest.toHTTPRequest();
+		CustomHTTPSRequest wrapped = new CustomHTTPSRequest(bare,
+				pkiMan.getValidator("MAIN"), ServerHostnameCheckingMode.NONE);
+		HTTPResponse refreshResp = wrapped.send();
+		AccessTokenResponse refreshParsedResp = AccessTokenResponse.parse(refreshResp);
+		assertNotNull(refreshParsedResp.getTokens().getAccessToken());
+		assertNotNull(refreshParsedResp.getCustomParameters().get("id_token"));
+
+	}
+
+	@Test
+	public void testRefreshWithChangedScope() throws Exception
+	{
+
+		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
+				new Secret("clientPass"));
+
+		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
 
 		// check wrong scope
 		TokenRequest refreshRequest = new TokenRequest(
 				new URI("https://localhost:52443/oauth/token"), ca,
-				new RefreshTokenGrant(parsedResp.getTokens().getRefreshToken()),
-				new Scope("xx"));
+				new RefreshTokenGrant(refreshToken), new Scope("xx"));
 
-		bare = refreshRequest.toHTTPRequest();
-		wrapped = new CustomHTTPSRequest(bare, pkiMan.getValidator("MAIN"),
-				ServerHostnameCheckingMode.NONE);
+		HTTPRequest bare = refreshRequest.toHTTPRequest();
+		CustomHTTPSRequest wrapped = new CustomHTTPSRequest(bare,
+				pkiMan.getValidator("MAIN"), ServerHostnameCheckingMode.NONE);
+
+		HTTPResponse errorResp = wrapped.send();
+		Assert.assertEquals(errorResp.getStatusCode(), HTTPResponse.SC_BAD_REQUEST);
+	}
+
+	@Test
+	public void testRefreshByWrongClient() throws Exception
+	{
+
+		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
+				new Secret("clientPass"));
+		ClientAuthentication ca2 = new ClientSecretBasic(new ClientID("client2"),
+				new Secret("clientPass"));
+
+		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
+
+		TokenRequest refreshRequest = new TokenRequest(
+				new URI("https://localhost:52443/oauth/token"), ca2,
+				new RefreshTokenGrant(refreshToken), new Scope("foo"));
+
+		HTTPRequest bare = refreshRequest.toHTTPRequest();
+		CustomHTTPSRequest wrapped = new CustomHTTPSRequest(bare,
+				pkiMan.getValidator("MAIN"), ServerHostnameCheckingMode.NONE);
 
 		HTTPResponse errorResp = wrapped.send();
 		Assert.assertEquals(errorResp.getStatusCode(), HTTPResponse.SC_BAD_REQUEST);

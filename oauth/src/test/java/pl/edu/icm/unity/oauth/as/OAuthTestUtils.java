@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.Properties;
 
 import com.google.common.collect.Lists;
-import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;

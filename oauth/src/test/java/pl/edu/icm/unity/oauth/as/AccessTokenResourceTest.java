@@ -162,7 +162,7 @@ public class AccessTokenResourceTest
 	}
 	
 	@Test
-	public void refreshTokenPresent() throws Exception
+	public void refreshTokenPresentIfConfigured() throws Exception
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
