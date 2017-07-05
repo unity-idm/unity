@@ -78,7 +78,6 @@ public class AdminTokensComponent extends VerticalLayout
 
 	{
 		setCaption(msg.getMessage("OAuthTokenAdminUI.tokensLabel"));
-		setDescription(msg.getMessage("OAuthTokenAdminUI.tokensDesc"));
 		
 		tokensTable = new SmallTable();
 		tokensTable.setNullSelectionAllowed(false);

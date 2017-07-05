@@ -7,12 +7,14 @@ package pl.edu.icm.unity.oauth.uiproviders;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
+import com.vaadin.server.Resource;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.providers.HomeUITabProvider;
 
 /**
@@ -72,6 +74,14 @@ public class OAuthTokenHomeUIProvider implements HomeUITabProvider
 	public String getId()
 	{
 		return ID;
+	}
+
+
+
+	@Override
+	public Resource getIcon()
+	{
+		return Images.usertoken64.getResource();
 	}
 
 }

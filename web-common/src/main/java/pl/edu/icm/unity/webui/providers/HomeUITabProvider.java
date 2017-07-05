@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.providers;
 
+import com.vaadin.server.Resource;
+
 /**
  * Provides additional tab in HomeUI
  * @author P.Piernik
@@ -11,4 +13,5 @@ package pl.edu.icm.unity.webui.providers;
  */
 public interface HomeUITabProvider extends UITabProviderBase
 {
+	public Resource getIcon();
 }

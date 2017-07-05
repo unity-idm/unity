@@ -266,7 +266,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		}
 
 		Date now = new Date();
-		RefreshToken refreshToken = getRefreshToken(now);
+		RefreshToken refreshToken = getRefreshToken();
 		if (refreshToken != null)
 		{
 			// save refresh token but internalToken.refreshToken is
@@ -411,7 +411,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		internalToken.setAccessToken(accessToken.getValue());
 
 		Date now = new Date();
-		RefreshToken refreshToken = getRefreshToken(now);
+		RefreshToken refreshToken = getRefreshToken();
 		if (refreshToken != null)
 		{
 			// save refresh token but internalToken.refreshToken is
@@ -436,12 +436,12 @@ public class AccessTokenResource extends BaseOAuthResource
 		return toResponse(Response.ok(getResponseContent(oauthResponse)));
 	}
 
-	private OAuthToken prepareNewToken(OAuthToken token, String scope,
+	private OAuthToken prepareNewToken(OAuthToken oldToken, String scope,
 			List<String> oldRequestedScopesList, long ownerId, long clientId,
 			String clientUserName, boolean createIdToken, String grant)
 			throws OAuthErrorException
 	{
-		OAuthToken newToken = new OAuthToken(token);
+		OAuthToken newToken = new OAuthToken(oldToken);
 
 		List<String> newRequestedScopeList = new ArrayList<>();
 		if (scope != null && !scope.isEmpty())
@@ -494,9 +494,9 @@ public class AccessTokenResource extends BaseOAuthResource
 		newToken.setTokenValidity(config.getAccessTokenValidity());
 		newToken.setAccessToken(null);
 		newToken.setRefreshToken(null);
-		newToken.setIssuerUri(config.getIssuerName());
-		newToken.setRefreshToken(null);
-
+		newToken.setIssuerUri(config.getIssuerName());;
+		//responseType in newToken is the same as in oldToken
+		
 		return newToken;
 	}
 
@@ -574,7 +574,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		return JWTUtils.generate(config.getCredential(), newClaims.toJWTClaimsSet());
 	}
 
-	private RefreshToken getRefreshToken(Date now)
+	private RefreshToken getRefreshToken()
 	{
 		RefreshToken refreshToken = null;
 		if (config.getIntValue(OAuthASProperties.REFRESH_TOKEN_VALIDITY) > 0)
@@ -657,7 +657,6 @@ public class AccessTokenResource extends BaseOAuthResource
 	private static class TokensPair
 	{
 		Token codeToken;
-
 		OAuthToken parsedAuthzCodeToken;
 
 		public TokensPair(Token codeToken, OAuthToken parsedAuthzCodeToken)

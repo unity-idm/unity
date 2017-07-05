@@ -43,7 +43,6 @@ public class UserHomeTokensComponent extends AdminTokensComponent
 	{
 		super(tokenMan, msg, attrProcessor, attrMan);
 		setCaption(msg.getMessage("OAuthTokenUserHomeUI.tokensLabel"));
-		setDescription(msg.getMessage("OAuthTokenUserHomeUI.tokensDesc"));
 	
 		HorizontalLayout buttons = new HorizontalLayout();
 		removeButton = new Button(msg.getMessage("OAuthTokenUserHomeUI.remove"));

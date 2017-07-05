@@ -151,7 +151,7 @@ public class UserAccountComponent extends VerticalLayout
 			addPreferences(tabPanel);
 		
 		if (!disabled.contains(tabProvider.getId().toString()))
-			addTokens(tabPanel);
+			addExtraTab(tabPanel);
 		
 		if (tabPanel.getTabsCount() > 0)
 			tabPanel.select(0);
@@ -243,10 +243,10 @@ public class UserAccountComponent extends VerticalLayout
 				Images.settings64.getResource(), preferencesComponent);
 	}
 	
-	private void addTokens(BigTabPanel tabPanel)
+	private void addExtraTab(BigTabPanel tabPanel)
 	{
 		tabPanel.addTab(tabProvider.getLabelKey(), tabProvider.getDescriptionKey(), 
-				Images.usertoken64.getResource(), tabProvider.getUI());
+				tabProvider.getIcon(), tabProvider.getUI());
 	}
 	
 	
