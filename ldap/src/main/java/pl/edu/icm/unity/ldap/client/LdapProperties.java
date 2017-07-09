@@ -10,7 +10,6 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertiesHelper;
@@ -233,7 +232,7 @@ public class LdapProperties extends PropertiesHelper
 				setDescription("Truststore name used to configure client's trust settings for the TLS connections."));
 	}
 	
-	public LdapProperties(Properties properties) throws ConfigurationException
+	public LdapProperties(Properties properties)
 	{
 		super(PREFIX, properties, META, log);
 	}

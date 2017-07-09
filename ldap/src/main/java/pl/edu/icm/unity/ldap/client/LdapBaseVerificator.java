@@ -25,6 +25,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.credential.CertificateExchange;
+import pl.edu.icm.unity.stdext.credential.NoCredentialResetImpl;
 import pl.edu.icm.unity.stdext.credential.PasswordExchange;
 
 /**
@@ -52,7 +53,7 @@ public abstract class LdapBaseVerificator extends AbstractRemoteVerificator impl
 	}
 
 	@Override
-	public String getSerializedConfiguration() throws InternalException
+	public String getSerializedConfiguration()
 	{
 		StringWriter sbw = new StringWriter();
 		try
@@ -66,7 +67,7 @@ public abstract class LdapBaseVerificator extends AbstractRemoteVerificator impl
 	}
 
 	@Override
-	public void setSerializedConfiguration(String source) throws InternalException
+	public void setSerializedConfiguration(String source)
 	{
 		try
 		{

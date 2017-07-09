@@ -27,6 +27,9 @@
 		<!-- Web subsystem -->
 		<Logger name="unity.server.web" level="DEBUG"/>
 
+		<!-- PAM subsystem -->
+		<Logger name="unity.server.pam" level="DEBUG"/>
+
 		<!-- SAML related -->
 		<!-- <Logger name="unity.server.saml" level="INFO"/> -->
 
