@@ -64,16 +64,17 @@ public class TestTokens extends RESTAdminTestBase
 	}
 
 	@Test
-	public void getTokensByAdmin() throws Exception
+	public void shouldReturnAllTokenWithType() throws Exception
 	{
-		List<Token> checkListToken = checkListToken(localcontext, "type1", 3);
-		assertEquals("type1", checkListToken.get(0).getType());
+		List<Token> tokens = getTokensFromRESTAPI(localcontext, "type1");	
+		assertThat(tokens.size(), is(3));
+		assertEquals("type1", tokens.get(0).getType());
 		
 		
 	}
 	
 	@Test
-	public void getTokensByAdminWithoutType() throws Exception
+	public void shouldReturnAllToken() throws Exception
 	{
 		HttpGet get = new HttpGet("/restadm/v1/tokens");
 		HttpResponse responseGet = client.execute(host, get, localcontext);
@@ -93,18 +94,20 @@ public class TestTokens extends RESTAdminTestBase
 	}
 	
 	@Test
-	public void getTokensByRegularUser() throws Exception
+	public void shouldReturnOnlyOwnedTokenWithType() throws Exception
 	{
 		HttpContext u1 = getClientContext(client, host, "u1", DEF_PASSWORD);
-		checkListToken(u1, "type1", 1);
+		List<Token> tokens = getTokensFromRESTAPI(u1, "type1");
+		assertThat(tokens.size(), is(1));
 		HttpContext u2 = getClientContext(client, host, "u2", DEF_PASSWORD);
-		checkListToken(u2, "type1", 2);
-		checkListToken(u2, "type2", 1);
+		tokens = getTokensFromRESTAPI(u2, "type1");
+		assertThat(tokens.size(), is(2));
+		tokens = getTokensFromRESTAPI(u2, "type2");
+		assertThat(tokens.size(), is(1));
 	}
 	
-
 	@Test
-	public void removeToken() throws Exception
+	public void shouldRemoveToken() throws Exception
 	{
 		HttpDelete del = new HttpDelete("/restadm/v1/token/type2/v4");
 		HttpContext u2 = getClientContext(client, host, "u2", DEF_PASSWORD);
@@ -112,11 +115,12 @@ public class TestTokens extends RESTAdminTestBase
 
 		assertEquals(Status.NO_CONTENT.getStatusCode(),
 				responseDel.getStatusLine().getStatusCode());
-		checkListToken(u2, "type2", 0);
+		List<Token> tokens = getTokensFromRESTAPI(u2, "type2");
+		assertThat(tokens.size(), is(0));
 	}
 
 	@Test
-	public void removeTokenByNotOwner() throws Exception
+	public void shouldDeniedRemoveNotOwnedToken() throws Exception
 	{
 		HttpDelete del = new HttpDelete("/restadm/v1/token/type2/v4");
 		HttpContext u1 = getClientContext(client, host, "u1", DEF_PASSWORD);
@@ -125,7 +129,7 @@ public class TestTokens extends RESTAdminTestBase
 				responseDel.getStatusLine().getStatusCode());
 	}
 
-	private List<Token> checkListToken(HttpContext context, String type, int exp) throws Exception
+	private List<Token> getTokensFromRESTAPI(HttpContext context, String type) throws Exception
 	{
 		HttpGet get = new HttpGet("/restadm/v1/tokens?type=" + type);
 		HttpResponse responseGet = client.execute(host, get, context);
@@ -138,7 +142,7 @@ public class TestTokens extends RESTAdminTestBase
 				new TypeReference<List<Token>>()
 				{
 				});
-		assertThat(returned.size(), is(exp));
+		
 		return returned;
 	}
 

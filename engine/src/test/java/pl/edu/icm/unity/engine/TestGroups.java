@@ -6,7 +6,6 @@ package pl.edu.icm.unity.engine;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -214,7 +213,7 @@ public class TestGroups extends DBIntegrationTestBase
 	{
 		Group a = new Group("/A");
 		groupsMan.addGroup(a);
-		assertTrue(groupsMan.isPresent("/A"));
-		assertFalse(groupsMan.isPresent("/B"));	
+		assertThat(groupsMan.isPresent("/A"), is(true));
+		assertThat(groupsMan.isPresent("/B"), is(false));
 	}
 }

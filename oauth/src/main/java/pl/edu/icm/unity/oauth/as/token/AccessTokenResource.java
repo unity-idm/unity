@@ -6,6 +6,7 @@ package pl.edu.icm.unity.oauth.as.token;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -574,16 +575,6 @@ public class AccessTokenResource extends BaseOAuthResource
 		return JWTUtils.generate(config.getCredential(), newClaims.toJWTClaimsSet());
 	}
 
-	private RefreshToken getRefreshToken()
-	{
-		RefreshToken refreshToken = null;
-		if (config.getIntValue(OAuthASProperties.REFRESH_TOKEN_VALIDITY) > 0)
-		{
-			refreshToken = new RefreshToken();
-		}
-		return refreshToken;
-	}
-
 	private AccessTokenResponse getAccessTokenResponse(OAuthToken internalToken,
 			AccessToken accessToken, RefreshToken refreshToken,
 			Map<String, Object> additionalParams)
@@ -599,16 +590,34 @@ public class AccessTokenResource extends BaseOAuthResource
 
 	private Date getAccessTokenExpiration(Date now)
 	{
-		int accessTokenValidity = config
-				.getIntValue(OAuthASProperties.ACCESS_TOKEN_VALIDITY);
+		int accessTokenValidity = config.getAccessTokenValidity();
+		
 		return new Date(now.getTime() + accessTokenValidity * 1000);
 	}
 
+	private RefreshToken getRefreshToken()
+	{
+		RefreshToken refreshToken = null;
+		if (config.getRefreshTokenValidity() >= 0)
+		{
+			refreshToken = new RefreshToken();
+		}
+		return refreshToken;
+	}
+	
 	private Date getRefreshTokenExpiration(Date now)
 	{
-		int refreshTokenValidity = config
-				.getIntValue(OAuthASProperties.REFRESH_TOKEN_VALIDITY);
-		return new Date(now.getTime() + refreshTokenValidity * 1000);
+		int refreshTokenValidity = config.getRefreshTokenValidity();
+		Calendar cl = Calendar.getInstance();
+		cl.setTime(now);
+		if (refreshTokenValidity == 0)
+		{
+			cl.add(Calendar.YEAR, 1);
+		} else if (refreshTokenValidity > 0)
+		{
+			cl.add(Calendar.SECOND, refreshTokenValidity);
+		}
+		return cl.getTime();	
 	}
 
 	private TokensPair loadAndRemoveAuthzCodeToken(String code)

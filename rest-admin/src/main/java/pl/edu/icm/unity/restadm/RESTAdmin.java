@@ -730,11 +730,13 @@ public class RESTAdmin
 	
 	@Path("/tokens")
 	@GET
-	public String getTokens(@QueryParam("type") String type, @QueryParam("owner") String entity) throws EngineException, JsonProcessingException
+	public String getTokens(@QueryParam("type") String type, @QueryParam("owner") String entity,
+			@QueryParam("ownerType") String entityType)
+			throws EngineException, JsonProcessingException
 	{	
 		Collection<Token> tokens;
 		if (entity != null)
-			tokens = securedTokenMan.getOwnedTokens(type, getEP(entity, null));
+			tokens = securedTokenMan.getOwnedTokens(type, getEP(entity, entityType));
 		else	
 			tokens = securedTokenMan.getAllTokens(type);
 		

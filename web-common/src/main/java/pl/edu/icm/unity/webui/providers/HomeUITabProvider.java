@@ -13,5 +13,5 @@ import com.vaadin.server.Resource;
  */
 public interface HomeUITabProvider extends UITabProviderBase
 {
-	public Resource getIcon();
+	Resource getIcon();
 }

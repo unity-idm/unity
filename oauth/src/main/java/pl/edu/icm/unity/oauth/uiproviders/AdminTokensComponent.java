@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.vaadin.data.util.BeanItemContainer;
@@ -25,10 +23,7 @@ import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
-import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
@@ -62,7 +57,7 @@ public class AdminTokensComponent extends VerticalLayout
 	protected ComponentWithToolbar tableWithToolbar;
 	protected Table tokensTable;
 	
-	@Autowired
+	
 	public AdminTokensComponent(SecuredTokensManagement tokenMan, UnityMessageSource msg,
 			AttributeSupport attrProcessor, AttributesManagement attrMan)
 	{
@@ -190,7 +185,7 @@ public class AdminTokensComponent extends VerticalLayout
 	}
 
 	
-	protected List<Token> getTokens() throws IllegalIdentityValueException, IllegalTypeException, AuthorizationException
+	protected List<Token> getTokens() throws EngineException
 	{
 		List<Token> tokens = new ArrayList<>();	
 		tokens.addAll(tokenMan.getAllTokens(OAuthProcessor.INTERNAL_ACCESS_TOKEN));

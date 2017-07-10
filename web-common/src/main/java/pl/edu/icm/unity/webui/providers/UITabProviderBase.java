@@ -17,24 +17,24 @@ public interface UITabProviderBase
 	 * 
 	 * @return ui id
 	 */
-	public String getId();
+	String getId();
 	 
 	/**
 	  * Get main component of UI
 	  * @return
 	  */
-	public Component getUI();
+	Component getUI();
 	
 	/**
 	 * Get label key
 	 * @return
 	 */
-	public String getLabelKey();
+	String getLabelKey();
 	
 	/**
 	 * Get description key
 	 * @return
 	 */
-	public String getDescriptionKey();
+	String getDescriptionKey();
 
 }

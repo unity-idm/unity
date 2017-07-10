@@ -5,8 +5,8 @@
 
 package pl.edu.icm.unity.engine;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,8 +20,7 @@ import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
@@ -51,20 +50,15 @@ public class SecuredTokensManagementImpl implements SecuredTokensManagement
 	private List<Token> getOwned(long ownerId) throws AuthorizationException
 	{
 		List<Token> allTokens = tokenMan.getAllTokens();
-		List<Token> ownedTokens = new ArrayList<Token>();
 		long userId = getUserEntityId();
-		for (Token t : allTokens)
-			if (t.getOwner().equals(userId))
-				ownedTokens.add(t);
-		return ownedTokens;
+		return allTokens.stream().filter(token -> token.getOwner().equals(userId)).collect(Collectors.toList());
 	}
 	
 	@Transactional
 	@Override
-	public List<Token> getAllTokens(String type)
-			throws IllegalIdentityValueException, IllegalTypeException, AuthorizationException
+	public List<Token> getAllTokens(String type) throws EngineException
 	{
-		if (checkMaintanceCapability())
+		if (hasMaintanceCapability())
 		{
 			if (type != null)
 				return tokenMan.getAllTokens(type);
@@ -86,12 +80,10 @@ public class SecuredTokensManagementImpl implements SecuredTokensManagement
 	
 	@Transactional
 	@Override
-	public List<Token> getOwnedTokens(String type, EntityParam entity)
-			throws IllegalIdentityValueException, IllegalTypeException,
-			AuthorizationException
+	public List<Token> getOwnedTokens(String type, EntityParam entity) throws EngineException
 	{
 		Long entityId = null;
-		if (!checkMaintanceCapability())
+		if (!hasMaintanceCapability())
 		{
 			entityId = idResolver.getEntityId(entity);
 
@@ -114,9 +106,7 @@ public class SecuredTokensManagementImpl implements SecuredTokensManagement
 	
 	@Transactional
 	@Override
-	public List<Token> getOwnedTokens(String type)
-			throws IllegalIdentityValueException, IllegalTypeException,
-			AuthorizationException
+	public List<Token> getOwnedTokens(String type) throws EngineException
 	{
 		if (type != null)
 			return tokenMan.getOwnedTokens(type, new EntityParam(getUserEntityId()));
@@ -128,7 +118,7 @@ public class SecuredTokensManagementImpl implements SecuredTokensManagement
 	@Override
 	public void removeToken(String type, String value) throws AuthorizationException
 	{
-		if (!checkMaintanceCapability())
+		if (!hasMaintanceCapability())
 		{
 
 			Token toRemove = tokenMan.getTokenById(type, value);
@@ -155,7 +145,7 @@ public class SecuredTokensManagementImpl implements SecuredTokensManagement
 				"Access is denied. The operation requires logged user");
 	}
 
-	private boolean checkMaintanceCapability()
+	private boolean hasMaintanceCapability()
 	{
 		try
 		{

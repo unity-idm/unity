@@ -21,9 +21,7 @@ import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
-import pl.edu.icm.unity.exceptions.AuthorizationException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.Images;
@@ -118,8 +116,7 @@ public class UserHomeTokensComponent extends AdminTokensComponent
 	
 	
 	@Override
-	protected List<Token> getTokens() throws IllegalIdentityValueException,
-			IllegalTypeException, AuthorizationException
+	protected List<Token> getTokens() throws EngineException
 	{
 		//Get only owned tokens	
 		List<Token> tokens = new ArrayList<>();	

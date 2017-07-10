@@ -75,7 +75,7 @@ public class RevocationResourceTest
 	}
 	
 	@Test
-	public void validAccessTokenIsRevoked() throws Exception
+	public void revokedAccessTokenIsNotListed() throws Exception
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		SessionManagement sessionManagement = Mockito.mock(SessionManagement.class);
@@ -92,7 +92,7 @@ public class RevocationResourceTest
 	}
 
 	@Test
-	public void validRefreshTokenIsRevoked() throws Exception
+	public void revokedRefreshTokenIsNotListed() throws Exception
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		SessionManagement sessionManagement = Mockito.mock(SessionManagement.class);
