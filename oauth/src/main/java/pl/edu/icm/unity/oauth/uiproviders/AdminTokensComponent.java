@@ -62,7 +62,7 @@ public class AdminTokensComponent extends VerticalLayout
 	protected ComponentWithToolbar tableWithToolbar;
 	protected Table tokensTable;
 	private OAuthTokenViewer viewer;
-	protected boolean showViewer;
+	private boolean showViewer;
 	
 	
 	public AdminTokensComponent(SecuredTokensManagement tokenMan, UnityMessageSource msg,

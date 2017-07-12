@@ -778,14 +778,14 @@ manually enhanced.
 +@QueryParam("ownerType")+ +
 
 
-If caller have administrative privileges then returns all tokens or can used optional owner and owner type query parameters
-to filter tokens by owner. If caller is only regular user returns only tokens which are owned by him. 
-The optional type query parameter can be used to control type of returned tokens. 
+Returns an array with JSON encoded tokens. If caller have administrative privileges then returns all tokens or if caller is only regular user 
+then returns tokens only which are owned by him. 
+The optional owner,ownerType and type query parameters can be used to filter returned tokens. 
 
 === Remove token
 
 +@Path("/token/{type}/{value}")+ +
 +@DELETE+ +
 
-If caller have administrative privileges then can remove any tokens, but if is only regular user can remove only owned tokens.
+Remove the given token. No content is returned. If caller have administrative privileges then can remove all tokens, but if is only regular user can remove only owned tokens.
 
