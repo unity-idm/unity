@@ -43,7 +43,7 @@ public class OAuthTokenAdminUIProvider implements AdminUITabProvider
 	@Override
 	public Component getUI()
 	{
-		return new AdminTokensComponent(tokenMan, msg, attrProcessor, attrMan);
+		return new AdminTokensComponent(tokenMan, msg, attrProcessor, attrMan, true);
 	}
 
 

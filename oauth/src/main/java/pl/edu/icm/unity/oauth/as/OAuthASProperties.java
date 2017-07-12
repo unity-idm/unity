@@ -66,7 +66,7 @@ public class OAuthASProperties extends PropertiesHelper
 				setDescription("Controls the maximum validity period of a code token returned to a client (in seconds)."));
 		defaults.put(ID_TOKEN_VALIDITY, new PropertyMD("3600").setPositive().
 				setDescription("Controls the maximum validity period of an OpenID Connect Id token (in seconds)."));
-		defaults.put(REFRESH_TOKEN_VALIDITY, new PropertyMD("0")
+		defaults.put(REFRESH_TOKEN_VALIDITY, new PropertyMD("-1")
 				.setDescription("Controls the maximum validity period of an refresh token (in seconds). "
 						+ "If is set to negative number a refresh tokens won’t be issued. "
 						+ "If is set to 0 a refresh tokens have unlimited lifetime. "));

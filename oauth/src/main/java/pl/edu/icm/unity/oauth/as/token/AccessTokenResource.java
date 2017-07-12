@@ -267,21 +267,19 @@ public class AccessTokenResource extends BaseOAuthResource
 		}
 
 		Date now = new Date();
+		AccessToken accessToken = new BearerAccessToken();
+		newToken.setAccessToken(accessToken.getValue());
+		
 		RefreshToken refreshToken = getRefreshToken();
 		if (refreshToken != null)
 		{
-			// save refresh token but internalToken.refreshToken is
-			// not set
+			newToken.setRefreshToken(refreshToken.getValue());
 			Date refreshExpiration = getRefreshTokenExpiration(now);
 			tokensManagement.addToken(OAuthProcessor.INTERNAL_REFRESH_TOKEN,
 					refreshToken.getValue(),
 					new EntityParam(subToken.getOwner()),
 					newToken.getSerialized(), now, refreshExpiration);
-			// set refesh token in access token
-			newToken.setRefreshToken(refreshToken.getValue());
 		}
-		AccessToken accessToken = new BearerAccessToken();
-		newToken.setAccessToken(accessToken.getValue());
 		Date accessExpiration = getAccessTokenExpiration(now);
 
 		Map<String, Object> additionalParams = new HashMap<>();
@@ -415,15 +413,12 @@ public class AccessTokenResource extends BaseOAuthResource
 		RefreshToken refreshToken = getRefreshToken();
 		if (refreshToken != null)
 		{
-			// save refresh token but internalToken.refreshToken is
-			// not set
+			internalToken.setRefreshToken(refreshToken.getValue());
 			Date refreshExpiration = getRefreshTokenExpiration(now);
 			tokensManagement.addToken(OAuthProcessor.INTERNAL_REFRESH_TOKEN,
 					refreshToken.getValue(),
 					new EntityParam(codeToken.getOwner()),
 					internalToken.getSerialized(), now, refreshExpiration);
-			// set refresh token in access token
-			internalToken.setRefreshToken(refreshToken.getValue());
 		}
 		
 		Date accessExpiration = getAccessTokenExpiration(now);
@@ -497,6 +492,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		newToken.setRefreshToken(null);
 		newToken.setIssuerUri(config.getIssuerName());;
 		//responseType in newToken is the same as in oldToken
+		//subject in newToken is the same as in oldToken
 		
 		return newToken;
 	}

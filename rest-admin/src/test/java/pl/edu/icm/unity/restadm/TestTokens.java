@@ -128,6 +128,16 @@ public class TestTokens extends RESTAdminTestBase
 		assertEquals(Status.FORBIDDEN.getStatusCode(),
 				responseDel.getStatusLine().getStatusCode());
 	}
+	
+	@Test
+	public void shouldReturnErrorWhenRemoveMissingToken() throws Exception
+	{
+		HttpDelete del = new HttpDelete("/restadm/v1/token/type2/v5");
+		HttpContext u1 = getClientContext(client, host, "u1", DEF_PASSWORD);
+		HttpResponse responseDel = client.execute(host, del, u1);
+		assertEquals(Status.BAD_REQUEST.getStatusCode(),
+				responseDel.getStatusLine().getStatusCode());
+	}
 
 	private List<Token> getTokensFromRESTAPI(HttpContext context, String type) throws Exception
 	{

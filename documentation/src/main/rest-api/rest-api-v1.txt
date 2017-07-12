@@ -1,7 +1,7 @@
 RESTful Administration API
 ==========================
 Unity Team <unity-idm-discuss@lists.sourceforge.net>
-:revnumber: 1.0.0
+:revnumber: 2.1.0
 :numbered:
 :toc: left
 :linkcss:
@@ -769,5 +769,23 @@ This feature is typically used to trigger extension script invocation by Unity s
 configured as a handler for the used event it will be launched. That way server REST API functionality can be 
 manually enhanced.
 
+=== Get tokens
 
++@Path("/tokens")+ +
++@GET+ +
++@QueryParam("type")+ +
++@QueryParam("owner")+ +
++@QueryParam("ownerType")+ +
+
+
+If caller have administrative privileges then returns all tokens or can used optional owner and owner type query parameters
+to filter tokens by owner. If caller is only regular user returns only tokens which are owned by him. 
+The optional type query parameter can be used to control type of returned tokens. 
+
+=== Remove token
+
++@Path("/token/{type}/{value}")+ +
++@DELETE+ +
+
+If caller have administrative privileges then can remove any tokens, but if is only regular user can remove only owned tokens.
 

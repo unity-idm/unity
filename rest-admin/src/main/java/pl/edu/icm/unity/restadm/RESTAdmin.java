@@ -34,6 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import net.minidev.json.JSONArray;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.event.Event;
@@ -56,6 +57,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.engine.api.utils.json.JsonFormatter;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.rest.exception.JSONParsingException;
@@ -109,6 +111,7 @@ public class RESTAdmin
 	private InvitationManagement invitationMan;
 	private EventPublisher eventPublisher;
 	private SecuredTokensManagement securedTokenMan;
+	private JsonFormatter jsonFormatter;
 	
 	@Autowired
 	public RESTAdmin(EntityManagement identitiesMan, GroupsManagement groupsMan,
@@ -121,7 +124,8 @@ public class RESTAdmin
 			AttributeTypeManagement attributeTypeMan,
 			InvitationManagement invitationMan,
 			EventPublisher eventPublisher,
-			SecuredTokensManagement securedTokenMan)
+			SecuredTokensManagement securedTokenMan,
+			JsonFormatter jsonFormatter)
 	{
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
@@ -137,6 +141,7 @@ public class RESTAdmin
 		this.invitationMan = invitationMan;
 		this.eventPublisher = eventPublisher;
 		this.securedTokenMan = securedTokenMan;
+		this.jsonFormatter = jsonFormatter;
 	}
 
 	
@@ -740,7 +745,10 @@ public class RESTAdmin
 		else	
 			tokens = securedTokenMan.getAllTokens(type);
 		
-		return mapper.writeValueAsString(tokens);
+		JSONArray jsonArray = new JSONArray();
+		for(Token t : tokens)
+			jsonArray.add(jsonFormatter.toJson(t.getType(), t));
+		return mapper.writeValueAsString(jsonArray);
 	}
 	
 	

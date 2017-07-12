@@ -39,9 +39,8 @@ public class UserHomeTokensComponent extends AdminTokensComponent
 	public UserHomeTokensComponent(SecuredTokensManagement tokenMan, UnityMessageSource msg,
 			AttributeSupport attrProcessor, AttributesManagement attrMan)
 	{
-		super(tokenMan, msg, attrProcessor, attrMan);
-		setCaption(msg.getMessage("OAuthTokenUserHomeUI.tokensLabel"));
-	
+		super(tokenMan, msg, attrProcessor, attrMan, false);
+		setCaption("");
 		HorizontalLayout buttons = new HorizontalLayout();
 		removeButton = new Button(msg.getMessage("OAuthTokenUserHomeUI.remove"));
 		removeButton.setIcon(Images.delete.getResource());
@@ -111,7 +110,7 @@ public class UserHomeTokensComponent extends AdminTokensComponent
 
 			}
 		});
-		tokensTable.setVisibleColumns(new Object[] {"type", "value", "createTime", "expires","refreshToken", "hasIdToken"});	
+		tokensTable.setVisibleColumns(new Object[] {"type", "value","clientName", "scopes", "createTime", "expires","refreshToken", "hasIdToken"});	
 	}
 	
 	

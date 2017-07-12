@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+e * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.oauth.uiproviders;
@@ -9,9 +9,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Table;
@@ -31,6 +35,7 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
+import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -56,16 +61,19 @@ public class AdminTokensComponent extends VerticalLayout
 	protected VerticalLayout tokensTablePanel;
 	protected ComponentWithToolbar tableWithToolbar;
 	protected Table tokensTable;
+	private OAuthTokenViewer viewer;
+	protected boolean showViewer;
 	
 	
 	public AdminTokensComponent(SecuredTokensManagement tokenMan, UnityMessageSource msg,
-			AttributeSupport attrProcessor, AttributesManagement attrMan)
+			AttributeSupport attrProcessor, AttributesManagement attrMan, boolean showViewer)
 	{
 		
 		this.tokenMan = tokenMan;
 		this.msg = msg;
 		this.attrMan = attrMan;
 		this.attrProcessor = attrProcessor;
+		this.showViewer = showViewer;
 		initUI();
 	}
 	
@@ -83,13 +91,15 @@ public class AdminTokensComponent extends VerticalLayout
 		tokensTable.setSelectable(true);
 		tokensTable.setMultiSelect(true);
 		tokensTable.setContainerDataSource(tableContainer);
-		tokensTable.setVisibleColumns(new Object[] { "type", "value", "owner", "createTime",
-				"expires", "serverId", "refreshToken", "hasIdToken" });
+		tokensTable.setVisibleColumns(new Object[] { "type", "value", "owner", "clientName", "createTime",
+				"expires","scopes" ,"serverId", "refreshToken", "hasIdToken" });
 		tokensTable.setColumnHeaders(new String[] { msg.getMessage("OAuthToken.type"),
 				msg.getMessage("OAuthToken.value"),
 				msg.getMessage("OAuthToken.owner"),
+				msg.getMessage("OAuthToken.clientName"),
 				msg.getMessage("OAuthToken.createTime"),
 				msg.getMessage("OAuthToken.expires"),
+				msg.getMessage("OAuthToken.scopes"),
 				msg.getMessage("OAuthToken.serverId"),
 				msg.getMessage("OAuthToken.refreshToken"),
 				msg.getMessage("OAuthToken.hasIdToken")});
@@ -97,6 +107,34 @@ public class AdminTokensComponent extends VerticalLayout
 				tokensTable.getContainerPropertyIds().iterator().next());
 		tokensTable.setSortAscending(true);
 		tokensTable.setColumnCollapsingAllowed(true);
+		tokensTable.setColumnCollapsed("serverId", true); 
+		tokensTable.setColumnCollapsed("hasIdToken", true); 
+
+		viewer = new OAuthTokenViewer(msg);
+		viewer.setVisible(false);
+		tokensTable.addValueChangeListener(new ValueChangeListener()
+		{
+			@Override
+			public void valueChange(ValueChangeEvent event)
+			{
+
+				Collection<?> items = (Collection<?>) tokensTable
+						.getValue();
+
+				if (items.size() > 1 || items.isEmpty())
+
+				{
+					viewer.setInput(null, null);
+					viewer.setVisible(false);
+					return;
+
+				}
+
+				TableTokensBean item = (TableTokensBean) items.iterator().next();
+				viewer.setVisible(true);
+				viewer.setInput(item.getOAuthToken(), item.getToken());
+			}
+		});
 		
 		RefreshActionHandler refHandler = new RefreshActionHandler();
 		DeleteActionHandler delHandler = new DeleteActionHandler();
@@ -112,9 +150,21 @@ public class AdminTokensComponent extends VerticalLayout
 		tableWithToolbar = new ComponentWithToolbar(tokensTablePanel, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
 		
+		
 		main = new VerticalLayout();
-		main.addComponent(tableWithToolbar);
-	
+		if (showViewer)
+		{
+
+			CompositeSplitPanel hl = new CompositeSplitPanel(false, true,
+					tableWithToolbar, viewer, 60);
+			hl.setSizeFull();
+			main.addComponent(hl);
+
+		} else
+		{
+			main.addComponent(tableWithToolbar);
+		}
+		main.setSizeFull();
 		refresh();
 		
 	}
@@ -205,6 +255,8 @@ public class AdminTokensComponent extends VerticalLayout
 			}
 		
 			tokensTable.setValue(null);
+			viewer.setInput(null, null);
+			viewer.setVisible(false);
 			removeAllComponents();
 			addComponent(main);
 			
@@ -212,7 +264,7 @@ public class AdminTokensComponent extends VerticalLayout
 		{
 			NotificationPopup.showError(
 					msg,
-					msg.getMessage("OAuthTokenAdminUI.errorGetToken"),
+					msg.getMessage("OAuthTokenAdminUI.errorGetTokens"),
 					e);
 		}
 		
@@ -296,6 +348,19 @@ public class AdminTokensComponent extends VerticalLayout
 			return oauthToken.getOpenidInfo() != null;
 		}
 		
+		public String getClientName()
+		{
+			return oauthToken.getClientName() != null
+					&& !oauthToken.getClientName().isEmpty()
+							? oauthToken.getClientName()
+							: oauthToken.getClientUsername();
+		}
+
+		public String getScopes()
+		{
+			return Stream.of(oauthToken.getEffectiveScope()).collect(Collectors.joining(", "));
+		}
+		
 		private String getAttrNameValue(long owner)
 		{
 			String idLabel = null;
@@ -319,6 +384,18 @@ public class AdminTokensComponent extends VerticalLayout
 			}
 			return idLabel;
 		}
+		
+		public Token getToken()
+		{
+			return token;
+		}
+		
+		public OAuthToken getOAuthToken()
+		{
+			return oauthToken;
+		}
+		
+		
 
 	
 		
