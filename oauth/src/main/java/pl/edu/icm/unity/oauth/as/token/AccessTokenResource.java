@@ -465,7 +465,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		newToken.setUserInfo(userInfoClaimSet.toJSONObject().toJSONString());
 
 		Date now = new Date();
-		// if openid mode build new id_token using new userinfo
+		// if openid mode build new id_token using new userinfo.
 		if (newRequestedScopeList.contains(OIDCScopeValue.OPENID.getValue())
 				&& createIdToken)
 		{
@@ -546,6 +546,10 @@ public class AccessTokenResource extends BaseOAuthResource
 			throws ParseException, JOSEException, EngineException
 	{
 		JWT signedJWT = decodeIDToken(token);
+		
+		if (signedJWT == null)
+			return null;
+		
 		IDTokenClaimsSet oldClaims;
 		try
 		{

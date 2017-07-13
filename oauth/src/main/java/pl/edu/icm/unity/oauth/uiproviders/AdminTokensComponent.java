@@ -340,7 +340,8 @@ public class AdminTokensComponent extends VerticalLayout
 		
 		public String getRefreshToken()
 		{
-			return oauthToken.getRefreshToken() != null ? oauthToken.getRefreshToken() : "";
+			//show refresh token only for access token
+			return oauthToken.getRefreshToken() != null && !token.getType().equals(OAuthProcessor.INTERNAL_REFRESH_TOKEN) ? oauthToken.getRefreshToken() : "";
 		}
 		
 		public boolean getHasIdToken()

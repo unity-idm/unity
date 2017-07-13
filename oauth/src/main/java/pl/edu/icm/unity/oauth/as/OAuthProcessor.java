@@ -102,9 +102,8 @@ public class OAuthProcessor
 		internalToken.setClientUsername(ctx.getClientUsername());
 		internalToken.setSubject(identity.getValue());
 		internalToken.setMaxExtendedValidity(ctx.getConfig().getMaxExtendedAccessTokenValidity());
-		internalToken.setTokenValidity(ctx.getConfig().getAccessTokenValidity());
-		String clientId = ctx.getRequest().getClientID().getValue();
-		internalToken.setAudience(clientId);
+		internalToken.setTokenValidity(ctx.getConfig().getAccessTokenValidity()); 
+		internalToken.setAudience(ctx.getClientUsername());
 		internalToken.setIssuerUri(ctx.getConfig().getIssuerName());
 	
 		Date now = new Date();
