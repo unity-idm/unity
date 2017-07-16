@@ -9,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
-import com.nimbusds.oauth2.sdk.Response;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -78,7 +77,6 @@ public class OAuthIdPEngine
 	}
 	
 	public IdentityParam getIdentity(TranslationResult userInfo, String subjectIdentityType) 
-			throws EngineException
 	{
 		for (IdentityParam id: userInfo.getIdentities())
 			if (subjectIdentityType.equals(id.getTypeId()))
@@ -106,10 +104,9 @@ public class OAuthIdPEngine
 			String userGroup, String translationProfile, String flow,
 			boolean skipImport) throws EngineException
 	{
-		TranslationResult translationResult = idpEngine.obtainUserInformation(
+		return idpEngine.obtainUserInformation(
 				new EntityParam(entityId), userGroup, translationProfile, clientId,
 				"OAuth2", flow, true, !skipImport);
-		return translationResult;
 	}
 	
 }

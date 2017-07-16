@@ -306,9 +306,8 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 	}
 
 	@Test
-	public void shouldDeniedExchangingTokenWithWrongAudience() throws Exception
+	public void shouldDenyToExchangeTokenWithWrongAudience() throws Exception
 	{
-
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 		ClientAuthentication ca2 = new ClientSecretBasic(new ClientID("client2"),
@@ -332,7 +331,7 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 	}
 	
 	@Test
-	public void shouldDeniedExchangingTokenWithWrongRequestedTokenType() throws Exception
+	public void shouldDenyToExchangeTokenWithWrongRequestedTokenType() throws Exception
 	{
 
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
@@ -458,11 +457,10 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 		AccessTokenResponse refreshParsedResp = AccessTokenResponse.parse(refreshResp);
 		assertNotNull(refreshParsedResp.getTokens().getAccessToken());
 		assertNotNull(refreshParsedResp.getCustomParameters().get("id_token"));
-
 	}
 
 	@Test
-	public void shouldDeniedRefreshingTokenWithWrongScope() throws Exception
+	public void shouldDenyToRefreshTokenWithWrongScope() throws Exception
 	{
 
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
@@ -484,9 +482,8 @@ public class TokenEndpointTest extends DBIntegrationTestBase
 	}
 
 	@Test
-	public void shouldDeniedRefreshingTokenByWrongClient() throws Exception
+	public void shouldDenyToRefreshTokenByWrongClient() throws Exception
 	{
-
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 		ClientAuthentication ca2 = new ClientSecretBasic(new ClientID("client2"),

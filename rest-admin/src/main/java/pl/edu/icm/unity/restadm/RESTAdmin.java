@@ -57,7 +57,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.engine.api.utils.json.JsonFormatter;
+import pl.edu.icm.unity.engine.api.utils.json.JsonFormatterFacilitiesRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.rest.exception.JSONParsingException;
@@ -111,7 +111,7 @@ public class RESTAdmin
 	private InvitationManagement invitationMan;
 	private EventPublisher eventPublisher;
 	private SecuredTokensManagement securedTokenMan;
-	private JsonFormatter jsonFormatter;
+	private JsonFormatterFacilitiesRegistry jsonFormatterRegistry;
 	
 	@Autowired
 	public RESTAdmin(EntityManagement identitiesMan, GroupsManagement groupsMan,
@@ -125,7 +125,7 @@ public class RESTAdmin
 			InvitationManagement invitationMan,
 			EventPublisher eventPublisher,
 			SecuredTokensManagement securedTokenMan,
-			JsonFormatter jsonFormatter)
+			JsonFormatterFacilitiesRegistry jsonFormatterRegistry)
 	{
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
@@ -141,7 +141,7 @@ public class RESTAdmin
 		this.invitationMan = invitationMan;
 		this.eventPublisher = eventPublisher;
 		this.securedTokenMan = securedTokenMan;
-		this.jsonFormatter = jsonFormatter;
+		this.jsonFormatterRegistry = jsonFormatterRegistry;
 	}
 
 	
@@ -747,7 +747,7 @@ public class RESTAdmin
 		
 		JSONArray jsonArray = new JSONArray();
 		for(Token t : tokens)
-			jsonArray.add(jsonFormatter.toJson(t.getType(), t));
+			jsonArray.add(jsonFormatterRegistry.getFormatter(t.getType()).toJson(t));
 		return mapper.writeValueAsString(jsonArray);
 	}
 	

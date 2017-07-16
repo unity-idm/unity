@@ -19,7 +19,6 @@ import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 @Component
 public class JsonFormatterFacilitiesRegistry extends TypesRegistryBase<JsonFormatterFacility>
 {
-	
 	@Autowired
 	public JsonFormatterFacilitiesRegistry(List<JsonFormatterFacility> typeElements)
 	{
@@ -31,5 +30,11 @@ public class JsonFormatterFacilitiesRegistry extends TypesRegistryBase<JsonForma
 	{
 		return from.getName();
 	}
-
+	
+	public JsonFormatterFacility getFormatter(String type)
+	{
+		JsonFormatterFacility specificFormatter = getByNameOptional(type);
+		return specificFormatter != null ? specificFormatter : 
+			getByName(DefaultJsonFormatterFacility.NAME);
+	}
 }
