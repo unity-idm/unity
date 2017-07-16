@@ -194,6 +194,16 @@ public class SelectedAuthNPanel extends CustomComponent
 		authenticateButton.setVisible(true);
 	}
 	
+	public void removeEnterKeyBinding()
+	{
+		authenticateButton.removeClickShortcut();
+	}
+	
+	public void restoreEnterKeyBinding()
+	{
+		authenticateButton.setClickShortcut(KeyCode.ENTER);
+	}
+	
 	
 	protected void showAuthnProgress(boolean inProgress)
 	{

@@ -6,8 +6,6 @@ package pl.edu.icm.unity.webui.authn;
 
 import java.util.List;
 
-import com.vaadin.event.FieldEvents.TextChangeEvent;
-import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
@@ -34,11 +32,14 @@ public class AuthNTiles extends CustomComponent
 	private static final int SHOW_SEARCH_FROM = 8;
 	private UnityMessageSource msg;
 	private List<AuthNTile> tiles;
+	private SelectedAuthNPanel selectedAuthNPanel;
 
-	public AuthNTiles(UnityMessageSource msg, List<AuthNTile> tiles)
+	public AuthNTiles(UnityMessageSource msg, List<AuthNTile> tiles, 
+			SelectedAuthNPanel selectedAuthNPanel)
 	{
 		this.msg = msg;
 		this.tiles = tiles;
+		this.selectedAuthNPanel = selectedAuthNPanel;
 		initUI();
 	}
 	
@@ -73,24 +74,13 @@ public class AuthNTiles extends CustomComponent
 			wrapper.setMargin(new MarginInfo(false, false, true, false));
 			wrapper.addStyleName(Styles.verticalPaddingSmall.toString());
 			Label info = new Label(msg.getMessage("IdpSelectorComponent.search"));
-			TextField search = new TextField();
-			search.addStyleName(Styles.vSmall.toString());
-			search.setImmediate(true);
+			TextField search = createSearchField();
 			wrapper.addComponents(info, search);
 			wrapper.setComponentAlignment(info, Alignment.MIDDLE_RIGHT);
 			wrapper.setComponentAlignment(search, Alignment.MIDDLE_LEFT);
 			wrapper.setSpacing(true);
 			main.addComponent(wrapper);
 			main.setComponentAlignment(wrapper, Alignment.MIDDLE_RIGHT);
-			search.addTextChangeListener(new TextChangeListener()
-			{
-				@Override
-				public void textChange(TextChangeEvent event)
-				{
-					for (AuthNTile tile: tiles)
-						tile.filter(event.getText());
-				}
-			});
 		} else
 		{
 			main.addComponent(HtmlTag.br());
@@ -101,6 +91,22 @@ public class AuthNTiles extends CustomComponent
 		setCompositionRoot(main);
 	}
 
+	
+	private TextField createSearchField()
+	{
+		TextField search = new TextField();
+		search.addStyleName(Styles.vSmall.toString());
+		search.setImmediate(true);
+		search.addTextChangeListener(event -> 
+		{
+			for (AuthNTile tile: tiles)
+				tile.filter(event.getText());
+		});
+		search.addFocusListener(event -> selectedAuthNPanel.removeEnterKeyBinding());
+		search.addBlurListener(event ->	selectedAuthNPanel.restoreEnterKeyBinding());
+		return search;
+	}	
+	
 	public List<AuthNTile> getTiles()
 	{
 		return tiles;
