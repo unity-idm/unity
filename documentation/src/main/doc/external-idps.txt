@@ -21,3 +21,5 @@ include::external-ldap.txt[]
 include::external-saml.txt[]
 
 include::external-oauth.txt[]
+
+include::external-pam.txt[]

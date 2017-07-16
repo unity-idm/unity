@@ -20,7 +20,7 @@ import pl.edu.icm.unity.engine.api.userimport.UserImportSPIFactory;
 @Component
 public class OSImporterFactory implements UserImportSPIFactory
 {
-	public static final String NAME = "localOS";
+	public static final String NAME = "hostOS";
 	
 	@Override
 	public String getName()

@@ -60,6 +60,7 @@
 |OpenID Connect					| icon:check[role="green"]		| Tested with Google
 |OpenID 2						| icon:exclamation[role="red"]	| Not available and not planned currently
 |OAuth 1						| icon:exclamation[role="red"]	| Not available and not planned currently
+|Host OS PAM					| icon:check[role="green"]		|
 |===
 
 === Attribute syntaxes

@@ -19,7 +19,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 
 /**
- * Shared helpers - allows to convert PAM library's objects to version meaningful for Unity platform. 
+ * Shared helpers - allows for converting PAM library's objects to version meaningful for Unity platform. 
  * @author K. Benedyczak
  */
 public class LibPAMUtils

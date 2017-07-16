@@ -1,0 +1,72 @@
+[[pam-authenticator]]
+=== Host OS PAM (Pluggable Authentication Modules) 
+
+Credential verificator name:: +pam+
+Compatible credentials:: +password+
+
+PAM based authentication allows for authenticating Unity users against host Operating System PAM facility.
+PAM is supported on Linux OS, and may be available also on other UNIXes. The integration is tested on Linux.
+
+To be able to use host operating OS facilities, a proper native access library must be available among Unity 
+libraries. 
+
+TODO: how to configure architecture, including a new one
+
+
+The typical authenticator's configuration will look as follows:
+
+----
+unityServer.core.authenticators.x.authenticatorName=pamWeb
+unityServer.core.authenticators.x.authenticatorType=pam with web-password
+unityServer.core.authenticators.x.verificatorConfigurationFile=conf/authenticators/pam.properties
+unityServer.core.authenticators.x.retrievalConfigurationFile=conf/authenticators/passwordRetrieval-pam.json
+----
+
+PAM access is configured by providing a name of PAM facility that should be used by Unity and input translation profile
+which should map information about authenticated user to Unity representation.
+
+Example configuration in file +conf/authenticators/pam.properties+:
+
+----
+pam.facility=unity
+pam.translationProfile=pam-profile
+----
+
+For such configuration Unity will authenticate against PAM using configuration from +/etc/pam.d/unity+ file.
+Please refer to PAM documentation for details on how to create such file. An example (which is mostly default local 
+authentication on Linux) can be similar to:
+
+----
+auth        required      pam_env.so
+auth        sufficient    pam_unix.so nullok try_first_pass
+auth        requisite     pam_succeed_if.so uid >= 1000 quiet_success
+auth        required      pam_deny.so
+
+account     required      pam_unix.so
+account     sufficient    pam_localuser.so
+account     sufficient    pam_succeed_if.so uid < 1000 quiet
+account     required      pam_permit.so
+
+password    requisite     pam_pwquality.so try_first_pass local_users_only retry=3 authtok_type=
+password    sufficient    pam_unix.so sha512 shadow nullok try_first_pass use_authtok
+password    required      pam_deny.so
+
+session     required      pam_limits.so
+-session     optional      pam_systemd.so
+session     required      pam_unix.so
+---- 
+
+[IMPORTANT]
+====
+When using local file authentication in PAM (i.e. +pam_unix.so+) make sure that Unity daemon user is
+allowed to read the +/etc/shadow+ file. Otherwise this method won't work. E.g.:
+
+----
+# setfacl -m u:unity-idm:r /etc/shadow
+----
+
+====
+
+The complete PAM options reference follows:
+
+include::ref-pamProperties.txt[]

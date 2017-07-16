@@ -1,7 +1,7 @@
 == Automatic user import
 
 Automatic user import, sounds as an important integration feature. However in Unity it is a minor, 
-extremely rarely used option. In a typical situation "user import" happens as a side effect of user's 
+rarely used option. In a typical situation "user import" happens as a side effect of user's 
 authentication to Unity, in effect of input translation profile execution, or processing of a registration request.
 
 There is, however, one case when this is not suitable: a so called 3rd party query, i.e. when one service asks 
@@ -67,4 +67,21 @@ during import there is no user's credential so binding must be performed with so
 
 It is possible to share configuration file of LDAP authenticator and LDAP import. The generic import settings
 (+unity.userImport.*+) will be ignored by the authenticator.
+
+
+=== Host OS import
+
+Import type:: +hostOS+
+
+
+This import option allows for importing information about users which are available in the host operating 
+system. The system must be glibc based, and was tested with Linux only. See <<pam-authenticator>> for 
+discussion of installation requirements. Besides the integration with the hosting OS this import option does
+not require any additional, mechanism specific configuration. Therefore an example configuration can be:
+
+----
+unity.userImport.importerType=hostOS
+unity.userImport.remoteIdpName=Local system
+unity.userImport.inputTranslationProfile=pam-profile
+----
 
