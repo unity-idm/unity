@@ -213,6 +213,8 @@ public class SelectedAuthNPanel extends CustomComponent
 	protected void handleError(String error)
 	{
 		setNotAuthenticating();
+		if (authenticatorsContainer.getComponentCount() > 0)
+			updateFocus(authenticatorsContainer.getComponent(0));
 		NotificationPopup.showError(msg, msg.getMessage("AuthenticationUI.authnErrorTitle"), error);
 	}
 	
