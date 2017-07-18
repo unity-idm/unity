@@ -33,6 +33,7 @@ public class OAuthTokenViewer extends VerticalLayout
 	
 	private FormLayout main;
 	
+	private Label value;
 	private TextArea idToken;
 	private Label audience;
 	private Label redirectUri;
@@ -51,6 +52,9 @@ public class OAuthTokenViewer extends VerticalLayout
 	private void initUI()
 	{
 		main = new CompactFormLayout();
+		value = new Label();
+		value.setCaption(msg.getMessage("OAuthTokenViewer.value"));
+				
 		idToken = new TextArea();
 		idToken.setCaption(msg.getMessage("OAuthTokenViewer.idtoken"));
 		idToken.setSizeFull();
@@ -69,7 +73,7 @@ public class OAuthTokenViewer extends VerticalLayout
 		userInfoComponent.setMargin(false);
 		userInfoComponent.setSpacing(false);
 
-		main.addComponents(redirectUri, maxTokenValidity, audience, requestedScopes, idToken,
+		main.addComponents(value, redirectUri, maxTokenValidity, audience, requestedScopes, idToken,
 				userInfoComponent);
 		main.setSizeFull();
 		addComponent(main);
@@ -89,11 +93,12 @@ public class OAuthTokenViewer extends VerticalLayout
 		if (token == null)
 		{
 			setIdToken("");
+			value.setValue("");
 			audience.setValue("");
 			redirectUri.setValue("");
 			maxTokenValidity.setValue("");
 			requestedScopes.setValue("");
-
+			
 			return;
 		}
 
@@ -106,7 +111,8 @@ public class OAuthTokenViewer extends VerticalLayout
 		{
 			idToken.setVisible(false);
 		}
-
+		
+		value.setValue(raw.getValue());
 		audience.setValue(token.getAudience());
 		redirectUri.setValue(token.getRedirectUri());
 		Date maxValidity = new Date(

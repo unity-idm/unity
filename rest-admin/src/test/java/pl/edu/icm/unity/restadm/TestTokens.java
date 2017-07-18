@@ -5,10 +5,9 @@
 
 package pl.edu.icm.unity.restadm;
 
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 import java.util.List;
@@ -27,8 +26,8 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 
-import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -66,11 +65,10 @@ public class TestTokens extends RESTAdminTestBase
 	@Test
 	public void shouldReturnAllTokenWithType() throws Exception
 	{
-		List<Token> tokens = getTokensFromRESTAPI(localcontext, "type1");	
+		List<JsonNode> tokens = getTokensFromRESTAPI(localcontext, "type1");	
+		
 		assertThat(tokens.size(), is(3));
-		assertEquals("type1", tokens.get(0).getType());
-		
-		
+		assertThat(tokens.get(0).get("type").asText(), is("type1"));
 	}
 	
 	@Test
@@ -81,23 +79,23 @@ public class TestTokens extends RESTAdminTestBase
 
 		String contentsGet = EntityUtils.toString(responseGet.getEntity());
 		System.out.println("Response:\n" + contentsGet);
-		assertEquals(contentsGet, Status.OK.getStatusCode(),
-				responseGet.getStatusLine().getStatusCode());
-		List<Token> returned = m.readValue(contentsGet,
-				new TypeReference<List<Token>>()
+		
+		assertThat(responseGet.getStatusLine().getStatusCode(), is(Status.OK.getStatusCode()));
+		List<JsonNode> returned = m.readValue(contentsGet,
+				new TypeReference<List<JsonNode>>()
 				{
 				});
 		
-		Set<String> types = returned.stream().map(s -> s.getType()).collect(Collectors.toSet());
-		assertTrue(types.contains("type1"));
-		assertTrue(types.contains("type2"));
+		Set<String> types = returned.stream().map(s -> s.get("type").asText()).collect(Collectors.toSet());
+		assertThat(types, hasItem("type1"));
+		assertThat(types, hasItem("type2"));
 	}
 	
 	@Test
 	public void shouldReturnOnlyOwnedTokenWithType() throws Exception
 	{
 		HttpContext u1 = getClientContext(client, host, "u1", DEF_PASSWORD);
-		List<Token> tokens = getTokensFromRESTAPI(u1, "type1");
+		List<JsonNode> tokens = getTokensFromRESTAPI(u1, "type1");
 		assertThat(tokens.size(), is(1));
 		HttpContext u2 = getClientContext(client, host, "u2", DEF_PASSWORD);
 		tokens = getTokensFromRESTAPI(u2, "type1");
@@ -113,9 +111,8 @@ public class TestTokens extends RESTAdminTestBase
 		HttpContext u2 = getClientContext(client, host, "u2", DEF_PASSWORD);
 		HttpResponse responseDel = client.execute(host, del, u2);
 
-		assertEquals(Status.NO_CONTENT.getStatusCode(),
-				responseDel.getStatusLine().getStatusCode());
-		List<Token> tokens = getTokensFromRESTAPI(u2, "type2");
+		assertThat(responseDel.getStatusLine().getStatusCode(), is(Status.NO_CONTENT.getStatusCode()));
+		List<JsonNode> tokens = getTokensFromRESTAPI(u2, "type2");
 		assertThat(tokens.size(), is(0));
 	}
 
@@ -125,8 +122,8 @@ public class TestTokens extends RESTAdminTestBase
 		HttpDelete del = new HttpDelete("/restadm/v1/token/type2/v4");
 		HttpContext u1 = getClientContext(client, host, "u1", DEF_PASSWORD);
 		HttpResponse responseDel = client.execute(host, del, u1);
-		assertEquals(Status.FORBIDDEN.getStatusCode(),
-				responseDel.getStatusLine().getStatusCode());
+
+		assertThat(responseDel.getStatusLine().getStatusCode(), is(Status.BAD_REQUEST.getStatusCode()));
 	}
 	
 	@Test
@@ -135,21 +132,21 @@ public class TestTokens extends RESTAdminTestBase
 		HttpDelete del = new HttpDelete("/restadm/v1/token/type2/v5");
 		HttpContext u1 = getClientContext(client, host, "u1", DEF_PASSWORD);
 		HttpResponse responseDel = client.execute(host, del, u1);
-		assertEquals(Status.BAD_REQUEST.getStatusCode(),
-				responseDel.getStatusLine().getStatusCode());
+		
+		assertThat(responseDel.getStatusLine().getStatusCode(), is(Status.BAD_REQUEST.getStatusCode()));
 	}
 
-	private List<Token> getTokensFromRESTAPI(HttpContext context, String type) throws Exception
+	private List<JsonNode> getTokensFromRESTAPI(HttpContext context, String type) throws Exception
 	{
 		HttpGet get = new HttpGet("/restadm/v1/tokens?type=" + type);
 		HttpResponse responseGet = client.execute(host, get, context);
 
 		String contentsGet = EntityUtils.toString(responseGet.getEntity());
 		System.out.println("Response:\n" + contentsGet);
-		assertEquals(contentsGet, Status.OK.getStatusCode(),
-				responseGet.getStatusLine().getStatusCode());
-		List<Token> returned = m.readValue(contentsGet,
-				new TypeReference<List<Token>>()
+		assertThat(responseGet.getStatusLine().getStatusCode(), is( Status.OK.getStatusCode()));
+		
+		List<JsonNode> returned = m.readValue(contentsGet,
+				new TypeReference<List<JsonNode>>()
 				{
 				});
 		

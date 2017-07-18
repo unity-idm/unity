@@ -69,7 +69,7 @@ public class OAuthASProperties extends PropertiesHelper
 		defaults.put(REFRESH_TOKEN_VALIDITY, new PropertyMD("-1")
 				.setDescription("Controls the maximum validity period of an refresh token (in seconds). "
 						+ "If is set to negative number a refresh tokens won’t be issued. "
-						+ "If is set to 0 a refresh tokens have unlimited lifetime. "));
+						+ "If is set to 0 refresh tokens have unlimited lifetime. "));
 		defaults.put(ACCESS_TOKEN_VALIDITY, new PropertyMD("3600").setPositive().
 				setDescription("Controls the maximum validity period of an Access token (in seconds)."));
 		defaults.put(MAX_EXTEND_ACCESS_TOKEN_VALIDITY, new PropertyMD().setInt().setPositive().

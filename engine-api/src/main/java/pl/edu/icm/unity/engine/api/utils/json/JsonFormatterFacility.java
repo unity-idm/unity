@@ -5,8 +5,9 @@
 
 package pl.edu.icm.unity.engine.api.utils.json;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.JsonNode;
 
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.DescribedObject;
 
 /**
@@ -16,5 +17,5 @@ import pl.edu.icm.unity.types.DescribedObject;
  */
 public interface JsonFormatterFacility extends DescribedObject
 {
-	ObjectNode toJson(Object o);
+	JsonNode toJson(byte[] rawValue) throws EngineException;
 }

@@ -57,7 +57,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.engine.api.utils.json.JsonFormatterFacilitiesRegistry;
+import pl.edu.icm.unity.engine.api.utils.json.JsonFormatter;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.rest.exception.JSONParsingException;
@@ -111,7 +111,7 @@ public class RESTAdmin
 	private InvitationManagement invitationMan;
 	private EventPublisher eventPublisher;
 	private SecuredTokensManagement securedTokenMan;
-	private JsonFormatterFacilitiesRegistry jsonFormatterRegistry;
+	private JsonFormatter jsonFormatter;
 	
 	@Autowired
 	public RESTAdmin(EntityManagement identitiesMan, GroupsManagement groupsMan,
@@ -125,7 +125,7 @@ public class RESTAdmin
 			InvitationManagement invitationMan,
 			EventPublisher eventPublisher,
 			SecuredTokensManagement securedTokenMan,
-			JsonFormatterFacilitiesRegistry jsonFormatterRegistry)
+			JsonFormatter jsonFormatter)
 	{
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
@@ -141,7 +141,7 @@ public class RESTAdmin
 		this.invitationMan = invitationMan;
 		this.eventPublisher = eventPublisher;
 		this.securedTokenMan = securedTokenMan;
-		this.jsonFormatterRegistry = jsonFormatterRegistry;
+		this.jsonFormatter = jsonFormatter;
 	}
 
 	
@@ -730,7 +730,12 @@ public class RESTAdmin
 			@PathParam("value") String value) throws EngineException, JsonProcessingException
 	{
 		log.debug("remove token " + type + ":" + value);
-		securedTokenMan.removeToken(type, value);
+		try{
+			securedTokenMan.removeToken(type, value);
+		} catch (EngineException e) {
+			log.error("Cannot remove token", e);
+			throw new EngineException("Cannot remove token - invalid token");
+		}
 	}
 	
 	@Path("/tokens")
@@ -740,14 +745,25 @@ public class RESTAdmin
 			throws EngineException, JsonProcessingException
 	{	
 		Collection<Token> tokens;
-		if (entity != null)
-			tokens = securedTokenMan.getOwnedTokens(type, getEP(entity, entityType));
-		else	
-			tokens = securedTokenMan.getAllTokens(type);
+		try
+		{
+			if (entity != null)
+				tokens = securedTokenMan.getOwnedTokens(type,
+						getEP(entity, entityType));
+			else
+				tokens = securedTokenMan.getAllTokens(type);
+		} catch (EngineException e)
+		{
+			log.error("Cannot get tokens", e);
+			throw new EngineException("Cannot get tokens - invalid type or owner");
+		}
 		
 		JSONArray jsonArray = new JSONArray();
 		for(Token t : tokens)
-			jsonArray.add(jsonFormatterRegistry.getFormatter(t.getType()).toJson(t));
+		{
+			jsonArray.add(jsonFormatter.toJson(t));
+		}
+		
 		return mapper.writeValueAsString(jsonArray);
 	}
 	

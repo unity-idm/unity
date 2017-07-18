@@ -6,19 +6,16 @@ package pl.edu.icm.unity.oauth.as.token.utils;
 
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import pl.edu.icm.unity.base.token.Token;
-import pl.edu.icm.unity.engine.api.utils.json.JsonFormatterFacility;
+import pl.edu.icm.unity.engine.api.utils.json.JsonBytesFacility;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 
 /**
- * Map refresh token to json ObjectNode
+ * Map refresh token contents to JsonNode
  * @author P.Piernik
  *
  */
 @Component
-public class JsonRefreshTokenFacility extends JsonOAuthTokenFacility implements JsonFormatterFacility
+public class JsonRefreshTokenFacility extends JsonBytesFacility
 {
 
 	@Override
@@ -31,12 +28,6 @@ public class JsonRefreshTokenFacility extends JsonOAuthTokenFacility implements 
 	public String getName()
 	{
 		return OAuthProcessor.INTERNAL_REFRESH_TOKEN;
-	}
-
-	@Override
-	public ObjectNode toJson(Object o)
-	{
-		return toJson((Token) o);
 	}
 
 }

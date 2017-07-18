@@ -6,19 +6,16 @@ package pl.edu.icm.unity.oauth.as.token.utils;
 
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import pl.edu.icm.unity.base.token.Token;
-import pl.edu.icm.unity.engine.api.utils.json.JsonFormatterFacility;
+import pl.edu.icm.unity.engine.api.utils.json.JsonBytesFacility;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 
 /**
- * Map access token to json ObjectNode
+ * Map access token contents to JsonNode
  * @author P.Piernik
  *
  */
 @Component
-public class JsonAccessTokenFacility extends JsonOAuthTokenFacility implements JsonFormatterFacility
+public class JsonAccessTokenFacility extends JsonBytesFacility
 {
 
 	@Override
@@ -26,17 +23,11 @@ public class JsonAccessTokenFacility extends JsonOAuthTokenFacility implements J
 	{
 		return "Access token JSON formatter";
 	}
-
+	
 	@Override
 	public String getName()
 	{
 		return OAuthProcessor.INTERNAL_ACCESS_TOKEN;
-	}
-
-	@Override
-	public ObjectNode toJson(Object o)
-	{
-		return toJson((Token) o);
 	}
 
 }

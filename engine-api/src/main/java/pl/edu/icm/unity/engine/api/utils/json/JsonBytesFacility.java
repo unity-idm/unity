@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.utils.json;
 
-import org.springframework.stereotype.Component;
+import java.io.IOException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -12,19 +12,19 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
- * Default formatter. 
+ * Base for all formatter facilities which decode byte[] to json
+ * 
  * @author P.Piernik
  *
  */
-@Component
-public class DefaultJsonFormatterFacility implements JsonFormatterFacility
+public class JsonBytesFacility implements JsonFormatterFacility
 {
-	public static final String NAME = "DefaultJsonFormatter";
-
+	public static final String NAME = "Bytes";
+	
 	@Override
 	public String getDescription()
 	{
-		return "Default formatter";
+		return "Bytes formatter";
 	}
 
 	@Override
@@ -32,11 +32,20 @@ public class DefaultJsonFormatterFacility implements JsonFormatterFacility
 	{
 		return NAME;
 	}
-
-	@Override
+	
 	public JsonNode toJson(byte[] rawValue) throws EngineException
 	{
-		return  Constants.MAPPER.convertValue(rawValue, JsonNode.class);		
+		JsonNode node = null;
+		try
+		{
+			node = Constants.MAPPER.readTree(rawValue);
+		} catch (IOException e)
+		{
+			throw new EngineException("Cannot parse to json", e);
+		}
+		return node;
 	}
+
+	
 
 }
