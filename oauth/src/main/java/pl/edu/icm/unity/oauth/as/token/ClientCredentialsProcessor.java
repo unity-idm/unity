@@ -115,7 +115,7 @@ public class ClientCredentialsProcessor
 			String[] array = validRequestedScopes.stream().
 					map(si -> si.getName()).
 					toArray(String[]::new);
-			internalToken.setScope(array);
+			internalToken.setEffectiveScope(array);
 			for (ScopeInfo si: validRequestedScopes)
 				requestedAttributes.addAll(si.getAttributes());
 		}

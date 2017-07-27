@@ -34,9 +34,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import net.minidev.json.JSONArray;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.event.Event;
+import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
@@ -53,7 +55,9 @@ import pl.edu.icm.unity.engine.api.confirmation.ConfirmationManager;
 import pl.edu.icm.unity.engine.api.event.EventPublisher;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.engine.api.utils.json.Token2JsonFormatter;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.rest.exception.JSONParsingException;
@@ -106,6 +110,8 @@ public class RESTAdmin
 	private AttributeTypeManagement attributeTypeMan;
 	private InvitationManagement invitationMan;
 	private EventPublisher eventPublisher;
+	private SecuredTokensManagement securedTokenMan;
+	private Token2JsonFormatter jsonFormatter;
 	
 	@Autowired
 	public RESTAdmin(EntityManagement identitiesMan, GroupsManagement groupsMan,
@@ -117,7 +123,9 @@ public class RESTAdmin
 			EntityCredentialManagement entityCredMan,
 			AttributeTypeManagement attributeTypeMan,
 			InvitationManagement invitationMan,
-			EventPublisher eventPublisher)
+			EventPublisher eventPublisher,
+			SecuredTokensManagement securedTokenMan,
+			Token2JsonFormatter jsonFormatter)
 	{
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
@@ -132,6 +140,8 @@ public class RESTAdmin
 		this.attributeTypeMan = attributeTypeMan;
 		this.invitationMan = invitationMan;
 		this.eventPublisher = eventPublisher;
+		this.securedTokenMan = securedTokenMan;
+		this.jsonFormatter = jsonFormatter;
 	}
 
 	
@@ -713,7 +723,51 @@ public class RESTAdmin
 		Event event = new Event(eventName, -1l, new Date(), eventBody);
 		eventPublisher.fireEventWithAuthz(event);
 	}	
-
+	
+	@Path("/token/{type}/{value}")
+	@DELETE
+	public void removeToken(@PathParam("type") String type, 
+			@PathParam("value") String value) throws EngineException, JsonProcessingException
+	{
+		log.debug("remove token " + type + ":" + value);
+		try{
+			securedTokenMan.removeToken(type, value);
+		} catch (EngineException e) {
+			log.error("Cannot remove token", e);
+			throw new EngineException("Cannot remove token - invalid token");
+		}
+	}
+	
+	@Path("/tokens")
+	@GET
+	public String getTokens(@QueryParam("type") String type, @QueryParam("owner") String entity,
+			@QueryParam("ownerType") String entityType)
+			throws EngineException, JsonProcessingException
+	{	
+		Collection<Token> tokens;
+		try
+		{
+			if (entity != null)
+				tokens = securedTokenMan.getOwnedTokens(type,
+						getEP(entity, entityType));
+			else
+				tokens = securedTokenMan.getAllTokens(type);
+		} catch (EngineException e)
+		{
+			log.error("Cannot get tokens", e);
+			throw new EngineException("Cannot get tokens - invalid type or owner");
+		}
+		
+		JSONArray jsonArray = new JSONArray();
+		for(Token t : tokens)
+		{
+			jsonArray.add(jsonFormatter.toJson(t));
+		}
+		
+		return mapper.writeValueAsString(jsonArray);
+	}
+	
+	
 	/**
 	 * Creates {@link EntityParam} from given entity address and optional type, which can be null.
 	 * If type is null then entityId is checked to have the size of persistentId type and if matching

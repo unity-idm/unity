@@ -37,7 +37,8 @@ public class OAuthAuthzContext
 	private String translationProfile;
 	private String usersGroup;
 	private Set<ScopeInfo> effectiveRequestedScopes = new HashSet<OAuthAuthzContext.ScopeInfo>();
-	private Set<String> requestedAttrs = new HashSet<>();
+	private Set<String> requestedScopes = new HashSet<>();
+	private Set<String> effectiveRequestedAttrs = new HashSet<>();
 	private GrantFlow flow;
 	private boolean openIdMode;
 	
@@ -124,15 +125,15 @@ public class OAuthAuthzContext
 		this.translationProfile = translationProfile;
 	}
 	
-	public void addScopeInfo(ScopeInfo scopeInfo)
+	public void addEffectiveScopeInfo(ScopeInfo scopeInfo)
 	{
 		effectiveRequestedScopes.add(scopeInfo);
-		requestedAttrs.addAll(scopeInfo.getAttributes());
+		effectiveRequestedAttrs.addAll(scopeInfo.getAttributes());
 	}
 	
-	public Set<String> getRequestedAttrs()
+	public Set<String> getEffectiveRequestedAttrs()
 	{
-		return requestedAttrs;
+		return effectiveRequestedAttrs;
 	}
 
 	public Set<ScopeInfo> getEffectiveRequestedScopes()
@@ -182,6 +183,21 @@ public class OAuthAuthzContext
 	public static long getAuthnTimeout()
 	{
 		return AUTHN_TIMEOUT;
+	}
+
+	public Set<String> getRequestedScopes()
+	{
+		return requestedScopes;
+	}
+
+	public void setRequestedScopes(Set<String> requestedScopes)
+	{
+		this.requestedScopes = requestedScopes;
+	}
+	
+	public void addRequestedScope(String scope)
+	{
+		requestedScopes.add(scope);
 	}
 
 	public static class ScopeInfo

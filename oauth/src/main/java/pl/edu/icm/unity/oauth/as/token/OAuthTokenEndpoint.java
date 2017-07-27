@@ -113,7 +113,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		{
 			HashSet<Object> ret = new HashSet<>();
 			ret.add(new AccessTokenResource(tokensManagement, config, 
-					new OAuthRequestValidator(config, identitiesMan, attributesMan), idPEngine, tx));
+					new OAuthRequestValidator(config, identitiesMan, attributesMan), idPEngine, identitiesMan, tx));
 			ret.add(new DiscoveryResource(config, coordinator));
 			ret.add(new KeysResource(config));
 			ret.add(new TokenInfoResource(tokensManagement));

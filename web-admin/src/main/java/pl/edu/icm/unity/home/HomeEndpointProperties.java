@@ -55,7 +55,7 @@ public class HomeEndpointProperties extends PropertiesHelper
 		META.put(DISABLED_COMPONENTS, new PropertyMD().setList(false).
 				setDescription("List of tags of UI components "
 				+ "which should be disabled. Valid tags: '" + 
-				Arrays.toString(Components.values()) + "'"));
+				Arrays.toString(Arrays.asList(Components.values(), "oauthTokens").toArray()) + "'"));
 		META.put(REMOVAL_MODE, new PropertyMD(RemovalModes.remove).
 				setDescription("Relevant ONLY if the " + DISABLE_REMOVAL_SCHEDULE + " is true. "
 				+ "Controls what action should be performed when user "

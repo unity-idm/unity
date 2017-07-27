@@ -15,11 +15,6 @@ import javax.ws.rs.core.Response;
 
 import org.junit.Test;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
-import pl.edu.icm.unity.oauth.as.token.AccessTokenResource;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.GrantType;
@@ -32,7 +27,11 @@ import net.minidev.json.JSONValue;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.oauth.as.token.AccessTokenResource;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 
 public class AccessTokenResourceTest 
 {
@@ -81,7 +80,7 @@ public class AccessTokenResourceTest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
-		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, tx);
+		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, null, tx);
 		setupInvocationContext(111);
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(config, new ResponseType(ResponseType.Value.CODE),
 				GrantFlow.authorizationCode, 100);
@@ -91,7 +90,8 @@ public class AccessTokenResourceTest
 		Response r = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
 				step1Resp.getAuthorizationCode().getValue(), 
 				null,
-				"https://return.host.com/foo");
+				"https://return.host.com/foo",
+				null, null, null, null, null);
 		assertEquals(HTTPResponse.SC_BAD_REQUEST, r.getStatus());
 	}
 	
@@ -100,7 +100,7 @@ public class AccessTokenResourceTest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
-		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, tx);
+		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, null, tx);
 		setupInvocationContext(100);
 
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(config, new ResponseType(ResponseType.Value.CODE),
@@ -112,7 +112,8 @@ public class AccessTokenResourceTest
 		Response r = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
 				step1Resp.getAuthorizationCode().getValue(),
 				null,
-				"https://wrong.com");
+				"https://wrong.com",
+				null, null, null, null, null);
 		assertEquals(HTTPResponse.SC_BAD_REQUEST, r.getStatus());
 	}
 	
@@ -121,11 +122,11 @@ public class AccessTokenResourceTest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
-		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, tx);
+		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, null, tx);
 		setupInvocationContext(100);
 
 		Response resp = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
-				"1234", null, "https://return.host.com/foo");
+				"1234", null, "https://return.host.com/foo", null, null, null, null, null);
 		assertEquals(400, resp.getStatus());
 		JSONObject ret = (JSONObject) JSONValue.parse(resp.getEntity().toString());
 		assertEquals("invalid_grant", ret.get("error"));
@@ -136,7 +137,7 @@ public class AccessTokenResourceTest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
-		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, tx);
+		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, null, tx);
 		setupInvocationContext(100);
 		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(config, 
 				new ResponseType(ResponseType.Value.CODE),
@@ -145,7 +146,7 @@ public class AccessTokenResourceTest
 				ctx);
 		
 		Response resp = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
-				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo");
+				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", null, null, null, null, null);
 
 		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
 		httpResp.setContent(resp.getEntity().toString());
@@ -159,7 +160,32 @@ public class AccessTokenResourceTest
 		assertEquals(OAuthTestUtils.ISSUER, idToken.getIssuer());
 		
 	}
+	
+	@Test
+	public void refreshTokenPresentIfConfigured() throws Exception
+	{
+		TokensManagement tokensManagement = new MockTokensMan();
+		OAuthASProperties config = OAuthTestUtils.getConfig();
+		config.setProperty(OAuthASProperties.REFRESH_TOKEN_VALIDITY, "3600");
+		
+		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, null, tx);
+		setupInvocationContext(100);
+		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(config, 
+				new ResponseType(ResponseType.Value.CODE),
+				GrantFlow.authorizationCode, 100, "nonce");
+		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement,
+				ctx);
+		
+		Response resp = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
+				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", null, null, null, null, null);
 
+		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
+		httpResp.setContent(resp.getEntity().toString());
+		httpResp.setContentType("application/json");
+		OIDCTokenResponse parsed = OIDCTokenResponse.parse(httpResp);
+		assertNotNull(parsed.getTokens().getRefreshToken());	
+	}
+	
 	private void setupInvocationContext(long entityId)
 	{
 		AuthenticationRealm realm = new AuthenticationRealm("foo", "", 5, 10, -1, 1000);

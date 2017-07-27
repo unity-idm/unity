@@ -33,12 +33,27 @@ public abstract class TypesRegistryBase<T>
 		}
 	}
 	
-	public T getByName(String name) throws IllegalArgumentException
+	/**
+	 * 
+	 * @param name
+	 * @return requested object by name. In case of invalid name exception is thrown
+	 */
+	public T getByName(String name)
 	{
 		T ret = elements.get(name);
 		if (ret == null)
 			throw new IllegalArgumentException("Type " + name + " is not supported");
 		return ret;
+	}
+
+	/**
+	 * 
+	 * @param name
+	 * @return requested object by name or null if not found
+	 */
+	public T getByNameOptional(String name)
+	{
+		return elements.get(name);
 	}
 	
 	public Collection<T> getAll()

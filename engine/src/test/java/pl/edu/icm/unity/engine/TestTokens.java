@@ -33,6 +33,7 @@ public class TestTokens extends DBIntegrationTestBase
 	@Autowired
 	protected TokensManagement tokensMan;
 	
+	
 	@Test
 	public void addedTokenIsReturnedById() throws Exception
 	{
@@ -66,8 +67,7 @@ public class TestTokens extends DBIntegrationTestBase
 		Date exp = new Date(System.currentTimeMillis()+500000);
 		tokensMan.addToken("t", "1234", ep, c, new Date(), exp);
 		
-		List<Token> tokens = tokensMan.getOwnedTokens("t", ep);
-		
+		List<Token> tokens = tokensMan.getOwnedTokens("t", ep);	
 		assertEquals(2, tokens.size());
 	}
 
@@ -125,8 +125,8 @@ public class TestTokens extends DBIntegrationTestBase
 		
 		tokensMan.removeToken("t", "1234");
 		
-		catchException(tokensMan).getTokenById("t", "1234");
-		
+		catchException(tokensMan).getTokenById("t", "1234");	
 		assertThat(caughtException(), isA(IllegalArgumentException.class));
 	}
+	
 }

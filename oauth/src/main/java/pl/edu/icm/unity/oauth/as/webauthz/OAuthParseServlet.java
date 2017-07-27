@@ -312,10 +312,15 @@ public class OAuthParseServlet extends HttpServlet
 			context.setUsersGroup(oauthConfig.getValue(OAuthASProperties.USERS_GROUP));
 		
 		context.setTranslationProfile(oauthConfig.getValue(CommonIdPProperties.TRANSLATION_PROFILE));
-		
+
 		Scope requestedScopes = authzRequest.getScope();
-		List<ScopeInfo> validRequestedScopes = requestValidator.getValidRequestedScopes(requestedScopes);
-		validRequestedScopes.forEach(si -> context.addScopeInfo(si));
+		if (requestedScopes != null)
+		{
+			List<ScopeInfo> validRequestedScopes = requestValidator
+					.getValidRequestedScopes(requestedScopes);
+			validRequestedScopes.forEach(si -> context.addEffectiveScopeInfo(si));
+			requestedScopes.forEach(si -> context.addRequestedScope(si.getValue()));
+		}
 	}
 
 	/**
