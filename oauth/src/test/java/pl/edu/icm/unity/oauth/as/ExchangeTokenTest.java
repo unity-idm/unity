@@ -37,7 +37,7 @@ import pl.edu.icm.unity.oauth.as.token.AccessTokenResource;
 import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
 
 /**
- * An inegration test of token exchange flow
+ * An integration test of token exchange flow
  * @author P.Piernik
  *
  */

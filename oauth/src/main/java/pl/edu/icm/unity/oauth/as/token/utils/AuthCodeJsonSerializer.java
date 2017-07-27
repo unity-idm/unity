@@ -6,7 +6,7 @@ package pl.edu.icm.unity.oauth.as.token.utils;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.utils.json.JsonBytesFacility;
+import pl.edu.icm.unity.engine.api.utils.json.TokenWithJsonContentsSerializer;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 
 /**
@@ -15,19 +15,10 @@ import pl.edu.icm.unity.oauth.as.OAuthProcessor;
  *
  */
 @Component
-public class JsonAuthCodeTokenFacility extends JsonBytesFacility 
+public class AuthCodeJsonSerializer extends TokenWithJsonContentsSerializer 
 {
-
-	@Override
-	public String getDescription()
+	public AuthCodeJsonSerializer()
 	{
-		return "Auth code token JSON formatter";
+		super(OAuthProcessor.INTERNAL_CODE_TOKEN, "Auth code token JSON formatter");
 	}
-
-	@Override
-	public String getName()
-	{
-		return OAuthProcessor.INTERNAL_CODE_TOKEN;
-	}
-
 }

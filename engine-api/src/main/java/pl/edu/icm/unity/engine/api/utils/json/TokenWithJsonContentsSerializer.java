@@ -12,25 +12,33 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
- * Base for all formatter facilities which decode byte[] to json
+ * Base for all tokens where contents is storing byte[] serialized JSON. I.e. nearly 
+ * a copy serializer.
  * 
  * @author P.Piernik
  *
  */
-public class JsonBytesFacility implements JsonFormatterFacility
+public abstract class TokenWithJsonContentsSerializer implements TokenContentsJsonSerializer
 {
-	public static final String NAME = "Bytes";
+	private String supportedType;
+	private String description;
 	
+	public TokenWithJsonContentsSerializer(String supportedType, String description)
+	{
+		this.supportedType = supportedType;
+		this.description = description;
+	}
+
 	@Override
 	public String getDescription()
 	{
-		return "Bytes formatter";
+		return description;
 	}
 
 	@Override
 	public String getName()
 	{
-		return NAME;
+		return supportedType;
 	}
 	
 	public JsonNode toJson(byte[] rawValue) throws EngineException
@@ -45,7 +53,4 @@ public class JsonBytesFacility implements JsonFormatterFacility
 		}
 		return node;
 	}
-
-	
-
 }

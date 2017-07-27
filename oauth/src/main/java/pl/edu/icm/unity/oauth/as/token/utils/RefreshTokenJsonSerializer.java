@@ -6,28 +6,18 @@ package pl.edu.icm.unity.oauth.as.token.utils;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.utils.json.JsonBytesFacility;
+import pl.edu.icm.unity.engine.api.utils.json.TokenWithJsonContentsSerializer;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 
 /**
  * Map refresh token contents to JsonNode
  * @author P.Piernik
- *
  */
 @Component
-public class JsonRefreshTokenFacility extends JsonBytesFacility
+public class RefreshTokenJsonSerializer extends TokenWithJsonContentsSerializer
 {
-
-	@Override
-	public String getDescription()
+	public RefreshTokenJsonSerializer()
 	{
-		return "Refresh token JSON formatter";
+		super(OAuthProcessor.INTERNAL_REFRESH_TOKEN, "Refresh token JSON formatter");
 	}
-
-	@Override
-	public String getName()
-	{
-		return OAuthProcessor.INTERNAL_REFRESH_TOKEN;
-	}
-
 }

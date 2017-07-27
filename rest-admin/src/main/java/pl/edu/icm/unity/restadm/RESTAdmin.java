@@ -57,7 +57,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.engine.api.utils.json.JsonFormatter;
+import pl.edu.icm.unity.engine.api.utils.json.Token2JsonFormatter;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.rest.exception.JSONParsingException;
@@ -111,7 +111,7 @@ public class RESTAdmin
 	private InvitationManagement invitationMan;
 	private EventPublisher eventPublisher;
 	private SecuredTokensManagement securedTokenMan;
-	private JsonFormatter jsonFormatter;
+	private Token2JsonFormatter jsonFormatter;
 	
 	@Autowired
 	public RESTAdmin(EntityManagement identitiesMan, GroupsManagement groupsMan,
@@ -125,7 +125,7 @@ public class RESTAdmin
 			InvitationManagement invitationMan,
 			EventPublisher eventPublisher,
 			SecuredTokensManagement securedTokenMan,
-			JsonFormatter jsonFormatter)
+			Token2JsonFormatter jsonFormatter)
 	{
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;

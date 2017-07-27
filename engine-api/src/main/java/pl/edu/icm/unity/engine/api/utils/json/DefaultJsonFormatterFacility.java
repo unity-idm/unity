@@ -17,9 +17,9 @@ import pl.edu.icm.unity.exceptions.EngineException;
  *
  */
 @Component
-public class DefaultJsonFormatterFacility implements JsonFormatterFacility
+public class DefaultJsonFormatterFacility implements TokenContentsJsonSerializer
 {
-	public static final String NAME = "DefaultJsonFormatter";
+	public static final String NAME = "base64";
 
 	@Override
 	public String getDescription()

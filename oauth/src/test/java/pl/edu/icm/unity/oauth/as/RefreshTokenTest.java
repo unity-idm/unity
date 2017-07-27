@@ -41,7 +41,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
- * An inegration test of token refresh flow
+ * An integration test of token refresh flow
  * @author P.Piernik
  *
  */

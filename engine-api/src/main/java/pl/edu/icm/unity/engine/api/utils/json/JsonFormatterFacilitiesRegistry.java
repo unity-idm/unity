@@ -12,28 +12,28 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 
 /**
- * Maintains a simple registry of available {@link JsonFormatterFacility}ies.
+ * Maintains a simple registry of available {@link TokenContentsJsonSerializer}ies.
  * 
  * @author P. Piernik
  */
 @Component
-public class JsonFormatterFacilitiesRegistry extends TypesRegistryBase<JsonFormatterFacility>
+public class JsonFormatterFacilitiesRegistry extends TypesRegistryBase<TokenContentsJsonSerializer>
 {
 	@Autowired
-	public JsonFormatterFacilitiesRegistry(List<JsonFormatterFacility> typeElements)
+	public JsonFormatterFacilitiesRegistry(List<TokenContentsJsonSerializer> typeElements)
 	{
 		super(typeElements);
 	}
 
 	@Override
-	protected String getId(JsonFormatterFacility from)
+	protected String getId(TokenContentsJsonSerializer from)
 	{
 		return from.getName();
 	}
 	
-	public JsonFormatterFacility getFormatter(String type)
+	public TokenContentsJsonSerializer getFormatter(String type)
 	{
-		JsonFormatterFacility specificFormatter = getByNameOptional(type);
+		TokenContentsJsonSerializer specificFormatter = getByNameOptional(type);
 		return specificFormatter != null ? specificFormatter : 
 			getByName(DefaultJsonFormatterFacility.NAME);
 	}

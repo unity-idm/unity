@@ -6,7 +6,7 @@ package pl.edu.icm.unity.engine.session;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.utils.json.JsonBytesFacility;
+import pl.edu.icm.unity.engine.api.utils.json.TokenWithJsonContentsSerializer;
 
 
 /**
@@ -15,17 +15,10 @@ import pl.edu.icm.unity.engine.api.utils.json.JsonBytesFacility;
  *
  */
 @Component
-public class JsonSessionTokenFacility extends JsonBytesFacility
+public class SessionTokenJsonSerializer extends TokenWithJsonContentsSerializer
 {
-	@Override
-	public String getDescription()
+	public SessionTokenJsonSerializer()
 	{
-		return "Session token JSON formatter";
-	}
-
-	@Override
-	public String getName()
-	{
-		return SessionManagementImpl.SESSION_TOKEN_TYPE;
+		super(SessionManagementImpl.SESSION_TOKEN_TYPE, "Session token JSON formatter");
 	}
 }
