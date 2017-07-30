@@ -22,8 +22,12 @@ import com.vaadin.ui.VerticalLayout;
  */
 public class ComponentWithToolbar extends CustomComponent
 {
+	
+	private Toolbar toolbar;
+	
 	public ComponentWithToolbar(Component main, Toolbar toolbar)
 	{
+		this.toolbar = toolbar;
 		Orientation orientation = toolbar.getOrientation();
 		AbstractOrderedLayout layout = orientation == Orientation.HORIZONTAL ? 
 				new VerticalLayout() : new HorizontalLayout();
@@ -46,6 +50,8 @@ public class ComponentWithToolbar extends CustomComponent
 		setCompositionRoot(layout);
 	}
 	
-	
-	
+	public void setToolbarVisible(boolean visible)
+	{
+		toolbar.setVisible(visible);
+	}	
 }

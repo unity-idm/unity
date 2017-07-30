@@ -133,7 +133,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 
 		
 		List<AuthNTile> tiles = prepareTiles(authenticators);
-		selectorPanel = new AuthNTiles(msg, tiles);
+		selectorPanel = new AuthNTiles(msg, tiles, authenticationPanel);
 		
 		String lastIdp = getLastIdpFromCookie();
 		String initialOption = null;

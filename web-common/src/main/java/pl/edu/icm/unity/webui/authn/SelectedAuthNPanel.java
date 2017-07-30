@@ -194,6 +194,16 @@ public class SelectedAuthNPanel extends CustomComponent
 		authenticateButton.setVisible(true);
 	}
 	
+	public void removeEnterKeyBinding()
+	{
+		authenticateButton.removeClickShortcut();
+	}
+	
+	public void restoreEnterKeyBinding()
+	{
+		authenticateButton.setClickShortcut(KeyCode.ENTER);
+	}
+	
 	
 	protected void showAuthnProgress(boolean inProgress)
 	{
@@ -203,6 +213,8 @@ public class SelectedAuthNPanel extends CustomComponent
 	protected void handleError(String error)
 	{
 		setNotAuthenticating();
+		if (authenticatorsContainer.getComponentCount() > 0)
+			updateFocus(authenticatorsContainer.getComponent(0));
 		NotificationPopup.showError(msg, msg.getMessage("AuthenticationUI.authnErrorTitle"), error);
 	}
 	

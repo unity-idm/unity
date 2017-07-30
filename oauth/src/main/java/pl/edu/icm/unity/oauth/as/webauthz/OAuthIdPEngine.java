@@ -52,8 +52,9 @@ public class OAuthIdPEngine
 			log.debug("Authentication failed due to profile's decision, returning error");
 			ErrorObject eo = new ErrorObject("access_denied", 
 					e.getMessage(), HTTPResponse.SC_FORBIDDEN);
+			
 			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
-					eo, ctx.getRequest().getState(), ctx.getRequest().impliedResponseMode());
+					eo, ctx.getRequest().getState(), ctx.getRequest().impliedResponseMode()); 
 			throw new OAuthErrorResponseException(oauthResponse, true);
 		} catch (IllegalGroupValueException igve)
 		{
@@ -76,7 +77,6 @@ public class OAuthIdPEngine
 	}
 	
 	public IdentityParam getIdentity(TranslationResult userInfo, String subjectIdentityType) 
-			throws EngineException
 	{
 		for (IdentityParam id: userInfo.getIdentities())
 			if (subjectIdentityType.equals(id.getTypeId()))
@@ -86,21 +86,27 @@ public class OAuthIdPEngine
 				+ "Probably the endpoint is misconfigured.");
 	}
 	
-	private TranslationResult getUserInfoUnsafe(OAuthAuthzContext ctx) 
-			throws EngineException
+	private TranslationResult getUserInfoUnsafe(OAuthAuthzContext ctx) throws EngineException
 	{
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
-		String flow = ctx.getRequest().getResponseType().impliesCodeFlow() ? 
-				GrantFlow.authorizationCode.toString() : GrantFlow.implicit.toString();
-		Boolean skipImport = ctx.getConfig().getBooleanValue(CommonIdPProperties.SKIP_USERIMPORT);
-		TranslationResult translationResult = idpEngine.obtainUserInformation(new EntityParam(ae.getEntityId()), 
-				ctx.getUsersGroup(), 
-				ctx.getTranslationProfile(), 
-				ctx.getRequest().getClientID().getValue(),
-				"OAuth2", 
-				flow,
-				true,
-				!skipImport);
-		return translationResult;
+		String flow = ctx.getRequest().getResponseType().impliesCodeFlow()
+				? GrantFlow.authorizationCode.toString()
+				: GrantFlow.implicit.toString();
+		Boolean skipImport = ctx.getConfig()
+				.getBooleanValue(CommonIdPProperties.SKIP_USERIMPORT);
+
+		return getUserInfoUnsafe(ae.getEntityId(),
+				ctx.getRequest().getClientID().getValue(), ctx.getUsersGroup(),
+				ctx.getTranslationProfile(), flow, skipImport);
 	}
+
+	public TranslationResult getUserInfoUnsafe(long entityId, String clientId,
+			String userGroup, String translationProfile, String flow,
+			boolean skipImport) throws EngineException
+	{
+		return idpEngine.obtainUserInformation(
+				new EntityParam(entityId), userGroup, translationProfile, clientId,
+				"OAuth2", flow, true, !skipImport);
+	}
+	
 }

@@ -15,6 +15,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
@@ -57,8 +58,8 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialsPanel;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesHandlerRegistry;
+import pl.edu.icm.unity.webui.providers.HomeUITabProvider;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
-import com.vaadin.ui.Button;
 
 /**
  * Component with user's account management UI.
@@ -88,6 +89,7 @@ public class UserAccountComponent extends VerticalLayout
 	private CredentialRequirementManagement credReqMan;
 	private IdentityTypeSupport idTypeSupport;
 	private EntityManagement insecureIdsMan;
+	private HomeUITabProvider tabProvider;
 	
 	@Autowired
 	public UserAccountComponent(UnityMessageSource msg, CredentialManagement credMan,
@@ -100,7 +102,8 @@ public class UserAccountComponent extends VerticalLayout
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributesManagement attributesMan, IdentityEditorRegistry identityEditorRegistry,
 			InputTranslationEngine inputTranslationEngine,
-			IdentityTypeSupport idTypeSupport)
+			IdentityTypeSupport idTypeSupport,
+			HomeUITabProvider tabProvider)
 	{
 		this.msg = msg;
 		this.credMan = credMan;
@@ -119,6 +122,7 @@ public class UserAccountComponent extends VerticalLayout
 		this.identityEditorRegistry = identityEditorRegistry;
 		this.inputTranslationEngine = inputTranslationEngine;
 		this.idTypeSupport = idTypeSupport;
+		this.tabProvider = tabProvider;
 	}
 
 	public void initUI(HomeEndpointProperties config, SandboxAuthnNotifier sandboxNotifier, String sandboxURL)
@@ -146,8 +150,13 @@ public class UserAccountComponent extends VerticalLayout
 		if (!disabled.contains(HomeEndpointProperties.Components.preferencesTab.toString()))
 			addPreferences(tabPanel);
 		
+		if (!disabled.contains(tabProvider.getId().toString()))
+			addExtraTab(tabPanel);
+		
 		if (tabPanel.getTabsCount() > 0)
 			tabPanel.select(0);
+		
+		
 	}
 	
 	private void addUserInfo(BigTabPanel tabPanel, LoginSession theUser, HomeEndpointProperties config, 
@@ -233,6 +242,14 @@ public class UserAccountComponent extends VerticalLayout
 		tabPanel.addTab("UserHomeUI.preferencesLabel", "UserHomeUI.preferencesDesc", 
 				Images.settings64.getResource(), preferencesComponent);
 	}
+	
+	private void addExtraTab(BigTabPanel tabPanel)
+	{
+		tabPanel.addTab(tabProvider.getLabelKey(), tabProvider.getDescriptionKey(), 
+				tabProvider.getIcon(), tabProvider.getUI());
+	}
+	
+	
 	
 	private UserDetailsPanel getUserInfoComponent(long entityId, EntityManagement idsMan, 
 			AttributeSupport attrMan) throws EngineException

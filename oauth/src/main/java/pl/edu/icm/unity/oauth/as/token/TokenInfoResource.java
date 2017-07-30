@@ -49,6 +49,7 @@ public class TokenInfoResource extends BaseTokenResource
 	public static final String EXPIRATION = "exp";
 	public static final String SUBJECT = "sub";
 	public static final String CLIENT = "client_id";
+	public static final String AUDIENCE = "aud";
 	
 	public TokenInfoResource(TokensManagement tokensManagement)
 	{
@@ -71,12 +72,12 @@ public class TokenInfoResource extends BaseTokenResource
 		
 		JSONObject contents = toJSON(tokens.parsedToken.getSubject(), tokens.parsedToken.getClientUsername(), 
 				tokens.tokenSrc.getExpires(), 
-				tokens.parsedToken.getScope());
+				tokens.parsedToken.getEffectiveScope(), tokens.parsedToken.getAudience());
 		return toResponse(Response.ok(contents.toJSONString()));
 	}
 	
 	
-	private JSONObject toJSON(String subject, String clientId, Date expiration, String[] scopes)
+	private JSONObject toJSON(String subject, String clientId, Date expiration, String[] scopes, String audience)
 	{
 		JSONObject ret = new JSONObject();
 		ret.put(SUBJECT, subject);
@@ -87,6 +88,7 @@ public class TokenInfoResource extends BaseTokenResource
 			List<String> scopesAsList = Lists.newArrayList(scopes);
 			ret.put(SCOPE, scopesAsList);
 		}
+		ret.put(AUDIENCE, audience);
 		return ret;
 	}
 }

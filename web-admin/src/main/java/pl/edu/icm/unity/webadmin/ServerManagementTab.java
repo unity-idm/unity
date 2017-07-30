@@ -20,6 +20,7 @@ import pl.edu.icm.unity.webadmin.serverman.EndpointsComponent;
 import pl.edu.icm.unity.webadmin.serverman.ImportExportComponent;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfilesComponent;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.providers.AdminUITabProvider;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
 
 /**
@@ -40,13 +41,13 @@ public class ServerManagementTab  extends VerticalLayout
 			EndpointsComponent eComponent, AuthenticatorsComponent aComponent,
 			TranslationProfilesComponent tComponent, MessageTemplatesComponent msgComponent, 
 			ConfirmationConfigurationsComponent confirmCfgComponent,
-			BulkProcessingComponent bulkProcessingComponent)
+			BulkProcessingComponent bulkProcessingComponent, AdminUITabProvider provider)
 	{
 		super();
 		this.msg = msg;
 		this.tComponent = tComponent;
 		this.tabs = new MainTabPanel(eComponent, aComponent, tComponent, 
-				msgComponent, ieComponent, confirmCfgComponent, bulkProcessingComponent);
+				msgComponent, ieComponent, confirmCfgComponent, bulkProcessingComponent, provider.getUI());
 		this.tabs.addStyleName(Styles.vTabsheetMinimal.toString());
 		initUI();
 	}

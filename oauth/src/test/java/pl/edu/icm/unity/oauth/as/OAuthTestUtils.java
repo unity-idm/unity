@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.Properties;
 
 import com.google.common.collect.Lists;
-import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
@@ -100,23 +99,24 @@ public class OAuthTestUtils
 		ctx.setFlow(grant);
 		ctx.setOpenIdMode(true);
 		ctx.setReturnURI(new URI("https://return.host.com/foo"));
-		ctx.addScopeInfo(new ScopeInfo("sc1", "scope 1", Lists.newArrayList("email")));
+		ctx.addEffectiveScopeInfo(new ScopeInfo("sc1", "scope 1", Lists.newArrayList("email")));
 		return ctx;
 	}
 	
 	public static OAuthAuthzContext createContext(OAuthASProperties config, ResponseType respType, GrantFlow grant, 
 			long clientEntityId) throws Exception
 	{
-		AuthorizationRequest request = new AuthorizationRequest(null, respType, null,
+		AuthenticationRequest request = new AuthenticationRequest(null, respType, new Scope("openid"),
 				new ClientID("clientC"), new URI("https://return.host.com/foo"), 
-				null, new State("state123"));
+				null, new Nonce("nonce"));
+		
 		OAuthAuthzContext ctx = new OAuthAuthzContext(request, config);
 		ctx.setClientEntityId(clientEntityId);
 		ctx.setClientUsername("clientC");
 		ctx.setFlow(grant);
 		ctx.setOpenIdMode(false);
 		ctx.setReturnURI(new URI("https://return.host.com/foo"));
-		ctx.addScopeInfo(new ScopeInfo("sc1", "scope 1", Lists.newArrayList("email")));
+		ctx.addEffectiveScopeInfo(new ScopeInfo("sc1", "scope 1", Lists.newArrayList("email")));
 		return ctx;
 	}
 	
@@ -137,28 +137,38 @@ public class OAuthTestUtils
 	public static AuthorizationSuccessResponse initOAuthFlowAccessCode(TokensManagement tokensMan, 
 			OAuthAuthzContext ctx) throws Exception
 	{
+	
+		IdentityParam identity = new IdentityParam("userName", "userA");
+
+		return initOAuthFlowAccessCode(tokensMan, ctx, identity);
+	}
+	
+	public static AuthorizationSuccessResponse initOAuthFlowAccessCode(TokensManagement tokensMan, 
+			OAuthAuthzContext ctx, IdentityParam identity) throws Exception
+	{
 		OAuthProcessor processor = new OAuthProcessor();
 		Collection<DynamicAttribute> attributes = new ArrayList<>();
 		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com")));
 		attributes.add(new DynamicAttribute(StringAttribute.of("c", "/", "PL")));
-		IdentityParam identity = new IdentityParam("userName", "userA");
-
+		
 		return processor.prepareAuthzResponseAndRecordInternalState(
 				attributes, identity, ctx, tokensMan);
 	}
 
 	public static Identity createOauthClient(EntityManagement idsMan, AttributesManagement attrsMan,
-			GroupsManagement groupsMan, EntityCredentialManagement eCredMan) throws Exception
+			GroupsManagement groupsMan, EntityCredentialManagement eCredMan, String username) throws Exception
 	{
-		Identity clientId = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "client1"), 
+		Identity clientId1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, username), 
 				"cr-pass", EntityState.valid, false);
-		EntityParam e1 = new EntityParam(clientId);
+		EntityParam e1 = new EntityParam(clientId1);
 		eCredMan.setEntityCredential(e1, "credential1", new PasswordToken("clientPass").toJson());
 
-		groupsMan.addGroup(new Group("/oauth-clients"));
+		if (!groupsMan.isPresent("/oauth-clients"))
+			groupsMan.addGroup(new Group("/oauth-clients"));
 		groupsMan.addMemberFromParent("/oauth-clients", e1);
 		
-		groupsMan.addGroup(new Group("/oauth-users"));
+		if (!groupsMan.isPresent("/oauth-users"))
+			groupsMan.addGroup(new Group("/oauth-users"));
 		groupsMan.addMemberFromParent("/oauth-users", e1);
 		
 		attrsMan.setAttribute(e1, EnumAttribute.of(OAuthSystemAttributesProvider.ALLOWED_FLOWS, 
@@ -174,7 +184,8 @@ public class OAuthTestUtils
 		
 		attrsMan.setAttribute(e1, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
 				"/", "Regular User"), false);
-		return clientId;
+		return clientId1;
 	}
+	
 	
 }

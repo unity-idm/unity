@@ -295,6 +295,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		return getSubGroupsInclusive(root);
 	}
 
+	@Transactional
 	@Override
 	public boolean isPresent(String group) throws AuthorizationException
 	{

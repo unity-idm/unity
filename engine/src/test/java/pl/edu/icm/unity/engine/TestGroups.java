@@ -207,4 +207,13 @@ public class TestGroups extends DBIntegrationTestBase
 		assertThat(abChildren.contains("/A/B"), is(true));
 		assertThat(abChildren.contains("/A/B/D"), is(true));
 	}
+	
+	@Test 
+	public void isPresentGroup() throws Exception
+	{
+		Group a = new Group("/A");
+		groupsMan.addGroup(a);
+		assertThat(groupsMan.isPresent("/A"), is(true));
+		assertThat(groupsMan.isPresent("/B"), is(false));
+	}
 }

@@ -69,14 +69,14 @@ public class BaseOAuthResource
 		}
 	}
 	
-	protected OAuthToken parseInternalToken(Token codeToken)
+	protected OAuthToken parseInternalToken(Token token)
 	{
 		try
 		{
-			return OAuthToken.getInstanceFromJson(codeToken.getContents());
+			return OAuthToken.getInstanceFromJson(token.getContents());
 		} catch (Exception e)
 		{
-			throw new InternalException("Can not parse the internal code token", e);
+			throw new InternalException("Can not parse the internal token", e);
 		}
 	}
 	
