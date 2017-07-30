@@ -133,7 +133,6 @@
 			<artifactId>unity-server-pam</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<scope>test</scope>
 	</dependencies>
 
 
