@@ -11,7 +11,7 @@
 	<name>UNITY Server ${m.name} module</name>
 	<description>PAM/local system authentication</description>
 	<properties>
-		<m.name>saml</m.name>
+		<m.name>pam</m.name>
 	</properties>
 
 	<scm>
