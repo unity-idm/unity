@@ -18,7 +18,6 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import pl.edu.icm.unity.MessageSource;
@@ -37,7 +36,6 @@ public class UnityPropertiesHelper extends PropertiesHelper
 	
 	public UnityPropertiesHelper(String prefix, Properties properties,
 			Map<String, PropertyMD> propertiesMD, Logger log)
-			throws ConfigurationException
 	{
 		super(prefix, properties, propertiesMD, log);
 	}
@@ -69,7 +67,7 @@ public class UnityPropertiesHelper extends PropertiesHelper
 	}
 	
 	@Override
-	public synchronized void setProperties(Properties properties) throws ConfigurationException
+	public synchronized void setProperties(Properties properties)
 	{
 		super.setProperties(properties);
 		refillCache();
@@ -124,7 +122,7 @@ public class UnityPropertiesHelper extends PropertiesHelper
 	@Override
 	protected synchronized Set<String> getSortedStringKeys(String base, boolean allowListSubKeys)
 	{
-		SortedSet<String> keys = new TreeSet<String>();
+		SortedSet<String> keys = new TreeSet<>();
 		
 		Set<?> allKeys = isCached(base) ? listKeysCache.get(base) : properties.keySet();
 		if (allKeys == null)

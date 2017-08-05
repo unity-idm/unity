@@ -10,7 +10,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.FilePropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import pl.edu.icm.unity.MessageSource;
@@ -24,13 +23,13 @@ import pl.edu.icm.unity.types.I18nString;
 public class UnityFilePropertiesHelper extends FilePropertiesHelper
 {
 	public UnityFilePropertiesHelper(String prefix, File file, Map<String, PropertyMD> meta,
-			Logger log) throws ConfigurationException, IOException
+			Logger log) throws IOException
 	{
 		super(prefix, file, meta, log);
 	}
 
 	public UnityFilePropertiesHelper(String prefix, String file, Map<String, PropertyMD> meta,
-			Logger log) throws ConfigurationException, IOException
+			Logger log) throws IOException
 	{
 		super(prefix, file, meta, log);
 	}

@@ -259,7 +259,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 						"used to configure mapping of remote identities to the local representation."));
 
 		
-		defaults.put(ENDPOINTS, new PropertyMD().setStructuredList(true).setCategory(initEndpointsCat).
+		defaults.put(ENDPOINTS, new PropertyMD().setStructuredList(false).setCategory(initEndpointsCat).
 				setDescription("List of initially enabled endpoints"));
 		defaults.put(ENDPOINT_TYPE, new PropertyMD().setStructuredListEntry(ENDPOINTS).setMandatory().setCategory(initEndpointsCat).
 				setDescription("Endpoint type"));
@@ -283,7 +283,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put(ENDPOINT_REALM, new PropertyMD().setMandatory().setStructuredListEntry(ENDPOINTS).setCategory(initEndpointsCat).
 				setDescription("Authentication realm name, to which this endpoint belongs."));
 
-		defaults.put(AUTHENTICATORS, new PropertyMD().setStructuredList(true).setCategory(initAuthnCat).
+		defaults.put(AUTHENTICATORS, new PropertyMD().setStructuredList(false).setCategory(initAuthnCat).
 				setDescription("List of initially enabled authenticators"));
 		defaults.put(AUTHENTICATOR_NAME, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setMandatory().setCategory(initAuthnCat).
 				setDescription("Authenticator name"));
@@ -321,7 +321,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 						+ "containing only endpoints with low security requirements."));
 
 		
-		defaults.put(CREDENTIALS, new PropertyMD().setStructuredList(true).setCategory(initCredCat).
+		defaults.put(CREDENTIALS, new PropertyMD().setStructuredList(false).setCategory(initCredCat).
 				setDescription("List of initially defined credentials"));
 		defaults.put(CREDENTIAL_NAME, new PropertyMD().setStructuredListEntry(CREDENTIALS).setMandatory().setCategory(initCredCat).
 				setDescription("Credential name"));
@@ -332,7 +332,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put(CREDENTIAL_CONFIGURATION, new PropertyMD().setStructuredListEntry(CREDENTIALS).setMandatory().setCategory(initCredCat).
 				setDescription("Credential configuration file"));
 
-		defaults.put(CREDENTIAL_REQS, new PropertyMD().setStructuredList(true).setCategory(initCredReqCat).
+		defaults.put(CREDENTIAL_REQS, new PropertyMD().setStructuredList(false).setCategory(initCredReqCat).
 				setDescription("List of initially defined credential requirements"));
 		defaults.put(CREDENTIAL_REQ_NAME, new PropertyMD().setStructuredListEntry(CREDENTIAL_REQS).setMandatory().setCategory(initCredReqCat).
 				setDescription("Credential requirement name"));

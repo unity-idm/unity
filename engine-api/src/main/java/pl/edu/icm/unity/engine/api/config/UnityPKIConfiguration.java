@@ -7,7 +7,6 @@
 
 package pl.edu.icm.unity.engine.api.config;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -16,7 +15,6 @@ import org.apache.log4j.Logger;
 
 import eu.unicore.security.canl.CredentialProperties;
 import eu.unicore.security.canl.TruststoreProperties;
-import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertiesHelper;
@@ -41,7 +39,7 @@ public class UnityPKIConfiguration extends PropertiesHelper
 	public static final String CERTIFICATE_FILE = "certificateFile";
 
 	@DocumentationReferenceMeta
-	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
+	public final static Map<String, PropertyMD> defaults = new HashMap<>();
 	
 	static
 	{
@@ -62,7 +60,7 @@ public class UnityPKIConfiguration extends PropertiesHelper
 				setDescription("Certificate file path (PEM format)."));
 	}
 
-	public UnityPKIConfiguration(Properties source) throws ConfigurationException, IOException
+	public UnityPKIConfiguration(Properties source)
 	{
 		super(P, source, defaults, log);
 	}

@@ -322,7 +322,7 @@
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>securityLibrary</artifactId>
-				<version>4.4.0</version>
+				<version>4.4.1-SNAPSHOT</version>
 				<exclusions>
 					<exclusion>
 						<groupId>log4j</groupId>
