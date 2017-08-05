@@ -65,8 +65,8 @@ public class IdPEngineImpl implements IdPEngine
 
 	
 	@Autowired
-	public IdPEngineImpl(@Qualifier("insecure") AttributesManagement attributesMan, 
-			@Qualifier("insecure") EntityManagement identitiesMan,
+	public IdPEngineImpl(AttributesManagement attributesMan, 
+			EntityManagement identitiesMan,
 			@Qualifier("insecure") TranslationProfileManagement profileManagement,
 			OutputTranslationEngine translationEngine,
 			UserImportSerivce userImportService,
