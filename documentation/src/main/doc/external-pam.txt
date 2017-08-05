@@ -12,6 +12,7 @@ libraries.
 
 TODO: how to configure architecture, including a new one
 
+TODO: what properties are provided
 
 The typical authenticator's configuration will look as follows:
 

@@ -33,7 +33,7 @@ public class LibPAMUtils
 		if (unixUser.getDir() != null)
 			attributes.add(new RemoteAttribute("home", unixUser.getDir()));
 		if (unixUser.getGecos() != null)
-			attributes.add(new RemoteAttribute("gecos", unixUser.getGecos()));
+			attributes.addAll(processGecos(unixUser.getGecos()));
 		if (unixUser.getShell() != null)
 			attributes.add(new RemoteAttribute("shell", unixUser.getShell()));
 		ret.setAttributes(attributes);
@@ -44,5 +44,22 @@ public class LibPAMUtils
 		ret.setIdentities(Lists.newArrayList(new RemoteIdentity(unixUser.getUserName(),
 				UsernameIdentity.ID)));
 		return ret;
+	}
+	
+	private static List<RemoteAttribute> processGecos(String gecos)
+	{
+		List<RemoteAttribute> attributes = new ArrayList<>();
+		String[] elements = gecos.split(",");
+		if (!elements[0].isEmpty())
+			attributes.add(new RemoteAttribute("name", elements[0]));
+		if (elements.length > 1 && !elements[1].isEmpty())
+			attributes.add(new RemoteAttribute("contact", elements[1]));
+		if (elements.length > 2 && !elements[2].isEmpty())
+			attributes.add(new RemoteAttribute("home-phone", elements[2]));
+		if (elements.length > 3 && !elements[3].isEmpty())
+			attributes.add(new RemoteAttribute("work-phone", elements[3]));
+		if (elements.length > 4 && !elements[4].isEmpty())
+			attributes.add(new RemoteAttribute("other", elements[4]));
+		return attributes;
 	}
 }
