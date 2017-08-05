@@ -12,11 +12,15 @@ import java.util.Map
 import java.util.Set
 
 import pl.edu.icm.unity.exceptions.EngineException
+import pl.edu.icm.unity.stdext.attr.EnumAttribute
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax
+import pl.edu.icm.unity.types.basic.AttributeStatement
+import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution
 import pl.edu.icm.unity.types.basic.AttributeType
 import pl.edu.icm.unity.types.basic.AttributesClass
 import pl.edu.icm.unity.types.basic.Group
+import pl.edu.icm.unity.types.basic.GroupContents
 import groovy.transform.Field
 
 
@@ -95,7 +99,6 @@ void initializeAttributeClasses()
 
 void initializeAttributeTypes()
 {
-	
 	Set<AttributeType> existingATs = new HashSet<>(attributeTypeManagement.getAttributeTypes());
 	
 	Set<String> allowedRoles = new HashSet<>();
@@ -125,9 +128,30 @@ void initializeAttributeTypes()
 
 void initializeGroups()
 {
-	Group portal = new Group("/portal");
-	portal.setAttributesClasses(Collections.singleton(PORTAL_AC));
-	groupsManagement.addGroup(portal);
+	Group unicore = new Group("/unicore");
+	groupsManagement.addGroup(unicore);
+	Group servers = new Group("/unicore/servers");
+	groupsManagement.addGroup(servers);
+	Group users = new Group("/unicore/users");
+	groupsManagement.addGroup(users);
+	
+	//create attribute statement for the users group, which assigns regular UNICORE user role to all members
+	AttributeStatement everybodyStmt = AttributeStatement.getFixedEverybodyStatement(
+		EnumAttribute.of("urn:unicore:attrType:role", "/unicore/users", "user"));
+	users = groupsManagement.getContents("/unicore/users", GroupContents.METADATA).getGroup();
+	AttributeStatement[] statements = [everybodyStmt];
+	users.setAttributeStatements(statements);
+	groupsManagement.updateGroup("/unicore/users", users);
+
+	//create attribute statement for the / group, which assigns Inspector authZ role all members of the /unicore/servers group
+	AttributeStatement serversStmt = AttributeStatement.getFixedStatement(
+		EnumAttribute.of("sys:AuthorizationRole", "/", "Inspector"), null, "groups contains '/unicore/servers'");
+	serversStmt.setConflictResolution(ConflictResolution.overwrite);
+	Group root = groupsManagement.getContents("/", GroupContents.METADATA).getGroup();
+	AttributeStatement[] statements4Root = root.getAttributeStatements() + [serversStmt];
+	root.setAttributeStatements(statements4Root);
+	groupsManagement.updateGroup("/", root);
+
 }
 
 

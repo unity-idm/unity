@@ -1,6 +1,6 @@
 /*
  * Script with default initialization logic of Unity server. 
- * Basically should be alwyas used. 
+ * Basically should be always used. 
  * 
  * Sets up default authorization policy, couple of commonly useful attribute types
  * and assigns common name to the default admin user.
