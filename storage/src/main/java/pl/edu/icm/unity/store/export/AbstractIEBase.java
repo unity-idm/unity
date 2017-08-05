@@ -7,10 +7,14 @@ package pl.edu.icm.unity.store.export;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.logging.log4j.Logger;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.base.utils.Log;
 
 /**
  * Generic base code for importers and exporters.
@@ -18,6 +22,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public abstract class AbstractIEBase<T>
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, AbstractIEBase.class);
 	private int sortKey;
 	private String storeKey;
 	
@@ -93,7 +98,14 @@ public abstract class AbstractIEBase<T>
 			throws IOException
 	{
 		ObjectNode read = input.readValueAsTree();
-		return fromJsonSingle(read);
+		try
+		{
+			return fromJsonSingle(read);
+		} catch (Exception e)
+		{
+			log.error("Loading dump failed at reading JSON element: " + read);
+			throw e;
+		}
 	}
 }
 

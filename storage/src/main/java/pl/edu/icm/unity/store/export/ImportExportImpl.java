@@ -116,7 +116,7 @@ public class ImportExportImpl implements ImportExport
 		
 		for (AbstractIEBase<?> impl: implementations)
 		{
-			log.debug("Importing " + impl.getStoreKey());
+			log.info("Importing " + impl.getStoreKey());
 			JsonUtils.nextExpect(jp2, impl.getStoreKey());
 			impl.deserialize(jp2);
 		}

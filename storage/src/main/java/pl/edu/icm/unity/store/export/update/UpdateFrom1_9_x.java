@@ -367,6 +367,15 @@ public class UpdateFrom1_9_x implements Update
 			ObjectNode oNode = (ObjectNode) node;
 			oNode.put("identityTypeProvider", node.get("name").asText());
 			oNode.setAll((ObjectNode)node.get("contents"));
+			if (!oNode.has("selfModificable"))
+				oNode.put("selfModificable", false);
+			
+			if (!oNode.has("minInstances"))
+				oNode.put("minInstances", 0);
+			if (!oNode.has("minVerifiedInstances"))
+				oNode.put("minVerifiedInstances", 0);
+			if (!oNode.has("maxInstances"))
+				oNode.put("maxInstances", Integer.MAX_VALUE);
 		}
 	}
 
@@ -562,7 +571,7 @@ public class UpdateFrom1_9_x implements Update
 			ObjectNode newMember = newMembers.addObject();
 			newMember.put("group", group);
 			newMember.put("entityId", gMember.get("entity").asLong());
-			if (gMember.has("contents"))
+			if (JsonUtil.notNull(gMember, "contents"))
 			{
 				String contents64 = gMember.get("contents").asText();
 				String contents = new String(Base64.getDecoder().decode(contents64), 
