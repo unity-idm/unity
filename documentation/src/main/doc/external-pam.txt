@@ -7,12 +7,27 @@ Compatible credentials:: +password+
 PAM based authentication allows for authenticating Unity users against host Operating System PAM facility.
 PAM is supported on Linux OS, and may be available also on other UNIXes. The integration is tested on Linux.
 
-To be able to use host operating OS facilities, a proper native access library must be available among Unity 
-libraries. 
+To be able to use host operating OS facilities, native access is required, which is beyond capabilities of the 
+portable Java platform on which Unity is build. That said Unity should be able to access most popular 
+Linux platforms out of the box without any additional configuration. 
+Still we test the feature only on the Linux x86-64 platform. In case of runtime problems with native access
+(which should be pretty obvious in log file) please ask at mailing list.
 
-TODO: how to configure architecture, including a new one
 
-TODO: what properties are provided
+PAM authenticator exposes the following user attributes after successful authentication, which can be used
+by a translation profile:
+
+. +uid+ UNIX uid (number)
+. +gid+ UNIX primary gid (number)   
+. +home+ home directory path
+. +shell+ Shell path
+. +name+ 1st element of GECOS
+. +contact+ 2nd element of GECOS
+. +home-phone+ 3rd element of GECOS
+. +work-phone+ 4th element of GECOS
+. +other+ 5th element of GECOS
+
+The username is provided as always in case of Unity in the special profile's variable +id+.
 
 The typical authenticator's configuration will look as follows:
 
@@ -70,4 +85,4 @@ allowed to read the +/etc/shadow+ file. Otherwise this method won't work. E.g.:
 
 The complete PAM options reference follows:
 
-include::ref-pamProperties.txt[]
+include::ref-PAMProperties.txt[]
