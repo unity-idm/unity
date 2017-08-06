@@ -22,7 +22,7 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
  */
 public class OSImporter implements UserImportSPI
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP, OSImporter.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_PAM, OSImporter.class);
 	
 	private String idpName;
 	
@@ -36,7 +36,7 @@ public class OSImporter implements UserImportSPI
 	{
 		if (type != UsernameIdentity.ID)
 		{
-			log.warn("Can not import user of type " + type + 
+			log.debug("Can not import user of type " + type + 
 					" from local OS, only " + UsernameIdentity.ID + 
 					" is supported.");
 			return null;
