@@ -65,6 +65,7 @@ public class PasswordCredentialEditor implements CredentialEditor
 			ret.add(passwordCurrent);
 		}
 		password1 = new PasswordField(msg.getMessage("PasswordCredentialEditor.password"));
+		password1.focus();
 		password2 = new PasswordField(msg.getMessage("PasswordCredentialEditor.repeatPassword"));
 		if (required)
 		{

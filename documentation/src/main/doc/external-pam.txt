@@ -27,7 +27,8 @@ by a translation profile:
 . +work-phone+ 4th element of GECOS
 . +other+ 5th element of GECOS
 
-The username is provided as always in case of Unity in the special profile's variable +id+.
+The username is provided as always in case of Unity in the special profile's variable +id+. Similarly 
+supplementary group names are in the standard array variable +groups+
 
 The typical authenticator's configuration will look as follows:
 

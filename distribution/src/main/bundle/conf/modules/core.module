@@ -1,0 +1,39 @@
+# This configuration module enables fundamental Unity features, which are required for Unity management it and
+# access to a default user's profile. 
+
+# Most of this functionality is nearly always required, though some elements (as HomeUI) may be sometimes disabled.
+# Of course everything can be reconfigured
+
+unityServer.core.script.0.file=${CONF}/scripts/defaultContentInitializer.groovy
+unityServer.core.script.0.trigger=pre-init
+unityServer.core.script.1.file=${CONF}/scripts/confirmationsInitializer.groovy
+unityServer.core.script.1.trigger=pre-init
+
+
+unityServer.core.endpoints.adminUI.endpointType=WebAdminUI
+unityServer.core.endpoints.adminUI.endpointConfigurationFile=${CONF}/modules/core/webadmin.properties
+unityServer.core.endpoints.adminUI.contextPath=/admin
+unityServer.core.endpoints.adminUI.endpointRealm=adminRealm
+unityServer.core.endpoints.adminUI.endpointName=UNITY administration interface
+unityServer.core.endpoints.adminUI.endpointAuthenticators=pwdWeb;certWeb
+
+unityServer.core.endpoints.userHome.endpointType=UserHomeUI
+unityServer.core.endpoints.userHome.endpointConfigurationFile=${CONF}/modules/core/userhome.properties
+unityServer.core.endpoints.userHome.contextPath=/home
+unityServer.core.endpoints.userHome.endpointRealm=defaultRealm
+unityServer.core.endpoints.userHome.endpointName=UNITY user's account
+unityServer.core.endpoints.userHome.endpointAuthenticators=pwdWeb
+
+unityServer.core.endpoints.restAdmin.endpointType=RESTAdmin
+unityServer.core.endpoints.restAdmin.endpointConfigurationFile=${CONF}/authenticators/empty.json
+unityServer.core.endpoints.restAdmin.contextPath=/rest-admin
+unityServer.core.endpoints.restAdmin.endpointName=RESTful administration API
+unityServer.core.endpoints.restAdmin.endpointRealm=defaultRealm
+unityServer.core.endpoints.restAdmin.endpointAuthenticators=pwdRest
+
+unityServer.core.endpoints.wellKnown.endpointType=WellKnownLinksHandler
+unityServer.core.endpoints.wellKnown.endpointConfigurationFile=${CONF}/authenticators/empty.json
+unityServer.core.endpoints.wellKnown.contextPath=/well-known
+unityServer.core.endpoints.wellKnown.endpointName=Account service
+unityServer.core.endpoints.wellKnown.endpointRealm=defaultRealm
+unityServer.core.endpoints.wellKnown.endpointAuthenticators=pwdWeb
