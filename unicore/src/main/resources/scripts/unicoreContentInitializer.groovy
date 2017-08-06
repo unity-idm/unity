@@ -48,7 +48,7 @@ try
 	if (!existingATs.containsKey(CN_ATTR) || !existingATs.containsKey(EMAIL_ATTR) ||
 		!existingATs.containsKey(JPEG_ATTR) || !existingATs.containsKey(ORG_ATTR))
 	{
-		log.error("UNICORE demo contents can be only installed if standard types were installed " +
+		log.error("UNICORE contents can be only installed if standard types were installed " +
 			"prior to it. Attribute types cn, o, jpegPhoto and email are required.");
 		return;
 	}
@@ -142,6 +142,14 @@ void initializeGroups()
 	AttributeStatement[] statements = [everybodyStmt];
 	users.setAttributeStatements(statements);
 	groupsManagement.updateGroup("/unicore/users", users);
+
+	//create attribute statement for the servers group, which assigns UNICORE server role to all members
+	AttributeStatement serverRoleStmt = AttributeStatement.getFixedEverybodyStatement(
+		EnumAttribute.of("urn:unicore:attrType:role", "/unicore/servers", "server"));
+	servers = groupsManagement.getContents("/unicore/servers", GroupContents.METADATA).getGroup();
+	AttributeStatement[] statements4Server = [serverRoleStmt];
+	servers.setAttributeStatements(statements4Server);
+	groupsManagement.updateGroup("/unicore/servers", servers);
 
 	//create attribute statement for the / group, which assigns Inspector authZ role all members of the /unicore/servers group
 	AttributeStatement serversStmt = AttributeStatement.getFixedStatement(

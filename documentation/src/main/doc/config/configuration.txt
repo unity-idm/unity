@@ -194,16 +194,18 @@ include::../ref-storeHzProperties.txt[]
 Unity uses a centralized management of all Public Key Infrastructure (PKI) settings in a file defined in 
 the main configuration. By default the configuration file is called +pki.properties+.
 
-In the file three types of objects can be defined: PKI credentials (i.e. pairs consisting of an 
-X.509 certificate and an associated private key), truststores (sets of trusted CA certificates with many additional 
-settings as CRLs) and individual certificates of external entities.
+In the file three types of objects can be defined: 
+
+. PKI credentials (i.e. pairs consisting of an X.509 certificate and an associated private key), 
+. truststores (sets of trusted CA certificates with many additional settings as CRLs), and 
+. individual certificates of external entities.
 
 It is possible to define many objects of each type. For instance one can define two credentials: one for 
 SSL server and another one for the SAML IdP endpoint to sign issued SAML assertions.
 
 All of the artifacts are named and the names are used in other parts of the Unity configuration to refer to 
-a configure instance. The main configuration reference is presented below. The subsequent sections cover in more
-details the configuration of truststores and credentials which can be configured in many different ways. 
+a configured instance. The main configuration reference is presented below. The subsequent sections cover in more
+details the configuration of each of the three classes of artifacts. 
 
 include::../ref-pkiProperties.txt[]
 
