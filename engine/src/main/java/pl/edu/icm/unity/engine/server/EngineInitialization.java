@@ -1007,7 +1007,7 @@ public class EngineInitialization extends LifecycleBase
 
 	private void startLogConfigurationMonitoring()
 	{
-		final String logConfig = System.getProperty("log4j.configuration");
+		final String logConfig = System.getProperty("log4j.configurationFile");
 		if (logConfig == null)
 		{
 			log.warn("No log configuration file set.");
