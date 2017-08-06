@@ -6,12 +6,14 @@ package pl.edu.icm.unity.engine.scripts;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigurationException;
@@ -135,6 +137,8 @@ public class MainGroovyExecutor
 	@Qualifier("insecure")
 	private TranslationProfileManagement translationProfileManagement;
 	
+	@Autowired
+	private ApplicationContext applCtx;
 	
 	public void run(ScriptConfiguration conf, Event event)
 	{
@@ -163,7 +167,10 @@ public class MainGroovyExecutor
 	{
 		try
 		{
-			return new InputStreamReader(new FileInputStream(location));
+			InputStream is = location.startsWith("classpath:") ?
+					applCtx.getResource(location).getInputStream() :
+					new FileInputStream(location);
+			return new InputStreamReader(is);
 		} catch (IOException e)
 		{
 			throw new ConfigurationException("Error loading script " + location, e);

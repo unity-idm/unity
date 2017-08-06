@@ -56,7 +56,7 @@ import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
  * @author P.Piernik
  *
  */
-public class TokenTestBase extends DBIntegrationTestBase
+public abstract class TokenTestBase extends DBIntegrationTestBase
 {
 	protected static final String OAUTH_ENDP_CFG = "unity.oauth2.as.issuerUri=https://localhost:2443/oauth2\n"
 			+ "unity.oauth2.as.signingCredential=MAIN\n"
