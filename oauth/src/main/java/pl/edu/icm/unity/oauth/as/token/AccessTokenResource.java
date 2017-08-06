@@ -100,20 +100,21 @@ public class AccessTokenResource extends BaseOAuthResource
 	private OAuthASProperties config;
 	private TransactionalRunner tx;
 	private ClientCredentialsProcessor clientGrantProcessor;
-	private OAuthIdPEngine oauthIdpEngine;
+	private OAuthIdPEngine notAuthorizedOauthIdpEngine;
 	private OAuthRequestValidator requestValidator;
 	private EntityManagement idMan;
 
 	public AccessTokenResource(TokensManagement tokensManagement, OAuthASProperties config,
-			OAuthRequestValidator requestValidator, IdPEngine idpEngine,
+			OAuthRequestValidator requestValidator, 
+			IdPEngine idpEngineInsecure,
 			EntityManagement idMan, TransactionalRunner tx)
 	{
 		this.tokensManagement = tokensManagement;
 		this.config = config;
 		this.tx = tx;
 		this.clientGrantProcessor = new ClientCredentialsProcessor(requestValidator,
-				idpEngine, config);
-		this.oauthIdpEngine = new OAuthIdPEngine(idpEngine);
+				idpEngineInsecure, config);
+		this.notAuthorizedOauthIdpEngine = new OAuthIdPEngine(idpEngineInsecure);
 		this.requestValidator = requestValidator;
 		this.idMan = idMan;
 	}
@@ -431,7 +432,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		try
 		{
 			Map<String, AttributeExt> attributes = requestValidator
-					.getAttributes(entity);
+					.getAttributesNoAuthZ(entity);
 			AttributeExt nameA = attributes
 					.get(OAuthSystemAttributesProvider.CLIENT_NAME);
 			if (nameA != null)
@@ -531,7 +532,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		TranslationResult userInfoRes = null;
 		try
 		{
-			userInfoRes = oauthIdpEngine.getUserInfoUnsafe(ownerId,
+			userInfoRes = notAuthorizedOauthIdpEngine.getUserInfoUnsafe(ownerId,
 					String.valueOf(clientId),
 					config.getValue(OAuthASProperties.USERS_GROUP),
 					config.getValue(CommonIdPProperties.TRANSLATION_PROFILE),

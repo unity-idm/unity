@@ -6,7 +6,6 @@ package pl.edu.icm.unity.engine.idp;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.AttributesManagement;
@@ -18,19 +17,22 @@ import pl.edu.icm.unity.engine.translation.out.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationEngine;
 
 /**
- * IdP engine is responsible for performing common IdP-related functionality. It resolves the information
- * about the user being queried, applies translation profile on the data and exposes it to the endpoint 
- * requiring the data.
+ * Same as {@link IdPEngineImpl}, with a sole but very important difference: this variant 
+ * is using authorization-less attribute and identities managers, therefore allowing the user of 
+ * this class to skip authorization when resolving user information. 
+ * <p>
+ * This class in general should not be used unless in rare cases when authorization is provided
+ * by the client code. 
  * 
  * @author K. Benedyczak
  */
 @Component
-@Primary
-public class IdPEngineImpl extends IdPEngineImplBase
+@Qualifier("insecure")
+public class IdPEngineImplNoAuthz extends IdPEngineImplBase
 {
 	@Autowired
-	public IdPEngineImpl(AttributesManagement attributesMan, 
-			EntityManagement identitiesMan,
+	public IdPEngineImplNoAuthz(@Qualifier("insecure") AttributesManagement attributesMan, 
+			@Qualifier("insecure") EntityManagement identitiesMan,
 			@Qualifier("insecure") TranslationProfileManagement profileManagement,
 			OutputTranslationEngine translationEngine,
 			UserImportSerivce userImportService,

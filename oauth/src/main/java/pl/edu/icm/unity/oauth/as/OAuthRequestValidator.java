@@ -72,7 +72,7 @@ public class OAuthRequestValidator
 					+ "(not in the clients group)");
 	}
 	
-	public Map<String, AttributeExt> getAttributes(EntityParam clientEntity) throws OAuthValidationException
+	public Map<String, AttributeExt> getAttributesNoAuthZ(EntityParam clientEntity) throws OAuthValidationException
 	{
 		String oauthGroup = oauthConfig.getValue(OAuthASProperties.CLIENTS_GROUP);
 		Collection<AttributeExt> attrs;

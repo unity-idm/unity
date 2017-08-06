@@ -259,7 +259,7 @@ public class OAuthParseServlet extends HttpServlet
 		context.setClientUsername(client);
 		
 		requestValidator.validateGroupMembership(clientEntity, client);
-		Map<String, AttributeExt> attributes = requestValidator.getAttributes(clientEntity);
+		Map<String, AttributeExt> attributes = requestValidator.getAttributesNoAuthZ(clientEntity);
 		
 		AttributeExt allowedUrisA = attributes.get(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI);
 		AttributeExt nameA = attributes.get(OAuthSystemAttributesProvider.CLIENT_NAME);

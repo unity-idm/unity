@@ -68,7 +68,7 @@ public class ClientCredentialsProcessor
 		String client = loginSession.getAuthenticatedIdentities().iterator().next();
 		
 		requestValidator.validateGroupMembership(clientEntity, client);
-		Map<String, AttributeExt> attributes = requestValidator.getAttributes(clientEntity);
+		Map<String, AttributeExt> attributes = requestValidator.getAttributesNoAuthZ(clientEntity);
 		
 		Set<GrantFlow> allowedFlows = requestValidator.getAllowedFlows(attributes);
 		if (!allowedFlows.contains(GrantFlow.client))

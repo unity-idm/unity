@@ -62,7 +62,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	private OAuthASProperties config;
 	private OAuthEndpointsCoordinator coordinator;
 	private TransactionalRunner tx;
-	private IdPEngine idPEngine;
+	private IdPEngine insecureIdPEngine;
 
 	//insecure
 	private AttributesManagement attributesMan;
@@ -74,7 +74,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 			PKIManagement pkiManagement, OAuthEndpointsCoordinator coordinator, 
 			AuthenticationProcessor authnProcessor, EntityManagement identitiesMan,
 			@Qualifier("insecure") AttributesManagement attributesMan, 
-			TransactionalRunner tx, IdPEngine idPEngine)
+			TransactionalRunner tx, @Qualifier("insecure") IdPEngine idPEngine)
 	{
 		super(msg, sessionMan, authnProcessor, server, PATH);
 		this.tokensManagement = tokensMan;
@@ -83,7 +83,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		this.identitiesMan = identitiesMan;
 		this.attributesMan = attributesMan;
 		this.tx = tx;
-		this.idPEngine = idPEngine;
+		this.insecureIdPEngine = idPEngine;
 		
 	}
 	
@@ -113,7 +113,8 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		{
 			HashSet<Object> ret = new HashSet<>();
 			ret.add(new AccessTokenResource(tokensManagement, config, 
-					new OAuthRequestValidator(config, identitiesMan, attributesMan), idPEngine, identitiesMan, tx));
+					new OAuthRequestValidator(config, identitiesMan, attributesMan), 
+					insecureIdPEngine, identitiesMan, tx));
 			ret.add(new DiscoveryResource(config, coordinator));
 			ret.add(new KeysResource(config));
 			ret.add(new TokenInfoResource(tokensManagement));
