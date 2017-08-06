@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.scripts;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -11,8 +12,6 @@ import java.io.Reader;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.ApplicationContext;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigurationException;
@@ -137,9 +136,6 @@ public class MainGroovyExecutor
 	private TranslationProfileManagement translationProfileManagement;
 	
 	
-	@Autowired
-	private ApplicationContext applCtx;
-	
 	public void run(ScriptConfiguration conf, Event event)
 	{
 		if (conf == null || conf.getType() != ScriptType.groovy)
@@ -147,16 +143,27 @@ public class MainGroovyExecutor
 					"conf must not be null and must be of " + 
 							ScriptType.groovy + " type");
 		Reader scriptReader = getFileReader(conf.getFileLocation());
-		GroovyRunner.run(conf.getTrigger(), conf.getFileLocation(), scriptReader, 
+		try
+		{
+			GroovyRunner.run(conf.getTrigger(), conf.getFileLocation(), scriptReader, 
 				getBinding(event));
+		} finally
+		{
+			try
+			{
+				scriptReader.close();
+			} catch (IOException e)
+			{
+				LOG.error("Problem closing the stream used to read Groovy script", e);
+			}
+		}
 	}
 
 	private Reader getFileReader(String location)
 	{
-		Resource resource = applCtx.getResource(location);
 		try
 		{
-			return new InputStreamReader(resource.getInputStream());
+			return new InputStreamReader(new FileInputStream(location));
 		} catch (IOException e)
 		{
 			throw new ConfigurationException("Error loading script " + location, e);

@@ -48,7 +48,8 @@ public class ContentGroovyExecutorTest
 	{
 		// given
 		ScriptConfiguration conf = new ScriptConfiguration(ScriptType.groovy, 
-				EventCategory.POST_INIT.toString(), "addCredentialsTest.groovy");
+				EventCategory.POST_INIT.toString(), 
+				"src/test/resources/addCredentialsTest.groovy");
 		removeCredentialDefinitions("secured password100");
 		int initSizeOfCredentials = credMan.getCredentialDefinitions().size();
 		

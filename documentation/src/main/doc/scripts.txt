@@ -53,7 +53,8 @@ During invocation all invocations of API methods are logged to the console.
 Note however that the tool provides a mock environment to the script: all objects are the same as during regular run, 
 but all methods invoked on mocked objects return +null+ value. 
 Therefore more complicated scripts relying on data returned by the API objects can require some
-minor modifications for testing.  
+minor modifications for testing. Also note that regular logging as performed by the script (using the +log+ object)
+will be placed in the regular log file of the unity server, as it is configured in the logging configuration.
 
 Unity injects a wide range of objects which are available to the script. One of the most important is +context+
 which holds details of the event. For instance for all methodInvocation events the method name, arguments and 
