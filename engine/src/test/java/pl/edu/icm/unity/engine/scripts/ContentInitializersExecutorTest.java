@@ -58,7 +58,7 @@ public class ContentInitializersExecutorTest
 		ScriptConfiguration config = configs.get(0);
 		assertThat(config.getType(), equalTo(ScriptType.groovy));
 		assertThat(config.getTrigger(), equalTo(EventCategory.PRE_INIT.toString()));
-		assertThat(config.getFileLocation(), equalTo("unityServerContentInit.groovy"));
+		assertThat(config.getFileLocation(), equalTo("classpath:unityServerContentInit.groovy"));
 	}
 	
 	
