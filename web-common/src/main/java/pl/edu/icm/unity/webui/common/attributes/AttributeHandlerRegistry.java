@@ -20,7 +20,9 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize;
 
@@ -146,7 +148,18 @@ public class AttributeHandlerRegistry
 			throw new IllegalArgumentException("The max length must be lager then 16");
 		StringBuilder sb = new StringBuilder();
 		List<String> values = attribute.getValues();
-		AttributeValueSyntax<?> syntax = aTypeSupport.getSyntax(attribute);
+		attribute.getValueSyntax();
+		AttributeValueSyntax<?> syntax;
+		try
+		{
+			syntax = aTypeSupport.getSyntax(attribute);
+		} catch (IllegalArgumentException e)
+		{
+			// can happen for dynamic attributes from output
+			// translation profile
+			syntax = aTypeSupport.getSyntax(new AttributeType(attribute.getName(),
+					StringAttributeSyntax.ID));
+		}
 		WebAttributeHandler handler = getHandler(syntax);
 		int remainingLen = maxValuesLen;
 		final String MORE_VALS = ", ...";

@@ -120,10 +120,17 @@ public class ExposedAttributesComponent extends CustomComponent
 	private Label getAttributeComponent(DynamicAttribute dat)
 	{
 		Attribute at = dat.getAttribute();
-		AttributeType attributeType = atSupport.getType(at);
-		if (attributeType == null) // can happen for dynamic attributes from output translation profile
-			attributeType = new AttributeType(at.getName(),	StringAttributeSyntax.ID);
-
+		AttributeType attributeType = null;
+		try
+		{
+			attributeType = atSupport.getType(at);
+		} catch (IllegalArgumentException e)
+		{
+			// can happen for dynamic attributes from output
+			// translation profile
+			attributeType = new AttributeType(at.getName(), StringAttributeSyntax.ID);
+		}
+		
 		String representation = handlersRegistry.getSimplifiedAttributeRepresentation(at,
 				80, getAttributeDisplayedName(dat, attributeType));
 		Label labelRep = new Label(representation);
