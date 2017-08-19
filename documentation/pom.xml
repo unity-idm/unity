@@ -144,6 +144,10 @@
 									<filtering>true</filtering>
 								</resource>
 								<resource>
+									<directory>src/main/unicore-howto</directory>
+									<filtering>true</filtering>
+								</resource>
+								<resource>
 									<directory>src/main/rest-api</directory>
 									<filtering>true</filtering>
 								</resource>
@@ -264,6 +268,21 @@
 								<argument>-D</argument>
 								<argument>${project.reporting.outputDirectory}</argument>
 								<argument>target/workspace/rest-api-v1.txt</argument>
+							</arguments>
+						</configuration>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>asciidoctor-unicorehowto</id>
+						<phase>pre-site</phase>
+						<configuration>
+							<executable>asciidoctor</executable>
+							<arguments>
+								<argument>-D</argument>
+								<argument>${project.reporting.outputDirectory}</argument>
+								<argument>target/workspace/unicore-howto.txt</argument>
 							</arguments>
 						</configuration>
 						<goals>
