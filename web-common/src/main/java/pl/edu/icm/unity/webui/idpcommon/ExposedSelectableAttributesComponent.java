@@ -16,7 +16,6 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
-import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
@@ -159,7 +158,7 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 			Map<String, AttributeType> attributeTypes, Label hideL)
 	{
 		Attribute at = dat.getAttribute();
-		WebAttributeHandler handler = getAttributeHandlerWithStringFallback(at);
+		WebAttributeHandler handler = handlersRegistry.getHandlerWithStringFallback(at);
 		AttributeType attributeType = attributeTypes.get(at.getName());
 		if (attributeType == null) //can happen for dynamic attributes from output translation profile
 			attributeType = new AttributeType(at.getName(), StringAttributeSyntax.ID);
@@ -172,18 +171,6 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 		
 		return attributeComponent;
 	
-	}
-	
-	private WebAttributeHandler getAttributeHandlerWithStringFallback(Attribute at)
-	{
-		try
-		{
-			AttributeValueSyntax<?> syntax = aTypeSupport.getSyntax(at);
-			return handlersRegistry.getHandler(syntax);
-		} catch (IllegalArgumentException e)
-		{
-			return handlersRegistry.getHandler(new StringAttributeSyntax());
-		}
 	}
 	
 	private String getAttributeDescription(DynamicAttribute dat, AttributeType attributeType)

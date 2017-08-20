@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui.idpcommon;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.vaadin.ui.Component;
@@ -16,14 +17,12 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.webui.common.ExpandCollapseButton;
 import pl.edu.icm.unity.webui.common.ListOfElements;
-import pl.edu.icm.unity.webui.common.ListOfElements.LabelConverter;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -47,13 +46,13 @@ public class ExposedAttributesComponent extends CustomComponent
 
 	public ExposedAttributesComponent(UnityMessageSource msg, AttributeTypeSupport atSupport,
 			AttributeHandlerRegistry handlersRegistry,
-			Collection<DynamicAttribute> attributesCol) throws EngineException
+			Collection<DynamicAttribute> attributesCol)
 	{
 		this.atSupport = atSupport;
 		this.msg = msg;
 		this.handlersRegistry = handlersRegistry;
 
-		attributes = new HashMap<String, DynamicAttribute>();
+		attributes = new HashMap<>();
 		for (DynamicAttribute a : attributesCol)
 			attributes.put(a.getAttribute().getName(), a);
 		initUI();
@@ -62,12 +61,12 @@ public class ExposedAttributesComponent extends CustomComponent
 	/**
 	 * @return collection of attributes without the ones hidden by the user.
 	 */
-	public ArrayList<DynamicAttribute> getUserFilteredAttributes()
+	public List<DynamicAttribute> getUserFilteredAttributes()
 	{
-		return new ArrayList<DynamicAttribute>(attributes.values());
+		return new ArrayList<>(attributes.values());
 	}
 
-	private void initUI() throws EngineException
+	private void initUI()
 	{
 		VerticalLayout contents = new VerticalLayout();
 		contents.setSpacing(true);
@@ -96,23 +95,12 @@ public class ExposedAttributesComponent extends CustomComponent
 		setCompositionRoot(contents);
 	}
 
-	private Component getAttributesListComponent() throws EngineException
+	private Component getAttributesListComponent()
 	{
-		ListOfElements<Label> attributesList = new ListOfElements<Label>(msg,
-				new LabelConverter<Label>()
-				{
-
-					@Override
-					public Component toLabel(Label value)
-					{
-						return value;
-					}
-				});
+		ListOfElements<Label> attributesList = new ListOfElements<>(msg, label -> label);
 
 		for (DynamicAttribute dat : attributes.values())
-		{
 			attributesList.addEntry(getAttributeComponent(dat));
-		}
 		
 		return attributesList;
 	}
@@ -120,10 +108,15 @@ public class ExposedAttributesComponent extends CustomComponent
 	private Label getAttributeComponent(DynamicAttribute dat)
 	{
 		Attribute at = dat.getAttribute();
-		AttributeType attributeType = atSupport.getType(at);
-		if (attributeType == null) // can happen for dynamic attributes from output translation profile
+		AttributeType attributeType;
+		try
+		{
+			attributeType = atSupport.getType(at);
+		} catch (IllegalArgumentException e)
+		{
+			// can happen for dynamic attributes from output translation profile
 			attributeType = new AttributeType(at.getName(),	StringAttributeSyntax.ID);
-
+		}
 		String representation = handlersRegistry.getSimplifiedAttributeRepresentation(at,
 				80, getAttributeDisplayedName(dat, attributeType));
 		Label labelRep = new Label(representation);
