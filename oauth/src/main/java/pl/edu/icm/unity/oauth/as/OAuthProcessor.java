@@ -12,8 +12,11 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.bouncycastle.util.Arrays;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gwt.thirdparty.guava.common.collect.Lists;
+import com.google.gwt.thirdparty.guava.common.collect.Sets;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -26,6 +29,7 @@ import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ResponseType;
+import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.Subject;
@@ -147,7 +151,7 @@ public class OAuthProcessor
 						ctx.getRequest().impliedResponseMode());
 			}
 
-			AccessToken accessToken = new BearerAccessToken();
+			AccessToken accessToken = createAccessToken(ctx);
 			internalToken.setAccessToken(accessToken.getValue());
 			Date expiration = new Date(now.getTime() + ctx.getConfig().getAccessTokenValidity() * 1000);
 			oauthResponse = new AuthenticationSuccessResponse(
@@ -170,7 +174,7 @@ public class OAuthProcessor
 			AccessToken accessToken = null;
 			if (responseType.contains(ResponseType.Value.TOKEN))
 			{
-				accessToken = new BearerAccessToken();
+				accessToken = createAccessToken(ctx);
 				internalToken.setAccessToken(accessToken.getValue());
 				Date accessExpiration = new Date(now.getTime() + ctx.getConfig().getAccessTokenValidity() * 1000);
 				tokensMan.addToken(INTERNAL_ACCESS_TOKEN, accessToken.getValue(), 
@@ -286,5 +290,43 @@ public class OAuthProcessor
 
 		ret.sign(signer);
 		return ret;
+	}
+
+	/**
+	 * 
+	 * @param ctx
+	 * @return a properly set up access token. It contains the effective scopes if those
+	 * are different from requested.  
+	 */
+	public static AccessToken createAccessToken(OAuthAuthzContext ctx)
+	{
+		Set<String> effectiveScopes = Sets.newHashSet(ctx.getEffectiveRequestedScopesList());
+		if (!ctx.getRequestedScopes().equals(effectiveScopes))
+		{
+			return new BearerAccessToken(0, 
+					new Scope(ctx.getEffectiveRequestedScopesList()));
+			
+		} else
+		{
+			return new BearerAccessToken();
+		}
+	}
+	
+	/**
+	 * 
+	 * @param token
+	 * @return a properly set up access token. It contains the effective scopes if those
+	 * are different from requested.  
+	 */
+	public static AccessToken createAccessToken(OAuthToken token)
+	{
+		if (!Arrays.areEqual(token.getEffectiveScope(), token.getRequestedScope()))
+		{
+			return new BearerAccessToken(0, new Scope(token.getEffectiveScope()));
+			
+		} else
+		{
+			return new BearerAccessToken();
+		}
 	}
 }

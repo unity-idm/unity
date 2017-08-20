@@ -4,8 +4,11 @@
  */
 package pl.edu.icm.unity.oauth.as;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
@@ -15,11 +18,14 @@ import javax.ws.rs.core.Response;
 
 import org.junit.Test;
 
+import com.google.gwt.thirdparty.guava.common.collect.Sets;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 
 import net.minidev.json.JSONObject;
@@ -76,7 +82,7 @@ public class AccessTokenResourceTest
 	};
 	
 	@Test
-	public void userInfoFailsWithWrongClient() throws Exception
+	public void gettingAccessTokenFailsWithWrongClient() throws Exception
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
@@ -96,7 +102,7 @@ public class AccessTokenResourceTest
 	}
 	
 	@Test
-	public void userInfoFailsWithWrongRedirect() throws Exception
+	public void gettingAccessTokenFailsWithWrongRedirect() throws Exception
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
@@ -118,7 +124,7 @@ public class AccessTokenResourceTest
 	}
 	
 	@Test
-	public void userInfoFailsOnInvalidToken() throws Exception
+	public void gettingAccessTokenFailsOnInvalidToken() throws Exception
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
@@ -133,7 +139,7 @@ public class AccessTokenResourceTest
 	}
 	
 	@Test
-	public void userInfoWorksWithValidToken() throws Exception
+	public void accessTokenIsReturnedWithValidCodeWithOIDC() throws Exception
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
@@ -158,7 +164,34 @@ public class AccessTokenResourceTest
 		assertEquals("userA", idToken.getSubject());
 		assertTrue(idToken.getAudience().contains("clientC"));
 		assertEquals(OAuthTestUtils.ISSUER, idToken.getIssuer());
+	}
+	
+	@Test
+	public void accessTokenIsReturnedWithEffectiveScopesIfAreOtherThenRequested() throws Exception
+	{
+		TokensManagement tokensManagement = new MockTokensMan();
+		OAuthASProperties config = OAuthTestUtils.getConfig();
+		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, null, tx);
+		setupInvocationContext(100);
+		OAuthAuthzContext ctx = OAuthTestUtils.createContext(config, 
+				new ResponseType(ResponseType.Value.CODE),
+				GrantFlow.authorizationCode, 100);
+		ctx.setRequestedScopes(Sets.newHashSet("sc1", "scMissing"));
 		
+		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(
+				tokensManagement, ctx);
+		
+		Response resp = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
+				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", null, null, null, null, null);
+
+		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
+		httpResp.setContent(resp.getEntity().toString());
+		httpResp.setContentType("application/json");
+		AccessTokenResponse parsed = AccessTokenResponse.parse(httpResp);
+		AccessToken accessToken = parsed.getTokens().getAccessToken();
+		assertThat(accessToken.getScope(), is(notNullValue()));
+		assertThat(accessToken.getScope().contains("sc1"), is(true));
+		assertThat(accessToken.getScope().size(), is(1));
 	}
 	
 	@Test

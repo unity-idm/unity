@@ -61,7 +61,7 @@ public class ClientCredentialsProcessor
 	 * @param scope
 	 * @throws OAuthValidationException
 	 */
-	public OAuthToken processClientFlowRequest(String accessToken, String scope) throws OAuthValidationException
+	public OAuthToken processClientFlowRequest(String scope) throws OAuthValidationException
 	{
 		LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
 		EntityParam clientEntity = new EntityParam(loginSession.getEntityId());
@@ -76,7 +76,6 @@ public class ClientCredentialsProcessor
 					"' is not authorized to use the '" + GrantFlow.client + "' grant flow.");
 		
 		OAuthToken internalToken = new OAuthToken();
-		internalToken.setAccessToken(accessToken);
 		Set<String> requestedAttributes = establishFlowsAndAttributes(internalToken, scope);
 		
 		internalToken.setClientId(loginSession.getEntityId());

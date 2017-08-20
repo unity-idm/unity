@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.oauth.as;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -28,6 +29,7 @@ import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.UserInfoRequest;
@@ -117,7 +119,7 @@ public class TokenEndpointTest extends TokenTestBase
 	}
 
 	@Test
-	public void testClientCredentialFlow() throws Exception
+	public void accessTokenIsReturnedWithClientCredentialFlow() throws Exception
 	{
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
@@ -140,4 +142,24 @@ public class TokenEndpointTest extends TokenTestBase
 		assertNotNull(parsed.get("exp"));
 	}
 	
+	@Test
+	public void effectiveScopesAreReturnedWhenDifferentFromRequestedInClientCredentialsFlow() throws Exception
+	{
+		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
+				new Secret("clientPass"));
+		TokenRequest request = new TokenRequest(
+				new URI("https://localhost:52443/oauth/token"), ca,
+				new ClientCredentialsGrant(), new Scope("foo", "missing"));
+		HTTPRequest bare = request.toHTTPRequest();
+		HTTPRequest wrapped = new CustomHTTPSRequest(bare, pkiMan.getValidator("MAIN"),
+				ServerHostnameCheckingMode.NONE);
+
+		HTTPResponse resp2 = wrapped.send();
+
+		AccessTokenResponse parsedResp = AccessTokenResponse.parse(resp2);
+		AccessToken accessToken = parsedResp.getTokens().getAccessToken();
+		assertThat(accessToken.getScope(), is(notNullValue()));
+		assertThat(accessToken.getScope().contains("foo"), is(true));
+		assertThat(accessToken.getScope().size(), is(1));
+	}
 }

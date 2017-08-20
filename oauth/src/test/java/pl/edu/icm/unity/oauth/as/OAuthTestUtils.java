@@ -103,7 +103,8 @@ public class OAuthTestUtils
 		return ctx;
 	}
 	
-	public static OAuthAuthzContext createContext(OAuthASProperties config, ResponseType respType, GrantFlow grant, 
+	public static OAuthAuthzContext createContext(OAuthASProperties config, 
+			ResponseType respType, GrantFlow grant, 
 			long clientEntityId) throws Exception
 	{
 		AuthenticationRequest request = new AuthenticationRequest(null, respType, new Scope("openid"),

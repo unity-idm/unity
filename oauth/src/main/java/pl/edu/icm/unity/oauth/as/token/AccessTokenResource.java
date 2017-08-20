@@ -36,7 +36,6 @@ import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
-import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.oauth2.sdk.token.Tokens;
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
@@ -281,7 +280,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		}
 
 		Date now = new Date();
-		AccessToken accessToken = new BearerAccessToken();
+		AccessToken accessToken = OAuthProcessor.createAccessToken(newToken);
 		newToken.setAccessToken(accessToken.getValue());
 		
 		RefreshToken refreshToken = addRefreshToken(now, newToken, subToken.getOwner());
@@ -344,7 +343,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		Date now = new Date();
 		Date accessExpiration = getAccessTokenExpiration(now);
 
-		AccessToken accessToken = new BearerAccessToken();
+		AccessToken accessToken = OAuthProcessor.createAccessToken(newToken);
 		newToken.setAccessToken(accessToken.getValue());
 
 		AccessTokenResponse oauthResponse = getAccessTokenResponse(newToken, accessToken,
@@ -362,17 +361,18 @@ public class AccessTokenResource extends BaseOAuthResource
 			throws EngineException, JsonProcessingException
 	{
 		Date now = new Date();
-		AccessToken accessToken = new BearerAccessToken();
 		OAuthToken internalToken;
 		try
 		{
-			internalToken = clientGrantProcessor
-					.processClientFlowRequest(accessToken.getValue(), scope);
+			internalToken = clientGrantProcessor.processClientFlowRequest(scope);
 		} catch (OAuthValidationException e)
 		{
 			return makeError(OAuth2Error.INVALID_REQUEST, e.getMessage());
 		}
 
+		AccessToken accessToken = OAuthProcessor.createAccessToken(internalToken);
+		internalToken.setAccessToken(accessToken.getValue());
+		
 		Date expiration = getAccessTokenExpiration(now);
 
 		AccessTokenResponse oauthResponse = new AccessTokenResponse(
@@ -411,7 +411,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		}
 
 		OAuthToken internalToken = new OAuthToken(parsedAuthzCodeToken);
-		AccessToken accessToken = new BearerAccessToken();
+		AccessToken accessToken = OAuthProcessor.createAccessToken(internalToken);
 		internalToken.setAccessToken(accessToken.getValue());
 
 		Date now = new Date();

@@ -36,7 +36,7 @@ public class OAuthAuthzContext
 	private Attribute clientLogo;
 	private String translationProfile;
 	private String usersGroup;
-	private Set<ScopeInfo> effectiveRequestedScopes = new HashSet<OAuthAuthzContext.ScopeInfo>();
+	private Set<ScopeInfo> effectiveRequestedScopes = new HashSet<>();
 	private Set<String> requestedScopes = new HashSet<>();
 	private Set<String> effectiveRequestedAttrs = new HashSet<>();
 	private GrantFlow flow;
