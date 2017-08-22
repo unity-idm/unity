@@ -1,14 +1,14 @@
 [id=configuration]
 == General server configuration
 
-The server uses two main configuration files: +conf/unityServer.conf+ and +conf/log4j.properties+. 
+The server uses two main configuration files: +conf/unityServer.conf+ and +conf/log4j2.xml+. 
 There is also a third one, +conf/startup.properties+, which allows for controlling low level Java VM options
 (as memory or JVM executable) and for changing the location of the main configuration files mentioned above. 
 
-The +conf/log4j.properties+ file configures the logging of the server. This is described in the section <<logging>>.
+The +conf/log4j2.xml+ file configures the logging of the server. This is described in the section <<logging>>.
 
 The +conf/unityServer.conf+ file is the main server configuration file. All other additional configuration
-files are defined in it.
+files are referenced from it.
 
 Configuration files are loaded at startup. Most of the files (all except of the logging and mail settings) are
 quite strictly verified - in case of misconfiguration, syntax errors, or spelling mistakes server prints a loud
@@ -16,7 +16,7 @@ error message in log file and (if the error is critical) does not start.
 
 Configuration updates at runtime are handled as follows:
 
- * +conf/log4j.properties+ file is automatically reloaded after it is modified (with few seconds latency). 
+ * +conf/log4j2.xml+ file is automatically reloaded after it is modified (with few seconds latency). 
  It is recorded in the log file.
  * No other file is automatically reloaded after modification. However,
  * configuration of authenticators and endpoints can be reloaded from the Web Admin UI 
@@ -49,9 +49,34 @@ of the configuration:
 endpoints and translation profiles. Note that the credentials, credential requirements and translation profiles 
 can be also managed more conveniently with the Web Admin UI.
 The configuration of authenticators and endpoints is described in the subsection <<cfg-authenticators>>
-and the translation profiles are covered in <<external-idps>>. 
+and the translation profiles are covered in <<external-idps>>.
+ * Finally Unity configuration can contain so called _modules_. Configuration modules are simply a complete 
+fragments of related configuration, which can be enabled with a single statement. A few, ready to
+use, modules are available in the +conf/modules+ directory. You can also create new ones to maintain clarity in
+the customized configuration. An example candidate for a configuration module is a configuration of 
+a SAML endpoint, exposing IdP functionality with all related authenticators.    
 
-The general options reference table follows:
+All Unity configuration files using properties format (with one exception of the +conf/mail.properties+ file) allows
+for using includes and variables. Includes are used to implement configuration modules and can be also used to split 
+longer configuration files into smaller pieces. The syntax of the include statement is:
+
+ $include.NAME=included/file/path
+
+where NAME is an arbitrary, unique identifier of the include.
+
+Variables allows for reusing configuration values. Variable is referenced in property value as follows:
+
+ some.property=${VAR1}
+ 
+All environment variables and Java system properties are available as configuration variables. What is more, 
+custom variables can be defined as follows in the configuration file itself:
+
+ $var.VAR_NAME=Variable value
+
+Note that such defined variables are _available only_ in the file in which they were defined and in all 
+files included from it with the +$include+ statement.
+
+A complete options reference follows:
 
 include::../ref-mainServerProperties.txt[]
 

@@ -298,9 +298,9 @@ form can be prefilled with the information retrieved from the remote IdP.
 
 Creation of a translation profile is a complex task as is fully dependent on precise data provided by the remote IdP.
 It is a good practice to create a simple (even empty) translation profile, perform all the subsequent SAML 
-integration tasks and then experiment. By setting the following logging level in the +log4j.properties+:
+integration tasks and then experiment. By setting the following logging level in the +log4j2.xml+:
 
- log4j.logger.unity.server.externaltranslation=DEBUG
+ <Logger name="unity.server.externaltranslation" level="DEBUG"/>
 
 Unity will present a detailed information on what was received from the remote IdP and on all 
 operations performed by the translation profile.

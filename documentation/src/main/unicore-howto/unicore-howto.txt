@@ -112,7 +112,7 @@ Make sure to restart the server.
 
 == Configuring UNICORE to use Unity
 
-In order to configure UNICORE quickstart distribution to use Unity te following steps should be performed:
+In order to configure UNICORE quickstart distribution to use Unity the following steps should be performed:
 
 . *Installation pre-configuration* -- When configuring UNICORE installation in the +configure.properties+ file,
 make sure to set the +xuudb+ and +installdemocerts+ properties to +false+. Everything else including UNICORE 
