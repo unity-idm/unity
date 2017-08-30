@@ -39,7 +39,10 @@ try
 		return;
 	}
 
-	addDemoServer();
+	addDemoServer("CN=Demo UNICORE/X,O=UNICORE,C=EU", "Demo UNICORE/X");
+	addDemoServer("CN=Demo Registry,O=UNICORE,C=EU", "Demo UNICORE Registry");
+	addDemoServer("CN=Demo Servorch,O=UNICORE,C=EU", "Demo UNICORE Servorch");
+	addDemoServer("CN=Demo Workflow,O=UNICORE,C=EU", "Demo UNICORE Workflow");
 
 } catch (Exception e)
 {
@@ -48,16 +51,16 @@ try
 }
 
 
-void addDemoServer()
+void addDemoServer(String dn, String cn)
 {
-	IdentityParam unicoreClient = new IdentityParam(X500Identity.ID, "CN=Demo UNICORE/X,O=UNICORE,C=EU");
+	IdentityParam unicoreClient = new IdentityParam(X500Identity.ID, dn);
 	Identity unicoreClientA = entityManagement.addEntity(unicoreClient, "Certificate",
 			EntityState.valid, false);
-	log.warn("DEMO UNICORE client user was created using the demo (insecure, publicly known) certificate identity");
+	log.warn("DEMO UNICORE client with DN {} was created using the demo (insecure, publicly known) certificate identity", dn);
 	EntityParam demoServer = new EntityParam(unicoreClientA.getEntityId());
 	groupsManagement.addMemberFromParent("/unicore", demoServer);
 	groupsManagement.addMemberFromParent("/unicore/servers", demoServer);
 	
-	Attribute cnA = StringAttribute.of(CN_ATTR, "/", "Demo UNICORE/X");
+	Attribute cnA = StringAttribute.of(CN_ATTR, "/", cn);
 	attributesManagement.setAttribute(demoServer, cnA, false);
 }

@@ -135,21 +135,16 @@ void initializeGroups()
 	Group users = new Group("/unicore/users");
 	groupsManagement.addGroup(users);
 	
-	//create attribute statement for the users group, which assigns regular UNICORE user role to all members
-	AttributeStatement everybodyStmt = AttributeStatement.getFixedEverybodyStatement(
-		EnumAttribute.of("urn:unicore:attrType:role", "/unicore/users", "user"));
-	users = groupsManagement.getContents("/unicore/users", GroupContents.METADATA).getGroup();
-	AttributeStatement[] statements = [everybodyStmt];
-	users.setAttributeStatements(statements);
-	groupsManagement.updateGroup("/unicore/users", users);
+	//create attribute statement for the /unicore group, which assigns proper UNICORE role basing on the subgroups membership
+	AttributeStatement usersStmt = AttributeStatement.getFixedStatement(
+		EnumAttribute.of("urn:unicore:attrType:role", "/unicore", "user"), null, "groups contains '/unicore/users'");
+	AttributeStatement serverRoleStmt = AttributeStatement.getFixedStatement(
+		EnumAttribute.of("urn:unicore:attrType:role", "/unicore", "server"), null, "groups contains '/unicore/servers'");
 
-	//create attribute statement for the servers group, which assigns UNICORE server role to all members
-	AttributeStatement serverRoleStmt = AttributeStatement.getFixedEverybodyStatement(
-		EnumAttribute.of("urn:unicore:attrType:role", "/unicore/servers", "server"));
-	servers = groupsManagement.getContents("/unicore/servers", GroupContents.METADATA).getGroup();
-	AttributeStatement[] statements4Server = [serverRoleStmt];
-	servers.setAttributeStatements(statements4Server);
-	groupsManagement.updateGroup("/unicore/servers", servers);
+	unicore = groupsManagement.getContents("/unicore", GroupContents.METADATA).getGroup();
+	AttributeStatement[] statements4Unicore = [usersStmt, serverRoleStmt];
+	unicore.setAttributeStatements(statements4Unicore);
+	groupsManagement.updateGroup("/unicore", unicore);
 
 	//create attribute statement for the / group, which assigns Inspector authZ role all members of the /unicore/servers group
 	AttributeStatement serversStmt = AttributeStatement.getFixedStatement(
