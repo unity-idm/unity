@@ -237,6 +237,8 @@
 							<arguments>
 								<argument>-D</argument>
 								<argument>${project.reporting.outputDirectory}</argument>
+								<argument>-a</argument>
+								<argument>revnumber=${project.version}@</argument>
 								<argument>target/workspace/manual.txt</argument>
 							</arguments>
 						</configuration>

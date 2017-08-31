@@ -63,6 +63,7 @@
 		<module>pam</module>
 		<module>integration-tests</module>
 		<module>distribution</module>
+		<module>documentation</module>
 	</modules>
 
 	<developers>
@@ -322,7 +323,7 @@
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>securityLibrary</artifactId>
-				<version>4.4.1-SNAPSHOT</version>
+				<version>4.5.0</version>
 				<exclusions>
 					<exclusion>
 						<groupId>log4j</groupId>

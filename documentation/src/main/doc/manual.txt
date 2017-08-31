@@ -1,7 +1,8 @@
 Unity Manual
 ============
 Unity Team <unity-idm-discuss@lists.sourceforge.net>
-:revnumber: 2.2.0
+//Set to override automated version, which is the project version
+//:revnumber: 9.9.9-FIXED
 :numbered:
 :toc: left
 :linkcss:
