@@ -25,7 +25,7 @@
           },
           "action" : {
             "name" : "mapAttribute",
-            "parameters" : [ "urn:unicore:attrType:xlogin", "/unicore/users", "id", "CREATE_OR_UPDATE" ]
+            "parameters" : [ "urn:unicore:attrType:xlogin", "/unicore", "id", "CREATE_OR_UPDATE" ]
           }
         }, {
           "condition" : {
