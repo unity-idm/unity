@@ -46,11 +46,11 @@ public class LibPAMUtils
 		return ret;
 	}
 	
-	private static List<RemoteAttribute> processGecos(String gecos)
+	static List<RemoteAttribute> processGecos(String gecos)
 	{
 		List<RemoteAttribute> attributes = new ArrayList<>();
 		String[] elements = gecos.split(",");
-		if (!elements[0].isEmpty())
+		if (elements.length > 0 && !elements[0].isEmpty())
 			attributes.add(new RemoteAttribute("name", elements[0]));
 		if (elements.length > 1 && !elements[1].isEmpty())
 			attributes.add(new RemoteAttribute("contact", elements[1]));
