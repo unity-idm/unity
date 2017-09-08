@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.notifications;
 import java.util.concurrent.Future;
 
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
+import pl.edu.icm.unity.types.basic.MessageTemplate.Message;
 
 /**
  * Configured instance of {@link NotificationFacility} able to send notifications.
@@ -25,5 +26,5 @@ public interface NotificationChannelInstance
 	 * @param message
 	 * @param msgSubject message subject. Note that in case of some channels it may be ignored.
 	 */
-	public Future<NotificationStatus> sendNotification(String recipientAddress, String msgSubject, String message);
+	public Future<NotificationStatus> sendNotification(String recipientAddress, Message message);
 }

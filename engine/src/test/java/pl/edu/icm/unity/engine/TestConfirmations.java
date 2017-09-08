@@ -52,6 +52,7 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
+import pl.edu.icm.unity.types.basic.MessageType;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
@@ -778,7 +779,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 		I18nMessage message = new I18nMessage(new I18nString("test"), new I18nString(
 				"test ${" + ConfirmationTemplateDef.CONFIRMATION_LINK + "}"));
 		templateMan.addTemplate(new MessageTemplate(templateName, "demo", message,
-				ConfirmationTemplateDef.NAME));
+				ConfirmationTemplateDef.NAME, MessageType.PLAIN));
 		
 		notMan.addNotificationChannel(NotificationChannelBuilder.notificationChannel()
 				.withName(channelName)
@@ -822,7 +823,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 	private VerifiableElement getFirstEmailIdentityFromRegistration() throws EngineException
 	{
 		RegistrationRequestState state = registrationsMan.getRegistrationRequests().get(0);
-		return (VerifiableElement) state.getRequest().getIdentities().get(0);
+		return state.getRequest().getIdentities().get(0);
 	}
 	
 	private RegistrationFormBuilder getFormBuilder()

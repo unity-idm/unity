@@ -16,13 +16,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.msgtemplates.confirm.ConfirmationTemplateDef;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.generic.ConfirmationConfigurationDB;
-import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.api.generic.MessageTemplateDB;
+import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
+import pl.edu.icm.unity.types.basic.MessageType;
 import pl.edu.icm.unity.types.confirmation.ConfirmationConfiguration;
 
 public class ConfirmationConfigurationTest extends AbstractNamedWithTSTest<ConfirmationConfiguration>
@@ -83,7 +84,7 @@ public class ConfirmationConfigurationTest extends AbstractNamedWithTSTest<Confi
 		tx.runInTransaction(() -> {
 			MessageTemplate msgT = new MessageTemplate("msgTemplate", "description",
 					new I18nMessage(new I18nString("s"), new I18nString("b")),
-					"consumer");
+					"consumer", MessageType.PLAIN);
 			msgTmplDAO.create(msgT);
 			
 			ConfirmationConfiguration obj = getObject("name1");
@@ -101,7 +102,7 @@ public class ConfirmationConfigurationTest extends AbstractNamedWithTSTest<Confi
 		tx.runInTransaction(() -> {
 			MessageTemplate msgT = new MessageTemplate("msgTemplate", "description",
 					new I18nMessage(new I18nString("s"), new I18nString("b")),
-					ConfirmationTemplateDef.NAME);
+					ConfirmationTemplateDef.NAME, MessageType.PLAIN);
 			msgTmplDAO.create(msgT);
 			
 			ConfirmationConfiguration obj = getObject("name1");
@@ -109,7 +110,7 @@ public class ConfirmationConfigurationTest extends AbstractNamedWithTSTest<Confi
 
 			MessageTemplate msgT2 = new MessageTemplate("msgTemplate", "description",
 					new I18nMessage(new I18nString("s"), new I18nString("b")),
-					"consumer2");
+					"consumer2", MessageType.PLAIN);
 			catchException(msgTmplDAO).updateByName("msgTemplate", msgT2);
 			
 			assertThat(caughtException(), isA(IllegalArgumentException.class));

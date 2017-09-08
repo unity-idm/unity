@@ -30,6 +30,7 @@ import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateValidator.IllegalVaria
 import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateValidator.MandatoryVariablesException;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
+import pl.edu.icm.unity.types.basic.MessageType;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -172,7 +173,9 @@ public class MessageTemplateEditor extends CompactFormLayout
 		String desc = description.getValue();
 		String cons = getConsumer().getName();
 		I18nMessage ms = new I18nMessage(subject.getValue(), body.getValue());
-		return new MessageTemplate(n, desc, ms, cons);
+		
+		// TODO: MessageType needs to configurable from UI
+		return new MessageTemplate(n, desc, ms, cons, MessageType.PLAIN); 
 	}
 
 	private void setMessageConsumerDesc()

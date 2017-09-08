@@ -117,7 +117,7 @@ public class NotificationProducerImpl implements NotificationProducer, InternalF
 		recipientAddress = facility.getAddressForEntity(recipient, preferredAddress);
 		txManager.commit();
 		Message templateMsg = template.getMessage(locale, msg.getDefaultLocaleCode(), params);
-		return channel.sendNotification(recipientAddress, templateMsg.getSubject(), templateMsg.getBody());
+		return channel.sendNotification(recipientAddress, templateMsg);
 	}
 	
 	@Override
@@ -130,8 +130,6 @@ public class NotificationProducerImpl implements NotificationProducer, InternalF
 
 		MessageTemplate template = mtDB.get(templateId);
 		Message templateMsg = template.getMessage(locale, msg.getDefaultLocaleCode(), params);
-		String subject = templateMsg.getSubject();
-		String body = templateMsg.getBody();
 
 		List<GroupMembership> memberships = dbGroups.getMembers(group);
 
@@ -144,7 +142,7 @@ public class NotificationProducerImpl implements NotificationProducer, InternalF
 			{
 				String recipientAddress = facility.getAddressForEntity(
 						new EntityParam(membership.getEntityId()), null);
-				channel.sendNotification(recipientAddress, subject, body);
+				channel.sendNotification(recipientAddress, templateMsg);
 			} catch (IllegalIdentityValueException e)
 			{
 				//OK - ignored
@@ -164,7 +162,7 @@ public class NotificationProducerImpl implements NotificationProducer, InternalF
 		template = mtDB.get(templateId);
 		txManager.commit();
 		Message templateMsg = template.getMessage(locale, msg.getDefaultLocaleCode(), params);
-		return channel.sendNotification(recipientAddress, templateMsg.getSubject(), templateMsg.getBody());
+		return channel.sendNotification(recipientAddress, templateMsg);
 	}
 
 	

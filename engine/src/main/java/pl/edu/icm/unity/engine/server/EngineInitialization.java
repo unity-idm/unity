@@ -109,6 +109,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
+import pl.edu.icm.unity.types.basic.MessageType;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -461,12 +462,22 @@ public class EngineInitialization extends LifecycleBase
 		String subject = properties.getProperty(id+".subject");
 		String consumer = properties.getProperty(id+".consumer", "");
 		String description = properties.getProperty(id+".description", "");
+		String typeStr = properties.getProperty(id+".type", MessageType.PLAIN.name());
 		
 		if (body == null || subject == null)
 			throw new WrongArgumentException("There is no template for this id");
+		MessageType type;
+		try
+		{
+			type = MessageType.valueOf(typeStr);
+		} catch (Exception e)
+		{
+			throw new WrongArgumentException("Invalid type value: " + typeStr + ", "
+					+ "supported values are: " + MessageType.values(), e);
+		}
 		
 		I18nMessage tempMsg = new I18nMessage(new I18nString(subject), new I18nString(body));
-		return new MessageTemplate(id, description, tempMsg, consumer);
+		return new MessageTemplate(id, description, tempMsg, consumer, type);
 	}
 	
 	private void initializeIdentityTypes()
