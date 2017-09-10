@@ -22,6 +22,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.translation.in.EntityChange;
 import pl.edu.icm.unity.engine.api.translation.in.GroupEffectMode;
 import pl.edu.icm.unity.engine.api.translation.in.IdentityEffectMode;
@@ -30,6 +31,7 @@ import pl.edu.icm.unity.engine.api.translation.in.MappedAttribute;
 import pl.edu.icm.unity.engine.api.translation.in.MappedGroup;
 import pl.edu.icm.unity.engine.api.translation.in.MappedIdentity;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
+import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.translation.ExecutionBreakException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -55,15 +57,18 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 	private EntityManagement idsMan;
 	private AttributesManagement attrMan;
 	private GroupsManagement groupsMan;
+	private AttributeTypeHelper attrTypeHelper;
 	
 	@Autowired
 	public InputTranslationEngineImpl(@Qualifier("insecure") EntityManagement idsMan, 
 			@Qualifier("insecure") AttributesManagement attrMan,
-			@Qualifier("insecure") GroupsManagement groupsMan)
+			@Qualifier("insecure") GroupsManagement groupsMan,
+			AttributeTypeHelper attrTypeHelper)
 	{
 		this.idsMan = idsMan;
 		this.attrMan = attrMan;
 		this.groupsMan = groupsMan;
+		this.attrTypeHelper = attrTypeHelper;
 	}
 
 	
@@ -463,21 +468,22 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 	
 	private void processAttributes(MappingResult result, EntityParam principal) throws EngineException
 	{
-		Set<String> existingANames = new HashSet<>();
+		Map<String, AttributeExt> existingAttributes = new HashMap<>();
 		Collection<AttributeExt> existingAttrs = attrMan.getAllAttributes(principal, 
 				false, null, null, false);
 		for (AttributeExt a: existingAttrs)
-			existingANames.add(a.getGroupPath()+"///" + a.getName());
+			existingAttributes.put(a.getGroupPath()+"///" + a.getName(), a);
 
 		List<MappedAttribute> attrs = result.getAttributes();
 		
 		for (MappedAttribute attr: attrs)
 		{
 			Attribute att = attr.getAttribute();
+			AttributeExt existing = existingAttributes.get(att.getGroupPath()+"///"+att.getName());
 			switch (attr.getMode())
 			{
 			case CREATE_ONLY:
-				if (!existingANames.contains(att.getGroupPath()+"///"+att.getName()))
+				if (existing == null)
 				{
 					log.info("Creating attribute " + att);
 					attrMan.setAttribute(principal, att, false);					
@@ -487,14 +493,12 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 				}
 				break;
 			case CREATE_OR_UPDATE:
-				log.info("Updating attribute " + att);
-				attrMan.setAttribute(principal, att, true);
+				updateExistingAttribute(att, principal, existing);
 				break;
 			case UPDATE_ONLY:
-				if (existingANames.contains(att.getGroupPath()+"///"+att.getName()))
+				if (existing != null)
 				{
-					log.info("Updating attribute " + att);
-					attrMan.setAttribute(principal, att, true);					
+					updateExistingAttribute(att, principal, existing);					
 				} else
 				{
 					log.debug("Skipping attribute to be updated as there is no one defined: " + att);
@@ -505,6 +509,34 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 		
 		if (result.isCleanStaleAttributes())
 			removeStaleAttributes(result, existingAttrs, principal);
+	}
+	
+	private void updateExistingAttribute(Attribute att, EntityParam principal, AttributeExt existing) 
+			throws EngineException
+	{
+		if (existing != null && attributesEqual(att, existing))
+		{
+			log.info("Attribute {} is present in DB, skiping update", att);
+			return;
+		}
+		log.info("Updating attribute {}", att);
+		attrMan.setAttribute(principal, att, true);
+	}
+	
+	private boolean attributesEqual(Attribute attribute, AttributeExt fromDB)
+	{
+		if (!attribute.getValueSyntax().equals(fromDB.getValueSyntax()))
+			return false;
+		List<String> values = attribute.getValues();
+		if (values.size() != fromDB.getValues().size())
+			return false;
+		AttributeValueSyntax<?> attrSyntax = attrTypeHelper.getUnconfiguredSyntax(
+				attribute.getValueSyntax());
+		
+		for (int i=0; i<values.size(); i++)
+			if (!attrSyntax.areEqualStringValue(values.get(i), fromDB.getValues().get(i)))
+				return false;
+		return true;
 	}
 	
 	private void removeStaleAttributes(MappingResult result, Collection<AttributeExt> existingAttrs,
