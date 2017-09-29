@@ -28,6 +28,7 @@ public class MessageTemplateViewer extends MessageTemplateViewerBase
 		this.registry = registry;
 	}
 
+	@Override
 	protected void initUI()
 	{	
 		main.setMargin(true);
@@ -53,7 +54,7 @@ public class MessageTemplateViewer extends MessageTemplateViewerBase
 			main.setVisible(false);	
 			return;
 		}
-		setInput(template.getName(), template.getMessage().getSubject(), template.getMessage().getBody());	
+		setInput(template);	
 		description.setValue(template.getDescription());
 		String cons = template.getConsumer();
 		if (cons != null)

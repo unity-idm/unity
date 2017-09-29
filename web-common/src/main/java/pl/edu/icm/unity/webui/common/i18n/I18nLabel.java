@@ -23,25 +23,27 @@ import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 
 /**
- * Shows {@link I18nString} in read only mode. Implemented as Custom field for convenience. 
+ * Shows {@link I18nString} in read only mode. Implemented as Custom field for
+ * convenience.
  * <p>
- * IMPORTANT! This class is using {@link HtmlConfigurableLabel} underneath, so use with caution.
+ * IMPORTANT! This class is using {@link HtmlConfigurableLabel} underneath, so
+ * use with caution.
+ * 
  * @author K. Benedyczak
  */
 public class I18nLabel extends CustomField<I18nString>
 {
 	private static final int MAX_LINE = 80;
+
+	private UnityMessageSource msg;
 	
-	private String defaultLocaleCode;
-	private Map<String, Locale> enabledLocales;
 	private HtmlConfigurableLabel defaultTf;
-	private Map<String, HPairLayout> translationTFs = new HashMap<String, HPairLayout>();
+	private Map<String, HPairLayout> translationTFs = new HashMap<>();
 	private VerticalLayout main;
-	
+
 	public I18nLabel(UnityMessageSource msg)
 	{
-		this.enabledLocales = new HashMap<String, Locale>(msg.getEnabledLocales());
-		this.defaultLocaleCode = msg.getDefaultLocaleCode();
+		this.msg = msg;
 		initUI();
 	}
 
@@ -50,39 +52,31 @@ public class I18nLabel extends CustomField<I18nString>
 		this(msg);
 		setCaption(caption);
 	}
-	
+
 	private void initUI()
 	{
-		HPairLayout defL = new HPairLayout();
-		defaultTf = new HtmlConfigurableLabel();
-		Resource defStyle = Images.getFlagForLocale(defaultLocaleCode);
-		if (defStyle != null)
-			defL.addImage(defStyle);
-		defL.addLabel(defaultTf);
-		
 		VerticalLayout main = new VerticalLayout();
-		main.addComponent(defL);
-
-		for (Map.Entry<String, Locale> locE: enabledLocales.entrySet())
-		{
-			String localeKey = locE.getValue().toString();
-			if (defaultLocaleCode.equals(localeKey))
-				continue;
-
-			HPairLayout pair = new HPairLayout();
-			HtmlConfigurableLabel tf = new HtmlConfigurableLabel();
-			pair.addLabel(tf);
-			Resource image = Images.getFlagForLocale(localeKey);
-			if (image != null)
-				pair.addImage(image);
-			translationTFs.put(locE.getValue().toString(), pair);
-			
-			main.addComponent(pair);
-		}
+		String defaultLocale = msg.getDefaultLocaleCode();
+		msg.getEnabledLocales().values().stream()
+			.map(Locale::toString)
+			.forEach(localeKey -> 
+			{
+				HPairLayout pair = new HPairLayout();
+				HtmlConfigurableLabel tf = new HtmlConfigurableLabel();
+				pair.addLabel(tf);
+				Resource image = Images.getFlagForLocale(localeKey);
+				if (image != null)
+					pair.addImage(image);
+				main.addComponent(pair);
+				
+				if (defaultLocale.equals(localeKey))
+					defaultTf = tf;
+				else
+					translationTFs.put(localeKey, pair);
+			});
 		this.main = main;
 	}
 
-	
 	@Override
 	protected Component initContent()
 	{
@@ -93,40 +87,43 @@ public class I18nLabel extends CustomField<I18nString>
 	public void setValue(I18nString value)
 	{
 		super.setValue(value);
-		for (HPairLayout locE: translationTFs.values())
+		for (HPairLayout locE : translationTFs.values())
 			locE.setVisible(false);
 		defaultTf.setVisible(false);
 		main.setSpacing(false);
-		for (Map.Entry<String, String> vE: value.getMap().entrySet())
+		
+		value.getMap().forEach((locale, message) -> 
 		{
-			if (vE.getValue().length() > MAX_LINE)
+			if (message.length() > MAX_LINE)
 				main.setSpacing(true);
-			if (vE.getKey().equals(defaultLocaleCode))
+			
+			if (locale.equals(msg.getDefaultLocaleCode()))
 			{
-				defaultTf.setValue(changeNewLines(vE.getValue()));
+				defaultTf.setValue(changeNewLines(message));
 				defaultTf.setVisible(true);
 			} else
 			{
-				HPairLayout tf = translationTFs.get(vE.getKey());
+				HPairLayout tf = translationTFs.get(locale);
 				if (tf != null)
 				{
-					tf.setLabelValue(changeNewLines(vE.getValue()));
+					tf.setLabelValue(changeNewLines(message));
 					tf.setVisible(true);
 				}
 			}
-		}
+		});
+		
 		if (!defaultTf.isVisible() && value.getDefaultValue() != null)
 		{
 			defaultTf.setValue(changeNewLines(value.getDefaultValue()));
 			defaultTf.setVisible(true);
 		}
 	}
-	
+
 	public static String changeNewLines(String src)
 	{
 		return breakLines(src, MAX_LINE).replace("\n", "<br>");
 	}
-	
+
 	public static String breakLines(String src, int maxLine)
 	{
 		StringBuilder sb = new StringBuilder();
@@ -151,26 +148,26 @@ public class I18nLabel extends CustomField<I18nString>
 					sb.append("\n");
 				start = breakPos + 1;
 			}
-		} while(start < src.length());
+		} while (start < src.length());
 		return sb.toString();
 	}
-	
+
 	@Override
 	public Class<? extends I18nString> getType()
 	{
 		return I18nString.class;
 	}
-	
+
 	private class HPairLayout extends HorizontalLayout
 	{
 		private HtmlConfigurableLabel label;
-		
+
 		public HPairLayout()
 		{
 			setSpacing(true);
 			addStyleName(Styles.smallSpacing.toString());
 		}
-		
+
 		public void addImage(Resource res)
 		{
 			Image img = new Image();
@@ -178,14 +175,14 @@ public class I18nLabel extends CustomField<I18nString>
 			addComponentAsFirst(img);
 			setComponentAlignment(img, Alignment.MIDDLE_LEFT);
 		}
-		
+
 		public void addLabel(HtmlConfigurableLabel l)
 		{
 			addComponent(l);
 			setComponentAlignment(l, Alignment.MIDDLE_LEFT);
 			this.label = l;
 		}
-		
+
 		public void setLabelValue(String value)
 		{
 			this.label.setValue(value);

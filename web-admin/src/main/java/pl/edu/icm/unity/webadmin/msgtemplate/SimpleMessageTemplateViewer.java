@@ -29,6 +29,7 @@ public class SimpleMessageTemplateViewer extends MessageTemplateViewerBase
 		setCaption(caption);
 	}
 	
+	@Override
 	protected void initUI()
 	{	
 		notSet = new Label();
@@ -51,7 +52,7 @@ public class SimpleMessageTemplateViewer extends MessageTemplateViewerBase
 		try
 		{
 			MessageTemplate templateC = msgTempMan.getTemplate(template);
-			setInput(templateC.getName(), templateC.getMessage().getSubject(), templateC.getMessage().getBody());
+			setInput(templateC);
 			
 		} catch (EngineException e)
 		{
