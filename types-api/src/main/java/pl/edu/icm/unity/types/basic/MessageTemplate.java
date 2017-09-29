@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.types.DescribedObjectImpl;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.I18nString;
@@ -60,10 +61,9 @@ public class MessageTemplate extends DescribedObjectImpl
 		setDescription(root.get("description").asText());
 		setConsumer(root.get("consumer").asText());
 		
-		JsonNode typeNode = root.get("type");
 		MessageType messageType = MessageType.PLAIN;
-		if (!typeNode.isNull())
-			messageType = MessageType.valueOf(typeNode.asText());
+		if (JsonUtil.notNull(root, "type"))
+			messageType = MessageType.valueOf(root.get("type").asText());
 		setType(messageType);
 		
 		ArrayNode messagesA = (ArrayNode) root.get("messages");
@@ -104,7 +104,8 @@ public class MessageTemplate extends DescribedObjectImpl
 		root.put("name", getName());
 		root.put("description", getDescription());
 		root.put("consumer", getConsumer());
-		root.put("type", getType().name());
+		if (getType() != null)
+			root.put("type", getType().name());
 		ArrayNode jsonMessages = root.putArray("messages");
 
 		I18nString subject = message.getSubject();
