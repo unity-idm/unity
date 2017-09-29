@@ -13,7 +13,6 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.attributes.AbstractAttributeValueSyntaxFactory;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.utils.EmailUtils;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
 
@@ -54,13 +53,13 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 	}
 
 	@Override
-	public JsonNode getSerializedConfiguration() throws InternalException
+	public JsonNode getSerializedConfiguration()
 	{
 		return Constants.MAPPER.createObjectNode();
 	}
 
 	@Override
-	public void setSerializedConfiguration(JsonNode json) throws InternalException
+	public void setSerializedConfiguration(JsonNode json)
 	{
 	      //OK
 	}
@@ -84,7 +83,7 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 	}
 
 	@Override
-	public String serializeSimple(VerifiableEmail value) throws InternalException
+	public String serializeSimple(VerifiableEmail value)
 	{
 		return value.getValue();
 	}

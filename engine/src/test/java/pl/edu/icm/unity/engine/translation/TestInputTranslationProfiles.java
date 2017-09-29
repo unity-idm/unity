@@ -22,6 +22,8 @@ import java.util.Map;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.Lists;
+
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
@@ -51,6 +53,7 @@ import pl.edu.icm.unity.engine.translation.in.action.MapIdentityActionFactory;
 import pl.edu.icm.unity.engine.translation.in.action.RemoveStaleDataActionFactory;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
@@ -70,6 +73,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -658,6 +662,114 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 					get(0).getActionInstance();
 			assertThat(firstActionInstance, is(instanceOf(BlindStopperInputAction.class)));
 		});
+	}
+	
+	@Test
+	public void shouldNotUpdateExistingConfirmedEmailAttributeNorIdentity() throws Exception
+	{
+		AttributeType oType = new AttributeType("email", VerifiableEmailAttributeSyntax.ID);
+		oType.setMaxElements(10);
+		aTypeMan.addAttributeType(oType);
+		VerifiableEmail email = new VerifiableEmail("attr@example.com", new ConfirmationInfo(true));
+		Attribute attr = VerifiableEmailAttribute.of("email", "/", email);
+		attr.setRemoteIdp("remoteIDP_X");
+		attr.setTranslationProfile("pX");
+		IdentityParam idParam = new IdentityParam(EmailIdentity.ID, "id@example.com");
+		idParam.getConfirmationInfo().setConfirmed(true);
+		
+		Identity identity = idsMan.addEntity(idParam, 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				EntityState.valid, false, Lists.newArrayList(attr));
+		EntityParam ep = new EntityParam(identity);
+		
+		List<TranslationRule> rules = new ArrayList<>();
+		TranslationAction actionId = new TranslationAction(MapIdentityActionFactory.NAME, new String[] {
+				EmailIdentity.ID, 
+				"'id@example.com'", 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				IdentityEffectMode.UPDATE_OR_MATCH.toString()});
+		rules.add(new TranslationRule("true", actionId));
+		TranslationAction actionAttr = new TranslationAction(MapAttributeActionFactory.NAME, new String[] {
+				"email", "/", "['attr@example.com']",
+				AttributeEffectMode.CREATE_OR_UPDATE.toString()}); 
+		rules.add(new TranslationRule("true", actionAttr));
+		TranslationProfile tp1Cfg = new TranslationProfile("p1", "", ProfileType.INPUT, rules);
+		
+		
+		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("remoteIDP_Y");
+		
+		tx.runInTransactionThrowing(() -> {
+			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, intactionReg);
+			MappingResult result = tp1.translate(input);
+			inputTrEngine.process(result);
+		});
+		
+		Collection<AttributeExt> atrs = attrsMan.getAttributes(ep, "/", "email");
+		assertEquals(1, atrs.size());
+		AttributeExt at = atrs.iterator().next();
+		assertEquals(1, at.getValues().size());
+		
+		VerifiableEmail e1 = VerifiableEmail.fromJsonString(at.getValues().get(0));
+		assertEquals("attr@example.com", e1.getValue());
+		assertTrue(e1.isConfirmed());
+		
+		Entity entity = idsMan.getEntity(ep);
+		Identity emailIdentity = entity.getIdentities().stream()
+				.filter(e -> e.getTypeId().equals(EmailIdentity.ID)).findAny().get();
+		assertThat(emailIdentity.getValue(), is("id@example.com"));
+		assertThat(emailIdentity.getConfirmationInfo().isConfirmed(), is(true));
+	}
+	
+	
+	@Test
+	public void shouldUpdateExistingConfirmedEmailAttributeWithDifferentValue() throws Exception
+	{
+		AttributeType oType = new AttributeType("email", VerifiableEmailAttributeSyntax.ID);
+		oType.setMaxElements(10);
+		aTypeMan.addAttributeType(oType);
+		VerifiableEmail email = new VerifiableEmail("attr@example.com", new ConfirmationInfo(true));
+		Attribute attr = VerifiableEmailAttribute.of("email", "/", email);
+		attr.setRemoteIdp("remoteIDP_X");
+		attr.setTranslationProfile("pX");
+		IdentityParam idParam = new IdentityParam(EmailIdentity.ID, "id@example.com");
+		
+		Identity identity = idsMan.addEntity(idParam, 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				EntityState.valid, false, Lists.newArrayList(attr));
+		EntityParam ep = new EntityParam(identity);
+		
+		List<TranslationRule> rules = new ArrayList<>();
+		TranslationAction actionId = new TranslationAction(MapIdentityActionFactory.NAME, new String[] {
+				EmailIdentity.ID, 
+				"'id@example.com'", 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				IdentityEffectMode.UPDATE_OR_MATCH.toString()});
+		rules.add(new TranslationRule("true", actionId));
+		TranslationAction actionAttr = new TranslationAction(MapAttributeActionFactory.NAME, new String[] {
+				"email", "/", "['attr_NEW@example.com']",
+				AttributeEffectMode.CREATE_OR_UPDATE.toString()}); 
+		rules.add(new TranslationRule("true", actionAttr));
+		TranslationProfile tp1Cfg = new TranslationProfile("p_Y", "", ProfileType.INPUT, rules);
+		
+		
+		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("remoteIDP_Y");
+		
+		tx.runInTransactionThrowing(() -> {
+			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, intactionReg);
+			MappingResult result = tp1.translate(input);
+			inputTrEngine.process(result);
+		});
+		
+		Collection<AttributeExt> atrs = attrsMan.getAttributes(ep, "/", "email");
+		assertEquals(1, atrs.size());
+		AttributeExt at = atrs.iterator().next();
+		assertEquals(1, at.getValues().size());
+		assertThat(at.getRemoteIdp(), is("remoteIDP_Y"));
+		assertThat(at.getTranslationProfile(), is("p_Y"));
+		
+		VerifiableEmail e1 = VerifiableEmail.fromJsonString(at.getValues().get(0));
+		assertEquals("attr_NEW@example.com", e1.getValue());
+		assertThat(e1.isConfirmed(), is(false));
 	}
 }
 
