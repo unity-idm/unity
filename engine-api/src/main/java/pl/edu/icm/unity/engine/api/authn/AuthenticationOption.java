@@ -53,6 +53,13 @@ public class AuthenticationOption
 		return mandatory2ndAuthenticator;
 	}
 	
+	public void destroy()
+	{
+		primaryAuthenticator.destroy();
+		if (mandatory2ndAuthenticator != null)
+			mandatory2ndAuthenticator.destroy();
+	}
+	
 	/**
 	 * @throws WrongArgumentException 
 	 * 

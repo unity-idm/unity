@@ -23,7 +23,6 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
@@ -33,13 +32,14 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
 import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
-import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaToSPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
+import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import pl.edu.icm.unity.saml.sp.SAMLResponseConsumerServlet;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
@@ -55,7 +55,6 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 	private SAMLECPProperties samlProperties;
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
 	private RemoteMetaManager myMetadataManager;
-	private MetaDownloadManager downloadManager;
 	private PKIManagement pkiManagement;
 	private ECPContextManagement samlContextManagement;
 	private URL baseAddress;
@@ -63,12 +62,12 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 	private TokensManagement tokensMan;
 	private EntityManagement identitiesMan;
 	private SessionManagement sessionMan;
-	private UnityServerConfiguration mainCfg;
 	private ExecutorsService executorsService;
 	private String responseConsumerAddress;
 	private MultiMetadataServlet metadataServlet;
 	private UnityMessageSource msg;
 	private RemoteAuthnResultProcessor remoteAuthnProcessor;
+	private RemoteMetadataService metadataService;
 	
 	@Autowired
 	public ECPEndpoint(NetworkServer server, 
@@ -77,21 +76,20 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 			RemoteAuthnResultProcessor remoteAuthnProcessor,
 			TokensManagement tokensMan,
 			EntityManagement identitiesMan, SessionManagement sessionMan,
-			UnityServerConfiguration mainCfg, MetaDownloadManager downloadManager,
 			ExecutorsService executorsService, 
-			UnityMessageSource msg, SharedEndpointManagement sharedEndpointManagement)
+			UnityMessageSource msg, SharedEndpointManagement sharedEndpointManagement,
+			RemoteMetadataService metadataService)
 	{
 		super(server);
 		this.pkiManagement = pkiManagement;
 		this.samlContextManagement = samlContextManagement;
+		this.metadataService = metadataService;
 		this.baseAddress = server.getAdvertisedAddress();
 		this.replayAttackChecker = replayAttackChecker;
 		this.remoteAuthnProcessor = remoteAuthnProcessor;
 		this.tokensMan = tokensMan;
 		this.identitiesMan = identitiesMan;
 		this.sessionMan = sessionMan;
-		this.downloadManager = downloadManager;
-		this.mainCfg = mainCfg;
 		this.executorsService = executorsService;
 		this.msg = msg;
 		String baseContext = sharedEndpointManagement.getBaseContextPath();
@@ -125,15 +123,21 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 		if (!remoteMetadataManagers.containsKey(myId))
 		{
 			myMetadataManager = new RemoteMetaManager(samlProperties, 
-					mainCfg, executorsService, pkiManagement, 
+					pkiManagement, 
 					new MetaToSPConfigConverter(pkiManagement, msg), 
-					downloadManager, SAMLECPProperties.IDPMETA_PREFIX);
+					metadataService, SAMLECPProperties.IDPMETA_PREFIX);
 			remoteMetadataManagers.put(myId, myMetadataManager);
-			myMetadataManager.start();
 		} else
 			myMetadataManager = remoteMetadataManagers.get(myId);
 	}
 
+	@Override
+	public void destroy() throws EngineException
+	{
+		super.destroy();
+		myMetadataManager.unregisterAll();
+	}
+	
 	private void exposeMetadata()
 	{
 		String metaPath = samlProperties.getValue(SAMLSPProperties.METADATA_PATH);

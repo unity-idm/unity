@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.web;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
-import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 
@@ -34,15 +32,12 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 	private ObjectFactory<SamlAuthETDVaadinEndpoint> factory;
 	
 	private EndpointTypeDescription description;
-	private Map<String, RemoteMetaManager> remoteMetadataManagers;
 
 	public SamlUnicoreIdPWebEndpointFactory()
 	{
-		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<String, RemoteMetaManager>());
-		
-		Set<String> supportedAuthn = new HashSet<String>();
+		Set<String> supportedAuthn = new HashSet<>();
 		supportedAuthn.add(VaadinAuthentication.NAME);
-		Map<String,String> paths=new HashMap<String, String>();
+		Map<String,String> paths=new HashMap<>();
 		paths.put(SamlAuthETDVaadinEndpoint.SAML_CONSUMER_SERVLET_PATH,
 				"SAML 2 UNICORE identity provider web endpoint");
 		paths.put(SamlAuthVaadinEndpoint.SAML_META_SERVLET_PATH, 
@@ -64,8 +59,6 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		SamlAuthETDVaadinEndpoint ret = factory.getObject();
-		ret.init(remoteMetadataManagers);
-		return ret;
+		return factory.getObject();
 	}
 }

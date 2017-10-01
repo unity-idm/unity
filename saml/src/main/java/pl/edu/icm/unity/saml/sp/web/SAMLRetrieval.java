@@ -81,6 +81,12 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange> imp
 			}
 		return ret;
 	}
+
+	@Override
+	public void destroy()
+	{
+		credentialExchange.destroy();
+	}
 	
 	@Component
 	public static class Factory extends AbstractCredentialRetrievalFactory<SAMLRetrieval>

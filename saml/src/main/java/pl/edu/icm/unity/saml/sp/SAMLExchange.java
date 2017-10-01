@@ -22,4 +22,5 @@ public interface SAMLExchange extends CredentialExchange
 	RemoteAuthnContext createSAMLRequest(String idpKey, String servletPAth);
 	SAMLSPProperties getSamlValidatorSettings();
 	AuthenticationResult verifySAMLResponse(RemoteAuthnContext authnContext) throws AuthenticationException;
+	void destroy();
 }

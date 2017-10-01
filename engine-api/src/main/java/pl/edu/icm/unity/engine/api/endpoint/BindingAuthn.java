@@ -34,4 +34,9 @@ public interface BindingAuthn
 	 * @return name of the configured authenticator instance.
 	 */
 	String getAuthenticatorId();
+	
+	/**
+	 * Called when endpoint using this implementation is destroyed.
+	 */
+	void destroy();
 }

@@ -67,7 +67,7 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 	protected void updateInternal() throws EngineException
 	{
 		List<EndpointInstance> deployedEndpoints = endpointMan.getDeployedEndpoints();
-		Set<String> endpointsInDb = new HashSet<String>();
+		Set<String> endpointsInDb = new HashSet<>();
 		Map<String, EndpointInstance> endpointsDeployed = new HashMap<>();
 		for (EndpointInstance endpoint: deployedEndpoints)
 			endpointsDeployed.put(endpoint.getEndpointDescription().getName(), endpoint);

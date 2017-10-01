@@ -7,8 +7,7 @@
  */
 
 /**
- * Implementation of external services metadata retrieval, loading and parsing as well as
- * creation of local configuration basing on it. 
+ * Loading and parsing of remote metadata as well as creation of local configuration basing on it. 
  * @author K. Benedyczak
  */
 package pl.edu.icm.unity.saml.metadata.cfg;
