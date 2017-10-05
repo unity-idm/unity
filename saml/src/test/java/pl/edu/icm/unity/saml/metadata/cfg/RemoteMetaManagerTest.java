@@ -24,6 +24,7 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.awaitility.Awaitility;
 import org.awaitility.Duration;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -46,6 +47,7 @@ public class RemoteMetaManagerTest extends DBIntegrationTestBase
 	private UnityMessageSource msg;
 	
 	
+	@Ignore
 	@Test
 	public void testDownloadFromHttps() throws IOException, EngineException, InterruptedException
 	{

@@ -67,11 +67,20 @@ class MetadataSourceHandler
 	{
 		consumersById.put(consumer.id, consumer);
 		refreshInterval = getNewRefreshInterval();
-		feedWithCached(consumer);
+		if (!feedWithCached(consumer))
+			scheduleQuickRefresh();
 		if (consumersById.size() == 1)
 			startRefresh();
 	}
 	
+	/**
+	 * Schedule an extra refresh
+	 */
+	private void scheduleQuickRefresh()
+	{
+		executorsService.getService().submit(this::doRefresh); 
+	}
+
 	/**
 	 * @return true if this was the last consumer
 	 */
@@ -132,7 +141,7 @@ class MetadataSourceHandler
 		}
 	}
 
-	private void doRefresh()
+	private synchronized void doRefresh()
 	{
 		log.debug("Refreshing metadata for {}", source.url);
 		EntitiesDescriptorDocument metadata;
@@ -147,7 +156,7 @@ class MetadataSourceHandler
 		notifyConsumers(metadata);
 	}
 
-	private void feedWithCached(MetadataConsumer consumer)
+	private boolean feedWithCached(MetadataConsumer consumer)
 	{
 		Optional<EntitiesDescriptorDocument> metadata;
 		try
@@ -156,15 +165,17 @@ class MetadataSourceHandler
 		} catch (Exception e)
 		{
 			log.error("Error loading cached metadata of " + source.url, e);
-			return;
+			return false;
 		}
 		if (metadata.isPresent())
 		{
 			log.debug("Providing cached metadata for new consumer of {}", source.url);
 			notifyConsumer(consumer, metadata.get());
+			return true;
 		} else
 		{
 			log.debug("No cached metadata for new consumer of {}", source.url);
+			return false;
 		}
 	}
 	

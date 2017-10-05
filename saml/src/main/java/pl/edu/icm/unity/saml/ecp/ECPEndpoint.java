@@ -32,7 +32,6 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
@@ -132,9 +131,8 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 	}
 
 	@Override
-	public void destroy() throws EngineException
+	public void destroyOverridable()
 	{
-		super.destroy();
 		myMetadataManager.unregisterAll();
 	}
 	

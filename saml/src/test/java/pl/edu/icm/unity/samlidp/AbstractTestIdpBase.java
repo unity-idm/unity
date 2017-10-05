@@ -87,30 +87,24 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 	
 	
 	@Before
-	public void setup()
+	public void setup() throws Exception
 	{
-		try
-		{
-			setupMockAuthn();
-			createUsers();
-			profilesMan.addProfile(createOutputProfile());
-			AuthenticationRealm realm = new AuthenticationRealm(REALM_NAME, "", 
-					10, 100, -1, 600);
-			realmsMan.addRealm(realm);
-			List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
-			authnCfg.add(new AuthenticationOptionDescription("Apass"));
-			authnCfg.add(new AuthenticationOptionDescription("Acert"));
-			EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpointIDP"), "desc", 
-					authnCfg, SAML_ENDP_CFG, REALM_NAME);
-			endpointMan.deploy(SamlSoapEndpoint.NAME, "endpointIDP", "/saml", cfg);
-			List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
-			assertEquals(1, endpoints.size());
+		setupMockAuthn();
+		createUsers();
+		profilesMan.addProfile(createOutputProfile());
+		AuthenticationRealm realm = new AuthenticationRealm(REALM_NAME, "", 
+				10, 100, -1, 600);
+		realmsMan.addRealm(realm);
+		List<AuthenticationOptionDescription> authnCfg = new ArrayList<>();
+		authnCfg.add(new AuthenticationOptionDescription("Apass"));
+		authnCfg.add(new AuthenticationOptionDescription("Acert"));
+		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpointIDP"), "desc", 
+				authnCfg, SAML_ENDP_CFG, REALM_NAME);
+		endpointMan.deploy(SamlSoapEndpoint.NAME, "endpointIDP", "/saml", cfg);
+		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		assertEquals(1, endpoints.size());
 
-			httpServer.start();
-		} catch (Exception e)
-		{
-			throw new RuntimeException(e);
-		}
+		httpServer.start();
 	}
 	
 	private TranslationProfile createOutputProfile() throws IllegalTypeException, EngineException

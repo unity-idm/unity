@@ -152,7 +152,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	}
 
 	@Override
-	public void start() throws EngineException
+	public void startOverridable()
 	{
 		myMetadataManager = new RemoteMetaManager(samlProperties, pkiManagement,
 					new MetaToIDPConfigConverter(pkiManagement, msg), 
@@ -164,13 +164,11 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		{
 			throw new ConfigurationException("Can't initialize the SAML SLO Reply servlet", e);
 		}	
-		super.start();
 	}
 	
 	@Override
-	public void destroy() throws EngineException
+	public void destroyOverridable()
 	{
-		super.destroy();
 		myMetadataManager.unregisterAll();
 	}
 	

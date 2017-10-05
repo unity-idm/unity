@@ -115,14 +115,15 @@ public class MetadataSourceHandlerTest
 		});
 		
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
-				executorsService, downloader, 15);
+				executorsService, downloader, 20);
 		
-		MetadataConsumer consumer1 = new MetadataConsumer(20, meta -> {}, "1");
+		AtomicInteger invCount = new AtomicInteger(0);
+		MetadataConsumer consumer1 = new MetadataConsumer(20, meta -> invCount.incrementAndGet(), "1");
 		handler.addConsumer(consumer1);
 		handler.removeConsumer("1");
-		
+		int inv = invCount.get()+1;
 		Thread.sleep(100);
-		verify(downloader, atMost(1)).getFresh("http://url", null);
+		verify(downloader, atMost(inv)).getFresh("http://url", null);
 	}
 	
 	@Test

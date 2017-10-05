@@ -35,7 +35,6 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.IdpSamlTrustProvider;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
@@ -110,7 +109,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	}
 
 	@Override
-	public void start() throws EngineException
+	public void startOverridable()
 	{
 		myMetadataManager = new RemoteMetaManager(samlProperties, 
 				pkiManagement, 
@@ -119,9 +118,8 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	}
 	
 	@Override
-	public void destroy() throws EngineException
+	public void destroyOverridable()
 	{
-		super.destroy();
 		myMetadataManager.unregisterAll();
 	}
 

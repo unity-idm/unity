@@ -49,8 +49,6 @@ import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
-import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
-import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 
 public class TestIdpCfgFromMeta extends DBIntegrationTestBase

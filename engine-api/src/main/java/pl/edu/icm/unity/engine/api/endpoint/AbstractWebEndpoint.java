@@ -43,15 +43,25 @@ public abstract class AbstractWebEndpoint extends AbstractEndpoint implements We
 	}
 	
 	@Override
-	public void start() throws EngineException
+	public final void start() throws EngineException
 	{
+		startOverridable();
 		httpServer.deployEndpoint(this);
 	}
 	
+	protected void startOverridable()
+	{
+	}
+	
 	@Override
-	public void destroy() throws EngineException
+	public final void destroy() throws EngineException
 	{
 		super.destroy();
 		httpServer.undeployEndpoint(this.getEndpointDescription().getEndpoint().getName());
+		destroyOverridable();
+	}
+	
+	protected void destroyOverridable()
+	{
 	}
 }
