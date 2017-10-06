@@ -2,10 +2,13 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.samlmeta;
+package pl.edu.icm.unity.saml.metadata.cfg;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static pl.edu.icm.unity.saml.SamlProperties.METADATA_ISSUER_CERT;
 import static pl.edu.icm.unity.saml.SamlProperties.METADATA_SIGNATURE;
@@ -35,6 +38,8 @@ import java.security.cert.X509Certificate;
 import java.util.Properties;
 import java.util.Set;
 
+import org.awaitility.Awaitility;
+import org.awaitility.Duration;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -42,27 +47,17 @@ import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
-import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
-import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
-import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
+import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 
 public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 {
 	@Autowired
-	private ExecutorsService executorsService;
-	
-	@Autowired
-	private UnityServerConfiguration mainConfig;
+	private RemoteMetadataService metadataService;
 	
 	@Autowired
 	private PKIManagement pkiManagement;
-	
-	@Autowired
-	private MetaDownloadManager downloadManager;
 	
 	@Autowired
 	private UnityMessageSource msg;
@@ -76,8 +71,6 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 		p.setProperty(P+ISSUER_URI, "me");
 		p.setProperty(P+GROUP, "group");
 		p.setProperty(P+DEFAULT_GROUP,"group");
-		
-		
 
 		p.setProperty(P+SPMETA_PREFIX+"1." + METADATA_URL, "file:src/test/resources/metadata.switchaai.xml");
 		p.setProperty(P+SPMETA_PREFIX+"1." + METADATA_SIGNATURE, "require");
@@ -97,13 +90,18 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 		
 		
 		RemoteMetaManager manager = new RemoteMetaManager(configuration, 
-				mainConfig, executorsService, pkiManagement, 
+				pkiManagement, 
 				new MetaToIDPConfigConverter(pkiManagement, msg), 
-					downloadManager, SamlIdpProperties.SPMETA_PREFIX);
-		manager.reloadAll();
+					metadataService, SamlIdpProperties.SPMETA_PREFIX);
 		
+		Awaitility.await()
+			.atMost(Duration.FIVE_SECONDS)
+			.untilAsserted(() -> assertRemoteMetadataLoaded(manager));
+	}
+	
+	private void assertRemoteMetadataLoaded(RemoteMetaManager manager) throws Exception
+	{
 		SamlIdpProperties ret = (SamlIdpProperties) manager.getVirtualConfiguration();
-		
 		String pfx = getPrefixOf("https://support.hes-so.ch/shibboleth", ret);
 		assertEquals("URL", ret.getValue(pfx + ALLOWED_SP_RETURN_URL));
 		assertEquals("Name", ret.getValue(pfx + ALLOWED_SP_NAME));
@@ -120,7 +118,6 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 	
 		assertEquals(LOGO, ret.getValue(pfx + ALLOWED_SP_LOGO));
 		assertEquals("AAI Viewer Interfederation Test", ret.getValue(pfx + ALLOWED_SP_NAME+".en"));
-		
 	}
 
 	@Test
@@ -138,11 +135,17 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 		SamlIdpProperties configuration = new SamlIdpProperties(p, pkiManagement);
 		
 		RemoteMetaManager manager = new RemoteMetaManager(configuration, 
-				mainConfig, executorsService, pkiManagement, 
+				pkiManagement, 
 				new MetaToIDPConfigConverter(pkiManagement, msg), 
-					downloadManager, SamlIdpProperties.SPMETA_PREFIX);
-		manager.reloadAll();
+				metadataService, SamlIdpProperties.SPMETA_PREFIX);
 		
+		Awaitility.await()
+			.atMost(Duration.FIVE_SECONDS)
+			.untilAsserted(() -> assertSLOCfgLoaded(manager));
+	}
+	
+	private void assertSLOCfgLoaded(RemoteMetaManager manager)
+	{
 		SamlIdpProperties ret = (SamlIdpProperties) manager.getVirtualConfiguration();
 		
 		String pfx = getPrefixOf("http://shibboleth.metapress.com/shibboleth-sp", ret);
@@ -162,19 +165,13 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 					equals(ret.getValue(key+ALLOWED_SP_ENTITY)))
 				fail("Hidden service is available");
 		}
-
 	}
 	
 	private String getPrefixOf(String entity, SamlIdpProperties cfg)
 	{
-		Set<String> keys = cfg.getStructuredListKeys(ALLOWED_SP_PREFIX);
-		for (String key: keys)
-		{
-			if (entity.equals(cfg.getValue(key+ALLOWED_SP_ENTITY)))
-				return key;
-		}
-		fail("No entry for entity " + entity);
-		return null;
+		String ret = cfg.getPrefixOfSP(entity);
+		assertThat(ret, is(notNullValue()));
+		return ret;
 	}
 	
 	

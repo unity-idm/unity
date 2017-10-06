@@ -40,4 +40,9 @@ public abstract class AbstractCredentialRetrieval<T extends CredentialExchange> 
 	{
 		return authenticatorId;
 	}
+	
+	@Override
+	public void destroy()
+	{
+	}
 }

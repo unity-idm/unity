@@ -59,6 +59,8 @@ public abstract class AbstractEndpoint implements EndpointInstance
 	@Override
 	public void destroy() throws EngineException
 	{
+		for (AuthenticationOption ao: authenticators)
+			ao.destroy();
 	}
 	
 	@Override

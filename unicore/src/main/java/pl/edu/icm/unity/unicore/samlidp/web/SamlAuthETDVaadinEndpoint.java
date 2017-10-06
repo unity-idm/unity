@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -19,7 +20,7 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
-import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
+import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 
@@ -39,18 +40,22 @@ public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 	public SamlAuthETDVaadinEndpoint(NetworkServer server, ApplicationContext applicationContext,
 			FreemarkerHandler freemarkerHandler,
 			PKIManagement pkiManagement, ExecutorsService executorsService,
-			MetaDownloadManager downloadManager, 
 			UnityServerConfiguration mainConfig, SAMLLogoutProcessorFactory logoutProcessorFactory, 
 			SLOReplyInstaller sloReplyInstaller, 
 			UnicoreIdpConsentDeciderServlet.Factory dispatcherServletFactory,
-			UnityMessageSource msg)
+			UnityMessageSource msg,
+			AttributeTypeSupport aTypeSupport,
+			RemoteMetadataService metadataService)
 	{
 		super(SAML_CONSUMER_SERVLET_PATH, 
-				server, applicationContext, freemarkerHandler, SamlUnicoreIdPWebUI.class, pkiManagement, 
-				executorsService, mainConfig, dispatcherServletFactory, 
-				downloadManager, 
+				server, applicationContext, freemarkerHandler, 
+				SamlUnicoreIdPWebUI.class, pkiManagement, 
+				executorsService,
+				dispatcherServletFactory, 
 				logoutProcessorFactory, 
-				sloReplyInstaller, msg);
+				sloReplyInstaller, msg,
+				aTypeSupport,
+				metadataService);
 	}
 
 	@Override

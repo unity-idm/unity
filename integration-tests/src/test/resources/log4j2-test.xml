@@ -31,7 +31,7 @@
 		<Logger name="unity.server.pam" level="DEBUG"/>
 
 		<!-- SAML related -->
-		<!-- <Logger name="unity.server.saml" level="INFO"/> -->
+		<Logger name="unity.server.saml" level="TRACE"/> 
 
 		<!-- OAuth related -->
 		<!-- <Logger name="unity.server.oauth" level="INFO"/> -->

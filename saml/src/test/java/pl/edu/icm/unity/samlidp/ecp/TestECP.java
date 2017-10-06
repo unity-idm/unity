@@ -7,7 +7,6 @@ package pl.edu.icm.unity.samlidp.ecp;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.security.KeyStoreException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +30,7 @@ import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.util.EntityUtils;
+import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.junit.Assert;
@@ -45,6 +45,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.HttpUtils;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
@@ -55,7 +56,6 @@ import pl.edu.icm.unity.engine.translation.in.action.MapIdentityActionFactory;
 import pl.edu.icm.unity.rest.jwt.JWTUtils;
 import pl.edu.icm.unity.saml.ecp.ECPConstants;
 import pl.edu.icm.unity.saml.ecp.ECPEndpointFactory;
-import pl.edu.icm.unity.saml.idp.ws.SamlSoapEndpoint;
 import pl.edu.icm.unity.saml.xmlbeans.ecp.RelayStateDocument;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Envelope;
 import pl.edu.icm.unity.saml.xmlbeans.soap.EnvelopeDocument;
@@ -70,6 +70,8 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 public class TestECP extends AbstractTestIdpBase
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, TestECP.class);
+	
 	private static final String ECP_ENDP_CFG = 
 			"unity.saml.requester.requesterEntityId=http://ecpSP.example.com\n" +
 			"unity.saml.requester.metadataPath=metadata\n" +
@@ -88,33 +90,28 @@ public class TestECP extends AbstractTestIdpBase
 	private IdentityTypesRegistry idTypesReg;
 	
 	@Before
-	public void setup()
+	@Override
+	public void setup() throws Exception
 	{
 		super.setup();
-		try
-		{
-			List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
-			EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpointECP"),
+		List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
+		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpointECP"),
 					"desc",	authnCfg, ECP_ENDP_CFG, REALM_NAME);
-			endpointMan.deploy(ECPEndpointFactory.NAME, "endpointECP", "/ecp", cfg);
-			List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
-			assertEquals(2, endpoints.size());
+		endpointMan.deploy(ECPEndpointFactory.NAME, "endpointECP", "/ecp", cfg);
+		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		assertEquals(2, endpoints.size());
+		log.info("Deployed endpoints: {}", endpoints);
+		
+		List<InputTranslationRule> rules = new ArrayList<InputTranslationRule>();
+		MapIdentityActionFactory factory = new MapIdentityActionFactory(idTypesReg);
 			
-			List<InputTranslationRule> rules = new ArrayList<InputTranslationRule>();
-			MapIdentityActionFactory factory = new MapIdentityActionFactory(idTypesReg);
-			
-			InputTranslationRule mapId = new InputTranslationRule(
-					factory.getInstance("userName", "attr['unity:identity:userName']", 
-							"cr-pass", IdentityEffectMode.CREATE_OR_MATCH.toString()), 
-					new TranslationCondition());
-			rules.add(mapId);
-			TranslationProfile testP = new TranslationProfile("testP", "", ProfileType.INPUT, rules);
-			profilesMan.addProfile(testP);
-			
-		} catch (Exception e)
-		{
-			throw new RuntimeException(e);
-		}
+		InputTranslationRule mapId = new InputTranslationRule(
+				factory.getInstance("userName", "attr['unity:identity:userName']", 
+						"cr-pass", IdentityEffectMode.CREATE_OR_MATCH.toString()), 
+				new TranslationCondition());
+		rules.add(mapId);
+		TranslationProfile testP = new TranslationProfile("testP", "", ProfileType.INPUT, rules);
+		profilesMan.addProfile(testP);
 	}
 	
 	@Test
@@ -166,10 +163,9 @@ public class TestECP extends AbstractTestIdpBase
 			Assert.fail("No HTTP response");
 	}
 	
-	private EnvelopeDocument sendToIdP(EnvelopeDocument envDoc) throws KeyStoreException, IOException, XmlException
+	private EnvelopeDocument sendToIdP(EnvelopeDocument envDoc) throws Exception
 	{
-		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
-				"/AuthenticationService";
+		String authnWSUrl = "https://localhost:52443/saml/saml2idp-soap/AuthenticationService";
 		
 		EnvelopeDocument envDoc2 = EnvelopeDocument.Factory.newInstance();
 		envDoc2.addNewEnvelope().setBody(envDoc.getEnvelope().getBody());
@@ -199,13 +195,16 @@ public class TestECP extends AbstractTestIdpBase
 		
 		httpPost.setEntity(new StringEntity(envDoc2.xmlText(), ContentType.APPLICATION_XML));
 		
+		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		log.info("Deployed endpoints: {}", endpoints);
+		
 		HttpResponse response = httpclient.execute(targetHost, httpPost, context);
 		HttpEntity entity = response.getEntity();
 		if (entity != null) 
 		{
 			String xml = EntityUtils.toString(entity);
+			log.info("Response: {}", xml);
 			EnvelopeDocument envDocRet = EnvelopeDocument.Factory.parse(xml);
-			System.out.println(envDocRet.xmlText(new XmlOptions().setSavePrettyPrint()));
 			return envDocRet;
 		} else
 		{

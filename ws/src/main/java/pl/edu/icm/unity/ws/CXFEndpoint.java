@@ -51,7 +51,7 @@ public abstract class CXFEndpoint extends AbstractWebEndpoint implements WebAppE
 		this.authnProcessor = authnProcessor;
 		this.servletPath = servletPath;
 		this.sessionMan = sessionMan;
-		services = new HashMap<Class<?>, Object>();
+		services = new HashMap<>();
 	}
 	
 	@Override

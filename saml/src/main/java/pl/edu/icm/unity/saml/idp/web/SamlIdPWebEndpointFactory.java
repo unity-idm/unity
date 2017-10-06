@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
-import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 
@@ -33,12 +31,9 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 	private ObjectFactory<SamlAuthVaadinEndpoint> factory;
 	
 	private EndpointTypeDescription description;
-	private Map<String, RemoteMetaManager> remoteMetadataManagers;
 
 	public SamlIdPWebEndpointFactory()
 	{
-		this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<>());
-		
 		Set<String> supportedAuthn = new HashSet<String>();
 		supportedAuthn.add(VaadinAuthentication.NAME);
 		Map<String,String> paths = new HashMap<String, String>();
@@ -63,8 +58,6 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		SamlAuthVaadinEndpoint ret = factory.getObject();
-		ret.init(remoteMetadataManagers);
-		return ret;
+		return factory.getObject();
 	}
 }

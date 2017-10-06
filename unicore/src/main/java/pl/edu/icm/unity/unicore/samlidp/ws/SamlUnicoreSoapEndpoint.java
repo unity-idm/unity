@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.ws;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -20,7 +19,6 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
@@ -32,8 +30,7 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ws.SAMLAssertionQueryImpl;
 import pl.edu.icm.unity.saml.idp.ws.SamlSoapEndpoint;
-import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
-import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
+import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.ws.authn.WebServiceAuthentication;
@@ -56,16 +53,18 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 	public SamlUnicoreSoapEndpoint(UnityMessageSource msg, NetworkServer server,
 			IdPEngine idpEngine,
 			PreferencesManagement preferencesMan,
-			PKIManagement pkiManagement, ExecutorsService executorsService, SessionManagement sessionMan,
-			MetaDownloadManager downloadManager, 
-			UnityServerConfiguration mainConfig,
-			SAMLLogoutProcessorFactory logoutProcessorFactory, AuthenticationProcessor authnProcessor,
-			AttributeTypeSupport aTypeSupport)
+			PKIManagement pkiManagement, 
+			ExecutorsService executorsService, 
+			SessionManagement sessionMan,
+			SAMLLogoutProcessorFactory logoutProcessorFactory, 
+			AuthenticationProcessor authnProcessor,
+			AttributeTypeSupport aTypeSupport,
+			RemoteMetadataService metadataService)
 	{
 		super(msg, server, idpEngine, preferencesMan,
-				pkiManagement, executorsService, sessionMan, downloadManager, 
-				mainConfig, logoutProcessorFactory, authnProcessor, 
-				aTypeSupport);
+				pkiManagement, executorsService, sessionMan, 
+				logoutProcessorFactory, authnProcessor, 
+				aTypeSupport, metadataService);
 		this.servletPath = SERVLET_PATH;
 	}
 
@@ -91,14 +90,11 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 		
 		private EndpointTypeDescription description = initDescription();
 		
-		private Map<String, RemoteMetaManager> remoteMetadataManagers = 
-				Collections.synchronizedMap(new HashMap<>());
-		
 		private static EndpointTypeDescription initDescription()
 		{
-			Set<String> supportedAuthn = new HashSet<String>();
+			Set<String> supportedAuthn = new HashSet<>();
 			supportedAuthn.add(WebServiceAuthentication.NAME);
-			Map<String,String> paths=new HashMap<String, String>();
+			Map<String,String> paths=new HashMap<>();
 			paths.put(SERVLET_PATH,"SAML 2 UNICORE identity provider web endpoint");
 			paths.put(SamlSoapEndpoint.METADATA_SERVLET_PATH, 
 					"Metadata of the SAML 2 identity provider web endpoint");
@@ -115,9 +111,7 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 		@Override
 		public EndpointInstance newInstance()
 		{
-			SamlUnicoreSoapEndpoint ret = factory.getObject();
-			ret.init(remoteMetadataManagers);
-			return ret;
+			return factory.getObject();
 		}
 	}
 }

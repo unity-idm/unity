@@ -469,6 +469,17 @@ public class SAMLSPProperties extends SamlProperties
 		return isSet(key) ? getValue(key) : getValue(idpKey + IDP_ID);
 	}
 	
+	public String getPrefixOfIdP(String entity)
+	{
+		Set<String> keys = getStructuredListKeys(IDP_PREFIX);
+		for (String key: keys)
+		{
+			if (entity.equals(getValue(key+IDP_ID)))
+				return key;
+		}
+		return null;
+	}
+	
 	@Override
 	public SAMLSPProperties clone()
 	{

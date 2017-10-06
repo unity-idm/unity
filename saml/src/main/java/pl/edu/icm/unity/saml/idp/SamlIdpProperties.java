@@ -537,6 +537,17 @@ public class SamlIdpProperties extends SamlProperties
 		return null;
 	}
 
+	public String getPrefixOfSP(String entity)
+	{
+		Set<String> keys = getStructuredListKeys(ALLOWED_SP_PREFIX);
+		for (String key: keys)
+		{
+			if (entity.equals(getValue(key+ALLOWED_SP_ENTITY)))
+				return key;
+		}
+		return null;
+	}
+	
 	public SamlTrustChecker getSoapTrustChecker()
 	{
 		return soapTrustChecker;

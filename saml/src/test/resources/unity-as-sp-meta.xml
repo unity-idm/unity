@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EntitiesDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" 
+	xmlns:ds="http://www.w3.org/2000/09/xmldsig#" 
+	xmlns:idpdisc="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol" 
+	xmlns:mdattr="urn:oasis:names:tc:SAML:metadata:attribute" 
+	xmlns:mdrpi="urn:oasis:names:tc:SAML:metadata:rpi" 
+	xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui" 
+	xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" 
+	xmlns:saml1md="urn:mace:shibboleth:metadata:1.0" 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	ID="unity-1" 
+	Name="https://unity-test" 
+	validUntil="2064-11-24T13:00:28Z" 
+	xsi:schemaLocation="urn:oasis:names:tc:SAML:2.0:metadata saml-schema-metadata-2.0.xsd urn:mace:shibboleth:metadata:1.0 shibboleth-metadata-1.0.xsd http://www.w3.org/2000/09/xmldsig# xmldsig-core-schema.xsd">
+  <EntityDescriptor entityID="http://unity/as/sp">
+    <SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+      <Extensions>
+        <mdui:UIInfo>
+          <mdui:DisplayName xml:lang="en">Test - Unity</mdui:DisplayName>
+          <mdui:Description xml:lang="en">Unity SP endpoint for testing</mdui:Description>
+        </mdui:UIInfo>
+      </Extensions>
+      <KeyDescriptor use="signing">
+        <ds:KeyInfo>
+          <ds:KeyName>unity-test</ds:KeyName>
+          <ds:X509Data>
+            <ds:X509SubjectName>CN=Test UVOS,O=UNICORE,C=PL</ds:X509SubjectName>
+            <ds:X509Certificate>MIICizCCAfSgAwIBAgIJAPYkolEv967PMA0GCSqGSIb3DQEBBQUAMDExCzAJBgNVBAYTAkVVMRAw
+DgYDVQQKDAdVTklDT1JFMRAwDgYDVQQDDAdEZW1vIENBMB4XDTEzMDEwNzE2MDIzM1oXDTMzMDEw
+MjE2MDIzM1owMzELMAkGA1UEBhMCRVUxEDAOBgNVBAoMB1VOSUNPUkUxEjAQBgNVBAMMCVRlc3Qg
+VVZPUzCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAxG6sMMxgWM2AA9dWVPCC5wUhZtRl3E0K
+o7aY02eqyv/2MsQyRm1SdfVWuzP/UImT61qgHZU2cN5xZB38vPjaY9sXZ0keXjRWWFHzyI0YJJ+7
+tk+s73vgmI53NCO62wuhOm5SG5ZubCN9j6GkTt3t+otcQJXOinavL/zACEWipr8CAwEAAaOBqDCB
+pTAJBgNVHRMEAjAAMBEGCWCGSAGG+EIBAQQEAwIE8DALBgNVHQ8EBAMCBPAwOAYJYIZIAYb4QgEN
+BCsWKUNlcnRpZmljYXRlIGdlbmVyYXRlZCBmb3IgVU5JQ09SRSBURVNUSU5HMB0GA1UdDgQWBBSp
+tTb1DYNSEZfBwmsvLBj6WRq5ZDAfBgNVHSMEGDAWgBT0r/TIbvB/GlRFiFyGjXbUDO1OXTANBgkq
+hkiG9w0BAQUFAAOBgQBa/ysMHCetz2Cf2SB2tPEQxnnH8r8zLogDiWtLGi4StwfOTf81sbqh3lO7
+8fi14NBzBxy9j7Did3IW/kkxbYKJmVKqIfY43sgrkB9DUu99/QGEudBYNNwxOO4H8OIVv15R0Pi8
+CeMQ03ApK43XNn+wZ2Onkk298zK+wo1KJE267Q==
+</ds:X509Certificate>
+          </ds:X509Data>
+        </ds:KeyInfo>
+      </KeyDescriptor>
+      <KeyDescriptor use="encryption">
+        <ds:KeyInfo>
+          <ds:KeyName>unity-test</ds:KeyName>
+          <ds:X509Data>
+            <ds:X509SubjectName>CN=Test UVOS,O=UNICORE,C=PL</ds:X509SubjectName>
+            <ds:X509Certificate>MIICizCCAfSgAwIBAgIJAPYkolEv967PMA0GCSqGSIb3DQEBBQUAMDExCzAJBgNVBAYTAkVVMRAw
+DgYDVQQKDAdVTklDT1JFMRAwDgYDVQQDDAdEZW1vIENBMB4XDTEzMDEwNzE2MDIzM1oXDTMzMDEw
+MjE2MDIzM1owMzELMAkGA1UEBhMCRVUxEDAOBgNVBAoMB1VOSUNPUkUxEjAQBgNVBAMMCVRlc3Qg
+VVZPUzCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAxG6sMMxgWM2AA9dWVPCC5wUhZtRl3E0K
+o7aY02eqyv/2MsQyRm1SdfVWuzP/UImT61qgHZU2cN5xZB38vPjaY9sXZ0keXjRWWFHzyI0YJJ+7
+tk+s73vgmI53NCO62wuhOm5SG5ZubCN9j6GkTt3t+otcQJXOinavL/zACEWipr8CAwEAAaOBqDCB
+pTAJBgNVHRMEAjAAMBEGCWCGSAGG+EIBAQQEAwIE8DALBgNVHQ8EBAMCBPAwOAYJYIZIAYb4QgEN
+BCsWKUNlcnRpZmljYXRlIGdlbmVyYXRlZCBmb3IgVU5JQ09SRSBURVNUSU5HMB0GA1UdDgQWBBSp
+tTb1DYNSEZfBwmsvLBj6WRq5ZDAfBgNVHSMEGDAWgBT0r/TIbvB/GlRFiFyGjXbUDO1OXTANBgkq
+hkiG9w0BAQUFAAOBgQBa/ysMHCetz2Cf2SB2tPEQxnnH8r8zLogDiWtLGi4StwfOTf81sbqh3lO7
+8fi14NBzBxy9j7Did3IW/kkxbYKJmVKqIfY43sgrkB9DUu99/QGEudBYNNwxOO4H8OIVv15R0Pi8
+CeMQ03ApK43XNn+wZ2Onkk298zK+wo1KJE267Q==
+</ds:X509Certificate>
+          </ds:X509Data>
+        </ds:KeyInfo>
+      </KeyDescriptor>
+      <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://localhost:2443/unitygw/spSAMLResponseConsumer" index="1"/>
+    </SPSSODescriptor>
+    <Organization>
+      <OrganizationName xml:lang="en">unity</OrganizationName>
+      <OrganizationDisplayName xml:lang="en">Unity</OrganizationDisplayName>
+      <OrganizationURL xml:lang="en">http://unity-idm.eu</OrganizationURL>
+    </Organization>
+  </EntityDescriptor>
+</EntitiesDescriptor>

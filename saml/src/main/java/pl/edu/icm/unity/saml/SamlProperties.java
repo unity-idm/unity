@@ -19,7 +19,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import eu.unicore.samly2.SAMLBindings;
-import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
@@ -70,7 +69,7 @@ public abstract class SamlProperties extends UnityPropertiesHelper
 
 	public static Map<String, PropertyMD> getDefaults(String metasPrefix, String metasDesc)
 	{
-		Map<String, PropertyMD> defaults = new HashMap<String, PropertyMD>();
+		Map<String, PropertyMD> defaults = new HashMap<>();
 		defaults.put(PUBLISH_METADATA, new PropertyMD("true").setCategory(samlMetaCat).
 				setDescription("Controls whether the SAML Metadata should be published."));
 		defaults.put(SIGN_METADATA, new PropertyMD("false").setCategory(samlMetaCat).
@@ -112,7 +111,6 @@ public abstract class SamlProperties extends UnityPropertiesHelper
 
 	public SamlProperties(String prefix, Properties properties,
 			Map<String, PropertyMD> propertiesMD, Logger log)
-			throws ConfigurationException
 	{
 		super(prefix, properties, propertiesMD, log);
 	}
@@ -147,7 +145,7 @@ public abstract class SamlProperties extends UnityPropertiesHelper
 		if (postRetSlo == null)
 			postRetSlo = postSlo;
 		
-		List<SAMLEndpointDefinition> ret = new ArrayList<SAMLEndpointDefinition>(3);
+		List<SAMLEndpointDefinition> ret = new ArrayList<>(3);
 		if (postSlo != null)
 			ret.add(new SAMLEndpointDefinition(Binding.HTTP_POST, postSlo, postRetSlo));
 		if (redirectSlo != null)
@@ -159,7 +157,7 @@ public abstract class SamlProperties extends UnityPropertiesHelper
 	
 	protected Set<String> getCertificateNames(String idpKey, String singleProp, String multiProp)
 	{
-		Set<String> idpCertNames = new HashSet<String>();
+		Set<String> idpCertNames = new HashSet<>();
 		if (isSet(idpKey+singleProp))
 			idpCertNames.add(getValue(idpKey+singleProp));
 		idpCertNames.addAll(getListOfValues(idpKey+multiProp));

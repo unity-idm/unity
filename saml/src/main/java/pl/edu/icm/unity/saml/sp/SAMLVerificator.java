@@ -35,7 +35,6 @@ import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
@@ -49,9 +48,9 @@ import pl.edu.icm.unity.saml.SAMLResponseValidatorUtil;
 import pl.edu.icm.unity.saml.idp.IdentityTypeMapper;
 import pl.edu.icm.unity.saml.metadata.LocalSPMetadataManager;
 import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
-import pl.edu.icm.unity.saml.metadata.cfg.MetaDownloadManager;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaToSPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
+import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
@@ -72,18 +71,17 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	public static final String METADATA_SERVLET_PATH = "/saml-sp-metadata";
 	public static final String DESC = "Handles SAML assertions obtained from remote IdPs"; 
 			
-	private UnityServerConfiguration mainConfig;
 	private SAMLSPProperties samlProperties;
 	private PKIManagement pkiMan;
 	private MultiMetadataServlet metadataServlet;
 	private ExecutorsService executorsService;
 	private String responseConsumerAddress;
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
-	private MetaDownloadManager downloadManager;
 	private RemoteMetaManager myMetadataManager;
 	private ReplayAttackChecker replayAttackChecker;
 	private SLOSPManager sloManager;
 	private SLOReplyInstaller sloReplyInstaller;
+	private RemoteMetadataService metadataService;
 
 	private UnityMessageSource msg;
 
@@ -93,18 +91,15 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	public SAMLVerificator(RemoteAuthnResultProcessor processor,
 			PKIManagement pkiMan,
 			ReplayAttackChecker replayAttackChecker, ExecutorsService executorsService,
-			
-			MetaDownloadManager downloadManager, UnityServerConfiguration mainConfig, 
+			RemoteMetadataService metadataService,
 			SLOSPManager sloManager, SLOReplyInstaller sloReplyInstaller,
 			UnityMessageSource msg,
 			SharedEndpointManagement sharedEndpointManagement, 
 			NetworkServer jettyServer)
 	{
 		super(NAME, DESC, SAMLExchange.ID, processor);
-		
-		this.downloadManager = downloadManager;
+		this.metadataService = metadataService;
 		this.pkiMan = pkiMan;
-		this.mainConfig = mainConfig;
 		this.executorsService = executorsService;
 		this.msg = msg;
 		this.replayAttackChecker = replayAttackChecker;
@@ -145,7 +140,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	 * while the virtual properties are used for authentication process setup.
 	 */
 	@Override
-	public void setSerializedConfiguration(String source) throws InternalException
+	public void setSerializedConfiguration(String source)
 	{
 		try
 		{
@@ -175,11 +170,10 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		if (!remoteMetadataManagers.containsKey(instanceName))
 		{
 			myMetadataManager = new RemoteMetaManager(samlProperties, 
-					mainConfig, executorsService, pkiMan, 
-					new MetaToSPConfigConverter(pkiMan, msg), downloadManager, 
-						SAMLSPProperties.IDPMETA_PREFIX);
+					pkiMan, 
+					new MetaToSPConfigConverter(pkiMan, msg), 
+					metadataService, SAMLSPProperties.IDPMETA_PREFIX);
 			remoteMetadataManagers.put(instanceName, myMetadataManager);
-			myMetadataManager.start();
 		} else
 		{
 			myMetadataManager = remoteMetadataManagers.get(instanceName);
@@ -196,6 +190,12 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		}
 	}
 
+	@Override
+	public void destroy()
+	{
+		myMetadataManager.unregisterAll();
+	}
+	
 	private void initSLO() throws EngineException
 	{
 		SamlTrustProvider samlTrustProvider = new SamlTrustProvider()
@@ -250,7 +250,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	}
 	
 	@Override
-	public RemoteAuthnContext createSAMLRequest(String idpKey, String servletPath) throws InternalException
+	public RemoteAuthnContext createSAMLRequest(String idpKey, String servletPath)
 	{
 		RemoteAuthnContext context = new RemoteAuthnContext(getSamlValidatorSettings(), idpKey);
 		
