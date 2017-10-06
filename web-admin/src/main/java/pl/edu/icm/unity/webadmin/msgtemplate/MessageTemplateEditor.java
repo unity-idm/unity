@@ -6,7 +6,6 @@ package pl.edu.icm.unity.webadmin.msgtemplate;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import com.vaadin.data.Validator;
 import com.vaadin.event.FieldEvents.FocusListener;
@@ -53,7 +52,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 	private I18nTextField subject;
 	private I18nTextArea body;
 	private ComboBox consumer;
-	private ComboBox bodyType;
+	private MessageTypeComboBox messageType;
 	private Label consumerDescription;
 	private boolean editMode;
 	private HorizontalLayout buttons;
@@ -100,11 +99,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 		subject.setValidationVisible(false);
 		subject.setRequired(true);
 		
-		bodyType = new RequiredComboBox(msg.getMessage("MessageTemplatesEditor.bodyType"), msg);
-		bodyType.setImmediate(true);
-		bodyType.setValidationVisible(false);
-		bodyType.setNullSelectionAllowed(false);
-		Stream.of(MessageType.values()).forEach(bodyType::addItem);
+		messageType = new MessageTypeComboBox(msg, () -> body.getValue().getValue(msg));
 		
 		body = new I18nTextArea(msg, msg.getMessage("MessageTemplatesEditor.body"), 8);
 		body.setImmediate(true);
@@ -141,7 +136,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 			description.setValue(toEdit.getDescription());
 			// Using empty locale!
 			I18nMessage ms = toEdit.getMessage();
-			bodyType.setValue(toEdit.getType());
+			messageType.setValue(toEdit.getType());
 			if (ms != null)
 			{
 				subject.setValue(ms.getSubject());
@@ -155,11 +150,11 @@ public class MessageTemplateEditor extends CompactFormLayout
 			{
 				consumer.setValue(consumer.getItemIds().toArray()[0]);
 			}
-			bodyType.setValue(MessageType.PLAIN);
+			messageType.setValue(MessageType.PLAIN);
 		}
 
 		addComponents(name, description, consumer, consumerDescription, buttons, subject,
-				bodyType, body);
+				messageType, body);
 		setSpacing(true);
 	}
 
@@ -171,7 +166,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 		String desc = description.getValue();
 		String cons = getConsumer().getName();
 		I18nMessage ms = new I18nMessage(subject.getValue(), body.getValue());
-		MessageType msgType = (MessageType) bodyType.getValue();
+		MessageType msgType = messageType.getValue();
 		return new MessageTemplate(n, desc, ms, cons, msgType); 
 	}
 

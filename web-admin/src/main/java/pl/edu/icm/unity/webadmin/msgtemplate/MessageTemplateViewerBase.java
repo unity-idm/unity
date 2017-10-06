@@ -11,8 +11,9 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
+import pl.edu.icm.unity.types.basic.MessageType;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
+import pl.edu.icm.unity.webui.common.i18n.I18nLabelWithPreview;
 
 /**
  * Base for message template viewer 
@@ -52,14 +53,15 @@ public abstract class MessageTemplateViewerBase extends VerticalLayout
 		I18nString subjectContent = template.getMessage().getSubject();
 		I18nString bodyContent = template.getMessage().getBody();
 		
-		
 		main.setVisible(true);
 		main.setSpacing(true);
 		name.setValue(nameContent);
-		I18nLabel subject = new I18nLabel(msg, msg.getMessage("MessageTemplateViewer.subject"));
-		subject.setValue(subjectContent);
-		I18nLabel body = new I18nLabel(msg, msg.getMessage("MessageTemplateViewer.body"));
-		body.setValue(bodyContent);
+		
+		I18nLabelWithPreview body = I18nLabelWithPreview.builder(msg, msg.getMessage("MessageTemplateViewer.body"))
+				.withPreview(template.getType() == MessageType.HTML)
+				.buildWithValue(bodyContent);
+		I18nLabelWithPreview subject = I18nLabelWithPreview.builder(msg, msg.getMessage("MessageTemplateViewer.subject"))
+				.buildWithValue(subjectContent);
 		main.addComponents(subject, body);
 	}
 
