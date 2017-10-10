@@ -23,14 +23,21 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
  */
 public class OpenIdConnectDiscovery
 {
+	private static final long DEFAULT_MAX_AGE = 30000;
 	private URL providerMetadataEndpoint;
 	private OIDCProviderMetadata providerMeta;
 	private long expiresAt = -1;
-	
+	private CustomHttpRequestFactory requestFactory;
 	
 	public OpenIdConnectDiscovery(URL providerMetadataEndpoint)
 	{
+		this(providerMetadataEndpoint, new CustomHttpRequestFactory());
+	}
+
+	OpenIdConnectDiscovery(URL providerMetadataEndpoint, CustomHttpRequestFactory requestFactory)
+	{
 		this.providerMetadataEndpoint = providerMetadataEndpoint;
+		this.requestFactory = requestFactory;
 	}
 	
 	public OIDCProviderMetadata getMetadata(CustomProviderProperties config) throws IOException, ParseException
@@ -46,6 +53,14 @@ public class OpenIdConnectDiscovery
 		HTTPRequest request = wrapRequest(new HTTPRequest(Method.GET, providerMetadataEndpoint), config);
 		HTTPResponse response = request.send();
 		String cacheControl = response.getCacheControl();
+		expiresAt = getExpiresOn(cacheControl);
+		providerMeta = OIDCProviderMetadata.parse(response.getContent());
+	}
+	
+	private long getExpiresOn(String cacheControl)
+	{
+		if (cacheControl == null)
+			return System.currentTimeMillis() + DEFAULT_MAX_AGE;
 		StringTokenizer stok = new StringTokenizer(cacheControl, " ");
 		while (stok.hasMoreTokens())
 		{
@@ -53,20 +68,17 @@ public class OpenIdConnectDiscovery
 			if (token.startsWith("max-age="))
 			{
 				long validity = Long.parseLong(token.substring("max-age=".length()));
-				expiresAt = System.currentTimeMillis() + validity;
-				break;
+				return System.currentTimeMillis() + validity;
 			} else if (token.startsWith("no-cache"))
 			{
-				break;
+				return -1;
 			}
 		}
-		
-		providerMeta = OIDCProviderMetadata.parse(response.getContent());
+		return System.currentTimeMillis() + DEFAULT_MAX_AGE;
 	}
-	
 	
 	private HTTPRequest wrapRequest(HTTPRequest httpRequest, CustomProviderProperties config)
 	{
-		return CustomHTTPSRequest.wrapRequest(httpRequest, config); 
+		return requestFactory.wrapRequest(httpRequest, config); 
 	}
 }

@@ -33,7 +33,6 @@ import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
-import com.nimbusds.oauth2.sdk.SerializeException;
 import com.nimbusds.oauth2.sdk.TokenRequest;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
@@ -108,7 +107,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	}
 
 	@Override
-	public String getSerializedConfiguration() throws InternalException
+	public String getSerializedConfiguration()
 	{
 		StringWriter sbw = new StringWriter();
 		try
@@ -122,7 +121,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	}
 
 	@Override
-	public void setSerializedConfiguration(String source) throws InternalException
+	public void setSerializedConfiguration(String source)
 	{
 		try
 		{
@@ -155,7 +154,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	}
 
 	@Override
-	public OAuthContext createRequest(String providerKey) throws URISyntaxException, SerializeException, 
+	public OAuthContext createRequest(String providerKey) throws URISyntaxException,  
 		ParseException, IOException
 	{
 		CustomProviderProperties providerCfg = config.getProvider(providerKey); 
@@ -266,7 +265,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	
 	private HTTPResponse retrieveAccessTokenGeneric(OAuthContext context, String tokenEndpoint, 
 			ClientAuthnMode mode) 
-			throws SerializeException, IOException, URISyntaxException
+			throws IOException, URISyntaxException
 	{
 		String clientId = config.getProvider(context.getProviderConfigKey()).getValue(
 				CustomProviderProperties.CLIENT_ID);
@@ -281,7 +280,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				new URI(tokenEndpoint),
 				clientAuthn,
 				authzCodeGrant);
-		HTTPRequest httpRequest = CustomHTTPSRequest.wrapRequest(request.toHTTPRequest(), context, config); 
+		HTTPRequest httpRequest = new CustomHttpRequestFactory()
+				.wrapRequest(request.toHTTPRequest(), context, config); 
 		if (log.isTraceEnabled())
 		{
 			String notSecretQuery = httpRequest.getQuery().replaceFirst(
@@ -402,7 +402,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		AccessTokenFormat accessTokenFormat = providerCfg.getEnumValue(CustomProviderProperties.ACCESS_TOKEN_FORMAT, 
 				AccessTokenFormat.class);
 
-		Map<String, String> ret = new HashMap<String, String>();
+		Map<String, String> ret = new HashMap<>();
 		BearerAccessToken accessToken;
 		if (accessTokenFormat == AccessTokenFormat.standard)
 		{
@@ -414,7 +414,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			if (response.getStatusCode() != 200)
 				throw new AuthenticationException("Exchange of authorization code for access "
 						+ "token failed: " + response.getContent());
-			MultiMap<String> map = new MultiMap<String>();
+			MultiMap<String> map = new MultiMap<>();
 			UrlEncoded.decodeTo(response.getContent().trim(), map, "UTF-8");
 			String accessTokenVal = map.getString("access_token");
 			if (accessTokenVal == null)
