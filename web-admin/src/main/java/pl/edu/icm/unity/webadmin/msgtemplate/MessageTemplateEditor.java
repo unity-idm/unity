@@ -99,12 +99,12 @@ public class MessageTemplateEditor extends CompactFormLayout
 		subject.setValidationVisible(false);
 		subject.setRequired(true);
 		
-		messageType = new MessageTypeComboBox(msg, () -> body.getValue().getValue(msg));
 		
 		body = new I18nTextArea(msg, msg.getMessage("MessageTemplatesEditor.body"), 8);
 		body.setImmediate(true);
 		body.setValidationVisible(false);
 
+		messageType = new MessageTypeComboBox(msg, body);
 		subjectValidator = new MessageValidator(null, false);
 		bodyValidator = new MessageValidator(null, true);
 		subject.addValidator(subjectValidator);
