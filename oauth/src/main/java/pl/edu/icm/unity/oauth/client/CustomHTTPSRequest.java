@@ -29,8 +29,6 @@ import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import net.minidev.json.JSONObject;
-import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
-import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 
 /**
  * Wrapper of {@link HTTPRequest} with customized TLS setup.
@@ -58,21 +56,6 @@ public class CustomHTTPSRequest extends HTTPRequest
 			factory = SocketFactoryCreator.getSocketFactory(null, validator);
 		verifier = new CanlHostnameVerifierJDK(mode);
 	}
-	
-	public static HTTPRequest wrapRequest(HTTPRequest httpRequest, OAuthContext context, 
-			OAuthClientProperties config)
-	{
-		CustomProviderProperties providerCfg = config.getProvider(context.getProviderConfigKey());
-		return wrapRequest(httpRequest, providerCfg);
-	}
-	
-	public static HTTPRequest wrapRequest(HTTPRequest httpRequest, CustomProviderProperties providerCfg)
-	{
-		ServerHostnameCheckingMode checkingMode = providerCfg.getEnumValue(
-				CustomProviderProperties.CLIENT_HOSTNAME_CHECKING, ServerHostnameCheckingMode.class);
-		
-		return new CustomHTTPSRequest(httpRequest, providerCfg.getValidator(), checkingMode); 
-	}	
 	
 	@Override
 	public HttpURLConnection toHttpURLConnection() throws IOException

@@ -95,7 +95,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 					metadataService, SamlIdpProperties.SPMETA_PREFIX);
 		
 		Awaitility.await()
-			.atMost(Duration.FIVE_SECONDS)
+			.atMost(Duration.TEN_SECONDS)
 			.untilAsserted(() -> assertRemoteMetadataLoaded(manager));
 	}
 	
@@ -140,7 +140,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 				metadataService, SamlIdpProperties.SPMETA_PREFIX);
 		
 		Awaitility.await()
-			.atMost(Duration.FIVE_SECONDS)
+			.atMost(Duration.TEN_SECONDS)
 			.untilAsserted(() -> assertSLOCfgLoaded(manager));
 	}
 	
