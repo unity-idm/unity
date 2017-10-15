@@ -154,8 +154,8 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 			String profile, boolean dryRun) throws EngineException
 	{
 		TranslationProfile translationProfile = profileManagement.getInputProfile(profile);
-		InputTranslationProfile profileInstance = new InputTranslationProfile(translationProfile,
-				actionsRegistry);
+		InputTranslationProfile profileInstance = new InputTranslationProfile(
+				translationProfile, profileManagement, actionsRegistry);
 		if (translationProfile == null)
 			throw new ConfigurationException("The translation profile '" + profile + 
 					"' configured for the authenticator does not exist");

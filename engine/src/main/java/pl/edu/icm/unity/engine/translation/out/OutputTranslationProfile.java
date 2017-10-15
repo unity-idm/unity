@@ -12,10 +12,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.log4j.NDC;
+import org.apache.logging.log4j.Logger;
 
+import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
@@ -25,6 +27,7 @@ import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.translation.ExecutionBreakException;
 import pl.edu.icm.unity.engine.translation.TranslationCondition;
 import pl.edu.icm.unity.engine.translation.TranslationProfileInstance;
+import pl.edu.icm.unity.engine.translation.TranslationRuleInvocationContext;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -44,12 +47,18 @@ public class OutputTranslationProfile
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, OutputTranslationProfile.class);
 	
-	public OutputTranslationProfile(TranslationProfile profile, OutputTranslationActionsRegistry registry)
+	private OutputTranslationActionsRegistry registry;
+	private TranslationProfileManagement profileMan;
+	
+	public OutputTranslationProfile(TranslationProfile profile, TranslationProfileManagement profileMan,
+			OutputTranslationActionsRegistry registry)
 	{
 		super(profile, registry);
+		this.registry = registry;
+		this.profileMan = profileMan;
 	}
 
-	public TranslationResult translate(TranslationInput input) throws EngineException
+	public TranslationResult translate(TranslationInput input, TranslationResult partialState) throws EngineException
 	{
 		NDC.push("[TrProfile " + profile.getName() + "]");
 		if (log.isDebugEnabled())
@@ -58,13 +67,27 @@ public class OutputTranslationProfile
 		try
 		{
 			int i = 1;
-			TranslationResult translationState = initiateTranslationResult(input);
+			TranslationResult translationState = null;
+			if (partialState == null)
+				translationState = initiateTranslationResult(input);
+			else
+				translationState = partialState;
+				
 			for (OutputTranslationRule rule : ruleInstances)
 			{
 				NDC.push("[r: " + (i++) + "]");
 				try
 				{
-					rule.invoke(input, mvelCtx, profile.getName(), translationState);
+					TranslationRuleInvocationContext context = rule.invoke(
+							input, mvelCtx, profile.getName(),
+							translationState);
+					if (context.getIncludedProfile() != null)
+					{
+						invokeOutputTranslationProfile(
+								context.getIncludedProfile(), input,
+								translationState);
+					}
+
 				} catch (ExecutionBreakException e)
 				{
 					break;
@@ -167,5 +190,20 @@ public class OutputTranslationProfile
 							+ action.getClass());
 		}
 		return new OutputTranslationRule((OutputTranslationAction) action, condition);
+	}
+	
+	private TranslationResult invokeOutputTranslationProfile(String profile,
+			TranslationInput input, TranslationResult translationState)
+			throws EngineException
+	{
+		TranslationProfile translationProfile = profileMan.listOutputProfiles()
+				.get(profile);
+		if (translationProfile == null)
+			throw new ConfigurationException("The output translation profile '"
+					+ profile + "' included in another profile does not exist");
+		OutputTranslationProfile profileInstance = new OutputTranslationProfile(
+				translationProfile, profileMan, registry);
+		TranslationResult result = profileInstance.translate(input, translationState);
+		return result;
 	}
 }

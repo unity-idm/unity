@@ -226,6 +226,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 			viewer.setInput(null, getCurrentActionsRegistry());
 			removeAllComponents();
 			addComponent(main);
+			actionComponentFactory.init();
 		} catch (Exception e)
 		{
 			ErrorComponent error = new ErrorComponent();

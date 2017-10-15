@@ -150,8 +150,8 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 				"req", "proto", "subProto");
 
 		tx.runInTransactionThrowing(() -> {
-			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg, outtactionReg);
-			TranslationResult result = tp1.translate(input);
+			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg, tprofMan, outtactionReg);
+			TranslationResult result = tp1.translate(input, null);
 			outputTrEngine.process(input, result);
 		});
 		
@@ -223,8 +223,8 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 				"req", "proto", "subProto");
 		
 		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
-			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg, outtactionReg);
-			return tp1.translate(input);
+			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg, tprofMan, outtactionReg);
+			return tp1.translate(input,null);
 		});
 		
 		Collection<DynamicAttribute> attributes = result.getAttributes();

@@ -128,9 +128,9 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	{
 		TranslationProfileInstance<?, ?> instance;
 		if (profile.getProfileType() == ProfileType.INPUT)
-			instance = new InputTranslationProfile(profile, inputActionReg);
+			instance = new InputTranslationProfile(profile, this, inputActionReg);
 		else if (profile.getProfileType() == ProfileType.OUTPUT)
-			instance = new OutputTranslationProfile(profile, outputActionReg);
+			instance = new OutputTranslationProfile(profile, this, outputActionReg);
 		else
 			throw new IllegalArgumentException("Unsupported profile type: " + profile.getProfileType());
 		if (instance.hasInvalidActions())

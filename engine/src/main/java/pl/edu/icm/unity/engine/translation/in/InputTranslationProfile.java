@@ -11,9 +11,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
+
+import eu.unicore.util.configuration.ConfigurationException;
+
 import org.apache.log4j.NDC;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
@@ -23,6 +27,7 @@ import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
 import pl.edu.icm.unity.engine.translation.ExecutionBreakException;
 import pl.edu.icm.unity.engine.translation.TranslationCondition;
 import pl.edu.icm.unity.engine.translation.TranslationProfileInstance;
+import pl.edu.icm.unity.engine.translation.TranslationRuleInvocationContext;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -46,28 +51,45 @@ public class InputTranslationProfile extends TranslationProfileInstance<InputTra
 
 	
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, InputTranslationProfile.class);
+	private InputTranslationActionsRegistry registry;
+	private TranslationProfileManagement profileMan;
 	
-	public InputTranslationProfile(TranslationProfile profile, InputTranslationActionsRegistry registry)
+	public InputTranslationProfile(TranslationProfile profile,
+			TranslationProfileManagement profileMan,
+			InputTranslationActionsRegistry registry)
 	{
 		super(profile, registry);
+		this.registry = registry;
+		this.profileMan = profileMan;
 	}	
 	
 	public MappingResult translate(RemotelyAuthenticatedInput input) throws EngineException
 	{
 		NDC.push("[TrProfile " + profile.getName() + "]");
 		if (log.isDebugEnabled())
-			log.debug("Input received from IdP " + input.getIdpName() + ":\n" + input.getTextDump());
+			log.debug("Input received from IdP " + input.getIdpName() + ":\n"
+					+ input.getTextDump());
 		Object mvelCtx = createMvelContext(input);
 		try
 		{
-			int i=1;
+			int i = 1;
 			MappingResult translationState = new MappingResult();
-			for (InputTranslationRule rule: ruleInstances)
+			for (InputTranslationRule rule : ruleInstances)
 			{
 				NDC.push("[r: " + (i++) + "]");
 				try
 				{
-					rule.invoke(input, mvelCtx, translationState, profile.getName());
+					TranslationRuleInvocationContext context = rule.invoke(
+							input, mvelCtx, translationState,
+							profile.getName());
+					if (context.getIncludedProfile() != null)
+					{
+						MappingResult result = invokeInputTranslationProfile(
+								context.getIncludedProfile(),
+								input);
+						translationState.mergeWith(result);
+					}
+
 				} catch (ExecutionBreakException e)
 				{
 					break;
@@ -187,4 +209,17 @@ public class InputTranslationProfile extends TranslationProfileInstance<InputTra
 		
 		return new InputTranslationRule((InputTranslationAction) action, condition);
 	}
-}
+	
+	private MappingResult invokeInputTranslationProfile(String profile, RemotelyAuthenticatedInput input) throws EngineException
+	{
+		TranslationProfile translationProfile = profileMan.listInputProfiles().get(profile);
+		if (translationProfile == null)
+			throw new ConfigurationException("The input translation profile '" + profile + 
+					"' included in another profile does not exist");
+		InputTranslationProfile profileInstance = new InputTranslationProfile(translationProfile, profileMan,
+				registry);
+		MappingResult result = profileInstance.translate(input);
+		return result;
+	}
+
+}	

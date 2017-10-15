@@ -116,14 +116,15 @@ public class IdPEngineImplBase implements IdPEngine
 			if (translationProfile == null)
 				throw new ConfigurationException("The translation profile '" + profile + 
 					"' configured for the authenticator does not exist");
-			profileInstance = new OutputTranslationProfile(translationProfile, actionsRegistry);
+			profileInstance = new OutputTranslationProfile(translationProfile, profileManagement, 
+					actionsRegistry);
 		} else
 		{
 			profileInstance = defaultProfile;
 		}
 		TranslationInput input = new TranslationInput(allAttributes, fullEntity, group, allGroups, 
 				requester, protocol, protocolSubType);
-		TranslationResult result = profileInstance.translate(input);
+		TranslationResult result = profileInstance.translate(input, null);
 		translationEngine.process(input, result);
 		return result;
 	}
@@ -176,6 +177,6 @@ public class IdPEngineImplBase implements IdPEngine
 		rules.add(new TranslationRule("true", action2));
 		TranslationProfile profile = new TranslationProfile("DEFAULT OUTPUT PROFILE", "", ProfileType.OUTPUT,
 				rules);
-		return new OutputTranslationProfile(profile, actionsRegistry);
+		return new OutputTranslationProfile(profile, profileManagement, actionsRegistry);
 	}
 }
