@@ -13,6 +13,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce;
+import pl.edu.icm.unity.engine.attribute.AttributeValueConverter;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationEngine;
 
@@ -37,9 +38,10 @@ public class IdPEngineImplNoAuthz extends IdPEngineImplBase
 			OutputTranslationEngine translationEngine,
 			UserImportSerivce userImportService,
 			OutputTranslationActionsRegistry actionsRegistry,
+			AttributeValueConverter attrValueConverter,
 			UnityMessageSource msg)
 	{
 		super(attributesMan, identitiesMan, profileManagement, translationEngine, 
-				userImportService, actionsRegistry, msg);
+				userImportService, actionsRegistry, attrValueConverter, msg);
 	}
 }

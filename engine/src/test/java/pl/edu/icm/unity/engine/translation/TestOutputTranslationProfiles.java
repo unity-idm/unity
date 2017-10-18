@@ -9,6 +9,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,22 +28,27 @@ import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
+import pl.edu.icm.unity.engine.attribute.AttributeValueConverter;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationEngine;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfile;
 import pl.edu.icm.unity.engine.translation.out.action.CreateAttributeActionFactory;
+import pl.edu.icm.unity.engine.translation.out.action.CreateIdentityActionFactory;
 import pl.edu.icm.unity.engine.translation.out.action.CreatePersistentAttributeActionFactory;
 import pl.edu.icm.unity.engine.translation.out.action.CreatePersistentIdentityActionFactory;
 import pl.edu.icm.unity.engine.translation.out.action.FilterAttributeActionFactory;
+import pl.edu.icm.unity.engine.translation.out.action.IncludeOutputProfileActionFactory;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
+import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -75,6 +81,8 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 	private OutputTranslationActionsRegistry outtactionReg;
 	@Autowired
 	private TransactionalRunner tx;
+	@Autowired
+	private AttributeValueConverter attrConverter;
 	
 	@Test
 	public void testOutputPersistence() throws Exception
@@ -140,9 +148,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 		rules.add(new TranslationRule("true", action2));
 		TranslationProfile tp1Cfg = new TranslationProfile("p1", "", ProfileType.OUTPUT, rules);
 		
-		setupPasswordAuthn();
-		createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
-		setupUserContext(DEF_USER, false);
+		getUser();
 		InvocationContext.getCurrent().getLoginSession().addAuthenticatedIdentities(Sets.newHashSet("user1"));
 		
 		TranslationInput input = new TranslationInput(new ArrayList<Attribute>(), userE, 
@@ -150,8 +156,8 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 				"req", "proto", "subProto");
 
 		tx.runInTransactionThrowing(() -> {
-			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg, tprofMan, outtactionReg);
-			TranslationResult result = tp1.translate(input, null);
+			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg, tprofMan, outtactionReg, attrConverter);
+			TranslationResult result = tp1.translate(input);
 			outputTrEngine.process(input, result);
 		});
 		
@@ -206,10 +212,8 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 		rules.add(new TranslationRule("true", action3));
 
 		TranslationProfile tp1Cfg = new TranslationProfile("p1", "", ProfileType.OUTPUT, rules);
-		
-		setupPasswordAuthn();
-		Identity user = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
-		Entity userE = idsMan.getEntity(new EntityParam(user));
+
+		Entity userE = getUser();
 		setupUserContext(DEF_USER, false);
 		InvocationContext.getCurrent().getLoginSession().addAuthenticatedIdentities(Sets.newHashSet("user1"));
 		
@@ -223,8 +227,8 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 				"req", "proto", "subProto");
 		
 		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
-			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg, tprofMan, outtactionReg);
-			return tp1.translate(input,null);
+			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg, tprofMan, outtactionReg, attrConverter);
+			return tp1.translate(input);
 		});
 		
 		Collection<DynamicAttribute> attributes = result.getAttributes();
@@ -239,6 +243,342 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 					assertThat(val, is(instanceOf(String.class)));
 			}
 		}
+	}
+	
+	@Test
+	public void includedProfileShouldCreateAttribute() throws Exception
+	{
+		AttributeType oType = new AttributeType("o", StringAttributeSyntax.ID);
+		aTypeMan.addAttributeType(oType);
+		AttributeType eType = new AttributeType("e", VerifiableEmailAttributeSyntax.ID);
+		aTypeMan.addAttributeType(eType);
+
+		List<TranslationRule> rules = new ArrayList<>();
+		TranslationAction action1 = new TranslationAction(CreateAttributeActionFactory.NAME,
+				new String[] { "a1", "attr['o']", "false" });
+		rules.add(new TranslationRule("true", action1));
+		TranslationProfile included = new TranslationProfile("included", "",
+				ProfileType.OUTPUT, rules);
+		tprofMan.addProfile(included);
+
+		rules = new ArrayList<>();
+		TranslationAction action2 = new TranslationAction(CreateAttributeActionFactory.NAME,
+				new String[] { "a2", "attr['e']", "false" });
+		rules.add(new TranslationRule("true", action2));
+
+		TranslationAction include = new TranslationAction(
+				IncludeOutputProfileActionFactory.NAME,
+				new String[] { "included" });
+		rules.add(new TranslationRule("true", include));
+		TranslationProfile tpMain = new TranslationProfile("tp1", "", ProfileType.OUTPUT,
+				rules);
+		tprofMan.addProfile(tpMain);
+
+		Entity userE = getUser();
+		TranslationInput input = new TranslationInput(
+				Lists.newArrayList(StringAttribute.of("o", "/", "v1"),
+						VerifiableEmailAttribute.of("e", "/",
+								"email@example.com")),
+				userE, "/", Collections.singleton("/"), "req", "proto", "subProto");
+		TranslationResult res = tx.runInTransactionRetThrowing(() -> {
+			OutputTranslationProfile tp1 = new OutputTranslationProfile(tpMain,
+					tprofMan, outtactionReg, attrConverter);
+			TranslationResult result = tp1.translate(input);
+			return result;
+		});
+
+		Collection<DynamicAttribute> attributes = res.getAttributes();
+
+		assertThat(attributes.size(), is(4));
+		for (DynamicAttribute da : attributes)
+		{
+			Attribute attr = da.getAttribute();
+			if (attr.getName().equals("a1"))
+			{
+				assertThat(attr.getValues().get(0), is("v1"));
+			}
+
+			if (attr.getName().equals("a2"))
+			{
+				assertThat(attr.getValues().get(0), is("email@example.com"));
+			}
+
+		}
+	}
+	
+	@Test
+	public void includedProfileShouldOverwriteAttributeFromParentProfile() throws Exception
+	{
+
+		List<TranslationRule> rules = new ArrayList<>();
+		TranslationAction action1 = new TranslationAction(CreateAttributeActionFactory.NAME,
+				new String[] { "a1", "'x2'", "false" });
+		rules.add(new TranslationRule("true", action1));
+		TranslationProfile included = new TranslationProfile("included", "",
+				ProfileType.OUTPUT, rules);
+		tprofMan.addProfile(included);
+
+		rules = new ArrayList<>();
+		TranslationAction action2 = new TranslationAction(CreateAttributeActionFactory.NAME,
+				new String[] { "a1", "'x'", "false" });
+		rules.add(new TranslationRule("true", action2));
+
+		TranslationAction include = new TranslationAction(
+				IncludeOutputProfileActionFactory.NAME,
+				new String[] { "included" });
+		rules.add(new TranslationRule("true", include));
+		TranslationProfile tpMain = new TranslationProfile("tp1", "", ProfileType.OUTPUT,
+				rules);
+		tprofMan.addProfile(tpMain);
+
+		Entity userE = getUser();
+		
+		TranslationInput input = new TranslationInput(
+				Lists.newArrayList(),
+				userE, "/", Collections.singleton("/"), "req", "proto", "subProto");
+
+		TranslationResult res = tx.runInTransactionRetThrowing(() -> {
+			OutputTranslationProfile tp1 = new OutputTranslationProfile(tpMain,
+					tprofMan, outtactionReg, attrConverter);
+			TranslationResult result = tp1.translate(input);
+			return result;
+		});
+
+		Collection<DynamicAttribute> attributes = res.getAttributes();
+
+		assertThat(attributes.size(), is(1));
+		for (DynamicAttribute da : attributes)
+		{
+			Attribute attr = da.getAttribute();
+			if (attr.getName().equals("a1"))
+			{
+				assertThat(attr.getValues().get(0), is("x2"));
+			}
+		}
+	}
+
+	@Test
+	public void profileShouldOverwriteAttribute() throws Exception
+	{
+		AttributeType oType = new AttributeType("o", StringAttributeSyntax.ID);
+		aTypeMan.addAttributeType(oType);
+
+		AttributeType eType = new AttributeType("e", StringAttributeSyntax.ID);
+		aTypeMan.addAttributeType(eType);
+
+		List<TranslationRule> rules = new ArrayList<>();
+		TranslationAction action1 = new TranslationAction(CreateAttributeActionFactory.NAME,
+				new String[] { "o", "attr['e']", "false" });
+		rules.add(new TranslationRule("true", action1));
+		TranslationProfile tp1Cfg = new TranslationProfile("tp1", "", ProfileType.OUTPUT,
+				rules);
+
+		TranslationInput input = new TranslationInput(
+				Lists.newArrayList(StringAttribute.of("o", "/", "v1"),
+						StringAttribute.of("e", "/", "v2")),
+				getUser(), "/", Collections.singleton("/"), "req", "proto",
+				"subProto");
+
+		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
+			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg,
+					tprofMan, outtactionReg, attrConverter);
+			return tp1.translate(input);
+		});
+
+		Collection<DynamicAttribute> attributes = result.getAttributes();
+		assertThat(attributes.size(), is(2));
+		for (DynamicAttribute da : attributes)
+		{
+			Attribute a = da.getAttribute();
+			if (a.getName().equals("o"))
+			{
+				assertThat(a.getValues().get(0), is("v2"));
+			}
+		}
+	}
+
+	@Test
+	public void profileShouldManipulateOfAttributeExternalValueRepresetation() throws Exception
+	{
+		AttributeType eType = new AttributeType("e", VerifiableEmailAttributeSyntax.ID);
+		aTypeMan.addAttributeType(eType);
+
+		ArrayList<TranslationRule> rules = new ArrayList<>();
+		TranslationAction action = new TranslationAction(CreateAttributeActionFactory.NAME,
+				new String[] { "a2", "attr['e']", "false" });
+		rules.add(new TranslationRule("true", action));
+		TranslationProfile tp1Cfg = new TranslationProfile("tp1", "", ProfileType.OUTPUT,
+				rules);
+
+		TranslationInput input = new TranslationInput(
+				Lists.newArrayList(VerifiableEmailAttribute.of("e", "/",
+						"email@example.com")),
+				getUser(), "/", Collections.singleton("/"), "req", "proto",
+				"subProto");
+
+		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
+			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg,
+					tprofMan, outtactionReg, attrConverter);
+			return tp1.translate(input);
+		});
+
+		Collection<DynamicAttribute> attributes = result.getAttributes();
+		assertThat(attributes.size(), is(2));
+		for (DynamicAttribute da : attributes)
+		{
+			Attribute a = da.getAttribute();
+			if (a.getName().equals("a2"))
+			{
+				assertThat(a.getValues().get(0), is("email@example.com"));
+			}
+		}
+	}
+
+	@Test
+	public void includedProfileShouldOverwriteIdentityFromParentProfile() throws Exception
+	{
+
+		List<TranslationRule> rules = new ArrayList<>();
+		TranslationAction action1 = new TranslationAction(CreateIdentityActionFactory.NAME,
+				new String[] { UsernameIdentity.ID, "'x'" });
+		rules.add(new TranslationRule("true", action1));
+		TranslationProfile tp1Cfg = new TranslationProfile("included", "",
+				ProfileType.OUTPUT, rules);
+		tprofMan.addProfile(tp1Cfg);
+
+		rules = new ArrayList<>();
+		action1 = new TranslationAction(CreateIdentityActionFactory.NAME,
+				new String[] { UsernameIdentity.ID, "'x2'" });
+		rules.add(new TranslationRule("true", action1));
+		action1 = new TranslationAction(IncludeOutputProfileActionFactory.NAME,
+				new String[] { "included" });
+
+		rules.add(new TranslationRule("true", action1));
+
+		TranslationProfile tp2Cfg = new TranslationProfile("tp1", "", ProfileType.OUTPUT,
+				rules);
+
+		Entity e = getUser();
+
+		TranslationInput input = new TranslationInput(Lists.newArrayList(), e, "/",
+				Collections.singleton("/"), "req", "proto", "subProto");
+		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
+			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp2Cfg,
+					tprofMan, outtactionReg, attrConverter);
+			return tp1.translate(input);
+		});
+
+		assertThat(result.getIdentities().size(), is(2));
+
+		for (IdentityParam id : result.getIdentities())
+		{
+			if (id.getTypeId().equals(EmailIdentity.ID))
+				assertThat(id.getValue(), is("x"));
+
+		}
+
+	}
+
+	@Test
+	public void profileShouldOverwriteIdentity() throws Exception
+	{
+
+		List<TranslationRule> rules = new ArrayList<>();
+		TranslationAction action1 = new TranslationAction(CreateIdentityActionFactory.NAME,
+				new String[] { UsernameIdentity.ID, "'x'" });
+		rules.add(new TranslationRule("true", action1));
+		TranslationProfile tp2Cfg = new TranslationProfile("tp1", "", ProfileType.OUTPUT,
+				rules);
+
+		Entity e = getUser();
+
+		TranslationInput input = new TranslationInput(Lists.newArrayList(), e, "/",
+				Collections.singleton("/"), "req", "proto", "subProto");
+		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
+			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp2Cfg,
+					tprofMan, outtactionReg, attrConverter);
+			return tp1.translate(input);
+		});
+
+		assertThat(result.getIdentities().size(), is(2));
+
+		for (IdentityParam id : result.getIdentities())
+		{
+			if (id.getTypeId().equals(UsernameIdentity.ID))
+				assertThat(id.getValue(), is("x"));
+
+		}
+
+	}
+	
+	@Test
+	public void profileShouldFilterAlsoPersistentAttribute() throws Exception
+	{
+		AttributeType oType = new AttributeType("o", StringAttributeSyntax.ID);
+		aTypeMan.addAttributeType(oType);
+
+		List<TranslationRule> rules = new ArrayList<>();
+		TranslationAction action1 = new TranslationAction(
+				CreatePersistentAttributeActionFactory.NAME,
+				new String[] { "o", "'ICM'", "false", "/" });
+		rules.add(new TranslationRule("true", action1));
+
+		action1 = new TranslationAction(FilterAttributeActionFactory.NAME,
+				new String[] { "o*" });
+		rules.add(new TranslationRule("true", action1));
+
+		TranslationProfile tp2Cfg = new TranslationProfile("tp1", "", ProfileType.OUTPUT,
+				rules);
+
+		TranslationInput input = new TranslationInput(Lists.newArrayList(), getUser(), "/",
+				Collections.singleton("/"), "req", "proto", "subProto");
+
+		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
+			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp2Cfg,
+					tprofMan, outtactionReg, attrConverter);
+			return tp1.translate(input);
+		});
+		assertThat(result.getAttributes().size(), is(0));
+		assertThat(result.getAttributesToPersist().size(), is(0));
+	}
+	
+	@Test
+	public void profileShouldNotFailIfAttributeIsMissing() throws Exception
+	{
+		AttributeType oType = new AttributeType("o", StringAttributeSyntax.ID);
+		aTypeMan.addAttributeType(oType);
+
+		List<TranslationRule> rules = new ArrayList<>();
+		TranslationAction action1 = new TranslationAction(
+				CreatePersistentAttributeActionFactory.NAME,
+				new String[] { "o", "'ICM'", "false", "/" });
+		rules.add(new TranslationRule("true", action1));
+
+		TranslationProfile tp2Cfg = new TranslationProfile("tp1", "", ProfileType.OUTPUT,
+				rules);
+		TranslationInput input = new TranslationInput(Lists.newArrayList(), getUser(), "/",
+				Collections.singleton("/"), "req", "proto", "subProto");
+		aTypeMan.removeAttributeType("o", true);	
+		try{
+			TranslationResult result = tx.runInTransactionRetThrowing(() -> {
+				OutputTranslationProfile tp1 = new OutputTranslationProfile(tp2Cfg,
+						tprofMan, outtactionReg, attrConverter);
+				return tp1.translate(input);
+			});
+			assertThat(result.getAttributes().size(), is(0));
+			assertThat(result.getAttributesToPersist().size(), is(0));
+		} catch (Exception e)
+		{
+			fail("Exception throw when run misconfigured action");
+		}
+		
+	}
+
+	private Entity getUser() throws Exception
+	{
+		setupPasswordAuthn();
+		Identity user = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		return idsMan.getEntity(new EntityParam(user));
 	}
 }
 

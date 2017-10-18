@@ -87,17 +87,11 @@ public class CreatePersistentIdentityActionFactory extends AbstractOutputTransla
 			if (idType.isVerifiable())
 				newId.setConfirmationInfo(new ConfirmationInfo(true));
 			
-			String cmpValue = idType.getComparableValue(value, null, null);
-			for (IdentityParam existing: result.getIdentities())
+			if (result.removeIdentityToPersistByType(idType.getId()))
 			{
-				if (existing.getTypeId().equals(idType.getId()))
-				{
-					if (idType.getComparableValue(existing.getValue(), null, null).equals(cmpValue))
-					{
-						log.trace("Identity already exists, skipping");
-						return;
-					}
-				}
+				result.removeIdentityByType(idType.getId());
+				log.trace("Identity to persist type '" + idType.getId()
+						+ "' already exists, overwrite");
 			}
 			
 			result.getIdentities().add(newId);

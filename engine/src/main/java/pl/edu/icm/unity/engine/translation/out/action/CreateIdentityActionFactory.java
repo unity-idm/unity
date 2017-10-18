@@ -72,16 +72,14 @@ public class CreateIdentityActionFactory extends AbstractOutputTranslationAction
 				return;
 			}
 			String value = valueO.toString();
-			for (IdentityParam existing: result.getIdentities())
+
+			if (result.removeIdentityByType(idTypeString))
 			{
-				if (existing.getTypeId().equals(idTypeString))
-				{
-					if (value.equals(existing.getValue()))
-					{
-						log.trace("Identity already exists, skipping");
-						return;
-					}
-				}
+				// check if identity is also in identity to
+				// persist and remove them.
+				result.removeIdentityToPersistByType(idTypeString);
+				log.trace("Identity type '" + idTypeString
+						+ "' already exists, overwrite");
 			}
 			
 			IdentityParam newId = new IdentityParam(idTypeString, value);

@@ -30,12 +30,12 @@ import pl.edu.icm.unity.types.translation.TranslationActionType;
 public class IncludeOutputProfileActionFactory extends AbstractOutputTranslationActionFactory
 {
 
-	public static final String name = "includeOutputProfile";
+	public static final String NAME = "includeOutputProfile";
 
 	@Autowired
 	public IncludeOutputProfileActionFactory()
 	{
-		super(name, new ActionParameterDefinition("inputProfile",
+		super(NAME, new ActionParameterDefinition("outputProfile",
 				"TranslationAction.includeOutputProfile.paramDesc.outputProfile",
 				Type.UNITY_OUTPUT_TRANSLATION_PROFILE));
 	}

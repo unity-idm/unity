@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
+import pl.edu.icm.unity.engine.attribute.AttributeValueConverter;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
@@ -42,19 +43,22 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	private OutputTranslationProfileDB otpDB;
 	private InputTranslationActionsRegistry inputActionReg;
 	private OutputTranslationActionsRegistry outputActionReg;
+	private AttributeValueConverter attrConverter;
 
 	
 	@Autowired
 	public TranslationProfileManagementImpl(AuthorizationManager authz,
 			InputTranslationProfileDB itpDB, OutputTranslationProfileDB otpDB,
 			InputTranslationActionsRegistry inputActionReg,
-			OutputTranslationActionsRegistry outputActionReg)
+			OutputTranslationActionsRegistry outputActionReg,
+			AttributeValueConverter attrConverter)
 	{
 		this.authz = authz;
 		this.itpDB = itpDB;
 		this.otpDB = otpDB;
 		this.inputActionReg = inputActionReg;
 		this.outputActionReg = outputActionReg;
+		this.attrConverter = attrConverter;
 	}
 
 	private NamedCRUDDAOWithTS<TranslationProfile> getDAO(TranslationProfile profile)
@@ -130,7 +134,7 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 		if (profile.getProfileType() == ProfileType.INPUT)
 			instance = new InputTranslationProfile(profile, this, inputActionReg);
 		else if (profile.getProfileType() == ProfileType.OUTPUT)
-			instance = new OutputTranslationProfile(profile, this, outputActionReg);
+			instance = new OutputTranslationProfile(profile, this, outputActionReg, attrConverter);
 		else
 			throw new IllegalArgumentException("Unsupported profile type: " + profile.getProfileType());
 		if (instance.hasInvalidActions())

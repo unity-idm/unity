@@ -24,11 +24,13 @@ import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
+import pl.edu.icm.unity.engine.attribute.AttributeValueConverter;
 import pl.edu.icm.unity.engine.translation.ExecutionBreakException;
 import pl.edu.icm.unity.engine.translation.TranslationCondition;
 import pl.edu.icm.unity.engine.translation.TranslationProfileInstance;
 import pl.edu.icm.unity.engine.translation.TranslationRuleInvocationContext;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
@@ -49,13 +51,20 @@ public class OutputTranslationProfile
 	
 	private OutputTranslationActionsRegistry registry;
 	private TranslationProfileManagement profileMan;
+	private AttributeValueConverter attrConverter;
 	
 	public OutputTranslationProfile(TranslationProfile profile, TranslationProfileManagement profileMan,
-			OutputTranslationActionsRegistry registry)
+			OutputTranslationActionsRegistry registry, AttributeValueConverter attrConverter)
 	{
 		super(profile, registry);
 		this.registry = registry;
 		this.profileMan = profileMan;
+		this.attrConverter = attrConverter;
+	}
+	
+	public TranslationResult translate(TranslationInput input) throws EngineException
+	{
+		return translate(input, null);
 	}
 
 	public TranslationResult translate(TranslationInput input, TranslationResult partialState) throws EngineException
@@ -63,7 +72,7 @@ public class OutputTranslationProfile
 		NDC.push("[TrProfile " + profile.getName() + "]");
 		if (log.isDebugEnabled())
 			log.debug("Unprocessed data from local database:\n" + input.getTextDump());
-		Object mvelCtx = createMvelContext(input);
+		Object mvelCtx = createMvelContext(input, attrConverter);
 		try
 		{
 			int i = 1;
@@ -115,7 +124,7 @@ public class OutputTranslationProfile
 		return ret;
 	}
 
-	public static Map<String, Object> createMvelContext(TranslationInput input)
+	public static Map<String, Object> createMvelContext(TranslationInput input, AttributeValueConverter attrConverter) throws IllegalAttributeValueException
 	{
 		Map<String, Object> ret = new HashMap<>();
 
@@ -124,11 +133,13 @@ public class OutputTranslationProfile
 		ret.put("requester", input.getRequester());
 		Map<String, Object> attr = new HashMap<String, Object>();
 		Map<String, List<? extends Object>> attrs = new HashMap<String, List<?>>();
+		
 		for (Attribute ra: input.getAttributes())
 		{
-			Object v = ra.getValues().isEmpty() ? "" : ra.getValues().get(0);
+			List<String> values = attrConverter.internalValuesToExternal(ra.getName(), ra.getValues());	
+			String v = values.isEmpty() ? "" : values.get(0);
 			attr.put(ra.getName(), v);
-			attrs.put(ra.getName(), ra.getValues());
+			attrs.put(ra.getName(), values);
 		}
 		ret.put("attr", attr);
 		ret.put("attrs", attrs);
@@ -202,7 +213,7 @@ public class OutputTranslationProfile
 			throw new ConfigurationException("The output translation profile '"
 					+ profile + "' included in another profile does not exist");
 		OutputTranslationProfile profileInstance = new OutputTranslationProfile(
-				translationProfile, profileMan, registry);
+				translationProfile, profileMan, registry, attrConverter);
 		TranslationResult result = profileInstance.translate(input, translationState);
 		return result;
 	}

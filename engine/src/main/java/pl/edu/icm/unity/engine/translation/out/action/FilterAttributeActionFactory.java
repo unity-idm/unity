@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.engine.translation.out.action;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -16,7 +15,6 @@ import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
 import pl.edu.icm.unity.types.translation.TranslationActionType;
@@ -60,16 +58,19 @@ public class FilterAttributeActionFactory extends AbstractOutputTranslationActio
 		protected void invokeWrapped(TranslationInput input, Object mvelCtx, String currentProfile,
 				TranslationResult result) throws EngineException
 		{
-			Set<DynamicAttribute> copy = new HashSet<>(result.getAttributes());
-			for (DynamicAttribute a: copy)
+			Set<String> res = result.removeAttributesByMatch(attrPattern);
+			if (!res.isEmpty())
 			{
-				String attrName = a.getAttribute().getName();
-				if (attrPattern.matcher(attrName).matches())
-				{
+				for (String attrName : res)
 					log.debug("Filtering the attribute " + attrName);
-					result.getAttributes().remove(a);
-				}
 			}
+			res = result.removeAttributesToPersistByMatch(attrPattern);
+			if (!res.isEmpty())
+			{
+				for (String attrName : res)
+					log.debug("Filtering the attribute to persist " + attrName);
+			}
+			
 		}
 
 		private void setParameters(String[] parameters)
