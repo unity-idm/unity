@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.vaadin.v7.ui.AbstractTextField;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.v7.ui.AbstractTextField;
 import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.v7.ui.Label;
 import com.vaadin.v7.ui.VerticalLayout;
@@ -106,7 +106,6 @@ public class TranslationProfileEditor extends VerticalLayout
 	protected void initUI()
 	{
 		rulesLayout = new CompactFormLayout();
-		rulesLayout.setImmediate(true);
 		rulesLayout.setSpacing(false);
 		rulesLayout.setMargin(false);
 

@@ -184,7 +184,6 @@ public class RemotelyAuthenticatedInputComponent extends CustomComponent
 	private VerticalLayout buildMainLayout() {
 		// common part: create layout
 		mainLayout = new VerticalLayout();
-		mainLayout.setImmediate(false);
 		mainLayout.setWidth("100%");
 		mainLayout.setHeight("100%");
 		mainLayout.setMargin(false);
@@ -210,7 +209,6 @@ public class RemotelyAuthenticatedInputComponent extends CustomComponent
 	private HorizontalLayout buildTitleWrap() {
 		// common part: create layout
 		titleWrap = new HorizontalLayout();
-		titleWrap.setImmediate(false);
 		titleWrap.setWidth("-1px");
 		titleWrap.setHeight("-1px");
 		titleWrap.setMargin(false);
@@ -239,7 +237,6 @@ public class RemotelyAuthenticatedInputComponent extends CustomComponent
 	private VerticalLayout buildMappingResultWrap() {
 		// common part: create layout
 		mappingResultWrap = new VerticalLayout();
-		mappingResultWrap.setImmediate(false);
 		mappingResultWrap.setWidth("100.0%");
 		mappingResultWrap.setHeight("-1px");
 		mappingResultWrap.setMargin(true);
@@ -265,7 +262,6 @@ public class RemotelyAuthenticatedInputComponent extends CustomComponent
 	private VerticalLayout buildIdsWrap() {
 		// common part: create layout
 		idsWrap = new VerticalLayout();
-		idsWrap.setImmediate(false);
 		idsWrap.setWidth("100.0%");
 		idsWrap.setHeight("-1px");
 		idsWrap.setMargin(false);
@@ -293,7 +289,6 @@ public class RemotelyAuthenticatedInputComponent extends CustomComponent
 	private VerticalLayout buildAttrsWrap() {
 		// common part: create layout
 		attrsWrap = new VerticalLayout();
-		attrsWrap.setImmediate(false);
 		attrsWrap.setWidth("100.0%");
 		attrsWrap.setHeight("-1px");
 		attrsWrap.setMargin(false);
@@ -321,7 +316,6 @@ public class RemotelyAuthenticatedInputComponent extends CustomComponent
 	private HorizontalLayout buildGroupsWrap() {
 		// common part: create layout
 		groupsWrap = new HorizontalLayout();
-		groupsWrap.setImmediate(false);
 		groupsWrap.setWidth("-1px");
 		groupsWrap.setHeight("-1px");
 		groupsWrap.setMargin(false);
