@@ -11,5 +11,5 @@
 
     <inherits name="com.vaadin.DefaultWidgetSet" />
 
-    <inherits name="org.vaadin.risto.stepper.widgetset.StepperWidgetset" />
+    <inherits name="org.vaadin.risto.stepper.StepperWidgetset" />
 </module>
