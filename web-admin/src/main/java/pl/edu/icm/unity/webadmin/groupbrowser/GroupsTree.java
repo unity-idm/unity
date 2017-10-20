@@ -159,7 +159,7 @@ public class GroupsTree extends Tree
 	{
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		Collection<String> groups = identitiesMan.getGroups(new EntityParam(ae.getEntityId())).keySet();
-		List<String> accessibleGroups = new ArrayList<String>(groups.size());
+		List<String> accessibleGroups = new ArrayList<>(groups.size());
 		for (String groupM: groups)
 		{
 			try
@@ -589,7 +589,7 @@ public class GroupsTree extends Tree
 			Collection<?> children = getChildren(item);
 			if (children != null)
 			{
-				Set<Object> copied = new HashSet<Object>(children.size());
+				Set<Object> copied = new HashSet<>(children.size());
 				copied.addAll(children);
 				for (Object child: copied)
 				{
@@ -604,7 +604,7 @@ public class GroupsTree extends Tree
 	private class ValueChangeListenerImpl implements ValueChangeListener
 	{
 		@Override
-		public void valueChange(com.vaadin.data.Property.ValueChangeEvent event)
+		public void valueChange(com.vaadin.v7.data.Property.ValueChangeEvent event)
 		{
 			final TreeNode node = (TreeNode) getValue();
 			bus.fireEvent(new GroupChangedEvent(node == null ? null : node.getPath()));
