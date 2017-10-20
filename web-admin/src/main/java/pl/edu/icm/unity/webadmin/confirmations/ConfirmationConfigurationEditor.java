@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webadmin.confirmations;
 import java.util.List;
 import java.util.Set;
 
-import com.vaadin.ui.ComboBox;
+import com.vaadin.v7.ui.ComboBox;
 
 import pl.edu.icm.unity.base.msgtemplates.confirm.ConfirmationTemplateDef;
 import pl.edu.icm.unity.engine.api.ConfirmationConfigurationManagement;

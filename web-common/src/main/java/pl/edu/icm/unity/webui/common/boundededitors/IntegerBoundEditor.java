@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common.boundededitors;
 
-import com.vaadin.data.util.converter.StringToIntegerConverter;
-import com.vaadin.data.validator.IntegerRangeValidator;
+import com.vaadin.v7.data.util.converter.StringToIntegerConverter;
+import com.vaadin.v7.data.validator.IntegerRangeValidator;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;

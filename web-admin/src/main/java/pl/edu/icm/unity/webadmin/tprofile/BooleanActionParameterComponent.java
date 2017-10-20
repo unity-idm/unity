@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import com.vaadin.ui.CheckBox;
+import com.vaadin.v7.ui.CheckBox;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;

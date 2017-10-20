@@ -12,8 +12,8 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
-import com.vaadin.shared.ui.label.ContentMode;
-import com.vaadin.ui.Label;
+import com.vaadin.v7.shared.ui.label.ContentMode;
+import com.vaadin.v7.ui.Label;
 
 /**
  * <b>IMPORTANT!</b> Use this class ONLY to show data which is at least partially trusted. 

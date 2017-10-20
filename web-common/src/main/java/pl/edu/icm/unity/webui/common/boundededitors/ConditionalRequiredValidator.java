@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common.boundededitors;
 
-import com.vaadin.data.validator.AbstractValidator;
-import com.vaadin.ui.CheckBox;
+import com.vaadin.v7.data.validator.AbstractValidator;
+import com.vaadin.v7.ui.CheckBox;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 

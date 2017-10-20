@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import com.vaadin.data.Validator.InvalidValueException;
-import com.vaadin.data.util.BeanItem;
-import com.vaadin.event.DataBoundTransferable;
+import com.vaadin.v7.data.Validator.InvalidValueException;
+import com.vaadin.v7.data.util.BeanItem;
+import com.vaadin.v7.event.DataBoundTransferable;
 import com.vaadin.event.FieldEvents.BlurEvent;
 import com.vaadin.event.FieldEvents.BlurListener;
 import com.vaadin.event.dd.DragAndDropEvent;
@@ -14,7 +14,7 @@ import com.vaadin.event.dd.DropHandler;
 import com.vaadin.event.dd.acceptcriteria.AcceptAll;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomField;
+import com.vaadin.v7.ui.CustomField;
 import com.vaadin.ui.DragAndDropWrapper;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;

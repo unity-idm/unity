@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
+import com.vaadin.v7.ui.Label;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.AuthorizationException;

@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common.i18n;
 
-import com.vaadin.ui.TextField;
+import com.vaadin.v7.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;

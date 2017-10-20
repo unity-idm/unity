@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import com.vaadin.data.Validatable;
-import com.vaadin.data.Validator.InvalidValueException;
+import com.vaadin.v7.data.Validatable;
+import com.vaadin.v7.data.Validator.InvalidValueException;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HasComponents;

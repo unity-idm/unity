@@ -24,8 +24,8 @@ import com.vaadin.event.Transferable;
 import com.vaadin.event.dd.DragAndDropEvent;
 import com.vaadin.event.dd.DropHandler;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
-import com.vaadin.ui.Table.TableTransferable;
-import com.vaadin.ui.Tree;
+import com.vaadin.v7.ui.Table.TableTransferable;
+import com.vaadin.v7.ui.Tree;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;

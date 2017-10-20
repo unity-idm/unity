@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webui.common;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import com.vaadin.data.validator.AbstractStringValidator;
+import com.vaadin.v7.data.validator.AbstractStringValidator;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 

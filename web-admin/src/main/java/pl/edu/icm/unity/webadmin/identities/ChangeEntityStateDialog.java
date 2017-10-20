@@ -5,14 +5,14 @@
 package pl.edu.icm.unity.webadmin.identities;
 
 import com.google.gwt.thirdparty.guava.common.collect.Sets;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.server.UserError;
-import com.vaadin.shared.ui.datefield.Resolution;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.DateField;
+import com.vaadin.v7.shared.ui.datefield.Resolution;
+import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.v7.ui.DateField;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
+import com.vaadin.v7.ui.Label;
 import com.vaadin.ui.Panel;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;

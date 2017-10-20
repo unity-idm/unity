@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import com.vaadin.data.validator.RangeValidator;
+import com.vaadin.v7.data.validator.RangeValidator;
 
 public class LongRangeValidator extends RangeValidator<Long>
 {

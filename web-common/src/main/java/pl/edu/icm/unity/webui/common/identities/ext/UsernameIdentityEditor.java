@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.webui.common.identities.ext;
 
 import com.vaadin.server.UserError;
-import com.vaadin.ui.TextField;
+import com.vaadin.v7.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;

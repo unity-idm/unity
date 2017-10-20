@@ -6,9 +6,9 @@ package pl.edu.icm.unity.webui.common;
 
 import java.util.Map;
 
-import com.vaadin.data.util.BeanContainer;
-import com.vaadin.data.util.BeanItem;
-import com.vaadin.ui.ComboBox;
+import com.vaadin.v7.data.util.BeanContainer;
+import com.vaadin.v7.data.util.BeanItem;
+import com.vaadin.v7.ui.ComboBox;
 
 /**
  * Simple {@link ComboBox} which can be initialized to show a contents of a 

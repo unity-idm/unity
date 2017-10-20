@@ -12,12 +12,12 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.Logger;
 import org.mvel2.MVEL;
 
-import com.vaadin.data.Validator;
-import com.vaadin.ui.CheckBox;
+import com.vaadin.v7.data.Validator;
+import com.vaadin.v7.ui.CheckBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.OptionGroup;
-import com.vaadin.ui.TextField;
+import com.vaadin.v7.ui.OptionGroup;
+import com.vaadin.v7.ui.TextField;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.GroupsManagement;

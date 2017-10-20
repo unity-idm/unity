@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.attributeclass;
 
-import com.vaadin.ui.TwinColSelect;
+import com.vaadin.v7.ui.TwinColSelect;
 
 import pl.edu.icm.unity.types.basic.AttributesClass;
 

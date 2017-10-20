@@ -5,8 +5,8 @@
 package pl.edu.icm.unity.webui.common.safehtml;
 
 import com.google.gwt.thirdparty.guava.common.html.HtmlEscapers;
-import com.vaadin.shared.ui.label.ContentMode;
-import com.vaadin.ui.Label;
+import com.vaadin.v7.shared.ui.label.ContentMode;
+import com.vaadin.v7.ui.Label;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 

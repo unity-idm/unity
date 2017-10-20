@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.google.gwt.core.ext.typeinfo.JClassType;
-import com.vaadin.client.ui.checkbox.CheckBoxConnector;
+import com.vaadin.v7.client.ui.checkbox.CheckBoxConnector;
 import com.vaadin.server.widgetsetutils.ConnectorBundleLoaderFactory;
 import com.vaadin.shared.ui.Connect.LoadStyle;
 

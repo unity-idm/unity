@@ -9,7 +9,7 @@ import java.util.List;
 
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomField;
+import com.vaadin.v7.ui.CustomField;
 import com.vaadin.ui.FormLayout;
 
 /**

@@ -6,11 +6,11 @@ package pl.edu.icm.unity.webadmin.groupdetails;
 
 import java.util.Set;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
+import com.vaadin.v7.ui.Label;
 import com.vaadin.ui.Panel;
 
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;

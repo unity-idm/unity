@@ -8,8 +8,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeMap;
 
-import com.vaadin.data.Property;
-import com.vaadin.ui.ComboBox;
+import com.vaadin.v7.data.Property;
+import com.vaadin.v7.ui.ComboBox;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 

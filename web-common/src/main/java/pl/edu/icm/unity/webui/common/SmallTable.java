@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import com.vaadin.ui.Table;
+import com.vaadin.v7.ui.Table;
 
 public class SmallTable extends Table
 {
