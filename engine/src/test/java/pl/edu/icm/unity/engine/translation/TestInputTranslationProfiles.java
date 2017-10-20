@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +77,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.types.translation.ProfileMode;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -101,7 +103,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 	@Test
 	public void testInputPersistence() throws Exception
 	{
-		assertEquals(0, tprofMan.listInputProfiles().size());
+		assertEquals(0, listDefaultModeProfiles().size());
 		List<TranslationRule> rules = new ArrayList<>();
 		TranslationAction action1 = new TranslationAction( 
 				MapIdentityActionFactory.NAME, new String[] {
@@ -135,7 +137,14 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		assertEquals("'/A'", profiles.get("p1").getRules().get(0).getAction().getParameters()[0]);
 		
 		tprofMan.removeProfile(ProfileType.INPUT, "p1");
-		assertEquals(0, tprofMan.listInputProfiles().size());
+		assertEquals(0, listDefaultModeProfiles().size());
+	}
+	
+	private List<TranslationProfile> listDefaultModeProfiles() throws EngineException
+	{
+		return tprofMan.listInputProfiles().values().stream()
+				.filter(t -> t.getProfileMode() == ProfileMode.DEFAULT)
+				.collect(Collectors.toList());
 	}
 
 	@Test

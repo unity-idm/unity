@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,7 @@ import pl.edu.icm.unity.engine.translation.out.action.CreatePersistentAttributeA
 import pl.edu.icm.unity.engine.translation.out.action.CreatePersistentIdentityActionFactory;
 import pl.edu.icm.unity.engine.translation.out.action.FilterAttributeActionFactory;
 import pl.edu.icm.unity.engine.translation.out.action.IncludeOutputProfileActionFactory;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
@@ -62,6 +64,7 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
+import pl.edu.icm.unity.types.translation.ProfileMode;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -87,7 +90,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 	@Test
 	public void testOutputPersistence() throws Exception
 	{
-		assertEquals(0, tprofMan.listInputProfiles().size());
+		assertEquals(0, listDefaultModeProfiles().size());
 		List<TranslationRule> rules = new ArrayList<>();
 		TranslationAction action1 = new TranslationAction(CreateAttributeActionFactory.NAME, new String[] {
 				"dynAttr", 
@@ -119,9 +122,17 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 		assertEquals("attr", profiles.get("p1").getRules().get(0).getAction().getParameters()[0]);
 		
 		tprofMan.removeProfile(ProfileType.OUTPUT, "p1");
-		assertEquals(0, tprofMan.listOutputProfiles().size());
+	
+		assertEquals(0, listDefaultModeProfiles().size());
+
 	}
 	
+	private List<TranslationProfile> listDefaultModeProfiles() throws EngineException
+	{
+		return tprofMan.listOutputProfiles().values().stream()
+				.filter(t -> t.getProfileMode() == ProfileMode.DEFAULT)
+				.collect(Collectors.toList());
+	}
 	
 	@Test
 	public void testIntegratedOutput() throws Exception
