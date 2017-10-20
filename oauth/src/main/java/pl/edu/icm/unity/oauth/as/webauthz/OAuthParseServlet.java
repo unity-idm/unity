@@ -22,8 +22,8 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.Logger;
 
-import com.google.gwt.thirdparty.guava.common.collect.Sets;
-import com.google.gwt.thirdparty.guava.common.collect.Sets.SetView;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ResponseType;
@@ -47,7 +47,6 @@ import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -301,13 +300,13 @@ public class OAuthParseServlet extends HttpServlet
 		}
 
 		if (logoA != null)
-			context.setClientLogo((Attribute) logoA);
+			context.setClientLogo(logoA);
 		
 		if (nameA != null)
-			context.setClientName((String) nameA.getValues().get(0));
+			context.setClientName(nameA.getValues().get(0));
 		
 		if (groupA != null)
-			context.setUsersGroup((String) groupA.getValues().get(0));
+			context.setUsersGroup(groupA.getValues().get(0));
 		else
 			context.setUsersGroup(oauthConfig.getValue(OAuthASProperties.USERS_GROUP));
 		

@@ -18,7 +18,7 @@ import javax.ws.rs.core.Response;
 
 import org.junit.Test;
 
-import com.google.gwt.thirdparty.guava.common.collect.Sets;
+import com.google.common.collect.Sets;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;

@@ -4,16 +4,16 @@
  */
 package pl.edu.icm.unity.webadmin.identities;
 
-import com.google.gwt.thirdparty.guava.common.collect.Sets;
+import com.google.common.collect.Sets;
+import com.vaadin.server.UserError;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Panel;
 import com.vaadin.v7.data.Property.ValueChangeEvent;
 import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.server.UserError;
 import com.vaadin.v7.shared.ui.datefield.Resolution;
 import com.vaadin.v7.ui.CheckBox;
 import com.vaadin.v7.ui.DateField;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.v7.ui.Label;
-import com.vaadin.ui.Panel;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.EntityInformation;
@@ -51,7 +51,7 @@ public class ChangeEntityStateDialog extends AbstractDialog
 	protected FormLayout getContents()
 	{
 		Label info = new Label(msg.getMessage("ChangeEntityStateDialog.info", entity));
-		entityState = new EnumComboBox<EntityState>(msg.getMessage("ChangeEntityStateDialog.newState"), msg, 
+		entityState = new EnumComboBox<>(msg.getMessage("ChangeEntityStateDialog.newState"), msg, 
 				"EntityState.", EntityState.class, entity.getEntity().getState(),
 				Sets.newHashSet(EntityState.onlyLoginPermitted));
 		
@@ -72,7 +72,7 @@ public class ChangeEntityStateDialog extends AbstractDialog
 		EntityInformation initial = entity.getEntity().getEntityInformation();
 		EntityScheduledOperation initialOp = initial.getScheduledOperation() != null ? 
 				initial.getScheduledOperation() : EntityScheduledOperation.DISABLE;
-		entityScheduledChange = new EnumComboBox<EntityScheduledOperation>(
+		entityScheduledChange = new EnumComboBox<>(
 				msg.getMessage("ChangeEntityStateDialog.scheduledOperation"),
 				msg, 
 				"EntityScheduledOperation.", EntityScheduledOperation.class, 
