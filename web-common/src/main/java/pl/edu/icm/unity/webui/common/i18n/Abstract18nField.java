@@ -5,15 +5,16 @@
 package pl.edu.icm.unity.webui.common.i18n;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Consumer;
 
+import com.google.common.collect.Lists;
 import com.vaadin.event.FieldEvents.FocusListener;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
 import com.vaadin.ui.HorizontalLayout;
@@ -48,10 +49,11 @@ public abstract class Abstract18nField<T extends AbstractTextField> extends Cust
 	private boolean shown = false;
 	private Component main;
 	private HorizontalLayout hl;
+	private List<Consumer<Boolean>> showAllListeners = Lists.newArrayList();
 	
 	public Abstract18nField(UnityMessageSource msg)
 	{
-		this.enabledLocales = new HashMap<String, Locale>(msg.getEnabledLocales());
+		this.enabledLocales = new HashMap<>(msg.getEnabledLocales());
 		this.defaultLocaleCode = msg.getDefaultLocaleCode();
 		this.msg = msg;
 		for (Map.Entry<String, Locale> locE: enabledLocales.entrySet())
@@ -77,12 +79,10 @@ public abstract class Abstract18nField<T extends AbstractTextField> extends Cust
 		final Button showAll = new Button(Images.zoomin.getResource());
 		showAll.addStyleName(Styles.vButtonLink.toString());
 		showAll.setDescription(msg.getMessage("I18TextField.showLanguages"));
-		showAll.addClickListener(new ClickListener()
+		showAll.addClickListener((event) -> 
 		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
 				show();
+				showAllListeners.forEach(listener -> listener.accept(shown));
 				if (shown)
 				{
 					showAll.setIcon(Images.zoomout.getResource());
@@ -93,7 +93,6 @@ public abstract class Abstract18nField<T extends AbstractTextField> extends Cust
 					showAll.setIcon(Images.zoomin.getResource());
 					showAll.setDescription(msg.getMessage("I18TextField.showLanguages"));
 				}
-			}
 		});
 
 		hl = new HorizontalLayout();
@@ -218,5 +217,10 @@ public abstract class Abstract18nField<T extends AbstractTextField> extends Cust
 				tf.setWidth(width, unit);
 			}
 		}
+	}
+	
+	public void addShowAllListener(Consumer<Boolean> listener)
+	{
+		this.showAllListeners.add(listener);
 	}
 }

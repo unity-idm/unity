@@ -14,6 +14,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
+import pl.edu.icm.unity.types.basic.MessageType;
 
 public class TestMessageTemplates extends DBIntegrationTestBase
 {
@@ -31,7 +32,7 @@ public class TestMessageTemplates extends DBIntegrationTestBase
 		I18nString body = new I18nString("btest");
 		body.addValue("pl", "Tekst");
 		I18nMessage imsg = new I18nMessage(subject, body);
-		MessageTemplate template = new MessageTemplate("tName", "tDesc", imsg, "PasswordResetCode");
+		MessageTemplate template = new MessageTemplate("tName", "tDesc", imsg, "PasswordResetCode", MessageType.PLAIN);
 		msgTempMan.addTemplate(template);
 		assertEquals(3, msgTempMan.listTemplates().size());
 		MessageTemplate added = msgTempMan.getTemplate("tName");
@@ -45,7 +46,7 @@ public class TestMessageTemplates extends DBIntegrationTestBase
 		template.setMessage(imsg2);	
 		msgTempMan.updateTemplate(template);
 		
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		params.put("code", "svalue");
 		added = msgTempMan.getTemplate("tName");
 		assertEquals("stestsvalue", added.getMessage("pl", "en", params).getSubject());
@@ -59,7 +60,7 @@ public class TestMessageTemplates extends DBIntegrationTestBase
 	public void testValidationConsumer() throws EngineException 
 	{
 		I18nMessage imsg = new I18nMessage(new I18nString("stest"), new I18nString("btest"));
-		MessageTemplate template = new MessageTemplate("tName", "tDesc", imsg, "FailConsumer");
+		MessageTemplate template = new MessageTemplate("tName", "tDesc", imsg, "FailConsumer", MessageType.PLAIN);
 		try
 		{
 			msgTempMan.addTemplate(template);
@@ -74,7 +75,7 @@ public class TestMessageTemplates extends DBIntegrationTestBase
 	public void testValidationMessage() throws EngineException 
 	{
 		I18nMessage imsg = new I18nMessage(new I18nString("stest${code}"), new I18nString("btest"));
-		MessageTemplate template = new MessageTemplate("tName", "tDesc", imsg, "RejectForm");
+		MessageTemplate template = new MessageTemplate("tName", "tDesc", imsg, "RejectForm", MessageType.PLAIN);
 		try
 		{
 			msgTempMan.addTemplate(template);

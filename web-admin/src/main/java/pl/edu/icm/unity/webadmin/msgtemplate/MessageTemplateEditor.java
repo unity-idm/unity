@@ -7,10 +7,7 @@ package pl.edu.icm.unity.webadmin.msgtemplate;
 import java.util.Collection;
 import java.util.Map;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.Validator;
-import com.vaadin.event.FieldEvents.FocusEvent;
 import com.vaadin.event.FieldEvents.FocusListener;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Button;
@@ -30,6 +27,7 @@ import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateValidator.IllegalVaria
 import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateValidator.MandatoryVariablesException;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
+import pl.edu.icm.unity.types.basic.MessageType;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -54,6 +52,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 	private I18nTextField subject;
 	private I18nTextArea body;
 	private ComboBox consumer;
+	private MessageTypeComboBox messageType;
 	private Label consumerDescription;
 	private boolean editMode;
 	private HorizontalLayout buttons;
@@ -99,10 +98,13 @@ public class MessageTemplateEditor extends CompactFormLayout
 		subject.setWidth(100, Unit.PERCENTAGE);
 		subject.setValidationVisible(false);
 		subject.setRequired(true);
+		
+		
 		body = new I18nTextArea(msg, msg.getMessage("MessageTemplatesEditor.body"), 8);
 		body.setImmediate(true);
 		body.setValidationVisible(false);
 
+		messageType = new MessageTypeComboBox(msg, body);
 		subjectValidator = new MessageValidator(null, false);
 		bodyValidator = new MessageValidator(null, true);
 		subject.addValidator(subjectValidator);
@@ -110,30 +112,20 @@ public class MessageTemplateEditor extends CompactFormLayout
 		body.setRequired(true);
 
 		focussedField = null;
-		FocusListener focusListener = new FocusListener()
-		{
-			@Override
-			public void focus(FocusEvent event)
-			{
-				Component c = event.getComponent();
-				if (c instanceof AbstractTextField)
-					focussedField = (AbstractTextField) c;
-			}
-		}; 
+		FocusListener focusListener = event -> {
+			Component c = event.getComponent();
+			if (c instanceof AbstractTextField)
+				focussedField = (AbstractTextField) c;
+		};
+
 		subject.addFocusListener(focusListener);
 		body.addFocusListener(focusListener);
 		
-		consumer.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				setMessageConsumerDesc();
-				updateValidator();
-				body.setComponentError(null);
-				subject.setComponentError(null);
-			}
-
+		consumer.addValueChangeListener(event -> {
+			setMessageConsumerDesc();
+			updateValidator();
+			body.setComponentError(null);
+			subject.setComponentError(null);
 		});
 
 		if (editMode)
@@ -144,6 +136,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 			description.setValue(toEdit.getDescription());
 			// Using empty locale!
 			I18nMessage ms = toEdit.getMessage();
+			messageType.setValue(toEdit.getType());
 			if (ms != null)
 			{
 				subject.setValue(ms.getSubject());
@@ -157,10 +150,11 @@ public class MessageTemplateEditor extends CompactFormLayout
 			{
 				consumer.setValue(consumer.getItemIds().toArray()[0]);
 			}
+			messageType.setValue(MessageType.PLAIN);
 		}
 
 		addComponents(name, description, consumer, consumerDescription, buttons, subject,
-				body);
+				messageType, body);
 		setSpacing(true);
 	}
 
@@ -172,7 +166,8 @@ public class MessageTemplateEditor extends CompactFormLayout
 		String desc = description.getValue();
 		String cons = getConsumer().getName();
 		I18nMessage ms = new I18nMessage(subject.getValue(), body.getValue());
-		return new MessageTemplate(n, desc, ms, cons);
+		MessageType msgType = messageType.getValue();
+		return new MessageTemplate(n, desc, ms, cons, msgType); 
 	}
 
 	private void setMessageConsumerDesc()
