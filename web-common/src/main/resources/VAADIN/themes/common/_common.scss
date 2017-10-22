@@ -205,7 +205,11 @@
 	.u-smallMargin.v-margin-top {
 		padding-top: round($v-layout-margin-top/3);
 	}
-
+	
+	.u-smallMargin {
+		padding-top: round($v-layout-margin-top/3);
+	}
+	
 	.u-negativeBottomMarginSmall {
 		margin-bottom: (-round($v-layout-margin-bottom/3));
 	}

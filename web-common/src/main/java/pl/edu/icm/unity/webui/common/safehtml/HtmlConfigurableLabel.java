@@ -39,6 +39,6 @@ public class HtmlConfigurableLabel extends Label
 	public static String conditionallyEscape(String value)
 	{
 		boolean allowFullHtml = "true".equals(System.getProperty(UnityServerConfiguration.SYSTEM_ALLOW_FULL_HTML));
-		return allowFullHtml ? value : HtmlSimplifiedLabel.escape(value);
+		return allowFullHtml ? value : HtmlEscapers.simpleEscape(value);
 	}
 }

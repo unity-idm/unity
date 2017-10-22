@@ -50,6 +50,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
 import pl.edu.icm.unity.types.registration.UserRequestState;
 
@@ -300,7 +301,7 @@ public class EmailFacility implements NotificationFacility
 		
 		@Override
 		public Future<NotificationStatus> sendNotification(final String recipientAddress, 
-				final String msgSubject, final String message)
+				final MessageTemplate.Message message)
 		{
 			final NotificationStatus retStatus = new NotificationStatus();
 			return executorsService.getService().submit(new Runnable()
@@ -310,7 +311,7 @@ public class EmailFacility implements NotificationFacility
 				{
 					try
 					{
-						sendEmail(msgSubject, message, recipientAddress);
+						sendEmail(message, recipientAddress);
 					} catch (Exception e)
 					{
 						log.error("E-mail notification failed", e);
@@ -320,16 +321,29 @@ public class EmailFacility implements NotificationFacility
 			}, retStatus);
 		}
 		
-		private void sendEmail(String subject, String body, String to) throws MessagingException
+		private void sendEmail(MessageTemplate.Message message, String to) throws MessagingException
 		{
-			log.debug("Sending e-mail message to '" + to +"' with subject: " + subject);
+			log.debug("Sending e-mail message to '" + to +"' with subject: " + message.getSubject());
 			MimeMessage msg = new MimeMessage(session);
 			msg.setFrom();
 			msg.setRecipients(Message.RecipientType.TO, to);
-			msg.setSubject(subject);
+			msg.setSubject(message.getSubject());
 			msg.setSentDate(new Date());
-			msg.setText(body);
+			msg.setContent(message.getBody(), getContentType(message));
 			Transport.send(msg);
+		}
+
+		private String getContentType(MessageTemplate.Message message)
+		{
+			switch (message.getType())
+			{
+			case HTML:
+				return "text/html; charset=utf-8";
+			case PLAIN:
+				return "text/plain; charset=utf-8";
+			}
+			throw new IllegalStateException("BUG: missing conversion of type " 
+					+ message.getType() + " to mail content type");
 		}
 
 		@Override
@@ -350,6 +364,7 @@ public class EmailFacility implements NotificationFacility
 			this.password = password;
 		}
 
+		@Override
 		protected PasswordAuthentication getPasswordAuthentication() 
 		{
 			return new PasswordAuthentication(user, password);

@@ -73,13 +73,26 @@ Once again, to have a short list:
 if you accidentally remove your last user with administrative privileges. 
 
 
-=== How to work with unity
+=== How to login to the Admin UI?
+
+Navigate your browser to:
+
+   https://your-unity-host:2443/admin/
+   
+Of course if you changed the port use the one you set. Default login and password are provided in the 
++unityServer.conf+ file. Note that you will be asked to change them immediately after logging in.
+
+Also note that the path +/admin+ can be reconfigured: this is the location of the Admin UI endpoint, and you can set 
+this path for each Unity endpoint.
+
+=== How to work with Unity
 
 . Make note on what you want to do with Unity:
 .. what are the planned clients, what protocols are going to be used to access Unity by those clients?
 .. whether external authentication services are going to be used, which ones, and with what protocols?
 . Design the internal DB schema (attribute types, groups structure, attribute classes).
-
+. Enable proper authenticators, and
+. required endpoints.
 
 === Understanding Unity
 
