@@ -27,6 +27,7 @@
 		<cxf.version>3.1.10</cxf.version>
 		<apacheds.version>2.0.0-M24</apacheds.version>
 		<bc.version>1.56</bc.version>
+		<selenium.version>3.6.0</selenium.version>
 
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -514,7 +515,7 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>21.0</version>
+				<version>23.2-jre</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.directory.server</groupId>
@@ -555,6 +556,25 @@
 				<groupId>org.kohsuke</groupId>
 				<artifactId>libpam4j</artifactId>
 				<version>1.8</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.seleniumhq.selenium</groupId>
+				<artifactId>selenium-java</artifactId>
+				<version>${selenium.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.seleniumhq.selenium</groupId>
+				<artifactId>selenium-firefox-driver</artifactId>
+				<version>${selenium.version}</version>
+				<scope>test</scope>
+			</dependency>		
+			<dependency>
+				<groupId>org.seleniumhq.selenium</groupId>
+				<artifactId>selenium-chrome-driver</artifactId>
+				<version>${selenium.version}</version>
+				<scope>test</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
