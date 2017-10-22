@@ -13,9 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.event.Action;
+import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.VerticalLayout;
 
@@ -29,9 +32,11 @@ import pl.edu.icm.unity.engine.translation.in.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.types.translation.ProfileMode;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webadmin.WebAdminEndpointFactory;
+
 import pl.edu.icm.unity.webadmin.tprofile.dryrun.DryRunWizardProvider;
 import pl.edu.icm.unity.webadmin.tprofile.wizard.ProfileWizardProvider;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
@@ -126,7 +131,10 @@ public class TranslationProfilesComponent extends VerticalLayout
 					@Override
 					public Object toRepresentation(TranslationProfile element)
 					{
-						return element.getName();
+						Label ret = new Label(element.getName());
+						if (element.getProfileMode() == ProfileMode.READ_ONLY)
+							ret.addStyleName(Styles.readOnlyTableElement.toString());
+						return ret;
 					}
 				});
 		
@@ -186,7 +194,6 @@ public class TranslationProfilesComponent extends VerticalLayout
 		toolbar.addActionHandlers(table.getActionHandlers());
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
-		profileType.addValueChangeListener(toolbar.getValueChangeListener());
 
 		viewer = new TranslationProfileViewer(msg);
 		
@@ -358,7 +365,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		}
 	}
 	
-	private class EditActionHandler extends SingleActionHandler
+	private class EditActionHandler extends AbstractTranslationProfileActionHandler
 	{
 		public EditActionHandler()
 		{
@@ -431,7 +438,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 			dialog.show();
 		}
 	}
-	private class DeleteActionHandler extends SingleActionHandler
+	private class DeleteActionHandler extends AbstractTranslationProfileActionHandler
 	{
 		public DeleteActionHandler()
 		{
@@ -535,7 +542,44 @@ public class TranslationProfilesComponent extends VerticalLayout
 					provider.getCaption());
 			dialog.show();
 		}
-	}	
+	}
+	
+	private abstract class AbstractTranslationProfileActionHandler extends SingleActionHandler
+	{
+
+		public AbstractTranslationProfileActionHandler(String caption, Resource icon)
+		{
+			super(caption, icon);
+			setNeedsTarget(true);
+		}
+
+		@Override
+		public Action[] getActions(Object target, Object sender)
+		{
+			if (target == null)
+			{
+				return EMPTY;
+
+			} else
+			{
+				if (target instanceof Collection<?>)
+				{
+					Collection<TranslationProfile> items = getItems(target);
+					for (TranslationProfile tp : items)
+						if (tp.getProfileMode() == ProfileMode.READ_ONLY)
+							return EMPTY;
+				} else
+				{
+					GenericItem<?> item = (GenericItem<?>) target;	
+					TranslationProfile tp = (TranslationProfile) item.getElement();
+					if (tp.getProfileMode() == ProfileMode.READ_ONLY)
+						return EMPTY;
+				}
+			}
+			return super.getActions(target, sender);
+		}
+
+	}
 	
 	private boolean isInputProfileSelection()
 	{
