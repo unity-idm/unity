@@ -35,6 +35,7 @@ import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationEngine;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfile;
+import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfileRepository;
 import pl.edu.icm.unity.engine.translation.out.action.CreateAttributeActionFactory;
 import pl.edu.icm.unity.engine.translation.out.action.CreateIdentityActionFactory;
 import pl.edu.icm.unity.engine.translation.out.action.CreatePersistentAttributeActionFactory;
@@ -86,6 +87,8 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 	private TransactionalRunner tx;
 	@Autowired
 	private AttributeValueConverter attrConverter;
+	@Autowired
+	OutputTranslationProfileRepository outputProfileRepo;
 	
 	@Test
 	public void testOutputPersistence() throws Exception
@@ -167,7 +170,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 				"req", "proto", "subProto");
 
 		tx.runInTransactionThrowing(() -> {
-			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg, tprofMan, outtactionReg, attrConverter);
+			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg, outputProfileRepo, outtactionReg, attrConverter);
 			TranslationResult result = tp1.translate(input);
 			outputTrEngine.process(input, result);
 		});
@@ -238,7 +241,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 				"req", "proto", "subProto");
 		
 		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
-			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg, tprofMan, outtactionReg, attrConverter);
+			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg, outputProfileRepo, outtactionReg, attrConverter);
 			return tp1.translate(input);
 		});
 		
@@ -263,24 +266,38 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 		aTypeMan.addAttributeType(oType);
 		AttributeType eType = new AttributeType("e", VerifiableEmailAttributeSyntax.ID);
 		aTypeMan.addAttributeType(eType);
-
+		
+		
 		List<TranslationRule> rules = new ArrayList<>();
 		TranslationAction action1 = new TranslationAction(CreateAttributeActionFactory.NAME,
+				new String[] { "a0", "attr['o']", "false" });
+		rules.add(new TranslationRule("true", action1));
+		TranslationProfile included0 = new TranslationProfile("included0", "",
+				ProfileType.OUTPUT, rules);
+		tprofMan.addProfile(included0);
+	
+		rules = new ArrayList<>();
+		action1 = new TranslationAction(CreateAttributeActionFactory.NAME,
 				new String[] { "a1", "attr['o']", "false" });
 		rules.add(new TranslationRule("true", action1));
-		TranslationProfile included = new TranslationProfile("included", "",
+		TranslationAction include = new TranslationAction(
+				IncludeOutputProfileActionFactory.NAME,
+				new String[] { "included0" });
+		rules.add(new TranslationRule("true", include));
+	
+		TranslationProfile included1 = new TranslationProfile("included1", "",
 				ProfileType.OUTPUT, rules);
-		tprofMan.addProfile(included);
-
+		tprofMan.addProfile(included1);
+		
 		rules = new ArrayList<>();
 		TranslationAction action2 = new TranslationAction(CreateAttributeActionFactory.NAME,
 				new String[] { "a2", "attr['e']", "false" });
 		rules.add(new TranslationRule("true", action2));
 
-		TranslationAction include = new TranslationAction(
+		TranslationAction include1 = new TranslationAction(
 				IncludeOutputProfileActionFactory.NAME,
-				new String[] { "included" });
-		rules.add(new TranslationRule("true", include));
+				new String[] { "included1" });
+		rules.add(new TranslationRule("true", include1));
 		TranslationProfile tpMain = new TranslationProfile("tp1", "", ProfileType.OUTPUT,
 				rules);
 		tprofMan.addProfile(tpMain);
@@ -293,17 +310,23 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 				userE, "/", Collections.singleton("/"), "req", "proto", "subProto");
 		TranslationResult res = tx.runInTransactionRetThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tpMain,
-					tprofMan, outtactionReg, attrConverter);
+					outputProfileRepo, outtactionReg, attrConverter);
 			TranslationResult result = tp1.translate(input);
 			return result;
 		});
 
 		Collection<DynamicAttribute> attributes = res.getAttributes();
 
-		assertThat(attributes.size(), is(4));
+		assertThat(attributes.size(), is(5));
 		for (DynamicAttribute da : attributes)
 		{
 			Attribute attr = da.getAttribute();
+		
+			if (attr.getName().equals("a0"))
+			{
+				assertThat(attr.getValues().get(0), is("v1"));
+			}
+			
 			if (attr.getName().equals("a1"))
 			{
 				assertThat(attr.getValues().get(0), is("v1"));
@@ -350,7 +373,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 
 		TranslationResult res = tx.runInTransactionRetThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tpMain,
-					tprofMan, outtactionReg, attrConverter);
+					outputProfileRepo, outtactionReg, attrConverter);
 			TranslationResult result = tp1.translate(input);
 			return result;
 		});
@@ -392,7 +415,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 
 		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg,
-					tprofMan, outtactionReg, attrConverter);
+					outputProfileRepo, outtactionReg, attrConverter);
 			return tp1.translate(input);
 		});
 
@@ -429,7 +452,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 
 		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg,
-					tprofMan, outtactionReg, attrConverter);
+					outputProfileRepo, outtactionReg, attrConverter);
 			return tp1.translate(input);
 		});
 
@@ -475,7 +498,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 				Collections.singleton("/"), "req", "proto", "subProto");
 		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp2Cfg,
-					tprofMan, outtactionReg, attrConverter);
+					outputProfileRepo, outtactionReg, attrConverter);
 			return tp1.translate(input);
 		});
 
@@ -507,7 +530,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 				Collections.singleton("/"), "req", "proto", "subProto");
 		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp2Cfg,
-					tprofMan, outtactionReg, attrConverter);
+					outputProfileRepo, outtactionReg, attrConverter);
 			return tp1.translate(input);
 		});
 
@@ -546,7 +569,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 
 		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp2Cfg,
-					tprofMan, outtactionReg, attrConverter);
+					outputProfileRepo, outtactionReg, attrConverter);
 			return tp1.translate(input);
 		});
 		assertThat(result.getAttributes().size(), is(0));
@@ -573,7 +596,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 		try{
 			TranslationResult result = tx.runInTransactionRetThrowing(() -> {
 				OutputTranslationProfile tp1 = new OutputTranslationProfile(tp2Cfg,
-						tprofMan, outtactionReg, attrConverter);
+						outputProfileRepo, outtactionReg, attrConverter);
 				return tp1.translate(input);
 			});
 			assertThat(result.getAttributes().size(), is(0));

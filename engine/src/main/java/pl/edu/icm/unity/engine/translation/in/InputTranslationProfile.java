@@ -10,14 +10,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.NDC;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.util.configuration.ConfigurationException;
-
-import org.apache.log4j.NDC;
-
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
@@ -52,15 +49,15 @@ public class InputTranslationProfile extends TranslationProfileInstance<InputTra
 	
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, InputTranslationProfile.class);
 	private InputTranslationActionsRegistry registry;
-	private TranslationProfileManagement profileMan;
+	private InputTranslationProfileRepository profileRepo;
 	
 	public InputTranslationProfile(TranslationProfile profile,
-			TranslationProfileManagement profileMan,
+			InputTranslationProfileRepository profileRepo,
 			InputTranslationActionsRegistry registry)
 	{
 		super(profile, registry);
 		this.registry = registry;
-		this.profileMan = profileMan;
+		this.profileRepo = profileRepo;
 	}	
 	
 	public MappingResult translate(RemotelyAuthenticatedInput input) throws EngineException
@@ -212,11 +209,11 @@ public class InputTranslationProfile extends TranslationProfileInstance<InputTra
 	
 	private MappingResult invokeInputTranslationProfile(String profile, RemotelyAuthenticatedInput input) throws EngineException
 	{
-		TranslationProfile translationProfile = profileMan.listInputProfiles().get(profile);
+		TranslationProfile translationProfile = profileRepo.listAllProfiles().get(profile);
 		if (translationProfile == null)
 			throw new ConfigurationException("The input translation profile '" + profile + 
 					"' included in another profile does not exist");
-		InputTranslationProfile profileInstance = new InputTranslationProfile(translationProfile, profileMan,
+		InputTranslationProfile profileInstance = new InputTranslationProfile(translationProfile, profileRepo,
 				registry);
 		MappingResult result = profileInstance.translate(input);
 		return result;

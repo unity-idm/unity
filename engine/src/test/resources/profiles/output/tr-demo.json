@@ -12,7 +12,8 @@
 				"name": "createAttribute",
 				"parameters": [
 					"userName",
-					"'demo'"
+					"'demo'",
+					"demo"
 				]
 			}
 		}

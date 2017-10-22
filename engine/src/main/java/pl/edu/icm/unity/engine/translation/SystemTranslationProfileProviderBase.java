@@ -99,6 +99,11 @@ public abstract class SystemTranslationProfileProviderBase
 		if (profile.getProfileType() != getType())
 			throw new IllegalArgumentException(
 					"Unsupported profile type: " + profile.getProfileType());
+	
+		if (profiles.containsKey(profile.getName()))
+		{
+			throw new InternalException("Duplicate definition of system profile " + profile);
+		}
 	}
 	
 	protected abstract ProfileType getType();

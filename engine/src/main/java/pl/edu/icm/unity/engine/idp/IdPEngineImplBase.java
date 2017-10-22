@@ -15,7 +15,6 @@ import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
@@ -25,6 +24,7 @@ import pl.edu.icm.unity.engine.attribute.AttributeValueConverter;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationEngine;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfile;
+import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfileRepository;
 import pl.edu.icm.unity.engine.translation.out.action.CreateAttributeActionFactory;
 import pl.edu.icm.unity.engine.translation.out.action.FilterAttributeActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -53,7 +53,7 @@ public class IdPEngineImplBase implements IdPEngine
 	private AttributesManagement attributesMan;
 	private EntityManagement identitiesMan;
 	private OutputTranslationEngine translationEngine;
-	private TranslationProfileManagement profileManagement;
+	private OutputTranslationProfileRepository outputProfileRepo;
 	private UserImportSerivce userImportService;
 	private OutputTranslationActionsRegistry actionsRegistry;
 	private UnityMessageSource msg;
@@ -64,7 +64,7 @@ public class IdPEngineImplBase implements IdPEngine
 	
 	public IdPEngineImplBase(AttributesManagement attributesMan, 
 			EntityManagement identitiesMan,
-			TranslationProfileManagement profileManagement,
+			OutputTranslationProfileRepository outputProfileRepo,
 			OutputTranslationEngine translationEngine,
 			UserImportSerivce userImportService,
 			OutputTranslationActionsRegistry actionsRegistry,
@@ -74,7 +74,7 @@ public class IdPEngineImplBase implements IdPEngine
 		this.attributesMan = attributesMan;
 		this.identitiesMan = identitiesMan;
 		this.translationEngine = translationEngine;
-		this.profileManagement = profileManagement;
+		this.outputProfileRepo = outputProfileRepo;
 		this.userImportService = userImportService;
 		this.actionsRegistry = actionsRegistry;
 		this.attrValueConverter = attrValueConverter;
@@ -116,11 +116,11 @@ public class IdPEngineImplBase implements IdPEngine
 		OutputTranslationProfile profileInstance;
 		if (profile != null)
 		{
-			TranslationProfile translationProfile = profileManagement.listOutputProfiles().get(profile);
+			TranslationProfile translationProfile = outputProfileRepo.listAllProfiles().get(profile);
 			if (translationProfile == null)
 				throw new ConfigurationException("The translation profile '" + profile + 
 					"' configured for the authenticator does not exist");
-			profileInstance = new OutputTranslationProfile(translationProfile, profileManagement, 
+			profileInstance = new OutputTranslationProfile(translationProfile, outputProfileRepo, 
 					actionsRegistry, attrValueConverter);
 		} else
 		{
@@ -181,6 +181,6 @@ public class IdPEngineImplBase implements IdPEngine
 		rules.add(new TranslationRule("true", action2));
 		TranslationProfile profile = new TranslationProfile("DEFAULT OUTPUT PROFILE", "", ProfileType.OUTPUT,
 				rules);
-		return new OutputTranslationProfile(profile, profileManagement, actionsRegistry, attrValueConverter);
+		return new OutputTranslationProfile(profile, outputProfileRepo, actionsRegistry, attrValueConverter);
 	}
 }

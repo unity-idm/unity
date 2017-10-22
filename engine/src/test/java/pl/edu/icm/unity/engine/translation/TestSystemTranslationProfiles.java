@@ -64,9 +64,9 @@ public class TestSystemTranslationProfiles extends DBIntegrationTestBase
 	}
 	
 	@Test
-	public void shouldListSystemProfiles() throws Exception
+	public void shouldListSystemProfilesFromAllProviders() throws Exception
 	{
-		assertThat(tprofMan.listInputProfiles().size(), is(1));
+		assertThat(tprofMan.listInputProfiles().size(), is(2));
 		assertThat(tprofMan.listOutputProfiles().size(), is(1));		
 	}
 	
@@ -76,6 +76,4 @@ public class TestSystemTranslationProfiles extends DBIntegrationTestBase
 		assertThat(tprofMan.getInputProfile("sys:test").getRules().size(), is(2));
 		assertThat(tprofMan.getOutputProfile("sys:test").getRules().size(), is(1));		
 	}
-	
-	
 }

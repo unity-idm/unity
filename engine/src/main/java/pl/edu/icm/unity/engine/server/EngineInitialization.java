@@ -63,6 +63,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.ServerInitializer;
+import pl.edu.icm.unity.engine.api.translation.SystemTranslationProfileProvider;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.wellknown.PublicWellKnownURLServletProvider;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
@@ -78,6 +79,7 @@ import pl.edu.icm.unity.engine.identity.EntitiesScheduledUpdater;
 import pl.edu.icm.unity.engine.identity.IdentityCleaner;
 import pl.edu.icm.unity.engine.notifications.EmailFacility;
 import pl.edu.icm.unity.engine.scripts.ScriptTriggeringEventListener;
+import pl.edu.icm.unity.engine.translation.TranslationProfileHelper;
 import pl.edu.icm.unity.engine.utils.FileWatcher;
 import pl.edu.icm.unity.engine.utils.LifecycleBase;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -112,6 +114,8 @@ import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.types.translation.ProfileMode;
+import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
@@ -207,7 +211,11 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	private ScriptTriggeringEventListener scriptEventsConsumer;
 	@Autowired(required = false)
-	private PublicWellKnownURLServletProvider publicWellKnownURLServlet;
+	private PublicWellKnownURLServletProvider publicWellKnownURLServlet;	
+	@Autowired
+	TranslationProfileHelper profileHelper;
+	@Autowired
+	private List<SystemTranslationProfileProvider> systemProfileProviders;
 	
 	private long endpointsLoadTime;
 	
@@ -329,6 +337,7 @@ public class EngineInitialization extends LifecycleBase
 		eventsProcessor.fireEvent(new Event(EventCategory.PRE_INIT, isColdStart.toString()));
 		
 		initializeTranslationProfiles();
+		checkSystemTranslationProfiles();
 		boolean eraClean = config.getBooleanValue(
 				UnityServerConfiguration.CONFIG_ONLY_ERA_CONTROL);
 		if (eraClean)
@@ -987,6 +996,46 @@ public class EngineInitialization extends LifecycleBase
 		}
 	}
 	
+	private void checkDuplicateOfSystemProfiles(ProfileType type)
+	{
+		int providerSize = 0;
+		Map<String, TranslationProfile> profiles = new HashMap<String, TranslationProfile>();
+		for (SystemTranslationProfileProvider p : systemProfileProviders)
+		{
+			if (p.getSupportedType() == type)
+			{
+				providerSize += p.getSystemProfiles().size();
+				profiles.putAll(p.getSystemProfiles());
+			}
+		}
+		if (profiles.size() != providerSize)
+			throw new InternalException(
+					"Duplicate definitions in system translation profiles type="
+							+ type);
+	}
+
+	private void checkSystemTranslationProfiles()
+	{
+		Set<ProfileType> toCheck = new HashSet<ProfileType>();
+		for (SystemTranslationProfileProvider p : systemProfileProviders)
+		{
+			if (!toCheck.contains(p.getSupportedType()))
+				toCheck.add(p.getSupportedType());
+		}
+		for (ProfileType p : toCheck)
+		{
+			checkDuplicateOfSystemProfiles(p);
+		}
+
+		for (SystemTranslationProfileProvider p : systemProfileProviders)
+			for (TranslationProfile profile : p.getSystemProfiles().values())
+			{
+				if (profile.getProfileMode() != ProfileMode.READ_ONLY)
+					throw new IllegalArgumentException("Sytem profile " + profile + " is not in READ_ONLY mode");
+				profileHelper.checkProfileContent(profile);
+			}
+	}
+
 	private void runInitializers()
 	{
 		List<String> enabledL = config.getListOfValues(UnityServerConfiguration.INITIALIZERS);

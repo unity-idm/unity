@@ -17,7 +17,6 @@ import org.apache.logging.log4j.Logger;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
@@ -50,15 +49,15 @@ public class OutputTranslationProfile
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, OutputTranslationProfile.class);
 	
 	private OutputTranslationActionsRegistry registry;
-	private TranslationProfileManagement profileMan;
+	private OutputTranslationProfileRepository profileRepo;
 	private AttributeValueConverter attrConverter;
 	
-	public OutputTranslationProfile(TranslationProfile profile, TranslationProfileManagement profileMan,
+	public OutputTranslationProfile(TranslationProfile profile, OutputTranslationProfileRepository profileRepo,
 			OutputTranslationActionsRegistry registry, AttributeValueConverter attrConverter)
 	{
 		super(profile, registry);
 		this.registry = registry;
-		this.profileMan = profileMan;
+		this.profileRepo = profileRepo;
 		this.attrConverter = attrConverter;
 	}
 	
@@ -207,13 +206,13 @@ public class OutputTranslationProfile
 			TranslationInput input, TranslationResult translationState)
 			throws EngineException
 	{
-		TranslationProfile translationProfile = profileMan.listOutputProfiles()
+		TranslationProfile translationProfile = profileRepo.listAllProfiles()
 				.get(profile);
 		if (translationProfile == null)
 			throw new ConfigurationException("The output translation profile '"
 					+ profile + "' included in another profile does not exist");
 		OutputTranslationProfile profileInstance = new OutputTranslationProfile(
-				translationProfile, profileMan, registry, attrConverter);
+				translationProfile, profileRepo, registry, attrConverter);
 		TranslationResult result = profileInstance.translate(input, translationState);
 		return result;
 	}

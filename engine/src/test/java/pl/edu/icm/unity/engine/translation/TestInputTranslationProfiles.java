@@ -46,6 +46,7 @@ import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationProfile;
+import pl.edu.icm.unity.engine.translation.in.InputTranslationProfileRepository;
 import pl.edu.icm.unity.engine.translation.in.action.BlindStopperInputAction;
 import pl.edu.icm.unity.engine.translation.in.action.EntityChangeActionFactory;
 import pl.edu.icm.unity.engine.translation.in.action.IncludeInputProfileActionFactory;
@@ -99,6 +100,8 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 	private InputTranslationActionsRegistry intactionReg;
 	@Autowired
 	private TransactionalRunner tx;
+	@Autowired
+	InputTranslationProfileRepository inputProfileRepo;
 	
 	@Test
 	public void testInputPersistence() throws Exception
@@ -186,7 +189,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		input.addGroup(new RemoteGroupMembership("icm"));
 
 		tx.runInTransactionThrowing(() -> {
-			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, tprofMan,intactionReg);
+			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, inputProfileRepo,intactionReg);
 			MappingResult result = tp1.translate(input);
 			inputTrEngine.process(result);
 		});
@@ -271,7 +274,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 
 		tx.runInTransactionThrowing(() -> {
-			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, tprofMan, intactionReg);
+			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, inputProfileRepo, intactionReg);
 			MappingResult result = tp1.translate(input);
 			inputTrEngine.process(result);
 		});
@@ -330,7 +333,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 
 		tx.runInTransactionThrowing(() -> {
-			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, tprofMan, intactionReg);
+			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, inputProfileRepo, intactionReg);
 			MappingResult result = tp1.translate(input);
 			inputTrEngine.process(result);
 		});
@@ -359,7 +362,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 
 		
 		tx.runInTransactionThrowing(() -> {
-			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, tprofMan, intactionReg);
+			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, inputProfileRepo, intactionReg);
 			MappingResult result = tp1.translate(input);
 			inputTrEngine.process(result);
 		});
@@ -409,7 +412,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 		
 		tx.runInTransactionThrowing(() -> {
-			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, tprofMan, intactionReg);
+			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, inputProfileRepo, intactionReg);
 			MappingResult result = tp1.translate(input);
 			inputTrEngine.process(result);
 		});
@@ -493,7 +496,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		input.addGroup(new RemoteGroupMembership("icm"));
 		
 		MappingResult result = tx.runInTransactionRetThrowing(() -> {
-			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, tprofMan, intactionReg);
+			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, inputProfileRepo, intactionReg);
 			MappingResult resultIn = tp1.translate(input);
 			inputTrEngine.process(resultIn);
 			return resultIn;
@@ -591,8 +594,10 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		tprofMan.addProfile(tp1Cfg);
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 		
-		RemotelyAuthenticatedContext processed = remoteProcessor.processRemoteInput(input, "p1", false);
-
+		RemotelyAuthenticatedContext processed  = tx.runInTransactionRetThrowing(() -> {
+			return remoteProcessor.processRemoteInput(input, "p1", false);
+		});
+		
 		assertNotNull(processed.getLocalMappedPrincipal());
 		assertEquals(toBeMappedOn.getEntityId(), processed.getLocalMappedPrincipal().getEntityId().longValue());
 	}
@@ -621,7 +626,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		//tprofMan.addProfile(tp1Cfg);
 
 		tx.runInTransactionThrowing(() -> {
-			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, tprofMan, intactionReg);
+			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, inputProfileRepo, intactionReg);
 			MappingResult result = tp1.translate(input);
 			inputTrEngine.process(result);
 		});
@@ -668,7 +673,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		assertEquals(MapAttributeActionFactory.NAME, firstAction.getName());
 		
 		tx.runInTransactionThrowing(() -> {
-			InputTranslationProfile profileInstance = new InputTranslationProfile(retProfile, tprofMan, intactionReg);
+			InputTranslationProfile profileInstance = new InputTranslationProfile(retProfile, inputProfileRepo, intactionReg);
 			TranslationActionInstance firstActionInstance = profileInstance.getRuleInstances().
 					get(0).getActionInstance();
 			assertThat(firstActionInstance, is(instanceOf(BlindStopperInputAction.class)));
@@ -710,7 +715,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("remoteIDP_Y");
 		
 		tx.runInTransactionThrowing(() -> {
-			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, tprofMan, intactionReg);
+			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, inputProfileRepo, intactionReg);
 			MappingResult result = tp1.translate(input);
 			inputTrEngine.process(result);
 		});
@@ -766,7 +771,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("remoteIDP_Y");
 		
 		tx.runInTransactionThrowing(() -> {
-			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, tprofMan, intactionReg);
+			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, inputProfileRepo, intactionReg);
 			MappingResult result = tp1.translate(input);
 			inputTrEngine.process(result);
 		});
@@ -829,7 +834,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 		
 		tx.runInTransactionThrowing(() -> {
-			InputTranslationProfile tp1 = new InputTranslationProfile(toAdd, tprofMan, intactionReg);
+			InputTranslationProfile tp1 = new InputTranslationProfile(toAdd, inputProfileRepo, intactionReg);
 			MappingResult result = tp1.translate(input);
 			inputTrEngine.process(result);
 		});
@@ -873,7 +878,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		{
 			tx.runInTransactionThrowing(() -> {
 				InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg,
-						tprofMan, intactionReg);
+						inputProfileRepo, intactionReg);
 				MappingResult result = tp1.translate(input);
 				inputTrEngine.process(result);
 			});
