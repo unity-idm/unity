@@ -230,7 +230,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 
 		if (authnContext.getRegistrationFormForUnknown() != null)
 		{
-			log.info("Enabling registration component");
+			log.debug("Enabling registration component");
 			authnResult.setFormForUnknownPrincipal(authnContext.getRegistrationFormForUnknown());
 		}
 		authnResult.setEnableAssociation(authnContext.isEnableAssociation());
