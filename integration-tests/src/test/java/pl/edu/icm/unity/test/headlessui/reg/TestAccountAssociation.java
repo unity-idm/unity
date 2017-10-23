@@ -4,10 +4,8 @@
  */
 package pl.edu.icm.unity.test.headlessui.reg;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
 import pl.edu.icm.unity.test.headlessui.SeleniumTestBase;
 
@@ -22,14 +20,14 @@ public class TestAccountAssociation extends SeleniumTestBase
 	{
 		//login to home UI 
 		driver.get(baseUrl + "/home/home");
-		waitForElement(By.id("AuthenticationUI.username")).clear();
+		waitForPageLoad(By.id("AuthenticationUI.username")).clear();
 		waitForElement(By.id("AuthenticationUI.username")).sendKeys("demo-user2");
 		waitForElement(By.id("WebPasswordRetrieval.password")).clear();
 		waitForElement(By.id("WebPasswordRetrieval.password")).sendKeys("the!test2");
 		waitForElement(By.id("AuthenticationUI.authnenticateButton")).click();
 		
 		//invoke association
-		waitForElement(By.id("EntityDetailsWithActions.associateAccount")).click();
+		waitForPageLoad(By.id("EntityDetailsWithActions.associateAccount")).click();
 		
 		//wizard -> invoke sandbox login
 		String cwh = driver.getWindowHandle();
@@ -46,17 +44,13 @@ public class TestAccountAssociation extends SeleniumTestBase
 //		waitForElement(By.id("WebPasswordRetrieval.password")).clear();
 //		waitForElement(By.id("WebPasswordRetrieval.password")).sendKeys("the!test1");
 //		waitForElement(By.id("AuthenticationUI.authnenticateButton")).click();
-		waitForElement(By.id("IdpButtonsBar.confirmButton")).click();
+		waitForPageLoad(By.id("IdpButtonsBar.confirmButton")).click();
 		
 		//go back to the main window and complete wizard
 		driver.switchTo().window(cwh);
-		WebElement finishB = waitForElement(By.id("SandboxWizard.finish"));
-		Assert.assertTrue(finishB.isEnabled());
-		simpleWait();
-		finishB.click();
-		simpleWait();
-		waitForElement(By.className("success")).click();
-		waitForElement(By.id("MainHeader.logout")).click();
+		waitForPageLoad(By.id("SandboxWizard.finish")).click();
+		waitForPageLoad(By.className("success")).click();
+		waitForPageLoad(By.id("MainHeader.logout")).click();
 	}
 	
 	private String waitForPopup() throws InterruptedException

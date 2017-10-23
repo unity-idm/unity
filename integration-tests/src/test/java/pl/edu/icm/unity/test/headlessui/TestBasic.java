@@ -21,13 +21,16 @@ public class TestBasic extends SeleniumTestBase
 	public void loginTest() throws Exception
 	{
 		driver.get(baseUrl + "/admin/admin");
-		//TODO - likely it won't work - we have http only cookie
+		waitForPageLoad(By.id("AuthenticationUI.authnenticateButton"));
+		
 		Cookie sessionBefore = driver.manage().getCookieNamed("JSESSIONID");
 		driver.findElement(By.id("AuthenticationUI.username")).clear();
 		driver.findElement(By.id("AuthenticationUI.username")).sendKeys("a");
 		driver.findElement(By.id("WebPasswordRetrieval.password")).clear();
 		driver.findElement(By.id("WebPasswordRetrieval.password")).sendKeys("a");
 		driver.findElement(By.id("AuthenticationUI.authnenticateButton")).click();
+		
+		waitForPageLoad(By.id("MainHeader.logout"));
 		assertTrue(driver.findElement(By.id("MainHeader.loggedAs")).getText().contains("Default Administrator"));
 		driver.findElement(By.id("MainHeader.logout"));
 		Cookie sessionAfter = driver.manage().getCookieNamed("JSESSIONID");

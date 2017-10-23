@@ -47,9 +47,9 @@ public class SeleniumTestBase
 	protected String baseUrl = "https://localhost:2443";
 	public static final int WAIT_TIME_S = Integer.parseInt(
 			System.getProperty("unity.selenium.wait", "30"));
-	public static final int SLEEP_TIME_MS = 250;
+	public static final int SLEEP_TIME_MS = 100;
 	public static final int SIMPLE_WAIT_TIME_MS = Integer.parseInt(
-			System.getProperty("unity.selenium.delay", "2000"));
+			System.getProperty("unity.selenium.delay", "1500"));
 	protected WebDriver driver;
 
 	private StringBuffer verificationErrors = new StringBuffer();
@@ -143,7 +143,14 @@ public class SeleniumTestBase
 		}
 	}
 	
-	protected void simpleWait()
+	protected WebElement waitForPageLoad(By someElement)
+	{
+		WebElement ret = waitForElement(someElement);
+		simpleWait();
+		return ret;
+	}
+	
+	private void simpleWait()
 	{
 		try
 		{
@@ -153,5 +160,4 @@ public class SeleniumTestBase
 			//OK
 		}
 	}
-	
 }
