@@ -4,16 +4,11 @@
  */
 package pl.edu.icm.unity.engine.translation.in;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.translation.SystemTranslationProfileProvider;
 import pl.edu.icm.unity.engine.translation.TranslationProfileRepositotory;
 import pl.edu.icm.unity.store.api.generic.InputTranslationProfileDB;
-import pl.edu.icm.unity.types.translation.ProfileType;
 
 /**
  * Allows read input profiles from DB and @{SystemTranslationProfileProvider}s 
@@ -26,10 +21,10 @@ public class InputTranslationProfileRepository extends TranslationProfileReposit
 
 	@Autowired
 	public InputTranslationProfileRepository(InputTranslationProfileDB dao ,
-			List<SystemTranslationProfileProvider> systemProfileProviders)
+			SystemInputTranslationProfileProvider systemProfileProvider)
 	{
 		
-		super(dao, systemProfileProviders.stream().filter(p -> p.getSupportedType() == ProfileType.INPUT).collect(Collectors.toList()));
+		super(dao, systemProfileProvider);
 	}
 
 }

@@ -24,7 +24,7 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
  *
  */
 @Component
-public class TranslationProfileHelper
+public class TranslationProfileChecker
 {
 	private InputTranslationProfileRepository inputRepo;
 	private InputTranslationActionsRegistry inputActionReg;
@@ -33,7 +33,7 @@ public class TranslationProfileHelper
 	private OutputTranslationActionsRegistry outputActionReg;
 	
 	@Autowired
-	public TranslationProfileHelper(InputTranslationProfileRepository inputRepo,
+	public TranslationProfileChecker(InputTranslationProfileRepository inputRepo,
 			InputTranslationActionsRegistry inputActionReg,
 			OutputTranslationProfileRepository outputRepo,
 			AttributeValueConverter attrConverter,

@@ -93,7 +93,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 	@Test
 	public void testOutputPersistence() throws Exception
 	{
-		assertEquals(0, listDefaultModeProfiles().size());
+		assertThat(listDefaultModeProfiles().size(), is(0));
 		List<TranslationRule> rules = new ArrayList<>();
 		TranslationAction action1 = new TranslationAction(CreateAttributeActionFactory.NAME, new String[] {
 				"dynAttr", 
@@ -126,7 +126,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 		
 		tprofMan.removeProfile(ProfileType.OUTPUT, "p1");
 	
-		assertEquals(0, listDefaultModeProfiles().size());
+		assertThat(listDefaultModeProfiles().size(), is(0));
 
 	}
 	

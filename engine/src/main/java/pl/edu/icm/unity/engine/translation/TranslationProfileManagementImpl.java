@@ -42,7 +42,7 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	private OutputTranslationProfileDB otpDB;
 	private InputTranslationProfileRepository inputRepo;
 	private OutputTranslationProfileRepository outputRepo;
-	private TranslationProfileHelper profileHelper;
+	private TranslationProfileChecker profileHelper;
 	
 	
 	@Autowired
@@ -50,7 +50,7 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 			InputTranslationProfileDB itpDB, OutputTranslationProfileDB otpDB,
 			InputTranslationProfileRepository inputRepo,
 			OutputTranslationProfileRepository outputRepo,
-			TranslationProfileHelper profileHelper)
+			TranslationProfileChecker profileHelper)
 	{
 		this.authz = authz;
 		this.itpDB = itpDB;
@@ -80,8 +80,8 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	public void addProfile(TranslationProfile toAdd) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		isReadOnly(toAdd);	
-		isSystemProfile(toAdd);
+		assertIsDefault(toAdd);	
+		assertIsNotSystemProfile(toAdd);
 		profileHelper.checkProfileContent(toAdd);
 		getDAO(toAdd).create(toAdd);
 	}
@@ -90,7 +90,7 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	public void removeProfile(ProfileType type, String name) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		isSystemProfile(type, name);
+		assertIsNotSystemProfile(type, name);
 		getDAO(type).delete(name);
 	}
 
@@ -98,8 +98,8 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	public void updateProfile(TranslationProfile updated) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		isReadOnly(updated);
-		isSystemProfile(updated);
+		assertIsDefault(updated);
+		assertIsNotSystemProfile(updated);
 		profileHelper.checkProfileContent(updated);
 		getDAO(updated).update(updated);
 	}
@@ -133,15 +133,15 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 		return outputRepo.getProfile(name);
 	}
 	
-	private void isReadOnly(TranslationProfile profile) throws EngineException
+	private void assertIsDefault(TranslationProfile profile) throws EngineException
 	{
 		if (profile.getProfileMode() == ProfileMode.READ_ONLY)
 			throw new IllegalArgumentException("Cannot create read only translation profile through this API");
 	}
 	
-	private void isSystemProfile(TranslationProfile profile)
+	private void assertIsNotSystemProfile(TranslationProfile profile)
 	{
-		isSystemProfile(profile.getProfileType(), profile.getName());
+		assertIsNotSystemProfile(profile.getProfileType(), profile.getName());
 	}
 	
 	private Map<String, TranslationProfile> getSystemProfiles(ProfileType type)
@@ -156,7 +156,7 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 					+ "profiles can be created with this API");			
 	}
 	
-	private void isSystemProfile(ProfileType type, String name)
+	private void assertIsNotSystemProfile(ProfileType type, String name)
 	{
 		Set<String> systemProfiles = getSystemProfiles(type).keySet();
 		if (systemProfiles.contains(name))

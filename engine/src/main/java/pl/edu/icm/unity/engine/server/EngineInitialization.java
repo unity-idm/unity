@@ -63,7 +63,6 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.ServerInitializer;
-import pl.edu.icm.unity.engine.api.translation.SystemTranslationProfileProvider;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.wellknown.PublicWellKnownURLServletProvider;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
@@ -79,7 +78,9 @@ import pl.edu.icm.unity.engine.identity.EntitiesScheduledUpdater;
 import pl.edu.icm.unity.engine.identity.IdentityCleaner;
 import pl.edu.icm.unity.engine.notifications.EmailFacility;
 import pl.edu.icm.unity.engine.scripts.ScriptTriggeringEventListener;
-import pl.edu.icm.unity.engine.translation.TranslationProfileHelper;
+import pl.edu.icm.unity.engine.translation.TranslationProfileChecker;
+import pl.edu.icm.unity.engine.translation.in.SystemInputTranslationProfileProvider;
+import pl.edu.icm.unity.engine.translation.out.SystemOutputTranslationProfileProvider;
 import pl.edu.icm.unity.engine.utils.FileWatcher;
 import pl.edu.icm.unity.engine.utils.LifecycleBase;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -116,7 +117,6 @@ import pl.edu.icm.unity.types.basic.NotificationChannel;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.types.translation.ProfileMode;
-import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
@@ -214,9 +214,11 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired(required = false)
 	private PublicWellKnownURLServletProvider publicWellKnownURLServlet;	
 	@Autowired
-	TranslationProfileHelper profileHelper;
+	TranslationProfileChecker profileHelper;
 	@Autowired
-	private List<SystemTranslationProfileProvider> systemProfileProviders;
+	private SystemInputTranslationProfileProvider systemInputProfileProvider;
+	@Autowired
+	private SystemOutputTranslationProfileProvider systemOutputProfileProvider;
 	
 	private long endpointsLoadTime;
 	
@@ -1006,45 +1008,21 @@ public class EngineInitialization extends LifecycleBase
 			}
 		}
 	}
-	
-	private void checkDuplicateOfSystemProfiles(ProfileType type)
-	{
-		int providerSize = 0;
-		Map<String, TranslationProfile> profiles = new HashMap<String, TranslationProfile>();
-		for (SystemTranslationProfileProvider p : systemProfileProviders)
-		{
-			if (p.getSupportedType() == type)
-			{
-				providerSize += p.getSystemProfiles().size();
-				profiles.putAll(p.getSystemProfiles());
-			}
-		}
-		if (profiles.size() != providerSize)
-			throw new InternalException(
-					"Duplicate definitions in system translation profiles type="
-							+ type);
-	}
 
+	private void checkProfiles(Collection<TranslationProfile> collection)
+	{
+		for (TranslationProfile profile : collection)
+		{
+			if (profile.getProfileMode() != ProfileMode.READ_ONLY)
+				throw new IllegalArgumentException("Sytem profile " + profile + " is not in READ_ONLY mode");
+			profileHelper.checkProfileContent(profile);
+		}
+	}
+	
 	private void checkSystemTranslationProfiles()
 	{
-		Set<ProfileType> toCheck = new HashSet<ProfileType>();
-		for (SystemTranslationProfileProvider p : systemProfileProviders)
-		{
-			if (!toCheck.contains(p.getSupportedType()))
-				toCheck.add(p.getSupportedType());
-		}
-		for (ProfileType p : toCheck)
-		{
-			checkDuplicateOfSystemProfiles(p);
-		}
-
-		for (SystemTranslationProfileProvider p : systemProfileProviders)
-			for (TranslationProfile profile : p.getSystemProfiles().values())
-			{
-				if (profile.getProfileMode() != ProfileMode.READ_ONLY)
-					throw new IllegalArgumentException("Sytem profile " + profile + " is not in READ_ONLY mode");
-				profileHelper.checkProfileContent(profile);
-			}
+		checkProfiles(systemInputProfileProvider.getSystemProfiles().values());
+		checkProfiles(systemOutputProfileProvider.getSystemProfiles().values());
 	}
 
 	private void runInitializers()

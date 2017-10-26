@@ -106,7 +106,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 	@Test
 	public void testInputPersistence() throws Exception
 	{
-		assertEquals(0, listDefaultModeProfiles().size());
+		assertThat(listDefaultModeProfiles().size(), is(0));
 		List<TranslationRule> rules = new ArrayList<>();
 		TranslationAction action1 = new TranslationAction( 
 				MapIdentityActionFactory.NAME, new String[] {
@@ -140,7 +140,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		assertEquals("'/A'", profiles.get("p1").getRules().get(0).getAction().getParameters()[0]);
 		
 		tprofMan.removeProfile(ProfileType.INPUT, "p1");
-		assertEquals(0, listDefaultModeProfiles().size());
+		assertThat(listDefaultModeProfiles().size(), is(0));
 	}
 	
 	private List<TranslationProfile> listDefaultModeProfiles() throws EngineException

@@ -19,6 +19,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -72,21 +73,9 @@ public class OutputTranslationEngine
 			Entity entity = idsMan.getEntity(parent);
 			for (Identity iden : entity.getIdentities())
 			{			
-				if (iden.getTypeId().equals(id.getTypeId()))
-				{
-					IdentityTypeDefinition idType = idTypesReg
-							.getByName(iden.getTypeId());
-
-					String cValue1 = idType.getComparableValue(id.getValue(),
-							null, null);
-					String cValue2 = idType.getComparableValue(iden.getValue(),
-							null, null);
-					if (cValue1.equals(cValue2))
-					{
-						skip = true;
-					}
-				}
+				skip = checkEqualIds(iden, id);
 			}
+			
 			if (!skip)
 			{
 				log.debug("Adding identity: " + id);
@@ -96,6 +85,23 @@ public class OutputTranslationEngine
 				log.debug("Identity: " + id + " already exist, skip add");
 			}
 		}
+	}
+	
+	private boolean checkEqualIds(Identity id1, IdentityParam id)
+			throws IllegalIdentityValueException
+	{
+		if (id1.getTypeId().equals(id.getTypeId()))
+		{
+			IdentityTypeDefinition idType = idTypesReg.getByName(id1.getTypeId());
+
+			String cValue1 = idType.getComparableValue(id.getValue(), null, null);
+			String cValue2 = idType.getComparableValue(id1.getValue(), null, null);
+			if (cValue1.equals(cValue2))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private void processAttributes(TranslationInput input, TranslationResult result) throws EngineException

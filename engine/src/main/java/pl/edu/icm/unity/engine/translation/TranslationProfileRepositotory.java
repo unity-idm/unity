@@ -4,11 +4,8 @@
  */
 package pl.edu.icm.unity.engine.translation;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import pl.edu.icm.unity.engine.api.translation.SystemTranslationProfileProvider;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.api.tx.Transactional;
@@ -22,18 +19,17 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
 public abstract class TranslationProfileRepositotory
 {
 	private NamedCRUDDAOWithTS<TranslationProfile> dao;
-	private List<SystemTranslationProfileProvider> systemProfileproviders;
+	private SystemTranslationProfileProviderBase systemProfileprovider;
 	
 	
 	
 	public TranslationProfileRepositotory(NamedCRUDDAOWithTS<TranslationProfile> dao,
-			List<SystemTranslationProfileProvider> systemProfileproviders)
+			SystemTranslationProfileProviderBase systemProfileprovider)
 	{
 		this.dao = dao;
-		this.systemProfileproviders = systemProfileproviders;
+		this.systemProfileprovider = systemProfileprovider;
 	}
 
-	
 	/**
 	 * 
 	 * @return all profiles both from DB and from @{SystemTranslationProfileProvider}s
@@ -53,10 +49,7 @@ public abstract class TranslationProfileRepositotory
 	 */
 	public Map<String, TranslationProfile> listSystemProfiles()
 	{
-		Map<String, TranslationProfile> profiles = new HashMap<String, TranslationProfile>();
-		for (SystemTranslationProfileProvider p : systemProfileproviders)
-			profiles.putAll(p.getSystemProfiles());
-		return profiles;
+		return systemProfileprovider.getSystemProfiles();
 	}
 	
 	/**
@@ -67,13 +60,12 @@ public abstract class TranslationProfileRepositotory
 	 */
 	@Transactional
 	public TranslationProfile getProfile(String name) throws EngineException
-	{	
-		for (SystemTranslationProfileProvider p: systemProfileproviders)
-		{
-			TranslationProfile profile = p.getSystemProfiles().get(name);
-			if (profile != null)
-				return profile;			
-		}
+	{
+
+		TranslationProfile profile = systemProfileprovider.getSystemProfiles().get(name);
+		if (profile != null)
+			return profile;
+
 		return dao.get(name);
 	}
 

@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.translation.SystemTranslationProfileProvider;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.translation.ProfileMode;
@@ -30,19 +29,16 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
  *
  */
 public abstract class SystemTranslationProfileProviderBase
-		implements SystemTranslationProfileProvider
 {
 	private ApplicationContext applicationContext;
-
 	protected Map<String, TranslationProfile> profiles;
-
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_TRANSLATION,
 			SystemTranslationProfileProviderBase.class);
 
 	public SystemTranslationProfileProviderBase(ApplicationContext applicationContext)
 	{
 		this.applicationContext = applicationContext;
-		this.profiles = new HashMap<String, TranslationProfile>();
+		this.profiles = new HashMap<>();
 		loadProfiles();
 
 	}
@@ -50,7 +46,7 @@ public abstract class SystemTranslationProfileProviderBase
 	private void loadProfiles()
 	{
 
-		String type = getSupportedType().toString().toLowerCase();
+		String type = getType().toString().toLowerCase();
 		try
 		{
 			Resource[] resources = applicationContext
@@ -58,8 +54,7 @@ public abstract class SystemTranslationProfileProviderBase
 
 			if (resources == null || resources.length == 0)
 			{
-				LOG.debug("Directory with system " + type
-						+ " translation profiles is empty");
+				LOG.debug("Directory with system {} translation profiles is empty", type);
 				return;
 
 			}
@@ -71,8 +66,7 @@ public abstract class SystemTranslationProfileProviderBase
 				TranslationProfile tp = new TranslationProfile(json);
 				tp.setProfileMode(ProfileMode.READ_ONLY);
 				checkProfile(tp);
-				LOG.debug("Add system " + type + " translation profile '" + tp
-						+ "'");
+				LOG.debug("Add system {} translation profile '{}'", type, tp);
 				profiles.put(tp.getName(), tp);
 			}
 		} catch (Exception e)
@@ -82,18 +76,12 @@ public abstract class SystemTranslationProfileProviderBase
 		}
 	}
 
-	@Override
+	
 	public Map<String, TranslationProfile> getSystemProfiles()
 	{
-		return profiles;
+		return new HashMap<>(profiles);
 	}
-
-	@Override
-	public ProfileType getSupportedType()
-	{
-		return getType();
-	}
-
+	
 	protected void checkProfile(TranslationProfile profile) throws EngineException
 	{
 		if (profile.getProfileType() != getType())
