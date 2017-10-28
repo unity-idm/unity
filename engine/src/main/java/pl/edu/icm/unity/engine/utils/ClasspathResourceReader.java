@@ -19,11 +19,11 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 
-public class ClassPathResourceReader
+public class ClasspathResourceReader
 {
 	private ApplicationContext appContext;
 	
-	public ClassPathResourceReader(ApplicationContext appContext)
+	public ClasspathResourceReader(ApplicationContext appContext)
 	{
 		this.appContext = appContext;
 	}
