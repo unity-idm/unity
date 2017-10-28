@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.store.impl.tokens;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +89,7 @@ public class TokenRDBMSStore extends GenericRDBMSCRUD<Token, TokenBean> implemen
 	public List<Token> getExpired()
 	{
 		TokensMapper mapper = SQLTransactionTL.getSql().getMapper(TokensMapper.class);
-		List<TokenBean> allInDB = mapper.getExpired();
+		List<TokenBean> allInDB = mapper.getExpired(new Date());
 		return convertList(allInDB);
 	}
 }

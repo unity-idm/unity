@@ -77,6 +77,7 @@ public class UnknownUserDialog extends AbstractDialog
 		options.setMargin(true);
 		if (authNResult.getFormForUnknownPrincipal() != null)
 		{
+			log.debug("Adding registration component");
 			options.addComponent(getRegistrationComponent());
 		}
 		if (authNResult.isEnableAssociation())

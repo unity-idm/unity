@@ -18,15 +18,16 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<scm.base>scm:git:git@github.com:unity-idm/unity.git</scm.base>
-		<jetty.version>9.4.6.v20170531</jetty.version>
+		<jetty.version>9.4.7.v20170914</jetty.version>
 		<slf4j.version>1.7.24</slf4j.version>
-		<log4j.version>2.8.2</log4j.version>
+		<log4j.version>2.9.1</log4j.version>
 		<spring.version>4.3.10.RELEASE</spring.version>
 		<vaadin.version>7.6.4</vaadin.version>
 		<groovy-all.version>2.4.8</groovy-all.version>
 		<cxf.version>3.1.10</cxf.version>
 		<apacheds.version>2.0.0-M24</apacheds.version>
 		<bc.version>1.56</bc.version>
+		<selenium.version>3.6.0</selenium.version>
 
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -242,7 +243,7 @@
 			<dependency>
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-core</artifactId>
-				<version>2.8.47</version>
+				<version>2.11.0</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -274,7 +275,7 @@
 			<dependency>
 				<groupId>org.aspectj</groupId>
 				<artifactId>aspectjweaver</artifactId>
-				<version>1.8.10</version>
+				<version>1.8.12</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.jetty</groupId>
@@ -329,7 +330,7 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.8.6</version>
+				<version>2.9.2</version>
 			</dependency>
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
@@ -363,7 +364,7 @@
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>secutils-cxf</artifactId>
-				<version>1.5.0</version>
+				<version>1.5.1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.postgresql</groupId>
@@ -383,7 +384,7 @@
 			<dependency>
 				<groupId>org.mybatis</groupId>
 				<artifactId>mybatis</artifactId>
-				<version>3.4.4</version>
+				<version>3.4.5</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mybatis</groupId>
@@ -474,7 +475,7 @@
 			<dependency>
 				<groupId>com.sun.mail</groupId>
 				<artifactId>javax.mail</artifactId>
-				<version>1.5.6</version>
+				<version>1.6.0</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sf.ehcache</groupId>
@@ -494,7 +495,7 @@
 			<dependency>
 				<groupId>org.mvel</groupId>
 				<artifactId>mvel2</artifactId>
-				<version>2.3.1.Final</version>
+				<version>2.3.2.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
@@ -504,17 +505,17 @@
 			<dependency>
 				<groupId>com.nimbusds</groupId>
 				<artifactId>oauth2-oidc-sdk</artifactId>
-				<version>5.32</version>
+				<version>5.38</version>
 			</dependency>
 			<dependency>
 				<groupId>com.nimbusds</groupId>
 				<artifactId>nimbus-jose-jwt</artifactId>
-				<version>4.40</version>
+				<version>5.1</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>21.0</version>
+				<version>23.2-jre</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.directory.server</groupId>
@@ -555,6 +556,25 @@
 				<groupId>org.kohsuke</groupId>
 				<artifactId>libpam4j</artifactId>
 				<version>1.8</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.seleniumhq.selenium</groupId>
+				<artifactId>selenium-java</artifactId>
+				<version>${selenium.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.seleniumhq.selenium</groupId>
+				<artifactId>selenium-firefox-driver</artifactId>
+				<version>${selenium.version}</version>
+				<scope>test</scope>
+			</dependency>		
+			<dependency>
+				<groupId>org.seleniumhq.selenium</groupId>
+				<artifactId>selenium-chrome-driver</artifactId>
+				<version>${selenium.version}</version>
+				<scope>test</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

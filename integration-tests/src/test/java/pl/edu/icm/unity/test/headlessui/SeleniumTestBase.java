@@ -4,14 +4,23 @@
  */
 package pl.edu.icm.unity.test.headlessui;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -38,9 +47,9 @@ public class SeleniumTestBase
 	protected String baseUrl = "https://localhost:2443";
 	public static final int WAIT_TIME_S = Integer.parseInt(
 			System.getProperty("unity.selenium.wait", "30"));
-	public static final int SLEEP_TIME_MS = 250;
+	public static final int SLEEP_TIME_MS = 100;
 	public static final int SIMPLE_WAIT_TIME_MS = Integer.parseInt(
-			System.getProperty("unity.selenium.delay", "2000"));
+			System.getProperty("unity.selenium.delay", "1500"));
 	protected WebDriver driver;
 
 	private StringBuffer verificationErrors = new StringBuffer();
@@ -55,19 +64,52 @@ public class SeleniumTestBase
 		driver.manage().timeouts().implicitlyWait(WAIT_TIME_S, TimeUnit.SECONDS);
 	}
 
-	@After
-	public void tearDown() throws Exception
+	
+	@Rule
+	public TestRule watchman = new TestWatcher() 
 	{
-		driver.manage().deleteAllCookies();
-		httpServer.stop();
-		driver.quit();
-		String verificationErrorString = verificationErrors.toString();
-		if (!"".equals(verificationErrorString))
+		@Override
+		protected void failed(Throwable e, Description description) 
 		{
-			Assert.fail(verificationErrorString);
+			takeScreenshot(description.getClassName() + "-" + description.getMethodName());
+			cleanup();
 		}
-	}
+		
+		@Override
+		protected void succeeded(Description description) 
+		{
+			cleanup();
+		}
 
+		private void takeScreenshot(String suffix)
+		{
+			byte[] screenshot = ((TakesScreenshot)driver).getScreenshotAs(OutputType.BYTES);
+			try
+			{
+				OutputStream fos = new FileOutputStream(
+						new File("target/failshot-" + suffix + ".png"));
+				IOUtils.write(screenshot, fos);
+			} catch (Exception e1)
+			{
+				throw new RuntimeException("Can not take screenshot", e1);
+			}
+		}
+
+		private void cleanup()
+		{
+			driver.manage().deleteAllCookies();
+			httpServer.stop();
+			driver.quit();
+			String verificationErrorString = verificationErrors.toString();
+			if (!"".equals(verificationErrorString))
+			{
+				Assert.fail(verificationErrorString);
+			}
+		}
+	};
+
+	
+	
 	protected WebElement waitForElement(By by)
 	{
 		for (int i = 0;; i++)
@@ -101,7 +143,14 @@ public class SeleniumTestBase
 		}
 	}
 	
-	protected void simpleWait()
+	protected WebElement waitForPageLoad(By someElement)
+	{
+		WebElement ret = waitForElement(someElement);
+		simpleWait();
+		return ret;
+	}
+	
+	private void simpleWait()
 	{
 		try
 		{
@@ -111,5 +160,4 @@ public class SeleniumTestBase
 			//OK
 		}
 	}
-	
 }

@@ -58,7 +58,7 @@
 		SELECT  * FROM TOKENS WHERE TYPE = #{value}
 	</select>
 
-	<select id="getExpired" resultMap="tokenResult">
-		SELECT * FROM TOKENS WHERE EXPIRES &lt; NOW()
+	<select id="getExpired" parameterType="date" resultMap="tokenResult">
+		SELECT * FROM TOKENS WHERE EXPIRES &lt; #{param}
 	</select>
 </mapper>

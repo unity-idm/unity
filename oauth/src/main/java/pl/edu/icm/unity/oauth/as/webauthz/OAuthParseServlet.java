@@ -37,8 +37,6 @@ import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
@@ -247,10 +245,10 @@ public class OAuthParseServlet extends HttpServlet
 		{
 			Entity clientResolvedEntity = identitiesMan.getEntity(clientEntity);
 			context.setClientEntityId(clientResolvedEntity.getId());
-		} catch (IllegalIdentityValueException e)
+		} catch (IllegalArgumentException e)
 		{
 			throw new OAuthValidationException("The client '" + client + "' is unknown");
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			log.error("Problem retrieving identity of the OAuth client", e);
 			throw new OAuthValidationException("Internal error, can not retrieve OAuth client's data");
