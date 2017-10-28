@@ -74,4 +74,20 @@ public class BaseEnumActionParameterComponent extends ComboBox implements Action
 		}
 		select(value);
 	}
+
+	@Override
+	public void addValueChangeCallback(ActionParameterValueChangeCallback callback)
+	{
+		setImmediate(true);
+		addValueChangeListener(new ValueChangeListener()
+		{
+			@Override
+			public void valueChange(com.vaadin.data.Property.ValueChangeEvent event)
+			{
+				callback.refresh();
+				
+			}
+		});
+		
+	}
 }

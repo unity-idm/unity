@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webadmin.tprofile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.vaadin.data.Property.ValueChangeListener;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -42,5 +43,21 @@ public class I18nTextActionParameterComponent extends I18nTextField implements A
 		{
 			throw new IllegalStateException("Can't deserialize I18nString from JSON", e);
 		}
+	}
+
+	@Override
+	public void addValueChangeCallback(ActionParameterValueChangeCallback callback)
+	{
+		setImmediate(true);
+		addValueChangeListener(new ValueChangeListener()
+		{
+			@Override
+			public void valueChange(com.vaadin.data.Property.ValueChangeEvent event)
+			{
+				callback.refresh();
+				
+			}
+		});
+		
 	}
 }

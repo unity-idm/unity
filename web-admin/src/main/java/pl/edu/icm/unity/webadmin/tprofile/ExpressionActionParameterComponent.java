@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
+import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.event.DataBoundTransferable;
@@ -169,5 +170,11 @@ public class ExpressionActionParameterComponent extends CustomField<String> impl
 	{
 		super.setReadOnly(readOnly);
 		parameter.setReadOnly(readOnly);
+	}
+
+	@Override
+	public void addValueChangeCallback(ActionParameterValueChangeCallback callback)
+	{
+		parameter.addValueChangeCallback(callback);
 	}
 }

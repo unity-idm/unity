@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
+import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -41,4 +42,22 @@ public class DefaultActionParameterComponent extends RequiredTextField implement
 	{
 		setValue(value);
 	}
+
+	@Override
+	public void addValueChangeCallback(ActionParameterValueChangeCallback callback)
+	{
+		setImmediate(true);
+		addValueChangeListener(new ValueChangeListener()
+		{
+			@Override
+			public void valueChange(com.vaadin.data.Property.ValueChangeEvent event)
+			{
+				callback.refresh();
+				
+			}
+		});
+		
+	}
+	
+	
 }

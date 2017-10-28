@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common;
 
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Resource;
 import com.vaadin.server.ThemeResource;
 
@@ -84,19 +85,32 @@ public enum Images
 	plFlag		(I.P + "16-flags/pl.png"),
 	enFlag		(I.P + "16-flags/en.png"),
 	deFlag		(I.P + "16-flags/de.png"),
+	
+	vaadinAdd	(VaadinIcons.PLUS_CIRCLE_O),
+	vaadinMenu	(VaadinIcons.MENU),
+	vaadinRemove	(VaadinIcons.CLOSE_CIRCLE_O),
+	vaadinTopArrow  (VaadinIcons.ANGLE_DOUBLE_UP),
+	vaadinBottomArrow (VaadinIcons.ANGLE_DOUBLE_DOWN),
+	vaadinUpArrow (VaadinIcons.ANGLE_UP),
+	vaadinDownArrow (VaadinIcons.ANGLE_DOWN),
 	;
 	
 	
-	private final String classpath;
+	private final Resource resource;
 	
 	private Images(String classpath)
 	{
-		this.classpath = classpath;
+		this.resource = new ThemeResource(classpath);
+	}
+	
+	private Images(Resource resource)
+	{
+		this.resource = resource;
 	}
 	
 	public Resource getResource()
 	{
-		return new ThemeResource(classpath);
+		return resource;
 	}
 
 	public static Resource getFlagForLocale(String localeCode)
