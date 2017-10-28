@@ -14,7 +14,7 @@ import org.springframework.context.ApplicationContext;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.utils.ClassPathResourceReader;
+import pl.edu.icm.unity.engine.utils.ClasspathResourceReader;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.translation.ProfileMode;
@@ -48,7 +48,7 @@ public abstract class SystemTranslationProfileProviderBase
 	private void loadProfiles()
 	{
 		String type = getType().toString().toLowerCase();
-		ClassPathResourceReader classPathReader = new ClassPathResourceReader(
+		ClasspathResourceReader classPathReader = new ClasspathResourceReader(
 				applicationContext);
 		try
 		{
