@@ -27,8 +27,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +38,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 
+import eu.unicore.util.configuration.ConfigIncludesProcessor;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.FilePropertiesHelper;
 import pl.edu.icm.unity.JsonUtil;
@@ -124,7 +125,7 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
 @Component
 public class EngineInitialization extends LifecycleBase
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, EngineInitialization.class);
+	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, UnityServerConfiguration.class);
 	public static final int ENGINE_INITIALIZATION_MOMENT = 0;
 	public static final String DEFAULT_CREDENTIAL = "Password credential";
 	public static final String DEFAULT_CREDENTIAL_REQUIREMENT = "Password requirement";
@@ -422,6 +423,7 @@ public class EngineInitialization extends LifecycleBase
 		try
 		{
 			props = FilePropertiesHelper.load(file);
+			props = ConfigIncludesProcessor.preprocess(props, log);
 		} catch (IOException e)
 		{
 			throw new InternalException("Can't load message templates config file", e);
@@ -447,7 +449,8 @@ public class EngineInitialization extends LifecycleBase
 				msgTemplatesManagement.addTemplate(templ);
 			} catch (WrongArgumentException e)
 			{
-				log.error("Template with id " + key + "not exists", e);
+				log.error("Template with id " + key + " is invalid, reason: "
+						+ e.getMessage(), e);
 			} catch (EngineException e)
 			{
 				log.error("Cannot add template " + key, e);
@@ -458,14 +461,25 @@ public class EngineInitialization extends LifecycleBase
 	
 	private MessageTemplate loadTemplate(Properties properties, String id) throws WrongArgumentException
 	{
-		String body = properties.getProperty(id+".body");
+		String bodyFile = properties.getProperty(id+".bodyFile");
 		String subject = properties.getProperty(id+".subject");
 		String consumer = properties.getProperty(id+".consumer", "");
 		String description = properties.getProperty(id+".description", "");
 		String typeStr = properties.getProperty(id+".type", MessageType.PLAIN.name());
 		
-		if (body == null || subject == null)
+		if (bodyFile == null || subject == null)
 			throw new WrongArgumentException("There is no template for this id");
+
+		String bodyContent;
+		try
+		{
+			bodyContent = FileUtils.readFileToString(new File(bodyFile));
+		} catch (IOException e)
+		{
+			throw new WrongArgumentException("Problem loading template " + id + " bodyFile "
+					+ bodyFile + ", reason: " + e.getMessage(), e);
+		}
+		
 		MessageType type;
 		try
 		{
@@ -476,7 +490,7 @@ public class EngineInitialization extends LifecycleBase
 					+ "supported values are: " + MessageType.values(), e);
 		}
 		
-		I18nMessage tempMsg = new I18nMessage(new I18nString(subject), new I18nString(body));
+		I18nMessage tempMsg = new I18nMessage(new I18nString(subject), new I18nString(bodyContent));
 		return new MessageTemplate(id, description, tempMsg, consumer, type);
 	}
 	
