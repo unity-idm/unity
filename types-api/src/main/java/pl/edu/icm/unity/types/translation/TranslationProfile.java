@@ -147,12 +147,20 @@ public class TranslationProfile extends DescribedObjectROImpl
 		else
 			profileType = ProfileType.INPUT;
 		if (root.has("mode"))
-			profileMode = ProfileMode.valueOf(root.get("mode").asText());
-		else
+		{
+			try
+			{
+				profileMode = ProfileMode.valueOf(root.get("mode").asText());
+			} catch (Exception e)
+			{
+				profileMode = ProfileMode.DEFAULT;
+			}
+		} else
+		{
 			profileMode = ProfileMode.DEFAULT;
+		}
 	}
 
-	
 	private String[] extractParams(ObjectNode jsonAction)
 	{
 		ArrayNode jsonAParams = (ArrayNode) jsonAction.get("parameters");

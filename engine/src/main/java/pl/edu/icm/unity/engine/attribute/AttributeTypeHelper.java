@@ -15,6 +15,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntaxFactory;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
+import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
 /**
@@ -39,18 +40,21 @@ public class AttributeTypeHelper
 			unconfiguredSyntaxes.put(f.getId(), f.createInstance());
 	}
 
+	@Transactional
 	public AttributeValueSyntax<?> getUnconfiguredSyntaxForAttributeName(String attribute)
 	{
 		AttributeType attributeType = attributeTypeDAO.get(attribute);
 		return getUnconfiguredSyntax(attributeType.getValueSyntax());
 	}
-
+	
+	@Transactional
 	public AttributeValueSyntax<?> getSyntaxForAttributeName(String attribute)
 	{
 		AttributeType attributeType = attributeTypeDAO.get(attribute);
 		return getSyntax(attributeType);
 	}
-
+	
+	@Transactional
 	public AttributeType getTypeForAttributeName(String attribute)
 	{
 		return attributeTypeDAO.get(attribute);

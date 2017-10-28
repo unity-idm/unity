@@ -8,7 +8,8 @@ package pl.edu.icm.unity.engine.utils;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.commons.io.FileUtils;
+
+import org.apache.commons.io.IOUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 
@@ -50,7 +51,7 @@ public class ClassPathResourceReader
 			for (Resource r : resources)
 			{
 				ObjectNode json;
-				String source = FileUtils.readFileToString(r.getFile());
+				String source = IOUtils.toString(r.getInputStream());
 				json = JsonUtil.parse(source);
 				jsons.add(json);
 			}
