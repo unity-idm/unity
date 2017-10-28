@@ -4,18 +4,17 @@
  */
 package pl.edu.icm.unity.engine.translation;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.io.Resource;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.utils.ClassPathResourceReader;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.translation.ProfileMode;
@@ -30,6 +29,9 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
  */
 public abstract class SystemTranslationProfileProviderBase
 {
+
+	public static final String TRANSLATION_PROFILE_CLASSPATH = "profiles";
+	
 	private ApplicationContext applicationContext;
 	protected Map<String, TranslationProfile> profiles;
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_TRANSLATION,
@@ -45,30 +47,31 @@ public abstract class SystemTranslationProfileProviderBase
 
 	private void loadProfiles()
 	{
-
 		String type = getType().toString().toLowerCase();
+		ClassPathResourceReader classPathReader = new ClassPathResourceReader(
+				applicationContext);
 		try
 		{
-			Resource[] resources = applicationContext
-					.getResources("classpath:profiles/" + type + "/*.json");
 
-			if (resources == null || resources.length == 0)
+			Collection<ObjectNode> jsons = classPathReader
+					.readJsons(TRANSLATION_PROFILE_CLASSPATH + "/" + type);
+
+			if (jsons.isEmpty())
 			{
-				LOG.debug("Directory with system {} translation profiles is empty", type);
+				LOG.debug("Directory with system {} translation profiles is empty",
+						type);
 				return;
-
 			}
-			for (Resource r : resources)
+
+			for (ObjectNode json : jsons)
 			{
-				ObjectNode json;
-				String source = FileUtils.readFileToString(r.getFile());
-				json = JsonUtil.parse(source);
 				TranslationProfile tp = new TranslationProfile(json);
 				tp.setProfileMode(ProfileMode.READ_ONLY);
 				checkProfile(tp);
 				LOG.debug("Add system {} translation profile '{}'", type, tp);
 				profiles.put(tp.getName(), tp);
 			}
+
 		} catch (Exception e)
 		{
 			throw new InternalException(
