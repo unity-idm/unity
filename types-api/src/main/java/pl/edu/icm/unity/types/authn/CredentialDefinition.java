@@ -31,6 +31,7 @@ public class CredentialDefinition extends I18nDescribedObject implements NamedOb
 	private String name;
 	private String typeId;
 	private String configuration;
+	private boolean readOnly = false;
 
 	public CredentialDefinition()
 	{
@@ -104,6 +105,16 @@ public class CredentialDefinition extends I18nDescribedObject implements NamedOb
 	{
 		this.name = name;
 	}
+	
+	public boolean isReadOnly()
+	{
+		return readOnly;
+	}
+
+	public void setReadOnly(boolean readOnly)
+	{
+		this.readOnly = readOnly;
+	}
 
 	@JsonValue
 	public ObjectNode toJson()
@@ -111,6 +122,7 @@ public class CredentialDefinition extends I18nDescribedObject implements NamedOb
 		ObjectNode root = Constants.MAPPER.createObjectNode();
 		root.put("typeId", getTypeId());
 		root.put("name", getName());
+		root.put("readOnly", isReadOnly());
 		root.put("configuration", getConfiguration());
 		root.set("displayedName", I18nStringJsonUtil.toJson(getDisplayedName()));
 		root.set("i18nDescription", I18nStringJsonUtil.toJson(getDescription()));
@@ -125,6 +137,9 @@ public class CredentialDefinition extends I18nDescribedObject implements NamedOb
 
 		n = root.get("typeId");
 		setTypeId(n.asText());
+		
+		n = root.get("readOnly");
+		setReadOnly(n.asBoolean());
 		
 		n = root.get("configuration");
 		if (n != null && !n.isNull())
@@ -163,6 +178,7 @@ public class CredentialDefinition extends I18nDescribedObject implements NamedOb
 				+ ((configuration == null) ? 0 : configuration.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((typeId == null) ? 0 : typeId.hashCode());
+		result = prime * result + ((readOnly) ? 1 : 0);
 		return result;
 	}
 
@@ -194,6 +210,9 @@ public class CredentialDefinition extends I18nDescribedObject implements NamedOb
 				return false;
 		} else if (!typeId.equals(other.typeId))
 			return false;
+		if (readOnly != other.readOnly)
+			return false;
+		
 		return true;
 	}
 }

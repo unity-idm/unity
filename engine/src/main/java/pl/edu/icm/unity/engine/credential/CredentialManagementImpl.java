@@ -6,10 +6,12 @@ package pl.edu.icm.unity.engine.credential;
 
 import static pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider.CREDENTIAL_PREFIX;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -56,13 +58,14 @@ public class CredentialManagementImpl implements CredentialManagement
 	private AttributeDAO attributeDAO;
 	private AuthorizationManager authz;
 	private UnityMessageSource msg;
+	private SystemCredentialProvider sysProvider;
 	
 	@Autowired
 	public CredentialManagementImpl(LocalCredentialsRegistry localCredReg,
 			CredentialDB credentialDB, CredentialRequirementDB credentialRequirementDB,
 			IdentityHelper identityHelper, AttributeTypeDAO attributeTypeDAO,
 			AttributeDAO attributeDAO, AuthorizationManager authz,
-			UnityMessageSource msg)
+			UnityMessageSource msg, SystemCredentialProvider sysProvider)
 	{
 		this.localCredReg = localCredReg;
 		this.credentialDB = credentialDB;
@@ -72,6 +75,7 @@ public class CredentialManagementImpl implements CredentialManagement
 		this.attributeDAO = attributeDAO;
 		this.authz = authz;
 		this.msg = msg;
+		this.sysProvider = sysProvider;
 	}
 
 	@Override
@@ -86,6 +90,8 @@ public class CredentialManagementImpl implements CredentialManagement
 			throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
+		assertIsNotReadOnly(credentialDefinition);
+		assertIsNotSystemProfile(credentialDefinition.getName());
 		CredentialHolder helper = new CredentialHolder(credentialDefinition, localCredReg);
 		credentialDB.create(credentialDefinition);
 		AttributeType at = getCredentialAT(helper.getCredentialDefinition().getName());
@@ -97,7 +103,9 @@ public class CredentialManagementImpl implements CredentialManagement
 			LocalCredentialState desiredAuthnState) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-
+		assertIsNotReadOnly(updated);
+		assertIsNotSystemProfile(updated.getName());
+		
 		CredentialHolder helper = new CredentialHolder(updated, localCredReg);
 		//get all cred reqs with it
 		Set<String> affectedCr = new HashSet<String>();
@@ -124,6 +132,7 @@ public class CredentialManagementImpl implements CredentialManagement
 	public void removeCredentialDefinition(String toRemove) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
+		assertIsNotSystemProfile(toRemove);
 		credentialDB.delete(toRemove);
 		attributeTypeDAO.delete(CREDENTIAL_PREFIX+toRemove);
 	}
@@ -133,7 +142,10 @@ public class CredentialManagementImpl implements CredentialManagement
 	public Collection<CredentialDefinition> getCredentialDefinitions() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.readInfo);
-		return credentialDB.getAll();
+		List<CredentialDefinition> res =  new ArrayList<>();
+		res.addAll(sysProvider.getSystemCredentials());
+		res.addAll(credentialDB.getAll());
+		return res;
 	}
 	
 
@@ -179,4 +191,18 @@ public class CredentialManagementImpl implements CredentialManagement
 			throw new IllegalCredentialException("The new credential is not compatible with "
 					+ "the previous definition and can not keep the credential state as correct");
 	}
+	
+	private void assertIsNotSystemProfile(String name)
+	{
+		Set<String> systemProfiles = sysProvider.getSystemCredentials().stream().map(c -> c.getName()).collect(Collectors.toSet());
+		if (systemProfiles.contains(name))
+			throw new IllegalArgumentException("Credential '" + name + "' is the system credential and cannot be overwrite or remove");
+	}
+	
+	private void assertIsNotReadOnly(CredentialDefinition cred) throws EngineException
+	{
+		if (cred.isReadOnly())
+			throw new IllegalArgumentException("Cannot create read only credentials through this API");
+	}
+
 }
