@@ -33,12 +33,13 @@ public class SystemCredentialProvider
 
 	private ApplicationContext applicationContext;
 	private Collection<CredentialDefinition> credentials;
-
+	
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER,
 			SystemCredentialProvider.class);
 
 	@Autowired
 	public SystemCredentialProvider(ApplicationContext applicationContext)
+			
 	{
 		this.applicationContext = applicationContext;
 		this.credentials = new ArrayList<>();
@@ -87,4 +88,5 @@ public class SystemCredentialProvider
 			throw new InternalException("Duplicate definition of system credential " + cred.getName());
 		}
 	}
+
 }

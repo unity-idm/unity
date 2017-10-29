@@ -31,10 +31,10 @@ try
 {
 	groupsManagement.addGroup(new Group("/oauth-clients"));
 	IdentityParam oauthClient = new IdentityParam(UsernameIdentity.ID, "oauth-client");
-	Identity oauthClientA = entityManagement.addEntity(oauthClient, "Password requirement",
+	Identity oauthClientA = entityManagement.addEntity(oauthClient, "sys:all",
 			EntityState.valid, false);
 	PasswordToken pToken2 = new PasswordToken("oauth-pass");
-	entityCredentialManagement.setEntityCredential(new EntityParam(oauthClientA.getEntityId()), "Password credential",
+	entityCredentialManagement.setEntityCredential(new EntityParam(oauthClientA.getEntityId()), "sys:password",
 			pToken2.toJson());
 	log.warn("Default OAuth client user was created with default password. Please change it!");
 	groupsManagement.addMemberFromParent("/oauth-clients", new EntityParam(oauthClientA.getEntityId()));

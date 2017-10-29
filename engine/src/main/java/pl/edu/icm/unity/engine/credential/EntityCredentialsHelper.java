@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.engine.credential;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,8 +19,6 @@ import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
-import pl.edu.icm.unity.store.api.generic.CredentialDB;
-import pl.edu.icm.unity.store.api.generic.CredentialRequirementDB;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
@@ -36,11 +34,11 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 public class EntityCredentialsHelper
 {
 	@Autowired
-	private CredentialDB credentialDB;
+	private CredentialRepository credentialRepository;
 	@Autowired
 	private LocalCredentialsRegistry localCredReg;
 	@Autowired
-	private CredentialRequirementDB credentialRequirementDB;
+	private CredentialReqRepository credentialReqRepository;
 	@Autowired
 	private AttributesHelper attributesHelper;
 	
@@ -75,8 +73,8 @@ public class EntityCredentialsHelper
 	public CredentialRequirementsHolder getCredentialRequirements(String requirementName) 
 			throws EngineException
 	{
-		CredentialRequirements requirements = credentialRequirementDB.get(requirementName);
-		List<CredentialDefinition> credDefs = credentialDB.getAll();
+		CredentialRequirements requirements = credentialReqRepository.get(requirementName);
+		Collection<CredentialDefinition> credDefs = credentialRepository.getCredentialDefinitions();
 		return new CredentialRequirementsHolder(localCredReg, requirements, credDefs);
 	}
 	
@@ -84,8 +82,8 @@ public class EntityCredentialsHelper
 	public void setEntityCredentialRequirements(long entityId, String credReqId) 
 			throws EngineException
 	{
-		if (!credentialRequirementDB.exists(credReqId))
-			throw new IllegalArgumentException("There is no required credential set with id " + credReqId);
+		
+		credentialReqRepository.assertExist(credReqId);
 		setEntityCredentialRequirementsNoCheck(entityId, credReqId);
 	}
 	

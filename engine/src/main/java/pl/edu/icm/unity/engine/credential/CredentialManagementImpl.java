@@ -6,10 +6,8 @@ package pl.edu.icm.unity.engine.credential;
 
 import static pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider.CREDENTIAL_PREFIX;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -20,17 +18,16 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.identity.IdentityHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.generic.CredentialDB;
-import pl.edu.icm.unity.store.api.generic.CredentialRequirementDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
@@ -52,30 +49,35 @@ public class CredentialManagementImpl implements CredentialManagement
 {
 	private LocalCredentialsRegistry localCredReg;
 	private CredentialDB credentialDB;
-	private CredentialRequirementDB credentialRequirementDB;
+	private CredentialReqRepository credentialRequirementRepository;
+	private CredentialRepository credentialRepository;
 	private IdentityHelper identityHelper;
 	private AttributeTypeDAO attributeTypeDAO;
 	private AttributeDAO attributeDAO;
 	private AuthorizationManager authz;
 	private UnityMessageSource msg;
 	private SystemCredentialProvider sysProvider;
+	private AttributeTypeHelper attrTypeHelper;
 	
 	@Autowired
 	public CredentialManagementImpl(LocalCredentialsRegistry localCredReg,
-			CredentialDB credentialDB, CredentialRequirementDB credentialRequirementDB,
+			CredentialDB credentialDB, CredentialReqRepository credentialRequirementRepository,
 			IdentityHelper identityHelper, AttributeTypeDAO attributeTypeDAO,
 			AttributeDAO attributeDAO, AuthorizationManager authz,
-			UnityMessageSource msg, SystemCredentialProvider sysProvider)
+			UnityMessageSource msg, SystemCredentialProvider sysProvider,
+			CredentialRepository credentialRepository, AttributeTypeHelper attrTypeHelper)
 	{
 		this.localCredReg = localCredReg;
 		this.credentialDB = credentialDB;
-		this.credentialRequirementDB = credentialRequirementDB;
+		this.credentialRequirementRepository = credentialRequirementRepository;
 		this.identityHelper = identityHelper;
 		this.attributeTypeDAO = attributeTypeDAO;
 		this.attributeDAO = attributeDAO;
 		this.authz = authz;
 		this.msg = msg;
 		this.sysProvider = sysProvider;
+		this.credentialRepository = credentialRepository;
+		this.attrTypeHelper = attrTypeHelper;
 	}
 
 	@Override
@@ -94,7 +96,7 @@ public class CredentialManagementImpl implements CredentialManagement
 		assertIsNotSystemProfile(credentialDefinition.getName());
 		CredentialHolder helper = new CredentialHolder(credentialDefinition, localCredReg);
 		credentialDB.create(credentialDefinition);
-		AttributeType at = getCredentialAT(helper.getCredentialDefinition().getName());
+		AttributeType at = attrTypeHelper.getCredentialAT(helper.getCredentialDefinition().getName());
 		attributeTypeDAO.create(at);
 	}
 
@@ -109,7 +111,7 @@ public class CredentialManagementImpl implements CredentialManagement
 		CredentialHolder helper = new CredentialHolder(updated, localCredReg);
 		//get all cred reqs with it
 		Set<String> affectedCr = new HashSet<String>();
-		List<CredentialRequirements> crs = credentialRequirementDB.getAll();
+		Collection<CredentialRequirements> crs = credentialRequirementRepository.getCredentialRequirements();
 		for (CredentialRequirements cr: crs)
 		{
 			if (cr.getRequiredCredentials().contains(updated.getName()))
@@ -142,22 +144,7 @@ public class CredentialManagementImpl implements CredentialManagement
 	public Collection<CredentialDefinition> getCredentialDefinitions() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.readInfo);
-		List<CredentialDefinition> res =  new ArrayList<>();
-		res.addAll(sysProvider.getSystemCredentials());
-		res.addAll(credentialDB.getAll());
-		return res;
-	}
-	
-
-	private AttributeType getCredentialAT(String name)
-	{
-		AttributeType credentialAt = new AttributeType(CREDENTIAL_PREFIX+name, 
-				StringAttributeSyntax.ID, msg, CREDENTIAL_PREFIX,
-				new Object[] {name});
-		credentialAt.setMaxElements(1);
-		credentialAt.setMinElements(1);
-		credentialAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG | AttributeType.INSTANCES_IMMUTABLE_FLAG);
-		return credentialAt;
+		return credentialRepository.getCredentialDefinitions();
 	}
 	
 	/**

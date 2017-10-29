@@ -15,9 +15,12 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.event.Action;
+import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.CredentialManagement;
@@ -79,9 +82,12 @@ public class CredentialRequirementsComponent extends VerticalLayout
 				new GenericElementsTable.NameProvider<CredentialRequirements>()
 				{
 					@Override
-					public String toRepresentation(CredentialRequirements element)
+					public Label toRepresentation(CredentialRequirements element)
 					{
-						return element.getName();
+						Label ret = new Label(element.getName());
+						if (element.isReadOnly())
+							ret.addStyleName(Styles.readOnlyTableElement.toString());
+						return ret;
 					}
 				});
 		table.addValueChangeListener(new ValueChangeListener()
@@ -263,7 +269,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 		}
 	}
 	
-	private class EditActionHandler extends SingleActionHandler
+	private class EditActionHandler extends AbstractCredentialReqActionHandler
 	{
 		public EditActionHandler()
 		{
@@ -298,7 +304,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 		}
 	}
 	
-	private class DeleteActionHandler extends SingleActionHandler
+	private class DeleteActionHandler extends AbstractCredentialReqActionHandler
 	{
 		public DeleteActionHandler()
 		{
@@ -332,5 +338,43 @@ public class CredentialRequirementsComponent extends VerticalLayout
 			}).show();
 		}
 	}
+	
+	private abstract class AbstractCredentialReqActionHandler extends SingleActionHandler
+	{
+
+		public AbstractCredentialReqActionHandler(String caption, Resource icon)
+		{
+			super(caption, icon);
+			setNeedsTarget(true);
+		}
+
+		@Override
+		public Action[] getActions(Object target, Object sender)
+		{
+			if (target == null)
+			{
+				return EMPTY;
+
+			} else
+			{
+				if (target instanceof Collection<?>)
+				{
+					Collection<CredentialRequirements> items = getItems(target);
+					for (CredentialRequirements cr : items)
+						if (cr.isReadOnly())
+							return EMPTY;
+				} else
+				{
+					GenericItem<?> item = (GenericItem<?>) target;	
+					CredentialRequirements cr = (CredentialRequirements) item.getElement();
+					if (cr.isReadOnly())
+						return EMPTY;
+				}
+			}
+			return super.getActions(target, sender);
+		}
+
+	}
+	
 
 }

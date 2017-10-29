@@ -69,6 +69,8 @@ import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.engine.bulkops.BulkOperationsUpdater;
+import pl.edu.icm.unity.engine.credential.CredentialRepository;
+import pl.edu.icm.unity.engine.credential.SystemCredentialRequirements;
 import pl.edu.icm.unity.engine.endpoint.EndpointsUpdater;
 import pl.edu.icm.unity.engine.endpoint.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.endpoint.SharedEndpointManagementImpl;
@@ -130,8 +132,8 @@ public class EngineInitialization extends LifecycleBase
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, EngineInitialization.class);
 	public static final int ENGINE_INITIALIZATION_MOMENT = 0;
-	public static final String DEFAULT_CREDENTIAL = "Password credential";
-	public static final String DEFAULT_CREDENTIAL_REQUIREMENT = "Password requirement";
+	public static final String DEFAULT_CREDENTIAL = "sys:password";
+	public static final String DEFAULT_CREDENTIAL_REQUIREMENT = SystemCredentialRequirements.NAME;
 
 	@Autowired
 	private UnityMessageSource msg;
@@ -219,6 +221,9 @@ public class EngineInitialization extends LifecycleBase
 	private SystemInputTranslationProfileProvider systemInputProfileProvider;
 	@Autowired
 	private SystemOutputTranslationProfileProvider systemOutputProfileProvider;
+	@Autowired
+	CredentialRepository credRepo;
+	
 	
 	private long endpointsLoadTime;
 	
@@ -555,8 +560,11 @@ public class EngineInitialization extends LifecycleBase
 				log.info("Database contains no admin user, adding the admin user and the " +
 						"default credential settings");
 				
-				CredentialDefinition credDef = createDefaultAdminCredential();
-				CredentialRequirements crDef = createDefaultAdminCredReq(credDef.getName());
+			//	CredentialDefinition credDef = createDefaultAdminCredential();
+			//	CredentialRequirements crDef = createDefaultAdminCredReq(credDef.getName());
+				
+				CredentialDefinition credDef = credRepo.get(DEFAULT_CREDENTIAL);
+				CredentialRequirements crDef = new SystemCredentialRequirements(credRepo, msg);
 				
 				Identity adminId = createAdminSafe(admin, crDef);
 				

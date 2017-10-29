@@ -139,7 +139,8 @@ public class CredentialDefinition extends I18nDescribedObject implements NamedOb
 		setTypeId(n.asText());
 		
 		n = root.get("readOnly");
-		setReadOnly(n.asBoolean());
+		if (n != null && !n.isNull())
+			setReadOnly(n.asBoolean());
 		
 		n = root.get("configuration");
 		if (n != null && !n.isNull())
