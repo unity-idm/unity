@@ -25,5 +25,6 @@ public class RegistrationTranslationProfileViewer extends TranslationProfileView
 		super.initUI();
 		name.setVisible(false);
 		description.setVisible(false);
+		mode.setVisible(false);
 	}
 }
