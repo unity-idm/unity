@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.google.gwt.core.ext.typeinfo.JClassType;
-import com.vaadin.client.ui.checkbox.CheckBoxConnector;
 import com.vaadin.server.widgetsetutils.ConnectorBundleLoaderFactory;
 import com.vaadin.shared.ui.Connect.LoadStyle;
 
@@ -32,7 +31,7 @@ public class OptimizedConnectorBundleLoaderFactory extends ConnectorBundleLoader
 		eagerConnectors.add(com.vaadin.client.connectors.grid.TextRendererConnector.class.getName());
 		eagerConnectors.add(com.vaadin.client.ui.csslayout.CssLayoutConnector.class.getName());
 		eagerConnectors.add(com.vaadin.client.connectors.ImageRendererConnector.class.getName());
-		eagerConnectors.add(CheckBoxConnector.class.getName());
+		eagerConnectors.add(com.vaadin.client.ui.checkbox.CheckBoxConnector.class.getName());
 	}
 
 	@Override
