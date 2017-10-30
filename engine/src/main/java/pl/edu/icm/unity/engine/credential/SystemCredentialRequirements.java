@@ -13,6 +13,11 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 
+/**
+ * Default credential requirements. Contains all configured credential.
+ * @author P.Piernik
+ *
+ */
 public class SystemCredentialRequirements extends CredentialRequirements
 {
 	public static final String NAME = "sys:all";

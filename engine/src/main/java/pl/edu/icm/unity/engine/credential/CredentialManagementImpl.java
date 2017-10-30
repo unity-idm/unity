@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
@@ -55,7 +54,6 @@ public class CredentialManagementImpl implements CredentialManagement
 	private AttributeTypeDAO attributeTypeDAO;
 	private AttributeDAO attributeDAO;
 	private AuthorizationManager authz;
-	private UnityMessageSource msg;
 	private SystemCredentialProvider sysProvider;
 	private AttributeTypeHelper attrTypeHelper;
 	
@@ -64,8 +62,8 @@ public class CredentialManagementImpl implements CredentialManagement
 			CredentialDB credentialDB, CredentialReqRepository credentialRequirementRepository,
 			IdentityHelper identityHelper, AttributeTypeDAO attributeTypeDAO,
 			AttributeDAO attributeDAO, AuthorizationManager authz,
-			UnityMessageSource msg, SystemCredentialProvider sysProvider,
-			CredentialRepository credentialRepository, AttributeTypeHelper attrTypeHelper)
+			SystemCredentialProvider sysProvider, CredentialRepository credentialRepository, 
+			AttributeTypeHelper attrTypeHelper)
 	{
 		this.localCredReg = localCredReg;
 		this.credentialDB = credentialDB;
@@ -74,7 +72,6 @@ public class CredentialManagementImpl implements CredentialManagement
 		this.attributeTypeDAO = attributeTypeDAO;
 		this.attributeDAO = attributeDAO;
 		this.authz = authz;
-		this.msg = msg;
 		this.sysProvider = sysProvider;
 		this.credentialRepository = credentialRepository;
 		this.attrTypeHelper = attrTypeHelper;
@@ -138,7 +135,6 @@ public class CredentialManagementImpl implements CredentialManagement
 		credentialDB.delete(toRemove);
 		attributeTypeDAO.delete(CREDENTIAL_PREFIX+toRemove);
 	}
-
 
 	@Override
 	public Collection<CredentialDefinition> getCredentialDefinitions() throws EngineException
