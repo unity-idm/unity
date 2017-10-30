@@ -25,6 +25,14 @@ public interface MessageTemplateManagement
 	public Map<String, MessageTemplate> listTemplates() throws EngineException;
 	
 	public MessageTemplate getTemplate(String name) throws EngineException;
+
+	/**
+	 * Returns a template after pre-processing (e.g. all includes are resolved).
+	 * @param name
+	 * @return
+	 * @throws EngineException
+	 */
+	public MessageTemplate getPreprocessedTemplate(String name) throws EngineException;
 	
 	public Map<String, MessageTemplate> getCompatibleTemplates(String templateConsumer)
 			throws EngineException;

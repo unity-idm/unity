@@ -51,7 +51,7 @@ public class SimpleMessageTemplateViewer extends MessageTemplateViewerBase
 		notSet.setVisible(false);	
 		try
 		{
-			MessageTemplate templateC = msgTempMan.getTemplate(template);
+			MessageTemplate templateC = msgTempMan.getPreprocessedTemplate(template);
 			setInput(templateC);
 			
 		} catch (EngineException e)

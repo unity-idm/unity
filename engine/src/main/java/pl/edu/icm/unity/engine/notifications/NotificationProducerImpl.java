@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.notifications;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PersistenceConfiguration;
+import pl.edu.icm.unity.base.msgtemplates.GenericMessageTemplateDef;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
@@ -108,15 +110,12 @@ public class NotificationProducerImpl implements NotificationProducer, InternalF
 	{
 		recipient.validateInitialization();
 
-		MessageTemplate template;
-		NotificationChannelInstance channel;
-		String recipientAddress;
-		template = mtDB.get(templateId);
-		channel = loadChannel(channelName);
+		Map<String, MessageTemplate> allTemplates = mtDB.getAllAsMap();
+		NotificationChannelInstance channel = loadChannel(channelName);
 		NotificationFacility facility = facilitiesRegistry.getByName(channel.getFacilityId());
-		recipientAddress = facility.getAddressForEntity(recipient, preferredAddress);
+		String recipientAddress = facility.getAddressForEntity(recipient, preferredAddress);
 		txManager.commit();
-		Message templateMsg = template.getMessage(locale, msg.getDefaultLocaleCode(), params);
+		Message templateMsg = getResolvedMessage(allTemplates, templateId, params, locale);
 		return channel.sendNotification(recipientAddress, templateMsg);
 	}
 	
@@ -128,8 +127,8 @@ public class NotificationProducerImpl implements NotificationProducer, InternalF
 		if (templateId == null)
 			return;
 
-		MessageTemplate template = mtDB.get(templateId);
-		Message templateMsg = template.getMessage(locale, msg.getDefaultLocaleCode(), params);
+		Map<String, MessageTemplate> allTemplates = mtDB.getAllAsMap();
+		Message templateMsg = getResolvedMessage(allTemplates, templateId, params, locale);
 
 		List<GroupMembership> memberships = dbGroups.getMembers(group);
 
@@ -156,12 +155,10 @@ public class NotificationProducerImpl implements NotificationProducer, InternalF
 			String channelName, String templateId, Map<String, String> params, String locale)
 			throws EngineException
 	{
-		NotificationChannelInstance channel;
-		MessageTemplate template;
-		channel = loadChannel(channelName);
-		template = mtDB.get(templateId);
+		NotificationChannelInstance channel = loadChannel(channelName);
+		Map<String, MessageTemplate> allTemplates = mtDB.getAllAsMap();
 		txManager.commit();
-		Message templateMsg = template.getMessage(locale, msg.getDefaultLocaleCode(), params);
+		Message templateMsg = getResolvedMessage(allTemplates, templateId, params, locale);
 		return channel.sendNotification(recipientAddress, templateMsg);
 	}
 
@@ -172,5 +169,17 @@ public class NotificationProducerImpl implements NotificationProducer, InternalF
 	{
 		NotificationChannelInstance channel = loadChannel(channelName);
 		return facilitiesRegistry.getByName(channel.getFacilityId());
+	}
+	
+	public Message getResolvedMessage(Map<String, MessageTemplate> allTemplates, 
+			String templateId, Map<String, String> params, String locale) throws EngineException
+	{
+		MessageTemplate requested = allTemplates.get(templateId);
+		if (requested == null)
+			throw new IllegalArgumentException("There is no message template " + templateId);
+		Map<String, MessageTemplate> genericTemplates = allTemplates.entrySet().stream()
+			.filter(e -> e.getValue().getConsumer().equals(GenericMessageTemplateDef.NAME))
+			.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
+		return requested.getMessage(locale, msg.getDefaultLocaleCode(), params, genericTemplates);
 	}
 }

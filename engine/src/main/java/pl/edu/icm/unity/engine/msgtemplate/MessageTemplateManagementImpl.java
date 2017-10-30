@@ -6,11 +6,13 @@ package pl.edu.icm.unity.engine.msgtemplate;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.msgtemplates.GenericMessageTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
@@ -90,6 +92,21 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 		return mtDB.get(name);
 	}
 
+	@Transactional
+	@Override
+	public MessageTemplate getPreprocessedTemplate(String name) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		Map<String, MessageTemplate> allAsMap = mtDB.getAllAsMap();
+		MessageTemplate requested = allAsMap.get(name);
+		if (requested == null)
+			throw new IllegalArgumentException("There is no message template " + name);
+		Map<String, MessageTemplate> genericTemplates = allAsMap.entrySet().stream()
+			.filter(e -> e.getValue().getConsumer().equals(GenericMessageTemplateDef.NAME))
+			.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
+		return requested.preprocessMessage(genericTemplates);
+	}
+	
 	@Transactional
 	@Override
 	public Map<String, MessageTemplate> getCompatibleTemplates(String templateConsumer) throws EngineException

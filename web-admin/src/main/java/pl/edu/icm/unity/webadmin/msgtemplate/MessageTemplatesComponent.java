@@ -90,8 +90,9 @@ public class MessageTemplatesComponent extends VerticalLayout
 					viewer.setTemplateInput(null);
 					return;	
 				}	
-				MessageTemplate item = items.iterator().next();	
-				viewer.setTemplateInput(item);
+				MessageTemplate item = items.iterator().next();
+				MessageTemplate forPreview = getTemplateForPreview(item);
+				viewer.setTemplateInput(forPreview);
 			}
 		});
 		table.addActionHandler(new RefreshActionHandler());
@@ -145,6 +146,18 @@ public class MessageTemplatesComponent extends VerticalLayout
 		{
 			NotificationPopup.showError(msg, msg.getMessage("MessageTemplatesComponent.errorUpdate"), e);
 			return false;
+		}
+	}
+
+	private MessageTemplate getTemplateForPreview(MessageTemplate srcTemplate)
+	{
+		try
+		{
+			return msgTempMan.getPreprocessedTemplate(srcTemplate.getName());
+		} catch (Exception e)
+		{
+			NotificationPopup.showError(msg, msg.getMessage("MessageTemplatesComponent.errorGetTemplates"), e);
+			return null;
 		}
 	}
 	
@@ -239,7 +252,6 @@ public class MessageTemplatesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			
 			GenericItem<?> witem = (GenericItem<?>) target;
 			MessageTemplate item = (MessageTemplate) witem.getElement();
 			MessageTemplateEditor editor;
