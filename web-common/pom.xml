@@ -87,7 +87,12 @@
   			<groupId>com.vaadin.addon</groupId>
   			<artifactId>vaadin-context-menu</artifactId>
   			<version>0.7.5</version>
-		</dependency>	
+		</dependency>
+		<dependency>
+  			<groupId>org.vaadin.addons</groupId>
+   			<artifactId>simplefiledownloader</artifactId>
+  			<version>1.0.4</version>
+		</dependency>		
 		<dependency>
    			<groupId>com.vaadin</groupId>
   			<artifactId>vaadin-icons</artifactId>

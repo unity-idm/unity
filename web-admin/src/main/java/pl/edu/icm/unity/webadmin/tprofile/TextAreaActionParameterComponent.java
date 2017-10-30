@@ -46,7 +46,6 @@ public class TextAreaActionParameterComponent extends TextArea implements Action
 				callback.refresh();
 				
 			}
-		});
-		
+		});		
 	}
 }

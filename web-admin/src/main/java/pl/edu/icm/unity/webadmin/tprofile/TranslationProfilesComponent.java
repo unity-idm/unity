@@ -5,16 +5,19 @@
 
 package pl.edu.icm.unity.webadmin.tprofile;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.vaadin.simplefiledownloader.SimpleFileDownloader;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.event.Action;
 import com.vaadin.server.Resource;
+import com.vaadin.server.StreamResource;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.HorizontalLayout;
@@ -36,7 +39,6 @@ import pl.edu.icm.unity.types.translation.ProfileMode;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webadmin.WebAdminEndpointFactory;
-
 import pl.edu.icm.unity.webadmin.tprofile.dryrun.DryRunWizardProvider;
 import pl.edu.icm.unity.webadmin.tprofile.wizard.ProfileWizardProvider;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
@@ -162,6 +164,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		table.addActionHandler(new DeleteActionHandler());
 		table.addActionHandler(new WizardActionHandler());
 		table.addActionHandler(new DryRunActionHandler());
+		table.addActionHandler(new ExportActionHandler());
 		return table;
 	}
 	
@@ -438,6 +441,30 @@ public class TranslationProfilesComponent extends VerticalLayout
 			dialog.show();
 		}
 	}
+	
+	private class ExportActionHandler extends SingleActionHandler
+	{
+		public ExportActionHandler()
+		{
+			super(msg.getMessage("TranslationProfilesComponent.exportAction"), Images.save.getResource());
+		}
+
+		@Override
+		public void handleAction(Object sender, final Object target)
+		{
+			SimpleFileDownloader downloader = new SimpleFileDownloader();
+			addExtension(downloader);
+			@SuppressWarnings("unchecked")
+			GenericItem<TranslationProfile> item = (GenericItem<TranslationProfile>) target;
+			final StreamResource resource = new StreamResource(() -> {
+				return new ByteArrayInputStream(item.getElement().toJsonObject().toString().getBytes());
+			}, item.getElement().getName() + ".json");
+			
+			downloader.setFileDownloadResource(resource);
+			downloader.download();
+		}
+	}
+	
 	private class DeleteActionHandler extends AbstractTranslationProfileActionHandler
 	{
 		public DeleteActionHandler()

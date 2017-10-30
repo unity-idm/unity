@@ -23,5 +23,4 @@ public interface ActionParameterComponent extends Component
 	{
 		void refresh();
 	}
-
 }

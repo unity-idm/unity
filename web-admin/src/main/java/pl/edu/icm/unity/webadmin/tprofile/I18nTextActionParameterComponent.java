@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.webadmin.tprofile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.vaadin.data.Property.ValueChangeListener;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -57,7 +56,6 @@ public class I18nTextActionParameterComponent extends I18nTextField implements A
 				callback.refresh();
 				
 			}
-		});
-		
+		});		
 	}
 }

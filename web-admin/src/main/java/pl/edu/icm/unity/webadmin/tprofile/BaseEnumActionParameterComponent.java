@@ -87,7 +87,6 @@ public class BaseEnumActionParameterComponent extends ComboBox implements Action
 				callback.refresh();
 				
 			}
-		});
-		
+		});	
 	}
 }

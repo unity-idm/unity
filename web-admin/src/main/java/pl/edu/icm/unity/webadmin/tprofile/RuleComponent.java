@@ -135,7 +135,7 @@ public class RuleComponent extends CustomComponent
 	        });
 		top.setCheckable(false);
 		top.setIcon(Images.vaadinTopArrow.getResource());	
-	
+		
 		bottom = contextMenu.addItem(msg.getMessage("TranslationProfileEditor.moveBottom"), e -> {
 			callback.moveBottom(RuleComponent.this);
 	        });
