@@ -12,7 +12,7 @@ import com.vaadin.addon.contextmenu.MenuItem;
 import com.vaadin.event.LayoutEvents.LayoutClickEvent;
 import com.vaadin.event.LayoutEvents.LayoutClickListener;
 import com.vaadin.server.UserError;
-import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -62,7 +62,7 @@ public class RuleComponent extends CustomComponent
 	private boolean editMode;
 	private ActionParameterComponentProvider actionComponentProvider;
 	private FormLayout content;
-	private DragLabel info;
+	private Label info;
 	private Button showHide;
 	
 	public RuleComponent(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
@@ -85,7 +85,7 @@ public class RuleComponent extends CustomComponent
 		
 		HorizontalLayout header = new HorizontalLayout();
 		header.setSizeFull();
-		header.setMargin(new MarginInfo(false, true, false, true));
+		header.setMargin(false);
 		
 		
 		showHide = new Button(Images.vaadinDownArrow.getResource());
@@ -104,18 +104,24 @@ public class RuleComponent extends CustomComponent
 		header.setExpandRatio(showHide, 0);
 		header.setComponentAlignment(showHide, Alignment.MIDDLE_LEFT);
 		
-		HorizontalLayout infoWrapper =  new HorizontalLayout();
-		infoWrapper.setSizeFull();		
-		info = new DragLabel(this, "");
-		//info.setSizeUndefined();
-		DragAndDropWrapper wr = new DragAndDropWrapper(info);
-		wr.setDragStartMode(DragStartMode.WRAPPER);
-		wr.setSizeUndefined();	
-		infoWrapper.addComponent(wr);	
+		info = new Label("");
+		info.setSizeUndefined();;
 				
-		header.addComponent(infoWrapper);	
-		header.setComponentAlignment(infoWrapper, Alignment.MIDDLE_LEFT);
-		header.setExpandRatio(infoWrapper, 10);
+		DragHtmlLabel img = new DragHtmlLabel(this, "&nbsp" + Images.vaadinResize.getHtml() + "&nbsp");
+		img.addStyleName(Styles.link.toString());
+		img.setSizeFull();
+		
+		DragAndDropWrapper dragWrapper = new DragAndDropWrapper(img);
+		dragWrapper.setDragStartMode(DragStartMode.WRAPPER);
+		dragWrapper.setSizeUndefined();
+		
+		header.addComponent(dragWrapper);	
+		header.setComponentAlignment(dragWrapper, Alignment.MIDDLE_LEFT);
+		header.setExpandRatio(dragWrapper, 0);
+			
+		header.addComponent(info);	
+		header.setComponentAlignment(info, Alignment.MIDDLE_LEFT);
+		header.setExpandRatio(info, 10);
 	
 		Button menu = new Button();
 		menu.setIcon(Images.vaadinMenu.getResource());
@@ -133,6 +139,7 @@ public class RuleComponent extends CustomComponent
 		top = contextMenu.addItem(msg.getMessage("TranslationProfileEditor.moveTop"), e -> {
 			callback.moveTop(RuleComponent.this);
 	        });
+	
 		top.setCheckable(false);
 		top.setIcon(Images.vaadinTopArrow.getResource());	
 		
@@ -140,8 +147,8 @@ public class RuleComponent extends CustomComponent
 			callback.moveBottom(RuleComponent.this);
 	        });
 		bottom.setCheckable(false);
-		bottom.setIcon(Images.vaadinBottomArrow.getResource());	
-	
+		bottom.setIcon(Images.vaadinBottomArrow.getResource());
+		
 		menu.addClickListener(new ClickListener()
 		{
 			
@@ -158,11 +165,6 @@ public class RuleComponent extends CustomComponent
 		header.addComponent(menu);
 		header.setComponentAlignment(menu, Alignment.MIDDLE_RIGHT);
 		header.setExpandRatio(menu, 0);
-		
-		Label separator = new Label(" ");
-		header.addComponent(separator);
-		header.setComponentAlignment(separator, Alignment.MIDDLE_RIGHT);
-		header.setExpandRatio(separator, 0);
 				
 		header.addLayoutClickListener(new LayoutClickListener()
 		{	
@@ -175,14 +177,15 @@ public class RuleComponent extends CustomComponent
 			}
 		});
 		
-		separator = new Label();
+		Label separator = new Label();
 		separator.addStyleName(Styles.horizontalLine.toString());
 		headerWrapper.addComponent(header);
 		headerWrapper.addComponent(separator);
 			
 		condition = new MVELExpressionField(msg, msg.getMessage("TranslationProfileEditor.ruleCondition"), 
 				msg.getMessage("MVELExpressionField.conditionDesc"));
-
+		condition.setStyleName(Styles.vTiny.toString());
+		
 		actionEditor = new ActionEditor(msg, tc, toEdit == null ? null : toEdit.getAction(), 
 				actionComponentProvider, new CallbackImplementation());	
 		
@@ -196,7 +199,7 @@ public class RuleComponent extends CustomComponent
 		actionEditor.addToLayout(content);
 		content.addComponents(mappingResultComponent);
 		content.setMargin(false);
-		content.setSpacing(false);
+		content.setSpacing(true);
 		showHideContent(false);
 		
 		main.addComponent(headerWrapper);
@@ -362,27 +365,12 @@ public class RuleComponent extends CustomComponent
 		content.setVisible(show);
 	}
 
-	public static class DragLabel extends Label
+	public static class DragHtmlLabel extends Label
 	{
 		RuleComponent parentRule;
-		public DragLabel(RuleComponent parent, String value)
+		public DragHtmlLabel(RuleComponent parent, String value)
 		{
-			super(value);
-			this.parentRule = parent;
-		}
-		
-		public RuleComponent getParentRule()
-		{
-			return parentRule;
-		}
-	}	
-	
-	public static class DragButton extends Button
-	{
-		RuleComponent parentRule;
-		public DragButton(RuleComponent parent, String value)
-		{
-			super(value);
+			super(value, ContentMode.HTML);
 			this.parentRule = parent;
 		}
 		

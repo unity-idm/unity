@@ -32,7 +32,7 @@ import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webadmin.tprofile.RuleComponent.Callback;
-import pl.edu.icm.unity.webadmin.tprofile.RuleComponent.DragLabel;
+import pl.edu.icm.unity.webadmin.tprofile.RuleComponent.DragHtmlLabel;
 import pl.edu.icm.unity.webadmin.tprofile.StartStopButton.ClickStartEvent;
 import pl.edu.icm.unity.webadmin.tprofile.StartStopButton.ClickStopEvent;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -254,7 +254,7 @@ public class TranslationProfileEditor extends VerticalLayout
 				WrapperTransferable t = (WrapperTransferable) event
 						.getTransferable();
 
-				DragLabel source = (DragLabel) t.getDraggedComponent();
+				DragHtmlLabel source = (DragHtmlLabel) t.getDraggedComponent();
 				RuleComponent sourceRule = source.getParentRule();
 
 				rules.remove(sourceRule);

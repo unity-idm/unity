@@ -72,6 +72,7 @@ public class ActionEditor extends LayoutEmbeddable
 			map(af -> af.getActionType().getName()).
 			sorted().
 			forEach(actionName -> actions.addItem(actionName));
+		actions.setStyleName(Styles.vTiny.toString());
 		
 		actions.setNullSelectionAllowed(false);
 		actions.addValueChangeListener(new ValueChangeListener()
@@ -126,6 +127,7 @@ public class ActionEditor extends LayoutEmbeddable
 		for (int i = 0; i < params.length; i++)
 		{
 			ActionParameterComponent p = actionComponentProvider.getParameterComponent(params[i]);
+			p.setStyleName(Styles.vTiny.toString());
 			p.addValueChangeCallback(paramCallback);
 			p.setValidationVisible(false);
 			if (values != null && values.length > i)
