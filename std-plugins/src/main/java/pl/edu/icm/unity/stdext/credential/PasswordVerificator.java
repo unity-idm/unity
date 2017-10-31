@@ -113,7 +113,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	 */
 	@Override
 	public String prepareCredential(String rawCredential, String previousCredential, 
-			String currentCredential)
+			String currentCredential, boolean verify)
 			throws IllegalCredentialException, InternalException
 	{
 		Deque<PasswordInfo> currentPasswords = PasswordCredentialDBState.fromJson(currentCredential).
@@ -129,8 +129,8 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			if (!passwordEngine.verify(current, checkedToken.getPassword()))
 				throw new IllegalPreviousCredentialException("The current credential is incorrect");
 		}
-		
-		verifyNewPassword(pToken.getExistingPassword(), pToken.getPassword(), currentPasswords);
+		if (verify)
+			verifyNewPassword(pToken.getExistingPassword(), pToken.getPassword(), currentPasswords);
 		
 		if (credential.getPasswordResetSettings().isEnabled() && 
 				credential.getPasswordResetSettings().isRequireSecurityQuestion())
@@ -367,10 +367,10 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	}
 
 	@Override
-	public String prepareCredential(String rawCredential, String currentCredential)
+	public String prepareCredential(String rawCredential, String currentCredential, boolean verify)
 			throws IllegalCredentialException, InternalException
 	{
-		return prepareCredential(rawCredential, null, currentCredential);
+		return prepareCredential(rawCredential, null, currentCredential, verify);
 	}
 	
 	@Component

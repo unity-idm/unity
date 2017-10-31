@@ -31,12 +31,6 @@
 			<artifactId>spring-test</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-server-engine</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>eu.codearte.catch-exception</groupId>
 			<artifactId>catch-exception</artifactId>
 			<scope>test</scope>
@@ -61,8 +55,21 @@
 			<groupId>pl.edu.icm.unity</groupId>
 			<artifactId>unity-server-engine</artifactId>
 			<version>${project.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-engine</artifactId>
+			<version>${project.version}</version>
 			<scope>test</scope>
 			<classifier>tests</classifier>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-engine</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
 		</dependency>
 		
 		<!-- compile -->

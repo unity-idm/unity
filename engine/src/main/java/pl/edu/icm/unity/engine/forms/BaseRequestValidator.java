@@ -206,7 +206,7 @@ public class BaseRequestValidator
 					LocalCredentialVerificator credVerificator = authnRegistry
 							.createLocalCredentialVerificator(credDef);
 					String updatedSecrets = credVerificator.prepareCredential(
-							requestedCreds.get(i).getSecrets(), "");
+							requestedCreds.get(i).getSecrets(), "", true);
 					requestedCreds.get(i).setSecrets(updatedSecrets);
 				}
 			} catch (Exception e)

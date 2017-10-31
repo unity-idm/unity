@@ -14,11 +14,9 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -70,6 +68,7 @@ import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.engine.bulkops.BulkOperationsUpdater;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
+import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.engine.credential.SystemCredentialRequirements;
 import pl.edu.icm.unity.engine.endpoint.EndpointsUpdater;
 import pl.edu.icm.unity.engine.endpoint.InternalEndpointManagement;
@@ -91,7 +90,6 @@ import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
-import pl.edu.icm.unity.stdext.credential.PasswordVerificator;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
@@ -223,7 +221,8 @@ public class EngineInitialization extends LifecycleBase
 	private SystemOutputTranslationProfileProvider systemOutputProfileProvider;
 	@Autowired
 	CredentialRepository credRepo;
-	
+	@Autowired
+	EntityCredentialsHelper entityCredHelper;
 	
 	private long endpointsLoadTime;
 	
@@ -560,9 +559,6 @@ public class EngineInitialization extends LifecycleBase
 				log.info("Database contains no admin user, adding the admin user and the " +
 						"default credential settings");
 				
-			//	CredentialDefinition credDef = createDefaultAdminCredential();
-			//	CredentialRequirements crDef = createDefaultAdminCredReq(credDef.getName());
-				
 				CredentialDefinition credDef = credRepo.get(DEFAULT_CREDENTIAL);
 				CredentialRequirements crDef = new SystemCredentialRequirements(credRepo, msg);
 				
@@ -570,10 +566,22 @@ public class EngineInitialization extends LifecycleBase
 				
 				EntityParam adminEntity = new EntityParam(adminId.getEntityId());
 				PasswordToken ptoken = new PasswordToken(adminP);
-				idCredManagement.setEntityCredential(adminEntity, credDef.getName(), ptoken.toJson());
+			
+				//idCredManagement.setEntityCredential(adminEntity, credDef.getName(), ptoken.toJson());
+				//Set password without verify!!!
+				tx.runInTransactionThrowing(() -> {	
+					entityCredHelper.setEntityCredentialInternal(
+									adminEntity.getEntityId(),
+									credDef.getName(),
+									ptoken.toJson(), null,
+									false);
+					
+				});
+				
 				if (config.getBooleanValue(UnityServerConfiguration.INITIAL_ADMIN_USER_OUTDATED))
 					idCredManagement.setEntityCredentialStatus(adminEntity, credDef.getName(), 
 							LocalCredentialState.outdated);
+				
 				Attribute roleAt = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
 						"/", Lists.newArrayList(AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE));
 				attrManagement.setAttribute(adminEntity, roleAt, false);
@@ -610,62 +618,6 @@ public class EngineInitialization extends LifecycleBase
 			return idManagement.addEntity(admin, crDef.getName(), EntityState.valid, false);
 		}
 	}
-	
-	private CredentialDefinition createDefaultAdminCredential() throws EngineException
-	{
-		Collection<CredentialDefinition> existingCreds = 
-				credMan.getCredentialDefinitions();
-		String adminCredName = DEFAULT_CREDENTIAL;
-		Iterator<CredentialDefinition> credIt = existingCreds.iterator();
-		int i=1;
-		while (credIt.hasNext())
-		{
-			CredentialDefinition cred = credIt.next();
-			if (cred.getName().equals(adminCredName))
-			{
-				adminCredName = DEFAULT_CREDENTIAL + "_" + i;
-				i++;
-				credIt = existingCreds.iterator();
-			}
-		}
-		
-		I18nString description = new I18nString("CredDef.standardPassword.desc", msg); 
-		CredentialDefinition credDef = new CredentialDefinition(PasswordVerificator.NAME,
-				adminCredName, description, msg);
-		credDef.setConfiguration("{\"minLength\": 1," +
-				"\"historySize\": 1," +
-				"\"minClassesNum\": 1," +
-				"\"denySequences\": false," +
-				"\"maxAge\": 30758400000}");
-		credMan.addCredentialDefinition(credDef);
-		return credDef;
-	}
-	
-	private CredentialRequirements createDefaultAdminCredReq(String credName) throws EngineException
-	{
-		Collection<CredentialRequirements> existingCRs = 
-				credReqMan.getCredentialRequirements();
-		String adminCredRName = DEFAULT_CREDENTIAL_REQUIREMENT;
-		Iterator<CredentialRequirements> credRIt = existingCRs.iterator();
-		int i=1;
-		while (credRIt.hasNext())
-		{
-			CredentialRequirements cr = credRIt.next();
-			if (cr.getName().equals(adminCredRName))
-			{
-				adminCredRName = DEFAULT_CREDENTIAL_REQUIREMENT + "_" + i;
-				i++;
-				credRIt = existingCRs.iterator();
-			}
-		}
-		
-		CredentialRequirements crDef = new CredentialRequirements(adminCredRName, 
-				"Default password credential requirement", 
-				Collections.singleton(credName));
-		credReqMan.addCredentialRequirement(crDef);
-		return crDef;
-	}
-	
 	
 	/**
 	 * Removes all database endpoints, realms and authenticators

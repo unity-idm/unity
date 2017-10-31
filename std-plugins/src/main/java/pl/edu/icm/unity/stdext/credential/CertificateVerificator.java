@@ -64,7 +64,7 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 
 	@Override
 	public String prepareCredential(String rawCredential, String previousCredential, 
-			String currentCredential)
+			String currentCredential, boolean verify)
 			throws IllegalCredentialException
 	{
 		return "";
@@ -109,10 +109,10 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 	}
 
 	@Override
-	public String prepareCredential(String rawCredential, String currentCredential)
+	public String prepareCredential(String rawCredential, String currentCredential, boolean verify)
 			throws IllegalCredentialException, InternalException
 	{
-		return prepareCredential(rawCredential, null, currentCredential);
+		return prepareCredential(rawCredential, null, currentCredential, verify);
 	}
 	
 	@Component
