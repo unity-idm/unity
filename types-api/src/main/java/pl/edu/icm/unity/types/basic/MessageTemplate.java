@@ -193,7 +193,8 @@ public class MessageTemplate extends DescribedObjectImpl
 				included.getValueRaw(locale);
 			if (includedString == null)
 				includedString = included.getDefaultValue();
-			work = work.replace("${include:" + genericTemplate.getKey() + "}", 
+			if (includedString != null)
+				work = work.replace("${include:" + genericTemplate.getKey() + "}", 
 					includedString);
 		}
 		return work;
