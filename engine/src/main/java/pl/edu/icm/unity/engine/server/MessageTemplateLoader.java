@@ -60,7 +60,11 @@ class MessageTemplateLoader
 		try
 		{
 			props = FilePropertiesHelper.load(file);
-			props = ConfigIncludesProcessor.preprocess(props, log);
+			boolean newFormat = props.keySet().stream()
+					.filter(k -> k.toString().contains(".bodyFile"))
+					.findAny().isPresent();
+			if (newFormat)
+				props = ConfigIncludesProcessor.preprocess(props, log);
 		} catch (IOException e)
 		{
 			throw new InternalException("Can't load message templates config file", e);
