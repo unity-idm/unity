@@ -37,7 +37,7 @@ public class EntitiesScheduledUpdater
 	}
 	
 	@Transactional
-	public Date updateEntities()
+	public synchronized Date updateEntities()
 	{
 		log.debug("Performing scheduled operations on entities");
 		Date ret = performScheduledEntityOperations();
