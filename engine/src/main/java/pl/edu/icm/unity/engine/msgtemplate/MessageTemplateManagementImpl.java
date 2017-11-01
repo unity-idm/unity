@@ -101,9 +101,25 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 		MessageTemplate requested = allAsMap.get(name);
 		if (requested == null)
 			throw new IllegalArgumentException("There is no message template " + name);
+		return preprocessTemplate(allAsMap, requested);
+	}
+
+	@Transactional
+	@Override
+	public MessageTemplate getPreprocessedTemplate(MessageTemplate toProcess)
+			throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		Map<String, MessageTemplate> allAsMap = mtDB.getAllAsMap();
+		return preprocessTemplate(allAsMap, toProcess);
+	}
+	
+	private MessageTemplate preprocessTemplate(Map<String, MessageTemplate> allAsMap,
+			MessageTemplate requested)
+	{
 		Map<String, MessageTemplate> genericTemplates = allAsMap.entrySet().stream()
-			.filter(e -> e.getValue().getConsumer().equals(GenericMessageTemplateDef.NAME))
-			.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
+				.filter(e -> e.getValue().getConsumer().equals(GenericMessageTemplateDef.NAME))
+				.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
 		return requested.preprocessMessage(genericTemplates);
 	}
 	

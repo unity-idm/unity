@@ -33,6 +33,14 @@ public interface MessageTemplateManagement
 	 * @throws EngineException
 	 */
 	public MessageTemplate getPreprocessedTemplate(String name) throws EngineException;
+
+	/**
+	 * As {@link #getPreprocessedTemplate(String)} but returns the argument template after preprocessing
+	 * @param toProcess
+	 * @return
+	 * @throws EngineException
+	 */
+	public MessageTemplate getPreprocessedTemplate(MessageTemplate toProcess) throws EngineException;
 	
 	public Map<String, MessageTemplate> getCompatibleTemplates(String templateConsumer)
 			throws EngineException;

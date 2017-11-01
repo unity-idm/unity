@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.msgtemplate;
 
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -48,7 +49,6 @@ public abstract class MessageTemplateViewerBase extends VerticalLayout
 	
 	public void setInput(MessageTemplate template)
 	{   		
-		
 		String nameContent = template.getName(); 
 		I18nString subjectContent = template.getMessage().getSubject();
 		I18nString bodyContent = template.getMessage().getBody();
@@ -58,7 +58,8 @@ public abstract class MessageTemplateViewerBase extends VerticalLayout
 		name.setValue(nameContent);
 		
 		I18nLabelWithPreview body = I18nLabelWithPreview.builder(msg, msg.getMessage("MessageTemplateViewer.body"))
-				.withPreview(template.getType() == MessageType.HTML)
+				.withMode(template.getType() == MessageType.HTML ? 
+						ContentMode.HTML : ContentMode.PREFORMATTED)
 				.buildWithValue(bodyContent);
 		I18nLabelWithPreview subject = I18nLabelWithPreview.builder(msg, msg.getMessage("MessageTemplateViewer.subject"))
 				.buildWithValue(subjectContent);

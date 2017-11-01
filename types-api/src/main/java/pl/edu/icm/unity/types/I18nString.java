@@ -37,6 +37,15 @@ public class I18nString
 		this();
 		this.defaultValue = defaultValue;
 	}
+
+	public I18nString(String locale, String value)
+	{
+		this();
+		if (locale == null)
+			this.defaultValue = value;
+		else
+			this.values.put(locale, value);
+	}
 	
 	/**
 	 * Loads {@link I18nString} from all message bundles which are installed in the system. The returned object 
@@ -102,7 +111,10 @@ public class I18nString
 	
 	public void addValue(String locale, String value)
 	{
-		values.put(locale, value);
+		if (locale != null)
+			values.put(locale, value);
+		else
+			setDefaultValue(value);
 	}
 	
 	public void addAllValues(Map<String, String> values)

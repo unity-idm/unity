@@ -22,7 +22,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -38,9 +37,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 
-import eu.unicore.util.configuration.ConfigIncludesProcessor;
 import eu.unicore.util.configuration.ConfigurationException;
-import eu.unicore.util.configuration.FilePropertiesHelper;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.event.Event;
 import pl.edu.icm.unity.base.utils.Log;
@@ -52,7 +49,6 @@ import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
@@ -84,7 +80,6 @@ import pl.edu.icm.unity.engine.utils.LifecycleBase;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.credential.PasswordVerificator;
@@ -93,7 +88,6 @@ import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -109,8 +103,6 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityType;
-import pl.edu.icm.unity.types.basic.MessageTemplate;
-import pl.edu.icm.unity.types.basic.MessageType;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -190,6 +182,8 @@ public class EngineInitialization extends LifecycleBase
 	@Qualifier("insecure")
 	private NotificationsManagement notManagement;
 	@Autowired
+	private MessageTemplateLoader msgTemplateLoader;
+	@Autowired
 	private Optional<List<ServerInitializer>> initializers;
 	@Autowired
 	@Qualifier("insecure")
@@ -197,9 +191,6 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	@Qualifier("insecure")
 	private TranslationProfileManagement profilesManagement;
-	@Autowired
-	@Qualifier("insecure")
-	private MessageTemplateManagement msgTemplatesManagement;
 	@Autowired
 	private SharedEndpointManagementImpl sharedEndpointManagement;
 	@Autowired(required = false)
@@ -323,7 +314,10 @@ public class EngineInitialization extends LifecycleBase
 		initializeAdminUser();
 		initializeCredentials();
 		initializeCredentialReqirements();
-		initializeMsgTemplates();
+		
+		File file = config.getFileValue(UnityServerConfiguration.TEMPLATES_CONF, false);
+		msgTemplateLoader.initializeMsgTemplates(file);
+		
 		initializeNotifications();
 		
 		runInitializers();
@@ -407,92 +401,6 @@ public class EngineInitialization extends LifecycleBase
 		}
 	}
 	
-	private void initializeMsgTemplates()
-	{
-		Map<String, MessageTemplate> existingTemplates;
-		try
-		{
-			existingTemplates = msgTemplatesManagement.listTemplates();
-		} catch (EngineException e)
-		{
-			throw new InternalException("Can't load existing message templates list", e);
-		}
-		File file = config.getFileValue(UnityServerConfiguration.TEMPLATES_CONF, false);
-		
-		Properties props = null;
-		try
-		{
-			props = FilePropertiesHelper.load(file);
-			props = ConfigIncludesProcessor.preprocess(props, log);
-		} catch (IOException e)
-		{
-			throw new InternalException("Can't load message templates config file", e);
-		}
-		
-		Set<String> templateKeys = new HashSet<>();
-		for (Object keyO: props.keySet())
-		{
-			String key = (String) keyO;
-			if (key.contains("."))
-				templateKeys.add(key.substring(0, key.indexOf('.')));
-		}	
-		
-		for(String key:templateKeys)
-		{
-			if (existingTemplates.keySet().contains(key))
-			{
-				continue;
-			}
-			try
-			{
-				MessageTemplate templ = loadTemplate(props, key);
-				msgTemplatesManagement.addTemplate(templ);
-			} catch (WrongArgumentException e)
-			{
-				log.error("Template with id " + key + " is invalid, reason: "
-						+ e.getMessage(), e);
-			} catch (EngineException e)
-			{
-				log.error("Cannot add template " + key, e);
-			}
-		}
-		
-	}
-	
-	private MessageTemplate loadTemplate(Properties properties, String id) throws WrongArgumentException
-	{
-		String bodyFile = properties.getProperty(id+".bodyFile");
-		String subject = properties.getProperty(id+".subject");
-		String consumer = properties.getProperty(id+".consumer", "");
-		String description = properties.getProperty(id+".description", "");
-		String typeStr = properties.getProperty(id+".type", MessageType.PLAIN.name());
-		
-		if (bodyFile == null || subject == null)
-			throw new WrongArgumentException("There is no template for this id");
-
-		String bodyContent;
-		try
-		{
-			bodyContent = FileUtils.readFileToString(new File(bodyFile));
-		} catch (IOException e)
-		{
-			throw new WrongArgumentException("Problem loading template " + id + " bodyFile "
-					+ bodyFile + ", reason: " + e.getMessage(), e);
-		}
-		
-		MessageType type;
-		try
-		{
-			type = MessageType.valueOf(typeStr);
-		} catch (Exception e)
-		{
-			throw new WrongArgumentException("Invalid type value: " + typeStr + ", "
-					+ "supported values are: " + MessageType.values(), e);
-		}
-		
-		I18nMessage tempMsg = new I18nMessage(new I18nString(subject), new I18nString(bodyContent));
-		return new MessageTemplate(id, description, tempMsg, consumer, type);
-	}
 	
 	private void initializeIdentityTypes()
 	{

@@ -5,12 +5,9 @@
 package pl.edu.icm.unity.webui.common.i18n;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.function.Consumer;
 
-import com.google.common.collect.Lists;
 import com.vaadin.event.FieldEvents.FocusListener;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Alignment;
@@ -49,7 +46,6 @@ public abstract class Abstract18nField<T extends AbstractTextField> extends Cust
 	private boolean shown = false;
 	private Component main;
 	private HorizontalLayout hl;
-	private List<Consumer<Boolean>> showAllListeners = Lists.newArrayList();
 	
 	public Abstract18nField(UnityMessageSource msg)
 	{
@@ -82,7 +78,6 @@ public abstract class Abstract18nField<T extends AbstractTextField> extends Cust
 		showAll.addClickListener((event) -> 
 		{
 				show();
-				showAllListeners.forEach(listener -> listener.accept(shown));
 				if (shown)
 				{
 					showAll.setIcon(Images.zoomout.getResource());
@@ -217,10 +212,5 @@ public abstract class Abstract18nField<T extends AbstractTextField> extends Cust
 				tf.setWidth(width, unit);
 			}
 		}
-	}
-	
-	public void addShowAllListener(Consumer<Boolean> listener)
-	{
-		this.showAllListeners.add(listener);
 	}
 }

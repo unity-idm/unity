@@ -20,11 +20,13 @@ import com.vaadin.ui.TextArea;
 
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
+import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateValidator;
 import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateValidator.IllegalVariablesException;
 import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateValidator.MandatoryVariablesException;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.types.basic.MessageType;
@@ -59,11 +61,14 @@ public class MessageTemplateEditor extends CompactFormLayout
 	private MessageValidator bodyValidator;
 	private MessageValidator subjectValidator;
 	private AbstractTextField focussedField;
+	private MessageTemplateManagement msgTemplateMgr;
 
 	public MessageTemplateEditor(UnityMessageSource msg,
-			MessageTemplateConsumersRegistry registry, MessageTemplate toEdit)
+			MessageTemplateConsumersRegistry registry, MessageTemplate toEdit,
+			MessageTemplateManagement msgTemplateMgr)
 	{
 		super();
+		this.msgTemplateMgr = msgTemplateMgr;
 		editMode = toEdit != null;
 		this.msg = msg;
 		this.registry = registry;
@@ -104,7 +109,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 		body.setImmediate(true);
 		body.setValidationVisible(false);
 
-		messageType = new MessageTypeComboBox(msg, body);
+		messageType = new MessageTypeComboBox(msg, this::getBodyForPreview);
 		subjectValidator = new MessageValidator(null, false);
 		bodyValidator = new MessageValidator(null, true);
 		subject.addValidator(subjectValidator);
@@ -158,6 +163,21 @@ public class MessageTemplateEditor extends CompactFormLayout
 		setSpacing(true);
 	}
 
+	private String getBodyForPreview(String locale)
+	{
+		MessageTemplate tpl = getTemplate();
+		MessageTemplate tplPreprocessed;
+		try
+		{
+			tplPreprocessed = msgTemplateMgr.getPreprocessedTemplate(tpl);
+		} catch (EngineException e)
+		{
+			return "Broken template: " + e.toString();
+		}
+		String value = tplPreprocessed.getMessage().getBody().getValue(locale, null);
+		return value != null ? value : "";
+	}
+	
 	public MessageTemplate getTemplate()
 	{
 		if (!validate())

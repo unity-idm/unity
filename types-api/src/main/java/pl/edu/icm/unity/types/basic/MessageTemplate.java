@@ -183,6 +183,8 @@ public class MessageTemplate extends DescribedObjectImpl
 	private String preprocessString(String source, Map<String, MessageTemplate> genericTemplates,
 			String locale)
 	{
+		if (source == null)
+			return null;
 		String work = source;
 		for (Map.Entry<String, MessageTemplate> genericTemplate: genericTemplates.entrySet())
 		{

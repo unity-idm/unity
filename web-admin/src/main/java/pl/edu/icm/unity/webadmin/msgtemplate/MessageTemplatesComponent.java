@@ -228,7 +228,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 		public void handleAction(Object sender, final Object target)
 		{
 			MessageTemplateEditor editor;			
-			editor = new MessageTemplateEditor(msg, consumersRegistry, null);		
+			editor = new MessageTemplateEditor(msg, consumersRegistry, null, msgTempMan);		
 			MessageTemplateEditDialog dialog = new MessageTemplateEditDialog(msg, 
 					msg.getMessage("MessageTemplatesComponent.addAction"), new MessageTemplateEditDialog.Callback()
 					{
@@ -256,7 +256,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 			MessageTemplate item = (MessageTemplate) witem.getElement();
 			MessageTemplateEditor editor;
 			
-			editor = new MessageTemplateEditor(msg, consumersRegistry, item);
+			editor = new MessageTemplateEditor(msg, consumersRegistry, item, msgTempMan);
 			
 			MessageTemplateEditDialog dialog = new MessageTemplateEditDialog(msg, 
 					msg.getMessage("MessageTemplatesComponent.editAction"), new MessageTemplateEditDialog.Callback()
