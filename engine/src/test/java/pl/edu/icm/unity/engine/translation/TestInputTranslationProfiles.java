@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,12 +46,15 @@ import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationProfile;
+import pl.edu.icm.unity.engine.translation.in.InputTranslationProfileRepository;
 import pl.edu.icm.unity.engine.translation.in.action.BlindStopperInputAction;
 import pl.edu.icm.unity.engine.translation.in.action.EntityChangeActionFactory;
+import pl.edu.icm.unity.engine.translation.in.action.IncludeInputProfileActionFactory;
 import pl.edu.icm.unity.engine.translation.in.action.MapAttributeActionFactory;
 import pl.edu.icm.unity.engine.translation.in.action.MapGroupActionFactory;
 import pl.edu.icm.unity.engine.translation.in.action.MapIdentityActionFactory;
 import pl.edu.icm.unity.engine.translation.in.action.RemoveStaleDataActionFactory;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
@@ -74,6 +78,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.types.translation.ProfileMode;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -95,11 +100,13 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 	private InputTranslationActionsRegistry intactionReg;
 	@Autowired
 	private TransactionalRunner tx;
+	@Autowired
+	InputTranslationProfileRepository inputProfileRepo;
 	
 	@Test
 	public void testInputPersistence() throws Exception
 	{
-		assertEquals(0, tprofMan.listInputProfiles().size());
+		assertThat(listDefaultModeProfiles().size(), is(0));
 		List<TranslationRule> rules = new ArrayList<>();
 		TranslationAction action1 = new TranslationAction( 
 				MapIdentityActionFactory.NAME, new String[] {
@@ -133,7 +140,14 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		assertEquals("'/A'", profiles.get("p1").getRules().get(0).getAction().getParameters()[0]);
 		
 		tprofMan.removeProfile(ProfileType.INPUT, "p1");
-		assertEquals(0, tprofMan.listInputProfiles().size());
+		assertThat(listDefaultModeProfiles().size(), is(0));
+	}
+	
+	private List<TranslationProfile> listDefaultModeProfiles() throws EngineException
+	{
+		return tprofMan.listInputProfiles().values().stream()
+				.filter(t -> t.getProfileMode() == ProfileMode.DEFAULT)
+				.collect(Collectors.toList());
 	}
 
 	@Test
@@ -175,7 +189,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		input.addGroup(new RemoteGroupMembership("icm"));
 
 		tx.runInTransactionThrowing(() -> {
-			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, intactionReg);
+			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, inputProfileRepo,intactionReg);
 			MappingResult result = tp1.translate(input);
 			inputTrEngine.process(result);
 		});
@@ -260,7 +274,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 
 		tx.runInTransactionThrowing(() -> {
-			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, intactionReg);
+			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, inputProfileRepo, intactionReg);
 			MappingResult result = tp1.translate(input);
 			inputTrEngine.process(result);
 		});
@@ -319,7 +333,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 
 		tx.runInTransactionThrowing(() -> {
-			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, intactionReg);
+			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, inputProfileRepo, intactionReg);
 			MappingResult result = tp1.translate(input);
 			inputTrEngine.process(result);
 		});
@@ -348,7 +362,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 
 		
 		tx.runInTransactionThrowing(() -> {
-			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, intactionReg);
+			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, inputProfileRepo, intactionReg);
 			MappingResult result = tp1.translate(input);
 			inputTrEngine.process(result);
 		});
@@ -398,7 +412,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 		
 		tx.runInTransactionThrowing(() -> {
-			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, intactionReg);
+			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, inputProfileRepo, intactionReg);
 			MappingResult result = tp1.translate(input);
 			inputTrEngine.process(result);
 		});
@@ -482,7 +496,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		input.addGroup(new RemoteGroupMembership("icm"));
 		
 		MappingResult result = tx.runInTransactionRetThrowing(() -> {
-			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, intactionReg);
+			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, inputProfileRepo, intactionReg);
 			MappingResult resultIn = tp1.translate(input);
 			inputTrEngine.process(resultIn);
 			return resultIn;
@@ -580,8 +594,10 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		tprofMan.addProfile(tp1Cfg);
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 		
-		RemotelyAuthenticatedContext processed = remoteProcessor.processRemoteInput(input, "p1", false);
-
+		RemotelyAuthenticatedContext processed  = tx.runInTransactionRetThrowing(() -> {
+			return remoteProcessor.processRemoteInput(input, "p1", false);
+		});
+		
 		assertNotNull(processed.getLocalMappedPrincipal());
 		assertEquals(toBeMappedOn.getEntityId(), processed.getLocalMappedPrincipal().getEntityId().longValue());
 	}
@@ -610,7 +626,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		//tprofMan.addProfile(tp1Cfg);
 
 		tx.runInTransactionThrowing(() -> {
-			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, intactionReg);
+			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, inputProfileRepo, intactionReg);
 			MappingResult result = tp1.translate(input);
 			inputTrEngine.process(result);
 		});
@@ -657,7 +673,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		assertEquals(MapAttributeActionFactory.NAME, firstAction.getName());
 		
 		tx.runInTransactionThrowing(() -> {
-			InputTranslationProfile profileInstance = new InputTranslationProfile(retProfile, intactionReg);
+			InputTranslationProfile profileInstance = new InputTranslationProfile(retProfile, inputProfileRepo, intactionReg);
 			TranslationActionInstance firstActionInstance = profileInstance.getRuleInstances().
 					get(0).getActionInstance();
 			assertThat(firstActionInstance, is(instanceOf(BlindStopperInputAction.class)));
@@ -699,7 +715,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("remoteIDP_Y");
 		
 		tx.runInTransactionThrowing(() -> {
-			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, intactionReg);
+			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, inputProfileRepo, intactionReg);
 			MappingResult result = tp1.translate(input);
 			inputTrEngine.process(result);
 		});
@@ -755,7 +771,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("remoteIDP_Y");
 		
 		tx.runInTransactionThrowing(() -> {
-			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, intactionReg);
+			InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg, inputProfileRepo, intactionReg);
 			MappingResult result = tp1.translate(input);
 			inputTrEngine.process(result);
 		});
@@ -771,7 +787,113 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		assertEquals("attr_NEW@example.com", e1.getValue());
 		assertThat(e1.isConfirmed(), is(false));
 	}
+	
+	@Test
+	public void shouldOverwriteRuleFromIncludedProfile() throws EngineException
+	{
+		aTypeMan.addAttributeType(new AttributeType("test", StringAttributeSyntax.ID));
+
+		List<TranslationRule> rules = new ArrayList<>();
+		TranslationAction action = (TranslationAction) new TranslationAction(
+				MapAttributeActionFactory.NAME,
+				new String[] { "test", "/", "'val'", "CREATE_OR_UPDATE" });
+		rules.add(new TranslationRule("true", action));
+		TranslationProfile included = new TranslationProfile("included", "",
+				ProfileType.INPUT, rules);
+		tprofMan.addProfile(included);
+		
+		IdentityParam idParam = new IdentityParam(EmailIdentity.ID, "id@example.com");
+		Identity identity = idsMan.addEntity(idParam, 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				EntityState.valid, false, Lists.newArrayList());
+		EntityParam ep = new EntityParam(identity);
+		
+		rules = new ArrayList<>();
+		action = new TranslationAction(MapIdentityActionFactory.NAME, new String[] {
+				EmailIdentity.ID, 
+				"'id@example.com'", 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				IdentityEffectMode.UPDATE_OR_MATCH.toString()});
+		rules.add(new TranslationRule("true", action));
+		
+		action = (TranslationAction) new TranslationAction(
+				IncludeInputProfileActionFactory.NAME, new String[] { "included" });
+		rules.add(new TranslationRule("true", action));
+
+		action = (TranslationAction) new TranslationAction(MapAttributeActionFactory.NAME,
+				new String[] { "test", "/", "'val2'", "CREATE_OR_UPDATE" });
+		rules.add(new TranslationRule("true", action));
+		
+		TranslationProfile toAdd = new TranslationProfile("p1", "", ProfileType.INPUT,
+				rules);
+		tprofMan.addProfile(toAdd);
+				
+		Map<String, TranslationProfile> profiles = tprofMan.listInputProfiles();
+		assertNotNull(profiles.get("p1"));
+					
+		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
+		
+		tx.runInTransactionThrowing(() -> {
+			InputTranslationProfile tp1 = new InputTranslationProfile(toAdd, inputProfileRepo, intactionReg);
+			MappingResult result = tp1.translate(input);
+			inputTrEngine.process(result);
+		});
+		
+		Collection<AttributeExt> atrs = attrsMan.getAttributes(ep, "/", "test");
+		assertEquals(1, atrs.size());
+		assertEquals("val2", atrs.iterator().next().getValues().get(0));	
+	}
+	
+	@Test
+	public void profileShouldNotFailIfAttributeIsMissing() throws Exception
+	{
+		aTypeMan.addAttributeType(new AttributeType("test", StringAttributeSyntax.ID));
+		List<TranslationRule> rules = new ArrayList<>();
+		TranslationAction action = (TranslationAction) new TranslationAction(
+				MapAttributeActionFactory.NAME,
+				new String[] { "test", "/", "'val'", "CREATE_OR_UPDATE" });
+		rules.add(new TranslationRule("true", action));
+		
+		action = new TranslationAction(MapIdentityActionFactory.NAME, new String[] {
+				EmailIdentity.ID, 
+				"'id@example.com'", 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				IdentityEffectMode.UPDATE_OR_MATCH.toString()});
+		rules.add(new TranslationRule("true", action));
+		
+		IdentityParam idParam = new IdentityParam(EmailIdentity.ID, "id@example.com");
+		Identity identity = idsMan.addEntity(idParam, 
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				EntityState.valid, false, Lists.newArrayList());
+		EntityParam ep = new EntityParam(identity);
+		
+		TranslationProfile tp1Cfg = new TranslationProfile("tp1", "",
+				ProfileType.INPUT, rules);
+		tprofMan.addProfile(tp1Cfg);
+	
+		aTypeMan.removeAttributeType("test", true);
+		
+		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
+		try
+		{
+			tx.runInTransactionThrowing(() -> {
+				InputTranslationProfile tp1 = new InputTranslationProfile(tp1Cfg,
+						inputProfileRepo, intactionReg);
+				MappingResult result = tp1.translate(input);
+				inputTrEngine.process(result);
+			});
+		} catch (Exception e)
+		{
+			fail("Exception throw when run misconfigured action");
+		}
+	
+		Collection<AttributeExt> atrs = attrsMan.getAttributes(ep, "/", "test");
+		assertEquals(0, atrs.size());
+	}
+	
+
 }
+
 
 
 

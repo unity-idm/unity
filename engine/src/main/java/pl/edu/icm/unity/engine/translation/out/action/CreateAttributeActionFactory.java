@@ -83,36 +83,40 @@ public class CreateAttributeActionFactory extends AbstractOutputTranslationActio
 		}
 
 		@Override
-		protected void invokeWrapped(TranslationInput input, Object mvelCtx, String currentProfile,
-				TranslationResult result) throws EngineException
+		protected void invokeWrapped(TranslationInput input, Object mvelCtx,
+				String currentProfile, TranslationResult result)
+				throws EngineException
 		{
-			Object value = MVEL.executeExpression(valuesExpression, mvelCtx, new HashMap<>());
+			Object value = MVEL.executeExpression(valuesExpression, mvelCtx,
+					new HashMap<>());
 			if (value == null)
 			{
 				log.debug("Attribute value evaluated to null, skipping");
 				return;
 			}
-			for (DynamicAttribute existing: result.getAttributes())
+
+			if (result.removeAttributesByName(attrNameString))
 			{
-				if (existing.getAttribute().getName().equals(attrNameString))
-				{
-					existing.setMandatory(attrMandatory);
-					log.debug("Attribute already exists, skipping");
-					return;
-				}
+				// check if attribute is also in attribute to
+				// persist and remove them.
+				result.removeAttributesToPersistByName(attrNameString);
+				log.debug("Attribute '" + attrNameString
+						+ "' already exists, overwrite");
 			}
-			List<?> values;		
+
+			List<?> values;
 			if (value instanceof List)
 				values = (List<?>) value;
 			else
 				values = Collections.singletonList(value);
-			
+
 			List<String> sValues = new ArrayList<>(values.size());
-			for (Object v: values)
+			for (Object v : values)
 				sValues.add(v.toString());
-			
-			Attribute newAttr = new Attribute(attrNameString, StringAttributeSyntax.ID, "/", sValues);
-			DynamicAttribute dynamicAttribute = new DynamicAttribute(newAttr, 
+
+			Attribute newAttr = new Attribute(attrNameString, StringAttributeSyntax.ID,
+					"/", sValues);
+			DynamicAttribute dynamicAttribute = new DynamicAttribute(newAttr,
 					attrDisplayname, attrDescription, attrMandatory);
 			result.getAttributes().add(dynamicAttribute);
 			log.debug("Created a new attribute: " + dynamicAttribute);

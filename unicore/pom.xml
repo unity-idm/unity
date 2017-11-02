@@ -31,12 +31,6 @@
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-server-engine</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
 			<artifactId>unity-server-storage</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
@@ -45,8 +39,21 @@
 			<groupId>pl.edu.icm.unity</groupId>
 			<artifactId>unity-server-engine</artifactId>
 			<version>${project.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-engine</artifactId>
+			<version>${project.version}</version>
 			<scope>test</scope>
 			<classifier>tests</classifier>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-engine</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>eu.unicore.security</groupId>

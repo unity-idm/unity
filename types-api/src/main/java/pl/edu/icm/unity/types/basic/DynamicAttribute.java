@@ -98,4 +98,40 @@ public class DynamicAttribute
 		sb.append("]");
 		return sb.toString();
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DynamicAttribute other = (DynamicAttribute) obj;
+		if (attribute == null)
+		{
+			if (other.attribute != null)
+				return false;
+		} else if (!attribute.equals(other.attribute))
+			return false;
+		if (displayedName == null)
+		{
+			if (other.displayedName != null)
+				return false;
+		} else if (!displayedName.equals(other.displayedName))
+			return false;
+		if (description == null)
+		{
+			if (other.description != null)
+				return false;
+		} else if (!description.equals(other.description))
+			return false;
+
+		if (!(mandatory == other.mandatory))
+			return false;
+
+		return true;
+	}
+
 }

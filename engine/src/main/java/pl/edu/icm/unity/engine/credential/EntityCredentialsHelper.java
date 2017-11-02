@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.engine.credential;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,10 +17,9 @@ import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
-import pl.edu.icm.unity.store.api.generic.CredentialDB;
-import pl.edu.icm.unity.store.api.generic.CredentialRequirementDB;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
@@ -36,11 +35,11 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 public class EntityCredentialsHelper
 {
 	@Autowired
-	private CredentialDB credentialDB;
+	private CredentialRepository credentialRepository;
 	@Autowired
 	private LocalCredentialsRegistry localCredReg;
 	@Autowired
-	private CredentialRequirementDB credentialRequirementDB;
+	private CredentialReqRepository credentialReqRepository;
 	@Autowired
 	private AttributesHelper attributesHelper;
 	
@@ -75,8 +74,8 @@ public class EntityCredentialsHelper
 	public CredentialRequirementsHolder getCredentialRequirements(String requirementName) 
 			throws EngineException
 	{
-		CredentialRequirements requirements = credentialRequirementDB.get(requirementName);
-		List<CredentialDefinition> credDefs = credentialDB.getAll();
+		CredentialRequirements requirements = credentialReqRepository.get(requirementName);
+		Collection<CredentialDefinition> credDefs = credentialRepository.getCredentialDefinitions();
 		return new CredentialRequirementsHolder(localCredReg, requirements, credDefs);
 	}
 	
@@ -84,8 +83,8 @@ public class EntityCredentialsHelper
 	public void setEntityCredentialRequirements(long entityId, String credReqId) 
 			throws EngineException
 	{
-		if (!credentialRequirementDB.exists(credReqId))
-			throw new IllegalArgumentException("There is no required credential set with id " + credReqId);
+		
+		credentialReqRepository.assertExist(credReqId);
 		setEntityCredentialRequirementsNoCheck(entityId, credReqId);
 	}
 	
@@ -112,4 +111,62 @@ public class EntityCredentialsHelper
 		Attribute newCredentialA = StringAttribute.of(credentialAttributeName, 
 				"/", Collections.singletonList(newCred));
 		attributesHelper.createOrUpdateAttribute(newCredentialA, entityId);
-	}}
+	}
+	
+	/**
+	 * Prepare and set credential
+	 * @param entityId
+	 * @param credentialId
+	 * @param rawCredential
+	 * @param currentRawCredential
+	 * @param verify
+	 * @throws EngineException
+	 */
+	
+	
+	public void setEntityCredentialInternal(long entityId, String credentialId, 
+			String rawCredential, String currentRawCredential, boolean verify)  throws EngineException
+	{
+		String cred = prepareEntityCredentialInternal(entityId, credentialId, rawCredential, currentRawCredential, verify);
+		setPreviouslyPreparedEntityCredentialInternal(entityId, cred, credentialId);
+	}
+	
+	
+		
+	
+	/**
+	 * Prepares entity's credential (hashes, checks etc). This is internal method which 
+	 * doesn't perform any authorization nor argument initialization checking.
+	 * @param entityId
+	 * @param credentialId
+	 * @param rawCredential
+	 * @param sqlMap
+	 * @throws EngineException
+	 */
+	private String prepareEntityCredentialInternal(long entityId, String credentialId, 
+			String rawCredential, String currentRawCredential, boolean verify) throws EngineException
+	{
+		Map<String, AttributeExt> attributes = attributesHelper.getAllAttributesAsMapOneGroup(entityId, "/");
+		
+		Attribute credReqA = attributes.get(CredentialAttributeTypeProvider.CREDENTIAL_REQUIREMENTS);
+		String credentialRequirements = (String)credReqA.getValues().get(0);
+		CredentialRequirementsHolder credReqs = getCredentialRequirements(credentialRequirements);
+		LocalCredentialVerificator handler = credReqs.getCredentialHandler(credentialId);
+		if (handler == null)
+			throw new IllegalCredentialException("The credential id is not among the " +
+					"entity's credential requirements: " + credentialId);
+
+		String credentialAttributeName = CredentialAttributeTypeProvider.CREDENTIAL_PREFIX+credentialId;
+		Attribute currentCredentialA = attributes.get(credentialAttributeName);
+		String currentCredential = currentCredentialA != null ? 
+				(String)currentCredentialA.getValues().get(0) : null;
+				
+		return currentRawCredential == null ? handler.prepareCredential(rawCredential, currentCredential, verify) :
+				handler.prepareCredential(rawCredential, currentRawCredential, currentCredential, verify);
+	}
+	
+
+}
+
+
+

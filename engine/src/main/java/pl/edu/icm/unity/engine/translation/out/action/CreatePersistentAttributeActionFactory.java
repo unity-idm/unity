@@ -104,17 +104,16 @@ public class CreatePersistentAttributeActionFactory extends AbstractOutputTransl
 				log.debug("Attribute value evaluated to null, skipping");
 				return;
 			}
-			for (DynamicAttribute existing: result.getAttributes())
+			if (result.removeAttributesToPersistByName(attrNameString))
 			{
-				if (existing.getAttribute().getName().equals(attrNameString))
-				{
-					existing.setMandatory(attrMandatory);
-					log.trace("Attribute already exists, skipping");
-					return;
-				}
+				result.removeAttributesByName(attrNameString);
+				log.debug("Attribute to persist '" + attrNameString
+						+ "' already exists, overwrite");
 			}
-			List<?> aValues = value instanceof List ? (List<?>)value : Collections.singletonList(value);
-			
+
+			List<?> aValues = value instanceof List ? (List<?>) value
+					: Collections.singletonList(value);
+
 			List<String> typedValues;
 			try
 			{
@@ -123,7 +122,8 @@ public class CreatePersistentAttributeActionFactory extends AbstractOutputTransl
 			} catch (IllegalAttributeValueException e)
 			{
 				log.debug("Can't convert attribute values returned by the action's expression "
-						+ "to the type of attribute " + attrNameString + " , skipping it", e);
+						+ "to the type of attribute " + attrNameString
+						+ " , skipping it", e);
 				return;
 			}
 			//for output profile we can't confirm - not yet implemented and rather not needed.

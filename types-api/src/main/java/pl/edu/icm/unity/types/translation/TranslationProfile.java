@@ -24,15 +24,23 @@ public class TranslationProfile extends DescribedObjectROImpl
 {
 	private ProfileType profileType;
 	private List<TranslationRule> rules;
+	private ProfileMode profileMode;
 
-	public TranslationProfile(String name, String description, ProfileType profileType, 
-			List<? extends TranslationRule> rules)
+	public TranslationProfile(String name, String description, ProfileType profileType,
+			ProfileMode profileMode, List<? extends TranslationRule> rules)
 	{
 		super(name, description);
 		this.profileType = profileType;
 		this.rules = new ArrayList<>(rules);
+		this.profileMode = profileMode;
 	}
-
+	
+	public TranslationProfile(String name, String description, ProfileType profileType,
+			 List<? extends TranslationRule> rules)
+	{
+		this(name, description, profileType, ProfileMode.DEFAULT, rules);
+	}
+	
 	@JsonCreator
 	public TranslationProfile(ObjectNode json)
 	{
@@ -43,6 +51,18 @@ public class TranslationProfile extends DescribedObjectROImpl
 	{
 		return profileType;
 	}
+	
+	public ProfileMode getProfileMode()
+	{
+		return profileMode;
+	}
+	
+	public void setProfileMode(ProfileMode profileMode)
+	{
+		this.profileMode = profileMode;
+		
+	}
+	
 	public List<? extends TranslationRule> getRules()
 	{
 		return rules;
@@ -63,7 +83,8 @@ public class TranslationProfile extends DescribedObjectROImpl
 		root.put("name", getName());
 		if (getDescription() != null)
 			root.put("description", getDescription());
-		root.put("type", getProfileType().toString());		
+		root.put("type", getProfileType().toString());	
+		root.put("mode", getProfileMode().toString());		
 	}
 
 	private void storeRules(ObjectNode root)
@@ -125,9 +146,21 @@ public class TranslationProfile extends DescribedObjectROImpl
 			profileType = ProfileType.valueOf(root.get("type").asText());
 		else
 			profileType = ProfileType.INPUT;
+		if (root.has("mode"))
+		{
+			try
+			{
+				profileMode = ProfileMode.valueOf(root.get("mode").asText());
+			} catch (Exception e)
+			{
+				profileMode = ProfileMode.DEFAULT;
+			}
+		} else
+		{
+			profileMode = ProfileMode.DEFAULT;
+		}
 	}
 
-	
 	private String[] extractParams(ObjectNode jsonAction)
 	{
 		ArrayNode jsonAParams = (ArrayNode) jsonAction.get("parameters");
@@ -140,7 +173,8 @@ public class TranslationProfile extends DescribedObjectROImpl
 	@Override
 	public String toString()
 	{
-		return "TranslationProfile [profileType=" + profileType + ", name=" + name + "]";
+		return "TranslationProfile [profileType=" + profileType + ", name=" + name
+				+ ", profileMode=" + profileMode + "]";
 	}
 
 	@Override
@@ -150,6 +184,7 @@ public class TranslationProfile extends DescribedObjectROImpl
 		int result = 1;
 		result = prime * result + ((profileType == null) ? 0 : profileType.hashCode());
 		result = prime * result + ((rules == null) ? 0 : rules.hashCode());
+		result = prime * result + ((profileMode == null) ? 0 : profileMode.hashCode());
 		return result;
 	}
 
@@ -171,6 +206,16 @@ public class TranslationProfile extends DescribedObjectROImpl
 				return false;
 		} else if (!rules.equals(other.rules))
 			return false;
+		if (profileMode != other.profileMode)
+			return false;
+			
 		return true;
+	}
+	
+	public TranslationProfile clone()
+	{
+		TranslationProfile clone = new TranslationProfile(name, description, profileType,
+				profileMode, rules);
+		return clone;
 	}
 }

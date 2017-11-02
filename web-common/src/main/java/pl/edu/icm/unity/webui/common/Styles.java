@@ -15,6 +15,7 @@ public enum Styles
 	emphasized("u-emphasized"),
 	bold("u-bold"),
 	immutableAttribute("u-immutableAttribute"),
+	readOnlyTableElement("u-readOnlyTableElement"),
 	captionBold("bold"),
 	trueConditionBackground("u-trueCondition-bg"),
 	falseConditionBackground("u-falseCondition-bg"),

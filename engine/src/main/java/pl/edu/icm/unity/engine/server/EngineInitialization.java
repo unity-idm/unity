@@ -14,11 +14,9 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -66,6 +64,9 @@ import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.engine.bulkops.BulkOperationsUpdater;
+import pl.edu.icm.unity.engine.credential.CredentialRepository;
+import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
+import pl.edu.icm.unity.engine.credential.SystemCredentialRequirements;
 import pl.edu.icm.unity.engine.endpoint.EndpointsUpdater;
 import pl.edu.icm.unity.engine.endpoint.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.endpoint.SharedEndpointManagementImpl;
@@ -75,6 +76,9 @@ import pl.edu.icm.unity.engine.identity.EntitiesScheduledUpdater;
 import pl.edu.icm.unity.engine.identity.IdentityCleaner;
 import pl.edu.icm.unity.engine.notifications.EmailFacility;
 import pl.edu.icm.unity.engine.scripts.ScriptTriggeringEventListener;
+import pl.edu.icm.unity.engine.translation.TranslationProfileChecker;
+import pl.edu.icm.unity.engine.translation.in.SystemInputTranslationProfileProvider;
+import pl.edu.icm.unity.engine.translation.out.SystemOutputTranslationProfileProvider;
 import pl.edu.icm.unity.engine.utils.FileWatcher;
 import pl.edu.icm.unity.engine.utils.LifecycleBase;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -82,7 +86,6 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
-import pl.edu.icm.unity.stdext.credential.PasswordVerificator;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
@@ -106,6 +109,7 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.types.translation.ProfileMode;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
@@ -119,8 +123,8 @@ public class EngineInitialization extends LifecycleBase
 {
 	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, UnityServerConfiguration.class);
 	public static final int ENGINE_INITIALIZATION_MOMENT = 0;
-	public static final String DEFAULT_CREDENTIAL = "Password credential";
-	public static final String DEFAULT_CREDENTIAL_REQUIREMENT = "Password requirement";
+	public static final String DEFAULT_CREDENTIAL = "sys:password";
+	public static final String DEFAULT_CREDENTIAL_REQUIREMENT = SystemCredentialRequirements.NAME;
 
 	@Autowired
 	private UnityMessageSource msg;
@@ -200,7 +204,17 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	private ScriptTriggeringEventListener scriptEventsConsumer;
 	@Autowired(required = false)
-	private PublicWellKnownURLServletProvider publicWellKnownURLServlet;
+	private PublicWellKnownURLServletProvider publicWellKnownURLServlet;	
+	@Autowired
+	TranslationProfileChecker profileHelper;
+	@Autowired
+	private SystemInputTranslationProfileProvider systemInputProfileProvider;
+	@Autowired
+	private SystemOutputTranslationProfileProvider systemOutputProfileProvider;
+	@Autowired
+	CredentialRepository credRepo;
+	@Autowired
+	EntityCredentialsHelper entityCredHelper;
 	
 	private long endpointsLoadTime;
 	
@@ -325,6 +339,7 @@ public class EngineInitialization extends LifecycleBase
 		eventsProcessor.fireEvent(new Event(EventCategory.PRE_INIT, isColdStart.toString()));
 		
 		initializeTranslationProfiles();
+		checkSystemTranslationProfiles();
 		boolean eraClean = config.getBooleanValue(
 				UnityServerConfiguration.CONFIG_ONLY_ERA_CONTROL);
 		if (eraClean)
@@ -466,17 +481,29 @@ public class EngineInitialization extends LifecycleBase
 				log.info("Database contains no admin user, adding the admin user and the " +
 						"default credential settings");
 				
-				CredentialDefinition credDef = createDefaultAdminCredential();
-				CredentialRequirements crDef = createDefaultAdminCredReq(credDef.getName());
+				CredentialDefinition credDef = credRepo.get(DEFAULT_CREDENTIAL);
+				CredentialRequirements crDef = new SystemCredentialRequirements(credRepo, msg);
 				
 				Identity adminId = createAdminSafe(admin, crDef);
 				
 				EntityParam adminEntity = new EntityParam(adminId.getEntityId());
 				PasswordToken ptoken = new PasswordToken(adminP);
-				idCredManagement.setEntityCredential(adminEntity, credDef.getName(), ptoken.toJson());
+			
+				//idCredManagement.setEntityCredential(adminEntity, credDef.getName(), ptoken.toJson());
+				//Set password without verify!!!
+				tx.runInTransactionThrowing(() -> {	
+					entityCredHelper.setEntityCredentialInternal(
+									adminEntity.getEntityId(),
+									credDef.getName(),
+									ptoken.toJson(), null,
+									false);
+					
+				});
+				
 				if (config.getBooleanValue(UnityServerConfiguration.INITIAL_ADMIN_USER_OUTDATED))
 					idCredManagement.setEntityCredentialStatus(adminEntity, credDef.getName(), 
 							LocalCredentialState.outdated);
+				
 				Attribute roleAt = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
 						"/", Lists.newArrayList(AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE));
 				attrManagement.setAttribute(adminEntity, roleAt, false);
@@ -513,62 +540,6 @@ public class EngineInitialization extends LifecycleBase
 			return idManagement.addEntity(admin, crDef.getName(), EntityState.valid, false);
 		}
 	}
-	
-	private CredentialDefinition createDefaultAdminCredential() throws EngineException
-	{
-		Collection<CredentialDefinition> existingCreds = 
-				credMan.getCredentialDefinitions();
-		String adminCredName = DEFAULT_CREDENTIAL;
-		Iterator<CredentialDefinition> credIt = existingCreds.iterator();
-		int i=1;
-		while (credIt.hasNext())
-		{
-			CredentialDefinition cred = credIt.next();
-			if (cred.getName().equals(adminCredName))
-			{
-				adminCredName = DEFAULT_CREDENTIAL + "_" + i;
-				i++;
-				credIt = existingCreds.iterator();
-			}
-		}
-		
-		I18nString description = new I18nString("CredDef.standardPassword.desc", msg); 
-		CredentialDefinition credDef = new CredentialDefinition(PasswordVerificator.NAME,
-				adminCredName, description, msg);
-		credDef.setConfiguration("{\"minLength\": 1," +
-				"\"historySize\": 1," +
-				"\"minClassesNum\": 1," +
-				"\"denySequences\": false," +
-				"\"maxAge\": 30758400000}");
-		credMan.addCredentialDefinition(credDef);
-		return credDef;
-	}
-	
-	private CredentialRequirements createDefaultAdminCredReq(String credName) throws EngineException
-	{
-		Collection<CredentialRequirements> existingCRs = 
-				credReqMan.getCredentialRequirements();
-		String adminCredRName = DEFAULT_CREDENTIAL_REQUIREMENT;
-		Iterator<CredentialRequirements> credRIt = existingCRs.iterator();
-		int i=1;
-		while (credRIt.hasNext())
-		{
-			CredentialRequirements cr = credRIt.next();
-			if (cr.getName().equals(adminCredRName))
-			{
-				adminCredRName = DEFAULT_CREDENTIAL_REQUIREMENT + "_" + i;
-				i++;
-				credRIt = existingCRs.iterator();
-			}
-		}
-		
-		CredentialRequirements crDef = new CredentialRequirements(adminCredRName, 
-				"Default password credential requirement", 
-				Collections.singleton(credName));
-		credReqMan.addCredentialRequirement(crDef);
-		return crDef;
-	}
-	
 	
 	/**
 	 * Removes all database endpoints, realms and authenticators
@@ -919,7 +890,23 @@ public class EngineInitialization extends LifecycleBase
 			}
 		}
 	}
+
+	private void checkProfiles(Collection<TranslationProfile> collection)
+	{
+		for (TranslationProfile profile : collection)
+		{
+			if (profile.getProfileMode() != ProfileMode.READ_ONLY)
+				throw new IllegalArgumentException("Sytem profile " + profile + " is not in READ_ONLY mode");
+			profileHelper.checkProfileContent(profile);
+		}
+	}
 	
+	private void checkSystemTranslationProfiles()
+	{
+		checkProfiles(systemInputProfileProvider.getSystemProfiles().values());
+		checkProfiles(systemOutputProfileProvider.getSystemProfiles().values());
+	}
+
 	private void runInitializers()
 	{
 		List<String> enabledL = config.getListOfValues(UnityServerConfiguration.INITIALIZERS);

@@ -114,7 +114,7 @@ void createExampleAttributeTypes()
 void createExampleUser()
 {
 	IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "demo-user");
-	Identity base = entityManagement.addEntity(toAdd, "Password requirement", EntityState.valid, false);
+	Identity base = entityManagement.addEntity(toAdd, "sys:all", EntityState.valid, false);
 
 	IdentityParam toAddDn = new IdentityParam(X500Identity.ID, "CN=Demo user");
 	EntityParam entityP = new EntityParam(base.getEntityId());
@@ -139,7 +139,7 @@ void createExampleUser()
 	attributesManagement.setAttribute(entityP, cnA, false);
 
 	PasswordToken pToken = new PasswordToken("the!test1");
-	entityCredentialManagement.setEntityCredential(entityP, "Password credential",
+	entityCredentialManagement.setEntityCredential(entityP, "sys:password",
 			pToken.toJson());
 	log.warn("Demo user 'demo-user' was created with default password. Please change it!");
 }
