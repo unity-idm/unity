@@ -211,4 +211,11 @@ public class TranslationProfile extends DescribedObjectROImpl
 			
 		return true;
 	}
+	
+	public TranslationProfile clone()
+	{
+		TranslationProfile clone = new TranslationProfile(name, description, profileType,
+				profileMode, rules);
+		return clone;
+	}
 }

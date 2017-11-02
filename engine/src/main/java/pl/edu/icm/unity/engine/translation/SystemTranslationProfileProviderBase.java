@@ -82,7 +82,10 @@ public abstract class SystemTranslationProfileProviderBase
 	
 	public Map<String, TranslationProfile> getSystemProfiles()
 	{
-		return new HashMap<>(profiles);
+		Map<String, TranslationProfile> copy = new HashMap<>();
+		for (TranslationProfile tp : profiles.values())
+			copy.put(tp.getName(), tp.clone());
+		return copy;
 	}
 	
 	protected void checkProfile(TranslationProfile profile) throws EngineException
