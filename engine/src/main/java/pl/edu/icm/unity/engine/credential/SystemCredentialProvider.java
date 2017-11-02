@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.credential;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
@@ -78,7 +79,10 @@ public class SystemCredentialProvider
 
 	public Collection<CredentialDefinition> getSystemCredentials()
 	{
-		return new ArrayList<>(credentials);
+		List<CredentialDefinition> copy = new ArrayList<>();
+		for (CredentialDefinition c : credentials)
+			copy.add(c.clone());
+		return copy;
 	}
 	
 	private void checkCredential(CredentialDefinition cred) throws EngineException

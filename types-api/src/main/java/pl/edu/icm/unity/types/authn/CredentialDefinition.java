@@ -167,6 +167,7 @@ public class CredentialDefinition extends I18nDescribedObject implements NamedOb
 		CredentialDefinition ret = new CredentialDefinition(typeId, name, 
 				displayedName.clone(), description.clone());
 		ret.setConfiguration(configuration);
+		ret.setReadOnly(isReadOnly());
 		return ret;
 	}
 	
