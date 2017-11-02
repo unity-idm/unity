@@ -19,6 +19,11 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 
+/**
+ * Read json files from classpath resource dir. 
+ * @author P.Piernik
+ *
+ */
 public class ClasspathResourceReader
 {
 	private ApplicationContext appContext;
