@@ -34,4 +34,18 @@ public class TextAreaActionParameterComponent extends TextArea implements Action
 	{
 		setValue(value);
 	}
+
+	@Override
+	public void addValueChangeCallback(ActionParameterValueChangeCallback callback)
+	{
+		addValueChangeListener(new ValueChangeListener()
+		{
+			@Override
+			public void valueChange(com.vaadin.data.Property.ValueChangeEvent event)
+			{
+				callback.refresh();
+				
+			}
+		});		
+	}
 }

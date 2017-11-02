@@ -6,8 +6,10 @@ package pl.edu.icm.unity.webadmin.tprofile;
 
 import java.util.Collection;
 
+
 import com.vaadin.server.UserError;
 import com.vaadin.ui.ComboBox;
+
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -56,5 +58,22 @@ public class AttributeActionParameterComponent extends AttributeSelectionComboBo
 			value = def;
 		}
 		select(value);
+	}
+
+
+	@Override
+	public void addValueChangeCallback(ActionParameterValueChangeCallback callback)
+	{
+		setImmediate(true);
+		addValueChangeListener(new ValueChangeListener()
+		{
+			@Override
+			public void valueChange(com.vaadin.data.Property.ValueChangeEvent event)
+			{
+				callback.refresh();
+				
+			}
+		});
+		
 	}
 }

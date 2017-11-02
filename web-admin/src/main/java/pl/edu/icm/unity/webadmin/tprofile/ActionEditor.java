@@ -24,6 +24,7 @@ import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.TranslationAction;
+import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponent.ActionParameterValueChangeCallback;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.LayoutEmbeddable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -44,14 +45,24 @@ public class ActionEditor extends LayoutEmbeddable
 	private Label actionParams;
 	private ActionParameterComponentProvider actionComponentProvider;
 	private List<ActionParameterComponent> paramComponents = new ArrayList<>();
-
+	private Callback callback;
+	
 	public ActionEditor(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
-			TranslationAction toEdit, ActionParameterComponentProvider actionComponentProvider)
+			TranslationAction toEdit, ActionParameterComponentProvider actionComponentProvider,
+			Callback callback)
 	{
 		this.msg = msg;
 		this.tc = tc;
 		this.actionComponentProvider = actionComponentProvider;
+		this.callback = callback;
 		initUI(toEdit);
+	}
+	
+	
+	public ActionEditor(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
+			TranslationAction toEdit, ActionParameterComponentProvider actionComponentProvider)
+	{
+		this(msg, tc, toEdit, actionComponentProvider, null);
 	}
 
 	private void initUI(TranslationAction toEdit)
@@ -61,6 +72,7 @@ public class ActionEditor extends LayoutEmbeddable
 			map(af -> af.getActionType().getName()).
 			sorted().
 			forEach(actionName -> actions.addItem(actionName));
+		actions.setStyleName(Styles.vTiny.toString());
 		
 		actions.setNullSelectionAllowed(false);
 		actions.addValueChangeListener(new ValueChangeListener()
@@ -70,7 +82,8 @@ public class ActionEditor extends LayoutEmbeddable
 			{
 				String action = (String) actions.getValue();
 				setParams(action, null);
-
+				if (callback != null)
+					callback.refresh(ActionEditor.this);
 			}
 		});
 		
@@ -101,6 +114,7 @@ public class ActionEditor extends LayoutEmbeddable
 	
 	private void setParams(String action, String[] values)
 	{
+		CallbackImplementation paramCallback = new CallbackImplementation();
 		removeComponents(paramComponents);
 		paramComponents.clear();
 		
@@ -113,6 +127,8 @@ public class ActionEditor extends LayoutEmbeddable
 		for (int i = 0; i < params.length; i++)
 		{
 			ActionParameterComponent p = actionComponentProvider.getParameterComponent(params[i]);
+			p.setStyleName(Styles.vTiny.toString());
+			p.addValueChangeCallback(paramCallback);
 			p.setValidationVisible(false);
 			if (values != null && values.length > i)
 			{
@@ -225,6 +241,38 @@ public class ActionEditor extends LayoutEmbeddable
 				extension.setValidationVisible(false);
 			}			
 		}	
+	}
+	
+	public String getStringRepresentation()
+	{
+		StringBuilder rep = new StringBuilder();
+		rep.append(actions.getValue());
+		rep.append(" | ");
+		for (ActionParameterComponent tc: paramComponents)
+		{
+			rep.append(tc.getCaption() + tc.getActionValue());
+			rep.append("|");
+		}
+		
+		return rep.substring(0, rep.length() - 1);
+	}
+	
+	private final class CallbackImplementation implements ActionParameterValueChangeCallback
+	{
+
+		@Override
+		public void refresh()
+		{
+			callback.refresh(ActionEditor.this);
+		}
+		
+	}
+	
+	
+	public interface Callback
+	{
+		public void refresh(ActionEditor editor);
+		
 	}
 
 }

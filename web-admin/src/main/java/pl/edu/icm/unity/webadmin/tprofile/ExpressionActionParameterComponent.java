@@ -170,4 +170,10 @@ public class ExpressionActionParameterComponent extends CustomField<String> impl
 		super.setReadOnly(readOnly);
 		parameter.setReadOnly(readOnly);
 	}
+
+	@Override
+	public void addValueChangeCallback(ActionParameterValueChangeCallback callback)
+	{
+		parameter.addValueChangeCallback(callback);
+	}
 }

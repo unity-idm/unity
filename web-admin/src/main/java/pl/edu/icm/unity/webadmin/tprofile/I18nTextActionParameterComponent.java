@@ -43,4 +43,19 @@ public class I18nTextActionParameterComponent extends I18nTextField implements A
 			throw new IllegalStateException("Can't deserialize I18nString from JSON", e);
 		}
 	}
+
+	@Override
+	public void addValueChangeCallback(ActionParameterValueChangeCallback callback)
+	{
+		setImmediate(true);
+		addValueChangeListener(new ValueChangeListener()
+		{
+			@Override
+			public void valueChange(com.vaadin.data.Property.ValueChangeEvent event)
+			{
+				callback.refresh();
+				
+			}
+		});		
+	}
 }
