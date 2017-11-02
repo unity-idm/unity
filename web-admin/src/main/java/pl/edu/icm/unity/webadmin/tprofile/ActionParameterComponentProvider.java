@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -39,22 +40,27 @@ public class ActionParameterComponentProvider
 	private Collection<String> credReqs;
 	private Collection<String> idTypes;
 	private Collection<AttributeType> atTypes;
+	private Collection<String> inputProfiles;
+	private Collection<String> outputProfiles;
 
 	private AttributeTypeManagement attrsMan;
 	private IdentityTypeSupport idTypeSupport;
 	private CredentialRequirementManagement credReqMan;
 	private GroupsManagement groupsMan;
+	private TranslationProfileManagement profileMan;
 
 	@Autowired
 	public ActionParameterComponentProvider(UnityMessageSource msg,
 			AttributeTypeManagement attrsMan, IdentityTypeSupport idTypeSupport,
-			CredentialRequirementManagement credReqMan, GroupsManagement groupsMan)
+			CredentialRequirementManagement credReqMan, GroupsManagement groupsMan,
+			TranslationProfileManagement profileMan)
 	{
 		this.msg = msg;
 		this.attrsMan = attrsMan;
 		this.idTypeSupport = idTypeSupport;
 		this.credReqMan = credReqMan;
 		this.groupsMan = groupsMan;
+		this.profileMan = profileMan;
 	}
 
 	public void init() throws EngineException
@@ -74,6 +80,10 @@ public class ActionParameterComponentProvider
 			if (!typeDef.isDynamic())
 				idTypes.add(it.getIdentityTypeProvider());
 		}
+		inputProfiles = profileMan.listInputProfiles().keySet();
+		outputProfiles = profileMan.listOutputProfiles().keySet();
+		
+		
 	}
 
 	public ActionParameterComponent getParameterComponent(ActionParameterDefinition param)
@@ -100,6 +110,10 @@ public class ActionParameterComponentProvider
 			return new I18nTextActionParameterComponent(param, msg);
 		case BOOLEAN:
 			return new BooleanActionParameterComponent(param, msg);
+		case UNITY_INPUT_TRANSLATION_PROFILE:
+			return new BaseEnumActionParameterComponent(param, msg, inputProfiles);
+		case UNITY_OUTPUT_TRANSLATION_PROFILE:
+			return new BaseEnumActionParameterComponent(param, msg, outputProfiles);
 		default: 
 			return new DefaultActionParameterComponent(param, msg);
 		}

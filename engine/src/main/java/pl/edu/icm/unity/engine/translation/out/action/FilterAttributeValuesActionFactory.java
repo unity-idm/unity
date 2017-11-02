@@ -4,9 +4,7 @@
  */
 package pl.edu.icm.unity.engine.translation.out.action;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Logger;
@@ -17,6 +15,7 @@ import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
@@ -63,29 +62,54 @@ public class FilterAttributeValuesActionFactory extends AbstractOutputTranslatio
 		}
 
 		@Override
-		protected void invokeWrapped(TranslationInput input, Object mvelCtx, String currentProfile,
-				TranslationResult result) throws EngineException
+		protected void invokeWrapped(TranslationInput input, Object mvelCtx,
+				String currentProfile, TranslationResult result)
+				throws EngineException
 		{
-			Set<DynamicAttribute> copy = new HashSet<>(result.getAttributes());
-			for (DynamicAttribute a: copy)
-			{	
+			for (DynamicAttribute a : result.getAttributes())
+			{
 				String attrName = a.getAttribute().getName();
-				
+
 				if (attr.equals(attrName))
 				{
-					List<?> values = a.getAttribute().getValues();
-					int orig = values.size();
-					for (int i=values.size()-1; i>=0; i--)
+					if (filterValue(a.getAttribute()))
 					{
-						if (pattern.matcher(values.get(i).toString()).matches())
-							values.remove(i);
-					}
-					if (orig != values.size())
-					{
-						log.debug("Filtering the values of attribute " + attrName);
+						log.debug("Filtering the values of attribute "
+								+ attrName);
 					}
 				}
 			}
+
+			for (Attribute a : result.getAttributesToPersist())
+			{
+				String attrName = a.getName();
+
+				if (attr.equals(attrName))
+				{
+					if (filterValue(a))
+					{
+						log.debug("Filtering the values of attribute to persist "
+								+ attrName);
+					}
+				}
+			}
+		}
+
+		private boolean filterValue(Attribute a)
+		{
+			boolean res = false;
+			List<?> values = a.getValues();
+			int orig = values.size();
+			for (int i = values.size() - 1; i >= 0; i--)
+			{
+				if (pattern.matcher(values.get(i).toString()).matches())
+					values.remove(i);
+			}
+			if (orig != values.size())
+			{
+				res = true;
+			}
+			return res;
 		}
 
 		private void setParameters(String[] parameters)

@@ -11,7 +11,9 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
 import pl.edu.icm.unity.engine.translation.TranslationCondition;
+import pl.edu.icm.unity.engine.translation.TranslationIncludeProfileAction;
 import pl.edu.icm.unity.engine.translation.TranslationRuleInstance;
+import pl.edu.icm.unity.engine.translation.TranslationRuleInvocationContext;
 import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
@@ -28,17 +30,24 @@ public class InputTranslationRule extends TranslationRuleInstance<InputTranslati
 		super(action, condition);
 	}
 	
-	public void invoke(RemotelyAuthenticatedInput input, Object mvelCtx, MappingResult translationState,
+	public TranslationRuleInvocationContext invoke(RemotelyAuthenticatedInput input, Object mvelCtx, MappingResult translationState,
 			String profileName) throws EngineException
 	{
+		TranslationRuleInvocationContext context = new TranslationRuleInvocationContext();
 		if (conditionInstance.evaluate(mvelCtx))
-		{
+		{	
 			log.debug("Condition OK");
 			MappingResult result = actionInstance.invoke(input, mvelCtx, profileName);
+			if ( actionInstance instanceof TranslationIncludeProfileAction)
+			{
+				TranslationIncludeProfileAction includeAction = (TranslationIncludeProfileAction) actionInstance;
+				context.setIncludedProfile(includeAction.getIncludedProfile());			
+			}
 			translationState.mergeWith(result);
 		} else
 		{
 			log.debug("Condition not met");			
 		}
+		return context;
 	}
 }

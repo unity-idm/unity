@@ -10,11 +10,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
@@ -30,6 +28,7 @@ import pl.edu.icm.unity.engine.api.translation.in.MappedIdentity;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationProfile;
+import pl.edu.icm.unity.engine.translation.in.InputTranslationProfileRepository;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.store.api.tx.Transactional;
@@ -45,7 +44,7 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
 @Component
 public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcessor
 {
-	private TranslationProfileManagement profileManagement;
+	private InputTranslationProfileRepository inputProfileRepo;
 	private IdentityResolver identityResolver;
 	private InputTranslationEngine trEngine;
 	private InputTranslationActionsRegistry actionsRegistry;
@@ -53,12 +52,12 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 	
 	@Autowired
 	public RemoteAuthnResultProcessorImpl(IdentityResolver identityResolver,	
-			@Qualifier("insecure") TranslationProfileManagement profileManagement,
+			InputTranslationProfileRepository profileRepo,
 			InputTranslationEngine trEngine,
 			InputTranslationActionsRegistry actionsRegistry)
 	{
 		this.identityResolver = identityResolver;
-		this.profileManagement = profileManagement;
+		this.inputProfileRepo = profileRepo;
 		this.trEngine = trEngine;
 		this.actionsRegistry = actionsRegistry;
 	}
@@ -153,9 +152,9 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 	public final RemotelyAuthenticatedContext processRemoteInput(RemotelyAuthenticatedInput input, 
 			String profile, boolean dryRun) throws EngineException
 	{
-		TranslationProfile translationProfile = profileManagement.getInputProfile(profile);
-		InputTranslationProfile profileInstance = new InputTranslationProfile(translationProfile,
-				actionsRegistry);
+		TranslationProfile translationProfile = inputProfileRepo.getProfile(profile);
+		InputTranslationProfile profileInstance = new InputTranslationProfile(
+				translationProfile, inputProfileRepo, actionsRegistry);
 		if (translationProfile == null)
 			throw new ConfigurationException("The translation profile '" + profile + 
 					"' configured for the authenticator does not exist");

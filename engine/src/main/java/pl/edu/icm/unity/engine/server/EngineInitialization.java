@@ -75,6 +75,9 @@ import pl.edu.icm.unity.engine.identity.EntitiesScheduledUpdater;
 import pl.edu.icm.unity.engine.identity.IdentityCleaner;
 import pl.edu.icm.unity.engine.notifications.EmailFacility;
 import pl.edu.icm.unity.engine.scripts.ScriptTriggeringEventListener;
+import pl.edu.icm.unity.engine.translation.TranslationProfileChecker;
+import pl.edu.icm.unity.engine.translation.in.SystemInputTranslationProfileProvider;
+import pl.edu.icm.unity.engine.translation.out.SystemOutputTranslationProfileProvider;
 import pl.edu.icm.unity.engine.utils.FileWatcher;
 import pl.edu.icm.unity.engine.utils.LifecycleBase;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -106,6 +109,7 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.types.translation.ProfileMode;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
@@ -200,7 +204,13 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	private ScriptTriggeringEventListener scriptEventsConsumer;
 	@Autowired(required = false)
-	private PublicWellKnownURLServletProvider publicWellKnownURLServlet;
+	private PublicWellKnownURLServletProvider publicWellKnownURLServlet;	
+	@Autowired
+	TranslationProfileChecker profileHelper;
+	@Autowired
+	private SystemInputTranslationProfileProvider systemInputProfileProvider;
+	@Autowired
+	private SystemOutputTranslationProfileProvider systemOutputProfileProvider;
 	
 	private long endpointsLoadTime;
 	
@@ -325,6 +335,7 @@ public class EngineInitialization extends LifecycleBase
 		eventsProcessor.fireEvent(new Event(EventCategory.PRE_INIT, isColdStart.toString()));
 		
 		initializeTranslationProfiles();
+		checkSystemTranslationProfiles();
 		boolean eraClean = config.getBooleanValue(
 				UnityServerConfiguration.CONFIG_ONLY_ERA_CONTROL);
 		if (eraClean)
@@ -919,7 +930,23 @@ public class EngineInitialization extends LifecycleBase
 			}
 		}
 	}
+
+	private void checkProfiles(Collection<TranslationProfile> collection)
+	{
+		for (TranslationProfile profile : collection)
+		{
+			if (profile.getProfileMode() != ProfileMode.READ_ONLY)
+				throw new IllegalArgumentException("Sytem profile " + profile + " is not in READ_ONLY mode");
+			profileHelper.checkProfileContent(profile);
+		}
+	}
 	
+	private void checkSystemTranslationProfiles()
+	{
+		checkProfiles(systemInputProfileProvider.getSystemProfiles().values());
+		checkProfiles(systemOutputProfileProvider.getSystemProfiles().values());
+	}
+
 	private void runInitializers()
 	{
 		List<String> enabledL = config.getListOfValues(UnityServerConfiguration.INITIALIZERS);

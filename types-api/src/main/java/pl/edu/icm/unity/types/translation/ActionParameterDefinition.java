@@ -14,7 +14,7 @@ package pl.edu.icm.unity.types.translation;
 public class ActionParameterDefinition
 {
 	public enum Type {UNITY_ATTRIBUTE, EXPRESSION, UNITY_GROUP, UNITY_ID_TYPE, UNITY_CRED_REQ, ENUM, DAYS,
-		LARGE_TEXT, I18N_TEXT, TEXT, BOOLEAN}
+		LARGE_TEXT, I18N_TEXT, TEXT, BOOLEAN, UNITY_INPUT_TRANSLATION_PROFILE, UNITY_OUTPUT_TRANSLATION_PROFILE}
 	
 	private String name;
 	private String descriptionKey;

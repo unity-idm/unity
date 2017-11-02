@@ -4,8 +4,7 @@
  */
 package pl.edu.icm.unity.engine.translation.out.action;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collection;
 import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Logger;
@@ -65,16 +64,23 @@ public class FilterIdentityActionFactory extends AbstractOutputTranslationAction
 		protected void invokeWrapped(TranslationInput input, Object mvelCtx, String currentProfile,
 				TranslationResult result) throws EngineException
 		{
-			Set<IdentityParam> copy = new HashSet<IdentityParam>(result.getIdentities());
-			for (IdentityParam i: copy)
+			
+			Collection<IdentityParam> res = result.removeIdentityByTypeAndValueMatch(identity, idValueRegexp);
+			if (!res.isEmpty())
 			{
-				if ((identity == null || i.getTypeId().equals(identity)) &&
-						(idValueRegexp == null || idValueRegexp.matcher(i.getValue()).matches()))
-				{
-					log.debug("Filtering the identity " + i.toString());
-					result.getIdentities().remove(i);
-				}
+				for (IdentityParam id : res)
+					log.debug("Filtering the identity " + id.toString());
 			}
+
+			res = result.removeIdentityToPersistByTypeAndValueMatch(identity,
+					idValueRegexp);
+			if (!res.isEmpty())
+			{
+				for (IdentityParam id : res)
+					log.debug("Filtering the identity to persist "
+							+ id.toString());
+			}
+			
 		}
 
 		private void setParameters(String[] parameters)

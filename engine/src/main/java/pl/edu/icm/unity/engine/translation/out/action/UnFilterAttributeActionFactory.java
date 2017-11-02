@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.engine.translation.out.action;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Logger;
@@ -61,16 +59,19 @@ public class UnFilterAttributeActionFactory extends AbstractOutputTranslationAct
 		protected void invokeWrapped(TranslationInput input, Object mvelCtx, String currentProfile,
 				TranslationResult result) throws EngineException
 		{
-			Set<String> existing = new HashSet<>();
-			for (DynamicAttribute a: result.getAttributes())
-				existing.add(a.getAttribute().getName());
 			
-			for (Attribute a: input.getAttributes())
-				if (attrPattern.matcher(a.getName()).matches())
+			
+			for (Attribute a : input.getAttributes())
+			{
+				String attrName = a.getName();
+				if (attrPattern.matcher(attrName).matches())
 				{
-					log.debug("Unfiltering the attribute " + a.getName());
+					log.debug("Unfiltering the attribute " + attrName);
+					result.removeAttributesByName(attrName);
+					result.removeAttributesToPersistByName(attrName);
 					result.getAttributes().add(new DynamicAttribute(a));
 				}
+			}
 		}
 
 		private void setParameters(String[] parameters)
