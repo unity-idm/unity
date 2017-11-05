@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.attributetype;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -11,20 +12,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.vaadin.simplefiledownloader.SimpleFileDownloader;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.event.Action;
 import com.vaadin.server.Resource;
+import com.vaadin.server.StreamResource;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webadmin.attributetype.AttributeTypeEditDialog.Callback;
@@ -63,13 +68,15 @@ public class AttributeTypesComponent extends VerticalLayout
 	private com.vaadin.ui.Component main;
 	private EventsBus bus;
 	private AttributeTypeSupport atSupport;
+	private UnityServerConfiguration serverConfig;
 	
 	
 	@Autowired
 	public AttributeTypesComponent(UnityMessageSource msg, AttributeTypeManagement attrManagement,
 			AttributeTypeSupport atSupport, 
 			AttributeHandlerRegistry attrHandlerRegistry, 
-			AttributeMetadataHandlerRegistry attrMetaHandlerRegistry)
+			AttributeMetadataHandlerRegistry attrMetaHandlerRegistry,
+			UnityServerConfiguration serverConfig)
 	{
 		this.msg = msg;
 		this.attrManagement = attrManagement;
@@ -77,6 +84,7 @@ public class AttributeTypesComponent extends VerticalLayout
 		this.attrHandlerRegistry = attrHandlerRegistry;
 		this.attrMetaHandlerRegistry = attrMetaHandlerRegistry;
 		this.bus = WebSession.getCurrent().getEventBus();
+		this.serverConfig = serverConfig;
 		HorizontalLayout hl = new HorizontalLayout();
 		
 		addStyleName(Styles.visibleScroll.toString());
@@ -122,9 +130,11 @@ public class AttributeTypesComponent extends VerticalLayout
 			}
 		});
 		table.addActionHandler(new RefreshActionHandler());
+		table.addActionHandler(new ImportActionHandler());
 		table.addActionHandler(new AddActionHandler());
 		table.addActionHandler(new EditActionHandler());
 		table.addActionHandler(new DeleteActionHandler());
+		table.addActionHandler(new ExportActionHandler());
 		
 		Toolbar toolbar = new Toolbar(table, Orientation.HORIZONTAL);
 		toolbar.addActionHandlers(table.getActionHandlers());
@@ -241,6 +251,26 @@ public class AttributeTypesComponent extends VerticalLayout
 			dialog.show();
 		}
 	}
+	
+	private class ImportActionHandler extends SingleActionHandler
+	{
+		public ImportActionHandler()
+		{
+			super(msg.getMessage("AttributeTypes.importAction"), Images.transfer.getResource());
+			setNeedsTarget(false);
+		}
+
+		@Override
+		public void handleAction(Object sender, final Object target)
+		{
+			
+			ImportAttributeTypeDialog dialog = new ImportAttributeTypeDialog(msg, 
+					msg.getMessage("AttributeTypes.importAction"), serverConfig, attrManagement, () -> { refresh(); }
+					);
+				
+			dialog.show();
+		}
+	}
 		
 	private Collection<AttributeType> getItems(Object target)
 	{
@@ -353,6 +383,51 @@ public class AttributeTypesComponent extends VerticalLayout
 							}
 						}
 					}).show();
+		}
+	}
+	
+	private class ExportActionHandler extends SingleActionHandler
+	{
+		public ExportActionHandler()
+		{
+			super(msg.getMessage("AttributeTypes.exportAction"), Images.save.getResource());
+			setMultiTarget(true);
+		}
+
+		@Override
+		public void handleAction(Object sender, final Object target)
+		{			
+			final Collection<AttributeType> items = getItems(target);
+			SimpleFileDownloader downloader = new SimpleFileDownloader();
+			addExtension(downloader);
+			StreamResource resource = null;
+			try
+			{
+				if (items.size() == 1)
+				{
+					AttributeType item = items.iterator().next();
+					byte[] content = Constants.MAPPER.writeValueAsBytes(item);
+					resource = new StreamResource(() -> {
+						return new ByteArrayInputStream(content);
+					}, item.getName() + ".json");
+				} else
+				{
+
+					byte[] content = Constants.MAPPER.writeValueAsBytes(items);
+					resource = new StreamResource(() -> {
+						return new ByteArrayInputStream(content);
+					}, "attributeTypes.json");
+				}
+			} catch (Exception e)
+			{
+				NotificationPopup.showError(msg,
+						msg.getMessage("AttributeTypes.errorExport"), e);
+				return;
+			}
+			
+			
+			downloader.setFileDownloadResource(resource);
+			downloader.download();	
 		}
 	}
 }
