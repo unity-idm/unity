@@ -114,7 +114,7 @@ public class ActionEditor extends LayoutEmbeddable
 	
 	private void setParams(String action, String[] values)
 	{
-		CallbackImplementation paramCallback = new CallbackImplementation();
+		Runnable paramCallback = ()-> { callback.accept(getStringRepresentation()); };
 		removeComponents(paramComponents);
 		paramComponents.clear();
 		
@@ -255,16 +255,5 @@ public class ActionEditor extends LayoutEmbeddable
 		}
 		
 		return rep.substring(0, rep.length() - 1);
-	}
-	
-	private final class CallbackImplementation implements Runnable
-	{
-
-		@Override
-		public void run()
-		{
-			callback.accept(getStringRepresentation());
-		}
-		
 	}
 }
