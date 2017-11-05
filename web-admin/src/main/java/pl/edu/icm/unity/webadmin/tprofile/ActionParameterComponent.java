@@ -16,11 +16,5 @@ public interface ActionParameterComponent extends Component
 	void setActionValue(String value);
 	void setValidationVisible(boolean how);
 	boolean isValid();
-	void addValueChangeCallback(ActionParameterValueChangeCallback callback);
-	
-	
-	interface ActionParameterValueChangeCallback
-	{
-		void refresh();
-	}
+	void addValueChangeCallback(Runnable callback);
 }

@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webadmin.tprofile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.apache.logging.log4j.Logger;
 
@@ -24,7 +25,6 @@ import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.TranslationAction;
-import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponent.ActionParameterValueChangeCallback;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.LayoutEmbeddable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -45,11 +45,11 @@ public class ActionEditor extends LayoutEmbeddable
 	private Label actionParams;
 	private ActionParameterComponentProvider actionComponentProvider;
 	private List<ActionParameterComponent> paramComponents = new ArrayList<>();
-	private Callback callback;
+	private Consumer<String> callback;
 	
 	public ActionEditor(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
 			TranslationAction toEdit, ActionParameterComponentProvider actionComponentProvider,
-			Callback callback)
+			Consumer<String> callback)
 	{
 		this.msg = msg;
 		this.tc = tc;
@@ -83,7 +83,7 @@ public class ActionEditor extends LayoutEmbeddable
 				String action = (String) actions.getValue();
 				setParams(action, null);
 				if (callback != null)
-					callback.refresh(ActionEditor.this);
+					callback.accept(getStringRepresentation());
 			}
 		});
 		
@@ -257,22 +257,14 @@ public class ActionEditor extends LayoutEmbeddable
 		return rep.substring(0, rep.length() - 1);
 	}
 	
-	private final class CallbackImplementation implements ActionParameterValueChangeCallback
+	private final class CallbackImplementation implements Runnable
 	{
 
 		@Override
-		public void refresh()
+		public void run()
 		{
-			callback.refresh(ActionEditor.this);
+			callback.accept(getStringRepresentation());
 		}
 		
 	}
-	
-	
-	public interface Callback
-	{
-		public void refresh(ActionEditor editor);
-		
-	}
-
 }

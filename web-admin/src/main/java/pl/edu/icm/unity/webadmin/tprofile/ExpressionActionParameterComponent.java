@@ -172,7 +172,7 @@ public class ExpressionActionParameterComponent extends CustomField<String> impl
 	}
 
 	@Override
-	public void addValueChangeCallback(ActionParameterValueChangeCallback callback)
+	public void addValueChangeCallback(Runnable callback)
 	{
 		parameter.addValueChangeCallback(callback);
 	}

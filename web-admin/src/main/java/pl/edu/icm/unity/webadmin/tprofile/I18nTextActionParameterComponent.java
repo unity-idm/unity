@@ -45,17 +45,8 @@ public class I18nTextActionParameterComponent extends I18nTextField implements A
 	}
 
 	@Override
-	public void addValueChangeCallback(ActionParameterValueChangeCallback callback)
+	public void addValueChangeCallback(Runnable callback)
 	{
-		setImmediate(true);
-		addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(com.vaadin.data.Property.ValueChangeEvent event)
-			{
-				callback.refresh();
-				
-			}
-		});		
+		addValueChangeListener((e) -> { callback.run(); });	
 	}
 }

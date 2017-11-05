@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.webadmin.tprofile;
 
 import java.util.Map;
+import java.util.function.Consumer;
 
 import com.vaadin.addon.contextmenu.ContextMenu;
 import com.vaadin.addon.contextmenu.MenuItem;
@@ -186,8 +187,12 @@ public class RuleComponent extends CustomComponent
 				msg.getMessage("MVELExpressionField.conditionDesc"));
 		condition.setStyleName(Styles.vTiny.toString());
 		
-		actionEditor = new ActionEditor(msg, tc, toEdit == null ? null : toEdit.getAction(), 
-				actionComponentProvider, new CallbackImplementation());	
+		
+		Consumer<String> editorCallback = (s) -> {
+			info.setValue(s);
+		};
+		actionEditor = new ActionEditor(msg, tc, toEdit == null ? null : toEdit.getAction(),
+				actionComponentProvider, editorCallback);
 		
 		mappingResultComponent = new MappingResultComponent(msg);	
 		
@@ -380,16 +385,6 @@ public class RuleComponent extends CustomComponent
 		}
 	}	
 	
-	private final class CallbackImplementation implements pl.edu.icm.unity.webadmin.tprofile.ActionEditor.Callback
-	{
-
-		@Override
-		public void refresh(ActionEditor editor)
-		{
-			info.setValue(editor.getStringRepresentation());
-		}
-		
-	}
 	public interface Callback
 	{
 		public boolean remove(RuleComponent rule);

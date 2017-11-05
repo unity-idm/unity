@@ -25,6 +25,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -447,21 +448,43 @@ public class TranslationProfilesComponent extends VerticalLayout
 		public ExportActionHandler()
 		{
 			super(msg.getMessage("TranslationProfilesComponent.exportAction"), Images.save.getResource());
+			setMultiTarget(true);
 		}
 
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
+			final Collection<TranslationProfile> items = getItems(target);
 			SimpleFileDownloader downloader = new SimpleFileDownloader();
 			addExtension(downloader);
-			@SuppressWarnings("unchecked")
-			GenericItem<TranslationProfile> item = (GenericItem<TranslationProfile>) target;
-			final StreamResource resource = new StreamResource(() -> {
-				return new ByteArrayInputStream(item.getElement().toJsonObject().toString().getBytes());
-			}, item.getElement().getName() + ".json");
+			StreamResource resource = null;
+			try
+			{
+				if (items.size() == 1)
+				{
+					TranslationProfile item = items.iterator().next();
+					byte[] content = Constants.MAPPER.writeValueAsBytes(item);
+					resource = new StreamResource(() -> {
+						return new ByteArrayInputStream(content);
+					}, item.getName() + ".json");
+				} else
+				{
+
+					byte[] content = Constants.MAPPER.writeValueAsBytes(items);
+					resource = new StreamResource(() -> {
+						return new ByteArrayInputStream(content);
+					}, "translationProfiles.json");
+				}
+			} catch (Exception e)
+			{
+				NotificationPopup.showError(msg,
+						msg.getMessage("TranslationProfilesComponent.errorExport"), e);
+				return;
+			}
+			
 			
 			downloader.setFileDownloadResource(resource);
-			downloader.download();
+			downloader.download();	
 		}
 	}
 	
