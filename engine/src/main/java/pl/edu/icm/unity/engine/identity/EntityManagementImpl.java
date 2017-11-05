@@ -34,6 +34,7 @@ import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
+import pl.edu.icm.unity.engine.credential.SystemCredentialRequirements;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.group.GroupHelper;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
@@ -137,6 +138,13 @@ public class EntityManagementImpl implements EntityManagement
 	{
 		return addEntity(toAdd, credReqId, initialState, extractAttributes, null);
 	}
+	
+	@Override
+	public Identity addEntity(IdentityParam toAdd, EntityState initialState,
+			boolean extractAttributes) throws EngineException
+	{
+		return addEntity(toAdd, SystemCredentialRequirements.NAME, initialState, extractAttributes, null);
+	}
 
 	@Override
 	public Identity addEntity(IdentityParam toAdd, String credReqId,
@@ -158,6 +166,14 @@ public class EntityManagementImpl implements EntityManagement
 			confirmationManager.sendVerificationQuietNoTx(added, ret, false);
 		});
 		return ret;
+	}
+	
+	@Override
+	public Identity addEntity(IdentityParam toAdd,
+			EntityState initialState, boolean extractAttributes,
+			List<Attribute> attributesP) throws EngineException
+	{
+		return addEntity(toAdd, SystemCredentialRequirements.NAME, initialState, extractAttributes, attributesP);
 	}
 	
 	@Override

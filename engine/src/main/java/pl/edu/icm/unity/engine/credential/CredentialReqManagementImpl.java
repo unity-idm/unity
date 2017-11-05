@@ -65,7 +65,7 @@ public class CredentialReqManagementImpl implements CredentialRequirementManagem
 	public void addCredentialRequirement(CredentialRequirements toAdd) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		assertIsNotSystemProfile(toAdd.getName());
+		assertIsNotSystemCredReq(toAdd.getName());
 		assertIsNotReadOnly(toAdd);
 		Set<String> existingCreds = credentialDB.getAllNames();
 		for (String u: toAdd.getRequiredCredentials())
@@ -87,7 +87,7 @@ public class CredentialReqManagementImpl implements CredentialRequirementManagem
 	public void updateCredentialRequirement(CredentialRequirements updated) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		assertIsNotSystemProfile(updated.getName());
+		assertIsNotSystemCredReq(updated.getName());
 		assertIsNotReadOnly(updated);
 		Map<String, CredentialDefinition> credDefs = credentialDB.getAllAsMap();
 		CredentialRequirementsHolder.checkCredentials(updated, credDefs, localCredReg);
@@ -98,7 +98,7 @@ public class CredentialReqManagementImpl implements CredentialRequirementManagem
 	public void removeCredentialRequirement(String toRemove, String replacementId) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		assertIsNotSystemProfile(toRemove);
+		assertIsNotSystemCredReq(toRemove);
 		Set<Long> entities = identityHelper.getEntitiesByRootAttribute(
 				CredentialAttributeTypeProvider.CREDENTIAL_REQUIREMENTS,
 				Collections.singleton(toRemove));
@@ -113,7 +113,7 @@ public class CredentialReqManagementImpl implements CredentialRequirementManagem
 		credentialRequirementDB.delete(toRemove);
 	}
 	
-	private void assertIsNotSystemProfile(String name)
+	private void assertIsNotSystemCredReq(String name)
 	{
 		if (SystemCredentialRequirements.NAME.equals(name))
 			throw new IllegalArgumentException("Credential requirement '" + name + "' is the system credential requirement and cannot be overwrite or remove");

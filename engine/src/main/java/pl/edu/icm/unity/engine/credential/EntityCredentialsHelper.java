@@ -114,25 +114,35 @@ public class EntityCredentialsHelper
 	}
 	
 	/**
-	 * Prepare and set credential
+	 * Prepares and sets credential
 	 * @param entityId
 	 * @param credentialId
 	 * @param rawCredential
 	 * @param currentRawCredential
-	 * @param verify
 	 * @throws EngineException
 	 */
-	
-	
 	public void setEntityCredentialInternal(long entityId, String credentialId, 
-			String rawCredential, String currentRawCredential, boolean verify)  throws EngineException
+			String rawCredential, String currentRawCredential)  throws EngineException
 	{
-		String cred = prepareEntityCredentialInternal(entityId, credentialId, rawCredential, currentRawCredential, verify);
+		String cred = prepareEntityCredentialInternal(entityId, credentialId, rawCredential, currentRawCredential, true);
 		setPreviouslyPreparedEntityCredentialInternal(entityId, cred, credentialId);
 	}
 	
+	/**
+	 * Prepares and sets credential without verify it
+	 * @param entityId
+	 * @param credentialId
+	 * @param rawCredential
+	 * @param currentRawCredential
+	 * @throws EngineException
+	 */
+	public void setEntityCredentialInternalWithoutVerify(long entityId, String credentialId, 
+			String rawCredential, String currentRawCredential)  throws EngineException
+	{
+		String cred = prepareEntityCredentialInternal(entityId, credentialId, rawCredential, currentRawCredential, false);
+		setPreviouslyPreparedEntityCredentialInternal(entityId, cred, credentialId);
+	}
 	
-		
 	
 	/**
 	 * Prepares entity's credential (hashes, checks etc). This is internal method which 

@@ -5,4 +5,4 @@ import pl.edu.icm.unity.types.basic.IdentityParam
 
 log.info("Context is {}", context);
 IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, context);
-entityManagement.addEntity(toAdd, "sys:all", EntityState.valid, false);
+entityManagement.addEntity(toAdd, EntityState.valid, false);

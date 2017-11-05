@@ -566,16 +566,13 @@ public class EngineInitialization extends LifecycleBase
 				
 				EntityParam adminEntity = new EntityParam(adminId.getEntityId());
 				PasswordToken ptoken = new PasswordToken(adminP);
-			
-				//idCredManagement.setEntityCredential(adminEntity, credDef.getName(), ptoken.toJson());
+		
 				//Set password without verify!!!
 				tx.runInTransactionThrowing(() -> {	
-					entityCredHelper.setEntityCredentialInternal(
+					entityCredHelper.setEntityCredentialInternalWithoutVerify(
 									adminEntity.getEntityId(),
 									credDef.getName(),
-									ptoken.toJson(), null,
-									false);
-					
+									ptoken.toJson(), null);					
 				});
 				
 				if (config.getBooleanValue(UnityServerConfiguration.INITIAL_ADMIN_USER_OUTDATED))

@@ -90,7 +90,7 @@ public class CredentialManagementImpl implements CredentialManagement
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		assertIsNotReadOnly(credentialDefinition);
-		assertIsNotSystemProfile(credentialDefinition.getName());
+		assertIsNotSystemCredential(credentialDefinition.getName());
 		CredentialHolder helper = new CredentialHolder(credentialDefinition, localCredReg);
 		credentialDB.create(credentialDefinition);
 		AttributeType at = attrTypeHelper.getCredentialAT(helper.getCredentialDefinition().getName());
@@ -103,7 +103,7 @@ public class CredentialManagementImpl implements CredentialManagement
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		assertIsNotReadOnly(updated);
-		assertIsNotSystemProfile(updated.getName());
+		assertIsNotSystemCredential(updated.getName());
 		
 		CredentialHolder helper = new CredentialHolder(updated, localCredReg);
 		//get all cred reqs with it
@@ -131,7 +131,7 @@ public class CredentialManagementImpl implements CredentialManagement
 	public void removeCredentialDefinition(String toRemove) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		assertIsNotSystemProfile(toRemove);
+		assertIsNotSystemCredential(toRemove);
 		credentialDB.delete(toRemove);
 		attributeTypeDAO.delete(CREDENTIAL_PREFIX+toRemove);
 	}
@@ -175,7 +175,7 @@ public class CredentialManagementImpl implements CredentialManagement
 					+ "the previous definition and can not keep the credential state as correct");
 	}
 	
-	private void assertIsNotSystemProfile(String name)
+	private void assertIsNotSystemCredential(String name)
 	{
 		Set<String> systemProfiles = sysProvider.getSystemCredentials().stream().map(c -> c.getName()).collect(Collectors.toSet());
 		if (systemProfiles.contains(name))

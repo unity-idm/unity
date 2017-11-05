@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
+import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -47,7 +48,7 @@ public class TestSystemCredential extends DBIntegrationTestBase
 	@Test
 	public void shouldBlockAddCredentialWithSystemCredentialName() throws EngineException
 	{
-		CredentialDefinition toAdd = new CredentialDefinition("password", "sys:password");
+		CredentialDefinition toAdd = new CredentialDefinition("password", EngineInitialization.DEFAULT_CREDENTIAL);
 		catchException(credMan).addCredentialDefinition(toAdd);
 		assertThat(caughtException(), isA(IllegalArgumentException.class));
 	}
@@ -55,7 +56,7 @@ public class TestSystemCredential extends DBIntegrationTestBase
 	@Test
 	public void shouldNotRemoveSystemCredential() throws EngineException
 	{
-		catchException(credMan).removeCredentialDefinition("sys:password");
+		catchException(credMan).removeCredentialDefinition(EngineInitialization.DEFAULT_CREDENTIAL);
 		assertThat(caughtException(), isA(IllegalArgumentException.class));
 	}
 		

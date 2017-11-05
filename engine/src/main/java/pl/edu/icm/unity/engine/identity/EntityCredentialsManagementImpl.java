@@ -216,6 +216,6 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 			String currentRawCredential) throws EngineException
 	{
 		credHelper.setEntityCredentialInternal(entityId, credentialId, rawCredential, 
-				currentRawCredential, true);
+				currentRawCredential);
 	}
 }
