@@ -74,4 +74,11 @@ public class BaseEnumActionParameterComponent extends ComboBox implements Action
 		}
 		select(value);
 	}
+
+	@Override
+	public void addValueChangeCallback(Runnable callback)
+	{
+		addValueChangeListener((e) -> { callback.run(); });
+		
+	}
 }

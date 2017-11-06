@@ -6,12 +6,22 @@
 package pl.edu.icm.unity.webadmin.tprofile;
 
 import java.util.Map;
+import java.util.function.Consumer;
 
+import com.vaadin.addon.contextmenu.ContextMenu;
+import com.vaadin.addon.contextmenu.MenuItem;
+import com.vaadin.event.LayoutEvents.LayoutClickEvent;
+import com.vaadin.event.LayoutEvents.LayoutClickListener;
 import com.vaadin.server.UserError;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.AbstractTextField;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.DragAndDropWrapper;
+import com.vaadin.ui.DragAndDropWrapper.DragStartMode;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -48,13 +58,14 @@ public class RuleComponent extends CustomComponent
 	private AbstractTextField condition;
 	private MappingResultComponent mappingResultComponent;
 	private Callback callback;
-	private Button up;
-	private Button top;
-	private Button down;
-	private Button bottom;
+	private MenuItem top;
+	private MenuItem bottom;
 	private boolean editMode;
 	private ActionParameterComponentProvider actionComponentProvider;
-
+	private FormLayout content;
+	private Label info;
+	private Button showHide;
+	
 	public RuleComponent(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
 			TranslationRule toEdit, ActionParameterComponentProvider actionComponentProvider, 
 			Callback callback)
@@ -69,130 +80,146 @@ public class RuleComponent extends CustomComponent
 
 	private void initUI(TranslationRule toEdit)
 	{
-		up = new Button();
-		up.setDescription(msg.getMessage("TranslationProfileEditor.moveUp"));
-		up.setIcon(Images.upArrow.getResource());
-		up.addStyleName(Styles.vButtonLink.toString());
-		up.addStyleName(Styles.toolbarButton.toString());
-		up.addClickListener(new Button.ClickListener()
-		{
-
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				callback.moveUp(RuleComponent.this);
-
-			}
-		});
 		
-		top = new Button();
-		top.setDescription(msg.getMessage("TranslationProfileEditor.moveTop"));
-		top.setIcon(Images.topArrow.getResource());
-		top.addStyleName(Styles.vButtonLink.toString());
-		top.addStyleName(Styles.toolbarButton.toString());
-		top.addClickListener(new Button.ClickListener()
-		{
-
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				callback.moveTop(RuleComponent.this);
-
-			}
-		});
-
-		down = new Button();
-		down.setDescription(msg.getMessage("TranslationProfileEditor.moveDown"));
-		down.setIcon(Images.downArrow.getResource());
-		down.addStyleName(Styles.vButtonLink.toString());
-		down.addStyleName(Styles.toolbarButton.toString());
-		down.addClickListener(new Button.ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				callback.moveDown(RuleComponent.this);
-
-			}
-		});
-		bottom = new Button();
-		bottom.setDescription(msg.getMessage("TranslationProfileEditor.moveBottom"));
-		bottom.setIcon(Images.bottomArrow.getResource());
-		bottom.addStyleName(Styles.vButtonLink.toString());
-		bottom.addStyleName(Styles.toolbarButton.toString());
-		bottom.addClickListener(new Button.ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				callback.moveBottom(RuleComponent.this);
-
-			}
-		});
 		
-
-		Button remove = new Button();
-		remove.setDescription(msg.getMessage("TranslationProfileEditor.remove"));
-		remove.setIcon(Images.delete.getResource());
-		remove.addStyleName(Styles.vButtonLink.toString());
-		remove.addStyleName(Styles.toolbarButton.toString());
-		remove.addClickListener(new Button.ClickListener()
+		VerticalLayout headerWrapper = new VerticalLayout();
+		
+		HorizontalLayout header = new HorizontalLayout();
+		header.setSizeFull();
+		header.setMargin(false);
+		
+		
+		showHide = new Button(Images.vaadinDownArrow.getResource());
+		showHide.addStyleName(Styles.vButtonLink.toString());
+		showHide.addStyleName(Styles.toolbarButton.toString());
+		showHide.addClickListener(new ClickListener()
 		{
+			
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
+				showHideContent(!content.isVisible());		
+			}
+		});
+		header.addComponent(showHide);
+		header.setExpandRatio(showHide, 0);
+		header.setComponentAlignment(showHide, Alignment.MIDDLE_LEFT);
+		
+		info = new Label("");
+		info.setSizeUndefined();;
+				
+		DragHtmlLabel img = new DragHtmlLabel(this, "&nbsp" + Images.vaadinResize.getHtml() + "&nbsp");
+		img.addStyleName(Styles.link.toString());
+		img.setSizeFull();
+		
+		DragAndDropWrapper dragWrapper = new DragAndDropWrapper(img);
+		dragWrapper.setDragStartMode(DragStartMode.WRAPPER);
+		dragWrapper.setSizeUndefined();
+		
+		header.addComponent(dragWrapper);	
+		header.setComponentAlignment(dragWrapper, Alignment.MIDDLE_LEFT);
+		header.setExpandRatio(dragWrapper, 0);
+			
+		header.addComponent(info);	
+		header.setComponentAlignment(info, Alignment.MIDDLE_LEFT);
+		header.setExpandRatio(info, 10);
+	
+		Button menu = new Button();
+		menu.setIcon(Images.vaadinMenu.getResource());
+		menu.addStyleName(Styles.vButtonLink.toString());
+		menu.addStyleName(Styles.toolbarButton.toString());
+		
+		ContextMenu contextMenu = new ContextMenu(menu, false);
+		contextMenu.setAsContextMenuOf(menu);
+		MenuItem remove = contextMenu.addItem(msg.getMessage("TranslationProfileEditor.remove"), e -> {
 				callback.remove(RuleComponent.this);
-
+		        });
+		remove.setCheckable(false);
+		remove.setIcon(Images.vaadinRemove.getResource());	
+		
+		top = contextMenu.addItem(msg.getMessage("TranslationProfileEditor.moveTop"), e -> {
+			callback.moveTop(RuleComponent.this);
+	        });
+	
+		top.setCheckable(false);
+		top.setIcon(Images.vaadinTopArrow.getResource());	
+		
+		bottom = contextMenu.addItem(msg.getMessage("TranslationProfileEditor.moveBottom"), e -> {
+			callback.moveBottom(RuleComponent.this);
+	        });
+		bottom.setCheckable(false);
+		bottom.setIcon(Images.vaadinBottomArrow.getResource());
+		
+		menu.addClickListener(new ClickListener()
+		{
+			
+			@Override
+			public void buttonClick(ClickEvent event)
+			{
+				contextMenu.open(event.getClientX(), event.getClientY());
+				
 			}
 		});
-
-		HorizontalLayout toolbar = new HorizontalLayout();
-		toolbar.setSpacing(false);
-		toolbar.setMargin(false);
-		HorizontalLayout buttonWrapper = new HorizontalLayout();
-		buttonWrapper.setSpacing(false);
-		buttonWrapper.setMargin(false);
-
-		Label space = new Label();
-		buttonWrapper.addComponents(space, up, top, down, bottom, remove);
-		toolbar.addComponents(space, buttonWrapper);
-		toolbar.setExpandRatio(space, 2);
-		toolbar.setExpandRatio(buttonWrapper, 1);
-		toolbar.setWidth(100, Unit.PERCENTAGE);
-
-		condition = new MVELExpressionField(msg, msg.getMessage("TranslationProfileEditor.ruleCondition"), 
-				msg.getMessage("MVELExpressionField.conditionDesc"));
-
-		actionEditor = new ActionEditor(msg, tc, toEdit == null ? null : toEdit.getAction(), 
-				actionComponentProvider);
-
+		
+	
+		
+		header.addComponent(menu);
+		header.setComponentAlignment(menu, Alignment.MIDDLE_RIGHT);
+		header.setExpandRatio(menu, 0);
+				
+		header.addLayoutClickListener(new LayoutClickListener()
+		{	
+			@Override
+			public void layoutClick(LayoutClickEvent event)
+			{
+				if (!event.isDoubleClick())
+					return;
+				showHideContent(!content.isVisible());			
+			}
+		});
+		
 		Label separator = new Label();
 		separator.addStyleName(Styles.horizontalLine.toString());
-
-		mappingResultComponent = new MappingResultComponent(msg);
-
+		headerWrapper.addComponent(header);
+		headerWrapper.addComponent(separator);
+			
+		condition = new MVELExpressionField(msg, msg.getMessage("TranslationProfileEditor.ruleCondition"), 
+				msg.getMessage("MVELExpressionField.conditionDesc"));
+		condition.setStyleName(Styles.vTiny.toString());
+		
+		
+		Consumer<String> editorCallback = (s) -> {
+			info.setValue(s);
+		};
+		actionEditor = new ActionEditor(msg, tc, toEdit == null ? null : toEdit.getAction(),
+				actionComponentProvider, editorCallback);
+		
+		mappingResultComponent = new MappingResultComponent(msg);	
+		
 		VerticalLayout main = new VerticalLayout();
-		FormLayout contents = new FormLayout();
-		
-		main.addComponents(separator, toolbar);
-		
-		contents.addComponent(condition);
-		actionEditor.addToLayout(contents);
-		contents.addComponents(mappingResultComponent);
-		
-		main.addComponent(contents);
-		
-		main.setSpacing(false);
 		main.setMargin(false);
+		main.setSpacing(false);
+		content = new FormLayout();	
+		content.addComponent(condition);
+		actionEditor.addToLayout(content);
+		content.addComponents(mappingResultComponent);
+		content.setMargin(false);
+		content.setSpacing(true);
+		showHideContent(false);
+		
+		main.addComponent(headerWrapper);
+		main.addComponent(content);
+	
 		setCompositionRoot(main);
 		
+		info.setValue(actionEditor.getStringRepresentation());
 		if (editMode)
-		{
+		{	
 			condition.setValue(toEdit.getCondition());
 		} else
 		{
 			condition.setValue("true");
-		}
+		}	
 	}
 
 	public TranslationRule getRule() throws FormValidationException
@@ -202,16 +229,6 @@ public class RuleComponent extends CustomComponent
 		cnd.setCondition(condition.getValue());			
 		
 		return new TranslationRule(condition.getValue(), action);
-	}
-	
-	public void setUpVisible(boolean v)
-	{
-		up.setVisible(v);
-	}
-
-	public void setDownVisible(boolean v)
-	{
-		down.setVisible(v);
 	}
 	
 	public void setTopVisible(boolean v)
@@ -226,6 +243,7 @@ public class RuleComponent extends CustomComponent
 	
 	public void setFocus()
 	{
+		showHideContent(true);
 		condition.focus();
 	}
 
@@ -243,6 +261,9 @@ public class RuleComponent extends CustomComponent
 		condition.setValidationVisible(true);
 		if (!condition.isValid())
 			ok = false;
+		
+		if (!ok)
+			showHideContent(true);
 		return ok;
 	}
 
@@ -341,11 +362,31 @@ public class RuleComponent extends CustomComponent
 		condition.setReadOnly(readOnly);
 		actionEditor.setReadOnlyStyle(readOnly);
 	}
+	
+	private void showHideContent(boolean show)
+	{
+		showHide.setIcon(show ? Images.vaadinUpArrow.getResource()
+				: Images.vaadinDownArrow.getResource());
+		content.setVisible(show);
+	}
 
+	public static class DragHtmlLabel extends Label
+	{
+		RuleComponent parentRule;
+		public DragHtmlLabel(RuleComponent parent, String value)
+		{
+			super(value, ContentMode.HTML);
+			this.parentRule = parent;
+		}
+		
+		public RuleComponent getParentRule()
+		{
+			return parentRule;
+		}
+	}	
+	
 	public interface Callback
 	{
-		public boolean moveUp(RuleComponent rule);
-		public boolean moveDown(RuleComponent rule);
 		public boolean remove(RuleComponent rule);
 		public boolean moveTop(RuleComponent rule);
 		public boolean moveBottom(RuleComponent rule);

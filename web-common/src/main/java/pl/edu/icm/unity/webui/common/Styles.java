@@ -67,6 +67,7 @@ public enum Styles
 	margin("u-margin"),
 	idpTile("u-idptile"),
 	indent("u-indent"),
+	link("u-link"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),
