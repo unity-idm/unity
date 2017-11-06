@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontIcon;
 import com.vaadin.server.Resource;
