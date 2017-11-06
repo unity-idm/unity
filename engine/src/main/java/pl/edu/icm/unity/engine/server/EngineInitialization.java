@@ -212,9 +212,9 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	private SystemOutputTranslationProfileProvider systemOutputProfileProvider;
 	@Autowired
-	CredentialRepository credRepo;
+	private CredentialRepository credRepo;
 	@Autowired
-	EntityCredentialsHelper entityCredHelper;
+	private EntityCredentialsHelper entityCredHelper;
 	
 	private long endpointsLoadTime;
 	
@@ -478,8 +478,7 @@ public class EngineInitialization extends LifecycleBase
 						+ "disable this message and use it only to add a default user in case of locked access.");
 			} catch (IllegalArgumentException e)
 			{
-				log.info("Database contains no admin user, adding the admin user and the " +
-						"default credential settings");
+				log.info("Database contains no admin user, creating the configured admin user");
 				
 				CredentialDefinition credDef = credRepo.get(DEFAULT_CREDENTIAL);
 				CredentialRequirements crDef = new SystemCredentialRequirements(credRepo, msg);
@@ -489,7 +488,7 @@ public class EngineInitialization extends LifecycleBase
 				EntityParam adminEntity = new EntityParam(adminId.getEntityId());
 				PasswordToken ptoken = new PasswordToken(adminP);
 		
-				//Set password without verify!!!
+				//Set password without verification
 				tx.runInTransactionThrowing(() -> {	
 					entityCredHelper.setEntityCredentialInternalWithoutVerify(
 									adminEntity.getEntityId(),
@@ -508,10 +507,9 @@ public class EngineInitialization extends LifecycleBase
 						+ "Database was initialized with a default admin user and password." +
 						" Log in and change the admin's password immediatelly! U: " + 
 						adminU + " P: " + adminP + "\n"
-						+ "A credential created for this user is named: '" + credDef.getName() + 
+						+ "The credential used for this user is named: '" + credDef.getName() + 
 						"' make sure that this credential is configured for the admin UI endpoint "
-						+ "(if not add a new authenticator definition using thiscredential and add the authenticator to the endpoint)\n"
-						+ "A new credential requirement was also created for the new admin user: " + crDef.getName());
+						+ "(if not add a new authenticator definition using this credential and add the authenticator to the endpoint)");
 			}
 		} catch (EngineException e)
 		{

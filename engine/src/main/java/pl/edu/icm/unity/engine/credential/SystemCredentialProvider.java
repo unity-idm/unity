@@ -67,7 +67,7 @@ public class SystemCredentialProvider
 				CredentialDefinition credential = new CredentialDefinition(json);
 				credential.setReadOnly(true);	
 				checkCredential(credential);
-				LOG.debug("Add system credential '{}'", credential.getName());
+				LOG.info("Adding system credential '{}'", credential.getName());
 				credentials.add(credential);
 			}
 		} catch (Exception e)
