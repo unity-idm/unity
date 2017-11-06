@@ -10,15 +10,11 @@ import java.util.function.Consumer;
 
 import com.vaadin.addon.contextmenu.ContextMenu;
 import com.vaadin.addon.contextmenu.MenuItem;
-import com.vaadin.event.LayoutEvents.LayoutClickEvent;
-import com.vaadin.event.LayoutEvents.LayoutClickListener;
 import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.DragAndDropWrapper;
 import com.vaadin.ui.DragAndDropWrapper.DragStartMode;
@@ -80,50 +76,38 @@ public class RuleComponent extends CustomComponent
 
 	private void initUI(TranslationRule toEdit)
 	{
-		
-		
 		VerticalLayout headerWrapper = new VerticalLayout();
 		
 		HorizontalLayout header = new HorizontalLayout();
 		header.setSizeFull();
 		header.setMargin(false);
-		
+		header.setSpacing(true);
 		
 		showHide = new Button(Images.vaadinDownArrow.getResource());
 		showHide.addStyleName(Styles.vButtonLink.toString());
 		showHide.addStyleName(Styles.toolbarButton.toString());
-		showHide.addClickListener(new ClickListener()
-		{
-			
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				showHideContent(!content.isVisible());		
-			}
-		});
+		showHide.addClickListener(event -> showHideContent(!content.isVisible()));
 		header.addComponent(showHide);
-		header.setExpandRatio(showHide, 0);
 		header.setComponentAlignment(showHide, Alignment.MIDDLE_LEFT);
 		
 		info = new Label("");
-		info.setSizeUndefined();;
-				
-		DragHtmlLabel img = new DragHtmlLabel(this, "&nbsp" + Images.vaadinResize.getHtml() + "&nbsp");
+		info.setSizeFull();
+		header.addComponent(info);	
+		header.setComponentAlignment(info, Alignment.MIDDLE_LEFT);
+		header.setExpandRatio(info, 1);
+
+		
+		DragHtmlLabel img = new DragHtmlLabel(this, Images.vaadinResize.getHtml());
 		img.addStyleName(Styles.link.toString());
 		img.setSizeFull();
 		
 		DragAndDropWrapper dragWrapper = new DragAndDropWrapper(img);
 		dragWrapper.setDragStartMode(DragStartMode.WRAPPER);
-		dragWrapper.setSizeUndefined();
+		dragWrapper.setWidth(1, Unit.EM);
 		
 		header.addComponent(dragWrapper);	
-		header.setComponentAlignment(dragWrapper, Alignment.MIDDLE_LEFT);
-		header.setExpandRatio(dragWrapper, 0);
-			
-		header.addComponent(info);	
-		header.setComponentAlignment(info, Alignment.MIDDLE_LEFT);
-		header.setExpandRatio(info, 10);
-	
+		header.setComponentAlignment(dragWrapper, Alignment.MIDDLE_RIGHT);
+
 		Button menu = new Button();
 		menu.setIcon(Images.vaadinMenu.getResource());
 		menu.addStyleName(Styles.vButtonLink.toString());
@@ -131,51 +115,31 @@ public class RuleComponent extends CustomComponent
 		
 		ContextMenu contextMenu = new ContextMenu(menu, false);
 		contextMenu.setAsContextMenuOf(menu);
-		MenuItem remove = contextMenu.addItem(msg.getMessage("TranslationProfileEditor.remove"), e -> {
-				callback.remove(RuleComponent.this);
-		        });
+		MenuItem remove = contextMenu.addItem(msg.getMessage("TranslationProfileEditor.remove"), 
+				e -> callback.remove(RuleComponent.this));
 		remove.setCheckable(false);
 		remove.setIcon(Images.vaadinRemove.getResource());	
 		
-		top = contextMenu.addItem(msg.getMessage("TranslationProfileEditor.moveTop"), e -> {
-			callback.moveTop(RuleComponent.this);
-	        });
-	
+		top = contextMenu.addItem(msg.getMessage("TranslationProfileEditor.moveTop"), 
+				e -> callback.moveTop(RuleComponent.this));
 		top.setCheckable(false);
 		top.setIcon(Images.vaadinTopArrow.getResource());	
 		
-		bottom = contextMenu.addItem(msg.getMessage("TranslationProfileEditor.moveBottom"), e -> {
-			callback.moveBottom(RuleComponent.this);
-	        });
+		bottom = contextMenu.addItem(msg.getMessage("TranslationProfileEditor.moveBottom"), 
+				e -> callback.moveBottom(RuleComponent.this));
 		bottom.setCheckable(false);
 		bottom.setIcon(Images.vaadinBottomArrow.getResource());
 		
-		menu.addClickListener(new ClickListener()
-		{
-			
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				contextMenu.open(event.getClientX(), event.getClientY());
-				
-			}
-		});
-		
-	
-		
+		menu.addClickListener(event -> contextMenu.open(event.getClientX(), event.getClientY()));
 		header.addComponent(menu);
 		header.setComponentAlignment(menu, Alignment.MIDDLE_RIGHT);
 		header.setExpandRatio(menu, 0);
 				
-		header.addLayoutClickListener(new LayoutClickListener()
-		{	
-			@Override
-			public void layoutClick(LayoutClickEvent event)
-			{
-				if (!event.isDoubleClick())
-					return;
-				showHideContent(!content.isVisible());			
-			}
+		header.addLayoutClickListener(event ->
+		{
+			if (!event.isDoubleClick())
+				return;
+			showHideContent(!content.isVisible());			
 		});
 		
 		Label separator = new Label();
@@ -188,9 +152,7 @@ public class RuleComponent extends CustomComponent
 		condition.setStyleName(Styles.vTiny.toString());
 		
 		
-		Consumer<String> editorCallback = (s) -> {
-			info.setValue(s);
-		};
+		Consumer<String> editorCallback = s -> info.setValue(s);
 		actionEditor = new ActionEditor(msg, tc, toEdit == null ? null : toEdit.getAction(),
 				actionComponentProvider, editorCallback);
 		
@@ -213,13 +175,7 @@ public class RuleComponent extends CustomComponent
 		setCompositionRoot(main);
 		
 		info.setValue(actionEditor.getStringRepresentation());
-		if (editMode)
-		{	
-			condition.setValue(toEdit.getCondition());
-		} else
-		{
-			condition.setValue("true");
-		}	
+		condition.setValue(editMode? toEdit.getCondition() : "true");
 	}
 
 	public TranslationRule getRule() throws FormValidationException
@@ -372,7 +328,7 @@ public class RuleComponent extends CustomComponent
 
 	public static class DragHtmlLabel extends Label
 	{
-		RuleComponent parentRule;
+		private RuleComponent parentRule;
 		public DragHtmlLabel(RuleComponent parent, String value)
 		{
 			super(value, ContentMode.HTML);
@@ -387,8 +343,8 @@ public class RuleComponent extends CustomComponent
 	
 	public interface Callback
 	{
-		public boolean remove(RuleComponent rule);
-		public boolean moveTop(RuleComponent rule);
-		public boolean moveBottom(RuleComponent rule);
+		boolean remove(RuleComponent rule);
+		boolean moveTop(RuleComponent rule);
+		boolean moveBottom(RuleComponent rule);
 	}
 }
