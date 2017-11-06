@@ -6,8 +6,8 @@
  * Password should be changed though.
  */
 
- import com.google.common.collect.Lists
-
+import com.google.common.collect.Lists
+import pl.edu.icm.unity.engine.server.EngineInitialization
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow
 import pl.edu.icm.unity.stdext.attr.EnumAttribute
@@ -31,10 +31,10 @@ try
 {
 	groupsManagement.addGroup(new Group("/oauth-clients"));
 	IdentityParam oauthClient = new IdentityParam(UsernameIdentity.ID, "oauth-client");
-	Identity oauthClientA = entityManagement.addEntity(oauthClient, "Password requirement",
+	Identity oauthClientA = entityManagement.addEntity(oauthClient,
 			EntityState.valid, false);
 	PasswordToken pToken2 = new PasswordToken("oauth-pass");
-	entityCredentialManagement.setEntityCredential(new EntityParam(oauthClientA.getEntityId()), "Password credential",
+	entityCredentialManagement.setEntityCredential(new EntityParam(oauthClientA.getEntityId()), EngineInitialization.DEFAULT_CREDENTIAL,
 			pToken2.toJson());
 	log.warn("Default OAuth client user was created with default password. Please change it!");
 	groupsManagement.addMemberFromParent("/oauth-clients", new EntityParam(oauthClientA.getEntityId()));

@@ -12,7 +12,7 @@
 				"parameters": [
 					"userName",
 					"id",
-					"Password requirement",
+					"sys:all",
 					"MATCH"
 				]
 			}

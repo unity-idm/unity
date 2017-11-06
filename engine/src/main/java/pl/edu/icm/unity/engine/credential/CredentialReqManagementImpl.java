@@ -40,6 +40,7 @@ public class CredentialReqManagementImpl implements CredentialRequirementManagem
 	private LocalCredentialsRegistry localCredReg;
 	private CredentialDB credentialDB;
 	private CredentialRequirementDB credentialRequirementDB;
+	private CredentialReqRepository credReqRepository;
 	private IdentityHelper identityHelper;
 	private AuthorizationManager authz;
 	private EntityCredentialsHelper entityCredHelper;
@@ -48,7 +49,7 @@ public class CredentialReqManagementImpl implements CredentialRequirementManagem
 	public CredentialReqManagementImpl(LocalCredentialsRegistry localCredReg,
 			CredentialDB credentialDB, CredentialRequirementDB credentialRequirementDB,
 			IdentityHelper identityHelper, AuthorizationManager authz,
-			EntityCredentialsHelper entityCredHelper)
+			EntityCredentialsHelper entityCredHelper, CredentialReqRepository credReqRepository)
 	{
 		this.localCredReg = localCredReg;
 		this.credentialDB = credentialDB;
@@ -56,6 +57,7 @@ public class CredentialReqManagementImpl implements CredentialRequirementManagem
 		this.identityHelper = identityHelper;
 		this.authz = authz;
 		this.entityCredHelper = entityCredHelper;
+		this.credReqRepository = credReqRepository;
 	}
 
 
@@ -63,6 +65,8 @@ public class CredentialReqManagementImpl implements CredentialRequirementManagem
 	public void addCredentialRequirement(CredentialRequirements toAdd) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
+		assertIsNotSystemCredReq(toAdd.getName());
+		assertIsNotReadOnly(toAdd);
 		Set<String> existingCreds = credentialDB.getAllNames();
 		for (String u: toAdd.getRequiredCredentials())
 			if (!existingCreds.contains(u))
@@ -76,13 +80,15 @@ public class CredentialReqManagementImpl implements CredentialRequirementManagem
 			throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.readInfo);
-		return credentialRequirementDB.getAll();
+		return credReqRepository.getCredentialRequirements();
 	}
 	
 	@Override
 	public void updateCredentialRequirement(CredentialRequirements updated) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
+		assertIsNotSystemCredReq(updated.getName());
+		assertIsNotReadOnly(updated);
 		Map<String, CredentialDefinition> credDefs = credentialDB.getAllAsMap();
 		CredentialRequirementsHolder.checkCredentials(updated, credDefs, localCredReg);
 		credentialRequirementDB.update(updated);
@@ -92,7 +98,7 @@ public class CredentialReqManagementImpl implements CredentialRequirementManagem
 	public void removeCredentialRequirement(String toRemove, String replacementId) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-
+		assertIsNotSystemCredReq(toRemove);
 		Set<Long> entities = identityHelper.getEntitiesByRootAttribute(
 				CredentialAttributeTypeProvider.CREDENTIAL_REQUIREMENTS,
 				Collections.singleton(toRemove));
@@ -105,5 +111,17 @@ public class CredentialReqManagementImpl implements CredentialRequirementManagem
 		}
 
 		credentialRequirementDB.delete(toRemove);
+	}
+	
+	private void assertIsNotSystemCredReq(String name)
+	{
+		if (SystemCredentialRequirements.NAME.equals(name))
+			throw new IllegalArgumentException("Credential requirement '" + name + "' is the system credential requirement and cannot be overwrite or remove");
+	}
+	
+	private void assertIsNotReadOnly(CredentialRequirements cred) throws EngineException
+	{
+		if (cred.isReadOnly())
+			throw new IllegalArgumentException("Cannot create read only credential requirement through this API");
 	}
 }

@@ -55,7 +55,7 @@ public class CredentialHelperImpl implements CredentialHelper
 		Attribute currentCredentialA = attributes.isEmpty() ? null : attributes.get(0);
 		String currentCredential = currentCredentialA != null ? 
 				(String)currentCredentialA.getValues().get(0) : null;
-				String newValue = handler.prepareCredential(value, currentCredential);
+				String newValue = handler.prepareCredential(value, currentCredential, true);
 				updateCredentialInternal(entityId, credentialName, newValue);
 	}
 	

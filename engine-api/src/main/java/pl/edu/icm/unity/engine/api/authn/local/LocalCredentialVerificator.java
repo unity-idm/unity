@@ -51,12 +51,13 @@ public interface LocalCredentialVerificator extends CredentialVerificator
 	 * not needed, then is ignored.
 	 * @param currentCredential the existing credential, encoded in the database specific way. May be empty or 
 	 * null, when there is no existing credential recorded in DB.
+	 * @param verifyNew we can set new credential without its verification
 	 * @return string which will be persisted in the database and will be used for verification
 	 * @throws IllegalCredentialException if the new credential is not valid
 	 * @throws InternalException 
 	 */
 	String prepareCredential(String rawCredential, String previousCredential, 
-			String currentCredential) 
+			String currentCredential, boolean verifyNew) 
 			throws IllegalCredentialException, InternalException;
 
 	/**
@@ -64,11 +65,12 @@ public interface LocalCredentialVerificator extends CredentialVerificator
 	 * of the existing password is not required.
 	 * @param rawCredential
 	 * @param currentCredential
+	 * @param verifyNew we can set new credential without its verification
 	 * @return
 	 * @throws IllegalCredentialException
 	 * @throws InternalException
 	 */
-	String prepareCredential(String rawCredential, String currentCredential) 
+	String prepareCredential(String rawCredential, String currentCredential, boolean verifyNew) 
 			throws IllegalCredentialException, InternalException;
 	
 	/**

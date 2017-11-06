@@ -53,7 +53,7 @@ public class MockPasswordVerificator extends AbstractLocalVerificator implements
 	}
 
 	@Override
-	public String prepareCredential(String credential, String currentCredential)
+	public String prepareCredential(String credential, String currentCredential, boolean verify)
 			throws IllegalCredentialException
 	{
 		return "PPP" + credential;
@@ -89,10 +89,10 @@ public class MockPasswordVerificator extends AbstractLocalVerificator implements
 
 	@Override
 	public String prepareCredential(String rawCredential, String previousCredential,
-			String currentCredential) throws IllegalCredentialException,
+			String currentCredential, boolean verify) throws IllegalCredentialException,
 			InternalException
 	{
-		return prepareCredential(rawCredential, currentCredential);
+		return prepareCredential(rawCredential, currentCredential, verify);
 	}
 
 }

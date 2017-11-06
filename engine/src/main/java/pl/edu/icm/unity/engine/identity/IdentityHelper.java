@@ -19,6 +19,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
+import pl.edu.icm.unity.engine.credential.SystemCredentialRequirements;
 import pl.edu.icm.unity.engine.group.GroupHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
@@ -179,6 +180,16 @@ public class IdentityHelper
 		if (extractAttributes)
 			addExtractedAttributes(ret);
 		return ret;
+	}
+	
+	/**
+	 * As {@link #addEntity(IdentityParam, String, EntityState, boolean, List, boolean)} with default credential requirements.
+	 */
+	public Identity addEntity(IdentityParam toAdd, EntityState initialState, 
+			boolean extractAttributes, List<Attribute> attributes, boolean honorInitialConfirmation) 
+					throws EngineException
+	{
+		return addEntity(toAdd, SystemCredentialRequirements.NAME, initialState, extractAttributes, attributes, honorInitialConfirmation);
 	}
 	
 	/**
