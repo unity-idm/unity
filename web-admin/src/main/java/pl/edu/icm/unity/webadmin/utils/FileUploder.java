@@ -134,7 +134,7 @@ public class FileUploder extends AbstractUploadReceiver
 		File workspace = tempDir;
 		if (!workspace.exists())
 			workspace.mkdir();
-		File ret  = File.createTempFile("temp","import", workspace);
+		File ret  = File.createTempFile("temp","", workspace);
 		ret.deleteOnExit();
 		if (ret.exists())
 			ret.delete();
@@ -148,8 +148,4 @@ public class FileUploder extends AbstractUploadReceiver
 		uploading = false;
 		blocked = false;
 	}
-	
-	
-	
-	
 };
