@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -21,7 +22,6 @@ import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.identity.IdentityHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.store.api.generic.CredentialDB;
 import pl.edu.icm.unity.store.api.generic.CredentialRequirementDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -38,7 +38,7 @@ import pl.edu.icm.unity.types.authn.CredentialRequirements;
 public class CredentialReqManagementImpl implements CredentialRequirementManagement
 {
 	private LocalCredentialsRegistry localCredReg;
-	private CredentialDB credentialDB;
+	private CredentialRepository credRepository;
 	private CredentialRequirementDB credentialRequirementDB;
 	private CredentialReqRepository credReqRepository;
 	private IdentityHelper identityHelper;
@@ -47,12 +47,12 @@ public class CredentialReqManagementImpl implements CredentialRequirementManagem
 	
 	@Autowired
 	public CredentialReqManagementImpl(LocalCredentialsRegistry localCredReg,
-			CredentialDB credentialDB, CredentialRequirementDB credentialRequirementDB,
+			CredentialRepository credRepository, CredentialRequirementDB credentialRequirementDB,
 			IdentityHelper identityHelper, AuthorizationManager authz,
 			EntityCredentialsHelper entityCredHelper, CredentialReqRepository credReqRepository)
 	{
 		this.localCredReg = localCredReg;
-		this.credentialDB = credentialDB;
+		this.credRepository = credRepository;
 		this.credentialRequirementDB = credentialRequirementDB;
 		this.identityHelper = identityHelper;
 		this.authz = authz;
@@ -67,10 +67,7 @@ public class CredentialReqManagementImpl implements CredentialRequirementManagem
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		assertIsNotSystemCredReq(toAdd.getName());
 		assertIsNotReadOnly(toAdd);
-		Set<String> existingCreds = credentialDB.getAllNames();
-		for (String u: toAdd.getRequiredCredentials())
-			if (!existingCreds.contains(u))
-				throw new IllegalCredentialException("The credential " + u + " is unknown");
+		credRepository.assertExist(toAdd.getRequiredCredentials());
 		credentialRequirementDB.create(toAdd);
 	}
 
@@ -89,7 +86,9 @@ public class CredentialReqManagementImpl implements CredentialRequirementManagem
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		assertIsNotSystemCredReq(updated.getName());
 		assertIsNotReadOnly(updated);
-		Map<String, CredentialDefinition> credDefs = credentialDB.getAllAsMap();
+		Map<String, CredentialDefinition> credDefs = credRepository
+				.getCredentialDefinitions().stream()
+				.collect(Collectors.toMap(c -> c.getName(), c -> c));
 		CredentialRequirementsHolder.checkCredentials(updated, credDefs, localCredReg);
 		credentialRequirementDB.update(updated);
 	}
