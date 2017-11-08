@@ -5,9 +5,11 @@
 
 package pl.edu.icm.unity.engine.utils;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.context.ApplicationContext;
@@ -31,15 +33,7 @@ public class ClasspathResourceReader
 	public Collection<ObjectNode> readJsons(String path) throws EngineException
 	{
 		ArrayList<ObjectNode> jsons = new ArrayList<>();
-		Resource[] resources = null;
-		try
-		{
-			resources = appContext.getResources("classpath:" + path + "/*.json");
-		} catch (Exception e)
-		{
-			// empty path
-			return jsons;
-		}
+		Resource[] resources = getResources(path + "/*.json");
 
 		if (resources == null || resources.length == 0)
 		{
@@ -62,5 +56,44 @@ public class ClasspathResourceReader
 					e);
 		}
 		return jsons;
+	}
+	
+	public List<File> getFilesFromClasspathResourceDir(String path)
+	{
+		ArrayList<File> files = new ArrayList<>();
+		Resource[] resources = getResources(path + "/*.json");
+		
+		if (resources == null || resources.length == 0)
+		{
+			return files;
+		}
+		try
+		{
+			for (Resource r : resources)
+			{
+				files.add(r.getFile());
+
+			}
+		} catch (IOException e)
+		{
+			throw new InternalException(
+					"Can't get files from classpath: "
+							+ path,
+					e);
+		}
+		return files;
+	}
+	
+	private Resource[]  getResources(String path)
+	{
+		Resource[] resources = null;
+		try
+		{
+			resources = appContext.getResources("classpath:" + path);
+		} catch (Exception e)
+		{
+			// empty path
+		}
+		return resources;	
 	}
 }

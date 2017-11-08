@@ -22,7 +22,7 @@ import pl.edu.icm.unity.webui.common.LimitedOuputStream;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 /**
- * Allows upload file. Show error popup if problem occurs.
+ * Allows for uploading file. Show error popup if problem occurs.
  * @author P.Piernik
  *
  */

@@ -4,7 +4,9 @@
  */
 package pl.edu.icm.unity.engine.api.attributes;
 
+import java.io.File;
 import java.util.Collection;
+import java.util.List;
 
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -50,4 +52,17 @@ public interface AttributeTypeSupport
 	AttributeType getType(String attribute);
 	
 	Collection<AttributeType> getAttributeTypes();
+	
+	/**
+	 * Loads attribute types from json file
+	 * @param file
+	 * @return
+	 */
+	List<AttributeType> loadAttributeTypesFromFile(File file);
+	
+	/**
+	 * Get attribute type files from classpath resource dir
+	 * @return
+	 */
+	List<File> getAttibuteTypeFilesFromClasspathResource();
 }

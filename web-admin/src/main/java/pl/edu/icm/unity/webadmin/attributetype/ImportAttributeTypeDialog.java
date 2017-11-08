@@ -4,21 +4,12 @@
  */
 package pl.edu.icm.unity.webadmin.attributetype;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.context.ApplicationContext;
-import org.springframework.core.io.Resource;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
@@ -27,12 +18,11 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.Upload;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webadmin.utils.FileUploder;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -46,8 +36,6 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
  */
 public class ImportAttributeTypeDialog extends AbstractDialog
 {
-	public static final String ATTRIBUTE_TYPES_CLASSPATH = "attributeTypes";
-
 	private enum SourceType
 	{
 		File, PredefinedSet
@@ -56,22 +44,23 @@ public class ImportAttributeTypeDialog extends AbstractDialog
 	private CheckBox mode;
 	private FileUploder uploader;
 	private UnityServerConfiguration serverConfig;
-	private ApplicationContext appContext;
 	private AttributeTypeManagement attrTypeMan;
 	private Runnable callback;
 	private List<File> predefinedSourceFiles;
 	private ComboBox source;
 	private ComboBox predefinedFiles;
+	private AttributeTypeSupport attrTypeSupport;
 
 	public ImportAttributeTypeDialog(UnityMessageSource msg, String caption,
-			UnityServerConfiguration serverConfig, ApplicationContext appContext,
-			AttributeTypeManagement attrTypeMan, Runnable callback)
+			UnityServerConfiguration serverConfig,
+			AttributeTypeManagement attrTypeMan,
+			AttributeTypeSupport attrTypeSupport, Runnable callback)
 	{
 		super(msg, caption);
 		this.serverConfig = serverConfig;
 		this.callback = callback;
 		this.attrTypeMan = attrTypeMan;
-		this.appContext = appContext;
+		this.attrTypeSupport = attrTypeSupport;
 	}
 
 	@Override
@@ -84,7 +73,7 @@ public class ImportAttributeTypeDialog extends AbstractDialog
 		source.addItem(SourceType.File);
 		source.setNullSelectionAllowed(false);
 
-		predefinedSourceFiles = loadFilesFromClasspathResource();
+		predefinedSourceFiles = attrTypeSupport.getAttibuteTypeFilesFromClasspathResource();
 		predefinedFiles = new ComboBox(
 				msg.getMessage("ImportAttributeTypes.source.predefinedSet"));
 
@@ -128,7 +117,7 @@ public class ImportAttributeTypeDialog extends AbstractDialog
 
 		return main;
 	}
-
+	
 	@Override
 	protected void onCancel()
 	{
@@ -138,28 +127,10 @@ public class ImportAttributeTypeDialog extends AbstractDialog
 
 	private void loadAttributeTypesFromFile(File f)
 	{
-		List<AttributeType> toAdd = new ArrayList<>();
-		if (f == null)
-		{
-			return;
-		}
-
-		JsonFactory jsonF = new JsonFactory(Constants.MAPPER);
-		jsonF.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
-
+		List<AttributeType> toAdd = null;
 		try
 		{
-			BufferedInputStream is = new BufferedInputStream(new FileInputStream(f));
-			JsonParser jp = jsonF.createParser(is);
-			if (jp.nextToken() == JsonToken.START_ARRAY)
-				jp.nextToken();
-
-			while (jp.currentToken() == JsonToken.START_OBJECT)
-			{
-				AttributeType at = new AttributeType(jp.readValueAsTree());
-				toAdd.add(at);
-				jp.nextToken();
-			}
+			toAdd = attrTypeSupport.loadAttributeTypesFromFile(f);
 
 		} catch (Exception e)
 		{
@@ -196,54 +167,11 @@ public class ImportAttributeTypeDialog extends AbstractDialog
 		}
 	}
 
-	private Set<String> getExitingAttributeTypes() throws EngineException
-	{
-
-		return attrTypeMan.getAttributeTypesAsMap().keySet();
-
-	}
-
-	private List<File> loadFilesFromClasspathResource()
-	{
-
-		ArrayList<File> files = new ArrayList<>();
-		Resource[] resources = null;
-		try
-		{
-			resources = appContext.getResources(
-					"classpath:" + ATTRIBUTE_TYPES_CLASSPATH + "/*.json");
-		} catch (Exception e)
-		{
-			return files;
-		}
-
-		if (resources == null || resources.length == 0)
-		{
-			return files;
-		}
-		try
-		{
-			for (Resource r : resources)
-			{
-
-				files.add(r.getFile());
-
-			}
-		} catch (IOException e)
-		{
-			throw new InternalException(
-					"Can't load attribute type json files from classpath: "
-							+ ATTRIBUTE_TYPES_CLASSPATH,
-					e);
-		}
-		return files;
-
-	}
-
+	
 	private void mergeAttributeTypes(List<AttributeType> toMerge, boolean overwrite)
 			throws EngineException
 	{
-		Set<String> exiting = getExitingAttributeTypes();
+		Set<String> exiting = attrTypeMan.getAttributeTypesAsMap().keySet();
 		for (AttributeType at : toMerge)
 		{
 			if (!exiting.contains(at.getName()))

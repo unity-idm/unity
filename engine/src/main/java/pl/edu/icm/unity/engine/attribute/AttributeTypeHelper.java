@@ -4,19 +4,32 @@
  */
 package pl.edu.icm.unity.engine.attribute;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntaxFactory;
+import pl.edu.icm.unity.engine.utils.ClasspathResourceReader;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.basic.AttributeType;
+
 
 /**
  * Provides utilities allowing for easy access to common {@link AttributeType} related operations.
@@ -24,17 +37,21 @@ import pl.edu.icm.unity.types.basic.AttributeType;
  */
 @Component
 public class AttributeTypeHelper
-{
+{	
+	public static final String ATTRIBUTE_TYPES_CLASSPATH = "attributeTypes";
+	
 	private Map<String, AttributeValueSyntax<?>> unconfiguredSyntaxes;
 	private AttributeSyntaxFactoriesRegistry atSyntaxRegistry;
 	private AttributeTypeDAO attributeTypeDAO;
+	private ApplicationContext appContext;
 	
 	@Autowired
 	public AttributeTypeHelper(AttributeSyntaxFactoriesRegistry atSyntaxRegistry, 
-			AttributeTypeDAO attributeTypeDAO)
+			AttributeTypeDAO attributeTypeDAO, ApplicationContext appContext)
 	{
 		this.atSyntaxRegistry = atSyntaxRegistry;
 		this.attributeTypeDAO = attributeTypeDAO;
+		this.appContext = appContext;
 		unconfiguredSyntaxes = new HashMap<>();
 		for (AttributeValueSyntaxFactory<?> f: atSyntaxRegistry.getAll())
 			unconfiguredSyntaxes.put(f.getId(), f.createInstance());
@@ -101,5 +118,43 @@ public class AttributeTypeHelper
 			return;
 		AttributeValueSyntax<?> syntax = getUnconfiguredSyntax(unconfigured.getValueSyntax());
 		unconfigured.setValueSyntaxConfiguration(syntax.getSerializedConfiguration());
+	}
+
+	public List<AttributeType> loadAttributeTypesFromFile(File file)
+	{
+		if (file == null)
+		{
+			return null;
+		}
+		List<AttributeType> toAdd = new ArrayList<>();
+
+		JsonFactory jsonF = new JsonFactory(Constants.MAPPER);
+		jsonF.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
+
+		try (BufferedInputStream is = new BufferedInputStream(new FileInputStream(file)))
+		{
+			JsonParser jp = jsonF.createParser(is);
+			if (jp.nextToken() == JsonToken.START_ARRAY)
+				jp.nextToken();
+
+			while (jp.currentToken() == JsonToken.START_OBJECT)
+			{
+				AttributeType at = new AttributeType(jp.readValueAsTree());
+				toAdd.add(at);
+				jp.nextToken();
+			}
+
+		} catch (Exception e)
+		{
+			throw new IllegalArgumentException(
+					"Can not parse attribute types file " + file.getName(), e);
+		}
+		return toAdd;
+	}
+
+	public List<File> getAttibuteTypeFilesFromClasspathResource()
+	{
+		ClasspathResourceReader reader = new ClasspathResourceReader(appContext);
+		return reader.getFilesFromClasspathResourceDir(ATTRIBUTE_TYPES_CLASSPATH);
 	}
 }

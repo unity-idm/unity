@@ -10,7 +10,6 @@ import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.vaadin.simplefiledownloader.SimpleFileDownloader;
@@ -70,7 +69,6 @@ public class AttributeTypesComponent extends VerticalLayout
 	private EventsBus bus;
 	private AttributeTypeSupport atSupport;
 	private UnityServerConfiguration serverConfig;
-	private ApplicationContext appContext;
 	
 	
 	@Autowired
@@ -78,7 +76,7 @@ public class AttributeTypesComponent extends VerticalLayout
 			AttributeTypeSupport atSupport, 
 			AttributeHandlerRegistry attrHandlerRegistry, 
 			AttributeMetadataHandlerRegistry attrMetaHandlerRegistry,
-			UnityServerConfiguration serverConfig, ApplicationContext appContext)
+			UnityServerConfiguration serverConfig)
 	{
 		this.msg = msg;
 		this.attrManagement = attrManagement;
@@ -87,7 +85,6 @@ public class AttributeTypesComponent extends VerticalLayout
 		this.attrMetaHandlerRegistry = attrMetaHandlerRegistry;
 		this.bus = WebSession.getCurrent().getEventBus();
 		this.serverConfig = serverConfig;
-		this.appContext = appContext;
 		HorizontalLayout hl = new HorizontalLayout();
 		
 		addStyleName(Styles.visibleScroll.toString());
@@ -269,9 +266,7 @@ public class AttributeTypesComponent extends VerticalLayout
 			
 			ImportAttributeTypeDialog dialog = new ImportAttributeTypeDialog(msg,
 					msg.getMessage("AttributeTypes.importAction"), serverConfig,
-					appContext, attrManagement, () -> {
-						refresh();
-					});
+					attrManagement, atSupport, () -> refresh());
 
 			dialog.show();
 		}
@@ -412,16 +407,16 @@ public class AttributeTypesComponent extends VerticalLayout
 				{
 					AttributeType item = items.iterator().next();
 					byte[] content = Constants.MAPPER.writeValueAsBytes(item);
-					resource = new StreamResource(() -> {
-						return new ByteArrayInputStream(content);
-					}, item.getName() + ".json");
+					resource = new StreamResource(
+							() -> new ByteArrayInputStream(content),
+							item.getName() + ".json");
 				} else
 				{
 
 					byte[] content = Constants.MAPPER.writeValueAsBytes(items);
-					resource = new StreamResource(() -> {
-						return new ByteArrayInputStream(content);
-					}, "attributeTypes.json");
+					resource = new StreamResource(
+							() -> new ByteArrayInputStream(content),
+							"attributeTypes.json");
 				}
 			} catch (Exception e)
 			{
