@@ -45,18 +45,18 @@ public class I18nLabelWithPreview extends CustomField<I18nString>
 	
 	private Map<String, HPairLayout> translationTFs = new HashMap<>();
 	private VerticalLayout main;
-	private boolean withPreview;
+	private ContentMode previewMode;
 
-	public I18nLabelWithPreview(UnityMessageSource msg, boolean withPreview)
+	public I18nLabelWithPreview(UnityMessageSource msg, ContentMode previewMode)
 	{
 		this.msg = msg;
-		this.withPreview = withPreview;
+		this.previewMode = previewMode;
 		initUI();
 	}
 
-	public I18nLabelWithPreview(UnityMessageSource msg, String caption, boolean withPreview)
+	public I18nLabelWithPreview(UnityMessageSource msg, String caption, ContentMode contentMode)
 	{
-		this(msg, withPreview);
+		this(msg, contentMode);
 		setCaption(caption);
 	}
 	
@@ -67,7 +67,7 @@ public class I18nLabelWithPreview extends CustomField<I18nString>
 			.map(Locale::toString)
 			.forEach(localeKey -> 
 			{
-				HPairLayout pair = new HPairLayout(msg, withPreview);
+				HPairLayout pair = new HPairLayout(msg);
 				Resource image = Images.getFlagForLocale(localeKey);
 				if (image != null)
 					pair.addImage(image);
@@ -128,14 +128,14 @@ public class I18nLabelWithPreview extends CustomField<I18nString>
 		private Button preview;
 		private static final String HTML_SPACE = "&nbsp";
 
-		public HPairLayout(UnityMessageSource msg, boolean withPreview)
+		public HPairLayout(UnityMessageSource msg)
 		{
 			setSpacing(true);
 			setWidth(100, Unit.PERCENTAGE);
 			
 			VerticalLayout vLayout = new VerticalLayout();
 			
-			if (withPreview)
+			if (previewMode != null)
 			{
 				preview = new Button(msg.getMessage("MessageTemplateViewer.preview"));
 				preview.setStyleName(Styles.vButtonLink.toString());
@@ -173,7 +173,8 @@ public class I18nLabelWithPreview extends CustomField<I18nString>
 			preview.getListeners(ClickListener.class).stream()
 				.map(listener -> (ClickListener)listener)
 				.forEach(preview::removeClickListener);
-			preview.addClickListener(event -> getUI().addWindow(new HtmlPreviewWindow(value)));
+			preview.addClickListener(event -> getUI().addWindow(
+					new PreviewWindow(value, previewMode)));
 		}
 
 		private String escapeHtmlAndPrepareForDisplaying(String value)
@@ -186,15 +187,15 @@ public class I18nLabelWithPreview extends CustomField<I18nString>
 		}
 	}
 	
-	public static class HtmlPreviewWindow extends Window
+	public static class PreviewWindow extends Window
 	{
-		public HtmlPreviewWindow(String htmlToPreview)
+		public PreviewWindow(String contentToPreview, ContentMode contentMode)
 		{
-            Label htmlPreview = new Label();
-            htmlPreview.setContentMode(ContentMode.HTML);
-            htmlPreview.setValue(htmlToPreview);
-            setContent(htmlPreview);
-            setModal(true);
+			Label htmlPreview = new Label();
+			htmlPreview.setContentMode(contentMode);
+			htmlPreview.setValue(contentToPreview);
+			setContent(htmlPreview);
+			setModal(true);
 		}
 	}
 	
@@ -206,21 +207,21 @@ public class I18nLabelWithPreview extends CustomField<I18nString>
 	{
 		private UnityMessageSource msg;
 		private String caption;
-		private boolean withPreview;
+		private ContentMode mode;
 		
 		public Builder(UnityMessageSource msg, String caption)
 		{
 			this.msg = msg;
 			this.caption = caption;
 		}
-		public Builder withPreview(boolean withPreview)
+		public Builder withMode(ContentMode mode)
 		{
-			this.withPreview = withPreview;
+			this.mode = mode;
 			return this;
 		}
 		public I18nLabelWithPreview buildWithValue(I18nString content)
 		{
-			I18nLabelWithPreview label = new I18nLabelWithPreview(msg, caption, withPreview);
+			I18nLabelWithPreview label = new I18nLabelWithPreview(msg, caption, mode);
 			label.setValue(content);
 			return label;
 		}

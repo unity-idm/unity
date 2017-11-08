@@ -42,12 +42,24 @@ public interface EntityManagement
 	 * @throws EngineException
 	 */
 	Identity addEntity(IdentityParam toAdd, String credReqIdId, EntityState initialState,
-			boolean extractAttributes, List<Attribute> attributes) throws EngineException;
-
+			boolean extractAttributes, List<Attribute> attributes) throws EngineException;	
+	
 	/**
 	 * As {@link #addEntity(IdentityParam, String, EntityState, boolean, List)} with the empty list of attributes.
 	 */
 	Identity addEntity(IdentityParam toAdd, String credReqIdId, EntityState initialState,
+			boolean extractAttributes) throws EngineException;
+	
+	/**
+	 * As {@link #addEntity(IdentityParam, String, EntityState, boolean, List)} with the empty list of attributes and default credential requirements.
+	 */
+	Identity addEntity(IdentityParam toAdd, EntityState initialState,
+			boolean extractAttributes, List<Attribute> attributes) throws EngineException;
+	
+	/**
+	 * As {@link #addEntity(IdentityParam, EntityState, boolean, List)} with the empty list of attributes and default credential requirements.
+	 */
+	Identity addEntity(IdentityParam toAdd, EntityState initialState,
 			boolean extractAttributes) throws EngineException;
 	
 	/**

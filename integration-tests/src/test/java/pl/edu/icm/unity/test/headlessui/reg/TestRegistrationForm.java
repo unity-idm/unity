@@ -26,7 +26,7 @@ public class TestRegistrationForm extends SeleniumTestBase
 		waitForElement(By.id("AuthenticationUI.username")).clear();
 		waitForElement(By.id("AuthenticationUI.username")).sendKeys("demo-user");
 		waitForElement(By.id("WebPasswordRetrieval.password")).clear();
-		waitForElement(By.id("WebPasswordRetrieval.password")).sendKeys("the!test1");
+		waitForElement(By.id("WebPasswordRetrieval.password")).sendKeys("the!test12");
 		waitForElement(By.id("AuthenticationUI.authnenticateButton")).click();
 		
 		waitForPageLoad(By.id("IdpButtonsBar.confirmButton")).click();

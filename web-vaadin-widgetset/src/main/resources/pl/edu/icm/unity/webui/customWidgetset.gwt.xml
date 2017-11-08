@@ -13,8 +13,6 @@
 
     <inherits name="org.vaadin.risto.stepper.widgetset.StepperWidgetset" />
     
-    <inherits name="com.vaadin.addon.contextmenu.WidgetSet" />
- 
     <inherits name="org.vaadin.simplefiledownloader.SimplefiledownloaderWidgetset" />
     
 </module>

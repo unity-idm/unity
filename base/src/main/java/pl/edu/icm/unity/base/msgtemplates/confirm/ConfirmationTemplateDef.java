@@ -38,7 +38,7 @@ public class ConfirmationTemplateDef implements MessageTemplateDefinition
 	@Override
 	public Map<String, MessageTemplateVariable> getVariables()
 	{
-		Map<String, MessageTemplateVariable> vars = new HashMap<String, MessageTemplateVariable>();
+		Map<String, MessageTemplateVariable> vars = new HashMap<>();
 		vars.put(CONFIRMATION_LINK, new MessageTemplateVariable(CONFIRMATION_LINK, "MessageTemplateConsumer.Confirmation.var.confirmationLink", true));
 		return vars;
 	}

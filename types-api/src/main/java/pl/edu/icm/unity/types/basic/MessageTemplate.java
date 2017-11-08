@@ -149,10 +149,12 @@ public class MessageTemplate extends DescribedObjectImpl
 		this.type = type;
 	}
 
-	public Message getMessage(String locale, String defaultLocale, Map<String, String> params)
+	public Message getMessage(String locale, String defaultLocale, Map<String, String> params,
+			Map<String, MessageTemplate> genericTemplates)
 	{
-		String subject = message.getSubject().getValue(locale, defaultLocale);
-		String body = message.getBody().getValue(locale, defaultLocale);
+		MessageTemplate preprocessed = preprocessMessage(genericTemplates);
+		String subject = preprocessed.getMessage().getSubject().getValue(locale, defaultLocale);
+		String body = preprocessed.getMessage().getBody().getValue(locale, defaultLocale);
 		Message ret = new Message(subject, body, type);
 		for (Map.Entry<String, String> paramE: params.entrySet())
 		{
@@ -162,6 +164,40 @@ public class MessageTemplate extends DescribedObjectImpl
 			ret.setBody(ret.getBody().replace("${" + paramE.getKey() + "}", paramE.getValue()));
 		}
 		return ret;
+	}
+
+	public MessageTemplate preprocessMessage(Map<String, MessageTemplate> genericTemplates)
+	{
+		I18nString srcBody = getMessage().getBody();
+		String def = preprocessString(srcBody.getDefaultValue(), genericTemplates, null);
+		I18nString preprocessedBody = new I18nString(def);
+		for (Map.Entry<String, String> entry: srcBody.getMap().entrySet())
+			preprocessedBody.addValue(entry.getKey(), 
+					preprocessString(entry.getValue(), genericTemplates, 
+							entry.getKey()));
+		I18nMessage processedMessage = new I18nMessage(getMessage().getSubject(), 
+				preprocessedBody);
+		return new MessageTemplate(getName(), getDescription(), processedMessage, consumer, type);
+	}
+
+	private String preprocessString(String source, Map<String, MessageTemplate> genericTemplates,
+			String locale)
+	{
+		if (source == null)
+			return null;
+		String work = source;
+		for (Map.Entry<String, MessageTemplate> genericTemplate: genericTemplates.entrySet())
+		{
+			I18nString included = genericTemplate.getValue().getMessage().getBody();
+			String includedString = locale == null ? included.getDefaultValue() : 
+				included.getValueRaw(locale);
+			if (includedString == null)
+				includedString = included.getDefaultValue();
+			if (includedString != null)
+				work = work.replace("${include:" + genericTemplate.getKey() + "}", 
+					includedString);
+		}
+		return work;
 	}
 	
 	public I18nMessage getMessage()

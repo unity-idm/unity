@@ -17,10 +17,10 @@ import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
+import pl.edu.icm.unity.engine.credential.CredentialReqRepository;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.store.api.EntityDAO;
-import pl.edu.icm.unity.store.api.generic.CredentialRequirementDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -41,19 +41,19 @@ public class IdentityResolverImpl implements IdentityResolver
 	private EntityDAO dbIdentities;
 	private EntityResolver dbResolver;
 	private AttributesHelper attributeHelper;
-	private CredentialRequirementDB dbCredReq;
+	private CredentialReqRepository credReqRepository;
 	
 	
 	@Autowired
 	public IdentityResolverImpl(IdentityTypeHelper idTypeHelper, EntityDAO dbIdentities,
 			EntityResolver dbResolver, AttributesHelper attributeHelper,
-			CredentialRequirementDB dbCredReq)
+			CredentialReqRepository credReqRepository)
 	{
 		this.idTypeHelper = idTypeHelper;
 		this.dbIdentities = dbIdentities;
 		this.dbResolver = dbResolver;
 		this.attributeHelper = attributeHelper;
-		this.dbCredReq = dbCredReq;
+		this.credReqRepository = credReqRepository;
 	}
 
 	@Override
@@ -95,7 +95,7 @@ public class IdentityResolverImpl implements IdentityResolver
 				CredentialAttributeTypeProvider.CREDENTIAL_REQUIREMENTS);
 		Attribute cra = credReqAttrs.iterator().next();
 		String cr = (String) cra.getValues().get(0);
-		return dbCredReq.get(cr);
+		return credReqRepository.get(cr);
 	}
 	
 	@Override

@@ -68,16 +68,14 @@ public class TestIdentities extends DBIntegrationTestBase
 	private EntityParam entityParam;
 	
 	@Test
-	public void scheduledOpsWork() throws Exception
+	public void scheduledDisableWork() throws Exception
 	{
 		setupMockAuthn();
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
 		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
-		IdentityParam idParam2 = new IdentityParam(X500Identity.ID, "CN=golbi2");
-		Identity id2 = idsMan.addEntity(idParam2, "crMock", EntityState.valid, false);
 		
 		EntityParam ep1 = new EntityParam(id.getEntityId());
-		Date scheduledTime = new Date(System.currentTimeMillis()+200);
+		Date scheduledTime = new Date(System.currentTimeMillis()+100);
 		idsMan.scheduleEntityChange(ep1, scheduledTime, EntityScheduledOperation.DISABLE);
 		
 		Entity retrieved = idsMan.getEntity(new EntityParam(idParam));
@@ -86,14 +84,32 @@ public class TestIdentities extends DBIntegrationTestBase
 		assertEquals(scheduledTime,
 				retrieved.getEntityInformation().getScheduledOperationTime());
 		
-		EntityParam ep2 = new EntityParam(id2.getEntityId());
-		idsMan.scheduleEntityChange(ep2, new Date(System.currentTimeMillis()+200), 
-				EntityScheduledOperation.REMOVE);
-		Thread.sleep(250);
+		Thread.sleep(150);
 		entitiesUpdater.updateEntities();
 		
 		Entity updated = idsMan.getEntity(ep1);
 		assertEquals(EntityState.disabled, updated.getState());
+	}
+
+	@Test
+	public void scheduledRemovalWork() throws Exception
+	{
+		setupMockAuthn();
+		IdentityParam idParam2 = new IdentityParam(X500Identity.ID, "CN=golbi2");
+		Identity id2 = idsMan.addEntity(idParam2, "crMock", EntityState.valid, false);
+		
+		EntityParam ep2 = new EntityParam(id2.getEntityId());
+		Date scheduledTime = new Date(System.currentTimeMillis()+100);
+		idsMan.scheduleEntityChange(ep2, scheduledTime, EntityScheduledOperation.REMOVE);
+		
+		Entity retrieved = idsMan.getEntity(ep2);
+		assertEquals(EntityScheduledOperation.REMOVE,
+				retrieved.getEntityInformation().getScheduledOperation());
+		assertEquals(scheduledTime,
+				retrieved.getEntityInformation().getScheduledOperationTime());
+
+		Thread.sleep(150);
+		entitiesUpdater.updateEntities();
 		
 		try
 		{

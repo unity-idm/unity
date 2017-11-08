@@ -12,10 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
-import pl.edu.icm.unity.store.api.generic.CredentialDB;
 import pl.edu.icm.unity.store.api.generic.MessageTemplateDB;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
@@ -36,18 +36,18 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 @Component
 public class BaseFormValidator
 {
-	private CredentialDB credentialDB;
+	private CredentialRepository credentialRepository;
 	private AttributeTypeDAO attributeDAO;
 	private MessageTemplateDB msgTplDB;
 	private GroupDAO groupDAO;
 	private IdentityTypesRegistry identityTypesRegistry;
 
 	@Autowired
-	public BaseFormValidator(CredentialDB credentialDB, AttributeTypeDAO attributeDAO,
+	public BaseFormValidator(CredentialRepository credentialRepository, AttributeTypeDAO attributeDAO,
 			MessageTemplateDB msgTplDB, GroupDAO groupDAO,
 			IdentityTypesRegistry identityTypesRegistry)
 	{
-		this.credentialDB = credentialDB;
+		this.credentialRepository = credentialRepository;
 		this.attributeDAO = attributeDAO;
 		this.msgTplDB = msgTplDB;
 		this.groupDAO = groupDAO;
@@ -93,7 +93,7 @@ public class BaseFormValidator
 							cred.getCredentialName() + " was specified more then once.");
 				creds.add(cred.getCredentialName());
 			}
-			credentialDB.assertExist(creds);
+			credentialRepository.assertExist(creds);
 		}
 
 		if (form.getGroupParams() != null)

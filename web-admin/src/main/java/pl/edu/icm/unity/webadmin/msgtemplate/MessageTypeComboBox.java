@@ -5,11 +5,13 @@
 package pl.edu.icm.unity.webadmin.msgtemplate;
 
 import java.util.Locale;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import com.vaadin.data.util.converter.Converter.ConversionException;
 import com.vaadin.server.Resource;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
@@ -22,25 +24,24 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.MessageType;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.i18n.I18nLabelWithPreview.HtmlPreviewWindow;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
+import pl.edu.icm.unity.webui.common.i18n.I18nLabelWithPreview.PreviewWindow;
 
 /**
  * Custom field that acts as ComboBox, explicitly filled with values that
- * corresponds to {@link MessageType}s. When {@link MessageType#HTML} is
- * selected then a preview link is enable which opens an window with full blown
- * html preview, where content is taken from given supplier.
+ * corresponds to {@link MessageType}s. Besides type selection also shows preview buttons for all
+ * enabled locales.
+ * TODO - move preview buttons out from this component. 
  *
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
 public class MessageTypeComboBox extends CustomField<MessageType>
 {
 	private UnityMessageSource msg;
-	private I18nTextArea i18nTextProvider;
+	private Function<String, String> i18nTextProvider;
 	private ComboBox bodyType;
 	private Component main;
 	
-	public MessageTypeComboBox(UnityMessageSource msg, I18nTextArea i18nTextProvider)
+	public MessageTypeComboBox(UnityMessageSource msg, Function<String, String> i18nTextProvider)
 	{
 		this.msg = msg;
 		this.i18nTextProvider = i18nTextProvider;
@@ -61,32 +62,15 @@ public class MessageTypeComboBox extends CustomField<MessageType>
 		
 		HorizontalLayout contentWithLinks = new HorizontalLayout();
 		contentWithLinks.setSpacing(true);
-		bodyType.addValueChangeListener(event -> {
-			MessageType selected = (MessageType) bodyType.getValue();
-			if (selected == MessageType.HTML)
-				contentWithLinks.setVisible(true);
-			else
-				contentWithLinks.setVisible(false);
-		});
-		
 		msg.getEnabledLocales().values().stream()
 			.map(Locale::toString)
 			.forEach(localeKey -> 
 			{
 				HPairLayout pair = new HPairLayout(msg, 
-						() -> i18nTextProvider.getValue().getValueRaw(localeKey));
+						() -> i18nTextProvider.apply(localeKey));
 				Resource image = Images.getFlagForLocale(localeKey);
 				if (image != null)
 					pair.addImage(image);
-				
-				if (!msg.getDefaultLocaleCode().equals(localeKey))
-				{
-					pair.setVisible(false);
-					i18nTextProvider.addShowAllListener(show -> {
-						pair.setVisible(show);
-					});
-				}
-				
 				contentWithLinks.addComponent(pair);
 			});
 		
@@ -133,10 +117,16 @@ public class MessageTypeComboBox extends CustomField<MessageType>
 			preview = new Button(msg.getMessage("MessageTemplateViewer.preview"));
 			preview.setStyleName(Styles.vButtonLink.toString());
 			preview.addClickListener(event -> getUI()
-					.addWindow(new HtmlPreviewWindow(contentProvider.get())));
+					.addWindow(new PreviewWindow(contentProvider.get(), getMode())));
 			addComponent(preview);
 		}
 
+		private ContentMode getMode()
+		{
+			return getValue() == MessageType.HTML ? 
+					ContentMode.HTML : ContentMode.PREFORMATTED;			
+		}
+		
 		public void addImage(Resource res)
 		{
 			Image img = new Image();

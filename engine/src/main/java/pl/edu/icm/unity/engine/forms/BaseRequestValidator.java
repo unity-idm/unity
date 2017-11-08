@@ -15,12 +15,12 @@ import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
+import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException.Category;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
-import pl.edu.icm.unity.store.api.generic.CredentialDB;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -41,7 +41,7 @@ import pl.edu.icm.unity.types.registration.RegistrationParam;
 public class BaseRequestValidator
 {
 	@Autowired
-	private CredentialDB credentialDB;
+	private CredentialRepository credentialRepository;
 	@Autowired
 	private AttributeTypeDAO dbAttributes;
 	@Autowired
@@ -125,7 +125,7 @@ public class BaseRequestValidator
 			throws EngineException
 	{
 		for (CredentialParamValue credentialParam: credentials)
-			credentialDB.get(credentialParam.getCredentialId());
+			credentialRepository.get(credentialParam.getCredentialId());
 	}
 	
 	private void validateRequestedAttributes(BaseForm form, BaseRegistrationInput request) 
@@ -200,13 +200,13 @@ public class BaseRequestValidator
 			String credential = formCreds.get(i).getCredentialName();
 			try
 			{
-				CredentialDefinition credDef = credentialDB.get(credential);
+				CredentialDefinition credDef = credentialRepository.get(credential);
 				if (doCredentialCheckAndUpdate)
 				{
 					LocalCredentialVerificator credVerificator = authnRegistry
 							.createLocalCredentialVerificator(credDef);
 					String updatedSecrets = credVerificator.prepareCredential(
-							requestedCreds.get(i).getSecrets(), "");
+							requestedCreds.get(i).getSecrets(), "", true);
 					requestedCreds.get(i).setSecrets(updatedSecrets);
 				}
 			} catch (Exception e)

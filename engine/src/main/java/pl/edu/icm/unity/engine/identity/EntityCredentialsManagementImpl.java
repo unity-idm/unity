@@ -215,39 +215,7 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 	private void setEntityCredentialInternal(long entityId, String credentialId, String rawCredential, 
 			String currentRawCredential) throws EngineException
 	{
-		String newCred = prepareEntityCredentialInternal(entityId, credentialId, rawCredential, 
+		credHelper.setEntityCredentialInternal(entityId, credentialId, rawCredential, 
 				currentRawCredential);
-		credHelper.setPreviouslyPreparedEntityCredentialInternal(entityId, newCred, credentialId);
-	}
-	
-	/**
-	 * Prepares entity's credential (hashes, checks etc). This is internal method which 
-	 * doesn't perform any authorization nor argument initialization checking.
-	 * @param entityId
-	 * @param credentialId
-	 * @param rawCredential
-	 * @param sqlMap
-	 * @throws EngineException
-	 */
-	private String prepareEntityCredentialInternal(long entityId, String credentialId, 
-			String rawCredential, String currentRawCredential) throws EngineException
-	{
-		Map<String, AttributeExt> attributes = attributesHelper.getAllAttributesAsMapOneGroup(entityId, "/");
-		
-		Attribute credReqA = attributes.get(CredentialAttributeTypeProvider.CREDENTIAL_REQUIREMENTS);
-		String credentialRequirements = (String)credReqA.getValues().get(0);
-		CredentialRequirementsHolder credReqs = credHelper.getCredentialRequirements(credentialRequirements);
-		LocalCredentialVerificator handler = credReqs.getCredentialHandler(credentialId);
-		if (handler == null)
-			throw new IllegalCredentialException("The credential id is not among the " +
-					"entity's credential requirements: " + credentialId);
-
-		String credentialAttributeName = CredentialAttributeTypeProvider.CREDENTIAL_PREFIX+credentialId;
-		Attribute currentCredentialA = attributes.get(credentialAttributeName);
-		String currentCredential = currentCredentialA != null ? 
-				(String)currentCredentialA.getValues().get(0) : null;
-				
-		return currentRawCredential == null ? handler.prepareCredential(rawCredential, currentCredential) :
-				handler.prepareCredential(rawCredential, currentRawCredential, currentCredential);
 	}
 }

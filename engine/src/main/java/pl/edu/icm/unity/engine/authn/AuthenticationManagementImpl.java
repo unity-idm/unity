@@ -20,14 +20,13 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.credential.CredentialHolder;
+import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.engine.endpoint.EndpointsUpdater;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
-import pl.edu.icm.unity.store.api.generic.CredentialDB;
-import pl.edu.icm.unity.store.api.generic.CredentialRequirementDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
@@ -46,7 +45,7 @@ public class AuthenticationManagementImpl implements AuthenticatorManagement
 	private AuthenticatorsRegistry authReg;
 	private LocalCredentialsRegistry localCredReg;
 	private AuthenticatorInstanceDB authenticatorDB;
-	private CredentialDB credentialDB;
+	private CredentialRepository credentialRepository;
 	private IdentityResolver identityResolver;
 	private EndpointsUpdater endpointsUpdater;
 	private AuthenticatorLoader authenticatorLoader;
@@ -56,7 +55,7 @@ public class AuthenticationManagementImpl implements AuthenticatorManagement
 	@Autowired
 	public AuthenticationManagementImpl(AuthenticatorsRegistry authReg, TransactionalRunner tx,
 			AuthenticatorInstanceDB authenticatorDB,
-			CredentialDB credentialDB, CredentialRequirementDB credentialRequirementDB,
+			CredentialRepository credentialRepository,
 			IdentityResolver identityResolver, 
 			EndpointsUpdater endpointsUpdater, AuthenticatorLoader authenticatorLoader,
 			AttributeTypeDAO dbAttributes, AuthorizationManager authz, 
@@ -66,7 +65,7 @@ public class AuthenticationManagementImpl implements AuthenticatorManagement
 		this.tx = tx;
 		this.localCredReg = localCredReg;
 		this.authenticatorDB = authenticatorDB;
-		this.credentialDB = credentialDB;
+		this.credentialRepository = credentialRepository;
 		this.identityResolver = identityResolver;
 		this.endpointsUpdater = endpointsUpdater;
 		this.authenticatorLoader = authenticatorLoader;
@@ -94,7 +93,7 @@ public class AuthenticationManagementImpl implements AuthenticatorManagement
 		AuthenticatorImpl authenticator;
 		if (credentialName != null)
 		{
-			CredentialDefinition credentialDef = credentialDB.get(credentialName);
+			CredentialDefinition credentialDef = credentialRepository.get(credentialName);
 			CredentialHolder credential = new CredentialHolder(credentialDef, localCredReg);
 			String credentialConfiguration = credential.getCredentialDefinition().getConfiguration();
 			authenticator = new AuthenticatorImpl(identityResolver, authReg, id, typeId, 
@@ -145,7 +144,7 @@ public class AuthenticationManagementImpl implements AuthenticatorManagement
 			String verificatorConfigCopy = verificatorConfig;
 			if (localCredential != null)
 			{
-				CredentialDefinition credentialDef = credentialDB.get(localCredential);
+				CredentialDefinition credentialDef = credentialRepository.get(localCredential);
 				CredentialHolder credential = new CredentialHolder(credentialDef, localCredReg);
 				verificatorConfigCopy = credential.getCredentialDefinition().getConfiguration();
 				verifyIfLocalCredentialMatchesVerificator(current, credential, 

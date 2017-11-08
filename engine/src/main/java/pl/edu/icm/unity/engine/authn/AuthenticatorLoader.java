@@ -16,8 +16,8 @@ import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.credential.CredentialHolder;
+import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
-import pl.edu.icm.unity.store.api.generic.CredentialDB;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -34,18 +34,18 @@ public class AuthenticatorLoader
 	private AuthenticatorInstanceDB authenticatorDB;
 	private AuthenticatorsRegistry authReg;
 	private LocalCredentialsRegistry localCredReg;
-	private CredentialDB credDB;
+	private CredentialRepository credRepository;
 	
 	@Autowired
 	public AuthenticatorLoader(IdentityResolver identityResolver,
 			AuthenticatorInstanceDB authenticatorDB, AuthenticatorsRegistry authReg,
-			CredentialDB credDB, LocalCredentialsRegistry localCredReg)
+			CredentialRepository credRepository, LocalCredentialsRegistry localCredReg)
 	{
 		this.localCredReg = localCredReg;
 		this.identityResolver = identityResolver;
 		this.authenticatorDB = authenticatorDB;
 		this.authReg = authReg;
-		this.credDB = credDB;
+		this.credRepository = credRepository;
 	}
 
 	public AuthenticatorImpl getAuthenticator(String id) 
@@ -61,7 +61,7 @@ public class AuthenticatorLoader
 		
 		if (localCredential != null)
 		{
-			CredentialDefinition credDef = credDB.get(localCredential);
+			CredentialDefinition credDef = credRepository.get(localCredential);
 			CredentialHolder credential = new CredentialHolder(credDef, localCredReg);
 			String localCredentialConfig = credential.getCredentialDefinition().
 					getConfiguration();

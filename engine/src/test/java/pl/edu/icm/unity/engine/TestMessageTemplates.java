@@ -3,6 +3,7 @@ package pl.edu.icm.unity.engine;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,8 +50,10 @@ public class TestMessageTemplates extends DBIntegrationTestBase
 		Map<String, String> params = new HashMap<>();
 		params.put("code", "svalue");
 		added = msgTempMan.getTemplate("tName");
-		assertEquals("stestsvalue", added.getMessage("pl", "en", params).getSubject());
-		assertEquals("btestsvalue", added.getMessage(null, "en", params).getBody());
+		assertEquals("stestsvalue", added.getMessage("pl", "en", params, 
+				Collections.emptyMap()).getSubject());
+		assertEquals("btestsvalue", added.getMessage(null, "en", params, 
+				Collections.emptyMap()).getBody());
 		
 		msgTempMan.removeTemplate("tName");
 		assertEquals(2, msgTempMan.listTemplates().size());		

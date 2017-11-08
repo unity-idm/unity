@@ -12,7 +12,7 @@
 				"parameters": [
 					"identifier",
 					"attr['orcid']",
-					"Password requirement",
+					"sys:all",
 					"CREATE_OR_MATCH"
 				]
 			}			

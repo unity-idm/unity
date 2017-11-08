@@ -8,6 +8,8 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import static pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider.CREDENTIAL_PREFIX;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -26,10 +28,11 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntaxFactory;
 import pl.edu.icm.unity.engine.utils.ClasspathResourceReader;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.basic.AttributeType;
-
 
 /**
  * Provides utilities allowing for easy access to common {@link AttributeType} related operations.
@@ -37,13 +40,14 @@ import pl.edu.icm.unity.types.basic.AttributeType;
  */
 @Component
 public class AttributeTypeHelper
-{	
+{
 	public static final String ATTRIBUTE_TYPES_CLASSPATH = "attributeTypes";
 	
 	private Map<String, AttributeValueSyntax<?>> unconfiguredSyntaxes;
 	private AttributeSyntaxFactoriesRegistry atSyntaxRegistry;
 	private AttributeTypeDAO attributeTypeDAO;
 	private ApplicationContext appContext;
+	private UnityMessageSource msg;
 	
 	@Autowired
 	public AttributeTypeHelper(AttributeSyntaxFactoriesRegistry atSyntaxRegistry, 
@@ -51,10 +55,10 @@ public class AttributeTypeHelper
 	{
 		this.atSyntaxRegistry = atSyntaxRegistry;
 		this.attributeTypeDAO = attributeTypeDAO;
-		this.appContext = appContext;
 		unconfiguredSyntaxes = new HashMap<>();
 		for (AttributeValueSyntaxFactory<?> f: atSyntaxRegistry.getAll())
 			unconfiguredSyntaxes.put(f.getId(), f.createInstance());
+		this.msg = msg;
 	}
 
 	@Transactional
@@ -156,5 +160,21 @@ public class AttributeTypeHelper
 	{
 		ClasspathResourceReader reader = new ClasspathResourceReader(appContext);
 		return reader.getFilesFromClasspathResourceDir(ATTRIBUTE_TYPES_CLASSPATH);
+	}
+	
+	/**
+	 * Get attribute type name for credential
+	 * @param name
+	 * @return
+	 */
+	public AttributeType getCredentialAT(String name)
+	{
+		AttributeType credentialAt = new AttributeType(CREDENTIAL_PREFIX+name, 
+				StringAttributeSyntax.ID, msg, CREDENTIAL_PREFIX,
+				new Object[] {name});
+		credentialAt.setMaxElements(1);
+		credentialAt.setMinElements(1);
+		credentialAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG | AttributeType.INSTANCES_IMMUTABLE_FLAG);
+		return credentialAt;
 	}
 }
