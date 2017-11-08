@@ -68,6 +68,7 @@ public enum Styles
 	idpTile("u-idptile"),
 	indent("u-indent"),
 	link("u-link"),
+	hamburgerMenu("u-hamburgerMenu"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),

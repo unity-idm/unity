@@ -15,16 +15,17 @@ import com.vaadin.ui.themes.ValoTheme;
  */
 public class HamburgerMenu extends MenuBar
 {
-	MenuItem top;
+	private MenuItem top;
+	
 	public HamburgerMenu()
-	{	
-		super();
+	{
 		top = super.addItem("", Images.vaadinMenu.getResource(), null);
+		top.setStyleName(Styles.hamburgerMenu.toString());
 		setStyleName(ValoTheme.MENUBAR_BORDERLESS);
 	}
 	
 	@Override
-	public MenuItem addItem(String caption,Resource icon ,Command command)
+	public MenuItem addItem(String caption, Resource icon, Command command)
 	{
 		MenuItem item = top.addItem(caption, command);
 		item.setIcon(icon);

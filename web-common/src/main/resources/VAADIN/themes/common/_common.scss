@@ -353,4 +353,12 @@
 	.u-flag-bg-de {
 		@include flag-bg-template($flagImageDe);
 	}
+
+	.v-menubar .v-menubar-submenu-indicator + .v-menubar-menuitem-caption::after {
+		margin: 0 -3px 0 -3px;
+		font-family: FontAwesome;
+		content: "\f078";
+		font-size: 0em;
+		vertical-align: .15em;
+	}
 }
