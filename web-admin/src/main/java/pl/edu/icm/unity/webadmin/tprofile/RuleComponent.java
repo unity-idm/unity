@@ -108,28 +108,7 @@ public class RuleComponent extends CustomComponent
 		
 		header.addComponent(dragWrapper);	
 		header.setComponentAlignment(dragWrapper, Alignment.MIDDLE_RIGHT);
-//		Button menu = new Button();
-//		menu.setIcon(Images.vaadinMenu.getResource());
-//		menu.addStyleName(Styles.vButtonLink.toString());
-//		menu.addStyleName(Styles.toolbarButton.toString());
-//		
-//		ContextMenu contextMenu = new ContextMenu(menu, false);
-//		contextMenu.setAsContextMenuOf(menu);
-//		MenuItem remove = contextMenu.addItem(msg.getMessage("TranslationProfileEditor.remove"), 
-//				e -> callback.remove(RuleComponent.this));
-//		remove.setCheckable(false);
-//		remove.setIcon(Images.vaadinRemove.getResource());	
-//		
-//		top = contextMenu.addItem(msg.getMessage("TranslationProfileEditor.moveTop"), 
-//				e -> callback.moveTop(RuleComponent.this));
-//		top.setCheckable(false);
-//		top.setIcon(Images.vaadinTopArrow.getResource());	
-//		
-//		bottom = contextMenu.addItem(msg.getMessage("TranslationProfileEditor.moveBottom"), 
-//				e -> callback.moveBottom(RuleComponent.this));
-//		bottom.setCheckable(false);
-//		bottom.setIcon(Images.vaadinBottomArrow.getResource());
-//		
+		
 		MenuBar menuBar = new HamburgerMenu();			
 		menuBar.addItem(msg.getMessage("TranslationProfileEditor.remove"), Images.vaadinRemove.getResource(), s -> callback.remove(RuleComponent.this));
 		top = menuBar.addItem(msg.getMessage("TranslationProfileEditor.moveTop"), Images.vaadinTopArrow.getResource(), 
