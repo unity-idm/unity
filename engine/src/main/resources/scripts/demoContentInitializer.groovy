@@ -138,7 +138,7 @@ void createExampleUser()
 	Attribute cnA = StringAttribute.of("cn", "/", "Hiper user");
 	attributesManagement.setAttribute(entityP, cnA, false);
 
-	PasswordToken pToken = new PasswordToken("the!test1");
+	PasswordToken pToken = new PasswordToken("the!test12");
 	entityCredentialManagement.setEntityCredential(entityP, EngineInitialization.DEFAULT_CREDENTIAL,
 			pToken.toJson());
 	log.warn("Demo user 'demo-user' was created with default password. Please change it!");

@@ -33,7 +33,7 @@ try
 	IdentityParam oauthClient = new IdentityParam(UsernameIdentity.ID, "oauth-client");
 	Identity oauthClientA = entityManagement.addEntity(oauthClient,
 			EntityState.valid, false);
-	PasswordToken pToken2 = new PasswordToken("oauth-pass");
+	PasswordToken pToken2 = new PasswordToken("oauth-pass1");
 	entityCredentialManagement.setEntityCredential(new EntityParam(oauthClientA.getEntityId()), EngineInitialization.DEFAULT_CREDENTIAL,
 			pToken2.toJson());
 	log.warn("Default OAuth client user was created with default password. Please change it!");

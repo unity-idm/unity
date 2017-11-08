@@ -8,8 +8,6 @@ package pl.edu.icm.unity.webadmin.tprofile;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import com.vaadin.addon.contextmenu.ContextMenu;
-import com.vaadin.addon.contextmenu.MenuItem;
 import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.AbstractTextField;
@@ -21,6 +19,8 @@ import com.vaadin.ui.DragAndDropWrapper.DragStartMode;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.MenuBar;
+import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
@@ -35,6 +35,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -107,33 +108,38 @@ public class RuleComponent extends CustomComponent
 		
 		header.addComponent(dragWrapper);	
 		header.setComponentAlignment(dragWrapper, Alignment.MIDDLE_RIGHT);
+//		Button menu = new Button();
+//		menu.setIcon(Images.vaadinMenu.getResource());
+//		menu.addStyleName(Styles.vButtonLink.toString());
+//		menu.addStyleName(Styles.toolbarButton.toString());
+//		
+//		ContextMenu contextMenu = new ContextMenu(menu, false);
+//		contextMenu.setAsContextMenuOf(menu);
+//		MenuItem remove = contextMenu.addItem(msg.getMessage("TranslationProfileEditor.remove"), 
+//				e -> callback.remove(RuleComponent.this));
+//		remove.setCheckable(false);
+//		remove.setIcon(Images.vaadinRemove.getResource());	
+//		
+//		top = contextMenu.addItem(msg.getMessage("TranslationProfileEditor.moveTop"), 
+//				e -> callback.moveTop(RuleComponent.this));
+//		top.setCheckable(false);
+//		top.setIcon(Images.vaadinTopArrow.getResource());	
+//		
+//		bottom = contextMenu.addItem(msg.getMessage("TranslationProfileEditor.moveBottom"), 
+//				e -> callback.moveBottom(RuleComponent.this));
+//		bottom.setCheckable(false);
+//		bottom.setIcon(Images.vaadinBottomArrow.getResource());
+//		
+		MenuBar menuBar = new HamburgerMenu();			
+		menuBar.addItem(msg.getMessage("TranslationProfileEditor.remove"), Images.vaadinRemove.getResource(), s -> callback.remove(RuleComponent.this));
+		top = menuBar.addItem(msg.getMessage("TranslationProfileEditor.moveTop"), Images.vaadinTopArrow.getResource(), 
+				s -> callback.moveTop(RuleComponent.this));	
+		bottom = menuBar.addItem(msg.getMessage("TranslationProfileEditor.moveBottom"), Images.vaadinBottomArrow.getResource(), 
+				s -> callback.moveBottom(RuleComponent.this));
 
-		Button menu = new Button();
-		menu.setIcon(Images.vaadinMenu.getResource());
-		menu.addStyleName(Styles.vButtonLink.toString());
-		menu.addStyleName(Styles.toolbarButton.toString());
-		
-		ContextMenu contextMenu = new ContextMenu(menu, false);
-		contextMenu.setAsContextMenuOf(menu);
-		MenuItem remove = contextMenu.addItem(msg.getMessage("TranslationProfileEditor.remove"), 
-				e -> callback.remove(RuleComponent.this));
-		remove.setCheckable(false);
-		remove.setIcon(Images.vaadinRemove.getResource());	
-		
-		top = contextMenu.addItem(msg.getMessage("TranslationProfileEditor.moveTop"), 
-				e -> callback.moveTop(RuleComponent.this));
-		top.setCheckable(false);
-		top.setIcon(Images.vaadinTopArrow.getResource());	
-		
-		bottom = contextMenu.addItem(msg.getMessage("TranslationProfileEditor.moveBottom"), 
-				e -> callback.moveBottom(RuleComponent.this));
-		bottom.setCheckable(false);
-		bottom.setIcon(Images.vaadinBottomArrow.getResource());
-		
-		menu.addClickListener(event -> contextMenu.open(event.getClientX(), event.getClientY()));
-		header.addComponent(menu);
-		header.setComponentAlignment(menu, Alignment.MIDDLE_RIGHT);
-		header.setExpandRatio(menu, 0);
+		header.addComponent(menuBar);
+		header.setComponentAlignment(menuBar, Alignment.MIDDLE_RIGHT);
+		header.setExpandRatio(menuBar, 0);
 				
 		header.addLayoutClickListener(event ->
 		{

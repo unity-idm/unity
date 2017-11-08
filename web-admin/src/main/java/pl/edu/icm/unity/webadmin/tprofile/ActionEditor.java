@@ -247,10 +247,14 @@ public class ActionEditor extends LayoutEmbeddable
 	{
 		StringBuilder rep = new StringBuilder();
 		rep.append(actions.getValue());
-		rep.append(" | ");
+		rep.append("|");
 		for (ActionParameterComponent tc: paramComponents)
 		{
-			rep.append(tc.getCaption() + tc.getActionValue());
+			rep.append(tc.getCaption() + " "
+					+ (tc.getActionValue() != null
+							&& !tc.getActionValue().equals("null")
+									? tc.getActionValue()
+									: " "));
 			rep.append("|");
 		}
 		

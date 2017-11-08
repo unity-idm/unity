@@ -464,16 +464,16 @@ public class TranslationProfilesComponent extends VerticalLayout
 				{
 					TranslationProfile item = items.iterator().next();
 					byte[] content = Constants.MAPPER.writeValueAsBytes(item);
-					resource = new StreamResource(() -> {
-						return new ByteArrayInputStream(content);
-					}, item.getName() + ".json");
+					resource = new StreamResource(() -> 
+						new ByteArrayInputStream(content)
+					, item.getName() + ".json");
 				} else
 				{
 
 					byte[] content = Constants.MAPPER.writeValueAsBytes(items);
-					resource = new StreamResource(() -> {
-						return new ByteArrayInputStream(content);
-					}, "translationProfiles.json");
+					resource = new StreamResource(() -> 
+						new ByteArrayInputStream(content)
+					, "translationProfiles.json");
 				}
 			} catch (Exception e)
 			{
