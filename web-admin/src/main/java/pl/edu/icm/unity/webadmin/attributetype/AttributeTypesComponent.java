@@ -386,7 +386,7 @@ public class AttributeTypesComponent extends VerticalLayout
 		}
 	}
 	
-	private class ExportActionHandler extends SingleActionHandler
+	private class ExportActionHandler extends AbstractAttributeTypeActionHandler
 	{
 		public ExportActionHandler()
 		{

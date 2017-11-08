@@ -51,7 +51,8 @@ public class AttributeTypeHelper
 	
 	@Autowired
 	public AttributeTypeHelper(AttributeSyntaxFactoriesRegistry atSyntaxRegistry, 
-			AttributeTypeDAO attributeTypeDAO, ApplicationContext appContext)
+			AttributeTypeDAO attributeTypeDAO, ApplicationContext appContext,
+			UnityMessageSource msg)
 	{
 		this.atSyntaxRegistry = atSyntaxRegistry;
 		this.attributeTypeDAO = attributeTypeDAO;
