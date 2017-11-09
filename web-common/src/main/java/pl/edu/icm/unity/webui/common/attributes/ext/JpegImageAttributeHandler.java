@@ -60,8 +60,6 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 	private static final Random r = new Random();
 	private static final int PREVIEW_WIDTH = 256;
 	private static final int PREVIEW_HEIGHT = 128;
-	private static final int MINIATURE_WIDTH = 64;
-	private static final int MINIATURE_HEIGHT = 48;
 	private UnityMessageSource msg;
 	private JpegImageAttributeSyntax syntax;
 	
@@ -72,7 +70,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 	}
 
 	@Override
-	public String getValueAsString(String value, int limited)
+	public String getValueAsString(String value)
 	{
 		return "Jpeg image";
 	}
@@ -93,29 +91,12 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 	}
 
 	@Override
-	public Component getRepresentation(String valueRaw, RepresentationSize size)
+	public Component getRepresentation(String valueRaw)
 	{
 		BufferedImage value = syntax.convertFromString(valueRaw);
 		Image image = new Image();
-		int width;
-		int height;
-		
-		switch (size)
-		{
-		case LINE:
-			width = MINIATURE_WIDTH;
-			height = MINIATURE_HEIGHT;
-			break;
-		case MEDIUM:
-			width = PREVIEW_WIDTH;
-			height = PREVIEW_HEIGHT;
-			break;
-		case ORIGINAL:
-		default:
-			width = value.getWidth();
-			height = value.getHeight();
-			break;
-		}
+		int width = value.getWidth();
+		int height = value.getHeight();
 		
 		image.setSource(getValueAsImage(value, (JpegImageAttributeSyntax) syntax, width, height));
 		return image;

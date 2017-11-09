@@ -10,10 +10,10 @@ import java.util.Map;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
-import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -24,6 +24,7 @@ import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ListOfElements;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
@@ -44,7 +45,7 @@ public class InvitationViewer extends CustomComponent
 	private Label lastSentTime;
 	private Label notificationsSent;
 	private ListOfElements<PrefilledEntry<IdentityParam>> identities;
-	private ListOfElements<PrefilledEntry<Attribute>> attributes;
+	private VerticalLayout attributes;
 	private ListOfElements<Map.Entry<String, PrefilledEntry<Selection>>> groups;
 
 	private SafePanel identitiesPanel;
@@ -90,11 +91,10 @@ public class InvitationViewer extends CustomComponent
 		identities.setMargin(true);
 		identitiesPanel = new SafePanel(msg.getMessage("InvitationViewer.identities"), identities);
 		
-		attributes = new ListOfElements<>(msg, entry -> {
-			String attr = attrHandlersRegistry.getSimplifiedAttributeRepresentation(entry.getEntry(), 
-					AttributeHandlerRegistry.DEFAULT_MAX_LEN * 2);
-			return new Label("[" + entry.getMode().name() + "] " + attr);
-		});
+		attributes = new VerticalLayout();
+		attributes.setSpacing(true);
+		attributes.addStyleName(Styles.tinySpacing.toString());
+
 		attributes.setMargin(true);
 		attributesPanel = new SafePanel(msg.getMessage("InvitationViewer.attributes"), attributes);
 
@@ -149,8 +149,12 @@ public class InvitationViewer extends CustomComponent
 		invitation.getIdentities().values().forEach(e -> identities.addEntry(e));
 		
 		attributesPanel.setVisible(!invitation.getAttributes().isEmpty());
-		attributes.clearContents();
-		invitation.getAttributes().values().forEach(e -> attributes.addEntry(e));
+		attributes.removeAllComponents();
+		invitation.getAttributes().values().forEach(entry -> {
+			String attr = attrHandlersRegistry.getSimplifiedAttributeRepresentation(entry.getEntry());
+			Label l = new Label("[" + entry.getMode().name() + "] " + attr);
+			attributes.addComponent(l);
+		});
 
 		groupsPanel.setVisible(!invitation.getGroupSelections().isEmpty());
 		groups.clearContents();

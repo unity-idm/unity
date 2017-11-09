@@ -27,7 +27,6 @@ import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements.DisableMode;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize;
 import pl.edu.icm.unity.webui.common.identities.IdentityFormatter;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
@@ -199,7 +198,7 @@ public class RequestReviewPanelBase extends CustomComponent
 		{
 			if (ap == null)
 				continue;
-			Component rep = handlersRegistry.getRepresentation(ap, RepresentationSize.MEDIUM);
+			Component rep = handlersRegistry.getRepresentation(ap);
 			attributes.addEntry(rep, false);
 		}
 		attributesPanel.setVisible(!attributes.isEmpty());

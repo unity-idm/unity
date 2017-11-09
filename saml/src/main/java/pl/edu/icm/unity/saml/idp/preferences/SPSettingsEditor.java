@@ -311,8 +311,9 @@ public class SPSettingsEditor extends FormLayout
 		@Override
 		public String toString()
 		{
-			return hiddenValues == null ? name : handlerReg.getSimplifiedAttributeRepresentation(
-					hiddenValues, 50);
+			return hiddenValues == null ? 
+					name : 
+					handlerReg.getSimplifiedAttributeRepresentation(hiddenValues);
 		}
 	}
 }

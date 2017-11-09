@@ -11,6 +11,7 @@ import com.vaadin.v7.ui.AbstractField;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Image;
+import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
@@ -18,7 +19,6 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 
 /**
@@ -52,12 +52,29 @@ public class AttributeViewer
 		for (Component c: values)
 			parent.removeComponent(c);
 	}
-	
+
 	public void addToLayout(AbstractOrderedLayout parent)
 	{
-		String caption = attributeType.getDisplayedName().getValue(msg);
+		addToLayout(attributeType.getDisplayedName().getValue(msg), parent);
+	}
+	
+	public List<Component> getAsComponents(String caption, String description)
+	{
+		createContents(caption, description);
+		return values;
+	}
+	
+	public void addToLayout(String caption, AbstractOrderedLayout parent)
+	{
 		I18nString description = attributeType.getDescription();
-		
+		String descriptionraw = description != null ? description.getValue(msg) : null;
+		createContents(caption, descriptionraw);
+		for (Component c: values)
+			parent.addComponent(c);
+	}
+	
+	private void createContents(String caption, String descriptionRaw)
+	{
 		if (showGroup && !attribute.getGroupPath().equals("/"))
 			caption = caption + " @" + attribute.getGroupPath(); 
 
@@ -69,24 +86,20 @@ public class AttributeViewer
 			String captionWithNum = (attribute.getValues().size() == 1) ? caption + ":" :
 				caption + " (" + i + "):";
 			valueRepresentation.setCaption(captionWithNum);
-			if (description != null)
+			if (descriptionRaw != null)
 			{
-				String descriptionRaw = description.getValue(msg);
-				if (descriptionRaw != null)
-				{
-					String descSafe = HtmlConfigurableLabel.conditionallyEscape(descriptionRaw);
-					if (valueRepresentation instanceof AbstractField<?>)
-						((AbstractField<?>)valueRepresentation).setDescription(descSafe);
-					if (valueRepresentation instanceof Image)
-						((Image)valueRepresentation).setDescription(descSafe);
-				}
+				String descSafe = HtmlConfigurableLabel.conditionallyEscape(descriptionRaw);
+				if (valueRepresentation instanceof AbstractField<?>)
+					((AbstractField<?>)valueRepresentation).setDescription(descSafe);
+				if (valueRepresentation instanceof Label)
+					((Label)valueRepresentation).setDescription(descSafe);
+				if (valueRepresentation instanceof Image)
+					((Image)valueRepresentation).setDescription(descSafe);
 			}
 			
 			valueRepresentation.addStyleName("u-baseline");
 			values.add(valueRepresentation);
-			parent.addComponent(valueRepresentation);
 			i++;
-
 		}
 	}
 	
@@ -94,6 +107,6 @@ public class AttributeViewer
 	{
 		AttributeValueSyntax<?> syntax = aTypeSupport.getSyntax(attribute);
 		WebAttributeHandler handler = registry.getHandler(syntax);
-		return handler.getRepresentation(value, RepresentationSize.MEDIUM);
+		return handler.getRepresentation(value);
 	}
 }

@@ -37,7 +37,6 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.SmallTable;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
-import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 
@@ -57,7 +56,7 @@ public class EnumAttributeHandler implements WebAttributeHandler
 	}
 
 	@Override
-	public Component getRepresentation(String value, RepresentationSize size)
+	public Component getRepresentation(String value)
 	{
 		return new Label(value.toString(), ContentMode.PREFORMATTED);
 	}
@@ -126,9 +125,9 @@ public class EnumAttributeHandler implements WebAttributeHandler
 	}
 
 	@Override
-	public String getValueAsString(String value, int limited)
+	public String getValueAsString(String value)
 	{
-		return TextOnlyAttributeHandler.trimString(value.toString(), limited);
+		return value;
 	}
 
 	@Override

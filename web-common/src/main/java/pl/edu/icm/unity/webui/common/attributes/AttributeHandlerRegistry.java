@@ -23,7 +23,6 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize;
 
 /**
  * Gives access to web attribute handlers for given syntax types.
@@ -35,8 +34,6 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.Representati
 @Component
 public class AttributeHandlerRegistry
 {
-	public static final int DEFAULT_MAX_LEN = 16;
-
 	private UnityMessageSource msg;
 	private AttributeTypeSupport aTypeSupport;
 
@@ -106,7 +103,7 @@ public class AttributeHandlerRegistry
 		return factory.getSyntaxEditorComponent(syntax);
 	}
 	
-	public com.vaadin.ui.Component getRepresentation(Attribute attribute, RepresentationSize size)
+	public com.vaadin.ui.Component getRepresentation(Attribute attribute)
 	{
 		VerticalLayout vl = new VerticalLayout();
 		vl.addStyleName(Styles.smallSpacing.toString());
@@ -122,10 +119,11 @@ public class AttributeHandlerRegistry
 		vl.addComponent(new Label(main.toString()));
 		VerticalLayout indentedValues = new VerticalLayout();
 		indentedValues.setMargin(new MarginInfo(false, false, false, true));
-		indentedValues.setSpacing(false);
+		indentedValues.addStyleName(Styles.smallSpacing.toString());
+		indentedValues.setSpacing(true);
 		WebAttributeHandler handler = getHandler(syntax);
 		for (String value: attribute.getValues())
-			indentedValues.addComponent(handler.getRepresentation(value, size));
+			indentedValues.addComponent(handler.getRepresentation(value));
 		vl.addComponent(indentedValues);
 		return vl;
 	}
@@ -135,25 +133,23 @@ public class AttributeHandlerRegistry
 		return new HashSet<>(factoriesByType.keySet());
 	}
 	
-	public String getSimplifiedAttributeRepresentation(Attribute attribute, int maxValuesLen)
-	{
-		return getSimplifiedAttributeRepresentation(attribute, maxValuesLen, attribute.getName());
-	}
-	
 	public AttributeTypeSupport getaTypeSupport()
 	{
 		return aTypeSupport;
 	}
 
+	public String getSimplifiedAttributeRepresentation(Attribute attribute)
+	{
+		return getSimplifiedAttributeRepresentation(attribute, attribute.getName());
+	}
+	
 	/**
 	 * Returns a string representing the attribute. The returned format contains the attribute name
-	 * and the values. If the values can not be put in the remaining text len, then are shortened.
+	 * and the values.
 	 * @param attribute
-	 * @param maxValuesLen max values length, not less then 16
 	 * @return
 	 */
-	public String getSimplifiedAttributeRepresentation(Attribute attribute, int maxValuesLen, 
-			String displayedName)
+	public String getSimplifiedAttributeRepresentation(Attribute attribute, String displayedName)
 	{
 		StringBuilder sb = new StringBuilder();
 		sb.append(displayedName);
@@ -161,45 +157,27 @@ public class AttributeHandlerRegistry
 		if (!values.isEmpty())
 		{
 			sb.append(": ");
-			sb.append(getSimplifiedAttributeValuesRepresentation(attribute, maxValuesLen));
+			sb.append(getSimplifiedAttributeValuesRepresentation(attribute));
 		}
 		return sb.toString();
 	}
 	
 	/**
-	 * Returns a string representing the attributes values. The length of the values
-	 * string is limited by the argument. When some of the values can not be displayed, then 
-	 * ... is appended.
+	 * Returns a string representing the attributes values.
 	 * @param attribute
 	 * @return
 	 */
-	public String getSimplifiedAttributeValuesRepresentation(Attribute attribute, int maxValuesLen)
+	public String getSimplifiedAttributeValuesRepresentation(Attribute attribute)
 	{
-		if (maxValuesLen < 16)
-			throw new IllegalArgumentException("The max length must be lager then 16");
 		StringBuilder sb = new StringBuilder();
 		List<String> values = attribute.getValues();
 		AttributeValueSyntax<?> syntax = getSyntaxWithStringFallback(attribute);
 		WebAttributeHandler handler = getHandler(syntax);
-		int remainingLen = maxValuesLen;
-		final String MORE_VALS = ", ...";
-		final int moreValsLen = MORE_VALS.length();
-		
 		for (int i=0; i<values.size(); i++)
 		{
-			int allowedLen = i == (values.size()-1) ? remainingLen : remainingLen-moreValsLen;
-			if (allowedLen < WebAttributeHandler.MIN_VALUE_TEXT_LEN)
-			{
-				sb.append(", ...");
-				break;
-			}
-			String val = handler.getValueAsString(values.get(i), allowedLen);
-			remainingLen -= val.length(); 
+			String val = handler.getValueAsString(values.get(i));
 			if (i > 0)
-			{
 				sb.append(", ");
-				remainingLen -= 2;
-			}
 			sb.append(val);
 		}
 		return sb.toString();

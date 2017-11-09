@@ -774,8 +774,7 @@ public class IdentitiesTable extends CustomComponent
 			if (attribute == null)
 				val = msg.getMessage("Identities.attributeUndefined");
 			else
-				val = attrHandlerRegistry.getSimplifiedAttributeValuesRepresentation(attribute,
-						AttributeHandlerRegistry.DEFAULT_MAX_LEN*3);
+				val = attrHandlerRegistry.getSimplifiedAttributeValuesRepresentation(attribute);
 				
 			newItem.getItemProperty(propId).setValue(val);
 		}
@@ -796,6 +795,7 @@ public class IdentitiesTable extends CustomComponent
 		String key = (group == null) ? ATTR_CURRENT_COL_PREFIX+attribute : ATTR_ROOT_COL_PREFIX+attribute;
 		table.addContainerProperty(key, String.class, "");
 		table.setColumnHeader(key, attribute + (group == null ? "@" + this.group : "@/"));
+		table.setColumnWidth(key, 180);
 		refresh();
 		// savePreferences();
 	}

@@ -28,48 +28,22 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 {
 	protected AttributeValueSyntax<?> syntax;
 	public static final int LARGE_STRING = 1000;
-	public static final int SMALL_STRING = 50;
 	
 	public TextOnlyAttributeHandler(AttributeValueSyntax<?> syntax)
 	{
 		this.syntax = syntax;
 	}
 
-	public static String trimString(String full, int limited)
+	@Override
+	public String getValueAsString(String value)
 	{
-		if (limited<=0 || limited>full.length())
-			return full;
-		if (limited < 5)
-			throw new IllegalArgumentException("Limit may not be smaller then 5");
-		return full.substring(0, limited-5) + "[...]";
-		
-	}
-
-	public static int toLengthLimit(RepresentationSize size)
-	{
-		switch (size)
-		{
-		case ORIGINAL:
-			return Integer.MAX_VALUE;
-		case MEDIUM:
-			return LARGE_STRING;
-		case LINE:
-			return SMALL_STRING;
-		default:
-			return LARGE_STRING;
-		}
+		return value.toString();
 	}
 	
 	@Override
-	public String getValueAsString(String value, int limited)
+	public Component getRepresentation(String value)
 	{
-		return trimString(value.toString(), limited);
-	}
-	
-	@Override
-	public Component getRepresentation(String value, RepresentationSize size)
-	{
-		return new Label(trimString(value, toLengthLimit(size)));
+		return new Label(value);
 	}
 	
 	@Override

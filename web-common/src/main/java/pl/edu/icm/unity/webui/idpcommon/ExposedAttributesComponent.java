@@ -12,6 +12,7 @@ import java.util.Map;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.v7.ui.VerticalLayout;
 
@@ -22,10 +23,10 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.webui.common.ExpandCollapseButton;
-import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeViewer;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
@@ -97,15 +98,17 @@ public class ExposedAttributesComponent extends CustomComponent
 
 	private Component getAttributesListComponent()
 	{
-		ListOfElements<Label> attributesList = new ListOfElements<>(msg, label -> label);
-
+		FormLayout attributesList = new FormLayout();
 		for (DynamicAttribute dat : attributes.values())
-			attributesList.addEntry(getAttributeComponent(dat));
+		{
+			List<Component> components = getAttributeComponent(dat);
+			components.stream().forEach(c -> attributesList.addComponent(c));
+		}
 		
 		return attributesList;
 	}
 
-	private Label getAttributeComponent(DynamicAttribute dat)
+	private List<Component> getAttributeComponent(DynamicAttribute dat)
 	{
 		Attribute at = dat.getAttribute();
 		AttributeType attributeType;
@@ -117,12 +120,11 @@ public class ExposedAttributesComponent extends CustomComponent
 			// can happen for dynamic attributes from output translation profile
 			attributeType = new AttributeType(at.getName(),	StringAttributeSyntax.ID);
 		}
-		String representation = handlersRegistry.getSimplifiedAttributeRepresentation(at,
-				80, getAttributeDisplayedName(dat, attributeType));
-		Label labelRep = new Label(representation);
-		labelRep.setDescription(getAttributeDescription(dat, attributeType));
-		
-		return labelRep;
+		AttributeViewer attrViewer = new AttributeViewer(msg, handlersRegistry, 
+				attributeType, at, false); 
+		String name = getAttributeDisplayedName(dat, attributeType);
+		String desc = getAttributeDescription(dat, attributeType);
+		return attrViewer.getAsComponents(name, desc);
 	}
 
 	private String getAttributeDescription(DynamicAttribute dat, AttributeType attributeType)

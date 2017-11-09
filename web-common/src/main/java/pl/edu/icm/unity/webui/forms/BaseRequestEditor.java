@@ -65,6 +65,7 @@ import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeViewer;
 import pl.edu.icm.unity.webui.common.attributes.FixedAttributeEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
@@ -603,11 +604,9 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		
 		if (readOnlyAttribute != null)
 		{
-			String displayedName = aType.getDisplayedName().getValue(msg);
-			String aString = attributeHandlerRegistry.getSimplifiedAttributeRepresentation(
-					readOnlyAttribute, 120,	displayedName);
-			Label label = new Label(aString);
-			layout.addComponent(label);
+			AttributeViewer viewer = new AttributeViewer(msg, attributeHandlerRegistry, 
+					aType, readOnlyAttribute, false);
+			viewer.addToLayout(layout);
 		} else
 		{
 			String description = (aParam.getDescription() != null && !aParam.getDescription().isEmpty()) ? 

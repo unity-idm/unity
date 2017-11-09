@@ -23,7 +23,6 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements.DisableMode;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize;
 
 /**
  * Displays an attribute name in the first row and all its values in subsequent rows. 
@@ -104,8 +103,7 @@ public class SelectableAttributeWithValues extends CustomComponent
 		listOfValues.setWidth(100, Unit.PERCENTAGE);
 		for (String value: attribute.getValues())
 		{
-			Component representation = webHandler.getRepresentation(value, 
-					RepresentationSize.LINE);
+			Component representation = webHandler.getRepresentation(value);
 			representation.addStyleName(Styles.indent.toString());
 			listOfValues.addEntry(representation, false);
 		}

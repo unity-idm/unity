@@ -79,7 +79,7 @@ public class SamlSPSettingsViewer extends FormLayout
 			else
 			{
 				String simplifiedAttributeRepresentation = attrHandlerRegistry.
-						getSimplifiedAttributeRepresentation(entry.getValue(), 50);
+						getSimplifiedAttributeRepresentation(entry.getValue());
 				hiddenAttributes.addItem(simplifiedAttributeRepresentation);
 			}
 		}

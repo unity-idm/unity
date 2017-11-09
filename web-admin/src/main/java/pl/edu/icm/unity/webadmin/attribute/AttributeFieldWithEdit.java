@@ -126,8 +126,7 @@ public class AttributeFieldWithEdit extends CustomField<String>
 	public void setAttribute(Attribute attribute)
 	{
 		this.attribute = attribute;
-		String attrRep = attrHandlerRegistry.getSimplifiedAttributeRepresentation(attribute,
-				AttributeHandlerRegistry.DEFAULT_MAX_LEN);
+		String attrRep = attrHandlerRegistry.getSimplifiedAttributeRepresentation(attribute);
 		attributeTF.setReadOnly(false);
 		attributeTF.setValue(attrRep);
 		attributeTF.setReadOnly(true);

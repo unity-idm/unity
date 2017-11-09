@@ -160,7 +160,6 @@ public class ListOfElements<T> extends VerticalLayout
 			main.setSpacing(true);
 			main.setMargin(false);
 			setCompositionRoot(main);
-			
 		}
 		
 		public T getElement()

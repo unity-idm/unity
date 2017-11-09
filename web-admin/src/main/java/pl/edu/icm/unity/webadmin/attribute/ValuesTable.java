@@ -16,7 +16,6 @@ import com.vaadin.ui.Component;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.SmallTable;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
-import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize;
 
 /**
  * Table with attribute values.
@@ -113,7 +112,7 @@ public class ValuesTable extends SmallTable
 		public ValueItem(String value)
 		{
 			this.value = value;
-			contents = handler.getRepresentation(value, RepresentationSize.LINE);
+			contents = handler.getRepresentation(value);
 		}
 		
 		public Component getContents()

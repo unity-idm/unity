@@ -17,7 +17,6 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
-import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
@@ -87,6 +86,7 @@ public class ValuesRendererPanel extends VerticalLayout
 		valuePanel.addStyleName(Styles.vPanelLight.toString());
 		valuePanel.setSizeFull();
 		VerticalLayout contents = new VerticalLayout();
+		contents.setSpacing(true);
 		valuePanel.setContent(contents);
 		for (String value: values)
 			buildSingleValueView(contents, handler, syntax, value);
@@ -98,8 +98,9 @@ public class ValuesRendererPanel extends VerticalLayout
 			WebAttributeHandler handler, AttributeValueSyntax<T> syntax, 
 			String value)
 	{
-		Component c = handler.getRepresentation(value, RepresentationSize.ORIGINAL);
+		Component c = handler.getRepresentation(value);
 		c.setSizeUndefined();
+		c.setWidth(100, Unit.PERCENTAGE);
 		contents.addComponent(c);
 	}
 	

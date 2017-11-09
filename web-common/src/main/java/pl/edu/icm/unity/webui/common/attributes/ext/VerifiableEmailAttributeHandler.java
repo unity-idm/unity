@@ -24,7 +24,6 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
-import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 import pl.edu.icm.unity.webui.common.identities.IdentityFormatter;
@@ -49,15 +48,12 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 	}
 
 	@Override
-	public String getValueAsString(String value, int limited)
+	public String getValueAsString(String value)
 	{
 		VerifiableEmail domainValue = syntax.convertFromString(value);
 		StringBuilder rep = new StringBuilder(domainValue.getValue());
 		rep.append(formatter.getConfirmationStatusString(domainValue.getConfirmationInfo()));
-		//if we exceeded limit, don't add extra info
-		if (rep.length() > limited)
-			rep = new StringBuilder(domainValue.getValue());
-		return TextOnlyAttributeHandler.trimString(rep.toString(), limited);
+		return rep.toString();
 	}
 
 	
@@ -178,11 +174,9 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 	}
 
 	@Override
-	public Component getRepresentation(
-			String value,
-			pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler.RepresentationSize size)
+	public Component getRepresentation(String value)
 	{
-		return new Label(getValueAsString(value, TextOnlyAttributeHandler.toLengthLimit(size)));
+		return new Label(getValueAsString(value));
 	}
 	
 	
