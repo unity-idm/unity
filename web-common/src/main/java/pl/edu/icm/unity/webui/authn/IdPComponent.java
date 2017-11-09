@@ -34,7 +34,7 @@ public class IdPComponent extends CustomComponent
 	{
 		providerB = new Button();
 		providerB.setImmediate(true);
-		providerB.setStyleName(Styles.vButtonLinkV.toString());
+		providerB.setStyleName(Styles.vButtonLink.toString());
 		providerB.addStyleName(Styles.smallMargins.toString());
 		providerB.setId("IdpSelector." + id);
 		

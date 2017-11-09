@@ -20,6 +20,10 @@
 		height: inherit;
 	}
 	
+	.v-button-link:after {
+		content: none;
+	}
+
 	.v-label-light {
     	font-size: small;
 	}
@@ -118,7 +122,6 @@
 	}
 	
 	.u-toolbarButton:hover {
-		box-shadow: 0px 1px 3px 0px $shadowColor;
 	}
 	
 	.u-bigTab:hover {

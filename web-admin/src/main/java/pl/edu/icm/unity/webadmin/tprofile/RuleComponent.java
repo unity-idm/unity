@@ -8,8 +8,8 @@ package pl.edu.icm.unity.webadmin.tprofile;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -83,10 +83,11 @@ public class RuleComponent extends CustomComponent
 		header.setSizeFull();
 		header.setMargin(false);
 		header.setSpacing(true);
-		
+
 		showHide = new Button(Images.vaadinDownArrow.getResource());
 		showHide.addStyleName(Styles.vButtonLink.toString());
 		showHide.addStyleName(Styles.toolbarButton.toString());
+		showHide.addStyleName(Styles.vButtonBorderless.toString());
 		showHide.addClickListener(event -> showHideContent(!content.isVisible()));
 		header.addComponent(showHide);
 		header.setComponentAlignment(showHide, Alignment.MIDDLE_LEFT);
@@ -98,7 +99,7 @@ public class RuleComponent extends CustomComponent
 		header.setExpandRatio(info, 1);
 
 		
-		DragHtmlLabel img = new DragHtmlLabel(this, Images.vaadinResize.getHtml());
+		DragHtmlLabel img = new DragHtmlLabel(this, Images.vaadinResize.getResource());
 		img.addStyleName(Styles.link.toString());
 		img.setSizeFull();
 		
@@ -311,12 +312,15 @@ public class RuleComponent extends CustomComponent
 		content.setVisible(show);
 	}
 
-	public static class DragHtmlLabel extends Label
+	public static class DragHtmlLabel extends Button
 	{
 		private RuleComponent parentRule;
-		public DragHtmlLabel(RuleComponent parent, String value)
+		
+		public DragHtmlLabel(RuleComponent parent, Resource icon)
 		{
-			super(value, ContentMode.HTML);
+			super(icon);
+			setStyleName(Styles.vButtonLink.toString());
+			addStyleName(Styles.vButtonBorderless.toString());
 			this.parentRule = parent;
 		}
 		
