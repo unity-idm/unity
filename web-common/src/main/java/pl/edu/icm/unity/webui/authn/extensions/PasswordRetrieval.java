@@ -159,7 +159,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		private void initUI()
 		{
 			VerticalLayout ret = new VerticalLayout();
-			ret.setSpacing(true);
+			ret.setMargin(false);
 			
 			usernameField = new TextField(msg.getMessage("AuthenticationUI.username"));
 			usernameField.setId("AuthenticationUI.username");

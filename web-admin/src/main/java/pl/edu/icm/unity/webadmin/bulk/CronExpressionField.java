@@ -6,7 +6,7 @@ package pl.edu.icm.unity.webadmin.bulk;
 
 import org.quartz.CronExpression;
 
-import com.vaadin.data.validator.AbstractStringValidator;
+import com.vaadin.v7.data.validator.AbstractStringValidator;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.RequiredTextField;

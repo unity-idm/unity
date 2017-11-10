@@ -231,6 +231,7 @@ public class ListOfEmbeddedElementsStub<T>
 			
 			addRemoveBar = new HorizontalLayout();
 			addRemoveBar.setSpacing(true);
+			addRemoveBar.setMargin(false);
 			addRemoveBar.addComponents(add, remove);
 			addRemoveBar.addStyleName(Styles.negativeTopMargin.toString());
 			cc.add(addRemoveBar);

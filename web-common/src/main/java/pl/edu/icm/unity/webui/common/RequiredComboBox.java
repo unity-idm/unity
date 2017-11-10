@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import com.vaadin.ui.ComboBox;
+import com.vaadin.v7.ui.ComboBox;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 

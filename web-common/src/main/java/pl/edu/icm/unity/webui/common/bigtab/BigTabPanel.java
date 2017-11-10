@@ -29,18 +29,20 @@ public class BigTabPanel extends HorizontalLayout
 
 	public BigTabPanel(int tabsBarWidth, Unit widthUnit, UnityMessageSource msg)
 	{
-		super();
 		this.msg = msg;
 		tabs = new BigTabs(tabsBarWidth, widthUnit);
 		mainPanel = new SafePanel();
 		main = new VerticalLayout();
 		main.setSizeFull();
 		main.setMargin(true);
+		main.setSpacing(false);
 		mainPanel.setContent(main);
 		Label spacer = new Label();
 		spacer.setWidth(15, Unit.PIXELS);
 		addComponents(tabs, spacer, mainPanel);
 		setExpandRatio(mainPanel, 1.0f);
+		setSpacing(false);
+		setMargin(false);
 	}
 	
 	public int getTabsCount()

@@ -49,6 +49,8 @@ public class CredentialResetFinalDialog extends AbstractDialog
 			throw new Exception();
 		}
 		VerticalLayout ret = new VerticalLayout();
+		ret.setMargin(false);
+		ret.setSpacing(false);
 		ret.addComponent(new Label(msg.getMessage("CredentialReset.updateCredentialInfo")));
 		FormLayout internal = new FormLayout();
 		internal.addComponents(credEditor.getEditor(false, 

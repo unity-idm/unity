@@ -4,15 +4,15 @@
  */
 package pl.edu.icm.unity.webadmin.identitytype;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.data.util.converter.StringToIntegerConverter;
-import com.vaadin.data.validator.IntegerRangeValidator;
-import com.vaadin.ui.CheckBox;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.Property.ValueChangeListener;
+import com.vaadin.v7.data.util.converter.StringToIntegerConverter;
+import com.vaadin.v7.data.validator.IntegerRangeValidator;
+import com.vaadin.v7.ui.CheckBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextArea;
-import com.vaadin.ui.TextField;
+import com.vaadin.v7.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;

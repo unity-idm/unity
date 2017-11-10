@@ -39,6 +39,8 @@ public class ListOfElements<T> extends VerticalLayout
 		this.labelConverter = labelConverter;
 		this.components = new ArrayList<>();
 		this.setId("ListOfElements");
+		this.setMargin(false);
+		this.setSpacing(false);
 	}
 	
 	public ListOfElements(UnityMessageSource msg)
@@ -108,6 +110,8 @@ public class ListOfElements<T> extends VerticalLayout
 		public Entry(T elementV)
 		{
 			HorizontalLayout cont = new HorizontalLayout();
+			cont.setMargin(false);
+			cont.setSpacing(false);
 			
 			this.element = elementV;
 			setSpacing(true);
@@ -154,6 +158,7 @@ public class ListOfElements<T> extends VerticalLayout
 				main.addComponent(HtmlTag.hr());
 			}
 			main.setSpacing(true);
+			main.setMargin(false);
 			setCompositionRoot(main);
 			
 		}

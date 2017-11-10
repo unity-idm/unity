@@ -101,7 +101,7 @@ public class CredentialReset3Dialog extends AbstractDialog
 			}
 		});
 		VerticalLayout ret = new VerticalLayout();
-		ret.setSpacing(true);
+		ret.setMargin(false);
 		ret.addComponent(userLabel);
 		FormLayout form = new FormLayout(answer, resend);
 		ret.addComponent(form);

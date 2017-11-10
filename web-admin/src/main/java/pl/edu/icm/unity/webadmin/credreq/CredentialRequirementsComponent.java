@@ -13,15 +13,15 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.event.Action;
 import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.Property.ValueChangeListener;
+import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.v7.ui.Label;
+import com.vaadin.v7.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
@@ -77,7 +77,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 		addStyleName(Styles.visibleScroll.toString());
 		setCaption(msg.getMessage("CredentialRequirements.caption"));
 		viewer = new CredentialRequirementViewer(msg);
-		table =  new GenericElementsTable<CredentialRequirements>(
+		table =  new GenericElementsTable<>(
 				msg.getMessage("CredentialRequirements.credentialRequirementsHeader"), 
 				new GenericElementsTable.NameProvider<CredentialRequirements>()
 				{
@@ -216,7 +216,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 	private Collection<CredentialRequirements> getItems(Object target)
 	{
 		Collection<?> c = (Collection<?>) target;
-	        Collection<CredentialRequirements> items = new ArrayList<CredentialRequirements>();
+	        Collection<CredentialRequirements> items = new ArrayList<>();
 		for (Object o: c)
 		{
 			GenericItem<?> i = (GenericItem<?>) o;
@@ -288,7 +288,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 			CredentialRequirements crClone = new CredentialRequirements();
 			crClone.setDescription(cr.getDescription());
 			crClone.setName(cr.getName());
-			crClone.setRequiredCredentials(new HashSet<String>(cr.getRequiredCredentials()));
+			crClone.setRequiredCredentials(new HashSet<>(cr.getRequiredCredentials()));
 			CredentialRequirementEditor editor = new CredentialRequirementEditor(msg, allCredentials, crClone);
 			CredentialRequirementEditDialog dialog = new CredentialRequirementEditDialog(msg, 
 					msg.getMessage("CredentialRequirements.editAction"), editor, 
@@ -317,7 +317,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 		public void handleAction(Object sender, Object target)
 		{		
 			final Collection<CredentialRequirements> items = getItems(target);			
-			HashSet<String> removed = new HashSet<String>();
+			HashSet<String> removed = new HashSet<>();
 			for (CredentialRequirements item : items)
 			{
 				removed.add(item.getName());

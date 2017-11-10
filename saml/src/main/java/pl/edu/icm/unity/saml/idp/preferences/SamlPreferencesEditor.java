@@ -7,12 +7,12 @@ package pl.edu.icm.unity.saml.idp.preferences;
 import java.util.Collection;
 import java.util.List;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.event.Action.Handler;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.v7.ui.HorizontalLayout;
 
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;

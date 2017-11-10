@@ -10,7 +10,7 @@ import com.vaadin.server.UserError;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Layout;
-import com.vaadin.ui.TextField;
+import com.vaadin.v7.ui.TextField;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;

@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.v7.data.util.BeanItemContainer;
 import com.vaadin.event.Action;
 import com.vaadin.ui.Label;
 

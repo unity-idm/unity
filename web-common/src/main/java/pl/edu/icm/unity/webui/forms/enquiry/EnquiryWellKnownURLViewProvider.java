@@ -144,6 +144,8 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 			wrapper.setComponentAlignment(confirmation, Alignment.MIDDLE_CENTER);
 			wrapper.setExpandRatio(confirmation, 2f);
 			wrapper.setSizeFull();
+			wrapper.setSpacing(false);
+			wrapper.setMargin(false);
 			setSizeFull();
 			setCompositionRoot(wrapper);
 		}

@@ -135,6 +135,7 @@ public class RequestProcessingPanel extends CustomComponent
 		});
 		HorizontalLayout buttonsBar = new HorizontalLayout(accept, reject, delete);
 		buttonsBar.setSpacing(true);
+		buttonsBar.setMargin(false);
 		
 		
 		main = new VerticalLayout(topInfo, tabs, buttonsBar);

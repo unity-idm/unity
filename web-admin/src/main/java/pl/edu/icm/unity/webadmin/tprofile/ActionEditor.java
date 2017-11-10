@@ -11,12 +11,11 @@ import java.util.function.Consumer;
 
 import org.apache.logging.log4j.Logger;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.AbstractComponent;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.Property.ValueChangeListener;
+import com.vaadin.v7.ui.ComboBox;
 import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -196,7 +195,7 @@ public class ActionEditor extends LayoutEmbeddable
 	public void setReadOnlyStyle(boolean readOnly)
 	{
 		actions.setReadOnly(readOnly);
-		for (Component param: paramComponents)
+		for (ActionParameterComponent param: paramComponents)
 			param.setReadOnly(readOnly);
 	}
 	

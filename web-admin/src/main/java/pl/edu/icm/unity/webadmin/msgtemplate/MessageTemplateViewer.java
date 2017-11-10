@@ -35,10 +35,8 @@ public class MessageTemplateViewer extends MessageTemplateViewerBase
 		main.setSpacing(true);
 		description = new Label();
 		description.setCaption(msg.getMessage("MessageTemplateViewer.description"));
-		description.setReadOnly(true);
 		consumer = new Label();
 		consumer.setCaption(msg.getMessage("MessageTemplateViewer.consumer"));
-		consumer.setReadOnly(true);
 		main.addComponent(consumer, 1);	
 		main.addComponent(description, 1);
 		

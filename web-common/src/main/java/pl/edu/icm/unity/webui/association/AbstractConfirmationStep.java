@@ -99,7 +99,7 @@ public abstract class AbstractConfirmationStep extends CustomComponent implement
 	{
 		VerticalLayout mainLayout = new VerticalLayout();
 		mainLayout.setSizeFull();
-		mainLayout.setMargin(true);
+		mainLayout.setSpacing(false);
 		setSizeFull();
 		
 		introLabel = new HtmlLabel(msg);

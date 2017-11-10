@@ -11,12 +11,12 @@ import java.util.Set;
 import org.apache.commons.io.FilenameUtils;
 
 import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.ProgressBar;
-import com.vaadin.ui.Upload;
+import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.v7.ui.ProgressBar;
+import com.vaadin.v7.ui.Upload;
 
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;

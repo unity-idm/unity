@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.preferences;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.event.Action.Handler;
 
 import pl.edu.icm.unity.JsonUtil;

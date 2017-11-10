@@ -74,11 +74,17 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 		}
 		
 		VerticalLayout contents = new VerticalLayout();
+		contents.setMargin(false);
+		contents.setSpacing(false);
 		VerticalLayout mainWrapper = new VerticalLayout();
+		mainWrapper.setSpacing(false);
+		mainWrapper.setMargin(false);
 		mainWrapper.setSizeFull();
 		mainWrapper.addComponent(new TopHeaderLight(msg.getMessage("ConfirmationUI.title"),
 				msg));
 		HorizontalLayout infoWrapper = new HorizontalLayout();
+		infoWrapper.setSpacing(false);
+		infoWrapper.setMargin(false);
 		infoWrapper.setWidth(50, Unit.PERCENTAGE);
 		String infoKey = status.getUserMessageKey();
 		String[] infoArgs = status.getUserMessageArgs();

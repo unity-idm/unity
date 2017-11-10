@@ -63,7 +63,7 @@ public class EndpointsComponent extends VerticalLayout
 		this.endpointMan = endpointMan;
 		this.serverMan = serverMan;
 		this.endpointComponentFactory = endpointComponentFactory;
-		this.endpointComponents = new TreeMap<String, EndpointComponent>();
+		this.endpointComponents = new TreeMap<>();
 		initUI();
 	}
 
@@ -75,8 +75,6 @@ public class EndpointsComponent extends VerticalLayout
 		HorizontalLayout h = new HorizontalLayout();
 		Label listCaption = new Label(msg.getMessage("Endpoints.listCaption"));
 		listCaption.addStyleName(Styles.bold.toString());
-		h.setMargin(true);
-		h.setSpacing(true);
 		
 		Button refreshViewButton = new Button();
 		refreshViewButton.setIcon(Images.refresh.getResource());
@@ -93,7 +91,7 @@ public class EndpointsComponent extends VerticalLayout
 		refreshViewButton.setDescription(msg.getMessage("Endpoints.refreshList"));
 		
 		HorizontalLayout ch = new HorizontalLayout();
-		ch.setSpacing(true);
+		ch.setMargin(false);
 		ch.addComponent(listCaption);
 		ch.addComponent(new Label(" "));
 		ch.addComponent(refreshViewButton);
@@ -112,8 +110,6 @@ public class EndpointsComponent extends VerticalLayout
 		addComponent(h);
 
 		content = new VerticalLayout();
-		content.setMargin(true);
-		content.setSpacing(true);
 		addComponent(content);
 
 		updateContent();

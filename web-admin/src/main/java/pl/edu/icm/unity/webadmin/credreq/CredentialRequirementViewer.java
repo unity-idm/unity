@@ -6,7 +6,7 @@ package pl.edu.icm.unity.webadmin.credreq;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Table;
+import com.vaadin.v7.ui.Table;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;

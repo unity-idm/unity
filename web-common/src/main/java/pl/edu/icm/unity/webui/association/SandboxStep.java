@@ -81,8 +81,6 @@ public class SandboxStep extends CustomComponent implements WizardStep
 	{
 		VerticalLayout mainLayout = new VerticalLayout();
 		mainLayout.setWidth("100%");
-		mainLayout.setMargin(true);
-		mainLayout.setSpacing(true);
 		setWidth("100.0%");
 		setHeight("-1px");
 		Label infoLabel = new Label();

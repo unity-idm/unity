@@ -7,11 +7,11 @@ package pl.edu.icm.unity.webadmin.credreq;
 import java.util.Collection;
 import java.util.HashSet;
 
-import com.vaadin.data.fieldgroup.FieldGroup;
-import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
-import com.vaadin.data.util.BeanItem;
-import com.vaadin.ui.AbstractTextField;
-import com.vaadin.ui.TwinColSelect;
+import com.vaadin.v7.data.fieldgroup.FieldGroup;
+import com.vaadin.v7.data.fieldgroup.FieldGroup.CommitException;
+import com.vaadin.v7.data.util.BeanItem;
+import com.vaadin.v7.ui.AbstractTextField;
+import com.vaadin.v7.ui.TwinColSelect;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
@@ -76,7 +76,7 @@ public class CredentialRequirementEditor extends CompactFormLayout
 		
 		CredentialRequirements cr = initial == null ? new CredentialRequirements(
 				msg.getMessage("CredentialRequirements.defaultName"), "", new HashSet<String>()) : initial;
-		formItem = new BeanItem<CredentialRequirements>(cr);
+		formItem = new BeanItem<>(cr);
 		if (initial != null)
 			formItem.getItemProperty("name").setReadOnly(true);
 		

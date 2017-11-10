@@ -7,12 +7,12 @@ package pl.edu.icm.unity.webui.common.attributes.ext;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.server.UserError;
-import com.vaadin.ui.AbstractTextField;
-import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.ui.AbstractTextField;
+import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.v7.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -71,6 +71,8 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 	public Component getSyntaxViewer()
 	{
 		VerticalLayout ret = new VerticalLayout();
+		ret.setSpacing(false);
+		ret.setMargin(false);
 		Label info = new Label(msg.getMessage("VerifiableEmailAttributeHandler.info"));
 		ret.addComponent(info);
 		return ret;
@@ -83,7 +85,10 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 		@Override
 		public Component getEditor()
 		{
-			return new VerticalLayout();
+			VerticalLayout layout = new VerticalLayout();
+			layout.setSpacing(false);
+			layout.setMargin(false);
+			return layout;
 		}
 
 		@Override

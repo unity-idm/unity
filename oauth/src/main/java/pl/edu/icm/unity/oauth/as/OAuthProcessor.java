@@ -15,8 +15,8 @@ import java.util.Set;
 import org.bouncycastle.util.Arrays;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.gwt.thirdparty.guava.common.collect.Lists;
-import com.google.gwt.thirdparty.guava.common.collect.Sets;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -200,7 +200,7 @@ public class OAuthProcessor
 	 */
 	private Set<DynamicAttribute> filterUnsupportedAttributes(Set<DynamicAttribute> src)
 	{
-		Set<DynamicAttribute> ret = new HashSet<DynamicAttribute>();
+		Set<DynamicAttribute> ret = new HashSet<>();
 		OAuthAttributeMapper mapper = new DefaultOAuthAttributeMapper();
 		
 		for (DynamicAttribute a: src)
@@ -214,7 +214,7 @@ public class OAuthProcessor
 			Set<String> requestedAttributes)
 	{
 		Collection<DynamicAttribute> allAttrs = translationResult.getAttributes();
-		Set<DynamicAttribute> filteredAttrs = new HashSet<DynamicAttribute>();
+		Set<DynamicAttribute> filteredAttrs = new HashSet<>();
 		
 		for (DynamicAttribute attr: allAttrs)
 			if (requestedAttributes.contains(attr.getAttribute().getName()))
@@ -280,7 +280,7 @@ public class OAuthProcessor
 		if (pk instanceof RSAPrivateKey)
 		{
 			ret = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), idTokenClaims.toJWTClaimsSet());
-			signer = new RSASSASigner((RSAPrivateKey)pk);
+			signer = new RSASSASigner(pk);
 		} else 
 		{
 			ret = new SignedJWT(new JWSHeader(JWSAlgorithm.ES256), 

@@ -72,7 +72,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		VerticalLayout main = new VerticalLayout();
 
 		header = new HorizontalLayout();
-		header.setSpacing(true);
+		header.setMargin(false);
 		header.setWidth(100, Unit.PERCENTAGE);
 		
 		main.addComponent(header);
@@ -225,12 +225,14 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		}
 		HorizontalLayout statusBar = new HorizontalLayout(statusLabel, statusIcon);
 		statusBar.setSpacing(true);
+		statusBar.setMargin(false);
 		header.addComponent(statusBar);
 		header.setExpandRatio(statusBar, 2);
 		header.setComponentAlignment(statusBar, Alignment.BOTTOM_LEFT);
 		
 		HorizontalLayout toolbar = new HorizontalLayout(reloadButton, undeplyButton, deployButton);
 		toolbar.setSpacing(true);
+		toolbar.setMargin(false);
 		header.addComponent(toolbar);
 		header.setExpandRatio(toolbar, 1);
 		header.setComponentAlignment(toolbar, Alignment.BOTTOM_RIGHT);

@@ -22,6 +22,7 @@ public class TopHeaderLight extends HorizontalLayout
 	{
 		addStyleName(Styles.header.toString());
 		setMargin(true);
+		setSpacing(false);
 		setWidth(100, Unit.PERCENTAGE);
 		
 		titleL = new Label(title);

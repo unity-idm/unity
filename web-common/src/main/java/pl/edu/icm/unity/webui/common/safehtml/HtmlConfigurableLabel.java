@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common.safehtml;
 
-import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;

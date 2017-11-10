@@ -55,6 +55,7 @@ public class ContactEmailMetadataHandler implements WebAttributeMetadataHandler
 			{
 				VerticalLayout ret = new VerticalLayout();
 				ret.setSpacing(true);
+				ret.setMargin(false);
 				ret.addComponent(new Label(msg.getMessage("ContactEmailMetadataHandler.label")));
 				ret.addComponent(new Label(" "));
 				ret.addComponent(new Label(msg.getMessage("ContactEmailMetadataHandler.noParamsAreNeeded")));

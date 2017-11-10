@@ -9,13 +9,13 @@ import java.util.Collection;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.Property.ValueChangeListener;
+import com.vaadin.v7.data.util.BeanItemContainer;
 import com.vaadin.event.Action;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.Table;
+import com.vaadin.v7.ui.Table;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;

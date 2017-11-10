@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webui.common;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.vaadin.ui.ComboBox;
+import com.vaadin.v7.ui.ComboBox;
 
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.exceptions.EngineException;

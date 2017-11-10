@@ -7,12 +7,12 @@ package pl.edu.icm.unity.webui.common.credentials.ext;
 import java.util.List;
 
 import com.vaadin.server.UserError;
-import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.PasswordField;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.v7.ui.PasswordField;
+import com.vaadin.v7.ui.TextField;
 
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.authn.CredentialResetSettings;

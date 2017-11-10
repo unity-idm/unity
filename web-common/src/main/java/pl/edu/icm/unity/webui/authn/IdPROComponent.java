@@ -41,6 +41,8 @@ public class IdPROComponent extends CustomComponent
 		providerName.addStyleName(Styles.textXLarge.toString());
 		content.addComponent(providerName);
 		content.setComponentAlignment(providerName, Alignment.TOP_CENTER);
+		content.setSpacing(false);
+		content.setMargin(false);
 		setCompositionRoot(content);
 	}
 }

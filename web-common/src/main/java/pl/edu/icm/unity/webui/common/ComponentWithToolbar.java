@@ -31,7 +31,7 @@ public class ComponentWithToolbar extends CustomComponent
 		Orientation orientation = toolbar.getOrientation();
 		AbstractOrderedLayout layout = orientation == Orientation.HORIZONTAL ? 
 				new VerticalLayout() : new HorizontalLayout();
-		layout.setSpacing(true);
+		layout.setMargin(false);
 		if (orientation == Orientation.HORIZONTAL)
 		{
 			layout.addComponent(toolbar);

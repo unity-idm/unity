@@ -14,17 +14,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.server.UserError;
-import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.v7.ui.Table;
+import com.vaadin.v7.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -146,6 +146,8 @@ public class EnumAttributeHandler implements WebAttributeHandler
 		allowedTable.setReadOnly(true);
 		
 		VerticalLayout ret = new VerticalLayout();
+		ret.setMargin(false);
+		ret.setSpacing(false);
 		ret.addComponent(allowedTable);
 		return ret;
 	}
@@ -169,6 +171,7 @@ public class EnumAttributeHandler implements WebAttributeHandler
 		{
 			VerticalLayout vl = new VerticalLayout();
 			vl.setSpacing(true);
+			vl.setMargin(false);
 			
 			HorizontalLayout hl = new HorizontalLayout();
 			value = new TextField();
@@ -191,6 +194,7 @@ public class EnumAttributeHandler implements WebAttributeHandler
 			});
 			hl.addComponent(add);
 			hl.setSpacing(true);
+			hl.setMargin(false);
 			
 			vl.addComponent(hl);
 			
@@ -217,7 +221,7 @@ public class EnumAttributeHandler implements WebAttributeHandler
 				throws IllegalAttributeTypeException
 		{
 			EnumAttributeSyntax ret = new EnumAttributeSyntax();
-			Set<String> allowed = new HashSet<String>();
+			Set<String> allowed = new HashSet<>();
 			for (Object itemId: current.getItemIds())
 				allowed.add((String)itemId);
 			if (allowed.isEmpty())

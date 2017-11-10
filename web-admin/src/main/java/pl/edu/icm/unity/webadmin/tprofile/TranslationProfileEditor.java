@@ -12,16 +12,16 @@ import com.vaadin.event.dd.DragAndDropEvent;
 import com.vaadin.event.dd.DropHandler;
 import com.vaadin.event.dd.acceptcriteria.AcceptAll;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
-import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.DragAndDropWrapper;
 import com.vaadin.ui.DragAndDropWrapper.WrapperTransferable;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.v7.ui.AbstractTextField;
+import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -112,7 +112,6 @@ public class TranslationProfileEditor extends VerticalLayout
 	protected void initUI()
 	{
 		rulesLayout = new VerticalLayout();
-		rulesLayout.setImmediate(true);
 		rulesLayout.setSpacing(false);
 		rulesLayout.setMargin(false);
 		rulesLayout.setHeightUndefined();

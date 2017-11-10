@@ -32,12 +32,11 @@ public class IntroStep extends CustomComponent implements WizardStep
 	{
 		VerticalLayout mainLayout = new VerticalLayout();
 		mainLayout.setSizeFull();
-		mainLayout.setMargin(true);
+		mainLayout.setSpacing(false);
 		setSizeFull();
 		
 		introLabel = new HtmlLabel(msg);
 		introLabel.setHtmlValue(introTextKey);
-		introLabel.setImmediate(false);
 		mainLayout.addComponent(introLabel);
 		
 		return mainLayout;

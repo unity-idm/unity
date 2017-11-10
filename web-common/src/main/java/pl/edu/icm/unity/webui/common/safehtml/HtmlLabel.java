@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common.safehtml;
 
-import com.google.gwt.thirdparty.guava.common.html.HtmlEscapers;
-import com.vaadin.shared.ui.label.ContentMode;
+import com.google.common.html.HtmlEscapers;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -36,6 +36,7 @@ public class HtmlLabel extends Label
 		setHtmlValue(msgKey, unsafeArgs);
 	}
 	
+	@Override
 	public final void setContentMode(ContentMode cm)
 	{
 		if (getContentMode() != ContentMode.TEXT)

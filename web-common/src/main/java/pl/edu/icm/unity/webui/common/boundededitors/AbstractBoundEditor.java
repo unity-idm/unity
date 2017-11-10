@@ -4,14 +4,14 @@
  */
 package pl.edu.icm.unity.webui.common.boundededitors;
 
-import com.vaadin.data.util.converter.Converter;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomField;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.TextField;
+import com.vaadin.v7.data.util.converter.Converter;
+import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.v7.ui.CustomField;
+import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.v7.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -55,7 +55,7 @@ public abstract class AbstractBoundEditor<T extends Number> extends CustomField<
 		unlimited.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override
-			public void valueChange(com.vaadin.data.Property.ValueChangeEvent event)
+			public void valueChange(com.vaadin.v7.data.Property.ValueChangeEvent event)
 			{
 				boolean limited = !unlimited.getValue();
 				limit.setEnabled(limited);
@@ -69,7 +69,7 @@ public abstract class AbstractBoundEditor<T extends Number> extends CustomField<
 		limit.addValueChangeListener(new ValueChangeListener()
 		{
 			@Override
-			public void valueChange(com.vaadin.data.Property.ValueChangeEvent event)
+			public void valueChange(com.vaadin.v7.data.Property.ValueChangeEvent event)
 			{
 				boolean limited = !unlimited.getValue();
 				setComponentError(null);
@@ -80,7 +80,7 @@ public abstract class AbstractBoundEditor<T extends Number> extends CustomField<
 		addValueChangeListener(new ValueChangeListener()
 		{
 			@Override
-			public void valueChange(com.vaadin.data.Property.ValueChangeEvent event)
+			public void valueChange(com.vaadin.v7.data.Property.ValueChangeEvent event)
 			{
 				T value = getValue();
 				if (bound.equals(value))

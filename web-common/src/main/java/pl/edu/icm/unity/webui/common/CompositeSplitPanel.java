@@ -27,8 +27,10 @@ public class CompositeSplitPanel extends VerticalLayout
 	{
 		AbstractSplitPanel split;
 		vl1 = new VerticalLayout();
+		vl1.setSpacing(false);
 		vl1.setSizeFull();
 		vl2 = new VerticalLayout();
+		vl2.setSpacing(false);
 		vl2.setSizeFull();
 		
 		if (vertical)

@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webadmin.tprofile;
 import java.util.Collection;
 
 import com.vaadin.server.UserError;
-import com.vaadin.ui.ComboBox;
+import com.vaadin.v7.ui.ComboBox;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;

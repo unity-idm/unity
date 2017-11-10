@@ -13,8 +13,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.simplefiledownloader.SimpleFileDownloader;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.event.Action;
 import com.vaadin.server.Resource;
 import com.vaadin.server.StreamResource;
@@ -22,8 +20,10 @@ import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.Property.ValueChangeListener;
+import com.vaadin.v7.ui.OptionGroup;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
@@ -92,7 +92,9 @@ public class TranslationProfilesComponent extends VerticalLayout
 		outputActionsRegistry = outputTranslationActionsRegistry;
 		this.actionComponentFactory = actionComponentFactory;
 
-		setCaption(msg.getMessage("TranslationProfilesComponent.capion"));		
+		setCaption(msg.getMessage("TranslationProfilesComponent.capion"));
+		setMargin(false);
+		setSpacing(false);
 		
 		try 
 		{
@@ -203,6 +205,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		
 		VerticalLayout left = new VerticalLayout();
 		left.setSpacing(true);
+		left.setMargin(false);
 		left.addComponents(profileType, tableWithToolbar);
 		
 		hl.addComponents(left, viewer);
@@ -551,7 +554,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 			TranslationProfileEditor editor;
 			try
 			{
-				editor = (TranslationProfileEditor) getProfileEditor(null);				
+				editor = getProfileEditor(null);				
 			} catch (EngineException e)
 			{
 				NotificationPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorReadData"),

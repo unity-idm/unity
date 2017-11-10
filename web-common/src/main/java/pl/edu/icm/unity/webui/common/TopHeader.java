@@ -33,6 +33,7 @@ public class TopHeader extends TopHeaderLight
 		HorizontalLayout loggedPanel = new HorizontalLayout();
 		loggedPanel.setSizeUndefined();
 		loggedPanel.setSpacing(true);
+		loggedPanel.setMargin(false);
 		addComponent(loggedPanel);
 		setComponentAlignment(loggedPanel, Alignment.MIDDLE_RIGHT);
 		

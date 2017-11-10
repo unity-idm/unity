@@ -67,14 +67,12 @@ public class UnknownUserDialog extends AbstractDialog
 	protected Component getContents() throws Exception
 	{
 		VerticalLayout main = new VerticalLayout();
-		main.setSpacing(true);
+		main.setMargin(false);
 		
 		Label mainInfo = new Label(msg.getMessage("UnknownUserDialog.generalInfo"));
 		
 		HorizontalLayout options = new HorizontalLayout();
 		options.setSizeFull();
-		options.setSpacing(true);
-		options.setMargin(true);
 		if (authNResult.getFormForUnknownPrincipal() != null)
 		{
 			log.debug("Adding registration component");
@@ -92,7 +90,7 @@ public class UnknownUserDialog extends AbstractDialog
 	private Component getRegistrationComponent()
 	{
 		VerticalLayout ret = new VerticalLayout();
-		ret.setSpacing(true);
+		ret.setMargin(false);
 		Label label = new Label(msg.getMessage("UnknownUserDialog.registerInfo"));
 		label.setSizeFull();
 		Button register = new Button(msg.getMessage("UnknownUserDialog.register"));
@@ -116,7 +114,7 @@ public class UnknownUserDialog extends AbstractDialog
 	private Component getAssociationComponent()
 	{
 		VerticalLayout ret = new VerticalLayout();
-		ret.setSpacing(true);
+		ret.setMargin(false);
 		Label label = new Label(msg.getMessage("UnknownUserDialog.associationInfo"));
 		label.setSizeFull();
 		Button associate = new Button(msg.getMessage("UnknownUserDialog.associate"));

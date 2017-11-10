@@ -8,12 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.shared.ui.combobox.FilteringMode;
-import com.vaadin.ui.ComboBox;
+import com.vaadin.v7.data.util.IndexedContainer;
+import com.vaadin.v7.shared.ui.combobox.FilteringMode;
+import com.vaadin.v7.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.OptionGroup;
+import com.vaadin.v7.ui.OptionGroup;
 
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;

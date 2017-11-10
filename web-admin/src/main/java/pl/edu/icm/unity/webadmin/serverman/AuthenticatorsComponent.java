@@ -65,7 +65,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 		this.authMan = authMan;
 		this.serverMan = serverMan;
 		this.authenticatorComponentFactory = authenticatorComponentFactory;
-		this.authenticatorComponents = new TreeMap<String, AuthenticatorComponent>();
+		this.authenticatorComponents = new TreeMap<>();
 		initUI();
 	}
 
@@ -147,7 +147,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 			setError(msg.getMessage("Authenticators.cannotLoadList"), e);
 			return;
 		}
-		Set<String> existing = new HashSet<String>();
+		Set<String> existing = new HashSet<>();
 
 		for (AuthenticatorInstance ai : authenticators)
 		{

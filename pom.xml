@@ -22,7 +22,7 @@
 		<slf4j.version>1.7.24</slf4j.version>
 		<log4j.version>2.9.1</log4j.version>
 		<spring.version>4.3.10.RELEASE</spring.version>
-		<vaadin.version>7.6.4</vaadin.version>
+		<vaadin.version>8.1.5</vaadin.version>
 		<groovy-all.version>2.4.8</groovy-all.version>
 		<cxf.version>3.1.10</cxf.version>
 		<apacheds.version>2.0.0-M24</apacheds.version>
@@ -393,7 +393,7 @@
 			</dependency>
 			<dependency>
 				<groupId>com.vaadin</groupId>
-				<artifactId>vaadin-server</artifactId>
+				<artifactId>vaadin-compatibility-server</artifactId>
 				<version>${vaadin.version}</version>
 			</dependency>
 			<dependency>
@@ -403,7 +403,7 @@
 			</dependency>
 			<dependency>
 				<groupId>com.vaadin</groupId>
-				<artifactId>vaadin-client-compiled</artifactId>
+				<artifactId>vaadin-compatibility-client-compiled</artifactId>
 				<version>${vaadin.version}</version>
 			</dependency>
 			<dependency>
@@ -414,7 +414,7 @@
 			<dependency>
 				<groupId>org.vaadin.addons</groupId>
 				<artifactId>wizards-for-vaadin</artifactId>
-				<version>1.1.0</version>
+				<version>2.0.1</version>
 			</dependency>
 			<dependency>
 				<groupId>com.vaadin.addon.responsive</groupId>
@@ -424,17 +424,17 @@
 			<dependency>
 				<groupId>org.vaadin.addons</groupId>
 				<artifactId>stepper</artifactId>
-				<version>2.3.0</version>
+				<version>2.4.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.vaadin.addons</groupId>
 				<artifactId>simplefiledownloader</artifactId>
-				<version>1.0.4</version>
+				<version>2.0.2</version>
 			</dependency>
 			<dependency>
 				<groupId>com.vaadin</groupId>
 				<artifactId>vaadin-icons</artifactId>
-				<version>2.0.0</version>
+				<version>3.0.0</version>
 			</dependency>				
 			<dependency>
 				<groupId>com.vaadin</groupId>

@@ -114,7 +114,7 @@ public class CaptchaComponent
 	{
 		HorizontalLayout captchaLine = new HorizontalLayout();
 		captchaLine.addComponents(challenge, resetChallenge);
-		captchaLine.setSpacing(true);
+		captchaLine.setMargin(false);
 		captchaLine.setComponentAlignment(resetChallenge, Alignment.TOP_LEFT);
 		return captchaLine;
 	}
@@ -126,7 +126,7 @@ public class CaptchaComponent
 	public Component getAsComponent()
 	{
 		VerticalLayout ret = new VerticalLayout();
-		ret.setSpacing(true);
+		ret.setMargin(false);
 		ret.addComponents(createCapchaLine(), answer);
 		return ret;
 	}

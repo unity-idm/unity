@@ -34,9 +34,15 @@ public class ConfirmationComponent extends CustomComponent
 	private void initUI(Resource icon, String title, String information)
 	{
 		VerticalLayout mainStatus = new VerticalLayout();
+		mainStatus.setMargin(false);
+		mainStatus.setSpacing(false);
 		HorizontalLayout header = new HorizontalLayout();
 		header.setSizeFull();
+		header.setSpacing(false);
+		header.setMargin(false);
 		HorizontalLayout headerWrapper = new HorizontalLayout();
+		headerWrapper.setSpacing(false);
+		headerWrapper.setMargin(false);
 		Image statusIcon = new Image();
 		statusIcon.setSource(icon);
 		Label titleL = new Label(title);

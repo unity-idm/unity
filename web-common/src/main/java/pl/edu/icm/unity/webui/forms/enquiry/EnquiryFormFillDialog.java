@@ -78,6 +78,8 @@ public class EnquiryFormFillDialog extends AbstractDialog
 		vl.addComponent(editor);
 		vl.setComponentAlignment(editor, Alignment.TOP_CENTER);
 		vl.setHeight(100, Unit.PERCENTAGE);
+		vl.setMargin(false);
+		vl.setSpacing(false);
 		return vl;
 	}
 

@@ -50,8 +50,6 @@ public class AccessBlockedDialog extends Window
 		setCaption(msg.getMessage("error"));
 		
 		HorizontalLayout main = new HorizontalLayout();
-		main.setMargin(true);
-		main.setSpacing(true);
 		Image img = new Image();
 		img.setSource(Images.stderror64.getResource());
 		main.addComponent(img);
@@ -59,8 +57,6 @@ public class AccessBlockedDialog extends Window
 		main.addComponent(HtmlTag.hspaceEm(4));
 		
 		VerticalLayout vl = new VerticalLayout();
-		vl.setSpacing(true);
-		vl.setMargin(true);
 		
 		Label info = new Label(msg.getMessage("AccessBlockedDialog.info"));
 		info.addStyleName(Styles.textLarge.toString());

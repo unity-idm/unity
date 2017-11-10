@@ -4,12 +4,12 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
-import com.vaadin.data.Validator.InvalidValueException;
+import com.vaadin.v7.data.Validator.InvalidValueException;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.ui.TextField;
+import com.vaadin.v7.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;

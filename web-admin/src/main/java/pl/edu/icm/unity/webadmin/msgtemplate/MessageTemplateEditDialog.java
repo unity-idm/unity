@@ -40,6 +40,8 @@ public class MessageTemplateEditDialog extends AbstractDialog
 		vl.addComponent(editor);
 		vl.setComponentAlignment(editor, Alignment.TOP_LEFT);
 		vl.setHeight(100, Unit.PERCENTAGE);
+		vl.setSpacing(false);
+		vl.setMargin(false);
 		return vl;
 	}
 	@Override

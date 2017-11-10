@@ -55,6 +55,7 @@ public class EntityNameMetadataHandler implements WebAttributeMetadataHandler
 			{
 				VerticalLayout ret = new VerticalLayout();
 				ret.setSpacing(true);
+				ret.setMargin(false);
 				ret.addComponent(new Label(msg.getMessage("EntityNameMetadataHandler.label")));
 				ret.addComponent(new Label(" "));
 				ret.addComponent(new Label(msg.getMessage("EntityNameMetadataHandler.noParamsAreNeeded")));

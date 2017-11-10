@@ -27,8 +27,6 @@ public class ConnectIdWellKnownURLView extends CustomComponent implements View
 		String caption = connectIdProvider.getCaption();
 		
 		VerticalLayout main = new VerticalLayout();
-		main.setSpacing(true);
-		main.setMargin(true);
 		
 		Label title = new Label(caption);
 		title.addStyleName(Styles.textLarge.toString());

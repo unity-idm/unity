@@ -27,17 +27,17 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
-import com.vaadin.data.Container;
-import com.vaadin.data.Container.Filter;
-import com.vaadin.data.Container.Filterable;
-import com.vaadin.data.Item;
-import com.vaadin.data.Property.ValueChangeNotifier;
+import com.vaadin.v7.data.Container;
+import com.vaadin.v7.data.Container.Filter;
+import com.vaadin.v7.data.Container.Filterable;
+import com.vaadin.v7.data.Item;
+import com.vaadin.v7.data.Property.ValueChangeNotifier;
 import com.vaadin.event.Action;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.ProgressBar;
-import com.vaadin.ui.Table.TableDragMode;
-import com.vaadin.ui.TreeTable;
+import com.vaadin.v7.ui.ProgressBar;
+import com.vaadin.v7.ui.Table.TableDragMode;
+import com.vaadin.v7.ui.TreeTable;
 import com.vaadin.ui.UI;
 
 import pl.edu.icm.unity.base.utils.Log;

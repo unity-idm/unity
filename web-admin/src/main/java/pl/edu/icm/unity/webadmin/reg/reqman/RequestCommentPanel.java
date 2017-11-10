@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webadmin.reg.reqman;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CustomComponent;
@@ -66,6 +66,7 @@ public class RequestCommentPanel extends CustomComponent
 		
 		contentP = new VerticalLayout();
 		contentP.setSpacing(true);
+		contentP.setMargin(false);
 		contentP.setHeight(80, Unit.PERCENTAGE);
 		
 		Button postPublic = new Button(msg.getMessage("RequestProcessingPanel.postPublic"));
@@ -94,6 +95,7 @@ public class RequestCommentPanel extends CustomComponent
 		
 		HorizontalLayout buttons = new HorizontalLayout(postPublic, postInternal);
 		buttons.setSpacing(true);
+		buttons.setMargin(false);
 		
 		main.addComponents(contentP, commentField, buttons);
 		setCompositionRoot(main);

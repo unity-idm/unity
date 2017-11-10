@@ -110,6 +110,8 @@ public class AttributeHandlerRegistry
 	{
 		VerticalLayout vl = new VerticalLayout();
 		vl.addStyleName(Styles.smallSpacing.toString());
+		vl.setMargin(false);
+		vl.setSpacing(false);
 		AttributeValueSyntax<?> syntax = getSyntaxWithStringFallback(attribute);
 		StringBuilder main = new StringBuilder(attribute.getName());
 		if (attribute.getRemoteIdp() != null)
@@ -120,6 +122,7 @@ public class AttributeHandlerRegistry
 		vl.addComponent(new Label(main.toString()));
 		VerticalLayout indentedValues = new VerticalLayout();
 		indentedValues.setMargin(new MarginInfo(false, false, false, true));
+		indentedValues.setSpacing(false);
 		WebAttributeHandler handler = getHandler(syntax);
 		for (String value: attribute.getValues())
 			indentedValues.addComponent(handler.getRepresentation(value, size));

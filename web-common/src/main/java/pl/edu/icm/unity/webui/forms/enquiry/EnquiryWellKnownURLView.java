@@ -73,6 +73,7 @@ public class EnquiryWellKnownURLView extends CustomComponent implements View
 		});
 		buttons.addComponents(cancel, ok);
 		buttons.setSpacing(true);
+		buttons.setMargin(false);
 		main.addComponent(buttons);
 		main.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);		
 	}
@@ -81,6 +82,8 @@ public class EnquiryWellKnownURLView extends CustomComponent implements View
 	private void initUIBase()
 	{
 		main = new VerticalLayout();
+		main.setSpacing(false);
+		main.setMargin(false);
 		addStyleName("u-standalone-public-form");
 		setCompositionRoot(main);
 		setWidth(100, Unit.PERCENTAGE);
@@ -100,6 +103,8 @@ public class EnquiryWellKnownURLView extends CustomComponent implements View
 		wrapper.setExpandRatio(confirmation, 2f);
 		wrapper.setComponentAlignment(confirmation, Alignment.MIDDLE_CENTER);
 		wrapper.setSizeFull();
+		wrapper.setMargin(false);
+		wrapper.setSpacing(false);
 		setSizeFull();
 		setCompositionRoot(wrapper);
 	}

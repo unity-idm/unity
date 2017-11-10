@@ -98,14 +98,14 @@ public class SelectedAuthNPanel extends CustomComponent
 
 		VerticalLayout main = new VerticalLayout();
 		main.addStyleName("u-selectedAuthn");
-		main.setSpacing(true);
-		main.setMargin(true);
 		setSizeUndefined();
 		authenticatorsContainer = new VerticalLayout();		
 		authenticatorsContainer.setHeight(100, Unit.PERCENTAGE);
+		authenticatorsContainer.setSpacing(false);
+		authenticatorsContainer.setMargin(false);
 		
 		authnProgressHL = new HorizontalLayout();
-		authnProgressHL.setSpacing(true);
+		authnProgressHL.setMargin(false);
 		
 		ProgressBar progress = new ProgressBar();
 		progress.setIndeterminate(true);
@@ -152,7 +152,7 @@ public class SelectedAuthNPanel extends CustomComponent
 		main.setComponentAlignment(authenticatorsContainer, Alignment.MIDDLE_CENTER);
 		
 		HorizontalLayout buttons = new HorizontalLayout();
-		buttons.setSpacing(true);
+		buttons.setMargin(false);
 		buttons.addComponents(authenticateButton, resetMfaButton);
 		if (cancelHandler != null)
 		{

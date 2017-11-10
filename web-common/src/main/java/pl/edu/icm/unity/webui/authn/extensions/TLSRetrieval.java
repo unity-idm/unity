@@ -204,6 +204,8 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 
 			public TLSAuthnComponent()
 			{
+				setMargin(false);
+				setSpacing(false);
 				Label title = new Label(name.getValue(msg));
 				title.addStyleName(Styles.vLabelLarge.toString());
 				addComponent(title);

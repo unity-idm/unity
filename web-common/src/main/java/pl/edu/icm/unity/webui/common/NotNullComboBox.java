@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import com.vaadin.data.Item;
-import com.vaadin.ui.ComboBox;
+import com.vaadin.v7.data.Item;
+import com.vaadin.v7.ui.ComboBox;
 
 /**
  * Simple {@link ComboBox} which doesn't allow for empty selections, unless there is no contents.

@@ -9,15 +9,15 @@ import java.util.Locale;
 import java.util.Map;
 
 import com.vaadin.event.FieldEvents.FocusListener;
-import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextArea;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.ui.AbstractTextField;
+import com.vaadin.v7.ui.CustomField;
+import com.vaadin.v7.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
@@ -94,12 +94,14 @@ public abstract class Abstract18nField<T extends AbstractTextField> extends Cust
 		hl.addComponents(defaultTf, showAll);
 		hl.setComponentAlignment(showAll, Alignment.MIDDLE_CENTER);
 		hl.setSpacing(true);
+		hl.setMargin(false);
 		hl.setExpandRatio(defaultTf, 1.0f);
 		hl.setWidth(defaultTf.getWidth(), defaultTf.getWidthUnits());
 		hl.addStyleName(Styles.smallSpacing.toString());
 		
 		VerticalLayout main = new VerticalLayout();
 		main.setSpacing(true);
+		main.setMargin(false);
 		main.addStyleName(Styles.smallSpacing.toString());
 		main.addComponent(hl);
 

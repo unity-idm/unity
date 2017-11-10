@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import com.vaadin.ui.TextArea;
+import com.vaadin.v7.ui.TextArea;
 
 /**
  * {@link TextArea} specialization with settings common for description areas.
