@@ -9,8 +9,8 @@ import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Image;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
 import pl.edu.icm.unity.webui.common.ImageUtils;
@@ -41,6 +41,8 @@ public class IdPROComponent extends CustomComponent
 		providerName.addStyleName(Styles.textXLarge.toString());
 		content.addComponent(providerName);
 		content.setComponentAlignment(providerName, Alignment.TOP_CENTER);
+		content.setSpacing(false);
+		content.setMargin(false);
 		setCompositionRoot(content);
 	}
 }

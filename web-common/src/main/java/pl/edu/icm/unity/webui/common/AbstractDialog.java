@@ -7,18 +7,18 @@ package pl.edu.icm.unity.webui.common;
 import java.util.Iterator;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
-import com.vaadin.v7.ui.AbstractField;
+import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
-import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -185,8 +185,6 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		setClosable(false);
 
 		VerticalLayout vl = new VerticalLayout();
-		vl.setSpacing(true);
-		vl.setMargin(true);
 		vl.setSizeFull();
 		
 		Panel contentsPanel = new SafePanel();
@@ -197,7 +195,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		contentsComponent = getContents();
 		internal.addComponent(contentsComponent);
 		internal.setComponentAlignment(contentsComponent, Alignment.MIDDLE_CENTER);
-		internal.setMargin(true);
+		internal.setSpacing(false);
 		internal.addStyleName(Styles.visibleScroll.toString());
 		contentsPanel.setContent(internal);
 		contentsPanel.addStyleName(Styles.centeredPanel.toString());
@@ -225,8 +223,6 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	protected AbstractOrderedLayout getButtonsBar()
 	{
 		HorizontalLayout hl = new HorizontalLayout();
-		hl.setSpacing(true);
-		hl.setMargin(true);
 		hl.addComponent(confirm);
 		if (cancel != null)
 			hl.addComponent(cancel);
@@ -251,6 +247,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 			toFocus.focus();
 	}
 	
+	@Override
 	public void close()
 	{
 		unbindEnterShortcut();
@@ -266,6 +263,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 			enterButton.removeClickShortcut();	
 	}
 	
+	@Override
 	public void buttonClick(ClickEvent event) {
 		if (event.getSource() == confirm)
 			onConfirm();

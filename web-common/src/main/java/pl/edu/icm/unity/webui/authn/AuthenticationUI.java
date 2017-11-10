@@ -31,8 +31,8 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -157,6 +157,8 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		//language choice and registration
 		HorizontalLayout topBar = new HorizontalLayout();
 		topBar.setWidth(100, Unit.PERCENTAGE);
+		topBar.setSpacing(false);
+		topBar.setMargin(false);
 		Button registrationButton = buildRegistrationButton();
 		if (registrationButton != null)
 		{
@@ -166,7 +168,6 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		
 		VerticalLayout main = new VerticalLayout();
 		main.addComponent(topBar);
-		main.setSpacing(true);
 		main.setMargin(new MarginInfo(false, true, false, true));
 		main.setWidth(100, Unit.PERCENTAGE);
 		main.setHeightUndefined();
@@ -194,6 +195,8 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		{
 			HorizontalLayout tilesWrapper = new HorizontalLayout();
 			tilesWrapper.addComponent(selectorPanel);
+			tilesWrapper.setSpacing(false);
+			tilesWrapper.setMargin(false);
 			main.addComponent(tilesWrapper);
 			main.setComponentAlignment(tilesWrapper, Alignment.TOP_CENTER);
 			main.setExpandRatio(tilesWrapper, 1.0f);
@@ -207,6 +210,8 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		topLevelLayout.setHeightUndefined();
 		topLevelLayout.setWidth(100, Unit.PERCENTAGE);
 		topLevelLayout.setExpandRatio(main, 1.0f);
+		topLevelLayout.setSpacing(false);
+		topLevelLayout.setMargin(false);
 		
 		setContent(topLevelLayout);
 		setSizeFull();

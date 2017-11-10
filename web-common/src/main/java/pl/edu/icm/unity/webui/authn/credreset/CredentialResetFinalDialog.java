@@ -6,8 +6,8 @@ package pl.edu.icm.unity.webui.authn.credreset;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -49,6 +49,8 @@ public class CredentialResetFinalDialog extends AbstractDialog
 			throw new Exception();
 		}
 		VerticalLayout ret = new VerticalLayout();
+		ret.setMargin(false);
+		ret.setSpacing(false);
 		ret.addComponent(new Label(msg.getMessage("CredentialReset.updateCredentialInfo")));
 		FormLayout internal = new FormLayout();
 		internal.addComponents(credEditor.getEditor(false, 

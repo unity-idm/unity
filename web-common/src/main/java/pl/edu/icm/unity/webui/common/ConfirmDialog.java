@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.webui.common;
 
 import com.vaadin.ui.Component;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;

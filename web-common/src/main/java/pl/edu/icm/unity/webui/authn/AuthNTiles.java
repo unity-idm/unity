@@ -11,10 +11,10 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.v7.ui.TextField;
-import com.vaadin.v7.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -51,6 +51,8 @@ public class AuthNTiles extends CustomComponent
 		title.addStyleName(Styles.textSubHeading.toString());
 		main.addComponent(title);
 		main.setComponentAlignment(title, Alignment.MIDDLE_LEFT);
+		main.setSpacing(false);
+		main.setMargin(false);
 		
 		CssLayout tilesL = new CssLayout();
 		tilesL.setWidth(100, Unit.PERCENTAGE);
@@ -78,7 +80,6 @@ public class AuthNTiles extends CustomComponent
 			wrapper.addComponents(info, search);
 			wrapper.setComponentAlignment(info, Alignment.MIDDLE_RIGHT);
 			wrapper.setComponentAlignment(search, Alignment.MIDDLE_LEFT);
-			wrapper.setSpacing(true);
 			main.addComponent(wrapper);
 			main.setComponentAlignment(wrapper, Alignment.MIDDLE_RIGHT);
 		} else

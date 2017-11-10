@@ -23,10 +23,10 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
-import com.vaadin.v7.ui.TextField;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
 import nl.captcha.Captcha;
 import nl.captcha.backgrounds.GradiatedBackgroundProducer;
@@ -114,7 +114,7 @@ public class CaptchaComponent
 	{
 		HorizontalLayout captchaLine = new HorizontalLayout();
 		captchaLine.addComponents(challenge, resetChallenge);
-		captchaLine.setSpacing(true);
+		captchaLine.setMargin(false);
 		captchaLine.setComponentAlignment(resetChallenge, Alignment.TOP_LEFT);
 		return captchaLine;
 	}
@@ -126,7 +126,7 @@ public class CaptchaComponent
 	public Component getAsComponent()
 	{
 		VerticalLayout ret = new VerticalLayout();
-		ret.setSpacing(true);
+		ret.setMargin(false);
 		ret.addComponents(createCapchaLine(), answer);
 		return ret;
 	}

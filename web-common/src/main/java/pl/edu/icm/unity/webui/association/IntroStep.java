@@ -8,7 +8,7 @@ import org.vaadin.teemu.wizards.WizardStep;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
@@ -32,12 +32,11 @@ public class IntroStep extends CustomComponent implements WizardStep
 	{
 		VerticalLayout mainLayout = new VerticalLayout();
 		mainLayout.setSizeFull();
-		mainLayout.setMargin(true);
+		mainLayout.setSpacing(false);
 		setSizeFull();
 		
 		introLabel = new HtmlLabel(msg);
 		introLabel.setHtmlValue(introTextKey);
-		introLabel.setImmediate(false);
 		mainLayout.addComponent(introLabel);
 		
 		return mainLayout;

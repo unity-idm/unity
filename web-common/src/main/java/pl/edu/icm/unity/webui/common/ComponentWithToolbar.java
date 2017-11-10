@@ -9,8 +9,8 @@ import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Component with a pair of subcomponents: a generic main component and a {@link Toolbar}.
@@ -31,7 +31,7 @@ public class ComponentWithToolbar extends CustomComponent
 		Orientation orientation = toolbar.getOrientation();
 		AbstractOrderedLayout layout = orientation == Orientation.HORIZONTAL ? 
 				new VerticalLayout() : new HorizontalLayout();
-		layout.setSpacing(true);
+		layout.setMargin(false);
 		if (orientation == Orientation.HORIZONTAL)
 		{
 			layout.addComponent(toolbar);

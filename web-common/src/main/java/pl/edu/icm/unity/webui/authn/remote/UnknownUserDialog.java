@@ -11,9 +11,9 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -67,14 +67,12 @@ public class UnknownUserDialog extends AbstractDialog
 	protected Component getContents() throws Exception
 	{
 		VerticalLayout main = new VerticalLayout();
-		main.setSpacing(true);
+		main.setMargin(false);
 		
 		Label mainInfo = new Label(msg.getMessage("UnknownUserDialog.generalInfo"));
 		
 		HorizontalLayout options = new HorizontalLayout();
 		options.setSizeFull();
-		options.setSpacing(true);
-		options.setMargin(true);
 		if (authNResult.getFormForUnknownPrincipal() != null)
 		{
 			options.addComponent(getRegistrationComponent());
@@ -91,7 +89,7 @@ public class UnknownUserDialog extends AbstractDialog
 	private Component getRegistrationComponent()
 	{
 		VerticalLayout ret = new VerticalLayout();
-		ret.setSpacing(true);
+		ret.setMargin(false);
 		Label label = new Label(msg.getMessage("UnknownUserDialog.registerInfo"));
 		label.setSizeFull();
 		Button register = new Button(msg.getMessage("UnknownUserDialog.register"));
@@ -115,7 +113,7 @@ public class UnknownUserDialog extends AbstractDialog
 	private Component getAssociationComponent()
 	{
 		VerticalLayout ret = new VerticalLayout();
-		ret.setSpacing(true);
+		ret.setMargin(false);
 		Label label = new Label(msg.getMessage("UnknownUserDialog.associationInfo"));
 		label.setSizeFull();
 		Button associate = new Button(msg.getMessage("UnknownUserDialog.associate"));

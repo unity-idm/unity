@@ -6,12 +6,12 @@ package pl.edu.icm.unity.webui.authn;
 
 import com.vaadin.server.VaadinService;
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.ProgressBar;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
@@ -50,8 +50,6 @@ public class AccessBlockedDialog extends Window
 		setCaption(msg.getMessage("error"));
 		
 		HorizontalLayout main = new HorizontalLayout();
-		main.setMargin(true);
-		main.setSpacing(true);
 		Image img = new Image();
 		img.setSource(Images.stderror64.getResource());
 		main.addComponent(img);
@@ -59,8 +57,6 @@ public class AccessBlockedDialog extends Window
 		main.addComponent(HtmlTag.hspaceEm(4));
 		
 		VerticalLayout vl = new VerticalLayout();
-		vl.setSpacing(true);
-		vl.setMargin(true);
 		
 		Label info = new Label(msg.getMessage("AccessBlockedDialog.info"));
 		info.addStyleName(Styles.textLarge.toString());

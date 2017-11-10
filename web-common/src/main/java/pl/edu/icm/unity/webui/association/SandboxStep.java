@@ -16,8 +16,8 @@ import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.sandbox.wizard.SandboxPopup;
@@ -81,8 +81,6 @@ public class SandboxStep extends CustomComponent implements WizardStep
 	{
 		VerticalLayout mainLayout = new VerticalLayout();
 		mainLayout.setWidth("100%");
-		mainLayout.setMargin(true);
-		mainLayout.setSpacing(true);
 		setWidth("100.0%");
 		setHeight("-1px");
 		Label infoLabel = new Label();

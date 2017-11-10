@@ -27,9 +27,9 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.PasswordField;
-import com.vaadin.v7.ui.TextField;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.PasswordField;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.Constants;
@@ -159,7 +159,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		private void initUI()
 		{
 			VerticalLayout ret = new VerticalLayout();
-			ret.setSpacing(true);
+			ret.setMargin(false);
 			
 			usernameField = new TextField(msg.getMessage("AuthenticationUI.username"));
 			usernameField.setId("AuthenticationUI.username");

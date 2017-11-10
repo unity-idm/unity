@@ -14,7 +14,7 @@ import org.vaadin.teemu.wizards.event.WizardStepSetChangedEvent;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.authn.SandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.local.LocalSandboxAuthnContext;
@@ -99,7 +99,7 @@ public abstract class AbstractConfirmationStep extends CustomComponent implement
 	{
 		VerticalLayout mainLayout = new VerticalLayout();
 		mainLayout.setSizeFull();
-		mainLayout.setMargin(true);
+		mainLayout.setSpacing(false);
 		setSizeFull();
 		
 		introLabel = new HtmlLabel(msg);

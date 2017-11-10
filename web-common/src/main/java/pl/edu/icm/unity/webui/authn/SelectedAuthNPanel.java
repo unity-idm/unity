@@ -15,13 +15,13 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.ProgressBar;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.ProgressBar;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -98,14 +98,14 @@ public class SelectedAuthNPanel extends CustomComponent
 
 		VerticalLayout main = new VerticalLayout();
 		main.addStyleName("u-selectedAuthn");
-		main.setSpacing(true);
-		main.setMargin(true);
 		setSizeUndefined();
 		authenticatorsContainer = new VerticalLayout();		
 		authenticatorsContainer.setHeight(100, Unit.PERCENTAGE);
+		authenticatorsContainer.setSpacing(false);
+		authenticatorsContainer.setMargin(false);
 		
 		authnProgressHL = new HorizontalLayout();
-		authnProgressHL.setSpacing(true);
+		authnProgressHL.setMargin(false);
 		
 		ProgressBar progress = new ProgressBar();
 		progress.setIndeterminate(true);
@@ -152,7 +152,7 @@ public class SelectedAuthNPanel extends CustomComponent
 		main.setComponentAlignment(authenticatorsContainer, Alignment.MIDDLE_CENTER);
 		
 		HorizontalLayout buttons = new HorizontalLayout();
-		buttons.setSpacing(true);
+		buttons.setMargin(false);
 		buttons.addComponents(authenticateButton, resetMfaButton);
 		if (cancelHandler != null)
 		{
