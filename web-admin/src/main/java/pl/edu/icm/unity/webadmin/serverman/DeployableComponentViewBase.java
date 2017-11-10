@@ -13,11 +13,11 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.ServerManagement;
@@ -72,7 +72,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		VerticalLayout main = new VerticalLayout();
 
 		header = new HorizontalLayout();
-		header.setSpacing(true);
+		header.setMargin(false);
 		header.setWidth(100, Unit.PERCENTAGE);
 		
 		main.addComponent(header);
@@ -225,12 +225,14 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		}
 		HorizontalLayout statusBar = new HorizontalLayout(statusLabel, statusIcon);
 		statusBar.setSpacing(true);
+		statusBar.setMargin(false);
 		header.addComponent(statusBar);
 		header.setExpandRatio(statusBar, 2);
 		header.setComponentAlignment(statusBar, Alignment.BOTTOM_LEFT);
 		
 		HorizontalLayout toolbar = new HorizontalLayout(reloadButton, undeplyButton, deployButton);
 		toolbar.setSpacing(true);
+		toolbar.setMargin(false);
 		header.addComponent(toolbar);
 		header.setExpandRatio(toolbar, 1);
 		header.setComponentAlignment(toolbar, Alignment.BOTTOM_RIGHT);

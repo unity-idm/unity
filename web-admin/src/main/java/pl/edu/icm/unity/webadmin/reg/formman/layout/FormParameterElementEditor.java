@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.webadmin.reg.formman.layout;
 
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
 

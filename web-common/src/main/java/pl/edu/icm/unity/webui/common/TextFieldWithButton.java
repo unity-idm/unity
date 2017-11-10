@@ -11,9 +11,9 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.TextField;
 import com.vaadin.v7.ui.CustomField;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.TextField;
 
 /**
  * Field Component composed of a TextField with a Button.
@@ -41,6 +41,7 @@ public class TextFieldWithButton extends CustomField<String>
 	{
 		HorizontalLayout ret = new HorizontalLayout();
 		ret.setSpacing(true);
+		ret.setMargin(false);
 		editor = new TextField();
 		ret.addComponent(editor);
 		

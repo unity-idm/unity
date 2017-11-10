@@ -16,7 +16,7 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
@@ -144,6 +144,8 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 			wrapper.setComponentAlignment(confirmation, Alignment.MIDDLE_CENTER);
 			wrapper.setExpandRatio(confirmation, 2f);
 			wrapper.setSizeFull();
+			wrapper.setSpacing(false);
+			wrapper.setMargin(false);
 			setSizeFull();
 			setCompositionRoot(wrapper);
 		}

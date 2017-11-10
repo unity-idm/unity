@@ -11,7 +11,7 @@ import java.util.List;
 
 import com.vaadin.v7.data.util.BeanItemContainer;
 import com.vaadin.event.Action;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 
 /**
  * 1-column table with arbitrary objects. 

@@ -21,7 +21,7 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.v7.ui.CheckBox;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 import com.vaadin.v7.ui.VerticalLayout;
 
 import eu.unicore.samly2.SAMLConstants;

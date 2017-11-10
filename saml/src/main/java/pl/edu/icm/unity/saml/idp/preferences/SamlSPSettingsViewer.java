@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 import com.vaadin.v7.ui.ListSelect;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;

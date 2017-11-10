@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webadmin.reg.formman;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.ui.FormLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.v7.ui.VerticalLayout;
 

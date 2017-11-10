@@ -20,7 +20,7 @@ import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 import com.vaadin.v7.ui.OptionGroup;
 import com.vaadin.v7.ui.VerticalLayout;
 

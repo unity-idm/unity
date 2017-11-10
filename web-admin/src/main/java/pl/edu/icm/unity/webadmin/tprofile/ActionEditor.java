@@ -16,7 +16,7 @@ import com.vaadin.ui.AbstractComponent;
 import com.vaadin.v7.data.Property.ValueChangeEvent;
 import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.v7.ui.ComboBox;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;

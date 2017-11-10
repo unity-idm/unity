@@ -7,13 +7,13 @@ package pl.edu.icm.unity.webui.common;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.v7.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.Property.ValueChangeListener;
+import com.vaadin.v7.ui.CheckBox;
 
 /**
  * List of elements displayed in two columns. The first column contains an arbitrary component
@@ -45,7 +45,7 @@ public class ListOfSelectableElements extends CustomComponent
 			gl.addComponent(new VerticalLayout(secondHeader), 1, 0);
 		gl.setColumnExpandRatio(0, 10);
 		gl.setColumnExpandRatio(1, 1);
-		selects = new ArrayList<CheckBox>();
+		selects = new ArrayList<>();
 		setCompositionRoot(gl);
 		row = 1;
 		this.disableMode = disableMode;

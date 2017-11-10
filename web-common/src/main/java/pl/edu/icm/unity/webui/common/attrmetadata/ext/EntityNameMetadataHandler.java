@@ -5,8 +5,8 @@
 package pl.edu.icm.unity.webui.common.attrmetadata.ext;
 
 import com.vaadin.ui.Component;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
@@ -55,6 +55,7 @@ public class EntityNameMetadataHandler implements WebAttributeMetadataHandler
 			{
 				VerticalLayout ret = new VerticalLayout();
 				ret.setSpacing(true);
+				ret.setMargin(false);
 				ret.addComponent(new Label(msg.getMessage("EntityNameMetadataHandler.label")));
 				ret.addComponent(new Label(" "));
 				ret.addComponent(new Label(msg.getMessage("EntityNameMetadataHandler.noParamsAreNeeded")));

@@ -8,7 +8,7 @@ import java.util.Iterator;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;

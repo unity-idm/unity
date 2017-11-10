@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.msgtemplate;
 
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -35,10 +35,8 @@ public class MessageTemplateViewer extends MessageTemplateViewerBase
 		main.setSpacing(true);
 		description = new Label();
 		description.setCaption(msg.getMessage("MessageTemplateViewer.description"));
-		description.setReadOnly(true);
 		consumer = new Label();
 		consumer.setCaption(msg.getMessage("MessageTemplateViewer.consumer"));
-		consumer.setReadOnly(true);
 		main.addComponent(consumer, 1);	
 		main.addComponent(description, 1);
 		

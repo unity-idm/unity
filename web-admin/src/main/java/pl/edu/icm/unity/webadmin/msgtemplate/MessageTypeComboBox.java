@@ -10,13 +10,13 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import com.vaadin.server.Resource;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
 import com.vaadin.v7.data.util.converter.Converter.ConversionException;
-import com.vaadin.v7.shared.ui.label.ContentMode;
 import com.vaadin.v7.ui.ComboBox;
 import com.vaadin.v7.ui.CustomField;
 

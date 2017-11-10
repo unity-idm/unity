@@ -9,11 +9,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.Property.ValueChangeListener;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -88,7 +88,7 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 		}
 		String group;
 		if (attributeTypes.size() > 0)
-			group = (String) groupSel.getValue();
+			group = groupSel.getValue();
 		else
 			group = allowedGroups.iterator().next();
 		return new Attribute(at.getName(), at.getValueSyntax(), group, values);
@@ -97,6 +97,7 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 	private void initUI()
 	{
 		main.setSpacing(true);
+		main.setMargin(false);
 		FormLayout top = new CompactFormLayout();
 		attributeSel = new AttributeSelectionComboBox(msg.getMessage("Attributes.attribute"), attributeTypes);
 		attributeSel.addValueChangeListener(new ValueChangeListener()

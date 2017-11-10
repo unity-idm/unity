@@ -15,13 +15,13 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.html.HtmlEscapers;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.AbstractOrderedLayout;
-import com.vaadin.v7.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
-import com.vaadin.v7.ui.TextArea;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.TextArea;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.ui.CheckBox;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -405,6 +405,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setSpacing(true);
+		main.setMargin(false);
 		main.setWidth(80, Unit.PERCENTAGE);
 		setCompositionRoot(main);
 		
@@ -434,7 +435,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		groupSelectors = new HashMap<>();
 		credentialParamEditors = new ArrayList<>();
 		Collection<CredentialDefinition> allCreds = credMan.getCredentialDefinitions();
-		credentials = new HashMap<String, CredentialDefinition>();
+		credentials = new HashMap<>();
 		for (CredentialDefinition credential: allCreds)
 			credentials.put(credential.getName(), credential);
 		

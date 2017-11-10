@@ -20,7 +20,7 @@ import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.v7.ui.AbstractTextField;
 import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 import com.vaadin.v7.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;

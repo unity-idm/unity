@@ -10,13 +10,13 @@ import java.math.RoundingMode;
 
 import org.vaadin.risto.stepper.IntStepper;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.v7.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.Property.ValueChangeListener;
+import com.vaadin.v7.ui.CheckBox;
 
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
@@ -89,13 +89,12 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		minLength.setValue(String.valueOf(helper.getMinLength()));
 		minClasses.setValue(String.valueOf(helper.getMinClassesNum()));
 		denySequences.setValue(msg.getYesNo(helper.isDenySequences()));
-		denySequences.setReadOnly(true);
 		historySize.setValue(String.valueOf(helper.getHistorySize()));
 		workFactor.setValue(String.valueOf(helper.getScryptParams().getWorkFactor()));
 		allowLegacy.setValue(msg.getYesNo(helper.isAllowLegacy()));
 		
 		long maxAgeMs = helper.getMaxAge();
-		double maxAgeMonths = ((double)maxAgeMs)/MS_IN_MONTH;
+		double maxAgeMonths = (maxAgeMs)/MS_IN_MONTH;
 		BigDecimal maxAgeMonthsRounded = new BigDecimal(maxAgeMonths, new MathContext(2, RoundingMode.HALF_UP)); 
 		long maxAgeDays = maxAgeMs/(3600000L*24);
 		if (maxAgeMs == PasswordCredential.MAX_AGE_UNDEF)
@@ -170,16 +169,16 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 	{
 		PasswordCredential helper = new PasswordCredential();
 		helper.setDenySequences(denySequences.getValue());
-		helper.setHistorySize((int)(double)historySize.getValue());
+		helper.setHistorySize(historySize.getValue());
 		if (limitMaxAge.getValue())
 		{
-			long maxAgeMs = (long)(double)maxAge.getValue();
+			long maxAgeMs = maxAge.getValue();
 			maxAgeMs *= MS_IN_MONTH;
 			helper.setMaxAge(maxAgeMs);
 		} else
 			helper.setMaxAge(PasswordCredential.MAX_AGE_UNDEF);
-		helper.setMinClassesNum((int)(double)minClasses.getValue());
-		helper.setMinLength((int)(double)minLength.getValue());
+		helper.setMinClassesNum(minClasses.getValue());
+		helper.setMinLength(minLength.getValue());
 		helper.setPasswordResetSettings(resetSettings.getValue());
 		ScryptParams scryptParams = new ScryptParams(workFactor.getValue());
 		helper.setScryptParams(scryptParams);

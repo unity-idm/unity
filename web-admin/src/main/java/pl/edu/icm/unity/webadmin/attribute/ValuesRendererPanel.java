@@ -8,7 +8,7 @@ import java.util.List;
 
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Component;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 import com.vaadin.v7.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;

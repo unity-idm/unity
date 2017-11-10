@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 import com.vaadin.v7.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;

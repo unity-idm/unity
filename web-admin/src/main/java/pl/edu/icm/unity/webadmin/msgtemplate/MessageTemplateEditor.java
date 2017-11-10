@@ -11,11 +11,11 @@ import com.vaadin.event.FieldEvents.FocusListener;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.v7.data.Validator;
 import com.vaadin.v7.ui.AbstractTextField;
 import com.vaadin.v7.ui.ComboBox;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
 import com.vaadin.v7.ui.TextArea;
 
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
@@ -97,7 +97,6 @@ public class MessageTemplateEditor extends CompactFormLayout
 			consumer.addItem(c.getName());
 		}
 		consumerDescription = new Label();
-		consumerDescription.setReadOnly(true);
 		subject = new I18nTextField(msg, msg.getMessage("MessageTemplatesEditor.subject"));
 		subject.setImmediate(true);
 		subject.setWidth(100, Unit.PERCENTAGE);

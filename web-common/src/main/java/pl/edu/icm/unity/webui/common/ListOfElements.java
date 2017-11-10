@@ -11,9 +11,9 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
@@ -39,6 +39,8 @@ public class ListOfElements<T> extends VerticalLayout
 		this.labelConverter = labelConverter;
 		this.components = new ArrayList<>();
 		this.setId("ListOfElements");
+		this.setMargin(false);
+		this.setSpacing(false);
 	}
 	
 	public ListOfElements(UnityMessageSource msg)
@@ -108,6 +110,8 @@ public class ListOfElements<T> extends VerticalLayout
 		public Entry(T elementV)
 		{
 			HorizontalLayout cont = new HorizontalLayout();
+			cont.setMargin(false);
+			cont.setSpacing(false);
 			
 			this.element = elementV;
 			setSpacing(true);
@@ -154,6 +158,7 @@ public class ListOfElements<T> extends VerticalLayout
 				main.addComponent(HtmlTag.hr());
 			}
 			main.setSpacing(true);
+			main.setMargin(false);
 			setCompositionRoot(main);
 			
 		}

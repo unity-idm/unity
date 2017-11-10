@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.webadmin.confirmations;
 
 import com.vaadin.ui.FormLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 import com.vaadin.v7.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.ConfirmationConfigurationManagement;

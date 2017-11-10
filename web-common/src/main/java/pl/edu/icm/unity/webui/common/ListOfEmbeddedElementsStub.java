@@ -13,8 +13,8 @@ import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
@@ -231,6 +231,7 @@ public class ListOfEmbeddedElementsStub<T>
 			
 			addRemoveBar = new HorizontalLayout();
 			addRemoveBar.setSpacing(true);
+			addRemoveBar.setMargin(false);
 			addRemoveBar.addComponents(add, remove);
 			addRemoveBar.addStyleName(Styles.negativeTopMargin.toString());
 			cc.add(addRemoveBar);

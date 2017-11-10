@@ -12,7 +12,7 @@ import com.vaadin.v7.data.util.IndexedContainer;
 import com.vaadin.v7.shared.ui.combobox.FilteringMode;
 import com.vaadin.v7.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 import com.vaadin.v7.ui.OptionGroup;
 
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;

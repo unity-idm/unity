@@ -13,7 +13,7 @@ import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.v7.shared.ui.datefield.Resolution;
 import com.vaadin.v7.ui.CheckBox;
 import com.vaadin.v7.ui.DateField;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.EntityInformation;

@@ -11,7 +11,7 @@ import com.vaadin.v7.data.Property.ValueChangeEvent;
 import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 import com.vaadin.v7.ui.Table;
 import com.vaadin.v7.ui.Tree;
 import com.vaadin.v7.ui.VerticalLayout;

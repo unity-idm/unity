@@ -9,9 +9,6 @@ import java.util.Collection;
 import java.util.List;
 
 import com.google.common.html.HtmlEscapers;
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.v7.data.Property.ValueChangeNotifier;
 import com.vaadin.event.Action;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.AbstractOrderedLayout;
@@ -19,11 +16,14 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.Property.ValueChangeListener;
+import com.vaadin.v7.data.Property.ValueChangeNotifier;
 import com.vaadin.v7.ui.Table;
 import com.vaadin.v7.ui.Tree;
-import com.vaadin.v7.ui.VerticalLayout;
 
 /**
  * Component with a list of small buttons. Buttons are bound to {@link Action}s via 
@@ -51,6 +51,7 @@ public class Toolbar extends CustomComponent
 		source.addValueChangeListener(getValueChangeListener());
 		buttons = new ArrayList<>();
 		main.setSpacing(true);
+		main.setMargin(false);
 		main.addStyleName(Styles.tinySpacing.toString());
 		setCompositionRoot(main);
 		setSizeUndefined();

@@ -41,6 +41,7 @@ public class RequiredTextArea extends TextArea
 		setWordwrap(true);
 	}
 	
+	@Override
 	protected boolean shouldHideErrors() {
 		return false;
 	}

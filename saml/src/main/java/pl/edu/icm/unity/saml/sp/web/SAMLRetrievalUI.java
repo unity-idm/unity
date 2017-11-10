@@ -20,7 +20,7 @@ import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 import com.vaadin.v7.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;

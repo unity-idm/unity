@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webui.forms.reg;
 import com.vaadin.v7.data.Validator.InvalidValueException;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 import com.vaadin.v7.ui.TextField;
 import com.vaadin.v7.ui.VerticalLayout;
 

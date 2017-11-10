@@ -14,7 +14,7 @@ import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.v7.data.util.BeanItemContainer;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 import com.vaadin.v7.ui.Table;
 
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;

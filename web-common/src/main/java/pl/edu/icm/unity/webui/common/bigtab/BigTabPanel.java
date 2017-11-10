@@ -6,9 +6,9 @@ package pl.edu.icm.unity.webui.common.bigtab;
 
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Component;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.bigtab.BigTab.TabCallback;
@@ -29,18 +29,20 @@ public class BigTabPanel extends HorizontalLayout
 
 	public BigTabPanel(int tabsBarWidth, Unit widthUnit, UnityMessageSource msg)
 	{
-		super();
 		this.msg = msg;
 		tabs = new BigTabs(tabsBarWidth, widthUnit);
 		mainPanel = new SafePanel();
 		main = new VerticalLayout();
 		main.setSizeFull();
 		main.setMargin(true);
+		main.setSpacing(false);
 		mainPanel.setContent(main);
 		Label spacer = new Label();
 		spacer.setWidth(15, Unit.PIXELS);
 		addComponents(tabs, spacer, mainPanel);
 		setExpandRatio(mainPanel, 1.0f);
+		setSpacing(false);
+		setMargin(false);
 	}
 	
 	public int getTabsCount()

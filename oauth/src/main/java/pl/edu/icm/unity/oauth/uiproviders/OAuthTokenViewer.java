@@ -11,8 +11,8 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.TextArea;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.TextArea;
 import com.vaadin.v7.ui.VerticalLayout;
 
 import pl.edu.icm.unity.Constants;

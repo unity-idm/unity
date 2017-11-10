@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common.safehtml;
 
-import com.vaadin.v7.shared.ui.label.ContentMode;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.ui.Label;
 
 /**
  * HTML label displaying commonly used simple steering sequences as hr.

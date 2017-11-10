@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.vaadin.ui.AbstractOrderedLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;

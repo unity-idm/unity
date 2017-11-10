@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.msgtemplate;
 
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;

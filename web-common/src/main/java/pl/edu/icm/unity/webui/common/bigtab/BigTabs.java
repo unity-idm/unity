@@ -9,8 +9,8 @@ import java.util.List;
 
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.bigtab.BigTab.TabCallback;
@@ -21,7 +21,7 @@ import pl.edu.icm.unity.webui.common.bigtab.BigTab.TabCallback;
  */
 public class BigTabs extends VerticalLayout
 {
-	private List<BigTab> tabs = new ArrayList<BigTab>();
+	private List<BigTab> tabs = new ArrayList<>();
 	private BigTab selectedTab;
 	private int width;
 	private Unit unit;
@@ -33,6 +33,7 @@ public class BigTabs extends VerticalLayout
 		this.unit = unit;
 		setWidth(width, unit);
 		setSpacing(true);
+		setMargin(false);
 		Label spacer = new Label();
 		addComponent(spacer);
 		setExpandRatio(spacer, 1.0f);

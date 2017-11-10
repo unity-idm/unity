@@ -11,10 +11,10 @@ import java.util.Map;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
-import com.vaadin.v7.ui.CustomField;
-import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.ui.CustomField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
@@ -56,6 +56,8 @@ public class I18nLabel extends CustomField<I18nString>
 	private void initUI()
 	{
 		VerticalLayout main = new VerticalLayout();
+		main.setMargin(false);
+		main.setSpacing(false);
 		String defaultLocale = msg.getDefaultLocaleCode();
 		msg.getEnabledLocales().values().stream()
 			.map(Locale::toString)
@@ -165,6 +167,7 @@ public class I18nLabel extends CustomField<I18nString>
 		public HPairLayout()
 		{
 			setSpacing(true);
+			setMargin(false);
 			addStyleName(Styles.smallSpacing.toString());
 		}
 

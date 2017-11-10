@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.preferences;
 
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;

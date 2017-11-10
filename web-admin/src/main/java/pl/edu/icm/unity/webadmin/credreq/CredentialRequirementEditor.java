@@ -76,7 +76,7 @@ public class CredentialRequirementEditor extends CompactFormLayout
 		
 		CredentialRequirements cr = initial == null ? new CredentialRequirements(
 				msg.getMessage("CredentialRequirements.defaultName"), "", new HashSet<String>()) : initial;
-		formItem = new BeanItem<CredentialRequirements>(cr);
+		formItem = new BeanItem<>(cr);
 		if (initial != null)
 			formItem.getItemProperty("name").setReadOnly(true);
 		

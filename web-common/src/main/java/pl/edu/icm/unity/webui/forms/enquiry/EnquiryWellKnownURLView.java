@@ -10,8 +10,8 @@ import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
@@ -73,6 +73,7 @@ public class EnquiryWellKnownURLView extends CustomComponent implements View
 		});
 		buttons.addComponents(cancel, ok);
 		buttons.setSpacing(true);
+		buttons.setMargin(false);
 		main.addComponent(buttons);
 		main.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);		
 	}
@@ -81,6 +82,8 @@ public class EnquiryWellKnownURLView extends CustomComponent implements View
 	private void initUIBase()
 	{
 		main = new VerticalLayout();
+		main.setSpacing(false);
+		main.setMargin(false);
 		addStyleName("u-standalone-public-form");
 		setCompositionRoot(main);
 		setWidth(100, Unit.PERCENTAGE);
@@ -100,6 +103,8 @@ public class EnquiryWellKnownURLView extends CustomComponent implements View
 		wrapper.setExpandRatio(confirmation, 2f);
 		wrapper.setComponentAlignment(confirmation, Alignment.MIDDLE_CENTER);
 		wrapper.setSizeFull();
+		wrapper.setMargin(false);
+		wrapper.setSpacing(false);
 		setSizeFull();
 		setCompositionRoot(wrapper);
 	}

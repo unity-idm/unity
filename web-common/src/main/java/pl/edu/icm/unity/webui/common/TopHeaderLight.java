@@ -5,8 +5,8 @@
 package pl.edu.icm.unity.webui.common;
 
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 
@@ -22,6 +22,7 @@ public class TopHeaderLight extends HorizontalLayout
 	{
 		addStyleName(Styles.header.toString());
 		setMargin(true);
+		setSpacing(false);
 		setWidth(100, Unit.PERCENTAGE);
 		
 		titleL = new Label(title);

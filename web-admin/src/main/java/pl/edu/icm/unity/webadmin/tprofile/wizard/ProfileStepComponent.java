@@ -163,7 +163,6 @@ public class ProfileStepComponent extends CustomComponent
 		
 		// dragdropHint
 		dragdropHint = new HtmlLabel(msg);
-		dragdropHint.setImmediate(false);
 		dragdropHint.setWidth("-1px");
 		dragdropHint.setHeight("-1px");
 		leftPanel.addComponent(dragdropHint);

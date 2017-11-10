@@ -7,7 +7,7 @@ package pl.edu.icm.unity.unicore.samlidp.web;
 import com.vaadin.v7.data.Property.ValueChangeEvent;
 import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.v7.ui.CheckBox;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.v7.ui.Slider;
 

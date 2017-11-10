@@ -17,9 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.ServerManagement;
@@ -63,7 +63,7 @@ public class EndpointsComponent extends VerticalLayout
 		this.endpointMan = endpointMan;
 		this.serverMan = serverMan;
 		this.endpointComponentFactory = endpointComponentFactory;
-		this.endpointComponents = new TreeMap<String, EndpointComponent>();
+		this.endpointComponents = new TreeMap<>();
 		initUI();
 	}
 
@@ -75,8 +75,6 @@ public class EndpointsComponent extends VerticalLayout
 		HorizontalLayout h = new HorizontalLayout();
 		Label listCaption = new Label(msg.getMessage("Endpoints.listCaption"));
 		listCaption.addStyleName(Styles.bold.toString());
-		h.setMargin(true);
-		h.setSpacing(true);
 		
 		Button refreshViewButton = new Button();
 		refreshViewButton.setIcon(Images.refresh.getResource());
@@ -93,7 +91,7 @@ public class EndpointsComponent extends VerticalLayout
 		refreshViewButton.setDescription(msg.getMessage("Endpoints.refreshList"));
 		
 		HorizontalLayout ch = new HorizontalLayout();
-		ch.setSpacing(true);
+		ch.setMargin(false);
 		ch.addComponent(listCaption);
 		ch.addComponent(new Label(" "));
 		ch.addComponent(refreshViewButton);
@@ -112,8 +110,6 @@ public class EndpointsComponent extends VerticalLayout
 		addComponent(h);
 
 		content = new VerticalLayout();
-		content.setMargin(true);
-		content.setSpacing(true);
 		addComponent(content);
 
 		updateContent();

@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.identitytype;
 
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;

@@ -15,10 +15,10 @@ import com.vaadin.server.ExternalResource;
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -74,11 +74,17 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 		}
 		
 		VerticalLayout contents = new VerticalLayout();
+		contents.setMargin(false);
+		contents.setSpacing(false);
 		VerticalLayout mainWrapper = new VerticalLayout();
+		mainWrapper.setSpacing(false);
+		mainWrapper.setMargin(false);
 		mainWrapper.setSizeFull();
 		mainWrapper.addComponent(new TopHeaderLight(msg.getMessage("ConfirmationUI.title"),
 				msg));
 		HorizontalLayout infoWrapper = new HorizontalLayout();
+		infoWrapper.setSpacing(false);
+		infoWrapper.setMargin(false);
 		infoWrapper.setWidth(50, Unit.PERCENTAGE);
 		String infoKey = status.getUserMessageKey();
 		String[] infoArgs = status.getUserMessageArgs();

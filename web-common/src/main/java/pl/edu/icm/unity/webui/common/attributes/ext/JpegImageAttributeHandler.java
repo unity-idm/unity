@@ -25,7 +25,7 @@ import com.vaadin.v7.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Image;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 import com.vaadin.v7.ui.ProgressBar;
 import com.vaadin.v7.ui.Upload;
 import com.vaadin.v7.ui.Upload.SucceededEvent;

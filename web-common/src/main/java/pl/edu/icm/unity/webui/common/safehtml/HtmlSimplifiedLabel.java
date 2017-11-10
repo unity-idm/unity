@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common.safehtml;
 
-import com.vaadin.v7.shared.ui.label.ContentMode;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.ui.Label;
 
 /**
  * <b>IMPORTANT!</b> Use this class ONLY to show data which is at least partially trusted. 

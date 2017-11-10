@@ -4,10 +4,10 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 
@@ -50,6 +50,7 @@ public class ConfirmWithOptionDialog extends AbstractDialog
 	{
 		VerticalLayout vl = new VerticalLayout();
 		vl.setSpacing(true);
+		vl.setMargin(false);
 		vl.addComponent(new Label(question));
 		optionCb = new CheckBox(option);
 		vl.addComponent(optionCb);

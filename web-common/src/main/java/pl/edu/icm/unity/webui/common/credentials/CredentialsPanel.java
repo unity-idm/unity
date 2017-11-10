@@ -11,17 +11,17 @@ import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.Property.ValueChangeListener;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
@@ -127,7 +127,7 @@ public class CredentialsPanel extends VerticalLayout
 		credentialPanel.addStyleName(Styles.vBorderLess.toString());
 		
 		String selected = credentials.keySet().iterator().next();
-		credential = new MapComboBox<CredentialDefinition>(msg.getMessage("CredentialChangeDialog.credential"),
+		credential = new MapComboBox<>(msg.getMessage("CredentialChangeDialog.credential"),
 				credentials, selected, new MapComboBox.LabelResolver<CredentialDefinition>()
 				{
 					@Override
@@ -154,6 +154,7 @@ public class CredentialsPanel extends VerticalLayout
 		
 		HorizontalLayout buttonsBar = new HorizontalLayout();
 		buttonsBar.setSpacing(true);
+		buttonsBar.setMargin(false);
 		clear = new Button(msg.getMessage("CredentialChangeDialog.clear"));
 		clear.addClickListener(new ClickListener()
 		{
@@ -199,6 +200,7 @@ public class CredentialsPanel extends VerticalLayout
 		}
 		addComponent(credentialPanel);
 		setSpacing(true);
+		setMargin(false);
 		updateStatus();
 		updateSelectedCredential();
 	}
@@ -409,7 +411,7 @@ public class CredentialsPanel extends VerticalLayout
 			throw new InternalException(msg.getMessage("CredentialChangeDialog.cantGetCredDefs"), e);
 		}
 		
-		credentials = new HashMap<String, CredentialDefinition>();
+		credentials = new HashMap<>();
 		Set<String> required = credReq.getRequiredCredentials();
 		for (CredentialDefinition credential: allCreds)
 		{

@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.webadmin.credreq;
 
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 import com.vaadin.v7.ui.Table;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;

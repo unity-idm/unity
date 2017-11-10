@@ -10,8 +10,8 @@ import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Image;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -54,6 +54,7 @@ public class BigTab extends VerticalLayout
 			}
 		});
 		setMargin(new MarginInfo(true, false, true, false));
+		setSpacing(false);
 	}
 	
 	public void deselect()
