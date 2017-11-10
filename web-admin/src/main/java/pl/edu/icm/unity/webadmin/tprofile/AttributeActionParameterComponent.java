@@ -57,4 +57,11 @@ public class AttributeActionParameterComponent extends AttributeSelectionComboBo
 		}
 		select(value);
 	}
+
+	@Override
+	public void addValueChangeCallback(Runnable callback)
+	{
+		addValueChangeListener((e) -> { callback.run(); });
+		
+	}
 }

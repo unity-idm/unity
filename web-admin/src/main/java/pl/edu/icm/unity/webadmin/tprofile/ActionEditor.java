@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webadmin.tprofile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.apache.logging.log4j.Logger;
 
@@ -43,14 +44,24 @@ public class ActionEditor extends LayoutEmbeddable
 	private Label actionParams;
 	private ActionParameterComponentProvider actionComponentProvider;
 	private List<ActionParameterComponent> paramComponents = new ArrayList<>();
-
+	private Consumer<String> callback;
+	
 	public ActionEditor(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
-			TranslationAction toEdit, ActionParameterComponentProvider actionComponentProvider)
+			TranslationAction toEdit, ActionParameterComponentProvider actionComponentProvider,
+			Consumer<String> callback)
 	{
 		this.msg = msg;
 		this.tc = tc;
 		this.actionComponentProvider = actionComponentProvider;
+		this.callback = callback;
 		initUI(toEdit);
+	}
+	
+	
+	public ActionEditor(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
+			TranslationAction toEdit, ActionParameterComponentProvider actionComponentProvider)
+	{
+		this(msg, tc, toEdit, actionComponentProvider, null);
 	}
 
 	private void initUI(TranslationAction toEdit)
@@ -60,6 +71,7 @@ public class ActionEditor extends LayoutEmbeddable
 			map(af -> af.getActionType().getName()).
 			sorted().
 			forEach(actionName -> actions.addItem(actionName));
+		actions.setStyleName(Styles.vTiny.toString());
 		
 		actions.setNullSelectionAllowed(false);
 		actions.addValueChangeListener(new ValueChangeListener()
@@ -69,7 +81,8 @@ public class ActionEditor extends LayoutEmbeddable
 			{
 				String action = (String) actions.getValue();
 				setParams(action, null);
-
+				if (callback != null)
+					callback.accept(getStringRepresentation());
 			}
 		});
 		
@@ -100,6 +113,7 @@ public class ActionEditor extends LayoutEmbeddable
 	
 	private void setParams(String action, String[] values)
 	{
+		Runnable paramCallback = ()-> { callback.accept(getStringRepresentation()); };
 		removeComponents(paramComponents);
 		paramComponents.clear();
 		
@@ -112,6 +126,8 @@ public class ActionEditor extends LayoutEmbeddable
 		for (int i = 0; i < params.length; i++)
 		{
 			ActionParameterComponent p = actionComponentProvider.getParameterComponent(params[i]);
+			p.setStyleName(Styles.vTiny.toString());
+			p.addValueChangeCallback(paramCallback);
 			p.setValidationVisible(false);
 			if (values != null && values.length > i)
 			{
@@ -225,5 +241,22 @@ public class ActionEditor extends LayoutEmbeddable
 			}			
 		}	
 	}
-
+	
+	public String getStringRepresentation()
+	{
+		StringBuilder rep = new StringBuilder();
+		rep.append(actions.getValue());
+		rep.append("|");
+		for (ActionParameterComponent tc: paramComponents)
+		{
+			rep.append(tc.getCaption() + " "
+					+ (tc.getActionValue() != null
+							&& !tc.getActionValue().equals("null")
+									? tc.getActionValue()
+									: " "));
+			rep.append("|");
+		}
+		
+		return rep.substring(0, rep.length() - 1);
+	}
 }

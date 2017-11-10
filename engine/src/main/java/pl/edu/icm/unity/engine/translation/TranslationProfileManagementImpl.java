@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.translation;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -14,15 +15,14 @@ import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
-import pl.edu.icm.unity.engine.translation.in.InputTranslationActionsRegistry;
-import pl.edu.icm.unity.engine.translation.in.InputTranslationProfile;
-import pl.edu.icm.unity.engine.translation.out.OutputTranslationActionsRegistry;
-import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfile;
+import pl.edu.icm.unity.engine.translation.in.InputTranslationProfileRepository;
+import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfileRepository;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.generic.InputTranslationProfileDB;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.api.generic.OutputTranslationProfileDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.types.translation.ProfileMode;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
@@ -40,21 +40,24 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	private AuthorizationManager authz;
 	private InputTranslationProfileDB itpDB;
 	private OutputTranslationProfileDB otpDB;
-	private InputTranslationActionsRegistry inputActionReg;
-	private OutputTranslationActionsRegistry outputActionReg;
-
+	private InputTranslationProfileRepository inputRepo;
+	private OutputTranslationProfileRepository outputRepo;
+	private TranslationProfileChecker profileHelper;
+	
 	
 	@Autowired
 	public TranslationProfileManagementImpl(AuthorizationManager authz,
 			InputTranslationProfileDB itpDB, OutputTranslationProfileDB otpDB,
-			InputTranslationActionsRegistry inputActionReg,
-			OutputTranslationActionsRegistry outputActionReg)
+			InputTranslationProfileRepository inputRepo,
+			OutputTranslationProfileRepository outputRepo,
+			TranslationProfileChecker profileHelper)
 	{
 		this.authz = authz;
 		this.itpDB = itpDB;
 		this.otpDB = otpDB;
-		this.inputActionReg = inputActionReg;
-		this.outputActionReg = outputActionReg;
+		this.inputRepo = inputRepo;
+		this.outputRepo = outputRepo;
+		this.profileHelper = profileHelper;
 	}
 
 	private NamedCRUDDAOWithTS<TranslationProfile> getDAO(TranslationProfile profile)
@@ -77,7 +80,9 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	public void addProfile(TranslationProfile toAdd) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		checkProfile(toAdd);
+		assertIsDefault(toAdd);	
+		assertIsNotSystemProfile(toAdd);
+		profileHelper.checkProfileContent(toAdd);
 		getDAO(toAdd).create(toAdd);
 	}
 
@@ -85,6 +90,7 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	public void removeProfile(ProfileType type, String name) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
+		assertIsNotSystemProfile(type, name);
 		getDAO(type).delete(name);
 	}
 
@@ -92,7 +98,9 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	public void updateProfile(TranslationProfile updated) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		checkProfile(updated);
+		assertIsDefault(updated);
+		assertIsNotSystemProfile(updated);
+		profileHelper.checkProfileContent(updated);
 		getDAO(updated).update(updated);
 	}
 
@@ -100,40 +108,58 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	public Map<String, TranslationProfile> listInputProfiles() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		return getDAO(ProfileType.INPUT).getAllAsMap();
+		return inputRepo.listAllProfiles();
+		
 	}
 
 	@Override
 	public Map<String, TranslationProfile> listOutputProfiles() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		return getDAO(ProfileType.OUTPUT).getAllAsMap();
+		return outputRepo.listAllProfiles();
 	}
 
 	@Override
 	public TranslationProfile getInputProfile(String name) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		return itpDB.get(name);
+		return inputRepo.getProfile(name);
 	}
 
 	@Override
 	public TranslationProfile getOutputProfile(String name) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		return otpDB.get(name);
+		return outputRepo.getProfile(name);
 	}
 	
-	private void checkProfile(TranslationProfile profile)
+	private void assertIsDefault(TranslationProfile profile) throws EngineException
 	{
-		TranslationProfileInstance<?, ?> instance;
-		if (profile.getProfileType() == ProfileType.INPUT)
-			instance = new InputTranslationProfile(profile, inputActionReg);
-		else if (profile.getProfileType() == ProfileType.OUTPUT)
-			instance = new OutputTranslationProfile(profile, outputActionReg);
-		else
-			throw new IllegalArgumentException("Unsupported profile type: " + profile.getProfileType());
-		if (instance.hasInvalidActions())
-			throw new IllegalArgumentException("Profile definition is invalid");
+		if (profile.getProfileMode() == ProfileMode.READ_ONLY)
+			throw new IllegalArgumentException("Cannot create read only translation profile through this API");
 	}
+	
+	private void assertIsNotSystemProfile(TranslationProfile profile)
+	{
+		assertIsNotSystemProfile(profile.getProfileType(), profile.getName());
+	}
+	
+	private Map<String, TranslationProfile> getSystemProfiles(ProfileType type)
+	{
+		if (type == ProfileType.INPUT)
+			return inputRepo.listSystemProfiles();
+
+		else if (type == ProfileType.OUTPUT)
+			return outputRepo.listSystemProfiles();
+		else
+			throw new IllegalArgumentException("Only input and output "
+					+ "profiles can be created with this API");			
+	}
+	
+	private void assertIsNotSystemProfile(ProfileType type, String name)
+	{
+		Set<String> systemProfiles = getSystemProfiles(type).keySet();
+		if (systemProfiles.contains(name))
+			throw new IllegalArgumentException("Translation profile '" + name + "' is the system profile and cannot be overwrite or remove");
+	}	
 }

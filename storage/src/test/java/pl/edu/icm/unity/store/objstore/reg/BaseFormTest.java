@@ -28,6 +28,7 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
+import pl.edu.icm.unity.types.basic.MessageType;
 import pl.edu.icm.unity.types.registration.BaseForm;
 
 public abstract class BaseFormTest<T extends BaseForm> extends AbstractNamedWithTSTest<T>
@@ -219,7 +220,7 @@ public abstract class BaseFormTest<T extends BaseForm> extends AbstractNamedWith
 	{
 		tx.runInTransaction(() -> {
 			msgTplDB.create(new MessageTemplate("template", "", new I18nMessage(new I18nString(""),
-					new I18nString("")), "consumer"));
+					new I18nString("")), "consumer", MessageType.PLAIN));
 			
 			T obj = getObject("name1");
 			getDAO().create(obj);
@@ -234,9 +235,9 @@ public abstract class BaseFormTest<T extends BaseForm> extends AbstractNamedWith
 	{
 		T afterDependencyRename = renameTest(
 				new MessageTemplate("template", "", new I18nMessage(new I18nString(""),
-						new I18nString("")), AcceptRegistrationTemplateDef.NAME), 
+						new I18nString("")), AcceptRegistrationTemplateDef.NAME, MessageType.PLAIN), 
 				new MessageTemplate("changed", "", new I18nMessage(new I18nString(""),
-						new I18nString("")), AcceptRegistrationTemplateDef.NAME), 
+						new I18nString("")), AcceptRegistrationTemplateDef.NAME, MessageType.PLAIN), 
 				msgTplDB);
 		
 		assertThat(afterDependencyRename.getNotificationsConfiguration().getAcceptedTemplate(),
@@ -248,13 +249,13 @@ public abstract class BaseFormTest<T extends BaseForm> extends AbstractNamedWith
 	{
 		tx.runInTransaction(() -> {
 			msgTplDB.create(new MessageTemplate("template", "", new I18nMessage(new I18nString(""),
-					new I18nString("")), SubmitRegistrationTemplateDef.NAME));
+					new I18nString("")), SubmitRegistrationTemplateDef.NAME, MessageType.PLAIN));
 			
 			T obj = getObject("name1");
 			getDAO().create(obj);
 
 			catchException(msgTplDB).update(new MessageTemplate("template", "", new I18nMessage(new I18nString(""),
-					new I18nString("")), "CHANGED-CONSUMER"));
+					new I18nString("")), "CHANGED-CONSUMER", MessageType.PLAIN));
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
 		});
 	}

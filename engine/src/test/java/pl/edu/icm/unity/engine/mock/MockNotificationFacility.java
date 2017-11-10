@@ -13,6 +13,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.types.registration.UserRequestState;
 
 @Component
@@ -47,9 +48,9 @@ public class MockNotificationFacility implements NotificationFacility
 			
 			@Override
 			public Future<NotificationStatus> sendNotification(String recipientAddress,
-					String msgSubject, String message)
+					MessageTemplate.Message message)
 			{
-				sent.add(new Message(recipientAddress, msgSubject, message));
+				sent.add(new Message(recipientAddress, message.getSubject(), message.getBody()));
 				return null;
 			}
 			

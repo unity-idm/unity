@@ -5,20 +5,27 @@
 
 package pl.edu.icm.unity.webadmin.tprofile;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.vaadin.simplefiledownloader.SimpleFileDownloader;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
+import com.vaadin.event.Action;
+import com.vaadin.server.Resource;
+import com.vaadin.server.StreamResource;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
-import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.v7.ui.OptionGroup;
-import com.vaadin.v7.ui.VerticalLayout;
 
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -29,6 +36,7 @@ import pl.edu.icm.unity.engine.translation.in.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.types.translation.ProfileMode;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webadmin.WebAdminEndpointFactory;
@@ -84,7 +92,9 @@ public class TranslationProfilesComponent extends VerticalLayout
 		outputActionsRegistry = outputTranslationActionsRegistry;
 		this.actionComponentFactory = actionComponentFactory;
 
-		setCaption(msg.getMessage("TranslationProfilesComponent.capion"));		
+		setCaption(msg.getMessage("TranslationProfilesComponent.capion"));
+		setMargin(false);
+		setSpacing(false);
 		
 		try 
 		{
@@ -126,7 +136,10 @@ public class TranslationProfilesComponent extends VerticalLayout
 					@Override
 					public Object toRepresentation(TranslationProfile element)
 					{
-						return element.getName();
+						Label ret = new Label(element.getName());
+						if (element.getProfileMode() == ProfileMode.READ_ONLY)
+							ret.addStyleName(Styles.readOnlyTableElement.toString());
+						return ret;
 					}
 				});
 		
@@ -154,6 +167,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		table.addActionHandler(new DeleteActionHandler());
 		table.addActionHandler(new WizardActionHandler());
 		table.addActionHandler(new DryRunActionHandler());
+		table.addActionHandler(new ExportActionHandler());
 		return table;
 	}
 	
@@ -186,12 +200,12 @@ public class TranslationProfilesComponent extends VerticalLayout
 		toolbar.addActionHandlers(table.getActionHandlers());
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
-		profileType.addValueChangeListener(toolbar.getValueChangeListener());
 
 		viewer = new TranslationProfileViewer(msg);
 		
 		VerticalLayout left = new VerticalLayout();
 		left.setSpacing(true);
+		left.setMargin(false);
 		left.addComponents(profileType, tableWithToolbar);
 		
 		hl.addComponents(left, viewer);
@@ -226,6 +240,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 			viewer.setInput(null, getCurrentActionsRegistry());
 			removeAllComponents();
 			addComponent(main);
+			actionComponentFactory.init();
 		} catch (Exception e)
 		{
 			ErrorComponent error = new ErrorComponent();
@@ -357,7 +372,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		}
 	}
 	
-	private class EditActionHandler extends SingleActionHandler
+	private class EditActionHandler extends AbstractTranslationProfileActionHandler
 	{
 		public EditActionHandler()
 		{
@@ -430,7 +445,53 @@ public class TranslationProfilesComponent extends VerticalLayout
 			dialog.show();
 		}
 	}
-	private class DeleteActionHandler extends SingleActionHandler
+	
+	private class ExportActionHandler extends SingleActionHandler
+	{
+		public ExportActionHandler()
+		{
+			super(msg.getMessage("TranslationProfilesComponent.exportAction"), Images.save.getResource());
+			setMultiTarget(true);
+		}
+
+		@Override
+		public void handleAction(Object sender, final Object target)
+		{
+			final Collection<TranslationProfile> items = getItems(target);
+			SimpleFileDownloader downloader = new SimpleFileDownloader();
+			addExtension(downloader);
+			StreamResource resource = null;
+			try
+			{
+				if (items.size() == 1)
+				{
+					TranslationProfile item = items.iterator().next();
+					byte[] content = Constants.MAPPER.writeValueAsBytes(item);
+					resource = new StreamResource(() -> 
+						new ByteArrayInputStream(content)
+					, item.getName() + ".json");
+				} else
+				{
+
+					byte[] content = Constants.MAPPER.writeValueAsBytes(items);
+					resource = new StreamResource(() -> 
+						new ByteArrayInputStream(content)
+					, "translationProfiles.json");
+				}
+			} catch (Exception e)
+			{
+				NotificationPopup.showError(msg,
+						msg.getMessage("TranslationProfilesComponent.errorExport"), e);
+				return;
+			}
+			
+			
+			downloader.setFileDownloadResource(resource);
+			downloader.download();	
+		}
+	}
+	
+	private class DeleteActionHandler extends AbstractTranslationProfileActionHandler
 	{
 		public DeleteActionHandler()
 		{
@@ -493,7 +554,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 			TranslationProfileEditor editor;
 			try
 			{
-				editor = (TranslationProfileEditor) getProfileEditor(null);				
+				editor = getProfileEditor(null);				
 			} catch (EngineException e)
 			{
 				NotificationPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorReadData"),
@@ -534,7 +595,44 @@ public class TranslationProfilesComponent extends VerticalLayout
 					provider.getCaption());
 			dialog.show();
 		}
-	}	
+	}
+	
+	private abstract class AbstractTranslationProfileActionHandler extends SingleActionHandler
+	{
+
+		public AbstractTranslationProfileActionHandler(String caption, Resource icon)
+		{
+			super(caption, icon);
+			setNeedsTarget(true);
+		}
+
+		@Override
+		public Action[] getActions(Object target, Object sender)
+		{
+			if (target == null)
+			{
+				return EMPTY;
+
+			} else
+			{
+				if (target instanceof Collection<?>)
+				{
+					Collection<TranslationProfile> items = getItems(target);
+					for (TranslationProfile tp : items)
+						if (tp.getProfileMode() == ProfileMode.READ_ONLY)
+							return EMPTY;
+				} else
+				{
+					GenericItem<?> item = (GenericItem<?>) target;	
+					TranslationProfile tp = (TranslationProfile) item.getElement();
+					if (tp.getProfileMode() == ProfileMode.READ_ONLY)
+						return EMPTY;
+				}
+			}
+			return super.getActions(target, sender);
+		}
+
+	}
 	
 	private boolean isInputProfileSelection()
 	{

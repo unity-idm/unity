@@ -90,8 +90,9 @@ public class MessageTemplatesComponent extends VerticalLayout
 					viewer.setTemplateInput(null);
 					return;	
 				}	
-				MessageTemplate item = items.iterator().next();	
-				viewer.setTemplateInput(item);
+				MessageTemplate item = items.iterator().next();
+				MessageTemplate forPreview = getTemplateForPreview(item);
+				viewer.setTemplateInput(forPreview);
 			}
 		});
 		table.addActionHandler(new RefreshActionHandler());
@@ -145,6 +146,18 @@ public class MessageTemplatesComponent extends VerticalLayout
 		{
 			NotificationPopup.showError(msg, msg.getMessage("MessageTemplatesComponent.errorUpdate"), e);
 			return false;
+		}
+	}
+
+	private MessageTemplate getTemplateForPreview(MessageTemplate srcTemplate)
+	{
+		try
+		{
+			return msgTempMan.getPreprocessedTemplate(srcTemplate.getName());
+		} catch (Exception e)
+		{
+			NotificationPopup.showError(msg, msg.getMessage("MessageTemplatesComponent.errorGetTemplates"), e);
+			return null;
 		}
 	}
 	
@@ -215,7 +228,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 		public void handleAction(Object sender, final Object target)
 		{
 			MessageTemplateEditor editor;			
-			editor = new MessageTemplateEditor(msg, consumersRegistry, null);		
+			editor = new MessageTemplateEditor(msg, consumersRegistry, null, msgTempMan);		
 			MessageTemplateEditDialog dialog = new MessageTemplateEditDialog(msg, 
 					msg.getMessage("MessageTemplatesComponent.addAction"), new MessageTemplateEditDialog.Callback()
 					{
@@ -239,12 +252,11 @@ public class MessageTemplatesComponent extends VerticalLayout
 		@Override
 		public void handleAction(Object sender, final Object target)
 		{
-			
 			GenericItem<?> witem = (GenericItem<?>) target;
 			MessageTemplate item = (MessageTemplate) witem.getElement();
 			MessageTemplateEditor editor;
 			
-			editor = new MessageTemplateEditor(msg, consumersRegistry, item);
+			editor = new MessageTemplateEditor(msg, consumersRegistry, item, msgTempMan);
 			
 			MessageTemplateEditDialog dialog = new MessageTemplateEditDialog(msg, 
 					msg.getMessage("MessageTemplatesComponent.editAction"), new MessageTemplateEditDialog.Callback()

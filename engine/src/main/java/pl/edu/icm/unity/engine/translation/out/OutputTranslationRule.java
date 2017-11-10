@@ -11,7 +11,9 @@ import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.translation.TranslationCondition;
+import pl.edu.icm.unity.engine.translation.TranslationIncludeProfileAction;
 import pl.edu.icm.unity.engine.translation.TranslationRuleInstance;
+import pl.edu.icm.unity.engine.translation.TranslationRuleInvocationContext;
 import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
@@ -28,16 +30,23 @@ public class OutputTranslationRule extends TranslationRuleInstance<OutputTransla
 		super(action, condition);
 	}
 	
-	public void invoke(TranslationInput input, Object mvelCtx, String currentProfile,
+	public TranslationRuleInvocationContext invoke(TranslationInput input, Object mvelCtx, String currentProfile,
 			TranslationResult result) throws EngineException
 	{
+		TranslationRuleInvocationContext context = new TranslationRuleInvocationContext();
 		if (conditionInstance.evaluate(mvelCtx))
 		{
 			log.debug("Condition OK");
 			actionInstance.invoke(input, mvelCtx, currentProfile, result);
+			if (actionInstance instanceof TranslationIncludeProfileAction)
+			{
+				TranslationIncludeProfileAction includeAction = (TranslationIncludeProfileAction) actionInstance;
+				context.setIncludedProfile(includeAction.getIncludedProfile());
+			}
 		} else
 		{
 			log.debug("Condition not met");			
 		}
+		return context;
 	}
 }

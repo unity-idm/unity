@@ -35,6 +35,7 @@ public class MessageTemplateEditDialog extends AbstractDialog
 	@Override
 	protected Component getContents() throws Exception
 	{
+		setSizeMode(SizeMode.LARGE);
 		VerticalLayout vl = new VerticalLayout();
 		vl.addComponent(editor);
 		vl.setComponentAlignment(editor, Alignment.TOP_LEFT);

@@ -7,6 +7,9 @@ $v-background-color: #66FF99 !default;
 //stepper's add on style need to be included to have stepper widget all right
 @import "../../addons/stepper/stepper.scss";
 
+//vaadin-icons add on style need to be included to have icons widget all right
+@import "../../addons/vaadin-icons/vaadin-icons.scss";
+
 //And reuse the default Unity's theme definitions
 @import "../common/common.scss";
 
@@ -19,6 +22,9 @@ $v-background-color: #66FF99 !default;
 	
 	//and stepper
 	@include stepper;
+	
+	//add icons
+	@include vaadin-icons;
 	
 	//let's override one of the variables used by Unity's default theme (imported below)
 	$headerBackgroundImage: 	none;

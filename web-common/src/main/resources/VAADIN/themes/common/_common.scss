@@ -20,6 +20,10 @@
 		height: inherit;
 	}
 	
+	.v-button-link:after {
+		content: none;
+	}
+
 	.v-label-light {
     	font-size: small;
 	}
@@ -72,6 +76,10 @@
 		color: gray;
 	}
 	
+	.u-readOnlyTableElement {
+		color: gray;
+	}	
+
 	.u-error {
 		color: red;
 	}
@@ -114,7 +122,6 @@
 	}
 	
 	.u-toolbarButton:hover {
-		box-shadow: 0px 1px 3px 0px $shadowColor;
 	}
 	
 	.u-bigTab:hover {
@@ -201,7 +208,11 @@
 	.u-smallMargin.v-margin-top {
 		padding-top: round($v-layout-margin-top/3);
 	}
-
+	
+	.u-smallMargin {
+		padding-top: round($v-layout-margin-top/3);
+	}
+	
 	.u-negativeBottomMarginSmall {
 		margin-bottom: (-round($v-layout-margin-bottom/3));
 	}
@@ -278,6 +289,10 @@
 		}	
 	}
 
+	.u-link {
+		color : #197de1;
+	}
+
 	.u-hidden {
 		visibility: hidden;
 	}
@@ -340,5 +355,13 @@
 
 	.u-flag-bg-de {
 		@include flag-bg-template($flagImageDe);
+	}
+
+	.v-menubar .v-menubar-submenu-indicator + .v-menubar-menuitem-caption::after {
+		margin: 0 -3px 0 -3px;
+		font-family: FontAwesome;
+		content: "\f078";
+		font-size: 0em;
+		vertical-align: .15em;
 	}
 }

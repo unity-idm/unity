@@ -15,6 +15,7 @@ public enum Styles
 	emphasized("u-emphasized"),
 	bold("u-bold"),
 	immutableAttribute("u-immutableAttribute"),
+	readOnlyTableElement("u-readOnlyTableElement"),
 	captionBold("bold"),
 	trueConditionBackground("u-trueCondition-bg"),
 	falseConditionBackground("u-falseCondition-bg"),
@@ -66,6 +67,8 @@ public enum Styles
 	margin("u-margin"),
 	idpTile("u-idptile"),
 	indent("u-indent"),
+	link("u-link"),
+	hamburgerMenu("u-hamburgerMenu"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),
@@ -77,8 +80,8 @@ public enum Styles
 	vLabelLarge(ValoTheme.LABEL_LARGE),
 	vLabelH1(ValoTheme.LABEL_H1),
 	vButtonLink(ValoTheme.BUTTON_LINK),
+	vButtonBorderless(ValoTheme.BUTTON_BORDERLESS),
 	vButtonPrimary(ValoTheme.BUTTON_PRIMARY),
-	vButtonLinkV(ValoTheme.BUTTON_LINK),
 	vSmall(ValoTheme.TEXTFIELD_SMALL),
 	vTiny(ValoTheme.TEXTFIELD_TINY),
 	vTableNoHorizontalLines(ValoTheme.TABLE_NO_HORIZONTAL_LINES),

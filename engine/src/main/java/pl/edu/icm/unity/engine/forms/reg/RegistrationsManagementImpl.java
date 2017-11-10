@@ -25,11 +25,11 @@ import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.credential.CredentialReqRepository;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.forms.BaseFormValidator;
 import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.store.api.generic.CredentialRequirementDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
@@ -55,7 +55,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 {
 	private RegistrationFormDB formsDB;
 	private RegistrationRequestDB requestDB;
-	private CredentialRequirementDB credentialReqDB;
+	private CredentialReqRepository credentialReqRepository;
 	private RegistrationConfirmationSupport confirmationsSupport;
 	private AuthorizationManager authz;
 	private NotificationProducer notificationProducer;
@@ -68,7 +68,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 
 	@Autowired
 	public RegistrationsManagementImpl(RegistrationFormDB formsDB,
-			RegistrationRequestDB requestDB, CredentialRequirementDB credentialReqDB,
+			RegistrationRequestDB requestDB, CredentialReqRepository credentialReqDB,
 			RegistrationConfirmationSupport confirmationsSupport,
 			AuthorizationManager authz, NotificationProducer notificationProducer,
 			SharedRegistrationManagment internalManagment, UnityMessageSource msg,
@@ -78,7 +78,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	{
 		this.formsDB = formsDB;
 		this.requestDB = requestDB;
-		this.credentialReqDB = credentialReqDB;
+		this.credentialReqRepository = credentialReqDB;
 		this.confirmationsSupport = confirmationsSupport;
 		this.authz = authz;
 		this.notificationProducer = notificationProducer;
@@ -267,7 +267,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		
 		if (form.getDefaultCredentialRequirement() == null)
 			throw new IllegalArgumentException("Credential requirement must be set for the form");
-		if (credentialReqDB.get(form.getDefaultCredentialRequirement()) == null)
+		if (credentialReqRepository.get(form.getDefaultCredentialRequirement()) == null)
 			throw new IllegalArgumentException("Credential requirement " + 
 					form.getDefaultCredentialRequirement() + " does not exist");
 

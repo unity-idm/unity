@@ -11,6 +11,7 @@ import com.vaadin.v7.ui.VerticalLayout;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
+import pl.edu.icm.unity.types.translation.ProfileMode;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -26,6 +27,7 @@ public class TranslationProfileViewer extends VerticalLayout
 	private UnityMessageSource msg;
 	protected Label name;
 	protected Label description;
+	protected Label mode;
 	private FormLayout rules;
 	private FormLayout main;
 	
@@ -44,13 +46,16 @@ public class TranslationProfileViewer extends VerticalLayout
 		name.setCaption(msg.getMessage("TranslationProfileViewer.name"));
 		description = new Label();
 		description.setReadOnly(true);
-		description.setCaption(msg.getMessage("TranslationProfileViewer.description"));
+		description.setCaption(msg.getMessage("TranslationProfileViewer.description"));	
+		mode = new Label();
+		mode.setCaption(msg.getMessage("TranslationProfileViewer.mode"));
+		mode.setVisible(false);
 		rules = new CompactFormLayout();
 		rules.setMargin(false);
 		rules.setSpacing(false);
 		Label rulesLabel = new Label();
 		rulesLabel.setCaption(msg.getMessage("TranslationProfileViewer.rules"));
-		main.addComponents(name, description, rulesLabel, rules);
+		main.addComponents(name, description, mode, rulesLabel, rules);
 		addComponent(main);
 		setSizeFull();
 	}
@@ -68,6 +73,12 @@ public class TranslationProfileViewer extends VerticalLayout
 		
 		name.setValue(profile.getName());
 		description.setValue(profile.getDescription());
+		mode.setVisible(false);
+		if (!profile.getProfileMode().equals(ProfileMode.DEFAULT))
+		{	
+			mode.setVisible(true);
+			mode.setValue(profile.getProfileMode().toString().toLowerCase());	
+		}
 		int i=0;
 		for (TranslationRule rule : profile.getRules())
 		{
@@ -94,5 +105,6 @@ public class TranslationProfileViewer extends VerticalLayout
 		rules.removeAllComponents();
 		name.setValue("");
 		description.setValue("");
+		mode.setValue("");
 	}
 }

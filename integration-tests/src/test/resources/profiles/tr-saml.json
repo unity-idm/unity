@@ -12,7 +12,7 @@
 				"parameters": [
 					"userName",
 					"attr['urn:oid:2.5.4.3']",
-					"Password requirement",
+					"sys:all",
 					"MATCH"
 				]
 			}

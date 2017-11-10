@@ -12,11 +12,14 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
+import com.vaadin.event.Action;
+import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.v7.ui.Label;
 import com.vaadin.v7.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.CredentialManagement;
@@ -74,14 +77,17 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 		addStyleName(Styles.visibleScroll.toString());
 		setCaption(msg.getMessage("CredentialDefinitions.caption"));
 		viewer = new CredentialDefinitionViewer(msg);
-		table =  new GenericElementsTable<CredentialDefinition>(
+		table =  new GenericElementsTable<>(
 				msg.getMessage("CredentialDefinitions.credentialDefinitionsHeader"), 
 				new GenericElementsTable.NameProvider<CredentialDefinition>()
 				{
 					@Override
-					public String toRepresentation(CredentialDefinition element)
+					public Object toRepresentation(CredentialDefinition element)
 					{
-						return element.getName();
+						Label ret = new Label(element.getName());
+						if (element.isReadOnly())
+							ret.addStyleName(Styles.readOnlyTableElement.toString());
+						return ret;
 					}
 				});
 		table.setMultiSelect(true);
@@ -196,7 +202,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 	private Collection<CredentialDefinition> getItems(Object target)
 	{
 		Collection<?> c = (Collection<?>) target;
-		Collection<CredentialDefinition> items = new ArrayList<CredentialDefinition>();
+		Collection<CredentialDefinition> items = new ArrayList<>();
 		for (Object o: c)
 		{
 			GenericItem<?> i = (GenericItem<?>) o;
@@ -247,7 +253,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 		}
 	}
 	
-	private class EditActionHandler extends SingleActionHandler
+	private class EditActionHandler extends AbstractCredentialActionHandler
 	{
 		public EditActionHandler()
 		{
@@ -279,7 +285,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 		}
 	}
 
-	private class DeleteActionHandler extends SingleActionHandler
+	private class DeleteActionHandler extends AbstractCredentialActionHandler
 	{
 		public DeleteActionHandler()
 		{
@@ -308,4 +314,42 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 					}).show();
 		}
 	}
+	
+	private abstract class AbstractCredentialActionHandler extends SingleActionHandler
+	{
+
+		public AbstractCredentialActionHandler(String caption, Resource icon)
+		{
+			super(caption, icon);
+			setNeedsTarget(true);
+		}
+
+		@Override
+		public Action[] getActions(Object target, Object sender)
+		{
+			if (target == null)
+			{
+				return EMPTY;
+
+			} else
+			{
+				if (target instanceof Collection<?>)
+				{
+					Collection<CredentialDefinition> items = getItems(target);
+					for (CredentialDefinition cr : items)
+						if (cr.isReadOnly())
+							return EMPTY;
+				} else
+				{
+					GenericItem<?> item = (GenericItem<?>) target;	
+					CredentialDefinition cr = (CredentialDefinition) item.getElement();
+					if (cr.isReadOnly())
+						return EMPTY;
+				}
+			}
+			return super.getActions(target, sender);
+		}
+
+	}
+	
 }

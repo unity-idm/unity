@@ -35,4 +35,10 @@ public class BooleanActionParameterComponent extends CheckBox implements ActionP
 		setValue(Boolean.valueOf(value));
 		
 	}
+
+	@Override
+	public void addValueChangeCallback(Runnable callback)
+	{
+		addValueChangeListener((e) -> { callback.run(); });		
+	}
 }

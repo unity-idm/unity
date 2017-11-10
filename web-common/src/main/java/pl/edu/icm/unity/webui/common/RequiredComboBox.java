@@ -31,7 +31,9 @@ public class RequiredComboBox extends ComboBox
 		
 	}
 	
-	protected boolean shouldHideErrors() {
+	@Override
+	protected boolean shouldHideErrors() 
+	{
 		return false;
 	}
 }

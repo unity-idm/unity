@@ -18,6 +18,7 @@ import pl.edu.icm.unity.types.DescribedObjectImpl;
 public class CredentialRequirements extends DescribedObjectImpl
 {
 	private Set<String> requiredCredentials;
+	private boolean readOnly = false;
 
 	public CredentialRequirements()
 	{
@@ -41,6 +42,16 @@ public class CredentialRequirements extends DescribedObjectImpl
 		this.requiredCredentials = requiredCredentials;
 	}
 
+	public boolean isReadOnly()
+	{
+		return readOnly;
+	}
+
+	public void setReadOnly(boolean readOnly)
+	{
+		this.readOnly = readOnly;
+	}
+	
 	@Override
 	public String toString()
 	{
@@ -54,6 +65,7 @@ public class CredentialRequirements extends DescribedObjectImpl
 		int result = super.hashCode();
 		result = prime * result + ((requiredCredentials == null) ? 0
 				: requiredCredentials.hashCode());
+		result = prime * result + ((readOnly) ? 1 : 0);
 		return result;
 	}
 
@@ -72,6 +84,8 @@ public class CredentialRequirements extends DescribedObjectImpl
 			if (other.requiredCredentials != null)
 				return false;
 		} else if (!requiredCredentials.equals(other.requiredCredentials))
+			return false;
+		if (readOnly != other.readOnly)
 			return false;
 		return true;
 	}

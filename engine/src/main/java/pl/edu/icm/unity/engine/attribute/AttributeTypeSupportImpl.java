@@ -4,7 +4,9 @@
  */
 package pl.edu.icm.unity.engine.attribute;
 
+import java.io.File;
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -69,5 +71,17 @@ public class AttributeTypeSupportImpl implements AttributeTypeSupport
 	public AttributeType getType(String attribute)
 	{
 		return aTypeHelper.getTypeForAttributeName(attribute);
+	}
+
+	@Override
+	public List<AttributeType> loadAttributeTypesFromFile(File file)
+	{
+		return aTypeHelper.loadAttributeTypesFromFile(file);
+	}
+
+	@Override
+	public List<File> getAttibuteTypeFilesFromClasspathResource()
+	{
+		return aTypeHelper.getAttibuteTypeFilesFromClasspathResource();
 	}
 }

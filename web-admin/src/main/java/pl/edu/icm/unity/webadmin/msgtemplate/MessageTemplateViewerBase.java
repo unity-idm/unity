@@ -4,18 +4,17 @@
  */
 package pl.edu.icm.unity.webadmin.msgtemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.v7.shared.ui.label.ContentMode;
 import com.vaadin.v7.ui.Label;
 import com.vaadin.v7.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.MessageTemplate;
+import pl.edu.icm.unity.types.basic.MessageType;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
+import pl.edu.icm.unity.webui.common.i18n.I18nLabelWithPreview;
 
 /**
  * Base for message template viewer 
@@ -25,11 +24,10 @@ import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 public abstract class MessageTemplateViewerBase extends VerticalLayout
 {
 	protected UnityMessageSource msg;
-	protected List<Component> messages;
 	protected FormLayout main;
 	protected Label name;
 	
-	public MessageTemplateViewerBase( UnityMessageSource msg)
+	public MessageTemplateViewerBase(UnityMessageSource msg)
 	{
 		this.msg = msg;
 		initUIBase();
@@ -37,7 +35,6 @@ public abstract class MessageTemplateViewerBase extends VerticalLayout
 	
 	protected void initUIBase()
 	{
-		messages = new ArrayList<Component>();
 		main = new CompactFormLayout();
 		name = new Label();
 		name.setCaption(msg.getMessage("MessageTemplateViewer.name"));
@@ -50,28 +47,29 @@ public abstract class MessageTemplateViewerBase extends VerticalLayout
 		initUI();			
 	}
 	
-	public void setInput(String nameContent, I18nString subjectContent, I18nString bodyContent)
+	public void setInput(MessageTemplate template)
 	{   		
+		String nameContent = template.getName(); 
+		I18nString subjectContent = template.getMessage().getSubject();
+		I18nString bodyContent = template.getMessage().getBody();
+		
 		main.setVisible(true);
 		main.setSpacing(true);
 		name.setValue(nameContent);
-		I18nLabel subject = new I18nLabel(msg, msg.getMessage("MessageTemplateViewer.subject"));
-		subject.setValue(subjectContent);
-		I18nLabel body = new I18nLabel(msg, msg.getMessage("MessageTemplateViewer.body"));
-		body.setValue(bodyContent);
-		messages.add(subject);
-		messages.add(body);
+		
+		I18nLabelWithPreview body = I18nLabelWithPreview.builder(msg, msg.getMessage("MessageTemplateViewer.body"))
+				.withMode(template.getType() == MessageType.HTML ? 
+						ContentMode.HTML : ContentMode.PREFORMATTED)
+				.buildWithValue(bodyContent);
+		I18nLabelWithPreview subject = I18nLabelWithPreview.builder(msg, msg.getMessage("MessageTemplateViewer.subject"))
+				.buildWithValue(subjectContent);
 		main.addComponents(subject, body);
 	}
 
 	public void clearContent()
 	{
-		name.setValue("");
-		for (Component c : messages)
-		{
-			main.removeComponent(c);
-		}
-		messages.clear();
+		removeAllComponents();
+		initUIBase();
 	}
 	
 	protected abstract void initUI();

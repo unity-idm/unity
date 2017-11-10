@@ -17,4 +17,5 @@ public interface ActionParameterComponent extends Component
 	void setValidationVisible(boolean how);
 	boolean isValid();
 	void setReadOnly(boolean readOnly);
+	void addValueChangeCallback(Runnable callback);
 }

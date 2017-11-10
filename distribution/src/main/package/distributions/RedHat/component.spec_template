@@ -17,6 +17,9 @@ Unity is a complete identity and federation management solution. This package
 provides a self-contained Unity server. 
 
 %changelog
+* Wed Nov 01 2017 Krzysztof Benedyczak:
+- Updated config to include msgTemplates directory
+
 * Thu Aug 31 2017 Krzysztof Benedyczak:
 - Updated config to use modules and directory truststore
 
@@ -42,18 +45,30 @@ provides a self-contained Unity server.
 #
 %attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm"
 %attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm/authenticators"
+%attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm/i18n"
 %attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm/pki"
 %attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm/pki/trusted-ca"
+%attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm/scripts"
 %attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm/modules"
+%attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm/modules/core"
+%attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm/modules/oauth"
+%attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm/modules/saml"
+%attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm/modules/unicore"
+%attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm/msgTemplates"
 %attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/*.conf"
 %attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/*.properties"
 %attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/*.xml"
 %attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/authenticators/*"
-%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/pki/*"
-%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/pki/trusted-ca/*"
+%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/pki/*.p12"
+%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/msgTemplates/*"
+%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/pki/trusted-ca/*.pem"
 %attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/i18n/*"
 %attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/scripts/*"
-%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/modules/*"
+%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/modules/*.module"
+%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/modules/core/*"
+%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/modules/oauth/*"
+%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/modules/saml/*"
+%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/modules/unicore/*"
 
 %attr(644, root, root) "/usr/lib/systemd/system/unity-idm.service"
 

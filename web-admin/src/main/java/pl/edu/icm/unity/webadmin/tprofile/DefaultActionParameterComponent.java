@@ -41,4 +41,10 @@ public class DefaultActionParameterComponent extends RequiredTextField implement
 	{
 		setValue(value);
 	}
+
+	@Override
+	public void addValueChangeCallback(Runnable callback)
+	{
+		addValueChangeListener((e) -> { callback.run(); });		
+	}
 }

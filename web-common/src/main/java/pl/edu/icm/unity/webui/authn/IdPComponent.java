@@ -33,7 +33,7 @@ public class IdPComponent extends CustomComponent
 	public IdPComponent(String id, Resource logo, String name, ScaleMode scaleMode)
 	{
 		providerB = new Button();
-		providerB.setStyleName(Styles.vButtonLinkV.toString());
+		providerB.setStyleName(Styles.vButtonLink.toString());
 		providerB.addStyleName(Styles.smallMargins.toString());
 		providerB.setId("IdpSelector." + id);
 		
