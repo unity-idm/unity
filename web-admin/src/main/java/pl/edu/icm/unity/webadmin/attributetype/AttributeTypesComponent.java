@@ -133,6 +133,7 @@ public class AttributeTypesComponent extends VerticalLayout
 		table.addActionHandler(new ImportActionHandler());
 		table.addActionHandler(new AddActionHandler());
 		table.addActionHandler(new EditActionHandler());
+		table.addActionHandler(new CopyActionHandler());
 		table.addActionHandler(new DeleteActionHandler());
 		table.addActionHandler(new ExportActionHandler());
 		
@@ -386,6 +387,38 @@ public class AttributeTypesComponent extends VerticalLayout
 		}
 	}
 	
+	private class CopyActionHandler extends SingleActionHandler
+	{
+		
+		public CopyActionHandler()
+		{
+			super(msg.getMessage("AttributeTypes.copyAction"), Images.copy.getResource());
+		}
+		
+		@Override
+		public void handleAction(Object sender, final Object target)
+		{
+			
+			GenericItem<?> item = (GenericItem<?>) target;	
+			AttributeType at = (AttributeType) item.getElement();
+			RegularAttributeTypeEditor editor = 
+					new RegularAttributeTypeEditor(msg, attrHandlerRegistry, at, 
+							attrMetaHandlerRegistry, atSupport);
+			editor.setCopyMode();
+			
+			AttributeTypeEditDialog dialog = new AttributeTypeEditDialog(msg, 
+					msg.getMessage("AttributeTypes.copyAction"), new Callback()
+					{
+						@Override
+						public boolean newAttribute(AttributeType newAttributeType)
+						{
+							return addType(newAttributeType);
+						}
+					}, editor);
+			dialog.show();
+		}
+	}
+
 	private class ExportActionHandler extends AbstractAttributeTypeActionHandler
 	{
 		public ExportActionHandler()

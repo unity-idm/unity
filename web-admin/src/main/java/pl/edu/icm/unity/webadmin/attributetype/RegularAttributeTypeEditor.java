@@ -164,6 +164,14 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 		validator = new FormValidator(this);
 	}
 	
+
+	public void setCopyMode()
+	{
+		name.setReadOnly(false);
+		String old = name.getValue();
+		name.setValue(msg.getMessage("AttributeType.nameCopy", old));
+	}
+	
 	private void setInitialValues(AttributeType aType)
 	{
 		typeDescription.setValue(aType.getDescription());
