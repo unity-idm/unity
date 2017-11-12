@@ -41,6 +41,7 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.SmallTable;
+import pl.edu.icm.unity.webui.common.SmallTableDeprecated;
 import pl.edu.icm.unity.webui.common.Toolbar;
 
 /**
@@ -82,7 +83,7 @@ public class AdminTokensComponent extends VerticalLayout
 	{
 		setCaption(msg.getMessage("OAuthTokenAdminUI.tokensLabel"));
 		
-		tokensTable = new SmallTable();
+		tokensTable = new SmallTableDeprecated();
 		tokensTable.setNullSelectionAllowed(false);
 		tokensTable.setImmediate(true);
 		tokensTable.setSizeFull();

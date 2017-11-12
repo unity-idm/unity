@@ -32,13 +32,14 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.SmallTable;
+import pl.edu.icm.unity.webui.common.SmallTableDeprecated;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 /**
  * Table with attribute statements. Allows for management operations.
  * @author K. Benedyczak
  */
-public class AttributeStatementsTable extends SmallTable
+public class AttributeStatementsTable extends SmallTableDeprecated
 {
 	private static final String MAIN_COL = "main";
 	private UnityMessageSource msg;

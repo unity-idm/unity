@@ -12,6 +12,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.SmallTable;
+import pl.edu.icm.unity.webui.common.SmallTableDeprecated;
 
 /**
  * Allows to inspect a single {@link CredentialRequirements}
@@ -43,7 +44,7 @@ public class CredentialRequirementViewer extends CompactFormLayout
 		description.setCaption(msg.getMessage("CredentialRequirements.description"));
 		addComponent(description);
 		
-		credentials = new SmallTable(msg.getMessage("CredentialRequirements.credentials"));
+		credentials = new SmallTableDeprecated(msg.getMessage("CredentialRequirements.credentials"));
 		credentials.setHeight(12, Unit.EM);
 		credentials.setWidth(90, Unit.PERCENTAGE);
 		credentials.addContainerProperty(msg.getMessage("CredentialRequirements.credentialsHeader"), 

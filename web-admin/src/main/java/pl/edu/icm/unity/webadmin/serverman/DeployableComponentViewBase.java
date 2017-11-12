@@ -29,6 +29,7 @@ import pl.edu.icm.unity.webui.common.ExpandCollapseButton;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 /**
  * Represent base view of server deployable component.
@@ -70,15 +71,15 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 	protected void initUI()
 	{
 		VerticalLayout main = new VerticalLayout();
-
+		main.setMargin(false);
+		
 		header = new HorizontalLayout();
 		header.setMargin(false);
 		header.setWidth(100, Unit.PERCENTAGE);
 		
 		main.addComponent(header);
 		
-		separator = new Label();
-		separator.addStyleName(Styles.horizontalLine.toString());
+		separator = HtmlTag.horizontalLine();
 		main.addComponent(separator);
 
 		content = new CompactFormLayout();
@@ -87,11 +88,9 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		main.addComponent(content);
 		
 		footer = new HorizontalLayout();
-		Label line = new Label();
-		line.addStyleName(Styles.horizontalLine.toString());
 		footer.setSpacing(false);
 		footer.setMargin(false);
-		footer.addComponent(line);
+		footer.addComponent(HtmlTag.horizontalLine());
 		footer.setSizeFull();
 		main.addComponent(footer);
 		

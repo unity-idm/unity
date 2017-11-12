@@ -139,19 +139,19 @@
 		text-align: center;
 	}
 	
-	.u-verticalLine {
+	.u-verticalBar {
 		width: 0px;
-		height: 16px;
-		border: 1px inset;
-		color: gray;
+		height: 100%;
+		border-left: 1px solid;
+		color: #d4d4d4;
 		margin: 0px 8px;
 	}
 	
-	.u-horizontalLine {
-		width: 16px;
+	.u-horizontalBar {
+		width: 100%;
 		height: 0px;
-		border: 1px inset;
-		color: gray;
+		border-top: 1px solid;
+		color: #d4d4d4;
 		margin: 8px 0px;
 	}
 

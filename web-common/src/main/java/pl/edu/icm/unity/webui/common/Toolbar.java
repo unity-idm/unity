@@ -131,8 +131,8 @@ public class Toolbar extends CustomComponent
 	public void addSeparator()
 	{
 		Label sep = new Label();
-		String style = orientation == Orientation.HORIZONTAL ? Styles.verticalLine.toString() :
-			Styles.horizontalLine.toString();
+		String style = orientation == Orientation.HORIZONTAL ? Styles.verticalBar.toString() :
+			Styles.horizontalBar.toString();
 		sep.addStyleName(style);
 		main.addComponent(sep);
 		main.setComponentAlignment(sep, Alignment.MIDDLE_CENTER);

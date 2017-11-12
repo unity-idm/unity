@@ -35,6 +35,7 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.SmallTable;
+import pl.edu.icm.unity.webui.common.SmallTableDeprecated;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -75,7 +76,7 @@ public class InvitationsTable extends CustomComponent
 
 	private void initUI()
 	{
-		invitationsTable = new SmallTable();
+		invitationsTable = new SmallTableDeprecated();
 		invitationsTable.setNullSelectionAllowed(false);
 		invitationsTable.setSizeFull();
 		BeanItemContainer<TableInvitationBean> tableContainer = new BeanItemContainer<>(TableInvitationBean.class);

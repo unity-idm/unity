@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import com.vaadin.ui.Grid;
+import com.vaadin.v7.ui.Table;
 
 /**
  * Table with styles creating a smaller representation.
@@ -12,16 +12,17 @@ import com.vaadin.ui.Grid;
  * @author K. Benedyczak
  * @param <T>
  */
-public class SmallTable<T> extends Grid<T>
+@Deprecated
+public class SmallTableDeprecated extends Table
 {
 	
-	public SmallTable(String caption)
+	public SmallTableDeprecated(String caption)
 	{
 		super(caption);
 		setup();
 	}
 
-	public SmallTable()
+	public SmallTableDeprecated()
 	{
 		setup();
 	}

@@ -16,12 +16,13 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.SmallTable;
+import pl.edu.icm.unity.webui.common.SmallTableDeprecated;
 
 /**
  * Table with group {@link AttributesClass}es with possibility to active edit dialog.
  * @author K. Benedyczak
  */
-public class GroupAttributesClassesTable extends SmallTable
+public class GroupAttributesClassesTable extends SmallTableDeprecated
 {
 	private UnityMessageSource msg;
 	private GroupsManagement groupsManagement;

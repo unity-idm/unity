@@ -194,7 +194,7 @@ public class ListOfEmbeddedElementsStub<T>
 			cc = new ComponentsContainer();
 			if (showLine)
 			{
-				hr = HtmlTag.hr();
+				hr = HtmlTag.horizontalLine();
 				cc.add(hr);
 			}
 			

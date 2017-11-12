@@ -13,6 +13,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.SmallTable;
+import pl.edu.icm.unity.webui.common.SmallTableDeprecated;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
@@ -50,14 +51,14 @@ public class AttributesClassViewer extends CompactFormLayout
 		
 		allAllowed = new Label(msg.getMessage("AttributesClass.allAllowed"));
 		
-		allowed = new SmallTable();
+		allowed = new SmallTableDeprecated();
 		allowed.addContainerProperty(msg.getMessage("AttributesClass.allowed"), 
 				String.class, null);
 		allowed.setWidth(90, Unit.PERCENTAGE);
 		allowed.setHeight(12, Unit.EM);
 		allowed.setSortContainerPropertyId(msg.getMessage("AttributesClass.allowed"));
 		
-		mandatory = new SmallTable();
+		mandatory = new SmallTableDeprecated();
 		mandatory.addContainerProperty(msg.getMessage("AttributesClass.mandatory"), 
 				String.class, null);
 		mandatory.setWidth(90, Unit.PERCENTAGE);

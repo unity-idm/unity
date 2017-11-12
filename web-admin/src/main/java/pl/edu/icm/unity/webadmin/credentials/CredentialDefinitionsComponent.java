@@ -16,11 +16,11 @@ import com.vaadin.event.Action;
 import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.v7.data.Property.ValueChangeEvent;
 import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -74,6 +74,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 	
 	private void init()
 	{
+		setMargin(false);
 		addStyleName(Styles.visibleScroll.toString());
 		setCaption(msg.getMessage("CredentialDefinitions.caption"));
 		viewer = new CredentialDefinitionViewer(msg);

@@ -155,7 +155,7 @@ public class ListOfElements<T> extends VerticalLayout
 			VerticalLayout main = new VerticalLayout(cont);
 			if (addSeparatorLine)
 			{
-				main.addComponent(HtmlTag.hr());
+				main.addComponent(HtmlTag.horizontalLine());
 			}
 			main.setSpacing(true);
 			main.setMargin(false);

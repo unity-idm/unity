@@ -39,6 +39,7 @@ import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 /**
  * Responsible for editing of a single TranslationRule
@@ -128,10 +129,8 @@ public class RuleComponent extends CustomComponent
 			showHideContent(!content.isVisible());			
 		});
 		
-		Label separator = new Label();
-		separator.addStyleName(Styles.horizontalLine.toString());
 		headerWrapper.addComponent(header);
-		headerWrapper.addComponent(separator);
+		headerWrapper.addComponent(HtmlTag.horizontalLine());
 			
 		condition = new MVELExpressionField(msg, msg.getMessage("TranslationProfileEditor.ruleCondition"), 
 				msg.getMessage("MVELExpressionField.conditionDesc"));

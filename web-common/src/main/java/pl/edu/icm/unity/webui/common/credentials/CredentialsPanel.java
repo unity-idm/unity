@@ -364,7 +364,7 @@ public class CredentialsPanel extends VerticalLayout
 			contents.addComponents(label);
 		}
 		
-		contents.addComponent(HtmlTag.hr());
+		contents.addComponent(HtmlTag.horizontalLine());
 		
 		statuses.setContent(contents);
 		updateSelectedCredential();

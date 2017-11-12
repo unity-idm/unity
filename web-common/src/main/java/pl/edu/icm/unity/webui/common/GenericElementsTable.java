@@ -18,9 +18,12 @@ import com.vaadin.ui.Label;
  * Allows for sorting and default disable multiselect, uses {@link BeanItemContainer}.
  * The value is obtained either via toString() method of the content item or via a given implementation 
  * of {@link NameProvider}.
+ * 
+ * @deprecated use {@link GenericElementsTable2} instead.
  * @author K. Benedyczak
  */
-public class GenericElementsTable<T> extends SmallTable
+@Deprecated
+public class GenericElementsTable<T> extends SmallTableDeprecated
 {
 	private NameProvider<T> nameProvider;
 	private List<SingleActionHandler> actionHandlers;

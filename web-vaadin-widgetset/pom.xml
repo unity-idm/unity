@@ -36,10 +36,6 @@
 			<artifactId>stepper</artifactId>
 		</dependency>
 		<dependency>
-   			<groupId>com.vaadin</groupId>
-  			<artifactId>vaadin-icons</artifactId>
-		</dependency>
-		<dependency>
   			<groupId>org.vaadin.addons</groupId>
    			<artifactId>simplefiledownloader</artifactId>
 		</dependency>	

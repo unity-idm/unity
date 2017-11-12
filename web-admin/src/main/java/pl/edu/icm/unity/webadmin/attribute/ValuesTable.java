@@ -15,13 +15,14 @@ import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.SmallTable;
+import pl.edu.icm.unity.webui.common.SmallTableDeprecated;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 
 /**
  * Table with attribute values.
  * @author K. Benedyczak
  */
-public class ValuesTable extends SmallTable
+public class ValuesTable extends SmallTableDeprecated
 {
 	private WebAttributeHandler handler;
 	

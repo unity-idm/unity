@@ -501,7 +501,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 
 	protected boolean createSeparatorControl(Layout layout, FormSeparatorElement element)
 	{
-		layout.addComponent(HtmlTag.hr());
+		layout.addComponent(HtmlTag.horizontalLine());
 		return true;
 	}	
 	

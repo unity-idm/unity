@@ -22,6 +22,7 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.SmallTable;
+import pl.edu.icm.unity.webui.common.SmallTableDeprecated;
 
 /**
  * Displays a tree with attribute classes (children are roots, parents are sub nodes).
@@ -56,14 +57,14 @@ public class EffectiveAttrClassViewer extends HorizontalSplitPanel
 		
 		allAllowed = new Label(msg.getMessage("AttributesClass.allAllowed"));
 		
-		allowed = new SmallTable();
+		allowed = new SmallTableDeprecated();
 		allowed.setWidth(90, Unit.PERCENTAGE);
 		allowed.setHeight(9, Unit.EM);
 		allowed.addContainerProperty(msg.getMessage("AttributesClass.allowed"), 
 				String.class, null);
 		allowed.setSortContainerPropertyId(msg.getMessage("AttributesClass.allowed"));
 		
-		mandatory = new SmallTable();
+		mandatory = new SmallTableDeprecated();
 		mandatory.setWidth(90, Unit.PERCENTAGE);
 		mandatory.setHeight(9, Unit.EM);
 		mandatory.addContainerProperty(msg.getMessage("AttributesClass.mandatory"), 

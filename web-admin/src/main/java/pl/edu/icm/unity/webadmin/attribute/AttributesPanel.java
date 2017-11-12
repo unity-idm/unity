@@ -65,6 +65,7 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.SmallTable;
+import pl.edu.icm.unity.webui.common.SmallTableDeprecated;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -122,7 +123,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		this.atSupport = atSupport;
 		this.confirmationMan = confirmationMan;
 		this.bus = WebSession.getCurrent().getEventBus();
-		attributesTable = new SmallTable();
+		attributesTable = new SmallTableDeprecated();
 		attributesTable.setNullSelectionAllowed(false);
 		attributesTable.setImmediate(true);
 		BeanItemContainer<AttributeItem> tableContainer = new BeanItemContainer<AttributeItem>(AttributeItem.class);

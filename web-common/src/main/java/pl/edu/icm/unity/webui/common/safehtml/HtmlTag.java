@@ -7,6 +7,8 @@ package pl.edu.icm.unity.webui.common.safehtml;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Label;
 
+import pl.edu.icm.unity.webui.common.Styles;
+
 /**
  * HTML label displaying commonly used simple steering sequences as hr.
  *   
@@ -14,9 +16,11 @@ import com.vaadin.ui.Label;
  */
 public class HtmlTag
 {
-	public static Label hr()
+	public static Label horizontalLine()
 	{
-		return new Label("<hr>", ContentMode.HTML);
+		Label ret = new Label();
+		ret.setStyleName(Styles.horizontalBar.toString());
+		return ret;
 	}
 
 	public static Label br()

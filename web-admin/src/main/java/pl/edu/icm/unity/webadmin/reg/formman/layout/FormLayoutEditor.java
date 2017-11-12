@@ -97,7 +97,7 @@ public class FormLayoutEditor extends CustomComponent
 		main.setSpacing(true);
 		
 		main.addComponent(getAddMetaElementControl());
-		main.addComponent(HtmlTag.hr());
+		main.addComponent(HtmlTag.horizontalLine());
 		
 		entriesLayout = new VerticalLayout();
 		entriesLayout.setSpacing(true);

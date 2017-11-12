@@ -39,6 +39,7 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.SmallTable;
+import pl.edu.icm.unity.webui.common.SmallTableDeprecated;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
@@ -68,7 +69,7 @@ public class RequestsTable extends CustomComponent
 
 	private void initUI()
 	{
-		requestsTable = new SmallTable();
+		requestsTable = new SmallTableDeprecated();
 		requestsTable.setNullSelectionAllowed(false);
 		requestsTable.setImmediate(true);
 		requestsTable.setSizeFull();

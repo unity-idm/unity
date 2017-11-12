@@ -42,7 +42,6 @@ public class AttributeMetaEditorPanel extends CompactFormLayout
 	public AttributeMetaEditorPanel(AttributeType attributeType, String groupPath, UnityMessageSource msg)
 	{
 		this(Collections.singletonList(attributeType), groupPath, msg);
-		setWidth(100, Unit.PERCENTAGE);
 	}
 	
 	public AttributeMetaEditorPanel(Collection<AttributeType> attributeTypes, String groupPath, 
@@ -62,6 +61,7 @@ public class AttributeMetaEditorPanel extends CompactFormLayout
 
 		typeDescription = new HtmlSimplifiedLabel(attributeType.getDescription().getValue(msg));
 		typeDescription.setCaption(msg.getMessage("AttributeType.description"));
+		typeDescription.setWidth(100, Unit.PERCENTAGE);
 		addComponent(typeDescription);
 		
 		Label group = new Label(groupPath);

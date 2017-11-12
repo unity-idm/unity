@@ -208,7 +208,7 @@ public class DryRunStepComponent extends CustomComponent
 		resultWrapper.addComponent(authnResultLabel);
 		
 		// hr_3
-		hr_3 = HtmlTag.hr();
+		hr_3 = HtmlTag.horizontalLine();
 		hr_3.setWidth("100.0%");
 		hr_3.setHeight("-1px");
 		resultWrapper.addComponent(hr_3);
@@ -230,7 +230,7 @@ public class DryRunStepComponent extends CustomComponent
 		resultWrapper.addComponent(hr);
 		
 		// hr_1
-		hr_1 = HtmlTag.hr();
+		hr_1 = HtmlTag.horizontalLine();
 		resultWrapper.addComponent(hr_1);
 		
 		profileViewer = new TranslationProfileViewer(msg);
@@ -238,7 +238,7 @@ public class DryRunStepComponent extends CustomComponent
 		resultWrapper.addComponent(profileViewer);
 		
 		// hr_2
-		hr_2 = HtmlTag.hr();
+		hr_2 = HtmlTag.horizontalLine();
 		resultWrapper.addComponent(hr_2);
 		
 		// logsLabel
