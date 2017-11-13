@@ -9,11 +9,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AbstractAttributeValueSyntaxFactory;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -27,12 +29,13 @@ import pl.edu.icm.unity.exceptions.InternalException;
  */
 public class ZonedDateTimeAttributeSyntax implements AttributeValueSyntax<ZonedDateTime> 
 {
-	public static final String ID = "zonedDatetime";
-	
+	public static final String ID = "zonedDatetime";	
 	public static List<String> ACCEPTABLE_FORMATS = 
 			pl.edu.icm.unity.stdext.attr.DateTimeAttributeSyntax.ACCEPTABLE_FORMATS.stream()
 			.map(f -> f + "xxx['['VV']'][X]").collect(Collectors.toList());	
 
+	private static final Logger log = Log.getLogger(Log.U_SERVER, ZonedDateTimeAttributeSyntax.class);
+	
 	@Override
 	public String getValueSyntaxId()
 	{
@@ -78,18 +81,18 @@ public class ZonedDateTimeAttributeSyntax implements AttributeValueSyntax<ZonedD
 		{
 			try
 			{
-				ZonedDateTime date = ZonedDateTime.parse(stringRepresentation,
+				return ZonedDateTime.parse(stringRepresentation,
 						DateTimeFormatter.ofPattern(format));
-				return date;
 
 			} catch (Exception e)
 			{
-				// OK
+				log.trace("Can not parse zoned datetime " + stringRepresentation
+						+ " using format: " + format, e);
 			}
 		}
 
 		throw new InternalException("Can not parse zoned datetime " + stringRepresentation
-				+ " using standart datetime formats");
+				+ " using standard datetime formats");
 	}
 
 	@Override

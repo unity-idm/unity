@@ -9,11 +9,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AbstractAttributeValueSyntaxFactory;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -28,10 +30,11 @@ import pl.edu.icm.unity.exceptions.InternalException;
 public class DateAttributeSyntax implements AttributeValueSyntax<LocalDate>
 {
 	public static final String ID = "date";
-	
 	public static List<String> ACCEPTABLE_FORMATS = Arrays.asList("yyyy-MM-dd", "dd-MM-yyyy",
 			"ddMMyy", "dd.MM.yyyy", "ddMMyyyy", "dd/MM/yyyy");
-
+	
+	private static final Logger log = Log.getLogger(Log.U_SERVER, DateAttributeSyntax.class);	
+	
 	@Override
 	public String getValueSyntaxId()
 	{
@@ -77,18 +80,18 @@ public class DateAttributeSyntax implements AttributeValueSyntax<LocalDate>
 		{
 			try
 			{
-				LocalDate date = LocalDate.parse(stringRepresentation,
+				return LocalDate.parse(stringRepresentation,
 						DateTimeFormatter.ofPattern(format));
-				return date;
 
 			} catch (Exception e)
 			{
-				// OK
+				log.trace("Can not parse date " + stringRepresentation
+						+ " using format: " + format, e);
 			}
 		}
 
 		throw new InternalException("Can not parse date " + stringRepresentation
-				+ " using standart date formats");
+				+ " using standard date formats");
 	}
 
 	@Override

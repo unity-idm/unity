@@ -46,7 +46,7 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 	{
 		String[] supportedSyntaxes = aTypeMan.getSupportedAttributeValueTypes();
 		Arrays.sort(supportedSyntaxes);
-		assertEquals(6, supportedSyntaxes.length);
+		assertEquals(9, supportedSyntaxes.length);
 		checkArray(supportedSyntaxes, StringAttributeSyntax.ID, EnumAttributeSyntax.ID);
 	}
 	

@@ -9,11 +9,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AbstractAttributeValueSyntaxFactory;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -28,12 +30,13 @@ import pl.edu.icm.unity.exceptions.InternalException;
 public class DateTimeAttributeSyntax implements AttributeValueSyntax<LocalDateTime>
 {
 	public static final String ID = "datetime";
-
 	public static List<String> ACCEPTABLE_FORMATS = Arrays.asList(
 			"yyyy-MM-dd['T'][ ]HH:mm:ss", "dd-MM-yyyy['T'][ ]HH-mm-ss",
 			"ddMMyy['T'][ ]HHmmss", "dd.MM.yyyy['T'][ ]HH.mm.ss",
 			"ddMMyyyy['T'][ ]HHmmss", "dd/MM/yyyy['T'][ ]HH/mm/ss");
-
+	
+	private static final Logger log = Log.getLogger(Log.U_SERVER, DateTimeAttributeSyntax.class);	
+	
 	@Override
 	public String getValueSyntaxId()
 	{
@@ -79,19 +82,18 @@ public class DateTimeAttributeSyntax implements AttributeValueSyntax<LocalDateTi
 		{
 			try
 			{
-				LocalDateTime date = LocalDateTime.parse(stringRepresentation,
+				return LocalDateTime.parse(stringRepresentation,
 						DateTimeFormatter.ofPattern(format));
-
-				return date;
 
 			} catch (Exception e)
 			{
-				// OK
+				log.trace("Can not parse datetime " + stringRepresentation
+						+ " using format: " + format, e);
 			}
 		}
 
 		throw new InternalException("Can not parse datetime " + stringRepresentation
-				+ " using standart date formats");
+				+ " using standard date formats");
 	}
 
 	@Override
