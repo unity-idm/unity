@@ -5,14 +5,14 @@
 package pl.edu.icm.unity.webadmin.credreq;
 
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Grid;
+import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.Table;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.SmallTable;
-import pl.edu.icm.unity.webui.common.SmallTableDeprecated;
+import pl.edu.icm.unity.webui.common.SmallGrid;
 
 /**
  * Allows to inspect a single {@link CredentialRequirements}
@@ -24,7 +24,7 @@ public class CredentialRequirementViewer extends CompactFormLayout
 	
 	private Label name;
 	private Label description;
-	private Table credentials;
+	private Grid<String> credentials;
 	
 	public CredentialRequirementViewer(UnityMessageSource msg)
 	{
@@ -44,11 +44,12 @@ public class CredentialRequirementViewer extends CompactFormLayout
 		description.setCaption(msg.getMessage("CredentialRequirements.description"));
 		addComponent(description);
 		
-		credentials = new SmallTableDeprecated(msg.getMessage("CredentialRequirements.credentials"));
+		credentials = new SmallGrid<>(msg.getMessage("CredentialRequirements.credentials"));
 		credentials.setHeight(12, Unit.EM);
 		credentials.setWidth(90, Unit.PERCENTAGE);
-		credentials.addContainerProperty(msg.getMessage("CredentialRequirements.credentialsHeader"), 
-				String.class, null);
+		credentials.addColumn(a -> a)
+			.setCaption(msg.getMessage("CredentialRequirements.credentialsHeader"));
+		credentials.setSelectionMode(SelectionMode.NONE);
 		addComponent(credentials);
 		setComponentAlignment(credentials, Alignment.TOP_LEFT);
 		
@@ -73,8 +74,6 @@ public class CredentialRequirementViewer extends CompactFormLayout
 		setContentVisible(true);
 		name.setValue(cr.getName());
 		description.setValue(cr.getDescription());
-		credentials.removeAllItems();
-		for (String cred: cr.getRequiredCredentials())
-			credentials.addItem(new Object[] {cred}, cred);
+		credentials.setItems(cr.getRequiredCredentials());
 	}
 }

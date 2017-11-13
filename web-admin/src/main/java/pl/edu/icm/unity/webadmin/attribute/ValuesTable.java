@@ -14,7 +14,7 @@ import com.vaadin.v7.data.util.BeanItemContainer;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.SmallTable;
+import pl.edu.icm.unity.webui.common.SmallGrid;
 import pl.edu.icm.unity.webui.common.SmallTableDeprecated;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 

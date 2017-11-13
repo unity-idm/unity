@@ -328,7 +328,6 @@
 	.u-idptile .v-grid-row > td {
 		border-left: none;
 		border-bottom: none;
-		
 	}
 
 	.u-idptile .v-grid-row > td:first-child {
@@ -363,5 +362,20 @@
 		content: "\f078";
 		font-size: 0em;
 		vertical-align: .15em;
+	}
+
+    .u-noGridHorizontalLines .v-grid-cell-focused:before {
+        display: none !important;
+    }
+   
+	.u-noGridHorizontalLines .v-grid-tablewrapper table tbody tr td {
+		border-left: none;
+		border-bottom: none;
+		line-height: 29px;
+		height: 30px;
+	}
+
+	.u-noGridHorizontalLines .v-grid-tablewrapper table tbody tr:last-child td {
+		border-bottom: 1px solid #d4d4d4;
 	}
 }

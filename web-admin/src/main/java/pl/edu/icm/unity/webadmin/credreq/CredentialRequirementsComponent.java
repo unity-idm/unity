@@ -4,42 +4,35 @@
  */
 package pl.edu.icm.unity.webadmin.credreq;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.vaadin.event.Action;
-import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
 
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.webadmin.credreq.CredentialRequirementEditDialog.Callback;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.GenericElementsTable;
-import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
+import pl.edu.icm.unity.webui.common.GenericElementsTable2;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar;
+import pl.edu.icm.unity.webui.common.Toolbar2;
 
 /**
  * Provides {@link CredentialRequirements} management UI
@@ -54,7 +47,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 	private CredentialManagement credMan;
 	private EventsBus bus;
 	
-	private GenericElementsTable<CredentialRequirements> table;
+	private GenericElementsTable2<CredentialRequirements> table;
 	private CredentialRequirementViewer viewer;
 	private com.vaadin.ui.Component main;
 	
@@ -77,43 +70,32 @@ public class CredentialRequirementsComponent extends VerticalLayout
 		addStyleName(Styles.visibleScroll.toString());
 		setCaption(msg.getMessage("CredentialRequirements.caption"));
 		viewer = new CredentialRequirementViewer(msg);
-		table =  new GenericElementsTable<>(
-				msg.getMessage("CredentialRequirements.credentialRequirementsHeader"), 
-				new GenericElementsTable.NameProvider<CredentialRequirements>()
-				{
-					@Override
-					public Label toRepresentation(CredentialRequirements element)
-					{
-						Label ret = new Label(element.getName());
-						if (element.isReadOnly())
-							ret.addStyleName(Styles.readOnlyTableElement.toString());
-						return ret;
-					}
-				});
-		table.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				Collection<CredentialRequirements> items = getItems(table.getValue());
-				if (items.size() > 1 || items.isEmpty())
-				{
-					viewer.setInput(null);
-					return;
-				}	
-				CredentialRequirements item = items.iterator().next();	
-				viewer.setInput(item);
-			}
-		});
-		table.addActionHandler(new RefreshActionHandler());
-		table.addActionHandler(new AddActionHandler());
-		table.addActionHandler(new EditActionHandler());
-		table.addActionHandler(new DeleteActionHandler());
-		table.setWidth(90, Unit.PERCENTAGE);
+		table =  new GenericElementsTable2<>(
+				msg.getMessage("CredentialRequirements.credentialRequirementsHeader"),
+				cr -> cr.getName());
+		table.setStyleGenerator(item -> item.isReadOnly() ? 
+				Styles.readOnlyTableElement.toString() : null);
 		table.setMultiSelect(true);
-		Toolbar toolbar = new Toolbar(table, Orientation.HORIZONTAL);
+		table.addSelectionListener(event ->
+		{
+			Collection<CredentialRequirements> items = event.getAllSelectedItems();
+			if (items.size() > 1 || items.isEmpty())
+			{
+				viewer.setInput(null);
+				return;
+			}	
+			CredentialRequirements item = items.iterator().next();	
+			viewer.setInput(item);
+		});
+		table.addActionHandler(getRefreshAction());
+		table.addActionHandler(getAddAction());
+		table.addActionHandler(getEditAction());
+		table.addActionHandler(getDeleteAction());
+		table.setWidth(90, Unit.PERCENTAGE);
+		Toolbar2<CredentialRequirements> toolbar = new Toolbar2<>(Orientation.HORIZONTAL);
+		table.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(table.getActionHandlers());
-		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
+		ComponentWithToolbar2 tableWithToolbar = new ComponentWithToolbar2(table, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
 		
 		HorizontalLayout hl = new HorizontalLayout();
@@ -213,168 +195,92 @@ public class CredentialRequirementsComponent extends VerticalLayout
 		}
 	}
 	
-	private Collection<CredentialRequirements> getItems(Object target)
+	private SingleActionHandler2<CredentialRequirements> getRefreshAction()
 	{
-		Collection<?> c = (Collection<?>) target;
-	        Collection<CredentialRequirements> items = new ArrayList<>();
-		for (Object o: c)
-		{
-			GenericItem<?> i = (GenericItem<?>) o;
-			items.add((CredentialRequirements) i.getElement());	
-		}	
-		return items;
+		return SingleActionHandler2.builder(
+				msg.getMessage("CredentialRequirements.refreshAction"), 
+				Images.refresh.getResource(),
+				CredentialRequirements.class,
+				selection -> refresh())
+				.dontRequireTarget()
+				.build();
 	}
 
-	private class RefreshActionHandler extends SingleActionHandler
+	private SingleActionHandler2<CredentialRequirements> getAddAction()
 	{
-		public RefreshActionHandler()
-		{
-			super(msg.getMessage("CredentialRequirements.refreshAction"), Images.refresh.getResource());
-			setNeedsTarget(false);
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			refresh();
-		}
+		return SingleActionHandler2.builder(
+					msg.getMessage("CredentialRequirements.addAction"), 
+					Images.add.getResource(),
+					this::showAddCRDialog)
+				.dontRequireTarget()
+				.build();
 	}
 	
-	private class AddActionHandler extends SingleActionHandler
+	private void showAddCRDialog(Set<CredentialRequirements> target)
 	{
-		public AddActionHandler()
-		{
-			super(msg.getMessage("CredentialRequirements.addAction"), Images.add.getResource());
-			setNeedsTarget(false);
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			Collection<CredentialDefinition> allCredentials = getCredentials();
-			if (allCredentials == null)
-				return;
-			CredentialRequirementEditor editor = new CredentialRequirementEditor(msg, allCredentials);
-			CredentialRequirementEditDialog dialog = new CredentialRequirementEditDialog(msg, 
-					msg.getMessage("CredentialRequirements.addAction"), editor, 
-					new Callback()
-					{
-						@Override
-						public boolean newCredentialRequirement(CredentialRequirements cr)
-						{
-							return addCR(cr);
-						}
-					});
-			dialog.show();
-		}
+		Collection<CredentialDefinition> allCredentials = getCredentials();
+		if (allCredentials == null)
+			return;
+		CredentialRequirementEditor editor = new CredentialRequirementEditor(msg, allCredentials);
+		CredentialRequirementEditDialog dialog = new CredentialRequirementEditDialog(msg, 
+				msg.getMessage("CredentialRequirements.addAction"), editor, 
+				this::addCR);
+		dialog.show();
 	}
 	
-	private class EditActionHandler extends AbstractCredentialReqActionHandler
+	private SingleActionHandler2<CredentialRequirements> getEditAction()
 	{
-		public EditActionHandler()
+		return SingleActionHandler2.builder(
+					msg.getMessage("CredentialRequirements.editAction"), 
+					Images.edit.getResource(),
+					this::showEditCRDialog)
+				.withDisabledPredicate(cr -> cr.isReadOnly())
+				.build();
+	}
+	
+	private void showEditCRDialog(Set<CredentialRequirements> target)
+	{
+		Collection<CredentialDefinition> allCredentials = getCredentials();	
+		if (allCredentials == null)
+			return;
+		CredentialRequirements cr = target.iterator().next();
+		CredentialRequirements crClone = new CredentialRequirements();
+		crClone.setDescription(cr.getDescription());
+		crClone.setName(cr.getName());
+		crClone.setRequiredCredentials(new HashSet<>(cr.getRequiredCredentials()));
+		CredentialRequirementEditor editor = new CredentialRequirementEditor(msg, allCredentials, crClone);
+		CredentialRequirementEditDialog dialog = new CredentialRequirementEditDialog(msg, 
+				msg.getMessage("CredentialRequirements.editAction"), editor, 
+				this::updateCR);
+		dialog.show();
+	}
+	
+	private SingleActionHandler2<CredentialRequirements> getDeleteAction()
+	{
+		return SingleActionHandler2.builder(
+					msg.getMessage("CredentialRequirements.deleteAction"), 
+					Images.delete.getResource(),
+					this::deleteHandler)
+				.withDisabledPredicate(cr -> cr.isReadOnly())
+				.multiTarget()
+				.build();
+	}
+	
+	private void deleteHandler(Set<CredentialRequirements> items)
+	{
+		HashSet<String> removed = new HashSet<>();
+		for (CredentialRequirements item : items)
 		{
-			super(msg.getMessage("CredentialRequirements.editAction"), Images.edit.getResource());
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			Collection<CredentialDefinition> allCredentials = getCredentials();	
-			if (allCredentials == null)
-				return;
+			removed.add(item.getName());
 			
-			GenericItem<?> item = (GenericItem<?>) target;			
-			CredentialRequirements cr = (CredentialRequirements) item.getElement();
-			CredentialRequirements crClone = new CredentialRequirements();
-			crClone.setDescription(cr.getDescription());
-			crClone.setName(cr.getName());
-			crClone.setRequiredCredentials(new HashSet<>(cr.getRequiredCredentials()));
-			CredentialRequirementEditor editor = new CredentialRequirementEditor(msg, allCredentials, crClone);
-			CredentialRequirementEditDialog dialog = new CredentialRequirementEditDialog(msg, 
-					msg.getMessage("CredentialRequirements.editAction"), editor, 
-					new Callback()
-					{
-						@Override
-						public boolean newCredentialRequirement(CredentialRequirements cr)
-						{
-							return updateCR(cr);
-						}
-					});
-			dialog.show();
-		}
-	}
-	
-	private class DeleteActionHandler extends AbstractCredentialReqActionHandler
-	{
-		public DeleteActionHandler()
-		{
-			super(msg.getMessage("CredentialRequirements.deleteAction"), 
-					Images.delete.getResource());
-			setMultiTarget(true);
-		}
-		
-		@Override
-		public void handleAction(Object sender, Object target)
-		{		
-			final Collection<CredentialRequirements> items = getItems(target);			
-			HashSet<String> removed = new HashSet<>();
-			for (CredentialRequirements item : items)
-			{
-				removed.add(item.getName());
-				
-			}			
-			Collection<CredentialRequirements> allCRs = getCredentialRequirements();
-			new CredentialRequirementRemovalDialog(msg, removed, allCRs, 
-					new CredentialRequirementRemovalDialog.Callback()
-			{
-				@Override
-				public void onConfirm(String replacementCR)
+		}			
+		Collection<CredentialRequirements> allCRs = getCredentialRequirements();
+		new CredentialRequirementRemovalDialog(msg, removed, allCRs, 
+				replacementCR ->
 				{
 					for (CredentialRequirements item : items)
-					{
 						removeCR(item.getName(), replacementCR);
-					}
 				}
-			}).show();
-		}
+		).show();
 	}
-	
-	private abstract class AbstractCredentialReqActionHandler extends SingleActionHandler
-	{
-
-		public AbstractCredentialReqActionHandler(String caption, Resource icon)
-		{
-			super(caption, icon);
-			setNeedsTarget(true);
-		}
-
-		@Override
-		public Action[] getActions(Object target, Object sender)
-		{
-			if (target == null)
-			{
-				return EMPTY;
-
-			} else
-			{
-				if (target instanceof Collection<?>)
-				{
-					Collection<CredentialRequirements> items = getItems(target);
-					for (CredentialRequirements cr : items)
-						if (cr.isReadOnly())
-							return EMPTY;
-				} else
-				{
-					GenericItem<?> item = (GenericItem<?>) target;	
-					CredentialRequirements cr = (CredentialRequirements) item.getElement();
-					if (cr.isReadOnly())
-						return EMPTY;
-				}
-			}
-			return super.getActions(target, sender);
-		}
-
-	}
-	
-
 }

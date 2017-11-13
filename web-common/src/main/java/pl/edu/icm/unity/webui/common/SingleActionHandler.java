@@ -18,6 +18,7 @@ import com.vaadin.server.Resource;
  * 
  * @author K. Benedyczak
  */
+@Deprecated
 @SuppressWarnings("serial")
 public abstract class SingleActionHandler implements Handler
 {		

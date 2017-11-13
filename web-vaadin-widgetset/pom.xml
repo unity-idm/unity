@@ -38,7 +38,11 @@
 		<dependency>
   			<groupId>org.vaadin.addons</groupId>
    			<artifactId>simplefiledownloader</artifactId>
-		</dependency>	
+		</dependency>
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-context-menu</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

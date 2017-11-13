@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
@@ -33,7 +33,7 @@ public class CredentialRequirementRemovalDialog extends AbstractDialog
 {
 	private static final long serialVersionUID = 1L;
 	private Callback callback;
-	private ComboBox replacementCR;
+	private ComboBox<String> replacementCR;
 	private Collection<CredentialRequirements> allCRs;
 	private HashSet<String> removedCr;
 
@@ -58,9 +58,11 @@ public class CredentialRequirementRemovalDialog extends AbstractDialog
 		FormLayout vl = new CompactFormLayout();
 		vl.setSpacing(true);		
 		String confirmText = MessageUtils.createConfirmFromStrings(msg, removedCr);
-		vl.addComponent(new Label(msg.getMessage("CredentialRequirements.removalConfirm", confirmText)));
+		Label info = new Label(msg.getMessage("CredentialRequirements.removalConfirm", confirmText));
+		info.setWidth(100, Unit.PERCENTAGE);
+		vl.addComponent(info);
 		
-		replacementCR = new ComboBox(msg.getMessage("CredentialRequirements.replacement"));
+		
 		List<String> crs = new ArrayList<String>();
 		for (CredentialRequirements cr: allCRs)
 			if (!removedCr.contains(cr.getName()))
@@ -72,10 +74,10 @@ public class CredentialRequirementRemovalDialog extends AbstractDialog
 					msg.getMessage("CredentialRequirements.cantRemoveLast"));
 			throw new WrongArgumentException("");
 		}
-		for (String cr: crs)
-			replacementCR.addItem(cr);
-		replacementCR.select(crs.get(0));
-		replacementCR.setNullSelectionAllowed(false);
+		replacementCR = new ComboBox<>(msg.getMessage("CredentialRequirements.replacement"),
+				crs);
+		replacementCR.setSelectedItem(crs.get(0));
+		replacementCR.setEmptySelectionAllowed(false);
 		vl.addComponent(replacementCR);
 		return vl;
 	}

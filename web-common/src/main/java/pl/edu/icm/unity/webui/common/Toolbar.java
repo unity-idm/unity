@@ -31,9 +31,10 @@ import com.vaadin.v7.ui.Tree;
  * 
  * Additionally toolbar's buttons have their state enabled or disabled depending whether the toolbar's target is set 
  * or not.
- *  
+ * @deprecated use {@link Toolbar2}
  * @author K. Benedyczak
  */
+@Deprecated
 public class Toolbar extends CustomComponent
 {
 	private Orientation orientation;

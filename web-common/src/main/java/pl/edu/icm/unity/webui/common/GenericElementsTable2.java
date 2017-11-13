@@ -6,30 +6,31 @@ package pl.edu.icm.unity.webui.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.vaadin.contextmenu.GridContextMenu;
+import com.vaadin.data.ValueProvider;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
-import com.vaadin.event.Action;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.components.grid.SingleSelectionModel;
-import com.vaadin.ui.renderers.ComponentRenderer;
+import com.vaadin.ui.Grid;
 
 /**
  * 1-column table with arbitrary objects. 
- * Allows for sorting and default disable multiselect, uses {@link BeanItemContainer}.
- * The value is obtained either via toString() method of the content item or via a given implementation 
- * of {@link NameProvider}.
+ * Allows for sorting and by default disables multiselect.
+ * The value is obtained either via toString() method of the content item or via a 
+ * given implementation.
+ * 
  * @author K. Benedyczak
  */
-public class GenericElementsTable2<T> extends SmallTable<T>
+public class GenericElementsTable2<T> extends SmallGrid<T>
 {
-	private NameProvider<T> nameProvider;
-	private List<SingleActionHandler> actionHandlers;
+	private List<SingleActionHandler2<T>> actionHandlers;
 	private List<T> contents;
 	private ListDataProvider<T> dataProvider;
 	private Column<T, T> col1;
+	private GridContextMenu<T> contextMenu;
 
 	
 	public GenericElementsTable2(String columnHeader)
@@ -37,29 +38,55 @@ public class GenericElementsTable2<T> extends SmallTable<T>
 		this(columnHeader, new DefaultNameProvider<T>());
 	}
 	
-	public GenericElementsTable2(String columnHeader, NameProvider<T> nameProvider)
+	@SuppressWarnings("unchecked")
+	public GenericElementsTable2(String columnHeader, ValueProvider<T, String> nameProvider)
 	{
-		this.nameProvider = nameProvider;
 		this.actionHandlers = new ArrayList<>();
 		contents = new ArrayList<>();
 		dataProvider = DataProvider.ofCollection(contents);
 		setDataProvider(dataProvider);
 		setSizeFull();
 		setSelectionMode(SelectionMode.SINGLE);
-		SingleSelectionModel<T> selectionModel = (SingleSelectionModel<T>) getSelectionModel();
-		selectionModel.setDeselectAllowed(false);
-		col1 = addColumn(v -> v, this::getLabelForValue, 
-				new ComponentRenderer()).setCaption(columnHeader);
-		sort(col1.getId());
+		col1 = addColumn(v -> v, nameProvider)
+				.setCaption(columnHeader)
+				.setResizable(false);
+		addItemClickListener(this::onMouseClick);
+		sort(col1);
+		contextMenu = new GridContextMenu<T>(this);
+		contextMenu.addGridBodyContextMenuListener(e ->
+		{
+			Set<T> selection = new HashSet<T>();
+			selection.add((T) e.getItem());
+			fillContextMenu(selection);
+		});
 	}
 	
-	public void addActionHandler(Action.Handler actionHandler) {
-//TODO
-		if (actionHandler instanceof SingleActionHandler)
-			actionHandlers.add((SingleActionHandler) actionHandler);
+	private void fillContextMenu(Set<T> selection)
+	{
+		contextMenu.removeItems();
+		for (SingleActionHandler2<T> handler: actionHandlers)
+		{
+			if (handler.isVisible(selection))
+			{
+				contextMenu.addItem(handler.getCaption(), 
+						handler.getIcon(), 
+						(mi) -> handler.handle(selection))
+					.setEnabled(handler.isEnabled(selection));
+			}
+		}
+	}
+	
+	public void setMultiSelect(boolean multi)
+	{
+		setSelectionMode(multi ? SelectionMode.MULTI : SelectionMode.SINGLE);
+	}
+	
+	public void addActionHandler(SingleActionHandler2<T> actionHandler) 
+	{
+		actionHandlers.add(actionHandler);
 	}
 
-	public List<SingleActionHandler> getActionHandlers()
+	public List<SingleActionHandler2<T>> getActionHandlers()
 	{
 		return actionHandlers;
 	}
@@ -70,7 +97,7 @@ public class GenericElementsTable2<T> extends SmallTable<T>
 		contents.clear();
 		contents.addAll(elements);
 		dataProvider.refreshAll();
-		sort(col1.getId());
+		sort(col1);
 		for (T toSelect: selectedItems)
 			select(toSelect);
 	}
@@ -79,31 +106,24 @@ public class GenericElementsTable2<T> extends SmallTable<T>
 	{
 		contents.add(el);
 		dataProvider.refreshItem(el);
-		sort(col1.getId());
-	}
-	
-	private Label getLabelForValue(T value)
-	{
-		Object representation = nameProvider.toRepresentation(value);
-		if (representation instanceof Label)
-			return (Label) representation;
-		return new Label(representation.toString());
-	}
-	
-	public interface NameProvider<T>
-	{
-		/**
-		 * @param element
-		 * @return object of {@link Label} type or any other. In the latter case to toString method will be called 
-		 * on the returned object, and the result will be wrapped as {@link Label}.
-		 */
-		public Object toRepresentation(T element);
+		sort(col1);
 	}
 
-	private static class DefaultNameProvider<T> implements NameProvider<T>
+	private void onMouseClick(Grid.ItemClick<T> event)
+	{
+		if (event.getMouseEventDetails().isDoubleClick())
+			return;
+		T item = event.getItem();
+		boolean alreadySelected = getSelectedItems().contains(item);
+		deselectAll();
+		if (!alreadySelected)
+			select(item);
+	}
+	
+	private static class DefaultNameProvider<T> implements ValueProvider<T, String>
 	{
 		@Override
-		public String toRepresentation(T element)
+		public String apply(T element)
 		{
 			return element.toString();
 		}

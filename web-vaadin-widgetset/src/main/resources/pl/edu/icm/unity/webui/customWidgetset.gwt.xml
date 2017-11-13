@@ -12,5 +12,6 @@
     <inherits name="com.vaadin.DefaultWidgetSet" />
     <inherits name="org.vaadin.risto.stepper.StepperWidgetset" />
     <inherits name="org.vaadin.simplefiledownloader.SimplefiledownloaderWidgetset" />
+    <inherits name="com.vaadin.contextmenu.WidgetSet" />
     <inherits name="com.vaadin.v7.Vaadin7WidgetSet" />
 </module>

@@ -12,23 +12,22 @@ import com.vaadin.ui.Grid;
  * @author K. Benedyczak
  * @param <T>
  */
-public class SmallTable<T> extends Grid<T>
+public class SmallGrid<T> extends Grid<T>
 {
 	
-	public SmallTable(String caption)
+	public SmallGrid(String caption)
 	{
 		super(caption);
 		setup();
 	}
 
-	public SmallTable()
+	public SmallGrid()
 	{
 		setup();
 	}
 	
 	private void setup()
 	{
-		addStyleName(Styles.vTableNoHorizontalLines.toString());
-		addStyleName(Styles.vSmall.toString());
+		addStyleName(Styles.uGridNoHorizontalLines.toString());
 	}
 }

@@ -69,6 +69,7 @@ public enum Styles
 	indent("u-indent"),
 	link("u-link"),
 	hamburgerMenu("u-hamburgerMenu"),
+	uGridNoHorizontalLines("u-noGridHorizontalLines"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),
