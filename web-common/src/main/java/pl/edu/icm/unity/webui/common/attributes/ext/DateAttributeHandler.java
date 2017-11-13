@@ -12,8 +12,6 @@ import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.datefield.DateResolution;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DateField;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -46,18 +44,6 @@ public class DateAttributeHandler implements WebAttributeHandler
 	}
 
 	@Override
-	public String getValueAsString(String value)
-	{
-		return value.toString();
-	}
-
-	@Override
-	public Component getRepresentation(String value)
-	{
-		return new Label(getValueAsString(value));
-	}
-
-	@Override
 	public AttributeValueEditor getEditorComponent(String initialValue, String label)
 	{
 		return new DateValueEditor(initialValue, label);
@@ -66,33 +52,36 @@ public class DateAttributeHandler implements WebAttributeHandler
 	@Override
 	public Component getSyntaxViewer()
 	{
-		VerticalLayout ret = new VerticalLayout();
-		ret.setSpacing(false);
-		ret.setMargin(false);
-		Label info = new Label(msg.getMessage("DateAttributeHandler.info"));
-		ret.addComponent(info);
-		return ret;
+		return AttributeHandlerHelper.getEmptySyntaxViewer(msg.getMessage("DateAttributeHandler.info"));
 	}
 
-	private static class DateSyntaxEditor implements AttributeSyntaxEditor<LocalDate>
+	private static class DateSyntaxEditor  implements AttributeSyntaxEditor<LocalDate>
 	{
 
 		@Override
 		public Component getEditor()
-		{
-			VerticalLayout layout = new VerticalLayout();
-			layout.setSpacing(false);
-			layout.setMargin(false);
-			return layout;
+		{ 
+			return AttributeHandlerHelper.getEmptyEditor();
 		}
-
+		
 		@Override
 		public AttributeValueSyntax<LocalDate> getCurrentValue()
 				throws IllegalAttributeTypeException
 		{
 			return new DateAttributeSyntax();
 		}
+	}
+	
+	@Override
+	public String getValueAsString(String value)
+	{
+		return AttributeHandlerHelper.getValueAsString(value);
+	}
 
+	@Override
+	public Component getRepresentation(String value)
+	{
+		return AttributeHandlerHelper.getRepresentation(value);
 	}
 	
 	private class DateValueEditor implements AttributeValueEditor

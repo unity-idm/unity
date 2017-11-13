@@ -20,17 +20,18 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
 
 /**
- * DateTime attribute sytax. Accept datetime in various formats
+ * DateTime attribute sytax. Accept zoned datetime in various formats
  * 
  * @author P.Piernik
  *
  */
-public class ZonedDateTimeAttributeSyntax implements AttributeValueSyntax<ZonedDateTime>
+public class ZonedDateTimeAttributeSyntax implements AttributeValueSyntax<ZonedDateTime> 
 {
 	public static final String ID = "zonedDatetime";
-	public static List<String> acceptableFormats = 
-			pl.edu.icm.unity.stdext.attr.DateTimeAttributeSyntax.acceptableFormats.stream()
-			.map(f -> f + "xxx['['VV']']").collect(Collectors.toList());	
+	
+	public static List<String> ACCEPTABLE_FORMATS = 
+			pl.edu.icm.unity.stdext.attr.DateTimeAttributeSyntax.ACCEPTABLE_FORMATS.stream()
+			.map(f -> f + "xxx['['VV']'][X]").collect(Collectors.toList());	
 
 	@Override
 	public String getValueSyntaxId()
@@ -73,13 +74,12 @@ public class ZonedDateTimeAttributeSyntax implements AttributeValueSyntax<ZonedD
 	@Override
 	public ZonedDateTime convertFromString(String stringRepresentation)
 	{
-		for (String format : acceptableFormats)
+		for (String format : ACCEPTABLE_FORMATS)
 		{
 			try
 			{
 				ZonedDateTime date = ZonedDateTime.parse(stringRepresentation,
 						DateTimeFormatter.ofPattern(format));
-
 				return date;
 
 			} catch (Exception e)

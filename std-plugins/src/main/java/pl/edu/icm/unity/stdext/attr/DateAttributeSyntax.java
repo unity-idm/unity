@@ -28,7 +28,8 @@ import pl.edu.icm.unity.exceptions.InternalException;
 public class DateAttributeSyntax implements AttributeValueSyntax<LocalDate>
 {
 	public static final String ID = "date";
-	public static List<String> acceptableFormats = Arrays.asList("yyyy-MM-dd", "dd-MM-yyyy",
+	
+	public static List<String> ACCEPTABLE_FORMATS = Arrays.asList("yyyy-MM-dd", "dd-MM-yyyy",
 			"ddMMyy", "dd.MM.yyyy", "ddMMyyyy", "dd/MM/yyyy");
 
 	@Override
@@ -72,7 +73,7 @@ public class DateAttributeSyntax implements AttributeValueSyntax<LocalDate>
 	@Override
 	public LocalDate convertFromString(String stringRepresentation)
 	{
-		for (String format : acceptableFormats)
+		for (String format : ACCEPTABLE_FORMATS)
 		{
 			try
 			{

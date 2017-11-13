@@ -15,8 +15,6 @@ import com.vaadin.shared.ui.datefield.DateTimeResolution;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DateTimeField;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -29,6 +27,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 
+
 /**
  * ZonedDateTime attribute handler for the web
  * 
@@ -38,6 +37,7 @@ public class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 {
 
 	private UnityMessageSource msg;
+
 	private ZonedDateTimeAttributeSyntax syntax;
 
 	public ZonedDateTimeAttributeHandler(AttributeValueSyntax<?> syntax, UnityMessageSource msg)
@@ -51,13 +51,13 @@ public class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 	@Override
 	public String getValueAsString(String value)
 	{
-		return value.toString();
+		return AttributeHandlerHelper.getValueAsString(value);
 	}
 
 	@Override
 	public Component getRepresentation(String value)
 	{
-		return new Label(getValueAsString(value));
+		return AttributeHandlerHelper.getRepresentation(value);
 	}
 
 	@Override
@@ -69,24 +69,18 @@ public class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 	@Override
 	public Component getSyntaxViewer()
 	{
-		VerticalLayout ret = new VerticalLayout();
-		ret.setSpacing(false);
-		ret.setMargin(false);
-		Label info = new Label(msg.getMessage("ZonedDateTimeAttributeHandler.info"));
-		ret.addComponent(info);
-		return ret;
+		return AttributeHandlerHelper.getEmptySyntaxViewer(
+				msg.getMessage("ZonedDateTimeAttributeHandler.info"));
 	}
 
-	private static class ZonedDateTimeSyntaxEditor implements AttributeSyntaxEditor<ZonedDateTime>
+	private static class ZonedDateTimeSyntaxEditor
+			implements AttributeSyntaxEditor<ZonedDateTime>
 	{
 
 		@Override
 		public Component getEditor()
 		{
-			VerticalLayout layout = new VerticalLayout();
-			layout.setSpacing(false);
-			layout.setMargin(false);
-			return layout;
+			return AttributeHandlerHelper.getEmptyEditor();
 		}
 
 		@Override
@@ -97,7 +91,7 @@ public class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 		}
 
 	}
-	
+
 	private class ZonedDateTimeValueEditor implements AttributeValueEditor
 	{
 		private String label;
@@ -105,7 +99,7 @@ public class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 		private DateTimeField datetime;
 		private ZonedDateTime value;
 		private ComboBox<String> zone;
-
+		
 		public ZonedDateTimeValueEditor(String valueRaw, String label)
 		{
 			this.value = valueRaw == null ? null : syntax.convertFromString(valueRaw);
@@ -117,11 +111,11 @@ public class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 		{
 			this.required = required;
 			datetime = new DateTimeField();
-			zone = new ComboBox<>("", ZoneId.getAvailableZoneIds());
+			zone = new ComboBox<>(msg.getMessage("ZonedDateTimeAttributeHandler.zone"), ZoneId.getAvailableZoneIds());
 			zone.setSelectedItem(ZoneId.systemDefault().toString());
 			zone.setEmptySelectionAllowed(false);
 			datetime.setResolution(DateTimeResolution.SECOND);
-			datetime.setCaption(label);	
+			datetime.setCaption(label);
 			datetime.setDateFormat("yyyy-MM-dd HH:mm:ss");
 			if (value != null)
 			{
@@ -142,7 +136,10 @@ public class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 			try
 			{
 				LocalDateTime cur = datetime.getValue();
-				ZonedDateTime zoned = ZonedDateTime.of(cur, ZoneId.of(zone.getSelectedItem().get()));
+				ZonedDateTime zoned = null;
+				if (cur != null)
+					zoned = ZonedDateTime.of(cur,
+							ZoneId.of(zone.getSelectedItem().get()));
 				syntax.validate(zoned);
 				datetime.setComponentError(null);
 				return syntax.convertToString(zoned);

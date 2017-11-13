@@ -21,7 +21,7 @@ public class ZonedDateTimeAttribute
 {
 	public static Attribute of(String name, String groupPath, ZonedDateTime... values)
 	{
-		return new Attribute(name, DateAttributeSyntax.ID, groupPath, convert(values));
+		return new Attribute(name, ZonedDateTimeAttributeSyntax.ID, groupPath, convert(values));
 	}
 
 	private static List<String> convert(ZonedDateTime... values)

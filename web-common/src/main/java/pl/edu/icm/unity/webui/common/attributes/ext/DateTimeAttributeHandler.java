@@ -12,8 +12,6 @@ import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.datefield.DateTimeResolution;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DateTimeField;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -48,13 +46,13 @@ public class DateTimeAttributeHandler implements WebAttributeHandler
 	@Override
 	public String getValueAsString(String value)
 	{
-		return value.toString();
+		return AttributeHandlerHelper.getValueAsString(value);
 	}
 
 	@Override
 	public Component getRepresentation(String value)
 	{
-		return new Label(getValueAsString(value));
+		return AttributeHandlerHelper.getRepresentation(value);
 	}
 
 	@Override
@@ -66,12 +64,8 @@ public class DateTimeAttributeHandler implements WebAttributeHandler
 	@Override
 	public Component getSyntaxViewer()
 	{
-		VerticalLayout ret = new VerticalLayout();
-		ret.setSpacing(false);
-		ret.setMargin(false);
-		Label info = new Label(msg.getMessage("DateTimeAttributeHandler.info"));
-		ret.addComponent(info);
-		return ret;
+		return AttributeHandlerHelper
+				.getEmptySyntaxViewer(msg.getMessage("DateTimeAttributeHandler.info"));
 	}
 
 	private static class DateTimeSyntaxEditor implements AttributeSyntaxEditor<LocalDateTime>
@@ -80,10 +74,7 @@ public class DateTimeAttributeHandler implements WebAttributeHandler
 		@Override
 		public Component getEditor()
 		{
-			VerticalLayout layout = new VerticalLayout();
-			layout.setSpacing(false);
-			layout.setMargin(false);
-			return layout;
+			return AttributeHandlerHelper.getEmptyEditor();
 		}
 
 		@Override
@@ -94,10 +85,10 @@ public class DateTimeAttributeHandler implements WebAttributeHandler
 		}
 
 	}
-	
+
 	private class DateTimeValueEditor implements AttributeValueEditor
 	{
-		private String label;
+		protected String label;
 		private boolean required;
 		private DateTimeField datetime;
 		private LocalDateTime value;
@@ -114,7 +105,7 @@ public class DateTimeAttributeHandler implements WebAttributeHandler
 			this.required = required;
 			datetime = new DateTimeField();
 			datetime.setResolution(DateTimeResolution.SECOND);
-			datetime.setCaption(label);	
+			datetime.setCaption(label);
 			datetime.setDateFormat("yyyy-MM-dd HH:mm:ss");
 			if (value != null)
 				datetime.setValue(value);

@@ -21,7 +21,7 @@ public class DateTimeAttribute
 {
 	public static Attribute of(String name, String groupPath, LocalDateTime... values)
 	{
-		return new Attribute(name, DateAttributeSyntax.ID, groupPath, convert(values));
+		return new Attribute(name, DateTimeAttributeSyntax.ID, groupPath, convert(values));
 	}
 
 	private static List<String> convert(LocalDateTime... values)

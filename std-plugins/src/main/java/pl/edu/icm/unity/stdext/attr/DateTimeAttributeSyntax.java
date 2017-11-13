@@ -6,8 +6,8 @@ package pl.edu.icm.unity.stdext.attr;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
@@ -28,9 +28,11 @@ import pl.edu.icm.unity.exceptions.InternalException;
 public class DateTimeAttributeSyntax implements AttributeValueSyntax<LocalDateTime>
 {
 	public static final String ID = "datetime";
-	public static List<String> acceptableFormats = 
-			pl.edu.icm.unity.stdext.attr.DateAttributeSyntax.acceptableFormats.stream()
-			.map(f -> f + "['T'][ ]HH:mm:ss").collect(Collectors.toList());
+
+	public static List<String> ACCEPTABLE_FORMATS = Arrays.asList(
+			"yyyy-MM-dd['T'][ ]HH:mm:ss", "dd-MM-yyyy['T'][ ]HH-mm-ss",
+			"ddMMyy['T'][ ]HHmmss", "dd.MM.yyyy['T'][ ]HH.mm.ss",
+			"ddMMyyyy['T'][ ]HHmmss", "dd/MM/yyyy['T'][ ]HH/mm/ss");
 
 	@Override
 	public String getValueSyntaxId()
@@ -73,7 +75,7 @@ public class DateTimeAttributeSyntax implements AttributeValueSyntax<LocalDateTi
 	@Override
 	public LocalDateTime convertFromString(String stringRepresentation)
 	{
-		for (String format : acceptableFormats)
+		for (String format : ACCEPTABLE_FORMATS)
 		{
 			try
 			{
