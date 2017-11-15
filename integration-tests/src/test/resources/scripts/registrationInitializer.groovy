@@ -75,7 +75,7 @@ void initRegistrationForm()
 		TranslationProfile translationProfile = new TranslationProfile("regProfile", "",
 				ProfileType.REGISTRATION, Lists.newArrayList(
 				new TranslationRule("true", new TranslationAction(
-						AddAttributeActionFactory.NAME, "cn", "/", "'val'")),
+						AddAttributeActionFactory.NAME, "name", "/", "'val'")),
 				new TranslationRule("true", new TranslationAction(
 						AutoProcessActionFactory.NAME,
 						AutomaticRequestAction.accept.toString()))));

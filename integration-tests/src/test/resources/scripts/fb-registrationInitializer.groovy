@@ -36,7 +36,7 @@ void initRegistrationForm()
 	try
 	{
 		AttributeRegistrationParam attrReg = new AttributeRegistrationParam();
-		attrReg.setAttributeType("cn");
+		attrReg.setAttributeType("name");
 		attrReg.setDescription("description");
 		attrReg.setGroup("/");
 		attrReg.setLabel("Name");

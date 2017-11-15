@@ -28,8 +28,7 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo
 import groovy.transform.Field
 
 
-@Field final String CN_ATTR = "cn"
-@Field final String ORG_ATTR = "o";
+@Field final String NAME_ATTR = "name"
 @Field final String EMAIL_ATTR = "email";
 
 
@@ -51,8 +50,7 @@ try
 	}
 	
 	Map<String, AttributeType> existingATs = attributeTypeManagement.getAttributeTypesAsMap();
-	if (!existingATs.containsKey(CN_ATTR) || !existingATs.containsKey(EMAIL_ATTR) || 
-		!existingATs.containsKey(ORG_ATTR))
+	if (!existingATs.containsKey(NAME_ATTR) || !existingATs.containsKey(EMAIL_ATTR))
 	{
 		log.error("Demo contents can be only installed if standard types were installed " +  
 			"prior to it. Attribute types cn, o and email are required.");
@@ -87,15 +85,6 @@ void createExampleGroups()
 
 void createExampleAttributeTypes()
 {
-	AttributeType name = new AttributeType("name", StringAttributeSyntax.ID, msgSrc);
-	name.setMinElements(1);
-	StringAttributeSyntax namesyntax = new StringAttributeSyntax();
-	namesyntax.setMaxLength(100);
-	namesyntax.setMinLength(2);
-	name.setValueSyntaxConfiguration(namesyntax.getSerializedConfiguration());
-	attributeTypeManagement.addAttributeType(name);
-
-	
 	AttributeType postalcode = new AttributeType("postalcode", StringAttributeSyntax.ID, msgSrc);
 	postalcode.setMinElements(0);
 	postalcode.setMaxElements(Integer.MAX_VALUE);
@@ -126,16 +115,13 @@ void createExampleUser()
 	Attribute a = EnumAttribute.of("sys:AuthorizationRole", "/", "Regular User");
 	attributesManagement.setAttribute(entityP, a, false);
 
-	Attribute orgA = StringAttribute.of("o", "/", "Example organization", "org2", "org3");
-	attributesManagement.setAttribute(entityP, orgA, false);
-
 	VerifiableEmail emailVal = new VerifiableEmail("some@email.com", new ConfirmationInfo(true));
 	emailVal.getConfirmationInfo().setConfirmationDate(System.currentTimeMillis());
 	emailVal.getConfirmationInfo().setConfirmed(true);
-	Attribute emailA = VerifiableEmailAttribute.of("email", "/", emailVal);
+	Attribute emailA = VerifiableEmailAttribute.of(EMAIL_ATTR, "/", emailVal);
 	attributesManagement.setAttribute(entityP, emailA, false);
 
-	Attribute cnA = StringAttribute.of("cn", "/", "Hiper user");
+	Attribute cnA = StringAttribute.of(NAME_ATTR, "/", "Hiper user");
 	attributesManagement.setAttribute(entityP, cnA, false);
 
 	PasswordToken pToken = new PasswordToken("the!test12");

@@ -41,9 +41,7 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 import groovy.transform.Field
 
 
-@Field final String CN_ATTR = "cn"
-@Field final String JPEG_ATTR = "jpegPhoto";
-@Field final String ORG_ATTR = "o";
+@Field final String NAME_ATTR = "name"
 @Field final String EMAIL_ATTR = "email";
 
 
@@ -61,7 +59,7 @@ try
 {
 	initializeDefaultAuthzPolicy();
 	initializeCommonAttributeTypes();
-	assignCnToAdmin();
+	assignNameToAdmin();
 		
 } catch (Exception e)
 {
@@ -90,36 +88,17 @@ void initializeCommonAttributeTypes() throws EngineException
 	
 	Map<String, AttributeType> existingATs = attributeTypeManagement.getAttributeTypesAsMap();
 	
-	AttributeType userPicture = new AttributeType(JPEG_ATTR, JpegImageAttributeSyntax.ID, msgSrc);
-	JpegImageAttributeSyntax jpegSyntax = new JpegImageAttributeSyntax();
-	jpegSyntax.setMaxSize(2000000);
-	jpegSyntax.setMaxWidth(120);
-	jpegSyntax.setMaxHeight(120);
-	userPicture.setMinElements(1);
-	userPicture.setValueSyntaxConfiguration(jpegSyntax.getSerializedConfiguration());
-	if (!existingATs.containsKey(JPEG_ATTR))
-		attributeTypeManagement.addAttributeType(userPicture);
+	//The name attribute will be marked as special attribute providing owner's displayed name.
+	AttributeType name = new AttributeType(NAME_ATTR, StringAttributeSyntax.ID, msgSrc);
+	name.setMinElements(1);
+	StringAttributeSyntax nameSyntax = new StringAttributeSyntax();
+	nameSyntax.setMaxLength(100);
+	nameSyntax.setMinLength(2);
+	name.setValueSyntaxConfiguration(nameSyntax.getSerializedConfiguration());
+	name.getMetadata().put(EntityNameMetadataProvider.NAME, "");
+	if (!existingATs.containsKey(NAME_ATTR))
+		attributeTypeManagement.addAttributeType(name);
 
-	//The cn attribute will be marked as special attribute providing owner's displayed name.
-	AttributeType cn = new AttributeType(CN_ATTR, StringAttributeSyntax.ID, msgSrc);
-	cn.setMinElements(1);
-	StringAttributeSyntax cnSyntax = new StringAttributeSyntax();
-	cnSyntax.setMaxLength(100);
-	cnSyntax.setMinLength(2);
-	cn.setValueSyntaxConfiguration(cnSyntax.getSerializedConfiguration());
-	cn.getMetadata().put(EntityNameMetadataProvider.NAME, "");
-	if (!existingATs.containsKey(CN_ATTR))
-		attributeTypeManagement.addAttributeType(cn);
-
-	AttributeType org = new AttributeType(ORG_ATTR, StringAttributeSyntax.ID, msgSrc);
-	StringAttributeSyntax orgSyntax = new StringAttributeSyntax();
-	org.setMinElements(1);
-	org.setMaxElements(10);
-	orgSyntax.setMaxLength(33);
-	orgSyntax.setMinLength(2);
-	org.setValueSyntaxConfiguration(orgSyntax.getSerializedConfiguration());
-	if (!existingATs.containsKey(ORG_ATTR))
-		attributeTypeManagement.addAttributeType(org);
 
 	//The email attribute will be marked as special attribute providing owner's contact e-mail.
 	AttributeType verifiableEmail = new AttributeType(EMAIL_ATTR, 
@@ -131,19 +110,19 @@ void initializeCommonAttributeTypes() throws EngineException
 		attributeTypeManagement.addAttributeType(verifiableEmail);
 }
 
-void assignCnToAdmin() throws EngineException
+void assignNameToAdmin() throws EngineException
 {
 	//admin user has no "name" - let's assign one.
 	String adminU = config.getValue(UnityServerConfiguration.INITIAL_ADMIN_USER);
-	Attribute cnA = StringAttribute.of(CN_ATTR, "/", "Default Administrator");
+	Attribute nameA = StringAttribute.of(NAME_ATTR, "/", "Default Administrator");
 	EntityParam entity = new EntityParam(new IdentityTaV(UsernameIdentity.ID, adminU));
 	try
 	{
-		if (attributesManagement.getAttributes(entity, "/", CN_ATTR).isEmpty())
-			attributesManagement.setAttribute(entity, cnA, false);
+		if (attributesManagement.getAttributes(entity, "/", NAME_ATTR).isEmpty())
+			attributesManagement.setAttribute(entity, nameA, false);
 	} catch (IllegalIdentityValueException e)
 	{
-		//ok - no default admin, no default CN.
+		//ok - no default admin, no default Name.
 	}
 }
 

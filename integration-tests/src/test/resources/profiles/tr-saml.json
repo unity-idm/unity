@@ -25,7 +25,7 @@
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
-					"cn",
+					"name",
 					"/",
 					"attr['urn:oid:2.5.4.4']",
 					"CREATE_OR_UPDATE"

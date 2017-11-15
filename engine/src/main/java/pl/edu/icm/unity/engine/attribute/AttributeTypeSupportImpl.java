@@ -18,42 +18,47 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
 /**
- * Implementation of {@link AttributeTypeSupport}, proxing to {@link AttributeTypeHelper} with transactions
+ * Implementation of {@link AttributeTypeSupport}, most often proxing to {@link AttributeTypeHelper} with transactions
  * added on top of it.
  * 
  * @author K. Benedyczak
  */
+
 @Component
-@Transactional
 public class AttributeTypeSupportImpl implements AttributeTypeSupport
 {
 	@Autowired
 	private AttributeTypeHelper aTypeHelper;
-
+	
+	@Transactional
 	@Override
 	public AttributeValueSyntax<?> getSyntax(AttributeType at)
 	{
 		return aTypeHelper.getSyntax(at);
 	}
 
+	@Transactional
 	@Override
 	public AttributeValueSyntax<?> getSyntax(Attribute attribute)
 	{
 		return aTypeHelper.getSyntaxForAttributeName(attribute.getName());
 	}
 
+	@Transactional
 	@Override
 	public AttributeType getType(Attribute attribute)
 	{
 		return aTypeHelper.getTypeForAttributeName(attribute.getName());
 	}
 
+	@Transactional
 	@Override
 	public Collection<AttributeType> getAttributeTypes()
 	{
 		return aTypeHelper.getAttributeTypes();
 	}
 
+	@Transactional
 	@Override
 	public AttributeValueSyntax<?> getSyntaxFallingBackToDefault(Attribute attribute)
 	{
@@ -67,11 +72,13 @@ public class AttributeTypeSupportImpl implements AttributeTypeSupport
 		}
 	}
 
+	@Transactional
 	@Override
 	public AttributeType getType(String attribute)
 	{
 		return aTypeHelper.getTypeForAttributeName(attribute);
 	}
+
 
 	@Override
 	public List<AttributeType> loadAttributeTypesFromFile(File file)

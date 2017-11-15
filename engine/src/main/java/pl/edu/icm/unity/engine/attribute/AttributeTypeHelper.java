@@ -60,6 +60,7 @@ public class AttributeTypeHelper
 		for (AttributeValueSyntaxFactory<?> f: atSyntaxRegistry.getAll())
 			unconfiguredSyntaxes.put(f.getId(), f.createInstance());
 		this.msg = msg;
+		this.appContext = appContext;
 	}
 
 	@Transactional

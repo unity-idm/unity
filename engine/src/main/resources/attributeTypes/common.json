@@ -1,0 +1,1284 @@
+[
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 300
+		},
+		"displayedName": {
+			"DefaultValue": "address",
+			"Map": {
+				"pl": "Adres",
+				"en": "Address"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "address",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 2147483647,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "affiliation",
+			"Map": {
+				"pl": "Afiliacja",
+				"en": "Affiliation"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "affiliation",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"maxWidth": 100,
+			"maxHeight": 100,
+			"maxSize": 2000000
+		},
+		"displayedName": {
+			"DefaultValue": "avatar",
+			"Map": {
+				"en": "Avatar"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				"pl": "Małe zdjęcie w formacie JPEG"
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "avatar",
+		"syntaxId": "jpegImage"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 300
+		},
+		"displayedName": {
+			"DefaultValue": "avatarURL",
+			"Map": {
+				"en": "Avatar URL"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "avatarURL",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			
+		},
+		"displayedName": {
+			"DefaultValue": "birthday",
+			"Map": {
+				"pl": "Data urodzin",
+				"en": "Birthday"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "birthday",
+		"syntaxId": "date"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "blog",
+			"Map": {
+				"pl": "Blog",
+				"en": "Blog"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "blog",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 300
+		},
+		"displayedName": {
+			"DefaultValue": "cityAddress",
+			"Map": {
+				"pl": "Adres - miasto",
+				"en": "Adress - city"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "cityAddress",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "company",
+			"Map": {
+				"pl": "Firma",
+				"en": "Company"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "company",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 2,
+			"maxLength": 100
+		},
+		"displayedName": {
+			"DefaultValue": "country",
+			"Map": {
+				"pl": "Kraj",
+				"en": "Country"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "country",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 2,
+			"maxLength": 2
+		},
+		"displayedName": {
+			"DefaultValue": "countryCode",
+			"Map": {
+				"pl": "Kod kraju",
+				"en": "Country code"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "countryCode",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 0,
+			"maxLength": 400
+		},
+		"displayedName": {
+			"DefaultValue": "description",
+			"Map": {
+				"pl": "Opis",
+				"en": "Description"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "description",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 100
+		},
+		"displayedName": {
+			"DefaultValue": "currency",
+			"Map": {
+				"pl": "Waluta",
+				"en": "Currency"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "currency",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 9,
+			"maxLength": 13
+		},
+		"displayedName": {
+			"DefaultValue": "facsimileTelephoneNumber",
+			"Map": {
+				"pl": "Faks",
+				"en": "Facsimile telephone number"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "facsimileTelephoneNumber",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "firstname",
+			"Map": {
+				"pl": "Imię",
+				"en": "Firstname"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "firstname",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 2,
+			"maxLength": 100
+		},
+		"displayedName": {
+			"DefaultValue": "gender",
+			"Map": {
+				"pl": "Płeć",
+				"en": "Gender"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "gender",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 50
+		},
+		"displayedName": {
+			"DefaultValue": "locale",
+			"Map": {
+				"en": "Locale"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "locale",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 20
+		},
+		"displayedName": {
+			"DefaultValue": "initials",
+			"Map": {
+				"pl": "Inicjały",
+				"en": "Initials"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "initials",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "middleName",
+			"Map": {
+				"pl": "Drugie imię",
+				"en": "Middle name"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "middleName",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "(\\+)?(\\d){9,12}",
+			"minLength": 9,
+			"maxLength": 13
+		},
+		"displayedName": {
+			"DefaultValue": "mobile",
+			"Map": {
+				"pl": "Numer telefonu komórkowego",
+				"en": "Mobile number"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "mobile",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "nickname",
+			"Map": {
+				"en": "Nickname"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "nickname",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 10,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "organization",
+			"Map": {
+				"pl": "Organizacja",
+				"en": "Organization"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "organization",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 10,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "organizationRole",
+			"Map": {
+				"pl": "Rola jednostki organizacyjnej",
+				"en": "Organization role"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "organizationRole",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 10,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "organizationUnit",
+			"Map": {
+				"pl": "Nazwa jednostki organizacyjnej",
+				"en": "Organization unit name"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "organizationUnit",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 1000
+		},
+		"displayedName": {
+			"DefaultValue": "pgpPublicKey",
+			"Map": {
+				"pl": "Klucz publiczny PGP",
+				"en": "PGP public key"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "pgpPublicKey",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"maxWidth": 1000,
+			"maxHeight": 1000,
+			"maxSize": 6000000
+		},
+		"displayedName": {
+			"DefaultValue": "picture",
+			"Map": {
+				"pl": "Zdjęcie",
+				"en": "Picture"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "picture",
+		"syntaxId": "jpegImage"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 300
+		},
+		"displayedName": {
+			"DefaultValue": "pictureURL",
+			"Map": {
+				"pl": "Adres zdjęcia",
+				"en": "Picture URL"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "pictureURL",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 300
+		},
+		"displayedName": {
+			"DefaultValue": "post",
+			"Map": {
+				"pl": "Poczta",
+				"en": "Post"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "post",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 2147483647,
+		"minElements": 0,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "[0-9][0-9]-[0-9][0-9][0-9]",
+			"minLength": 0,
+			"maxLength": 6
+		},
+		"displayedName": {
+			"DefaultValue": "postalCode",
+			"Map": {
+				"pl": "Kod pocztowy",
+				"en": "Postal code"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "postalCode",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 100
+		},
+		"displayedName": {
+			"DefaultValue": "preferredLanguage",
+			"Map": {
+				"pl": "Preferowany język",
+				"en": "Preferred language"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "preferredLanguage",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "primaryAffiliation",
+			"Map": {
+				"pl": "Główna afiliacja",
+				"en": "Primary affiliation"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "primaryAffiliation",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 300
+		},
+		"displayedName": {
+			"DefaultValue": "profileURL",
+			"Map": {
+				"pl": "Adres profilu",
+				"en": "Profile URL"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "profileURL",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "provinceName",
+			"Map": {
+				"pl": "Nazwa prowincji",
+				"en": "Province name"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "provinceName",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"min": 0.0,
+			"max": 1.7976931348623157E308
+		},
+		"displayedName": {
+			"DefaultValue": "quota",
+			"Map": {
+				"en": "Quota"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "quota",
+		"syntaxId": "floatingPoint"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 300
+		},
+		"displayedName": {
+			"DefaultValue": "seeAlso",
+			"Map": {
+				"pl": "Inne",
+				"en": "See also"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "seeAlso",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 1000
+		},
+		"displayedName": {
+			"DefaultValue": "sshPublicKey",
+			"Map": {
+				"pl": "Klucz publiczny SSH",
+				"en": "SSH public key"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "sshPublicKey",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 300
+		},
+		"displayedName": {
+			"DefaultValue": "street",
+			"Map": {
+				"pl": "Ulica",
+				"en": "Street"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "street",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "surname",
+			"Map": {
+				"pl": "Nazwisko",
+				"en": "Surname"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "surname",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "teamname",
+			"Map": {
+				"pl": "Nazwa zespołu",
+				"en": "Teamname"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "teamname",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "(\\+)?(\\d){9,12}",
+			"minLength": 9,
+			"maxLength": 13
+		},
+		"displayedName": {
+			"DefaultValue": "telephoneNumber",
+			"Map": {
+				"pl": "Numer telefonu",
+				"en": "Telephone number"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "telephoneNumber",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 50
+		},
+		"displayedName": {
+			"DefaultValue": "timezone",
+			"Map": {
+				"pl": "Strefa czasowa",
+				"en": "Timezone"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "timezone",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "title",
+			"Map": {
+				"pl": "Tytuł",
+				"en": "Title"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "title",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 0,
+			"maxLength": 1000
+		},
+		"displayedName": {
+			"DefaultValue": "userCertificate",
+			"Map": {
+				"pl": "Certyfikat użytkownika",
+				"en": "User certificate"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "userCertificate",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 300
+		},
+		"displayedName": {
+			"DefaultValue": "website",
+			"Map": {
+				"pl": "Strona internetowa",
+				"en": "Website"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "website",
+		"syntaxId": "string"
+	}
+]

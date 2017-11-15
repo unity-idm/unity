@@ -24,7 +24,7 @@
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
-					"cn",
+					"name",
 					"/",
 					"attr['name']",
 					"CREATE_OR_UPDATE"
