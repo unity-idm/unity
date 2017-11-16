@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common.i18n;
 
-import com.vaadin.v7.ui.TextField;
+import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
@@ -16,16 +16,15 @@ import pl.edu.icm.unity.types.I18nString;
  * 
  * @author K. Benedyczak
  */
-@Deprecated
-public class I18nTextField extends Abstract18nField<TextField>
+public class I18nTextField2 extends Abstract18nField2<TextField>
 {
-	public I18nTextField(UnityMessageSource msg)
+	public I18nTextField2(UnityMessageSource msg)
 	{
 		super(msg);
 		initUI();
 	}
 
-	public I18nTextField(UnityMessageSource msg, String caption)
+	public I18nTextField2(UnityMessageSource msg, String caption)
 	{
 		super(msg, caption);
 		initUI();

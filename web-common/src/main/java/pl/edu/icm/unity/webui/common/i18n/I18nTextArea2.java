@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common.i18n;
 
-import com.vaadin.v7.ui.TextArea;
+import com.vaadin.ui.TextArea;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
@@ -18,24 +18,23 @@ import pl.edu.icm.unity.types.I18nString;
  * 
  * @author K. Benedyczak
  */
-@Deprecated
-public class I18nTextArea extends Abstract18nField<TextArea>
+public class I18nTextArea2 extends Abstract18nField2<TextArea>
 {
 	private int rows = 2;
 	
-	public I18nTextArea(UnityMessageSource msg)
+	public I18nTextArea2(UnityMessageSource msg)
 	{
 		super(msg);
 		initUI();
 	}
 
-	public I18nTextArea(UnityMessageSource msg, String caption)
+	public I18nTextArea2(UnityMessageSource msg, String caption)
 	{
 		super(msg, caption);
 		initUI();
 	}
 	
-	public I18nTextArea(UnityMessageSource msg, String caption, int rows)
+	public I18nTextArea2(UnityMessageSource msg, String caption, int rows)
 	{
 		super(msg, caption);
 		this.rows = rows;
@@ -48,7 +47,7 @@ public class I18nTextArea extends Abstract18nField<TextArea>
 		TextArea ret = new TextArea();
 		ret.setRows(rows);
 		ret.setWidth(100, Unit.PERCENTAGE);
-		ret.setWordwrap(true);
+		ret.setWordWrap(true);
 		return ret;
 	}
 }

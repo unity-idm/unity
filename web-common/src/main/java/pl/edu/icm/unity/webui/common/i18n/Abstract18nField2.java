@@ -9,15 +9,15 @@ import java.util.Locale;
 import java.util.Map;
 
 import com.vaadin.event.FieldEvents.FocusListener;
+import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.CustomField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextArea;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.v7.ui.AbstractTextField;
-import com.vaadin.v7.ui.CustomField;
-import com.vaadin.v7.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
@@ -33,8 +33,7 @@ import pl.edu.icm.unity.webui.common.Styles;
  * Extensions can define what component is used for editing values, {@link TextField} or {@link TextArea}.
  * @author K. Benedyczak
  */
-@Deprecated
-public abstract class Abstract18nField<T extends AbstractTextField> extends CustomField<I18nString>
+public abstract class Abstract18nField2<T extends AbstractTextField> extends CustomField<I18nString>
 {
 	private UnityMessageSource msg;
 	private String defaultLocaleCode;
@@ -48,7 +47,7 @@ public abstract class Abstract18nField<T extends AbstractTextField> extends Cust
 	private Component main;
 	private HorizontalLayout hl;
 	
-	public Abstract18nField(UnityMessageSource msg)
+	public Abstract18nField2(UnityMessageSource msg)
 	{
 		this.enabledLocales = new HashMap<>(msg.getEnabledLocales());
 		this.defaultLocaleCode = msg.getDefaultLocaleCode();
@@ -58,7 +57,7 @@ public abstract class Abstract18nField<T extends AbstractTextField> extends Cust
 				defaultLocaleName = locE.getKey();
 	}
 
-	public Abstract18nField(UnityMessageSource msg, String caption)
+	public Abstract18nField2(UnityMessageSource msg, String caption)
 	{
 		this(msg);
 		setCaption(caption);
@@ -118,6 +117,7 @@ public abstract class Abstract18nField<T extends AbstractTextField> extends Cust
 			if (style != null)
 				tf.addStyleName(style);
 			translationTFs.put(locE.getValue().toString(), tf);
+			tf.addValueChangeListener(e -> fireEvent(e));
 			main.addComponent(tf);
 			tf.setVisible(false);
 		}
@@ -147,10 +147,29 @@ public abstract class Abstract18nField<T extends AbstractTextField> extends Cust
 		defaultTf.setDescription(description + "<br>" + defaultLocaleName);
 	}
 	
+	
+
 	@Override
-	protected void setInternalValue(I18nString value)
+	public I18nString getValue()
 	{
-		super.setInternalValue(value);
+		I18nString ret = new I18nString();
+		if (defaultTf.getValue() != null && !defaultTf.getValue().equals(""))
+			ret.addValue(defaultLocaleCode, defaultTf.getValue());
+		for (Map.Entry<String, T> tfE: translationTFs.entrySet())
+		{
+			T tf = tfE.getValue();
+			if (tf.getValue() != null && !tf.getValue().equals(""))
+				ret.addValue(tfE.getKey(), tf.getValue());
+		}
+		for (Map.Entry<String, String> hiddenE: notShownTranslations.entrySet())
+			ret.addValue(hiddenE.getKey(), hiddenE.getValue());
+		ret.setDefaultValue(preservedDef);
+		return ret;
+	}
+
+	@Override
+	protected void doSetValue(I18nString value)
+	{
 		if (value == null)
 			return;
 		for (Map.Entry<String, String> vE: value.getMap().entrySet())
@@ -167,30 +186,6 @@ public abstract class Abstract18nField<T extends AbstractTextField> extends Cust
 			}
 		}
 		preservedDef = value.getDefaultValue();
-	}
-	
-	@Override
-	protected I18nString getInternalValue()
-	{
-		I18nString ret = new I18nString();
-		if (defaultTf.getValue() != null && !defaultTf.getValue().equals(""))
-			ret.addValue(defaultLocaleCode, defaultTf.getValue());
-		for (Map.Entry<String, T> tfE: translationTFs.entrySet())
-		{
-			T tf = tfE.getValue();
-			if (tf.getValue() != null && !tf.getValue().equals(""))
-				ret.addValue(tfE.getKey(), tf.getValue());
-		}
-		for (Map.Entry<String, String> hiddenE: notShownTranslations.entrySet())
-			ret.addValue(hiddenE.getKey(), hiddenE.getValue());
-		ret.setDefaultValue(preservedDef);
-		return ret;
-	}
-	
-	@Override
-	public Class<? extends I18nString> getType()
-	{
-		return I18nString.class;
 	}
 	
 	public void addFocusListener(FocusListener listener)

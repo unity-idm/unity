@@ -28,7 +28,6 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.GenericElementsTable2;
-import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -197,22 +196,15 @@ public class CredentialRequirementsComponent extends VerticalLayout
 	
 	private SingleActionHandler2<CredentialRequirements> getRefreshAction()
 	{
-		return SingleActionHandler2.builder(
-				msg.getMessage("CredentialRequirements.refreshAction"), 
-				Images.refresh.getResource(),
-				CredentialRequirements.class,
-				selection -> refresh())
-				.dontRequireTarget()
+		return SingleActionHandler2.builder4Refresh(msg, CredentialRequirements.class)
+				.withHandler(selection -> refresh())
 				.build();
 	}
 
 	private SingleActionHandler2<CredentialRequirements> getAddAction()
 	{
-		return SingleActionHandler2.builder(
-					msg.getMessage("CredentialRequirements.addAction"), 
-					Images.add.getResource(),
-					this::showAddCRDialog)
-				.dontRequireTarget()
+		return SingleActionHandler2.builder4Add(msg, CredentialRequirements.class)
+				.withHandler(this::showAddCRDialog)
 				.build();
 	}
 	
@@ -230,10 +222,8 @@ public class CredentialRequirementsComponent extends VerticalLayout
 	
 	private SingleActionHandler2<CredentialRequirements> getEditAction()
 	{
-		return SingleActionHandler2.builder(
-					msg.getMessage("CredentialRequirements.editAction"), 
-					Images.edit.getResource(),
-					this::showEditCRDialog)
+		return SingleActionHandler2.builder4Edit(msg, CredentialRequirements.class)
+				.withHandler(this::showEditCRDialog)
 				.withDisabledPredicate(cr -> cr.isReadOnly())
 				.build();
 	}
@@ -257,12 +247,9 @@ public class CredentialRequirementsComponent extends VerticalLayout
 	
 	private SingleActionHandler2<CredentialRequirements> getDeleteAction()
 	{
-		return SingleActionHandler2.builder(
-					msg.getMessage("CredentialRequirements.deleteAction"), 
-					Images.delete.getResource(),
-					this::deleteHandler)
+		return SingleActionHandler2.builder4Delete(msg, CredentialRequirements.class)
+				.withHandler(this::deleteHandler)
 				.withDisabledPredicate(cr -> cr.isReadOnly())
-				.multiTarget()
 				.build();
 	}
 	

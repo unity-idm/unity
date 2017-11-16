@@ -12,6 +12,8 @@ import com.vaadin.event.Action;
 import com.vaadin.event.Action.Handler;
 import com.vaadin.server.Resource;
 
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+
 /**
  * Simplified {@link Handler} providing and handling a single action. 
  * In this implementation action is available for all targets. One can overwrite 
@@ -30,32 +32,101 @@ public class SingleActionHandler2<T>
 	private String caption;
 	private Resource icon;
 	
-	private SingleActionHandler2(String caption, Resource icon, Consumer<Set<T>> actionHandler)
+	private SingleActionHandler2()
 	{
-		this.caption = caption;
-		this.icon = icon;
-		this.actionHandler = actionHandler;
 		disabledPredicate = a -> false;
 	}
 	
-	public static <T> Builder<T> builder(String caption, Resource icon, Consumer<Set<T>> actionHandler)
+	public static <T> Builder<T> builder()
 	{
-		return new Builder<>(caption, icon, actionHandler);
+		return new Builder<>();
 	}
 
-	public static <T> Builder<T> builder(String caption, Resource icon, Class<T> clazz,
-			Consumer<Set<T>> actionHandler)
+	public static <T> Builder<T> builder(Class<T> clazz)
 	{
-		return new Builder<>(caption, icon, actionHandler);
+		return new Builder<>();
+	}
+
+	/**
+	 * Doesn't require target, sets icon and caption.
+	 * @param msg
+	 * @param clazz
+	 * @return
+	 */
+	public static <T> Builder<T> builder4Add(UnityMessageSource msg, Class<T> clazz)
+	{
+		return new Builder<T>()
+				.withCaption(msg.getMessage("add"))
+				.withIcon(Images.add.getResource())
+				.dontRequireTarget();
+	}
+	
+	/**
+	 * Doesn't require target, sets label and icon
+	 * @param msg
+	 * @param clazz
+	 * @return
+	 */
+	public static <T> Builder<T> builder4Refresh(UnityMessageSource msg, Class<T> clazz)
+	{
+		return new Builder<T>()
+				.withCaption(msg.getMessage("refresh"))
+				.withIcon(Images.refresh.getResource())
+				.dontRequireTarget();
+	}
+
+	/**
+	 * Multitarget, sets icon and caption
+	 * @param msg
+	 * @param clazz
+	 * @return
+	 */
+	public static <T> Builder<T> builder4Delete(UnityMessageSource msg, Class<T> clazz)
+	{
+		return new Builder<T>()
+				.withCaption(msg.getMessage("remove"))
+				.withIcon(Images.delete.getResource())
+				.multiTarget();
+	}
+
+	/**
+	 * Sets icon and caption
+	 * @param msg
+	 * @param clazz
+	 * @return
+	 */
+	public static <T> Builder<T> builder4Edit(UnityMessageSource msg, Class<T> clazz)
+	{
+		return new Builder<T>()
+				.withCaption(msg.getMessage("edit"))
+				.withIcon(Images.edit.getResource());
 	}
 	
 	public static class Builder<T>
 	{
 		private SingleActionHandler2<T> obj;
 
-		public Builder(String caption, Resource icon, Consumer<Set<T>> actionHandler)
+		public Builder()
 		{
-			this.obj = new SingleActionHandler2<>(caption, icon, actionHandler);
+			this.obj = new SingleActionHandler2<>();
+		}
+
+		public Builder<T> withCaption(String caption)
+		{
+			this.obj.caption = caption;
+			return this;
+		}
+
+		public Builder<T> withIcon(Resource icon)
+		{
+			this.obj.icon = icon;
+			return this;
+		}
+
+		public Builder<T> withHandler(Consumer<Set<T>> actionHandler)
+		{
+			this.obj.actionHandler = actionHandler;
+			return this;
 		}
 		
 		public Builder<T> dontRequireTarget()

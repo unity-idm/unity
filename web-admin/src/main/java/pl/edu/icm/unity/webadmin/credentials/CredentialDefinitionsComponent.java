@@ -4,42 +4,34 @@
  */
 package pl.edu.icm.unity.webadmin.credentials;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.vaadin.event.Action;
-import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
 
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
-import pl.edu.icm.unity.webadmin.credentials.CredentialDefinitionEditDialog.Callback;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.GenericElementsTable;
-import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
-import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.GenericElementsTable2;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar;
+import pl.edu.icm.unity.webui.common.Toolbar2;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
@@ -56,7 +48,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 	private CredentialEditorRegistry credentialEditorReg;
 	private EventsBus bus;
 	
-	private GenericElementsTable<CredentialDefinition> table;
+	private GenericElementsTable2<CredentialDefinition> table;
 	private CredentialDefinitionViewer viewer;
 	private com.vaadin.ui.Component main;
 	
@@ -78,52 +70,41 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 		addStyleName(Styles.visibleScroll.toString());
 		setCaption(msg.getMessage("CredentialDefinitions.caption"));
 		viewer = new CredentialDefinitionViewer(msg);
-		table =  new GenericElementsTable<>(
+		table =  new GenericElementsTable2<>(
 				msg.getMessage("CredentialDefinitions.credentialDefinitionsHeader"), 
-				new GenericElementsTable.NameProvider<CredentialDefinition>()
-				{
-					@Override
-					public Object toRepresentation(CredentialDefinition element)
-					{
-						Label ret = new Label(element.getName());
-						if (element.isReadOnly())
-							ret.addStyleName(Styles.readOnlyTableElement.toString());
-						return ret;
-					}
-				});
+				el -> el.getName());
+		table.setStyleGenerator(item -> item.isReadOnly() ? 
+				Styles.readOnlyTableElement.toString() : null);
 		table.setMultiSelect(true);
-		table.addValueChangeListener(new ValueChangeListener()
+		table.addSelectionListener(event ->
 		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
+			Collection<CredentialDefinition> items = table.getSelectedItems();
+			if (items.size() > 1 || items.isEmpty())
 			{
-				Collection<CredentialDefinition> items = getItems(table.getValue());
-				if (items.size() > 1 || items.isEmpty())
-				{
-					viewer.setInput(null, null);
-					return;
-				}	
-				CredentialDefinition item = items.iterator().next();
-				if (item != null)
-				{
-					CredentialDefinition cd = item;
-					CredentialEditorFactory cef = CredentialDefinitionsComponent.this.
-							credentialEditorReg.getFactory(cd.getTypeId());
-					viewer.setInput(cd, cef);
-				} else
-					viewer.setInput(null, null);
-			}
+				viewer.setInput(null, null);
+				return;
+			}	
+			CredentialDefinition item = items.iterator().next();
+			if (item != null)
+			{
+				CredentialDefinition cd = item;
+				CredentialEditorFactory cef = CredentialDefinitionsComponent.this.
+						credentialEditorReg.getFactory(cd.getTypeId());
+				viewer.setInput(cd, cef);
+			} else
+				viewer.setInput(null, null);
 		});
+
 		table.setWidth(90, Unit.PERCENTAGE);
-		table.addActionHandler(new RefreshActionHandler());
-		table.addActionHandler(new AddActionHandler());
-		table.addActionHandler(new EditActionHandler());
-		table.addActionHandler(new DeleteActionHandler());
-		Toolbar toolbar = new Toolbar(table, Orientation.HORIZONTAL);
+		table.addActionHandler(getRefreshAction());
+		table.addActionHandler(getAddAction());
+		table.addActionHandler(getEditAction());
+		table.addActionHandler(getDeleteAction());
+		Toolbar2<CredentialDefinition> toolbar = new Toolbar2<>(Orientation.HORIZONTAL);
+		table.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(table.getActionHandlers());
-		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
+		ComponentWithToolbar2 tableWithToolbar = new ComponentWithToolbar2(table, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
-		
 		
 		HorizontalLayout hl = new HorizontalLayout();
 		hl.addComponents(tableWithToolbar, viewer);
@@ -200,157 +181,68 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 		}
 	}
 
-	private Collection<CredentialDefinition> getItems(Object target)
+	private SingleActionHandler2<CredentialDefinition> getRefreshAction()
 	{
-		Collection<?> c = (Collection<?>) target;
-		Collection<CredentialDefinition> items = new ArrayList<>();
-		for (Object o: c)
-		{
-			GenericItem<?> i = (GenericItem<?>) o;
-			items.add((CredentialDefinition) i.getElement());	
-		}
-		return items;
+		return SingleActionHandler2.builder4Refresh(msg, CredentialDefinition.class)
+				.withHandler(selection -> refresh())
+				.build();
 	}
 	
-	private class RefreshActionHandler extends SingleActionHandler
+	private SingleActionHandler2<CredentialDefinition> getAddAction()
 	{
-		public RefreshActionHandler()
-		{
-			super(msg.getMessage("CredentialDefinitions.refreshAction"), Images.refresh.getResource());
-			setNeedsTarget(false);
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			refresh();
-		}
+		return SingleActionHandler2.builder4Add(msg, CredentialDefinition.class)
+				.withHandler(this::showAddCredDialog)
+				.build();
 	}
 	
-	private class AddActionHandler extends SingleActionHandler
+	private void showAddCredDialog(Set<CredentialDefinition> dummy)
 	{
-		public AddActionHandler()
-		{
-			super(msg.getMessage("CredentialDefinitions.addAction"), Images.add.getResource());
-			setNeedsTarget(false);
-		}
+		CredentialDefinitionEditor editor = new CredentialDefinitionEditor(msg, credentialEditorReg);
+		CredentialDefinitionEditDialog dialog = new CredentialDefinitionEditDialog(msg, 
+				msg.getMessage("CredentialDefinitions.addAction"), editor, 
+				(cd, desiredCredState) -> addCD(cd));
+		dialog.show();
+	}
 
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			CredentialDefinitionEditor editor = new CredentialDefinitionEditor(msg, credentialEditorReg);
-			CredentialDefinitionEditDialog dialog = new CredentialDefinitionEditDialog(msg, 
-					msg.getMessage("CredentialDefinitions.addAction"), editor, 
-					new Callback()
-					{
-						@Override
-						public boolean newCredentialDefinition(CredentialDefinition cd,
-								LocalCredentialState desiredCredState)
-						{
-							return addCD(cd);
-						}
-					});
-			dialog.show();
-		}
+	private SingleActionHandler2<CredentialDefinition> getEditAction()
+	{
+		return SingleActionHandler2.builder4Edit(msg, CredentialDefinition.class)
+				.withHandler(this::showEditCredDialog)
+				.withDisabledPredicate(cr -> cr.isReadOnly())
+				.build();
 	}
 	
-	private class EditActionHandler extends AbstractCredentialActionHandler
+	private void showEditCredDialog(Set<CredentialDefinition> target)
 	{
-		public EditActionHandler()
-		{
-			super(msg.getMessage("CredentialDefinitions.editAction"), Images.edit.getResource());
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			
-			GenericItem<?> item = (GenericItem<?>) target;
-			CredentialDefinition cr = (CredentialDefinition) item.getElement();
-			CredentialDefinition crClone = cr.clone();
-			
-			CredentialDefinitionEditor editor = new CredentialDefinitionEditor(msg, credentialEditorReg,
-					crClone);
-			CredentialDefinitionEditDialog dialog = new CredentialDefinitionEditDialog(msg, 
-					msg.getMessage("CredentialDefinitions.editAction"), editor, 
-					new Callback()
-					{
-						@Override
-						public boolean newCredentialDefinition(CredentialDefinition cd,
-								LocalCredentialState desiredCredState)
-						{
-							return updateCD(cd, desiredCredState);
-						}
-					});
-			dialog.show();
-		}
-	}
-
-	private class DeleteActionHandler extends AbstractCredentialActionHandler
-	{
-		public DeleteActionHandler()
-		{
-			super(msg.getMessage("CredentialDefinitions.deleteAction"), 
-					Images.delete.getResource());
-			setMultiTarget(true);
-		}
+		CredentialDefinition cr = target.iterator().next();
+		CredentialDefinition crClone = cr.clone();
 		
-		@Override
-		public void handleAction(Object sender, Object target)
-		{		
-			final Collection<CredentialDefinition> items = getItems(target);
-			String confirmText = MessageUtils.createConfirmFromNames(msg, items);
-	
-			new ConfirmDialog(msg, msg.getMessage("CredentialDefinitions.confirmDelete", confirmText),
-					new ConfirmDialog.Callback()
-					{
-						@Override
-						public void onConfirm()
-						{
-							for (CredentialDefinition item : items)
-							{
-								removeCD(item.getName());
-							}
-						}
-					}).show();
-		}
+		CredentialDefinitionEditor editor = new CredentialDefinitionEditor(msg, credentialEditorReg,
+				crClone);
+		CredentialDefinitionEditDialog dialog = new CredentialDefinitionEditDialog(msg, 
+				msg.getMessage("CredentialDefinitions.editAction"), editor, 
+				(cd, desiredCredState) -> updateCD(cd, desiredCredState));
+		dialog.show();
 	}
+
 	
-	private abstract class AbstractCredentialActionHandler extends SingleActionHandler
+	private SingleActionHandler2<CredentialDefinition> getDeleteAction()
 	{
-
-		public AbstractCredentialActionHandler(String caption, Resource icon)
-		{
-			super(caption, icon);
-			setNeedsTarget(true);
-		}
-
-		@Override
-		public Action[] getActions(Object target, Object sender)
-		{
-			if (target == null)
-			{
-				return EMPTY;
-
-			} else
-			{
-				if (target instanceof Collection<?>)
-				{
-					Collection<CredentialDefinition> items = getItems(target);
-					for (CredentialDefinition cr : items)
-						if (cr.isReadOnly())
-							return EMPTY;
-				} else
-				{
-					GenericItem<?> item = (GenericItem<?>) target;	
-					CredentialDefinition cr = (CredentialDefinition) item.getElement();
-					if (cr.isReadOnly())
-						return EMPTY;
-				}
-			}
-			return super.getActions(target, sender);
-		}
-
+		return SingleActionHandler2.builder4Delete(msg, CredentialDefinition.class)
+				.withHandler(this::handleDelete)
+				.withDisabledPredicate(cr -> cr.isReadOnly())
+				.build();
 	}
 	
+	private void handleDelete(Set<CredentialDefinition> items)
+	{		
+		String confirmText = MessageUtils.createConfirmFromNames(msg, items);
+
+		new ConfirmDialog(msg, msg.getMessage("CredentialDefinitions.confirmDelete", confirmText),
+				() ->
+				{
+					for (CredentialDefinition item : items)
+						removeCD(item.getName());
+				}).show();
+	}
 }

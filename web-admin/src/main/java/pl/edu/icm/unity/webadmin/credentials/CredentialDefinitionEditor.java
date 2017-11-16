@@ -6,13 +6,9 @@ package pl.edu.icm.unity.webadmin.credentials;
 
 import java.util.Set;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.v7.data.fieldgroup.FieldGroup;
-import com.vaadin.v7.data.fieldgroup.FieldGroup.CommitException;
-import com.vaadin.v7.data.util.BeanItem;
-import com.vaadin.v7.ui.AbstractTextField;
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.data.Binder;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
@@ -21,11 +17,10 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
-import pl.edu.icm.unity.webui.common.RequiredTextField;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextArea2;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField2;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
@@ -38,16 +33,15 @@ public class CredentialDefinitionEditor extends CompactFormLayout
 {
 	private UnityMessageSource msg;
 	private CredentialEditorRegistry credentialEditorReg;
-	private AbstractTextField name;
-	private I18nTextField displayedName;
-	private I18nTextArea description;
+	private TextField name;
+	private I18nTextField2 displayedName;
+	private I18nTextArea2 description;
 	private EnumComboBox<LocalCredentialState> newCredState; 
-	private ComboBox credentialType;
+	private ComboBox<String> credentialType;
 	private SafePanel credentialEditorPanel;
 	private pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor cdEd;
 	
-	private FieldGroup binder;
-	private BeanItem<CredentialDefinition> formItem;
+	private Binder<CredentialDefinition> binder;
 	
 	public CredentialDefinitionEditor(UnityMessageSource msg, CredentialEditorRegistry credentialEditorReg,
 			CredentialDefinition initial)
@@ -66,14 +60,13 @@ public class CredentialDefinitionEditor extends CompactFormLayout
 	{
 		setWidth(100, Unit.PERCENTAGE);
 
-		name = new RequiredTextField(msg);
-		name.setCaption(msg.getMessage("CredentialDefinition.name"));
+		name = new TextField(msg.getMessage("CredentialDefinition.name"));
 		addComponent(name);
 
-		displayedName = new I18nTextField(msg, msg.getMessage("displayedNameF"));
+		displayedName = new I18nTextField2(msg, msg.getMessage("displayedNameF"));
 		addComponent(displayedName);
 		
-		description = new I18nTextArea(msg, msg.getMessage("descriptionF"));
+		description = new I18nTextArea2(msg, msg.getMessage("descriptionF"));
 		addComponent(description);
 		
 		if (initial != null)
@@ -85,12 +78,10 @@ public class CredentialDefinitionEditor extends CompactFormLayout
 			addComponent(newCredState);
 		}
 		
-		credentialType = new ComboBox(msg.getMessage("CredentialDefinition.type"));
+		credentialType = new ComboBox<>(msg.getMessage("CredentialDefinition.type"));
 		Set<String> supportedTypes = credentialEditorReg.getSupportedTypes();
-		for (String t: supportedTypes)
-			credentialType.addItem(t);
-		credentialType.setNullSelectionAllowed(false);
-		credentialType.setImmediate(true);
+		credentialType.setItems(supportedTypes);
+		credentialType.setEmptySelectionAllowed(false);
 
 		addComponent(credentialType);
 		
@@ -101,30 +92,23 @@ public class CredentialDefinitionEditor extends CompactFormLayout
 		CredentialDefinition cd = initial == null ? new CredentialDefinition(
 				firstType, msg.getMessage("CredentialDefinition.defaultName"), new I18nString(), 
 				new I18nString("")) : initial;
-		formItem = new BeanItem<CredentialDefinition>(cd);
 		if (initial != null)
 		{
-			formItem.getItemProperty("name").setReadOnly(true);
+			name.setReadOnly(true);
 			setCredentialEditor(initial.getConfiguration(), initial.getTypeId());
 		} else
 			setCredentialEditor(null, firstType);
 		
-		binder = new FieldGroup(formItem);
-		binder.bind(name, "name");
+		binder = new Binder<>(CredentialDefinition.class);
+		binder.forField(name).asRequired(msg.getMessage("fieldRequired")).bind("name");
 		binder.bind(displayedName, "displayedName");
 		binder.bind(description, "description");
 		binder.bind(credentialType, "typeId");
+		binder.setBean(cd);
 		
 		//set listener after setting up the form, so we won't get spurious invocation on initial input.
-		credentialType.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				String type = (String) credentialType.getValue();
-				setCredentialEditor(null, type);
-			}
-		});
+		credentialType.addValueChangeListener(event ->
+			setCredentialEditor(null, credentialType.getValue()));
 	}
 	
 	private void setCredentialEditor(String state, String type)
@@ -137,14 +121,9 @@ public class CredentialDefinitionEditor extends CompactFormLayout
 	public CredentialDefinition getCredentialDefinition() throws IllegalCredentialException
 	{
 		String credConfig = cdEd.getCredentialDefinition();
-		try
-		{
-			binder.commit();
-		} catch (CommitException e)
-		{
+		if (!binder.isValid())
 			throw new IllegalCredentialException("");
-		}
-		CredentialDefinition ret = formItem.getBean();
+		CredentialDefinition ret = binder.getBean();
 		ret.setConfiguration(credConfig);
 		ret.getDisplayedName().setDefaultValue(ret.getName());
 		return ret;
