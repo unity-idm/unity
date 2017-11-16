@@ -7,19 +7,16 @@ package pl.edu.icm.unity.webadmin.credreq;
 import java.util.Collection;
 import java.util.HashSet;
 
-import com.vaadin.v7.data.fieldgroup.FieldGroup;
-import com.vaadin.v7.data.fieldgroup.FieldGroup.CommitException;
-import com.vaadin.v7.data.util.BeanItem;
-import com.vaadin.v7.ui.AbstractTextField;
-import com.vaadin.v7.ui.TwinColSelect;
+import com.vaadin.data.Binder;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.TwinColSelect;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
-import pl.edu.icm.unity.webui.common.RequiredTextField;
+import pl.edu.icm.unity.webui.common.DescriptionTextArea2;
 
 /**
  * Allows to edit a credential requirement. Can be configured to edit an existing requirement (name is fixed,
@@ -30,13 +27,7 @@ import pl.edu.icm.unity.webui.common.RequiredTextField;
 public class CredentialRequirementEditor extends CompactFormLayout
 {
 	private UnityMessageSource msg;
-
-	private AbstractTextField name;
-	private DescriptionTextArea description;
-	private TwinColSelect requiredCredentials;
-	
-	private FieldGroup binder;
-	private BeanItem<CredentialRequirements> formItem;
+	private Binder<CredentialRequirements> binder;
 
 	public CredentialRequirementEditor(UnityMessageSource msg, Collection<CredentialDefinition> allCredentials, 
 			CredentialRequirements initial)
@@ -54,47 +45,38 @@ public class CredentialRequirementEditor extends CompactFormLayout
 	{
 		setWidth(100, Unit.PERCENTAGE);
 
-		name = new RequiredTextField(msg);
-		name.setCaption(msg.getMessage("CredentialRequirements.name"));
+		TextField name = new TextField(msg.getMessage("CredentialRequirements.name"));
 		addComponent(name);
-		
-		description = new DescriptionTextArea(msg.getMessage("CredentialRequirements.description"));
-		addComponent(description);
 		if (initial != null)
-			description.setValue(initial.getDescription());
+			name.setReadOnly(true);
 		
-		requiredCredentials = new TwinColSelect(msg.getMessage("CredentialRequirements.credentials"));
+		DescriptionTextArea2 description = new DescriptionTextArea2(
+				msg.getMessage("CredentialRequirements.description"));
+		addComponent(description);
+		
+		TwinColSelect<String> requiredCredentials = new TwinColSelect<>(
+				msg.getMessage("CredentialRequirements.credentials"));
 		requiredCredentials.setLeftColumnCaption(msg.getMessage("CredentialRequirements.available"));
 		requiredCredentials.setRightColumnCaption(msg.getMessage("CredentialRequirements.chosen"));
 		requiredCredentials.setWidth(48, Unit.EM);
-		for (CredentialDefinition cr: allCredentials)
-			requiredCredentials.addItem(cr.getName());
-		
-		if (initial != null)
-			requiredCredentials.setValue(initial.getRequiredCredentials());
+		requiredCredentials.setRows(5);
+		requiredCredentials.setItems(allCredentials.stream().map(cr -> cr.getName()));
+				
 		addComponent(requiredCredentials);
 		
 		CredentialRequirements cr = initial == null ? new CredentialRequirements(
-				msg.getMessage("CredentialRequirements.defaultName"), "", new HashSet<String>()) : initial;
-		formItem = new BeanItem<>(cr);
-		if (initial != null)
-			formItem.getItemProperty("name").setReadOnly(true);
-		
-		binder = new FieldGroup(formItem);
-		binder.bind(name, "name");
+				msg.getMessage("CredentialRequirements.defaultName"), "", new HashSet<>()) : initial;
+		binder = new Binder<>(CredentialRequirements.class);
+		binder.forField(name).asRequired(msg.getMessage("fieldRequired")).bind("name");
 		binder.bind(description, "description");
 		binder.bind(requiredCredentials, "requiredCredentials");
+		binder.setBean(cr);
 	}
 	
 	public CredentialRequirements getCredentialRequirements() throws IllegalCredentialException
 	{
-		try
-		{
-			binder.commit();
-		} catch (CommitException e)
-		{
+		if (!binder.isValid())
 			throw new IllegalCredentialException("");
-		}
-		return formItem.getBean();
+		return binder.getBean();
 	}
 }

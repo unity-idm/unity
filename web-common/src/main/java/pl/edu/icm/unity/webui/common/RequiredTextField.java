@@ -11,9 +11,12 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 
 /**
  * Extension of {@link TextField} with a one change: the field is required 
- * and the exclamation mark is shown for all empty fields except for the initial rendering. 
+ * and the exclamation mark is shown for all empty fields except for the initial rendering.
+ * @deprecated use regular text field, whether is required is set in Binder/Validation. 
+ *  
  * @author K. Benedyczak
  */
+@Deprecated
 public class RequiredTextField extends TextField
 {
 	public RequiredTextField(UnityMessageSource msg)
