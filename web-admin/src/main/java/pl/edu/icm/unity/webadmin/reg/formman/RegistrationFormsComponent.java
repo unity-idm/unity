@@ -4,40 +4,33 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formman;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.Orientation;
-import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormEditDialog.Callback;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.GenericElementsTable;
-import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
-import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.GenericElementsTable2;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar;
+import pl.edu.icm.unity.webui.common.Toolbar2;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormChangedEvent;
 
 /**
@@ -51,7 +44,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 	private RegistrationsManagement registrationsManagement;
 	private EventsBus bus;
 	
-	private GenericElementsTable<RegistrationForm> table;
+	private GenericElementsTable2<RegistrationForm> table;
 	private com.vaadin.ui.Component main;
 	private ObjectFactory<RegistrationFormEditor> editorFactory;
 	
@@ -66,44 +59,41 @@ public class RegistrationFormsComponent extends VerticalLayout
 		this.editorFactory = editorFactory;
 		this.bus = WebSession.getCurrent().getEventBus();
 		
+		setMargin(false);
+		setSpacing(false);
 		addStyleName(Styles.visibleScroll.toString());
 		setCaption(msg.getMessage("RegistrationFormsComponent.caption"));
-		table = new GenericElementsTable<RegistrationForm>(msg.getMessage("RegistrationFormsComponent.formsTable"), 
-				new GenericElementsTable.NameProvider<RegistrationForm>()
-				{
-					@Override
-					public Label toRepresentation(RegistrationForm element)
-					{
-						return new Label(element.getName());
-					}
-				});
+		
+		viewer.setInput(null);
+		table = new GenericElementsTable2<>(
+				msg.getMessage("RegistrationFormsComponent.formsTable"), 
+				form -> form.getName());
+
 		table.setSizeFull();
 		table.setMultiSelect(true);
-		viewer.setInput(null);
-		table.addValueChangeListener(new ValueChangeListener()
+		table.addSelectionListener(event ->
 		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
+			Collection<RegistrationForm> items = event.getAllSelectedItems();
+			if (items.size() > 1 || items.isEmpty())
 			{
-				Collection<RegistrationForm> items = getItems(table.getValue());
-				if (items.size() > 1 || items.isEmpty())
-				{
-					viewer.setInput(null);
-					return;
-				}
-				RegistrationForm item = items.iterator().next();	
-				viewer.setInput(item);
+				viewer.setInput(null);
+				return;
 			}
+			RegistrationForm item = items.iterator().next();	
+			viewer.setInput(item);
 		});
-		table.addActionHandler(new RefreshActionHandler());
-		table.addActionHandler(new AddActionHandler());
-		table.addActionHandler(new EditActionHandler());
-		table.addActionHandler(new CopyActionHandler());
-		table.addActionHandler(new DeleteActionHandler());
+		
+		table.addActionHandler(getRefreshAction());
+		table.addActionHandler(getAddAction());
+		table.addActionHandler(getEditAction());
+		table.addActionHandler(getCopyAction());
+		table.addActionHandler(getDeleteAction());
 				
-		Toolbar toolbar = new Toolbar(table, Orientation.HORIZONTAL);
+		Toolbar2<RegistrationForm> toolbar = new Toolbar2<>(Orientation.HORIZONTAL);
+		table.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(table.getActionHandlers());
-		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
+		
+		ComponentWithToolbar2 tableWithToolbar = new ComponentWithToolbar2(table, toolbar);
 		tableWithToolbar.setSizeFull();
 
 		CompositeSplitPanel hl = new CompositeSplitPanel(false, true, tableWithToolbar, viewer, 25);
@@ -175,160 +165,108 @@ public class RegistrationFormsComponent extends VerticalLayout
 		}
 	}
 	
-	private Collection<RegistrationForm> getItems(Object target)
+	private SingleActionHandler2<RegistrationForm> getRefreshAction()
 	{
-		Collection<?> c = (Collection<?>) target;
-		Collection<RegistrationForm> items = new ArrayList<RegistrationForm>();
-		for (Object o: c)
-		{
-			GenericItem<?> i = (GenericItem<?>) o;
-			items.add((RegistrationForm) i.getElement());	
-		}	
-		return items;
+		return SingleActionHandler2.builder4Refresh(msg, RegistrationForm.class)
+				.withHandler(selection -> refresh())
+				.build();
 	}
 	
-	private class RefreshActionHandler extends SingleActionHandler
+	private SingleActionHandler2<RegistrationForm> getAddAction()
 	{
-		public RefreshActionHandler()
-		{
-			super(msg.getMessage("RegistrationFormsComponent.refreshAction"), Images.refresh.getResource());
-			setNeedsTarget(false);
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			refresh();
-		}
-	}
-
-	private class AddActionHandler extends SingleActionHandler
-	{
-		public AddActionHandler()
-		{
-			super(msg.getMessage("RegistrationFormsComponent.addAction"), Images.add.getResource());
-			setNeedsTarget(false);
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			RegistrationFormEditor editor;
-			try
-			{
-				editor = editorFactory.getObject().init(false);
-			} catch (EngineException e)
-			{
-				NotificationPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
-				return;
-			}
-			RegistrationFormEditDialog dialog = new RegistrationFormEditDialog(msg, 
-					msg.getMessage("RegistrationFormsComponent.addAction"), new Callback()
-					{
-						@Override
-						public boolean newForm(RegistrationForm form, boolean foo)
-						{
-							return addForm(form);
-						}
-					}, editor);
-			dialog.show();
-		}
-	}
-
-	private class EditActionHandler extends CopyEditBaseActionHandler
-	{
-		public EditActionHandler()
-		{
-			super(msg.getMessage("RegistrationFormsComponent.editAction"), 
-					Images.edit.getResource(), false);
-		}
+		return SingleActionHandler2.builder4Add(msg, RegistrationForm.class)
+				.withHandler(this::showAddDialog)
+				.build();
 	}
 	
-	private class CopyActionHandler extends CopyEditBaseActionHandler
+	private void showAddDialog(Set<RegistrationForm> dummy)
 	{
-		public CopyActionHandler()
+		RegistrationFormEditor editor;
+		try
 		{
-			super(msg.getMessage("RegistrationFormsComponent.copyAction"), 
-					Images.copy.getResource(), true);
-		}
-	}
-
-	
-	private abstract class CopyEditBaseActionHandler extends SingleActionHandler
-	{
-		private boolean copyMode;
-		private String caption;
-
-		public CopyEditBaseActionHandler(String caption, Resource icon, boolean copyMode)
+			editor = editorFactory.getObject().init(false);
+		} catch (EngineException e)
 		{
-			super(caption, icon);
-			this.caption = caption;
-			this.copyMode = copyMode;
+			NotificationPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
+			return;
 		}
-
-		@Override
-		protected void handleAction(Object sender, final Object target)
-		{
-			@SuppressWarnings("unchecked")
-			GenericItem<RegistrationForm> item = (GenericItem<RegistrationForm>) target;
-			RegistrationForm form =  item.getElement();
-			RegistrationFormEditor editor;
-			try
-			{		
-				editor = editorFactory.getObject().init(copyMode);
-				editor.setForm(form);
-			} catch (Exception e)
-			{
-				NotificationPopup.showError(msg, msg.getMessage(
-						"RegistrationFormsComponent.errorInFormEdit"), e);
-				return;
-			}
-			RegistrationFormEditDialog dialog = new RegistrationFormEditDialog(msg, 
-					caption, new Callback()
-					{
-						@Override
-						public boolean newForm(RegistrationForm form, boolean ignoreRequests)
-						{
-							return copyMode ? addForm(form) :
-								updateForm(form, ignoreRequests);
-						}
-					}, editor);
-			dialog.show();		
-		}
+		RegistrationFormEditDialog dialog = new RegistrationFormEditDialog(msg, 
+				msg.getMessage("RegistrationFormsComponent.addAction"), 
+				(form, isUpdate) -> addForm(form), editor);
+		dialog.show();
 	}
 	
-	
-	
-	private class DeleteActionHandler extends SingleActionHandler
+	private SingleActionHandler2<RegistrationForm> getCopyAction()
 	{
-		public DeleteActionHandler()
+		return SingleActionHandler2.builder4Copy(msg, RegistrationForm.class)
+				.withHandler(this::showCopyDialog)
+				.build();
+	}
+	
+	private SingleActionHandler2<RegistrationForm> getEditAction()
+	{
+		return SingleActionHandler2.builder4Edit(msg, RegistrationForm.class)
+				.withHandler(this::showEditDialog)
+				.build();
+	}
+	
+	private void showCopyDialog(Set<RegistrationForm> target)
+	{
+		showCopyEditDialog(target, true, msg.getMessage("RegistrationFormsComponent.copyAction"));
+	}
+	
+	private void showEditDialog(Set<RegistrationForm> target)
+	{
+		showCopyEditDialog(target, false, msg.getMessage("RegistrationFormsComponent.editAction"));
+	}
+	
+	private void showCopyEditDialog(Set<RegistrationForm> target, boolean isCopyMode, String caption)
+	{
+		RegistrationForm targetForm =  target.iterator().next();
+		RegistrationFormEditor editor;
+		try
+		{		
+			editor = editorFactory.getObject().init(isCopyMode);
+			editor.setForm(targetForm);
+		} catch (Exception e)
 		{
-			super(msg.getMessage("RegistrationFormsComponent.deleteAction"), 
-					Images.delete.getResource());
-			setMultiTarget(true);
+			NotificationPopup.showError(msg, msg.getMessage(
+					"RegistrationFormsComponent.errorInFormEdit"), e);
+			return;
 		}
-		
-		@Override
-		public void handleAction(Object sender, Object target)
-		{
-			final Collection<RegistrationForm> items = getItems(target);
-			String confirmText = MessageUtils.createConfirmFromNames(msg, items);
-
-			new ConfirmWithOptionDialog(msg, msg.getMessage("RegistrationFormsComponent.confirmDelete", 
-					confirmText),
-					msg.getMessage("RegistrationFormsComponent.dropRequests"),
-					new ConfirmWithOptionDialog.Callback()
-			{
-				@Override
-				public void onConfirm(boolean dropRequests)
+		RegistrationFormEditDialog dialog = new RegistrationFormEditDialog(msg, 
+				caption, (form, ignoreRequests) ->
 				{
-							for (RegistrationForm item : items)
-							{
-								removeForm(item.getName(),
-										dropRequests);
-							}
-				}
-			}).show();
-		}
+						return isCopyMode ? addForm(form) : updateForm(form, ignoreRequests);
+				}, editor);
+		dialog.show();	
+	}
+	
+	private SingleActionHandler2<RegistrationForm> getDeleteAction()
+	{
+		return SingleActionHandler2.builder4Delete(msg, RegistrationForm.class)
+				.withHandler(this::handleDelete)
+				.build();
+	}
+	
+	private void handleDelete(Set<RegistrationForm> items)
+	{
+		String confirmText = MessageUtils.createConfirmFromNames(msg, items);
+
+		new ConfirmWithOptionDialog(msg, msg.getMessage("RegistrationFormsComponent.confirmDelete", 
+				confirmText),
+				msg.getMessage("RegistrationFormsComponent.dropRequests"),
+				new ConfirmWithOptionDialog.Callback()
+		{
+			@Override
+			public void onConfirm(boolean dropRequests)
+			{
+						for (RegistrationForm item : items)
+						{
+							removeForm(item.getName(),
+									dropRequests);
+						}
+			}
+		}).show();
 	}
 }

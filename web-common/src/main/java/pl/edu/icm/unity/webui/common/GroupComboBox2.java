@@ -8,61 +8,58 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.google.common.collect.Sets;
-import com.vaadin.ui.TwinColSelect;
+import com.vaadin.ui.ComboBox;
 
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 
 
 /**
- * {@link TwinColSelect} allowing to choose a set of groups. This component can automatically populate the list 
+ * Combo box allowing to choose a group. This components can automatically populate the combobox 
  * with subgroups of a given group, both immediate and recursive.
  * @author K. Benedyczak
  */
-public class GroupsSelectionList extends TwinColSelect<String>
+public class GroupComboBox2 extends ComboBox<String>
 {
 	private Collection<String> groups;
 	private GroupsManagement groupsMan;
 	private List<String> processedGroups = new ArrayList<>();
 
-	public GroupsSelectionList(String caption, Collection<String> groups)
+	public GroupComboBox2(String caption, Collection<String> groups)
 	{
 		super(caption);
 		this.groups = groups;
-		initContent();
+		init();
 	}
 
-	public GroupsSelectionList(String caption, GroupsManagement groupsMan)
+	public GroupComboBox2(String caption, GroupsManagement groupsMan)
 	{
 		super(caption);
 		this.groupsMan = groupsMan;
-		initContent();
+		init();
 	}
 	
-	public Collection<String> getSelectedGroups()
+	private void init()
 	{
-		return getValue();
+		setEmptySelectionAllowed(false);
 	}
 	
-	public void setSelectedGroups(Collection<String> groups)
-	{
-		setValue(Sets.newHashSet(groups));
-	}
-
 	public List<String> getAllGroups()
 	{
 		return new ArrayList<>(processedGroups);
 	}
-
+	
 	public void setInput(String rootGroup, boolean inclusive)
 	{
-		processedGroups = GroupSelectionUtils.establishGroups(
-				rootGroup, inclusive, groupsMan, groups);
+		processedGroups = GroupSelectionUtils.establishGroups(rootGroup, 
+				inclusive, groupsMan, groups);
 		setItems(processedGroups);
+		if (!processedGroups.isEmpty())
+			setSelectedItem(processedGroups.get(0));
 	}
 
-	private void initContent()
+	@Override
+	public String getValue()
 	{
-		setRows(5);
+		return super.getValue();
 	}
 }

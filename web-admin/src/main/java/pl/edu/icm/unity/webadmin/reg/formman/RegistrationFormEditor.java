@@ -5,19 +5,19 @@
 package pl.edu.icm.unity.webadmin.reg.formman;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.CheckBox;
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.v7.ui.Slider;
+import com.vaadin.ui.Slider;
 import com.vaadin.ui.TabSheet;
-import com.vaadin.v7.ui.TextField;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -44,7 +44,7 @@ import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentProvider;
 import pl.edu.icm.unity.webadmin.tprofile.RegistrationTranslationProfileEditor;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.NotNullComboBox;
+import pl.edu.icm.unity.webui.common.NotNullComboBox2;
 
 /**
  * Allows to edit a registration form. Can be configured to edit an existing form (name is fixed)
@@ -72,7 +72,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 	
 	private TextField registrationCode;
 
-	private ComboBox credentialRequirementAssignment;
+	private NotNullComboBox2<String> credentialRequirementAssignment;
 	private RegistrationActionsRegistry actionsRegistry;
 	private RegistrationTranslationProfileEditor profileEditor;
 	private FormLayoutEditor layoutEditor;
@@ -141,7 +141,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		RegistrationFormBuilder builder = new RegistrationFormBuilder();
 		super.buildCommon(builder);
 		
-		builder.withDefaultCredentialRequirement((String) credentialRequirementAssignment.getValue());
+		builder.withDefaultCredentialRequirement(credentialRequirementAssignment.getValue());
 		builder.withCaptchaLength(captcha.getValue().intValue());
 		builder.withPubliclyAvailable(publiclyAvailable.getValue());
 		builder.withByInvitationOnly(byInvitationOnly.getValue());
@@ -179,6 +179,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		FormLayout main = new CompactFormLayout();
 		VerticalLayout wrapper = new VerticalLayout(main);
 		wrapper.setMargin(true);
+		wrapper.setSpacing(false);
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.mainTab"));
 		
 		initNameAndDescFields(msg.getMessage("RegistrationFormEditor.defaultName"));
@@ -213,6 +214,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		FormLayout main = new CompactFormLayout();
 		VerticalLayout wrapper = new VerticalLayout(main);
 		wrapper.setMargin(true);
+		wrapper.setSpacing(false);
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.collectedTab"));
 		
 		initCommonDisplayedFields();
@@ -227,6 +229,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		VerticalLayout wrapper = new VerticalLayout();
 		layoutEditor = new FormLayoutEditor(msg, new FormProviderImpl());
 		wrapper.setMargin(true);
+		wrapper.setSpacing(false);
 		wrapper.addComponent(layoutEditor);
 		tabs.addSelectedTabChangeListener(event -> layoutEditor.updateFromForm());
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.layoutTab"));
@@ -237,14 +240,15 @@ public class RegistrationFormEditor extends BaseFormEditor
 		FormLayout main = new CompactFormLayout();
 		VerticalLayout wrapper = new VerticalLayout(main);
 		wrapper.setMargin(true);
+		wrapper.setSpacing(false);
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.assignedTab"));
 		
-		credentialRequirementAssignment = new NotNullComboBox(
+		credentialRequirementAssignment = new NotNullComboBox2<>(
 				msg.getMessage("RegistrationFormViewer.credentialRequirementAssignment"));
-		Collection<CredentialRequirements> credentialRequirements = credReqMan.getCredentialRequirements();
-		for (CredentialRequirements cr: credentialRequirements)
-			credentialRequirementAssignment.addItem(cr.getName());
-		credentialRequirementAssignment.setNullSelectionAllowed(false);
+		List<String> credentialReqirementNames = credReqMan.getCredentialRequirements().stream()
+				.map(CredentialRequirements::getName)
+				.collect(Collectors.toList());
+		credentialRequirementAssignment.setItems(credentialReqirementNames);
 		
 		profileEditor = new RegistrationTranslationProfileEditor(msg, actionsRegistry, actionComponentFactory);
 		profileEditor.setValue(new TranslationProfile("form profile", "", ProfileType.REGISTRATION,

@@ -11,7 +11,10 @@ import com.vaadin.v7.ui.ComboBox;
  * Simple {@link ComboBox} which doesn't allow for empty selections, unless there is no contents.
  * 
  * @author K. Benedyczak
+ * 
+ * @deprecated use {@link NotNullComboBox2}
  */
+@Deprecated
 public class NotNullComboBox extends ComboBox
 {
 	public NotNullComboBox(String caption)
@@ -25,6 +28,7 @@ public class NotNullComboBox extends ComboBox
 		setNullSelectionAllowed(false);
 	}
 	
+	@Override
 	public Item addItem(Object item)
 	{
 		Item ret = super.addItem(item);

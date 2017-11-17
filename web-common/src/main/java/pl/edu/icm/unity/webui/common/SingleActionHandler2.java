@@ -102,6 +102,19 @@ public class SingleActionHandler2<T>
 				.withIcon(Images.edit.getResource());
 	}
 	
+	/**
+	 * Sets icon and caption
+	 * @param msg
+	 * @param clazz
+	 * @return
+	 */
+	public static <T> Builder<T> builder4Copy(UnityMessageSource msg, Class<T> clazz)
+	{
+		return new Builder<T>()
+				.withCaption(msg.getMessage("copy"))
+				.withIcon(Images.copy.getResource());
+	}
+	
 	public static class Builder<T>
 	{
 		private SingleActionHandler2<T> obj;

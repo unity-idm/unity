@@ -8,7 +8,7 @@ import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
@@ -99,6 +99,8 @@ public class BaseFormViewer extends VerticalLayout
 		groupParamsP.setVisible(!form.getGroupParams().isEmpty());
 		credentialParamsP.setVisible(!form.getCredentialParams().isEmpty());
 		
+		setSpacing(false);
+		setMargin(false);
 		setLayout(form);
 	}
 	
@@ -136,6 +138,7 @@ public class BaseFormViewer extends VerticalLayout
 	{
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.setSpacing(true);
+		wrapper.setMargin(false);
 
 		agreements = new ListOfElements<>(msg, new ListOfElements.LabelConverter<AgreementRegistrationParam>()
 		{
@@ -145,8 +148,10 @@ public class BaseFormViewer extends VerticalLayout
 				Label mandatory = new Label(getOptionalStr(!value.isManatory()));
 				I18nLabel main = new I18nLabel(msg);
 				main.setValue(value.getText());
-				
-				return new VerticalLayout(mandatory, main);
+				VerticalLayout vl = new VerticalLayout(mandatory, main);
+				vl.setSpacing(false);
+				vl.setMargin(false);
+				return vl;
 			}
 		});
 		agreements.setMargin(true);

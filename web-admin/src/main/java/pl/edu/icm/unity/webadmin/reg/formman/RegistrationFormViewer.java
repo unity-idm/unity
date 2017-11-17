@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
@@ -146,6 +146,7 @@ public class RegistrationFormViewer extends BaseFormViewer
 		FormLayout main = new CompactFormLayout();
 		VerticalLayout wrapper = new VerticalLayout(main);
 		wrapper.setMargin(true);
+		wrapper.setSpacing(false);
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.mainTab"));
 		
 		setupNameAndDesc();

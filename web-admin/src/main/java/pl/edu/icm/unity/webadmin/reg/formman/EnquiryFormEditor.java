@@ -11,10 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TabSheet;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -159,6 +159,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		FormLayout main = new CompactFormLayout();
 		VerticalLayout wrapper = new VerticalLayout(main);
 		wrapper.setMargin(true);
+		wrapper.setSpacing(false);
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.mainTab"));
 		
 		initNameAndDescFields(msg.getMessage("EnquiryFormEditor.defaultName"));
@@ -166,14 +167,15 @@ public class EnquiryFormEditor extends BaseFormEditor
 
 		notificationsEditor = new EnquiryFormNotificationsEditor(msg, groupsMan, 
 				notificationsMan, msgTempMan);
-		enquiryType = new EnumComboBox<EnquiryForm.EnquiryType>(msg.getMessage("EnquiryFormViewer.type"), 
+		enquiryType = new EnumComboBox<>(msg.getMessage("EnquiryFormViewer.type"), 
 				msg, "EnquiryType.", EnquiryType.class, 
 				EnquiryType.REQUESTED_OPTIONAL);
 		
 		targetGroups = new GroupsSelectionList(msg.getMessage("EnquiryFormViewer.targetGroups"), 
 				notificationsEditor.getGroups());
 		targetGroups.setInput("/", true);
-		targetGroups.setRequired(true);
+		// TODO: fix me!
+//		targetGroups.setRequired(true);
 		
 		main.addComponents(enquiryType, targetGroups);
 		
@@ -185,6 +187,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		FormLayout main = new CompactFormLayout();
 		VerticalLayout wrapper = new VerticalLayout(main);
 		wrapper.setMargin(true);
+		wrapper.setSpacing(false);
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.collectedTab"));
 		
 		initCommonDisplayedFields();
@@ -198,6 +201,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		VerticalLayout wrapper = new VerticalLayout();
 		layoutEditor = new FormLayoutEditor(msg, new FormProviderImpl());
 		wrapper.setMargin(true);
+		wrapper.setSpacing(false);
 		wrapper.addComponent(layoutEditor);
 		tabs.addSelectedTabChangeListener(event -> layoutEditor.updateFromForm());
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.layoutTab"));
@@ -207,6 +211,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 	{
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.setMargin(true);
+		wrapper.setSpacing(false);
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.assignedTab"));
 		
 		profileEditor = new RegistrationTranslationProfileEditor(msg, actionsRegistry, actionComponentProvider);

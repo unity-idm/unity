@@ -52,10 +52,10 @@ public class GenericElementsTable2<T> extends SmallGrid<T>
 				.setResizable(false);
 		addItemClickListener(this::onMouseClick);
 		sort(col1);
-		contextMenu = new GridContextMenu<T>(this);
+		contextMenu = new GridContextMenu<>(this);
 		contextMenu.addGridBodyContextMenuListener(e ->
 		{
-			Set<T> selection = new HashSet<T>();
+			Set<T> selection = new HashSet<>();
 			selection.add((T) e.getItem());
 			fillContextMenu(selection);
 		});

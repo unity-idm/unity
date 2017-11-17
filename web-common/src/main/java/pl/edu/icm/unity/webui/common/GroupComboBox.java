@@ -17,7 +17,10 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
  * Combo box allowing to choose a group. This components can automatically populate the combobox 
  * with subgroups of a given group, both immediate and recursive.
  * @author K. Benedyczak
+ * 
+ * @deprecated use {@link GroupComboBox2}
  */
+@Deprecated
 public class GroupComboBox extends ComboBox
 {
 	private Collection<String> groups;

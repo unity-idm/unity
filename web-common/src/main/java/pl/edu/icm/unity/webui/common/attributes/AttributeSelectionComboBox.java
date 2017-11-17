@@ -16,7 +16,10 @@ import pl.edu.icm.unity.webui.common.MapComboBox;
 /**
  * Allows to select an attribute name
  * @author K. Benedyczak
+ * 
+ * @deprecated use {@link AttributeSelectionComboBox2}
  */
+@Deprecated
 public class AttributeSelectionComboBox extends MapComboBox<AttributeType>
 {
 	public AttributeSelectionComboBox(String caption, AttributeTypeManagement aTypeMan) throws EngineException
@@ -36,7 +39,7 @@ public class AttributeSelectionComboBox extends MapComboBox<AttributeType>
 		setSizeUndefined();
 		setCaption(caption);
 		
-		SortedMap<String, AttributeType> typesByName = new TreeMap<String, AttributeType>();
+		SortedMap<String, AttributeType> typesByName = new TreeMap<>();
 		for (AttributeType at: attributeTypes)
 		{
 			if (!at.isInstanceImmutable())
