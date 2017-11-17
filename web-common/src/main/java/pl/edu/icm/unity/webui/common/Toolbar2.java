@@ -93,12 +93,6 @@ public class Toolbar2<T> extends CustomComponent
 			addActionHandler(handler);
 	}
 
-//	public void addButtons(Button... buttons)
-//	{
-//		for (Button button: buttons)
-//			addButton(button);
-//	}
-	
 	public void addSeparator()
 	{
 		Label sep = new Label();
@@ -108,18 +102,6 @@ public class Toolbar2<T> extends CustomComponent
 		main.addComponent(sep);
 		main.setComponentAlignment(sep, Alignment.MIDDLE_CENTER);
 	}
-	
-	/**
-	 * Adds a custom button. It is styled in the same way as other in the toolbar, but its actions must 
-	 * be configured manually.
-	 */
-//	public void addButton(Button button)
-//	{
-//		button.addStyleName(Styles.vButtonLink.toString());
-//		button.addStyleName(Styles.toolbarButton.toString());
-//		buttons.add(button);
-//		main.addComponent(button);
-//	}
 	
 	public void addActionHandler(SingleActionHandler2<T> handler)
 	{

@@ -125,7 +125,7 @@ public class AttributeClassHelper
 			getAllParentsRec(p, knownClasses, includedParents);
 			cleanedParents.removeAll(includedParents);
 		}
-		toCleanup.setParentClassName(cleanedParents);
+		toCleanup.setParentClasses(cleanedParents);
 	}
 	
 	private static void getAllParentsRec(String from, Map<String, AttributesClass> knownClasses, Set<String> ret)

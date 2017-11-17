@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.vaadin.v7.ui.TwinColSelect;
+import com.vaadin.ui.TwinColSelect;
 
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -33,7 +33,7 @@ public abstract class AbstractAttributesClassesDialog extends AbstractDialog
 	protected AttributeClassManagement acMan;
 	protected GroupsManagement groupsMan;
 	protected String groupPath;
-	protected TwinColSelect acs;
+	protected TwinColSelect<String> acs;
 	protected EffectiveAttrClassViewer effective;
 	protected Map<String, AttributesClass> allClasses;
 	
@@ -50,9 +50,7 @@ public abstract class AbstractAttributesClassesDialog extends AbstractDialog
 	protected void loadACsData() throws EngineException
 	{
 		allClasses = acMan.getAttributeClasses();
-		
-		for (String ac: allClasses.keySet())
-			acs.addItem(ac);
+		acs.setItems(allClasses.keySet());
 	}
 	
 	protected void updateEffective()
@@ -60,8 +58,7 @@ public abstract class AbstractAttributesClassesDialog extends AbstractDialog
 		String rootClass = msg.getMessage("AttributesClasses.metaEffectiveClassName");
 		while (allClasses.keySet().contains(rootClass))
 			rootClass = " " + rootClass;
-		@SuppressWarnings("unchecked")
-		Set<String> parents = (Set<String>) acs.getValue();
+		Set<String> parents = acs.getValue();
 		AttributesClass virtual = new AttributesClass(rootClass, "", EMPTY, EMPTY, 
 				parents.isEmpty() ? true : false, parents);
 		Map<String, AttributesClass> tmpClasses = new HashMap<>(allClasses);

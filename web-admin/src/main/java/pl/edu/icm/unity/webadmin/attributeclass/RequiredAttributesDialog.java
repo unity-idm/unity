@@ -13,7 +13,7 @@ import java.util.Set;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -61,6 +61,7 @@ public class RequiredAttributesDialog extends AbstractDialog
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setSpacing(true);
+		main.setMargin(false);
 		Label infoL = new Label(info);
 		infoL.setStyleName(Styles.bold.toString());
 		Label spacer = new Label(" ");

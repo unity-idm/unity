@@ -33,7 +33,7 @@ public class AttributeClassTest extends AbstractNamedWithTSTest<AttributesClass>
 		ret.setMandatory(Sets.newHashSet("mandatory"));
 		ret.setDescription("description");
 		ret.setName(id);
-		ret.setParentClassName(Sets.newHashSet("parent"));
+		ret.setParentClasses(Sets.newHashSet("parent"));
 		return ret;
 	}
 
@@ -45,7 +45,7 @@ public class AttributeClassTest extends AbstractNamedWithTSTest<AttributesClass>
 		ret.setMandatory(Sets.newHashSet("mandatory2"));
 		ret.setDescription("description3");
 		ret.setName("name-changed");
-		ret.setParentClassName(Sets.newHashSet("parent2"));
+		ret.setParentClasses(Sets.newHashSet("parent2"));
 		return ret;
 	}
 }

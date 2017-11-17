@@ -6,14 +6,13 @@ package pl.edu.icm.unity.webadmin.attributeclass;
 
 import java.util.Map;
 
+import com.vaadin.ui.Grid;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.Table;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.SmallGrid;
-import pl.edu.icm.unity.webui.common.SmallTableDeprecated;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
@@ -27,8 +26,8 @@ public class AttributesClassViewer extends CompactFormLayout
 	private Label name;
 	private Label typeDescription;
 	private Label allAllowed;
-	private Table allowed;
-	private Table mandatory;
+	private Grid<String> allowed;
+	private Grid<String> mandatory;
 	private SafePanel effectiveWrapper;
 	private EffectiveAttrClassViewer effectiveViewer;
 	
@@ -51,19 +50,15 @@ public class AttributesClassViewer extends CompactFormLayout
 		
 		allAllowed = new Label(msg.getMessage("AttributesClass.allAllowed"));
 		
-		allowed = new SmallTableDeprecated();
-		allowed.addContainerProperty(msg.getMessage("AttributesClass.allowed"), 
-				String.class, null);
+		allowed = new SmallGrid<>();
+		allowed.addColumn(a -> a).setCaption(msg.getMessage("AttributesClass.allowed")); 
 		allowed.setWidth(90, Unit.PERCENTAGE);
 		allowed.setHeight(12, Unit.EM);
-		allowed.setSortContainerPropertyId(msg.getMessage("AttributesClass.allowed"));
 		
-		mandatory = new SmallTableDeprecated();
-		mandatory.addContainerProperty(msg.getMessage("AttributesClass.mandatory"), 
-				String.class, null);
+		mandatory = new SmallGrid<>();
+		mandatory.addColumn(a -> a).setCaption(msg.getMessage("AttributesClass.mandatory"));
 		mandatory.setWidth(90, Unit.PERCENTAGE);
 		mandatory.setHeight(12, Unit.EM);
-		mandatory.setSortContainerPropertyId(msg.getMessage("AttributesClass.mandatory"));
 		
 		effectiveViewer = new EffectiveAttrClassViewer(msg);
 		effectiveWrapper = new SafePanel(effectiveViewer);
@@ -91,16 +86,12 @@ public class AttributesClassViewer extends CompactFormLayout
 		} else
 		{
 			allAllowed.setVisible(false);
-			allowed.removeAllItems();
-			for (String a: ac.getAllowed())
-				allowed.addItem(new String[] {a}, a);
+			allowed.setItems(ac.getAllowed());
 		}
-		allowed.sort();
+		allowed.sort(allowed.getColumns().get(0));
 		
-		mandatory.removeAllItems();
-		for (String m: ac.getMandatory())
-			mandatory.addItem(new String[] {m}, m);
-		mandatory.sort();
+		mandatory.setItems(ac.getMandatory());
+		mandatory.sort(mandatory.getColumns().get(0));
 	}
 	
 	private void setContentsVisible(boolean how)

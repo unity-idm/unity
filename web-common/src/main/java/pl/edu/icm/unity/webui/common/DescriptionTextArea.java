@@ -10,6 +10,7 @@ import com.vaadin.v7.ui.TextArea;
  * {@link TextArea} specialization with settings common for description areas.
  * @author K. Benedyczak
  */
+@Deprecated
 public class DescriptionTextArea extends TextArea
 {
 	/**

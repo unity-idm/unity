@@ -63,14 +63,7 @@ public class EntityAttributesClassesDialog extends AbstractAttributesClassesDial
 		
 		acs = new ACTwinColSelect(msg.getMessage("AttributesClass.availableACs"),
 				msg.getMessage("AttributesClass.selectedACs"));
-		acs.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				updateEffective();
-			}
-		});
+		acs.addValueChangeListener(event -> updateEffective());
 		
 		Panel extraInfo = new SafePanel(msg.getMessage("EntityAttributesClasses.infoPanel"));
 		extraInfo.addStyleName(Styles.vBorderLess.toString());
@@ -119,8 +112,7 @@ public class EntityAttributesClassesDialog extends AbstractAttributesClassesDial
 	@Override
 	protected void onConfirm()
 	{
-		@SuppressWarnings("unchecked")
-		Set<String> selected = (Set<String>) acs.getValue();
+		Set<String> selected = acs.getValue();
 		try
 		{
 			acMan.setEntityAttributeClasses(new EntityParam(entity.getEntity().getId()), 

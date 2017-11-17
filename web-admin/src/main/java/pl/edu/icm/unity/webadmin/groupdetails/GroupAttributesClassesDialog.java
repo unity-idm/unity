@@ -6,8 +6,6 @@ package pl.edu.icm.unity.webadmin.groupdetails;
 
 import java.util.Set;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
@@ -53,14 +51,7 @@ public class GroupAttributesClassesDialog extends AbstractAttributesClassesDialo
 		
 		acs = new ACTwinColSelect(msg.getMessage("AttributesClass.availableACs"),
 				msg.getMessage("AttributesClass.selectedACs"));
-		acs.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				updateEffective();
-			}
-		});
+		acs.addValueChangeListener(event -> updateEffective());
 		
 		Panel extraInfo = new SafePanel(msg.getMessage("EntityAttributesClasses.infoPanel"));
 		extraInfo.addStyleName(Styles.vBorderLess.toString());
@@ -95,8 +86,7 @@ public class GroupAttributesClassesDialog extends AbstractAttributesClassesDialo
 	@Override
 	protected void onConfirm()
 	{
-		@SuppressWarnings("unchecked")
-		Set<String> selected = (Set<String>) acs.getValue();
+		Set<String> selected = acs.getValue();
 		try
 		{
 			Group group = groupsMan.getContents(groupPath, GroupContents.METADATA).getGroup();

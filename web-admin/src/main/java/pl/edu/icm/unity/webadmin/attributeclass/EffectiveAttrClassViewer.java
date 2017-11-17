@@ -6,15 +6,16 @@ package pl.edu.icm.unity.webadmin.attributeclass;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
+import com.vaadin.data.TreeData;
+import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.Table;
-import com.vaadin.v7.ui.Tree;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.Tree;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -22,7 +23,6 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.SmallGrid;
-import pl.edu.icm.unity.webui.common.SmallTableDeprecated;
 
 /**
  * Displays a tree with attribute classes (children are roots, parents are sub nodes).
@@ -31,45 +31,36 @@ import pl.edu.icm.unity.webui.common.SmallTableDeprecated;
  */
 public class EffectiveAttrClassViewer extends HorizontalSplitPanel
 {
-	private Tree parents;
+	private Tree<Node> parents;
 	private Label allAllowed;
-	private Table allowed;
-	private Table mandatory;
+	private Grid<String> allowed;
+	private Grid<String> mandatory;
 	private VerticalLayout left, right;
 	private Map<String, AttributesClass> allClasses;
 	
 	public EffectiveAttrClassViewer(UnityMessageSource msg)
 	{
-		parents = new Tree(msg.getMessage("AttributesClass.parentsInEffective"));
-		parents.addValueChangeListener(new ValueChangeListener()
+		parents = new Tree<>(msg.getMessage("AttributesClass.parentsInEffective"));
+		parents.addSelectionListener(selection -> 
 		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				Node value = (Node)parents.getValue();
-				if (value == null)
-					setEmptyEffective();
-				else
-					setEffective(value.getName());
-			}
+			Optional<Node> selected = selection.getFirstSelectedItem();
+			if (!selected.isPresent())
+				setEmptyEffective();
+			else
+				setEffective(selected.get().getName());
 		});
-		parents.setImmediate(true);
 		
 		allAllowed = new Label(msg.getMessage("AttributesClass.allAllowed"));
 		
-		allowed = new SmallTableDeprecated();
+		allowed = new SmallGrid<>();
 		allowed.setWidth(90, Unit.PERCENTAGE);
 		allowed.setHeight(9, Unit.EM);
-		allowed.addContainerProperty(msg.getMessage("AttributesClass.allowed"), 
-				String.class, null);
-		allowed.setSortContainerPropertyId(msg.getMessage("AttributesClass.allowed"));
+		allowed.addColumn(a -> a).setCaption(msg.getMessage("AttributesClass.allowed"));
 		
-		mandatory = new SmallTableDeprecated();
+		mandatory = new SmallGrid<>();
 		mandatory.setWidth(90, Unit.PERCENTAGE);
 		mandatory.setHeight(9, Unit.EM);
-		mandatory.addContainerProperty(msg.getMessage("AttributesClass.mandatory"), 
-				String.class, null);
-		mandatory.setSortContainerPropertyId(msg.getMessage("AttributesClass.mandatory"));
+		mandatory.addColumn(a -> a).setCaption(msg.getMessage("AttributesClass.mandatory"));
 		
 		FormLayout rightC = new CompactFormLayout();
 		rightC.addComponents(allAllowed, allowed, mandatory);
@@ -93,7 +84,7 @@ public class EffectiveAttrClassViewer extends HorizontalSplitPanel
 	public void setInput(String rootClass, Map<String, AttributesClass> allClasses)
 	{
 		this.allClasses = allClasses;
-		parents.removeAllItems();
+		parents.setItems();
 		setEmptyEffective();
 		if (rootClass == null)
 		{
@@ -101,22 +92,20 @@ public class EffectiveAttrClassViewer extends HorizontalSplitPanel
 			return;
 		}
 		setVisible(true);
-		addRecursive(rootClass, null);
+		TreeData<Node> treeData = new TreeData<>();
+		addRecursive(treeData, rootClass, null);
+		parents.setDataProvider(new TreeDataProvider<>(treeData));
 	}
 	
-	private void addRecursive(String root, Node parent)
+	private void addRecursive(TreeData<Node> treeData, String root, Node parent)
 	{
 		String myPath = (parent == null ? "/" : parent.getPath())
 				+ root + "/";
 		Node myNode = new Node(root, myPath);
-		parents.addItem(myNode);
-		if (parent != null)
-			parents.setParent(myNode, parent);
+		treeData.addItem(parent, myNode);
 		AttributesClass ac = allClasses.get(root);
 		for (String myParent: ac.getParentClasses())
-			addRecursive(myParent, myNode);
-		if (ac.getParentClasses().isEmpty())
-			parents.setChildrenAllowed(myNode, false);
+			addRecursive(treeData, myParent, myNode);
 	}
 	
 	private void setEmptyEffective()
@@ -143,16 +132,12 @@ public class EffectiveAttrClassViewer extends HorizontalSplitPanel
 		{
 			allAllowed.setVisible(false);
 			allowed.setVisible(true);
-			allowed.removeAllItems();
-			for (String al: helper.getEffectiveAllowed())
-				allowed.addItem(new String[] {al}, al);
+			allowed.setItems(helper.getEffectiveAllowed());
 		}
-		allowed.sort();
+		allowed.sort(allowed.getColumns().get(0));
 		
-		mandatory.removeAllItems();
-		for (String al: helper.getEffectiveMandatory())
-			mandatory.addItem(new String[] {al}, al);
-		mandatory.sort();
+		mandatory.setItems(helper.getEffectiveMandatory());
+		mandatory.sort(mandatory.getColumns().get(0));
 	}
 	
 	private static class Node
