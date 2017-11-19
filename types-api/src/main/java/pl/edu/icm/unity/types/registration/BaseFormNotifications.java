@@ -17,6 +17,7 @@ public class BaseFormNotifications
 	
 	private String channel;
 	private String adminsNotificationGroup;
+	private boolean sendUserNotificationCopyToAdmin;
 	
 	public String getChannel()
 	{
@@ -58,7 +59,14 @@ public class BaseFormNotifications
 	{
 		this.updatedTemplate = updatedTemplate;
 	}
-
+	public boolean isSendUserNotificationCopyToAdmin()
+	{
+		return sendUserNotificationCopyToAdmin;
+	}
+	public void setSendUserNotificationCopyToAdmin(boolean sendUserNotificationCopyToAdmin)
+	{
+		this.sendUserNotificationCopyToAdmin = sendUserNotificationCopyToAdmin;
+	}
 	@Override
 	public int hashCode()
 	{
@@ -66,13 +74,12 @@ public class BaseFormNotifications
 		int result = 1;
 		result = prime * result
 				+ ((acceptedTemplate == null) ? 0 : acceptedTemplate.hashCode());
-		result = prime
-				* result
-				+ ((adminsNotificationGroup == null) ? 0 : adminsNotificationGroup
-						.hashCode());
+		result = prime * result + ((adminsNotificationGroup == null) ? 0
+				: adminsNotificationGroup.hashCode());
 		result = prime * result + ((channel == null) ? 0 : channel.hashCode());
 		result = prime * result
 				+ ((rejectedTemplate == null) ? 0 : rejectedTemplate.hashCode());
+		result = prime * result + (sendUserNotificationCopyToAdmin ? 1231 : 1237);
 		result = prime * result
 				+ ((updatedTemplate == null) ? 0 : updatedTemplate.hashCode());
 		return result;
@@ -110,6 +117,8 @@ public class BaseFormNotifications
 			if (other.rejectedTemplate != null)
 				return false;
 		} else if (!rejectedTemplate.equals(other.rejectedTemplate))
+			return false;
+		if (sendUserNotificationCopyToAdmin != other.sendUserNotificationCopyToAdmin)
 			return false;
 		if (updatedTemplate == null)
 		{

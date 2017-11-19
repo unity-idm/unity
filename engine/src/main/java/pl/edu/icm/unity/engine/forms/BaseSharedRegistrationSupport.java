@@ -238,7 +238,9 @@ public class BaseSharedRegistrationSupport
 					notifyParams, userLocale);
 		}
 
-		if (notificationsCfg.getAdminsNotificationGroup() != null)
+		boolean sendToAdmin = sendToRequester == false || 
+				notificationsCfg.isSendUserNotificationCopyToAdmin();
+		if (notificationsCfg.getAdminsNotificationGroup() != null && sendToAdmin)
 		{
 			notifyParams.put(
 					RegistrationWithCommentsTemplateDef.INTERNAL_COMMENT,

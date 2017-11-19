@@ -9,8 +9,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.msgtemplates.reg.EnquiryFilledTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.NewEnquiryTemplateDef;
-import pl.edu.icm.unity.base.msgtemplates.reg.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeDAOInternal;
 import pl.edu.icm.unity.store.impl.groups.GroupDAOInternal;
@@ -93,7 +93,7 @@ public class EnquiryFormDBImpl extends GenericObjectsDAOImpl<EnquiryForm> implem
 							+ "template incompatible with it");
 				}
 				if (modifiedName.equals(notCfg.getSubmittedTemplate()) && 
-						!newValue.getConsumer().equals(SubmitRegistrationTemplateDef.NAME))
+						!newValue.getConsumer().equals(EnquiryFilledTemplateDef.NAME))
 				{
 					throw new IllegalArgumentException("The message template is used by "
 							+ "a registration form " + form.getName() + 

@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webadmin.reg.formman;
 import java.util.List;
 import java.util.Set;
 
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 
 import pl.edu.icm.unity.base.msgtemplates.reg.AcceptRegistrationTemplateDef;
@@ -34,6 +35,7 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 	protected final MessageTemplateManagement msgTempMan;
 	
 	private ComboBox<String> channel;
+	private CheckBox sendAdminCopy;
 	private GroupComboBox2 adminsNotificationGroup;
 
 	private CompatibleTemplatesComboBox2 rejectedTemplate;
@@ -56,6 +58,7 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 		channel = new ComboBox<>(msg.getMessage("RegistrationFormViewer.channel"));
 		Set<String> channels = notificationsMan.getNotificationChannels().keySet();
 		channel.setItems(channels);
+		sendAdminCopy = new CheckBox(msg.getMessage("BaseFormNotificationsEditor.sendAdminCopy"));
 		
 		adminsNotificationGroup = new GroupComboBox2(
 				msg.getMessage("RegistrationFormViewer.adminsNotificationsGroup"), groupsMan);
@@ -69,7 +72,7 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 		updatedTemplate =  new CompatibleTemplatesComboBox2(UpdateRegistrationTemplateDef.NAME, msgTempMan);
 		updatedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.updatedTemplate"));
 		
-		addComponents(channel, adminsNotificationGroup,
+		addComponents(channel, sendAdminCopy, adminsNotificationGroup,
 				rejectedTemplate, acceptedTemplate, updatedTemplate);
 	}
 	
@@ -77,6 +80,7 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 	{
 		adminsNotificationGroup.setValue(toEdit.getAdminsNotificationGroup());
 		channel.setValue(toEdit.getChannel());
+		sendAdminCopy.setValue(toEdit.isSendUserNotificationCopyToAdmin());
 		rejectedTemplate.setValue(toEdit.getRejectedTemplate());
 		acceptedTemplate.setValue(toEdit.getAcceptedTemplate());
 		updatedTemplate.setValue(toEdit.getUpdatedTemplate());
@@ -87,6 +91,7 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 		notCfg.setAcceptedTemplate(acceptedTemplate.getValue());
 		notCfg.setAdminsNotificationGroup(adminsNotificationGroup.getValue());
 		notCfg.setChannel(channel.getValue());
+		notCfg.setSendUserNotificationCopyToAdmin(sendAdminCopy.getValue());
 		notCfg.setRejectedTemplate(rejectedTemplate.getValue());
 		notCfg.setUpdatedTemplate(updatedTemplate.getValue());
 	}
