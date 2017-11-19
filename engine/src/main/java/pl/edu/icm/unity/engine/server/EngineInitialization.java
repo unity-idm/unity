@@ -47,7 +47,6 @@ import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.attributes.SystemAttributesProvider;
@@ -74,7 +73,6 @@ import pl.edu.icm.unity.engine.events.EventProcessor;
 import pl.edu.icm.unity.engine.group.AttributeStatementsCleaner;
 import pl.edu.icm.unity.engine.identity.EntitiesScheduledUpdater;
 import pl.edu.icm.unity.engine.identity.IdentityCleaner;
-import pl.edu.icm.unity.engine.notifications.EmailFacility;
 import pl.edu.icm.unity.engine.scripts.ScriptTriggeringEventListener;
 import pl.edu.icm.unity.engine.translation.TranslationProfileChecker;
 import pl.edu.icm.unity.engine.translation.in.SystemInputTranslationProfileProvider;
@@ -106,7 +104,6 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityType;
-import pl.edu.icm.unity.types.basic.NotificationChannel;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.types.translation.ProfileMode;
@@ -183,8 +180,7 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	private AttributeStatementsCleaner attributeStatementsCleaner;
 	@Autowired
-	@Qualifier("insecure")
-	private NotificationsManagement notManagement;
+	private NotificationChannelsLoader notificationChannelLoader;
 	@Autowired
 	private MessageTemplateLoader msgTemplateLoader;
 	@Autowired
@@ -332,7 +328,7 @@ public class EngineInitialization extends LifecycleBase
 		File file = config.getFileValue(UnityServerConfiguration.TEMPLATES_CONF, false);
 		msgTemplateLoader.initializeMsgTemplates(file);
 		
-		initializeNotifications();
+		notificationChannelLoader.initialize();
 		
 		runInitializers();
 		
@@ -809,36 +805,6 @@ public class EngineInitialization extends LifecycleBase
 		}
 	}
 	
-	
-	private void initializeNotifications()
-	{
-		try
-		{
-			Map<String, NotificationChannel> existingChannels = notManagement.getNotificationChannels();
-			for (String key: existingChannels.keySet())
-			{
-				notManagement.removeNotificationChannel(key);
-				log.info("Removed old definition of the notification channel " + key);
-			}
-			if (!config.isSet(UnityServerConfiguration.MAIL_CONF))
-			{
-				log.info("Mail configuration file is not set, mail notification channel won't be loaded.");
-				return;
-			}
-			File mailCfgFile = config.getFileValue(UnityServerConfiguration.MAIL_CONF, false);
-			String mailCfg = FileUtils.readFileToString(mailCfgFile);
-			NotificationChannel emailCh = new NotificationChannel(
-					UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL, 
-					"Default email channel", mailCfg, EmailFacility.NAME);
-			notManagement.addNotificationChannel(emailCh);
-			log.info("Created a notification channel: " + emailCh.getName() + " [" + 
-					emailCh.getFacilityId() + "]");
-		} catch (Exception e)
-		{
-			log.fatal("Can't load e-mail notification channel configuration", e);
-			throw new InternalException("Can't load e-mail notification channel configuration", e);
-		}
-	}
 	
 	private void initializeTranslationProfiles()
 	{

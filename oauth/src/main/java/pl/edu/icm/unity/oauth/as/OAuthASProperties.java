@@ -38,7 +38,7 @@ public class OAuthASProperties extends PropertiesHelper
 	public static final String P = "unity.oauth2.as.";
 	
 	@DocumentationReferenceMeta
-	public final static Map<String, PropertyMD> defaults = new HashMap<String, PropertyMD>();
+	public final static Map<String, PropertyMD> defaults = new HashMap<>();
 
 	public static final String ISSUER_URI = "issuerUri";
 	public static final String ACCESS_TOKEN_VALIDITY = "accessTokenValidity";

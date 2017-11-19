@@ -53,6 +53,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, UnityServerConfiguration.class);
 	public static final String CONFIGURATION_FILE = "conf/unityServer.conf";
 	public static final String DEFAULT_EMAIL_CHANNEL = "Default e-mail channel";
+	public static final String DEFAULT_SMS_CHANNEL = "Default SMS channel";
 
 	public static final String SYSTEM_ALLOW_FULL_HTML = "unity.server.allowFullHtml"; 
 	
@@ -64,6 +65,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String ENABLED_LOCALES = "enabledLocales.";
 	public static final String DEFAULT_LOCALE = "defaultLocale";
 	public static final String MAIL_CONF = "mailConfig";
+	public static final String SMS_CONF = "smsConfig";
 	public static final String TEMPLATES_CONF = "templatesFile";
 	public static final String PKI_CONF = "pkiConfigFile";
 	public static final String THREAD_POOL_SIZE = "threadPoolSize";
@@ -166,7 +168,11 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put(DEFAULT_LOCALE, new PropertyMD("en").setCategory(mainCat).
 				setDescription("The default locale to be used. Must be one of the enabled locales."));
 		defaults.put(MAIL_CONF, new PropertyMD().setPath().setCategory(mainCat).
-				setDescription("A configuration file for the mail notification subsystem."));
+				setDescription("A configuration file for the mail notification subsystem. "
+						+ "Email notifications will be disabled if unset."));
+		defaults.put(SMS_CONF, new PropertyMD().setPath().setCategory(mainCat).
+				setDescription("A configuration file for the SMS notification subsystem. "
+						+ "SMS notifications will be disabled if unset."));
 		defaults.put(TEMPLATES_CONF, new PropertyMD("conf/msgTemplates.properties").setPath().setCategory(mainCat).
 				setDescription("A file with the initial message templates. You can have this file empty and manage the templates via the Admin UI."));
 		defaults.put(PKI_CONF, new PropertyMD("conf/pki.properties").setPath().setCategory(mainCat).

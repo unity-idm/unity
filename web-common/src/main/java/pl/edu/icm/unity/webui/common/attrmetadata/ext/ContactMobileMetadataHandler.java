@@ -9,20 +9,20 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
+import pl.edu.icm.unity.stdext.utils.ContactMobileMetadataProvider;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataEditor;
 import pl.edu.icm.unity.webui.common.attrmetadata.WebAttributeMetadataHandler;
 
 /**
- * Handler for {@link EntityNameMetadataProvider}. 
+ * Handler for {@link ContactMobileMetadataProvider}. 
  * @author K. Benedyczak
  */
-public class EntityNameMetadataHandler implements WebAttributeMetadataHandler
+public class ContactMobileMetadataHandler implements WebAttributeMetadataHandler
 {
 	private UnityMessageSource msg;
 	
-	public EntityNameMetadataHandler(UnityMessageSource msg)
+	public ContactMobileMetadataHandler(UnityMessageSource msg)
 	{
 		this.msg = msg;
 	}
@@ -30,13 +30,13 @@ public class EntityNameMetadataHandler implements WebAttributeMetadataHandler
 	@Override
 	public String getSupportedMetadata()
 	{
-		return EntityNameMetadataProvider.NAME;
+		return ContactMobileMetadataProvider.NAME;
 	}
 
 	@Override
 	public Component getRepresentation(String value)
 	{
-		return new Label(msg.getMessage("EntityNameMetadataHandler.label"));
+		return new Label(msg.getMessage("ContactMobileMetadataHandler.label"));
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public class EntityNameMetadataHandler implements WebAttributeMetadataHandler
 				VerticalLayout ret = new VerticalLayout();
 				ret.setSpacing(true);
 				ret.setMargin(false);
-				ret.addComponent(new Label(msg.getMessage("EntityNameMetadataHandler.label")));
+				ret.addComponent(new Label(msg.getMessage("ContactEmailMetadataHandler.label")));
 				ret.addComponent(new Label(" "));
 				ret.addComponent(new Label(msg.getMessage("MetadataHandler.noParamsAreNeeded")));
 				return ret;

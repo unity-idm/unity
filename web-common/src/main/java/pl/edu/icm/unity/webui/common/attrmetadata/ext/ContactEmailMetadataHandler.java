@@ -58,7 +58,7 @@ public class ContactEmailMetadataHandler implements WebAttributeMetadataHandler
 				ret.setMargin(false);
 				ret.addComponent(new Label(msg.getMessage("ContactEmailMetadataHandler.label")));
 				ret.addComponent(new Label(" "));
-				ret.addComponent(new Label(msg.getMessage("ContactEmailMetadataHandler.noParamsAreNeeded")));
+				ret.addComponent(new Label(msg.getMessage("MetadataHandler.noParamsAreNeeded")));
 				return ret;
 			}
 		};

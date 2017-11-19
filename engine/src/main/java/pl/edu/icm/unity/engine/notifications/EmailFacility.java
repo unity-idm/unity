@@ -161,9 +161,9 @@ public class EmailFacility implements NotificationFacility
 				return true;
 		if (emailAttr != null)
 		{
-			for (Object emailO: emailAttr.getValues())
+			for (String emailO: emailAttr.getValues())
 			{
-				if (emailO.toString().equals(address))
+				if (emailO.equals(address))
 					return true;
 			}
 		}
