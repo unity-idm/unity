@@ -60,6 +60,7 @@ public class ConfirmationComponent extends CustomComponent
 			info.addStyleName(Styles.textCenter.toString());
 			info.addStyleName(Styles.textLarge.toString());
 			mainStatus.addComponent(info);
+			mainStatus.setComponentAlignment(info, Alignment.MIDDLE_CENTER);
 		}
 		setCompositionRoot(mainStatus);
 	}
