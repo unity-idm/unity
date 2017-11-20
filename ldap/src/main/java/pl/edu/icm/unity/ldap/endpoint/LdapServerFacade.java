@@ -6,28 +6,20 @@ package pl.edu.icm.unity.ldap.endpoint;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.*;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.registries.SchemaLoader;
-import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
-import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
-import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InstanceLayout;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
-import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.api.partition.Partition;
-import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
@@ -35,20 +27,10 @@ import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
-import pl.edu.icm.unity.ldaputils.LDAPAttributeTypesConverter;
-import sun.security.x509.*;
 
 import java.io.*;
-import java.security.*;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Random;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -197,9 +179,85 @@ public class LdapServerFacade
                 }
             }
             zis.close();
+            
+            loadExtraMAttributeTypes(workdir);
         }
 
         return fromScratch;
+    }
+    
+    /**
+     * TODO: make this so it copies in ldiff files if they exist in some configured
+     *location
+     */
+    protected void loadExtraMAttributeTypes(String workdir) {
+        ///opt/unity-server/data/workspace/ldapServer/partitions/schema/ou=schema/cn=core/ou=attributetypes
+        File ldiffFileMemberof = new File(workdir+"/ldapServer/partitions/schema/ou=schema/cn=core/ou=attributetypes/m-oid=2.16.840.1.113894.1.1.424.ldif");
+        
+        System.out.println("Adding extra attribute types");
+        System.out.println("LdiffFile = "+ldiffFileMemberof.toString());
+        
+        PrintWriter pw = null;
+        try {
+            pw= new PrintWriter(new FileWriter(ldiffFileMemberof));
+            pw.println("version: 1");
+            pw.println("dn: m-oid=2.16.840.1.113894.1.1.424,ou=attributeTypes,cn=core,ou=schema");
+            pw.println("m-oid: 2.16.840.1.113894.1.1.424");
+            pw.println("m-name: memberof");
+            pw.println("m-description: Member of group");
+            pw.println("m-syntax: 1.3.6.1.4.1.1466.115.121.1.15");
+            pw.println("m-usage: USER_APPLICATIONS");
+            pw.println("m-supattributetype: name");
+            pw.println("m-substr: caseIgnoreSubstringsMatch");
+            pw.println("m-equality: caseIgnoreMatch");
+            pw.println("m-collective: FALSE");
+            pw.println("m-singlevalue: FALSE");
+            pw.println("m-obsolete: FALSE");
+            pw.println("m-nousermodification: FALSE");
+            pw.println("objectclass: metaAttributeType");
+            pw.println("objectclass: metaTop");
+            pw.println("objectclass: top");
+            pw.println("creatorsname: uid=admin,ou=system");
+        } catch(Exception ex) {
+            if(pw != null) {
+                pw.close();
+            }
+        }
+        
+        File ldiffFileCn = new File(workdir+"/ldapServer/partitions/schema/ou=schema/cn=system/ou=attributetypes/m-oid=2.5.4.3.ldif");
+        System.out.println("Updating common name definition");
+        if(ldiffFileCn.exists()) {
+            ldiffFileCn.delete();
+            System.out.println("Removed existing definition");
+        }
+        System.out.println("LdiffFile = "+ldiffFileCn.toString());
+        pw = null;
+        try {
+            pw= new PrintWriter(new FileWriter(ldiffFileCn));
+            pw.println("version: 1");
+            pw.println("dn: m-oid=2.5.4.3,ou=attributeTypes,cn=system,ou=schema");
+            pw.println("m-singlevalue: FALSE");
+            pw.println("m-obsolete: FALSE");
+            pw.println("m-description: RFC2256: common name(s) for which the entity is known by");
+            pw.println("m-usage: USER_APPLICATIONS");
+            pw.println("creatorsname: uid=admin,ou=system");
+            pw.println("m-collective: FALSE");
+            pw.println("m-oid: 2.5.4.3");
+            pw.println("m-supattributetype: name");
+            pw.println("m-substr: caseExactSubstringsMatch");
+            pw.println("m-nousermodification: FALSE");
+            pw.println("m-syntax: 1.3.6.1.4.1.1466.115.121.1.15");
+            pw.println("objectclass: metaAttributeType");
+            pw.println("objectclass: metaTop");
+            pw.println("objectclass: top");
+            pw.println("m-name: cn");
+            pw.println("m-name: commonName");
+            pw.println("m-equality: caseExactMatch");
+        } catch(Exception ex) {
+            if(pw != null) {
+                pw.close();
+            }
+        }
     }
 
     /**

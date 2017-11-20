@@ -2,7 +2,7 @@
 	<parent>
 		<groupId>pl.edu.icm.unity</groupId>
 		<artifactId>unity-server-parent</artifactId>
-		<version>1.9.5-SNAPSHOT</version>
+		<version>1.9.6</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
