@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
@@ -46,7 +48,7 @@ public class ImportAttributeTypeDialog extends AbstractDialog
 	private UnityServerConfiguration serverConfig;
 	private AttributeTypeManagement attrTypeMan;
 	private Runnable callback;
-	private List<File> predefinedSourceFiles;
+	private List<Resource> predefinedResources;
 	private ComboBox source;
 	private ComboBox predefinedFiles;
 	private AttributeTypeSupport attrTypeSupport;
@@ -73,15 +75,16 @@ public class ImportAttributeTypeDialog extends AbstractDialog
 		source.addItem(SourceType.File);
 		source.setNullSelectionAllowed(false);
 
-		predefinedSourceFiles = attrTypeSupport.getAttibuteTypeFilesFromClasspathResource();
+		predefinedResources = attrTypeSupport.getAttibuteTypeResourcesFromClasspathDir();
+		
 		predefinedFiles = new ComboBox(
 				msg.getMessage("ImportAttributeTypes.source.predefinedSet"));
 
-		if (!predefinedSourceFiles.isEmpty())
+		if (!predefinedResources.isEmpty())
 		{
-			for (File f : predefinedSourceFiles)
+			for (Resource f : predefinedResources)
 			{
-				predefinedFiles.addItem(FilenameUtils.getBaseName(f.getName()));
+				predefinedFiles.addItem(FilenameUtils.getBaseName(f.getFile().getName()));
 			}
 			predefinedFiles.setNullSelectionAllowed(false);
 			predefinedFiles.setValue(predefinedFiles.getItemIds().iterator().next());
@@ -125,12 +128,12 @@ public class ImportAttributeTypeDialog extends AbstractDialog
 		close();
 	}
 
-	private void loadAttributeTypesFromFile(File f)
+	private void loadAttributeTypesFromResource(Resource r)
 	{
 		List<AttributeType> toAdd = null;
 		try
 		{
-			toAdd = attrTypeSupport.loadAttributeTypesFromFile(f);
+			toAdd = attrTypeSupport.loadAttributeTypesFromResource(r);
 
 		} catch (Exception e)
 		{
@@ -157,13 +160,15 @@ public class ImportAttributeTypeDialog extends AbstractDialog
 	{
 		if (source.getValue().equals(SourceType.File))
 		{
-			loadAttributeTypesFromFile(uploader.getFile());
+			File file =  uploader.getFile();
+			if (file != null)
+				loadAttributeTypesFromResource(new FileSystemResource(file));
 		} else
 		{
-			for (File f : predefinedSourceFiles)
-				if (FilenameUtils.getBaseName(f.getName())
+			for (Resource f : predefinedResources)
+				if (FilenameUtils.getBaseName(f.getFilename())
 						.equals(predefinedFiles.getValue()))
-					loadAttributeTypesFromFile(f);
+					loadAttributeTypesFromResource(f);
 		}
 	}
 

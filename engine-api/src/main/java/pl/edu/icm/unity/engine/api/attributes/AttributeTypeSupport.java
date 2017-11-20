@@ -4,9 +4,10 @@
  */
 package pl.edu.icm.unity.engine.api.attributes;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.List;
+
+import org.springframework.core.io.Resource;
 
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -54,15 +55,15 @@ public interface AttributeTypeSupport
 	Collection<AttributeType> getAttributeTypes();
 	
 	/**
-	 * Loads attribute types from json file
-	 * @param file
+	 * Loads attribute types from resource
+	 * @param f
 	 * @return
 	 */
-	List<AttributeType> loadAttributeTypesFromFile(File file);
+	List<AttributeType> loadAttributeTypesFromResource(Resource f);
 	
 	/**
-	 * Get attribute type files from classpath resource dir
+	 * Get attribute type resource from classpath resource dir
 	 * @return
 	 */
-	List<File> getAttibuteTypeFilesFromClasspathResource();
+	List<Resource> getAttibuteTypeResourcesFromClasspathDir();
 }

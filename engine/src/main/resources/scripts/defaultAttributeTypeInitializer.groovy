@@ -2,7 +2,7 @@
  * Script with default initialization of attribute types
  *
  */
-import java.io.File;
+import org.springframework.core.io.Resource;
 import java.io.IOException;
 import java.util.List;
 
@@ -38,17 +38,17 @@ try
 
 
 void initializeCommonAttrTypes() throws EngineException
-{
-		List<File> files = attributeTypeSupport.getAttibuteTypeFilesFromClasspathResource();
-		for (File file : files)
-			if (FilenameUtils.getBaseName(file.getName()).equals(COMMON_ATTR_FILE))
-			{
-				List<AttributeType> attrTypes = attributeTypeSupport
-						.loadAttributeTypesFromFile(file);
-				for (AttributeType type : attrTypes)
-					attributeTypeManagement.addAttributeType(type);
-				log.info("Common attributes added from file: " + file.getName());
-			}
+{	
+			List<Resource> resources = attributeTypeSupport.getAttibuteTypeResourcesFromClasspath();
+			for (Resource r : resources)
+				if (FilenameUtils.getBaseName(r.getFilename()).equals(COMMON_ATTR_FILE))
+				{
+					List<AttributeType> attrTypes = attributeTypeSupport
+							.loadAttributeTypesFromResource(r);
+					for (AttributeType type : attrTypes)
+						attributeTypeManagement.addAttributeType(type);
+					log.info("Common attributes added from resource file: " + r.getFilename());
+				}
 }
 
 

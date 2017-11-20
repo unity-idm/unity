@@ -4,12 +4,10 @@
  */
 package pl.edu.icm.unity.engine.attribute;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.ArrayList;
 import static pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider.CREDENTIAL_PREFIX;
 
+import java.io.BufferedInputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +15,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -27,8 +26,8 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntaxFactory;
-import pl.edu.icm.unity.engine.utils.ClasspathResourceReader;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.utils.ClasspathResourceReader;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
@@ -126,9 +125,9 @@ public class AttributeTypeHelper
 		unconfigured.setValueSyntaxConfiguration(syntax.getSerializedConfiguration());
 	}
 
-	public List<AttributeType> loadAttributeTypesFromFile(File file)
+	public List<AttributeType> loadAttributeTypesFromResource(Resource r)
 	{
-		if (file == null)
+		if (r == null)
 		{
 			return null;
 		}
@@ -137,7 +136,7 @@ public class AttributeTypeHelper
 		JsonFactory jsonF = new JsonFactory(Constants.MAPPER);
 		jsonF.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
 
-		try (BufferedInputStream is = new BufferedInputStream(new FileInputStream(file)))
+		try (BufferedInputStream is = new BufferedInputStream(r.getInputStream()))
 		{
 			JsonParser jp = jsonF.createParser(is);
 			if (jp.nextToken() == JsonToken.START_ARRAY)
@@ -153,15 +152,15 @@ public class AttributeTypeHelper
 		} catch (Exception e)
 		{
 			throw new IllegalArgumentException(
-					"Can not parse attribute types file " + file.getName(), e);
+					"Can not parse attribute types from resource file " + r.getFilename(), e);
 		}
 		return toAdd;
 	}
 
-	public List<File> getAttibuteTypeFilesFromClasspathResource()
+	public List<Resource> getAttibuteTypeResourcesFromClasspathDir()
 	{
 		ClasspathResourceReader reader = new ClasspathResourceReader(appContext);
-		return reader.getFilesFromClasspathResourceDir(ATTRIBUTE_TYPES_CLASSPATH);
+		return reader.getResourcesFromClasspath(ATTRIBUTE_TYPES_CLASSPATH);
 	}
 	
 	/**

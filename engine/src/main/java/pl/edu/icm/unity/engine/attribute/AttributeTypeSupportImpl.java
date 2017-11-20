@@ -4,11 +4,11 @@
  */
 package pl.edu.icm.unity.engine.attribute;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
@@ -81,14 +81,14 @@ public class AttributeTypeSupportImpl implements AttributeTypeSupport
 
 
 	@Override
-	public List<AttributeType> loadAttributeTypesFromFile(File file)
+	public List<AttributeType> loadAttributeTypesFromResource(Resource r)
 	{
-		return aTypeHelper.loadAttributeTypesFromFile(file);
+		return aTypeHelper.loadAttributeTypesFromResource(r);
 	}
 
 	@Override
-	public List<File> getAttibuteTypeFilesFromClasspathResource()
+	public List<Resource> getAttibuteTypeResourcesFromClasspathDir()
 	{
-		return aTypeHelper.getAttibuteTypeFilesFromClasspathResource();
+		return aTypeHelper.getAttibuteTypeResourcesFromClasspathDir();
 	}
 }
