@@ -22,6 +22,8 @@ import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.log4j.Logger;
+import pl.edu.icm.unity.server.utils.Log;
 
 /**
  * Creates instances of {@link LdapEndpoint}s.
@@ -29,6 +31,7 @@ import java.util.Map;
 @Component
 public class LdapEndpointFactory implements EndpointFactory
 {
+    private static final Logger LOG = Log.getLogger(Log.U_SERVER_LDAP_ENDPOINT, LdapServerProperties.class);
 	public static final String NAME = "LDAPServer";
 
 	private EndpointTypeDescription endpointDescription;
@@ -47,6 +50,8 @@ public class LdapEndpointFactory implements EndpointFactory
 
 	private UserMapper userMapper;
 
+        private LdapEndpoint _instance;
+        
 	@Autowired
 	public LdapEndpointFactory(NetworkServer server, IdentityResolver identityResolver,
 			PasswordVerificatorFactory pwf, SessionManagement sessionMan,
@@ -69,7 +74,6 @@ public class LdapEndpointFactory implements EndpointFactory
 		endpointDescription = new EndpointTypeDescription(NAME,
 				"Limited LDAP server interface",
 				Collections.singleton(LdapServerAuthentication.NAME), paths);
-
 	}
 
 	@Override
@@ -81,7 +85,12 @@ public class LdapEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new LdapEndpoint(server, sessionMan, attributesMan,
+            LOG.info("LdapEndpointFactory.newInstance()");
+            //if (_instance == null) {
+                _instance = new LdapEndpoint(server, sessionMan, attributesMan,
 				identitiesMan, mainConfig, userMapper);
+            //}
+            //TODO: Do we need to handle update?
+            return _instance;
 	}
 }
