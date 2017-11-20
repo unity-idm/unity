@@ -1,0 +1,4 @@
+# This configuration module enables common attribute types
+
+unityServer.core.script.991.file=${CONF}/scripts/defaultAttributeTypeInitializer.groovy
+unityServer.core.script.991.trigger=pre-init
