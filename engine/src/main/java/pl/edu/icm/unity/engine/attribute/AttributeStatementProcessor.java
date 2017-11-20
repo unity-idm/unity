@@ -61,16 +61,17 @@ public class AttributeStatementProcessor
 	private GroupDAO groupDAO;
 	private AttributeTypeDAO atDAO;
 	private AttributeTypeHelper atHelper;
-	
+	private AttributeValueConverter attrConverter;
 
 	
 	@Autowired
 	public AttributeStatementProcessor(GroupDAO groupDAO, AttributeTypeDAO atDAO,
-			AttributeTypeHelper atHelper)
+			AttributeTypeHelper atHelper, AttributeValueConverter attrConverter)
 	{
 		this.groupDAO = groupDAO;
 		this.atDAO = atDAO;
 		this.atHelper = atHelper;
+		this.attrConverter = attrConverter;
 	}
 
 	/**
@@ -441,7 +442,7 @@ public class AttributeStatementProcessor
 		return ret;
 	}
 
-	private static Map<String, Object> createMvelContext(Set<String> allGroups, String groupName, 
+	private Map<String, Object> createMvelContext(Set<String> allGroups, String groupName, 
 			List<Identity> identities,
 			Map<String, AttributeExt> directAttributes, Map<String, AttributeExt> extraAttributes)
 	{
@@ -477,14 +478,16 @@ public class AttributeStatementProcessor
 		return ret;
 	}
 	
-	private static void addAttributesToContext(Map<String, AttributeExt> attributes, ContextKey fullKey,
+	private void addAttributesToContext(Map<String, AttributeExt> attributes, ContextKey fullKey,
 			ContextKey oneValueKey, Map<String, Object> target)
 	{
 		Map<String, Object> attr = new HashMap<>();
 		Map<String, List<String>> attrs = new HashMap<>();
 		for (AttributeExt a: attributes.values())
 		{
-			Object v = a.getValues().isEmpty() ? "" : a.getValues().get(0);
+			List<String> values = attrConverter.internalValuesToExternal(
+					a.getName(), a.getValues());	
+			String v = values.isEmpty() ? "" : values.get(0);
 			attr.put(a.getName(), v);
 			attrs.put(a.getName(), a.getValues());
 		}
