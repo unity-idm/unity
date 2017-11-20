@@ -380,8 +380,21 @@ public class AttributeStatementProcessor
 	private Attribute evaluateStatementValue(AttributeStatement statement, 
 			String group, Map<String, Object> context)
 	{
-		Object value = MVEL.executeExpression(statement.getCompiledDynamicAttributeExpression(), context, 
+		Object value;
+		try
+		{
+			value = MVEL.executeExpression(statement.getCompiledDynamicAttributeExpression(), context,
 				new HashMap<>());
+		} catch (Exception e)
+		{
+			log.warn("Error during attribute statement value evaluation, expression '"
+					+ statement.getDynamicAttributeExpression() + 
+					"' is invalid. Skipping statement.\n" + e.toString());
+			if (log.isTraceEnabled())
+				log.trace("Full stack trace of the problematic attribute statement error", e);
+			return null;
+		}
+		
 		if (value == null)
 		{
 			log.debug("Attribute value evaluated to null, skipping");

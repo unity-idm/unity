@@ -123,15 +123,16 @@ public class OutputTranslationProfile
 		return ret;
 	}
 
-	public static Map<String, Object> createMvelContext(TranslationInput input, AttributeValueConverter attrConverter) throws IllegalAttributeValueException
+	public static Map<String, Object> createMvelContext(TranslationInput input, 
+			AttributeValueConverter attrConverter) throws IllegalAttributeValueException
 	{
 		Map<String, Object> ret = new HashMap<>();
 
 		ret.put("protocol", input.getProtocol());
 		ret.put("protocolSubtype", input.getProtocolSubType());
 		ret.put("requester", input.getRequester());
-		Map<String, Object> attr = new HashMap<String, Object>();
-		Map<String, List<? extends Object>> attrs = new HashMap<String, List<?>>();
+		Map<String, Object> attr = new HashMap<>();
+		Map<String, List<? extends Object>> attrs = new HashMap<>();
 		
 		for (Attribute ra: input.getAttributes())
 		{
@@ -143,20 +144,20 @@ public class OutputTranslationProfile
 		ret.put("attr", attr);
 		ret.put("attrs", attrs);
 
-		Map<String, List<String>> idsByType = new HashMap<String, List<String>>();
+		Map<String, List<String>> idsByType = new HashMap<>();
 		for (Identity id : input.getEntity().getIdentities())
 		{
 			List<String> vals = idsByType.get(id.getTypeId());
 			if (vals == null)
 			{
-				vals = new ArrayList<String>();
+				vals = new ArrayList<>();
 				idsByType.put(id.getTypeId(), vals);
 			}
 			vals.add(id.getValue());
 		}
 		ret.put("idsByType", idsByType);
 
-		ret.put("groups", new ArrayList<String>(input.getGroups()));
+		ret.put("groups", new ArrayList<>(input.getGroups()));
 
 		ret.put("usedGroup", input.getChosenGroup());
 
