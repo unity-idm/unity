@@ -39,7 +39,7 @@ try
 
 void initializeCommonAttrTypes() throws EngineException
 {	
-			List<Resource> resources = attributeTypeSupport.getAttibuteTypeResourcesFromClasspath();
+			List<Resource> resources = attributeTypeSupport.getAttibuteTypeResourcesFromClasspathDir();
 			for (Resource r : resources)
 				if (FilenameUtils.getBaseName(r.getFilename()).equals(COMMON_ATTR_FILE))
 				{
