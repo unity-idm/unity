@@ -309,13 +309,6 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
     @Override
     public void bind(BindOperationContext bindContext) throws LdapException
     {
-        log.info("LdapApacheDSInterceptor.bind()");
-        try {
-            throw new Exception();
-        }  catch(Exception ex) {
-            log.info("", ex);
-        }    
-            
         if (bindContext.isSaslBind())
         {
             log.debug("Blocking unsupported SASL bind");
