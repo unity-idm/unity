@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.oauth.rp.verificator;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
@@ -75,11 +76,11 @@ public class ResultsCache
 		return ret;
 	}
 	
-	public void cache(String id, TokenStatus status, Map<String, String> attributes)
+	public void cache(String id, TokenStatus status, Map<String, List<String>> attrs)
 	{
 		if (disable)
 			return;
-		CacheEntry entry = new CacheEntry(status, attributes);
+		CacheEntry entry = new CacheEntry(status, attrs);
 		int ttl = getCacheTtl(status);
 		Element element = new Element(id, entry, ttl, ttl);
 		log.debug("Caching token validation result for " + status.getSubject() + ": " + status.isValid() + 
@@ -111,13 +112,13 @@ public class ResultsCache
 	public static class CacheEntry
 	{
 		private TokenStatus tokenStatus;
-		private Map<String, String> attributes;
+		private Map<String, List<String>> attributes;
 		
-		public CacheEntry(TokenStatus tokenStatus, Map<String, String> attributes)
+		public CacheEntry(TokenStatus tokenStatus, Map<String, List<String>> attrs)
 		{
 			super();
 			this.tokenStatus = tokenStatus;
-			this.attributes = attributes;
+			this.attributes = attrs;
 		}
 
 		public TokenStatus getTokenStatus()
@@ -130,12 +131,12 @@ public class ResultsCache
 			this.tokenStatus = tokenStatus;
 		}
 
-		public Map<String, String> getAttributes()
+		public Map<String, List<String>> getAttributes()
 		{
 			return attributes;
 		}
 
-		public void setAttributes(Map<String, String> attributes)
+		public void setAttributes(Map<String, List<String>> attributes)
 		{
 			this.attributes = attributes;
 		}

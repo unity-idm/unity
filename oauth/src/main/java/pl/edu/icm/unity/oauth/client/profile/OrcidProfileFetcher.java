@@ -6,9 +6,8 @@ package pl.edu.icm.unity.oauth.client.profile;
 
 import java.net.URI;
 import java.net.URL;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.Logger;
@@ -30,7 +29,6 @@ import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
-import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
@@ -54,8 +52,8 @@ public class OrcidProfileFetcher implements UserProfileFetcher
 			OrcidProfileFetcher.class);
 	
 	@Override
-	public Map<String, String> fetchProfile(BearerAccessToken accessToken, String userInfoEndpoint,
-			BaseRemoteASProperties providerConfig, Map<String, String> attributesSoFar) throws Exception
+	public Map<String, List<String>> fetchProfile(BearerAccessToken accessToken, String userInfoEndpoint,
+			BaseRemoteASProperties providerConfig, Map<String, List<String>> attributesSoFar) throws Exception
 	{
 		ServerHostnameCheckingMode checkingMode = providerConfig.getEnumValue(
 				BaseRemoteASProperties.CLIENT_HOSTNAME_CHECKING, 
@@ -65,65 +63,7 @@ public class OrcidProfileFetcher implements UserProfileFetcher
 		
 		JSONObject userBio = fetchUserBio(providerConfig, attributesSoFar, checkingMode, clientAccessToken);
 		
-		return convertToFlatAttributes(userBio);
-	}
-	
-
-	private Map<String, String> convertToFlatAttributes(JSONObject profile)
-	{
-		Map<String, String> ret = new HashMap<>();
-		convertToFlatAttributes("", profile, ret);
-		return ret;
-	}
-	
-	private Map<String, String> convertToFlatAttributes(String prefix, 
-			JSONObject profile, Map<String, String> ret)
-	{
-		for (Entry<String, Object> entry: profile.entrySet())
-		{
-			if (entry.getValue() != null)
-			{
-				Object value = entry.getValue();
-				if (value instanceof JSONObject)
-				{
-					convertToFlatAttributes(prefix + entry.getKey() + ".", 
-							(JSONObject) value, ret);
-				} else if (value instanceof JSONArray)
-				{
-					convertToFlatAttributes(prefix + entry.getKey() + ".", 
-							(JSONArray) value, ret);
-				} else
-				{
-					ret.put(prefix + entry.getKey(), value.toString());
-				}
-			}
-		}
-		return ret;
-	}
-	
-	private Map<String, String> convertToFlatAttributes(String prefix, 
-			JSONArray element, Map<String, String> ret)
-	{
-		for (int i=0; i<element.size(); i++)
-		{
-			Object value = element.get(i);
-			if (value != null)
-			{
-				if (value instanceof JSONObject)
-				{
-					convertToFlatAttributes(prefix + i + ".", 
-							(JSONObject) value, ret);
-				} else if (value instanceof JSONArray)
-				{
-					convertToFlatAttributes(prefix + i + ".", 
-							(JSONArray) value, ret);
-				} else
-				{
-					ret.put(prefix + i, value.toString());
-				}
-			}
-		}
-		return ret;
+		return ProfileFetcherUtils.convertToFlatAttributes(userBio, true);
 	}
 
 	private AccessToken getClientAccessToken(BaseRemoteASProperties providerConfig,
@@ -161,10 +101,12 @@ public class OrcidProfileFetcher implements UserProfileFetcher
 	}
 	
 	private JSONObject fetchUserBio(BaseRemoteASProperties providerConfig, 
-			Map<String, String> attributesSoFar, ServerHostnameCheckingMode checkingMode,
+			Map<String, List<String>> attributesSoFar, ServerHostnameCheckingMode checkingMode,
 			AccessToken clientAccessToken) throws Exception
 	{
-		String userid = attributesSoFar.get("orcid");
+		String userid = attributesSoFar.get("orcid") == null ? null
+				: attributesSoFar.get("orcid").get(0);
+		
 		if (userid == null)
 			throw new AuthenticationException("Authentication was successful "
 					+ "but the orcid id is missing in the received access token");

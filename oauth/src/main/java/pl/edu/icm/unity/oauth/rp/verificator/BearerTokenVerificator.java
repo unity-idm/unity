@@ -10,6 +10,7 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.logging.log4j.Logger;
@@ -165,7 +166,7 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 				return new AuthenticationResult(Status.deny, null, null);
 			}
 			
-			Map<String, String> attrs;
+			Map<String, List<String>> attrs;
 			attrs = getUserProfileInformation(token);
 			cache.cache(token.getValue(), status, attrs);
 			RemotelyAuthenticatedInput input = assembleBaseResult(status, attrs, getName());
@@ -195,11 +196,11 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 		return true;
 	}
 	
-	private Map<String, String> getUserProfileInformation(BearerAccessToken accessToken) throws AuthenticationException
+	private Map<String, List<String>> getUserProfileInformation(BearerAccessToken accessToken) throws AuthenticationException
 	{
 		boolean openIdMode = verificatorProperties.getBooleanValue(OAuthRPProperties.OPENID_MODE);
 		String profileEndpoint = verificatorProperties.getValue(OAuthRPProperties.PROFILE_ENDPOINT);
-		Map<String, String> attrs = new HashMap<>();
+		Map<String, List<String>> attrs = new HashMap<>();
 		if (profileEndpoint == null)
 		{
 			log.debug("The profile endpoint is not defined, skipping the profile fetching");
@@ -220,16 +221,16 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 	}
 	
 	private RemotelyAuthenticatedInput assembleBaseResult(TokenStatus tokenStatus, 
-			Map<String, String> attrs, String idpName)
+			Map<String, List<String>> attrs, String idpName)
 	{
 		RemotelyAuthenticatedInput ret = new RemotelyAuthenticatedInput(idpName);
-		for (Map.Entry<String, String> a: attrs.entrySet())
+		for (Entry<String, List<String>> a: attrs.entrySet())
 		{
-			ret.addAttribute(new RemoteAttribute(a.getKey(), a.getValue()));
+			ret.addAttribute(new RemoteAttribute(a.getKey(), a.getValue().toArray()));
 		}
 		
 		if (attrs.containsKey("sub"))
-			ret.addIdentity(new RemoteIdentity(attrs.get("sub"), IdentifierIdentity.ID));
+			ret.addIdentity(new RemoteIdentity(attrs.get("sub").get(0), IdentifierIdentity.ID));
 		if (tokenStatus.getSubject() != null)
 		{
 			ret.addIdentity(new RemoteIdentity(tokenStatus.getSubject(), IdentifierIdentity.ID));
@@ -238,11 +239,11 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 			ret.addAttribute(new RemoteAttribute("scope", 
 					tokenStatus.getScope().toStringList().toArray()));
 		if (attrs.containsKey("sub") && tokenStatus.getSubject() != null && 
-				!tokenStatus.getSubject().equals(attrs.get("sub")))
+				!tokenStatus.getSubject().equals(attrs.get("sub").get(0)))
 			log.warn("Received subject from the profile endpoint differs from the subject "
 					+ "established during access token verification. "
 					+ "Will use subject from verification: " + tokenStatus.getSubject() + 
-					" ignored: " + attrs.get("sub"));
+					" ignored: " + attrs.get("sub").get(0));
 			
 		return ret;
 	}

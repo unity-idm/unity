@@ -10,6 +10,7 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,7 @@ import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
@@ -67,6 +69,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
+import pl.edu.icm.unity.oauth.client.profile.ProfileFetcherUtils;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
@@ -250,7 +253,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		boolean openIdConnectMode = config.getProvider(context.getProviderConfigKey()).getBooleanValue(
 				CustomProviderProperties.OPENID_CONNECT);
 		
-		Map<String, String> attributes;
+		Map<String, List<String>> attributes;
 		try
 		{
 			attributes = openIdConnectMode ? getAccessTokenAndProfileOpenIdConnect(context) :
@@ -316,7 +319,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		}
 	}
 	
-	private Map<String, String> getAccessTokenAndProfileOpenIdConnect(OAuthContext context) throws Exception 
+	private Map<String, List<String>> getAccessTokenAndProfileOpenIdConnect(OAuthContext context) throws Exception 
 	{
 		CustomProviderProperties providerCfg = config.getProvider(context.getProviderConfigKey());
 		String discoveryEndpoint = providerCfg.getValue(CustomProviderProperties.OPENID_DISCOVERY);
@@ -338,7 +341,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		BearerAccessToken accessToken = extractAccessToken(acResponse);
 		
 		JWTClaimsSet accessTokenClaimsSet = acResponse.getOIDCTokens().getIDToken().getJWTClaimsSet();
-		Map<String, String> ret = OpenIdUtils.toAttributes(accessTokenClaimsSet);
+		Map<String, List<String>> ret = ProfileFetcherUtils.convertToFlatAttributes(new JSONObject(accessTokenClaimsSet.getClaims()), false);
+				//OpenIdUtils.toAttributes(accessTokenClaimsSet);
 		
 		String userInfoEndpointStr = providerCfg.getValue(CustomProviderProperties.PROFILE_ENDPOINT);
 		String userInfoEndpoint = userInfoEndpointStr == null ? 
@@ -391,7 +395,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		return selectedMethod;
 	}
 	
-	private Map<String, String> getAccessTokenAndProfilePlain(OAuthContext context) throws Exception 
+	private Map<String, List<String>> getAccessTokenAndProfilePlain(OAuthContext context) throws Exception 
 	{
 		CustomProviderProperties providerCfg = config.getProvider(context.getProviderConfigKey());
 		String tokenEndpoint = providerCfg.getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT);
@@ -402,7 +406,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		AccessTokenFormat accessTokenFormat = providerCfg.getEnumValue(CustomProviderProperties.ACCESS_TOKEN_FORMAT, 
 				AccessTokenFormat.class);
 
-		Map<String, String> ret = new HashMap<>();
+		Map<String, List<String>> ret = new HashMap<>();
 		BearerAccessToken accessToken;
 		if (accessTokenFormat == AccessTokenFormat.standard)
 		{
@@ -446,18 +450,18 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	}
 	
 	
-	private void extractUserInfoFromStandardAccessToken(AccessTokenResponse atResponse, Map<String, String> ret)
+	private void extractUserInfoFromStandardAccessToken(AccessTokenResponse atResponse, Map<String, List<String>> ret)
 	{
 		Map<String, Object> customParameters = atResponse.getCustomParameters();
 		for (Map.Entry<String, Object> e: customParameters.entrySet())
 		{
 			if (attributeIgnored(e.getKey()))
 				continue;
-			ret.put(e.getKey(), e.getValue().toString());
+			ret.put(e.getKey(), Arrays.asList(e.getValue().toString()));
 		}
 	}
 
-	private void extractUserInfoFromHttpParamsAccessToken(MultiMap<String> params, Map<String, String> ret)
+	private void extractUserInfoFromHttpParamsAccessToken(MultiMap<String> params, Map<String, List<String>> ret)
 	{
 		for (Map.Entry<String, List<String>> param: params.entrySet())
 		{
@@ -466,7 +470,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			if (attributeIgnored(key) || values.isEmpty())
 				continue;
 			String value = values.size() == 1 ? values.get(0) : values.toString();
-			ret.put(key, value);
+			ret.put(key, Arrays.asList(value));
 		}
 	}
 	
@@ -489,7 +493,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		return (BearerAccessToken) accessTokenGeneric;
 	}
 	
-	private RemotelyAuthenticatedInput convertInput(OAuthContext context, Map<String, String> attributes)
+	private RemotelyAuthenticatedInput convertInput(OAuthContext context, Map<String, List<String>> attributes)
 	{
 		CustomProviderProperties provCfg = config.getProvider(context.getProviderConfigKey());
 		String tokenEndpoint = provCfg.getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT);
@@ -511,9 +515,9 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 
 		
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput(tokenEndpoint);
-		for (Map.Entry<String, String> attr: attributes.entrySet())
+		for (Map.Entry<String, List<String>> attr: attributes.entrySet())
 		{
-			input.addAttribute(new RemoteAttribute(attr.getKey(), attr.getValue()));
+			input.addAttribute(new RemoteAttribute(attr.getKey(), attr.getValue().toArray()));
 		}
 		return input;
 	}
