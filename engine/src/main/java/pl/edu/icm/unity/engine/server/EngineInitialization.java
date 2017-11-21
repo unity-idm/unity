@@ -858,7 +858,7 @@ public class EngineInitialization extends LifecycleBase
 		{
 			if (profile.getProfileMode() != ProfileMode.READ_ONLY)
 				throw new IllegalArgumentException("Sytem profile " + profile + " is not in READ_ONLY mode");
-			profileHelper.checkProfileContent(profile);
+			profileHelper.checkBaseProfileContent(profile);
 		}
 	}
 	

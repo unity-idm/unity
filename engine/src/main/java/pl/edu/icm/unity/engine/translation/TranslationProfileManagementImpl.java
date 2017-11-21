@@ -82,7 +82,7 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		assertIsDefault(toAdd);	
 		assertIsNotSystemProfile(toAdd);
-		profileHelper.checkProfileContent(toAdd);
+		profileHelper.checkBaseProfileContent(toAdd);
 		getDAO(toAdd).create(toAdd);
 	}
 
@@ -100,7 +100,7 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		assertIsDefault(updated);
 		assertIsNotSystemProfile(updated);
-		profileHelper.checkProfileContent(updated);
+		profileHelper.checkBaseProfileContent(updated);
 		getDAO(updated).update(updated);
 	}
 
