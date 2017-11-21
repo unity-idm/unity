@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.attributetype;
 
-import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
@@ -13,8 +13,8 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextArea2;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField2;
 
 /**
  * Allows to edit an attribute type which has immutable type. For such attributes only displayed name
@@ -28,8 +28,8 @@ public class ImmutableAttributeTypeEditor extends FormLayout implements Attribut
 	
 	private AttributeType original;
 	private Label name;
-	private I18nTextField displayedName;
-	private I18nTextArea typeDescription;
+	private I18nTextField2 displayedName;
+	private I18nTextArea2 typeDescription;
 	private CheckBox selfModificable;
 	
 	public ImmutableAttributeTypeEditor(UnityMessageSource msg, AttributeType toEdit)
@@ -49,10 +49,10 @@ public class ImmutableAttributeTypeEditor extends FormLayout implements Attribut
 		name.setCaption(msg.getMessage("AttributeType.name"));
 		addComponent(name);
 		
-		displayedName = new I18nTextField(msg, msg.getMessage("AttributeType.displayedName"));
+		displayedName = new I18nTextField2(msg, msg.getMessage("AttributeType.displayedName"));
 		addComponent(displayedName);
 		
-		typeDescription = new I18nTextArea(msg, msg.getMessage("AttributeType.description"));
+		typeDescription = new I18nTextArea2(msg, msg.getMessage("AttributeType.description"));
 		addComponent(typeDescription);
 		
 		selfModificable = new CheckBox(msg.getMessage("AttributeType.selfModificableCheck"));

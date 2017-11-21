@@ -21,14 +21,14 @@ import com.vaadin.event.MouseEvents.ClickEvent;
 import com.vaadin.server.Resource;
 import com.vaadin.server.StreamResource;
 import com.vaadin.server.StreamResource.StreamSource;
-import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.ProgressBar;
-import com.vaadin.v7.ui.Upload;
-import com.vaadin.v7.ui.Upload.SucceededEvent;
+import com.vaadin.ui.ProgressBar;
+import com.vaadin.ui.Upload;
+import com.vaadin.ui.Upload.SucceededEvent;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
@@ -179,7 +179,6 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 			field.setDescription(msg.getMessage("JpegAttributeHandler.clickToEnlarge"));
 			
 			upload = new Upload();
-			upload.setImmediate(true);
 			progressIndicator = new ProgressBar(0);
 			progressIndicator.setVisible(false);
 			

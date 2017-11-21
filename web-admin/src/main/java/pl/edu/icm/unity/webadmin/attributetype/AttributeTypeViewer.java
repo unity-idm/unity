@@ -8,7 +8,7 @@ import java.util.Map;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -84,7 +84,7 @@ public class AttributeTypeViewer extends CompactFormLayout
 		
 		metaPanel = new VerticalLayout();
 		metaPanel.setCaption(msg.getMessage("AttributeType.metadata"));
-		metaPanel.setSpacing(true);
+		metaPanel.setMargin(false);
 		addComponent(metaPanel);
 		
 		setContentsVisible(false);

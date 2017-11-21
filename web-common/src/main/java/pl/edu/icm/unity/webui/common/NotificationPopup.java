@@ -15,6 +15,7 @@ import com.vaadin.ui.themes.ValoTheme;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.exceptions.EngineException;
 
 
 /**
@@ -88,6 +89,8 @@ public class NotificationPopup
 				break;
 			if (e.getMessage().equals(lastMessage))
 				continue;
+			if (!(e instanceof EngineException))
+				break;
 			lastMessage = e.getMessage();
 			sb.append(separator).append(lastMessage);
 		}

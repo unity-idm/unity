@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webadmin.attributetype;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -12,13 +13,14 @@ import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.ComboBox;
-import com.vaadin.v7.ui.ProgressBar;
-import com.vaadin.v7.ui.Upload;
+import com.vaadin.ui.ProgressBar;
+import com.vaadin.ui.Upload;
 
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
@@ -49,8 +51,8 @@ public class ImportAttributeTypeDialog extends AbstractDialog
 	private AttributeTypeManagement attrTypeMan;
 	private Runnable callback;
 	private List<Resource> predefinedResources;
-	private ComboBox source;
-	private ComboBox predefinedFiles;
+	private ComboBox<SourceType> source;
+	private ComboBox<String> predefinedFiles;
 	private AttributeTypeSupport attrTypeSupport;
 
 	public ImportAttributeTypeDialog(UnityMessageSource msg, String caption,
@@ -71,24 +73,30 @@ public class ImportAttributeTypeDialog extends AbstractDialog
 		FormLayout main = new FormLayout();
 		mode = new CheckBox(msg.getMessage("ImportAttributeTypes.overwrite"));
 
-		source = new ComboBox(msg.getMessage("ImportAttributeTypes.source"));
-		source.addItem(SourceType.File);
-		source.setNullSelectionAllowed(false);
+		source = new ComboBox<>(msg.getMessage("ImportAttributeTypes.source"));
+		List<SourceType> sources = new ArrayList<>();
+		source.setDataProvider(new ListDataProvider<>(sources));
+		sources.add(SourceType.File);
+		source.setEmptySelectionAllowed(false);
 
 		predefinedResources = attrTypeSupport.getAttibuteTypeResourcesFromClasspathDir();
 		
-		predefinedFiles = new ComboBox(
+		predefinedFiles = new ComboBox<>(
 				msg.getMessage("ImportAttributeTypes.source.predefinedSet"));
 
 		if (!predefinedResources.isEmpty())
 		{
-			for (Resource f : predefinedResources)
+			List<String> predefined = new ArrayList<>();
+			for (Resource resource: predefinedResources)
 			{
-				predefinedFiles.addItem(FilenameUtils.getBaseName(f.getFile().getName()));
+				String name = FilenameUtils.getBaseName(resource.getFile().getName());
+				predefined.add(name);
 			}
-			predefinedFiles.setNullSelectionAllowed(false);
-			predefinedFiles.setValue(predefinedFiles.getItemIds().iterator().next());
-			source.addItem(SourceType.PredefinedSet);
+			
+			predefinedFiles.setItems(predefined);
+			predefinedFiles.setEmptySelectionAllowed(false);
+			predefinedFiles.setSelectedItem(predefined.get(0));
+			sources.add(SourceType.PredefinedSet);
 		}
 
 		Label fileUploaded = new Label();
@@ -111,7 +119,6 @@ public class ImportAttributeTypeDialog extends AbstractDialog
 				fileUploaded.setVisible(false);
 				predefinedFiles.setVisible(true);
 			}
-
 		});
 
 		source.setValue(SourceType.File);
@@ -120,6 +127,8 @@ public class ImportAttributeTypeDialog extends AbstractDialog
 
 		return main;
 	}
+	
+	
 	
 	@Override
 	protected void onCancel()

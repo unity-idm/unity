@@ -12,9 +12,9 @@ import java.io.OutputStream;
 import java.util.Date;
 
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.ProgressBar;
-import com.vaadin.v7.ui.Upload;
-import com.vaadin.v7.ui.Upload.SucceededEvent;
+import com.vaadin.ui.ProgressBar;
+import com.vaadin.ui.Upload;
+import com.vaadin.ui.Upload.SucceededEvent;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractUploadReceiver;
