@@ -105,7 +105,7 @@ public class AttributeViewer
 	
 	private Component getRepresentation(String value)
 	{
-		AttributeValueSyntax<?> syntax = aTypeSupport.getSyntax(attribute);
+		AttributeValueSyntax<?> syntax = registry.getSyntaxWithStringFallback(attribute);
 		WebAttributeHandler handler = registry.getHandler(syntax);
 		return handler.getRepresentation(value);
 	}
