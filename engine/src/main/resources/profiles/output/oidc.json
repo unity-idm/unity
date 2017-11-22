@@ -1,0 +1,110 @@
+{
+	"ver": "2",
+	"name": "sys:oidc",
+	"description": "OpenID connect core translation profile",
+	"type": "OUTPUT",
+	"rules": [
+		{
+			"condition": {
+				"conditionValue": "idsByType contains 'identifier'"
+			},
+			"action": {
+				"name": "createAttribute",
+				"parameters": [
+					"sub",
+					"idsByType['identifier']",
+					"false",
+					"sub",
+					"sub"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"firstname",
+					"given_name"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"surname",
+					"family_name"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"middleName",
+					"midde_name"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"pictureURL",
+					"picture"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"timezone",
+					"zoneinfo"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"telephoneNumber",
+					"phone_number"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "createAttribute",
+				"parameters": [
+					"address",
+					"attr contains 'address' ? attr['address'] : attr['street'] + ', ' + attr['cityAddress'] +', ' + attr['provinceName'] + ', ' + attr['postalCode'] + ', ' + attr['country']",
+					"false",
+					"address",
+					"address"
+				]
+			}
+		}
+	]
+}
