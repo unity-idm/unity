@@ -27,7 +27,6 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.api.ldap.model.filter.AndNode;
-import org.apache.directory.api.ldap.model.filter.BranchNode;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.filter.OrNode;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
@@ -708,73 +707,8 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
     private EntryFilteringCursor getUnityUser(SearchOperationContext searchContext, String username)
             throws LdapException
     {
-        //Entry entry = new DefaultEntry(lsf.getDs().getSchemaManager());
         try
         {
-            /*
-            long userEntityId = userMapper.resolveUser(username, realm.getName());
-            
-            Entity userEntity = identitiesMan.getEntity(new EntityParam(userEntityId));
-            for(Identity identity : userEntity.getIdentities()) {
-                identity.getType();
-            }
-            
-            
-            // get attributes if any
-            Collection<AttributeExt<?>> attrs = attributesMan.getAttributes(
-                new EntityParam(userEntityId), null, null
-            );
-
-            Set<AttributeTypeOptions> attributes = new HashSet<AttributeTypeOptions>();
-            if (null != searchContext.getReturningAttributes())
-            {
-                attributes.addAll(searchContext.getReturningAttributes());
-            } else
-            {
-                String default_attributes = configuration.getValue(
-                    LdapServerProperties.RETURNED_USER_ATTRIBUTES
-                );
-                for (String at : default_attributes.split(","))
-                {
-                    attributes.add(
-                        new AttributeTypeOptions(
-                            schemaManager.lookupAttributeTypeRegistry(at.trim())
-                        )
-                    );
-                }
-            }
-
-            // iterate through requested attributes and try to match them with
-            // identity attributes
-            String[] aliases = configuration.getValue(
-                LdapServerProperties.USER_NAME_ALIASES
-            ).split(",");
-            for (String alias : aliases)
-            {
-                for (AttributeTypeOptions ao : attributes)
-                {
-                    String aName = ao.getAttributeType().getName();
-                    if (aName.equals(alias))
-                    {
-                        String requestDn = String.format("%s=%s", alias, username);
-                        // FIXME: is this what we want in all cases?
-                        if (null != searchContext.getDn())
-                        {
-                            requestDn += "," + searchContext.getDn().toString();
-                        }
-                        entry.setDn(requestDn);
-                    } else {
-                        addAttribute(aName, userEntity, username, attrs, entry);
-                    }
-                }
-            }
-
-            // the purpose of a search can be to get DN (from another attribute)
-            //  - even if no attributes are in getReturningAttributes()
-            if (null == entry.getDn() || entry.getDn().isEmpty() ) {
-                entry.setDn(searchContext.getDn());
-            }
-            */
             Entry userEntry = getUnityUserEntry(searchContext, username);
             if (userEntry != null) {
                 return new EntryFilteringCursorImpl(new SingletonCursor<>(userEntry),
