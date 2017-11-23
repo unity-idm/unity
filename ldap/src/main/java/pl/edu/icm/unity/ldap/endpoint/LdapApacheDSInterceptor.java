@@ -240,9 +240,8 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
             }
             entries.add(getUnityUserEntry(searchContext, username));
         } else {
-            String username = LdapNodeUtils.parseGroupOfNamesSearch(
-                schemaManager, configuration, node
-            );
+            String username = 
+                LdapNodeUtils.parseGroupOfNamesSearch(dnFactory, configuration, node);
             if (null != username) {
                 long userEntityId;
                 try {
