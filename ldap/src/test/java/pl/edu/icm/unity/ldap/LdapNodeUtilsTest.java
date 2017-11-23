@@ -1,7 +1,6 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
+ * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.ldap;
 
@@ -11,4 +10,7 @@ package pl.edu.icm.unity.ldap;
  */
 public class LdapNodeUtilsTest {
     
+    public void testUserSearch() {
+        
+    }
 }
