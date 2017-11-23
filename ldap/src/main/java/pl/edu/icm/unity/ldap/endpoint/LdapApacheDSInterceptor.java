@@ -625,13 +625,8 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
         Entry entry = new DefaultEntry(lsf.getDs().getSchemaManager());
         try
         {
-            long userEntityId = userMapper.resolveUser(username, realm.getName());
-            
-            Entity userEntity = identitiesMan.getEntity(new EntityParam(userEntityId));
-            for(Identity identity : userEntity.getIdentities()) {
-                identity.getType();
-            }
-            
+            long userEntityId = userMapper.resolveUser(username, realm.getName());            
+            Entity userEntity = identitiesMan.getEntity(new EntityParam(userEntityId));            
             
             // get attributes if any
             Collection<AttributeExt<?>> attrs = attributesMan.getAttributes(
