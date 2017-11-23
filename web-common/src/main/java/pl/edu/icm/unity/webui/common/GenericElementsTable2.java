@@ -29,7 +29,7 @@ public class GenericElementsTable2<T> extends SmallGrid<T>
 	private List<SingleActionHandler2<T>> actionHandlers;
 	private List<T> contents;
 	private ListDataProvider<T> dataProvider;
-	private Column<T, T> col1;
+	private Column<T, String> col1;
 	private GridContextMenu<T> contextMenu;
 
 	
@@ -47,7 +47,7 @@ public class GenericElementsTable2<T> extends SmallGrid<T>
 		setDataProvider(dataProvider);
 		setSizeFull();
 		setSelectionMode(SelectionMode.SINGLE);
-		col1 = addColumn(v -> v, nameProvider)
+		col1 = addColumn(nameProvider, n -> n)
 				.setCaption(columnHeader)
 				.setResizable(false);
 		addItemClickListener(this::onMouseClick);
@@ -115,9 +115,11 @@ public class GenericElementsTable2<T> extends SmallGrid<T>
 			return;
 		T item = event.getItem();
 		boolean alreadySelected = getSelectedItems().contains(item);
-		deselectAll();
 		if (!alreadySelected)
+		{
+			deselectAll();
 			select(item);
+		}
 	}
 	
 	private static class DefaultNameProvider<T> implements ValueProvider<T, String>
