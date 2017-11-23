@@ -13,7 +13,7 @@ import org.apache.directory.api.ldap.model.filter.SimpleNode;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.name.Ava;
-import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.server.core.api.DnFactory;
 
 /**
  * Static utility methods helping to extract data from {@link ExprNode}
@@ -33,11 +33,11 @@ public class LdapNodeUtils {
                     return true;
                 }
             }
-        } else if (node instanceof SimpleNode) {
+        } else if (node instanceof SimpleNode) { //Switch to EqualityNode instead?
             SimpleNode<?> sns = (SimpleNode<?>) node;
             String[] aliases = configuration.getValue(
                     LdapServerProperties.USER_NAME_ALIASES
-            ).split(",");
+            ).split(",");            
             if (ArrayUtils.contains(aliases, sns.getAttribute())) {
                 return true;
             }
@@ -46,12 +46,12 @@ public class LdapNodeUtils {
     }
 
     /**
-     * @param schemaManager
+     * @param dnf
      * @param configuration
      * @param node
      * @return Whether the LDAP query a groupofnames search?
      */
-    public static String parseGroupOfNamesSearch(SchemaManager schemaManager, LdapServerProperties configuration, ExprNode node) {
+    public static String parseGroupOfNamesSearch(DnFactory dnf, LdapServerProperties configuration, ExprNode node) {
         boolean is_gofn_search = false;
         String user = null;
         // no recursion and we expect at least two children
@@ -69,10 +69,8 @@ public class LdapNodeUtils {
                     is_gofn_search = true;
                 } else if (sns.getAttribute().equals(SchemaConstants.MEMBER_AT)) {
                     try {
-                        user = getUserName(
-                                configuration,
-                                new Dn(schemaManager, sns.getValue().toString())
-                        );
+                        Dn dn = dnf.create(sns.getValue().toString());
+                        user = getUserName(configuration, dn);
                     } catch (LdapInvalidDnException e) {
                         return null;
                     }
@@ -93,9 +91,14 @@ public class LdapNodeUtils {
      * @return 
      */
     public static String getUserName(LdapServerProperties configuration, Dn dn) {
-        String[] aliases = configuration.getValue(
+        String aliasesValue = configuration.getValue(
                 LdapServerProperties.USER_NAME_ALIASES
-        ).split(",");
+        );
+        if (aliasesValue == null) {
+            //TODO: throw exception or log warning?
+            return null;
+        }
+        String[] aliases = aliasesValue.split(",");
         for (String alias : aliases) {
             String part = getPart(dn, alias);
             if (null != part) {
@@ -171,11 +174,12 @@ public class LdapNodeUtils {
 
     /**
      * Get query value from LDAP DN.
+     * 
      * @param dn
      * @param query
      * @return 
      */
-    public static String getPart(Dn dn, String query) {
+    private static String getPart(Dn dn, String query) {
         for (Rdn rdn : dn.getRdns()) {
             Ava ava = rdn.getAva();
             if (null == ava) {
