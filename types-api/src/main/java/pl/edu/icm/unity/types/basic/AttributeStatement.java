@@ -279,7 +279,7 @@ public class AttributeStatement
 	public String toString()
 	{
 		return "Assign " + (dynamicAttributeMode() ? 
-				(dynamicAttributeType + "= expr(" + dynamicAttributeExpression) + ")":
+				(dynamicAttributeType + " = expr(" + dynamicAttributeExpression) + ")":
 				fixedAttribute.toString())
 				+ " if '" + condition + "' is true";
 	}

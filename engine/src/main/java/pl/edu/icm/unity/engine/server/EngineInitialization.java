@@ -82,6 +82,7 @@ import pl.edu.icm.unity.engine.utils.LifecycleBase;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
+import pl.edu.icm.unity.exceptions.UnknownIdentityException;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -472,10 +473,9 @@ public class EngineInitialization extends LifecycleBase
 						" in the database, admin account will not be created. It is a good idea to remove or comment the "
 						+ UnityServerConfiguration.INITIAL_ADMIN_USER + " setting from the main configuration file to "
 						+ "disable this message and use it only to add a default user in case of locked access.");
-			} catch (IllegalArgumentException e)
+			} catch (UnknownIdentityException e)
 			{
 				log.info("Database contains no admin user, creating the configured admin user");
-				
 				CredentialDefinition credDef = credRepo.get(DEFAULT_CREDENTIAL);
 				CredentialRequirements crDef = new SystemCredentialRequirements(credRepo, msg);
 				

@@ -255,6 +255,10 @@ public class AttributeStatementProcessor
 				processAttributeStatement(direction, group, as, queriedAttribute, identities, 
 						collectedAttributes, regularAttributesInGroup, extraAttributes, 
 						allGroups, acHelper);
+			} catch (Exception e) 
+			{
+				log.error("Error processing statement " + 
+						as + " is skipped", e);
 			} finally
 			{
 				ThreadContext.pop();

@@ -11,6 +11,7 @@ import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.UnknownIdentityException;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.types.StoredIdentity;
@@ -49,8 +50,14 @@ public class EntityResolverImpl implements EntityResolver
 	{
 		if (entity.getIdentity() != null)
 			return getEntityId(entity.getIdentity());
-		entityDAO.getByKey(entity.getEntityId());
-		return entity.getEntityId();
+		try
+		{
+			entityDAO.getByKey(entity.getEntityId());
+			return entity.getEntityId();
+		} catch (IllegalArgumentException e)
+		{
+			throw new UnknownIdentityException("Entity " + entity + " is unknown", e);
+		}
 	}
 
 	@Override
@@ -59,7 +66,13 @@ public class EntityResolverImpl implements EntityResolver
 		IdentityTypeDefinition idTypeDef = idTypesRegistry.getByName(entity.getTypeId());
 		String comparableValue = idTypeDef.getComparableValue(entity.getValue(), entity.getRealm(), 
 				entity.getTarget());
-		return identityDAO.get(StoredIdentity.toInDBIdentityValue(entity.getTypeId(), comparableValue))
+		try
+		{
+			return identityDAO.get(StoredIdentity.toInDBIdentityValue(entity.getTypeId(), comparableValue))
 				.getIdentity();
+		} catch (IllegalArgumentException e)
+		{
+			throw new UnknownIdentityException("Entity " + entity + " is unknown", e);
+		}
 	}
 }

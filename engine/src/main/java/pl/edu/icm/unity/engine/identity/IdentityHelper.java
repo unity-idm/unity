@@ -255,7 +255,13 @@ public class IdentityHelper
 		Identity identity = idTypeHelper.upcastIdentityParam(toAdd, entityId);
 		identity.setCreationTs(ts);
 		identity.setUpdateTs(ts);
-		identityDAO.create(new StoredIdentity(identity));
+		try
+		{
+			identityDAO.create(new StoredIdentity(identity));
+		} catch (Exception e)
+		{
+			throw new IllegalIdentityValueException("Can not add identity " + toAdd, e);
+		}
 		
 		return identity;
 	}
