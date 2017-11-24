@@ -187,10 +187,10 @@
 			"maxLength": 300
 		},
 		"displayedName": {
-			"DefaultValue": "cityAddress",
+			"DefaultValue": "city",
 			"Map": {
-				"pl": "Adres - miasto",
-				"en": "Adress - city"
+				"pl": "Miasto",
+				"en": "city"
 			}
 		},
 		"i18nDescription": {
@@ -202,7 +202,7 @@
 		"metadata": {
 			
 		},
-		"name": "cityAddress",
+		"name": "city",
 		"syntaxId": "string"
 	},
 	{
