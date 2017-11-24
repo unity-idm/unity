@@ -46,8 +46,17 @@ public class TranslationProfileChecker
 		this.outputActionReg = outputActionReg;
 	}
 
-	public TranslationProfileInstance<?, ?> checkBaseProfileContent(TranslationProfile profile)
+	public void checkBaseProfileContent(TranslationProfile profile)
 	{
+		if (profile.getProfileType() != ProfileType.INPUT && profile.getProfileType() != ProfileType.OUTPUT ) 	
+			throw new IllegalArgumentException(
+					"Unsupported profile type: " + profile.getProfileType());
+
+	}
+
+	public void checkProfileContent(TranslationProfile profile)
+	{
+		
 		TranslationProfileInstance<?, ?> instance;
 		if (profile.getProfileType() == ProfileType.INPUT)
 			instance = new InputTranslationProfile(profile, inputRepo, inputActionReg);
@@ -57,13 +66,7 @@ public class TranslationProfileChecker
 		else
 			throw new IllegalArgumentException(
 					"Unsupported profile type: " + profile.getProfileType());
-
-		return instance;
-	}
-
-	public void checkProfileContent(TranslationProfile profile)
-	{
-		if (checkBaseProfileContent(profile).hasInvalidActions())
+		if (instance.hasInvalidActions())
 			throw new IllegalArgumentException("Profile definition is invalid");
 	}	
 }

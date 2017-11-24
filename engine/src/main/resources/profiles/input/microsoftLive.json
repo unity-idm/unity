@@ -76,7 +76,7 @@
 		},
 		{
 			"condition": {
-				"conditionValue": "attr['birth_day']  != null && attr['birth_month'] != null && attr['birth_year'] != null  "
+				"conditionValue": "(attr cotains 'birth_day') && (attr contains 'birth_month') && (attr contains 'birth_year')"
 			},
 			"action": {
 				"name": "mapAttribute",
@@ -118,7 +118,7 @@
 		},
 		{
 			"condition": {
-				"conditionValue": "attr['phones.personal'] != null"
+				"conditionValue": "attr contains 'phones.personal']"
 			},
 			"action": {
 				"name": "mapAttribute",
@@ -132,7 +132,7 @@
 		},
 		{
 			"condition": {
-				"conditionValue": "attr['phones.modile'] != null"
+				"conditionValue": "attr contains 'phones.mobile'"
 			},
 			"action": {
 				"name": "mapAttribute",
@@ -160,14 +160,86 @@
 		},
 		{
 			"condition": {
-				"conditionValue": "true"
+				"conditionValue": "attr contains 'adrresses.personal'"
 			},
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
 					"address",
 					"/",
-					"attr['adrresses.personal']",
+					"attr['adrresses.personal.street'] + ',' + attr['adrresses.personal.street2'] + ',' + attr['adrresses.personal.city'] + ',' + attr['adrresses.personal.state'] + ',' + attr['adrresses.personal.postal_code'] + ',' + attr['adrresses.personal.region']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		}
+		,
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"street",
+					"/",
+					"attr['adrresses.personal.street']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"postalCode",
+					"/",
+					"attr['adrresses.personal.postal_code']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		}
+		,
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"city",
+					"/",
+					"attr['adrresses.personal.city']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"provinceName",
+					"/",
+					"attr['adrresses.personal.state']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"country",
+					"/",
+					"attr['adrresses.personal.region']",
 					"CREATE_OR_UPDATE"
 				]
 			}

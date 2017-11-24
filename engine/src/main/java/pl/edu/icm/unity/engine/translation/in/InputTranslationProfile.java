@@ -166,6 +166,8 @@ public class InputTranslationProfile extends TranslationProfileInstance<InputTra
 				throw new IllegalArgumentException("Incorrect MVEL context, unknown context key: " + 
 						context.getKey());
 			}
+			if (ContextKey.valueOf(contextKey) == ContextKey.attrObj)
+				continue;
 			
 			if (contextValue instanceof Map)
 			{
@@ -173,6 +175,10 @@ public class InputTranslationProfile extends TranslationProfileInstance<InputTra
 				HashMap<String, Object> value = (HashMap<String, Object>) contextValue;
 				for (Map.Entry<String, Object> entry : value.entrySet())
 				{
+					if (entry.getValue()  == null) 
+					{
+						continue;
+					}
 					exprValMap.put(String.format("%s['%s']", contextKey, entry.getKey()), 
 							entry.getValue().toString());
 				}
