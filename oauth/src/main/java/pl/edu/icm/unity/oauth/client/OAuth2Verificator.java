@@ -253,7 +253,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		boolean openIdConnectMode = config.getProvider(context.getProviderConfigKey()).getBooleanValue(
 				CustomProviderProperties.OPENID_CONNECT);
 		
-		Map<String, List<String>> attributes;
+		AttributeFetchResult attributes;
 		try
 		{
 			attributes = openIdConnectMode ? getAccessTokenAndProfileOpenIdConnect(context) :
@@ -319,7 +319,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		}
 	}
 	
-	private Map<String, List<String>> getAccessTokenAndProfileOpenIdConnect(OAuthContext context) throws Exception 
+	private AttributeFetchResult getAccessTokenAndProfileOpenIdConnect(OAuthContext context) throws Exception 
 	{
 		CustomProviderProperties providerCfg = config.getProvider(context.getProviderConfigKey());
 		String discoveryEndpoint = providerCfg.getValue(CustomProviderProperties.OPENID_DISCOVERY);
@@ -341,23 +341,24 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		BearerAccessToken accessToken = extractAccessToken(acResponse);
 		
 		JWTClaimsSet accessTokenClaimsSet = acResponse.getOIDCTokens().getIDToken().getJWTClaimsSet();
-		Map<String, List<String>> ret = ProfileFetcherUtils.convertToFlatAttributes(new JSONObject(accessTokenClaimsSet.getClaims()), false);
-				//OpenIdUtils.toAttributes(accessTokenClaimsSet);
+		Map<String, List<String>> ret = ProfileFetcherUtils.convertToFlatAttributes(new JSONObject(accessTokenClaimsSet.getClaims()));
 		
 		String userInfoEndpointStr = providerCfg.getValue(CustomProviderProperties.PROFILE_ENDPOINT);
 		String userInfoEndpoint = userInfoEndpointStr == null ? 
 				providerMeta.getUserInfoEndpointURI().toString() : userInfoEndpointStr;
 
 		UserProfileFetcher userAttributesFetcher = providerCfg.getUserAttributesResolver();
+		AttributeFetchResult fetchRet = new AttributeFetchResult();
 		if (userInfoEndpoint != null && userAttributesFetcher != null)
 		{
-			ret.putAll(userAttributesFetcher.fetchProfile(accessToken, userInfoEndpoint, providerCfg,
-					ret));
+			fetchRet = userAttributesFetcher.fetchProfile(accessToken, userInfoEndpoint, providerCfg,
+					ret);
 		}
+		fetchRet.getFlatAttributes().putAll(ret);
 		
 		log.debug("Received the following attributes from the OAuth provider: " + ret);
 		
-		return ret;
+		return fetchRet;
 	}
 	
 	private ClientAuthnMode establishOpenIDAuthnMode(OIDCProviderMetadata providerMeta,
@@ -395,7 +396,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		return selectedMethod;
 	}
 	
-	private Map<String, List<String>> getAccessTokenAndProfilePlain(OAuthContext context) throws Exception 
+	private AttributeFetchResult getAccessTokenAndProfilePlain(OAuthContext context) throws Exception 
 	{
 		CustomProviderProperties providerCfg = config.getProvider(context.getProviderConfigKey());
 		String tokenEndpoint = providerCfg.getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT);
@@ -439,14 +440,16 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 
 		String userInfoEndpoint = providerCfg.getValue(CustomProviderProperties.PROFILE_ENDPOINT);
 		UserProfileFetcher userAttributesFetcher = providerCfg.getUserAttributesResolver();
+		AttributeFetchResult fetchRet = new AttributeFetchResult();
 		if (userInfoEndpoint != null && userAttributesFetcher != null)
 		{
-			ret.putAll(userAttributesFetcher.fetchProfile(accessToken, userInfoEndpoint, providerCfg,
-					ret));
+			fetchRet = userAttributesFetcher.fetchProfile(accessToken, userInfoEndpoint, providerCfg,
+					ret);
 		}
+		fetchRet.getFlatAttributes().putAll(ret);
 		
 		log.debug("Received the following attributes from the OAuth provider: " + ret);
-		return ret;
+		return fetchRet;
 	}
 	
 	
@@ -469,8 +472,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			List<String> values = param.getValue();
 			if (attributeIgnored(key) || values.isEmpty())
 				continue;
-			String value = values.size() == 1 ? values.get(0) : values.toString();
-			ret.put(key, Arrays.asList(value));
+			ret.put(key, values);
 		}
 	}
 	
@@ -493,7 +495,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		return (BearerAccessToken) accessTokenGeneric;
 	}
 	
-	private RemotelyAuthenticatedInput convertInput(OAuthContext context, Map<String, List<String>> attributes)
+	private RemotelyAuthenticatedInput convertInput(OAuthContext context, AttributeFetchResult attributes)
 	{
 		CustomProviderProperties provCfg = config.getProvider(context.getProviderConfigKey());
 		String tokenEndpoint = provCfg.getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT);
@@ -515,10 +517,12 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 
 		
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput(tokenEndpoint);
-		for (Map.Entry<String, List<String>> attr: attributes.entrySet())
+		for (Map.Entry<String, List<String>> attr: attributes.getFlatAttributes().entrySet())
 		{
 			input.addAttribute(new RemoteAttribute(attr.getKey(), attr.getValue().toArray()));
 		}
+		input.setRawAttributes(attributes.getRawAttributes());
+		
 		return input;
 	}
 	

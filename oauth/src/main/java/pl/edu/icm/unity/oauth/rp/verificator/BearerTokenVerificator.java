@@ -38,6 +38,7 @@ import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.oauth.client.AttributeFetchResult;
 import pl.edu.icm.unity.oauth.client.UserProfileFetcher;
 import pl.edu.icm.unity.oauth.client.profile.OpenIdProfileFetcher;
 import pl.edu.icm.unity.oauth.client.profile.PlainProfileFetcher;
@@ -166,7 +167,7 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 				return new AuthenticationResult(Status.deny, null, null);
 			}
 			
-			Map<String, List<String>> attrs;
+			AttributeFetchResult attrs;
 			attrs = getUserProfileInformation(token);
 			cache.cache(token.getValue(), status, attrs);
 			RemotelyAuthenticatedInput input = assembleBaseResult(status, attrs, getName());
@@ -196,41 +197,43 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 		return true;
 	}
 	
-	private Map<String, List<String>> getUserProfileInformation(BearerAccessToken accessToken) throws AuthenticationException
+	private AttributeFetchResult getUserProfileInformation(BearerAccessToken accessToken) throws AuthenticationException
 	{
 		boolean openIdMode = verificatorProperties.getBooleanValue(OAuthRPProperties.OPENID_MODE);
 		String profileEndpoint = verificatorProperties.getValue(OAuthRPProperties.PROFILE_ENDPOINT);
-		Map<String, List<String>> attrs = new HashMap<>();
+		AttributeFetchResult ret = new AttributeFetchResult();
 		if (profileEndpoint == null)
 		{
 			log.debug("The profile endpoint is not defined, skipping the profile fetching");
-			return attrs;
+			return ret;
 		}
 		UserProfileFetcher profileFetcher = openIdMode ? new OpenIdProfileFetcher() : 
 			new PlainProfileFetcher();
 		
 		try
 		{
-			attrs.putAll(profileFetcher.fetchProfile(accessToken, profileEndpoint, verificatorProperties, 
-					attrs));
+			ret = profileFetcher.fetchProfile(accessToken, profileEndpoint, verificatorProperties, 
+					new HashMap<>());
 		} catch (Exception e)
 		{
 			throw new AuthenticationException("Can not fetch user's profile information", e);
 		}
-		return attrs;
+		return ret;
 	}
 	
 	private RemotelyAuthenticatedInput assembleBaseResult(TokenStatus tokenStatus, 
-			Map<String, List<String>> attrs, String idpName)
+			AttributeFetchResult attrs, String idpName)
 	{
 		RemotelyAuthenticatedInput ret = new RemotelyAuthenticatedInput(idpName);
-		for (Entry<String, List<String>> a: attrs.entrySet())
+		
+		Map<String, List<String>> flatAttributes = attrs.getFlatAttributes();
+		for (Entry<String, List<String>> a: flatAttributes.entrySet())
 		{
 			ret.addAttribute(new RemoteAttribute(a.getKey(), a.getValue().toArray()));
 		}
 		
-		if (attrs.containsKey("sub"))
-			ret.addIdentity(new RemoteIdentity(attrs.get("sub").get(0), IdentifierIdentity.ID));
+		if (flatAttributes.containsKey("sub"))
+			ret.addIdentity(new RemoteIdentity(flatAttributes.get("sub").get(0), IdentifierIdentity.ID));
 		if (tokenStatus.getSubject() != null)
 		{
 			ret.addIdentity(new RemoteIdentity(tokenStatus.getSubject(), IdentifierIdentity.ID));
@@ -238,13 +241,14 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 		if (tokenStatus.getScope() != null)
 			ret.addAttribute(new RemoteAttribute("scope", 
 					tokenStatus.getScope().toStringList().toArray()));
-		if (attrs.containsKey("sub") && tokenStatus.getSubject() != null && 
-				!tokenStatus.getSubject().equals(attrs.get("sub").get(0)))
+		if (flatAttributes.containsKey("sub") && tokenStatus.getSubject() != null && 
+				!tokenStatus.getSubject().equals(flatAttributes.get("sub").get(0)))
 			log.warn("Received subject from the profile endpoint differs from the subject "
 					+ "established during access token verification. "
 					+ "Will use subject from verification: " + tokenStatus.getSubject() + 
-					" ignored: " + attrs.get("sub").get(0));
+					" ignored: " + flatAttributes.get("sub").get(0));
 			
+		ret.setRawAttributes(attrs.getRawAttributes());
 		return ret;
 	}
 	

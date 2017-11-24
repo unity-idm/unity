@@ -21,6 +21,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.oauth.BaseRemoteASProperties;
 import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
+import pl.edu.icm.unity.oauth.client.AttributeFetchResult;
 import pl.edu.icm.unity.oauth.client.UserProfileFetcher;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
@@ -39,7 +40,7 @@ public class PlainProfileFetcher implements UserProfileFetcher
 			PlainProfileFetcher.class);
 
 	@Override
-	public Map<String, List<String>> fetchProfile(BearerAccessToken accessToken,
+	public AttributeFetchResult fetchProfile(BearerAccessToken accessToken,
 			String userInfoEndpoint, BaseRemoteASProperties providerConfig,
 			Map<String, List<String>> attributesSoFar) throws Exception
 	{
@@ -76,8 +77,8 @@ public class PlainProfileFetcher implements UserProfileFetcher
 					+ "but there was a problem fetching user's profile information. "
 					+ "It has non-JSON content type: " + resp.getContentType());
 
-		JSONObject profile = resp.getContentAsJSONObject();
-		
-		return ProfileFetcherUtils.convertToFlatAttributes(profile, false);
+		JSONObject profile = resp.getContentAsJSONObject();	
+	
+		return ProfileFetcherUtils.fetchFromJsonObject(profile);
 	}
 }

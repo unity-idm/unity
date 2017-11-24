@@ -20,7 +20,7 @@ public interface UserProfileFetcher
 	 * @return
 	 * @throws Exception
 	 */
-	Map<String, List<String>> fetchProfile(BearerAccessToken accessToken, String userInfoEndpoint,
+	AttributeFetchResult fetchProfile(BearerAccessToken accessToken, String userInfoEndpoint,
 			BaseRemoteASProperties providerConfig, Map<String, List<String>> attributesFromACResponse) 
 					throws Exception;
 }

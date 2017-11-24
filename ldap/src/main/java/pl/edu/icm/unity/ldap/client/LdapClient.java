@@ -122,6 +122,7 @@ public class LdapClient
 		findGroupsMembership(connection, entry, configuration, ret.getGroups());
 		
 		performAdditionalQueries(connection, configuration, user, ret);
+		ret.setRawAttributes(ret.getAttributes());
 		
 		connection.close();
 		return ret;
@@ -172,6 +173,7 @@ public class LdapClient
 		findGroupsMembership(connection, entry, configuration, ret.getGroups());
 		
 		performAdditionalQueries(connection, configuration, user, ret);
+		ret.setRawAttributes(ret.getAttributes());
 		
 		connection.close();
 		return ret;
@@ -334,7 +336,7 @@ public class LdapClient
 		{
 			ret.addAttribute(new RemoteAttribute(a.getBaseName(), (Object[])a.getValues()));
 		}
-		
+		ret.setRawAttributes(ret.getAttributes());
 		ret.addIdentity(new RemoteIdentity(entry.getDN(), X500Identity.ID));
 		return ret;
 	}

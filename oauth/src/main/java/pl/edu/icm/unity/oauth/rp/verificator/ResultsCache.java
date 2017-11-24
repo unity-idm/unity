@@ -5,8 +5,6 @@
 package pl.edu.icm.unity.oauth.rp.verificator;
 
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 
@@ -16,6 +14,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PersistenceConfiguration;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.oauth.client.AttributeFetchResult;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties;
 
 /**
@@ -76,7 +75,7 @@ public class ResultsCache
 		return ret;
 	}
 	
-	public void cache(String id, TokenStatus status, Map<String, List<String>> attrs)
+	public void cache(String id, TokenStatus status, AttributeFetchResult attrs)
 	{
 		if (disable)
 			return;
@@ -112,13 +111,13 @@ public class ResultsCache
 	public static class CacheEntry
 	{
 		private TokenStatus tokenStatus;
-		private Map<String, List<String>> attributes;
+		private AttributeFetchResult attributes;
 		
-		public CacheEntry(TokenStatus tokenStatus, Map<String, List<String>> attrs)
+		public CacheEntry(TokenStatus tokenStatus, AttributeFetchResult attributes)
 		{
 			super();
 			this.tokenStatus = tokenStatus;
-			this.attributes = attrs;
+			this.attributes = attributes;
 		}
 
 		public TokenStatus getTokenStatus()
@@ -131,12 +130,12 @@ public class ResultsCache
 			this.tokenStatus = tokenStatus;
 		}
 
-		public Map<String, List<String>> getAttributes()
+		public AttributeFetchResult getAttributes()
 		{
 			return attributes;
 		}
 
-		public void setAttributes(Map<String, List<String>> attributes)
+		public void setAttributes(AttributeFetchResult attributes)
 		{
 			this.attributes = attributes;
 		}

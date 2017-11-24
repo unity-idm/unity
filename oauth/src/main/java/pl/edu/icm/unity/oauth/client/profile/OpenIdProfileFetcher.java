@@ -23,6 +23,7 @@ import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.oauth.BaseRemoteASProperties;
 import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
+import pl.edu.icm.unity.oauth.client.AttributeFetchResult;
 import pl.edu.icm.unity.oauth.client.UserProfileFetcher;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 
@@ -33,7 +34,7 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 public class OpenIdProfileFetcher implements UserProfileFetcher
 {
 	@Override
-	public Map<String, List<String>> fetchProfile(BearerAccessToken accessToken, String userInfoEndpoint,
+	public AttributeFetchResult fetchProfile(BearerAccessToken accessToken, String userInfoEndpoint,
 			BaseRemoteASProperties providerConfig, Map<String, List<String>> attributesSoFar) throws Exception
 	{
 		UserInfoRequest uiRequest = new UserInfoRequest(new URI(userInfoEndpoint), accessToken);
@@ -55,12 +56,14 @@ public class OpenIdProfileFetcher implements UserProfileFetcher
 		if (uiResponseS.getUserInfoJWT() != null)
 		{
 			JWTClaimsSet claimSet = uiResponseS.getUserInfoJWT().getJWTClaimsSet();
-			return ProfileFetcherUtils.convertToFlatAttributes(new JSONObject(claimSet.getClaims()), false);
+			JSONObject raw = new JSONObject(claimSet.getClaims());
+			return ProfileFetcherUtils.fetchFromJsonObject(raw);
 		} else
 		{
 			UserInfo ui = uiResponseS.getUserInfo();
 			JWTClaimsSet claimSet = ui.toJWTClaimsSet();
-			return ProfileFetcherUtils.convertToFlatAttributes(new JSONObject(claimSet.getClaims()), false);
+			JSONObject raw = new JSONObject(claimSet.getClaims());
+			return ProfileFetcherUtils.fetchFromJsonObject(raw);			
 		}
 	}
 }

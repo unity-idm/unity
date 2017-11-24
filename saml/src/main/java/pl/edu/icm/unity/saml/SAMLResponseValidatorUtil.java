@@ -100,6 +100,7 @@ public class SAMLResponseValidatorUtil
 		input.setIdentities(getAuthenticatedIdentities(validator));
 		List<RemoteAttribute> remoteAttributes = getAttributes(validator);
 		input.setAttributes(remoteAttributes);
+		input.setRawAttributes(input.getAttributes());
 		input.setGroups(getGroups(remoteAttributes, groupA));
 
 		addSessionParticipants(validator, issuer, input, configKey);

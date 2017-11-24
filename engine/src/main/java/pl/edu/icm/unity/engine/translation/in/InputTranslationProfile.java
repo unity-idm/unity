@@ -42,6 +42,7 @@ public class InputTranslationProfile extends TranslationProfileInstance<InputTra
 		idsByType,
 		attrs,
 		attr,
+		attrObj,
 		idp,
 		groups;
 	}
@@ -117,6 +118,7 @@ public class InputTranslationProfile extends TranslationProfileInstance<InputTra
 		}
 		ret.put(ContextKey.attr.name(), attr);
 		ret.put(ContextKey.attrs.name(), attrs);
+		ret.put(ContextKey.attrObj.name(), input.getRawAttributes());
 		
 		if (!input.getIdentities().isEmpty())
 		{

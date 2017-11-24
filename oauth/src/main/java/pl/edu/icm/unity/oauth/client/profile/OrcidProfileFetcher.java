@@ -34,6 +34,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.oauth.BaseRemoteASProperties;
 import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
+import pl.edu.icm.unity.oauth.client.AttributeFetchResult;
 import pl.edu.icm.unity.oauth.client.UserProfileFetcher;
 import pl.edu.icm.unity.oauth.client.config.OrcidProviderProperties;
 
@@ -52,7 +53,7 @@ public class OrcidProfileFetcher implements UserProfileFetcher
 			OrcidProfileFetcher.class);
 	
 	@Override
-	public Map<String, List<String>> fetchProfile(BearerAccessToken accessToken, String userInfoEndpoint,
+	public AttributeFetchResult fetchProfile(BearerAccessToken accessToken, String userInfoEndpoint,
 			BaseRemoteASProperties providerConfig, Map<String, List<String>> attributesSoFar) throws Exception
 	{
 		ServerHostnameCheckingMode checkingMode = providerConfig.getEnumValue(
@@ -63,7 +64,7 @@ public class OrcidProfileFetcher implements UserProfileFetcher
 		
 		JSONObject userBio = fetchUserBio(providerConfig, attributesSoFar, checkingMode, clientAccessToken);
 		
-		return ProfileFetcherUtils.convertToFlatAttributes(userBio, true);
+		return ProfileFetcherUtils.fetchFromJsonObject(userBio);
 	}
 
 	private AccessToken getClientAccessToken(BaseRemoteASProperties providerConfig,

@@ -10,11 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
+import pl.edu.icm.unity.oauth.client.AttributeFetchResult;
 
 /**
  * Utils for profile fetchers
@@ -24,17 +24,73 @@ import net.minidev.json.JSONValue;
  */
 public class ProfileFetcherUtils
 {
-	
-	public static Map<String, List<String>> convertToFlatAttributes(JSONObject profile,
-			boolean deepResolve)
+
+	public static AttributeFetchResult fetchFromJsonObject(JSONObject jsonObject)
+	{
+		return new AttributeFetchResult(convertToFlatAttributes(jsonObject),
+				convertToRawAttributes(jsonObject));
+	}
+
+	public static JSONObject convertToRawAttributes(JSONObject toConvert)
+	{
+		JSONObject res = new JSONObject(toConvert);
+		resolveNestedJsonType(res);
+		return res;
+	}
+
+	public static void resolveNestedJsonType(JSONObject jsonObject)
+
+	{
+		for (Entry<String, Object> entry : jsonObject.entrySet())
+		{
+			if (entry.getValue() == null)
+				continue;
+			Object value = JSONValue.parse(entry.getValue().toString());
+			if (value instanceof JSONObject)
+			{
+				JSONObject jobject = (JSONObject) value;
+				entry.setValue(jobject);
+				resolveNestedJsonType(jobject);
+			} else if (value instanceof JSONArray)
+			{
+				JSONArray jarray = (JSONArray) value;
+				entry.setValue(jarray);
+				resolveNestedJsonType(jarray);
+			}
+		}
+	}
+
+	public static void resolveNestedJsonType(JSONArray array)
+	{
+		for (Object v : array)
+		{
+			Object r = JSONValue.parse(v.toString());
+			if (r instanceof JSONObject)
+			{
+				array.remove(v);
+				JSONObject jobject = (JSONObject) r;
+				array.add(jobject);
+				resolveNestedJsonType(jobject);
+
+			} else if (r instanceof JSONArray)
+			{
+				array.remove(v);
+				JSONArray jarray = (JSONArray) r;
+				array.add(jarray);
+				resolveNestedJsonType(jarray);
+			}
+		}
+	}
+
+	public static Map<String, List<String>> convertToFlatAttributes(JSONObject profile)
 	{
 		Map<String, List<String>> ret = new HashMap<>();
-		convertToFlatAttributes("", profile, ret, deepResolve);
+		convertToFlatAttributes("", profile, ret);
 		return ret;
 	}
 
 	public static Map<String, List<String>> convertToFlatAttributes(String prefix,
-			JSONObject profile, Map<String, List<String>> ret, boolean deepResolve)
+			JSONObject profile, Map<String, List<String>> ret)
 	{
 		for (Entry<String, Object> entry : profile.entrySet())
 		{
@@ -43,25 +99,13 @@ public class ProfileFetcherUtils
 			Object value = JSONValue.parse(entry.getValue().toString());
 			if (value instanceof JSONObject)
 			{
-				if (!deepResolve)
-				{
-					JSONObject json = (JSONObject) value;
-					for (Entry<String, Object> jsonEntry : json.entrySet())
-					{
-						ret.put(entry.getKey() + "." + jsonEntry.getKey(),
-								Arrays.asList(jsonEntry.getValue()
-										.toString()));
-					}
-				} else
-				{
-					convertToFlatAttributes(prefix + entry.getKey() + ".",
-							(JSONObject) value, ret, deepResolve);
-				}
+				convertToFlatAttributes(prefix + entry.getKey() + ".",
+						(JSONObject) value, ret);
 
 			} else if (value instanceof JSONArray)
 			{
-				convertToFlatAttributes(prefix + entry.getKey(), (JSONArray) value,
-						ret, deepResolve);
+				convertToFlatAttributes(prefix + entry.getKey() + ".",
+						(JSONArray) value, ret);
 			} else
 			{
 				ret.put(prefix + entry.getKey(), Arrays.asList(value.toString()));
@@ -72,18 +116,8 @@ public class ProfileFetcherUtils
 	}
 
 	public static Map<String, List<String>> convertToFlatAttributes(String prefix,
-			JSONArray element, Map<String, List<String>> ret, boolean deepResolve)
+			JSONArray element, Map<String, List<String>> ret)
 	{
-		if (!deepResolve)
-		{
-
-			ret.put(prefix, element.stream().map(o -> o.toString())
-					.collect(Collectors.toList()));
-			return ret;
-
-		}
-		String deepPrefix = prefix + ".";
-
 		for (int i = 0; i < element.size(); i++)
 		{
 			Object value = JSONValue.parse(element.get(i).toString());
@@ -92,15 +126,13 @@ public class ProfileFetcherUtils
 
 			if (value instanceof JSONObject)
 			{
-				convertToFlatAttributes(deepPrefix + i + ".", (JSONObject) value,
-						ret, deepResolve);
+				convertToFlatAttributes(prefix + i + ".", (JSONObject) value, ret);
 			} else if (value instanceof JSONArray)
 			{
-				convertToFlatAttributes(deepPrefix + i + ".", (JSONArray) value,
-						ret, deepResolve);
+				convertToFlatAttributes(prefix + i + ".", (JSONArray) value, ret);
 			} else
 			{
-				ret.put(deepPrefix + i, Arrays.asList(value.toString()));
+				ret.put(prefix + i, Arrays.asList(value.toString()));
 			}
 
 		}
