@@ -8,6 +8,7 @@ import java.util.Properties;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 /**
  * Preset configuration for Facebook OAuth provider.
@@ -30,6 +31,7 @@ public class DropboxProviderProperties extends CustomProviderProperties
 		setIfUnset(properties, prefix + ACCESS_TOKEN_ENDPOINT, "https://api.dropbox.com/1/oauth2/token");
 		setIfUnset(properties, prefix + PROFILE_ENDPOINT, "https://api.dropbox.com/1/account/info");
 		setIfUnset(properties, prefix + ICON_URL, "file:../common/img/external/dropbox-small.png");
+		setIfUnset(properties, prefix + CommonWebAuthnProperties.TRANSLATION_PROFILE, "sys:dropbox");
 		return properties;
 	}
 

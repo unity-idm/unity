@@ -3,7 +3,6 @@
 	"name": "sys:facebook",
 	"description": "Translation profile for facebook authn",
 	"type": "INPUT",
-	"mode": "DEFAULT",
 	"rules": [
 		{
 			"condition": {
@@ -26,9 +25,93 @@
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
+					"country",
+					"/",
+					"attr['address.country']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"street",
+					"/",
+					"attr['address.street']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"postalCode",
+					"/",
+					"attr['address.zip']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"provinceName",
+					"/",
+					"attr['address.region']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"city",
+					"/",
+					"attr['address.city']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"countryCode",
+					"/",
+					"attr['address.country_code']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "attr contains 'address.street'"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
 					"address",
 					"/",
-					"attr['address']",
+					"attr['address.street'] + ', ' + attr['address.city'] + ', ' + attr['address.zip'] + ', ' + attr['address.region'] + ', ' + attr['address.country']",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -99,20 +182,6 @@
 					"gender",
 					"/",
 					"attr['gender']",
-					"CREATE_OR_UPDATE"
-				]
-			}
-		},
-		{
-			"condition": {
-				"conditionValue": "true"
-			},
-			"action": {
-				"name": "mapAttribute",
-				"parameters": [
-					"cityAddress",
-					"/",
-					"attr['hometown']",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -208,7 +277,7 @@
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
-					"address",
+					"website",
 					"/",
 					"attr['website']",
 					"CREATE_OR_UPDATE"

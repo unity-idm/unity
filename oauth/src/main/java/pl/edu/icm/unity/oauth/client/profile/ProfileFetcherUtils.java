@@ -86,7 +86,7 @@ public class ProfileFetcherUtils
 
 		for (int i = 0; i < element.size(); i++)
 		{
-			Object value = element.get(i);
+			Object value = JSONValue.parse(element.get(i).toString());
 			if (value == null)
 				continue;
 

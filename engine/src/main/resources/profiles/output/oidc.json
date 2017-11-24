@@ -99,7 +99,7 @@
 				"name": "createAttribute",
 				"parameters": [
 					"address",
-					"attr contains 'address' ? attr['address'] : attr['street'] + ', ' + attr['cityAddress'] +', ' + attr['provinceName'] + ', ' + attr['postalCode'] + ', ' + attr['country']",
+					"attr contains 'address' ? attr['address'] : attr['street'] + ', ' + attr['city'] + ', ' + attr['postalCode'] + ', ' + attr['provinceName'] + ', ' + attr['country']",
 					"false",
 					"address",
 					"address"

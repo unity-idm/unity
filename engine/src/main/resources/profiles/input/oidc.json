@@ -249,7 +249,7 @@
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
-					"cityAddress",
+					"city",
 					"/",
 					"attr['address.locality']",
 					"CREATE_OR_UPDATE"
@@ -300,7 +300,7 @@
 		},
 		{
 			"condition": {
-				"conditionValue": "!attr contains 'adrress'"
+				"conditionValue": "!(attr contains 'address.formatted')"
 			},
 			"action": {
 				"name": "mapAttribute",
