@@ -202,6 +202,7 @@ public class AttributeTypesComponent extends VerticalLayout
 				.withHandler(selection -> refresh())
 				.build();
 	}
+	
 	private SingleActionHandler2<AttributeType> getAddAction()
 	{
 		return SingleActionHandler2.builder4Add(msg, AttributeType.class)

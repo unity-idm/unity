@@ -21,9 +21,9 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
@@ -118,6 +118,8 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		oauthProcessor = new OAuthProcessor();
 		
 		VerticalLayout vmain = new VerticalLayout();
+		vmain.setMargin(false);
+		vmain.setSpacing(false);
 		I18nString displayedName = endpointDescription.getEndpoint().getConfiguration().getDisplayedName();
 		TopHeaderLight header = new TopHeaderLight(displayedName.getValue(msg), msg);
 		vmain.addComponent(header);
@@ -125,8 +127,6 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		
 		VerticalLayout contents = new VerticalLayout();
 		contents.addStyleName(Styles.maxWidthColumn.toString());
-		contents.setMargin(true);
-		contents.setSpacing(true);
 		vmain.addComponent(contents);
 		vmain.setComponentAlignment(contents, Alignment.TOP_CENTER);
 		

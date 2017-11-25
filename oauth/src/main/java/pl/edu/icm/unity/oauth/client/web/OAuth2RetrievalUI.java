@@ -21,7 +21,7 @@ import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
@@ -90,7 +90,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 
 		OAuthClientProperties clientProperties = credentialExchange.getSettings();
 		VerticalLayout ret = new VerticalLayout();
-		ret.setSpacing(true);
+		ret.setMargin(false);
 
 		ScaleMode scaleMode = clientProperties.getEnumValue(OAuthClientProperties.SELECTED_ICON_SCALE, 
 				ScaleMode.class); 

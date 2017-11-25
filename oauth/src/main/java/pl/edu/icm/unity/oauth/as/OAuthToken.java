@@ -7,9 +7,7 @@ package pl.edu.icm.unity.oauth.as;
 import java.io.IOException;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 import pl.edu.icm.unity.Constants;
 
@@ -69,9 +67,14 @@ public class OAuthToken
 	}
 	
 	public static OAuthToken getInstanceFromJson(byte[] json) 
-			throws JsonParseException, JsonMappingException, IOException
 	{
-		return Constants.MAPPER.readValue(json, OAuthToken.class);
+		try
+		{
+			return Constants.MAPPER.readValue(json, OAuthToken.class);
+		} catch (IOException e)
+		{
+			throw new IllegalArgumentException("Can not parse token's JSON", e);
+		}
 	}
 	
 	@JsonIgnore

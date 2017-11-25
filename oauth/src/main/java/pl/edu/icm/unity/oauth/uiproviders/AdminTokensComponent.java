@@ -4,7 +4,6 @@ e * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  */
 package pl.edu.icm.unity.oauth.uiproviders;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,18 +11,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.v7.data.util.BeanItemContainer;
+import org.apache.logging.log4j.Logger;
+
+import com.vaadin.data.ValueProvider;
+import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.shared.ui.Orientation;
-import com.vaadin.v7.ui.Table;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.Grid;
+import com.vaadin.ui.Grid.SelectionMode;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.base.token.Token;
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
@@ -32,17 +31,16 @@ import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.GridContextMenuSupport;
+import pl.edu.icm.unity.webui.common.GridSelectionSupport;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.SmallGrid;
-import pl.edu.icm.unity.webui.common.SmallTableDeprecated;
-import pl.edu.icm.unity.webui.common.Toolbar;
+import pl.edu.icm.unity.webui.common.Toolbar2;
 
 /**
  * Allows for viewing and removing tokens 
@@ -52,104 +50,91 @@ import pl.edu.icm.unity.webui.common.Toolbar;
 
 public class AdminTokensComponent extends VerticalLayout
 {	
-
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
+			AdminTokensComponent.class);
 	private AttributeSupport attrProcessor;
-	private AttributesManagement attrMan;
 	protected SecuredTokensManagement tokenMan;
 	private UnityMessageSource msg;
 	
 	protected VerticalLayout main;
 	protected VerticalLayout tokensTablePanel;
-	protected ComponentWithToolbar tableWithToolbar;
-	protected Table tokensTable;
+	protected ComponentWithToolbar2 tableWithToolbar;
+	protected Grid<TableTokensBean> tokensTable;
 	private OAuthTokenViewer viewer;
 	private boolean showViewer;
 	
-	
 	public AdminTokensComponent(SecuredTokensManagement tokenMan, UnityMessageSource msg,
-			AttributeSupport attrProcessor, AttributesManagement attrMan, boolean showViewer)
+			AttributeSupport attrProcessor, boolean showViewer)
 	{
 		
 		this.tokenMan = tokenMan;
 		this.msg = msg;
-		this.attrMan = attrMan;
 		this.attrProcessor = attrProcessor;
 		this.showViewer = showViewer;
 		initUI();
 	}
 	
 	private void initUI()
-
 	{
 		setCaption(msg.getMessage("OAuthTokenAdminUI.tokensLabel"));
-		
-		tokensTable = new SmallTableDeprecated();
-		tokensTable.setNullSelectionAllowed(false);
-		tokensTable.setImmediate(true);
+		setMargin(false);
+		setSpacing(false);
+		tokensTable = new SmallGrid<>();
 		tokensTable.setSizeFull();
-		BeanItemContainer<TableTokensBean> tableContainer = new BeanItemContainer<>(TableTokensBean.class);
-		tableContainer.removeContainerProperty("element");
-		tokensTable.setSelectable(true);
-		tokensTable.setMultiSelect(true);
-		tokensTable.setContainerDataSource(tableContainer);
-		tokensTable.setVisibleColumns(new Object[] { "type", "value", "owner", "clientName", "createTime",
-				"expires","scopes" ,"serverId", "refreshToken", "hasIdToken" });
-		tokensTable.setColumnHeaders(new String[] { msg.getMessage("OAuthToken.type"),
-				msg.getMessage("OAuthToken.value"),
-				msg.getMessage("OAuthToken.owner"),
-				msg.getMessage("OAuthToken.clientName"),
-				msg.getMessage("OAuthToken.createTime"),
-				msg.getMessage("OAuthToken.expires"),
-				msg.getMessage("OAuthToken.scopes"),
-				msg.getMessage("OAuthToken.serverId"),
-				msg.getMessage("OAuthToken.refreshToken"),
-				msg.getMessage("OAuthToken.hasIdToken")});
-		tokensTable.setSortContainerPropertyId(
-				tokensTable.getContainerPropertyIds().iterator().next());
-		tokensTable.setSortAscending(true);
-		tokensTable.setColumnCollapsingAllowed(true);
-		tokensTable.setColumnCollapsed("serverId", true); 
-		tokensTable.setColumnCollapsed("hasIdToken", true); 
+		tokensTable.setSelectionMode(SelectionMode.MULTI);
+		
+		addColumn("type", TableTokensBean::getType, false);
+		addColumn("value", TableTokensBean::getValue, false);
+		addColumn("owner", TableTokensBean::getOwner, false);
+		addColumn("clientName", TableTokensBean::getClientName, false);
+		addColumn("createTime", TableTokensBean::getCreateTime, false);
+		addColumn("expires", TableTokensBean::getExpires, false);
+		addColumn("scopes", TableTokensBean::getScopes, false);
+		addColumn("serverId", TableTokensBean::getServerId, true);
+		addColumn("refreshToken", TableTokensBean::getRefreshToken, false);
+		addColumn("hasIdToken", t -> String.valueOf(t.getHasIdToken()), true);
+		
+		tokensTable.sort("type", SortDirection.ASCENDING);
 
 		viewer = new OAuthTokenViewer(msg);
 		viewer.setVisible(false);
-		tokensTable.addValueChangeListener(new ValueChangeListener()
+		tokensTable.addSelectionListener(event ->
 		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
+			Collection<TableTokensBean> items = event.getAllSelectedItems();
+
+			if (items.size() > 1 || items.isEmpty())
+
 			{
+				viewer.setInput(null, null);
+				viewer.setVisible(false);
+				return;
 
-				Collection<?> items = (Collection<?>) tokensTable
-						.getValue();
-
-				if (items.size() > 1 || items.isEmpty())
-
-				{
-					viewer.setInput(null, null);
-					viewer.setVisible(false);
-					return;
-
-				}
-
-				TableTokensBean item = (TableTokensBean) items.iterator().next();
-				viewer.setVisible(true);
-				viewer.setInput(item.getOAuthToken(), item.getToken());
 			}
+			TableTokensBean item = items.iterator().next();
+			viewer.setVisible(true);
+			viewer.setInput(item.getOAuthToken(), item.getToken());
 		});
 		
-		RefreshActionHandler refHandler = new RefreshActionHandler();
-		DeleteActionHandler delHandler = new DeleteActionHandler();
-		tokensTable.addActionHandler(refHandler);
-		tokensTable.addActionHandler(delHandler);
+		SingleActionHandler2<TableTokensBean> refreshAction = getRefreshAction();
+		SingleActionHandler2<TableTokensBean> deleteAction = getDeleteAction();
+		
+		GridContextMenuSupport<TableTokensBean> contextMenu = 
+				new GridContextMenuSupport<>(tokensTable);
+		contextMenu.addActionHandler(refreshAction);
+		contextMenu.addActionHandler(deleteAction);
+		GridSelectionSupport.installClickListener(tokensTable);
 		
 		tokensTablePanel = new VerticalLayout();
+		tokensTablePanel.setSpacing(false);
+		tokensTablePanel.setMargin(false);
 		tokensTablePanel.addComponent(tokensTable);
 			
-		Toolbar toolbar = new Toolbar(tokensTable, Orientation.HORIZONTAL);
-		toolbar.addActionHandlers(refHandler, delHandler);
+		Toolbar2<TableTokensBean> toolbar = new Toolbar2<>(Orientation.HORIZONTAL);
+		tokensTable.addSelectionListener(toolbar.getSelectionListener());
+		toolbar.addActionHandlers(contextMenu.getActionHandlers());
 			
-		tableWithToolbar = new ComponentWithToolbar(tokensTablePanel, toolbar);
-		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
+		tableWithToolbar = new ComponentWithToolbar2(tokensTablePanel, toolbar);
+		tableWithToolbar.setWidth(100, Unit.PERCENTAGE);
 		
 		
 		main = new VerticalLayout();
@@ -165,57 +150,45 @@ public class AdminTokensComponent extends VerticalLayout
 		{
 			main.addComponent(tableWithToolbar);
 		}
+		main.setSpacing(false);
+		main.setMargin(false);
 		main.setSizeFull();
 		refresh();
 		
 	}
 	
-	private class RefreshActionHandler extends SingleActionHandler
+	private void addColumn(String key, ValueProvider<TableTokensBean, String> valueProvider, 
+			boolean hidden)
 	{
-		public RefreshActionHandler()
-		{
-			super(msg.getMessage("OAuthTokenAdminUI.refreshAction"),
-					Images.refresh.getResource());
-			setNeedsTarget(false);
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			refresh();
-		}
+		tokensTable.addColumn(valueProvider, t -> t)
+			.setCaption(msg.getMessage("OAuthToken." + key))
+			.setHidable(true).setId(key).setHidden(hidden);
+	}
+	
+	private SingleActionHandler2<TableTokensBean> getRefreshAction()
+	{
+		return SingleActionHandler2.builder4Refresh(msg, TableTokensBean.class)
+				.withHandler(selection -> refresh())
+				.build();
+	}
+	
+	private SingleActionHandler2<TableTokensBean> getDeleteAction()
+	{
+		return SingleActionHandler2.builder4Delete(msg, TableTokensBean.class)
+				.withHandler(this::deleteHandler)
+				.build();
 	}
 
-	private class DeleteActionHandler extends SingleActionHandler
+	private void deleteHandler(Collection<TableTokensBean> items)
 	{
-		public DeleteActionHandler()
-		{
-			super(msg.getMessage("OAuthTokenAdminUI.deleteAction"),
-					Images.delete.getResource());
-			setMultiTarget(true);
-		}
-
-		@Override
-		public void handleAction(Object sender, Object target)
-		{
-			final Collection<?> items = (Collection<?>) tokensTable.getValue();
-			
-
-			new ConfirmDialog(msg, msg.getMessage(
-					"OAuthTokenAdminUI.confirmDelete"),new ConfirmDialog.Callback()
+		new ConfirmDialog(msg, msg.getMessage("OAuthTokenAdminUI.confirmDelete"),
+				() -> 
 			{
-				@Override
-				public void onConfirm()
-				{
-					for (Object item : items)
-					{
-						TableTokensBean tokenBean = (TableTokensBean) item;
-						removeToken(tokenBean.getRealType(), tokenBean.getValue());
-					}
-				}
-			}).show();
+				for (TableTokensBean item : items)
+					removeToken(item.getRealType(), item.getValue());
+			}
+		).show();
 
-		}
 	}
 	
 	protected boolean removeToken(String type, String value)
@@ -248,27 +221,46 @@ public class AdminTokensComponent extends VerticalLayout
 	{
 		try
 		{
-			tokensTable.removeAllItems();
-			for (Token t: getTokens())
-			{
-				TableTokensBean item = new TableTokensBean(t, msg, attrProcessor, attrMan);
-				tokensTable.addItem(item);
-			}
-		
-			tokensTable.setValue(null);
+			List<Token> tokens = getTokens();
+			System.out.println(tokens);
+			tokensTable.setItems(tokens.stream()
+				.map(t -> new TableTokensBean(t, msg, establishOwner(attrProcessor, t))));
+			tokensTable.deselectAll();
 			viewer.setInput(null, null);
 			viewer.setVisible(false);
 			removeAllComponents();
 			addComponent(main);
-			
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(
-					msg,
-					msg.getMessage("OAuthTokenAdminUI.errorGetTokens"),
-					e);
+			NotificationPopup.showError(msg,
+					msg.getMessage("OAuthTokenAdminUI.errorGetTokens"), e);
 		}
 		
+	}
+	
+	
+	private static String establishOwner(AttributeSupport attrProcessor, Token token)
+	{
+		long ownerId = token.getOwner();
+		String idLabel = "[" + ownerId + "]";
+		String attrNameValue = getAttrNameValue(attrProcessor, ownerId);
+		return attrNameValue != null ? idLabel + " " + attrNameValue : idLabel;
+	}
+	
+	private static String getAttrNameValue(AttributeSupport attrProcessor, long owner)
+	{
+		try
+		{
+			AttributeExt attribute = attrProcessor.getAttributeByMetadata(
+					new EntityParam(owner), "/", 
+					EntityNameMetadataProvider.NAME);
+			if (attribute != null && !attribute.getValues().isEmpty())
+				return attribute.getValues().get(0);
+		} catch (Exception e)
+		{
+			log.debug("Can't get user's displayed name attribute for " + owner, e);
+		}
+		return null;
 	}
 	
 	public static class TableTokensBean
@@ -276,19 +268,14 @@ public class AdminTokensComponent extends VerticalLayout
 		private Token token;
 		private OAuthToken oauthToken;
 		private UnityMessageSource msg;
-		private AttributeSupport attrProcessor;
-		private AttributesManagement attrMan;
+		private String owner;
 		
-		
-		public TableTokensBean(Token token, UnityMessageSource msg,
-				AttributeSupport attrProcessor, AttributesManagement attrMan) throws JsonParseException, JsonMappingException, IOException
+		public TableTokensBean(Token token, UnityMessageSource msg, String owner)
 		{
-			super();
 			this.token = token;
 			this.msg = msg;
-			this.attrProcessor = attrProcessor;
-			this.attrMan = attrMan;
 			this.oauthToken = OAuthToken.getInstanceFromJson(token.getContents());
+			this.owner = owner;
 		}
 	
 		public String getType()
@@ -302,19 +289,9 @@ public class AdminTokensComponent extends VerticalLayout
 			}
 		}
 		
-		public String getRealType()
+		String getRealType()
 		{
 			return token.getType();
-		}
-		
-		public String getOwner()
-		{
-			long ownerId = token.getOwner();
-			String idLabel = "[" + ownerId + "]";
-			String attrNameValue = getAttrNameValue(ownerId);
-			if (attrNameValue != null)
-				idLabel = idLabel + " " + attrNameValue;
-			return idLabel;
 		}
 		
 		public String getCreateTime()
@@ -342,7 +319,9 @@ public class AdminTokensComponent extends VerticalLayout
 		public String getRefreshToken()
 		{
 			//show refresh token only for access token
-			return oauthToken.getRefreshToken() != null && !token.getType().equals(OAuthProcessor.INTERNAL_REFRESH_TOKEN) ? oauthToken.getRefreshToken() : "";
+			boolean isRefreshToken = token.getType().equals(OAuthProcessor.INTERNAL_REFRESH_TOKEN);
+			return oauthToken.getRefreshToken() != null &&	!isRefreshToken ? 
+					oauthToken.getRefreshToken() : "";
 		}
 		
 		public boolean getHasIdToken()
@@ -363,44 +342,19 @@ public class AdminTokensComponent extends VerticalLayout
 			return Stream.of(oauthToken.getEffectiveScope()).collect(Collectors.joining(", "));
 		}
 		
-		private String getAttrNameValue(long owner)
+		public String getOwner()
 		{
-			String idLabel = null;
-			try
-			{
-				AttributeType nameAt = attrProcessor.getAttributeTypeWithSingeltonMetadata(
-						EntityNameMetadataProvider.NAME);
-				String attrToLabel = nameAt == null ? null : nameAt.getName();
-				Collection<AttributeExt> rootAttrs = new ArrayList<AttributeExt>();
-				rootAttrs = attrMan.getAllAttributes(new EntityParam(owner), true, "/",
-						null, true);
-				if (attrToLabel != null)
-					for (AttributeExt at : rootAttrs)
-					{
-						if (at.getName().equals(attrToLabel))
-							idLabel = at.getValues().get(0);
-					}
-			} catch (EngineException e)
-			{
-				// ok only user id is present in label
-			}
-			return idLabel;
-		}
+			return owner;
+		}		
 		
-		public Token getToken()
+		Token getToken()
 		{
 			return token;
 		}
 		
-		public OAuthToken getOAuthToken()
+		OAuthToken getOAuthToken()
 		{
 			return oauthToken;
 		}
-		
-		
-
-	
-		
-		
 	}
 }

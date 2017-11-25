@@ -14,7 +14,6 @@ import com.vaadin.ui.Grid;
  */
 public class SmallGrid<T> extends Grid<T>
 {
-	
 	public SmallGrid(String caption)
 	{
 		super(caption);
@@ -23,6 +22,12 @@ public class SmallGrid<T> extends Grid<T>
 
 	public SmallGrid()
 	{
+		setup();
+	}
+
+	public SmallGrid(Class<T> clazz)
+	{
+		super(clazz);
 		setup();
 	}
 	

@@ -6,15 +6,12 @@ package pl.edu.icm.unity.webui.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.vaadin.contextmenu.GridContextMenu;
 import com.vaadin.data.ValueProvider;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
-import com.vaadin.ui.Grid;
 
 /**
  * 1-column table with arbitrary objects. 
@@ -26,11 +23,10 @@ import com.vaadin.ui.Grid;
  */
 public class GenericElementsTable2<T> extends SmallGrid<T>
 {
-	private List<SingleActionHandler2<T>> actionHandlers;
 	private List<T> contents;
 	private ListDataProvider<T> dataProvider;
 	private Column<T, String> col1;
-	private GridContextMenu<T> contextMenu;
+	private GridContextMenuSupport<T> contextMenuSupp;
 
 	
 	public GenericElementsTable2(String columnHeader)
@@ -38,10 +34,8 @@ public class GenericElementsTable2<T> extends SmallGrid<T>
 		this(columnHeader, new DefaultNameProvider<T>());
 	}
 	
-	@SuppressWarnings("unchecked")
 	public GenericElementsTable2(String columnHeader, ValueProvider<T, String> nameProvider)
 	{
-		this.actionHandlers = new ArrayList<>();
 		contents = new ArrayList<>();
 		dataProvider = DataProvider.ofCollection(contents);
 		setDataProvider(dataProvider);
@@ -50,30 +44,9 @@ public class GenericElementsTable2<T> extends SmallGrid<T>
 		col1 = addColumn(nameProvider, n -> n)
 				.setCaption(columnHeader)
 				.setResizable(false);
-		addItemClickListener(this::onMouseClick);
+		GridSelectionSupport.installClickListener(this);
 		sort(col1);
-		contextMenu = new GridContextMenu<>(this);
-		contextMenu.addGridBodyContextMenuListener(e ->
-		{
-			Set<T> selection = new HashSet<>();
-			selection.add((T) e.getItem());
-			fillContextMenu(selection);
-		});
-	}
-	
-	private void fillContextMenu(Set<T> selection)
-	{
-		contextMenu.removeItems();
-		for (SingleActionHandler2<T> handler: actionHandlers)
-		{
-			if (handler.isVisible(selection))
-			{
-				contextMenu.addItem(handler.getCaption(), 
-						handler.getIcon(), 
-						(mi) -> handler.handle(selection))
-					.setEnabled(handler.isEnabled(selection));
-			}
-		}
+		contextMenuSupp = new GridContextMenuSupport<>(this);
 	}
 	
 	public void setMultiSelect(boolean multi)
@@ -83,12 +56,12 @@ public class GenericElementsTable2<T> extends SmallGrid<T>
 	
 	public void addActionHandler(SingleActionHandler2<T> actionHandler) 
 	{
-		actionHandlers.add(actionHandler);
+		contextMenuSupp.addActionHandler(actionHandler);
 	}
 
 	public List<SingleActionHandler2<T>> getActionHandlers()
 	{
-		return actionHandlers;
+		return contextMenuSupp.getActionHandlers();
 	}
 	
 	public void setInput(Collection<? extends T> elements)
@@ -109,19 +82,6 @@ public class GenericElementsTable2<T> extends SmallGrid<T>
 		sort(col1);
 	}
 
-	private void onMouseClick(Grid.ItemClick<T> event)
-	{
-		if (event.getMouseEventDetails().isDoubleClick())
-			return;
-		T item = event.getItem();
-		boolean alreadySelected = getSelectedItems().contains(item);
-		if (!alreadySelected)
-		{
-			deselectAll();
-			select(item);
-		}
-	}
-	
 	private static class DefaultNameProvider<T> implements ValueProvider<T, String>
 	{
 		@Override

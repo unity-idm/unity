@@ -21,7 +21,7 @@ import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
@@ -107,6 +107,8 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		errorDetailLabel = new HtmlSimplifiedLabel();
 		errorDetailLabel.addStyleName(Styles.emphasized.toString());
 		errorDetailLabel.setVisible(false);
+		ret.setSpacing(false);
+		ret.setMargin(false);
 		ret.addComponents(idpComponent, messageLabel, errorDetailLabel);
 		ret.setComponentAlignment(idpComponent, Alignment.TOP_CENTER);
 		this.main = ret;
