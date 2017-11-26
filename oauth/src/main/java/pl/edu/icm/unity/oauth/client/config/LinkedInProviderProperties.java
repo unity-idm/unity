@@ -28,13 +28,13 @@ public class LinkedInProviderProperties extends CustomProviderProperties
 		setIfUnset(properties, prefix + PROVIDER_NAME, "LinkedIn");
 		setIfUnset(properties, prefix + PROVIDER_LOCATION, "https://www.linkedin.com/uas/oauth2/authorization");
 		setIfUnset(properties, prefix + CLIENT_AUTHN_MODE, ClientAuthnMode.secretPost.toString());
+		setIfUnset(properties, prefix + CLIENT_AUTHN_MODE_FOR_PROFILE_ACCESS, ClientAuthnMode.secretBasic.toString());
 		setIfUnset(properties, prefix + ACCESS_TOKEN_ENDPOINT, "https://www.linkedin.com/uas/oauth2/accessToken");
-		setIfUnset(properties, prefix + PROFILE_ENDPOINT, "https://api.linkedin.com/v1/people/~?format=json");
-		setIfUnset(properties, prefix + SCOPES, "r_basicprofile");
-		setIfUnset(properties, prefix + ACCESS_TOKEN_FORMAT, AccessTokenFormat.httpParams.toString());
+		setIfUnset(properties, prefix + PROFILE_ENDPOINT, "https://api.linkedin.com/v1/people/~:(id,firstName,lastName,emailAddress,location,pictureUrl,publicProfileURL)?format=json");
+		setIfUnset(properties, prefix + SCOPES, "r_basicprofile r_emailaddress");
+		setIfUnset(properties, prefix + ACCESS_TOKEN_FORMAT, AccessTokenFormat.standard.toString());
 		setIfUnset(properties, prefix + ICON_URL, "file:../common/img/external/linkedin-small.png");
 		setIfUnset(properties, prefix + CommonWebAuthnProperties.TRANSLATION_PROFILE, "sys:linkedin");
 		return properties;
 	}
-
 }

@@ -76,7 +76,7 @@
 		},
 		{
 			"condition": {
-				"conditionValue": "(attr cotains 'birth_day') && (attr contains 'birth_month') && (attr contains 'birth_year')"
+				"conditionValue": "(attr contains 'birth_day') && (attr contains 'birth_month') && (attr contains 'birth_year')"
 			},
 			"action": {
 				"name": "mapAttribute",
@@ -118,7 +118,7 @@
 		},
 		{
 			"condition": {
-				"conditionValue": "attr contains 'phones.personal']"
+				"conditionValue": "attr contains 'phones.personal'"
 			},
 			"action": {
 				"name": "mapAttribute",

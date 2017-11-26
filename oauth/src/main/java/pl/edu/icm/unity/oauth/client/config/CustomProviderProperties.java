@@ -94,6 +94,9 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 				+ "registration at the provider"));
 		META.put(CLIENT_AUTHN_MODE, new PropertyMD(ClientAuthnMode.secretBasic).
 				setDescription("Defines how the client secret and id should be passed to the provider."));
+		META.put(CLIENT_AUTHN_MODE_FOR_PROFILE_ACCESS, new PropertyMD().setDescription(
+				"Defines how the client secret and id should be passed to the provider's user's profile endpoint. If not set the "
+						+ CLIENT_AUTHN_MODE + " is used"));		
 		META.put(SCOPES, new PropertyMD().
 				setDescription("Space separated list of authorization scopes to be requested. "
 						+ "Most often required if in non OpenID Connect mode, otherwise has a default "
@@ -184,6 +187,13 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 	{
 		boolean openIdConnectMode = getBooleanValue(OPENID_CONNECT);
 		return openIdConnectMode ? new OpenIdProfileFetcher() : new PlainProfileFetcher();
+	}
+	
+	public ClientAuthnMode getClientAuthModeForProfileAccess()
+	{
+		ClientAuthnMode mode = getEnumValue(CLIENT_AUTHN_MODE_FOR_PROFILE_ACCESS,
+				ClientAuthnMode.class);
+		return mode != null ? mode : getEnumValue(CLIENT_AUTHN_MODE, ClientAuthnMode.class);
 	}
 	
 	public Properties getProperties()

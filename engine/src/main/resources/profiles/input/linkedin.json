@@ -25,9 +25,37 @@
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
+					"name",
+					"/",
+					"attr['headline']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"email",
+					"/",
+					"attr['emailAddress']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
 					"firstname",
 					"/",
-					"attr['first-name']",
+					"attr['firstName']",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -41,7 +69,7 @@
 				"parameters": [
 					"surname",
 					"/",
-					"attr['last-name']",
+					"attr['lastName']",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -53,7 +81,7 @@
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
-					"address",
+					"provinceName",
 					"/",
 					"attr['location.name']",
 					"CREATE_OR_UPDATE"
@@ -73,6 +101,36 @@
 					"CREATE_OR_UPDATE"
 				]
 			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"profileURL",
+					"/",
+					"attr['publicProfileURL']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"pictureURL",
+					"/",
+					"attr['pictureURL']",
+					"CREATE_OR_UPDATE"
+				]
+			}
 		}
+		
+		
 	]
 }

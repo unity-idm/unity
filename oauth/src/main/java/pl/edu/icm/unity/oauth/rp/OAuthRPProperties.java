@@ -78,6 +78,9 @@ public class OAuthRPProperties extends PropertiesHelper implements BaseRemoteASP
 						+ "authorize the call."));
 		META.put(CLIENT_AUTHN_MODE, new PropertyMD(ClientAuthnMode.secretBasic).
 				setDescription("Defines how the client access token should be passed to the AS."));
+		META.put(CLIENT_AUTHN_MODE_FOR_PROFILE_ACCESS, new PropertyMD().setDescription(
+				"Defines how the client secret and id should be passed to the provider's user's profile endpoint. If not set the "
+						+ CLIENT_AUTHN_MODE + " is used"));
 		META.put(REQUIRED_SCOPES, new PropertyMD().setList(false).
 				setDescription("Optional list of scopes which must be associated with the validated"
 						+ " access token to make the authentication successful"));
@@ -128,6 +131,14 @@ public class OAuthRPProperties extends PropertiesHelper implements BaseRemoteASP
 			throw new ConfigurationException("The " + getKeyDescription(VERIFICATION_ENDPOINT) +
 					" property is mandatory unless the '" + VerificationProtocol.internal +
 					"' verification protocol is used");
+	}
+	
+	@Override
+	public ClientAuthnMode getClientAuthModeForProfileAccess()
+	{
+		ClientAuthnMode mode = getEnumValue(CLIENT_AUTHN_MODE_FOR_PROFILE_ACCESS,
+				ClientAuthnMode.class);
+		return mode != null ? mode : getEnumValue(CLIENT_AUTHN_MODE, ClientAuthnMode.class);
 	}
 	
 	public Properties getProperties()

@@ -45,6 +45,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
+import com.nimbusds.oauth2.sdk.token.AccessTokenType;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
@@ -411,7 +412,10 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		BearerAccessToken accessToken;
 		if (accessTokenFormat == AccessTokenFormat.standard)
 		{
-			AccessTokenResponse atResponse = AccessTokenResponse.parse(response);
+			JSONObject jsonResp = response.getContentAsJSONObject();
+			if (!jsonResp.containsKey("token_type"))
+				jsonResp.put("token_type", AccessTokenType.BEARER.getValue());
+			AccessTokenResponse atResponse = AccessTokenResponse.parse(jsonResp);
 			accessToken = extractAccessToken(atResponse);
 			extractUserInfoFromStandardAccessToken(atResponse, ret);
 		} else
