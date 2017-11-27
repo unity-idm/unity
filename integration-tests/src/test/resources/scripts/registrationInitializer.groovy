@@ -6,7 +6,7 @@ import pl.edu.icm.unity.engine.translation.form.action.AddAttributeActionFactory
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory
 import pl.edu.icm.unity.exceptions.EngineException
 import pl.edu.icm.unity.stdext.credential.PasswordToken
-import pl.edu.icm.unity.stdext.identity.UsernameIdentity
+import pl.edu.icm.unity.stdext.identity.IdentifierIdentity
 import pl.edu.icm.unity.types.I18nString
 import pl.edu.icm.unity.types.basic.EntityParam
 import pl.edu.icm.unity.types.basic.EntityState
@@ -63,8 +63,8 @@ void initRegistrationForm()
 
 		IdentityRegistrationParam idParam = new IdentityRegistrationParam();
 		idParam.setDescription("description");
-		idParam.setIdentityType(UsernameIdentity.ID);
-		idParam.setLabel("Username");
+		idParam.setIdentityType(IdentifierIdentity.ID);
+		idParam.setLabel("Identifier");
 		idParam.setOptional(true);
 		idParam.setRetrievalSettings(ParameterRetrievalSettings.automatic);
 

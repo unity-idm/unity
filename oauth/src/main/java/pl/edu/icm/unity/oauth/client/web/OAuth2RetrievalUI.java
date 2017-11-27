@@ -57,7 +57,8 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	private UnityMessageSource msg;
 	private OAuthExchange credentialExchange;
 	private OAuthContextsManagement contextManagement;
-	private String idpKey;
+	private final String configKey;
+	private final String idpKey;
 	
 	private AuthenticationResultCallback callback;
 	private SandboxAuthnResultCallback sandboxCallback;
@@ -67,14 +68,17 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	private HtmlSimplifiedLabel errorDetailLabel;
 	
 	private Component main;
+
 	
 	public OAuth2RetrievalUI(UnityMessageSource msg, OAuthExchange credentialExchange,
-			OAuthContextsManagement contextManagement, ExecutorsService executorsService, String idpKey)
+			OAuthContextsManagement contextManagement, ExecutorsService executorsService, 
+			String idpKey, String configKey)
 	{
 		this.msg = msg;
 		this.credentialExchange = credentialExchange;
 		this.contextManagement = contextManagement;
 		this.idpKey = idpKey;
+		this.configKey = configKey;
 		initUI();
 	}
 
@@ -94,7 +98,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 
 		ScaleMode scaleMode = clientProperties.getEnumValue(OAuthClientProperties.SELECTED_ICON_SCALE, 
 				ScaleMode.class); 
-		CustomProviderProperties providerProps = clientProperties.getProvider(idpKey);
+		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
 		String name = providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
 		String logoUrl = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, 
 				msg.getLocale());
@@ -135,7 +139,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	public String getLabel()
 	{
 		OAuthClientProperties clientProperties = credentialExchange.getSettings();
-		CustomProviderProperties providerProps = clientProperties.getProvider(idpKey);
+		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
 		return providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
 	}
 
@@ -143,7 +147,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	public Resource getImage()
 	{
 		OAuthClientProperties clientProperties = credentialExchange.getSettings();
-		CustomProviderProperties providerProps = clientProperties.getProvider(idpKey);
+		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
 		String url = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, 
 				msg.getLocale());
 		if (url == null)
@@ -236,7 +240,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		String currentRelativeURI = servletPath + query;
 		try
 		{
-			context = credentialExchange.createRequest(idpKey);
+			context = credentialExchange.createRequest(configKey);
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
 			context.setSandboxCallback(sandboxCallback);

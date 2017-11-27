@@ -132,7 +132,7 @@ public class AuthNTileGrid extends CustomComponent implements AuthNTile
 				String name = vaadinAuthenticationUI.getLabel();
 				Resource logo = vaadinAuthenticationUI.getImage();
 				String id = vaadinAuthenticationUI.getId();
-				final String globalId = set.getId() + "_" + id;
+				final String globalId = AuthenticationOptionKeyUtils.encode(set.getId(), id);
 				if (firstOptionId == null)
 					firstOptionId = globalId;
 				authNOptionsById.put(globalId, set);

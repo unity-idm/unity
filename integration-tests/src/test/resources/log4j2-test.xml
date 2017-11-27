@@ -14,7 +14,10 @@
 	
 		<!-- Everything produced by Unity (unless overwritten below) -->
 		<Logger name="unity.server" level="DEBUG"/>
-
+		<Logger name="unity.server.EndpointsUpdater" level="INFO"/>
+		<Logger name="unity.server.EntitiesScheduledUpdater" level="INFO"/>
+		<Logger name="unity.server.TokensManagementImpl" level="INFO"/>
+		
 		<!-- Loading of any configuration -->
 		<Logger name="unity.server.config" level="INFO"/>
 

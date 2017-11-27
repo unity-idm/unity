@@ -22,7 +22,6 @@ import org.springframework.context.annotation.Scope;
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinService;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
@@ -76,8 +75,12 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationFormsChooserComponent;
 public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationUI.class);
-	private static final String LAST_AUTHN_COOKIE = "lastAuthenticationUsed";
-	
+	private static final String LAST_AUTHN_COOKIE = "lastAuthnUsed";
+	/**
+	 * Query param allowing for selecting IdP in request to the endpoint
+	 */
+	public static final String IDP_SELECT_PARAM = "select_authn";
+
 	protected LocaleChoiceComponent localeChoice;
 	protected WebAuthenticationProcessor authnProcessor;
 	protected RegistrationFormsChooserComponent formsChooser;
@@ -134,26 +137,9 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		
 		List<AuthNTile> tiles = prepareTiles(authenticators);
 		selectorPanel = new AuthNTiles(msg, tiles, authenticationPanel);
-		
-		String lastIdp = getLastIdpFromCookie();
-		String initialOption = null;
-		if (lastIdp != null)
-		{
-			AuthenticationOption lastAuthnOption = selectorPanel.getAuthenticationOptionById(lastIdp);
-			if (lastAuthnOption != null)
-				initialOption = lastIdp;
-		}
-		if (initialOption == null)
-			initialOption = tiles.get(0).getFirstOptionId();
 
-		if (initialOption != null)
-		{
-			AuthenticationOption initAuthnOption = selectorPanel.getAuthenticationOptionById(initialOption);
-			authenticationPanel.setAuthenticator(selectorPanel.getAuthenticatorById(initialOption), 
-					initAuthnOption, initialOption);
-			authenticationPanel.setVisible(true);
-		}
-		
+		switchAuthnOptionIfRequested(tiles.get(0).getFirstOptionId());
+
 		//language choice and registration
 		HorizontalLayout topBar = new HorizontalLayout();
 		topBar.setWidth(100, Unit.PERCENTAGE);
@@ -251,7 +237,8 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	{
 		return new SelectedAuthNPanel(msg, authnProcessor, idsMan, formLauncher, 
 				execService, cancelHandler, endpointDescription.getRealm(),
-				getSandboxServletURLForAssociation(), sandboxRouter, inputTranslationEngine);
+				getSandboxServletURLForAssociation(), sandboxRouter, 
+				inputTranslationEngine, endpointDescription.getEndpoint().getContextAddress());
 	}
 	
 	private List<AuthNTile> prepareTiles(List<AuthenticationOption> authenticators)
@@ -305,6 +292,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			AuthNTile tile = tileMode == TileMode.simple ? 
 				new AuthNTileSimple(authNs, scaleMode, perRow, selectionChangedListener, displayedName) : 
 				new AuthNTileGrid(authNs, msg, selectionChangedListener, displayedName);
+			log.debug("Adding tile with authenticators {}", tile.getAuthenticators().keySet());
 			ret.add(tile);
 		}
 		
@@ -317,15 +305,22 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		
 		return ret;
 	}
-	
-	public static void setLastIdpCookie(String idpKey)
+
+	public static Cookie createLastIdpCookie(String endpointPath, String idpKey)
 	{
-		VaadinResponse resp = VaadinService.getCurrentResponse();
 		Cookie selectedIdp = new Cookie(LAST_AUTHN_COOKIE, idpKey);
 		selectedIdp.setMaxAge(3600*24*30);
-		selectedIdp.setPath("/");
+		selectedIdp.setPath(endpointPath);
 		selectedIdp.setHttpOnly(true);
-		resp.addCookie(selectedIdp);
+		return selectedIdp;
+	}
+	
+	private String getLastIdpFromRequestParam()
+	{
+		VaadinRequest req = VaadinService.getCurrentRequest();
+		if (req == null)
+			return null;
+		return req.getParameter(IDP_SELECT_PARAM);
 	}
 	
 	private String getLastIdpFromCookie()
@@ -390,11 +385,37 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 				msg.getMessage("AuthenticationUI.registrationFormInitError"));
 	}
 	
+	private void switchAuthnOptionIfRequested(String defaultVal)
+	{
+		String lastIdp = getLastIdpFromRequestParam(); 
+		if (lastIdp == null)
+			lastIdp = getLastIdpFromCookie();
+		String initialOption = null;
+		if (lastIdp != null)
+		{
+			AuthenticationOption lastAuthnOption = selectorPanel.getAuthenticationOptionById(lastIdp);
+			if (lastAuthnOption != null)
+				initialOption = lastIdp;
+		}
+		log.debug("Requested/cookie idp={}, is available={}", lastIdp, initialOption!=null);
+		if (initialOption == null)
+			initialOption = defaultVal;
+
+		if (initialOption != null)
+		{
+			AuthenticationOption initAuthnOption = selectorPanel.getAuthenticationOptionById(initialOption);
+			authenticationPanel.setAuthenticator(selectorPanel.getAuthenticatorById(initialOption), 
+					initAuthnOption, initialOption);
+			authenticationPanel.setVisible(true);
+		}
+	}
+	
 	@Override
 	protected void refresh(VaadinRequest request) 
 	{
 		setContent(topLevelLayout);		//in case somebody refreshes UI which was previously replaced with empty
 							//may happen that the following code will clean it but it is OK.
+		switchAuthnOptionIfRequested(null);
 		authenticationPanel.refresh(request);
 	}
 	

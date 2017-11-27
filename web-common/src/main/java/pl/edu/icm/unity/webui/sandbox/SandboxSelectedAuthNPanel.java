@@ -29,7 +29,7 @@ public class SandboxSelectedAuthNPanel extends SelectedAuthNPanel
 			final CancelHandler cancelHandler, AuthenticationRealm realm)
 	{
 		super(msg, authnProcessor, idsMan, formLauncher, execService, cancelHandler, realm,
-				null, null, null);
+				null, null, null, null);
 	}
 
 	@Override
