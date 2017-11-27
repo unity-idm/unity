@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.oauth;
 
+import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;
+
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.unicore.util.configuration.PropertiesHelperAPI;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
@@ -22,9 +24,11 @@ public interface BaseRemoteASProperties extends PropertiesHelperAPI
 	public static final String CLIENT_SECRET = "clientSecret";
 	public static final String CLIENT_AUTHN_MODE = "clientAuthenticationMode";
 	public static final String CLIENT_AUTHN_MODE_FOR_PROFILE_ACCESS = "clientAuthenticationModeForProfileAccess";
+	public static final String CLIENT_HTTP_METHOD_FOR_PROFILE_ACCESS = "httpMethodForProfileAccess";
 	public static final String CLIENT_TRUSTSTORE = "httpClientTruststore";
 	public static final String CLIENT_HOSTNAME_CHECKING = "httpClientHostnameChecking";
 	
 	X509CertChainValidator getValidator();
 	ClientAuthnMode getClientAuthModeForProfileAccess();
+	Method getClientHttpMethodForProfileAccess();
 }

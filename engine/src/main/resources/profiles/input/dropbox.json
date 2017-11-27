@@ -25,9 +25,9 @@
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
-					"address",
+					"name",
 					"/",
-					"attr['display_name']",
+					"attr['name.display_name']",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -41,7 +41,7 @@
 				"parameters": [
 					"email",
 					"/",
-					"attr['email']",
+					"attr['email'] + (attr['email_verified'] == true ? '[CONFIRMED]' : '[UNCONFIRMED]')",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -55,7 +55,7 @@
 				"parameters": [
 					"firstname",
 					"/",
-					"attr['name_details.given_name']",
+					"attr['name.given_name']",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -69,7 +69,7 @@
 				"parameters": [
 					"surname",
 					"/",
-					"attr['name_details.surname']",
+					"attr['name.surname']",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -126,6 +126,20 @@
 					"teamname",
 					"/",
 					"attr['team.name']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"profileURL",
+					"/",
+					"attr['profile_photo_url']",
 					"CREATE_OR_UPDATE"
 				]
 			}

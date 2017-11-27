@@ -14,7 +14,6 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.logging.log4j.Logger;
 
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
-import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
@@ -54,7 +53,9 @@ public class PlainProfileFetcher implements UserProfileFetcher
 				.stream().collect(Collectors.toMap(NameValuePair::getName,
 						NameValuePair::getValue)));	
 		uri.clearParameters();
-		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, uri.build().toURL());
+		HTTPRequest httpReqRaw = new HTTPRequest(
+				providerConfig.getClientHttpMethodForProfileAccess(),
+				uri.build().toURL());
 
 		ServerHostnameCheckingMode checkingMode = providerConfig.getEnumValue(
 				BaseRemoteASProperties.CLIENT_HOSTNAME_CHECKING,
