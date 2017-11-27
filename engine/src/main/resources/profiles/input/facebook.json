@@ -104,7 +104,7 @@
 		},
 		{
 			"condition": {
-				"conditionValue": "attr contains 'address.street'"
+				"conditionValue": "(attr contains 'address.street') && (attr contains 'address.city') && (attr contains 'address.region') && (attr contains 'address.country')"
 			},
 			"action": {
 				"name": "mapAttribute",
@@ -118,7 +118,7 @@
 		},
 		{
 			"condition": {
-				"conditionValue": "true"
+				"conditionValue": "(attr contains 'birthday') && (attr['birthday'].length()  == 10)"
 			},
 			"action": {
 				"name": "mapAttribute",
@@ -139,7 +139,7 @@
 				"parameters": [
 					"currency",
 					"/",
-					"attr['currency']",
+					"attr['currency.user_currency']",
 					"CREATE_OR_UPDATE"
 				]
 			}

@@ -83,7 +83,7 @@
 				"parameters": [
 					"birthday",
 					"/",
-					"attr['birth_day'] + '/' + attr['birth_month'] + '/' + attr['birth_year']  ",
+					"String.format('%02d', Integer.parseInt(attr['birth_day'])) + '/' +  String.format('%02d', Integer.parseInt(attr['birth_month'])) + '/' + attr['birth_year']",
 					"CREATE_OR_UPDATE"
 				]
 			}
