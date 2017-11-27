@@ -81,7 +81,8 @@ public abstract class SandboxUIBase extends AuthenticationUI
 	protected SelectedAuthNPanel createSelectedAuthNPanel()
 	{
 		return new SandboxSelectedAuthNPanel(msg, authnProcessor, idsMan, formLauncher, 
-				execService, cancelHandler, endpointDescription.getRealm());
+				execService, cancelHandler, endpointDescription.getRealm(),
+				endpointDescription.getEndpoint().getContextAddress());
 	}
 
 	protected abstract List<AuthenticationOptionDescription> getAllVaadinAuthenticators(

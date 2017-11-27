@@ -7,7 +7,6 @@ package pl.edu.icm.unity.oauth.client.web;
 import java.io.IOException;
 import java.util.Set;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -27,14 +26,14 @@ import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
  * 
  * @author K. Benedyczak
  */
-public class OAuthProxyAuthnHandler
+class OAuthProxyAuthnHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH,
 			OAuthProxyAuthnHandler.class);
 	
 	private OAuthExchange credentialExchange;
 	
-	public OAuthProxyAuthnHandler(OAuthExchange credentialExchange)
+	OAuthProxyAuthnHandler(OAuthExchange credentialExchange)
 	{
 		this.credentialExchange = credentialExchange;
 	}
@@ -65,7 +64,7 @@ public class OAuthProxyAuthnHandler
 		return authnOption;
 	}
 
-	public boolean triggerAutomatedAuthentication(HttpServletRequest httpRequest,
+	boolean triggerAutomatedAuthentication(HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse) throws IOException
 	{
 		String idpKey = getIdpConfigKey(httpRequest);
@@ -84,11 +83,7 @@ public class OAuthProxyAuthnHandler
 			log.warn("Starting a new external oauth authentication, killing the previous "
 					+ "one which is still in progress.");
 		}
-		String origReqUri = (String)httpRequest.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI);
-		String servletPath = origReqUri == null ? "/" : origReqUri;
-		String query = httpRequest.getQueryString() == null ? "" : 
-			ProxyAuthenticationFilter.filteredQuery(httpRequest);
-		String currentRelativeURI = servletPath + query;
+		String currentRelativeURI = ProxyAuthenticationFilter.getCurrentRelativeURL(httpRequest);
 		try
 		{
 			context = credentialExchange.createRequest(idpConfigKey);

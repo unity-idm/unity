@@ -79,7 +79,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	/**
 	 * Query param allowing for selecting IdP in request to the endpoint
 	 */
-	public static final String IDP_SELECT_PARAM = "select_authn";
+	public static final String IDP_SELECT_PARAM = "uy_select_authn";
 
 	protected LocaleChoiceComponent localeChoice;
 	protected WebAuthenticationProcessor authnProcessor;

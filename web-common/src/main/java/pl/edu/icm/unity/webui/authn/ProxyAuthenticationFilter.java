@@ -12,6 +12,7 @@ import java.util.Map;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -41,7 +42,7 @@ public class ProxyAuthenticationFilter implements Filter
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			ProxyAuthenticationFilter.class);
-	private static final String TRIGGERING_PARAM = "auto_login";
+	private static final String TRIGGERING_PARAM = "uy_auto_login";
 	
 	private Map<String, BindingAuthn> authenticators;
 	private String endpointPath;
@@ -67,7 +68,7 @@ public class ProxyAuthenticationFilter implements Filter
 	 * @param httpRequest
 	 * @return
 	 */
-	public static String filteredQuery(HttpServletRequest httpRequest)
+	private static String filteredQuery(HttpServletRequest httpRequest)
 	{
 		Map<String, String[]> parameterMap = httpRequest.getParameterMap();
 		URIBuilder uriBuilder = new URIBuilder();
@@ -79,6 +80,15 @@ public class ProxyAuthenticationFilter implements Filter
 					uriBuilder.addParameter(entry.getKey(), value);
 			}
 		return uriBuilder.toString();
+	}
+	
+	public static String getCurrentRelativeURL(HttpServletRequest httpRequest)
+	{
+		String origReqUri = (String)httpRequest.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI);
+		String servletPath = origReqUri == null ? "/" : origReqUri;
+		String query = httpRequest.getQueryString() == null ? "" : 
+			ProxyAuthenticationFilter.filteredQuery(httpRequest);
+		return servletPath + query;
 	}
 	
 	@Override
