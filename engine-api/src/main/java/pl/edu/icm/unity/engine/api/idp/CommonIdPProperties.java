@@ -23,15 +23,15 @@ public class CommonIdPProperties
 
 
 	public static Map<String, PropertyMD> getDefaultsWithCategory(DocumentationCategory category,
-			String defaultProfileMessage)
+			String defaultProfileMessage, String defaultProfile)
 	{
-		Map<String, PropertyMD> defaults = getDefaults(defaultProfileMessage);
+		Map<String, PropertyMD> defaults = getDefaults(defaultProfileMessage, defaultProfile);
 		for (PropertyMD md: defaults.values())
 			md.setCategory(category);
 		return defaults;
 	}
 
-	public static Map<String, PropertyMD> getDefaults(String defaultProfileMessage)
+	public static Map<String, PropertyMD> getDefaults(String defaultProfileMessage, String defaultProfile)
 	{
 		Map<String, PropertyMD> defaults = new HashMap<String, PropertyMD>();
 		defaults.put(SKIP_CONSENT, new PropertyMD("false").
@@ -40,8 +40,10 @@ public class CommonIdPProperties
 						+ "is going to be released. Note that user may always choose to disable "
 						+ "the consent screen for each service, even if this setting is set to false."));
 
-		defaults.put(TRANSLATION_PROFILE, new PropertyMD().
-				setDescription(defaultProfileMessage));
+		defaults.put(TRANSLATION_PROFILE, defaultProfile != null
+				? new PropertyMD(defaultProfile)
+						.setDescription(defaultProfileMessage)
+				: new PropertyMD().setDescription(defaultProfileMessage));
 
 		defaults.put(ASSUME_FORCE, new PropertyMD("true").
 				setDescription("Controls what to do in case of initialization of a new authentication, "

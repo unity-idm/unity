@@ -137,7 +137,7 @@ public class SAMLSPProperties extends SamlProperties
 		META.put(IDP_GROUP_MEMBERSHIP_ATTRIBUTE, new PropertyMD().setCategory(idp).setStructuredListEntry(IDP_PREFIX).setDescription(
 				"Defines a SAML attribute name which will be treated as an attribute carrying group" +
 				" membership information."));
-		META.put(CommonWebAuthnProperties.TRANSLATION_PROFILE, new PropertyMD().setCategory(idp).setStructuredListEntry(IDP_PREFIX).
+		META.put(CommonWebAuthnProperties.TRANSLATION_PROFILE, new PropertyMD("sys:saml").setCategory(idp).setStructuredListEntry(IDP_PREFIX).
 				setDescription("Name of a translation" +
 				" profile, which will be used to map remotely obtained attributes and identity" +
 				" to the local counterparts. The profile should at least map the remote identity."));

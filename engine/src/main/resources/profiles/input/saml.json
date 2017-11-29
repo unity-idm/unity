@@ -1,0 +1,20 @@
+{
+	"ver": "2",
+	"name": "sys:saml",
+	"description": "Translation profile for remote SAML IdP authn",
+	"type": "INPUT",
+	"mode": "DEFAULT",
+	"rules": [
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "includeInputProfile",
+				"parameters": [
+					"sys:ldap"
+				]
+			}
+		}
+	]
+}

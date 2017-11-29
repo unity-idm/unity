@@ -1,0 +1,224 @@
+{
+	"ver": "2",
+	"name": "sys:samlUrn",
+	"description": "SAML core translation profile using urn:oid attribute names",
+	"type": "OUTPUT",
+	"rules": [
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"country",
+					"urn:oid:2.5.4.6"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"name",
+					"urn:oid:2.5.4.3"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"description",
+					"urn:oid:2.5.4.13"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"firstname",
+					"urn:oid:2.5.4.42"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"locality",
+					"urn:oid:2.5.4.7"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"organization",
+					"urn:oid:2.5.4.10"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"organizationUnit",
+					"urn:oid:2.5.4.11"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"post",
+					"urn:oid:2.5.4.16"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"postalCode",
+					"urn:oid:2.5.4.17"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"surname",
+					"urn:oid:2.5.4.4"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"provinceName",
+					"urn:oid:2.5.4.8"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"street",
+					"urn:oid:2.5.4.9"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"telephoneNumber",
+					"urn:oid:2.5.4.20"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"title",
+					"urn:oid:2.5.4.12"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"initials",
+					"urn:oid:2.5.4.43"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"seeAlso",
+					"urn:oid:2.5.4.34"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"facsimileTelephoneNumber",
+					"urn:oid:2.5.4.23"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"address",
+					"urn:oid:2.5.4.26"
+				]
+			}
+		}
+	]
+}

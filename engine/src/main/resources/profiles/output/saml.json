@@ -1,0 +1,129 @@
+{
+	"ver": "2",
+	"name": "sys:saml",
+	"description": "SAML core translation profile",
+	"type": "OUTPUT",
+	"mode": "DEFAULT",
+	"rules": [
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"country",
+					"c"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"name",
+					"cn"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"firstname",
+					"givenName"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"locality",
+					"l"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"organization",
+					"o"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"organizationUnit",
+					"ou"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"post",
+					"postalAddress"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"surname",
+					"sn"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"provinceName",
+					"st"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"address",
+					"registeredAddress"
+				]
+			}
+		}
+	]
+}

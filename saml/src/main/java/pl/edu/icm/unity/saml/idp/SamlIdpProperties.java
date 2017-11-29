@@ -215,8 +215,7 @@ public class SamlIdpProperties extends SamlProperties
 		
 		defaults.putAll(CommonIdPProperties.getDefaultsWithCategory(samlCat, 
 				"Name of an output translation profile which can be used to dynamically modify the "
-				+ "data being returned on this endpoint. When not defined the default profile is used: "
-				+ "attributes are not filtered, memberOf attribute is added with group membership"));
+				+ "data being returned on this endpoint.", "sys:saml"));
 		
 		defaults.put(USER_EDIT_CONSENT, new PropertyMD("true").setCategory(samlCat)
 				.setDescription("Controls whether user is allowed to remove released attributes on the "

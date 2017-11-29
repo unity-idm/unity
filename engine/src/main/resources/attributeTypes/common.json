@@ -960,6 +960,36 @@
 		"selfModificable": false,
 		"uniqueValues": false,
 		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "Locality",
+			"Map": {
+				"pl": "Localizacja",
+				"en": "Locality"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "locality",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
 			"min": 0.0,
 			"max": 1.7976931348623157E308
 		},

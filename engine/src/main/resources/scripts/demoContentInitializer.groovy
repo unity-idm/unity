@@ -85,18 +85,14 @@ void createExampleGroups()
 
 void createExampleAttributeTypes()
 {
-	AttributeType postalcode = new AttributeType("postalcode", StringAttributeSyntax.ID, msgSrc);
-	postalcode.setMinElements(0);
-	postalcode.setMaxElements(Integer.MAX_VALUE);
-	StringAttributeSyntax pcsyntax = new StringAttributeSyntax();
-	pcsyntax.setRegexp("[0-9][0-9]-[0-9][0-9][0-9]");
-	pcsyntax.setMaxLength(6);
-	postalcode.setValueSyntaxConfiguration(pcsyntax.getSerializedConfiguration());
-	attributeTypeManagement.addAttributeType(postalcode);
 	
 	AttributeType height = new AttributeType("height", FloatingPointAttributeSyntax.ID, msgSrc);
 	height.setMinElements(1);
 	attributeTypeManagement.addAttributeType(height);
+	
+	AttributeType weight = new AttributeType("weight", FloatingPointAttributeSyntax.ID, msgSrc);
+	weight.setMinElements(1);
+	attributeTypeManagement.addAttributeType(weight);
 }
 
 
