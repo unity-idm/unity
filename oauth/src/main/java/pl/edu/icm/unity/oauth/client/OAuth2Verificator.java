@@ -285,8 +285,11 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				new URI(tokenEndpoint),
 				clientAuthn,
 				authzCodeGrant);
+		
 		HTTPRequest httpRequest = new CustomHttpRequestFactory()
 				.wrapRequest(request.toHTTPRequest(), context, config); 
+		httpRequest.setAccept(CommonContentTypes.APPLICATION_JSON.toString());
+		
 		if (log.isTraceEnabled())
 		{
 			String notSecretQuery = httpRequest.getQuery().replaceFirst(
@@ -413,8 +416,6 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		BearerAccessToken accessToken;
 		if (accessTokenFormat == AccessTokenFormat.standard)
 		{
-			if (response.getContentType().toString().equals("text/javascript"))
-				response.setContentType(CommonContentTypes.APPLICATION_JSON);
 			JSONObject jsonResp = response.getContentAsJSONObject();
 			if (!jsonResp.containsKey("token_type"))
 				jsonResp.put("token_type", AccessTokenType.BEARER.getValue());
