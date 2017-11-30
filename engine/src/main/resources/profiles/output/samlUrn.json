@@ -9,6 +9,21 @@
 				"conditionValue": "true"
 			},
 			"action": {
+				"name": "createAttribute",
+				"parameters": [
+					"urn:oid:0.9.2342.19200300.100.1.1",
+					"idsByType['identifier']",
+					"false",
+					"urn:oid:0.9.2342.19200300.100.1.1",
+					"user id"
+				]
+			}
+		},	
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
 				"name": "mapAttributeName",
 				"parameters": [
 					"country",

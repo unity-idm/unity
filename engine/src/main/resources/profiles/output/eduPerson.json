@@ -1,0 +1,94 @@
+{
+	"ver": "2",
+	"name": "sys:eduPerson",
+	"description": "SAML eduPerson translation profile",
+	"type": "OUTPUT",
+	"rules": [
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "includeOutputProfile",
+				"parameters": [
+					"sys:saml"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "createAttribute",
+				"parameters": [
+					"eduPersonUniqueId",
+					"idsByType['identifier']",
+					"false",
+					"eduPersonUniqueId",
+					"eduPersonUniqueId"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"nickname",
+					"eduPersonNickname"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"email",
+					"mail"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"picture",
+					"jpegPhoto"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"affiliation",
+					"eduPersonAffiliation"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"primaryAffiliation",
+					"eduPersonPrimaryAffiliation"
+				]
+			}
+		}
+	]
+}
