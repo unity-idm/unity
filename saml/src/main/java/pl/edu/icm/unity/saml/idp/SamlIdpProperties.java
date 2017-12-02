@@ -91,6 +91,8 @@ public class SamlIdpProperties extends SamlProperties
 	public static final String DEFAULT_GROUP = "defaultGroup";
 	public static final String USER_EDIT_CONSENT = "userCanEditConsent";
 	
+	public static final String DEFAULT_TRANSLATION_PROFILE = "sys:saml";
+	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
 
@@ -215,7 +217,7 @@ public class SamlIdpProperties extends SamlProperties
 		
 		defaults.putAll(CommonIdPProperties.getDefaultsWithCategory(samlCat, 
 				"Name of an output translation profile which can be used to dynamically modify the "
-				+ "data being returned on this endpoint.", "sys:saml"));
+				+ "data being returned on this endpoint.", DEFAULT_TRANSLATION_PROFILE));
 		
 		defaults.put(USER_EDIT_CONSENT, new PropertyMD("true").setCategory(samlCat)
 				.setDescription("Controls whether user is allowed to remove released attributes on the "

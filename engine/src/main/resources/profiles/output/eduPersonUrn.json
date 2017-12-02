@@ -125,6 +125,126 @@
 					"urn:oid:1.3.6.1.4.1.5923.1.1.1.5"
 				]
 			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"eduPersonEntitlement",
+					"urn:oid:1.3.6.1.4.1.5923.1.1.1.7"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"eduPersonAssurance",
+					"urn:oid:1.3.6.1.4.1.5923.1.1.1.11"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"eduPersonOrcid",
+					"urn:oid:1.3.6.1.4.1.5923.1.1.1.16"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"eduPersonOrgDN",
+					"urn:oid:1.3.6.1.4.1.5923.1.1.1.3"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"eduPersonOrgUnitDN",
+					"urn:oid:1.3.6.1.4.1.5923.1.1.1.4"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"eduPersonPrimaryOrgUnitDN",
+					"urn:oid:1.3.6.1.4.1.5923.1.1.1.8"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"eduPersonPrincipalName",
+					"urn:oid:1.3.6.1.4.1.5923.1.1.1.6"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"eduPersonPrincipalNamePrior",
+					"urn:oid:1.3.6.1.4.1.5923.1.1.1.12"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"eduPersonScopedAffiliation",
+					"urn:oid:1.3.6.1.4.1.5923.1.1.1.9"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"eduPersonTargetedID",
+					"urn:oid:1.3.6.1.4.1.5923.1.1.1.10"
+				]
+			}
 		}
 	]
 }

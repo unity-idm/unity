@@ -139,7 +139,7 @@
 				"parameters": [
 					"email",
 					"/",
-					"attr['email']",
+					"attr['email'] +  (attr contains 'email_verified') ? (attr['email_verified'] == true ? '[CONFIRMED]' : '[UNCONFIRMED]') : ''",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -209,7 +209,7 @@
 				"parameters": [
 					"telephoneNumber",
 					"/",
-					"String.valueOf(attr['phone_number']).replace('+','').replace('(','').replace(')','').replace('.','').replace('-','').replace(' ','')",
+					"String.valueOf(attr['phone_number']).replace('(','').replace(')','').replace('.','').replace('-','').replace(' ','')",
 					"CREATE_OR_UPDATE"
 				]
 			}

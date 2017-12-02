@@ -24,8 +24,8 @@ import pl.edu.icm.unity.types.basic.GroupContents
 import groovy.transform.Field
 
 
-@Field final String CN_ATTR = "cn"
-@Field final String JPEG_ATTR = "jpegPhoto";
+@Field final String CN_ATTR = "name"
+@Field final String JPEG_ATTR = "picture";
 @Field final String ORG_ATTR = "o";
 @Field final String EMAIL_ATTR = "email";
 

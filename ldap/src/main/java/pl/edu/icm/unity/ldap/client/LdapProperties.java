@@ -93,6 +93,7 @@ public class LdapProperties extends PropertiesHelper
 	
 	public static final String TRUSTSTORE = "truststore";
 	public static final String TRANSLATION_PROFILE = "translationProfile";
+	public static final String DEFAULT_TRANSLATION_PROFILE = "sys:ldap";
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META=new HashMap<String, PropertyMD>();
@@ -223,7 +224,7 @@ public class LdapProperties extends PropertiesHelper
 		META.put(ADV_SEARCH_SCOPE, new PropertyMD(SearchScope.sub).setStructuredListEntry(ADV_SEARCH_PFX).setCategory(advSearch).
 				setDescription("LDAP search scope to be used for this search."));
 
-		META.put(TRANSLATION_PROFILE, new PropertyMD("sys:ldap").setCategory(main).setDescription("Name of a translation" +
+		META.put(TRANSLATION_PROFILE, new PropertyMD(DEFAULT_TRANSLATION_PROFILE).setCategory(main).setDescription("Name of a translation" +
 				" profile, which will be used to map remotely obtained attributes and identity" +
 				" to the local counterparts. The profile should at least map the remote identity."));
 

@@ -370,28 +370,28 @@
 		},
 		{
 			"condition": {
-				"conditionValue": "true"
+				"conditionValue": "attr contains 'telephoneNumber'"
 			},
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
 					"telephoneNumber",
 					"/",
-					"attr['telephoneNumber']",
+					"String.valueOf(attr['telephoneNumber']).replace('(','').replace(')','').replace('.','').replace('-','').replace(' ','')",
 					"CREATE_OR_UPDATE"
 				]
 			}
 		},
 		{
 			"condition": {
-				"conditionValue": "true"
+				"conditionValue": "attr contains 'urn:oid:2.5.4.20'"
 			},
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
 					"telephoneNumber",
 					"/",
-					"attr['urn:oid:2.5.4.20']",
+					"String.valueOf(attr['urn:oid:2.5.4.20']).replace('(','').replace(')','').replace('.','').replace('-','').replace(' ','')",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -482,28 +482,28 @@
 		},
 		{
 			"condition": {
-				"conditionValue": "true"
+				"conditionValue": "attr contains 'facsimileTelephoneNumber'"
 			},
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
 					"facsimileTelephoneNumber",
 					"/",
-					"attr['facsimileTelephoneNumber']",
+					"String.valueOf(attr['facsimileTelephoneNumber']).replace('(','').replace(')','').replace('.','').replace('-','').replace(' ','')",
 					"CREATE_OR_UPDATE"
 				]
 			}
 		},
 		{
 			"condition": {
-				"conditionValue": "true"
+				"conditionValue": "attr contains 'urn:oid:2.5.4.23'"
 			},
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
 					"facsimileTelephoneNumber",
 					"/",
-					"attr['urn:oid:2.5.4.23']",
+					"String.valueOf(attr['urn:oid:2.5.4.23']).replace('(','').replace(')','').replace('.','').replace('-','').replace(' ','')",
 					"CREATE_OR_UPDATE"
 				]
 			}

@@ -108,7 +108,7 @@
 				"parameters": [
 					"mobile",
 					"/",
-					"String.valueOf(attr['mobile']).replace('+','').replace('(','').replace(')','').replace('.','').replace('-','').replace(' ','')",
+					"String.valueOf(attr['mobile']).replace('(','').replace(')','').replace('.','').replace('-','').replace(' ','')",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -263,6 +263,286 @@
 					"primaryAffiliation",
 					"/",
 					"attr['urn:oid:1.3.6.1.4.1.5923.1.1.1.5']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"eduPersonEntitlement",
+					"/",
+					"attr['eduPersonEntitlement']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"eduPersonEntitlement",
+					"/",
+					"attr['urn:oid:1.3.6.1.4.1.5923.1.1.1.7']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"eduPersonAssurance",
+					"/",
+					"attr['eduPersonAssurance']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"eduPersonAssurance",
+					"/",
+					"attr['urn:oid:1.3.6.1.4.1.5923.1.1.1.11']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"eduPersonOrcid",
+					"/",
+					"attr['eduPersonOrcid']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"eduPersonOrcid",
+					"/",
+					"attr['urn:oid:1.3.6.1.4.1.5923.1.1.1.16']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"eduPersonOrgDN",
+					"/",
+					"attr['eduPersonOrgDN']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"eduPersonOrgDN",
+					"/",
+					"attr['urn:oid:1.3.6.1.4.1.5923.1.1.1.3']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"eduPersonOrgUnitDN",
+					"/",
+					"attr['eduPersonOrgUnitDN']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"eduPersonOrgUnitDN",
+					"/",
+					"attr['urn:oid:1.3.6.1.4.1.5923.1.1.1.4']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"eduPersonPrimaryOrgUnitDN",
+					"/",
+					"attr['eduPersonPrimaryOrgUnitDN']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"eduPersonPrimaryOrgUnitDN",
+					"/",
+					"attr['urn:oid:1.3.6.1.4.1.5923.1.1.1.8']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"eduPersonPrincipalName",
+					"/",
+					"attr['eduPersonPrincipalName']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"eduPersonPrincipalName",
+					"/",
+					"attr['urn:oid:1.3.6.1.4.1.5923.1.1.1.6']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"eduPersonPrincipalNamePrior",
+					"/",
+					"attr['eduPersonPrincipalNamePrior']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"eduPersonPrincipalNamePrior",
+					"/",
+					"attr['urn:oid:1.3.6.1.4.1.5923.1.1.1.12']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"eduPersonScopedAffiliation",
+					"/",
+					"attr['eduPersonScopedAffiliation']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"eduPersonScopedAffiliation",
+					"/",
+					"attr['urn:oid:1.3.6.1.4.1.5923.1.1.1.9']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"eduPersonTargetedID",
+					"/",
+					"attr['eduPersonTargetedID']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"eduPersonTargetedID",
+					"/",
+					"attr['urn:oid:1.3.6.1.4.1.5923.1.1.1.10']",
 					"CREATE_OR_UPDATE"
 				]
 			}

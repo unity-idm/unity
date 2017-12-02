@@ -21,7 +21,7 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 import groovy.transform.Field
 
 
-@Field final String CN_ATTR = "cn"
+@Field final String CN_ATTR = "name"
 
 
 if (!isColdStart)

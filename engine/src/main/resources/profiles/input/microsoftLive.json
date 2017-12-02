@@ -125,7 +125,7 @@
 				"parameters": [
 					"telephoneNumber",
 					"/",
-					"attr['phones.personal']",
+					"String.valueOf(attr['phones.personal']).replace('(','').replace(')','').replace('.','').replace('-','').replace(' ','')",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -139,7 +139,7 @@
 				"parameters": [
 					"mobile",
 					"/",
-					"attr['phones.mobile']",
+					"String.valueOf(attr['phones.mobile']).replace('(','').replace(')','').replace('.','').replace('-','').replace(' ','')",
 					"CREATE_OR_UPDATE"
 				]
 			}

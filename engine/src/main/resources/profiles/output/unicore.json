@@ -1,0 +1,32 @@
+{
+	"ver": "2",
+	"name": "sys:unicore",
+	"description": "Translation profile for UNICORE",
+	"type": "OUTPUT",
+	"rules": [
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"email",
+					"urn:unicore:attrType:email"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"name",
+					"urn:unicore:attrType:name"
+				]
+			}
+		}
+	]
+}
