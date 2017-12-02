@@ -128,13 +128,13 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		Collection<RequestHandler> requestHandlers = session.getRequestHandlers();
 		for (RequestHandler rh: requestHandlers)
 		{
-			if (rh instanceof RedirectRequestHandler)
+			if (rh instanceof VaadinRedirectRequestHandler)
 			{
-				return ((RedirectRequestHandler)rh).getTriggeringParam();
+				return ((VaadinRedirectRequestHandler)rh).getTriggeringParam();
 			}
 		}
 	
-		RedirectRequestHandler rh = new RedirectRequestHandler(); 
+		VaadinRedirectRequestHandler rh = new VaadinRedirectRequestHandler(); 
 		session.addRequestHandler(rh);
 		return rh.getTriggeringParam();
 	}
