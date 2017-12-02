@@ -25,6 +25,21 @@
 				"conditionValue": "true"
 			},
 			"action": {
+				"name": "createAttribute",
+				"parameters": [
+					"memberOf",
+					"groups",
+					"false",
+					"memberOf",
+					"memberOf"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
 				"name": "mapAttributeName",
 				"parameters": [
 					"country",

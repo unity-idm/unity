@@ -9,22 +9,13 @@
 				"conditionValue": "true"
 			},
 			"action": {
-				"name": "mapAttributeName",
+				"name": "createAttribute",
 				"parameters": [
-					"email",
-					"urn:unicore:attrType:email"
-				]
-			}
-		},
-		{
-			"condition": {
-				"conditionValue": "true"
-			},
-			"action": {
-				"name": "mapAttributeName",
-				"parameters": [
-					"name",
-					"urn:unicore:attrType:name"
+					"memberOf",
+					"groups",
+					"false",
+					"memberOf",
+					"memberOf"
 				]
 			}
 		}
