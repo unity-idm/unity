@@ -20,12 +20,12 @@
 				"conditionValue": "true"
 			},
 			"action": {
-				"name": "mapIdentity",
+				"name": "mapAttribute",
 				"parameters": [
-					"identifier",
+					"eduPersonUniqueId",
+					"/",
 					"attr['eduPersonUniqueId']",
-					"sys:all",
-					"CREATE_OR_MATCH"
+					"CREATE_OR_UPDATE"
 				]
 			}
 		},
@@ -34,12 +34,12 @@
 				"conditionValue": "true"
 			},
 			"action": {
-				"name": "mapIdentity",
+				"name": "mapAttribute",
 				"parameters": [
-					"identifier",
+					"eduPersonUniqueId",
+					"/",
 					"attr['urn:oid:1.3.6.1.4.1.5923.1.1.1.13']",
-					"sys:all",
-					"CREATE_OR_MATCH"
+					"CREATE_OR_UPDATE"
 				]
 			}
 		},

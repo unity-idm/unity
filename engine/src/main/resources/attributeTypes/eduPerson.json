@@ -98,6 +98,35 @@
 			"maxLength": 200
 		},
 		"displayedName": {
+			"DefaultValue": "eduPersonUniqueId",
+			"Map": {
+				
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "eduPersonUniqueId",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 0,
+			"maxLength": 200
+		},
+		"displayedName": {
 			"DefaultValue": "eduPersonOrgDN",
 			"Map": {
 				

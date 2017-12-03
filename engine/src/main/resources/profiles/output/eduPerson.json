@@ -20,21 +20,6 @@
 				"conditionValue": "true"
 			},
 			"action": {
-				"name": "createAttribute",
-				"parameters": [
-					"eduPersonUniqueId",
-					"idsByType['identifier']",
-					"false",
-					"eduPersonUniqueId",
-					"eduPersonUniqueId"
-				]
-			}
-		},
-		{
-			"condition": {
-				"conditionValue": "true"
-			},
-			"action": {
 				"name": "mapAttributeName",
 				"parameters": [
 					"nickname",

@@ -6,6 +6,17 @@
 	"rules": [
 		{
 			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "includeOutputProfile",
+				"parameters": [
+					"sys:default"
+				]
+			}
+		},			
+		{
+			"condition": {
 				"conditionValue": "idsByType contains 'identifier'"
 			},
 			"action": {

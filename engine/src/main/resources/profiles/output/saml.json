@@ -10,31 +10,12 @@
 				"conditionValue": "true"
 			},
 			"action": {
-				"name": "createAttribute",
+				"name": "includeOutputProfile",
 				"parameters": [
-					"uid",
-					"idsByType['identifier']",
-					"false",
-					"uid",
-					"user id"
+					"sys:default"
 				]
 			}
-		},
-		{
-			"condition": {
-				"conditionValue": "true"
-			},
-			"action": {
-				"name": "createAttribute",
-				"parameters": [
-					"memberOf",
-					"groups",
-					"false",
-					"memberOf",
-					"memberOf"
-				]
-			}
-		},
+		},	
 		{
 			"condition": {
 				"conditionValue": "true"
