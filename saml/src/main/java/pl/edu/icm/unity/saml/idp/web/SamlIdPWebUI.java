@@ -20,9 +20,9 @@ import org.springframework.stereotype.Component;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
@@ -144,6 +144,8 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		samlResponseHandler = new SamlResponseHandler(freemarkerHandler, samlProcessor);
 		
 		VerticalLayout vmain = new VerticalLayout();
+		vmain.setMargin(false);
+		vmain.setSpacing(false);
 		I18nString displayedName = endpointDescription.getEndpoint().getConfiguration().getDisplayedName();
 		TopHeaderLight header = new TopHeaderLight(displayedName.getValue(msg), msg);
 		vmain.addComponent(header);
@@ -151,8 +153,6 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		
 		VerticalLayout contents = new VerticalLayout();
 		contents.addStyleName(Styles.maxWidthColumn.toString());
-		contents.setMargin(true);
-		contents.setSpacing(true);
 		vmain.addComponent(contents);
 		vmain.setComponentAlignment(contents, Alignment.TOP_CENTER);
 		
@@ -195,8 +195,6 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		SafePanel exposedInfoPanel = new SafePanel();
 		contents.addComponent(exposedInfoPanel);
 		VerticalLayout eiLayout = new VerticalLayout();
-		eiLayout.setMargin(true);
-		eiLayout.setSpacing(true);
 		eiLayout.setWidth(100, Unit.PERCENTAGE);
 		exposedInfoPanel.setContent(eiLayout);
 		try
