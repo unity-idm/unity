@@ -10,18 +10,18 @@ import java.lang.reflect.Proxy;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.vaadin.server.VaadinResponse;
+import com.vaadin.server.VaadinServletResponse;
 
 public class VaadinResponseToServletProxy implements InvocationHandler
 {
-	private VaadinResponse response;
+	private VaadinServletResponse response;
 	
-	private VaadinResponseToServletProxy(VaadinResponse response)
+	private VaadinResponseToServletProxy(VaadinServletResponse response)
 	{
 		this.response = response;
 	}
 
-	public static HttpServletResponse getProxiedResponse(VaadinResponse response)
+	public static HttpServletResponse getProxiedResponse(VaadinServletResponse response)
 	{
 		return (HttpServletResponse) Proxy.newProxyInstance(
 				HttpServletResponse.class.getClassLoader(), 
@@ -32,19 +32,20 @@ public class VaadinResponseToServletProxy implements InvocationHandler
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
 	{
-		Method m = findMethod(response.getClass(), method);
-		return m != null ? m.invoke(response, args) : null;
+		Method m = findMethod(method);
+		return m.invoke(response, args);
 	}
 
-	private Method findMethod(Class<?> clazz, Method method) throws Throwable
+	private Method findMethod(Method method) throws Throwable
 	{
 		try
 		{
-			return clazz.getDeclaredMethod(method.getName(),
+			return VaadinServletResponse.class.getMethod(method.getName(),
 					method.getParameterTypes());
 		} catch (NoSuchMethodException e)
 		{
-			return null;
+			throw new IllegalStateException("Trying to invoke method " + method  
+					+ " on VaadinServletResponse, which can not be found", e);
 		}
 	}
 }

@@ -78,6 +78,8 @@ class SAMLProxyAuthnHandler
 	private void startLogin(String idpConfigKey, HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse) throws IOException
 	{
+		log.debug("Starting automatic proxy authentication with remote SAML IdP "
+				+ "configured under {}", idpConfigKey);
 		HttpSession session = httpRequest.getSession();
 		RemoteAuthnContext context = (RemoteAuthnContext) session.getAttribute(
 				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);

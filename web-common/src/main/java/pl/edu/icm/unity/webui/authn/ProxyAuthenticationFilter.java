@@ -146,7 +146,7 @@ public class ProxyAuthenticationFilter implements Filter
 					authenticatorParam;
 			try
 			{
-				log.trace("Invoking automated proxy authentication handler of {}",
+				log.debug("Invoking automated proxy authentication handler of {}",
 						authenticator.getAuthenticatorId());
 				if (selectedAuthn != null)
 				{

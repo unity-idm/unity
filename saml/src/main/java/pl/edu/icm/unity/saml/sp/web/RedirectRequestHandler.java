@@ -10,8 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.Logger;
 
-import com.vaadin.server.VaadinServletResponse;
-
 import eu.unicore.samly2.binding.HttpPostBindingSupport;
 import eu.unicore.samly2.binding.HttpRedirectBindingSupport;
 import eu.unicore.samly2.binding.SAMLMessageType;
@@ -64,7 +62,6 @@ class RedirectRequestHandler
 	
 	private static void handleRedirect(RemoteAuthnContext context, HttpServletResponse response) throws IOException
 	{
-		VaadinServletResponse rr = (VaadinServletResponse) response;
 		setCommonHeaders(response);
 		log.debug("Starting SAML HTTP Redirect binding exchange with IdP " + context.getIdpUrl());
 		String redirectURL = HttpRedirectBindingSupport.getRedirectURL(SAMLMessageType.SAMLRequest, 
@@ -74,7 +71,7 @@ class RedirectRequestHandler
 			log.trace("SAML request is:\n" + context.getRequest());
 			log.trace("Returned Redirect URL is:\n" + redirectURL);
 		}
-		rr.sendRedirect(redirectURL);
+		response.sendRedirect(redirectURL);
 	}
 	
 	private static void setCommonHeaders(HttpServletResponse response)

@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
+import com.vaadin.server.VaadinServletResponse;
 import com.vaadin.server.VaadinSession;
 
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
@@ -34,7 +35,7 @@ public class VaadinRedirectRequestHandler extends AbstractRedirectRequestHandler
 	{
 		RemoteAuthnContext context = (RemoteAuthnContext)contextO;
 		HttpServletResponse proxiedResponse = VaadinResponseToServletProxy
-				.getProxiedResponse(response);
+				.getProxiedResponse((VaadinServletResponse) response);
 		return RedirectRequestHandler.handleRequest(context, proxiedResponse);
 	}
 }
