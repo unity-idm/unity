@@ -1,7 +1,7 @@
 [
 	{
 		"flags": 0,
-		"maxElements": 1,
+		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,
@@ -30,7 +30,7 @@
 	},
 	{
 		"flags": 0,
-		"maxElements": 1,
+		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,
@@ -117,7 +117,7 @@
 	},
 	{
 		"flags": 0,
-		"maxElements": 1,
+		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,
@@ -204,7 +204,7 @@
 	},
 	{
 		"flags": 0,
-		"maxElements": 1,
+		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,
@@ -233,7 +233,7 @@
 	},
 	{
 		"flags": 0,
-		"maxElements": 1,
+		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,
@@ -262,7 +262,7 @@
 	},
 	{
 		"flags": 0,
-		"maxElements": 1,
+		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,

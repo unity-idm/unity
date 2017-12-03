@@ -181,7 +181,7 @@
 				"parameters": [
 					"organization",
 					"/",
-					"attr['o']",
+					"attrs['o']",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -195,7 +195,7 @@
 				"parameters": [
 					"organization",
 					"/",
-					"attr['urn:oid:2.5.4.10']",
+					"attrs['urn:oid:2.5.4.10']",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -209,7 +209,7 @@
 				"parameters": [
 					"organizationUnit",
 					"/",
-					"attr['ou']",
+					"attrs['ou']",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -223,7 +223,7 @@
 				"parameters": [
 					"organizationUnit",
 					"/",
-					"attr['urn:oid:2.5.4.11']",
+					"attrs['urn:oid:2.5.4.11']",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -321,7 +321,7 @@
 				"parameters": [
 					"provinceName",
 					"/",
-					"attr['st']",
+					"attrs['st']",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -335,7 +335,7 @@
 				"parameters": [
 					"provinceName",
 					"/",
-					"attr['urn:oid:2.5.4.8']",
+					"attrs['urn:oid:2.5.4.8']",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -349,7 +349,7 @@
 				"parameters": [
 					"street",
 					"/",
-					"attr['street']",
+					"attrs['street']",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -363,7 +363,7 @@
 				"parameters": [
 					"street",
 					"/",
-					"attr['urn:oid:2.5.4.9']",
+					"attrs['urn:oid:2.5.4.9']",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -405,7 +405,7 @@
 				"parameters": [
 					"title",
 					"/",
-					"attr['title']",
+					"attrs['title']",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -419,7 +419,7 @@
 				"parameters": [
 					"title",
 					"/",
-					"attr['urn:oid:2.5.4.12']",
+					"attrs['urn:oid:2.5.4.12']",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -461,7 +461,7 @@
 				"parameters": [
 					"seeAlso",
 					"/",
-					"attr['seeAlso']",
+					"attrs['seeAlso']",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -475,7 +475,7 @@
 				"parameters": [
 					"seeAlso",
 					"/",
-					"attr['urn:oid:2.5.4.34']",
+					"attrs['urn:oid:2.5.4.34']",
 					"CREATE_OR_UPDATE"
 				]
 			}

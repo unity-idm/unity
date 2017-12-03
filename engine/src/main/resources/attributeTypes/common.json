@@ -31,7 +31,7 @@
 	},
 	{
 		"flags": 0,
-		"maxElements": 2147483647,
+		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,
@@ -895,7 +895,7 @@
 	},
 	{
 		"flags": 0,
-		"maxElements": 1,
+		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,
@@ -925,7 +925,7 @@
 	},
 	{
 		"flags": 0,
-		"maxElements": 1,
+		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,
@@ -1013,7 +1013,7 @@
 	},
 	{
 		"flags": 0,
-		"maxElements": 1,
+		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,
@@ -1043,7 +1043,7 @@
 	},
 	{
 		"flags": 0,
-		"maxElements": 1,
+		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,
@@ -1073,7 +1073,7 @@
 	},
 	{
 		"flags": 0,
-		"maxElements": 1,
+		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,
@@ -1103,7 +1103,7 @@
 	},
 	{
 		"flags": 0,
-		"maxElements": 1,
+		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,
@@ -1223,7 +1223,7 @@
 	},
 	{
 		"flags": 0,
-		"maxElements": 1,
+		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,
@@ -1253,7 +1253,7 @@
 	},
 	{
 		"flags": 0,
-		"maxElements": 1,
+		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,
@@ -1309,6 +1309,36 @@
 			
 		},
 		"name": "website",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 2,
+			"maxLength": 300
+		},
+		"displayedName": {
+			"DefaultValue": "displayName",
+			"Map": {
+				"pl": "Wyświetlana nazwa",
+				"en": "Display name"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "displayName",
 		"syntaxId": "string"
 	}
 ]
