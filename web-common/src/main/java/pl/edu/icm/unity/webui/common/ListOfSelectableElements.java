@@ -10,10 +10,10 @@ import java.util.List;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.v7.data.Property.ValueChangeEvent;
 import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.v7.ui.VerticalLayout;
 
 /**
  * List of elements displayed in two columns. The first column contains an arbitrary component

@@ -82,6 +82,18 @@ public class GenericElementsTable2<T> extends SmallGrid<T>
 		sort(col1);
 	}
 
+	public void removeElement(T el)
+	{
+		contents.remove(el);
+		dataProvider.refreshAll();
+		sort(col1);
+	}
+	
+	public List<T> getElements()
+	{
+		return new ArrayList<>(contents);
+	}
+
 	private static class DefaultNameProvider<T> implements ValueProvider<T, String>
 	{
 		@Override

@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
@@ -366,12 +365,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	
 	protected Collection<Attribute> getExposedAttributes()
 	{
-		Map<String, Attribute> userFilteredAttributes = attrsPresenter.getUserFilteredAttributes();
-		Collection<Attribute> nonNull = new ArrayList<>(userFilteredAttributes.size());
-		for (Attribute a: userFilteredAttributes.values())
-			if (a != null)
-				nonNull.add(a);
-		return nonNull;
+		return attrsPresenter.getUserFilteredAttributes().values();
 	}
 	
 	protected void addSessionParticipant(SAMLAuthnContext samlCtx, NameIDType returnedSubject,

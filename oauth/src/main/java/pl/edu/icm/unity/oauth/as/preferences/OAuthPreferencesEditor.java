@@ -7,7 +7,6 @@ package pl.edu.icm.unity.oauth.as.preferences;
 import java.util.List;
 import java.util.Set;
 
-import com.google.common.collect.Lists;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
@@ -76,8 +75,9 @@ public class OAuthPreferencesEditor implements PreferencesEditor
 		main.addComponent(table);
 		viewer = configureViewer();
 		main.addComponent(viewer);
-		for (SingleActionHandler2<String> h: getHandlers())
-			table.addActionHandler(h);
+		table.addActionHandler(getAddAction());
+		table.addActionHandler(getEditAction());
+		table.addActionHandler(getDeleteAction());
 		main.setSizeFull();
 		main.setMargin(false);
 
@@ -88,13 +88,6 @@ public class OAuthPreferencesEditor implements PreferencesEditor
 	private String getDisplayedName(String element)
 	{
 		return element.equals("") ? msg.getMessage("OAuthPreferences.defaultSP") : element;
-	}
-	
-	protected List<SingleActionHandler2<String>> getHandlers()
-	{
-		return Lists.newArrayList(getAddAction(),
-					getEditAction(),
-					getDeleteAction());
 	}
 	
 	protected OAuthSPSettingsViewer configureViewer()

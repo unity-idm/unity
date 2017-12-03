@@ -11,15 +11,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import com.vaadin.v7.data.util.BeanItem;
-import com.vaadin.v7.data.util.IndexedContainer;
-import com.vaadin.v7.shared.ui.combobox.FilteringMode;
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.OptionGroup;
+import com.vaadin.ui.RadioButtonGroup;
 
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
@@ -30,11 +28,9 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.GenericElementsTable;
-import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
-import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.GenericElementsTable2;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 /**
@@ -48,11 +44,11 @@ public class SPSettingsEditor extends FormLayout
 	protected List<Identity> identities;
 	protected Collection<AttributeType> attributeTypes;
 	
-	protected ComboBox sp;
+	protected ComboBox<String> sp;
 	protected Label spLabel;
-	protected OptionGroup decision;
-	protected OptionGroup identity;
-	protected GenericElementsTable<TableEntry> hidden;
+	protected RadioButtonGroup<Decision> decision;
+	protected RadioButtonGroup<Identity> identity;
+	protected GenericElementsTable2<TableEntry> hidden;
 	private AttributeHandlerRegistry handlerReg;
 	private IdentityTypeSupport idTypeSupport;
 	
@@ -86,13 +82,12 @@ public class SPSettingsEditor extends FormLayout
 	public SPSettings getSPSettings()
 	{
 		SPSettings ret = new SPSettings();
-		IndexedContainer decContainer = ((IndexedContainer)decision.getContainerDataSource());
-		int idx = decContainer.indexOfId(decision.getValue());
-		if (idx == 0)
+		Decision selDecision = decision.getSelectedItem().get();
+		if (selDecision == Decision.AUTO_ACCEPT)
 		{
 			ret.setDefaultAccept(true);
 			ret.setDoNotAsk(true);
-		} else if (idx == 1)
+		} else if (selDecision == Decision.AUTO_DENY)
 		{
 			ret.setDefaultAccept(false);
 			ret.setDoNotAsk(true);			
@@ -101,17 +96,15 @@ public class SPSettingsEditor extends FormLayout
 			ret.setDefaultAccept(false);
 			ret.setDoNotAsk(false);
 		}
-		
-		String identityV = (String) identity.getValue();
-		if (identityV != null)
+
+		Identity id = identity.getValue();
+		if (id != null)
 		{
-			IndexedContainer idContainer = ((IndexedContainer)identity.getContainerDataSource());
-			Identity id = identities.get(idContainer.indexOfId(identityV));
-			IdentityTypeDefinition typeDefinition = idTypeSupport.getTypeDefinition(id.getTypeId());
-			if (!typeDefinition.isDynamic() && !typeDefinition.isTargeted())
+			IdentityTypeDefinition idType = idTypeSupport.getTypeDefinition(id.getTypeId());
+			if (!idType.isDynamic() && !idType.isTargeted())
 				ret.setSelectedIdentity(id.getComparableValue());
 		}
-		
+
 		Map<String, Attribute> hidden = getHidden();
 		ret.setHiddenAttribtues(hidden);
 		return ret;
@@ -124,14 +117,10 @@ public class SPSettingsEditor extends FormLayout
 	
 	private Map<String, Attribute> getHidden()
 	{
-		Collection<?> itemIds = hidden.getItemIds();
+		List<TableEntry> itemIds = hidden.getElements();
 		Map<String, Attribute> hiddenAttrs = new HashMap<>();
-		for (Object itemId: itemIds)
-		{
-			@SuppressWarnings("unchecked")
-			TableEntry hiddenAttr = ((BeanItem<GenericItem<TableEntry>>)hidden.getItem(itemId)).getBean().getElement();
-			hiddenAttrs.put(hiddenAttr.name, hiddenAttr.hiddenValues);
-		}
+		for (TableEntry item: itemIds)
+			hiddenAttrs.put(item.name, item.hiddenValues);
 		return hiddenAttrs;
 	}
 	
@@ -139,17 +128,14 @@ public class SPSettingsEditor extends FormLayout
 	{
 		if (initial == null)
 		{
-			sp = new ComboBox(msg.getMessage("SAMLPreferences.SP"));
-			sp.setInputPrompt(msg.getMessage("SAMLPreferences.SPprompt"));
+			sp = new ComboBox<>(msg.getMessage("SAMLPreferences.SP"));
 			sp.setDescription(msg.getMessage("SAMLPreferences.SPdesc"));
 			sp.setWidth(100, Unit.PERCENTAGE);
 			sp.setTextInputAllowed(true);
-			sp.setFilteringMode(FilteringMode.OFF);
-			sp.setNewItemsAllowed(true);
-			sp.setNullSelectionAllowed(true);
-			sp.setImmediate(true);
-			for (String spName: allSps)
-				sp.addItem(spName);
+			sp.setTextInputAllowed(true);
+			sp.setNewItemHandler((s) -> {});
+			sp.setEmptySelectionAllowed(true);
+			sp.setItems(allSps);
 			addComponent(sp);
 		} else
 		{
@@ -158,24 +144,19 @@ public class SPSettingsEditor extends FormLayout
 			addComponent(spLabel);
 		}
 		
-		decision = new OptionGroup(msg.getMessage("SAMLPreferences.decision"));
-		decision.setNullSelectionAllowed(false);
-		decision.addItem(msg.getMessage("SAMLPreferences.autoAccept"));
-		decision.addItem(msg.getMessage("SAMLPreferences.autoDeny"));
-		decision.addItem(msg.getMessage("SAMLPreferences.noAuto"));
+		decision = new RadioButtonGroup<>(msg.getMessage("SAMLPreferences.decision"));
+		decision.setItemCaptionGenerator(this::getDecisionCaption);
+		decision.setItems(Decision.AUTO_ACCEPT, Decision.AUTO_DENY, Decision.NO_AUTO);
 
-		identity = new OptionGroup(msg.getMessage("SAMLPreferences.identity"));
-		identity.setNullSelectionAllowed(true);
-		for (Identity id: identities)
-		{
-			IdentityTypeDefinition typeDefinition = idTypeSupport.getTypeDefinition(id.getTypeId());
-			identity.addItem(typeDefinition.toPrettyString(id));
-		}
+		identity = new RadioButtonGroup<>(msg.getMessage("SAMLPreferences.identity"));
+		identity.setItems(identities);
+		identity.setItemCaptionGenerator(id -> 
+			idTypeSupport.getTypeDefinition(id.getTypeId()).toPrettyString(id));
 		
-		hidden = new GenericElementsTable<TableEntry>(msg.getMessage("SAMLPreferences.hidden"));
+		hidden = new GenericElementsTable2<>(msg.getMessage("SAMLPreferences.hidden"));
 		hidden.setHeight(200, Unit.PIXELS);
-		hidden.addActionHandler(new AddActionHandler());
-		hidden.addActionHandler(new DeleteActionHandler());
+		hidden.addActionHandler(getAddAction());
+		hidden.addActionHandler(getDeleteAction());
 		
 		addComponents(decision, identity, hidden);
 		
@@ -187,21 +168,18 @@ public class SPSettingsEditor extends FormLayout
 	
 	private void setDefaults()
 	{
-		IndexedContainer decContainer = ((IndexedContainer)decision.getContainerDataSource());
-		decision.select(decContainer.getIdByIndex(2));
-		IndexedContainer idContainer = ((IndexedContainer)identity.getContainerDataSource());
-		identity.select(idContainer.getIdByIndex(0));
+		decision.setSelectedItem(Decision.NO_AUTO);
+		identity.setSelectedItem(identities.get(0));
 	}
 	
 	private void setValues(SPSettings initial)
 	{
-		IndexedContainer decContainer = ((IndexedContainer)decision.getContainerDataSource());
 		if (!initial.isDoNotAsk())
-			decision.select(decContainer.getIdByIndex(2));
+			decision.setSelectedItem(Decision.NO_AUTO);
 		else if (initial.isDefaultAccept())
-			decision.select(decContainer.getIdByIndex(0));
+			decision.setSelectedItem(Decision.AUTO_ACCEPT);
 		else
-			decision.select(decContainer.getIdByIndex(1));
+			decision.setSelectedItem(Decision.AUTO_DENY);
 		
 		String selId = initial.getSelectedIdentity();
 		if (selId != null)
@@ -210,14 +188,12 @@ public class SPSettingsEditor extends FormLayout
 			{
 				if (i.getComparableValue().equals(selId))
 				{
-					IdentityTypeDefinition typeDefinition = idTypeSupport.getTypeDefinition(
-							i.getTypeId());
-					identity.select(typeDefinition.toPrettyString(i));
+					identity.setSelectedItem(i);
 					break;
 				}
 			}
 		}
-			
+
 		Map<String, Attribute> hiddenAttribtues = initial.getHiddenAttribtues();
 		Collection<TableEntry> converted = new ArrayList<>();
 		for (Entry<String, Attribute> entry : hiddenAttribtues.entrySet())
@@ -225,59 +201,46 @@ public class SPSettingsEditor extends FormLayout
 		hidden.setInput(converted);
 	}
 	
-	private class DeleteActionHandler extends SingleActionHandler
+	private SingleActionHandler2<TableEntry> getDeleteAction()
 	{
-		public DeleteActionHandler()
-		{
-			super(msg.getMessage("SAMLPreferences.deleteAction"), 
-					Images.delete.getResource());
-		}
-		
-		@Override
-		public void handleAction(Object sender, Object target)
-		{
-			hidden.removeItem(target);
-		}
+		return SingleActionHandler2.builder4Delete(msg, TableEntry.class)
+				.withHandler(target -> hidden.removeElement(target.iterator().next()))
+				.build();
 	}
 	
-	private class AddActionHandler extends SingleActionHandler
+	private SingleActionHandler2<TableEntry> getAddAction()
 	{
-		public AddActionHandler()
-		{
-			super(msg.getMessage("SAMLPreferences.addAction"), 
-					Images.add.getResource());
-			setNeedsTarget(false);
-		}
-		
-		@Override
-		public void handleAction(Object sender, Object target)
-		{
-			new SelectAttributeDialog(msg).show();
-		}
+		return SingleActionHandler2.builder4Add(msg, TableEntry.class)
+				.withHandler(sel -> new SelectAttributeDialog(msg).show())
+				.build();
 	}
 
 	private class SelectAttributeDialog extends AbstractDialog
 	{
-		private ComboBox selection;
+		private ComboBox<String> selection;
 		
 		public SelectAttributeDialog(UnityMessageSource msg)
 		{
 			super(msg, msg.getMessage("SAMLPreferences.selectAttribute"));
+			setSizeMode(SizeMode.SMALL);
 		}
 
 		@Override
 		protected Component getContents() throws Exception
 		{
-			selection = new ComboBox(msg.getMessage("SAMLPreferences.selectAttribute"));
-			selection.setNullSelectionAllowed(false);
+			selection = new ComboBox<>(msg.getMessage("SAMLPreferences.selectAttribute"));
+			selection.setEmptySelectionAllowed(false);
 			Set<String> alreadySelected = getHidden().keySet();
-			for (AttributeType at: attributeTypes)
-				if (!alreadySelected.contains(at.getName()))
-					selection.addItem(at.getName());
-			if (selection.size() > 0)
+			List<String> available = attributeTypes.stream()
+					.map(at -> at.getName())
+					.filter(a -> !alreadySelected.contains(a))
+					.filter(a -> !a.startsWith("sys:"))
+					.sorted()
+					.collect(Collectors.toList());
+			selection.setItems(available);
+			if (!available.isEmpty())
 			{
-				IndexedContainer selContainer = ((IndexedContainer)selection.getContainerDataSource());
-				selection.select(selContainer.getIdByIndex(0));
+				selection.setSelectedItem(available.get(0));
 			} else
 			{
 				NotificationPopup.showNotice(msg, msg.getMessage("notice"), msg.getMessage("SAMLPreferences.allSelected"));
@@ -315,5 +278,28 @@ public class SPSettingsEditor extends FormLayout
 					name : 
 					handlerReg.getSimplifiedAttributeRepresentation(hiddenValues);
 		}
+	}
+	
+	
+	private String getDecisionCaption(Decision dec)
+	{
+		switch (dec)
+		{
+		case AUTO_ACCEPT:
+			return msg.getMessage("SAMLPreferences.autoAccept");
+		case AUTO_DENY:
+			return 	msg.getMessage("SAMLPreferences.autoDeny");
+		case NO_AUTO:
+			return msg.getMessage("SAMLPreferences.noAuto");
+		default:
+			throw new IllegalArgumentException("Unknown decision");
+		}
+	}
+	
+	private enum Decision
+	{
+		AUTO_ACCEPT,
+		AUTO_DENY,
+		NO_AUTO
 	}
 }

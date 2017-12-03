@@ -146,42 +146,53 @@ public class SelectableAttributeWithValues extends CustomComponent
 	}
 	
 	/**
-	 * @return the attribute without any hidden value. Null if the whole attribute is hidden.
+	 * @return whether an attribute is completely hidden
 	 */
-	public Attribute getHiddenAttributeValues()
+	public boolean isHidden()
+	{
+		return selectableAttr.getSelection().get(0).getValue();
+	}
+	
+	/**
+	 * @return the attribute with only hidden values. Null if the attribute is not hidden.
+	 */
+	public Attribute getHiddenValues()
+	{
+		return isAnythingHidden() ? getAttribute(true) : null;
+	}
+	
+	private boolean isAnythingHidden()
 	{
 		if (selectableAttr.getSelection().get(0).getValue())
-			return null;
+			return true;
 		List<CheckBox> selection = listOfValues.getSelection();
-		List<String> filteredValues = new ArrayList<>(attribute.getValues().size());
-		for (int i = 0; i < attribute.getValues().size(); i++)
-		{
-			String t = attribute.getValues().get(i);
-			if (selection.get(i).getValue())
-				filteredValues.add(t);
-		}
-		attribute.setValues(filteredValues);
-		return attribute;
+		for (CheckBox checkbox: selection)
+			if (checkbox.getValue())
+				return true;
+		return false;
 	}
-
-	
+		
 	/**
 	 * @return the attribute without any hidden value. Null if the whole attribute is hidden.
 	 */
-	public Attribute getAttributeWithoutHidden()
+	public Attribute getWithoutHiddenValues()
 	{
 		if (selectableAttr.getSelection().get(0).getValue())
 			return null;
+		return getAttribute(false);
+	}
+
+	private Attribute getAttribute(boolean hidden)
+	{
 		List<CheckBox> selection = listOfValues.getSelection();
 		List<String> filteredValues = new ArrayList<>(attribute.getValues().size());
 		for (int i = 0; i < attribute.getValues().size(); i++)
 		{
 			String t = attribute.getValues().get(i);
-			if (!selection.get(i).getValue())
+			if (selection.get(i).getValue() == hidden)
 				filteredValues.add(t);
 		}
-		attribute.setValues(filteredValues);
-		return attribute;
+		return new Attribute(attribute.getName(), attribute.getValueSyntax(), 
+				attribute.getGroupPath(), filteredValues);
 	}
-	
 }

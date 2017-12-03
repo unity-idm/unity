@@ -4,14 +4,16 @@
  */
 package pl.edu.icm.unity.saml.idp.preferences;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.ListSelect;
+import com.vaadin.ui.ListSelect;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
@@ -27,7 +29,7 @@ public class SamlSPSettingsViewer extends FormLayout
 {
 	protected UnityMessageSource msg;
 	protected Label autoConfirm;
-	protected ListSelect hiddenAttributes;
+	protected ListSelect<String> hiddenAttributes;
 	protected Label defaultIdentity;
 	protected AttributeHandlerRegistry attrHandlerRegistry;
 	
@@ -42,10 +44,9 @@ public class SamlSPSettingsViewer extends FormLayout
 		autoConfirm.setCaption(msg.getMessage("SAMLPreferences.autoConfirm"));
 		defaultIdentity = new Label();
 		defaultIdentity.setCaption(msg.getMessage("SAMLPreferences.defaultIdentity"));
-		hiddenAttributes = new ListSelect(msg.getMessage("SAMLPreferences.hiddenAttributes"));
+		hiddenAttributes = new ListSelect<>(msg.getMessage("SAMLPreferences.hiddenAttributes"));
 		hiddenAttributes.setWidth(90, Unit.PERCENTAGE);
 		hiddenAttributes.setRows(6);
-		hiddenAttributes.setNullSelectionAllowed(false);
 		
 		addComponents(autoConfirm, defaultIdentity, hiddenAttributes);
 	}
@@ -69,20 +70,22 @@ public class SamlSPSettingsViewer extends FormLayout
 			autoConfirm.setValue(msg.getMessage("no"));
 		
 		hiddenAttributes.setReadOnly(false);
-		hiddenAttributes.removeAllItems();
 		Map<String, Attribute> attributes = spSettings.getHiddenAttribtues();
 		hiddenAttributes.setVisible(!attributes.isEmpty());
+		
+		List<String> hiddenValues  = new ArrayList<>(); 
 		for (Entry<String, Attribute> entry : attributes.entrySet())
 		{
 			if (entry.getValue() == null)
-				hiddenAttributes.addItem(entry.getKey());
+				hiddenValues.add(entry.getKey());
 			else
 			{
 				String simplifiedAttributeRepresentation = attrHandlerRegistry.
 						getSimplifiedAttributeRepresentation(entry.getValue());
-				hiddenAttributes.addItem(simplifiedAttributeRepresentation);
+				hiddenValues.add(simplifiedAttributeRepresentation);
 			}
 		}
+		hiddenAttributes.setItems(hiddenValues);
 		
 		hiddenAttributes.setReadOnly(true);
 		

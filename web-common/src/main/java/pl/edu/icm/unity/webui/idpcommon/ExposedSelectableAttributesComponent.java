@@ -12,7 +12,7 @@ import java.util.Map.Entry;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
@@ -71,7 +71,8 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 	{
 		Map<String, Attribute> ret = new HashMap<>();
 		for (Entry<String, SelectableAttributeWithValues> entry : attributesHiding.entrySet())
-			ret.put(entry.getKey(), entry.getValue().getAttributeWithoutHidden());
+			if (!entry.getValue().isHidden())
+				ret.put(entry.getKey(), entry.getValue().getWithoutHiddenValues());
 		return ret;
 	}
 
@@ -82,7 +83,11 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 	{
 		Map<String, Attribute> ret = new HashMap<>();
 		for (Entry<String, SelectableAttributeWithValues> entry : attributesHiding.entrySet())
-			ret.put(entry.getKey(), entry.getValue().getHiddenAttributeValues());
+		{
+			Attribute hiddenValues = entry.getValue().getHiddenValues();
+			if (hiddenValues != null)
+				ret.put(entry.getKey(), hiddenValues);
+		}
 		return ret;
 	}
 	
@@ -101,8 +106,11 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 	{
 		VerticalLayout contents = new VerticalLayout();
 		contents.setSpacing(true);
+		contents.setMargin(false);
 
 		final VerticalLayout details = new VerticalLayout();
+		details.setSpacing(false);
+		details.setMargin(false);
 		final ExpandCollapseButton showDetails = new ExpandCollapseButton(true, details);
 
 		Label attributesL = new Label(msg.getMessage("ExposedAttributesComponent.attributes"));
@@ -131,6 +139,8 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 	public Component getAttributesListComponent() throws EngineException
 	{
 		VerticalLayout attributesList = new VerticalLayout();
+		attributesList.setSpacing(false);
+		attributesList.setMargin(false);
 		Label hideL = new Label(msg.getMessage("ExposedAttributesComponent.hide"));
 		
 		attributesHiding = new HashMap<>();

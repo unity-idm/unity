@@ -43,7 +43,6 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 {
 	public enum SizeMode {LARGE, MEDIUM, SMALL}
 	
-	private static final long serialVersionUID = 1L;
 	private Button confirm;
 	private Button cancel;
 	private Button enterButton;
