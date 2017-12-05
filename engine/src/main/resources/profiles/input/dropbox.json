@@ -41,7 +41,7 @@
 				"parameters": [
 					"email",
 					"/",
-					"attr['email'] (attr contains 'email_verified') ? (attr['email_verified'] == true ? '[CONFIRMED]' : '[UNCONFIRMED]') : ''",
+					"attr['email'] + ((attr contains 'email_verified') ? (( attr['email_verified'] == true) ? '[CONFIRMED]' : '[UNCONFIRMED]') : '[UNCONFIRMED]')",
 					"CREATE_OR_UPDATE"
 				]
 			}

@@ -23,7 +23,8 @@
 				"name": "mapAttributeName",
 				"parameters": [
 					"nickname",
-					"eduPersonNickname"
+					"eduPersonNickname",
+					"false"
 				]
 			}
 		},
@@ -35,7 +36,8 @@
 				"name": "mapAttributeName",
 				"parameters": [
 					"email",
-					"mail"
+					"mail",
+					"false"
 				]
 			}
 		},
@@ -47,7 +49,8 @@
 				"name": "mapAttributeName",
 				"parameters": [
 					"picture",
-					"jpegPhoto"
+					"jpegPhoto",
+					"false"
 				]
 			}
 		},
@@ -59,7 +62,8 @@
 				"name": "mapAttributeName",
 				"parameters": [
 					"affiliation",
-					"eduPersonAffiliation"
+					"eduPersonAffiliation",
+					"false"
 				]
 			}
 		},
@@ -71,7 +75,8 @@
 				"name": "mapAttributeName",
 				"parameters": [
 					"primaryAffiliation",
-					"eduPersonPrimaryAffiliation"
+					"eduPersonPrimaryAffiliation",
+					"false"
 				]
 			}
 		}

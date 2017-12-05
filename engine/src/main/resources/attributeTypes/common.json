@@ -79,6 +79,7 @@
 		"i18nDescription": {
 			"DefaultValue": null,
 			"Map": {
+				"en": "Small picture in JPEG format",
 				"pl": "Małe zdjęcie w formacie JPEG"
 			}
 		},
@@ -190,7 +191,7 @@
 			"DefaultValue": "city",
 			"Map": {
 				"pl": "Miasto",
-				"en": "city"
+				"en": "City"
 			}
 		},
 		"i18nDescription": {
@@ -1386,7 +1387,7 @@
 			"DefaultValue": "uid",
 			"Map": {
 				"pl": "Identyfikator uzytkownika",
-				"en": "Uid"
+				"en": "User id"
 			}
 		},
 		"i18nDescription": {

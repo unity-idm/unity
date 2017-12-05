@@ -160,14 +160,14 @@
 		},
 		{
 			"condition": {
-				"conditionValue": "attr contains 'adrresses.personal'"
+				"conditionValue": "attr contains 'addresses.personal'"
 			},
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
 					"address",
 					"/",
-					"attr['adrresses.personal.street'] + ',' + attr['adrresses.personal.street2'] + ',' + attr['adrresses.personal.city'] + ',' + attr['adrresses.personal.state'] + ',' + attr['adrresses.personal.postal_code'] + ',' + attr['adrresses.personal.region']",
+					"attr['addresses.personal.street'] + ',' + attr['addresses.personal.street2'] + ',' + attr['addresses.personal.city'] + ',' + attr['addresses.personal.state'] + ',' + attr['addresses.personal.postal_code'] + ',' + attr['addresses.personal.region']",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -182,7 +182,7 @@
 				"parameters": [
 					"street",
 					"/",
-					"attr['adrresses.personal.street']",
+					"attr['addrresses.personal.street']",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -196,7 +196,7 @@
 				"parameters": [
 					"postalCode",
 					"/",
-					"attr['adrresses.personal.postal_code']",
+					"attr['addresses.personal.postal_code']",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -211,7 +211,7 @@
 				"parameters": [
 					"city",
 					"/",
-					"attr['adrresses.personal.city']",
+					"attr['addresses.personal.city']",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -225,7 +225,7 @@
 				"parameters": [
 					"provinceName",
 					"/",
-					"attr['adrresses.personal.state']",
+					"attr['addresses.personal.state']",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -239,7 +239,7 @@
 				"parameters": [
 					"country",
 					"/",
-					"attr['adrresses.personal.region']",
+					"attr['addresses.personal.region']",
 					"CREATE_OR_UPDATE"
 				]
 			}

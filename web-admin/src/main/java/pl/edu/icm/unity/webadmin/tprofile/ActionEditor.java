@@ -143,14 +143,20 @@ public class ActionEditor extends LayoutEmbeddable
 	{
 		List<String> params = new ArrayList<>();
 		boolean errors = false;
-		for (ActionParameterComponent tc: paramComponents)
+		for (ActionParameterComponent tc : paramComponents)
 		{
 			tc.setValidationVisible(true);
 			if (!tc.isValid())
+			{
 				errors = true;
-			else
-				params.add(tc.getActionValue());
+			} else
+			{
+				if (tc.getActionValue() != null && !tc.getActionValue().isEmpty())
+					params.add(tc.getActionValue());
+			}
+
 		}
+
 		if (errors)
 			throw new FormValidationException();
 		String[] wrapper = new String[params.size()];

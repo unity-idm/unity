@@ -139,7 +139,7 @@
 				"parameters": [
 					"email",
 					"/",
-					"attr['email'] +  (attr contains 'email_verified') ? (attr['email_verified'] == true ? '[CONFIRMED]' : '[UNCONFIRMED]') : ''",
+					"attr['email'] + ((attr contains 'email_verified') ? (( attr['email_verified'] == true) ? '[CONFIRMED]' : '[UNCONFIRMED]') : '[UNCONFIRMED]')",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -300,7 +300,7 @@
 		},
 		{
 			"condition": {
-				"conditionValue": "!(attr contains 'address.formatted')"
+				"conditionValue": "(!(attr contains 'address.formatted')) && (attr contains 'street_address') && (attr contains 'locality') && (attr contains 'region') && (attr contains 'postal_code') && (attr contains 'country')  "
 			},
 			"action": {
 				"name": "mapAttribute",

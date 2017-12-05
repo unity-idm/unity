@@ -115,7 +115,7 @@ public class ActionParameterComponentProvider
 		case UNITY_OUTPUT_TRANSLATION_PROFILE:
 			return new BaseEnumActionParameterComponent(param, msg, outputProfiles);
 		default: 
-			return new DefaultActionParameterComponent(param, msg);
+			return new DefaultActionParameterComponent(param, msg, false);
 		}
 	}
 }

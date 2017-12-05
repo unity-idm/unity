@@ -24,7 +24,8 @@
 				"name": "mapAttributeName",
 				"parameters": [
 					"country",
-					"c"
+					"c",
+					"false"
 				]
 			}
 		},
@@ -36,7 +37,8 @@
 				"name": "mapAttributeName",
 				"parameters": [
 					"name",
-					"cn"
+					"cn",
+					"false"
 				]
 			}
 		},
@@ -48,7 +50,8 @@
 				"name": "mapAttributeName",
 				"parameters": [
 					"firstname",
-					"givenName"
+					"givenName",
+					"false"
 				]
 			}
 		},
@@ -60,7 +63,8 @@
 				"name": "mapAttributeName",
 				"parameters": [
 					"locality",
-					"l"
+					"l",
+					"false"
 				]
 			}
 		},
@@ -72,7 +76,8 @@
 				"name": "mapAttributeName",
 				"parameters": [
 					"organization",
-					"o"
+					"o",
+					"false"
 				]
 			}
 		},
@@ -84,7 +89,8 @@
 				"name": "mapAttributeName",
 				"parameters": [
 					"organizationUnit",
-					"ou"
+					"ou",
+					"false"
 				]
 			}
 		},
@@ -96,7 +102,8 @@
 				"name": "mapAttributeName",
 				"parameters": [
 					"post",
-					"postalAddress"
+					"postalAddress",
+					"false"
 				]
 			}
 		},
@@ -108,7 +115,8 @@
 				"name": "mapAttributeName",
 				"parameters": [
 					"surname",
-					"sn"
+					"sn",
+					"false"
 				]
 			}
 		},
@@ -120,7 +128,8 @@
 				"name": "mapAttributeName",
 				"parameters": [
 					"provinceName",
-					"st"
+					"st",
+					"false"
 				]
 			}
 		},
@@ -132,7 +141,8 @@
 				"name": "mapAttributeName",
 				"parameters": [
 					"address",
-					"registeredAddress"
+					"registeredAddress",
+					"false"
 				]
 			}
 		}
