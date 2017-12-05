@@ -95,13 +95,13 @@
 		},
 		{
 			"condition": {
-				"conditionValue": "(!(attr contains 'address')) && (attr contains 'street') && (attr contains 'city') && (attr contains 'postalCode') && (attr contains 'provinceName') && (attr contains 'country')"
+				"conditionValue": "(!(attr contains 'address')) && (attr contains 'street') && (attr contains 'locality') && (attr contains 'postalCode') && (attr contains 'provinceName') && (attr contains 'country')"
 			},
 			"action": {
 				"name": "createAttribute",
 				"parameters": [
 					"address",
-					"attr contains 'address' ? attr['address'] : attr['street'] + ', ' + attr['city'] + ', ' + attr['postalCode'] + ', ' + attr['provinceName'] + ', ' + attr['country']",
+					"attr contains 'address' ? attr['address'] : attr['street'] + ', ' + attr['locality'] + ', ' + attr['postalCode'] + ', ' + attr['provinceName'] + ', ' + attr['country']",
 					"false",
 					"address",
 					"address"

@@ -249,7 +249,7 @@
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
-					"city",
+					"locality",
 					"/",
 					"attr['address.locality']",
 					"CREATE_OR_UPDATE"
@@ -300,14 +300,14 @@
 		},
 		{
 			"condition": {
-				"conditionValue": "(!(attr contains 'address.formatted')) && (attr contains 'street_address') && (attr contains 'locality') && (attr contains 'region') && (attr contains 'postal_code') && (attr contains 'country')  "
+				"conditionValue": "(!(attr contains 'address.formatted')) && (attr contains 'address.street_address') && (attr contains 'address.locality') && (attr contains 'address.region') && (attr contains 'address.postal_code') && (attr contains 'address.country')  "
 			},
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
 					"address",
 					"/",
-					"attr['street_address'] + ', ' + attr['locality'] + ', ' + attr['region'] + ', ' + attr['postal_code'] + ', ' + attr['country']",
+					"attr['address.street_address'] + ', ' + attr['address.locality'] + ', ' + attr['address.region'] + ', ' + attr['address.postal_code'] + ', ' + attr['address.country']",
 					"CREATE_OR_UPDATE"
 				]
 			}
