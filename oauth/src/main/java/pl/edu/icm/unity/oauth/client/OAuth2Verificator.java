@@ -268,6 +268,15 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		return convertInput(context, attributes);
 	}
 	
+	private AccessTokenFormat getAccessTokenFormat(OAuthContext context)
+	{
+		CustomProviderProperties providerCfg = config
+				.getProvider(context.getProviderConfigKey());
+		return providerCfg.getEnumValue(CustomProviderProperties.ACCESS_TOKEN_FORMAT,
+				AccessTokenFormat.class);
+
+	}
+
 	private HTTPResponse retrieveAccessTokenGeneric(OAuthContext context, String tokenEndpoint, 
 			ClientAuthnMode mode) 
 			throws IOException, URISyntaxException
@@ -288,7 +297,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		
 		HTTPRequest httpRequest = new CustomHttpRequestFactory()
 				.wrapRequest(request.toHTTPRequest(), context, config); 
-		httpRequest.setAccept(CommonContentTypes.APPLICATION_JSON.toString());
+		if (getAccessTokenFormat(context) == AccessTokenFormat.standard)
+			httpRequest.setAccept(CommonContentTypes.APPLICATION_JSON.toString());
 		
 		if (log.isTraceEnabled())
 		{
@@ -408,13 +418,9 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		ClientAuthnMode selectedMethod = providerCfg.getEnumValue(CustomProviderProperties.CLIENT_AUTHN_MODE, 
 					ClientAuthnMode.class);
 		HTTPResponse response = retrieveAccessTokenGeneric(context, tokenEndpoint, selectedMethod);
-		
-		AccessTokenFormat accessTokenFormat = providerCfg.getEnumValue(CustomProviderProperties.ACCESS_TOKEN_FORMAT, 
-				AccessTokenFormat.class);
-
 		Map<String, List<String>> ret = new HashMap<>();
 		BearerAccessToken accessToken;
-		if (accessTokenFormat == AccessTokenFormat.standard)
+		if (getAccessTokenFormat(context) == AccessTokenFormat.standard)
 		{
 			JSONObject jsonResp = response.getContentAsJSONObject();
 			if (!jsonResp.containsKey("token_type"))

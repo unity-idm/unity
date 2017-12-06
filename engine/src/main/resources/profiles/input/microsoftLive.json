@@ -25,6 +25,20 @@
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
+					"uid",
+					"/",
+					"attr['user_id']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
 					"name",
 					"/",
 					"attr['name']",
