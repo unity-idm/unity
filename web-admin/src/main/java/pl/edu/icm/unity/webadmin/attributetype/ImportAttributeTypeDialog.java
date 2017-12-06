@@ -89,7 +89,7 @@ public class ImportAttributeTypeDialog extends AbstractDialog
 			List<String> predefined = new ArrayList<>();
 			for (Resource resource: predefinedResources)
 			{
-				String name = FilenameUtils.getBaseName(resource.getFile().getName());
+				String name = FilenameUtils.getBaseName(resource.getFilename());
 				predefined.add(name);
 			}
 			

@@ -40,6 +40,20 @@
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
+					"locality",
+					"/",
+					"attr['location']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
 					"email",
 					"/",
 					"attr['email']",

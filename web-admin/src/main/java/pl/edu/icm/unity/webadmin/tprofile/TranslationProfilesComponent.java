@@ -195,12 +195,12 @@ public class TranslationProfilesComponent extends VerticalLayout
 			}
 		});
 		
-		
 		Toolbar toolbar = new Toolbar(table, Orientation.HORIZONTAL);
 		toolbar.addActionHandlers(table.getActionHandlers());
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
-
+		profileType.addValueChangeListener(toolbar.getValueChangeListener());
+		
 		viewer = new TranslationProfileViewer(msg);
 		
 		VerticalLayout left = new VerticalLayout();
@@ -621,7 +621,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 					for (TranslationProfile tp : items)
 						if (tp.getProfileMode() == ProfileMode.READ_ONLY)
 							return EMPTY;
-				} else
+				} else if (target instanceof GenericItem<?>)
 				{
 					GenericItem<?> item = (GenericItem<?>) target;	
 					TranslationProfile tp = (TranslationProfile) item.getElement();

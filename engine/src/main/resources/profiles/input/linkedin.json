@@ -81,7 +81,7 @@
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
-					"provinceName",
+					"locality",
 					"/",
 					"attr['location.name']",
 					"CREATE_OR_UPDATE"
@@ -111,7 +111,7 @@
 				"parameters": [
 					"profileURL",
 					"/",
-					"attr['publicProfileURL']",
+					"attr['publicProfileUrl']",
 					"CREATE_OR_UPDATE"
 				]
 			}

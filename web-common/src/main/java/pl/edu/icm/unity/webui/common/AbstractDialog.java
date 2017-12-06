@@ -6,6 +6,8 @@ package pl.edu.icm.unity.webui.common;
 
 import java.util.Iterator;
 
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.AbstractOrderedLayout;
@@ -21,6 +23,7 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
@@ -41,6 +44,8 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  */
 public abstract class AbstractDialog extends Window implements Button.ClickListener 
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AbstractDialog.class);
+
 	public enum SizeMode {LARGE, MEDIUM, SMALL}
 	
 	private Button confirm;
@@ -235,6 +240,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 			initGUI();
 		} catch (Exception e)
 		{
+			log.error("Error when dialog init", e);
 			if (e instanceof RuntimeException)
 				throw ((RuntimeException)e);
 			return;
