@@ -34,6 +34,9 @@ public class LdapAttributeUtils {
     private final LdapServerProperties props;
     private final Set<String> keys;
     
+    public final static String MEMBER_OF_AT = "memberof";
+    public final static String MEMBER_OF_AT_OID = "2.16.840.1.113894.1.1.424";
+    
     public LdapAttributeUtils(LdapServerFacade lsf, IdentitiesManagement identitiesMan, LdapServerProperties props) {
         this.lsf = lsf;
         this.identitiesMan = identitiesMan;
@@ -64,8 +67,7 @@ public class LdapAttributeUtils {
     public void addAttribute(String name, Entity userEntity, String username, Collection<AttributeExt<?>> attrs,
             Entry toEntry) throws LdapException, EngineException
     {
-        final String MEMBER_OF_AT = "memberof";
-        final String MEMBER_OF_AT_OID = "2.16.840.1.113894.1.1.424";
+        
             
         Attribute da = null;
         switch (name)
@@ -80,26 +82,27 @@ public class LdapAttributeUtils {
             break;
         case MEMBER_OF_AT:
             Map<String, GroupMembership> grps = identitiesMan.getGroups(new EntityParam(userEntity.getId()));
-            //Abuse title attribute for now
-            da = lsf.getAttribute(MEMBER_OF_AT, MEMBER_OF_AT_OID);
-            for (Map.Entry<String, GroupMembership> agroup : grps.entrySet()) {
-                    String group = agroup.getValue().getGroup();
-                    String[] groupParts = group.split("/");
-                    String values = "";
-                    for(int i = groupParts.length-1; i >= 0; i--) {
-                        String g = groupParts[i];
-                        if(!g.isEmpty()) {
-                            values += "cn="+g+",";
+            if (grps != null) {
+                da = lsf.getAttribute(MEMBER_OF_AT, MEMBER_OF_AT_OID);            
+                for (Map.Entry<String, GroupMembership> agroup : grps.entrySet()) {
+                        String group = agroup.getValue().getGroup();
+                        String[] groupParts = group.split("/");
+                        String values = "";
+                        for(int i = groupParts.length-1; i >= 0; i--) {
+                            String g = groupParts[i];
+                            if(!g.isEmpty()) {
+                                values += "cn="+g+",";
+                            }
                         }
-                    }
-                    //Remove trailing comma
-                    if(values.endsWith(",")) {
-                        values = values.substring(0, values.length()-1);
-                    }
-                    //Add value to attribute
-                    if(!values.isEmpty()) {
-                        da.add(values);
-                    }
+                        //Remove trailing comma
+                        if(values.endsWith(",")) {
+                            values = values.substring(0, values.length()-1);
+                        }
+                        //Add value to attribute
+                        if(!values.isEmpty()) {
+                            da.add(values);
+                        }
+                }
             }
             break;            
         default:
@@ -152,7 +155,7 @@ public class LdapAttributeUtils {
             break;
         }
 */
-        if (null != da)
+        if (null != da && da.get() != null)
         {
             toEntry.add(da);
         }
@@ -263,8 +266,13 @@ public class LdapAttributeUtils {
             for(Identity identity : userEntity.getIdentities()) {
                 availableIdentities += identity.getTypeId() + ",";
             }
-            log.debug(String.format("Available unity identities [%s].", availableIdentities.substring(0, availableIdentities.length()-1)));
-            return null;
+            if (availableIdentities.length() > 0) {
+                log.debug(String.format("Available unity identities [%s].", availableIdentities.substring(0, availableIdentities.length()-1)));
+            } else {
+                log.debug(String.format("No identities available."));
+            }
         }
+        
+        return null;        
     }
 }
