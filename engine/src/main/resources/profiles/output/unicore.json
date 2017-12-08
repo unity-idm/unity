@@ -14,19 +14,30 @@
 					"sys:default"
 				]
 			}
-		},	
+		},
 		{
 			"condition": {
 				"conditionValue": "true"
 			},
 			"action": {
-				"name": "createAttribute",
+				"name": "mapAttributeName",
 				"parameters": [
-					"memberOf",
-					"groups",
-					"false",
-					"memberOf",
-					"memberOf"
+					"organization",
+					"o",
+					"false"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"picture",
+					"jpegPhoto",
+					"false"
 				]
 			}
 		}

@@ -49,7 +49,7 @@
 				"name": "mapAttributeName",
 				"parameters": [
 					"middleName",
-					"midde_name",
+					"middle_name",
 					"false"
 				]
 			}
@@ -101,10 +101,40 @@
 				"name": "createAttribute",
 				"parameters": [
 					"address",
-					"attr contains 'address' ? attr['address'] : attr['street'] + ', ' + attr['locality'] + ', ' + attr['postalCode'] + ', ' + attr['provinceName'] + ', ' + attr['country']",
+					"'{ \"formatted\" :\"' +  attr['street'] + ', ' + attr['locality'] + ', ' + attr['postalCode'] + ', ' + attr['provinceName'] + ', ' + attr['country'] + '\" }'",
 					"false",
+					"Address",
+					"Address"
+				]
+			}
+		},	
+		{
+			"condition": {
+				"conditionValue": "attr contains 'address'"
+			},
+			"action": {
+				"name": "createAttribute",
+				"parameters": [
 					"address",
-					"address"
+					"'{ \"formatted\" :\"' + attr['address'] + '\" }'",
+					"false",
+					"Address",
+					"Address"
+				]
+			}
+		},	
+		{
+			"condition": {
+				"conditionValue": "attr contains 'email'"
+			},
+			"action": {
+				"name": "createAttribute",
+				"parameters": [
+					"email_verified",
+					"attrObj['email'].getConfirmationInfo().isConfirmed()",
+					"false",
+					"Email verified",
+					"Email verified"
 				]
 			}
 		}

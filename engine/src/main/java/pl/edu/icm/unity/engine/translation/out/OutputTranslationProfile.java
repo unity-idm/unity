@@ -132,16 +132,22 @@ public class OutputTranslationProfile
 		ret.put("protocolSubtype", input.getProtocolSubType());
 		ret.put("requester", input.getRequester());
 		Map<String, Object> attr = new HashMap<>();
+		Map<String, Object> attrObj = new HashMap<>();
 		Map<String, List<? extends Object>> attrs = new HashMap<>();
 		
-		for (Attribute ra: input.getAttributes())
+		for (Attribute ra : input.getAttributes())
 		{
-			List<String> values = attrConverter.internalValuesToExternal(ra.getName(), ra.getValues());	
+			List<String> values = attrConverter.internalValuesToExternal(ra.getName(),
+					ra.getValues());
 			String v = values.isEmpty() ? "" : values.get(0);
 			attr.put(ra.getName(), v);
 			attrs.put(ra.getName(), values);
+			attrObj.put(ra.getName(), values.isEmpty() ? ""
+					: attrConverter.internalValuesToObjectValues(ra.getName(),
+							ra.getValues()).get(0));
 		}
 		ret.put("attr", attr);
+		ret.put("attrObj", attrObj);
 		ret.put("attrs", attrs);
 
 		Map<String, List<String>> idsByType = new HashMap<>();
