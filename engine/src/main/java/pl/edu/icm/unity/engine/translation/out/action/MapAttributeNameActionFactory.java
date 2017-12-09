@@ -127,7 +127,7 @@ public class MapAttributeNameActionFactory extends AbstractOutputTranslationActi
 				//ok
 			}
 					
-			result.getAttributes().add(new DynamicAttribute(newAttr,
+			result.getAttributes().add(new DynamicAttribute(newAttr, attrType,
 					getAttrName(attrDisplayname, attrName, attrType),
 					getAttrDescription(attrDescription, attrName, attrType),
 					attrMandatory));

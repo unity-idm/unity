@@ -1104,7 +1104,7 @@
 	},
 	{
 		"flags": 0,
-		"maxElements": 10,
+		"maxElements": 1,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,

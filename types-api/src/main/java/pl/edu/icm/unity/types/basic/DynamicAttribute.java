@@ -18,6 +18,7 @@ package pl.edu.icm.unity.types.basic;
 public class DynamicAttribute
 {
 	private Attribute attribute;
+	private AttributeType attributeType;
 	private String displayedName;
 	private String description;
 	private boolean mandatory;
@@ -30,6 +31,13 @@ public class DynamicAttribute
 		this.displayedName = displayedName;
 		this.description = description;
 		this.mandatory = mandatory;
+	}
+	
+	public DynamicAttribute(Attribute attribute, AttributeType type, String displayedName, String description, 
+			boolean mandatory)
+	{
+		this(attribute, displayedName, description, mandatory);
+		this.setAttributeType(type);
 	}
 	
 	public DynamicAttribute(Attribute attribute)
@@ -83,6 +91,16 @@ public class DynamicAttribute
 	{
 		this.mandatory = mandatory;
 	}
+	
+	public AttributeType getAttributeType()
+	{
+		return attributeType;
+	}
+
+	public void setAttributeType(AttributeType attributeType)
+	{
+		this.attributeType = attributeType;
+	}
 
 	@Override
 	public String toString()
@@ -131,7 +149,14 @@ public class DynamicAttribute
 		if (!(mandatory == other.mandatory))
 			return false;
 
+		if (attributeType == null)
+		{
+			if (other.attributeType != null)
+				return false;
+		} else if (!attributeType.equals(other.attributeType))
+			return false;
+		
+		
 		return true;
 	}
-
 }

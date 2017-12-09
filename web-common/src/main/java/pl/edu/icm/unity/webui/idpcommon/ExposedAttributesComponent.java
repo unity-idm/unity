@@ -111,14 +111,19 @@ public class ExposedAttributesComponent extends CustomComponent
 	private List<Component> getAttributeComponent(DynamicAttribute dat)
 	{
 		Attribute at = dat.getAttribute();
-		AttributeType attributeType;
-		try
+		AttributeType attributeType = dat.getAttributeType();
+		if (attributeType == null)
 		{
-			attributeType = atSupport.getType(at);
-		} catch (IllegalArgumentException e)
-		{
-			// can happen for dynamic attributes from output translation profile
-			attributeType = new AttributeType(at.getName(),	StringAttributeSyntax.ID);
+			try
+			{
+				attributeType = atSupport.getType(at);
+			} catch (IllegalArgumentException e)
+			{
+				// can happen for dynamic attributes from output
+				// translation profile
+				attributeType = new AttributeType(at.getName(),
+						StringAttributeSyntax.ID);
+			}
 		}
 		AttributeViewer attrViewer = new AttributeViewer(msg, handlersRegistry, 
 				attributeType, at, false); 

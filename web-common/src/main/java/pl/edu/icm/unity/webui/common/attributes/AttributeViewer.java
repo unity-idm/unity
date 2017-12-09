@@ -7,14 +7,13 @@ package pl.edu.icm.unity.webui.common.attributes;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.vaadin.v7.ui.AbstractField;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
+import com.vaadin.v7.ui.AbstractField;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
-import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -105,8 +104,12 @@ public class AttributeViewer
 	
 	private Component getRepresentation(String value)
 	{
-		AttributeValueSyntax<?> syntax = registry.getSyntaxWithStringFallback(attribute);
-		WebAttributeHandler handler = registry.getHandler(syntax);
+		WebAttributeHandler handler = null;	
+		if (attributeType == null)
+			handler = registry.getHandlerWithStringFallback(attribute);
+		else
+			handler = registry.getHandlerWithStringFallback(attributeType);
+		
 		return handler.getRepresentation(value);
 	}
 }

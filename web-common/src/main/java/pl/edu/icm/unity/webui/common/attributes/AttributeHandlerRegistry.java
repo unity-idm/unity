@@ -22,6 +22,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
@@ -54,25 +55,54 @@ public class AttributeHandlerRegistry
 	 * Returns web attribute handler for the given attribute, falling back to string 
 	 * attribute handler if there is no system defined attribute for the argument attribute 
 	 * name (can happen for dynamic attributes created by output profiles).
-	 * @param at
+	 * @param attribute
 	 * @return attribute handler
 	 */
-	public WebAttributeHandler getHandlerWithStringFallback(Attribute at)
+	public WebAttributeHandler getHandlerWithStringFallback(Attribute attribute)
 	{
-		AttributeValueSyntax<?> syntax = getSyntaxWithStringFallback(at);
+		AttributeValueSyntax<?> syntax = getSyntaxWithStringFallback(attribute);
 		return getHandler(syntax);
 	}
-
+	
 	/**
-	 * @param at
+	 * Returns web attribute handler for the given attribute type, falling back to string 
+	 * attribute handler if there is no system defined attribute type for the argument attribute type
+	 * (can happen for dynamic attributes created by output profiles).
+	 * @param attributeType
+	 * @return attribute handler
+	 */
+	public WebAttributeHandler getHandlerWithStringFallback(AttributeType attributeType)
+	{
+		AttributeValueSyntax<?> syntax = getSyntaxWithStringFallback(attributeType);
+		return getHandler(syntax);
+	}
+	
+	/**
+	 * @param attribute
 	 * @return syntax for the given attribute, or String attribute syntax,
 	 * if the attribute type is not defined.
 	 */
-	public AttributeValueSyntax<?> getSyntaxWithStringFallback(Attribute at)
+	public AttributeValueSyntax<?> getSyntaxWithStringFallback(Attribute attribute)
 	{
 		try
 		{
-			return aTypeSupport.getSyntax(at);
+			return aTypeSupport.getSyntax(attribute);
+		} catch (IllegalArgumentException e)
+		{
+			return new StringAttributeSyntax();
+		}
+	}
+	
+	/**
+	 * @param attributeType
+	 * @return syntax for the given attribute type, or String attribute syntax,
+	 * if the attribute type is not defined.
+	 */
+	public AttributeValueSyntax<?> getSyntaxWithStringFallback(AttributeType attributeType)
+	{
+		try
+		{
+			return aTypeSupport.getSyntax(attributeType);
 		} catch (IllegalArgumentException e)
 		{
 			return new StringAttributeSyntax();

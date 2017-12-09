@@ -168,8 +168,15 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 			Map<String, AttributeType> attributeTypes, Label hideL)
 	{
 		Attribute at = dat.getAttribute();
-		WebAttributeHandler handler = handlersRegistry.getHandlerWithStringFallback(at);
-		AttributeType attributeType = attributeTypes.get(at.getName());
+		AttributeType attributeType = dat.getAttributeType();
+		
+		WebAttributeHandler handler;
+		if (attributeType == null)
+			handler = handlersRegistry.getHandlerWithStringFallback(at);
+		else
+			handler = handlersRegistry.getHandlerWithStringFallback(attributeType);
+		if (attributeType == null)
+			attributeType = attributeTypes.get(at.getName());
 		if (attributeType == null) //can happen for dynamic attributes from output translation profile
 			attributeType = new AttributeType(at.getName(), StringAttributeSyntax.ID);
 		
