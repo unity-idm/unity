@@ -45,6 +45,22 @@
 					"username"
 				]
 			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "createAttribute",
+				"parameters": [
+					"picture",
+					"'url'",
+					"false",
+					"picture",
+					"picture"
+				]
+			}
 		}
+		
 	]
 }
