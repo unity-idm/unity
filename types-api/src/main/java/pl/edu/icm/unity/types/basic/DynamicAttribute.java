@@ -33,17 +33,23 @@ public class DynamicAttribute
 		this.mandatory = mandatory;
 	}
 	
-	public DynamicAttribute(Attribute attribute, AttributeType type, String displayedName, String description, 
+	public DynamicAttribute(Attribute attribute, AttributeType attributeType, String displayedName, String description, 
 			boolean mandatory)
 	{
 		this(attribute, displayedName, description, mandatory);
-		this.setAttributeType(type);
+		this.attributeType = attributeType;
 	}
 	
 	public DynamicAttribute(Attribute attribute)
 	{
 		this.attribute = attribute;
 		this.mandatory = false;
+	}
+	
+	public DynamicAttribute(Attribute attribute, AttributeType attributeType)
+	{
+		this(attribute);
+		this.attributeType = attributeType;
 	}
 	
 
