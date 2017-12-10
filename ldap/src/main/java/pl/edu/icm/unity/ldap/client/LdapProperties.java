@@ -46,7 +46,7 @@ public class LdapProperties extends PropertiesHelper
 		}
 	}
 	
-	public enum BindAs {user, system}
+	public enum BindAs {user, system, none}
 
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "ldap.";
@@ -125,7 +125,8 @@ public class LdapProperties extends PropertiesHelper
 				+ "predefined user ('system or unity user') and password. Then the credentials provided"
 				+ " by the user are only compared if are genuine, but all searches "
 				+ "(and LDAP authorization) is run as the designated system user. In this mode, "
-				+ "the system user's DN, password and user's password attribute must be configured."));
+				+ "the system user's DN, password and user's password attribute must be configured. "
+				+ "The +user+ option will only work with authenticator and not with importer."));
 		
 		META.put(USER_DN_TEMPLATE, new PropertyMD().setCategory(main).setDescription("Template of a DN of " +
 				"the user that should be used to log in. The tempalte must possess a single occurence " +

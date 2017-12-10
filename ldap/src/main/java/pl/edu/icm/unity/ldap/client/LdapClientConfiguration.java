@@ -38,6 +38,8 @@ public class LdapClientConfiguration
 	
 	public enum ConnectionMode {plain, SSL, startTLS};
 	
+	
+	
 	public static final String USERNAME_TOKEN = "{USERNAME}";
 	
 	private String[] servers;
@@ -50,7 +52,7 @@ public class LdapClientConfiguration
 	private X509CertChainValidator connectionValidator;
 	private List<SearchSpecification> extraSearches;
 	
-	private boolean bindAsUser;
+	private BindAs bindAs;
 	private String systemDN;
 	private String systemPassword;
 	private String userPasswordAttribute;
@@ -107,11 +109,10 @@ public class LdapClientConfiguration
 		
 		List<String> attributes = ldapProperties.getListOfValues(LdapProperties.ATTRIBUTES);
 		queriedAttributes = attributes.toArray(new String[attributes.size()]);
-		
-		bindAsUser = true;
-		if (ldapProperties.getEnumValue(LdapProperties.BIND_AS, BindAs.class) == BindAs.system)
+
+		bindAs = ldapProperties.getEnumValue(LdapProperties.BIND_AS, BindAs.class);
+		if (bindAs == BindAs.system)
 		{
-			bindAsUser = false;
 			systemDN = ldapProperties.getValue(LdapProperties.SYSTEM_DN);
 			systemPassword = ldapProperties.getValue(LdapProperties.SYSTEM_PASSWORD);
 			if (systemDN == null || systemPassword == null)
@@ -314,9 +315,9 @@ public class LdapClientConfiguration
 		return connectionValidator;
 	}
 
-	public boolean isBindAsUser()
+	public BindAs getBindAs()
 	{
-		return bindAsUser;
+		return bindAs;
 	}
 
 	public String getSystemDN()

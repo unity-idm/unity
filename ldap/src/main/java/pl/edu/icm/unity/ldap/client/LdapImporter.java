@@ -13,6 +13,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSPI;
+import pl.edu.icm.unity.ldap.client.LdapProperties.BindAs;
 
 
 /**
@@ -33,7 +34,7 @@ public class LdapImporter implements UserImportSPI
 		LdapProperties ldapProperties = new LdapProperties(properties);
 		clientConfiguration = new LdapClientConfiguration(ldapProperties, pkiManagement);
 		client = new LdapClient(idpName);
-		if (clientConfiguration.isBindAsUser())
+		if (clientConfiguration.getBindAs() == BindAs.user)
 		{
 			throw new ConfigurationException("LDAP import can be only performed "
 					+ "when the LDAP subsystem is configured to bind with a system credential");
