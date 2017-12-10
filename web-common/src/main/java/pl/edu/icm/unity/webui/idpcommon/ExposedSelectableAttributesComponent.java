@@ -112,7 +112,8 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 		details.setSpacing(false);
 		details.setMargin(false);
 		final ExpandCollapseButton showDetails = new ExpandCollapseButton(true, details);
-
+		showDetails.setId("ExposedSelectableAttributes.showDetails");
+		
 		Label attributesL = new Label(msg.getMessage("ExposedAttributesComponent.attributes"));
 		attributesL.addStyleName(Styles.bold.toString());
 		

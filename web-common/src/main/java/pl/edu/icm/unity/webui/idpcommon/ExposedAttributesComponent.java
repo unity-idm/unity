@@ -74,7 +74,8 @@ public class ExposedAttributesComponent extends CustomComponent
 
 		final VerticalLayout details = new VerticalLayout();
 		final ExpandCollapseButton showDetails = new ExpandCollapseButton(true, details);
-
+		showDetails.setId("ExposedAttributes.showDetails");
+		
 		Label attributesL = new Label(
 				msg.getMessage("ExposedAttributesComponent.attributes"));
 		attributesL.addStyleName(Styles.bold.toString());
