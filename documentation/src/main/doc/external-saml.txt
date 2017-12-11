@@ -86,4 +86,12 @@ under the path +/unitygw/saml-sp-metadata/NAME+, where +NAME+ is configurable wi
 +unity.saml.requester.metadataPath+ property and is used to distinguish the metadata of 
 different SAML authenticators (as it is possible to configure more then one).
 
+==== SAML specific information in translation profile
+
+If the authentication response returned by the remote IdP contains the +AuthnContextClassRef+ element, then its 
+value will be provided in the translation profile, under an attribute with a well known name: +authnContextClassRef+.
+ 
+
+
+
  
