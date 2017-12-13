@@ -201,7 +201,6 @@ public class PostFormFillingHandler
 					msg.getMessage("RegistrationFormsChooserComponent.errorRequestSubmit"), e);
 			}
 		}
-		
 	}
 	
 	private void redirectOrInform(String redirectUrl)

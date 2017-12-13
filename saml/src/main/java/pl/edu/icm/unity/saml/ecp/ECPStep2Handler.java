@@ -6,6 +6,7 @@ package pl.edu.icm.unity.saml.ecp;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.servlet.ServletException;
@@ -237,7 +238,7 @@ public class ECPStep2Handler
 				replayAttackChecker, myAddress);
 		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDoc, 
 				ctx.getRequestId(), SAMLBindings.PAOS, groupAttr, key);
-		return remoteAuthnProcessor.getResult(input, profile, false);
+		return remoteAuthnProcessor.getResult(input, profile, false, Optional.empty());
 	}
 	
 	private String findIdPKey(SAMLSPProperties samlProperties, ResponseDocument responseDoc) throws ServletException

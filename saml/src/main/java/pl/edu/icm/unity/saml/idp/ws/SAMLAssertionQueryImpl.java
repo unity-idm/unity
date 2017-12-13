@@ -125,12 +125,10 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 			AttributeQueryResponseProcessor processor, SPSettings preferences) throws EngineException
 	{
 		String profile = samlProperties.getValue(CommonIdPProperties.TRANSLATION_PROFILE);
-		boolean skipImport = samlProperties.getBooleanValue(CommonIdPProperties.SKIP_USERIMPORT);
-
-		TranslationResult userInfo = idpEngine.obtainUserInformation(new EntityParam(subjectId), 
+		TranslationResult userInfo = idpEngine.obtainUserInformationWithEarlyImport(subjectId, 
 				processor.getChosenGroup(), profile, 
 				processor.getIdentityTarget(), "SAML2", SAMLConstants.BINDING_SOAP, false,
-				!skipImport);
+				samlProperties);
 		return processor.getAttributes(userInfo, preferences);
 	}
 

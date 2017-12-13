@@ -105,13 +105,12 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 			throws EngineException
 	{
 		String profile = samlProperties.getValue(CommonIdPProperties.TRANSLATION_PROFILE);
-		boolean skipImport = samlProperties.getBooleanValue(CommonIdPProperties.SKIP_USERIMPORT);
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
-		return idpEngine.obtainUserInformation(new EntityParam(ae.getEntityId()), 
+		return idpEngine.obtainUserInformationWithEnrichingImport(new EntityParam(ae.getEntityId()), 
 				processor.getChosenGroup(), profile, 
 				processor.getIdentityTarget(), "SAML2", SAMLConstants.BINDING_SOAP,
 				processor.isIdentityCreationAllowed(),
-				!skipImport);
+				samlProperties);
 	}
 
 	

@@ -4,9 +4,12 @@
  */
 package pl.edu.icm.unity.engine.api.authn.remote;
 
+import java.util.Optional;
+
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
  * Processes {@link RemotelyAuthenticatedInput} by applying a translation profile to it and 
@@ -27,7 +30,8 @@ public interface RemoteAuthnResultProcessor
 	 * @return
 	 * @throws EngineException 
 	 */
-	AuthenticationResult getResult(RemotelyAuthenticatedInput input, String profile, boolean dryRun) 
+	AuthenticationResult getResult(RemotelyAuthenticatedInput input, String profile, 
+			boolean dryRun, Optional<IdentityTaV> identity) 
 			throws AuthenticationException;
 	
 	/**
@@ -48,9 +52,10 @@ public interface RemoteAuthnResultProcessor
 	 * from the remote data is or can be meaningful in the local DB.
 	 * 
 	 * @param input
+	 * @param identity if not empty then fixes the identity for which the profile is executed.
 	 * @return
 	 * @throws EngineException
 	 */
 	RemotelyAuthenticatedContext processRemoteInput(RemotelyAuthenticatedInput input, 
-			String profile, boolean dryRun) throws EngineException;
+			String profile, boolean dryRun, Optional<IdentityTaV> identity) throws EngineException;
 }

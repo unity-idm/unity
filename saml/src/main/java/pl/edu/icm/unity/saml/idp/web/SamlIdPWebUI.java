@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.annotations.Theme;
+import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
@@ -124,14 +126,12 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 			throws EngineException
 	{
 		String profile = samlCtx.getSamlConfiguration().getValue(CommonIdPProperties.TRANSLATION_PROFILE);
-		boolean skipImport = samlCtx.getSamlConfiguration().getBooleanValue(
-				CommonIdPProperties.SKIP_USERIMPORT);
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
-		return idpEngine.obtainUserInformation(new EntityParam(ae.getEntityId()), 
+		return idpEngine.obtainUserInformationWithEnrichingImport(new EntityParam(ae.getEntityId()), 
 				processor.getChosenGroup(), profile, 
 				samlProcessor.getIdentityTarget(), "SAML2", SAMLConstants.BINDING_HTTP_REDIRECT,
 				processor.isIdentityCreationAllowed(),
-				!skipImport);
+				samlCtx.getSamlConfiguration());
 	}
 
 	@Override
@@ -199,6 +199,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		try
 		{
 			TranslationResult translationResult = getUserInfo(samlCtx, samlProcessor);
+			handleRedirectIfNeeded(translationResult);
 			createIdentityPart(translationResult, eiLayout);
 			eiLayout.addComponent(HtmlTag.br());
 			createAttributesPart(translationResult, eiLayout, samlCtx.getSamlConfiguration().getBooleanValue(
@@ -209,6 +210,9 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 			log.debug("SAML problem when handling client request", e);
 			samlResponseHandler.handleException(e, true);
 			return;
+		}  catch (EopException eop) 
+		{
+			throw eop;
 		} catch (Exception e)
 		{
 			log.error("Engine problem when handling client request", e);
@@ -219,6 +223,17 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		
 		rememberCB = new CheckBox(msg.getMessage("SamlIdPWebUI.rememberSettings"));
 		contents.addComponent(rememberCB);
+	}
+	
+	private void handleRedirectIfNeeded(TranslationResult userInfo) 
+			throws IOException, EopException
+	{
+		String redirectURL = userInfo.getRedirectURL();
+		if (redirectURL != null)
+		{
+			Page.getCurrent().open(redirectURL, null);
+			throw new EopException();
+		}
 	}
 	
 	protected void createIdentityPart(TranslationResult translationResult, VerticalLayout contents) 

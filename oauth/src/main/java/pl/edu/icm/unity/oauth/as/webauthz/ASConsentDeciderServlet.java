@@ -151,6 +151,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 		try
 		{
 			TranslationResult userInfo = idpEngine.getUserInfo(oauthCtx);
+			handleRedirectIfNeeded(userInfo, request.getSession(), response);
 			IdentityParam selectedIdentity = idpEngine.getIdentity(userInfo, 
 					oauthCtx.getConfig().getSubjectIdentityType());
 			log.debug("Authentication of " + selectedIdentity);
@@ -174,6 +175,19 @@ public class ASConsentDeciderServlet extends HttpServlet
 			return;
 		}
 		sendReturnRedirect(respDoc, request, response, false);
+	}
+	
+	private void handleRedirectIfNeeded(TranslationResult userInfo, HttpSession session,
+			HttpServletResponse response) 
+			throws IOException, EopException
+	{
+		String redirectURL = userInfo.getRedirectURL();
+		if (redirectURL != null)
+		{
+			response.sendRedirect(redirectURL);
+			session.removeAttribute(OAuthParseServlet.SESSION_OAUTH_CONTEXT);
+			throw new EopException();
+		}
 	}
 	
 	private OAuthAuthzContext getOAuthContext(HttpServletRequest req)

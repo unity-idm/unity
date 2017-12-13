@@ -27,6 +27,8 @@ public class TranslationResult
 	private Collection<Attribute> attributesToPersist = new HashSet<>();
 	private Collection<IdentityParam> identitiesToPersist = new ArrayList<>();
 	
+	private String redirectURL;
+	
 	public Collection<DynamicAttribute> getAttributes()
 	{
 		return attributes;
@@ -45,6 +47,16 @@ public class TranslationResult
 	public Collection<IdentityParam> getIdentitiesToPersist()
 	{
 		return identitiesToPersist;
+	}
+
+	public String getRedirectURL()
+	{
+		return redirectURL;
+	}
+
+	public void setRedirectURL(String redirectURL)
+	{
+		this.redirectURL = redirectURL;
 	}
 
 	public boolean removeAttributesByName(String name)

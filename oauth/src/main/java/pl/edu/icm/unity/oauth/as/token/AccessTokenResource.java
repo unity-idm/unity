@@ -536,7 +536,7 @@ public class AccessTokenResource extends BaseOAuthResource
 					String.valueOf(clientId),
 					config.getValue(OAuthASProperties.USERS_GROUP),
 					config.getValue(CommonIdPProperties.TRANSLATION_PROFILE),
-					grant, false);
+					grant, config);
 		} catch (ExecutionFailException e)
 		{
 			log.debug("Authentication failed due to profile's decision, returning error");

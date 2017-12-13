@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.authn.remote;
 
+import java.util.Optional;
+
 import pl.edu.icm.unity.engine.api.authn.AbstractVerificator;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
@@ -51,7 +53,8 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 		RemoteAuthnStateImpl stateCasted = (RemoteAuthnStateImpl)state;
 		stateCasted.remoteInput = input;
 		
-		AuthenticationResult result = processor.getResult(input, profile, stateCasted.isInSandboxMode());
+		AuthenticationResult result = processor.getResult(input, profile, 
+				stateCasted.isInSandboxMode(), Optional.empty());
 		finishAuthnResponseProcessing(state, result.getRemoteAuthnContext());
 		return result;
 	}

@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.oauth.as.webauthz;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.Collection;
 
 import org.apache.logging.log4j.Logger;
@@ -18,6 +19,7 @@ import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.vaadin.annotations.Theme;
+import com.vaadin.server.Page;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
@@ -36,9 +38,9 @@ import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
+import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
-import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
@@ -198,7 +200,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 			eiLayout.addComponent(spacer);
 			
 			TranslationResult translationResult = idpEngine.getUserInfo(ctx);
-			
+			handleRedirectIfNeeded(translationResult);
 			createIdentityPart(translationResult, eiLayout, ctx.getConfig().getSubjectIdentityType());
 			
 			attrsPresenter = new ExposedAttributesComponent(msg, aTypeSupport, handlersRegistry, 
@@ -208,6 +210,9 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		{
 			oauthResponseHandler.returnOauthResponse(e.getOauthResponse(), e.isInvalidateSession());
 			return;
+		} catch (EopException eop) 
+		{
+			throw eop;
 		} catch (Exception e)
 		{
 			log.error("Engine problem when handling client request", e);
@@ -221,6 +226,17 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		
 		rememberCB = new CheckBox(msg.getMessage("OAuthAuthzUI.rememberSettings"));
 		contents.addComponent(rememberCB);
+	}
+	
+	private void handleRedirectIfNeeded(TranslationResult userInfo) 
+			throws IOException, EopException
+	{
+		String redirectURL = userInfo.getRedirectURL();
+		if (redirectURL != null)
+		{
+			Page.getCurrent().open(redirectURL, null);
+			throw new EopException();
+		}
 	}
 	
 	private void createIdentityPart(TranslationResult translationResult, VerticalLayout contents,

@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.authn.remote;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
+import pl.edu.icm.unity.engine.api.translation.in.IdentityEffectMode;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.translation.in.MappedAttribute;
 import pl.edu.icm.unity.engine.api.translation.in.MappedGroup;
@@ -34,6 +36,7 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
@@ -74,13 +77,14 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 	 */
 	@Override
 	@Transactional
-	public AuthenticationResult getResult(RemotelyAuthenticatedInput input, String profile, boolean dryRun) 
+	public AuthenticationResult getResult(RemotelyAuthenticatedInput input, String profile, 
+			boolean dryRun, Optional<IdentityTaV> identity) 
 			throws AuthenticationException
 	{
 		RemotelyAuthenticatedContext context;
 		try
 		{
-			context = processRemoteInput(input, profile, dryRun);
+			context = processRemoteInput(input, profile, dryRun, identity);
 		} catch (EngineException e)
 		{
 			throw new AuthenticationException("The mapping of the remotely authenticated " +
@@ -150,7 +154,7 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 	 */
 	@Override
 	public final RemotelyAuthenticatedContext processRemoteInput(RemotelyAuthenticatedInput input, 
-			String profile, boolean dryRun) throws EngineException
+			String profile, boolean dryRun, Optional<IdentityTaV> identity) throws EngineException
 	{
 		TranslationProfile translationProfile = inputProfileRepo.getProfile(profile);
 		InputTranslationProfile profileInstance = new InputTranslationProfile(
@@ -159,7 +163,15 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 			throw new ConfigurationException("The translation profile '" + profile + 
 					"' configured for the authenticator does not exist");
 		MappingResult result = profileInstance.translate(input);
-
+		
+		if (identity.isPresent())
+		{
+			IdentityTaV presetIdentity = identity.get();
+			IdentityParam presetIdParam = new IdentityParam(presetIdentity.getTypeId(), 
+					presetIdentity.getValue());
+			result.addIdentity(new MappedIdentity(IdentityEffectMode.REQUIRE_MATCH, 
+					presetIdParam, null));
+		}
 		if (!dryRun)
 			trEngine.process(result);
 		

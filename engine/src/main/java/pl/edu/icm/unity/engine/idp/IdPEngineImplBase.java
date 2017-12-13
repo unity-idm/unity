@@ -6,20 +6,25 @@ package pl.edu.icm.unity.engine.idp;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.util.configuration.ConfigurationException;
+import eu.unicore.util.configuration.PropertiesHelper;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce;
+import pl.edu.icm.unity.engine.api.userimport.UserImportSpec;
 import pl.edu.icm.unity.engine.attribute.AttributeValueConverter;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationEngine;
@@ -82,32 +87,50 @@ public class IdPEngineImplBase implements IdPEngine
 
 		this.defaultProfile = createDefaultOutputProfile();
 	}
-	
-	/**
-	 * Obtains a complete and translated information about entity, authorized to be published.
-	 * @param entity entity for which the query is performed
-	 * @param group the group from which attributes shall be resolved
-	 * @param profile output translation profile to be consulted. Can be null -> then default profile is used. 
-	 * @param requester identity of requester
-	 * @param protocol identifier of access protocol
-	 * @param protocolSubType sub identifier of protocol (e.g. binding)
-	 * @param allowIdentityCreate whether a dynamic id can be established
-	 * @return obtained data
-	 * @throws EngineException
-	 */
+
 	@Override
-	public TranslationResult obtainUserInformation(EntityParam entity, String group, String profile,
+	public TranslationResult obtainUserInformationWithEnrichingImport(EntityParam entity,
+			String group, String profile, String requester, String protocol,
+			String protocolSubType, boolean allowIdentityCreate,
+			PropertiesHelper importsConfig) throws EngineException
+	{
+		Entity fullEntity = identitiesMan.getEntity(entity, requester, allowIdentityCreate, group);
+		Map<String, String> firstIdentitiesByType = new HashMap<>();
+		fullEntity.getIdentities().forEach(id -> {
+			if (!firstIdentitiesByType.containsKey(id.getTypeId()))
+				firstIdentitiesByType.put(id.getTypeId(), id.getValue());
+		});
+		List<UserImportSpec> userImports = CommonIdPProperties.getUserImports(
+				importsConfig, firstIdentitiesByType);
+		userImportService.importToExistingUser(userImports, fullEntity.getIdentities().get(0));
+		
+		return obtainUserInformationPostImport(entity, fullEntity, group, profile, 
+				requester, protocol, protocolSubType);
+	}
+	
+	@Override
+	public TranslationResult obtainUserInformationWithEarlyImport(IdentityTaV identity, String group, String profile,
 			String requester, String protocol, String protocolSubType, boolean allowIdentityCreate,
-			boolean triggerImport) 
+			PropertiesHelper config)
 			throws EngineException
 	{
-		IdentityTaV identityTaV = entity.getIdentity();
-		if (identityTaV != null && triggerImport)
-			userImportService.importUser(identityTaV.getValue(), identityTaV.getTypeId());
+		List<UserImportSpec> userImports = CommonIdPProperties.getUserImportsLegacy(
+				config, identity.getValue(), identity.getTypeId());
+		userImportService.importUser(userImports);
+		EntityParam entity = new EntityParam(identity);
+		Entity fullEntity = identitiesMan.getEntity(entity, requester, allowIdentityCreate, group);
+		
+		return obtainUserInformationPostImport(entity, fullEntity, group, profile, 
+				requester, protocol, protocolSubType);
+	}
+	
+	private TranslationResult obtainUserInformationPostImport(EntityParam entity, Entity fullEntity,
+			String group, String profile,
+			String requester, String protocol, String protocolSubType) throws EngineException
+	{
 		Collection<String> allGroups = identitiesMan.getGroups(entity).keySet();
 		Collection<AttributeExt> allAttributes = attributesMan.getAttributes(
 				entity, group, null);
-		Entity fullEntity = identitiesMan.getEntity(entity, requester, allowIdentityCreate, group);
 		if (log.isTraceEnabled())
 			log.trace("Attributes to be returned (before postprocessing): " + 
 					allAttributes + "\nGroups: " + allGroups + "\nIdentities: " + 

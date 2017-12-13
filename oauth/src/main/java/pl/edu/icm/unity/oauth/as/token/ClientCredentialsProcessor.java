@@ -125,15 +125,15 @@ public class ClientCredentialsProcessor
 			throws EngineException
 	{
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
-		boolean skipImport = config.getBooleanValue(CommonIdPProperties.SKIP_USERIMPORT);
-		TranslationResult translationResult = idpEngine.obtainUserInformation(new EntityParam(ae.getEntityId()), 
+		TranslationResult translationResult = idpEngine.obtainUserInformationWithEnrichingImport(
+				new EntityParam(ae.getEntityId()), 
 				usersGroup, 
 				config.getValue(CommonIdPProperties.TRANSLATION_PROFILE), 
 				client,
 				"OAuth2", 
 				GrantType.CLIENT_CREDENTIALS.getValue(),
 				true,
-				!skipImport);
+				config);
 		return translationResult;
 	}
 	

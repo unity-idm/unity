@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
@@ -595,7 +596,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 		
 		RemotelyAuthenticatedContext processed  = tx.runInTransactionRetThrowing(() -> {
-			return remoteProcessor.processRemoteInput(input, "p1", false);
+			return remoteProcessor.processRemoteInput(input, "p1", false, Optional.empty());
 		});
 		
 		assertNotNull(processed.getLocalMappedPrincipal());
