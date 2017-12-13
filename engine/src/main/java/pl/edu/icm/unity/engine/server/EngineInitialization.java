@@ -108,6 +108,7 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.types.translation.ProfileMode;
+import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
@@ -809,10 +810,12 @@ public class EngineInitialization extends LifecycleBase
 	private void initializeTranslationProfiles()
 	{
 		List<String> profileFiles = config.getListOfValues(UnityServerConfiguration.TRANSLATION_PROFILES);
-		Map<String, TranslationProfile> existingProfiles;
+		Map<String, TranslationProfile> existingInputProfiles;
+		Map<String, TranslationProfile> existingOutputProfiles;
 		try
 		{
-			existingProfiles = profilesManagement.listInputProfiles();
+			existingInputProfiles = profilesManagement.listInputProfiles();
+			existingOutputProfiles = profilesManagement.listOutputProfiles();
 		} catch (EngineException e1)
 		{
 			throw new InternalException("Can't list the existing translation profiles", e1);
@@ -833,7 +836,8 @@ public class EngineInitialization extends LifecycleBase
 			TranslationProfile tp = new TranslationProfile(json);
 			try
 			{
-				if (existingProfiles.containsKey(tp.getName()))
+				if ((tp.getProfileType() == ProfileType.INPUT && existingInputProfiles.containsKey(tp.getName()))
+						|| tp.getProfileType() == ProfileType.OUTPUT && existingOutputProfiles.containsKey(tp.getName()))
 				{
 					log.info(" - updated the in-DB translation profile : " + tp.getName() + 
 							" with file definition: " + profileFile);

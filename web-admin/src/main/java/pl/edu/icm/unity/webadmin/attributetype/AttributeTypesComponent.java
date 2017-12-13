@@ -251,6 +251,7 @@ public class AttributeTypesComponent extends VerticalLayout
 	public void showEditDialog(Collection<AttributeType> target)
 	{
 		AttributeType at = target.iterator().next();
+		at = at.clone();
 		AttributeTypeEditor editor = at.isTypeImmutable() ? 
 				new ImmutableAttributeTypeEditor(msg, at) : 
 					new RegularAttributeTypeEditor(msg, attrHandlerRegistry, at, 

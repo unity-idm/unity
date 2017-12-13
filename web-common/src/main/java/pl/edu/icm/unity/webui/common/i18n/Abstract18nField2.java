@@ -69,6 +69,7 @@ public abstract class Abstract18nField2<T extends AbstractTextField> extends Cus
 	{
 		defaultTf = makeFieldInstance();
 		defaultTf.setDescription(defaultLocaleName);
+		defaultTf.addValueChangeListener(e -> fireEvent(e));
 		String defStyle = Styles.getFlagBgStyleForLocale(defaultLocaleCode);
 		if (defStyle != null)
 			defaultTf.addStyleName(defStyle);
