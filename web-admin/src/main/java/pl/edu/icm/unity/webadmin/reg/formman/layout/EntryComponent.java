@@ -6,7 +6,7 @@ package pl.edu.icm.unity.webadmin.reg.formman.layout;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -67,6 +67,8 @@ public class EntryComponent extends CustomComponent
 		remove.setVisible(!elementEditor.getElement().isFormContentsRelated());
 		
 		HorizontalLayout toolbar = new HorizontalLayout();
+		toolbar.setMargin(false);
+		toolbar.setSpacing(false);
 		Label space0 = new Label();
 		Label space = new Label();
 		toolbar.addComponents(up, down, remove, space0);
@@ -74,6 +76,8 @@ public class EntryComponent extends CustomComponent
 		toolbar.setWidth(16*3+60, Unit.PIXELS);
 		
 		HorizontalLayout main = new HorizontalLayout();
+		main.setSpacing(false);
+		main.setMargin(false);
 		main.addComponent(toolbar);
 		main.addComponent(elementEditor);
 		main.addComponent(space);
