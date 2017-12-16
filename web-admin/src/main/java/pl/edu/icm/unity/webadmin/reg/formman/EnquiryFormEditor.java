@@ -174,8 +174,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		targetGroups = new GroupsSelectionList(msg.getMessage("EnquiryFormViewer.targetGroups"), 
 				notificationsEditor.getGroups());
 		targetGroups.setInput("/", true);
-		// TODO: fix me!
-//		targetGroups.setRequired(true);
+		targetGroups.setRequiredIndicatorVisible(true);
 		
 		main.addComponents(enquiryType, targetGroups);
 		
