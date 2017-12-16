@@ -4,23 +4,25 @@
  */
 package pl.edu.icm.unity.webui.common.i18n;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import com.google.common.base.Strings;
 import com.vaadin.server.Resource;
+import com.vaadin.shared.Registration;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.CustomField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.v7.ui.CustomField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
@@ -46,6 +48,7 @@ public class I18nLabelWithPreview extends CustomField<I18nString>
 	private Map<String, HPairLayout> translationTFs = new HashMap<>();
 	private VerticalLayout main;
 	private ContentMode previewMode;
+	private I18nString value; 
 
 	public I18nLabelWithPreview(UnityMessageSource msg, ContentMode previewMode)
 	{
@@ -85,9 +88,15 @@ public class I18nLabelWithPreview extends CustomField<I18nString>
 	}
 
 	@Override
-	public void setValue(I18nString value)
+	public I18nString getValue()
 	{
-		super.setValue(value);
+		return value;
+	}
+
+	@Override
+	protected void doSetValue(I18nString value)
+	{
+		this.value = value;
 		translationTFs.values().forEach(tf -> tf.setVisible(false));
 		
 		value.getMap().forEach((locale, message) -> 
@@ -107,15 +116,9 @@ public class I18nLabelWithPreview extends CustomField<I18nString>
 		{
 			translationTFs.get(defaultLocale).setTextWithPreview(value.getDefaultValue());
 			translationTFs.get(defaultLocale).setVisible(true);
-		}
+		}	
 	}
-
-	@Override
-	public Class<? extends I18nString> getType()
-	{
-		return I18nString.class;
-	}
-
+	
 	/**
 	 * Horizontal pair layout with image on the left and text on right.
 	 * Has preview option which opens a window with fully blown html.
@@ -126,6 +129,7 @@ public class I18nLabelWithPreview extends CustomField<I18nString>
 	{
 		private Label label;
 		private Button preview;
+		private List<Registration> listeners;
 		private static final String HTML_SPACE = "&nbsp";
 
 		public HPairLayout(UnityMessageSource msg)
@@ -141,6 +145,7 @@ public class I18nLabelWithPreview extends CustomField<I18nString>
 				preview.setStyleName(Styles.vButtonLink.toString());
 				vLayout.addComponent(this.preview);
 			}
+			listeners = new ArrayList<>();
 			
 			label = new Label();
 			label.setContentMode(ContentMode.HTML);
@@ -170,11 +175,11 @@ public class I18nLabelWithPreview extends CustomField<I18nString>
 		{
 			if (preview == null)
 				return;
-			preview.getListeners(ClickListener.class).stream()
-				.map(listener -> (ClickListener)listener)
-				.forEach(preview::removeClickListener);
-			preview.addClickListener(event -> getUI().addWindow(
-					new PreviewWindow(value, previewMode)));
+			for (Registration lisReg : listeners)
+				lisReg.remove();
+			listeners.clear();
+			listeners.add(preview.addClickListener(event -> getUI().addWindow(
+					new PreviewWindow(value, previewMode))));
 		}
 
 		private String escapeHtmlAndPrepareForDisplaying(String value)

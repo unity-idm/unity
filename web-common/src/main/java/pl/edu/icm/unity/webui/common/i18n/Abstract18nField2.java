@@ -148,7 +148,12 @@ public abstract class Abstract18nField2<T extends AbstractTextField> extends Cus
 		defaultTf.setDescription(description + "<br>" + defaultLocaleName);
 	}
 	
+	@Override
+	public I18nString getEmptyValue()
+	{
 	
+		return new I18nString();
+	}
 
 	@Override
 	public I18nString getValue()

@@ -5,37 +5,32 @@
 
 package pl.edu.icm.unity.webadmin.msgtemplate;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.GenericElementsTable;
-import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
-import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.GenericElementsTable2;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar;
+import pl.edu.icm.unity.webui.common.Toolbar2;
 
 /**
  * Responsible for message templates management
@@ -48,7 +43,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
 	private MessageTemplateManagement msgTempMan;
-	private GenericElementsTable<MessageTemplate> table;
+	private GenericElementsTable2<MessageTemplate> table;
 	private MessageTemplateViewer viewer;
 	private com.vaadin.ui.Component main;
 	private MessageTemplateConsumersRegistry consumersRegistry;
@@ -65,26 +60,17 @@ public class MessageTemplatesComponent extends VerticalLayout
 		addStyleName(Styles.visibleScroll.toString());
 		HorizontalLayout hl = new HorizontalLayout();
 		setCaption(msg.getMessage("MessageTemplatesComponent.capion"));
-		table = new GenericElementsTable<MessageTemplate>(msg.getMessage("MessageTemplatesComponent.templatesTable"),
-				new GenericElementsTable.NameProvider<MessageTemplate>()
-				{
-					@Override
-					public Label toRepresentation(MessageTemplate element)
-					{
-						return new Label(element.getName());
-					}
-				});
+		
+		table = new GenericElementsTable2<>(msg.getMessage("MessageTemplatesComponent.templatesTable"), 
+				element -> element.getName());
+		
 		table.setMultiSelect(true);
 		table.setWidth(90, Unit.PERCENTAGE);
 		viewer = new MessageTemplateViewer(msg, consumersRegistry);
 		viewer.setTemplateInput(null);
-		table.addValueChangeListener(new ValueChangeListener()
+		table.addSelectionListener(event ->
 		{
-			
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				Collection<MessageTemplate> items = getItems(table.getValue());
+				Collection<MessageTemplate> items = event.getAllSelectedItems();
 				if (items.size() > 1 || items.isEmpty())
 				{
 					viewer.setTemplateInput(null);
@@ -93,22 +79,22 @@ public class MessageTemplatesComponent extends VerticalLayout
 				MessageTemplate item = items.iterator().next();
 				MessageTemplate forPreview = getTemplateForPreview(item);
 				viewer.setTemplateInput(forPreview);
-			}
+			
 		});
-		table.addActionHandler(new RefreshActionHandler());
-		table.addActionHandler(new AddActionHandler());
-		table.addActionHandler(new EditActionHandler());
-		table.addActionHandler(new DeleteActionHandler());
+		table.addActionHandler(getRefreshAction());
+		table.addActionHandler(getAddAction());
+		table.addActionHandler(getEditAction());
+		table.addActionHandler(getDeleteAction());
 		
-		Toolbar toolbar = new Toolbar(table, Orientation.HORIZONTAL);
+		Toolbar2<MessageTemplate> toolbar = new Toolbar2<>(Orientation.HORIZONTAL);
+		table.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(table.getActionHandlers());
-		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
+		ComponentWithToolbar2 tableWithToolbar = new ComponentWithToolbar2(table, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
+		tableWithToolbar.setHeight(100, Unit.PERCENTAGE);
 		
 		hl.addComponents(tableWithToolbar, viewer);
 		hl.setSizeFull();
-		hl.setMargin(true);
-		hl.setSpacing(true);
 		hl.setMargin(new MarginInfo(true, false, true, false));
 		main = hl;
 		hl.setExpandRatio(tableWithToolbar, 0.3f);
@@ -189,121 +175,74 @@ public class MessageTemplatesComponent extends VerticalLayout
 		}
 	}
 	
-	private Collection<MessageTemplate> getItems(Object target)
+	private SingleActionHandler2<MessageTemplate> getRefreshAction()
 	{
-		Collection<?> c = (Collection<?>) target;
-		Collection<MessageTemplate> items = new ArrayList<MessageTemplate>();
-		for (Object o: c)
-		{
-			GenericItem<?> i = (GenericItem<?>) o;
-			items.add((MessageTemplate) i.getElement());	
-		}	
-		return items;
+		return SingleActionHandler2.builder4Refresh(msg, MessageTemplate.class)
+				.withHandler(selection -> refresh())
+				.build();
 	}
 	
-	private class RefreshActionHandler extends SingleActionHandler
+	private SingleActionHandler2<MessageTemplate> getAddAction()
 	{
-		public RefreshActionHandler()
-		{
-			super(msg.getMessage("MessageTemplatesComponent.refreshAction"), Images.refresh.getResource());
-			setNeedsTarget(false);
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			refresh();
-		}
+		return SingleActionHandler2.builder4Add(msg, MessageTemplate.class)
+				.withHandler(this::showAddDialog)
+				.build();
 	}
 	
-	private class AddActionHandler extends SingleActionHandler
+	
+	private void showAddDialog(Set<MessageTemplate> target)
+	{		
+		MessageTemplateEditor editor = new MessageTemplateEditor(msg, consumersRegistry, null, msgTempMan);	
+		MessageTemplateEditDialog dialog = new MessageTemplateEditDialog(msg, 
+				msg.getMessage("MessageTemplatesComponent.addAction"), newTemplate -> addTemplate(newTemplate)
+				, editor);
+		dialog.show();
+	}
+	
+	private SingleActionHandler2<MessageTemplate> getEditAction()
 	{
-		public AddActionHandler()
-		{
-			super(msg.getMessage("MessageTemplatesComponent.addAction"), Images.add.getResource());
-			setNeedsTarget(false);
-		}
+		return SingleActionHandler2.builder4Edit(msg, MessageTemplate.class)
+				.withHandler(this::showEditDialog)
+				.build();
+	}
+	
+	public void showEditDialog(Collection<MessageTemplate> target)
+	{
+		MessageTemplate item = target.iterator().next();
+		MessageTemplate msgTemp = item.clone();
+		MessageTemplateEditor editor;
+		
+		editor = new MessageTemplateEditor(msg, consumersRegistry, msgTemp, msgTempMan);
+		
+		MessageTemplateEditDialog dialog = new MessageTemplateEditDialog(msg, 
+				msg.getMessage("MessageTemplatesComponent.editAction"), newTemplate -> updateTemplate(newTemplate)
+				, editor);
+		dialog.show();
+		
+	}
+	
+	private SingleActionHandler2<MessageTemplate> getDeleteAction()
+	{
+		return SingleActionHandler2.builder4Delete(msg, MessageTemplate.class)
+				.withHandler(this::deleteHandler)
+				.build();
+	}
+	
+	private void deleteHandler(Set<MessageTemplate> items)
+	{	
+		String confirmText = MessageUtils.createConfirmFromNames(msg, items);
+		new ConfirmDialog(msg, msg.getMessage(
+				"MessageTemplatesComponent.confirmDelete", confirmText),
+				() ->
+				{
 
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			MessageTemplateEditor editor;			
-			editor = new MessageTemplateEditor(msg, consumersRegistry, null, msgTempMan);		
-			MessageTemplateEditDialog dialog = new MessageTemplateEditDialog(msg, 
-					msg.getMessage("MessageTemplatesComponent.addAction"), new MessageTemplateEditDialog.Callback()
-					{
-						@Override
-						public boolean newTemplate(MessageTemplate template)
+					
+						for (MessageTemplate item : items)
 						{
-							return addTemplate(template);
+							removeTemplate(item.getName());
 						}
-					}, editor);
-			dialog.show();
-		}
+					
+				}).show();
 	}
-	
-	private class EditActionHandler extends SingleActionHandler
-	{
-		public EditActionHandler()
-		{
-			super(msg.getMessage("MessageTemplatesComponent.editAction"), Images.edit.getResource());
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			GenericItem<?> witem = (GenericItem<?>) target;
-			MessageTemplate item = (MessageTemplate) witem.getElement();
-			MessageTemplateEditor editor;
-			
-			editor = new MessageTemplateEditor(msg, consumersRegistry, item, msgTempMan);
-			
-			MessageTemplateEditDialog dialog = new MessageTemplateEditDialog(msg, 
-					msg.getMessage("MessageTemplatesComponent.editAction"), new MessageTemplateEditDialog.Callback()
-					{
-						@Override
-						public boolean newTemplate(MessageTemplate template)
-						{
-							return updateTemplate(template);
-						}
-					}, editor);
-			dialog.show();
-		}
-	}
-
-	private class DeleteActionHandler extends SingleActionHandler
-	{
-		public DeleteActionHandler()
-		{
-			super(msg.getMessage("MessageTemplatesComponent.deleteAction"),
-					Images.delete.getResource());
-			setMultiTarget(true);
-		}
-
-		@Override
-		public void handleAction(Object sender, Object target)
-		{
-			final Collection<MessageTemplate> items = getItems(target);		
-			String confirmText = MessageUtils.createConfirmFromNames(msg, items);
-			new ConfirmDialog(msg, msg.getMessage(
-					"MessageTemplatesComponent.confirmDelete", confirmText),
-					new ConfirmDialog.Callback()
-					{
-
-						@Override
-						public void onConfirm()
-						{
-							for (MessageTemplate item : items)
-							{
-								removeTemplate(item.getName());
-							}
-						}
-					}).show();
-			
-		}
-	}
-	
-	
-	
 	
 }
