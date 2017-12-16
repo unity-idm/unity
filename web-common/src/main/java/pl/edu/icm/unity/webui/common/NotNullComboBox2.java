@@ -37,7 +37,7 @@ public class NotNullComboBox2<T> extends ComboBox<T>
 			super.setItems(captionFilter, items);
 		else
 			super.setItems(items);
-		if (items != null && items.size() > 0);
+		if (items != null && items.size() > 0)
 			setSelectedItem(items.get(0));
 	}
 	

@@ -4,23 +4,22 @@
  */
 package pl.edu.icm.unity.webadmin.reg.invitation;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import com.vaadin.v7.shared.ui.datefield.Resolution;
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.shared.ui.datefield.DateTimeResolution;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.DateField;
+import com.vaadin.ui.DateTimeField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
-import com.vaadin.v7.ui.TextField;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -33,6 +32,7 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElements;
+import pl.edu.icm.unity.webui.common.NotNullComboBox2;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
@@ -42,17 +42,18 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
  */
 public class InvitationEditor extends CustomComponent
 {
-	public static final long DEFAULT_TTL = 1000 * 24 * 3600 * 3; //3 days
+	private static final long DEFAULT_TTL_DAYS = 3; 
+	private static final ZoneId DEFAULT_ZONE_ID = ZoneId.systemDefault();
 	private UnityMessageSource msg;
 	private IdentityEditorRegistry identityEditorRegistry;
 	private AttributeHandlerRegistry attrHandlersRegistry;
 	private Map<String, RegistrationForm> formsByName;
 	private Map<String, AttributeType> attrTypes;
 	
-	private ComboBox forms;
-	private DateField expiration;
+	private NotNullComboBox2<String> forms;
+	private DateTimeField expiration;
 	private TextField contactAddress;
-	private ComboBox channelId;
+	private NotNullComboBox2<String> channelId;
 	
 	private TabSheet tabs;
 	private ListOfEmbeddedElements<PrefilledEntry<IdentityParam>> presetIdentities;
@@ -76,29 +77,19 @@ public class InvitationEditor extends CustomComponent
 	private void initUI(Collection<RegistrationForm> availableForms,
 			Collection<String> channels) throws WrongArgumentException
 	{
-		formsByName = new HashMap<>();
-		forms = new ComboBox(msg.getMessage("InvitationViewer.formId"));
-		forms.setNewItemsAllowed(false);
-		forms.setNullSelectionAllowed(false);
-		availableForms.stream()
-			.filter(form -> form.getRegistrationCode() == null && form.isPubliclyAvailable())
-			.forEach(form -> {
-				forms.addItem(form.getName());
-				formsByName.put(form.getName(), form);
-			});
-		forms.addValueChangeListener(event -> {
-			setPerFormUI(formsByName.get(forms.getValue()));
-		});
-		
-		if (forms.getItemIds().isEmpty())
+		formsByName = availableForms.stream()
+				.filter(form -> form.getRegistrationCode() == null && form.isPubliclyAvailable())
+				.collect(Collectors.toMap(RegistrationForm::getName, form -> form));
+		if (formsByName.keySet().isEmpty())
 			throw new WrongArgumentException("There are no public registration forms to create an invitation for.");
 		
-		expiration = new DateField(msg.getMessage("InvitationViewer.expiration"));
-		expiration.setRequired(true);
-		expiration.setResolution(Resolution.MINUTE);
+		expiration = new DateTimeField(msg.getMessage("InvitationViewer.expiration"));
+		expiration.setRequiredIndicatorVisible(true);
+		expiration.setResolution(DateTimeResolution.MINUTE);
+		expiration.setValue(LocalDateTime.now(DEFAULT_ZONE_ID).plusDays(DEFAULT_TTL_DAYS));
 		
-		channelId = new ComboBox(msg.getMessage("InvitationViewer.channelId"));
-		channelId.addItems(channels);
+		channelId = new NotNullComboBox2<>(msg.getMessage("InvitationViewer.channelId"));
+		channelId.setItems(channels);
 		
 		contactAddress = new TextField(msg.getMessage("InvitationViewer.contactAddress"));
 		
@@ -106,13 +97,20 @@ public class InvitationEditor extends CustomComponent
 		
 		tabs = new TabSheet();
 		
+		forms = new NotNullComboBox2<>(msg.getMessage("InvitationViewer.formId"));
+		forms.setEmptySelectionAllowed(false);
+		forms.addValueChangeListener(event -> {
+			setPerFormUI(formsByName.get(forms.getValue()));
+		});
+		forms.setItems(formsByName.keySet());
+		
 		FormLayout top = new FormLayout();
 		top.addComponents(forms, expiration, channelId, contactAddress);
 		
 		VerticalLayout main = new VerticalLayout(top, prefillInfo, tabs);
 		main.setSpacing(true);
+		main.setMargin(false);
 		setCompositionRoot(main);
-		setInitialData();
 	}
 
 	private void setPerFormUI(RegistrationForm form)
@@ -152,24 +150,17 @@ public class InvitationEditor extends CustomComponent
 	{
 		VerticalLayout wrapper = new VerticalLayout(src);
 		wrapper.setMargin(true);
+		wrapper.setSpacing(false);
 		tabs.addTab(wrapper).setCaption(src.getCaption());
 		src.setCaption("");
-	}
-	
-	private void setInitialData()
-	{
-		forms.setValue(forms.getItemIds().iterator().next());
-		if (!channelId.getItemIds().isEmpty())
-			channelId.setValue(channelId.getItemIds().iterator().next());
-		expiration.setValue(new Date(System.currentTimeMillis() + DEFAULT_TTL));
 	}
 	
 	public InvitationParam getInvitation() throws FormValidationException
 	{
 		String addr = contactAddress.isEmpty() ? null : contactAddress.getValue();
 		String channel = channelId.isEmpty() ? null : (String)channelId.getValue();
-		InvitationParam ret = new InvitationParam((String)forms.getValue(), 
-				Instant.ofEpochMilli(expiration.getValue().getTime()),
+		InvitationParam ret = new InvitationParam(forms.getValue(), 
+				expiration.getValue().atZone(DEFAULT_ZONE_ID).toInstant(),
 				addr,
 				channel);
 		
