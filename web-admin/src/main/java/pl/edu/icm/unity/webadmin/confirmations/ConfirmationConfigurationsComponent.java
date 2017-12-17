@@ -6,23 +6,21 @@ package pl.edu.icm.unity.webadmin.confirmations;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.OptionGroup;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.RadioButtonGroup;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.msgtemplates.confirm.ConfirmationTemplateDef;
 import pl.edu.icm.unity.engine.api.ConfirmationConfigurationManagement;
@@ -37,18 +35,17 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.types.confirmation.ConfirmationConfiguration;
 import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesUpdatedEvent;
+import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.GenericElementsTable;
-import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
-import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.GenericElementsTable2;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar;
+import pl.edu.icm.unity.webui.common.Toolbar2;
 
 /**
  * Responsible for confirmation configuration management
@@ -66,9 +63,9 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 	private IdentityTypeSupport idMan;
 	private NotificationsManagement notificationsMan;
 	private AttributeTypeSupport atSupport;
-	private GenericElementsTable<ConfirmationConfiguration> table;
+	private GenericElementsTable2<ConfirmationConfiguration> table;
 	private com.vaadin.ui.Component main;
-	private OptionGroup toConfirmType;
+	private RadioButtonGroup<String> toConfirmType;
 	private ConfirmationConfigurationViewer viewer;
 
 	@Autowired
@@ -87,78 +84,57 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 		addStyleName(Styles.visibleScroll.toString());
 		HorizontalLayout hl = new HorizontalLayout();
 		setCaption(msg.getMessage("ConfirmationConfigurationsComponent.capion"));
-		table = new GenericElementsTable<ConfirmationConfiguration>(
-				msg.getMessage("ConfirmationConfigurationsComponent.configurationTable"),
-				new GenericElementsTable.NameProvider<ConfirmationConfiguration>()
-				{
-					@Override
-					public Label toRepresentation(
-							ConfirmationConfiguration element)
-					{
-						return new Label(element.getNameToConfirm());
-					}
-				});
+
+		table = new GenericElementsTable2<>(msg.getMessage(
+				"ConfirmationConfigurationsComponent.configurationTable"),
+				element -> element.getNameToConfirm());
+
 		table.setMultiSelect(true);
 		table.setWidth(90, Unit.PERCENTAGE);
 		viewer = new ConfirmationConfigurationViewer(msg);
 		viewer.setConfigurationInput(null);
 
-		table.addValueChangeListener(new ValueChangeListener()
-		{
-
-			@Override
-			public void valueChange(ValueChangeEvent event)
+		table.addSelectionListener(event -> {
+			Collection<ConfirmationConfiguration> items = event.getAllSelectedItems();
+			if (items.size() > 1 || items.isEmpty())
 			{
-				Collection<ConfirmationConfiguration> items = getItems(table
-						.getValue());
-				if (items.size() > 1 || items.isEmpty())
-				{
-					viewer.setConfigurationInput(null);
-					return;
-				}
-				ConfirmationConfiguration item = items.iterator().next();
-				viewer.setConfigurationInput(item);
+				viewer.setConfigurationInput(null);
+				return;
 			}
+			ConfirmationConfiguration item = items.iterator().next();
+			viewer.setConfigurationInput(item);
 		});
-		table.addActionHandler(new RefreshActionHandler());
-		table.addActionHandler(new AddActionHandler());
-		table.addActionHandler(new EditActionHandler());
-		table.addActionHandler(new DeleteActionHandler());
 
-		Toolbar toolbar = new Toolbar(table, Orientation.HORIZONTAL);
+		table.addActionHandler(getRefreshAction());
+		table.addActionHandler(getAddAction());
+		table.addActionHandler(getEditAction());
+		table.addActionHandler(getDeleteAction());
+
+		Toolbar2<ConfirmationConfiguration> toolbar = new Toolbar2<>(
+				Orientation.HORIZONTAL);
+		table.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(table.getActionHandlers());
-		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
+		ComponentWithToolbar2 tableWithToolbar = new ComponentWithToolbar2(table, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
+		tableWithToolbar.setHeight(100, Unit.PERCENTAGE);
 
-		toConfirmType = new OptionGroup();
-		toConfirmType.setImmediate(true);
-		toConfirmType.addItem(ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE);
-		toConfirmType.setItemCaption(
-				ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE,
-				msg.getMessage("ConfirmationConfigurationsComponent.configurationsForidentities"));
-		toConfirmType.addItem(ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE);
-		toConfirmType.setItemCaption(
-				ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
-				msg.getMessage("ConfirmationConfigurationsComponent.configurationsForattributes"));
-		toConfirmType.setNullSelectionAllowed(false);
-		toConfirmType.select(ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE);
-		toConfirmType.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				refresh();
-			}
-		});
+		toConfirmType = new RadioButtonGroup<String>();
+		toConfirmType.setItems(ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE,
+				ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE);
+
+		Map<String, String> captions = new HashMap<>();
+		captions.put(ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE, msg
+				.getMessage("ConfirmationConfigurationsComponent.configurationsForidentities"));
+		captions.put(ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE, msg
+				.getMessage("ConfirmationConfigurationsComponent.configurationsForattributes"));
+		toConfirmType.setItemCaptionGenerator(p -> captions.get(p));
+		toConfirmType.setValue(ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE);
+		toConfirmType.addValueChangeListener(e -> refresh());
 
 		VerticalLayout left = new VerticalLayout();
-		left.setSpacing(true);
+		left.setMargin(false);
 		left.addComponents(toConfirmType, tableWithToolbar);
-
 		hl.addComponents(left, viewer);
-		hl.setSizeFull();
-		hl.setMargin(true);
-		hl.setSpacing(true);
 		hl.setMargin(new MarginInfo(true, false, true, false));
 		main = hl;
 		hl.setExpandRatio(left, 0.3f);
@@ -175,18 +151,6 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 				}, AttributeTypesUpdatedEvent.class);
 	}
 
-	private Collection<ConfirmationConfiguration> getItems(Object target)
-	{
-		Collection<?> c = (Collection<?>) target;
-		Collection<ConfirmationConfiguration> items = new ArrayList<ConfirmationConfiguration>();
-		for (Object o : c)
-		{
-			GenericItem<?> i = (GenericItem<?>) o;
-			items.add((ConfirmationConfiguration) i.getElement());
-		}
-		return items;
-	}
-
 	private List<String> getVerifiableAttrTypes()
 	{
 		List<String> vtypes = new ArrayList<String>();
@@ -199,14 +163,14 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 					vtypes.add(t.getName());
 			}
 			if (vtypes.size() == 0)
-				NotificationPopup.showNotice(
-						msg,
-						"",
-						msg.getMessage("ConfirmationConfigurationsComponent.firstAddAttribute"));
+				NotificationPopup.showNotice(msg, "", msg.getMessage(
+						"ConfirmationConfigurationsComponent.firstAddAttribute"));
 		} catch (Exception e)
 		{
 			ErrorComponent error = new ErrorComponent();
-			error.setError(msg.getMessage("ConfirmationConfigurationsComponent.errorGetAttributeTypes"), e);
+			error.setError(msg.getMessage(
+					"ConfirmationConfigurationsComponent.errorGetAttributeTypes"),
+					e);
 		}
 		return vtypes;
 	}
@@ -216,22 +180,22 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 		List<String> vtypes = new ArrayList<String>();
 		try
 		{
-			
+
 			Collection<IdentityType> ids = idMan.getIdentityTypes();
 			for (IdentityType t : ids)
 			{
-				if (idMan.getTypeDefinition(t.getIdentityTypeProvider()).isVerifiable())
+				if (idMan.getTypeDefinition(t.getIdentityTypeProvider())
+						.isVerifiable())
 					vtypes.add(t.getIdentityTypeProvider());
 			}
 			if (vtypes.isEmpty())
-				NotificationPopup.showNotice(
-						msg,
-						"",
-						msg.getMessage("ConfirmationConfigurationsComponent.firstAddIdentity"));
+				NotificationPopup.showNotice(msg, "", msg.getMessage(
+						"ConfirmationConfigurationsComponent.firstAddIdentity"));
 		} catch (Exception e)
 		{
 			ErrorComponent error = new ErrorComponent();
-			error.setError(msg.getMessage("ConfirmationConfigurationsComponent.errorGetIdentitiesTypes"),
+			error.setError(msg.getMessage(
+					"ConfirmationConfigurationsComponent.errorGetIdentitiesTypes"),
 					e);
 		}
 		return vtypes;
@@ -259,8 +223,8 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 		} catch (Exception e)
 		{
 			ErrorComponent error = new ErrorComponent();
-			error.setError(msg
-					.getMessage("ConfirmationConfigurationsComponent.errorGetConfigurations"),
+			error.setError(msg.getMessage(
+					"ConfirmationConfigurationsComponent.errorGetConfigurations"),
 					e);
 			removeAllComponents();
 			addComponent(error);
@@ -277,10 +241,8 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(
-					msg,
-					msg.getMessage("ConfirmationConfigurationsComponent.errorAdd"),
-					e);
+			NotificationPopup.showError(msg, msg.getMessage(
+					"ConfirmationConfigurationsComponent.errorAdd"), e);
 			return false;
 		}
 	}
@@ -294,10 +256,8 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(
-					msg,
-					msg.getMessage("ConfirmationConfigurationsComponent.errorUpdate"),
-					e);
+			NotificationPopup.showError(msg, msg.getMessage(
+					"ConfirmationConfigurationsComponent.errorUpdate"), e);
 			return false;
 		}
 	}
@@ -311,10 +271,8 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(
-					msg,
-					msg.getMessage("ConfirmationConfigurationsComponent.errorRemove"),
-					e);
+			NotificationPopup.showError(msg, msg.getMessage(
+					"ConfirmationConfigurationsComponent.errorRemove"), e);
 			return false;
 		}
 	}
@@ -327,11 +285,9 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 					.getCompatibleTemplates(ConfirmationTemplateDef.NAME);
 			if (compatibleTemplates.isEmpty())
 			{
-				NotificationPopup.showNotice(
-						msg,
-						"",
-						msg.getMessage("ConfirmationConfigurationsComponent.firstAddMsqTemplate",
-								ConfirmationTemplateDef.NAME));
+				NotificationPopup.showNotice(msg, "", msg.getMessage(
+						"ConfirmationConfigurationsComponent.firstAddMsqTemplate",
+						ConfirmationTemplateDef.NAME));
 				return false;
 			}
 			return true;
@@ -341,17 +297,15 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 			return false;
 		}
 	}
-	
+
 	private boolean checkAvailableChannels()
 	{
 		try
 		{
 			if (notificationsMan.getNotificationChannels().isEmpty())
 			{
-				NotificationPopup.showNotice(
-						msg,
-						"",
-						msg.getMessage("ConfirmationConfigurationsComponent.firstAddNotificationChannel"));
+				NotificationPopup.showNotice(msg, "", msg.getMessage(
+						"ConfirmationConfigurationsComponent.firstAddNotificationChannel"));
 				return false;
 			}
 			return true;
@@ -362,191 +316,126 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 		}
 	}
 
-	private class AddActionHandler extends SingleActionHandler
+	private SingleActionHandler2<ConfirmationConfiguration> getAddAction()
 	{
-		public AddActionHandler()
+		return SingleActionHandler2.builder4Add(msg, ConfirmationConfiguration.class)
+				.withHandler(this::showAddDialog).build();
+	}
+
+	private void showAddDialog(Set<ConfirmationConfiguration> target)
+	{
+		if (!(checkAvailableMsqTemplate() && checkAvailableChannels()))
+			return;
+		ConfirmationConfigurationEditor editor = null;
+		List<String> names = null;
+		boolean attrConfig = toConfirmType.getValue()
+				.equals(ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE);
+		if (attrConfig)
 		{
-			super(msg.getMessage("ConfirmationConfigurationsComponent.addAction"),
-					Images.add.getResource());
-			setNeedsTarget(false);
+			names = getVerifiableAttrTypes();
+		} else
+		{
+			names = getVerifiableIdTypes();
 		}
 
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{	
-			if (!(checkAvailableMsqTemplate() && checkAvailableChannels()))
-				return;
-			ConfirmationConfigurationEditor editor = null;
-			List<String> names = null;
-			boolean attrConfig = toConfirmType.getValue().equals(
-					ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE);
-			if (attrConfig)
-			{
-				names = getVerifiableAttrTypes();
-			} else
-			{
-				names = getVerifiableIdTypes();
-			}
+		if (names.isEmpty())
+			return;
 
+		try
+		{
+			for (ConfirmationConfiguration c : getConfigurations())
+			{
+				if (names.contains(c.getNameToConfirm()))
+					names.remove(c.getNameToConfirm());
+			}
 			if (names.isEmpty())
-			   return;
-
-			try
 			{
-				for (ConfirmationConfiguration c : getConfigurations())
+				if (attrConfig)
 				{
-					if (names.contains(c.getNameToConfirm()))
-						names.remove(c.getNameToConfirm());
-				}
-				if (names.isEmpty())
+					NotificationPopup.showNotice(msg, "", msg.getMessage(
+							"ConfirmationConfigurationsComponent.attributesConfigured"));
+
+				} else
 				{
-					if (attrConfig)
-					{
-						NotificationPopup.showNotice(
-								msg,
-								"",
-								msg.getMessage("ConfirmationConfigurationsComponent.attributesConfigured"));
+					NotificationPopup.showNotice(msg, "", msg.getMessage(
+							"ConfirmationConfigurationsComponent.identitiesConfigured"));
 
-					} else
-					{
-						NotificationPopup.showNotice(
-								msg,
-								"",
-								msg.getMessage("ConfirmationConfigurationsComponent.identitiesConfigured"));
-
-					}
-					return;
 				}
-
-				editor = new ConfirmationConfigurationEditor(msg, notificationsMan,
-						 msgMan, toConfirmType.getValue()
-								.toString(), names, null);
-			} catch (EngineException e)
-			{
-				NotificationPopup.showError(
-						msg,
-						msg.getMessage("ConfirmationConfigurationsComponent.errorInFormEdit"),
-						e);
 				return;
 			}
-			ConfirmationConfigurationEditDialog dialog = new ConfirmationConfigurationEditDialog(
-					msg,
-					msg.getMessage("ConfirmationConfigurationsComponent.addAction"),
-					new ConfirmationConfigurationEditDialog.Callback()
-					{
 
-						@Override
-						public boolean newConfirmationConfiguration(
-								ConfirmationConfiguration configuration)
-						{
-							return addConfiguration(configuration);
-						}
-
-					}, editor);
-			dialog.show();
+			editor = new ConfirmationConfigurationEditor(msg, notificationsMan, msgMan,
+					toConfirmType.getValue().toString(), names, null);
+		} catch (EngineException e)
+		{
+			NotificationPopup.showError(msg, msg.getMessage(
+					"ConfirmationConfigurationsComponent.errorInFormEdit"), e);
+			return;
 		}
+
+		ConfirmationConfigurationEditDialog dialog = new ConfirmationConfigurationEditDialog(
+				msg,
+				msg.getMessage("ConfirmationConfigurationsComponent.addAction"),
+				confirmationConfig -> addConfiguration(confirmationConfig), editor);
+		dialog.show();
 	}
 
-	private class RefreshActionHandler extends SingleActionHandler
+	private SingleActionHandler2<ConfirmationConfiguration> getRefreshAction()
 	{
-		public RefreshActionHandler()
-		{
-			super(msg.getMessage("ConfirmationConfigurationsComponent.refreshAction"),
-					Images.refresh.getResource());
-			setNeedsTarget(false);
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			refresh();
-		}
+		return SingleActionHandler2.builder4Refresh(msg, ConfirmationConfiguration.class)
+				.withHandler(selection -> refresh()).build();
 	}
 
-	private class DeleteActionHandler extends SingleActionHandler
+	private SingleActionHandler2<ConfirmationConfiguration> getDeleteAction()
 	{
-		public DeleteActionHandler()
-		{
-			super(msg.getMessage("ConfirmationConfigurationsComponent.deleteAction"),
-					Images.delete.getResource());
-			setMultiTarget(true);
-		}
+		return SingleActionHandler2.builder4Delete(msg, ConfirmationConfiguration.class)
+				.withHandler(this::deleteHandler).build();
+	}
 
-		@Override
-		public void handleAction(Object sender, Object target)
-		{
-			final Collection<ConfirmationConfiguration> items = getItems(target);
-			StringBuilder confirmText = new StringBuilder();
-			Iterator<ConfirmationConfiguration> it = items.iterator();
-			final int MAX = 4;
-			for (int i = 0; i < MAX && it.hasNext(); i++)
-				confirmText.append(", ").append(it.next().getNameToConfirm());
-			if (it.hasNext())
-				confirmText.append(msg.getMessage("MessageUtils.andMore",
-						items.size() - MAX));
+	private void deleteHandler(Set<ConfirmationConfiguration> items)
+	{
+		String confirmText = MessageUtils.createConfirmFromNames(msg, items);
+		new ConfirmDialog(msg,
+				msg.getMessage("ConfirmationConfigurationsComponent.confirmDelete",
+						confirmText),
+				() -> {
 
-			new ConfirmDialog(msg, msg.getMessage(
-					"ConfirmationConfigurationsComponent.confirmDelete",
-					confirmText.substring(2)), new ConfirmDialog.Callback()
-			{
-				@Override
-				public void onConfirm()
-				{
 					for (ConfirmationConfiguration item : items)
 					{
 						removeConfiguration(item.getTypeToConfirm(),
 								item.getNameToConfirm());
 					}
-				}
-			}).show();
 
-		}
+				}).show();
 	}
 
-	private class EditActionHandler extends SingleActionHandler
+	private SingleActionHandler2<ConfirmationConfiguration> getEditAction()
 	{
-		public EditActionHandler()
-		{
-			super(msg.getMessage("ConfirmationConfigurationsComponent.editAction"),
-					Images.edit.getResource());
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-
-			GenericItem<?> witem = (GenericItem<?>) target;
-			ConfirmationConfiguration item = (ConfirmationConfiguration) witem
-					.getElement();
-			ConfirmationConfigurationEditor editor;
-			try
-			{
-				editor = new ConfirmationConfigurationEditor(msg, notificationsMan,
-						msgMan, toConfirmType.getValue().toString(), null,
-						item);
-			} catch (EngineException e)
-			{
-				NotificationPopup.showError(
-						msg,
-						msg.getMessage("ConfirmationConfigurationsComponent.errorInFormEdit"),
-						e);
-				return;
-			}
-
-			ConfirmationConfigurationEditDialog dialog = new ConfirmationConfigurationEditDialog(
-					msg,
-					msg.getMessage("MessageTemplatesComponent.editAction"),
-					new ConfirmationConfigurationEditDialog.Callback()
-					{
-						@Override
-						public boolean newConfirmationConfiguration(
-								ConfirmationConfiguration configuration)
-						{
-							return updateConfiguration(configuration);
-						}
-					}, editor);
-			dialog.show();
-		}
+		return SingleActionHandler2.builder4Edit(msg, ConfirmationConfiguration.class)
+				.withHandler(this::showEditDialog).build();
 	}
 
+	public void showEditDialog(Collection<ConfirmationConfiguration> target)
+	{
+		ConfirmationConfiguration item = target.iterator().next();
+		ConfirmationConfiguration confirmationConfig = item.clone();
+		ConfirmationConfigurationEditor editor;
+		try
+		{
+			editor = new ConfirmationConfigurationEditor(msg, notificationsMan, msgMan,
+					toConfirmType.getValue().toString(), null,
+					confirmationConfig);
+		} catch (EngineException e)
+		{
+			NotificationPopup.showError(msg, msg.getMessage(
+					"ConfirmationConfigurationsComponent.errorInFormEdit"), e);
+			return;
+		}
+
+		ConfirmationConfigurationEditDialog dialog = new ConfirmationConfigurationEditDialog(
+				msg, msg.getMessage("MessageTemplatesComponent.editAction"),
+				edidedConfig -> updateConfiguration(edidedConfig), editor);
+		dialog.show();
+
+	}
 }

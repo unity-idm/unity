@@ -6,7 +6,7 @@ package pl.edu.icm.unity.webadmin.confirmations;
 
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -46,7 +46,6 @@ public class ConfirmationConfigurationViewer extends VerticalLayout
 		main.addComponents(type, template, channel);
 		main.setSizeFull();
 		addComponent(main);
-		setSizeFull();
 	}
 
 	public void setConfigurationInput(ConfirmationConfiguration cfg)

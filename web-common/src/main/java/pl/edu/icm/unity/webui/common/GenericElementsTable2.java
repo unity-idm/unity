@@ -71,8 +71,14 @@ public class GenericElementsTable2<T> extends SmallGrid<T>
 		contents.addAll(elements);
 		dataProvider.refreshAll();
 		sort(col1);
-		for (T toSelect: selectedItems)
-			select(toSelect);
+		deselectAll();
+		for (T toSelect : selectedItems)
+		{
+			if (elements.contains(toSelect))
+			{
+				select(toSelect);
+			}
+		}
 	}
 	
 	public void addElement(T el)

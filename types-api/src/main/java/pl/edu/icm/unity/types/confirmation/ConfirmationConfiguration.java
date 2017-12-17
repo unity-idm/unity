@@ -116,6 +116,12 @@ public class ConfirmationConfiguration implements NamedObject
 				+ ", nameToConfirm=" + nameToConfirm + ", notificationChannel="
 				+ notificationChannel + ", msgTemplate=" + msgTemplate + "]";
 	}
+	
+	public ConfirmationConfiguration clone()
+	{
+		ObjectNode json = toJson();
+		return new ConfirmationConfiguration(json);
+	}
 
 	@Override
 	public int hashCode()

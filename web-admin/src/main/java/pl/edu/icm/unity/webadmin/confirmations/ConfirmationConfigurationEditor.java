@@ -7,7 +7,8 @@ package pl.edu.icm.unity.webadmin.confirmations;
 import java.util.List;
 import java.util.Set;
 
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.data.Binder;
+import com.vaadin.ui.ComboBox;
 
 import pl.edu.icm.unity.base.msgtemplates.confirm.ConfirmationTemplateDef;
 import pl.edu.icm.unity.engine.api.ConfirmationConfigurationManagement;
@@ -17,8 +18,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.confirmation.ConfirmationConfiguration;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
-import pl.edu.icm.unity.webui.common.RequiredComboBox;
+import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox2;
 
 /**
  * Component to edit or add confirmation configuration
@@ -32,10 +32,11 @@ public class ConfirmationConfigurationEditor extends CompactFormLayout
 	private UnityMessageSource msg;
 	private NotificationsManagement notificationsMan;
 	private MessageTemplateManagement msgMan;
-	private ComboBox type;
-	private ComboBox msgTemplate;
-	private ComboBox notificationChannel;
+	private ComboBox<String> type;
+	private CompatibleTemplatesComboBox2 msgTemplate;
+	private ComboBox<String> notificationChannel;
 	private String forType;
+	private Binder<ConfirmationConfiguration> binder;
 
 	public ConfirmationConfigurationEditor(UnityMessageSource msg,
 			NotificationsManagement notificationsMan, MessageTemplateManagement msgMan,
@@ -54,80 +55,65 @@ public class ConfirmationConfigurationEditor extends CompactFormLayout
 	{
 		boolean editMode = toEdit != null;
 
-		type = new RequiredComboBox(msg);
+		type = new ComboBox<String>();
 		if (forType.equals(ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE))
-			type.setCaption(msg
-					.getMessage("ConfirmationConfigurationViewer.forAttributeType"));
+			type.setCaption(msg.getMessage(
+					"ConfirmationConfigurationViewer.forAttributeType"));
 		else
-			type.setCaption(msg
-					.getMessage("ConfirmationConfigurationViewer.forIdentityType"));
-
-		type.setImmediate(true);
-		type.setValidationVisible(false);
-		type.setNullSelectionAllowed(false);
-
+			type.setCaption(msg.getMessage(
+					"ConfirmationConfigurationViewer.forIdentityType"));
+		type.setEmptySelectionAllowed(false);
 		if (names != null)
-			for (String n : names)
-			{
-				type.addItem(n);
-			}
-		if (type.size() > 0)
 		{
-			type.setValue(type.getItemIds().toArray()[0]);
+			type.setItems(names);
+			if (!names.isEmpty())
+				type.setValue(names.iterator().next());
 		}
 
-		notificationChannel = new RequiredComboBox(
-				msg.getMessage("ConfirmationConfigurationViewer.notificationChannel"),
-				msg);
-		notificationChannel.setImmediate(true);
-		notificationChannel.setValidationVisible(false);
-		notificationChannel.setNullSelectionAllowed(false);
+		notificationChannel = new ComboBox<String>(msg
+				.getMessage("ConfirmationConfigurationViewer.notificationChannel"));
+		notificationChannel.setEmptySelectionAllowed(false);
 		Set<String> channels = notificationsMan.getNotificationChannels().keySet();
-		for (String c : channels)
-			notificationChannel.addItem(c);
-		if (notificationChannel.size() > 0)
+		if (channels != null)
 		{
-			notificationChannel.setValue(notificationChannel.getItemIds().toArray()[0]);
+			notificationChannel.setItems(channels);
+			if (!channels.isEmpty())
+				notificationChannel.setValue(channels.iterator().next());
 		}
 
-		msgTemplate = new CompatibleTemplatesComboBox(ConfirmationTemplateDef.NAME, msgMan);
-		msgTemplate.setCaption(msg
-				.getMessage("ConfirmationConfigurationViewer.msgTemplate"));
-		msgTemplate.setValidationVisible(false);
-		msgTemplate.setNullSelectionAllowed(false);
-		msgTemplate.setRequired(true);
-		msgTemplate.setRequiredError(msg.getMessage("fieldRequired"));
-		msgTemplate.setImmediate(true);
-
-		if (msgTemplate.size() > 0)
-		{
-			msgTemplate.setValue(msgTemplate.getItemIds().toArray()[0]);
-		}
-
-		if (editMode)
-		{
-			type.addItem(toEdit.getNameToConfirm());
-			type.setValue(toEdit.getNameToConfirm());
-			type.setReadOnly(true);
-			msgTemplate.setValue(toEdit.getMsgTemplate());
-			notificationChannel.setValue(toEdit.getNotificationChannel());
-		}
+		msgTemplate = new CompatibleTemplatesComboBox2(ConfirmationTemplateDef.NAME,
+				msgMan);
+		msgTemplate.setCaption(
+				msg.getMessage("ConfirmationConfigurationViewer.msgTemplate"));
+		msgTemplate.setEmptySelectionAllowed(false);
+		msgTemplate.setDefaultValue();
 
 		addComponents(type, msgTemplate, notificationChannel);
-		setSizeFull();
+
+		binder = new Binder<>(ConfirmationConfiguration.class);
+		binder.forField(type).asRequired(msg.getMessage("fieldRequired"))
+				.bind("nameToConfirm");
+		binder.forField(notificationChannel).asRequired(msg.getMessage("fieldRequired"))
+				.bind("notificationChannel");
+		binder.forField(msgTemplate).asRequired(msg.getMessage("fieldRequired"))
+				.bind("msgTemplate");
+
+		ConfirmationConfiguration init = editMode ? toEdit
+				: new ConfirmationConfiguration(forType, type.getValue(),
+						notificationChannel.getValue(),
+						msgTemplate.getValue());
+		binder.setBean(init);
 	}
 
-	private boolean validate()
-	{
-		return type.isValid() && msgTemplate.isValid() && notificationChannel.isValid();
-	}
-	
 	public ConfirmationConfiguration getConfirmationConfiguration()
 	{
-		if (!validate())
+		if (!binder.isValid())
+		{
+			binder.validate();
 			return null;
-		return new ConfirmationConfiguration(forType, type.getValue().toString(),
-				notificationChannel.getValue().toString(), msgTemplate.getValue()
-						.toString());
+		}
+		ConfirmationConfiguration conCfg = binder.getBean();
+		conCfg.setTypeToConfirm(forType);
+		return conCfg;
 	}
 }
