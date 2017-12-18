@@ -14,9 +14,9 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -52,6 +52,8 @@ public class EntityDetailsWithActions extends CustomComponent
 		this.attrsPanel = attrsPanel;
 		this.msg = msg;
 		VerticalLayout root = new VerticalLayout();
+		root.setMargin(false);
+		root.setSpacing(false);
 		FormLayout mainForm = new FormLayout();
 		if (!disabled.contains(HomeEndpointProperties.Components.userInfo.toString()))
 			detailsPanel.addIntoLayout(mainForm);
@@ -72,7 +74,6 @@ public class EntityDetailsWithActions extends CustomComponent
 			final ConnectIdWizardProvider accountAssociationWizardProvider)
 	{
 		HorizontalLayout buttons = new HorizontalLayout();
-		buttons.setSpacing(true);
 		buttons.setWidth(100, Unit.PERCENTAGE);
 		buttons.setMargin(new MarginInfo(false, false, true, false));
 

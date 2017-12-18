@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.vaadin.ui.TabSheet;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
@@ -62,6 +62,8 @@ public class PreferencesComponent extends VerticalLayout
 			PreferenceViewTab tab = new PreferenceViewTab(msg, registry.getHandler(type), prefMan);
 			tabs.addTab(tab);
 		}
+		setMargin(false);
+		setSpacing(false);
 		tabs.setSizeFull();
 		addComponent(tabs);
 	}

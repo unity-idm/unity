@@ -8,9 +8,9 @@ import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
@@ -118,14 +118,14 @@ public class PreferenceViewTab extends VerticalLayout
 	
 	private void init()
 	{
+		setMargin(false);
+		setSpacing(false);
 		VerticalLayout topBar = new VerticalLayout();
-		topBar.setSpacing(true);
-		topBar.setMargin(true);
 		saveInfo = new Label(msg.getMessage("Preferences.saveNeeded"));
 		saveInfo.setVisible(false);
 		saveInfo.addStyleName(Styles.error.toString());
 		HorizontalLayout toolbar = new HorizontalLayout();
-		toolbar.setSpacing(true);
+		toolbar.setMargin(false);
 		save = new Button(msg.getMessage("save"));
 		save.setIcon(Images.save.getResource());
 		save.addClickListener(new ClickListener()
@@ -178,7 +178,7 @@ public class PreferenceViewTab extends VerticalLayout
 		topBar.addComponents(saveInfo, toolbar);
 		
 		viewerPanel = new VerticalLayout();
-		viewerPanel.setSizeFull();
+		viewerPanel.setSpacing(false);
 		viewerPanel.setMargin(new MarginInfo(false, false, true, true));
 		setCaption(preferenceHandler.getPreferenceLabel());
 		
