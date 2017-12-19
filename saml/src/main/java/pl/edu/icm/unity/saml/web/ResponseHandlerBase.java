@@ -126,10 +126,9 @@ public abstract class ResponseHandlerBase
 		default:
 			throw new IllegalStateException("Unsupported binding: " + binding);
 		}
-
 	}
 
-	protected void handleRedirectGeneric(String xml, String info, SAMLMessageType type, String serviceUrl, 
+	private void handleRedirectGeneric(String xml, String info, SAMLMessageType type, String serviceUrl, 
 			String relayState, HttpServletResponse response) throws IOException, EopException
 	{
 		setCommonHeaders(response);
@@ -146,7 +145,7 @@ public abstract class ResponseHandlerBase
 	}
 
 
-	protected void handlePostGeneric(String xml, String info, SAMLMessageType type, String serviceUrl, 
+	private void handlePostGeneric(String xml, String info, SAMLMessageType type, String serviceUrl, 
 			String relayState, HttpServletResponse response) throws IOException, EopException
 	{
 		response.setContentType("text/html; charset=utf-8");
@@ -166,7 +165,7 @@ public abstract class ResponseHandlerBase
 	}
 	
 	
-	protected void setCommonHeaders(HttpServletResponse response)
+	private void setCommonHeaders(HttpServletResponse response)
 	{
 		response.setHeader("Cache-Control","no-cache,no-store");
 		response.setHeader("Pragma","no-cache");
