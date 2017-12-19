@@ -58,12 +58,13 @@ In the following text available import implementations are described.
 
 Import type:: +ldap+
 
-LDAP import allows to fetch user information from LDAP server. The import works exactly as remote 
-LDAP authentication (see <<ldap-authenticator>>) the configuration is also the same. Precisely speaking the import
-from LDAP is performed with the same mode as the certificate base authentication against LDAP 
-(see <<ldap-authenticator-cert>>). The main difference to regular authenticator is 
-that +bindAs=user+ (what is the default value for the +bindAs+ parameter) is disallowed - 
-during import there is no user's credential so binding must be performed with some system identity.   
+LDAP import allows for fetching user information from LDAP server. The import works nearly exactly as remote 
+LDAP authentication (see <<ldap-authenticator>>) the configuration is also the same. 
+
+The main difference to regular authenticator is that +bindAs=user+ (what is the default value for the +bindAs+ 
+parameter) is disallowed - during import there is no user's credential so binding must be performed with 
+some system identity. Typically +bindAs=system+ is used, however in case of import it is also possible to use
+anonymous connection to the LDAP server with +bindAs=none+.
 
 It is possible to share configuration file of LDAP authenticator and LDAP import. The generic import settings
 (+unity.userImport.*+) will be ignored by the authenticator.
