@@ -110,7 +110,6 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 		hl.addComponents(tableWithToolbar, viewer);
 		hl.setSizeFull();
 		hl.setMargin(new MarginInfo(true, false, true, false));
-		hl.setSpacing(true);
 		main = hl;
 		refresh();
 	}

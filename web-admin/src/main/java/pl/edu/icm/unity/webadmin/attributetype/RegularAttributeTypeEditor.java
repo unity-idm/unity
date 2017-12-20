@@ -141,9 +141,8 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 		binder.bind(displayedName, "displayedName");
 		binder.bind(typeDescription, "description");
 		binder.forField(min)
-			.withConverter(new StringToIntegerConverter(msg.getMessage("IntegerBoundEditor.notANumber")))
 			.asRequired(msg.getMessage("fieldRequired"))
-			.withNullRepresentation(0)
+			.withConverter(new StringToIntegerConverter(msg.getMessage("IntegerBoundEditor.notANumber")))
 			.withValidator(new IntegerRangeValidator(msg.getMessage("AttributeType.invalidNumber"), 
 					0, Integer.MAX_VALUE))
 			.bind("minElements");

@@ -80,7 +80,9 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 		this.idMan = idMan;
 		this.notificationsMan = notificationsMan;
 		this.atSupport = attrsMan;
-
+		
+		setMargin(false);
+		setHeight(100, Unit.PERCENTAGE);
 		addStyleName(Styles.visibleScroll.toString());
 		HorizontalLayout hl = new HorizontalLayout();
 		setCaption(msg.getMessage("ConfirmationConfigurationsComponent.capion"));
@@ -415,10 +417,10 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 				.withHandler(this::showEditDialog).build();
 	}
 
-	public void showEditDialog(Collection<ConfirmationConfiguration> target)
+	private void showEditDialog(Collection<ConfirmationConfiguration> target)
 	{
-		ConfirmationConfiguration item = target.iterator().next();
-		ConfirmationConfiguration confirmationConfig = item.clone();
+		ConfirmationConfiguration confirmationConfig = target.iterator().next();
+		confirmationConfig = confirmationConfig.clone();
 		ConfirmationConfigurationEditor editor;
 		try
 		{

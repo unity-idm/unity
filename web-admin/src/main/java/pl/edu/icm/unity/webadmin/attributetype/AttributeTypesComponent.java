@@ -80,8 +80,6 @@ public class AttributeTypesComponent extends VerticalLayout
 		this.serverConfig = serverConfig;
 		
 		setMargin(false);
-		setSpacing(false);
-		setHeight(100, Unit.PERCENTAGE);
 		HorizontalLayout hl = new HorizontalLayout();
 		
 		addStyleName(Styles.visibleScroll.toString());
@@ -248,7 +246,7 @@ public class AttributeTypesComponent extends VerticalLayout
 	}
 
 	
-	public void showEditDialog(Collection<AttributeType> target)
+	private void showEditDialog(Collection<AttributeType> target)
 	{
 		AttributeType at = target.iterator().next();
 		at = at.clone();

@@ -57,6 +57,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 		this.msgTempMan = msgTempMan;
 		this.consumersRegistry = consumersRegistry;
 
+		setMargin(false);
 		addStyleName(Styles.visibleScroll.toString());
 		HorizontalLayout hl = new HorizontalLayout();
 		setCaption(msg.getMessage("MessageTemplatesComponent.capion"));
@@ -206,10 +207,10 @@ public class MessageTemplatesComponent extends VerticalLayout
 				.build();
 	}
 	
-	public void showEditDialog(Collection<MessageTemplate> target)
+	private void showEditDialog(Collection<MessageTemplate> target)
 	{
-		MessageTemplate item = target.iterator().next();
-		MessageTemplate msgTemp = item.clone();
+		MessageTemplate msgTemp = target.iterator().next();
+		msgTemp = msgTemp.clone();
 		MessageTemplateEditor editor;
 		
 		editor = new MessageTemplateEditor(msg, consumersRegistry, msgTemp, msgTempMan);
