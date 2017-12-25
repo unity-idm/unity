@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webadmin.groupdetails;
 
+import java.util.Collection;
+
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -13,55 +15,49 @@ import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webadmin.groupdetails.GroupAttributesClassesDialog.Callback;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.common.GenericElementsTable2;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.SmallGrid;
-import pl.edu.icm.unity.webui.common.SmallTableDeprecated;
+import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 
 /**
  * Table with group {@link AttributesClass}es with possibility to active edit dialog.
  * @author K. Benedyczak
  */
-public class GroupAttributesClassesTable extends SmallTableDeprecated
+public class GroupAttributesClassesTable extends GenericElementsTable2<String>
 {
 	private UnityMessageSource msg;
 	private GroupsManagement groupsManagement;
 	private AttributeClassManagement acMan;
 	private Group group;
-	private SingleActionHandler[] handlers;
 	private EventsBus bus;
 	
 	public GroupAttributesClassesTable(UnityMessageSource msg, GroupsManagement groupsManagement, 
 			AttributeClassManagement attrMan)
 	{
+		super(msg.getMessage("GroupDetails.groupAcs"), s -> s, false);
 		this.msg = msg;
 		this.acMan = attrMan;
 		this.groupsManagement = groupsManagement;
 		this.bus = WebSession.getCurrent().getEventBus();
-		
-		addContainerProperty(msg.getMessage("GroupDetails.groupAcs"), 
-				String.class, null);
-		handlers = new SingleActionHandler [] {new EditHandler()};
-		addActionHandler(handlers[0]);
-		setWidth(100, Unit.PERCENTAGE);
+		addActionHandler(getEditAction());		
 	}
-	
-	public SingleActionHandler[] getHandlers()
-	{
-		return handlers;
-	}
+
 
 	public void setInput(Group group)
 	{
 		this.group = group;
-		removeAllItems();
-		if (group == null)
-			return;
-		for (String ac: group.getAttributesClasses())
-			addItem(new String[]{ac}, ac);
+		setInput(group.getAttributesClasses());
+	
+	}
+
+	private SingleActionHandler2<String> getEditAction()
+	{
+		return SingleActionHandler2.builder4Edit(msg, String.class).dontRequireTarget()
+				.withIcon(Images.attributes.getResource())
+				.withHandler(this::showEditDialog).build();
 	}
 	
-	private void showEditor()
+	private void showEditDialog(Collection<String> target)
 	{
 		GroupAttributesClassesDialog dialog = new GroupAttributesClassesDialog(msg, 
 				group.toString(), acMan, groupsManagement, new Callback()
@@ -74,21 +70,4 @@ public class GroupAttributesClassesTable extends SmallTableDeprecated
 				});
 		dialog.show();
 	}
-	
-	private class EditHandler extends SingleActionHandler
-	{
-		public EditHandler()
-		{
-			super(msg.getMessage("GroupDetails.editACAction"), 
-					Images.attributes.getResource());
-			setNeedsTarget(false);
-		}
-
-		@Override
-		public void handleAction(Object sender, Object target)
-		{
-			showEditor();
-		}
-	}
-
 }
