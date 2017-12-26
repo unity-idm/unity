@@ -162,11 +162,11 @@ public class MessageTemplatesComponent extends VerticalLayout
 		}
 	}
 	
-	private boolean removeTemplate(String name)
+	private boolean removeTemplate(MessageTemplate template)
 	{
 		try
 		{
-			msgTempMan.removeTemplate(name);
+			msgTempMan.removeTemplate(template.getName());
 			refresh();
 			return true;
 		} catch (Exception e)
@@ -234,16 +234,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 		String confirmText = MessageUtils.createConfirmFromNames(msg, items);
 		new ConfirmDialog(msg, msg.getMessage(
 				"MessageTemplatesComponent.confirmDelete", confirmText),
-				() ->
-				{
-
-					
-						for (MessageTemplate item : items)
-						{
-							removeTemplate(item.getName());
-						}
-					
-				}).show();
+				() -> items.forEach(this::removeTemplate)).show();
 	}
 	
 }

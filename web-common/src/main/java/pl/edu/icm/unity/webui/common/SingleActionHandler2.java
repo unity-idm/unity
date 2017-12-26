@@ -31,6 +31,7 @@ public class SingleActionHandler2<T>
 	private Consumer<Set<T>> actionHandler;
 	private String caption;
 	private Resource icon;
+	private boolean forceDisabled = false;
 	
 	private SingleActionHandler2()
 	{
@@ -205,6 +206,8 @@ public class SingleActionHandler2<T>
 			return false;
 		if (selection.stream().anyMatch(disabledPredicate))
 			return false;
+		if (forceDisabled)
+			return false;
 		return true;
 	}
 
@@ -216,5 +219,10 @@ public class SingleActionHandler2<T>
 	public void handle(Set<T> selection)
 	{
 		actionHandler.accept(selection);
+	}
+	
+	public void setDisabled(boolean disabled)
+	{
+		this.forceDisabled = disabled;
 	}
 }

@@ -295,6 +295,7 @@ public class AttributeTypesComponent extends VerticalLayout
 	private void copyHandler(Set<AttributeType> items)
 	{
 		AttributeType at = items.iterator().next();
+		at = at.clone();
 		RegularAttributeTypeEditor editor = 
 				new RegularAttributeTypeEditor(msg, attrHandlerRegistry, at, 
 						attrMetaHandlerRegistry, atSupport);
