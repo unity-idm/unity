@@ -10,17 +10,17 @@ import java.util.function.Consumer;
 
 import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
+import com.vaadin.shared.ui.dnd.EffectAllowed;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.DragAndDropWrapper;
-import com.vaadin.ui.DragAndDropWrapper.DragStartMode;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.MenuItem;
+import com.vaadin.ui.dnd.DragSourceExtension;
 import com.vaadin.v7.ui.AbstractTextField;
 import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.v7.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
@@ -103,13 +103,12 @@ public class RuleComponent extends CustomComponent
 		DragHtmlLabel img = new DragHtmlLabel(this, Images.vaadinResize.getResource());
 		img.addStyleName(Styles.link.toString());
 		img.setSizeFull();
+		img.setWidth(1, Unit.EM);
+		DragSourceExtension<DragHtmlLabel> dragSource = new DragSourceExtension<>(img);
+		dragSource.setEffectAllowed(EffectAllowed.MOVE);
 		
-		DragAndDropWrapper dragWrapper = new DragAndDropWrapper(img);
-		dragWrapper.setDragStartMode(DragStartMode.WRAPPER);
-		dragWrapper.setWidth(1, Unit.EM);
-		
-		header.addComponent(dragWrapper);	
-		header.setComponentAlignment(dragWrapper, Alignment.MIDDLE_RIGHT);
+		header.addComponent(img);	
+		header.setComponentAlignment(img, Alignment.MIDDLE_RIGHT);
 		
 		MenuBar menuBar = new HamburgerMenu();			
 		menuBar.addItem(msg.getMessage("TranslationProfileEditor.remove"), Images.vaadinRemove.getResource(), s -> callback.remove(RuleComponent.this));
