@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.bulk;
 
+import com.vaadin.data.Binder;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 
@@ -11,9 +12,9 @@ import pl.edu.icm.unity.engine.api.bulkops.EntityAction;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
 import pl.edu.icm.unity.webadmin.tprofile.ActionEditor;
-import pl.edu.icm.unity.webadmin.tprofile.MVELExpressionField;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.FormValidator;
+import pl.edu.icm.unity.webui.common.MVELExpressionField;
 
 /**
  * Edit component of a {@link ScheduledProcessingRuleParam}
@@ -26,7 +27,8 @@ public class ScheduledRuleParamEditorImpl extends CustomComponent implements Rul
 	protected MVELExpressionField condition;
 	protected ActionEditor actionEditor;
 	protected CronExpressionField cronExpression;
-
+	private Binder<ScheduledProcessingRuleParam> binder;
+	
 	private FormLayout main;
 	
 	
@@ -40,7 +42,7 @@ public class ScheduledRuleParamEditorImpl extends CustomComponent implements Rul
 	public void setInput(ScheduledProcessingRuleParam toEdit)
 	{
 		cronExpression.setValue(toEdit.getCronExpression());
-		condition.setValue(toEdit.getCondition());
+		binder.setBean(toEdit);
 		actionEditor.setInput(toEdit.getAction());
 	}
 	
@@ -50,13 +52,13 @@ public class ScheduledRuleParamEditorImpl extends CustomComponent implements Rul
 		setCompositionRoot(main);
 		
 		cronExpression = new CronExpressionField(msg, msg.getMessage("RuleEditor.cronExpression"));
-		cronExpression.setValue("0 0 6 * * ?");
-		
 		condition = new MVELExpressionField(msg, msg.getMessage("RuleEditor.condition"),
 				msg.getMessage("MVELExpressionField.conditionDesc"));
-		condition.setValue("status == 'DISABLED'");
-		condition.setValidationVisible(true);
 		
+		binder = new Binder<>(ScheduledProcessingRuleParam.class);
+		condition.configureBinding(binder, "condition");		
+		cronExpression.configureBinding(binder, "cronExpression");
+		binder.setBean(new ScheduledProcessingRuleParam("status == 'DISABLED'", null, "0 0 6 * * ?"));
 		main.addComponents(cronExpression, condition);
 		
 		actionEditor.addToLayout(main);

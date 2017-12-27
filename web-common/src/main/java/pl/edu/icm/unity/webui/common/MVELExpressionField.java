@@ -2,9 +2,9 @@
  * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webadmin.bulk;
+package pl.edu.icm.unity.webui.common;
 
-import org.quartz.CronExpression;
+import org.mvel2.MVEL;
 
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
@@ -15,18 +15,19 @@ import com.vaadin.ui.TextField;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 
 /**
- * Field allowing for editing a Quartz cron expression
+ * Field allowing for editing an MVEL expression
+ * 
  * @author K. Benedyczak
  */
-public class CronExpressionField extends TextField
+public class MVELExpressionField extends TextField
 {
 	private UnityMessageSource msg;
 
-	public CronExpressionField(UnityMessageSource msg, String caption)
+	public MVELExpressionField(UnityMessageSource msg, String caption, String description)
 	{
 		this.msg = msg;
 		setCaption(caption);
-		setDescription(msg.getMessage("CronExpressionField.cronExpressionDescription"));
+		setDescription(description);
 	}
 
 	public void configureBinding(Binder<?> binder, String fieldName)
@@ -46,7 +47,7 @@ public class CronExpressionField extends TextField
 			{
 				try
 				{
-					CronExpression.validateExpression(value);
+					MVEL.compileExpression(value);
 				} catch (Exception e)
 				{
 					String info;
@@ -67,5 +68,5 @@ public class CronExpressionField extends TextField
 			}
 		};
 		return expressionValidator;
-	}	
+	}
 }

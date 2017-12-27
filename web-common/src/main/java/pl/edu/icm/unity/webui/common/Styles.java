@@ -86,8 +86,9 @@ public enum Styles
 	vSmall(ValoTheme.TEXTFIELD_SMALL),
 	vTiny(ValoTheme.TEXTFIELD_TINY),
 	vTableNoHorizontalLines(ValoTheme.TABLE_NO_HORIZONTAL_LINES),
-	vComboSmall(ValoTheme.COMBOBOX_SMALL);
-
+	vComboSmall(ValoTheme.COMBOBOX_SMALL),
+	vDropLayout("drop-layout");
+	
 	/**
 	 * Number of columns for wider then regular text fields.
 	 */

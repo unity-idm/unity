@@ -117,7 +117,8 @@ public class TranslationProfileEditor extends VerticalLayout
 		rulesLayout.setSpacing(false);
 		rulesLayout.setMargin(false);
 		rulesLayout.setHeightUndefined();
-	
+		rulesLayout.setStyleName(Styles.vDropLayout.toString());
+		
 		name = new TextField(msg.getMessage("TranslationProfileEditor.name"));
 
 		description = new DescriptionTextArea2(
@@ -166,8 +167,6 @@ public class TranslationProfileEditor extends VerticalLayout
 
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.addComponents(main, hl, rulesLayout);
-		//wrapper.setMargin(false);
-		//wrapper.setSpacing(false);
 			
 		binder = new Binder<>(TranslationProfile.class);
 		binder.forField(name).asRequired(msg.getMessage("fieldRequired")).bind("name");
@@ -175,7 +174,6 @@ public class TranslationProfileEditor extends VerticalLayout
 		binder.setBean(new TranslationProfile(
 				msg.getMessage("TranslationProfileEditor.defaultName"), null, type,
 				new ArrayList<TranslationRule>()));
-
 		setSpacing(false);
 		setMargin(false);
 		addComponents(wrapper);

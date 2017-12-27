@@ -8,6 +8,7 @@ package pl.edu.icm.unity.webadmin.tprofile;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import com.vaadin.data.Binder;
 import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.dnd.EffectAllowed;
@@ -15,13 +16,12 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.MenuItem;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.dnd.DragSourceExtension;
-import com.vaadin.v7.ui.AbstractTextField;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -37,6 +37,7 @@ import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.MVELExpressionField;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
@@ -53,7 +54,7 @@ public class RuleComponent extends CustomComponent
 	private UnityMessageSource msg;
 	private TypesRegistryBase<? extends TranslationActionFactory<?>> tc;
 	private ActionEditor actionEditor;
-	private AbstractTextField condition;
+	private MVELExpressionField condition;
 	private MappingResultComponent mappingResultComponent;
 	private Callback callback;
 	private MenuItem top;
@@ -63,6 +64,7 @@ public class RuleComponent extends CustomComponent
 	private FormLayout content;
 	private Label info;
 	private Button showHide;
+	private Binder<TranslationRule> binder;
 	
 	public RuleComponent(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
 			TranslationRule toEdit, ActionParameterComponentProvider actionComponentProvider, 
@@ -79,12 +81,13 @@ public class RuleComponent extends CustomComponent
 	private void initUI(TranslationRule toEdit)
 	{
 		VerticalLayout headerWrapper = new VerticalLayout();
+		headerWrapper.setMargin(false);
+		headerWrapper.setSpacing(false);
 		
 		HorizontalLayout header = new HorizontalLayout();
 		header.setSizeFull();
 		header.setMargin(false);
-		header.setSpacing(true);
-
+	
 		showHide = new Button(Images.vaadinDownArrow.getResource());
 		showHide.addStyleName(Styles.vButtonLink.toString());
 		showHide.addStyleName(Styles.toolbarButton.toString());
@@ -135,7 +138,6 @@ public class RuleComponent extends CustomComponent
 				msg.getMessage("MVELExpressionField.conditionDesc"));
 		condition.setStyleName(Styles.vTiny.toString());
 		
-		
 		Consumer<String> editorCallback = s -> info.setValue(s);
 		actionEditor = new ActionEditor(msg, tc, toEdit == null ? null : toEdit.getAction(),
 				actionComponentProvider, editorCallback);
@@ -157,9 +159,12 @@ public class RuleComponent extends CustomComponent
 		main.addComponent(content);
 	
 		setCompositionRoot(main);
-		
 		info.setValue(actionEditor.getStringRepresentation());
-		condition.setValue(editMode? toEdit.getCondition() : "true");
+		
+		binder = new Binder<>(TranslationRule.class);
+		condition.configureBinding(binder, "condition");		
+		binder.setBean(new TranslationRule(editMode? toEdit.getCondition() : "true", null));
+
 	}
 
 	public TranslationRule getRule() throws FormValidationException
@@ -198,9 +203,11 @@ public class RuleComponent extends CustomComponent
 			ok = false;
 		}
 		
-		condition.setValidationVisible(true);
-		if (!condition.isValid())
+		if (!binder.isValid())
+		{
+			binder.validate();
 			ok = false;
+		}
 		
 		if (!ok)
 			showHideContent(true);
@@ -264,7 +271,6 @@ public class RuleComponent extends CustomComponent
 	{
 		condition.setStyleName(Styles.errorBackground.toString());
 		condition.setComponentError(new UserError(NotificationPopup.getHumanMessage(e)));
-		condition.setValidationVisible(true);
 	}
 
 
@@ -287,7 +293,6 @@ public class RuleComponent extends CustomComponent
 		condition.removeStyleName(Styles.errorBackground.toString());
 		condition.removeStyleName(Styles.falseConditionBackground.toString());
 		condition.setComponentError(null);
-		condition.setValidationVisible(false);
 		
 		actionEditor.removeComponentEvaluationStyle();
 	}

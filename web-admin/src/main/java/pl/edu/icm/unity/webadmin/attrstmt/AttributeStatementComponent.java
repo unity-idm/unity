@@ -11,19 +11,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
-import org.mvel2.MVEL;
 
 import com.google.common.collect.ImmutableMap;
 import com.vaadin.data.Binder;
-import com.vaadin.data.ValidationResult;
-import com.vaadin.data.Validator;
-import com.vaadin.data.ValueContext;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.RadioButtonGroup;
-import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -36,6 +31,7 @@ import pl.edu.icm.unity.webadmin.attribute.AttributeFieldWithEdit;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GroupComboBox2;
+import pl.edu.icm.unity.webui.common.MVELExpressionField;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox2;
 
@@ -57,10 +53,10 @@ public class AttributeStatementComponent extends CustomComponent
 	
 	private CheckBox extraAttributesGroupCB;
 	private GroupComboBox2 extraAttributesGroupCombo;
-	private TextField condition;
+	private MVELExpressionField condition;
 	private RadioButtonGroup<String> assignMode;
 	private ComboBox<AttributeType> dynamicAttributeName;
-	private TextField dynamicAttributeValue;
+	private MVELExpressionField dynamicAttributeValue;
 	private AttributeFieldWithEdit fixedAttribute;
 	private ComboBox<AttributeStatement.ConflictResolution> conflictResolution;
 
@@ -117,8 +113,10 @@ public class AttributeStatementComponent extends CustomComponent
 		
 		if (groups.isEmpty())
 			extraAttributesGroupCB.setEnabled(false);
-
-		condition = new TextField(msg.getMessage("AttributeStatementComponent.condition"));
+		
+		condition = new MVELExpressionField(msg, msg.getMessage("AttributeStatementComponent.condition"), 
+				msg.getMessage("MVELExpressionField.conditionDesc"));
+		
 		condition.setDescription(
 				msg.getMessage("AttributeStatementComponent.conditionDesc"));
 		condition.setValue("true");
@@ -139,12 +137,11 @@ public class AttributeStatementComponent extends CustomComponent
 		
 		dynamicAttributeName =  new AttributeSelectionComboBox2(
 				msg.getMessage("AttributeStatementComponent.dynamicAttrName"), attributeTypes);
-		
-		dynamicAttributeValue = new TextField(
-				msg.getMessage("AttributeStatementComponent.dynamicAttrValue"));
+		dynamicAttributeValue  = new MVELExpressionField(msg, msg.getMessage("AttributeStatementComponent.dynamicAttrValue"), 
+				msg.getMessage("MVELExpressionField.conditionDesc"));
 		dynamicAttributeValue.setDescription(
 				msg.getMessage("AttributeStatementComponent.dynamicAttrValueDesc"));
-
+		
 		fixedAttribute = new AttributeFieldWithEdit(msg,
 				msg.getMessage("AttributeStatementComponent.fixedAttr"),
 				attrHandlerRegistry, attributeTypes, group, null, true);
@@ -165,15 +162,13 @@ public class AttributeStatementComponent extends CustomComponent
 				assignMode, dynamicAttributeName, dynamicAttributeValue,
 				fixedAttribute, conflictResolution);
 
-		Validator<String> expressionValidator = getExpressionValidator();
 		binder = new Binder<>(AttributeStatement.class);
 
 		binder.forField(extraAttributesGroupCombo)
 				.asRequired(msg.getMessage("fieldRequired"))
 				.withNullRepresentation(extraAttributesGroupCombo.getValue())
 				.bind("extraAttributesGroup");
-		binder.forField(condition).withValidator(expressionValidator)
-				.asRequired(msg.getMessage("fieldRequired")).bind("condition");
+		condition.configureBinding(binder, "condition");
 		binder.forField(fixedAttribute).asRequired(msg.getMessage("fieldRequired"))
 				.bind("fixedAttribute");
 		Map<String, AttributeType> typesMap = attributeTypes.stream()
@@ -182,9 +177,7 @@ public class AttributeStatementComponent extends CustomComponent
 				.withConverter(d -> d.getName(), d -> typesMap.get(d))
 				.asRequired(msg.getMessage("fieldRequired"))
 				.bind("dynamicAttributeType");
-		binder.forField(dynamicAttributeValue).withValidator(expressionValidator)
-				.asRequired(msg.getMessage("fieldRequired"))
-				.bind("dynamicAttributeExpression");
+		dynamicAttributeValue.configureBinding(binder,"dynamicAttributeExpression");	
 		binder.forField(conflictResolution).asRequired(msg.getMessage("fieldRequired"))
 				.bind("conflictResolution");
 
@@ -197,31 +190,6 @@ public class AttributeStatementComponent extends CustomComponent
 
 	}
 
-	private Validator<String> getExpressionValidator()
-	{
-		Validator<String> expressionValidator = new Validator<String>()
-		{
-
-			@Override
-			public ValidationResult apply(String value, ValueContext context)
-			{
-				try
-				{
-					MVEL.compileExpression(value);
-				} catch (Exception e)
-				{
-					return ValidationResult.error(msg.getMessage(
-							"AttributeStatementComponent.invalidExpression")
-							+ ":" + e.getMessage());
-
-				}
-				return ValidationResult.ok();
-			}
-		};
-		return expressionValidator;
-
-	}
-	
 	public void setInitialData(AttributeStatement initial)
 	{
 		binder.setBean(initial);
