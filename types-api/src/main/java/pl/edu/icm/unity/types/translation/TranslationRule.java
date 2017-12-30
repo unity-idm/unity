@@ -20,10 +20,7 @@ public class TranslationRule
 		this.action = action;
 	}
 
-	/**
-	 * For JSON deserialization
-	 */
-	protected TranslationRule()
+	public TranslationRule()
 	{
 	}
 	
@@ -31,9 +28,20 @@ public class TranslationRule
 	{
 		return condition;
 	}
+	
+	public void setCondition(String condition)
+	{
+		this.condition = condition;
+	}
+	
 	public TranslationAction getAction()
 	{
 		return action;
+	}
+	
+	public void setTranslationAction(TranslationAction action)
+	{
+		this.action = action;
 	}
 
 	@Override

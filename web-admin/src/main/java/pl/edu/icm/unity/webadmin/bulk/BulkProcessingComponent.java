@@ -15,14 +15,12 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.BulkProcessingManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -33,16 +31,15 @@ import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webadmin.tprofile.ActionEditor;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentProvider;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.GenericElementsTable;
-import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
+import pl.edu.icm.unity.webui.common.GenericElementsTable2;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar;
+import pl.edu.icm.unity.webui.common.Toolbar2;
 
 /**
  * Component responsible for management of bulk processing actions. 
@@ -58,7 +55,7 @@ public class BulkProcessingComponent extends CustomComponent
 	private EntityActionsRegistry registry;
 	private ActionParameterComponentProvider parameterFactory;
 
-	private GenericElementsTable<ScheduledProcessingRule> table;
+	private GenericElementsTable2<ScheduledProcessingRule> table;
 	private ScheduledRuleViewerPanel viewer;
 	private VerticalLayout main;
 	
@@ -74,98 +71,91 @@ public class BulkProcessingComponent extends CustomComponent
 		init();
 	}
 
-	
-	
 	private void init()
 	{
 		main = new VerticalLayout();
-		main.setSpacing(true);
 		main.setMargin(new MarginInfo(true, false, false, false));
 		main.addStyleName(Styles.visibleScroll.toString());
 		setCompositionRoot(main);
 		setCaption(msg.getMessage("BulkProcessingComponent.caption"));
-		
-		Button invokeSingle = new Button(msg.getMessage("BulkProcessingComponent.performAction"));
-		invokeSingle.setDescription(msg.getMessage("BulkProcessingComponent.invokeSingleDesc"));
+
+		Button invokeSingle = new Button(
+				msg.getMessage("BulkProcessingComponent.performAction"));
+		invokeSingle.setDescription(
+				msg.getMessage("BulkProcessingComponent.invokeSingleDesc"));
 		invokeSingle.addClickListener(event -> showImmediateProcessingDialog(null));
 		main.addComponent(invokeSingle);
-		
+
 		viewer = new ScheduledRuleViewerPanel(msg, registry);
-		table = new GenericElementsTable<>(msg.getMessage("BulkProcessingComponent.tableCaption"), 
+
+		table = new GenericElementsTable2<>(
+				msg.getMessage("BulkProcessingComponent.tableCaption"),
 				this::getCompactName);
-		table.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				Collection<ScheduledProcessingRule> items = getItems(table.getValue());
-				if (items.size() > 1 || items.isEmpty())
-				{
-					viewer.setInput(null);
-					return;
-				}
-				viewer.setInput(items.iterator().next());
-			}
-		});
-		table.addActionHandler(new RefreshActionHandler());
-		table.addActionHandler(new AddActionHandler());
-		table.addActionHandler(new EditActionHandler());
-		table.addActionHandler(new RunScheduledHandler());
-		table.addActionHandler(new DeleteActionHandler());
+
 		table.setWidth(90, Unit.PERCENTAGE);
 		table.setMultiSelect(true);
-		Toolbar toolbar = new Toolbar(table, Orientation.HORIZONTAL);
+		table.addSelectionListener(event -> {
+			Collection<ScheduledProcessingRule> items = event.getAllSelectedItems();
+			if (items.size() > 1 || items.isEmpty())
+			{
+				viewer.setInput(null);
+				return;
+			}
+			viewer.setInput(items.iterator().next());
+
+		});
+		table.addActionHandler(getRefreshAction());
+		table.addActionHandler(getAddAction());
+		table.addActionHandler(getEditAction());
+		table.addActionHandler(getRunScheduledAction());
+		table.addActionHandler(getDeleteAction());
+
+		Toolbar2<ScheduledProcessingRule> toolbar = new Toolbar2<>(Orientation.HORIZONTAL);
+		table.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(table.getActionHandlers());
-		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
+		ComponentWithToolbar2 tableWithToolbar = new ComponentWithToolbar2(table, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
-		
+		tableWithToolbar.setHeight(100, Unit.PERCENTAGE);
+
 		HorizontalLayout hl = new HorizontalLayout();
 		hl.addComponents(tableWithToolbar, viewer);
 		hl.setSizeFull();
 		hl.setMargin(new MarginInfo(true, false, true, false));
-		hl.setSpacing(true);
-		
+
 		main.addComponent(hl);
 		refresh();
 	}
-	
+
 	private String getCompactName(ScheduledProcessingRule rule)
 	{
 		return rule.getCronExpression() + " - " + rule.getAction().getName();
 	}
-	
-	private Collection<ScheduledProcessingRule> getItems(Object target)
-	{
-		Collection<?> c = (Collection<?>) target;
-		return c.stream()
-			.map(o -> (ScheduledProcessingRule)(((GenericItem<?>)o).getElement()))
-			.collect(Collectors.toList());
-	}
-	
+
 	private void delete(Set<String> ids)
 	{
-		for (String id: ids)
+		for (String id : ids)
 		{
 			try
 			{
 				bulkManagement.removeScheduledRule(id);
 			} catch (Exception e)
 			{
-				NotificationPopup.showError(msg, 
-						msg.getMessage("BulkProcessingComponent.errorRemoving", id), e);
+				NotificationPopup.showError(msg, msg.getMessage(
+						"BulkProcessingComponent.errorRemoving", id), e);
 				refresh();
 				return;
 			}
 		}
 		refresh();
 	}
-	
+
 	private void refresh()
 	{
 		try
 		{
 			parameterFactory.init();
-			List<ScheduledProcessingRule> scheduledRules = bulkManagement.getScheduledRules();
+			List<ScheduledProcessingRule> scheduledRules = bulkManagement
+					.getScheduledRules();
 			table.setInput(scheduledRules);
 			setCompositionRoot(main);
 		} catch (Exception e)
@@ -175,7 +165,7 @@ public class BulkProcessingComponent extends CustomComponent
 			setCompositionRoot(error);
 		}
 	}
-	
+
 	private void schedule(ScheduledProcessingRuleParam rule)
 	{
 		try
@@ -184,7 +174,7 @@ public class BulkProcessingComponent extends CustomComponent
 			refresh();
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(msg, 
+			NotificationPopup.showError(msg,
 					msg.getMessage("BulkProcessingComponent.errorAdd"), e);
 		}
 	}
@@ -194,137 +184,116 @@ public class BulkProcessingComponent extends CustomComponent
 		try
 		{
 			bulkManagement.applyRule(rule);
-			NotificationPopup.showSuccess(msg, msg.getMessage("BulkProcessingComponent.actionInvoked"), "");
+			NotificationPopup.showSuccess(msg,
+					msg.getMessage("BulkProcessingComponent.actionInvoked"),
+					"");
 			refresh();
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(msg, 
+			NotificationPopup.showError(msg,
 					msg.getMessage("BulkProcessingComponent.errorPerform"), e);
 		}
 	}
-	
-	private class DeleteActionHandler extends SingleActionHandler
-	{
-		public DeleteActionHandler()
-		{
-			super(msg.getMessage("BulkProcessingComponent.deleteAction"), 
-					Images.delete.getResource());
-			setMultiTarget(true);
-		}
-		
-		@Override
-		public void handleAction(Object sender, Object target)
-		{		
-			final Collection<ScheduledProcessingRule> items = getItems(target);			
-			Set<String> removed = items.stream()
-					.map(item -> item.getId())
-					.collect(Collectors.toSet()); 
-			ConfirmDialog confirm = new ConfirmDialog(msg, 
-					msg.getMessage("BulkProcessingComponent.confirmDelete", items.size()), 
-					() -> {
-				delete(removed);
-			});
-			confirm.show();
-		}
-	}
-	
-	private class RefreshActionHandler extends SingleActionHandler
-	{
-		public RefreshActionHandler()
-		{
-			super(msg.getMessage("BulkProcessingComponent.refreshAction"), Images.refresh.getResource());
-			setNeedsTarget(false);
-		}
 
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			refresh();
-		}
-	}
-	
-	private class AddActionHandler extends SingleActionHandler
+	private SingleActionHandler2<ScheduledProcessingRule> getDeleteAction()
 	{
-		public AddActionHandler()
-		{
-			super(msg.getMessage("BulkProcessingComponent.addAction"), Images.add.getResource());
-			setNeedsTarget(false);
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			ActionEditor actionEditor;
-			try
-			{
-				actionEditor = getActionEditor();
-			} catch (EngineException e)
-			{
-				NotificationPopup.showError(msg, 
-						msg.getMessage("BulkProcessingComponent.errorCreateActions"), e);
-				return;
-			}
-			ScheduledRuleParamEditorImpl editor = new ScheduledRuleParamEditorImpl(msg, actionEditor);
-			RuleEditDialog<ScheduledProcessingRuleParam> dialog = new RuleEditDialog<>(msg, 
-					msg.getMessage("BulkProcessingComponent.addAction"), editor, 
-					rule -> 
-					{
-						schedule(rule);
-					});
-			dialog.show();
-		}
+		return SingleActionHandler2.builder4Delete(msg, ScheduledProcessingRule.class)
+				.withHandler(this::deleteHandler).build();
 	}
 
-	private class EditActionHandler extends SingleActionHandler
+	private void deleteHandler(Collection<ScheduledProcessingRule> items)
 	{
-		public EditActionHandler()
-		{
-			super(msg.getMessage("BulkProcessingComponent.editAction"), Images.edit.getResource());
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			ActionEditor actionEditor;
-			try
-			{
-				actionEditor = getActionEditor();
-			} catch (EngineException e)
-			{
-				NotificationPopup.showError(msg, 
-						msg.getMessage("BulkProcessingComponent.errorCreateActions"), e);
-				return;
-			}
-			ScheduledRuleParamEditorImpl editor = new ScheduledRuleParamEditorImpl(msg, actionEditor);
-			ScheduledProcessingRule selected = (ScheduledProcessingRule)(((GenericItem<?>)target).getElement());
-			editor.setInput(selected);
-			
-			RuleEditDialog<ScheduledProcessingRuleParam> dialog = new RuleEditDialog<>(msg, 
-					msg.getMessage("BulkProcessingComponent.editAction"), editor, 
-					rule -> 
-					{
-						schedule(rule);
-						delete(Sets.newHashSet(selected.getId()));
-					});
-			dialog.show();
-		}
+		Set<String> removed = items.stream().map(item -> item.getId())
+				.collect(Collectors.toSet());
+		ConfirmDialog confirm = new ConfirmDialog(msg, msg.getMessage(
+				"BulkProcessingComponent.confirmDelete", items.size()), () -> {
+					delete(removed);
+				});
+		confirm.show();
 	}
-	
-	private class RunScheduledHandler extends SingleActionHandler
+
+	private SingleActionHandler2<ScheduledProcessingRule> getRefreshAction()
 	{
-		public RunScheduledHandler()
-		{
-			super(msg.getMessage("BulkProcessingComponent.runNowAction"), Images.play.getResource());
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			ScheduledProcessingRule rule = (ScheduledProcessingRule)(((GenericItem<?>)target).getElement());
-			showImmediateProcessingDialog(rule);
-		}
+		return SingleActionHandler2.builder4Refresh(msg, ScheduledProcessingRule.class)
+				.withHandler(selection -> refresh()).build();
 	}
-	
+
+	private SingleActionHandler2<ScheduledProcessingRule> getAddAction()
+	{
+		return SingleActionHandler2.builder4Add(msg, ScheduledProcessingRule.class)
+				.withHandler(this::showAddDialog).build();
+	}
+
+	private void showAddDialog(Collection<ScheduledProcessingRule> target)
+	{
+		ActionEditor actionEditor;
+		try
+		{
+			actionEditor = getActionEditor();
+		} catch (EngineException e)
+		{
+			NotificationPopup.showError(msg, msg.getMessage(
+					"BulkProcessingComponent.errorCreateActions"), e);
+			return;
+		}
+		ScheduledRuleParamEditorImpl editor = new ScheduledRuleParamEditorImpl(msg,
+				actionEditor);
+		RuleEditDialog<ScheduledProcessingRuleParam> dialog = new RuleEditDialog<>(msg,
+				msg.getMessage("BulkProcessingComponent.addAction"), editor,
+				rule -> {
+					schedule(rule);
+				});
+		dialog.show();
+	}
+
+	private SingleActionHandler2<ScheduledProcessingRule> getEditAction()
+	{
+		return SingleActionHandler2.builder4Edit(msg, ScheduledProcessingRule.class)
+				.withHandler(this::showEditDialog).build();
+	}
+
+	private void showEditDialog(Collection<ScheduledProcessingRule> target)
+	{
+		ActionEditor actionEditor;
+		try
+		{
+			actionEditor = getActionEditor();
+		} catch (EngineException e)
+		{
+			NotificationPopup.showError(msg, msg.getMessage(
+					"BulkProcessingComponent.errorCreateActions"), e);
+			return;
+		}
+		ScheduledRuleParamEditorImpl editor = new ScheduledRuleParamEditorImpl(msg,
+				actionEditor);
+		final ScheduledProcessingRule selected = target.iterator().next();
+		editor.setInput(selected);
+
+		RuleEditDialog<ScheduledProcessingRuleParam> dialog = new RuleEditDialog<>(msg,
+				msg.getMessage("BulkProcessingComponent.editAction"), editor,
+				rule -> {
+					schedule(rule);
+					delete(Sets.newHashSet(selected.getId()));
+				});
+		dialog.show();
+
+	}
+
+	private SingleActionHandler2<ScheduledProcessingRule> getRunScheduledAction()
+	{
+		return SingleActionHandler2.builder(ScheduledProcessingRule.class)
+				.withCaption(msg.getMessage("BulkProcessingComponent.runNowAction"))
+				.withIcon(Images.play.getResource())
+				.withHandler(this::runScheduledHandler).build();
+
+	}
+
+	private void runScheduledHandler(Collection<ScheduledProcessingRule> items)
+	{
+		ScheduledProcessingRule rule = items.iterator().next();
+		showImmediateProcessingDialog(rule);
+	}
+
 	private void showImmediateProcessingDialog(TranslationRule orig)
 	{
 		ActionEditor actionEditor;
@@ -333,22 +302,21 @@ public class BulkProcessingComponent extends CustomComponent
 			actionEditor = getActionEditor();
 		} catch (EngineException e)
 		{
-			NotificationPopup.showError(msg, 
-					msg.getMessage("BulkProcessingComponent.errorCreateActions"), e);
+			NotificationPopup.showError(msg, msg.getMessage(
+					"BulkProcessingComponent.errorCreateActions"), e);
 			return;
 		}
 		RuleEditorImpl editor = new RuleEditorImpl(msg, actionEditor);
 		if (orig != null)
 			editor.setInput(orig);
-		RuleEditDialog<TranslationRule> dialog = new RuleEditDialog<>(msg, 
-				msg.getMessage("BulkProcessingComponent.performAction"), editor, 
-				rule -> 
-				{
+		RuleEditDialog<TranslationRule> dialog = new RuleEditDialog<>(msg,
+				msg.getMessage("BulkProcessingComponent.performAction"), editor,
+				rule -> {
 					invoke(rule);
 				});
 		dialog.show();
 	}
-	
+
 	private ActionEditor getActionEditor() throws EngineException
 	{
 		return new ActionEditor(msg, registry, null, parameterFactory);

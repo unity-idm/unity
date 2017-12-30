@@ -191,7 +191,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 	}
 	
 	
-	private void showAddDialog(Set<MessageTemplate> target)
+	private void showAddDialog(Collection<MessageTemplate> target)
 	{		
 		MessageTemplateEditor editor = new MessageTemplateEditor(msg, consumersRegistry, null, msgTempMan);	
 		MessageTemplateEditDialog dialog = new MessageTemplateEditDialog(msg, 
@@ -229,7 +229,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 				.build();
 	}
 	
-	private void deleteHandler(Set<MessageTemplate> items)
+	private void deleteHandler(Collection<MessageTemplate> items)
 	{	
 		String confirmText = MessageUtils.createConfirmFromNames(msg, items);
 		new ConfirmDialog(msg, msg.getMessage(

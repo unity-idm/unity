@@ -46,13 +46,13 @@ public class RuleEditorImpl extends CustomComponent implements RuleEditor<Transl
 	{
 		main = new FormLayout();
 		setCompositionRoot(main);
-		
+
 		condition = new MVELExpressionField(msg, msg.getMessage("RuleEditor.condition"),
 				msg.getMessage("MVELExpressionField.conditionDesc"));
 		binder = new Binder<>(TranslationRule.class);
-		condition.configureBinding(binder, "condition");		
+		condition.configureBinding(binder, "condition");
 		binder.setBean(new TranslationRule("status == 'DISABLED'", null));
-		
+
 		main.addComponents(condition);
 		actionEditor.addToLayout(main);
 	}
@@ -61,6 +61,13 @@ public class RuleEditorImpl extends CustomComponent implements RuleEditor<Transl
 	public TranslationRule getRule() throws FormValidationException
 	{
 		new FormValidator(main).validate();
-		return new TranslationRule(condition.getValue(), actionEditor.getAction());
+		if (!binder.isValid())
+		{
+			binder.validate();
+			throw new FormValidationException();
+		}
+		TranslationRule rule = binder.getBean();
+		rule.setTranslationAction(actionEditor.getAction());
+		return rule;
 	}
 }

@@ -41,7 +41,6 @@ public class ScheduledRuleParamEditorImpl extends CustomComponent implements Rul
 
 	public void setInput(ScheduledProcessingRuleParam toEdit)
 	{
-		cronExpression.setValue(toEdit.getCronExpression());
 		binder.setBean(toEdit);
 		actionEditor.setInput(toEdit.getAction());
 	}
@@ -50,17 +49,19 @@ public class ScheduledRuleParamEditorImpl extends CustomComponent implements Rul
 	{
 		main = new FormLayout();
 		setCompositionRoot(main);
-		
-		cronExpression = new CronExpressionField(msg, msg.getMessage("RuleEditor.cronExpression"));
+
+		cronExpression = new CronExpressionField(msg,
+				msg.getMessage("RuleEditor.cronExpression"));
 		condition = new MVELExpressionField(msg, msg.getMessage("RuleEditor.condition"),
 				msg.getMessage("MVELExpressionField.conditionDesc"));
-		
+
 		binder = new Binder<>(ScheduledProcessingRuleParam.class);
-		condition.configureBinding(binder, "condition");		
+		condition.configureBinding(binder, "condition");
 		cronExpression.configureBinding(binder, "cronExpression");
-		binder.setBean(new ScheduledProcessingRuleParam("status == 'DISABLED'", null, "0 0 6 * * ?"));
+		binder.setBean(new ScheduledProcessingRuleParam("status == 'DISABLED'", null,
+				"0 0 6 * * ?"));
 		main.addComponents(cronExpression, condition);
-		
+
 		actionEditor.addToLayout(main);
 	}
 
@@ -68,8 +69,13 @@ public class ScheduledRuleParamEditorImpl extends CustomComponent implements Rul
 	public ScheduledProcessingRuleParam getRule() throws FormValidationException
 	{
 		new FormValidator(main).validate();
-		return new ScheduledProcessingRuleParam(condition.getValue(), 
-				(EntityAction) actionEditor.getAction(),
-				cronExpression.getValue());
+		if (!binder.isValid())
+		{
+			binder.validate();
+			throw new FormValidationException();
+		}
+		ScheduledProcessingRuleParam rule = binder.getBean();
+		rule.setTranslationAction((EntityAction) actionEditor.getAction());
+		return rule;
 	}
 }
