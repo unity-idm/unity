@@ -20,11 +20,12 @@ import pl.edu.icm.unity.types.NamedObject;
  */
 public class ConfirmationConfiguration implements NamedObject
 {
+	public static final int DEFAULT_VALIDITY = 48*60;
 	private String typeToConfirm;
 	private String nameToConfirm;
 	private String notificationChannel;
 	private String msgTemplate;
-	private int validityTime;
+	private int validityTime = DEFAULT_VALIDITY;
 		
 	private ConfirmationConfiguration()
 	{
@@ -108,8 +109,8 @@ public class ConfirmationConfiguration implements NamedObject
 		setTypeToConfirm(root.get("typeToConfirm").asText());
 		setMsgTemplate(root.get("msgTemplate").asText());
 		setNotificationChannel(root.get("notificationChannel").asText());
-		validityTime = JsonUtil.notNull(root, "validityTime") ? 
-				root.get("validityTime").asInt() : 48*60;	
+		if (JsonUtil.notNull(root, "validityTime")) 
+			validityTime = root.get("validityTime").asInt();	
 	}
 
 	@JsonValue

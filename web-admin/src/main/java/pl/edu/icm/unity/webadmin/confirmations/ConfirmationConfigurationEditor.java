@@ -112,7 +112,7 @@ public class ConfirmationConfigurationEditor extends CompactFormLayout
 				: new ConfirmationConfiguration(forType, type.getValue(),
 						notificationChannel.getValue(),
 						msgTemplate.getValue(),
-						48*60);
+						ConfirmationConfiguration.DEFAULT_VALIDITY);
 		binder.setBean(init);
 	}
 
