@@ -163,6 +163,8 @@ public class OutputTranslationProfile
 		}
 		ret.put("idsByType", idsByType);
 
+		ret.put("importStatus", input.getImportStatus());
+		
 		ret.put("groups", new ArrayList<>(input.getGroups()));
 
 		ret.put("usedGroup", input.getChosenGroup());

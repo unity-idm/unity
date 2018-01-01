@@ -51,12 +51,12 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.UserImportManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.confirmation.ConfirmationManager;
 import pl.edu.icm.unity.engine.api.event.EventPublisher;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
+import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce.ImportResult;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSpec;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.api.utils.json.Token2JsonFormatter;
@@ -716,7 +716,7 @@ public class RESTAdmin
 		UserImportSpec param = importer == null ? 
 				UserImportSpec.withAllImporters(identity, identityType) : 
 				new UserImportSpec(importer, identity, identityType);
-		List<AuthenticationResult> importUser = userImportManagement.importUser(
+		List<ImportResult> importUser = userImportManagement.importUser(
 				Lists.newArrayList(param));
 		return mapper.writeValueAsString(importUser);
 	}

@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 
@@ -18,12 +19,14 @@ import eu.unicore.util.configuration.PropertiesHelper;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce;
+import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce.ImportResult;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSpec;
 import pl.edu.icm.unity.engine.attribute.AttributeValueConverter;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationActionsRegistry;
@@ -102,10 +105,12 @@ public class IdPEngineImplBase implements IdPEngine
 		});
 		List<UserImportSpec> userImports = CommonIdPProperties.getUserImports(
 				importsConfig, firstIdentitiesByType);
-		userImportService.importToExistingUser(userImports, fullEntity.getIdentities().get(0));
+		List<ImportResult> importResult = userImportService.importToExistingUser(
+				userImports, fullEntity.getIdentities().get(0));
 		
 		return obtainUserInformationPostImport(entity, fullEntity, group, profile, 
-				requester, protocol, protocolSubType);
+				requester, protocol, protocolSubType, 
+				assembleImportStatus(importResult));
 	}
 	
 	@Override
@@ -116,17 +121,19 @@ public class IdPEngineImplBase implements IdPEngine
 	{
 		List<UserImportSpec> userImports = CommonIdPProperties.getUserImportsLegacy(
 				config, identity.getValue(), identity.getTypeId());
-		userImportService.importUser(userImports);
+		List<ImportResult> importResult = userImportService.importUser(userImports);
 		EntityParam entity = new EntityParam(identity);
 		Entity fullEntity = identitiesMan.getEntity(entity, requester, allowIdentityCreate, group);
 		
 		return obtainUserInformationPostImport(entity, fullEntity, group, profile, 
-				requester, protocol, protocolSubType);
+				requester, protocol, protocolSubType, 
+				assembleImportStatus(importResult));
 	}
 	
 	private TranslationResult obtainUserInformationPostImport(EntityParam entity, Entity fullEntity,
 			String group, String profile,
-			String requester, String protocol, String protocolSubType) throws EngineException
+			String requester, String protocol, String protocolSubType,
+			Map<String, Status> importStatus) throws EngineException
 	{
 		Collection<String> allGroups = identitiesMan.getGroups(entity).keySet();
 		Collection<AttributeExt> allAttributes = attributesMan.getAttributes(
@@ -150,12 +157,18 @@ public class IdPEngineImplBase implements IdPEngine
 			profileInstance = defaultProfile;
 		}
 		TranslationInput input = new TranslationInput(allAttributes, fullEntity, group, allGroups, 
-				requester, protocol, protocolSubType);
+				requester, protocol, protocolSubType, importStatus);
 		TranslationResult result = profileInstance.translate(input);
 		translationEngine.process(input, result);
 		return result;
 	}
 
+	private Map<String, Status> assembleImportStatus(List<ImportResult> results)
+	{
+		return results.stream().collect(
+				Collectors.toMap(r -> r.importerKey, 
+						r -> r.authenticationResult.getStatus()));
+	}
 
 	/**
 	 * Returns an {@link IdentityParam} out of valid identities which is either equal to the provided selected 

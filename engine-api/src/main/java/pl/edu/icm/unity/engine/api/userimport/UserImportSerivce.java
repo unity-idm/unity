@@ -22,10 +22,9 @@ public interface UserImportSerivce
 	 * @param identity
 	 * @param type
 	 * @return the returned object can be typically ignored, but is provided if caller is interested in 
-	 * the results of import. The object's class is bit misnamed here, but it provides the complete information
-	 * which is the same as after remote authentication of a user. 
+	 * the results of import.
 	 */
-	List<AuthenticationResult> importUser(List<UserImportSpec> imports);
+	List<ImportResult> importUser(List<UserImportSpec> imports);
 
 	/**
 	 * Performs an import which enriches the information about the existing user. 
@@ -35,6 +34,18 @@ public interface UserImportSerivce
 	 * @param imports
 	 * @return
 	 */
-	List<AuthenticationResult> importToExistingUser(List<UserImportSpec> imports, 
+	List<ImportResult> importToExistingUser(List<UserImportSpec> imports, 
 			IdentityTaV existingUser);
+	
+	public static class ImportResult
+	{
+		public final String importerKey;
+		public final AuthenticationResult authenticationResult;
+
+		public ImportResult(String importerKey, AuthenticationResult authenticationResult)
+		{
+			this.importerKey = importerKey;
+			this.authenticationResult = authenticationResult;
+		}
+	}
 }

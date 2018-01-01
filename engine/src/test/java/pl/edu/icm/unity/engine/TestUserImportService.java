@@ -23,13 +23,13 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.config.ConfigurationLoader;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSPI;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSPIFactory;
+import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce.ImportResult;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSpec;
 import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 import pl.edu.icm.unity.engine.userimport.UserImportProperties;
@@ -64,29 +64,30 @@ public class TestUserImportService
 		//when
 		UserImportServiceImpl impl = new UserImportServiceImpl(mainCfg, importersF, 
 				cp, verificatorUtil, cfgLoader);
-		List<AuthenticationResult> importUser = impl.importUser(
+		List<ImportResult> importUser = impl.importUser(
 				Lists.newArrayList(new UserImportSpec("key", "id", "type")));
 
 		//then
 		assertThat(importUser.size(), is(1));
-		assertThat(importUser.get(0).getStatus(), is(Status.notApplicable));
+		assertThat(importUser.get(0).authenticationResult.getStatus(), is(Status.notApplicable));
+		assertThat(importUser.get(0).importerKey, is("key"));
 		verify(factory).getInstance(getCfgProperties(), "idp");
 		verify(importer).importUser("id", "type");
 		
 		//again - should cache negative resolve
 		reset(importer); //just to have nice 'never'below
-		List<AuthenticationResult> importUser2 = impl.importUser(
+		List<ImportResult> importUser2 = impl.importUser(
 				Lists.newArrayList(new UserImportSpec("key", "id", "type")));
 		assertThat(importUser2.size(), is(1));
-		assertThat(importUser2.get(0).getStatus(), is(Status.notApplicable));
+		assertThat(importUser2.get(0).authenticationResult.getStatus(), is(Status.notApplicable));
 		verify(importer, never()).importUser("id", "type");
 		
 		//again - should expire negative resolve cache
 		Thread.sleep(1001);
-		List<AuthenticationResult> importUser3 = impl.importUser(
+		List<ImportResult> importUser3 = impl.importUser(
 				Lists.newArrayList(new UserImportSpec("key", "id", "type")));
 		assertThat(importUser3.size(), is(1));
-		assertThat(importUser3.get(0).getStatus(), is(Status.notApplicable));
+		assertThat(importUser3.get(0).authenticationResult.getStatus(), is(Status.notApplicable));
 		verify(importer).importUser("id", "type");
 	}
 	
@@ -120,12 +121,15 @@ public class TestUserImportService
 		//when
 		UserImportServiceImpl impl = new UserImportServiceImpl(mainCfg, importersF, 
 				cp, verificatorUtil, cfgLoader);
-		List<AuthenticationResult> importUser = impl.importUser(
+		List<ImportResult> importUser = impl.importUser(
 				Lists.newArrayList(UserImportSpec.withAllImporters("id", "type")));
 
 		//then
 		assertThat(importUser.size(), is(2));
-		assertThat(importUser.get(0).getStatus(), is(Status.notApplicable));
+		assertThat(importUser.get(0).importerKey, is("key1"));
+		assertThat(importUser.get(0).authenticationResult.getStatus(), 
+				is(Status.notApplicable));
+		assertThat(importUser.get(1).importerKey, is("key2"));
 		verify(factory, times(2)).getInstance(getCfgProperties(), "idp");
 		verify(importer, times(2)).importUser("id", "type");
 	}

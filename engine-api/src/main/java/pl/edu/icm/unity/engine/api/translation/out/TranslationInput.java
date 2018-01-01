@@ -7,8 +7,10 @@ package pl.edu.icm.unity.engine.api.translation.out;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -27,17 +29,18 @@ public class TranslationInput
 	private String requester;
 	private String protocol;
 	private String protocolSubType;
+	private Map<String, Status> importStatus;
 	
 	public TranslationInput(Collection<? extends Attribute> attributes, Entity entity, String chosenGroup,
 			Collection<String> groups, String requester, String protocol,
-			String protocolSubType)
+			String protocolSubType, Map<String, Status> importStatus)
 	{
-		super();
-		this.attributes = new ArrayList<Attribute>();
+		this.importStatus = importStatus;
+		this.attributes = new ArrayList<>();
 		this.attributes.addAll(attributes);
 		this.entity = entity;
 		this.chosenGroup = chosenGroup;
-		this.groups = new HashSet<String>();
+		this.groups = new HashSet<>();
 		this.groups.addAll(groups);
 		this.requester = requester;
 		this.protocol = protocol;
@@ -73,6 +76,16 @@ public class TranslationInput
 		return chosenGroup;
 	}
 
+	public Map<String, Status> getImportStatus()
+	{
+		return importStatus;
+	}
+
+	public void setImportStatus(Map<String, Status> importStatus)
+	{
+		this.importStatus = importStatus;
+	}
+
 	@Override
 	public String toString()
 	{
@@ -101,6 +114,13 @@ public class TranslationInput
 		}
 		sb.append("Requester: " + requester + "\n");
 		sb.append("Protocol: " + protocol + ":" + protocolSubType);
+		if (!importStatus.isEmpty())
+		{
+			sb.append("User import status:\n");
+			for (Map.Entry<String, Status> entry: importStatus.entrySet())
+				sb.append(" - ").append(entry.getKey()).append(": ")
+					.append(entry.getValue()).append("\n");
+		}
 		return sb.toString();
 	}
 }

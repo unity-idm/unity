@@ -34,7 +34,7 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
  * Implementation of user import service. Loads configured importers, configures them and run when requested.
- * Maintains timers to skip too often imports.
+ * Maintains timers to skip too frequent imports.
  * 
  * @author K. Benedyczak
  */
@@ -87,26 +87,26 @@ public class UserImportServiceImpl implements UserImportSerivce
 	}
 
 	@Override
-	public List<AuthenticationResult> importToExistingUser(List<UserImportSpec> imports,
+	public List<ImportResult> importToExistingUser(List<UserImportSpec> imports,
 			IdentityTaV existingUser)
 	{
 		return importUser(imports, Optional.of(existingUser));
 	}
 	
 	@Override
-	public List<AuthenticationResult> importUser(List<UserImportSpec> imports)
+	public List<ImportResult> importUser(List<UserImportSpec> imports)
 	{
 		return importUser(imports, Optional.empty());
 	}
 	
-	private List<AuthenticationResult> importUser(List<UserImportSpec> imports, 
+	private List<ImportResult> importUser(List<UserImportSpec> imports, 
 			Optional<IdentityTaV> existingIdentity)
 	{
 		if (imports.size() == 1 && imports.get(0).isUseAllImporters())
 			imports = getAllImportersFor(imports.get(0).identityValue, 
 					imports.get(0).identityType);
 
-		List<AuthenticationResult> ret = new ArrayList<>();
+		List<ImportResult> ret = new ArrayList<>();
 		for (UserImportSpec userImport: imports)
 		{
 			log.debug("Trying to import user {} from {}", userImport.identityValue,
@@ -127,19 +127,22 @@ public class UserImportServiceImpl implements UserImportSerivce
 			} catch (AuthenticationException e)
 			{
 				log.debug("User import has thrown an authentication exception, skipping it", e);
-				ret.add(new AuthenticationResult(Status.notApplicable, null));
+				ret.add(new ImportResult(userImport.importerKey,
+						new AuthenticationResult(Status.notApplicable, null)));
 				continue;
 			} catch (Exception e)
 			{
 				log.error("User import has thrown an exception, skipping it", e);
-				ret.add(new AuthenticationResult(Status.notApplicable, null));
+				ret.add(new ImportResult(userImport.importerKey,
+						new AuthenticationResult(Status.notApplicable, null)));
 				continue;
 			}
 			
 			if (result != null)
-				ret.add(result);
+				ret.add(new ImportResult(userImport.importerKey, result));
 			else
-				ret.add(new AuthenticationResult(Status.notApplicable, null));
+				ret.add(new ImportResult(userImport.importerKey, 
+						new AuthenticationResult(Status.notApplicable, null)));
 			
 			if (result != null && result.getStatus() != Status.notApplicable)
 			{
