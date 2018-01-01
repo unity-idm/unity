@@ -137,7 +137,8 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 		
 		proxyAuthnFilter = new ProxyAuthenticationFilter(authenticators, 
-				description.getEndpoint().getContextAddress());
+				description.getEndpoint().getContextAddress(),
+				genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.AUTO_LOGIN));
 		context.addFilter(new FilterHolder(proxyAuthnFilter), AUTHENTICATION_PATH + "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 		

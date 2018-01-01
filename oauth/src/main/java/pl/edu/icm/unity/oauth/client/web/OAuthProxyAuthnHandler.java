@@ -68,11 +68,10 @@ class OAuthProxyAuthnHandler
 			HttpServletResponse httpResponse) throws IOException
 	{
 		String idpKey = getIdpConfigKey(httpRequest);
-		startLogin(idpKey, httpRequest, httpResponse);
-		return true;
+		return startLogin(idpKey, httpRequest, httpResponse);
 	}
 	
-	private void startLogin(String idpConfigKey, HttpServletRequest httpRequest,
+	private boolean startLogin(String idpConfigKey, HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse) throws IOException
 	{
 		HttpSession session = httpRequest.getSession();
@@ -80,8 +79,9 @@ class OAuthProxyAuthnHandler
 				OAuth2Retrieval.REMOTE_AUTHN_CONTEXT);
 		if (context != null)
 		{
-			log.warn("Starting a new external oauth authentication, killing the previous "
-					+ "one which is still in progress.");
+			log.debug("Ignoring automated login as the previous authentication "
+					+ "is still in progress.");
+			return false;
 		}
 		String currentRelativeURI = ProxyAuthenticationFilter.getCurrentRelativeURL(httpRequest);
 		try
@@ -94,6 +94,7 @@ class OAuthProxyAuthnHandler
 			throw new IllegalStateException("Can not create OAuth2 authN request", e);
 		}
 		handleRequestInternal(context, httpRequest, httpResponse);
+		return true;
 	}
 	
 	private void handleRequestInternal(OAuthContext context,

@@ -100,26 +100,26 @@ unity.endpoint.web.authenticationTiles.2.tileName.en=Remote methods
 
 In many cases authentication screen of an Unity endpoint holds more then one authentication option. 
 The last used option is saved in user's cookie. Additionally Unity supports a special query attribute 
-+uy_select_authn+ which can be used for any web endpoint to select any of available authentication option.
++uy_select_authn+ which can be used for any web endpoint to select one of available authentication option.
 A value of this parameter must be formed according to the following pattern: +authenticatorId.authenticationOptionId+.
 
 For instance to preselect a remote OAuth provider under key +google+ in configuration of an authenticator with id 
 +oauthWeb+ one would need to add a query parameter +uy_select_authn=oauthWeb.google+.
-If in doubt it is always possible to check the available value by manually trying to authenticate with 
+If in doubt, it is always possible to check the available values by manually trying to authenticate with 
 authentication option of choice and verify the cookie set by Unity with the last authentication option used -- 
 the value format is the same.
 
 Unity allows also for acting as an invisible authentication proxy. This can be useful when (sets of) clients should use
-a fixed upstream IdP, while Unity should still handle all the authentications (for whatever reasons as attributes 
+a fixed upstream IdP, while Unity should still handle all the authentications (for whatever reasons, as attributes 
 unification or protocol bridging). Such mode of operation is only available with remote 
 (i.e. non-interactive from Unity PoV) authentication methods: remote SAML and remote OAuth authentication.
 
-To enable automated proxy authentication the request to Unity must have an extra query parameter 
-+uy_auto_login=true+. What is more the target endpoint either must be configured with a single authenticator, 
-with a single authentication option (e.g. OAuth authenticator with a single trusted provider) or the
-aforementioned  +uy_select_authn+ query parameter must be additionally used to select 
-the authentication option to be used.
-
+The automated proxy authentication may be enabled in two ways. The first option is to add a special, additional
+query parameter +uy_auto_login=true+. Other possibility is to enable automatic authentication within endpoint's 
+configuration with +unity.endpoint.web.autoLogin=true+ setting. In any of case the target endpoint 
+either must be configured with a single authenticator, with a single authentication option 
+(e.g. OAuth authenticator with a single trusted provider) or the mentioned above +uy_select_authn+ 
+query parameter must be additionally used to select the desired authentication option. 
 
 
 include::endpoint-admin.txt[]

@@ -6,7 +6,6 @@
 package pl.edu.icm.unity.webadmin.msgtemplate;
 
 import java.util.Collection;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
