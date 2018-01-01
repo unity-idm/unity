@@ -120,12 +120,12 @@ public class ConfirmationConfigurationTest extends AbstractNamedWithTSTest<Confi
 	@Override
 	protected ConfirmationConfiguration getObject(String id)
 	{
-		ConfirmationConfiguration cc = new ConfirmationConfiguration();
-		cc.setMsgTemplate("msgTemplate");
-		cc.setNameToConfirm(id);
-		cc.setNotificationChannel("notificationChannel");
-		cc.setTypeToConfirm(ConfirmationConfigurationDB.ATTRIBUTE_CONFIG_TYPE);
-		return cc;
+		return ConfirmationConfiguration.builder()
+				.withMsgTemplate("msgTemplate")
+				.withNameToConfirm(id)
+				.withNotificationChannel("notificationChannel")
+				.withTypeToConfirm(ConfirmationConfigurationDB.ATTRIBUTE_CONFIG_TYPE)
+				.build();
 	}
 
 	@Override

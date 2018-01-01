@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.types.NamedObject;
 
 /**
@@ -23,19 +24,20 @@ public class ConfirmationConfiguration implements NamedObject
 	private String nameToConfirm;
 	private String notificationChannel;
 	private String msgTemplate;
+	private int validityTime;
 		
-	public ConfirmationConfiguration()
+	private ConfirmationConfiguration()
 	{
-		
 	}
 	
 	public ConfirmationConfiguration(String typeToConfirm, String nameToConfirm,
-			String notificationChannel, String msgTemplate)
+			String notificationChannel, String msgTemplate, int validityTime)
 	{
 		this.typeToConfirm = typeToConfirm;
 		this.nameToConfirm = nameToConfirm;
 		this.notificationChannel = notificationChannel;
 		this.msgTemplate = msgTemplate;
+		this.validityTime = validityTime;
 	}
 
 	@JsonCreator
@@ -90,12 +92,24 @@ public class ConfirmationConfiguration implements NamedObject
 		this.typeToConfirm = typeToConfirm;
 	}
 
+	public int getValidityTime()
+	{
+		return validityTime;
+	}
+
+	public void setValidityTime(int validityTime)
+	{
+		this.validityTime = validityTime;
+	}
+
 	private void fromJson(ObjectNode root)
 	{
 		setNameToConfirm(root.get("nameToConfirm").asText());
 		setTypeToConfirm(root.get("typeToConfirm").asText());
 		setMsgTemplate(root.get("msgTemplate").asText());
 		setNotificationChannel(root.get("notificationChannel").asText());
+		validityTime = JsonUtil.notNull(root, "validityTime") ? 
+				root.get("validityTime").asInt() : 48*60;	
 	}
 
 	@JsonValue
@@ -106,17 +120,10 @@ public class ConfirmationConfiguration implements NamedObject
 		root.put("typeToConfirm", getTypeToConfirm());
 		root.put("msgTemplate", getMsgTemplate());
 		root.put("notificationChannel", getNotificationChannel());
+		root.put("validityTime", getValidityTime());
 		return root;
 	}
 
-	@Override
-	public String toString()
-	{
-		return "ConfirmationConfiguration [typeToConfirm=" + typeToConfirm
-				+ ", nameToConfirm=" + nameToConfirm + ", notificationChannel="
-				+ notificationChannel + ", msgTemplate=" + msgTemplate + "]";
-	}
-	
 	public ConfirmationConfiguration clone()
 	{
 		ObjectNode json = toJson();
@@ -124,10 +131,20 @@ public class ConfirmationConfiguration implements NamedObject
 	}
 
 	@Override
+	public String toString()
+	{
+		return "ConfirmationConfiguration [typeToConfirm=" + typeToConfirm
+				+ ", nameToConfirm=" + nameToConfirm + ", notificationChannel="
+				+ notificationChannel + ", msgTemplate=" + msgTemplate
+				+ ", validityTime=" + validityTime + "]";
+	}
+
+	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + validityTime;
 		result = prime * result + ((msgTemplate == null) ? 0 : msgTemplate.hashCode());
 		result = prime * result + ((nameToConfirm == null) ? 0 : nameToConfirm.hashCode());
 		result = prime * result + ((notificationChannel == null) ? 0
@@ -146,6 +163,8 @@ public class ConfirmationConfiguration implements NamedObject
 		if (getClass() != obj.getClass())
 			return false;
 		ConfirmationConfiguration other = (ConfirmationConfiguration) obj;
+		if (validityTime != other.validityTime)
+			return false;
 		if (msgTemplate == null)
 		{
 			if (other.msgTemplate != null)
@@ -171,5 +190,61 @@ public class ConfirmationConfiguration implements NamedObject
 		} else if (!typeToConfirm.equals(other.typeToConfirm))
 			return false;
 		return true;
+	}
+	
+	
+	public static Builder builder()
+	{
+		return new Builder(new ConfirmationConfiguration());
+	}
+
+	public static class Builder
+	{
+		private ConfirmationConfiguration instance;
+
+		protected Builder(ConfirmationConfiguration aInstance)
+		{
+			instance = aInstance;
+		}
+
+		protected ConfirmationConfiguration getInstance()
+		{
+			return instance;
+		}
+
+		public Builder withMsgTemplate(String aValue)
+		{
+			instance.setMsgTemplate(aValue);
+			return this;
+		}
+
+		public Builder withNotificationChannel(String aValue)
+		{
+			instance.setNotificationChannel(aValue);
+			return this;
+		}
+
+		public Builder withNameToConfirm(String aValue)
+		{
+			instance.setNameToConfirm(aValue);
+			return this;
+		}
+
+		public Builder withTypeToConfirm(String aValue)
+		{
+			instance.setTypeToConfirm(aValue);
+			return this;
+		}
+
+		public Builder withValidityTime(int validity)
+		{
+			instance.setValidityTime(validity);
+			return this;
+		}
+		
+		public ConfirmationConfiguration build()
+		{
+			return getInstance();
+		}
 	}
 }

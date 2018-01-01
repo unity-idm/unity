@@ -159,7 +159,8 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			
 		TokenAndFlag taf = tx.runInTransactionRetThrowing(() -> {
 			boolean hasDuplicate = !getDuplicateTokens(facility, serializedState).isEmpty();
-			String token = insertConfirmationToken(serializedState);
+			String token = insertConfirmationToken(serializedState, 
+					configEntry.getValidityTime());
 			return new TokenAndFlag(token, hasDuplicate);
 		});
 		
@@ -191,12 +192,12 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		return true;
 	}
 	
-	private String insertConfirmationToken(String state) throws EngineException
+	private String insertConfirmationToken(String state, int confirmationValidity) throws EngineException
 	{
 		Date createDate = new Date();
 		Calendar cl = Calendar.getInstance();
 		cl.setTime(createDate);
-		cl.add(Calendar.HOUR, 48);
+		cl.add(Calendar.MINUTE, confirmationValidity);
 		Date expires = cl.getTime();
 		String token = UUID.randomUUID().toString();
 		try

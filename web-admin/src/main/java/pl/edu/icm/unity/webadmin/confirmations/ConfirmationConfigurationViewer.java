@@ -25,6 +25,7 @@ public class ConfirmationConfigurationViewer extends VerticalLayout
 	private Label type;
 	private Label template;
 	private Label channel;
+	private Label validityTime;
 	private FormLayout main;
 
 	public ConfirmationConfigurationViewer(UnityMessageSource msg)
@@ -43,7 +44,12 @@ public class ConfirmationConfigurationViewer extends VerticalLayout
 		channel = new Label();
 		channel.setCaption(msg
 				.getMessage("ConfirmationConfigurationViewer.notificationChannel"));
-		main.addComponents(type, template, channel);
+		
+		validityTime = new Label();
+		validityTime.setCaption(msg
+				.getMessage("ConfirmationConfigurationViewer.validityTime"));
+
+		main.addComponents(type, template, channel, validityTime);
 		main.setSizeFull();
 		addComponent(main);
 	}
@@ -52,9 +58,6 @@ public class ConfirmationConfigurationViewer extends VerticalLayout
 	{
 		if (cfg == null)
 		{
-			type.setValue("");
-			template.setValue("");
-			channel.setValue("");
 			main.setVisible(false);
 			return;
 		}
@@ -71,7 +74,7 @@ public class ConfirmationConfigurationViewer extends VerticalLayout
 		type.setValue(cfg.getNameToConfirm());
 		template.setValue(cfg.getMsgTemplate());
 		channel.setValue(cfg.getNotificationChannel());
-
+		validityTime.setValue(String.valueOf(cfg.getValidityTime()));
 	}
 
 }

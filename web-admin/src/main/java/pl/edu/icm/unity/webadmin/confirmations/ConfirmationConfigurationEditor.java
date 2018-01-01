@@ -8,7 +8,10 @@ import java.util.List;
 import java.util.Set;
 
 import com.vaadin.data.Binder;
+import com.vaadin.data.converter.StringToIntegerConverter;
+import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.base.msgtemplates.confirm.ConfirmationTemplateDef;
 import pl.edu.icm.unity.engine.api.ConfirmationConfigurationManagement;
@@ -28,13 +31,13 @@ import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox2;
  */
 public class ConfirmationConfigurationEditor extends CompactFormLayout
 {
-
 	private UnityMessageSource msg;
 	private NotificationsManagement notificationsMan;
 	private MessageTemplateManagement msgMan;
 	private ComboBox<String> type;
 	private CompatibleTemplatesComboBox2 msgTemplate;
 	private ComboBox<String> notificationChannel;
+	private TextField validityTime;
 	private String forType;
 	private Binder<ConfirmationConfiguration> binder;
 
@@ -88,7 +91,9 @@ public class ConfirmationConfigurationEditor extends CompactFormLayout
 		msgTemplate.setEmptySelectionAllowed(false);
 		msgTemplate.setDefaultValue();
 
-		addComponents(type, msgTemplate, notificationChannel);
+		validityTime = new TextField(msg.getMessage("ConfirmationConfigurationViewer.validityTime"));
+		
+		addComponents(type, msgTemplate, notificationChannel, validityTime);
 
 		binder = new Binder<>(ConfirmationConfiguration.class);
 		binder.forField(type).asRequired(msg.getMessage("fieldRequired"))
@@ -97,11 +102,17 @@ public class ConfirmationConfigurationEditor extends CompactFormLayout
 				.bind("notificationChannel");
 		binder.forField(msgTemplate).asRequired(msg.getMessage("fieldRequired"))
 				.bind("msgTemplate");
+		binder.forField(validityTime).asRequired(msg.getMessage("fieldRequired"))
+			.withConverter(new StringToIntegerConverter(msg.getMessage("notAnIntNumber")))
+			.withValidator(new IntegerRangeValidator(
+					msg.getMessage("outOfBoundsNumber", 1, 60*24*365), 1, 60*24*365))
+			.bind("validityTime");
 
 		ConfirmationConfiguration init = editMode ? toEdit
 				: new ConfirmationConfiguration(forType, type.getValue(),
 						notificationChannel.getValue(),
-						msgTemplate.getValue());
+						msgTemplate.getValue(),
+						48*60);
 		binder.setBean(init);
 	}
 

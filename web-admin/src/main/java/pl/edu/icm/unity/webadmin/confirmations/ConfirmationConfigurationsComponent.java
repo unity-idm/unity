@@ -91,7 +91,6 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 				"ConfirmationConfigurationsComponent.configurationTable"),
 				element -> element.getNameToConfirm());
 
-		table.setMultiSelect(true);
 		table.setWidth(90, Unit.PERCENTAGE);
 		viewer = new ConfirmationConfigurationViewer(msg);
 		viewer.setConfigurationInput(null);
@@ -219,7 +218,6 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 		try
 		{
 			table.setInput(getConfigurations());
-			viewer.setConfigurationInput(null);
 			removeAllComponents();
 			addComponent(main);
 		} catch (Exception e)
