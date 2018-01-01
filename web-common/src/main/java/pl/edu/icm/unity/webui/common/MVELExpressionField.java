@@ -10,6 +10,8 @@ import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.Validator;
 import com.vaadin.data.ValueContext;
+import com.vaadin.data.ValueProvider;
+import com.vaadin.server.Setter;
 import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -34,6 +36,15 @@ public class MVELExpressionField extends TextField
 	{
 		binder.forField(this).withValidator(getValidator(msg))
 				.asRequired(msg.getMessage("fieldRequired")).bind(fieldName);
+
+	}
+	
+	public <T> void configureBinding(Binder<String> binder,
+			ValueProvider<String, String> getter, Setter<String, String> setter)
+	{
+
+		binder.forField(this).withValidator(getValidator(msg))
+				.asRequired(msg.getMessage("fieldRequired")).bind(getter, setter);
 
 	}
 

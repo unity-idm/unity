@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import com.vaadin.data.Binder;
-import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.dnd.EffectAllowed;
 import com.vaadin.ui.Alignment;
@@ -32,7 +31,6 @@ import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.engine.translation.TranslationCondition;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
@@ -102,13 +100,16 @@ public class RuleComponent extends CustomComponent
 		header.setComponentAlignment(info, Alignment.MIDDLE_LEFT);
 		header.setExpandRatio(info, 1);
 
-		
-		DragHtmlLabel img = new DragHtmlLabel(this, Images.vaadinResize.getResource());
-		img.addStyleName(Styles.link.toString());
+		Button img = new Button(Images.vaadinResize.getResource());
 		img.setSizeFull();
 		img.setWidth(1, Unit.EM);
-		DragSourceExtension<DragHtmlLabel> dragSource = new DragSourceExtension<>(img);
+		img.setStyleName(Styles.vButtonLink.toString());
+		img.addStyleName(Styles.vButtonBorderless.toString());
+		img.addStyleName(Styles.link.toString());
+		
+		DragSourceExtension<Button> dragSource = new DragSourceExtension<>(img);
 		dragSource.setEffectAllowed(EffectAllowed.MOVE);
+		dragSource.setDragData(this);
 		
 		header.addComponent(img);	
 		header.setComponentAlignment(img, Alignment.MIDDLE_RIGHT);
@@ -168,12 +169,15 @@ public class RuleComponent extends CustomComponent
 	}
 
 	public TranslationRule getRule() throws FormValidationException
-	{
-		TranslationAction action = actionEditor.getAction();
-		TranslationCondition cnd = new TranslationCondition();
-		cnd.setCondition(condition.getValue());			
-		
-		return new TranslationRule(condition.getValue(), action);
+	{	
+		if (!binder.isValid())
+		{
+			binder.validate();
+			throw new FormValidationException();
+		}
+		TranslationRule rule = binder.getBean();
+		rule.setTranslationAction(actionEditor.getAction());
+		return rule;
 	}
 	
 	public void setTopVisible(boolean v)
@@ -314,24 +318,6 @@ public class RuleComponent extends CustomComponent
 				: Images.vaadinDownArrow.getResource());
 		content.setVisible(show);
 	}
-
-	public static class DragHtmlLabel extends Button
-	{
-		private RuleComponent parentRule;
-		
-		public DragHtmlLabel(RuleComponent parent, Resource icon)
-		{
-			super(icon);
-			setStyleName(Styles.vButtonLink.toString());
-			addStyleName(Styles.vButtonBorderless.toString());
-			this.parentRule = parent;
-		}
-		
-		public RuleComponent getParentRule()
-		{
-			return parentRule;
-		}
-	}	
 	
 	public interface Callback
 	{

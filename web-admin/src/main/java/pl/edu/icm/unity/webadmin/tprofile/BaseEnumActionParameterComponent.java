@@ -4,10 +4,14 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import com.vaadin.data.Binder;
 import com.vaadin.server.UserError;
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.ui.ComboBox;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
@@ -16,37 +20,49 @@ import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
  * {@link ComboBox} based editor of all enumerated parameters.
  * @author K. Benedyczak
  */
-public class BaseEnumActionParameterComponent extends ComboBox implements ActionParameterComponent
+public class BaseEnumActionParameterComponent extends ComboBox<String> implements ActionParameterComponent
 {
 	private UnityMessageSource msg;
 	private ActionParameterDefinition desc;
+	private String selectedValue;
+	private List<String> values;
+	private Binder<String> binder;
 	
 	public BaseEnumActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg, 
-			Collection<?> values)
+			Collection<?> vals)
 	{
-		for (Object o: values)
-			addItem(o.toString());
+		values = vals.stream().map(v -> v.toString()).collect(Collectors.toList());
+		setItems(values);
 		String def = values.isEmpty() ? null : values.iterator().next().toString(); 
+		
 		initCommon(desc, msg, def);
 	}
 
 	public BaseEnumActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg, 
-			Object[] values)
+			Object[] vals)
 	{
-		for (Object o: values)
-			addItem(o.toString());
-		String def = values.length == 0 ? null : values[0].toString(); 
+		values = Arrays.stream(vals).map(v -> v.toString()).collect(Collectors.toList());
+		setItems(values);
+		String def = values.isEmpty() ? null : values.iterator().next().toString(); 
 		initCommon(desc, msg, def);
 	}
 	
-	protected final void initCommon(ActionParameterDefinition desc, UnityMessageSource msg, String def)
+	protected final void initCommon(ActionParameterDefinition desc, UnityMessageSource msg,
+			String def)
 	{
 		this.msg = msg;
 		this.desc = desc;
-		setNullSelectionAllowed(false);
-		if (def != null)
-			select(def);
-		setRequired(true);
+		setEmptySelectionAllowed(false);
+		binder = new Binder<>(String.class);
+		binder.forField(this).asRequired(msg.getMessage("fieldRequired"))
+				.bind(v -> this.selectedValue, (c, v) -> {
+					this.selectedValue = v;
+				});
+
+		
+		selectedValue = def == null ? new String() : def;
+		binder.setBean(selectedValue);
+		
 		setDescription(msg.getMessage(desc.getDescriptionKey()));
 		setCaption(desc.getName() + ":");
 	}
@@ -54,7 +70,7 @@ public class BaseEnumActionParameterComponent extends ComboBox implements Action
 	@Override
 	public String getActionValue()
 	{
-		return (String) getValue();
+		return selectedValue;
 	}
 
 	/**
@@ -64,21 +80,28 @@ public class BaseEnumActionParameterComponent extends ComboBox implements Action
 	@Override
 	public void setActionValue(String value)
 	{
-		if (!getItemIds().contains(value) && value != null)
+		if (!values.contains(value) && value != null)
 		{
-			String def = (String) getItemIds().iterator().next();
+			String def = (String) values.iterator().next();
 			setComponentError(new UserError(msg.getMessage("TranslationProfileEditor.outdatedValue", 
 					value, def, desc.getName())));
-			setValidationVisible(true);
 			value = def;
 		}
-		select(value);
+
+		selectedValue = value;
+		binder.setBean(selectedValue);
 	}
 
 	@Override
 	public void addValueChangeCallback(Runnable callback)
 	{
-		addValueChangeListener((e) -> { callback.run(); });
-		
+		addValueChangeListener((e) -> { callback.run(); });	
+	}
+
+	@Override
+	public boolean isValid()
+	{
+		binder.validate();
+		return binder.isValid();
 	}
 }

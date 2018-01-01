@@ -14,8 +14,8 @@ import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
@@ -175,8 +175,6 @@ public class DryRunStepComponent extends CustomComponent
 		// common part: create layout
 		VerticalLayout mainLayout = new VerticalLayout();
 		mainLayout.setSizeUndefined();
-		mainLayout.setMargin(true);
-		mainLayout.setSpacing(true);
 		
 		// progressWrapper
 		progressWrapper = new VerticalLayout();
@@ -195,10 +193,7 @@ public class DryRunStepComponent extends CustomComponent
 	private VerticalLayout buildResultWrapper() {
 		// common part: create layout
 		resultWrapper = new VerticalLayout();
-		resultWrapper.setWidth("100.0%");
 		resultWrapper.setHeightUndefined();
-		resultWrapper.setMargin(false);
-		resultWrapper.setSpacing(true);
 		
 		// authnResultLabel
 		authnResultLabel = new Label();
@@ -225,7 +220,7 @@ public class DryRunStepComponent extends CustomComponent
 		mappingResultWrap.setMargin(false);
 		
 		HorizontalLayout hr = new HorizontalLayout(remoteIdpWrap, mappingResultWrap);
-		hr.setSpacing(true);
+		hr.setMargin(false);
 		
 		resultWrapper.addComponent(hr);
 		

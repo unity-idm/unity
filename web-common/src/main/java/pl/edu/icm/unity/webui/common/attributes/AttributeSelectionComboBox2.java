@@ -22,7 +22,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
  */
 public class AttributeSelectionComboBox2 extends ComboBox<AttributeType>
 {
-	private Map<String, AttributeType> attributeTypesByName;
+	protected Map<String, AttributeType> attributeTypesByName;
 
 	public AttributeSelectionComboBox2(String caption, AttributeTypeManagement aTypeMan) throws EngineException
 	{
