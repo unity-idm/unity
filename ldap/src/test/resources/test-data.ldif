@@ -37,6 +37,7 @@ businessCategory: 3453
 dn: cn=gr1,ou=groups,dc=unity-example,dc=com
 cn: gr1
 gidNumber: 1
+gidNumber;x-foo-option: 99
 memberUid: user1
 memberUid: user2
 memberUid: admin
@@ -59,6 +60,8 @@ objectClass: organizationalPerson
 objectClass: person
 objectClass: top
 sn: User2 Surname
+l: locality
+l;x-foo-option: foo locality
 userPassword:: dXNlcjE=
 secretary: cn=nice,dc=org
 secretary: cn=nicer,dc=org

@@ -274,7 +274,7 @@ public class LdapTest
 	}
 	
 	@Test
-	public void shouldReturnDirectAttributesWithoutFilter() throws Exception
+	public void shouldNotbindAsUserNotMatchingValidUserFilter() throws Exception
 	{
 		Properties p = new Properties();
 		p.setProperty(PREFIX+SERVERS+"1", hostname);
@@ -295,6 +295,20 @@ public class LdapTest
 		{
 			//ok, expected
 		}
+	}
+
+	@Test
+	public void shouldReturnDirectAttributesWithoutFilter() throws Exception
+	{
+		Properties p = new Properties();
+		p.setProperty(PREFIX+SERVERS+"1", hostname);
+		p.setProperty(PREFIX+PORTS+"1", port);
+		p.setProperty(PREFIX+USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
+
+		LdapProperties lp = new LdapProperties(p);
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
+		LdapClient client = new LdapClient("test");
 		
 		RemotelyAuthenticatedInput ret = client.bindAndSearch("user1", "user1", clientConfig);
 
@@ -306,8 +320,29 @@ public class LdapTest
 		assertTrue(containsAttribute(ret.getAttributes(), "objectClass", "inetOrgPerson", 
 				"organizationalPerson", "person", "top"));
 	}
+	
+	@Test
+	public void shouldReturnDirectAttributesWithOptions() throws Exception
+	{
+		Properties p = new Properties();
+		p.setProperty(PREFIX+SERVERS+"1", hostname);
+		p.setProperty(PREFIX+PORTS+"1", port);
+		p.setProperty(PREFIX+USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
+		p.setProperty(PREFIX+ATTRIBUTES+"1", "l");
+		
+		LdapProperties lp = new LdapProperties(p);
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
+		LdapClient client = new LdapClient("test");
+		
+		RemotelyAuthenticatedInput ret = client.bindAndSearch("user2", "user1", clientConfig);
 
-
+		assertEquals(0, ret.getGroups().size());
+		assertEquals(2, ret.getAttributes().size());
+		assertTrue(containsAttribute(ret.getAttributes(), "l", "locality"));
+		assertTrue(containsAttribute(ret.getAttributes(), "l;x-foo-option", "foo locality"));
+	}
+	
 	@Test
 	public void shouldFilterAttributes() throws Exception
 	{
@@ -350,6 +385,26 @@ public class LdapTest
 		assertTrue(containsAttribute(ret.getAttributes(), "gidNumber", "1"));
 	}
 
+	@Test
+	public void shouldReturnAttributeWithOptionsFromAdvancedSearch() throws Exception
+	{
+		Properties p = new Properties();
+		p.setProperty(PREFIX+SERVERS+"1", hostname);
+		p.setProperty(PREFIX+PORTS+"1", port);
+		p.setProperty(PREFIX+USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+VALID_USERS_FILTER, "(!(cn=user2))");
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
+		p.setProperty(PREFIX+ADV_SEARCH_PFX+"1."+ADV_SEARCH_BASE, "ou=groups,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+ADV_SEARCH_PFX+"1."+ADV_SEARCH_FILTER, "(memberUid={USERNAME})");
+		p.setProperty(PREFIX+ADV_SEARCH_PFX+"1."+ADV_SEARCH_ATTRIBUTES, "dummy  gidNumber;x-foo-option");
+
+		LdapProperties lp = new LdapProperties(p);
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
+		LdapClient client = new LdapClient("test");
+		
+		RemotelyAuthenticatedInput ret = client.bindAndSearch("user1", "user1", clientConfig);
+		assertTrue(containsAttribute(ret.getAttributes(), "gidNumber;x-foo-option", "99"));
+	}
 	
 	@Test
 	public void shouldExtractMemberOfGroups() throws Exception

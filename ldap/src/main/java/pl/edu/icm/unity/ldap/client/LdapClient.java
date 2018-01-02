@@ -336,7 +336,7 @@ public class LdapClient
 		RemotelyAuthenticatedInput ret = new RemotelyAuthenticatedInput(idpName);
 		for (Attribute a: entry.getAttributes())
 		{
-			ret.addAttribute(new RemoteAttribute(a.getBaseName(), (Object[])a.getValues()));
+			ret.addAttribute(new RemoteAttribute(a.getName(), (Object[])a.getValues()));
 		}
 		ret.setRawAttributes(ret.getAttributes());
 		ret.addIdentity(new RemoteIdentity(entry.getDN(), X500Identity.ID));
