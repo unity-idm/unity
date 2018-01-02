@@ -26,18 +26,15 @@ import pl.edu.icm.unity.webui.common.MVELExpressionField;
 public class ExpressionActionParameterComponent extends MVELExpressionField
 		implements ActionParameterComponent
 {
-	private Binder<String> binder;
-	private String value;
+	private Binder<StringValueBean> binder;
 
 	public ExpressionActionParameterComponent(ActionParameterDefinition param,
 			UnityMessageSource msg)
 	{
 		super(msg, param.getName() + ":", msg.getMessage(param.getDescriptionKey()));
-		binder = new Binder<>(String.class);
-		configureBinding(binder, v -> value, (c, v) -> {
-			value = v;
-		});
-		binder.setBean(new String());
+		binder = new Binder<>(StringValueBean.class);
+		configureBinding(binder, "value");
+		binder.setBean(new StringValueBean());
 		addBlurListener(event -> markAsDirtyRecursive());
 		addDropHandler();
 	}
@@ -61,14 +58,13 @@ public class ExpressionActionParameterComponent extends MVELExpressionField
 	@Override
 	public String getActionValue()
 	{
-		return value;
+		return binder.getBean().getValue();
 	}
 
 	@Override
 	public void setActionValue(String value)
 	{
-		this.value = value;
-		binder.setBean(this.value);
+		binder.setBean(new StringValueBean(value));
 
 	}
 
@@ -82,7 +78,7 @@ public class ExpressionActionParameterComponent extends MVELExpressionField
 	@Override
 	public void addValueChangeCallback(Runnable callback)
 	{
-		addValueChangeListener((e) -> {
+		binder.addValueChangeListener((e) -> {
 			callback.run();
 		});
 	}

@@ -17,39 +17,35 @@ import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
  */
 public class BooleanActionParameterComponent extends CheckBox implements ActionParameterComponent
 {	
-	private Binder<String> binder;
-	private String value;
+	private Binder<StringValueBean> binder;
 	
 	public BooleanActionParameterComponent(ActionParameterDefinition desc,
 			UnityMessageSource msg)
 	{
 		super(desc.getName());
 		setDescription(msg.getMessage(desc.getDescriptionKey()));
-		binder = new Binder<>(String.class);
-		binder.forField(this).bind(v -> Boolean.valueOf(v), (c, v) -> {
-			value = String.valueOf(v);
-		});
-		value = String.valueOf(false);
-		binder.setBean(value);
+		binder = new Binder<>(StringValueBean.class);
+		binder.forField(this).withConverter(v -> String.valueOf(v), v -> Boolean.valueOf(v))
+				.bind("value");
+		binder.setBean(new StringValueBean());
 	}
 	
 	@Override
 	public String getActionValue()
 	{
-		return this.value;
+		return binder.getBean().getValue();
 	}
 
 	@Override
 	public void setActionValue(String value)
 	{
-		this.value = value;
-		binder.setBean(this.value);	
+		binder.setBean(new StringValueBean(value));	
 	}
 
 	@Override
 	public void addValueChangeCallback(Runnable callback)
 	{
-		addValueChangeListener((e) -> { callback.run(); });		
+		binder.addValueChangeListener((e) -> { callback.run(); });		
 	}
 
 	@Override

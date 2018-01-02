@@ -16,8 +16,7 @@ import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
  */
 public class DefaultActionParameterComponent extends TextField implements ActionParameterComponent
 {
-	protected String value;
-	protected Binder<String> binder;
+	protected Binder<StringValueBean> binder;
 
 	public DefaultActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg)
 	{
@@ -28,41 +27,36 @@ public class DefaultActionParameterComponent extends TextField implements Action
 	{
 		setCaption(desc.getName() + ":");
 		setDescription(msg.getMessage(desc.getDescriptionKey()));
+		binder = new Binder<>(StringValueBean.class);
 		configureBinding(msg, required);
 	}
 	
 	protected void configureBinding(UnityMessageSource msg, boolean required)
-	{
-		binder = new Binder<>(String.class);
+	{	
 		if (required)
 			binder.forField(this).asRequired(msg.getMessage("fieldRequired"))
-			.bind(v -> this.value, (c, v) -> {
-				this.value = v;
-			});
+			.bind("value");
 		else 
-			binder.forField(this).bind(v -> this.value, (c, v) -> {
-				this.value = v;
-			});
-		binder.setBean(new String());	
+			binder.forField(this).bind("value");
+		binder.setBean(new StringValueBean());	
 	}
 		
 	@Override
 	public String getActionValue()
 	{
-		return this.value;
+		return binder.getBean().getValue();
 	}
 
 	@Override
 	public void setActionValue(String value)
 	{
-		this.value = value;
-		binder.setBean(this.value);
+		binder.setBean(new StringValueBean(value));
 	}
 
 	@Override
 	public void addValueChangeCallback(Runnable callback)
 	{
-		addValueChangeListener((e) -> { callback.run(); });		
+		binder.addValueChangeListener((e) -> { callback.run(); });		
 	}
 
 	@Override

@@ -16,38 +16,34 @@ import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
  */
 public class TextAreaActionParameterComponent extends TextArea implements ActionParameterComponent
 {
-	private String value;
-	private Binder<String> binder;
+	private Binder<StringValueBean> binder;
 	
 	public TextAreaActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg)
 	{
 		super(desc.getName() + ":");
 		setDescription(msg.getMessage(desc.getDescriptionKey()));
-//		setColumns(Styles.WIDE_TEXT_FIELD);
-		binder = new Binder<>(String.class);
-		binder.forField(this).bind(v -> this.value, (c, v) -> {
-				this.value = v;
-			});
-		binder.setBean(this.value);	
+		setWidth(70, Unit.PERCENTAGE);
+		binder = new Binder<>(StringValueBean.class);
+		binder.forField(this).bind("value");
+		binder.setBean(new StringValueBean());		
 	}
 	
 	@Override
 	public String getActionValue()
 	{
-		return this.value;
+		return binder.getBean().getValue();
 	}
 
 	@Override
 	public void setActionValue(String value)
 	{
-		this.value = value;
-		binder.setBean(this.value);
+		binder.setBean(new StringValueBean(value));
 	}
 
 	@Override
 	public void addValueChangeCallback(Runnable callback)
 	{
-		addValueChangeListener((e) -> { callback.run(); });		
+		binder.addValueChangeListener((e) -> { callback.run(); });		
 	}
 
 	@Override

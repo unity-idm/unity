@@ -24,9 +24,8 @@ public class BaseEnumActionParameterComponent extends ComboBox<String> implement
 {
 	private UnityMessageSource msg;
 	private ActionParameterDefinition desc;
-	private String selectedValue;
 	private List<String> values;
-	private Binder<String> binder;
+	private Binder<StringValueBean> binder;
 	
 	public BaseEnumActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg, 
 			Collection<?> vals)
@@ -53,15 +52,10 @@ public class BaseEnumActionParameterComponent extends ComboBox<String> implement
 		this.msg = msg;
 		this.desc = desc;
 		setEmptySelectionAllowed(false);
-		binder = new Binder<>(String.class);
+		binder = new Binder<>(StringValueBean.class);
 		binder.forField(this).asRequired(msg.getMessage("fieldRequired"))
-				.bind(v -> this.selectedValue, (c, v) -> {
-					this.selectedValue = v;
-				});
-
-		
-		selectedValue = def == null ? new String() : def;
-		binder.setBean(selectedValue);
+				.bind("value");
+		binder.setBean(new StringValueBean(def));
 		
 		setDescription(msg.getMessage(desc.getDescriptionKey()));
 		setCaption(desc.getName() + ":");
@@ -70,7 +64,7 @@ public class BaseEnumActionParameterComponent extends ComboBox<String> implement
 	@Override
 	public String getActionValue()
 	{
-		return selectedValue;
+		return binder.getBean().getValue();
 	}
 
 	/**
@@ -87,15 +81,13 @@ public class BaseEnumActionParameterComponent extends ComboBox<String> implement
 					value, def, desc.getName())));
 			value = def;
 		}
-
-		selectedValue = value;
-		binder.setBean(selectedValue);
+		binder.setBean(new StringValueBean(value));
 	}
 
 	@Override
 	public void addValueChangeCallback(Runnable callback)
 	{
-		addValueChangeListener((e) -> { callback.run(); });	
+		binder.addValueChangeListener((e) -> { callback.run(); });	
 	}
 
 	@Override

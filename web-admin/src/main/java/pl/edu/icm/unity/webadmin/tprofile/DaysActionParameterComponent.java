@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import com.vaadin.data.Binder;
 import com.vaadin.data.converter.StringToIntegerConverter;
 import com.vaadin.data.validator.IntegerRangeValidator;
 
@@ -25,17 +24,15 @@ public class DaysActionParameterComponent extends DefaultActionParameterComponen
 	@Override
 	protected void configureBinding(UnityMessageSource msg, boolean required)
 	{
-		binder = new Binder<>(String.class);
 		binder.forField(this).asRequired(msg.getMessage("fieldRequired"))
 				.withConverter(new StringToIntegerConverter(msg.getMessage(
 						"DaysActionParameterComponent.notANumber")))
 				.withValidator(new IntegerRangeValidator(msg.getMessage(
 						"DaysActionParameterComponent.notANumber"), 1,
 						365 * 20))
-				.bind(v -> Integer.valueOf(v), (c, v) -> {
-					value = String.valueOf(v);
-				});
-		this.value = "0";
-		binder.setBean(value);
+				.withConverter(v -> String.valueOf(v), v -> Integer.valueOf(v))
+				.bind("value");
+
+		binder.setBean(new StringValueBean("1"));
 	}
 }

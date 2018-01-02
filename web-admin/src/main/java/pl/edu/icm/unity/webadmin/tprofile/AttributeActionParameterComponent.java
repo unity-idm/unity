@@ -22,8 +22,7 @@ public class AttributeActionParameterComponent extends AttributeSelectionComboBo
 {
 	private UnityMessageSource msg;
 	private ActionParameterDefinition desc;
-	private String value;
-	private Binder<String> binder;
+	private Binder<StringValueBean> binder;
 
 	public AttributeActionParameterComponent(ActionParameterDefinition desc,
 			UnityMessageSource msg, Collection<AttributeType> attributeTypes)
@@ -32,21 +31,17 @@ public class AttributeActionParameterComponent extends AttributeSelectionComboBo
 		this.msg = msg;
 		this.desc = desc;
 		setDescription(msg.getMessage(desc.getDescriptionKey()));
-		binder = new Binder<>(String.class);
+		binder = new Binder<>(StringValueBean.class);
 		binder.forField(this).asRequired(msg.getMessage("fieldRequired"))
 				.withConverter(v -> v.getName(), v -> attributeTypesByName.get(v))
-				.bind(v -> value, (c, v) -> {
-					value = v;
-				});
-
-		value = getValue().getName();
-		binder.setBean(value);
+				.bind("value");
+		binder.setBean(new StringValueBean(getValue().getName()));
 	}
 
 	@Override
 	public String getActionValue()
 	{
-		return value;
+		return binder.getBean().getValue();
 	}
 
 	/**
@@ -66,15 +61,13 @@ public class AttributeActionParameterComponent extends AttributeSelectionComboBo
 							value, def, desc.getName())));
 			value = def;
 		}
-
-		this.value = value;
-		binder.setBean(this.value);
+		binder.setBean(new StringValueBean(value));
 	}
 
 	@Override
 	public void addValueChangeCallback(Runnable callback)
 	{
-		addSelectionListener((e) -> {
+		binder.addValueChangeListener((e) -> {
 			callback.run();
 		});
 

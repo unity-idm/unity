@@ -15,32 +15,28 @@ import pl.edu.icm.unity.webui.common.i18n.I18nTextField2;
 
 public class I18nTextActionParameterComponent extends I18nTextField2 implements ActionParameterComponent
 {
-	private Binder<String> binder;
-	private String value;
+	private Binder<StringValueBean> binder;
 	
 	public I18nTextActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg)
 	{
 		super(msg, desc.getName() + ":");
 		setDescription(msg.getMessage(desc.getDescriptionKey()));	
-		binder = new Binder<>(String.class);
+		binder = new Binder<>(StringValueBean.class);
 		binder.forField(this).withConverter(v -> getString(v), v -> getI18nValue(v))
-				.bind(v -> value, (c, v) -> {
-					value = v;
-				});
-		binder.setBean(new String());
+				.bind("value");
+		binder.setBean(new StringValueBean());
 	}
 	
 	@Override
 	public String getActionValue()
 	{
-		return value;
+		return binder.getBean().getValue();
 	}
 
 	@Override
 	public void setActionValue(String value)
 	{
-		this.value = value;
-		binder.setBean(this.value);
+		binder.setBean(new StringValueBean(value));
 	}
 
 	private I18nString getI18nValue(String value)
@@ -70,7 +66,7 @@ public class I18nTextActionParameterComponent extends I18nTextField2 implements 
 	@Override
 	public void addValueChangeCallback(Runnable callback)
 	{
-		addValueChangeListener((e) -> { callback.run(); });	
+		binder.addValueChangeListener((e) -> { callback.run(); });	
 	}
 
 	@Override
