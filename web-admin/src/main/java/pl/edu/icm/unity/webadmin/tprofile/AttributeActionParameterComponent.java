@@ -7,7 +7,6 @@ package pl.edu.icm.unity.webadmin.tprofile;
 import java.util.Collection;
 
 import com.vaadin.data.Binder;
-import com.vaadin.server.UserError;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -20,20 +19,22 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox2;
  */
 public class AttributeActionParameterComponent extends AttributeSelectionComboBox2 implements ActionParameterComponent
 {
-	private UnityMessageSource msg;
-	private ActionParameterDefinition desc;
 	private Binder<StringValueBean> binder;
 
 	public AttributeActionParameterComponent(ActionParameterDefinition desc,
 			UnityMessageSource msg, Collection<AttributeType> attributeTypes)
 	{
 		super(desc.getName() + ":", attributeTypes);
-		this.msg = msg;
-		this.desc = desc;
 		setDescription(msg.getMessage(desc.getDescriptionKey()));
 		binder = new Binder<>(StringValueBean.class);
 		binder.forField(this).asRequired(msg.getMessage("fieldRequired"))
-				.withConverter(v -> v.getName(), v -> attributeTypesByName.get(v))
+				.withConverter(v -> v.getName(),
+						v -> attributeTypesByName.get(v) != null
+								? attributeTypesByName.get(v)
+								: new AttributeType(v, null))
+				.withValidator(v -> attributeTypesByName.keySet().contains(v), msg
+						.getMessage("TranslationProfileEditor.outdatedValue",
+								desc.getName()))
 				.bind("value");
 		binder.setBean(new StringValueBean(getValue().getName()));
 	}
@@ -53,15 +54,8 @@ public class AttributeActionParameterComponent extends AttributeSelectionComboBo
 	@Override
 	public void setActionValue(String value)
 	{
-		if (!attributeTypesByName.keySet().contains(value) && value != null)
-		{
-			String def = attributeTypesByName.keySet().iterator().next();
-			setComponentError(new UserError(
-					msg.getMessage("TranslationProfileEditor.outdatedValue",
-							value, def, desc.getName())));
-			value = def;
-		}
 		binder.setBean(new StringValueBean(value));
+		binder.validate();
 	}
 
 	@Override

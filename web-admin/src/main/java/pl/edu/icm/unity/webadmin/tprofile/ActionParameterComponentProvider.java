@@ -39,9 +39,9 @@ public class ActionParameterComponentProvider
 	private List<String> groups;
 	private Collection<String> credReqs;
 	private Collection<String> idTypes;
-	private Collection<AttributeType> atTypes;
-	private Collection<String> inputProfiles;
-	private Collection<String> outputProfiles;
+	private List<AttributeType> atTypes;
+	private List<String> inputProfiles;
+	private List<String> outputProfiles;
 
 	private AttributeTypeManagement attrsMan;
 	private IdentityTypeSupport idTypeSupport;
@@ -65,7 +65,8 @@ public class ActionParameterComponentProvider
 
 	public void init() throws EngineException
 	{
-		this.atTypes = attrsMan.getAttributeTypes();
+		this.atTypes = new ArrayList<>(attrsMan.getAttributeTypes());
+		Collections.sort(atTypes, (a1,a2) -> a1.getName().compareTo(a2.getName()));
 		this.groups = new ArrayList<>(groupsMan.getChildGroups("/"));
 		Collections.sort(groups);
 		Collection<CredentialRequirements> crs = credReqMan.getCredentialRequirements();
@@ -80,10 +81,10 @@ public class ActionParameterComponentProvider
 			if (!typeDef.isDynamic())
 				idTypes.add(it.getIdentityTypeProvider());
 		}
-		inputProfiles = profileMan.listInputProfiles().keySet();
-		outputProfiles = profileMan.listOutputProfiles().keySet();
-		
-		
+		inputProfiles = new ArrayList<>(profileMan.listInputProfiles().keySet());
+		Collections.sort(inputProfiles);
+		outputProfiles = new ArrayList<>(profileMan.listOutputProfiles().keySet());
+		Collections.sort(outputProfiles);	
 	}
 
 	public ActionParameterComponent getParameterComponent(ActionParameterDefinition param)

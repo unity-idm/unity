@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.vaadin.data.Binder;
-import com.vaadin.server.UserError;
 import com.vaadin.ui.ComboBox;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -54,6 +53,9 @@ public class BaseEnumActionParameterComponent extends ComboBox<String> implement
 		setEmptySelectionAllowed(false);
 		binder = new Binder<>(StringValueBean.class);
 		binder.forField(this).asRequired(msg.getMessage("fieldRequired"))
+				.withValidator(v -> values.contains(v), msg.getMessage(
+						"TranslationProfileEditor.outdatedValue",
+						desc.getName()))
 				.bind("value");
 		binder.setBean(new StringValueBean(def));
 		
@@ -74,14 +76,8 @@ public class BaseEnumActionParameterComponent extends ComboBox<String> implement
 	@Override
 	public void setActionValue(String value)
 	{
-		if (!values.contains(value) && value != null)
-		{
-			String def = (String) values.iterator().next();
-			setComponentError(new UserError(msg.getMessage("TranslationProfileEditor.outdatedValue", 
-					value, def, desc.getName())));
-			value = def;
-		}
 		binder.setBean(new StringValueBean(value));
+		binder.validate();
 	}
 
 	@Override
