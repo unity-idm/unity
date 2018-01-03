@@ -231,7 +231,6 @@ public class TranslationProfilesComponent extends VerticalLayout
 			viewer.setInput(null, getCurrentActionsRegistry());
 			removeAllComponents();
 			addComponent(main);
-			actionComponentFactory.init();
 		} catch (Exception e)
 		{
 			ErrorComponent error = new ErrorComponent();
@@ -299,6 +298,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 	private TranslationProfileEditor getProfileEditor(TranslationProfile toEdit)
 			throws EngineException
 	{
+		actionComponentFactory.init();
 		TranslationProfileEditor editor = new TranslationProfileEditor(msg,
 				getCurrentActionsRegistry(), profileType.getValue(),
 				actionComponentFactory);

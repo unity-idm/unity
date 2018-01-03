@@ -153,7 +153,6 @@ public class BulkProcessingComponent extends CustomComponent
 	{
 		try
 		{
-			parameterFactory.init();
 			List<ScheduledProcessingRule> scheduledRules = bulkManagement
 					.getScheduledRules();
 			table.setInput(scheduledRules);
@@ -298,7 +297,7 @@ public class BulkProcessingComponent extends CustomComponent
 	{
 		ActionEditor actionEditor;
 		try
-		{
+		{	
 			actionEditor = getActionEditor();
 		} catch (EngineException e)
 		{
@@ -319,6 +318,7 @@ public class BulkProcessingComponent extends CustomComponent
 
 	private ActionEditor getActionEditor() throws EngineException
 	{
+		parameterFactory.init();
 		return new ActionEditor(msg, registry, null, parameterFactory);
 	}
 }
