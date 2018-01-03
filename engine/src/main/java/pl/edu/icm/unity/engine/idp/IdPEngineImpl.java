@@ -38,7 +38,9 @@ public class IdPEngineImpl extends IdPEngineImplBase
 			AttributeValueConverter attrValueConverter,
 			UnityMessageSource msg)
 	{
-		super(attributesMan, identitiesMan, outputProfileRepo, translationEngine, 
-				userImportService, actionsRegistry, attrValueConverter, msg);
+		super(attributesMan, identitiesMan, userImportService, 
+				new OutputProfileExecutor(outputProfileRepo, 
+						translationEngine, actionsRegistry, 
+						attrValueConverter, msg));
 	}
 }

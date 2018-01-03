@@ -246,6 +246,9 @@ If the attribute has no value then empty string is returned.
 If remote authentication was used the list contains a single identity that was used 
 to map the remote user to the local entity (as chosen by the input translation profile). 
 The list can have two elements when MFA was used.
+. +importStatus+ Map indexed with importer names which are enabled for the endpoint on which output profile 
+is executed. Status of each importer is value of map entries. The following values are possible: +notApplicable+ and
++success+.
 . +idp+ Identifier of a remote IdP that was used to authenticate the current user's session. 
 In case when only a local authentication was used, the value is set to +_LOCAL+.  
  

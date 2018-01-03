@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -66,7 +67,7 @@ public class OutputTranslationProfile
 		return translate(input, null);
 	}
 
-	public TranslationResult translate(TranslationInput input, TranslationResult partialState) throws EngineException
+	private TranslationResult translate(TranslationInput input, TranslationResult partialState) throws EngineException
 	{
 		NDC.push("[TrProfile " + profile.getName() + "]");
 		if (log.isDebugEnabled())
@@ -123,7 +124,7 @@ public class OutputTranslationProfile
 		return ret;
 	}
 
-	public static Map<String, Object> createMvelContext(TranslationInput input, 
+	static Map<String, Object> createMvelContext(TranslationInput input, 
 			AttributeValueConverter attrConverter) throws IllegalAttributeValueException
 	{
 		Map<String, Object> ret = new HashMap<>();
@@ -163,7 +164,8 @@ public class OutputTranslationProfile
 		}
 		ret.put("idsByType", idsByType);
 
-		ret.put("importStatus", input.getImportStatus());
+		ret.put("importStatus", input.getImportStatus().entrySet().stream()
+		                  .collect(Collectors.toMap(Entry::getKey, e -> String.valueOf(e.getValue()))));
 		
 		ret.put("groups", new ArrayList<>(input.getGroups()));
 

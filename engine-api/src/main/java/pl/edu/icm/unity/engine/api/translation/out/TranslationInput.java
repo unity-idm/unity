@@ -112,8 +112,6 @@ public class TranslationInput
 		{
 			sb.append("Groups: " + groups + "\n");
 		}
-		sb.append("Requester: " + requester + "\n");
-		sb.append("Protocol: " + protocol + ":" + protocolSubType);
 		if (!importStatus.isEmpty())
 		{
 			sb.append("User import status:\n");
@@ -121,6 +119,9 @@ public class TranslationInput
 				sb.append(" - ").append(entry.getKey()).append(": ")
 					.append(entry.getValue()).append("\n");
 		}
+		sb.append("Requester: " + requester + "\n");
+		sb.append("Protocol: " + protocol + ":" + protocolSubType);
+
 		return sb.toString();
 	}
 }
