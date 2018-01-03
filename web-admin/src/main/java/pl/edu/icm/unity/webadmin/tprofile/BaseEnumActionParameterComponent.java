@@ -21,8 +21,6 @@ import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
  */
 public class BaseEnumActionParameterComponent extends ComboBox<String> implements ActionParameterComponent
 {
-	private UnityMessageSource msg;
-	private ActionParameterDefinition desc;
 	private List<String> values;
 	private Binder<StringValueBean> binder;
 	
@@ -48,8 +46,6 @@ public class BaseEnumActionParameterComponent extends ComboBox<String> implement
 	protected final void initCommon(ActionParameterDefinition desc, UnityMessageSource msg,
 			String def)
 	{
-		this.msg = msg;
-		this.desc = desc;
 		setEmptySelectionAllowed(false);
 		binder = new Binder<>(StringValueBean.class);
 		binder.forField(this).asRequired(msg.getMessage("fieldRequired"))
