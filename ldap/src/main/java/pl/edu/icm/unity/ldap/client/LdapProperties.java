@@ -126,7 +126,8 @@ public class LdapProperties extends PropertiesHelper
 				+ " by the user are only compared if are genuine, but all searches "
 				+ "(and LDAP authorization) is run as the designated system user. In this mode, "
 				+ "the system user's DN, password and user's password attribute must be configured. "
-				+ "The +user+ option will only work with authenticator and not with importer."));
+				+ "The +user+ option will only work with authenticator and not with importer. "
+				+ "Conversly the +none+ option is suitable for use only in case of LDAP import and not in authenticator."));
 		
 		META.put(USER_DN_TEMPLATE, new PropertyMD().setCategory(main).setDescription("Template of a DN of " +
 				"the user that should be used to log in. The tempalte must possess a single occurence " +
@@ -164,8 +165,8 @@ public class LdapProperties extends PropertiesHelper
 				"might have stricter limit."));
 
 		META.put(SYSTEM_DN, new PropertyMD().setCategory(main).setDescription("Relevant and mandatory only if " +
-				BIND_AS + " is set to " + BindAs.system + ". The value must be the DN of the system "
-				+ "user to authenticate as before performing any queries."));
+				BIND_AS + " is set to " + BindAs.system + " or when using custom user search. "
+				+ "The value must be the DN of the system user to authenticate as before performing any queries."));
 		META.put(SYSTEM_PASSWORD, new PropertyMD().setCategory(main).setDescription("Relevant and mandatory only if " +
 				BIND_AS + " is set to " + BindAs.system + ". The value must be the password of the system "
 				+ "user to authenticate as before performing any queries."));

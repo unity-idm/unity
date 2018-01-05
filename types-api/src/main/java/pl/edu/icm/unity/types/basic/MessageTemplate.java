@@ -38,6 +38,10 @@ public class MessageTemplate extends DescribedObjectImpl
 	private String consumer;
 	private MessageType type;
 
+	public MessageTemplate()
+	{
+	}
+	
 	public MessageTemplate(String name, String description,
 			I18nMessage message, String consumer, MessageType type)
 	{
@@ -129,7 +133,7 @@ public class MessageTemplate extends DescribedObjectImpl
 		return root;
 	}
 
-	private void setConsumer(String consumer)
+	public void setConsumer(String consumer)
 	{
 		this.consumer = consumer;
 	}
@@ -296,6 +300,13 @@ public class MessageTemplate extends DescribedObjectImpl
 				return false;
 			return true;
 		}
+	}
+	
+	
+	public MessageTemplate clone()
+	{
+		ObjectNode json = toJson();
+		return new MessageTemplate(json);
 	}
 
 	@Override

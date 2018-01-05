@@ -2,7 +2,7 @@
  * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.samlidp.ecp;
+package pl.edu.icm.unity.saml.idp.ecp;
 
 import static org.junit.Assert.assertEquals;
 
@@ -56,11 +56,11 @@ import pl.edu.icm.unity.engine.translation.in.action.MapIdentityActionFactory;
 import pl.edu.icm.unity.rest.jwt.JWTUtils;
 import pl.edu.icm.unity.saml.ecp.ECPConstants;
 import pl.edu.icm.unity.saml.ecp.ECPEndpointFactory;
+import pl.edu.icm.unity.saml.idp.AbstractTestIdpBase;
 import pl.edu.icm.unity.saml.xmlbeans.ecp.RelayStateDocument;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Envelope;
 import pl.edu.icm.unity.saml.xmlbeans.soap.EnvelopeDocument;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Header;
-import pl.edu.icm.unity.samlidp.AbstractTestIdpBase;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;

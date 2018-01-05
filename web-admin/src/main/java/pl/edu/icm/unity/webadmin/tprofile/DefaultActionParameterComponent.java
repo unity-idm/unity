@@ -4,47 +4,65 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import com.vaadin.v7.ui.TextField;
+import com.vaadin.data.Binder;
+import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
-import pl.edu.icm.unity.webui.common.RequiredTextField;
-import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Trivial, {@link TextField} based implementation of {@link ActionParameterComponent}. 
  * @author K. Benedyczak
  */
-public class DefaultActionParameterComponent extends RequiredTextField implements ActionParameterComponent
+public class DefaultActionParameterComponent extends TextField implements ActionParameterComponent
 {
+	protected Binder<StringValueBean> binder;
+
 	public DefaultActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg)
 	{
-		super(desc.getName() + ":", msg);
-		setDescription(msg.getMessage(desc.getDescriptionKey()));
-		setColumns(Styles.WIDE_TEXT_FIELD);
+		this(desc, msg, false);
 	}
 	
 	public DefaultActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg, boolean required)
 	{
-		this(desc, msg);
-		setRequired(required);
+		setCaption(desc.getName() + ":");
+		setDescription(msg.getMessage(desc.getDescriptionKey()));
+		binder = new Binder<>(StringValueBean.class);
+		configureBinding(msg, required);
 	}
 	
+	protected void configureBinding(UnityMessageSource msg, boolean required)
+	{	
+		if (required)
+			binder.forField(this).asRequired(msg.getMessage("fieldRequired"))
+			.bind("value");
+		else 
+			binder.forField(this).bind("value");
+		binder.setBean(new StringValueBean());	
+	}
+		
 	@Override
 	public String getActionValue()
 	{
-		return getValue();
+		return binder.getBean().getValue();
 	}
 
 	@Override
 	public void setActionValue(String value)
 	{
-		setValue(value);
+		binder.setBean(new StringValueBean(value));
 	}
 
 	@Override
 	public void addValueChangeCallback(Runnable callback)
 	{
-		addValueChangeListener((e) -> { callback.run(); });		
+		binder.addValueChangeListener((e) -> { callback.run(); });		
+	}
+
+	@Override
+	public boolean isValid()
+	{
+		binder.validate();
+		return binder.isValid();
 	}
 }

@@ -6,12 +6,15 @@ package pl.edu.icm.unity.engine.userimport;
 
 import java.util.Optional;
 
+import org.apache.logging.log4j.Logger;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.config.Searchable;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
@@ -26,6 +29,8 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
  */
 public class SingleUserImportHandler
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER,
+			SingleUserImportHandler.class);
 	private static final String CACHE_PFX = "userImportCache_";
 	private UserImportSPI facility;
 	private Ehcache negativeCache;
@@ -72,9 +77,15 @@ public class SingleUserImportHandler
 		Element negCache = negativeCache.get(key);
 		Element posCache = positiveCache.get(key);
 		if (posCache != null && !posCache.isExpired())
-			return null;
+		{
+			log.debug("Returning cached positive import result for {}", identity);
+			return (AuthenticationResult) posCache.getObjectValue();
+		}
 		if (negCache != null && !negCache.isExpired())
+		{
+			log.debug("Returning cached negative import result for {}", identity);
 			return null;
+		}
 		
 		return doImport(key, identity, type, existingUser);
 	}
@@ -92,11 +103,15 @@ public class SingleUserImportHandler
 		RemotelyAuthenticatedInput importedUser = facility.importUser(identity, type);
 		if (importedUser == null)
 		{
+			log.debug("Caching negative import result for {}", identity);
 			negativeCache.put(new Element(cacheKey, true));
 			return null;
 		}
-		positiveCache.put(new Element(cacheKey, true));
-		return remoteUtil.getResult(importedUser, translationProfile, false, existingUser);
+		log.debug("Caching positive import result for {}", identity);
+		AuthenticationResult result = remoteUtil.getResult(importedUser, 
+				translationProfile, false, existingUser);
+		positiveCache.put(new Element(cacheKey, result));
+		return result;
 	}
 }
 

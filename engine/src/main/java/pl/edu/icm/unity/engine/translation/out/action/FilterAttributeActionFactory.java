@@ -34,7 +34,7 @@ public class FilterAttributeActionFactory extends AbstractOutputTranslationActio
 		super(NAME, new ActionParameterDefinition(
 				"attribute",
 				"TranslationAction.filterAttribute.paramDesc.attributeRegexp",
-				Type.EXPRESSION));
+				Type.TEXT));
 	}
 	
 	@Override

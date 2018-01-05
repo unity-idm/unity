@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +20,8 @@ import pl.edu.icm.unity.types.basic.MessageTemplate;
  */
 public class CompatibleTemplatesComboBox2 extends ComboBox<String>
 {
+	private Collection<String> values; 
+	 
 	public CompatibleTemplatesComboBox2(String definitionName, MessageTemplateManagement msgTplMan) 
 	{
 		Map<String, MessageTemplate> templates;
@@ -29,6 +32,13 @@ public class CompatibleTemplatesComboBox2 extends ComboBox<String>
 		{
 			templates = new HashMap<>();
 		}
-		setItems(templates.keySet());
+		values = templates.keySet();
+		setItems(values);
+	}
+	
+	public void setDefaultValue()
+	{
+		if (values != null && !values.isEmpty())
+			setValue(values.iterator().next());
 	}
 }

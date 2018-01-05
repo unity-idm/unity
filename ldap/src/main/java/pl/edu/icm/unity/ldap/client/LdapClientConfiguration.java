@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.ldap.client;
 
+import static pl.edu.icm.unity.ldap.client.LdapProperties.BIND_AS;
 import static pl.edu.icm.unity.ldap.client.LdapProperties.PORTS;
 import static pl.edu.icm.unity.ldap.client.LdapProperties.SERVERS;
 import static pl.edu.icm.unity.ldap.client.LdapProperties.SYSTEM_DN;
@@ -88,10 +89,11 @@ public class LdapClientConfiguration
 		String searchUserQueryKey = null;
 		if (ldapProperties.isSet(USER_DN_SEARCH_KEY))
 		{
-			if (!ldapProperties.isSet(SYSTEM_DN) || !ldapProperties.isSet(SYSTEM_PASSWORD))
+			if ((!ldapProperties.isSet(SYSTEM_DN) || !ldapProperties.isSet(SYSTEM_PASSWORD)) &&
+					ldapProperties.getEnumValue(BIND_AS, BindAs.class) != BindAs.none)
 				throw new ConfigurationException("To search for users with " + 
 						ldapProperties.getKeyDescription(USER_DN_SEARCH_KEY) + 
-						" system credentials must be defined");
+						" system credentials must be defined or bindAs must be set to 'none'.");
 			searchUserQueryKey = LdapProperties.ADV_SEARCH_PFX + 
 					ldapProperties.getValue(USER_DN_SEARCH_KEY) + ".";
 			Set<String> skeys = ldapProperties.getStructuredListKeys(LdapProperties.ADV_SEARCH_PFX);

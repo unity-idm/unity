@@ -28,7 +28,6 @@ import pl.edu.icm.unity.engine.api.confirmation.states.UserConfirmationState;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
-import pl.edu.icm.unity.engine.builders.ConfirmationConfigurationBuilder;
 import pl.edu.icm.unity.engine.builders.NotificationChannelBuilder;
 import pl.edu.icm.unity.engine.confirmation.ConfirmationManagerImpl;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
@@ -54,6 +53,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.types.basic.MessageType;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
+import pl.edu.icm.unity.types.confirmation.ConfirmationConfiguration;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
@@ -284,8 +284,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 				InitializerCommon.EMAIL_ATTR, "demoTemplate", "demoChannel");
 		try
 		{
-			configurationMan.addConfiguration(ConfirmationConfigurationBuilder
-					.confirmationConfiguration()
+			configurationMan.addConfiguration(ConfirmationConfiguration.builder()
 					.withNameToConfirm(InitializerCommon.EMAIL_ATTR)
 					.withTypeToConfirm(ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE)
 					.withMsgTemplate("demoTemplate")
@@ -788,8 +787,7 @@ public class TestConfirmations extends DBIntegrationTestBase
 				.withFacilityId("test")
 				.build());
 		
-		configurationMan.addConfiguration(ConfirmationConfigurationBuilder
-				.confirmationConfiguration()
+		configurationMan.addConfiguration(ConfirmationConfiguration.builder()
 				.withNameToConfirm(name)
 				.withTypeToConfirm(type)
 				.withMsgTemplate(templateName)

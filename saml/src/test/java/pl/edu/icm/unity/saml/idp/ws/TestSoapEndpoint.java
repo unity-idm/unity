@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.samlidp.ws;
+package pl.edu.icm.unity.saml.idp.ws;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -29,10 +29,10 @@ import eu.unicore.security.wsutil.samlclient.SAMLAttributeQueryClient;
 import eu.unicore.security.wsutil.samlclient.SAMLAuthnClient;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.saml.idp.AbstractTestIdpBase;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.ws.SamlSoapEndpoint;
-import pl.edu.icm.unity.samlidp.AbstractTestIdpBase;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.basic.Attribute;

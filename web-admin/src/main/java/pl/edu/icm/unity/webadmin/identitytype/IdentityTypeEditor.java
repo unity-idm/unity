@@ -4,15 +4,15 @@
  */
 package pl.edu.icm.unity.webadmin.identitytype;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.v7.data.util.converter.StringToIntegerConverter;
-import com.vaadin.v7.data.validator.IntegerRangeValidator;
-import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.data.Binder;
+import com.vaadin.data.converter.StringToIntegerConverter;
+import com.vaadin.data.validator.IntegerRangeValidator;
+import com.vaadin.ui.AbstractTextField;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextArea;
-import com.vaadin.v7.ui.TextField;
+import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
@@ -20,7 +20,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.FormValidator;
-import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
+import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor2;
 
 /**
  * Allows to edit an identity type. It is only possible to edit description and self modifiable flag. 
@@ -32,23 +32,26 @@ public class IdentityTypeEditor extends FormLayout
 	private UnityMessageSource msg;
 	
 	private IdentityType original;
-	private Label name;
+	private AbstractTextField name;
 	private TextArea description;
 	private CheckBox selfModifiable;
 	private TextField min;
 	private TextField minVerified;
-	private IntegerBoundEditor max;
+	private IntegerBoundEditor2 max;
 	private FormValidator validator;
+	
+	private Binder<IdentityType> binder;
 
 	private IdentityTypeSupport idTypeSupport;
-	
-	public IdentityTypeEditor(UnityMessageSource msg, IdentityTypeSupport idTypeSupport, IdentityType toEdit)
+
+	public IdentityTypeEditor(UnityMessageSource msg, IdentityTypeSupport idTypeSupport,
+			IdentityType toEdit)
 	{
 		super();
 		this.msg = msg;
 		this.idTypeSupport = idTypeSupport;
 		original = toEdit;
-		
+
 		initUI(toEdit);
 	}
 
@@ -56,79 +59,83 @@ public class IdentityTypeEditor extends FormLayout
 	{
 		setWidth(100, Unit.PERCENTAGE);
 
-		name = new Label(toEdit.getIdentityTypeProvider());
-		name.setCaption(msg.getMessage("IdentityType.name"));
+		name = new TextField(msg.getMessage("IdentityType.name"));
+		name.setReadOnly(true);
+
 		addComponent(name);
-		
+
 		description = new TextArea(msg.getMessage("IdentityType.description"));
 		description.setWidth(100, Unit.PERCENTAGE);
 		addComponent(description);
-		
+
 		selfModifiable = new CheckBox(msg.getMessage("IdentityType.selfModificable"));
-		selfModifiable.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				boolean state = selfModifiable.getValue();
-				min.setEnabled(state);
-				max.setEnabled(state);
-				minVerified.setEnabled(state);
-			}
+		selfModifiable.addValueChangeListener(e -> {
+			refresh();
 		});
+
 		addComponent(selfModifiable);
 
 		Label limInfo = new Label(msg.getMessage("IdentityType.limitsDescription"));
 		addComponent(limInfo);
-		
+
 		min = new TextField(msg.getMessage("IdentityType.min"));
-		min.setConverter(new StringToIntegerConverter());
-		min.setConvertedValue(toEdit.getMinInstances());
-		min.setNullRepresentation("");
-		min.addValidator(new IntegerRangeValidator(msg.getMessage("IdentityType.invalidNumber"), 
-				0, Integer.MAX_VALUE));
 		addComponent(min);
-		
+
 		minVerified = new TextField(msg.getMessage("IdentityType.minVerified"));
-		minVerified.setConverter(new StringToIntegerConverter());
-		minVerified.setNullRepresentation("");
-		minVerified.addValidator(new IntegerRangeValidator(msg.getMessage("IdentityType.invalidNumber"), 
-				0, Integer.MAX_VALUE));
-		minVerified.setConvertedValue(toEdit.getMinVerifiedInstances());
 		addComponent(minVerified);
-		IdentityTypeDefinition typeDefinition = idTypeSupport.getTypeDefinition(toEdit.getName());
+		IdentityTypeDefinition typeDefinition = idTypeSupport
+				.getTypeDefinition(toEdit.getName());
 		if (!typeDefinition.isVerifiable())
 			minVerified.setVisible(false);
-		
-		max = new IntegerBoundEditor(msg, msg.getMessage("IdentityType.maxUnlimited"), 
-				msg.getMessage("IdentityType.max"), Integer.MAX_VALUE);
-		max.setValue(toEdit.getMaxInstances());
-		max.setMin(0);
+
+		max = new IntegerBoundEditor2(msg, msg.getMessage("IdentityType.maxUnlimited"),
+				msg.getMessage("IdentityType.max"), Integer.MAX_VALUE, 0, null);
+
 		addComponent(max);
 
+		binder = new Binder<>(IdentityType.class);
+		binder.forField(name).asRequired(msg.getMessage("fieldRequired")).bind("name");
+		binder.forField(description).bind("description");
+
+		binder.forField(selfModifiable).bind("selfModificable");
+		max.configureBinding(binder, "maxInstances");
+		binder.forField(min).asRequired(msg.getMessage("fieldRequired"))
+				.withConverter(new StringToIntegerConverter(
+						msg.getMessage("IntegerBoundEditor.notANumber")))
+				.withValidator(new IntegerRangeValidator(
+						msg.getMessage("IdentityType.invalidNumber"), 0,
+						Integer.MAX_VALUE))
+				.bind("minInstances");
+		binder.forField(minVerified).asRequired(msg.getMessage("fieldRequired"))
+				.withConverter(new StringToIntegerConverter(
+						msg.getMessage("IntegerBoundEditor.notANumber")))
+				.withValidator(new IntegerRangeValidator(
+						msg.getMessage("IdentityType.invalidNumber"), 0,
+						Integer.MAX_VALUE))
+				.bind("minVerifiedInstances");
+
+		binder.setBean(toEdit);
+		refresh();
 		validator = new FormValidator(this);
-		
-		setInitialValues(toEdit);
+
 	}
-	
-	private void setInitialValues(IdentityType aType)
+
+	private void refresh()
 	{
-		description.setValue(aType.getDescription());
-		selfModifiable.setValue(aType.isSelfModificable());
+		boolean state = selfModifiable.getValue();
+		min.setEnabled(state);
+		max.setEnabled(state);
+		minVerified.setEnabled(state);
 	}
-	
+
 	public IdentityType getIdentityType() throws FormValidationException
 	{
 		validator.validate();
-		
-		IdentityType ret = new IdentityType(original.getName(),
-				original.getIdentityTypeProvider());
-		ret.setDescription(description.getValue());
-		ret.setSelfModificable(selfModifiable.getValue());
+		if (!binder.isValid())
+			throw new FormValidationException();
+		IdentityType ret = binder.getBean();
+		ret.setIdentityTypeProvider(original.getIdentityTypeProvider());
 		ret.setExtractedAttributes(original.getExtractedAttributes());
-		ret.setMinInstances((Integer) min.getConvertedValue());
-		ret.setMaxInstances(max.getValue());
-		ret.setMinVerifiedInstances((Integer) minVerified.getConvertedValue());
 		return ret;
 	}
 }

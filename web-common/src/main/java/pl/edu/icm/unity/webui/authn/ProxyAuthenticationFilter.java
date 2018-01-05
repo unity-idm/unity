@@ -29,10 +29,11 @@ import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 
 /**
  * Non UI code which is invoked as a part of authentication pipeline for unauthenticated clients.
- * This handler checks whether automated proxy authentication is enabled for the protected endpoint
- * and if so invokes it.
+ * This filter checks whether automated proxy authentication is enabled for the protected endpoint
+ * and if so invokes it. This may be triggered by a special Unity specific query parameter
+ * or with endpoint's configuration. 
  * <p>
- * The autoated proxy authentication can be used whi a single configured authN option, which 
+ * The automated proxy authentication can be used with a single configured authN option, which 
  * is additionally remote, redirect based. This mechanism is useful in cases where Unity should
  * act as invisible intermediate authN proxy. 
  * 
@@ -46,10 +47,13 @@ public class ProxyAuthenticationFilter implements Filter
 	
 	private Map<String, BindingAuthn> authenticators;
 	private String endpointPath;
+	private boolean triggerByDefault;
 	
-	public ProxyAuthenticationFilter(List<AuthenticationOption> authenticators, String endpointPath)
+	public ProxyAuthenticationFilter(List<AuthenticationOption> authenticators, 
+			String endpointPath, boolean triggerByDefault)
 	{
 		this.endpointPath = endpointPath;
+		this.triggerByDefault = triggerByDefault;
 		updateAuthenticators(authenticators);
 	}
 
@@ -105,8 +109,7 @@ public class ProxyAuthenticationFilter implements Filter
 	private boolean triggerProxyAuthentication(HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse)
 	{
-		String autoLogin = httpRequest.getParameter(TRIGGERING_PARAM);
-		if (autoLogin != null && Boolean.parseBoolean(autoLogin))
+		if (isAutomatedAuthenticationDesired(httpRequest))
 		{
 			String selectedAuthn = httpRequest.getParameter(AuthenticationUI.IDP_SELECT_PARAM);
 			if (selectedAuthn == null && authenticators.size() > 1)
@@ -132,6 +135,16 @@ public class ProxyAuthenticationFilter implements Filter
 			return triggerProxyAuthenticator(authenticator, httpRequest, httpResponse,
 					selectedAuthn);
 		}
+		return false;
+	}
+	
+	private boolean isAutomatedAuthenticationDesired(HttpServletRequest httpRequest)
+	{
+		if (triggerByDefault)
+			return true;
+		String autoLogin = httpRequest.getParameter(TRIGGERING_PARAM);
+		if (autoLogin != null && Boolean.parseBoolean(autoLogin))
+			return true;
 		return false;
 	}
 	

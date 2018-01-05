@@ -200,7 +200,12 @@ public class IdentityType implements NamedObject
 		setMaxInstances(main.get("maxInstances").asInt());
 		setIdentityTypeProviderSettings(JsonUtil.getWithDef(main, "identityTypeProviderSettings", null));
 	}
-
+	
+	public IdentityType clone()
+	{
+		ObjectNode json = toJson();
+		return new IdentityType(json);
+	}
 	
 	public String toString()
 	{

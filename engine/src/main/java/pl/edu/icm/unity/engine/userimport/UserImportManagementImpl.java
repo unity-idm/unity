@@ -11,8 +11,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.UserImportManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce;
+import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce.ImportResult;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSpec;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
@@ -38,7 +38,7 @@ public class UserImportManagementImpl implements UserImportManagement
 
 
 	@Override
-	public List<AuthenticationResult> importUser(List<UserImportSpec> imports) throws EngineException
+	public List<ImportResult> importUser(List<UserImportSpec> imports) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		return importService.importUser(imports);

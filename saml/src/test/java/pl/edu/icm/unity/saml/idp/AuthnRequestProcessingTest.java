@@ -2,7 +2,7 @@
  * Copyright (c) 2017 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.samlidp;
+package pl.edu.icm.unity.saml.idp;
 
 import static com.googlecode.catchexception.CatchException.catchException;
 import static com.googlecode.catchexception.CatchException.caughtException;

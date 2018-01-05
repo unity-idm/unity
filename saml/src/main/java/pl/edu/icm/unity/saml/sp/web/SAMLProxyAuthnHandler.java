@@ -45,8 +45,7 @@ class SAMLProxyAuthnHandler
 			HttpServletResponse httpResponse) throws IOException
 	{
 		String idpKey = getIdpConfigKey(httpRequest);
-		startLogin(idpKey, httpRequest, httpResponse);
-		return true;
+		return startLogin(idpKey, httpRequest, httpResponse);
 	}
 
 	private String getIdpConfigKey(HttpServletRequest httpRequest)
@@ -75,7 +74,7 @@ class SAMLProxyAuthnHandler
 		return authnOption;
 	}
 	
-	private void startLogin(String idpConfigKey, HttpServletRequest httpRequest,
+	private boolean startLogin(String idpConfigKey, HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse) throws IOException
 	{
 		log.debug("Starting automatic proxy authentication with remote SAML IdP "
@@ -85,8 +84,9 @@ class SAMLProxyAuthnHandler
 				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
 		if (context != null)
 		{
-			log.warn("Starting a new external SAML authentication, killing the previous "
-					+ "one which is still in progress.");
+			log.debug("Ignoring automated login as the previous remote SAML authentication "
+					+ "is still in progress.");
+			return false;
 		}
 		
 		String currentRelativeURI = ProxyAuthenticationFilter.getCurrentRelativeURL(httpRequest);
@@ -101,5 +101,6 @@ class SAMLProxyAuthnHandler
 			throw new IllegalStateException("Can not create SAML authN request", e);
 		}
 		RedirectRequestHandler.handleRequest(context, httpResponse);
+		return true;
 	}
 }

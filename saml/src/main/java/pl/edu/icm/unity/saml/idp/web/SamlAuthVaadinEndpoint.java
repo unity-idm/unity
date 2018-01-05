@@ -61,6 +61,7 @@ import pl.edu.icm.unity.saml.slo.SLOSAMLServlet;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityVaadinServlet;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
+import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
@@ -222,7 +223,8 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
 		proxyAuthnFilter = new ProxyAuthenticationFilter(authenticators, 
-				description.getEndpoint().getContextAddress());
+				description.getEndpoint().getContextAddress(),
+				genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.AUTO_LOGIN));
 		context.addFilter(new FilterHolder(proxyAuthnFilter), AUTHENTICATION_PATH + "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 

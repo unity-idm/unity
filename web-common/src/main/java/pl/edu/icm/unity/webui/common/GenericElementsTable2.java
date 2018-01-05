@@ -23,11 +23,11 @@ import com.vaadin.data.provider.ListDataProvider;
  */
 public class GenericElementsTable2<T> extends SmallGrid<T>
 {
-	private List<T> contents;
+	protected List<T> contents;
 	private ListDataProvider<T> dataProvider;
 	private Column<T, String> col1;
 	private GridContextMenuSupport<T> contextMenuSupp;
-
+	private boolean sortable;
 	
 	public GenericElementsTable2(String columnHeader)
 	{
@@ -36,6 +36,12 @@ public class GenericElementsTable2<T> extends SmallGrid<T>
 	
 	public GenericElementsTable2(String columnHeader, ValueProvider<T, String> nameProvider)
 	{
+		this(columnHeader, nameProvider, true);
+	}
+	
+	public GenericElementsTable2(String columnHeader, ValueProvider<T, String> nameProvider, boolean sortable)
+	{
+		this.sortable = sortable;
 		contents = new ArrayList<>();
 		dataProvider = DataProvider.ofCollection(contents);
 		setDataProvider(dataProvider);
@@ -45,7 +51,8 @@ public class GenericElementsTable2<T> extends SmallGrid<T>
 				.setCaption(columnHeader)
 				.setResizable(false);
 		GridSelectionSupport.installClickListener(this);
-		sort(col1);
+		col1.setSortable(sortable);
+		sort();
 		contextMenuSupp = new GridContextMenuSupport<>(this);
 	}
 	
@@ -70,30 +77,43 @@ public class GenericElementsTable2<T> extends SmallGrid<T>
 		contents.clear();
 		contents.addAll(elements);
 		dataProvider.refreshAll();
-		sort(col1);
-		for (T toSelect: selectedItems)
-			select(toSelect);
+		sort();
+		deselectAll();
+		for (T toSelect : selectedItems)
+		{
+			if (elements.contains(toSelect))
+			{
+				select(toSelect);
+			}
+		}
 	}
 	
 	public void addElement(T el)
 	{
 		contents.add(el);
 		dataProvider.refreshItem(el);
-		sort(col1);
+		sort();
 	}
 
 	public void removeElement(T el)
 	{
 		contents.remove(el);
 		dataProvider.refreshAll();
-		sort(col1);
+		sort();
 	}
 	
+	
+	private void sort()
+	{
+		if (sortable)
+			sort(col1);
+	}
+
 	public List<T> getElements()
 	{
 		return new ArrayList<>(contents);
 	}
-
+	
 	private static class DefaultNameProvider<T> implements ValueProvider<T, String>
 	{
 		@Override

@@ -70,6 +70,7 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	public static final String THEME = "mainTheme";
 	public static final String AUTHN_THEME = "authnTheme";
 	public static final String TEMPLATE = "template";
+	public static final String AUTO_LOGIN = "autoLogin";
 	
 	public static final String ENABLE_REGISTRATION = "enableRegistration";
 	public static final String ENABLED_REGISTRATION_FORMS = "enabledRegistrationForms.";
@@ -108,6 +109,11 @@ public class VaadinEndpointProperties extends PropertiesHelper
 				"The name of a Freemarker template, relative to templates directory, with a "
 				+ "template of the endpoint web interface. Custom template can be used to add "
 				+ "static header/footer etc."));
+		META.put(AUTO_LOGIN, new PropertyMD("false").setDescription(
+				"If set to true and the endpoint has a single authentication option configured "
+				+ " and this option supports automated login (as remote SAML or OAuth login), then this "
+				+ "option will be activated automatically, without presenting (or even loading) "
+				+ "the authentication screen."));
 		META.put(ENABLE_REGISTRATION, new PropertyMD("false").
 				setDescription("Controls if registration option should be allowed for an endpoint."));
 		META.put(ENABLED_REGISTRATION_FORMS, new PropertyMD().setList(false).

@@ -6,17 +6,20 @@ package pl.edu.icm.unity.webadmin.msgtemplate;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.vaadin.data.Binder;
+import com.vaadin.data.ValidationResult;
+import com.vaadin.data.ValueContext;
 import com.vaadin.event.FieldEvents.FocusListener;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.data.Validator;
-import com.vaadin.v7.ui.AbstractTextField;
-import com.vaadin.v7.ui.ComboBox;
-import com.vaadin.v7.ui.TextArea;
+import com.vaadin.ui.TextArea;
+import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
@@ -28,16 +31,17 @@ import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateValidator.IllegalVaria
 import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateValidator.MandatoryVariablesException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nMessage;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.types.basic.MessageType;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
+import pl.edu.icm.unity.webui.common.DescriptionTextArea2;
+import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.FormValidator;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.RequiredComboBox;
-import pl.edu.icm.unity.webui.common.RequiredTextField;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextArea2;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField2;
 
 /**
  * Component to edit or add message template
@@ -49,19 +53,22 @@ public class MessageTemplateEditor extends CompactFormLayout
 {
 	private UnityMessageSource msg;
 	private MessageTemplateConsumersRegistry registry;
-	private AbstractTextField name;
+	private TextField name;
 	private TextArea description;
-	private I18nTextField subject;
-	private I18nTextArea body;
-	private ComboBox consumer;
+	private I18nTextField2 subject;
+	private I18nTextArea2 body;
+	private ComboBox<String> consumer;
 	private MessageTypeComboBox messageType;
 	private Label consumerDescription;
 	private boolean editMode;
 	private HorizontalLayout buttons;
 	private MessageValidator bodyValidator;
 	private MessageValidator subjectValidator;
-	private AbstractTextField focussedField;
+	private TextArea focussedField;
 	private MessageTemplateManagement msgTemplateMgr;
+	private Binder<MessageTemplate> binder;
+	private Binder<I18nMessage> messageBinder;
+	private FormValidator validator;
 
 	public MessageTemplateEditor(UnityMessageSource msg,
 			MessageTemplateConsumersRegistry registry, MessageTemplate toEdit,
@@ -75,96 +82,98 @@ public class MessageTemplateEditor extends CompactFormLayout
 		initUI(toEdit);
 
 	}
-
+	
 	private void initUI(MessageTemplate toEdit)
 	{
 		buttons = new HorizontalLayout();
 		buttons.setSpacing(false);
 		buttons.setMargin(false);
-		name = new RequiredTextField(msg);
-		name.setCaption(msg.getMessage("MessageTemplatesEditor.name"));
-		name.setSizeFull();
-		name.setValidationVisible(false);
-		description = new DescriptionTextArea(
+
+		name = new TextField(msg.getMessage("MessageTemplatesEditor.name"));
+
+		description = new DescriptionTextArea2(
 				msg.getMessage("MessageTemplatesEditor.description"));
-		consumer = new RequiredComboBox(msg.getMessage("MessageTemplatesEditor.consumer"), msg);
-		consumer.setImmediate(true);
-		consumer.setValidationVisible(false);
-		consumer.setNullSelectionAllowed(false);
-		Collection<MessageTemplateDefinition> consumers = registry.getAll();
-		for (MessageTemplateDefinition c : consumers)
-		{
-			consumer.addItem(c.getName());
-		}
+
+		consumer = new ComboBox<>(msg.getMessage("MessageTemplatesEditor.consumer"));
+		consumer.setEmptySelectionAllowed(false);
+		Collection<String> consumers = registry.getAll().stream().map(c -> c.getName())
+				.collect(Collectors.toList());
+		consumer.setItems(consumers);
 		consumerDescription = new Label();
-		subject = new I18nTextField(msg, msg.getMessage("MessageTemplatesEditor.subject"));
-		subject.setImmediate(true);
-		subject.setWidth(100, Unit.PERCENTAGE);
-		subject.setValidationVisible(false);
-		subject.setRequired(true);
 		
-		
-		body = new I18nTextArea(msg, msg.getMessage("MessageTemplatesEditor.body"), 8);
-		body.setImmediate(true);
-		body.setValidationVisible(false);
+		subject = new I18nTextField2(msg, msg.getMessage("MessageTemplatesEditor.subject"));
+		body = new I18nTextArea2(msg, msg.getMessage("MessageTemplatesEditor.body"), 8);
 
 		messageType = new MessageTypeComboBox(msg, this::getBodyForPreview);
 		subjectValidator = new MessageValidator(null, false);
 		bodyValidator = new MessageValidator(null, true);
-		subject.addValidator(subjectValidator);
-		body.addValidator(bodyValidator);
-		body.setRequired(true);
 
 		focussedField = null;
 		FocusListener focusListener = event -> {
 			Component c = event.getComponent();
-			if (c instanceof AbstractTextField)
-				focussedField = (AbstractTextField) c;
+			if (c instanceof TextArea)
+				focussedField = (TextArea) c;
 		};
 
 		subject.addFocusListener(focusListener);
 		body.addFocusListener(focusListener);
-		
+
 		consumer.addValueChangeListener(event -> {
 			setMessageConsumerDesc();
 			updateValidator();
-			body.setComponentError(null);
-			subject.setComponentError(null);
+			messageBinder.validate();
 		});
-
+		
+		addComponents(name, description, consumer, consumerDescription, buttons, subject,
+				messageType, body);
+		
+		binder = new Binder<>(MessageTemplate.class);
+		binder.forField(name).asRequired(msg.getMessage("fieldRequired")).bind("name");
+		binder.bind(description, "description");
+		binder.forField(consumer).asRequired(msg.getMessage("fieldRequired"))
+				.bind("consumer");
+		binder.forField(messageType).asRequired(msg.getMessage("fieldRequired"))
+				.bind("type");
+		messageBinder = new Binder<>(I18nMessage.class);
+		messageBinder.forField(subject).withValidator(subjectValidator)
+				.asRequired(msg.getMessage("fieldRequired")).bind("subject");
+		messageBinder.forField(body).withValidator(bodyValidator)
+				.asRequired(msg.getMessage("fieldRequired")).bind("body");
 		if (editMode)
 		{
-			name.setValue(toEdit.getName());
 			name.setReadOnly(true);
-			consumer.setValue(toEdit.getConsumer());
-			description.setValue(toEdit.getDescription());
+			binder.setBean(toEdit);
 			// Using empty locale!
 			I18nMessage ms = toEdit.getMessage();
-			messageType.setValue(toEdit.getType());
 			if (ms != null)
 			{
-				subject.setValue(ms.getSubject());
-				body.setValue(ms.getBody());
+				messageBinder.setBean(ms);
 			}
 			setMessageConsumerDesc();
 		} else
 		{
-			name.setValue(msg.getMessage("MessageTemplatesEditor.defaultName"));
-			if (consumer.size() > 0)
+			MessageTemplate msgTemplate = new MessageTemplate();
+			msgTemplate.setName(msg.getMessage("MessageTemplatesEditor.defaultName"));
+			if (!consumers.isEmpty())
 			{
-				consumer.setValue(consumer.getItemIds().toArray()[0]);
+				msgTemplate.setConsumer(consumers.iterator().next());
 			}
-			messageType.setValue(MessageType.PLAIN);
+			msgTemplate.setType(MessageType.PLAIN);
+			msgTemplate.setDescription("");
+			binder.setBean(msgTemplate);
+			messageBinder.setBean(new I18nMessage());
 		}
-
-		addComponents(name, description, consumer, consumerDescription, buttons, subject,
-				messageType, body);
+		
 		setSpacing(true);
+		validator = new FormValidator(this);
 	}
 
 	private String getBodyForPreview(String locale)
 	{
 		MessageTemplate tpl = getTemplate();
+		if (tpl == null)
+			return "Message template is invalid";
+		
 		MessageTemplate tplPreprocessed;
 		try
 		{
@@ -173,20 +182,34 @@ public class MessageTemplateEditor extends CompactFormLayout
 		{
 			return "Broken template: " + e.toString();
 		}
+		
 		String value = tplPreprocessed.getMessage().getBody().getValue(locale, null);
 		return value != null ? value : "";
 	}
 	
 	public MessageTemplate getTemplate()
 	{
-		if (!validate())
+		try
+		{
+			validator.validate();
+		} catch (FormValidationException e)
+		{
 			return null;
-		String n = name.getValue();
-		String desc = description.getValue();
-		String cons = getConsumer().getName();
-		I18nMessage ms = new I18nMessage(subject.getValue(), body.getValue());
-		MessageType msgType = messageType.getValue();
-		return new MessageTemplate(n, desc, ms, cons, msgType); 
+		}
+		
+		if (!binder.isValid())
+		{	
+			binder.validate();
+			return null;
+		}
+		if (!messageBinder.isValid())
+		{
+			messageBinder.validate();
+			return null;
+		}
+		MessageTemplate msgTemplate = binder.getBean();
+		msgTemplate.setMessage(messageBinder.getBean());
+		return msgTemplate;
 	}
 
 	private void setMessageConsumerDesc()
@@ -218,7 +241,6 @@ public class MessageTemplateEditor extends CompactFormLayout
 			});
 			buttons.addComponent(b);
 		}
-
 	}
 
 	private MessageTemplateDefinition getConsumer()
@@ -238,12 +260,12 @@ public class MessageTemplateEditor extends CompactFormLayout
 		return consumer;
 	}
 
-	private void addVar(AbstractTextField f, String val)
+	private void addVar(TextArea focussedField2, String val)
 	{
-		String v = f.getValue();
-		String st = v.substring(0, f.getCursorPosition());
-		String fi = v.substring(f.getCursorPosition());
-		f.setValue(st + "${" + val + "}" + fi);
+		String v = focussedField2.getValue();
+		String st = v.substring(0, focussedField2.getCursorPosition());
+		String fi = v.substring(focussedField2.getCursorPosition());
+		focussedField2.setValue(st + "${" + val + "}" + fi);
 	}
 
 	private void updateValidator()
@@ -255,20 +277,8 @@ public class MessageTemplateEditor extends CompactFormLayout
 			bodyValidator.setConsumer(c);
 		}
 	}
-
-	private boolean validate()
-	{
-		updateValidator();
-		name.setValidationVisible(true);
-		consumer.setValidationVisible(true);
-		subject.setValidationVisible(true);
-		subject.setValidationVisible(true);
-		body.setValidationVisible(true);
-		return name.isValid() && consumer.isValid() && subject.isValid() && body.isValid();
-
-	}
-
-	private class MessageValidator implements Validator
+	
+	private class MessageValidator implements com.vaadin.data.Validator<I18nString>
 	{
 		private MessageTemplateDefinition c;
 		private boolean checkMandatory;
@@ -285,20 +295,23 @@ public class MessageTemplateEditor extends CompactFormLayout
 		}
 
 		@Override
-		public void validate(Object value) throws InvalidValueException
+		public ValidationResult apply(I18nString value, ValueContext context)
 		{
 			try
 			{
 				MessageTemplateValidator.validateText(c, value.toString(), checkMandatory);
 			} catch (IllegalVariablesException e)
 			{
-				throw new InvalidValueException(msg.getMessage("MessageTemplatesEditor.errorUnknownVars", 
+				return ValidationResult.error(msg.getMessage("MessageTemplatesEditor.errorUnknownVars" ,
 						e.getUnknown().toString()));
+			
 			} catch (MandatoryVariablesException e)
 			{
-				throw new InvalidValueException(msg.getMessage("MessageTemplatesEditor.errorMandatoryVars", 
+				return ValidationResult.error(msg.getMessage("MessageTemplatesEditor.errorMandatoryVars", 
 						e.getMandatory().toString()));
 			}
+		
+			return ValidationResult.ok();
 		}
 	}
 }

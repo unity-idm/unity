@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui.common;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -92,7 +93,14 @@ public class Toolbar2<T> extends CustomComponent
 		for (SingleActionHandler2<T> handler: handlers)
 			addActionHandler(handler);
 	}
-
+	
+	public void refresh()
+	{
+		target = new HashSet<>();
+		for (Button button: buttons)
+			updateButtonState(button);
+	}
+	
 	public void addSeparator()
 	{
 		Label sep = new Label();

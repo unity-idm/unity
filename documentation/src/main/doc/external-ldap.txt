@@ -23,18 +23,18 @@ unityServer.core.authenticators.x.retrievalConfigurationFile=conf/authenticators
 LDAP communication can be set up in several different ways:
 
 . All operations are performed as the user who is authenticating itself. It is a default mode, the +userDNTemplate+
-property needs to be defined to make it working.
+property needs to be defined to make it working: login username is used as a part of the DN template.
 . In many cases the ordinary users are not authorized to perform all required LDAP searches. In such case the system
 user identity must be set up using +ldap.systemDN+ and +ldap.systemPassword+ properties. 
 Additionally Unity must be instructed to use it by setting +ldap.bindAs=system+. In this mode the only operation
-performed with the user is the bind operation used to check user's password.
+performed with the user's identity is the bind operation used to check user's password.
 . In some cases it may happen that username (as entered in the login process) is not a part of DN in the LDAP tree.
 In such case the DN must be found first. To use this mode one has to set +ldap.userDNSearchKey=SOME_KEY+ property and define an 
 extra search specification under the key +SOME_KEY+. To make it working also the system user credentials must be set up
-as the initial search must be run as the system user always, regardless of the further operations governed by the 
+as the initial search must be run as the system user, regardless of the further operations governed by the 
 +ldap.bindAs+ setting.
 . If LDAP attributes should not be anyhow imported/processed or can not be read due to authorization constraints 
-then the +ldap.authenticateOnly=true+ option can be set.   
+then the +ldap.authenticateOnly=true+ option can be set.
 
 
 Let's consider an (complex) example of a configuration of the LDAP verificator 

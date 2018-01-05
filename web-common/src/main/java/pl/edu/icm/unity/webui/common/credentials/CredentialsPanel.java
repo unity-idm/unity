@@ -14,14 +14,13 @@ import org.apache.logging.log4j.Logger;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
@@ -44,7 +43,6 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.MapComboBox;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
@@ -73,7 +71,7 @@ public class CredentialsPanel extends VerticalLayout
 	private Map<String, CredentialDefinition> credentials;
 	
 	private SafePanel statuses;
-	private MapComboBox<CredentialDefinition> credential;
+	private ComboBox<CredentialDefinition> credential;
 	private Label status;
 	private HtmlConfigurableLabel description;
 	private SafePanel credentialStateInfo;
@@ -126,25 +124,13 @@ public class CredentialsPanel extends VerticalLayout
 		Panel credentialPanel = new SafePanel();
 		credentialPanel.addStyleName(Styles.vBorderLess.toString());
 		
-		String selected = credentials.keySet().iterator().next();
-		credential = new MapComboBox<>(msg.getMessage("CredentialChangeDialog.credential"),
-				credentials, selected, new MapComboBox.LabelResolver<CredentialDefinition>()
-				{
-					@Override
-					public String getDisplayedName(String key, CredentialDefinition value)
-					{
-						return value.getDisplayedName().getValue(msg);
-					}
-				});
-		credential.setImmediate(true);
-		credential.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				updateSelectedCredential();
-			}
-		});
+		credential = new ComboBox<CredentialDefinition>(msg.getMessage("CredentialChangeDialog.credential"));
+		credential.setItemCaptionGenerator(item -> item.getDisplayedName().getValue(msg));
+		credential.setItems(credentials.values());
+		credential.setValue(credentials.values().iterator().next());
+		credential.setEmptySelectionAllowed(false);
+		credential.addValueChangeListener(e -> updateSelectedCredential());
+		
 		description = new HtmlConfigurableLabel();
 		description.setCaption(msg.getMessage("CredentialChangeDialog.description"));
 		status = new Label();
@@ -217,7 +203,7 @@ public class CredentialsPanel extends VerticalLayout
 	
 	private void updateSelectedCredential()
 	{
-		CredentialDefinition chosen = credential.getSelectedValue();
+		CredentialDefinition chosen = credential.getValue();
 		description.setValue(chosen.getDescription().getValue(msg));
 		Map<String, CredentialPublicInformation> s = entity.getCredentialInfo().getCredentialsState();
 		CredentialPublicInformation credPublicInfo = s.get(chosen.getName());
@@ -283,7 +269,7 @@ public class CredentialsPanel extends VerticalLayout
 		{
 			return;
 		}
-		CredentialDefinition credDef = credential.getSelectedValue();
+		CredentialDefinition credDef = credential.getValue();
 		EntityParam entityP = new EntityParam(entity.getId());
 		try
 		{
@@ -315,7 +301,7 @@ public class CredentialsPanel extends VerticalLayout
 
 	private void changeCredentialStatus(LocalCredentialState desiredState)
 	{
-		CredentialDefinition credDef = credential.getSelectedValue();
+		CredentialDefinition credDef = credential.getValue();
 		EntityParam entityP = new EntityParam(entity.getId());
 		try
 		{
