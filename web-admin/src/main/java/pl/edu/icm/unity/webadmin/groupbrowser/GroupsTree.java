@@ -642,7 +642,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		@Override
 		public boolean hasChildren(TreeNode item)
 		{
-			if (item.isContentsFetched() == false)
+			if (!item.isContentsFetched())
 					return true;
 			return super.hasChildren(item);
 		}

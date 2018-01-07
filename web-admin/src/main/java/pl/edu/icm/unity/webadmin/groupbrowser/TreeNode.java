@@ -20,11 +20,6 @@ public class TreeNode
 	private UnityMessageSource msg;
 	private String icon;
 	
-	public TreeNode()
-	{
-		
-	}
-	
 	public TreeNode(UnityMessageSource msg, Group group, String icon)
 	{
 		this(msg, group, icon, null);
@@ -111,8 +106,7 @@ public class TreeNode
 		if (obj instanceof String)
 			return path.equals(obj);
 		if (obj instanceof TreeNode)
-			return path.equals(((TreeNode)obj).path);
-		
+			return path.equals(((TreeNode)obj).path);	
 		return false;
 	}
 }
