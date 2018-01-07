@@ -4,9 +4,6 @@
  */
 package pl.edu.icm.unity.webadmin.groupbrowser;
 
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.server.Resource;
-
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Group;
 
@@ -106,13 +103,6 @@ public class TreeNode
 	{
 		
 		return path.hashCode();
-	}
-	
-	public TreeNode getAsEmpty()
-	{
-		TreeNode empty = new TreeNode();
-		empty.setPath("_EMPTY_" + getPath() + "_EMPTY_");
-		return empty;
 	}
 
 	@Override

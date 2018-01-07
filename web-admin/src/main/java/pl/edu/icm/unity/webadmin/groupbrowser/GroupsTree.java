@@ -27,7 +27,6 @@ import com.vaadin.event.ExpandEvent.ExpandListener;
 import com.vaadin.shared.ui.dnd.DropEffect;
 import com.vaadin.shared.ui.grid.DropMode;
 import com.vaadin.ui.TreeGrid;
-import com.vaadin.ui.components.grid.GridDropTarget;
 import com.vaadin.ui.components.grid.TreeGridDropTarget;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
@@ -118,7 +117,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		this.bus = WebSession.getCurrent().getEventBus();
 
 		treeData = new TreeData<>();
-		setDataProvider(new TreeDataProvider<>(treeData));
+		setDataProvider(new GroupsDataProvider(treeData));
 
 		addColumn(n -> {
 			return n.getIcon() + " " + n.getPath();
@@ -255,7 +254,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		node.setContentsFetched(false);
 		setExpandEnable(node);
 		getDataProvider().refreshAll();
-		collapse(node);
+		collapse(node);		
 		expand(node);
 	}
 
@@ -266,8 +265,8 @@ public class GroupsTree extends TreeGrid<TreeNode>
 	 */
 	private void setExpandEnable(TreeNode node)
 	{
-		if (treeData.getChildren(node).isEmpty())
-			treeData.addItem(node, node.getAsEmpty());
+//		if (treeData.getChildren(node).isEmpty())
+//			treeData.addItem(node, node.getAsEmpty());
 	}
 
 	private void removeGroup(TreeNode parent, String path, boolean recursive)
@@ -560,7 +559,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 				collapseItemsRecursively(Arrays.asList(child));
 		}
 	}
-
+	
 	private class GroupExpandListener implements ExpandListener<TreeNode>
 	{
 		private void removeAllChildren(TreeNode item)
@@ -577,7 +576,6 @@ public class GroupsTree extends TreeGrid<TreeNode>
 					treeData.removeItem(child);
 				}
 			}
-
 		}
 
 		@Override
@@ -590,7 +588,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 
 			// in case of refresh
 			removeAllChildren(expandedNode);
-
+			
 			GroupContents contents;
 			try
 			{
@@ -599,6 +597,8 @@ public class GroupsTree extends TreeGrid<TreeNode>
 			} catch (Exception e)
 			{
 				expandedNode.setIcon(Images.vaadinNoAuthzGrp.getHtml());
+				expandedNode.setContentsFetched(true);
+				expand(expandedNode);
 				return;
 			}
 			expandedNode.setIcon(Images.vaadinFolder.getHtml());
@@ -624,9 +624,27 @@ public class GroupsTree extends TreeGrid<TreeNode>
 							+ " won't be shown - metadata not readable.");
 				}
 			}
-
+			
 			expandedNode.setContentsFetched(true);
 			getDataProvider().refreshAll();
+			//we expand empty node before, we have to expand one more time to reload
+			expand(expandedNode);
+		}
+	}
+	
+	private class GroupsDataProvider extends TreeDataProvider<TreeNode>
+	{
+		public GroupsDataProvider(TreeData<TreeNode> treeData)
+		{
+			super(treeData);
+		}
+		
+		@Override
+		public boolean hasChildren(TreeNode item)
+		{
+			if (item.isContentsFetched() == false)
+					return true;
+			return super.hasChildren(item);
 		}
 	}
 }
