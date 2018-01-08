@@ -41,7 +41,7 @@ public class IdPEngineImplNoAuthz extends IdPEngineImplBase
 			AttributeValueConverter attrValueConverter,
 			UnityMessageSource msg)
 	{
-		super(attributesMan, identitiesMan, userImportService, 
+		super(attributesMan, attributesMan, identitiesMan, userImportService, 
 				new OutputProfileExecutor(outputProfileRepo, 
 						translationEngine, actionsRegistry, 
 						attrValueConverter, msg));

@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.api.idp;
 
 import java.util.List;
+import java.util.Optional;
 
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.util.configuration.PropertiesHelper;
@@ -27,6 +28,7 @@ public interface IdPEngine
 	 * @param group the group from which attributes shall be resolved
 	 * @param profile output translation profile to be consulted. Can be null -> then default profile is used. 
 	 * @param requester identity of requester
+	 * @param requesterEntity if present then attributes of this entity in the given group will be added to the output profile context
 	 * @param protocol identifier of access protocol
 	 * @param protocolSubType sub identifier of protocol (e.g. binding)
 	 * @param allowIdentityCreate whether a dynamic id can be established
@@ -34,7 +36,8 @@ public interface IdPEngine
 	 * @throws EngineException
 	 */
 	TranslationResult obtainUserInformationWithEarlyImport(IdentityTaV entity, String group, String profile,
-			String requester, String protocol, String protocolSubType,
+			String requester, Optional<EntityInGroup> requesterEntity, 
+			String protocol, String protocolSubType,
 			boolean allowIdentityCreate, PropertiesHelper importsConfig) throws EngineException;
 
 	/**
@@ -55,7 +58,7 @@ public interface IdPEngine
 	 * @throws EngineException
 	 */
 	TranslationResult obtainUserInformationWithEnrichingImport(EntityParam entity, String group, String profile,
-			String requester, String protocol, String protocolSubType,
+			String requester, Optional<EntityInGroup> requesterEntity, String protocol, String protocolSubType,
 			boolean allowIdentityCreate, PropertiesHelper importsConfig) throws EngineException;
 	
 	/**

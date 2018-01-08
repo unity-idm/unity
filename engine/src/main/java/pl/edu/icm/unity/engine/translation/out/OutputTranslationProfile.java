@@ -132,24 +132,10 @@ public class OutputTranslationProfile
 		ret.put("protocol", input.getProtocol());
 		ret.put("protocolSubtype", input.getProtocolSubType());
 		ret.put("requester", input.getRequester());
-		Map<String, Object> attr = new HashMap<>();
-		Map<String, Object> attrObj = new HashMap<>();
-		Map<String, List<? extends Object>> attrs = new HashMap<>();
 		
-		for (Attribute ra : input.getAttributes())
-		{
-			List<String> values = attrConverter.internalValuesToExternal(ra.getName(),
-					ra.getValues());
-			String v = values.isEmpty() ? "" : values.get(0);
-			attr.put(ra.getName(), v);
-			attrs.put(ra.getName(), values);
-			attrObj.put(ra.getName(), values.isEmpty() ? ""
-					: attrConverter.internalValuesToObjectValues(ra.getName(),
-							ra.getValues()).get(0));
-		}
-		ret.put("attr", attr);
-		ret.put("attrObj", attrObj);
-		ret.put("attrs", attrs);
+		addAttributesToContext("attr", ret, input.getAttributes(), attrConverter);
+		addAttributesToContext("requesterAttr", ret, input.getRequesterAttributes(), 
+				attrConverter);
 
 		Map<String, List<String>> idsByType = new HashMap<>();
 		for (Identity id : input.getEntity().getIdentities())
@@ -199,6 +185,30 @@ public class OutputTranslationProfile
 		return ret;
 	}
 
+	private static void addAttributesToContext(String prefix, Map<String, Object> ret, 
+			Collection<Attribute> attributes, AttributeValueConverter attrConverter) 
+					throws IllegalAttributeValueException
+	{
+		Map<String, Object> attr = new HashMap<>();
+		Map<String, Object> attrObj = new HashMap<>();
+		Map<String, List<? extends Object>> attrs = new HashMap<>();
+		
+		for (Attribute ra: attributes)
+		{
+			List<String> values = attrConverter.internalValuesToExternal(ra.getName(),
+					ra.getValues());
+			String v = values.isEmpty() ? "" : values.get(0);
+			attr.put(ra.getName(), v);
+			attrs.put(ra.getName(), values);
+			attrObj.put(ra.getName(), values.isEmpty() ? ""
+					: attrConverter.internalValuesToObjectValues(ra.getName(),
+							ra.getValues()).get(0));
+		}
+		ret.put(prefix, attr);
+		ret.put(prefix+"Obj", attrObj);
+		ret.put(prefix+"s", attrs);
+	}
+	
 	@Override
 	protected OutputTranslationRule createRule(TranslationActionInstance action,
 			TranslationCondition condition)

@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.idp;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +31,7 @@ public class IdPEngineImpl extends IdPEngineImplBase
 {
 	@Autowired
 	public IdPEngineImpl(AttributesManagement attributesMan, 
+			@Qualifier("insecure") AttributesManagement insecureAttributesMan,
 			EntityManagement identitiesMan,
 			OutputTranslationProfileRepository outputProfileRepo,
 			OutputTranslationEngine translationEngine,
@@ -38,7 +40,7 @@ public class IdPEngineImpl extends IdPEngineImplBase
 			AttributeValueConverter attrValueConverter,
 			UnityMessageSource msg)
 	{
-		super(attributesMan, identitiesMan, userImportService, 
+		super(attributesMan, insecureAttributesMan, identitiesMan, userImportService, 
 				new OutputProfileExecutor(outputProfileRepo, 
 						translationEngine, actionsRegistry, 
 						attrValueConverter, msg));

@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.saml.idp.ws;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import org.apache.cxf.interceptor.Fault;
 import org.apache.logging.log4j.Logger;
@@ -127,7 +128,8 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 		String profile = samlProperties.getValue(CommonIdPProperties.TRANSLATION_PROFILE);
 		TranslationResult userInfo = idpEngine.obtainUserInformationWithEarlyImport(subjectId, 
 				processor.getChosenGroup(), profile, 
-				processor.getIdentityTarget(), "SAML2", SAMLConstants.BINDING_SOAP, false,
+				processor.getIdentityTarget(), Optional.empty(), 
+				"SAML2", SAMLConstants.BINDING_SOAP, false,
 				samlProperties);
 		return processor.getAttributes(userInfo, preferences);
 	}

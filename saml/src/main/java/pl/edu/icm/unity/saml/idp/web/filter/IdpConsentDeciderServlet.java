@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -232,7 +233,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		return idpEngine.obtainUserInformationWithEnrichingImport(new EntityParam(ae.getEntityId()), 
 				processor.getChosenGroup(), profile, 
-				processor.getIdentityTarget(), "SAML2", binding,
+				processor.getIdentityTarget(), Optional.empty(), "SAML2", binding,
 				processor.isIdentityCreationAllowed(),
 				samlProperties);
 	}

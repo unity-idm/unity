@@ -5,9 +5,11 @@
 package pl.edu.icm.unity.engine.idp;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
@@ -19,6 +21,7 @@ import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
+import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
@@ -48,8 +51,10 @@ class IdPEngineImplBase implements IdPEngine
 	private EntityManagement identitiesMan;
 	private UserImportSerivce userImportService;
 	private OutputProfileExecutor outputProfileExecutor;
+	private AttributesManagement alwaysInsecureAttributesMan;
 	
-	IdPEngineImplBase(AttributesManagement attributesMan, 
+	IdPEngineImplBase(AttributesManagement attributesMan,
+			AttributesManagement alwaysInsecureAttributesMan, 
 			EntityManagement identitiesMan,
 			UserImportSerivce userImportService,
 			OutputProfileExecutor outputProfileExecutor)
@@ -58,11 +63,13 @@ class IdPEngineImplBase implements IdPEngine
 		this.identitiesMan = identitiesMan;
 		this.userImportService = userImportService;
 		this.outputProfileExecutor = outputProfileExecutor;
+		this.alwaysInsecureAttributesMan = alwaysInsecureAttributesMan;
 	}
 
 	@Override
 	public TranslationResult obtainUserInformationWithEnrichingImport(EntityParam entity,
-			String group, String profile, String requester, String protocol,
+			String group, String profile, String requester, 
+			Optional<EntityInGroup> requesterEntity, String protocol,
 			String protocolSubType, boolean allowIdentityCreate,
 			PropertiesHelper importsConfig) throws EngineException
 	{
@@ -78,13 +85,14 @@ class IdPEngineImplBase implements IdPEngine
 				userImports, fullEntity.getIdentities().get(0));
 		
 		return obtainUserInformationPostImport(entity, fullEntity, group, profile, 
-				requester, protocol, protocolSubType, 
+				requester, requesterEntity, protocol, protocolSubType, 
 				assembleImportStatus(importResult));
 	}
 	
 	@Override
 	public TranslationResult obtainUserInformationWithEarlyImport(IdentityTaV identity, String group, String profile,
-			String requester, String protocol, String protocolSubType, boolean allowIdentityCreate,
+			String requester, Optional<EntityInGroup> requesterEntity, 
+			String protocol, String protocolSubType, boolean allowIdentityCreate,
 			PropertiesHelper config)
 			throws EngineException
 	{
@@ -95,13 +103,14 @@ class IdPEngineImplBase implements IdPEngine
 		Entity fullEntity = identitiesMan.getEntity(entity, requester, allowIdentityCreate, group);
 		
 		return obtainUserInformationPostImport(entity, fullEntity, group, profile, 
-				requester, protocol, protocolSubType, 
+				requester, requesterEntity, protocol, protocolSubType, 
 				assembleImportStatus(importResult));
 	}
 	
 	private TranslationResult obtainUserInformationPostImport(EntityParam entity, Entity fullEntity,
 			String group, String profile,
-			String requester, String protocol, String protocolSubType,
+			String requester, Optional<EntityInGroup> requesterEntity, 
+			String protocol, String protocolSubType,
 			Map<String, Status> importStatus) throws EngineException
 	{
 		Collection<String> allGroups = identitiesMan.getGroups(entity).keySet();
@@ -111,8 +120,12 @@ class IdPEngineImplBase implements IdPEngine
 			log.trace("Attributes to be returned (before postprocessing): " + 
 					allAttributes + "\nGroups: " + allGroups + "\nIdentities: " + 
 					fullEntity.getIdentities());
+		Collection<AttributeExt> requesterAttributes = requesterEntity.isPresent() ?
+			alwaysInsecureAttributesMan.getAttributes(requesterEntity.get().entityParam, 
+					requesterEntity.get().group, null) :
+			Collections.emptyList();
 		TranslationInput input = new TranslationInput(allAttributes, fullEntity, group, allGroups, 
-				requester, protocol, protocolSubType, importStatus);
+				requester, requesterAttributes, protocol, protocolSubType, importStatus);
 		return outputProfileExecutor.execute(profile, input);
 	}
 

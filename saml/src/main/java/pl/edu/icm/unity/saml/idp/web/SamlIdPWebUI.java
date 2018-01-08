@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TimeZone;
 
 import org.apache.logging.log4j.Logger;
@@ -129,7 +130,8 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		return idpEngine.obtainUserInformationWithEnrichingImport(new EntityParam(ae.getEntityId()), 
 				processor.getChosenGroup(), profile, 
-				samlProcessor.getIdentityTarget(), "SAML2", SAMLConstants.BINDING_HTTP_REDIRECT,
+				samlProcessor.getIdentityTarget(), Optional.empty(), 
+				"SAML2", SAMLConstants.BINDING_HTTP_REDIRECT,
 				processor.isIdentityCreationAllowed(),
 				samlCtx.getSamlConfiguration());
 	}

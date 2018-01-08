@@ -7,6 +7,7 @@ package pl.edu.icm.unity.oauth.as.token;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -19,6 +20,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
+import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -125,11 +127,15 @@ public class ClientCredentialsProcessor
 			throws EngineException
 	{
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
+		EntityParam clientEntity = new EntityParam(ae.getEntityId());
+		EntityInGroup clientWithGroup = new EntityInGroup(
+				config.getValue(OAuthASProperties.CLIENTS_GROUP), clientEntity);
 		TranslationResult translationResult = idpEngine.obtainUserInformationWithEnrichingImport(
-				new EntityParam(ae.getEntityId()), 
+				clientEntity, 
 				usersGroup, 
 				config.getValue(CommonIdPProperties.TRANSLATION_PROFILE), 
 				client,
+				Optional.of(clientWithGroup),
 				"OAuth2", 
 				GrantType.CLIENT_CREDENTIALS.getValue(),
 				true,

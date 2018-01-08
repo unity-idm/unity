@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
+import java.util.Optional;
+
 import org.apache.logging.log4j.Logger;
 
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
@@ -14,6 +16,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.translation.ExecutionFailException;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
@@ -92,17 +95,24 @@ public class OAuthIdPEngine
 		String flow = ctx.getRequest().getResponseType().impliesCodeFlow()
 				? GrantFlow.authorizationCode.toString()
 				: GrantFlow.implicit.toString();
+		EntityInGroup requesterEntity = new EntityInGroup(
+				ctx.getConfig().getValue(OAuthASProperties.CLIENTS_GROUP), 
+				new EntityParam(ctx.getClientEntityId()));
 		return getUserInfoUnsafe(ae.getEntityId(),
-				ctx.getRequest().getClientID().getValue(), ctx.getUsersGroup(),
+				ctx.getRequest().getClientID().getValue(), 
+				Optional.of(requesterEntity), 
+				ctx.getUsersGroup(),
 				ctx.getTranslationProfile(), flow, ctx.getConfig());
 	}
 
-	public TranslationResult getUserInfoUnsafe(long entityId, String clientId,
+	public TranslationResult getUserInfoUnsafe(long entityId, String clientId, 
+			Optional<EntityInGroup> requesterEntity, 
 			String userGroup, String translationProfile, String flow,
 			OAuthASProperties config) throws EngineException
 	{
 		return idpEngine.obtainUserInformationWithEnrichingImport(
-				new EntityParam(entityId), userGroup, translationProfile, clientId,
+				new EntityParam(entityId), userGroup, translationProfile, 
+				clientId, requesterEntity,
 				"OAuth2", flow, true, config);
 	}
 	

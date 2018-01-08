@@ -49,7 +49,7 @@ public class OSImporter implements UserImportSPI
 			return LibPAMUtils.unixUser2RAI(unixUser, idpName);
 		} catch (PAMException e)
 		{
-			log.warn("Import of user " + identity + " from local OS failed, skipping", e);
+			log.debug("Import of user " + identity + " from local OS failed, skipping", e);
 			return null;
 		}
 	}
