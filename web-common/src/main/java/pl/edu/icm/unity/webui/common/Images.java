@@ -95,8 +95,7 @@ public enum Images
 	vaadinUpArrow      (VaadinIcons.ANGLE_UP),
 	vaadinDownArrow    (VaadinIcons.ANGLE_DOWN),
 	vaadinResize       (VaadinIcons.RESIZE_H),
-	vaadinFolder       (VaadinIcons.FOLDER_OPEN_O),
-	vaadinNoAuthzGrp   (VaadinIcons.FOLDER_REMOVE);
+	;
 	
 	
 	private final Resource resource;
