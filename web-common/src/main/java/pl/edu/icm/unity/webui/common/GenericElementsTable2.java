@@ -12,6 +12,8 @@ import java.util.Set;
 import com.vaadin.data.ValueProvider;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
+import com.vaadin.data.provider.Query;
+import com.vaadin.server.SerializablePredicate;
 
 /**
  * 1-column table with arbitrary objects. 
@@ -28,6 +30,7 @@ public class GenericElementsTable2<T> extends SmallGrid<T>
 	private Column<T, String> col1;
 	private GridContextMenuSupport<T> contextMenuSupp;
 	private boolean sortable;
+	private Collection<SerializablePredicate<T>> filters;
 	
 	public GenericElementsTable2(String columnHeader)
 	{
@@ -54,6 +57,7 @@ public class GenericElementsTable2<T> extends SmallGrid<T>
 		col1.setSortable(sortable);
 		sort();
 		contextMenuSupp = new GridContextMenuSupport<>(this);
+		filters = new ArrayList<>();
 	}
 	
 	public void setMultiSelect(boolean multi)
@@ -102,7 +106,6 @@ public class GenericElementsTable2<T> extends SmallGrid<T>
 		sort();
 	}
 	
-	
 	private void sort()
 	{
 		if (sortable)
@@ -113,6 +116,28 @@ public class GenericElementsTable2<T> extends SmallGrid<T>
 	{
 		return new ArrayList<>(contents);
 	}
+	
+	private void updateFilters()
+	{
+		dataProvider.clearFilters();
+		for (SerializablePredicate<T> p : filters)
+			dataProvider.addFilter(p);
+	}
+	
+	public void addFilter(SerializablePredicate<T> filter)
+	{
+		if (!filters.contains(filter))
+			filters.add(filter);
+		updateFilters();
+	}
+	
+	public void removeFilter(SerializablePredicate<T> filter)
+	{
+		if (filters.contains(filter))
+			filters.remove(filter);
+		updateFilters();
+	}
+	
 	
 	private static class DefaultNameProvider<T> implements ValueProvider<T, String>
 	{

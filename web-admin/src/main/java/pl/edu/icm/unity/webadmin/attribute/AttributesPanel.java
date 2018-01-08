@@ -17,22 +17,16 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.vaadin.v7.data.Container;
-import com.vaadin.v7.data.Container.Filterable;
-import com.vaadin.v7.data.Item;
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.v7.data.util.BeanItemContainer;
 import com.vaadin.event.Action;
 import com.vaadin.server.Resource;
+import com.vaadin.server.SerializablePredicate;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.CheckBox;
-import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.Table;
+import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.v7.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -58,16 +52,15 @@ import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
+import pl.edu.icm.unity.webui.common.GenericElementsTable2;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.SmallGrid;
-import pl.edu.icm.unity.webui.common.SmallTableDeprecated;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar;
+import pl.edu.icm.unity.webui.common.Toolbar2;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 
@@ -92,12 +85,13 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private VerticalLayout left;
 	private CheckBox showEffective;
 	private CheckBox showInternal;
-	private InternalAttributesFilter internalAttrsFilter;
-	private EffectiveAttributesFilter effectiveAttrsFilter;
+	private SerializablePredicate<AttributeExt> internalAttrsFilter;
+	private SerializablePredicate<AttributeExt> effectiveAttrsFilter;
 	private HorizontalLayout filtersBar;
 	private List<AttributeExt> attributes;
 	private ValuesRendererPanel attributeValues;
-	private Table attributesTable;
+//	private Table attributesTable;
+	private GenericElementsTable2<AttributeExt> attributesTable;
 	private EntityParam owner;
 	private String groupPath;
 	private AttributeClassHelper acHelper;
@@ -123,67 +117,122 @@ public class AttributesPanel extends HorizontalSplitPanel
 		this.atSupport = atSupport;
 		this.confirmationMan = confirmationMan;
 		this.bus = WebSession.getCurrent().getEventBus();
-		attributesTable = new SmallTableDeprecated();
-		attributesTable.setNullSelectionAllowed(false);
-		attributesTable.setImmediate(true);
-		BeanItemContainer<AttributeItem> tableContainer = new BeanItemContainer<AttributeItem>(AttributeItem.class);
-		attributesTable.setSelectable(true);
+//		attributesTable = new SmallTableDeprecated();
+//		attributesTable.setNullSelectionAllowed(false);
+//		attributesTable.setImmediate(true);
+//		BeanItemContainer<AttributeItem> tableContainer = new BeanItemContainer<AttributeItem>(AttributeItem.class);
+//		attributesTable.setSelectable(true);
+//		attributesTable.setMultiSelect(true);
+//		attributesTable.setContainerDataSource(tableContainer);
+//		attributesTable.setColumnHeaders(new String[] {msg.getMessage("Attribute.attributes")});
+//		
+//		attributesTable.addValueChangeListener(new ValueChangeListener()
+//		{
+//			@Override
+//			public void valueChange(ValueChangeEvent event)
+//			{
+//				Collection<AttributeItem> items = getItems(attributesTable.getValue()); 
+//				if (items.size() > 1 || items.isEmpty())
+//				{
+//					updateValues(null);
+//					return;
+//				}
+//				AttributeItem selected = items.iterator().next();
+//				if (selected != null)
+//					updateValues(selected.getAttribute());
+//				else
+//					updateValues(null);
+//			}
+//		});
+		attributesTable = new GenericElementsTable2<>(msg.getMessage("Attribute.attributes"), 
+				element -> element.getName());
 		attributesTable.setMultiSelect(true);
-		attributesTable.setContainerDataSource(tableContainer);
-		attributesTable.setColumnHeaders(new String[] {msg.getMessage("Attribute.attributes")});
-		
-		attributesTable.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				Collection<AttributeItem> items = getItems(attributesTable.getValue()); 
-				if (items.size() > 1 || items.isEmpty())
-				{
-					updateValues(null);
-					return;
-				}
-				AttributeItem selected = items.iterator().next();
-				if (selected != null)
-					updateValues(selected.getAttribute());
-				else
-					updateValues(null);
-			}
+		attributesTable.setWidth(90, Unit.PERCENTAGE);
+		attributesTable.setStyleGenerator(a -> {
+			StringBuilder style = new StringBuilder();
+			if (!a.isDirect())
+				style.append(Styles.emphasized.toString());
+			if (!isInternal(a))
+				style.append(" " + Styles.immutableAttribute.toString());
+			if (acHelper.isMandatory(a.getName()))
+				style.append(" " + Styles.bold.toString());
+			return style.toString().trim();
 		});
 
-		Toolbar toolbar = new Toolbar(attributesTable, Orientation.VERTICAL);
-		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(attributesTable, toolbar);
-		tableWithToolbar.setSizeFull();
-		SingleActionHandler[] handlers = new SingleActionHandler[] {new AddAttributeActionHandler(), 
-				new EditAttributeActionHandler(), new RemoveAttributeActionHandler(), new ResendConfirmationAttributeActionHandler()};
-		for (SingleActionHandler handler: handlers)
-			attributesTable.addActionHandler(handler);
-		toolbar.addActionHandlers(handlers);
+		attributesTable.addSelectionListener(event ->
+		{
+			Collection<AttributeExt> items = event.getAllSelectedItems();
+			if (items.size() > 1 || items.isEmpty())
+			{
+				updateValues(null);
+				return;
+			}
+			AttributeExt selected = items.iterator().next();
+			if (selected != null)
+				updateValues(selected);
+			else
+				updateValues(null);
+		});
+//		attributesTable.addActionHandler(getRefreshAction());
+//		attributesTable.addActionHandler(getAddAction());
+//		attributesTable.addActionHandler(getEditAction());
+//		attributesTable.addActionHandler(getDeleteAction());
 		
-		internalAttrsFilter = new InternalAttributesFilter();
-		effectiveAttrsFilter = new EffectiveAttributesFilter();
+		Toolbar2<AttributeExt> toolbar = new Toolbar2<>(Orientation.VERTICAL);
+		attributesTable.addSelectionListener(toolbar.getSelectionListener());
+		toolbar.addActionHandlers(attributesTable.getActionHandlers());
+		ComponentWithToolbar2 tableWithToolbar = new ComponentWithToolbar2(attributesTable, toolbar);
+		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
+		tableWithToolbar.setHeight(100, Unit.PERCENTAGE);
+		
+		
+		
+//		Toolbar toolbar = new Toolbar(attributesTable, Orientation.VERTICAL);
+//		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(attributesTable, toolbar);
+//		tableWithToolbar.setSizeFull();
+//		SingleActionHandler[] handlers = new SingleActionHandler[] {new AddAttributeActionHandler(), 
+//				new EditAttributeActionHandler(), new RemoveAttributeActionHandler(), new ResendConfirmationAttributeActionHandler()};
+//		for (SingleActionHandler handler: handlers)
+//			attributesTable.addActionHandler(handler);
+//		toolbar.addActionHandlers(handlers);
+		
+		effectiveAttrsFilter  = a -> a.isDirect();
+//		
+//		
+		internalAttrsFilter = a -> isInternal(a);
+
+		
+		
 		showEffective = new CheckBox(msg.getMessage("Attribute.showEffective"), true);
-		showEffective.setImmediate(true);
+		//showEffective.setImmediate(true);
 		showEffective.addStyleName(Styles.emphasized.toString());
-		showEffective.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				updateAttributesFilter(!showEffective.getValue(), effectiveAttrsFilter);
-			}
-		});
+//		showEffective.addValueChangeListener(new ValueChangeListener()
+//		{
+//			@Override
+//			public void valueChange(ValueChangeEvent event)
+//			{
+//				updateAttributesFilter(!showEffective.getValue(), effectiveAttrsFilter);
+//			}
+//		});
+//		
+		showEffective.addValueChangeListener(event -> updateAttributesFilter(!showEffective.getValue(), effectiveAttrsFilter));
+		
+		
+		
 		showInternal = new CheckBox(msg.getMessage("Attribute.showInternal"), false);
-		showInternal.setImmediate(true);
+	//	showInternal.setImmediate(true);
 		showInternal.addStyleName(Styles.immutableAttribute.toString());
-		showInternal.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				updateAttributesFilter(!showInternal.getValue(), internalAttrsFilter);
-			}
-		});
+//		showInternal.addValueChangeListener(new ValueChangeListener()
+//		{
+//			@Override
+//			public void valueChange(ValueChangeEvent event)
+//			{
+//				updateAttributesFilter(!showInternal.getValue(), internalAttrsFilter);
+//			}
+//		});
+		
+		showInternal.addValueChangeListener(event -> updateAttributesFilter(!showInternal.getValue(), internalAttrsFilter));
+		
 		Label required = new Label(msg.getMessage("Attribute.requiredBold"));
 		required.setStyleName(Styles.bold.toString());
 		filtersBar = new HorizontalLayout(showEffective, showInternal, required);
@@ -211,6 +260,43 @@ public class AttributesPanel extends HorizontalSplitPanel
 		updateAttributesFilter(!showInternal.getValue(), internalAttrsFilter);
 	}
 	
+	private boolean isInternal(AttributeExt attribute)
+	{
+		AttributeType attributeType = attributeTypes
+				.get(attribute.getName());
+		if (attributeType == null)
+		{
+			log.error("Attribute type is not in the map: "
+					+ attribute.getName());
+			return false;
+		}
+		return !attributeType.isInstanceImmutable();
+	}
+	
+//	private void updateFilters()
+//	{
+//		ListDataProvider<AttributeExt> dataProvider = attributesTable.getDataProvider();
+//		dataProvider.clearFilters();
+//		if (!showEffective.getValue())
+//		{
+//			dataProvider.addFilter(a -> a.isDirect());
+//		}
+//
+//		if (!showInternal.getValue())
+//		{
+//			dataProvider.addFilter(a -> {
+//				AttributeType attributeType = attributeTypes.get(a.getName());
+//				if (attributeType == null)
+//				{
+//					log.error("Attribute type is not in the map: "
+//							+ a.getName());
+//					return false;
+//				}
+//				return !attributeType.isInstanceImmutable();
+//			});
+//		}
+//	}
+
 	private void refreshAttributeTypes() throws EngineException
 	{
 		attributeTypes = aTypeManagement.getAttributeTypesAsMap();
@@ -251,14 +337,20 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private void updateAttributes() throws EngineException
 	{
 		refreshAttributeTypes();
-		attributesTable.removeAllItems();
+	//	attributesTable.removeAllItems();
 		attributeValues.removeValues();
 		if (attributes.size() == 0)
 			return;
-		for (AttributeExt attribute: attributes)
-			attributesTable.addItem(new AttributeItem(attribute));
+	//	for (AttributeExt attribute: attributes)
+	//		attributesTable.addItem(new AttributeItem(attribute));
+	//		attributesTable.addItem(attribute);
+		attributesTable.setInput(attributes);
+		attributesTable.deselectAll();
+		//	attributesTable.selectFirst();
+		
+	//	attributesTable.select(attributes.get(0));
 
-		attributesTable.select(attributes.get(0));
+		
 	}
 	
 	private void updateValues(AttributeExt attribute)
@@ -281,13 +373,38 @@ public class AttributesPanel extends HorizontalSplitPanel
 		}
 	}
 	
-	private void updateAttributesFilter(boolean add, Container.Filter filter)
+	private void updateAttributesFilter(boolean add, SerializablePredicate<AttributeExt> filter)
 	{
-		Container.Filterable filterable = (Filterable) attributesTable.getContainerDataSource();
-		if (!add)
-			filterable.removeContainerFilter(filter);
+//		Container.Filterable filterable = (Filterable) attributesTable.getContainerDataSource();
+//		if (!add)
+//			filterable.removeContainerFilter(filter);
+//		else
+//			filterable.addContainerFilter(filter);
+//		ListDataProvider<AttributeExt> provider =  (ListDataProvider<AttributeExt>) attributesTable.getDataProvider();;;
+//		ConfigurableFilterDataProvider<AttributeExt, Void, ?> withConfigurableFilter = 
+//				attributesTable.getDataProvider().withConfigurableFilter(
+
+				//		withConfigurableFilter.setFilter(a -> {
+//			AttributeType attributeType = attributeTypes.get(a.getName());
+//			if (attributeType == null)
+//			{
+//				log.error("Attribute type is not in the map: " + a.getName());
+//				return false;
+//			}
+//			return !attributeType.isInstanceImmutable();
+//		});
+		
+	//	withConfigurableFilter.
+	//	attributesTable.setDataProvider(withConfigurableFilter);
+		
+//		ConfigurableFilterDataProvider<AttributeExt, Void, ?> withConfigurableFilter = provider.withConfigurableFilter();
+//		withConfigurableFilter.
+		if (add)
+			attributesTable.addFilter(filter);
 		else
-			filterable.addContainerFilter(filter);
+			attributesTable.removeFilter(filter);
+		
+
 	}
 	
 	public class AttributeItem
@@ -674,43 +791,78 @@ public class AttributesPanel extends HorizontalSplitPanel
 	}
 	
 	
-	private static class EffectiveAttributesFilter implements Container.Filter
-	{
-		@Override
-		public boolean passesFilter(Object itemId, Item item)
-				throws UnsupportedOperationException
-		{
-			AttributeItem ai = (AttributeItem) itemId;
-			return ai.getAttribute().isDirect();
-		}
+	
+//	private static class EffectiveAttributesFilter implements SerializablePredicate<AttributeExt>
+//	{
+//		
+//		@Override
+//		public boolean test(AttributeExt t)
+//		{
+//			return t.isDirect();
+//		}
+//		
+//	}
+//	
+//	private static class Filter
+//	{
+//		private SerializablePredicate<AttributeExt> predicate;
+//		private boolean applied;
+//		
+//		public Filter(SerializablePredicate<AttributeExt> predicate, boolean applied)
+//		{
+//			this.predicate = predicate;
+//			this.applied = applied;
+//		}
+//
+//		public SerializablePredicate<AttributeExt> getPredicate()
+//		{
+//			return predicate;
+//		}
+//		
+//		public boolean isApplied()
+//		{
+//			return applied;
+//		}	
+//	}
+//	
+	
+//	private static class EffectiveAttributesFilter implements Container.Filter
+//	{
+//		@Override
+//		public boolean passesFilter(Object itemId, Item item)
+//				throws UnsupportedOperationException
+//		{
+//			AttributeItem ai = (AttributeItem) itemId;
+//			return ai.getAttribute().isDirect();
+//		}
+//
+//		@Override
+//		public boolean appliesToProperty(Object propertyId)
+//		{
+//			return true;
+//		}
+//	}
 
-		@Override
-		public boolean appliesToProperty(Object propertyId)
-		{
-			return true;
-		}
-	}
-
-	private class InternalAttributesFilter implements Container.Filter
-	{		
-		@Override
-		public boolean passesFilter(Object itemId, Item item)
-				throws UnsupportedOperationException
-		{
-			AttributeItem ai = (AttributeItem) itemId;
-			AttributeType attributeType = attributeTypes.get(ai.getAttribute().getName());
-			if (attributeType == null)
-			{
-				log.error("Attribute type is not in the map: " + ai.getAttribute().getName());
-				return false;
-			}
-			return !attributeType.isInstanceImmutable();
-		}
-
-		@Override
-		public boolean appliesToProperty(Object propertyId)
-		{
-			return true;
-		}
-	}
+//	private class InternalAttributesFilter implements Container.Filter
+//	{		
+//		@Override
+//		public boolean passesFilter(Object itemId, Item item)
+//				throws UnsupportedOperationException
+//		{
+//			AttributeItem ai = (AttributeItem) itemId;
+//			AttributeType attributeType = attributeTypes.get(ai.getAttribute().getName());
+//			if (attributeType == null)
+//			{
+//				log.error("Attribute type is not in the map: " + ai.getAttribute().getName());
+//				return false;
+//			}
+//			return !attributeType.isInstanceImmutable();
+//		}
+//
+//		@Override
+//		public boolean appliesToProperty(Object propertyId)
+//		{
+//			return true;
+//		}
+//	}
 }
